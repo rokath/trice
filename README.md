@@ -16,7 +16,8 @@ _Hi, I am Trice._
 
 **Trice** is a compact ID-based logging framework for embedded C/C++.
 Firmware code uses `printf`-like calls, but the target sends only small binary records: an ID plus optional runtime values.
-The PC-side `trice` tool reconstructs the readable text using `til.json`.
+The PC-side `trice` tool reconstructs the readable text using the project-specific `til.json` which is intentionally cumulative: old IDs and format strings remain available so logs from older firmware can still be decoded.
+
 
 Use Trice when normal `printf` logging is too slow, too large, too intrusive in interrupt contexts, or too inefficient for field diagnostics.
 
@@ -269,7 +270,7 @@ Best strategy:
 
 > Use Trice aliases so project-specific log macros are processed by `trice insert` without renaming every call site.
 
-See [Legacy User Code Option Trice Aliases Adaption](./docs/TriceUserManual.md#legacy-user-code-option-trice-aliases-adaption).
+See [Legacy User Code Option Trice Aliases Adaptation](./docs/TriceUserManual.md#legacy-user-code-option-trice-aliases-adaptation).
 
 Alternatively:
 

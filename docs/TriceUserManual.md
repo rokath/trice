@@ -467,7 +467,7 @@ details.toc[open] .toc-hide {
     * [46.2.4. GitHub Action codeql.yml - Static Code Analysis](#github-action-codeqlyml---static-code-analysis)
     * [46.2.5. GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverageyml---test-coverage-and-coveralls-integration)
     * [46.2.6. GitHub Action go.yml - Building and Testing Go Code](#github-action-goyml---building-and-testing-go-code)
-    * [46.2.7. GitHub Action goreleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaseryml---build--pack-trice-distribution)
+    * [46.2.7. GitHub Action GoReleaser.yml - Build & Pack Trice Distribution](#github-action-goreleaseryml---build--pack-trice-distribution)
     * [46.2.8. GitHub Action label.yml - Automatic Labeling Rules](#github-action-labelyml---automatic-labeling-rules)
     * [46.2.9. GitHub Action link-check.yml - Broken Links Check](#github-action-link-checkyml---broken-links-check)
     * [46.2.10. GitHub Action manual.ym - To Be Triggered Manually](#github-action-manualym---to-be-triggered-manually)
@@ -481,7 +481,7 @@ details.toc[open] .toc-hide {
 * [47. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
   * [47.1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
   * [47.2. Prepare A Release](#prepare-a-release)
-    * [47.2.1. Check a Goreleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
+    * [47.2.1. Check a GoReleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
   * [47.3. Trigger a real Trice release via CI (with git tag)](#trigger-a-real-trice-release-via-ci-with-git-tag)
     * [47.3.1. Make sure your workflow reacts to tags](#make-sure-your-workflow-reacts-to-tags)
     * [47.3.2. Final checks before tagging](#final-checks-before-tagging)
@@ -867,7 +867,7 @@ When it comes to instrument legacy project with Trice or to integrate legacy pro
 1. Use for user specific log statements a different output channel. No special care has to be taken. This is maybe acceptable in some cases.
 2. Replace user specific log statements with Trice statements using a text processor and adapt the float, double or runtime strings handling manually. This is acceptable for small code amounts and when it is no problem to edit the legacy sources.
 3. Get the legacy output packages before transmitting them, add a 2-byte count in little-endian (0-16383) in front and frame them the same way the trice packages get framed (for example with COBS). This will set the 2 most significant bits to 00 and the Trice tool, can get informed via CLI switch to treat those packages accordingly. The user code containing specific logs will work unchanged together with Trice code over the same output channel.
-4. Take advantage of the new support for dynamic trice and triceS macro aliases ([Legacy User Code Option: Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaption)).
+4. Take advantage of the new support for dynamic trice and triceS macro aliases ([Legacy User Code Option Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaptation)).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -1056,9 +1056,9 @@ The chapter [Example Projects without and with Trice Instrumentation](#example-p
 The easiest and mostly sufficient way to use Trice on the target side is the Trice macro
 
 ```C
-trice("Hello world!"); // without     time stamp
-Trice("Hello world!"); // with 16-bit time stamp
-TRice("Hello world!"); // with 32-bit time stamp
+trice("Hello world!"); // without     timestamp
+Trice("Hello world!"); // with 16-bit timestamp
+TRice("Hello world!"); // with 32-bit timestamp
 ```
 
 which you can mostly use as a `printf` replacement in legacy code. See [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details. Is uses the `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` value (usually 32), which is equal for all values.
@@ -3760,7 +3760,7 @@ void SomeExampleTrices(int burstCount) {
    2:	af03      	add	r7, sp, #12
    4:	e92d 0700 	stmdb	sp!, {r8, r9, sl}
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:15
-	TRICE(ID(0), "att:🐁 Speedy Gonzales A  32-bit time stamp\n");
+	TRICE(ID(0), "att:🐁 Speedy Gonzales A  32-bit timestamp\n");
    8:	f240 0100 	movw	r1, #0
    c:	f2c0 0100 	movt	r1, #0
   10:	680d      	ldr	r5, [r1, #0]
@@ -3778,7 +3778,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples
   30:	8003      	strh	r3, [r0, #0]
   32:	80c1      	strh	r1, [r0, #6]
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:16
-	TRICE(ID(0), "att:🐁 Speedy Gonzales B  32-bit time stamp\n");
+	TRICE(ID(0), "att:🐁 Speedy Gonzales B  32-bit timestamp\n");
   34:	682b      	ldr	r3, [r5, #0]
   36:	1c96      	adds	r6, r2, #2
   38:	8143      	strh	r3, [r0, #10]
@@ -3787,7 +3787,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples
   3e:	8183      	strh	r3, [r0, #12]
   40:	81c1      	strh	r1, [r0, #14]
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:17
-	TRICE(ID(0), "att:🐁 Speedy Gonzales C  32-bit time stamp\n");
+	TRICE(ID(0), "att:🐁 Speedy Gonzales C  32-bit timestamp\n");
   42:	682b      	ldr	r3, [r5, #0]
   44:	1c56      	adds	r6, r2, #1
   46:	8243      	strh	r3, [r0, #18]
@@ -3796,7 +3796,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples
   4c:	8283      	strh	r3, [r0, #20]
   4e:	82c1      	strh	r1, [r0, #22]
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:18
-	TRICE(ID(0), "att:🐁 Speedy Gonzales D  32-bit time stamp\n");
+	TRICE(ID(0), "att:🐁 Speedy Gonzales D  32-bit timestamp\n");
   50:	682b      	ldr	r3, [r5, #0]
   52:	8302      	strh	r2, [r0, #24]
   54:	0c1a      	lsrs	r2, r3, #16
@@ -3805,7 +3805,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples
   5a:	83c1      	strh	r1, [r0, #30]
   5c:	f64b 7ad4 	movw	sl, #49108	@ 0xbfd4
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:19
-	TRICE(Id(0), "att:🐁 Speedy Gonzales E  16-bit time stamp\n");
+	TRICE(Id(0), "att:🐁 Speedy Gonzales E  16-bit timestamp\n");
   60:	682a      	ldr	r2, [r5, #0]
   62:	f6cb 7ad4 	movt	sl, #49108	@ 0xbfd4
   66:	f10a 1318 	add.w	r3, sl, #1572888	@ 0x180018
@@ -3813,52 +3813,52 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples
   6c:	8482      	strh	r2, [r0, #36]	@ 0x24
   6e:	84c1      	strh	r1, [r0, #38]	@ 0x26
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:20
-	TRICE(Id(0), "att:🐁 Speedy Gonzales F  16-bit time stamp\n");
+	TRICE(Id(0), "att:🐁 Speedy Gonzales F  16-bit timestamp\n");
   70:	682a      	ldr	r2, [r5, #0]
   72:	f10a 1317 	add.w	r3, sl, #1507351	@ 0x170017
   76:	6283      	str	r3, [r0, #40]	@ 0x28
   78:	8582      	strh	r2, [r0, #44]	@ 0x2c
   7a:	85c1      	strh	r1, [r0, #46]	@ 0x2e
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:21
-	TRICE(Id(0), "att:🐁 Speedy Gonzales G  16-bit time stamp\n");
+	TRICE(Id(0), "att:🐁 Speedy Gonzales G  16-bit timestamp\n");
   7c:	682a      	ldr	r2, [r5, #0]
   7e:	f10a 1316 	add.w	r3, sl, #1441814	@ 0x160016
   82:	6303      	str	r3, [r0, #48]	@ 0x30
   84:	8682      	strh	r2, [r0, #52]	@ 0x34
   86:	86c1      	strh	r1, [r0, #54]	@ 0x36
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:22
-	TRICE(Id(0), "att:🐁 Speedy Gonzales H  16-bit time stamp\n");
+	TRICE(Id(0), "att:🐁 Speedy Gonzales H  16-bit timestamp\n");
   88:	682a      	ldr	r2, [r5, #0]
   8a:	f10a 1315 	add.w	r3, sl, #1376277	@ 0x150015
   8e:	8782      	strh	r2, [r0, #60]	@ 0x3c
   90:	f647 72e8 	movw	r2, #32744	@ 0x7fe8
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:23
-	TRICE(id(0), "att:🐁 Speedy Gonzales I without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales I without timestamp\n");
   94:	f8a0 2040 	strh.w	r2, [r0, #64]	@ 0x40
   98:	f647 72e7 	movw	r2, #32743	@ 0x7fe7
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:24
-	TRICE(id(0), "att:🐁 Speedy Gonzales J without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales J without timestamp\n");
   9c:	f8a0 2044 	strh.w	r2, [r0, #68]	@ 0x44
   a0:	f647 72e6 	movw	r2, #32742	@ 0x7fe6
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:25
-	TRICE(id(0), "att:🐁 Speedy Gonzales K without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales K without timestamp\n");
   a4:	f8a0 2048 	strh.w	r2, [r0, #72]	@ 0x48
   a8:	f647 72e5 	movw	r2, #32741	@ 0x7fe5
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:22
-	TRICE(Id(0), "att:🐁 Speedy Gonzales H  16-bit time stamp\n");
+	TRICE(Id(0), "att:🐁 Speedy Gonzales H  16-bit timestamp\n");
   ac:	6383      	str	r3, [r0, #56]	@ 0x38
   ae:	87c1      	strh	r1, [r0, #62]	@ 0x3e
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:23
-	TRICE(id(0), "att:🐁 Speedy Gonzales I without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales I without timestamp\n");
   b0:	f8a0 1042 	strh.w	r1, [r0, #66]	@ 0x42
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:24
-	TRICE(id(0), "att:🐁 Speedy Gonzales J without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales J without timestamp\n");
   b4:	f8a0 1046 	strh.w	r1, [r0, #70]	@ 0x46
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:25
-	TRICE(id(0), "att:🐁 Speedy Gonzales K without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales K without timestamp\n");
   b8:	f8a0 104a 	strh.w	r1, [r0, #74]	@ 0x4a
 C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../exampleData/triceExamples.c:26
-	TRICE(id(0), "att:🐁 Speedy Gonzales L without time stamp\n");
+	TRICE(id(0), "att:🐁 Speedy Gonzales L without timestamp\n");
   bc:	f8a0 204c 	strh.w	r2, [r0, #76]	@ 0x4c
   c0:	f8a0 104e 	strh.w	r1, [r0, #78]	@ 0x4e
 TRice0():
@@ -3905,8 +3905,8 @@ As you can see in the highlighted blue timestamp bar, typical 8-10 clocks are ne
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 ```
 
-* The 16-bit time stamp counts the microseconds within 1 millisecond.
-* The 32-bit time stamp counts the milliseconds.
+* The 16-bit timestamp counts the microseconds within 1 millisecond.
+* The 32-bit timestamp counts the milliseconds.
 * The ring buffer uses the RAM more effectively for the price of a bit speed.
 * The encryption and framing has no influence on the Trice execution speed becuse this is done in the background.
 * The critical section protects Trices in different tasks from each-other interruption and allows Trices inside interrupts parallel to normal usage.
@@ -3980,14 +3980,14 @@ com5:       triceExamples.c    61              TRICE_DIRECT_OUTPUT == 0, TRICE_D
 com5:       triceExamples.c    67              TRICE_DOUBLE_BUFFER, TRICE_MULTI_PACK_MODE
 com5:       triceExamples.c    76              _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 0
 com5:       triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=1024
-com5:       triceExamples.c    29    0,031_804 🐁 Speedy Gonzales a  32-bit time stamp
-com5:       triceExamples.c    30    0,031_646 🐁 Speedy Gonzales b  32-bit time stamp
-com5:       triceExamples.c    31    0,031_488 🐁 Speedy Gonzales c  32-bit time stamp
-com5:       triceExamples.c    32    0,031_330 🐁 Speedy Gonzales d  32-bit time stamp
-com5:       triceExamples.c    33      # 31172 🐁 Speedy Gonzales e  16-bit time stamp
-com5:       triceExamples.c    34      # 31012 🐁 Speedy Gonzales f  16-bit time stamp
-com5:       triceExamples.c    35      # 30852 🐁 Speedy Gonzales g  16-bit time stamp
-com5:       triceExamples.c    36      # 30692 🐁 Speedy Gonzales h  16-bit time stamp
+com5:       triceExamples.c    29    0,031_804 🐁 Speedy Gonzales a  32-bit timestamp
+com5:       triceExamples.c    30    0,031_646 🐁 Speedy Gonzales b  32-bit timestamp
+com5:       triceExamples.c    31    0,031_488 🐁 Speedy Gonzales c  32-bit timestamp
+com5:       triceExamples.c    32    0,031_330 🐁 Speedy Gonzales d  32-bit timestamp
+com5:       triceExamples.c    33      # 31172 🐁 Speedy Gonzales e  16-bit timestamp
+com5:       triceExamples.c    34      # 31012 🐁 Speedy Gonzales f  16-bit timestamp
+com5:       triceExamples.c    35      # 30852 🐁 Speedy Gonzales g  16-bit timestamp
+com5:       triceExamples.c    36      # 30692 🐁 Speedy Gonzales h  16-bit timestamp
 com5:       triceExamples.c    42      # 30224 2.71828182845904523536 <- float number as string
 com5:       triceExamples.c    43      # 29517 2.71828182845904509080 (double with more ciphers than precision)
 com5:       triceExamples.c    44      # 29322 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4002,14 +4002,14 @@ com5:       triceExamples.c    52      # 26342 i=44444401 aaaaaa01
 com5:       triceExamples.c    52      # 26130 i=44444402 aaaaaa02
 com5:       triceExamples.c    52      # 25918 i=44444403 aaaaaa03
 com5:       triceExamples.c    52      # 25706 i=44444404 aaaaaa04
-com5:       triceExamples.c    29    0,031_790 🐁 Speedy Gonzales a  32-bit time stamp
-com5:       triceExamples.c    30    0,031_632 🐁 Speedy Gonzales b  32-bit time stamp
-com5:       triceExamples.c    31    0,031_474 🐁 Speedy Gonzales c  32-bit time stamp
-com5:       triceExamples.c    32    0,031_316 🐁 Speedy Gonzales d  32-bit time stamp
-com5:       triceExamples.c    33      # 31158 🐁 Speedy Gonzales e  16-bit time stamp
-com5:       triceExamples.c    34      # 30998 🐁 Speedy Gonzales f  16-bit time stamp
-com5:       triceExamples.c    35      # 30838 🐁 Speedy Gonzales g  16-bit time stamp
-com5:       triceExamples.c    36      # 30678 🐁 Speedy Gonzales h  16-bit time stamp
+com5:       triceExamples.c    29    0,031_790 🐁 Speedy Gonzales a  32-bit timestamp
+com5:       triceExamples.c    30    0,031_632 🐁 Speedy Gonzales b  32-bit timestamp
+com5:       triceExamples.c    31    0,031_474 🐁 Speedy Gonzales c  32-bit timestamp
+com5:       triceExamples.c    32    0,031_316 🐁 Speedy Gonzales d  32-bit timestamp
+com5:       triceExamples.c    33      # 31158 🐁 Speedy Gonzales e  16-bit timestamp
+com5:       triceExamples.c    34      # 30998 🐁 Speedy Gonzales f  16-bit timestamp
+com5:       triceExamples.c    35      # 30838 🐁 Speedy Gonzales g  16-bit timestamp
+com5:       triceExamples.c    36      # 30678 🐁 Speedy Gonzales h  16-bit timestamp
 com5:       triceExamples.c    42      # 30210 2.71828182845904523536 <- float number as string
 com5:       triceExamples.c    43      # 29503 2.71828182845904509080 (double with more ciphers than precision)
 com5:       triceExamples.c    44      # 29308 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4026,8 +4026,8 @@ com5:       triceExamples.c    52      # 25904 i=44444403 aaaaaa03
 com5:       triceExamples.c    52      # 25692 i=44444404 aaaaaa04
 com5:    triceLogDiagData.c    44              triceSingleDepthMax = 108 of 172 (TRICE_BUFFER_SIZE)
 com5:    triceLogDiagData.c    67              TriceHalfBufferDepthMax = 388 of  512
-com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit time stamp
-com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit time stamp
+com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit timestamp
+com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
 ### 28.4. <a id="f030inst-with-ring-buffer-1"></a>F030_inst with ring buffer
@@ -4055,14 +4055,14 @@ com5:       triceExamples.c    61              TRICE_DIRECT_OUTPUT == 0, TRICE_D
 com5:       triceExamples.c    69              TRICE_RING_BUFFER, TRICE_MULTI_PACK_MODE
 com5:       triceExamples.c    76              _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 0
 com5:       triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=1024
-com5:       triceExamples.c    29    0,031_732 🐁 Speedy Gonzales a  32-bit time stamp
-com5:       triceExamples.c    30    0,031_531 🐁 Speedy Gonzales b  32-bit time stamp
-com5:       triceExamples.c    31    0,031_330 🐁 Speedy Gonzales c  32-bit time stamp
-com5:       triceExamples.c    32    0,031_129 🐁 Speedy Gonzales d  32-bit time stamp
-com5:       triceExamples.c    33      # 30928 🐁 Speedy Gonzales e  16-bit time stamp
-com5:       triceExamples.c    34      # 30725 🐁 Speedy Gonzales f  16-bit time stamp
-com5:       triceExamples.c    35      # 30522 🐁 Speedy Gonzales g  16-bit time stamp
-com5:       triceExamples.c    36      # 30319 🐁 Speedy Gonzales h  16-bit time stamp
+com5:       triceExamples.c    29    0,031_732 🐁 Speedy Gonzales a  32-bit timestamp
+com5:       triceExamples.c    30    0,031_531 🐁 Speedy Gonzales b  32-bit timestamp
+com5:       triceExamples.c    31    0,031_330 🐁 Speedy Gonzales c  32-bit timestamp
+com5:       triceExamples.c    32    0,031_129 🐁 Speedy Gonzales d  32-bit timestamp
+com5:       triceExamples.c    33      # 30928 🐁 Speedy Gonzales e  16-bit timestamp
+com5:       triceExamples.c    34      # 30725 🐁 Speedy Gonzales f  16-bit timestamp
+com5:       triceExamples.c    35      # 30522 🐁 Speedy Gonzales g  16-bit timestamp
+com5:       triceExamples.c    36      # 30319 🐁 Speedy Gonzales h  16-bit timestamp
 com5:       triceExamples.c    42      # 29808 2.71828182845904523536 <- float number as string
 com5:       triceExamples.c    43      # 29058 2.71828182845904509080 (double with more ciphers than precision)
 com5:       triceExamples.c    44      # 28821 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4077,14 +4077,14 @@ com5:       triceExamples.c    52      # 25502 i=44444401 aaaaaa01
 com5:       triceExamples.c    52      # 25247 i=44444402 aaaaaa02
 com5:       triceExamples.c    52      # 24992 i=44444403 aaaaaa03
 com5:       triceExamples.c    52      # 24737 i=44444404 aaaaaa04
-com5:       triceExamples.c    29    0,031_746 🐁 Speedy Gonzales a  32-bit time stamp
-com5:       triceExamples.c    30    0,031_545 🐁 Speedy Gonzales b  32-bit time stamp
-com5:       triceExamples.c    31    0,031_344 🐁 Speedy Gonzales c  32-bit time stamp
-com5:       triceExamples.c    32    0,031_143 🐁 Speedy Gonzales d  32-bit time stamp
-com5:       triceExamples.c    33      # 30942 🐁 Speedy Gonzales e  16-bit time stamp
-com5:       triceExamples.c    34      # 30739 🐁 Speedy Gonzales f  16-bit time stamp
-com5:       triceExamples.c    35      # 30536 🐁 Speedy Gonzales g  16-bit time stamp
-com5:       triceExamples.c    36      # 30333 🐁 Speedy Gonzales h  16-bit time stamp
+com5:       triceExamples.c    29    0,031_746 🐁 Speedy Gonzales a  32-bit timestamp
+com5:       triceExamples.c    30    0,031_545 🐁 Speedy Gonzales b  32-bit timestamp
+com5:       triceExamples.c    31    0,031_344 🐁 Speedy Gonzales c  32-bit timestamp
+com5:       triceExamples.c    32    0,031_143 🐁 Speedy Gonzales d  32-bit timestamp
+com5:       triceExamples.c    33      # 30942 🐁 Speedy Gonzales e  16-bit timestamp
+com5:       triceExamples.c    34      # 30739 🐁 Speedy Gonzales f  16-bit timestamp
+com5:       triceExamples.c    35      # 30536 🐁 Speedy Gonzales g  16-bit timestamp
+com5:       triceExamples.c    36      # 30333 🐁 Speedy Gonzales h  16-bit timestamp
 com5:       triceExamples.c    42      # 29822 2.71828182845904523536 <- float number as string
 com5:       triceExamples.c    43      # 29072 2.71828182845904509080 (double with more ciphers than precision)
 com5:       triceExamples.c    44      # 28835 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4101,8 +4101,8 @@ com5:       triceExamples.c    52      # 25006 i=44444403 aaaaaa03
 com5:       triceExamples.c    52      # 24751 i=44444404 aaaaaa04
 com5:    triceLogDiagData.c    44              triceSingleDepthMax = 108 of 172 (TRICE_BUFFER_SIZE)
 com5:    triceLogDiagData.c    75              triceRingBufferDepthMax = 324 of 1024
-com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit time stamp
-com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit time stamp
+com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit timestamp
+com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
 ### 28.5. <a id="a-developer-setting-only-enabling-seggerrtt"></a>A developer setting, only enabling SEGGER_RTT
@@ -4131,14 +4131,14 @@ Dec  6 16:14:38.276356  jlink:       triceExamples.c    61              16334 TR
 Dec  6 16:14:38.276356  jlink:       triceExamples.c    63              16333 TRICE_STACK_BUFFER, TRICE_MULTI_PACK_MODE
 Dec  6 16:14:38.276920  jlink:       triceExamples.c    76              16327 _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 0
 Dec  6 16:14:38.277424  jlink:       triceExamples.c    77              16326 _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=1024
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    29    0,031_848 16356 🐁 Speedy Gonzales a  32-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    30    0,031_292 16355 🐁 Speedy Gonzales b  32-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    31    0,030_736 16354 🐁 Speedy Gonzales c  32-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    32    0,030_180 16353 🐁 Speedy Gonzales d  32-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    33       29_624 16352 🐁 Speedy Gonzales e  16-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    34       29_066 16351 🐁 Speedy Gonzales f  16-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    35       28_508 16350 🐁 Speedy Gonzales g  16-bit time stamp
-Dec  6 16:14:39.181228  jlink:       triceExamples.c    36       27_950 16349 🐁 Speedy Gonzales h  16-bit time stamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    29    0,031_848 16356 🐁 Speedy Gonzales a  32-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    30    0,031_292 16355 🐁 Speedy Gonzales b  32-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    31    0,030_736 16354 🐁 Speedy Gonzales c  32-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    32    0,030_180 16353 🐁 Speedy Gonzales d  32-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    33       29_624 16352 🐁 Speedy Gonzales e  16-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    34       29_066 16351 🐁 Speedy Gonzales f  16-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    35       28_508 16350 🐁 Speedy Gonzales g  16-bit timestamp
+Dec  6 16:14:39.181228  jlink:       triceExamples.c    36       27_950 16349 🐁 Speedy Gonzales h  16-bit timestamp
 Dec  6 16:14:39.181228  jlink:       triceExamples.c    42       27_086 16344 2.71828182845904523536 <- float number as string
 Dec  6 16:14:39.181228  jlink:       triceExamples.c    43       25_906 16343 2.71828182845904509080 (double with more ciphers than precision)
 Dec  6 16:14:39.181798  jlink:       triceExamples.c    44       25_305 16342 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4153,14 +4153,14 @@ Dec  6 16:14:39.182303  jlink:       triceExamples.c    52       18_941 16335 i=
 Dec  6 16:14:39.182303  jlink:       triceExamples.c    52       18_327 16335 i=44444402 aaaaaa02
 Dec  6 16:14:39.182834  jlink:       triceExamples.c    52       17_713 16335 i=44444403 aaaaaa03
 Dec  6 16:14:39.182834  jlink:       triceExamples.c    52       17_099 16335 i=44444404 aaaaaa04
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    29    0,031_855 16356 🐁 Speedy Gonzales a  32-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    30    0,031_299 16355 🐁 Speedy Gonzales b  32-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    31    0,030_743 16354 🐁 Speedy Gonzales c  32-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    32    0,030_187 16353 🐁 Speedy Gonzales d  32-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    33       29_631 16352 🐁 Speedy Gonzales e  16-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    34       29_073 16351 🐁 Speedy Gonzales f  16-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    35       28_515 16350 🐁 Speedy Gonzales g  16-bit time stamp
-Dec  6 16:14:40.187121  jlink:       triceExamples.c    36       27_957 16349 🐁 Speedy Gonzales h  16-bit time stamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    29    0,031_855 16356 🐁 Speedy Gonzales a  32-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    30    0,031_299 16355 🐁 Speedy Gonzales b  32-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    31    0,030_743 16354 🐁 Speedy Gonzales c  32-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    32    0,030_187 16353 🐁 Speedy Gonzales d  32-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    33       29_631 16352 🐁 Speedy Gonzales e  16-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    34       29_073 16351 🐁 Speedy Gonzales f  16-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    35       28_515 16350 🐁 Speedy Gonzales g  16-bit timestamp
+Dec  6 16:14:40.187121  jlink:       triceExamples.c    36       27_957 16349 🐁 Speedy Gonzales h  16-bit timestamp
 Dec  6 16:14:40.187121  jlink:       triceExamples.c    42       27_093 16344 2.71828182845904523536 <- float number as string
 Dec  6 16:14:40.187121  jlink:       triceExamples.c    43       25_913 16343 2.71828182845904509080 (double with more ciphers than precision)
 Dec  6 16:14:40.187121  jlink:       triceExamples.c    44       25_310 16342 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4177,8 +4177,8 @@ Dec  6 16:14:40.188195  jlink:       triceExamples.c    52       17_698 16335 i=
 Dec  6 16:14:40.188195  jlink:       triceExamples.c    52       17_082 16335 i=44444404 aaaaaa04
 Dec  6 16:14:41.191648  jlink:    triceLogDiagData.c    21              16382 RTT0_writeDepthMax=325 (BUFFER_SIZE_UP=1024)
 Dec  6 16:14:41.191648  jlink:    triceLogDiagData.c    44              16378 triceSingleDepthMax = 108 of 172 (TRICE_BUFFER_SIZE)
-Dec  6 16:14:41.191648  jlink:       triceExamples.c    29    0,030_628 16356 🐁 Speedy Gonzales a  32-bit time stamp
-Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 🐁 Speedy Gonzales b  32-bit time stamp
+Dec  6 16:14:41.191648  jlink:       triceExamples.c    29    0,030_628 16356 🐁 Speedy Gonzales a  32-bit timestamp
+Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
@@ -4209,14 +4209,14 @@ Dec  6 16:20:10.545274  jlink:       triceExamples.c    61              16334 TR
 Dec  6 16:20:10.545274  jlink:       triceExamples.c    63              16333 TRICE_STACK_BUFFER, TRICE_MULTI_PACK_MODE
 Dec  6 16:20:10.545890  jlink:       triceExamples.c    76              16327 _CYCLE == 1, _PROTECT == 0, _DIAG == 0, XTEA == 0
 Dec  6 16:20:10.546396  jlink:       triceExamples.c    77              16326 _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=1024
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    29    0,031_859 16356 🐁 Speedy Gonzales a  32-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    30    0,031_661 16355 🐁 Speedy Gonzales b  32-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    31    0,031_463 16354 🐁 Speedy Gonzales c  32-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    32    0,031_265 16353 🐁 Speedy Gonzales d  32-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    33       31_067 16352 🐁 Speedy Gonzales e  16-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    34       30_867 16351 🐁 Speedy Gonzales f  16-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    35       30_667 16350 🐁 Speedy Gonzales g  16-bit time stamp
-Dec  6 16:20:11.448885  jlink:       triceExamples.c    36       30_467 16349 🐁 Speedy Gonzales h  16-bit time stamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    29    0,031_859 16356 🐁 Speedy Gonzales a  32-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    30    0,031_661 16355 🐁 Speedy Gonzales b  32-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    31    0,031_463 16354 🐁 Speedy Gonzales c  32-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    32    0,031_265 16353 🐁 Speedy Gonzales d  32-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    33       31_067 16352 🐁 Speedy Gonzales e  16-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    34       30_867 16351 🐁 Speedy Gonzales f  16-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    35       30_667 16350 🐁 Speedy Gonzales g  16-bit timestamp
+Dec  6 16:20:11.448885  jlink:       triceExamples.c    36       30_467 16349 🐁 Speedy Gonzales h  16-bit timestamp
 Dec  6 16:20:11.549660  jlink:       triceExamples.c    42       29_961 16344 2.71828182845904523536 <- float number as string
 Dec  6 16:20:11.549660  jlink:       triceExamples.c    43       29_141 16343 2.71828182845904509080 (double with more ciphers than precision)
 Dec  6 16:20:11.549660  jlink:       triceExamples.c    44       28_897 16342 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4231,8 +4231,8 @@ Dec  6 16:20:11.550754  jlink:       triceExamples.c    52       25_389 16335 i=
 Dec  6 16:20:11.550754  jlink:       triceExamples.c    52       25_132 16335 i=44444402 aaaaaa02
 Dec  6 16:20:11.551285  jlink:       triceExamples.c    52       24_875 16335 i=44444403 aaaaaa03
 Dec  6 16:20:11.551285  jlink:       triceExamples.c    52       24_618 16335 i=44444404 aaaaaa04
-Dec  6 16:20:12.453968  jlink:       triceExamples.c    29    0,031_859 16356 🐁 Speedy Gonzales a  32-bit time stamp
-Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 🐁 Speedy Gonzales b  32-bit time stamp
+Dec  6 16:20:12.453968  jlink:       triceExamples.c    29    0,031_859 16356 🐁 Speedy Gonzales a  32-bit timestamp
+Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
 "🐁 Speedy Gonzales" direct outout needs about 200 MCU clocks and not 500 as before.
@@ -4593,14 +4593,14 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
             triceExamples.c    69              TRICE_RING_BUFFER, TRICE_MULTI_PACK_MODE
             triceExamples.c    76              _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 1
             triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=2000
-            triceExamples.c    29  0:00:00,003 🐁 Speedy Gonzales a  32-bit time stamp
-            triceExamples.c    30  0:00:00,003 🐁 Speedy Gonzales b  32-bit time stamp
-            triceExamples.c    31  0:00:00,003 🐁 Speedy Gonzales c  32-bit time stamp
-            triceExamples.c    32  0:00:00,003 🐁 Speedy Gonzales d  32-bit time stamp
-            triceExamples.c    33        0,310 🐁 Speedy Gonzales e  16-bit time stamp
-            triceExamples.c    34        0,328 🐁 Speedy Gonzales f  16-bit time stamp
-            triceExamples.c    35        0,347 🐁 Speedy Gonzales g  16-bit time stamp
-            triceExamples.c    36        0,365 🐁 Speedy Gonzales h  16-bit time stamp
+            triceExamples.c    29  0:00:00,003 🐁 Speedy Gonzales a  32-bit timestamp
+            triceExamples.c    30  0:00:00,003 🐁 Speedy Gonzales b  32-bit timestamp
+            triceExamples.c    31  0:00:00,003 🐁 Speedy Gonzales c  32-bit timestamp
+            triceExamples.c    32  0:00:00,003 🐁 Speedy Gonzales d  32-bit timestamp
+            triceExamples.c    33        0,310 🐁 Speedy Gonzales e  16-bit timestamp
+            triceExamples.c    34        0,328 🐁 Speedy Gonzales f  16-bit timestamp
+            triceExamples.c    35        0,347 🐁 Speedy Gonzales g  16-bit timestamp
+            triceExamples.c    36        0,365 🐁 Speedy Gonzales h  16-bit timestamp
             triceExamples.c    42        0,394 2.71828182845904523536 <- float number as string
             triceExamples.c    43        0,436 2.71828182845904509080 (double with more ciphers than precision)
             triceExamples.c    44        0,458 2.71828174591064453125 (float  with more ciphers than precision)
@@ -4651,7 +4651,7 @@ tmux kill-session -t "tricerttlog"
         triceExamples.c    69              TRICE_RING_BUFFER, TRICE_MULTI_PACK_MODE
         triceExamples.c    76              _CYCLE == 1, _PROTECT == 1, _DIAG == 1, XTEA == 1
         triceExamples.c    77              _SINGLE_MAX_SIZE=104, _BUFFER_SIZE=172, _DEFERRED_BUFFER_SIZE=2000
-        triceExamples.c    29  0:00:00,002 🐁 Speedy Gonzales a  32-bit time stamp
+        triceExamples.c    29  0:00:00,002 🐁 Speedy Gonzales a  32-bit timestamp
     ```
 
 * **Hint:** If you use *RTTLogTmux.sh* with Darwin (macOS), the "control-C" key combination seems not to work immediately. That is simply because the keyboard focus switches away after script start. Simply click into the terminal window again and then use "control-C" to terminate the Trice logging.
@@ -5326,7 +5326,7 @@ The `triceF` macros were an experimental remote-function-call syntax. They are d
 > trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 > ```
 > 
-> The Trice tool displays the parameter buffer in the shown manner. There is a [Generating an RPC Function Pointer List (deprecated)](#generating-a-rpc-function-pointer-list-depreciated), which generates mainly a function pointer list with associated IDs. This list can get part of the > source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
+> The Trice tool displays the parameter buffer in the shown manner. There is a [Generating an RPC Function Pointer List (deprecated)](#generating-a-rpc-function-pointer-list-deprecated), which generates mainly a function pointer list with associated IDs. This list can get part of the > source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
 > 
 > With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file the user can specify which should be the bitwidth (16 in this example) for `triceF` macros. The default value is 8.
 > 
@@ -5346,7 +5346,7 @@ The `triceF` macros were an experimental remote-function-call syntax. They are d
 * The Trice macros are used in **C** code.
 * The format strings are interpreted by the Trice tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
-* Therefore, a **T**rice adaption is internally performed.
+* Therefore, a **T**rice adaptation is internally performed.
 
 #### 35.9.2. <a id="length-modifier-support"></a>Length modifier support
 
@@ -6079,7 +6079,7 @@ Using Trice ABC for the same (remote) handler from different devices assigns dif
 ### 37.1. <a id="common-information-1"></a>Common Information
 
 - All used tools are **Open Source** (despite the [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/), for new projects VS Code is a better choice).
-- All provided information is just as example and needs adaption to your needs.
+- All provided information is just as example and needs adaptation to your needs.
 - There is no need to setup the environment in the given order.
 
 ### 37.2. <a id="important-to-know"></a>Important to know
@@ -7622,7 +7622,7 @@ Test folders starting with `ERROR_` have issues. These cases are **usable** on t
 This is an exampe using STM's [STM32F411 Nucleo](https://www.st.com/en/evaluation-tools/nucleo-f411re.html) board.
 
 ```diff
---> This code uses a legacy Trice version and needs adaption!
+--> This code uses a legacy Trice version and needs adaptation!
 ```
 
 #### 42.1.1. <a id="prerequisites"></a>Prerequisites
@@ -8134,16 +8134,16 @@ If you encounter a compilation error on `trice( "hi");` for example, but not on 
 
 When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other:
 
-* [Legacy User Code Option: Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
-* [Legacy User Code Option: Trice Adaptation Edits](#legacy-user-code-option-trice-adaption-edits)
-* [Legacy User Code Option: Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
-* [Legacy User Code Option: Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaption)
+* [Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
+* [Legacy User Code Option Trice Adaptation Edits](#legacy-user-code-option-trice-adaptation-edits)
+* [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
+* [Legacy User Code Option Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaptation)
 
 ### 43.1. <a id="legacy-user-code-option-separate-physical-output-channel"></a>Legacy User Code Option Separate Physical Output Channel 
 
 *Advantages:*
 
-* No user code adaption at all needed.
+* No user code adaptation at all needed.
 * Code can mix user prints and Trices.
 
 *Disadvantages:*
@@ -8888,7 +8888,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 * There `rwc` is used to create an appropriate decode object `dec` passed to `decodeAndComposeLoop`, which uses `func (p *trexDec) Read(b []byte) (n int, err error)` then, doing the byte interpretation.
   * Finally `n += p.sprintTrice(b[n:]) // use param info` is called doing the conversion. 
 * Read returns a **single** Trice conversion result or a **single** error message in b[:n] or 0 and is called again and again.
-* The returned Trice conversion result is the Trice format string with inserted values, but no timestamp, color or location information. The target timestamp, for this single Trice is hold in `decoder.TargetTimestamp`. It is used only when a new log line begins, what is the normal case. If a Trice format string ends not with a newline, the following Trice gets part of the same log line and therefore its target time stamp is discarded. Also additional data like the location information only displayed for the first Trice in a log line containing several Trices. Because the color is inherent to the Trice tag and needs no display space it is attached to the following Trices in a log line as well.
+* The returned Trice conversion result is the Trice format string with inserted values, but no timestamp, color or location information. The target timestamp, for this single Trice is hold in `decoder.TargetTimestamp`. It is used only when a new log line begins, what is the normal case. If a Trice format string ends not with a newline, the following Trice gets part of the same log line and therefore its target timestamp is discarded. Also additional data like the location information only displayed for the first Trice in a log line containing several Trices. Because the color is inherent to the Trice tag and needs no display space it is attached to the following Trices in a log line as well.
 * The after `Read` following `emitter.BanOrPickFilter` could remove the Read result.
 * If something is to write, the location information is generated if a new line starts and passed to the
  with `sw := emitter.New(w)` created object `sw.WriteString` method which internally keeps a slice of type `[]string` collecting all parts of an output line.
@@ -9200,7 +9200,7 @@ Generated commit message:
 | [cmd/trice](../cmd/trice)                                                                                               | Trice tool command Go sources                                                                                                     |
 | [demoLI.json](../demoLI.json)                                                                                           | location information example                                                                                                      |
 | [demoTIL.json](../demoTIL.json)                                                                                         | Trice ID list example                                                                                                             |
-| `dist/`                                                                                                                 | local distribution files folder created by goreleaser                                                                             |
+| `dist/`                                                                                                                 | local distribution files folder created by GoReleaser                                                                             |
 | [docs](../docs)                                                                                                         | documentation folder with link forwarding                                                                                         |
 | [examples/](../examples)                                                                                                | example target projects                                                                                                           |
 | [scripts/_refresh_trice_user_manual.sh](../scripts/_refresh_trice_user_manual.sh)                                       | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-or-any-md-file)                               |
@@ -9863,7 +9863,7 @@ In GitHub are some Actions defined. Some of them get triggered on a `git push` a
   * When using [./scripts/buildTriceTool.sh](../scripts/buildTriceTool.sh), the generated Trice image is significant smaller (about 30%), because the build script removes debugging information from the Trice binary. The Trice release images contain this additionally information for a more verbose error reporting, just in case.  
   * `tlog` is a separate binary for the `trice log` runtime path. It accepts the log flags directly, for example `tlog -port HEX ...`, and release archives/packages ship it next to `trice`.
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
-  * Use Goreleaser if you wish to create releases on your forked Trice repository.
+  * Use GoReleaser if you wish to create releases on your forked Trice repository.
   * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
     * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
     * Recommendation: Minimal online installer.
@@ -9921,7 +9921,7 @@ After installing Go, in your home folder should exist a folder ./go/bin. Please 
 
 Prerequisite: Installed `goreleaser`.
 
-#### 47.2.1. <a id="check-a-goreleaser-release-before-publishing"></a>Check a Goreleaser Release before Publishing
+#### 47.2.1. <a id="check-a-goreleaser-release-before-publishing"></a>Check a GoReleaser Release before Publishing
 
 By cloning the Trice repo into an empty folder, you make sure no other files exist in the Trice folder.
 

@@ -19,7 +19,7 @@ $ ./scripts/gitLogWithBranches.sh --range v1.2.3..
 *               906fd000 2026-06-09 13:52 [wip                             ] Trice ABC Spec finalized and UM chapter 36 updated
 *               b28e65d7 2026-06-09 13:51 [wip~1                           ] minor fix for tlog
 *               9a0c652f 2026-06-08 17:07 [wip~2                           ] #define TRICE_LEGACY_RPC_SUPPORT 1 added to pass tests
-*               e1a0cb84 2026-06-08 15:43 [wip~3                           ] minor adaption for tests
+*               e1a0cb84 2026-06-08 15:43 [wip~3                           ] minor adaptation for tests
 *               4b737494 2026-06-08 15:39 [wip~4                           ] Internal link corrected
 *               f40a2582 2026-06-08 15:31 [wip~5                           ] Trice ABC spec wip
 *               b3cfc79a 2026-06-08 15:20 [wip~6                           ] Issue #674 fixed
@@ -60,7 +60,7 @@ ms@Mac trice % ./scripts/gitLogWithBranches.sh --range v1.2.2..
 *               30a88a1f 2026-06-01 19:57 [wip~8                           ] typeX0 example added to G0B1_inst
 *               ea4caaa9 2026-06-01 19:57 [wip~9                           ] typeX0 log offset correcztion
 *               1507116d 2026-06-01 17:34 [wip~10                          ] Issue #550 (typeX0) implemented
-*               15adba87 2026-06-01 17:32 [wip~11                          ] test compatibility with older MacOS bash
+*               15adba87 2026-06-01 17:32 [wip~11                          ] test compatibility with older macOS bash
 *               94a804ef 2026-05-31 16:10 [wip~12                          ] formatting changed a bit
 *               b71ecc7d 2026-05-31 16:09 [wip~13                          ] stop markdown-al-in-once creating a ToC automatically
 *               ed3df379 2026-05-27 19:20 [wip~14                          ] typeX0 user packets chapter added
@@ -168,7 +168,7 @@ th@Mac scripts % ./gitLogWithBranches.sh --range v1.2.1..
 
 * Better/Updated/Robuster Scripts Support for Darwin, Linux & Windows
   * TriceUserManual.pdf generation automated
-  * goreleaser script
+  * GoReleaser script
   * Target code compilation
   * More and more verbose release checks
 * Linux Trice Tool now per package manager installable
@@ -186,7 +186,7 @@ th@Mac scripts % ./gitLogWithBranches.sh --range v1.2.1..
 ```txt
 ./gitLogWithBranches.fixed.sh --range v1.2.1..HEAD
 *               8272b896 2026-05-21 17:23 [wip                             ] minor maintenance changes
-*               5fa11531 2026-05-21 13:38 [wip~1                           ] goreleaser version demand included
+*               5fa11531 2026-05-21 13:38 [wip~1                           ] GoReleaser version demand included
 *               c4526832 2026-05-21 13:37 [wip~2                           ] more focus demanded
 *               e196354d 2026-05-21 12:15 [main~1^2                        ] more robust target sources compilation
 *               7147c65d 2026-05-21 12:10 [wip~4                           ] formatter change
@@ -636,13 +636,13 @@ Used git range: v1.1.0..v1.1.1
 * Slightly restructured, enhanced and reworked TriceUserManual
   * Chapter *Future Development* contains now specification draft for structured logging and log level logging 
 * `trice version -verbose` now with list of local changed files and git hash during compile time
-* goreleaser now with linux arm 6/7 build to run `trice log` on embedded Linux platforms
-* Github Actions reworked including clang-format and bash format.
-* Github pages enabled
+* GoReleaser now with linux arm 6/7 build to run `trice log` on embedded Linux platforms
+* GitHub Actions reworked including clang-format and bash format.
+* GitHub pages enabled
 * Link Check added to avoid broken links
 * Trice user manual enhanched
 * Go coverage tests updated
-* New Github Actions
+* New GitHub Actions
   * clang-format check
   * YAML Linting
   * Markdown Linting
@@ -800,7 +800,7 @@ Used git range: v1.0.0..v1.1.0
 * c8510ea5c 2025-07-10 alias and alias assert CGO tests added
 * dbaaeaa06 2025-07-10  -Wno-format-security added to allow all _test/aliasassert... tests
 * d205c6658 2025-07-10 triceAssertTrue and triceAssertFalse tests added
-* 49ce4499f 2025-07-10 Chapter Legacy User Code Trice Adaption added
+* 49ce4499f 2025-07-10 Chapter Legacy User Code Trice Adaptation added
 * 3a396fc7f 2025-07-13 typo corrected
 * 797d91a3f 2025-07-13 example G0B1 TRICE_OFF=1translation with and without IDs
 * f607b7a29 2025-07-13 triceAssert now as empty macros in TRICE_OFF state
@@ -855,12 +855,12 @@ Used git range: v1.0.0..v1.1.0
 * dee62a9b7 2025-11-18 Chapter "Working with the Git Repo" moved to the end
 * eb7aa9586 2025-11-18 hint before headline adapted
 * f2f417c56 2025-11-18 unneeded line removed
-* 91eb24957 2025-11-19 minor adaption
+* 91eb24957 2025-11-19 minor adaptation
 * c709b4959 2025-11-19 comment corrected
 * 61b63d495 2025-11-19 comments added
 * ec5d4868a 2025-11-19 comments added / changed
 * 02b709a3f 2025-11-19 A few (deactivated) tests added
-* 7980361f7 2025-11-19 minor test adaption
+* 7980361f7 2025-11-19 minor test adaptation
 * 025d0915b 2025-11-19 generated changes only
 * 453975e16 2025-11-20 Bump golang.org/x/crypto from 0.35.0 to 0.45.0
 * a6983eb0e 2025-11-20 random tests fixed, more robust now
@@ -881,11 +881,11 @@ Used git range: v1.0.0..v1.1.0
 * 0b63894f6 2025-11-25 Again "<a id="
 * 121c1dba5 2025-11-26 issue #571 fix
 * 24f666f51 2025-11-26 origin info added to `trice version`
-* 3de3f4d6a 2025-11-26 Restructured Tests copied from deb branch. Some need further adaption.
+* 3de3f4d6a 2025-11-26 Restructured Tests copied from deb branch. Some need further adaptation.
 * 9b54d008e 2025-11-26 executable flags set
 * c3fdd6873 2025-11-26 Hit to use buildTriceTool.sh added
 * fca6fd9b9 2025-11-26 \#572 fixed
-* 1cc430cec 2025-11-27 All enabled tests in MacOS & Windows ok (Linux probably also)
+* 1cc430cec 2025-11-27 All enabled tests in macOS & Windows ok (Linux probably also)
 * f7edcc518 2025-11-27 Merge remote-tracking branch 'origin/main'
 * a2a3126ce 2025-11-27 Chapters clone & fork added
 * 4f6cfbbd7 2025-11-27 newLineComposer function reformatted and commented
@@ -1365,8 +1365,8 @@ Used git range: v0.72.1..v0.72.2
 
 * Issue [#509](https://github.com/rokath/trice/issues/509) fixed (better `TRICE_OFF` handling)
 * Update ReadMe.md
-* ignore MacOS specific files
-* Option for MacOS added
+* ignore macOS specific files
+* Option for macOS added
 * TRICE_OFF used to exclude additional Trice code
 
 ### <a id='v0.72.1-git-log'></a>v0.72.1 Git Log
@@ -1375,10 +1375,10 @@ Used git range: v0.72.0..v0.72.1
 
 ```txt
 * fb734ff53 2024-11-01 Update ReadMe.md
-* 010f8edb7 2024-11-04 ignore MacOS specific files
-* f07d95711 2024-11-04 Option for MacOS added
+* 010f8edb7 2024-11-04 ignore macOS specific files
+* f07d95711 2024-11-04 Option for macOS added
 * c250d2084 2024-11-04 TRICE_OFF used to exclude additional Trice code
-* 75bffcfac 2024-11-04 CLI switch TRICE_OFF=1 added, MacOS support addded, gcc as default
+* 75bffcfac 2024-11-04 CLI switch TRICE_OFF=1 added, macOS support addded, gcc as default
 * f298632b4 2024-11-04 Issue #509 fixed
 * 241b73254 2024-11-04 testdata extended/updated
 * a415d3bcb 2024-11-05 No more default TRICE_BUFFER, User needs to decide
@@ -1441,7 +1441,7 @@ Used git range: v0.71.0..v0.72.0
 * 74d0a6ad4 2024-10-31 double buffer code slightly refactored to avoid editor warnings
 * 8062bf42e 2024-10-31 tmp buffer offset changed from 4 to TRICE_DATA_OFFSET/2
 * 198c179e1 2024-10-31 TRICE_MULTI_PACK_MODE is now default config for deferred mode
-* 8330b41fd 2024-10-31 MacOS adapted
+* 8330b41fd 2024-10-31 macOS adapted
 * 46677957f 2024-10-31 more stressing settings
 * 2289bd9dc 2024-10-31 TRICE_SINGLE_PACK_MODE set explicit
 * c84b5daf4 2024-10-31 clang-format.sh run
@@ -2201,7 +2201,7 @@ Used git range: v0.63.0..v0.64.0
 * Now unified `__restrict` keyword. `RESTRICT` keyword removed and `#include <stdint.h>` into all **triceConfig.h** files. Obsolete 'RESTRICT' code removed.
 * Code cleanup, tests now ok with `-race`. **Added: `triceAssertTrue` and `triceAssertFalse`**.
 * CLI switch `-d16` better documented. 
-* **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaption**.
+* **`UserNonBlockingDirectWrite8AuxiliaryFn` and `UserNonBlockingDeferredWrite8AuxiliaryFn` invented for a cleaner auxiliary interface adaptation**.
 * Doc updated in `TriceUserGuide.md`, `TriceVsPrintfSimilaritiesAndDifferences.md`, `TriceTargetCode.md` (now in TriceUserManual.md), `TriceColor.md` and preface extended. 
 * Folder `examples` fixed. 
 * Merge pull request [#442](https://github.com/rokath/trice/pull/442) from rokath/dependabot/go_modules/golang.org/x/crypto-0.17.0. 
@@ -2247,7 +2247,7 @@ Used git range: v0.62.3..v0.63.0
 * 24a1cf541 2024-02-13 Update TriceUserGuide.md
 * 891c67bab 2024-02-14 Preface extended
 * e7219d3c0 2024-02-14 Merge branch 'master' of github.com:rokath/trice
-* 5d804d52c 2024-02-22 UserNonBlockingDirectWriteAuxiliaryFn and UserNonBlockingDeferredWriteAuxiliaryFn invented for a cleaner auxiliary interface adaption
+* 5d804d52c 2024-02-22 UserNonBlockingDirectWriteAuxiliaryFn and UserNonBlockingDeferredWriteAuxiliaryFn invented for a cleaner auxiliary interface adaptation
 * 4ae884455 2024-03-05 RESTRICT keyword removed and #include <stdint.h> into all triceConfig.h files.
 * b1e1c8b1b 2024-03-05 examples folder fixed
 * 84b76d6f3 2024-03-05 Obsolete 'RESTRICT' code removed.
@@ -2265,7 +2265,7 @@ Used git range: v0.62.3..v0.63.0
 * Update TriceSpeed.md
 * Update TriceUserGuide.md
 * fix TRICE_OFF
-* RESTRICT adaption inside triceConfig.h
+* RESTRICT adaptation inside triceConfig.h
 * Incorporated pull requests [#433](https://github.com/rokath/trice/pull/433) && [#435](https://github.com/rokath/trice/pull/435). Minor clarification in trice user guide.
 
 ### <a id='v0.62.3-git-log'></a>v0.62.3 Git Log
@@ -2277,7 +2277,7 @@ Used git range: v0.62.2..v0.62.3
 * bb65ef72d 2023-09-17 Update TriceUserGuide.md
 * 51dca5ca8 2023-09-20 fix TRICE_OFF
 * 226e08b24 2023-09-21 Merge pull request #435 from Magamanny/master
-* 98273c1d6 2023-09-22 RESTRICT adaption inside triceConfig.h
+* 98273c1d6 2023-09-22 RESTRICT adaptation inside triceConfig.h
 * ac73f46c6 2023-09-22 Merge branch 'development'
 * 73de1f679 2023-09-22 Update TriceUserGuide.md
 * ff4ecd8bc 2023-09-22 v0.62.3
@@ -2409,7 +2409,7 @@ Used git range: v0.61.0..v0.61.1
 * id tests clean up wip
 * no-ids algorithm plan refined
 * CLI for insertIDs and cleanIDs prepared (wip)
-* `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice insert` depreciated now and will be removed in the future.
+* `trice insert` as new command is successor for `trice update`. With `trice zero` all IDs in source can be set to 0. A following `trice insert` will restore the IDs. Experimental `trice clean` command added. `trice insert` deprecated now and will be removed in the future.
 
 ### <a id='v0.61.0-git-log'></a>v0.61.0 Git Log
 
@@ -2921,7 +2921,7 @@ Used git range: v0.55.1..v0.56.0
 * 8bc34b356 2022-08-28 Id -> ID
 * b26b89410 2022-08-28 Update TriceV1.0Specification.md
 * 933fa84fa 2022-08-30 Update TriceUserGuide.md
-* fb36eb10b 2022-09-12 Fix AC6 adaption in trice_config.h
+* fb36eb10b 2022-09-12 Fix AC6 adaptation in trice_config.h
 * 39b3778aa 2022-09-12 AC6 @escherstair patch distributed
 * 311e2299d 2022-09-13 triceCheck.c linted, mainly messages disabled, needs detailed review
 * f1e70f1a6 2022-09-15 Update TriceMessagesEncoding.md
@@ -4826,14 +4826,14 @@ Used git range: v0.24.2..v0.24.3
 ### <a id='v0.24.2-overview'></a>v0.24.2 Overview
 
 * minor corrections
-* github workflow adaption to v2
+* github workflow adaptation to v2
 
 ### <a id='v0.24.2-git-log'></a>v0.24.2 Git Log
 
 Used git range: v0.24.1..v0.24.2
 
 ```txt
-* 447c0aad4 2021-03-11 github workflow adaption to v2
+* 447c0aad4 2021-03-11 github workflow adaptation to v2
 ```
 
 ## <a id='v0.24.1-changes'></a>v0.24.1 Changes (2021-03-11)
@@ -6172,7 +6172,7 @@ Used git range: v0.3.1..v0.4.0
 * Update proj_config.h
 * helper functions renamed, triceSting now with riht bound parameter.
 * Use GitHub handle not mails
-* Add goreleaser Action
+* Add GoReleaser Action
 
 ### <a id='v0.3.1-git-log'></a>v0.3.1 Git Log
 
@@ -6183,7 +6183,7 @@ Used git range: v0.3.00..v0.3.1
 * ac2009ebe 2020-02-18 helper functions renamed, triceSting now with riht bound parameter.
 * 0a9ae4aa6 2020-02-18 Use GitHub handle not mails
 * c67f7e3ad 2020-02-18 Merge pull request #23 from reicheltp/patch-1
-* 47f9a1dca 2020-02-18 Add goreleaser Action
+* 47f9a1dca 2020-02-18 Add GoReleaser Action
 ```
 
 ## <a id='v0.3.00-changes'></a>v0.3.00 Changes (2020-02-18)

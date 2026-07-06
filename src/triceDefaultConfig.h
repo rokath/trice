@@ -356,7 +356,7 @@ extern "C" {
 #define TRICE_CYCLE_COUNTER 1
 #endif
 
-// Compiler Adaption:
+// Compiler Adaptation:
 
 #ifndef USE_SEGGER_RTT_LOCK_UNLOCK_MACROS
 //! USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1 includes SEGGER_RTT header files even SEGGER_RTT is not used. THis allows SEGGER code for critical sections.
