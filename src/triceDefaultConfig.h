@@ -228,6 +228,18 @@ extern "C" {
 #define TRICE_RING_BUFFER_SIZE (TRICE_DEFERRED_BUFFER_SIZE - TRICE_DATA_OFFSET)
 #endif
 
+#ifndef TRICE_MCU_IS_BIG_ENDIAN
+//! TRICE_MCU_IS_BIG_ENDIAN describes the target MCU byte order.
+//! Most supported embedded targets are little endian. Users can override this
+//! in triceConfig.h or via compiler options. The compiler check below avoids
+//! -Wundef warnings and gives a useful default for common GCC/Clang targets.
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define TRICE_MCU_IS_BIG_ENDIAN 1
+#else
+#define TRICE_MCU_IS_BIG_ENDIAN 0
+#endif
+#endif
+
 #ifndef TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN
 //! Long story short: Whith big endian target MCUs simply apply the `-triceEndianness bigEndian` CLI switch when using the `trice log` command.
 //! Long story long:

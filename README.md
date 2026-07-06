@@ -68,13 +68,13 @@ This reduces target FLASH usage, transfer bandwidth, log files and log-call exec
 2. Run `trice insert` before compilation.
 3. The compiler sees stable numeric IDs.
 4. The target emits compact binary Trice records.
-5. The PC tool decodes them with the matching `til.json`.
+5. The PC tool decodes them with the accumulated `til.json`.
 
 A typical source-level idea is:
 
 ```diff
-- printf("Temperature: %d C\n", t);
-+ trice("Temperature: %d C\n", t);
+- printf("Temperature: %d °C\n", t);
++ trice("Temperature: %d °C\n", t);
 ```
 </details>
 
@@ -156,7 +156,7 @@ You can also build your own receiver that reads Trice packages, maps IDs to form
 | `li.json` | Maps IDs to source locations | Useful for diagnostics |
 | Binary log file | Raw target output | Useful for offline or field decoding |
 
-Keep the matching `til.json` for every released firmware version.
+Keep the one accumulated `til.json` to decode all previously released firmware versions.
 The repository example file is [demoTIL.json](./demoTIL.json).
 
 </details>
@@ -265,12 +265,18 @@ trice log -p /dev/ttyACM0 -baud 921600 -i ./til.json -li ./li.json
 <details><summary>Legacy code integration</summary>
 
 Existing projects do not have to migrate all logs at once.
-Common strategies:
+Best strategy:
+
+> Use Trice aliases so project-specific log macros are processed by `trice insert` without renaming every call site.
+
+See [Legacy User Code Option Trice Aliases Adaption](./docs/TriceUserManual.md#legacy-user-code-option-trice-aliases-adaption).
+
+Alternatively:
 
 1. Keep legacy `printf` output and send Trice on a separate physical channel.
 2. Replace selected `printf` calls with Trice calls where speed, bandwidth, or FLASH matters.
-3. Use Trice aliases so project-specific log macros are processed by `trice insert` without renaming every call site.
-4. Use a shared output channel only if framing and mixed text/binary behavior are explicitly configured and tested.
+3. Use triceS macros to emit runtime generated printf strings.
+4. Shared the output channel with [typeX0 User Packets](./docs/TriceUserManual.md#typex0-user-packets).
 
 For a first integration, prefer a small vertical slice:
 
@@ -385,7 +391,7 @@ See also:
 Trice can be used as a fast `printf`-debugging replacement and as a compact logging system for field diagnostics.
 The target emits short binary records; the host produces the readable log later.
 
-Keep the matching `til.json` so logs from field devices can be decoded after release.
+Keep the newest accumulated `til.json` so logs from any field devices (also older versions) can be decoded after release.
 Optionally store project-specific `til.json` and `li.json` together with firmware images or diagnostic packages.
 
 </details>
@@ -422,12 +428,8 @@ See [Switch the language without changing a bit inside the target code](./docs/T
 
 Trice supports host and target timestamps and can help with distributed timing analysis, interrupt timing, and observing target behavior without stopping firmware in a debugger.
 
-See:
+See [Trice Timestamps (Formatting and Delta Columns)](./docs/TriceUserManual.md#trice-timestamps).
 
-- [Trice Timestamps](./docs/TriceUserManual.md#trice-timestamps)
-- [Target Timestamps Formatting](./docs/TriceUserManual.md#target-timestamps-formatting)
-- [Target Timestamp Delta Columns](./docs/TriceUserManual.md#target-timestamp-delta-columns)
-- [Cycle Counter](./docs/TriceUserManual.md#cycle-counter)
 
 </details>
 
@@ -466,6 +468,16 @@ Read the detailed explanation in [How it works - the main idea](./docs/TriceUser
 
 Trice can route different ID ranges or tagged messages to different outputs depending on configuration.
 See the User Manual for the current configuration details and examples.
+
+</details>
+
+
+</details>
+
+<details><summary>Sharing a User protocol with the same Trice Output Channel</summary>
+
+The Trice buffer macros allow to transfer any data. But with [typeX0 User Packets](./docs/TriceUserManual.md#typex0-user-packets) the user can also inject own counted buffers in the Trice data stream.
+The Trice tool will optionally display them as raw bytes using a "%02x" format and could get an extension to forward those packages in any possible direction.
 
 </details>
 
