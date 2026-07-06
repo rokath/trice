@@ -1499,7 +1499,7 @@ Used git range: v0.70.0..v0.71.0
 
 * Trice cache option added
 * Trice commands `trice update` and `trice zero` removed
-* Better handling of target MCU endianness - now mostly automatically detected (Special thanks to [Sazerac4](https://github.com/Sazerac4))
+* Better handling of target MCU endianness - now mostly automatically detected (Special thanks to @Sazerac4)
 * TRICE_OFF switch without warnings: unused parameter
 * Tests changed to hexadecimal stamps to see issues easier
 * spacing CLI switch added to `trice insert`
@@ -2549,7 +2549,7 @@ Used git range: v0.60.1..v0.60.2
 
 <img src="./docs/ref/v0.60.1TwiceLog.png" width="800">
 
-* Trice Log enabled in [F030_inst](https://github.com/rokath/trice/tree/master/examples/F030_inst) as `triceConfig.h` example.
+* Trice Log enabled in [F030_inst](https://github.com/rokath/trice/tree/main/examples/F030_inst) as `triceConfig.h` example.
 
 ### <a id='v0.60.1-git-log'></a>v0.60.1 Git Log
 
