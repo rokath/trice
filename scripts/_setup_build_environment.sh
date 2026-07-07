@@ -316,7 +316,7 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
 
   # Under Cygwin, aggressive parallel builds (-j) are known to cause blocking
   # or instability on some setups. We therefore disable it by default.
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "msys"* ]]; then
@@ -324,7 +324,7 @@ elif [[ "$OSTYPE" == "msys"* ]]; then
 
   # Same reasoning as for Cygwin: parallel make can be problematic; keep it off
   # by default to avoid hard-to-debug hangs.
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "win32" ]]; then
@@ -332,7 +332,7 @@ elif [[ "$OSTYPE" == "win32" ]]; then
   # only as a diagnostic in case OSTYPE is literally "win32".
   log_info "Detected platform: Windows (OSTYPE=$OSTYPE)"
   log_info "No default configuration implemented for plain win32."
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
@@ -345,7 +345,7 @@ elif [[ "$OSTYPE" == "freebsd"* ]]; then
 else
   log_info "Detected platform: Unknown (OSTYPE=$OSTYPE)"
   log_info "No platform-specific configuration available."
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 1
 fi
 
