@@ -1,5 +1,136 @@
 ﻿# Changelog
 
+## <a id='v1.3.0-changes'></a>v1.3.0 Changes (2026-07-09)
+
+### <a id='v1.3.0overview'></a>v1.3.0 Overview
+
+* Root README.md reworked
+* Legacy RPC removed 
+* Trice ABC - Asynchronous Broadcast Commands working multi target example added (simulation)
+* Trice ABC - Asynchronous Broadcast Commands fully documented in TriceUserManual.md
+* triceRxDefaultConfig.h added
+* Better support for newer compilers
+* -args hint added to -port help text
+* Trice RX, Trice ABC, and Future C `tlog` Architecture Proposal
+* Issue [#680](https://github.com/rokath/trice/issues/680) fixed
+
+### <a id='v1.3.0-git-log'></a>v1.3.0 Git Log
+
+```txt
+*               ddae0cad 2026-07-06 22:58 [wip                             ] make clean before each build to avoid invalid artifacts after changed flags
+*               07297cca 2026-07-06 21:43 [wip~1                           ] re-generated ToC
+*               ab378c69 2026-07-06 21:41 [wip~2                           ] pre release cleanup
+*               fdbb7636 2026-07-06 20:48 [wip~3                           ] Legacy RPC info removed
+*               82d5bd65 2026-07-06 20:47 [wip~4                           ] User manual Text linted
+*               76a42c1c 2026-07-06 17:08 [HEAD^2                          ] 2 links more robust now.
+*               c8c08588 2026-07-06 16:47 [HEAD^2~1                        ] minor
+*               32060e9c 2026-07-06 15:10 [HEAD^2~2                        ] TRICE_MCU_IS_BIG_ENDIAN macro added to triceDefaultConfig.h
+*               402d6958 2026-07-06 14:06 [HEAD~1^2                        ] Links corrected, lychee config now more robust
+*               1e0db79e 2026-07-06 13:23 [HEAD~1^2~1                      ] minor adaptions
+*               cc04c18e 2026-07-06 13:11 [HEAD~1^2~2                      ] Further README.md improvements
+*               c27ce05b 2026-07-06 12:17 [HEAD~1^2~3                      ] wip
+*               c5fe7ab1 2026-07-06 10:22 [HEAD~1^2~4                      ] wip
+*               fd1a8133 2026-07-05 17:57 [HEAD~2^2                        ] 2 internal links corrected
+*               835b0e87 2026-07-05 12:06 [HEAD~2^2~1                      ] link repair
+*               be623ac2 2026-07-05 11:59 [HEAD~2^2~2                      ] ToC removed from README.md
+*               b6aa1d21 2026-07-05 11:57 [HEAD~2^2~3                      ] root README.md rework wip
+*               af835b5d 2026-07-05 00:35 [HEAD~2^2~4                      ] Link corrected
+*               0153d1dd 2026-07-05 00:29 [HEAD~2^2~5                      ] root README.md reworked
+*               76c3d2af 2026-07-03 18:44 [HEAD~2^2~6                      ] wip
+*               6b1a85f3 2026-07-03 18:42 [HEAD~2^2~7                      ] wip README.md refactoring
+*               20061f3a 2026-07-03 17:03 [HEAD~2^2~8                      ] Merge remote-tracking branch 'origin/wip' into wip
+|\              4cebccaf 2026-07-03 16:58 [HEAD~2^2~9                      ] wip README.md restructuring
+| *             76ac9246 2026-07-03 10:06 [HEAD~3^2                        ] compile time endianess detection adapted to newer compilers
+| *             65b22640 2026-07-03 10:05 [HEAD~3^2~1                      ] #pragma GCC diagnostic ignored "-Wdisabled-optimization" added
+| *             07a7a1c8 2026-07-02 17:13 [HEAD~4^2                        ] trice_rx_test fixed
+| *             a32c5e09 2026-07-02 17:13 [HEAD~4^2~1                      ] lychee link exclusions extended
+| *             198f5911 2026-07-02 12:17 [HEAD~5^2                        ] ./examples/TriaceABC now working well
+| *             5255bbe1 2026-07-02 11:33 [HEAD~5^2~1                      ] TrieABC example wip
+| *             29d41991 2026-07-01 22:56 [HEAD~5^2~2                      ] WIP
+| *             3fad9164 2026-07-01 22:07 [HEAD~5^2~3                      ] TriceAbc example refactoring (wip)
+* |             38ed0beb 2026-07-01 16:31 [HEAD~5^2~4                      ] example/TriceABC refactor (wip)
+|/              b0590b4e 2026-06-30 15:02 [HEAD~5^2~5                      ] wip reorganizing example
+*               c771b4b0 2026-06-29 22:47 [HEAD~5^2~6                      ] wip
+*               fe17d380 2026-06-28 23:03 [HEAD~5^2~7                      ] wip
+*               8b5706d3 2026-06-28 18:55 [HEAD~5^2~8                      ] wip
+*               9ddfd99d 2026-06-27 09:49 [HEAD~5^2~9                      ] Link corrected
+*               dabe6785 2026-06-26 23:32 [HEAD~6^2                        ] minor
+*               d64a82c1 2026-06-26 18:55 [HEAD~6^2~1                      ] Trice ABC doc images added and chapter in root README.md
+*               e3e0a62d 2026-06-25 15:12 [HEAD~6^2~2                      ] Merge remote-tracking branch 'origin/wip' into wip
+*               c943d4a7 2026-06-25 14:45 [HEAD~6^2~3                      ] wip TriceABC demo
+*               ce3b4a61 2026-06-25 11:43 [HEAD~6^2~4                      ] Trice ABC demo log wip
+|\              6c60346d 2026-06-25 00:25 [HEAD~6^2~5                      ] TriceABC example adapted
+| *             d62273c7 2026-06-25 00:25 [HEAD~7^2                        ] wip
+* |             0b22573b 2026-06-25 00:11 [HEAD~7^2~1                      ] TriceABC example adapted
+* |             8c92c9b3 2026-06-24 19:53 [HEAD~7^2~2                      ] Issue #680 fix
+* |             c49b1297 2026-06-24 16:56 [HEAD~7^2~3                      ] Reworked Trice ABC chapter
+|/              e6079147 2026-06-24 14:13 [HEAD~7^2~4                      ] Go coverage on branch main push too
+*               8cb57107 2026-06-24 11:56 [HEAD~8^2                        ] small fixes master -> main
+*               5abf871d 2026-06-24 10:55 [HEAD~9^2                        ] small cleanup for demo
+*               9dfc636a 2026-06-24 09:55 [HEAD~9^2~1                      ] Fix invisible vsnprintf() on MacOS in demo code
+*               d196d681 2026-06-24 00:02 [HEAD~9^2~2                      ] wip Trice ABC example
+*               88e5e9d0 2026-06-23 09:20 [HEAD~9^2~3                      ] Replace triceAbcReceive.h with triceRx.h
+*               44e2b685 2026-06-22 21:43 [HEAD~9^2~4                      ] notes
+*               fa3c3203 2026-06-22 17:14 [HEAD~12^2                       ] lock fix
+*               307ce27a 2026-06-22 17:05 [HEAD~12^2~1                     ] code duplicates and boilerplate code removed from examples/TriceABC
+*               67f1ed7e 2026-06-22 16:07 [HEAD~12^2~2                     ] minor safety fix
+*               d663d632 2026-06-22 16:07 [HEAD~12^2~3                     ] examples/TriceABC first shot && first run
+*               7ba23d83 2026-06-22 10:06 [HEAD~12^2~4                     ] wip triceRx (needs review)
+*               9137c779 2026-06-21 11:34 [HEAD~12^2~5                     ] minor adaptions for full test PASS
+*               f8a42ec0 2026-06-20 18:15 [HEAD~12^2~6                     ] tests wip
+*               80b4c0f1 2026-06-20 17:40 [HEAD~12^2~7                     ] triceRx codex wip
+*               ac0d8e54 2026-06-20 16:26 [HEAD~12^2~8                     ] triceRx.h reworked manually
+*               f4106729 2026-06-19 18:32 [HEAD~12^2~9                     ] wip trice rx design - needs review
+*               73c15214 2026-06-19 16:40 [HEAD~12^2~10                    ] triceRxDefaultConfig.h added
+*               763a02fe 2026-06-19 16:39 [HEAD~12^2~11                    ] triceBusConfig.h renemed into triceRxConfig.h
+*               6fc57222 2026-06-19 16:38 [HEAD~12^2~12                    ]  TRICE_TX_X0_COUNTED_BUFFER_SUPPORT   default is now 1
+*               59615912 2026-06-19 15:33 [HEAD~12^2~13                    ] TRICE_TX_ABC_SUPPORT default is now 1, because it needs no additional code
+*               40c402c7 2026-06-19 15:22 [HEAD~12^2~14                    ] pTrice added for future TRICE_RX_LOG_SUPPORT
+*               fdd0d23f 2026-06-19 15:20 [HEAD~12^2~15                    ] tables re-formatted
+*               ee3b7358 2026-06-19 12:47 [HEAD~12^2~16                    ] TRICE_ABC_RECEIVE_SUPPORT -> TRICE_RX_ABC_SUPPORT
+*               d5d5b3d5 2026-06-19 12:45 [HEAD~12^2~17                    ] TRICE_ABC_TRANSMIT_SUPPORT -> TRICE_TX_ABC_SUPPORT
+*               70f3d804 2026-06-19 12:42 [HEAD~12^2~18                    ] TRICE_X0_COUNTED_BUFFER_SUPPORT -> TRICE_TX_X0_COUNTED_BUFFER_SUPPORT
+*               3aa9cd89 2026-06-19 12:29 [HEAD~12^2~19                    ] TRICE_X0_COUNTED_BUFFER_SUPPORT as numeric switch only
+*               f1eda21b 2026-06-19 00:37 [HEAD~12^2~20                    ] Refactor trice structures to use const qualifiers
+*               71b6d665 2026-06-18 23:28 [HEAD~12^2~21                    ] Chapters 6 & 7 reworked
+*               6b99426c 2026-06-18 17:39 [HEAD~12^2~22                    ] First 5 chapters reworked in TriceRx...Design
+*               f341521a 2026-06-18 10:46 [HEAD~12^2~23                    ] Trice RX, Trice ABC, and Future C `tlog` Architecture Proposal
+*               bb16ad5f 2026-06-17 18:41 [HEAD~12^2~24                    ] Comments added for better understanding
+*               db5791b7 2026-06-17 18:31 [HEAD~12^2~25                    ] Reworked ABC example structure
+*               25068166 2026-06-17 17:09 [HEAD~12^2~26                    ] trice generate -abc now supports path and does not append suffix -abc anymore
+*               0e643ce3 2026-06-17 15:11 [HEAD~12^2~27                    ] legacy wip code removed.
+*               b3bb4c55 2026-06-16 15:38 [HEAD~12^2~28                    ] wip
+*               43391883 2026-06-16 15:30 [HEAD~12^2~29                    ] Update BcSim_ReadMe.md with Trice ABC details
+*               a74027be 2026-06-16 15:15 [HEAD~12^2~30                    ] Revise title in BcSim ReadMe to include 'Broadcast Simulator'
+*               8ef7e797 2026-06-16 10:53 [HEAD~12^2~31                    ] Broadcast Simulation added for Trice ABC example
+*               bb18d042 2026-06-16 09:13 [HEAD~12^2~32                    ] ABC inout demo added to be used for Trice ABC examples
+*               03ad2621 2026-06-15 17:10 [HEAD~12^2~33                    ] -args hint added to -port help text
+*               744e0995 2026-06-14 21:38 [tlog^2                          ] Trice ABC chapter slightly reworked, XTEA chapters merged.
+*               ef44aca5 2026-06-14 10:40 [tlog~1^2                        ] Trice ABC usable now (experimental)
+*               f152eee9 2026-06-14 10:15 [tlog~2^2                        ] trice ABC tests added to quick test
+*               ce3efb8b 2026-06-14 09:57 [tlog~2^2~1                      ] Tests corrected and commented
+*               81ca5d26 2026-06-14 09:50 [tlog~2^2~2                      ] trice ABC wip RX
+*               c43d4e4b 2026-06-13 16:31 [tlog~2^2~3                      ] wip trice ABC testing  rx
+*               c4171ef2 2026-06-11 13:13 [tlog~2^2~4                      ] Implement TriceAbcOnReceive function for handling Trice records
+*               312d8f13 2026-06-11 12:34 [tlog~2^2~5                      ] Remove redundant big-endian definitions
+*               7fb463a9 2026-06-11 12:31 [tlog~2^2~6                      ] Update comments for triceAbcReadU16 and triceAbcReadU32
+*               dd29b98f 2026-06-11 12:06 [tlog~2^2~7                      ] Update TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN definition
+*               ab5081d1 2026-06-11 11:49 [tlog~2^2~8                      ] Fix error codes in triceAbcReceive.h
+*               49433252 2026-06-11 11:47 [tlog~2^2~9                      ] Fix preprocessor directives in triceAbcReceive.h
+*               96a9792a 2026-06-11 11:46 [tlog~2^2~10                     ] Add TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN definition
+*               5fe4efd2 2026-06-11 11:23 [tlog~2^2~11                     ] Remove triceAbcPayloadIsValid function and update checks
+*               d3fa3ba0 2026-06-11 10:42 [tlog~2^2~12                     ] Add TRICE_DOUBLED_16BIT_ID preprocessor directive
+*               429a9eee 2026-06-11 10:38 [tlog~2^2~13                     ] Add length check for TRICE_DOUBLED_16BIT_ID
+*               e115a322 2026-06-11 09:56 [tlog~2^2~14                     ] Refactor Trice ABC receive handling and remove unused code
+*               b00e6c62 2026-06-10 22:43 [tlog~3^2                        ] minor test fixes
+*               8c34ebfe 2026-06-10 17:34 [tlog~3^2~1                      ] minor test fix
+*               07654346 2026-06-10 16:49 [tlog~3^2~2                      ] Trice ABC RX reworked (still untested)
+*               5f0f2ff0 2026-06-10 14:40 [tlog~3^2~3                      ] _test/abc_tx_test/ is better documented now.
+*               f7acc796 2026-06-10 14:14 [tlog~3^2~4                      ] Trice ABC buffer length variations added to tests an a small fix
+*               221933ba 2026-06-10 11:11 [tlog~3^2~5                      ] TRICE_ABC_TRANSMIT_SUPPORT successfull tested now.
+*               02b02c7f 2026-06-09 22:29 [tlog~3^2~6                      ] Trice ABC first setup
+```
+
 ## <a id='v1.2.5-changes'></a>v1.2.5 Changes (2026-06-09)
 
 ### <a id='v1.2.5overview'></a>v1.2.5 Overview
