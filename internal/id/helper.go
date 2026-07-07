@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/rokath/trice/internal/fmtspec"
@@ -32,6 +33,7 @@ const (
 	triceInsertOnMarker         = "TRICE_INSERT_ON"
 	triceDiagnosticContextLines = 6
 	triceDiagnosticMaxLineRunes = 240
+	atomicRenameAttempts        = 20
 )
 
 // maskTriceInsertDisabledRegions blanks source regions between TRICE_INSERT_OFF
@@ -340,7 +342,58 @@ func writeAndReplaceFile(fSys afero.Fs, f afero.File, temp, name string, data []
 	if err = fSys.Chmod(temp, perm); err != nil {
 		return err
 	}
-	return fSys.Rename(temp, name)
+	return renameWithRetry(fSys, temp, name)
+}
+
+// renameWithRetry renames oldpath to newpath and retries transient rename
+// failures. This is mainly needed on Windows, where virus scanners, indexers,
+// editors, or file watchers can briefly hold the destination file and make an
+// otherwise valid atomic replacement fail with "Access is denied" or a sharing
+// violation.
+func renameWithRetry(fSys afero.Fs, oldpath, newpath string) error {
+	var err error
+
+	for attempt := 0; attempt < atomicRenameAttempts; attempt++ {
+		err = fSys.Rename(oldpath, newpath)
+		if err == nil {
+			return nil
+		}
+
+		if !isRetryableRenameError(err) || attempt == atomicRenameAttempts-1 {
+			return fmt.Errorf("rename %s to %s failed after %d attempt(s): %w", oldpath, newpath, attempt+1, err)
+		}
+
+		// Small linear backoff: 10 ms, 20 ms, 30 ms, ...
+		// Total worst-case wait is about 1.9 s for 20 attempts.
+		time.Sleep(time.Duration(attempt+1) * 10 * time.Millisecond)
+	}
+
+	return err // Unreachable, but keeps the compiler and future edits happy.
+}
+
+// isRetryableRenameError identifies errors that can plausibly be caused by a
+// transient file lock during atomic replacement.
+//
+// os.ErrPermission catches the common "Access is denied" case. On Windows,
+// ERROR_ACCESS_DENIED (5) and ERROR_SHARING_VIOLATION (32) can occur when
+// another process briefly holds the destination file.
+func isRetryableRenameError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	if errors.Is(err, os.ErrPermission) {
+		return true
+	}
+
+	if runtime.GOOS == "windows" {
+		var errno syscall.Errno
+		if errors.As(err, &errno) {
+			return errno == syscall.Errno(5) || errno == syscall.Errno(32)
+		}
+	}
+
+	return false
 }
 
 // CopyFileWithMTime atomically copies src to dst and sets dst mtime to src mtime.
