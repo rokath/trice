@@ -323,7 +323,7 @@ _## <a id='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Star
 <!--
 _#### <a id='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
 
-> depreciated, functionality will be removed in favor for no-ids functionality
+> deprecated, functionality will be removed in favor for no-ids functionality
 
 When including legacy library code in several different projects, each with its own **til.json** ID reference list you probably do not want the IDs inside the library code be changed. If you missed the option to use prober ID ranges starting your project  `trice refresh` could help:
 
@@ -414,7 +414,7 @@ _### <a id='Compatibility'></a>Compatibility
 
 * The Trice v0.48.0 user syntax will remain mainly unchanged. The letter case of the ID codes the target timestamp size. (see below)
 * The as "COBS" branded legacy [v0.48.0 Trice encoding](.TriceMessageEncoding.md) will stay unchanged as an option for compatibility. But it will not be the default encoding anymore. To use newer Trice tool versions with legacy projects the CLI switch `-encoding TLE` needs to be used.
-* The option `-sharedIDs` will be further available but depreciated to avoid location assignment issues.
+* The option `-sharedIDs` will be further available but deprecated to avoid location assignment issues.
 * Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. A several times used ID will get an assignment of one of the locations.
 * The issue [#242 Add target context option](https://github.com/rokath/trice/issues/242) could get the label "wontfix". When a task ID is needed, it could be also a data value in such cases.
 * The same user source files usable with the legacy Trice "COBS" encoding and the proposed additional [TREX](#TREXTriceextendableencoding) encoding. They will have 16 bit stamps instead of 32-bits if you keep the sub macros`Id(n)`.
@@ -453,7 +453,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
   * `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( S4, "...", ...);`
   * `TRICE( iD(12345), "...", ...);` → `TRICE( iD(0), "...", ...);` → `TRICE( S8, "...", ...);`
 * The project specific `til.json` contains all IDs and during `trice i` the same IDs are used again for the same Trice statement. For new or modified **trices** new IDs a chosen and `til.json` is extended as usual.
-* Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and depreciated.
+* Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and deprecated.
 * There is no guaranty each Trice gets its old ID back, if for example 5 identical **trices** with different IDs exist, but the probability for an exact restore can made high using the previous `li.json` file. Proposed method:
   * When `trice -u` is executed, the previous `li.json` is read into an internal `li_1.map` and `li.json` is reset to be an empty file and that is red into `li.map`.
   * The `til.json` is read into a `lu` as already done, but the reversal `flu` list format gets an ID slice assigned to each Trice.
