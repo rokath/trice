@@ -10399,6 +10399,42 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 
 *) The TriceABC examples uses COBS framing and acts without encryption and it is not simple configurable because its main aim is to show just the TriceABC technique in action.
 
+- Pipe-Tools 
+  - TriceRx welches alles von tlog receive kann und in Pipe schreibt
+  - TCOBSDecode, [TCOBSEncode], COBSDecode, [COBSEncode]
+  - XTEADecode [XTEAEncode]
+  - TREXDecode -> ASCII oder Binary
+    - ./specs
+      - TREX.json
+        - triceTargetTimeStampBits.json
+        - triceTypeX0CountedBuffer.json
+      - triceTypes.json
+      - "TREXDefaultConfig.json":{
+          "ByteOrderLittleEndian": true,
+          "doubled16BitID": false,
+          "defaultTRICEBitwidth": 32,
+          "singleFraming": false,
+          "TargetStampType": {
+            "ts0": "none",
+            "ts16": "uint16",
+            "ts32": "uint32"
+          }
+        }
+    - ./project
+      - [TREXConfig.json] 
+      - til.json
+      - [li.json]
+      - destinationA.json
+      - destinationB.json
+    - CLI
+      - Outputformat
+- tlog out Option 
+  - ASCII ist der jetzige Log Output
+  - TREX ist ein TriceRx. Das wäre ein binärer Output, der in ein andere binäres Format mittels Pipe Tool konvertiert werden kann.
+
+
+*) Noch nicht machen - nur mit mir diskutieren.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <div id="bottom"></div>
