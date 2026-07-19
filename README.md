@@ -472,9 +472,6 @@ See the User Manual for the current configuration details and examples.
 
 </details>
 
-
-</details>
-
 <details><summary>Sharing a User protocol with the same Trice Output Channel</summary>
 
 The Trice buffer macros allow to transfer any data. But with [typeX0 User Packets](./docs/TriceUserManual.md#typex0-user-packets) the user can also inject own counted buffers in the Trice data stream.
