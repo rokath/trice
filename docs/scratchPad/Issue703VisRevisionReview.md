@@ -12,17 +12,7 @@ Review convention:
 
 This issue proposes a repeatable -vis option for tlog (`trice log`) to transform selected tagged Trice messages into visualization-friendly output streams. The goal is not to add graphics capabilities to Trice itself, but to provide a small, generic host-side adapter layer for external tools such as LabPlot, uPlot, Serial Studio, Grafana, or custom viewers.
 
->DELETE: BEGIN
-
-The target-side Trice format string should remain simple and tool-independent. It only marks a message as visualization-relevant and defines the transmitted values. Timestamp handling, value ordering, scaling, output formatting, sink address, and optional suppression from normal log output are configured on the tlog command line.
-
->DELETE: END
-
->NEW: BEGIN
-
 The target-side Trice format string should remain simple and tool-independent. It only marks a message as visualization-relevant and defines the transmitted values. Target-stamp selection, value ordering, scaling, output formatting, sink address, and optional suppression from normal log output are configured on the tlog command line. A target stamp is treated as an unscaled numeric value; it is not assumed to represent time.
-
->NEW: END
 
 Simple CSV Output Example:
 
@@ -30,21 +20,11 @@ Simple CSV Output Example:
 TRice("msg:ax=%f,ay=%f,az=%f\n", aFloat(ax), aFloat(ay), aFloat(az));
 ```
 
->DELETE: BEGIN
-
 ```bash
 tlog ... -vis='msg:printf("%d,%0.3f,%0.3f,%0.3f\n", ts*0.123, v0-1000, v1, v2/3.14)@udp://127.0.0.1:7010;log=drop'
 ```
 
->DELETE: END
-
->NEW: BEGIN
-
-```bash
-tlog ... -vis='msg:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts32*0.123,v0-1000,v1,v2/3.14)@udp://127.0.0.1:7010;log=drop'
-```
-
->NEW: END
+Hint: The `%d` format specifier demands, that the expression `ts*0.123` needs a cast to int64. It would be possible to write `int64(ts*0.123)` instead but this th Go specific syntax. Also `(int64)(ts*0.123)` would be an option. For the sake of simplicity we allow just `ts*0.123` and take the risk of a silent user spcific mistake.
 
 This keeps visualization-specific decisions out of target firmware while allowing the same Trice messages to be reused with different output formats and visualization tools.
 
