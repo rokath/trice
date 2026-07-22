@@ -50,7 +50,7 @@ jobs:
       # 2) Install Go (recommended: read version from go.mod)
       # actions/setup-go exists in newer majors; using the major tag keeps you on supported updates. :contentReference[oaicite:2]{index=2}
       - name: Set up Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
