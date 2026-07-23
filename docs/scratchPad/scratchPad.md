@@ -137,6 +137,82 @@ Ich will noch nicht alle Details festlegen. Was an wichtigen Dingen ist noch unk
 
 ---
 
+*) NAMING:
+`tlog` meint immer die `trice log` Funktionalität. `tlog` ist ein zusätzliches Executable, welches genau die `trice log` Funktionalität hat.
 
+*) TARGETSTAMP (meist TIMESTAMP aber der Begriff sollte Target-Stamp oder nur Stamp sein um die Nicht-Einschränkung auf Zeit zu verdeutlichen):
+Dadurch, dass ts im -vis String skaliert werden kann, sollte ts doch unproblematisch sein, oder? ts16 und ts32 sollen nicht vermischt verwendet werden. Durch Benutzung von explizit ts32 bzw. ts16 werden dann auch Fehler vermieden. Aber auch nur ts zu verwenden ist ok. Sobald ts auf ein -vis Log mit ts16 und auch mit ts32 matcht ist das ein harter Fehler. Es gibt aber den Sonderfall, dass ts16 die unteren Digits des letzten übertragenen ts32 sind. Das ist eine mögliche spezielle Optimierung, die im TriceUserManual.md #### 5.9.2. <a id="target-trice-stamps"></a>Target Trice Stamps gezeigt ist. Dieser Fall wird im Sinne der Einfachheit für -vis explizit ausgeschlossen. Die Unterscheidung von ts und ts_raw innerhalb von tlog erscheint unnötig, da tlog aktuell eine TargetStamp-Skalierung nicht unterstützt. Allerdings ist das ein nettes Feature und könnte nachgerüstet werden. Wenn das passiert, sollte das völlig unabhängig von der -vis Funktionalität sein. Schlussendlich entscheidet der User über die ts Bedeutung vollständig. Wenn das Plot-Tool nur x und y Werte z.B. für Lissajous Figuren braucht, könnte ts z.B. den x oder y Part übernehmen, obwohl das eine a-typische Benutzung wäre.
 
+*) -pick, -ban, ;log=drop, ;log=keep:
+Wenn z.B. -ban auf ein -vis matching Log passt, dass sieht -vis diesen Log nie. Insofern ist die -pick, -ban Filterung völlig unabhängig und damit unkritisch für die -vis Implementierung.
+
+*) Mehrere Logs in einer Zeile:
+Dieser Fall soll für die -vis Implementierung nicht erschwerend wirken. Wenn es hilft, wird gefordert, dass -vis Logs aus nur einem Log pro Zeile existieren. Andernfalls ignoriert -vis diese zum Beispiel.
+
+*) Typisierte Messwerte:
+Wenn Messwerte typisiert, auch nur kurz, existieren, kann diese Typinformation für -vis zeilenweise bewahrt werden, sofern sie für -vis benötigt wird. Wäre dann die angesprochene Sackgasse umgehbar? Bitte erläutese die Sackgassenproblematik.
+
+*) Einfachheit:
+Es soll keine Full-Featured Grafik-Tool Anbindung entstehen, insbesondere wenn der Coding-Aufwand dadurch unnötig groß wird. Wenn durch gewisse Einschränkungen zunächst vieles einfacher wird, dann gehe diesen Weg, mache aber die Einschränkungen deutlich.
+
+*) TREX/CHAR/DUMP:
+Es soll nur TREX unterstützt werden.
+
+*) JSON:
+In -vis='msg:printf(<go-fmt>, ...' kann <go-fmt> auch einen JSON Einzeiler enthalten, wenn das hilft.
+
+*) Die wichtigste Änderung "-vis darf nicht auf dem bereits formatierten Logtext aufbauen":
+Können die notwendigen Infos im der vorgelagerten Verarbeitung bewahrt werden, dort also nur einen kleinen Eingriff verursachen, und dann zusammen mit / parallel zu dem formatierten Text ausgewertet werden
+
+*) Zu "Das hat drei Folgen":
+1) Wenn Multi-Logs pro Zeile für -vis verboten werden, kann die Zeileninfo in globalen Variablen zwischengespeichert werden um sie für die -vis Ausgabe zu benutzen, ähnlich dem Stamp. Das ist zwar nicht schön, aber vielleicht im Sinne des geringstmöglichen Eingriffs machbar.
+2) -pick/-ban muss darauf keine Rücksicht nehmen, wenn -ban auch auf -vis wirken darf.
+3) Multi-Log Zeilen werden für -vis nicht erlaubt. D.h. sie dürfen vorkommen, aber der -vis Code nimmt darauf keine Rücksicht.
+
+*) Typisierte interne Nachricht:
+Diese könnte pro Trice Message als Strukt global gespeichert werden, vielleicht sogar asl Struct-Slice, um ggf. später mit Multi-Log Zeilen umgehen zu können. Wenn dann am Ende -vis aktiv wird, kann es darauf zugreifen.
+
+*) Ja klar, ts sind nicht automatsch Mikrosekunden oder irgendeine andere Zeiteiheit:
+Wrap-Erkennung wird nicht implementiert. Allerdings könnte darüber nachgedacht werden, wenn ein 16-Bit oder 32-Bit Stampwert auf nahe-Null springt, im 64-Bit Value +0x10000 bzw. +0x10000000 zu rechnen. Aber das gehört nicht ins MVP.
+
+*) Transportumfang:
+Datei und UDP ok für MVP. Was ist mit named Pipe? Sind die Win/Unix/Mac Unterschiede nicht in der Go Library gekapselt? Bitte erläutere "Sink-Vertrag Datensatz orientiert" an einem Beispiel.
+
+*) Blockierung und Fehlerverhalten
+Gib konkrtete Beispiele, wann das auftreten kann.
+
+*) log=drop
+Wenn es die Implementierung wesentlich vereinfacht, darf auch auf log=drop komplett verzichtet werden und der User muss dann explitit -ban:msg angeben um visualisierte Logs im normalen Trice Output zu unterdrücken. Halte ich aber nur für akzeptabel, wenn dadurch vieles wesentlch einfacher wird. Aber grundsätzlich sollte -ban:msg alle Tags msg völlig unsichtbar mache, auch für -vis.
+
+*) Ausdrucks- und CLI-Syntax:
+Ja, offen halten. printf=encoder habe ich verstanden. Etwa so: -vis='selector:encoder(...)@sink;filter'?
+
+*) Das MVP sollte zunächst nur v0,...,v11 kennen und das zuätzliche Parsing auf name=% enfallen, damit es alles übersichtlicher wird. Diese Parsingfunktionalität muss dokumentiert und getestet werden, ist fehleranfällig und bringt wenig Mehrgewinn.
+
+*) Erläutere weaum "file://out.csv" problematisch ist.
+
+*) Ich möchte, dass Du mir konkret vorgibst, welche Textstellen der Issue gestrichen und gegen was ersetzt werden sollten. Außerdem eine Präzisierung, die unten in der Issue angefügt werden soll. Nicht als Comment sonder in die Issue mit hinein.
+
+*) Bitte noch nichts machen jetzt, sondern nur mit mir reden um die Deteils abzustimmen, bevor Texte generiert werden.
+
+---
+
+*) "harter Fehler":
+Eine zweite Stamp-Breite sollte nicht unerwartet auftreten können, da til.json von Anfang an verfügbar ist und gleich beim Start auf Konflickte gecheckt werden kann. In diesem Zusammenhang fällt mir auf, dass til.json die komplette History enthält und demzufolge alte Einträge stören könnten. Das sollte akzeptabel sein, da eine Fehlermeldung u.a. die betreffenden IDs enthält und der User ggf. die til.json manuell bereinigen kann, was mit einem Editor leicht geht. Wenn die til.json im laufenden Betrieb ge-updated wird und dann Konflikte auftreten, ist ein Ignorieren und deutliche Fehlermeldungen ausreichend. FAZIT: "harter Fehler" in diesem Zusammenhang einfach eine DEUTLICHE Warrnung bzgl. til.json beim Start und später bei jedem Auftreten.  
+
+*) "stilles ignorieren von Multi-Log Zeilen:
+Das ist völlig ok. für -vis sind Mult-Log Zeilen nicht da. Das muss nur in die Doku und bedarf keines Codes, oder nur sehr wenig.
+
+*) Weglassen der named Pipes füe MVO ist ok.
+
+*) "offene Entscheidungen":
+1. DEUTLICHE Warnung und Regel abschalten
+2. Sill ignorieren. Nur bei --verbose Switch Warnung ausgeben.
+3. Ja, aber bei --verbose immer Warnung.
+4. Ja.
+5. Ja.
+
+* Alle anderen Empfehlungen sind akzeptiert.
+
+*) Bitte noch nichts machen jetzt, sondern nur mit mir reden um die Deteils abzustimmen, bevor Texte generiert werden.
 
