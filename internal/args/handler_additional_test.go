@@ -125,6 +125,25 @@ func TestIsLogFlagPassed(t *testing.T) {
 	assert.False(t, isLogFlagPassed("ts16"))
 }
 
+// TestVisFlagIsRepeatableAndResetWithLogFlags verifies CLI collection without leaking rules across parses.
+func TestVisFlagIsRepeatableAndResetWithLogFlags(t *testing.T) {
+	FlagsInit()
+	err := fsScLog.Parse([]string{
+		"-vis", `msg:printf("%d",v0)@one.txt`,
+		"-vis", `imu:printf("%f",v0)@two.txt`,
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, []string{
+		`msg:printf("%d",v0)@one.txt`,
+		`imu:printf("%f",v0)@two.txt`,
+	}, []string(visRules))
+	assert.True(t, isLogFlagPassed("vis"))
+
+	FlagsInit()
+	assert.Empty(t, visRules)
+	assert.False(t, isLogFlagPassed("vis"))
+}
+
 // TestInfoHelpersWriteText verifies the expected behavior.
 func TestInfoHelpersWriteText(t *testing.T) {
 	FlagsInit()

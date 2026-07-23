@@ -81,6 +81,8 @@ func helpInit() {
 
 func logInit() {
 	const defaultEncoding = "TREX"
+	// Reinitializing flag sets in tests must not retain repeatable rules from an earlier parse.
+	visRules = nil
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
@@ -187,6 +189,9 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurrences count on exit.`)
 	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
 	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
+	fsScLog.Var(&visRules, "vis", `Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
+<tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop]
+Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks append; each encoded UDP record is one datagram.`)
 }
 
 func addInit() {

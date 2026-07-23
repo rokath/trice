@@ -158,6 +158,7 @@ details.toc[open] .toc-hide {
     * [12.2.9. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * [12.2.10. Explore and modify tags and their colors](#explore-and-modify-tags-and-their-colors)
     * [12.2.11. Location Information](#location-information)
+  * [12.3. Visualization output with -vis](#visualization-output-with--vis)
 * [13. Limitations](#limitations-1)
   * [13.1. Permanent Limitations](#permanent-limitations)
     * [13.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
@@ -2066,6 +2067,105 @@ See chapter [Trice Tags and Color](#trice-tags-and-color).
 #### 12.2.11. <a id="location-information"></a>Location Information
 
 When running  `trice insert`, a file `li.json` is created, which you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuilt with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
+
+### 12.3. <a id="visualization-output-with--vis"></a>Visualization output with `-vis`
+
+`tlog` and `trice log` support the same repeatable `-vis` option for sending selected numeric measurements to external visualization tools. Consumers can, for example, be LabPlot, Serial Studio, PlotJuggler, uPlot, Grafana, or a custom program; these names do not imply a tool-specific protocol. Trice itself does not draw a graph. It transforms one typed TREX message into one user-defined text record and writes that record to a file or UDP destination.
+
+The MVP syntax is:
+
+```text
+-vis='<tag>:printf("<go-fmt>",<expression-list>)@<file-path-or-udp-sink>[;log=keep|drop]'
+```
+
+For example, this target message keeps its visualization details independent of the host tool:
+
+```c
+TRice("imu:ax=%f,ay=%f,az=%f\n", aFloat(ax), aFloat(ay), aFloat(az));
+```
+
+It can be written as CSV:
+
+```bash
+tlog ... \
+  -vis='imu:printf("%d,%0.3f,%0.3f,%0.3f\n",ts32,v0,v1,v2)@imu.csv'
+```
+
+or sent as one UDP datagram per record:
+
+```bash
+tlog ... \
+  -vis='imu:printf("%0.3f,%0.3f,%0.3f\n",v0*0.5,v1*0.5,v2*0.5)@udp://127.0.0.1:7010;log=drop'
+```
+
+The selector matches the original Trice format prefix `<tag>:`. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
+
+The supported fields are:
+
+```text
+id                unsigned Trice ID
+ts                raw 16- or 32-bit Target-Stamp, with one width latched per rule
+ts16              raw 16-bit Target-Stamp
+ts32              raw 32-bit Target-Stamp
+v0 ... v11        typed positional TREX values
+```
+
+The value fields are positional and can be reordered in the expression list. The MVP does not extract names such as `ax` or `rpm` from the human-readable target format and does not accept those names as identifiers. For example, `printf("%g,%g\n",v2,v0)` deliberately emits the third value before the first.
+
+A Target-Stamp is an unscaled number. `-vis` does not assume that it represents time and does not perform unit conversion, wrap extension, or mixed-width reconstruction. Scaling is explicit in an expression, for example `ts32*0.001`. A rule may use `ts16` or `ts32`, but not both. A generic `ts` rule is disabled with a warning if an otherwise eligible message later changes between 16 and 32 bits.
+
+Separate rules make the expected stamp width explicit:
+
+```bash
+tlog ... \
+  -vis='fast:printf("%d,%g\n",ts16,v0)@fast.csv' \
+  -vis='slow:printf("%d,%g\n",ts32,v0)@slow.csv'
+```
+
+Expressions support decimal, floating-point, and hexadecimal literals, parentheses, unary minus, and `+`, `-`, `*`, `/`. A direct field retains its signed, unsigned, floating-point, or Boolean type. Arithmetic is evaluated as `float64`. A floating result used with an integer verb must be finite and inside the `int64` range; it is then truncated toward zero.
+
+The `printf` encoder supports:
+
+```text
+integer:       %d %b %o %x %X
+floating:      %f %e %E %g %G
+generic:       %v
+Boolean:       %t with a direct Boolean field
+literal:       %%
+formatting:    literal width and precision, such as %08x or %0.3f
+```
+
+`%u`, dynamic `*` width or precision, explicit argument indexes, string conversions, and other Go formatting verbs are not supported. The expression count must equal the number of consuming verbs. The encoder adds no implicit newline; include `\n` in the format when the receiving tool expects one. A one-line JSON record is possible as well:
+
+```bash
+tlog ... \
+  -vis='imu:printf("{\"stamp\":%d,\"x\":%g,\"y\":%g,\"z\":%g}\n",ts32,v0,v1,v2)@udp://127.0.0.1:7011'
+```
+
+A bare path and `file:<path>` both select an append-only file:
+
+```text
+@out.csv
+@logs/imu.csv
+@file:out.csv
+```
+
+Missing files are created. Rules using the same normalized file path share one open file. `file://out.csv` is rejected because standard URI parsing treats `out.csv` as a host, not as a relative path. Full file-URI semantics are not part of this implementation.
+
+UDP destinations use:
+
+```text
+@udp://127.0.0.1:7010
+@udp://localhost:7010
+```
+
+The address is resolved and opened before decoding starts. File and UDP writes are synchronous. There is no queue, retry, reconnect, acknowledgement, TCP, WebSocket, or named-pipe support in this first implementation.
+
+`log=keep` is the default and leaves the decoded message in normal output. `log=drop` removes it from normal output only after that rule has encoded and written the visualization record successfully. All overlapping rules are still attempted; one successful `log=drop` rule wins. An ignored record or a failed encoder or sink write does not drop the normal log.
+
+Only fixed-width numeric TREX messages are eligible. The first twelve values are addressable as `v0` through `v11`; additional values do not prevent a rule from using that addressable prefix and remain available to normal logging. `TREX` string, buffer, function-display, character, typeX0, `CHAR`, and `DUMP` inputs are not supported. Named values, specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are deferred behind the same selector/encoder/sink separation. One eligible Trice must also form one complete log line by itself. Partial, multi-line, and multi-Trice lines continue through normal logging but are ignored by `-vis`; verbose mode reports every such occurrence.
+
+At startup, each rule checks all matching historical `til.json` entries. Incompatible old entries are excluded independently, so one stale ID does not block another compatible ID. A rule with no compatible entry is disabled with a prominent warning. Rules are also disabled, never silently, after a generic Target-Stamp width conflict, an unsafe runtime expression conversion, or a sink failure. Normal logging continues.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -24,6 +24,7 @@ import (
 	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
 	_ "github.com/rokath/trice/internal/trexDecoder"
+	"github.com/rokath/trice/internal/vis"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -43,7 +44,7 @@ var (
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, rwc io.ReadWriteCloser) error {
+func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, rwc io.ReadWriteCloser, visRouter *vis.Router) error {
 	//var dec Decoder //io.Reader
 	if Verbose {
 		fmt.Fprintln(w, "Encoding is", Encoding)
@@ -62,16 +63,19 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	if err != nil {
 		log.Fatal(err)
 	}
+	if controller, ok := dec.(decoder.VisRecordController); ok {
+		controller.SetVisRecordEnabled(visRouter != nil)
+	}
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)
 	} else {
-		go handleSIGTERM(w, rwc)
+		go handleSIGTERM(w, rwc, visRouter)
 	}
-	return decodeAndComposeLoop(w, sw, dec, lut, li)
+	return decodeAndComposeLoop(w, sw, dec, lut, li, visRouter)
 }
 
 // handleSIGTERM is called on CTRL-C shutdown.
-func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
+func handleSIGTERM(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) {
 	// prepare CTRL-C shutdown reaction
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -88,6 +92,7 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 			emitter.PrintTagStatistics(w)
 			decoder.PrintTriceStatistics(w)
 			msg.FatalOnErr(rc.Close())
+			msg.OnErr(visRouter.Close())
 			os.Exit(0) // end
 		case <-ticker.C:
 		}
@@ -483,7 +488,7 @@ func splitSingleFormatDirective(format string) (prefix string, width int, leftAl
 }
 
 // decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI) error {
+func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router) error {
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
@@ -526,7 +531,19 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
 		n = emitter.BanOrPickFilter(b[:n])
 
-		if n > 0 { // s.th. to write out
+		dropNormalOutput := false
+		if n > 0 && visRouter != nil {
+			// Typed visualization data is an optional decoder capability. Keeping
+			// it separate avoids changing the common Decoder interface or parsing
+			// already formatted log text.
+			if provider, ok := dec.(decoder.VisRecordProvider); ok {
+				if record, available := provider.VisRecord(); available {
+					dropNormalOutput = visRouter.Process(record, len(sw.Line) != 0)
+				}
+			}
+		}
+
+		if n > 0 && !dropNormalOutput { // s.th. to write out
 			var logLineStart bool // logLineStart is a helper flag for log line start detection
 			if len(sw.Line) == 0 {
 				logLineStart = true

@@ -21,6 +21,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/translator"
+	"github.com/rokath/trice/internal/vis"
 	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
@@ -249,6 +250,15 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	m.Lock()
 	ilu.AddFmtCount(w)
 	m.Unlock()
+
+	if len(visRules) > 0 && !strings.EqualFold(translator.Encoding, "TREX") {
+		msg.FatalOnErr(fmt.Errorf("-vis requires -encoding TREX, got %q", translator.Encoding))
+	}
+	visRouter, err := vis.NewRouter(w, fSys, ilu, m, []string(visRules), Verbose)
+	msg.FatalOnErr(err)
+	if visRouter != nil {
+		defer func() { msg.OnErr(visRouter.Close()) }()
+	}
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
 	//go ilu.FileWatcher(w, fSys, m)
@@ -297,7 +307,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
-		e = translator.Translate(w, sw, ilu, m, li, rwc)
+		e = translator.Translate(w, sw, ilu, m, li, rwc, visRouter)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}

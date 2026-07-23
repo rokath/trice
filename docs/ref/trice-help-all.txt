@@ -296,6 +296,10 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Gives more informal output if used. Can be helpful during setup.
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -vis value
+    	Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
+    	<tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop]
+    	Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks append; each encoded UDP record is one datagram.
 sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
 #	It extends the ID list from these source files but does not change the source files, even if they contain Trices without IDs.
 #	Already used IDs are reported, so you have the chance to remove them from til.json and your project and then do "trice add" again.

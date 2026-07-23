@@ -128,6 +128,76 @@ type Decoder interface {
 	SetInput(io.Reader)
 }
 
+// VisValueKind identifies the exact scalar category retained before normal log formatting.
+type VisValueKind uint8
+
+const (
+	// VisValueInvalid marks an uninitialized visualization value.
+	VisValueInvalid VisValueKind = iota
+
+	// VisValueSigned stores a signed integer in VisValue.Signed.
+	VisValueSigned
+
+	// VisValueUnsigned stores an unsigned integer in VisValue.Unsigned.
+	VisValueUnsigned
+
+	// VisValueFloat stores a floating-point value in VisValue.Float.
+	VisValueFloat
+
+	// VisValueBool stores a Boolean value in VisValue.Bool.
+	VisValueBool
+)
+
+const (
+	// VisValueCapacity is the fixed maximum parameter count exposed by the first -vis implementation.
+	VisValueCapacity = 12
+)
+
+// VisValue retains one typed TREX parameter without converting it to formatted log text.
+//
+// Exactly one value field is meaningful according to Kind. Bits preserves the
+// source width so later encoders can make format-driven conversions without
+// guessing the target representation.
+type VisValue struct {
+	Kind     VisValueKind
+	Bits     int
+	Signed   int64
+	Unsigned uint64
+	Float    float64
+	Bool     bool
+}
+
+// VisRecord is the decoder-local, typed representation offered to optional visualization consumers.
+//
+// Values has a fixed capacity because supported TREX numeric messages contain
+// at most twelve parameters. SingleLine reports whether this one message forms
+// exactly one complete logical log line before metadata is composed.
+type VisRecord struct {
+	ID         id.TriceID
+	Type       string
+	Format     string
+	Stamp      uint64
+	StampBits  int
+	Values     [VisValueCapacity]VisValue
+	ValueCount int
+	SingleLine bool
+}
+
+// VisRecordProvider is an optional decoder capability and deliberately does not enlarge Decoder.
+//
+// The returned record is valid only for the most recent successful Read call.
+// Decoders that do not expose typed fixed-width numeric messages simply do not
+// implement this interface.
+type VisRecordProvider interface {
+	// VisRecord returns the typed result associated with the most recent Read.
+	VisRecord() (VisRecord, bool)
+}
+
+// VisRecordController is an optional decoder capability used to avoid capture work without -vis rules.
+type VisRecordController interface {
+	SetVisRecordEnabled(bool)
+}
+
 // DecoderData is the common data struct for all decoders.
 type DecoderData struct {
 	W           io.Writer          // io.Stdout or the like
