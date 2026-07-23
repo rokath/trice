@@ -221,6 +221,12 @@ If any matching historical entry is incompatible, the complete rule is disabled.
 
 Is it better to not disable the rule instead? Legacy til.json entries may disturb then more than wanted.
 
+>DISCUSSION RESPONSE:
+
+Yes. A tag match should make a `til.json` entry a candidate, not force every historical entry with that tag to be compatible with every rule. At startup, each rule should build its set of compatible IDs and ignore incompatible candidate IDs. The rule remains enabled when at least one compatible ID exists. If no compatible ID exists at all, the rule is disabled with the already agreed prominent diagnostic because it cannot produce output with the current `til.json`.
+
+This avoids legacy entries disabling useful rules. In normal mode, excluded candidate IDs are silent; verbose mode can list them together with the reason. The exact, deliberately simple compatibility signature is proposed in the later discussion about parameter counts. This decision would require corresponding changes in sections 6, 12, 19, 20.6, and the related tests.
+
 >DISCUSSION: END
 
 When `til.json` is updated while tlog is running, a new or changed matching ID is validated when a corresponding runtime record is first observed. An incompatible entry disables the rule with the same prominent diagnostic. Unused historical entries added during the run need not be detected until the next tlog start, where the complete strict scan runs again. Normal logging continues.
@@ -260,6 +266,16 @@ Users apply any required scaling explicitly, for example `ts32*0.001`. A Target-
 >DISCUSSION: BEGIN
 
 ID, Id and id are not visible in til.json, so some errors are detectable only during logging. What do you propose?
+
+>DISCUSSION RESPONSE:
+
+Do not extend or reinterpret `til.json` for this MVP. Target-Stamp width remains a runtime property:
+
+- `ts16` and `ts32` are runtime eligibility predicates. A record with no stamp or the other width is ignored; verbose mode reports it.
+- Generic `ts` remembers the first observed width for this rule. A later matching record with the other width emits the prominent diagnostic and disables the rule.
+- An unstamped record is ignored by every stamp-dependent rule.
+
+Consequently, using `Trice` instead of `TRice`, or `TRICE(Id(...))` instead of `TRICE(ID(...))`, cannot be detected at startup from `til.json`. It is detected only when such a record arrives. This limitation should be stated explicitly rather than approximated from the format type. If explicit-width mismatches should always warn rather than warn only in verbose mode, that would be a separate change to the already agreed diagnostic policy; my recommendation remains the less noisy verbose-only diagnostic.
 
 >DISCUSSION: END
 
@@ -332,6 +348,17 @@ Type rules are deliberately small:
 - Every expression containing unary minus or a binary arithmetic operator is evaluated as `float64`, including `ts/10` and `v0+0x1000`.
 >DISCUSSION: BEGIN
 - If an integer format specifier occurs in the -vis printf format string, an automatic implicit cast is performed.
+
+>DISCUSSION RESPONSE:
+
+Agreed, provided the conversion is defined by the output format verb rather than delegated blindly to Go `fmt`:
+
+- Direct integral fields keep their signed or unsigned type for `%d`, `%b`, `%o`, `%x`, and `%X`.
+- A direct floating-point field or an arithmetic result used with an integer verb is checked for `NaN`, infinity, and the `int64` range, then truncated toward zero and passed as `int64`.
+- Integral fields used with `%f`, `%e`, `%E`, `%g`, or `%G` are converted to `float64`.
+- `%v` preserves the evaluator result type, and `%t` accepts only Boolean values.
+
+Thus `printf("%d", ts*0.123)` has a documented meaning without exposing a Go-specific cast syntax. The possible semantic loss caused by truncation is intentionally the user's responsibility. Unsafe conversions still disable the rule with a prominent diagnostic, and `%!verb(...)` must never reach the sink. The formatter, validation, implementation, and test sections will need to use this format-driven conversion rule consistently.
 >DISCUSSION: END
 - A Boolean field may be passed directly to a compatible Go format verb but may not participate in arithmetic.
 - Division by zero, a non-finite result not accepted by the chosen output format, or an incompatible Go format verb disables the rule with a prominent non-fatal error. The affected record remains in normal logging.
@@ -392,6 +419,18 @@ The first message is simply ignored by a `-vis` rule that requires `ts,v0,v1,v2`
 
 Gennerally, not-matching messages are silently ignored. Only 16-bit - 32-bit target stamp clashes and an obviously wrong v5 on a 3-value messages are reported as error.
 
+>DISCUSSION RESPONSE:
+
+I agree with silently ignoring non-matching candidate messages and with removing the struck-through whole-rule behavior. To keep matching predictable when several rules use the same tag, I recommend one additional MVP restriction: the required positional arity is `highest referenced vN + 1`, and the decoded message must have exactly that many values. A rule referencing `v0` therefore matches one-value messages, while a rule referencing `v0` and `v1` matches two-value messages. A rule with no `vN` reference has no arity restriction.
+
+Exact equality of the human-readable Trice format strings is not needed. Messages such as `plot:a=%d` and `plot:b=%d` may intentionally share one rule because their tag, arity, and numeric compatibility are the same. Their semantic equivalence remains the user's responsibility.
+
+An obviously wrong `v5` disables the rule at startup only when no candidate ID for that tag has six values. If at least one six-value candidate exists, the rule is useful and three-value candidates are simply excluded, with details available in verbose mode. Otherwise legacy entries would again disable valid rules.
+
+Target-Stamp width is an independent runtime eligibility check as described above. A generic-`ts` width clash remains a prominent runtime error and disables the rule.
+
+>CLARIFICATION: A -vis rule is allowed to use only a subset of the Trice message values.
+
 >DISCUSSION: END
 
 ## 13. <a id="printf-formatter"></a>`printf(...)` formatter
@@ -415,6 +454,16 @@ Examples:
 ```
 
 As mentioned: implicit type conversion according %name.
+
+>DISCUSSION RESPONSE:
+
+With the format-driven conversion rule above, this example is valid:
+
+- `ts32/10` is evaluated as `float64`, then truncated toward zero and converted to `int64` for `%d`.
+- The middle two arithmetic expressions remain `float64` for `%0.3f`.
+- `20.0*v2-1000` is evaluated as `float64`, range-checked, truncated toward zero, and converted to `int64` for `%08x`.
+
+The conversion is selected by the format verb, not by a field name. For a negative hexadecimal result, Go's signed integer formatting includes a minus sign; users wanting an unsigned bit pattern should pass an unmodified unsigned field or explicitly choose a future conversion feature. This example and the introductory `%d` example therefore no longer represent an accidental type mismatch, but a documented lossy conversion.
 
 >DISCUSSION: END
 
@@ -647,57 +696,6 @@ tlog ... \
 
 The explicit fields make records of the other width ineligible instead of mixing their numeric ranges.
 
->DELETE: BEGIN
-
-## 18. <a id="startup-validation-requirements"></a>Startup validation requirements
-
-`tlog` must validate each `-vis` string at startup before processing the input stream as far as possible.
-
-Validation should include:
-
-- General syntax of the `-vis` string.
-- Known transformation function, initially `printf`.
-- Correct quoting and closing parentheses in `printf(...)`.
-- Valid expression syntax.
-- Supported expression operators and constants.
-- Number of printf format specifiers vs number of provided expressions.
-- Valid field names: reserved names, positional names, or extracted value names.
-- Valid sink/address syntax.
-- Valid `log=...` option.
-- No unsupported extra suffix options unless intentionally designed.
-- Unsupported `%u` should be rejected or diagnosed clearly if it is not implemented.
-- If Trice ID/format information is available at startup, validate the tag against known format strings.
-- For matching Trice IDs, determine which messages are compatible and which would be ignored.
-- If no compatible known message exists for a `-vis` rule, report a clear startup error or strong warning.
-- If value names are used, validate value-name extraction and consistent value-name mapping for compatible messages.
-- If `ts` is referenced, ensure there is at least one compatible timestamp-carrying known message, when this can be checked at startup.
-
-Diagnostics should be specific, for example:
-
-```text
-invalid -vis: tag "msg" references field v3, but no compatible ID has 4 parameters
-```
-
-```text
-invalid -vis: field "ts" requested, but no compatible known ID for tag "msg" has a target timestamp
-```
-
-```text
-invalid -vis: value name "ax" is ambiguous for tag "msg"
-```
-
-```text
-invalid -vis: unsupported sink scheme "foo://"
-```
-
-```text
-invalid -vis: unsupported printf verb "%u"; use "%d" for decimal integer output
-```
-
->DELETE: END
-
->NEW: BEGIN
-
 ## 19. <a id="startup-validation-requirements-1"></a>Startup validation requirements
 
 Before input decoding starts, tlog parses every raw `-vis` argument, validates every rule as far as the available `til.json` permits, and then creates the unique sinks required by the remaining enabled rules.
@@ -749,6 +747,35 @@ For the MVP prefer an easy to understand, smooth to use and stable way.
 
 - Because "plot" is a user free selectable name, collisions with legacy til.json entries are of minor relevance, I think.
 - The first 3 Trice messages are matching the first rule with a 16-bit target stamp and the 2nd 3 would match the 2nd rule with a 32-bit target stamp but there is an error: `Trice("plot:x=%d, y=%d", x, y);` shoulb be `TRice("plot:x=%d, y=%d", x, y);`. That is detectable at start-up. But the error `TRICE(Id(0), "plot:x=%d, y=%d", x, y);` ist detectable only during runtime. There must be a clear rule-set, easy to understand and to handle. No all-inclusive solution. Keep it simple! During the development process all the time mistakes occur and their fixing usually is quickly done.
+
+>DISCUSSION RESPONSE:
+
+`Enabled` means that the rule was parsed successfully, has at least one compatible LUT candidate, has an initialized sink, and is considered for every surviving runtime record. `Disabled` means that the rule remains known for diagnostics but is skipped for the rest of this tlog run. Every transition to disabled emits one prominent diagnostic. Invalid CLI syntax or failure to initialize a sink prevents tlog from starting instead of creating a disabled rule.
+
+I do not recommend exact equality of complete Trice format strings. It would make harmless label changes such as `plot:a=%d` versus `plot:b=%d` separate otherwise identical data shapes and would make historical text changes disruptive. For the MVP, use this matching sequence:
+
+1. The record survives existing pick/ban filtering.
+2. The original, unstripped format starts with the selected tag.
+3. The record is a supported numeric, single-Trice, single-line TREX record.
+4. Its value count exactly equals `highest referenced vN + 1`; no `vN` means no arity restriction.
+5. Every referenced value is numerically or Boolean-compatible with the format-driven conversion required by its output verb.
+6. The runtime Target-Stamp condition (`ts`, `ts16`, or `ts32`) is satisfied.
+
+All rules satisfying these conditions run; overlap is allowed deliberately. Candidate IDs failing conditions 3 through 5 are excluded from that rule rather than disabling it. The rule is disabled at startup only when no compatible LUT candidate remains.
+
+With the shown one-value and two-value records, arity separates the two rules. Stamp intent should additionally be explicit:
+
+```bash
+tlog ... \
+    -vis='plot:printf("%f, %d\n",ts16,v0)@plot.csv' \
+    -vis='plot:printf("%f, %d, %d\n",ts32,v0,v1)@plot.csv'
+```
+
+The one-value rule accepts the first three records. The two-value rule accepts two-value records only when they carry a 32-bit stamp. The accidentally written `Trice("plot:x=%d, y=%d", ...)` and `TRICE(Id(...), "plot:x=%d, y=%d", ...)` cannot be detected at startup because the stamp selector spelling is not present in `til.json`. At runtime they fail the `ts32` condition and are ignored, with a diagnostic in verbose mode. If generic `ts` were used instead, the first observed width would be remembered and a later second width would disable that rule prominently.
+
+The source `%u` hint does not make an ID incompatible by itself: `%u` is allowed in the target Trice format and yields an unsigned typed value. Only `%u` in the `-vis` output format is rejected for the MVP; `%d` can format a direct unsigned value.
+
+This rule set is intentionally not all-inclusive, but it is deterministic, keeps legacy tag collisions harmless, and leaves richer selectors for a later extension.
 
 >DISCUSSION: END
 
