@@ -870,7 +870,7 @@ void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 //! \param runtimeGeneratedString 0-terminated runtime generated string
 #define TRICE_S(tid, pFmt, runtimeGeneratedString)                \
 	do {                                                          \
-		uint32_t ssiz_TRICE_S = strlen(runtimeGeneratedString);   \
+		size_t ssiz_TRICE_S = strlen(runtimeGeneratedString);     \
 		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 

@@ -733,10 +733,10 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	const uint32_t* enc = triceStart;
-	unsigned count = wordCount;
+	size_t count = wordCount;
 #else
 	static uint32_t enc[TRICE_BUFFER_SIZE >> 2]; // If not static this is stack buffer and could save/waste RAM depending on users system.
-	unsigned count = directXEncode32(enc, triceStart, wordCount);
+	size_t count = directXEncode32(enc, triceStart, wordCount);
 #endif
 
 	TriceDirectWrite32(enc, count);
@@ -754,10 +754,10 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_NONE)
 	uint8_t* enc = (uint8_t*)triceStart;
-	unsigned len = wordCount << 2; // Up to 3 trailing zeroes are here.
+	size_t len = wordCount << 2; // Up to 3 trailing zeroes are here.
 #else
 	static uint8_t enc[TRICE_BUFFER_SIZE];                          // If not static this is stack buffer and could save/waste RAM depending on users system.
-	unsigned len = directXEncode8(enc, triceStart, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
+	size_t len = directXEncode8(enc, triceStart, wordCount << 2); // Up to 3 trailing zeroes are packed as well here.
 	                                                                // We do not know the padding count without interpreting the Trice.
 #endif
 
