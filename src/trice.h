@@ -366,9 +366,9 @@ extern uint32_t* TriceBufferWritePosition;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __cplusplus // see \#571
-#ifdef __GNUC__ // see \#594
+#if defined(__GNUC__) && (__GNUC__ >= 5) // see \#594
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-#endif // __GNUC__
+#endif // GCC >= 5
 #endif
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
 #define TRICE_PUT16(x)                                                 \
