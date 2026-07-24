@@ -25,7 +25,29 @@ Die aussichtsreichste Verbindung beider Welten besteht darin, die bisher gekoppe
 Dafür erscheinen drei Varianten besonders relevant:
 
 1. **Instrumentierte Build-Kopie der Quellen:** portabel, risikoarm und schnell realisierbar.
+
+>DISKUSSION: START
+
+Vermutlich bringt das Seiteneffekte beim Debuggen, da nicht die Originalquellen compiliert werden.
+
+Im Prinzip ist das mit dem Trice Cache Mechanismus bereits vorhanden und vermutlich besser gelöst, als eine Kopie zu compilieren, oder?
+
+>DISKUSSION: ENDE
+
 2. **Generierter, übersetzungseinheitsspezifischer ID-Header:** Originalquellen bleiben unverändert; die ID ist weiterhin eine Compile-Time-Konstante.
+
+>DISKUSSION: START
+
+Du meinst keine generierte C-Headerdatei mit `#define TRICE_ID_FILE_LINE_pFmt 12345u`, denn die wäre ja Compiler-unspezifisch, oder? pFmt wäre dann ein generierter Makroname-kompatibler String. Perfekt wäre, wenn man diese Infos in die jeweilige Makro-Definition hineinbekäme. Trice Library Code temporär zu patchen ist vielleicht eher akzeptabel. Oder gibt es im Compiler mittlerweile Hooks, die User-Code auführen, wenn ein bestmmtes Makro angefasst wird? 
+
+Was mir noch einfällt: Eine temporäre Schattendatei hinter jedem C-File, die beim Compilieren/Linken mitbenutzt wird.
+
+Bitte führe das genauer aus was du eigentlich gemeint hast oder verweise auf die entsprechende Textstelle.
+
+Noch wichiger: Spinne meine hier geäußerten Gedanken weiter im Hinblick auf aktuelel Entwicklungen und Machbarkeit.
+
+>DISKUSSION: ENDE
+
 3. **ELF-/Linker-Binder:** Logstellen werden in Objektdateien erkannt; stabile IDs werden vor dem finalen Link direkt als Symbolwerte oder Relocations gebunden. Das ist strategisch am interessantesten und unterstützt grundsätzlich auch vorkompilierte Bibliotheken.
 
 Eine Runtime-Mapping-Tabelle ist ein robuster Fallback, verursacht aber Flashbedarf und einen zusätzlichen Tabellenzugriff pro Logaufruf.
