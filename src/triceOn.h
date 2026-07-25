@@ -11,6 +11,12 @@
 
 #include "triceVariadic.h"
 
+#if defined(__clang__)
+// Keep the public convenience macros warning-free when they omit variadic arguments.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 // clang-format off
 #define TRICE(  tid, fmt, ...) TRICE_CONCAT2(TRICE_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define trice(  tid, fmt, ...) TRICE_CONCAT2(trice_,   TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
@@ -34,6 +40,10 @@
 #define Trice64(tid, fmt, ...) TRICE_CONCAT2(Trice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #define TRice64(tid, fmt, ...) TRICE_CONCAT2(TRice64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 #endif // (TRICE_64_BIT_SUPPORT == 1)
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 // clang-format on
 

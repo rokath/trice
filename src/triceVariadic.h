@@ -27,6 +27,12 @@
 //! For more details see closed Issue #279. Special thanks to [@escherstair](https://github.com/escherstair).
 //! If for example using CLANG 6.18 set C-language to gnu11, gnu99 or std to avoid the comma issue when no parameters are in a TRICE  macro.
 //! In case you have to set the C-Language to c11 or c99 you can use the TRICE0 macro directly instead of TRICE when no value parameters.
+#if defined(__clang__)
+// Clang warns about the GNU comma-swallowing extension used for empty variadic arguments.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 #define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ##__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
 //! TRICE_CONCAT concatenates the 2 arguments a and b (helper macro).
@@ -34,5 +40,9 @@
 
 //! TRICE_CONCAT2 concatenates the 2 arguments a and b (helper macro).
 #define TRICE_CONCAT2(a, b) TRICE_CONCAT(a, b)
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 #endif
