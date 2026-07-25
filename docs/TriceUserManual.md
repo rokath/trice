@@ -160,8 +160,12 @@ details.toc[open] .toc-hide {
     * [12.2.11. Location Information](#location-information)
   * [12.3. Visualization output with -vis](#visualization-output-with--vis)
   * [12.4. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
-    * [12.4.1. ./examples/DemoPlotDataCSV](#examplesdemoplotdatacsv)
-    * [12.4.2. ./examples/DemoPlotDataTrice](#examplesdemoplotdatatrice)
+    * [12.4.1. The common live-data format](#the-common-live-data-format)
+    * [12.4.2. ./examples/DemoPlotData_CSV](#examplesdemoplotdatacsv)
+    * [12.4.3. ./examples/DemoPlotData_Trice](#examplesdemoplotdatatrice)
+    * [12.4.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
+    * [12.4.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
+    * [12.4.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
 * [13. Limitations](#limitations-1)
   * [13.1. Permanent Limitations](#permanent-limitations)
     * [13.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
@@ -2172,7 +2176,37 @@ At startup, each rule checks all matching historical `til.json` entries. Incompa
 
 ### 12.4. <a id="setting-up-the-labplot-demo"></a>Setting up the LabPlot Demo
 
-#### 12.4.1. <a id="examplesdemoplotdatacsv"></a>./examples/DemoPlotData_CSV
+This section uses [LabPlot](https://labplot.org/), a cross-platform interactive
+plotting application. The finished, ready-to-run example is in
+`./examples/LabPlotDemo/`; the guided learning path is in
+`./examples/LabPlotUser/`. The project uses a UDP socket so that it can
+display an endless stream without repeatedly importing files.
+
+#### 12.4.1. <a id="the-common-live-data-format"></a>The common live-data format
+
+Both producers describe the same three signals: `x`, `y`, and `z`. LabPlot
+receives normalized numeric CSV records with this column layout:
+
+```text
+time_s,x,y,z
+```
+
+The finished project predeclares the four numeric columns and performs one
+initial read while loading. This prepares LabPlot's UDP socket before the
+first live record arrives. The UDP stream therefore needs no header row.
+
+The LabPlot demo rate is 50 samples per second. The project retains 500 rows.
+The time plot is configured for the last 500 values, so its horizontal
+resolution stays constant and it always displays approximately the most
+recent ten seconds. The Lissajous plot uses only the last 150 values, which
+creates a moving three-second trace instead of an increasingly dense full
+history. A slow phase modulation of `y` makes the figure change continuously.
+The CSV producer sends this format directly. The Trice producer sends binary
+Trice records to `tlog`; `tlog` decodes them and sends the same CSV format
+onward. This separation means that one LabPlot project works for both
+examples.
+
+#### 12.4.2. <a id="examplesdemoplotdatacsv"></a>./examples/DemoPlotData_CSV
 
 After running `build.sh` inside `./examples/DemoPlotData_CSV/` you can run inside the build folder
 
@@ -2182,18 +2216,18 @@ th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_CSV --header -o log.csv
 th@Thomass-MacBook-Pro-7 build % head log.csv                           
 time_s,x,y,z
 0.000000,0.000000,1.000000,0.000000
-0.020000,0.087851,0.993469,0.027257
-0.040000,0.175023,0.973960,0.053693
-0.060000,0.260842,0.941729,0.078522
-0.080000,0.344643,0.897197,0.101022
-0.100000,0.425779,0.840945,0.120566
-0.120000,0.503623,0.773708,0.136648
-0.140000,0.577573,0.696364,0.148903
-0.160000,0.647056,0.609924,0.157122
+0.020000,0.087851,0.992854,0.027246
+0.040000,0.175023,0.971519,0.053608
+0.060000,0.260842,0.936300,0.078239
+0.080000,0.344643,0.887701,0.100367
+0.100000,0.425779,0.826415,0.119328
+0.120000,0.503623,0.753319,0.134594
+0.140000,0.577573,0.669459,0.145795
+0.160000,0.647056,0.576032,0.152736
 th@Thomass-MacBook-Pro-7 build % 
 ```
 
-#### 12.4.2. <a id="examplesdemoplotdatatrice"></a>./examples/DemoPlotData_Trice
+#### 12.4.3. <a id="examplesdemoplotdatatrice"></a>./examples/DemoPlotData_Trice
 
 After running `build.sh` inside `./examples/DemoPlotData_Trice/` you can run inside the build folder:
 
@@ -2210,14 +2244,14 @@ Writing log.bin
 ```txt
 th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo | head
 Jul 25 15:38:55.411676  FILEBUFFER:    0,000_000 0.000000,1.000000,0.000000
-Jul 25 15:38:55.411691  FILEBUFFER:    0,000_002 0.087851,0.993469,0.027257
-Jul 25 15:38:55.411705  FILEBUFFER:    0,000_004 0.175023,0.973960,0.053693
-Jul 25 15:38:55.411714  FILEBUFFER:    0,000_006 0.260842,0.941729,0.078522
-Jul 25 15:38:55.411725  FILEBUFFER:    0,000_008 0.344643,0.897197,0.101022
-Jul 25 15:38:55.411737  FILEBUFFER:    0,000_010 0.425779,0.840945,0.120566
-Jul 25 15:38:55.411752  FILEBUFFER:    0,000_012 0.503623,0.773708,0.136648
-Jul 25 15:38:55.411765  FILEBUFFER:    0,000_014 0.577573,0.696364,0.148903
-Jul 25 15:38:55.411776  FILEBUFFER:    0,000_016 0.647056,0.609924,0.157122
+Jul 25 15:38:55.411691  FILEBUFFER:    0,000_002 0.087851,0.992854,0.027246
+Jul 25 15:38:55.411705  FILEBUFFER:    0,000_004 0.175023,0.971519,0.053608
+Jul 25 15:38:55.411714  FILEBUFFER:    0,000_006 0.260842,0.936300,0.078239
+Jul 25 15:38:55.411725  FILEBUFFER:    0,000_008 0.344643,0.887701,0.100367
+Jul 25 15:38:55.411737  FILEBUFFER:    0,000_010 0.425779,0.826415,0.119328
+Jul 25 15:38:55.411752  FILEBUFFER:    0,000_012 0.503623,0.753319,0.134594
+Jul 25 15:38:55.411765  FILEBUFFER:    0,000_014 0.577573,0.669459,0.145795
+Jul 25 15:38:55.411776  FILEBUFFER:    0,000_016 0.647056,0.576032,0.152736
 th@Thomass-MacBook-Pro-7 build %
 ```
 
@@ -2229,15 +2263,91 @@ th@Thomass-MacBook-Pro-7 build % head log.csv
 time_s,X,Y,Z
 0.000,0.000,1.000,0.000
 0.020,0.088,0.993,0.027
-0.040,0.175,0.974,0.054
-0.060,0.261,0.942,0.079
-0.080,0.345,0.897,0.101
-0.100,0.426,0.841,0.121
-0.120,0.504,0.774,0.137
-0.140,0.578,0.696,0.149
-0.160,0.647,0.610,0.157
+0.040,0.175,0.972,0.054
+0.060,0.261,0.936,0.078
+0.080,0.345,0.888,0.100
+0.100,0.426,0.826,0.119
+0.120,0.504,0.753,0.135
+0.140,0.578,0.669,0.146
+0.160,0.647,0.576,0.153
 th@Thomass-MacBook-Pro-7 build % 
 ```
+
+#### 12.4.4. <a id="quick-labplot-demonstration"></a>Quick LabPlot demonstration
+
+Install LabPlot 2.12 or newer. From the repository root, run one of these
+commands in a POSIX shell:
+
+```sh
+./examples/LabPlotDemo/run_csv.sh
+./examples/LabPlotDemo/run_trice.sh
+```
+
+The script opens `LabPlotDemo.lml` and starts the selected producer. The first
+script sends CSV directly to UDP port `9000`. The second uses UDP port `9001`
+for binary Trice input and runs `tlog` as the decoder/forwarder to port `9000`.
+Before starting the Trice producer and decoder, the script waits until LabPlot
+has opened port `9000`. The project opens one worksheet containing two plots
+side by side:
+
+* `Time series`: `x`, `y`, and `z` versus `time_s`, always showing the last
+  500 values (ten seconds).
+* `Lissajous`: `y` versus `x`, showing the last 150 values (three seconds) on
+  fixed axes. The producer's slow phase drift keeps the figure in motion.
+
+Press `Ctrl-C` in the shell to stop the producer and decoder. If LabPlot is
+not found automatically, set `LABPLOT` to its executable. On Windows, Git
+Bash is a suitable shell; for example, use
+`LABPLOT=/c/Program\ Files/LabPlot/bin/labplot.exe`.
+
+#### 12.4.5. <a id="recreate-the-project-in-labplot"></a>Recreate the project in LabPlot
+
+The following steps explain the project without requiring prior LabPlot
+knowledge. Start `run_csv.sh` first and leave it running.
+
+1. Create a new LabPlot project and choose **Add New > Live Data Source**.
+2. Select **Network UDP Socket**, enter host `127.0.0.1` and port `9000`.
+3. Select the ASCII filter, comma as separator, and disable header detection.
+   Set all four data types to `Double` and enter the names `time_s`, `x`, `y`,
+   and `z`.
+4. Select **Update on new data** and retain `500` values. This is the moving
+   ten-second window at the demo's 50 Hz rate.
+5. Add a worksheet with a Cartesian plot. Add three XY curves. For every
+   curve choose `time_s` as the X column and choose `x`, `y`, or `z` as the Y
+   column. Enable the legend and automatic range scaling. In the plot's range
+   settings select **Last values** and enter `500`; otherwise the time axis
+   keeps growing and the curves become increasingly compressed.
+6. Add a second Cartesian plot to the same worksheet and select a horizontal
+   two-column worksheet layout. Add one XY curve with `x` as its X column and
+   `y` as its Y column. Select **Last values** and enter `150`. Fixed X and Y
+   ranges from `-1.1` to `1.1` keep the scale stable while the three-second
+   trace and the signal's slow phase drift make the movement visible.
+7. Save the project as `LabPlotUser.lml`.
+
+The finished project in `./examples/LabPlotDemo/LabPlotDemo.lml` contains
+exactly these settings. Open it to inspect the result, or use the detailed
+notes in `./examples/LabPlotUser/README.md` while building it manually.
+
+#### 12.4.6. <a id="troubleshooting-and-adaptations"></a>Troubleshooting and adaptations
+
+* If the plots remain empty, verify that the producer is running and that no
+  other process owns UDP port `9000`.
+* If `tlog` reports that a `-vis` rule was disabled because writing to port
+  `9000` was refused, LabPlot was not listening when the decoder started.
+  Restart `run_trice.sh`; its readiness check normally prevents this race.
+  Once a visualization rule is disabled, normal logging intentionally
+  resumes, and its `log=drop` option is no longer applied.
+* For the Trice path, verify that `tlog` is on `PATH` and that
+  `demoTIL.json` is present at the repository root. Set `TLOG` or
+  `TRICE_TIL` when using non-default locations.
+* Keep the complete `-vis` expression inside one pair of quotes. The semicolon
+  separates `header` and `log` options inside that expression; it must not be
+  interpreted by the shell.
+* To show another history length, change the retained-value count to
+  `50 * seconds`. For example, `1000` values show approximately 20 seconds.
+* The Trice path still uses UDP port `9001` internally between the demo and
+  `tlog`. If that port is busy, stop the other receiver or change it in
+  `run_trice.sh` and its `-args` value together.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -1,7 +1,7 @@
 {
 	"1000": {
 		"File": "examples/DemoPlotData_Trice/src/main.c",
-		"Line": 535
+		"Line": 546
 	},
 	"1071": {
 		"File": "main.c",
@@ -9295,6 +9295,10 @@
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 460
 	},
+	"15352": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 540
+	},
 	"15354": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 489
@@ -9306,6 +9310,10 @@
 	"15374": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 481
+	},
+	"15383": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 540
 	},
 	"15396": {
 		"File": "examples/DemoPlotData_Trice/src/main.c",
@@ -9410,6 +9418,10 @@
 	"15959": {
 		"File": "examples/DemoPlotData_Trice/src/main.c",
 		"Line": 505
+	},
+	"15963": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 514
 	},
 	"15976": {
 		"File": "_test/testdata/triceCheck.c",
