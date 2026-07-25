@@ -23,26 +23,23 @@ find_labplot() {
   return 1
 }
 
-# Wait until LabPlot has loaded the project and bound its UDP input socket.
-# A connected UDP sender can otherwise receive an ICMP "port unreachable"
-# response and disable its visualization rule before LabPlot is ready.
-wait_for_labplot_udp() {
-  if command -v lsof >/dev/null 2>&1; then
-    attempt=0
-    while ! lsof -nP -iUDP:9000 >/dev/null 2>&1; do
-      attempt=$((attempt + 1))
-      if [ "$attempt" -ge 15 ]; then
-        echo "LabPlot did not open UDP port 9000 within 15 seconds." >&2
-        return 1
-      fi
-      sleep 1
-    done
-    return 0
-  fi
+# Wait until a process has bound the requested UDP input socket.
+# The fallback delay supports systems without lsof, such as Git Bash.
+wait_for_udp_port() {
+    if command -v lsof >/dev/null 2>&1; then
+        attempt=0
+        while ! lsof -nP -iUDP:"$1" >/dev/null 2>&1; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge 15 ]; then
+                echo "$2 did not open UDP port $1 within 15 seconds." >&2
+                return 1
+            fi
+            sleep 1
+        done
+        return 0
+    fi
 
-  # lsof is not normally available in Git Bash on Windows. Allow LabPlot
-  # enough time to load the project before starting the connected UDP sink.
-  sleep 5
+    sleep "$3"
 }
 
 labplot=$(find_labplot) || {
@@ -61,19 +58,28 @@ else
   "$labplot" "$script_dir/LabPlotDemo.lml" &
 fi
 labplot_pid=$!
-cleanup() { kill "$labplot_pid" 2>/dev/null || true; }
+producer_pid=
+tlog_pid=
+cleanup() {
+    if [ -n "$producer_pid" ]; then kill "$producer_pid" 2>/dev/null || true; fi
+    if [ -n "$tlog_pid" ]; then kill "$tlog_pid" 2>/dev/null || true; fi
+    kill "$labplot_pid" 2>/dev/null || true
+}
 trap cleanup INT TERM EXIT
 
 echo "Waiting for LabPlot to open UDP port 9000..."
-wait_for_labplot_udp
+wait_for_udp_port 9000 LabPlot 5
+
+"$tlog_bin" -p UDP4 -args 127.0.0.1:9001 -til "$til_file" -ulabel vis_demo \
+    '-vis=vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop' &
+tlog_pid=$!
+
+echo "Waiting for tlog to open UDP port 9001..."
+wait_for_udp_port 9001 tlog 1
 
 "$demo_dir/build/DemoPlotData_Trice" --udp 127.0.0.1 9001 &
 producer_pid=$!
-trap 'kill "$producer_pid" 2>/dev/null || true; cleanup' INT TERM EXIT
 
-"$tlog_bin" -p UDP4 -args 127.0.0.1:9001 -til "$til_file" -ulabel vis_demo \
-  '-vis=vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop'
-status=$?
-kill "$producer_pid" 2>/dev/null || true
+if wait "$tlog_pid"; then status=0; else status=$?; fi
 cleanup
 exit "$status"

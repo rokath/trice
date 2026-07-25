@@ -2286,9 +2286,10 @@ commands in a POSIX shell:
 The script opens `LabPlotDemo.lml` and starts the selected producer. The first
 script sends CSV directly to UDP port `9000`. The second uses UDP port `9001`
 for binary Trice input and runs `tlog` as the decoder/forwarder to port `9000`.
-Before starting the Trice producer and decoder, the script waits until LabPlot
-has opened port `9000`. The project opens one worksheet containing two plots
-side by side:
+The script first waits until LabPlot has opened port `9000`, then starts
+`tlog` and waits until its input port `9001` is ready. Only then does it start
+the Trice producer. The project opens one worksheet containing two plots side
+by side:
 
 * `Time series`: `x`, `y`, and `z` versus `time_s`, always showing the last
   500 values (ten seconds).

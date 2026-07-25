@@ -52,7 +52,8 @@ Close the running producer and start the other script. Do not change the
 LabPlot project: both producers are intentionally normalized to the same CSV
 stream. If no data appears, check that only one producer is using UDP port
 `9000` and that the LabPlot source is still connected. The Trice script waits
-for LabPlot to open this port before it starts the decoder.
+for LabPlot to open this port, then waits for the decoder to open its internal
+UDP port `9001` before it starts the producer.
 
 For a longer or shorter history, change the live source's retained-value count
 from `500` to `50 * seconds`. The Trice script uses UDP port `9001` internally

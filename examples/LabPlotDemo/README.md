@@ -23,8 +23,9 @@ From the repository root run either:
 The first command sends CSV directly. The second sends binary Trice data to
 `tlog`, which decodes it and forwards the same CSV records to LabPlot. The
 Trice script waits until LabPlot has opened UDP port `9000` before starting
-the producer and decoder. Stop a run with `Ctrl-C`; the producer and decoder
-are then stopped with it.
+the decoder. It then waits until `tlog` has opened its input port `9001`
+before starting the producer. Stop a run with `Ctrl-C`; the producer and
+decoder are then stopped with it.
 
 The project opens one worksheet with two plots side by side: a time plot of
 `x`, `y`, and `z`, and an `x` versus `y` Lissajous plot. The latter draws the
