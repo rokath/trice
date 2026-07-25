@@ -24,7 +24,7 @@ func TestRuleStringsCollectsRepeatedValues(t *testing.T) {
 
 // TestParseRuleAcceptsTheMVPGrammar verifies selector, encoder, sink, expressions, and output policy separation.
 func TestParseRuleAcceptsTheMVPGrammar(t *testing.T) {
-	raw := `msg:printf("%8d,%0.3f,%%,%t\n",ts32/10,(v0),v1)@udp://127.0.0.1:7010;log=drop`
+	raw := `msg:printf("%8d,%0.3f,%%,%t\n",ts32/10,(v0),v1)@udp://127.0.0.1:7010;log=drop;header="time_s,x,y,z\n"`
 	rule, err := parseRule(raw)
 	require.NoError(t, err)
 
@@ -33,6 +33,7 @@ func TestParseRuleAcceptsTheMVPGrammar(t *testing.T) {
 	assert.Equal(t, "%8d,%0.3f,%%,%t\n", rule.format)
 	assert.Equal(t, "udp://127.0.0.1:7010", rule.sink)
 	assert.Equal(t, outputDrop, rule.policy)
+	assert.Equal(t, "time_s,x,y,z\n", rule.header)
 	require.Len(t, rule.expressions, 3)
 	require.Len(t, rule.verbs, 3)
 	assert.Equal(t, byte('d'), rule.verbs[0].verb)
@@ -95,6 +96,8 @@ func TestParseRuleRejectsUnsupportedSyntax(t *testing.T) {
 		{name: "empty explicit file path", rule: `msg:printf("%d",v0)@file:`, want: "path must not be empty"},
 		{name: "unknown option", rule: `msg:printf("%d",v0)@out;queue=1`, want: "unsupported -vis option"},
 		{name: "duplicate option", rule: `msg:printf("%d",v0)@out;log=keep;log=drop`, want: "duplicate log"},
+		{name: "duplicate header", rule: `msg:printf("%d",v0)@out;header="a\n";header="b\n"`, want: "duplicate header"},
+		{name: "unquoted header", rule: `msg:printf("%d",v0)@out;header=a`, want: "quoted Go string"},
 		{name: "bad log value", rule: `msg:printf("%d",v0)@out;log=hide`, want: "keep or drop"},
 		{name: "raw format string", rule: "msg:printf(`%d`,v0)@out", want: "double-quoted"},
 		{name: "unsupported output u", rule: `msg:printf("%u",v0)@out`, want: "%u is not supported"},

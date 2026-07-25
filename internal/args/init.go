@@ -190,8 +190,8 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
 	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
 	fsScLog.Var(&visRules, "vis", `Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
-<tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop]
-Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks append; each encoded UDP record is one datagram.`)
+<tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop][;header="<go-string>"]
+Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks are recreated for each command. A header is written once per output sink; each encoded UDP record is one datagram.`)
 }
 
 func addInit() {

@@ -71,6 +71,7 @@ type parsedRule struct {
 	references  expressionReferences
 	sink        string
 	policy      outputPolicy
+	header      string
 }
 
 // parseRule validates one complete first-implementation -vis specification.
@@ -87,7 +88,7 @@ func parseRule(raw string) (parsedRule, error) {
 	if err != nil {
 		return parsedRule{}, err
 	}
-	sink, policy, err := parseSinkAndOptions(sinkAndOptions)
+	sink, policy, header, err := parseSinkAndOptions(sinkAndOptions)
 	if err != nil {
 		return parsedRule{}, err
 	}
@@ -160,6 +161,7 @@ func parseRule(raw string) (parsedRule, error) {
 		references:  references,
 		sink:        sink,
 		policy:      policy,
+		header:      header,
 	}, nil
 }
 
@@ -223,37 +225,56 @@ func splitEncoderCall(input string) (call string, sinkAndOptions string, err err
 	return "", "", fmt.Errorf("unterminated printf(...) encoder")
 }
 
-// parseSinkAndOptions separates the destination from the only MVP option, log=keep|drop.
-func parseSinkAndOptions(input string) (sink string, policy outputPolicy, err error) {
+// parseSinkAndOptions separates the destination, output policy, and optional one-time header.
+func parseSinkAndOptions(input string) (sink string, policy outputPolicy, header string, err error) {
 	parts := strings.Split(input, ";")
 	if parts[0] == "" {
-		return "", outputKeep, fmt.Errorf("visualization sink must not be empty")
+		return "", outputKeep, "", fmt.Errorf("visualization sink must not be empty")
 	}
 	sink = parts[0]
 	policy = outputKeep
-	optionSeen := false
+	logSeen := false
+	headerSeen := false
 	for _, option := range parts[1:] {
 		if option == "" {
-			return "", outputKeep, fmt.Errorf("empty -vis option")
+			return "", outputKeep, "", fmt.Errorf("empty -vis option")
 		}
 		key, value, found := strings.Cut(option, "=")
-		if !found || key != "log" {
-			return "", outputKeep, fmt.Errorf("unsupported -vis option %q", option)
+		if !found {
+			return "", outputKeep, "", fmt.Errorf("unsupported -vis option %q", option)
 		}
-		if optionSeen {
-			return "", outputKeep, fmt.Errorf("duplicate log option")
-		}
-		optionSeen = true
-		switch value {
-		case "keep":
-			policy = outputKeep
-		case "drop":
-			policy = outputDrop
+		switch key {
+		case "log":
+			if logSeen {
+				return "", outputKeep, "", fmt.Errorf("duplicate log option")
+			}
+			logSeen = true
+			switch value {
+			case "keep":
+				policy = outputKeep
+			case "drop":
+				policy = outputDrop
+			default:
+				return "", outputKeep, "", fmt.Errorf("log option must be keep or drop, got %q", value)
+			}
+		case "header":
+			if headerSeen {
+				return "", outputKeep, "", fmt.Errorf("duplicate header option")
+			}
+			if len(value) < 2 || value[0] != '"' || value[len(value)-1] != '"' {
+				return "", outputKeep, "", fmt.Errorf("header option must be a quoted Go string")
+			}
+			decoded, decodeErr := strconv.Unquote(value)
+			if decodeErr != nil {
+				return "", outputKeep, "", fmt.Errorf("invalid header string: %w", decodeErr)
+			}
+			header = decoded
+			headerSeen = true
 		default:
-			return "", outputKeep, fmt.Errorf("log option must be keep or drop, got %q", value)
+			return "", outputKeep, "", fmt.Errorf("unsupported -vis option %q", option)
 		}
 	}
-	return sink, policy, nil
+	return sink, policy, header, nil
 }
 
 // validateSinkSpecification rejects reserved or ambiguous schemes even when LUT classification later disables a rule.

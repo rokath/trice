@@ -532,7 +532,6 @@ int main(int argc, char **argv)
          * value. The decoder uses the three %f specifiers from til.json.
          */
         TRice(
-            iD(1000),
             "vis_demo:%f,%f,%f\n",
             aFloat((float)x),
             aFloat((float)y),

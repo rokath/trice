@@ -19,7 +19,7 @@ $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
 # compiler
 $(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
-	@$(CLANG_CC) $(VERBOSE) $(C_FLAGS) $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
+	@$(CLANG_CC) $(VERBOSE) $(C_FLAGS) -Wextra -pedantic $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
 #	@echo -e
 
 # linker # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments

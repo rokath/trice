@@ -58,6 +58,7 @@ type sharedSink struct {
 	display string
 	writer  io.WriteCloser
 	failed  bool
+	header  string
 	rules   []*runtimeRule
 	mutex   sync.Mutex // serializes record writes with command-shutdown closure
 }
@@ -171,6 +172,26 @@ func NewRouter(
 				writer:  writer,
 			}
 			router.sinks[description.key] = sink
+		}
+		if rule.header != "" {
+			if sink.header != "" && sink.header != rule.header {
+				_ = router.Close()
+				return nil, fmt.Errorf(
+					"visualization sink %q has conflicting headers",
+					rule.sink,
+				)
+			}
+			if sink.header == "" {
+				if _, err := io.WriteString(sink.writer, rule.header); err != nil {
+					_ = router.Close()
+					return nil, fmt.Errorf(
+						"cannot write header to sink %q: %w",
+						rule.sink,
+						err,
+					)
+				}
+				sink.header = rule.header
+			}
 		}
 		rule.sinkState = sink
 		sink.rules = append(sink.rules, rule)
@@ -548,7 +569,7 @@ func describeSink(fileSystem *afero.Afero, specification string) (sinkDescriptio
 		key:     "file:" + filepath.Clean(absolutePath),
 		display: cleanPath,
 		open: func() (io.WriteCloser, error) {
-			return fileSystem.OpenFile(cleanPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+			return fileSystem.OpenFile(cleanPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 		},
 	}, nil
 }

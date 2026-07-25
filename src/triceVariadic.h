@@ -33,7 +33,9 @@
 #pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
 
-#define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ##__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+// The trailing sentinel keeps TRICE_NTH_ARGUMENT's variadic part non-empty for
+// Clang, while leaving the selected argument count unchanged.
+#define TRICE_COUNT_ARGUMENTS(...) TRICE_NTH_ARGUMENT(dummy, ##__VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0)
 
 //! TRICE_CONCAT concatenates the 2 arguments a and b (helper macro).
 #define TRICE_CONCAT(a, b) a##b

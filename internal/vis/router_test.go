@@ -397,8 +397,8 @@ func TestRouterAttemptsAllOverlappingRules(t *testing.T) {
 	assert.Equal(t, "0x0000000f\n", readTestFile(t, fileSystem, "second.txt"))
 }
 
-// TestRouterFileSinkAppendsExistingContent verifies create-or-append behavior without truncation.
-func TestRouterFileSinkAppendsExistingContent(t *testing.T) {
+// TestRouterFileSinkRecreatesExistingContentAndWritesHeader verifies fresh output and one-time headers.
+func TestRouterFileSinkRecreatesExistingContentAndWritesHeader(t *testing.T) {
 	fileSystem := testFileSystem()
 	require.NoError(t, fileSystem.WriteFile("append.txt", []byte("existing\n"), 0o644))
 	lut := id.TriceIDLookUp{1: {Type: "TRICE32_1", Strg: "msg:v=%d\n"}}
@@ -407,7 +407,7 @@ func TestRouterFileSinkAppendsExistingContent(t *testing.T) {
 		fileSystem,
 		lut,
 		new(sync.RWMutex),
-		[]string{`msg:printf("%d\n",v0)@append.txt`},
+		[]string{`msg:printf("%d\n",v0)@append.txt;header="time_s,value\n"`},
 		false,
 	)
 	require.NoError(t, err)
@@ -415,7 +415,7 @@ func TestRouterFileSinkAppendsExistingContent(t *testing.T) {
 	record := testRecord(1, "TRICE32_1", "msg:v=%d\n", 0, 0, signedValue(32, 7))
 	assert.False(t, router.Process(record, false))
 	require.NoError(t, router.Close())
-	assert.Equal(t, "existing\n7\n", readTestFile(t, fileSystem, "append.txt"))
+	assert.Equal(t, "time_s,value\n7\n", readTestFile(t, fileSystem, "append.txt"))
 }
 
 // TestRouterSharesNormalizedFileSinksAndDisablesAllAttachedRulesOnFailure verifies sink ownership.

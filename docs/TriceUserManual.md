@@ -159,6 +159,9 @@ details.toc[open] .toc-hide {
     * [12.2.10. Explore and modify tags and their colors](#explore-and-modify-tags-and-their-colors)
     * [12.2.11. Location Information](#location-information)
   * [12.3. Visualization output with -vis](#visualization-output-with--vis)
+  * [12.4. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
+    * [12.4.1. ./examples/DemoPlotDataCSV](#examplesdemoplotdatacsv)
+    * [12.4.2. ./examples/DemoPlotDataTrice](#examplesdemoplotdatatrice)
 * [13. Limitations](#limitations-1)
   * [13.1. Permanent Limitations](#permanent-limitations)
     * [13.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
@@ -2070,7 +2073,7 @@ When running  `trice insert`, a file `li.json` is created, which you can control
 
 ### 12.3. <a id="visualization-output-with--vis"></a>Visualization output with `-vis`
 
-`tlog` and `trice log` support the same repeatable `-vis` option for sending selected numeric measurements to external visualization tools. Consumers can, for example, be LabPlot, Serial Studio, PlotJuggler, uPlot, Grafana, or a custom program; these names do not imply a tool-specific protocol. Trice itself does not draw a graph. It transforms one typed TREX message into one user-defined text record and writes that record to a file or UDP destination.
+`tlog` and `trice log` support the same repeatable `-vis` option for sending selected numeric measurements to external visualization tools. Consumers can, for example, be LabPlot, Serial Studio, PlotJuggler, uPlot, Grafana, or a custom program; these names do not imply a tool-specific protocol. Trice itself does not draw a graph. It transforms one typed Trice message into one user-defined text record and writes that record to a file or UDP destination.
 
 The MVP syntax is:
 
@@ -2107,7 +2110,7 @@ id                unsigned Trice ID
 ts                raw 16- or 32-bit Target-Stamp, with one width latched per rule
 ts16              raw 16-bit Target-Stamp
 ts32              raw 32-bit Target-Stamp
-v0 ... v11        typed positional TREX values
+v0 ... v11        typed positional Trice values
 ```
 
 The value fields are positional and can be reordered in the expression list. The MVP does not extract names such as `ax` or `rpm` from the human-readable target format and does not accept those names as identifiers. For example, `printf("%g,%g\n",v2,v0)` deliberately emits the third value before the first.
@@ -2163,9 +2166,78 @@ The address is resolved and opened before decoding starts. File and UDP writes a
 
 `log=keep` is the default and leaves the decoded message in normal output. `log=drop` removes it from normal output only after that rule has encoded and written the visualization record successfully. All overlapping rules are still attempted; one successful `log=drop` rule wins. An ignored record or a failed encoder or sink write does not drop the normal log.
 
-Only fixed-width numeric TREX messages are eligible. The first twelve values are addressable as `v0` through `v11`; additional values do not prevent a rule from using that addressable prefix and remain available to normal logging. `TREX` string, buffer, function-display, character, typeX0, `CHAR`, and `DUMP` inputs are not supported. Named values, specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are deferred behind the same selector/encoder/sink separation. One eligible Trice must also form one complete log line by itself. Partial, multi-line, and multi-Trice lines continue through normal logging but are ignored by `-vis`; verbose mode reports every such occurrence.
+Only fixed-width numeric Trice messages are eligible. The first twelve values are addressable as `v0` through `v11`; additional values do not prevent a rule from using that addressable prefix and remain available to normal logging. `Trice` string, buffer, function-display, character, typeX0, `CHAR`, and `DUMP` inputs are not supported. Named values, specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are deferred behind the same selector/encoder/sink separation. One eligible Trice must also form one complete log line by itself. Partial, multi-line, and multi-Trice lines continue through normal logging but are ignored by `-vis`; verbose mode reports every such occurrence.
 
 At startup, each rule checks all matching historical `til.json` entries. Incompatible old entries are excluded independently, so one stale ID does not block another compatible ID. A rule with no compatible entry is disabled with a prominent warning. Rules are also disabled, never silently, after a generic Target-Stamp width conflict, an unsafe runtime expression conversion, or a sink failure. Normal logging continues.
+
+### 12.4. <a id="setting-up-the-labplot-demo"></a>Setting up the LabPlot Demo
+
+#### 12.4.1. <a id="examplesdemoplotdatacsv"></a>./examples/DemoPlotData_CSV
+
+After running `build.sh` inside `./examples/DemoPlotData_CSV/` you can run inside the build folder
+
+```txt
+th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_CSV --header -o log.csv 
+^C
+th@Thomass-MacBook-Pro-7 build % head log.csv                           
+time_s,x,y,z
+0.000000,0.000000,1.000000,0.000000
+0.020000,0.087851,0.993469,0.027257
+0.040000,0.175023,0.973960,0.053693
+0.060000,0.260842,0.941729,0.078522
+0.080000,0.344643,0.897197,0.101022
+0.100000,0.425779,0.840945,0.120566
+0.120000,0.503623,0.773708,0.136648
+0.140000,0.577573,0.696364,0.148903
+0.160000,0.647056,0.609924,0.157122
+th@Thomass-MacBook-Pro-7 build % 
+```
+
+#### 12.4.2. <a id="examplesdemoplotdatatrice"></a>./examples/DemoPlotData_Trice
+
+After running `build.sh` inside `./examples/DemoPlotData_Trice/` you can run inside the build folder:
+
+- Create binary log file:
+
+```txt
+th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_Trice -o log.bin                                                    
+Writing log.bin
+^C
+```
+
+- Show logs in binary log file: 
+
+```txt
+th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo | head
+Jul 25 15:38:55.411676  FILEBUFFER:    0,000_000 0.000000,1.000000,0.000000
+Jul 25 15:38:55.411691  FILEBUFFER:    0,000_002 0.087851,0.993469,0.027257
+Jul 25 15:38:55.411705  FILEBUFFER:    0,000_004 0.175023,0.973960,0.053693
+Jul 25 15:38:55.411714  FILEBUFFER:    0,000_006 0.260842,0.941729,0.078522
+Jul 25 15:38:55.411725  FILEBUFFER:    0,000_008 0.344643,0.897197,0.101022
+Jul 25 15:38:55.411737  FILEBUFFER:    0,000_010 0.425779,0.840945,0.120566
+Jul 25 15:38:55.411752  FILEBUFFER:    0,000_012 0.503623,0.773708,0.136648
+Jul 25 15:38:55.411765  FILEBUFFER:    0,000_014 0.577573,0.696364,0.148903
+Jul 25 15:38:55.411776  FILEBUFFER:    0,000_016 0.647056,0.609924,0.157122
+th@Thomass-MacBook-Pro-7 build %
+```
+
+- Get CSV log file:
+
+```txt
+th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
+th@Thomass-MacBook-Pro-7 build % head log.csv
+time_s,X,Y,Z
+0.000,0.000,1.000,0.000
+0.020,0.088,0.993,0.027
+0.040,0.175,0.974,0.054
+0.060,0.261,0.942,0.079
+0.080,0.345,0.897,0.101
+0.100,0.426,0.841,0.121
+0.120,0.504,0.774,0.137
+0.140,0.578,0.696,0.149
+0.160,0.647,0.610,0.157
+th@Thomass-MacBook-Pro-7 build % 
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
