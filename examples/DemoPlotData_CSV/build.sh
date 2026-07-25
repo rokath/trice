@@ -19,19 +19,19 @@ repo_root=$(CDPATH= cd -- "$script_dir/../.." && pwd)
 ids_inserted=0
 
 cleanup_after_build() {
-    status=$1
-    trap - EXIT INT TERM
+  status=$1
+  trap - EXIT INT TERM
 
-    if [ "$ids_inserted" -eq 1 ]; then
-        echo "cleanup: running trice clean"
-        if ! bash "$repo_root/trice_cleanIDs_in_examples_and_test_folder.sh"; then
-            if [ "$status" -eq 0 ]; then
-                status=1
-            fi
-        fi
+  if [ "$ids_inserted" -eq 1 ]; then
+    echo "cleanup: running trice clean"
+    if ! bash "$repo_root/trice_cleanIDs_in_examples_and_test_folder.sh"; then
+      if [ "$status" -eq 0 ]; then
+        status=1
+      fi
     fi
+  fi
 
-    exit "$status"
+  exit "$status"
 }
 
 trap 'cleanup_after_build "$?"' EXIT
