@@ -16,10 +16,12 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 if [ -t 1 ] && [ "${TERM:-}" != "dumb" ] && [ -z "${NO_COLOR:-}" ]; then
   PASS_COLOR=$'\033[32m'
   FAIL_COLOR=$'\033[31m'
+  WARN_COLOR=$'\033[33m'
   RESET_COLOR=$'\033[0m'
 else
   PASS_COLOR=''
   FAIL_COLOR=''
+  WARN_COLOR=''
   RESET_COLOR=''
 fi
 
@@ -32,12 +34,25 @@ run_step() {
   local s="$1"
   shift
   local rc=0
+  local step_log
+  local warning
   printf '%s: ' "$s" >>"$SUMMARY_LOG"
   printf '%s: ' "$s"
   "$SCRIPT_DIR/$s" --quiet "$@" || rc=$?
   if [ "$rc" -eq 0 ]; then
-    printf 'PASS\n' >>"$SUMMARY_LOG"
-    printf '%sPASS%s\n' "$PASS_COLOR" "$RESET_COLOR"
+    step_log="$LOG_DIR/$(basename "$s" .sh).log"
+    if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP: .*not installed)' "$step_log"; then
+      printf 'WARN\n' >>"$SUMMARY_LOG"
+      printf '%sWARN%s\n' "$WARN_COLOR" "$RESET_COLOR"
+      # Surface tool-related skip details that would otherwise only be visible
+      # in the per-step log during a quiet aggregate test run.
+      while IFS= read -r warning; do
+        summary_line "  $warning"
+      done < <(grep -E '^(MISSING TOOL:|SKIP: .*not installed)' "$step_log")
+    else
+      printf 'PASS\n' >>"$SUMMARY_LOG"
+      printf '%sPASS%s\n' "$PASS_COLOR" "$RESET_COLOR"
+    fi
   else
     printf 'FAIL\n' >>"$SUMMARY_LOG"
     printf '%sFAIL%s\n' "$FAIL_COLOR" "$RESET_COLOR"
@@ -64,6 +79,7 @@ main() {
   summary_line "Selection: $selected"
 
   run_step "_testAll_00a_FormatShellScripts.sh" || failed=1
+  run_step "_testAll_00b_checkShell.sh" || failed=1
   run_step "_testAll_01_CleanDsStore.sh" || failed=1
   run_step "_testAll_02_ClangFormat.sh" || failed=1
   run_step "_testAll_02b_TargetCodeLinting.sh" || failed=1

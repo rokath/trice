@@ -19,6 +19,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // doTableTest is the universal decoder test sequence.
@@ -80,6 +81,204 @@ func TestTREX(t *testing.T) {
 	var out bytes.Buffer
 	doTableTest(t, &out, New, decoder.LittleEndian, tt)
 	assert.Equal(t, "", out.String())
+}
+
+// TestTREXVisRecordCapture verifies that a successful numeric Read retains typed data before text formatting.
+func TestTREXVisRecordCapture(t *testing.T) {
+	oldFraming := decoder.PackageFraming
+	oldInitialCycle := decoder.InitialCycle
+	oldAddNewline := AddNewlineToEachTriceMessage
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitialCycle
+		AddNewlineToEachTriceMessage = oldAddNewline
+	})
+
+	decoder.PackageFraming = "TCOBSv1"
+	decoder.InitialCycle = true
+	AddNewlineToEachTriceMessage = false
+	lut := id.TriceIDLookUp{
+		3713: {
+			Type: "TRICE16",
+			Strg: `msg:value=%d\n`,
+		},
+	}
+	dec := New(
+		io.Discard,
+		lut,
+		new(sync.RWMutex),
+		id.TriceIDLookUpLI{},
+		bytes.NewReader([]byte{0x81, 0x8e, 0x09, 0x23, 0xc0, 0x02, 0xb8, 0x01, 0xa4, 0x00}),
+		decoder.LittleEndian,
+	).(*trexDec)
+	_, available := dec.VisRecord()
+	assert.False(t, available)
+	dec.SetVisRecordEnabled(true)
+	_, available = dec.VisRecord()
+	assert.False(t, available)
+
+	buffer := make([]byte, decoder.DefaultSize)
+	count, err := dec.Read(buffer)
+	require.NoError(t, err)
+	assert.Equal(t, "msg:value=440\\n", string(buffer[:count]))
+
+	record, available := dec.VisRecord()
+	require.True(t, available)
+	assert.Equal(t, id.TriceID(3713), record.ID)
+	assert.Equal(t, "TRICE16", record.Type)
+	assert.Equal(t, `msg:value=%d\n`, record.Format)
+	assert.Equal(t, uint64(9), record.Stamp)
+	assert.Equal(t, 16, record.StampBits)
+	assert.True(t, record.SingleLine)
+	assert.Equal(t, 1, record.ValueCount)
+	assert.Equal(t, decoder.VisValueSigned, record.Values[0].Kind)
+	assert.Equal(t, 16, record.Values[0].Bits)
+	assert.Equal(t, int64(440), record.Values[0].Signed)
+
+	dec.SetInput(bytes.NewReader(nil))
+	count, err = dec.Read(buffer)
+	require.NoError(t, err)
+	assert.Zero(t, count)
+	_, available = dec.VisRecord()
+	assert.False(t, available)
+
+	dec.SetVisRecordEnabled(false)
+}
+
+// TestTREXVisRecordRetainsAllScalarCategories verifies exact signed, unsigned, float, and Boolean capture.
+func TestTREXVisRecordRetainsAllScalarCategories(t *testing.T) {
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		pFmt:        "%d %d %f %t",
+		u: []int{
+			decoder.SignedFormatSpecifier,
+			decoder.UnsignedFormatSpecifier,
+			decoder.FloatFormatSpecifier,
+			decoder.BooleanFormatSpecifier,
+		},
+		visEnabled: true,
+	}
+	p.B = make([]byte, 16)
+	binary.LittleEndian.PutUint32(p.B[0:], 0xfffffffe)
+	binary.LittleEndian.PutUint32(p.B[4:], 0xfedcba98)
+	binary.LittleEndian.PutUint32(p.B[8:], math.Float32bits(1.25))
+	binary.LittleEndian.PutUint32(p.B[12:], 1)
+
+	output := make([]byte, 256)
+	count := p.unSignedOrSignedOut(output, 32, 4)
+	assert.Equal(t, "-2 4275878552 1.250000 true", string(output[:count]))
+
+	record, available := p.VisRecord()
+	require.True(t, available)
+	require.Equal(t, 4, record.ValueCount)
+	assert.Equal(t, decoder.VisValueSigned, record.Values[0].Kind)
+	assert.Equal(t, int64(-2), record.Values[0].Signed)
+	assert.Equal(t, decoder.VisValueUnsigned, record.Values[1].Kind)
+	assert.Equal(t, uint64(0xfedcba98), record.Values[1].Unsigned)
+	assert.Equal(t, decoder.VisValueFloat, record.Values[2].Kind)
+	assert.Equal(t, 1.25, record.Values[2].Float)
+	assert.Equal(t, decoder.VisValueBool, record.Values[3].Kind)
+	assert.True(t, record.Values[3].Bool)
+	for i := 0; i < record.ValueCount; i++ {
+		assert.Equal(t, 32, record.Values[i].Bits)
+	}
+}
+
+// TestTREXVisRecordMapsAllTwelvePositions verifies the fixed v0...v11 storage boundary.
+func TestTREXVisRecordMapsAllTwelvePositions(t *testing.T) {
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		pFmt:        "%d %d %d %d %d %d %d %d %d %d %d %d",
+		u:           make([]int, decoder.VisValueCapacity),
+		visEnabled:  true,
+	}
+	for i := range p.u {
+		p.u[i] = decoder.SignedFormatSpecifier
+		p.B = append(p.B, byte(i+1))
+	}
+	output := make([]byte, 256)
+	p.unSignedOrSignedOut(output, 8, decoder.VisValueCapacity)
+
+	record, available := p.VisRecord()
+	require.True(t, available)
+	require.Equal(t, decoder.VisValueCapacity, record.ValueCount)
+	for i := 0; i < decoder.VisValueCapacity; i++ {
+		assert.Equal(t, int64(i+1), record.Values[i].Signed)
+		assert.Equal(t, 8, record.Values[i].Bits)
+	}
+}
+
+// TestTREXVisRecordCapturesTheFirstTwelveValuesOfLargerMessages verifies the addressable MVP boundary.
+func TestTREXVisRecordCapturesTheFirstTwelveValuesOfLargerMessages(t *testing.T) {
+	const valueCount = decoder.VisValueCapacity + 1
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		pFmt:        strings.TrimSpace(strings.Repeat("%d ", valueCount)),
+		u:           make([]int, valueCount),
+		visEnabled:  true,
+	}
+	for i := range p.u {
+		p.u[i] = decoder.SignedFormatSpecifier
+		p.B = append(p.B, byte(i+1))
+	}
+
+	output := make([]byte, 256)
+	count := p.unSignedOrSignedOut(output, 8, valueCount)
+	assert.Equal(t, "1 2 3 4 5 6 7 8 9 10 11 12 13", string(output[:count]))
+	record, available := p.VisRecord()
+	require.True(t, available)
+	require.Equal(t, decoder.VisValueCapacity, record.ValueCount)
+	for i := 0; i < decoder.VisValueCapacity; i++ {
+		assert.Equal(t, int64(i+1), record.Values[i].Signed)
+	}
+}
+
+// TestTREXVisRecordCapturesFloat64AndPointerLikeValues verifies the remaining 64-bit source categories.
+func TestTREXVisRecordCapturesFloat64AndPointerLikeValues(t *testing.T) {
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		pFmt:        "%f %x",
+		u: []int{
+			decoder.FloatFormatSpecifier,
+			decoder.PointerFormatSpecifier,
+		},
+		visEnabled: true,
+	}
+	p.B = make([]byte, 16)
+	binary.LittleEndian.PutUint64(p.B[0:], math.Float64bits(-2.5))
+	binary.LittleEndian.PutUint64(p.B[8:], 0xfedcba9876543210)
+	output := make([]byte, 256)
+	p.unSignedOrSignedOut(output, 64, 2)
+
+	record, available := p.VisRecord()
+	require.True(t, available)
+	assert.Equal(t, decoder.VisValueFloat, record.Values[0].Kind)
+	assert.Equal(t, -2.5, record.Values[0].Float)
+	assert.Equal(t, decoder.VisValueUnsigned, record.Values[1].Kind)
+	assert.Equal(t, uint64(0xfedcba9876543210), record.Values[1].Unsigned)
+}
+
+// TestIsSingleVisLine verifies the same escaped-newline boundary used by the normal line composer.
+func TestIsSingleVisLine(t *testing.T) {
+	tests := []struct {
+		name   string
+		format string
+		want   bool
+	}{
+		{name: "actual newline", format: "msg:value\n", want: true},
+		{name: "escaped newline", format: `msg:value\n`, want: true},
+		{name: "actual CRLF", format: "msg:value\r\n", want: true},
+		{name: "escaped CRLF", format: `msg:value\r\n`, want: true},
+		{name: "missing newline", format: "msg:value", want: false},
+		{name: "escaped backslash", format: `msg:value\\n`, want: false},
+		{name: "multiple lines", format: "msg:a\nb\n", want: false},
+		{name: "text after newline", format: "msg:a\nb", want: false},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.want, isSingleVisLine(test.format))
+		})
+	}
 }
 
 // TestNewSelectsPackageFraming verifies the expected behavior.

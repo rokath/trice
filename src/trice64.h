@@ -71,7 +71,7 @@
 
 #include "triceVariadic.h"
 
-#define TRICE64(tid, fmt, ...) TRICE_CONCAT2(TRICE64_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE64(tid, ...) TRICE_CONCAT2(TRICE64_, TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 
 //! TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //!  It is usable for showing n 64-bit values.

@@ -115,10 +115,6 @@ EXE_SUFFIX=""
 
 BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -I${ROOT}/src -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim"
 
-if "${CC_BIN}" --version 2>/dev/null | grep -qi clang; then
-  BASE_CFLAGS="${BASE_CFLAGS} -Wno-gnu-zero-variadic-macro-arguments"
-fi
-
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW* | MSYS* | CYGWIN*)
     EXE_SUFFIX=".exe"

@@ -26,11 +26,11 @@ extern "C" {
 //! prints is a user print example with string, float and integer values.
 //! We have to perform a normal print into a buffer, which then is passed to triceS.
 //! This is slow but we can integrate user code without changing it.
-#define prints(id, fmt, ...)                                \
-	do {                                                    \
-		char buf[96];                                       \
-		npf_snprintf(buf, sizeof(buf), fmt, ##__VA_ARGS__); \
-		triceS(id, "%s", buf);                              \
+#define prints(id, ...)                                \
+	do {                                               \
+		char buf[96];                                  \
+		npf_snprintf(buf, sizeof(buf), __VA_ARGS__);   \
+		triceS(id, "%s", buf);                         \
 	} while (0)
 
 //

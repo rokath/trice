@@ -1,4 +1,8 @@
 {
+	"1000": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 546
+	},
 	"1071": {
 		"File": "main.c",
 		"Line": 18
@@ -9291,6 +9295,10 @@
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 460
 	},
+	"15352": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 540
+	},
 	"15354": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 489
@@ -9302,6 +9310,14 @@
 	"15374": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 481
+	},
+	"15383": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 540
+	},
+	"15396": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 505
 	},
 	"15496": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9398,6 +9414,14 @@
 	"15917": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 451
+	},
+	"15959": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 505
+	},
+	"15963": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 514
 	},
 	"15976": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9709,11 +9733,11 @@
 	},
 	"2261": {
 		"File": "main.c",
-		"Line": 50
+		"Line": 68
 	},
 	"2859": {
 		"File": "main.c",
-		"Line": 56
+		"Line": 44
 	},
 	"2945": {
 		"File": "node.c",
@@ -9721,7 +9745,7 @@
 	},
 	"2968": {
 		"File": "main.c",
-		"Line": 62
+		"Line": 50
 	},
 	"3204": {
 		"File": "node.c",
@@ -9821,7 +9845,7 @@
 	},
 	"5517": {
 		"File": "main.c",
-		"Line": 56
+		"Line": 62
 	},
 	"5642": {
 		"File": "main.c",
@@ -9845,7 +9869,7 @@
 	},
 	"6227": {
 		"File": "main.c",
-		"Line": 50
+		"Line": 62
 	},
 	"6278": {
 		"File": "main.c",
@@ -9861,7 +9885,7 @@
 	},
 	"6603": {
 		"File": "main.c",
-		"Line": 44
+		"Line": 56
 	},
 	"6779": {
 		"File": "main.c",
@@ -9885,7 +9909,7 @@
 	},
 	"7084": {
 		"File": "main.c",
-		"Line": 68
+		"Line": 56
 	},
 	"7145": {
 		"File": "node.c",
@@ -9901,7 +9925,7 @@
 	},
 	"7383": {
 		"File": "main.c",
-		"Line": 62
+		"Line": 56
 	},
 	"7431": {
 		"File": "main.c",
@@ -9909,7 +9933,7 @@
 	},
 	"7522": {
 		"File": "main.c",
-		"Line": 56
+		"Line": 50
 	},
 	"7615": {
 		"File": "main.c",

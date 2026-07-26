@@ -45,9 +45,7 @@ jobs:
           require_glob() {
             local pattern="$1"
             local matches=()
-            shopt -s nullglob
-            matches=( release-assets/$pattern )
-            shopt -u nullglob
+            mapfile -t matches < <(compgen -G "release-assets/$pattern" || true)
             if [ "${#matches[@]}" -eq 0 ]; then
               echo "::error::no downloaded release asset matches: $pattern"
               find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort || true

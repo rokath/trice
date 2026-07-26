@@ -35,6 +35,15 @@ for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/ ./F030_inst/ ./G0B1_inst/ ./L432
   fi
 done
 
+# The plot-data demos use CMake instead of Make and keep their build trees in
+# the demo directories, so remove those generated trees explicitly.
+for d in DemoPlotData_CSV DemoPlotData_Trice; do
+  demo_build_dir="${SCRIPT_DIR}/${d}/build"
+  if [ -d "${demo_build_dir}" ]; then
+    rm -rf "${demo_build_dir}"
+  fi
+done
+
 # ------------------------------------------------------------------------------
 # 3) Summary / exit code
 # ------------------------------------------------------------------------------

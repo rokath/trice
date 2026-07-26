@@ -8,6 +8,8 @@ failCount=0
 
 # Directories are relative to this script's location
 targets=(
+  "DemoPlotData_CSV"
+  "DemoPlotData_Trice"
   "F030_bare"
   "G0B1_bare"
   "L432_bare"

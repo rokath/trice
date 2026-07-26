@@ -4,7 +4,7 @@
 #
 # This script prepares a build environment for an ARM bare-metal toolchain.
 # It is intended to be *sourced* (". ./_setup_build_environment.sh") so that the
-# environment variables (PATH, C_INCLUDE_PATH, MAKE_JOBS, …) persist in
+# environment variables (PATH, CLANG_SYS_INCLUDES, MAKE_JOBS, …) persist in
 # the current shell.
 #
 # Behavior:
@@ -173,33 +173,6 @@ collect_arm_clang_include_dirs() {
   printf '%s\n' "$dirs"
 }
 
-prepend_colon_path_list() {
-  local existing="$1"
-  shift
-  local result=""
-  local dir
-
-  for dir in "$@"; do
-    [ -n "$dir" ] || continue
-    [ -d "$dir" ] || continue
-    if [ -n "$result" ]; then
-      result="$result:$dir"
-    else
-      result="$dir"
-    fi
-  done
-
-  if [ -n "$existing" ]; then
-    if [ -n "$result" ]; then
-      printf '%s:%s\n' "$result" "$existing"
-    else
-      printf '%s\n' "$existing"
-    fi
-  else
-    printf '%s\n' "$result"
-  fi
-}
-
 export_clang_cross_env() {
   local allow_auto_gcc_toolchain="${1:-1}"
   local toolchain_root
@@ -251,9 +224,6 @@ export_clang_cross_env() {
     # shellcheck disable=SC2086
     clang_sys_includes=$(join_as_isystem_flags $include_dirs)
     export CLANG_SYS_INCLUDES="$clang_sys_includes"
-    # shellcheck disable=SC2086
-    C_INCLUDE_PATH="$(prepend_colon_path_list "${C_INCLUDE_PATH:-}" $include_dirs)"
-    export C_INCLUDE_PATH
     log_info "Set CLANG_SYS_INCLUDES=$CLANG_SYS_INCLUDES"
   else
     log_warn "Could not auto-detect ARM include directories for clang."
@@ -316,7 +286,7 @@ elif [[ "$OSTYPE" == "cygwin" ]]; then
 
   # Under Cygwin, aggressive parallel builds (-j) are known to cause blocking
   # or instability on some setups. We therefore disable it by default.
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "msys"* ]]; then
@@ -324,7 +294,7 @@ elif [[ "$OSTYPE" == "msys"* ]]; then
 
   # Same reasoning as for Cygwin: parallel make can be problematic; keep it off
   # by default to avoid hard-to-debug hangs.
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "win32" ]]; then
@@ -332,7 +302,7 @@ elif [[ "$OSTYPE" == "win32" ]]; then
   # only as a diagnostic in case OSTYPE is literally "win32".
   log_info "Detected platform: Windows (OSTYPE=$OSTYPE)"
   log_info "No default configuration implemented for plain win32."
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
@@ -345,7 +315,7 @@ elif [[ "$OSTYPE" == "freebsd"* ]]; then
 else
   log_info "Detected platform: Unknown (OSTYPE=$OSTYPE)"
   log_info "No platform-specific configuration available."
-  export MAKE_JOBS=""
+  export MAKE_JOBS="-j"
   export_clang_cross_env 1
 fi
 
