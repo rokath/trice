@@ -10,8 +10,8 @@ set -eu
 
 # Stabilize the working directory so the ../../src relationship remains valid
 # regardless of the directory from which this script was invoked.
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-repo_root=$(CDPATH= cd -- "$script_dir/../.." && pwd)
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
 
 # Track whether this build inserted generated Trice IDs. The EXIT trap only
 # cleans the repository after a successful insert, including failed builds or

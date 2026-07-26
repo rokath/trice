@@ -2,8 +2,8 @@
 # Start LabPlot, decode the Trice demo, and forward normalized CSV over UDP.
 set -eu
 
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-repo_root=$(CDPATH= cd -- "$script_dir/../.." && pwd)
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
 demo_dir="$repo_root/examples/DemoPlotData_Trice"
 til_file=${TRICE_TIL:-$repo_root/demoTIL.json}
 

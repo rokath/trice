@@ -2,8 +2,8 @@
 # Start LabPlot and feed the live project with the CSV demo over UDP.
 set -eu
 
-script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-repo_root=$(CDPATH= cd -- "$script_dir/../.." && pwd)
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
 demo_dir="$repo_root/examples/DemoPlotData_CSV"
 
 find_labplot() {
