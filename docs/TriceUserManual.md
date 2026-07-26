@@ -6640,38 +6640,61 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ```
 
 * For some reason `sudo apt install gdb-arm-none-eabi` gives the message `Note, selecting 'gdb-multiarch' instead of 'gdb-arm-none-eabi'` and *arm-none-eabi-gdb* is not installed afterwards.
-* To try the newest version, download it from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads.
-  * Setup:
-    * Unpack and extend $PATH at the beginning:
-      
-    ```bash
-    cd ~/Downloads
-    tar xf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
-    su
-    echo export PATH=/home/th/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/:'$PATH' > /etc/profile.d/arm14.2path.sh
-    exit
-    ```
 
-    * Logout and login
+##### Recommended complete Arm GNU Toolchain
 
-    ```bash
-    arm-none-eabi-gcc --version
-    arm-none-eabi-gcc (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119
-    Copyright (C) 2024 Free Software Foundation, Inc.
-    This is free software; see the source for copying conditions.  There is NO
-    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-    ```
+For the Trice bare-metal examples, use a complete, internally consistent toolchain containing GCC, GNU Binutils, Newlib, and Newlib-Nano. The official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm) provide matching packages for Linux, macOS, and Windows. Select the package for the host platform whose target name ends in `arm-none-eabi`, and verify its accompanying SHA-256 file before installing it.
 
-    ```bash
-    arm-none-eabi-gdb --version
-    GNU gdb (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 15.2.90.20241130-git
-    Copyright (C) 2024 Free Software Foundation, Inc.
-    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-    This is free software: you are free to change and redistribute it.
-    There is NO WARRANTY, to the extent permitted by law.
-    ```
+Arm GNU Toolchain 15.3.Rel1 is the currently tested version for the Trice GCC example builds. It reports:
 
-  * Remove: Delete `/etc/profile.d/arm14.2path.sh` and `~/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi`
+```text
+arm-none-eabi-gcc (Arm GNU Toolchain 15.3.Rel1 (Build arm-15.149)) 15.3.1 20260627
+GNU assembler (Arm GNU Toolchain 15.3.Rel1 (Build arm-15.149)) 2.45.1.20260126
+```
+
+Install new releases side by side instead of replacing a working toolchain immediately. Prepend the selected installation's `bin` directory to `PATH` for the current shell or configure it permanently using the host operating system's normal environment-variable settings. On Linux and macOS, an unpacked archive can be selected temporarily as follows:
+
+```bash
+toolchain_dir="$HOME/opt/arm-gnu-toolchain-15.3.rel1"
+export PATH="$toolchain_dir/bin:$PATH"
+```
+
+On Windows, add the corresponding extracted or installed `bin` directory at the beginning of the user `Path`. Afterwards, open a new terminal. Do not combine GCC, `as`, libraries, or specifications from different toolchain installations.
+
+Check which installation is active and whether the required runtime files are present:
+
+```bash
+command -v arm-none-eabi-gcc
+command -v arm-none-eabi-as
+arm-none-eabi-gcc --version
+arm-none-eabi-as --version
+arm-none-eabi-gcc -print-file-name=nano.specs
+arm-none-eabi-gcc -print-file-name=libnosys.a
+```
+
+Use `where.exe` instead of `command -v` in a Windows command prompt. The last two commands must print resolved paths. Output containing only `nano.specs` or `libnosys.a` means that the active installation is incomplete.
+
+On macOS, `brew install --cask gcc-arm-embedded` installs an official complete Arm package, but the cask can lag behind the newest Arm release. In contrast, the Homebrew formula installed by `brew install arm-none-eabi-gcc` builds GCC with `--without-headers` and installs GCC plus `libgcc`, but not Newlib/Newlib-Nano. A newer GCC version number from that formula therefore does not make it a complete replacement for the official package used by these examples.
+
+##### GNU assembler `unable to rebuffer file` warning
+
+The G0B1 build requests assembler listings with `-Wa,-a,...`. While generating such a listing, GNU `as` reopens and rereads source text associated with the temporary compiler-generated assembly file. A diagnostic such as
+
+```text
+ccXXXX.s: Warning: unable to rebuffer file: path/to/source.c
+```
+
+means that this second source-file read returned fewer bytes than expected. It is an assembler-listing diagnostic, not a C-language warning. The object and executable may still have been generated correctly, but the Trice full test intentionally treats every warning as a failure.
+
+The warning was observed once with Arm GNU Toolchain 15.2.Rel1 on macOS and did not recur when the identical G0B1 build was repeated. The complete test with 15.3.Rel1, including the G0B1 X0 matrix and listing generation, completed without warnings. This establishes the warning as intermittent; it does not prove that 15.3.Rel1 contains a specific fix for it.
+
+If the warning occurs:
+
+1. Keep listing generation and strict warning checks enabled.
+2. Confirm the active GCC and assembler paths and versions with the commands above.
+3. Ensure that no editor, generator, formatter, synchronization tool, or parallel build step rewrites the named source file while `as` is running.
+4. Repeat the affected build once with the complete 15.3.Rel1 package.
+5. If it is reproducible, retain the complete compiler command, tool versions, source file, and generated listing and report the case as a GNU Binutils or Arm GNU Toolchain issue.
 
 #### 37.4.7. <a id="j-link-if-needed"></a>J-Link (if needed)
 
