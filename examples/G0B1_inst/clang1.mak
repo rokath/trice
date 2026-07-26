@@ -10,6 +10,12 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 CLANG_OBJECTS += $(addprefix $(CLANG_BUILD)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
+# Keep diagnostics strict for project code while suppressing known warnings
+# only for the affected third-party translation units.
+$(CLANG_BUILD)/main.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8
+$(CLANG_BUILD)/cmsis_os.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8 -Wno-unused-parameter
+$(CLANG_BUILD)/SEGGER_RTT.o: CLANG_SOURCE_FLAGS += -Wno-zero-length-array
+
 # assembler
 $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
@@ -19,7 +25,7 @@ $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
 # compiler
 $(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
-	@$(CLANG_CC) $(VERBOSE) $(C_FLAGS) -Wextra -pedantic $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
+	@$(CLANG_CC) $(VERBOSE) $(C_FLAGS) -Wextra -pedantic $(CLANG_SOURCE_FLAGS) $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
 #	@echo -e
 
 # linker # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments

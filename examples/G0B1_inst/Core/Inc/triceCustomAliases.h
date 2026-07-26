@@ -10,6 +10,12 @@
 #include "nanoprintf.h"
 #include "trice.h"
 
+#if defined(__clang__)
+// The convenience aliases intentionally support omitted variadic arguments.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 // Helper macro to extract the filename from the full path
 #ifndef FILENAME
 #define FILENAME(path) (strrchr(path, '/') ? strrchr(path, '/') + 1 : (strrchr(path, '\\') ? strrchr(path, '\\') + 1 : path))
@@ -118,6 +124,10 @@ static inline void uart2_putc(int c, void* ctx) {
 	CUSTOM_ASSERT_IMPL(condition, #condition, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
 
 #define CUSTOM_ASSERT(...) _DISPATCH_EXPAND(CUSTOM_ASSERT, COUNT_ARGS_3(__VA_ARGS__))(__VA_ARGS__)
+#endif
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
 #endif
 
 #endif
