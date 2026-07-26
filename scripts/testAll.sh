@@ -18,6 +18,7 @@
 # - Individual step scripts only accept arguments when they actually need them.
 # - Each step has its own name, its own log file, and can be run separately,
 #   for example:
+#   - ./scripts/_testAll_00b_checkShell.sh
 #   - ./scripts/_testAll_05_MarkdownLint.sh
 #   - ./scripts/_testAll_06_LinkCheck.sh
 #   - ./scripts/_testAll_06b_ActionLint.sh
