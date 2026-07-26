@@ -601,7 +601,6 @@ Trice overlaps with several logging, tracing, and tokenization approaches, but i
 - [Real-time binary data logging/tracing toolkit](https://github.com/RTEdbg/RTEdbg)
 - SEGGER RTT
 - [SEGGER System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/)
-- [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
 - [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet) (Small embedded systems tracer with support for bare-metal and FreeRTOS-based targets)
 - [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications)
 - [uLog (RD Poor)](https://github.com/rdpoor/ulog)
