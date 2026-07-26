@@ -71,7 +71,16 @@
 
 #include "triceVariadic.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 #define TRICE32(tid, fmt, ...) TRICE_CONCAT2(TRICE32_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 //! TRICE32_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //!  It is usable for showing n 32-bit values.

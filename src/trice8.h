@@ -71,8 +71,17 @@
 
 #include "triceVariadic.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+
 //! TRICE8 inlining code for up to 12 8-bit parameters.
 #define TRICE8(tid, fmt, ...) TRICE_CONCAT2(TRICE8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 //! TRICE8_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //!  It is usable for showing n 8-bit values.

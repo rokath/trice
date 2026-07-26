@@ -274,7 +274,7 @@ extern "C" {
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
 //! The byte sequence you see then, copy and use it in your trice.Config.h file.
 //! YOu can user `-password MySecret` as Trice tool CLI switch with the default key.
-#define XTEA_ENCRYPT_KEY XTEA_KEY(ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54);
+#define XTEA_ENCRYPT_KEY XTEA_KEY(ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54)
 #endif
 
 #ifndef XTEA_DECRYPT
