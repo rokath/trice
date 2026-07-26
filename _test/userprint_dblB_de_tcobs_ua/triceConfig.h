@@ -26,9 +26,9 @@ extern unsigned cgoTriceBufferDepth;
 //! prints is a user print example with string, float and integer values.
 //! We have to perform a normal print into a buffer, which then is passed to triceS.
 //! This is slow but we can integrate user code without changing it.
-#define print(fmt, ...)                                                                            \
-	do {                                                                                           \
-		int len = npf_snprintf((char*)cgoTriceBuffer + sizeof(uint16_t), 256, fmt, ##__VA_ARGS__); \
+#define print(...)                                                                            \
+	do {                                                                                      \
+		int len = npf_snprintf((char*)cgoTriceBuffer + sizeof(uint16_t), 256, __VA_ARGS__);   \
 		uint16_t* plen = (uint16_t*)cgoTriceBuffer;                                                \
 		*plen = (uint16_t)len;                                                                     \
 		cgoTriceBufferDepth = len ? sizeof(uint16_t) + len : 0; /* no output for len==0 */         \
