@@ -10,8 +10,8 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 CLANG_OBJECTS += $(addprefix $(CLANG_BUILD)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
-# Keep diagnostics strict for project code while suppressing known warnings
-# only for the affected third-party translation units.
+# Keep diagnostics strict globally while suppressing known warnings only for
+# the affected third-party translation units.
 $(CLANG_BUILD)/main.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8
 $(CLANG_BUILD)/cmsis_os.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8 -Wno-unused-parameter
 $(CLANG_BUILD)/SEGGER_RTT.o: CLANG_SOURCE_FLAGS += -Wno-zero-length-array
