@@ -26,20 +26,20 @@ find_labplot() {
 # Wait until a process has bound the requested UDP input socket.
 # The fallback delay supports systems without lsof, such as Git Bash.
 wait_for_udp_port() {
-    if command -v lsof >/dev/null 2>&1; then
-        attempt=0
-        while ! lsof -nP -iUDP:"$1" >/dev/null 2>&1; do
-            attempt=$((attempt + 1))
-            if [ "$attempt" -ge 15 ]; then
-                echo "$2 did not open UDP port $1 within 15 seconds." >&2
-                return 1
-            fi
-            sleep 1
-        done
-        return 0
-    fi
+  if command -v lsof >/dev/null 2>&1; then
+    attempt=0
+    while ! lsof -nP -iUDP:"$1" >/dev/null 2>&1; do
+      attempt=$((attempt + 1))
+      if [ "$attempt" -ge 15 ]; then
+        echo "$2 did not open UDP port $1 within 15 seconds." >&2
+        return 1
+      fi
+      sleep 1
+    done
+    return 0
+  fi
 
-    sleep "$3"
+  sleep "$3"
 }
 
 labplot=$(find_labplot) || {
@@ -61,9 +61,9 @@ labplot_pid=$!
 producer_pid=
 tlog_pid=
 cleanup() {
-    if [ -n "$producer_pid" ]; then kill "$producer_pid" 2>/dev/null || true; fi
-    if [ -n "$tlog_pid" ]; then kill "$tlog_pid" 2>/dev/null || true; fi
-    kill "$labplot_pid" 2>/dev/null || true
+  if [ -n "$producer_pid" ]; then kill "$producer_pid" 2>/dev/null || true; fi
+  if [ -n "$tlog_pid" ]; then kill "$tlog_pid" 2>/dev/null || true; fi
+  kill "$labplot_pid" 2>/dev/null || true
 }
 trap cleanup INT TERM EXIT
 
@@ -71,7 +71,7 @@ echo "Waiting for LabPlot to open UDP port 9000..."
 wait_for_udp_port 9000 LabPlot 5
 
 "$tlog_bin" -p UDP4 -args 127.0.0.1:9001 -til "$til_file" -ulabel vis_demo \
-    '-vis=vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop' &
+  '-vis=vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop' &
 tlog_pid=$!
 
 echo "Waiting for tlog to open UDP port 9001..."
