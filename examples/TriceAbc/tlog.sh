@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
+cd "$(dirname "$0")" || exit 1
+
 tlog -port FILEBUFFER -args abc.bus \
     -li ../../demoLI.json \
+    -liPath legacy \
     -til ../../demoTIL.json \
     -d16 \
     -pf COBS \

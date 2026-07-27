@@ -17,6 +17,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
+# Use the shared ID files while rooting legacy location paths at this example.
+TRICE_TIL_JSON=${TRICE_TIL_JSON:-"${ROOT}/demoTIL.json"}
+TRICE_LI_JSON=${TRICE_LI_JSON:-"${ROOT}/demoLI.json"}
+TRICE_LI_PATH_GENERATION=${TRICE_LI_PATH_GENERATION:-"${SCRIPT_DIR}/relative"}
+source "${ROOT}/scripts/_setup_trice_environment.sh"
+
 ids_inserted=0
 
 run_trice() {
@@ -52,8 +58,9 @@ cleanup() {
   if [ "${ids_inserted}" -eq 1 ]; then
     echo "cleanup: trice clean examples/TriceAbc"
     if ! run_trice clean \
-      -til "${ROOT}/demoTIL.json" \
-      -li "${ROOT}/demoLI.json" \
+      -til "${TRICE_TIL_JSON}" \
+      -li "${TRICE_LI_JSON}" \
+      -liPath "${TRICE_LI_PATH_GENERATION}" \
       -src "${SCRIPT_DIR}/NodeLib" \
       -src "${SCRIPT_DIR}/N1_tx" \
       -src "${SCRIPT_DIR}/N2_tx" \
@@ -127,8 +134,9 @@ mkdir -p build NodeLib
 
 echo "prepare: trice insert examples/TriceAbc"
 run_trice insert \
-  -til "${ROOT}/demoTIL.json" \
-  -li "${ROOT}/demoLI.json" \
+  -til "${TRICE_TIL_JSON}" \
+  -li "${TRICE_LI_JSON}" \
+  -liPath "${TRICE_LI_PATH_GENERATION}" \
   -src "${SCRIPT_DIR}/NodeLib" \
   -src "${SCRIPT_DIR}/N1_tx" \
   -src "${SCRIPT_DIR}/N2_tx" \
