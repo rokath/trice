@@ -226,8 +226,8 @@ type file struct {
 }
 
 // newFileReader returns a readCloser capable file instance.
-func newFileReader(fSys *afero.Afero, fn string) *file {
-	r := &file{}
+func newFileReader(w io.Writer, fSys *afero.Afero, fn string) *file {
+	r := &file{w: w}
 	fh, err := fSys.Open(fn)
 	if err != nil {
 		log.Fatal(fn, err)
@@ -320,7 +320,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		if Verbose {
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
-		r = newFileReader(fSys, args)
+		r = newFileReader(w, fSys, args)
 	case "DUMP", "HEX":
 		if args == "default" { // nothing assigned in args
 			args = DefaultDumpArgs

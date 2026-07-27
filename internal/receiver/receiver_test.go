@@ -131,7 +131,7 @@ func TestFileReadWriterDiscard(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	require.NoError(t, fs.WriteFile("trace.bin", []byte("abc"), 0o644))
 
-	r := newFileReader(fs, "trace.bin")
+	r := newFileReader(nil, fs, "trace.bin")
 	buf := make([]byte, 3)
 	n, err := r.Read(buf)
 	require.NoError(t, err)
@@ -174,11 +174,11 @@ func TestNewReadWriteCloserVerboseFileDefaults(t *testing.T) {
 	rc, err := NewReadWriteCloser(&out, fs, false, "FILE", "default")
 	require.NoError(t, err)
 	require.IsType(t, &file{}, rc)
-	rc.(*file).w = &out
-	defer rc.Close()
+	require.NoError(t, rc.Close())
 
 	assert.Contains(t, out.String(), "Assigning default arguments for port FILE")
 	assert.Contains(t, out.String(), "PortArguments= trices.raw")
+	assert.Contains(t, out.String(), "Closing file trices.raw")
 }
 
 type stubReadWriteCloser struct {
