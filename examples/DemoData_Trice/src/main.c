@@ -36,7 +36,7 @@ typedef int SocketHandle;
 #include "trice.h"
 
 #define DEMO_PI 3.14159265358979323846
-#define DEFAULT_BINARY_FILE "DemoPlotData_Trice.bin"
+#define DEFAULT_BINARY_FILE "DemoData_Trice.bin"
 
 /*
  * This global is read by the TriceStamp32 macro in triceConfig.h. Its unit is
@@ -246,7 +246,7 @@ static void sleep_seconds(double seconds)
 }
 
 /*
- * Generate the same mathematical signals as DemoPlotData_CSV. Calculations use
+ * Generate the same mathematical signals as DemoData_CSV. Calculations use
  * double; each value is converted to IEEE-754 float bits only at the TRice call,
  * because the demonstration uses three 32-bit TRice parameters.
  */
@@ -537,7 +537,7 @@ int main(int argc, char **argv)
         demo_plot_timestamp_10ms = (uint32_t)absolute_ticks_10ms;
 
         if(absolute_ticks_10ms % 100 == 0) {
-            TRice("sig:%.1f s\n", aFloat(time_seconds));
+            TRice64("sig:%.1f s\n", aDouble(time_seconds));
         }
         /*#
          * aFloat() transfers the IEEE-754 float bit pattern as a 32-bit Trice

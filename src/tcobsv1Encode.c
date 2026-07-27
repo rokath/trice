@@ -258,7 +258,8 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 						OUT_zeroSigil // Z2, -- !00.
 						    goto lastByte;
 					}
-					if (b == 0) {           // , z1 00 00.
+					// Here b is necessarily 0 because the non-zero case jumps to lastByte.
+					{                       // , z1 00 00.
 						*o++ = Z3 | offset; // Z3, -- --.
 						return (int)(o - out);
 					}

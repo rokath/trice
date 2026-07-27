@@ -1,6 +1,6 @@
-# DemoPlotData_CSV
+# DemoData_CSV
 
-`DemoPlotData_CSV` is a small C11 program that generates attractive synthetic
+`DemoData_CSV` is a small C11 program that generates attractive synthetic
 plot data:
 
 ```text
@@ -15,7 +15,7 @@ in seconds. The program runs on Windows, macOS, and Linux and can write to:
 - a UDP destination, with one CSV record per datagram.
 
 The signal formula is shared conceptually with the companion
-`DemoPlotData_Trice` project. This makes it possible to compare a direct CSV
+`DemoData_Trice` project. This makes it possible to compare a direct CSV
 source with data transported and decoded through TRice.
 
 ## Build
@@ -42,10 +42,16 @@ cmake -S . -B build
 cmake --build build --config Release
 ```
 
-The Visual Studio executable is normally:
+The local executable is installed into `bin/`. On Windows it is normally:
 
 ```powershell
-.\build\Release\DemoPlotData_CSV.exe
+.\bin\DemoData_CSV.exe
+```
+
+The equivalent Git Bash path is:
+
+```sh
+./bin/DemoData_CSV
 ```
 
 ## Examples
@@ -53,26 +59,26 @@ The Visual Studio executable is normally:
 Write a live stream to the terminal at the default 50 Hz:
 
 ```sh
-DemoPlotData_CSV
+./bin/DemoData_CSV
 ```
 
 Write ten seconds to a fresh CSV file without real-time waiting:
 
 ```sh
-DemoPlotData_CSV --rate 50 --samples 500 --no-delay \
-  --header --output DemoPlotData_CSV.csv
+./bin/DemoData_CSV --rate 50 --samples 500 --no-delay \
+  --header --output DemoData_CSV.csv
 ```
 
 Send live CSV records to UDP port 9000 on the same computer:
 
 ```sh
-DemoPlotData_CSV --udp 127.0.0.1 9000
+./bin/DemoData_CSV --udp 127.0.0.1 9000
 ```
 
 PowerShell:
 
 ```powershell
-.\build\Release\DemoPlotData_CSV.exe --udp 127.0.0.1 9000
+.\bin\DemoData_CSV.exe --udp 127.0.0.1 9000
 ```
 
 Use `--help` for all options.
@@ -92,11 +98,11 @@ UDP.
 5. Connect and run this generator with `--udp 127.0.0.1 9000`.
 
 Quick Plot treats all four columns as values. For named signals and a proper
-timestamp axis, open the included `DemoPlotData.ssproj` instead.
+timestamp axis, open the included `DemoData.ssproj` instead.
 
 ### Prepared project
 
-1. Open `DemoPlotData.ssproj` in Serial Studio.
+1. Open `DemoData.ssproj` in Serial Studio.
 2. Connect its configured UDP source.
 3. Run the generator with `--udp 127.0.0.1 9000`.
 

@@ -22,7 +22,13 @@ failCount=0
 # 2) Clean each target directory
 # ------------------------------------------------------------------------------
 
-for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/ ./F030_inst/ ./G0B1_inst/ ./L432_inst/; do
+for d in \
+  ./F030_bare/ \
+  ./G0B1_bare/ \
+  ./L432_bare/ \
+  ./F030_inst/ \
+  ./G0B1_inst/ \
+  ./L432_inst/; do
   (
     cd "${SCRIPT_DIR}/${d}"
     make clean
@@ -37,7 +43,7 @@ done
 
 # The plot-data demos use CMake instead of Make and keep their build trees in
 # the demo directories, so remove those generated trees explicitly.
-for d in DemoPlotData_CSV DemoPlotData_Trice; do
+for d in DemoData_CSV DemoData_Trice; do
   demo_build_dir="${SCRIPT_DIR}/${d}/build"
   if [ -d "${demo_build_dir}" ]; then
     rm -rf "${demo_build_dir}"

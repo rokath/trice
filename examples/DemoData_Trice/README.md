@@ -1,7 +1,7 @@
-# DemoPlotData_Trice
+# DemoData_Trice
 
-`DemoPlotData_Trice` generates the same synthetic `x`, `y`, and `z` signals as
-the sibling `DemoPlotData_CSV` project, but transports them as binary TRice
+`DemoData_Trice` generates the same synthetic `x`, `y`, and `z` signals as
+the sibling `DemoData_CSV` project, but transports them as binary TRice
 records.
 
 The program is intended to be placed here:
@@ -10,8 +10,8 @@ The program is intended to be placed here:
 trice/
 ├── src/
 └── examples/
-    ├── DemoPlotData_CSV/
-    └── DemoPlotData_Trice/
+    ├── DemoData_CSV/
+    └── DemoData_Trice/
 ```
 
 Its CMake project uses the unchanged TRice target library from `../../src`.
@@ -39,7 +39,7 @@ Consequently, a `-vis` expression that emits floating-point seconds must use
 Without an output option, the program opens:
 
 ```text
-DemoPlotData_Trice.bin
+DemoData_Trice.bin
 ```
 
 in the current working directory. The file is opened with `wb`, so every
@@ -77,10 +77,16 @@ cmake -S . -B build
 cmake --build build --config Release
 ```
 
-The Visual Studio executable is normally:
+The local executable is installed into `bin/`. On Windows it is normally:
 
 ```powershell
-.\build\Release\DemoPlotData_Trice.exe
+.\bin\DemoData_Trice.exe
+```
+
+The equivalent Git Bash path is:
+
+```sh
+./bin/DemoData_Trice
 ```
 
 ## Examples
@@ -88,19 +94,19 @@ The Visual Studio executable is normally:
 Generate the default file continuously:
 
 ```sh
-DemoPlotData_Trice
+./bin/DemoData_Trice
 ```
 
 Generate 500 records quickly:
 
 ```sh
-DemoPlotData_Trice --samples 500 --no-delay
+./bin/DemoData_Trice --samples 500 --no-delay
 ```
 
 Send the binary TRice stream to a decoder listening on UDP port 9001:
 
 ```sh
-DemoPlotData_Trice --udp 127.0.0.1 9001
+./bin/DemoData_Trice --udp 127.0.0.1 9001
 ```
 
 Use `--help` for all options.
@@ -113,9 +119,9 @@ TRice repository root, decode the generated file with settings equivalent to:
 ```sh
 trice log \
   -p FILEBUFFER \
-  -args examples/DemoPlotData_Trice/DemoPlotData_Trice.bin \
+  -args examples/DemoData_Trice/DemoData_Trice.bin \
   -pf TCOBS \
-  -i examples/DemoPlotData_Trice/til.json
+  -i examples/DemoData_Trice/til.json
 ```
 
 For a fresh CSV file with one header line, use the `header` output option on
@@ -123,7 +129,7 @@ the visualization rule:
 
 ```sh
 tlog -p FILEBUFFER \
-  -args DemoPlotData_Trice.bin \
+  -args DemoData_Trice.bin \
   -til ../../../demoTIL.json \
   -ulabel vis_demo \
   -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\\n",ts/100.0,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\\n";log=drop'
@@ -138,7 +144,7 @@ output sink; its value is a quoted Go string, which allows escapes such as
 
 When the discussed `-vis` functionality is available, use this live pipeline:
 
-1. Open `examples/DemoPlotData_CSV/DemoPlotData.ssproj` in Serial Studio and
+1. Open `examples/DemoData_CSV/DemoData.ssproj` in Serial Studio and
    connect its UDP source on port `9000`.
 2. Start the TRice decoder from the repository root:
 
@@ -147,19 +153,19 @@ trice log \
   -p UDP4 \
   -args 127.0.0.1:9001 \
   -pf TCOBS \
-  -i examples/DemoPlotData_Trice/til.json \
+  -i examples/DemoData_Trice/til.json \
   -vis='vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000,log=drop'
 ```
 
 3. Start the binary generator:
 
 ```sh
-examples/DemoPlotData_Trice/build/DemoPlotData_Trice \
+examples/DemoData_Trice/bin/DemoData_Trice \
   --udp 127.0.0.1 9001
 ```
 
 The `-vis` expression converts each selected TRice record to the same CSV
-format as `DemoPlotData_CSV`:
+format as `DemoData_CSV`:
 
 ```text
 seconds,x,y,z
@@ -168,7 +174,7 @@ seconds,x,y,z
 On a Visual Studio multi-configuration build, the generator path is usually:
 
 ```text
-examples/DemoPlotData_Trice/build/Release/DemoPlotData_Trice.exe
+examples/DemoData_Trice/bin/DemoData_Trice.exe
 ```
 
 The generator's own `--udp` option transports **binary TRice**, so it must be

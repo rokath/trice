@@ -317,6 +317,7 @@ run_cppcheck() {
     --error-exitcode=1 \
     --enable=warning,style,performance,portability \
     --inline-suppr \
+    --check-level=exhaustive \
     --std=c99 \
     --language=c \
     --quiet \

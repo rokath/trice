@@ -2,6 +2,7 @@
 # folders
 **/dist/
 **/build/
+**/bin/
 **/out/
 **/out.gcc/
 **/out.clang/

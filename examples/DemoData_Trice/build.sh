@@ -8,8 +8,8 @@
 
 set -eu
 
-# Stabilize the working directory so the script also works when invoked through
-# a relative or absolute path from somewhere else.
+# Stabilize the working directory so the ../../src relationship remains valid
+# regardless of the directory from which this script was invoked.
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
 
@@ -47,7 +47,9 @@ cd "$script_dir"
 
 # CMAKE_BUILD_TYPE is used by single-configuration generators. --config selects
 # Release for multi-configuration generators such as Visual Studio.
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build
 cmake --build build --config Release
+cmake --install build --config Release --prefix "$script_dir"
 
 echo "Build completed in: $script_dir/build"
+echo "Executable installed in: $script_dir/bin"
