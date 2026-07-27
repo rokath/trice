@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+cd #!/usr/bin/env bash
 set -euo pipefail
 
 # Resolve this script's directory (works with symlinks as well)
@@ -14,6 +14,8 @@ targets=(
   "F030_inst"
   "G0B1_inst"
   "L432_inst"
+  "DemoPlotData_CSV"
+  "DemoPlotData_Trice"
 )
 
 for d in "${targets[@]}"; do

@@ -22,7 +22,13 @@ failCount=0
 # 2) Clean each target directory
 # ------------------------------------------------------------------------------
 
-for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/ ./F030_inst/ ./G0B1_inst/ ./L432_inst/; do
+for d in \
+  ./F030_bare/ \
+  ./G0B1_bare/ \
+  ./L432_bare/ \
+  ./F030_inst/ \
+  ./G0B1_inst/ \
+  ./L432_inst/; do
   (
     cd "${SCRIPT_DIR}/${d}"
     make clean
@@ -33,6 +39,15 @@ for d in ./F030_bare/ ./G0B1_bare/ ./L432_bare/ ./F030_inst/ ./G0B1_inst/ ./L432
     failCount=$((failCount + 1))
     echo "FAIL: ${d}"
   fi
+done
+
+for d in \
+  ./DemoPlotData_CSV/ \
+  ./DemoPlotData_Trice/; do
+  (
+    cd "${SCRIPT_DIR}/${d}"
+    rm -rf build
+  )
 done
 
 # ------------------------------------------------------------------------------
