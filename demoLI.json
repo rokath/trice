@@ -9375,6 +9375,10 @@
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 479
 	},
+	"15711": {
+		"File": "examples/DemoPlotData_Trice/src/main.c",
+		"Line": 540
+	},
 	"15739": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 461

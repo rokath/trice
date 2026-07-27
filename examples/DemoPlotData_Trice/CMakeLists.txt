@@ -6,6 +6,12 @@ project(DemoPlotData_Trice
     LANGUAGES C
 )
 
+# Single-configuration generators need an explicit build type. Multi-
+# configuration generators such as Visual Studio select it at build time.
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # The project is intended to live in trice/examples/DemoPlotData_Trice.
 # Therefore the unmodified Trice target library is two levels above this file.
 get_filename_component(TRICE_SOURCE_DIR
@@ -24,6 +30,7 @@ add_executable(DemoPlotData_Trice
     src/main.c
     "${TRICE_SOURCE_DIR}/trice.c"
     "${TRICE_SOURCE_DIR}/trice32.c"
+    "${TRICE_SOURCE_DIR}/trice64.c"
     "${TRICE_SOURCE_DIR}/triceStackBuffer.c"
     "${TRICE_SOURCE_DIR}/cobsEncode.c"
     "${TRICE_SOURCE_DIR}/tcobsv1Encode.c"
@@ -51,6 +58,12 @@ else()
     )
     target_link_libraries(DemoPlotData_Trice PRIVATE m)
 endif()
+
+# Keep the runnable demo separate from CMake's intermediate build tree. The
+# build entry point installs this target into the demo-local ./bin directory.
+install(TARGETS DemoPlotData_Trice
+    RUNTIME DESTINATION bin
+)
 
 include(CTest)
 if(BUILD_TESTING)

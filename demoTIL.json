@@ -9375,6 +9375,10 @@
 		"Type": "TRIce32_C",
 		"Strg": "info:FunctionNameYa"
 	},
+	"15711": {
+		"Type": "TRice64",
+		"Strg": "sig:%.1f s\\n"
+	},
 	"15739": {
 		"Type": "Trice8C",
 		"Strg": "call:FunctionNameWc"

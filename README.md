@@ -481,6 +481,16 @@ The Trice tool will optionally display them as raw bytes using a "%02x" format a
 
 </details>
 
+<details markdown="1"><summary>Plotting Dynamic Data using an external Tool</summary>
+
+![./docs/ref/LabPlotDemo.gif](./docs/ref/LabPlotDemo.gif)
+
+The `trice log ...` (`tlog ...`) CLI switch `-vis='...'` allows translations of selected Trice messages into any matching drawing tool inputs like CSV or JSON. The Trice tool is easy extendable to convert the binary Trice messages into any suitable binary format directly.
+
+Check [./examples/LabPlotDemo](./examples/LabPlotDemo) and the user manual for details,
+
+</details>
+
 ### Project information
 
 <details markdown="1"><summary>Installation</summary>

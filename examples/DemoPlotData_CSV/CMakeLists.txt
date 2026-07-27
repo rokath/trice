@@ -6,6 +6,12 @@ project(DemoPlotData_CSV
     LANGUAGES C
 )
 
+# Single-configuration generators need an explicit build type. Multi-
+# configuration generators such as Visual Studio select it at build time.
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 add_executable(DemoPlotData_CSV src/main.c)
 target_compile_features(DemoPlotData_CSV PRIVATE c_std_11)
 
@@ -23,6 +29,12 @@ else()
     )
     target_link_libraries(DemoPlotData_CSV PRIVATE m)
 endif()
+
+# Keep the runnable demo separate from CMake's intermediate build tree. The
+# build entry point installs this target into the demo-local ./bin directory.
+install(TARGETS DemoPlotData_CSV
+    RUNTIME DESTINATION bin
+)
 
 include(CTest)
 if(BUILD_TESTING)

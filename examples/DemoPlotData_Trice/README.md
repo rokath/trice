@@ -77,10 +77,16 @@ cmake -S . -B build
 cmake --build build --config Release
 ```
 
-The Visual Studio executable is normally:
+The local executable is installed into `bin/`. On Windows it is normally:
 
 ```powershell
-.\build\Release\DemoPlotData_Trice.exe
+.\bin\DemoPlotData_Trice.exe
+```
+
+The equivalent Git Bash path is:
+
+```sh
+./bin/DemoPlotData_Trice
 ```
 
 ## Examples
@@ -88,19 +94,19 @@ The Visual Studio executable is normally:
 Generate the default file continuously:
 
 ```sh
-DemoPlotData_Trice
+./bin/DemoPlotData_Trice
 ```
 
 Generate 500 records quickly:
 
 ```sh
-DemoPlotData_Trice --samples 500 --no-delay
+./bin/DemoPlotData_Trice --samples 500 --no-delay
 ```
 
 Send the binary TRice stream to a decoder listening on UDP port 9001:
 
 ```sh
-DemoPlotData_Trice --udp 127.0.0.1 9001
+./bin/DemoPlotData_Trice --udp 127.0.0.1 9001
 ```
 
 Use `--help` for all options.
@@ -154,7 +160,7 @@ trice log \
 3. Start the binary generator:
 
 ```sh
-examples/DemoPlotData_Trice/build/DemoPlotData_Trice \
+examples/DemoPlotData_Trice/bin/DemoPlotData_Trice \
   --udp 127.0.0.1 9001
 ```
 
@@ -168,7 +174,7 @@ seconds,x,y,z
 On a Visual Studio multi-configuration build, the generator path is usually:
 
 ```text
-examples/DemoPlotData_Trice/build/Release/DemoPlotData_Trice.exe
+examples/DemoPlotData_Trice/bin/DemoPlotData_Trice.exe
 ```
 
 The generator's own `--udp` option transports **binary TRice**, so it must be

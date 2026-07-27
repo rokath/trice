@@ -2176,6 +2176,8 @@ At startup, each rule checks all matching historical `til.json` entries. Incompa
 
 ### 12.4. <a id="setting-up-the-labplot-demo"></a>Setting up the LabPlot Demo
 
+![./ref/LabPlotDemo.gif](./ref/LabPlotDemo.gif)
+
 This section uses [LabPlot](https://labplot.org/), a cross-platform interactive
 plotting application. The finished, ready-to-run example is in
 `./examples/LabPlotDemo/`; the guided learning path is in
@@ -2208,12 +2210,13 @@ examples.
 
 #### 12.4.2. <a id="examplesdemoplotdatacsv"></a>./examples/DemoPlotData_CSV
 
-After running `build.sh` inside `./examples/DemoPlotData_CSV/` you can run inside the build folder
+After running `build.sh` inside `./examples/DemoPlotData_CSV/`, the executable is
+installed in the local `bin/` folder. You can run it there:
 
 ```txt
-th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_CSV --header -o log.csv 
+th@Thomass-MacBook-Pro-7 bin % ./DemoPlotData_CSV --header -o log.csv 
 ^C
-th@Thomass-MacBook-Pro-7 build % head log.csv                           
+th@Thomass-MacBook-Pro-7 bin % head log.csv                           
 time_s,x,y,z
 0.000000,0.000000,1.000000,0.000000
 0.020000,0.087851,0.992854,0.027246
@@ -2224,17 +2227,18 @@ time_s,x,y,z
 0.120000,0.503623,0.753319,0.134594
 0.140000,0.577573,0.669459,0.145795
 0.160000,0.647056,0.576032,0.152736
-th@Thomass-MacBook-Pro-7 build % 
+th@Thomass-MacBook-Pro-7 bin % 
 ```
 
 #### 12.4.3. <a id="examplesdemoplotdatatrice"></a>./examples/DemoPlotData_Trice
 
-After running `build.sh` inside `./examples/DemoPlotData_Trice/` you can run inside the build folder:
+After running `build.sh` inside `./examples/DemoPlotData_Trice/`, the executable is
+installed in the local `bin/` folder. You can run it there:
 
 - Create binary log file:
 
 ```txt
-th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_Trice -o log.bin                                                    
+th@Thomass-MacBook-Pro-7 bin % ./DemoPlotData_Trice -o log.bin                                                    
 Writing log.bin
 ^C
 ```
@@ -2242,7 +2246,7 @@ Writing log.bin
 - Show logs in binary log file: 
 
 ```txt
-th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo | head
+th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo | head
 Jul 25 15:38:55.411676  FILEBUFFER:    0,000_000 0.000000,1.000000,0.000000
 Jul 25 15:38:55.411691  FILEBUFFER:    0,000_002 0.087851,0.992854,0.027246
 Jul 25 15:38:55.411705  FILEBUFFER:    0,000_004 0.175023,0.971519,0.053608
@@ -2252,14 +2256,14 @@ Jul 25 15:38:55.411737  FILEBUFFER:    0,000_010 0.425779,0.826415,0.119328
 Jul 25 15:38:55.411752  FILEBUFFER:    0,000_012 0.503623,0.753319,0.134594
 Jul 25 15:38:55.411765  FILEBUFFER:    0,000_014 0.577573,0.669459,0.145795
 Jul 25 15:38:55.411776  FILEBUFFER:    0,000_016 0.647056,0.576032,0.152736
-th@Thomass-MacBook-Pro-7 build %
+th@Thomass-MacBook-Pro-7 bin %
 ```
 
 - Get CSV log file:
 
 ```txt
-th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
-th@Thomass-MacBook-Pro-7 build % head log.csv
+th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
+th@Thomass-MacBook-Pro-7 bin % head log.csv
 time_s,X,Y,Z
 0.000,0.000,1.000,0.000
 0.020,0.088,0.993,0.027
@@ -2270,7 +2274,7 @@ time_s,X,Y,Z
 0.120,0.504,0.753,0.135
 0.140,0.578,0.669,0.146
 0.160,0.647,0.576,0.153
-th@Thomass-MacBook-Pro-7 build % 
+th@Thomass-MacBook-Pro-7 bin % 
 ```
 
 #### 12.4.4. <a id="quick-labplot-demonstration"></a>Quick LabPlot demonstration

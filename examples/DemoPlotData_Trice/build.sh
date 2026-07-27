@@ -47,7 +47,9 @@ cd "$script_dir"
 
 # CMAKE_BUILD_TYPE is used by single-configuration generators. --config selects
 # Release for multi-configuration generators such as Visual Studio.
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S . -B build
 cmake --build build --config Release
+cmake --install build --config Release --prefix "$script_dir"
 
 echo "Build completed in: $script_dir/build"
+echo "Executable installed in: $script_dir/bin"

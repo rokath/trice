@@ -1,5 +1,7 @@
 # LabPlot live demo
 
+![../../docs/ref/LabPlotDemo.gif](../../docs/ref/LabPlotDemo.gif)
+
 This folder contains one LabPlot project for both signal producers. The project
 listens on UDP port `9000` for the normalized numeric CSV stream
 `time_s,x,y,z`. The project predeclares the four numeric columns and triggers
@@ -34,6 +36,10 @@ producers keeps its shape moving visibly. Open `LabPlotDemo.lml` manually if
 LabPlot is already running. The project does not contain machine-specific
 file paths.
 
+The producer build scripts keep generated executables local to their demo in
+`examples/DemoPlotData_CSV/bin/` and `examples/DemoPlotData_Trice/bin/`.
+Intermediate CMake files remain in the corresponding `build/` directories.
+
 If `tlog` reports that a `-vis` rule was disabled because writing to port
 `9000` was refused, LabPlot was not listening when the decoder started.
 Restart `run_trice.sh`; its readiness check normally prevents this condition.
@@ -42,7 +48,15 @@ so `log=drop` no longer applies to that rule.
 
 ## Windows
 
-Run the scripts from Git Bash or another POSIX shell and set, for example,
-`LABPLOT=/c/Program\ Files/LabPlot/bin/labplot.exe` if automatic discovery
-does not find LabPlot. The demo programs and `tlog` must likewise be on
-`PATH`, or `TLOG` can point to the decoder executable.
+Run the scripts from Git Bash or another POSIX shell. On Windows the scripts
+automatically search the usual `ProgramFiles`, `ProgramW6432`, and
+`LOCALAPPDATA` installation roots for `labplot.exe` or `labplot2.exe`. If
+automatic discovery does not find LabPlot, set an explicit override, for
+example:
+
+```sh
+export LABPLOT='/c/Program Files/LabPlot/bin/labplot.exe'
+```
+
+The demo programs and `tlog` must likewise be on `PATH`, or `TLOG` can point to
+the decoder executable.

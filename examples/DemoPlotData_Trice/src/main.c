@@ -537,7 +537,7 @@ int main(int argc, char **argv)
         demo_plot_timestamp_10ms = (uint32_t)absolute_ticks_10ms;
 
         if(absolute_ticks_10ms % 100 == 0) {
-            TRice("sig:%.1f s\n", aFloat(time_seconds));
+            TRice64("sig:%.1f s\n", aDouble(time_seconds));
         }
         /*#
          * aFloat() transfers the IEEE-754 float bit pattern as a 32-bit Trice

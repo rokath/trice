@@ -42,10 +42,16 @@ cmake -S . -B build
 cmake --build build --config Release
 ```
 
-The Visual Studio executable is normally:
+The local executable is installed into `bin/`. On Windows it is normally:
 
 ```powershell
-.\build\Release\DemoPlotData_CSV.exe
+.\bin\DemoPlotData_CSV.exe
+```
+
+The equivalent Git Bash path is:
+
+```sh
+./bin/DemoPlotData_CSV
 ```
 
 ## Examples
@@ -53,26 +59,26 @@ The Visual Studio executable is normally:
 Write a live stream to the terminal at the default 50 Hz:
 
 ```sh
-DemoPlotData_CSV
+./bin/DemoPlotData_CSV
 ```
 
 Write ten seconds to a fresh CSV file without real-time waiting:
 
 ```sh
-DemoPlotData_CSV --rate 50 --samples 500 --no-delay \
+./bin/DemoPlotData_CSV --rate 50 --samples 500 --no-delay \
   --header --output DemoPlotData_CSV.csv
 ```
 
 Send live CSV records to UDP port 9000 on the same computer:
 
 ```sh
-DemoPlotData_CSV --udp 127.0.0.1 9000
+./bin/DemoPlotData_CSV --udp 127.0.0.1 9000
 ```
 
 PowerShell:
 
 ```powershell
-.\build\Release\DemoPlotData_CSV.exe --udp 127.0.0.1 9000
+.\bin\DemoPlotData_CSV.exe --udp 127.0.0.1 9000
 ```
 
 Use `--help` for all options.
