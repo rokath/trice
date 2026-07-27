@@ -161,8 +161,8 @@ details.toc[open] .toc-hide {
   * [12.3. Visualization output with -vis](#visualization-output-with--vis)
   * [12.4. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
     * [12.4.1. The common live-data format](#the-common-live-data-format)
-    * [12.4.2. ./examples/DemoPlotDataCSV](#examplesdemoplotdatacsv)
-    * [12.4.3. ./examples/DemoPlotDataTrice](#examplesdemoplotdatatrice)
+    * [12.4.2. ./examples/DemoDataCSV](#examplesdemodatacsv)
+    * [12.4.3. ./examples/DemoDataTrice](#examplesdemodatatrice)
     * [12.4.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
     * [12.4.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
     * [12.4.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
@@ -2208,13 +2208,13 @@ Trice records to `tlog`; `tlog` decodes them and sends the same CSV format
 onward. This separation means that one LabPlot project works for both
 examples.
 
-#### 12.4.2. <a id="examplesdemoplotdatacsv"></a>./examples/DemoPlotData_CSV
+#### 12.4.2. <a id="examplesdemodatacsv"></a>./examples/DemoData_CSV
 
-After running `build.sh` inside `./examples/DemoPlotData_CSV/`, the executable is
+After running `build.sh` inside `./examples/DemoData_CSV/`, the executable is
 installed in the local `bin/` folder. You can run it there:
 
 ```txt
-th@Thomass-MacBook-Pro-7 bin % ./DemoPlotData_CSV --header -o log.csv 
+th@Thomass-MacBook-Pro-7 bin % ./DemoData_CSV --header -o log.csv
 ^C
 th@Thomass-MacBook-Pro-7 bin % head log.csv                           
 time_s,x,y,z
@@ -2230,15 +2230,15 @@ time_s,x,y,z
 th@Thomass-MacBook-Pro-7 bin % 
 ```
 
-#### 12.4.3. <a id="examplesdemoplotdatatrice"></a>./examples/DemoPlotData_Trice
+#### 12.4.3. <a id="examplesdemodatatrice"></a>./examples/DemoData_Trice
 
-After running `build.sh` inside `./examples/DemoPlotData_Trice/`, the executable is
+After running `build.sh` inside `./examples/DemoData_Trice/`, the executable is
 installed in the local `bin/` folder. You can run it there:
 
 - Create binary log file:
 
 ```txt
-th@Thomass-MacBook-Pro-7 bin % ./DemoPlotData_Trice -o log.bin                                                    
+th@Thomass-MacBook-Pro-7 bin % ./DemoData_Trice -o log.bin
 Writing log.bin
 ^C
 ```

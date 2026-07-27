@@ -37,7 +37,7 @@ LabPlot is already running. The project does not contain machine-specific
 file paths.
 
 The producer build scripts keep generated executables local to their demo in
-`examples/DemoPlotData_CSV/bin/` and `examples/DemoPlotData_Trice/bin/`.
+`examples/DemoData_CSV/bin/` and `examples/DemoData_Trice/bin/`.
 Intermediate CMake files remain in the corresponding `build/` directories.
 
 If `tlog` reports that a `-vis` rule was disabled because writing to port
