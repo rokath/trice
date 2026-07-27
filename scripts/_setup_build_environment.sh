@@ -118,6 +118,22 @@ detect_arm_gcc_include() {
   arm-none-eabi-gcc -print-file-name=include 2>/dev/null || true
 }
 
+detect_arm_libc_include() {
+  local libc_path
+  local libc_root
+
+  # Ask GCC for its default C library so the matching standard headers can be
+  # derived without assuming a distribution- or installer-specific layout.
+  libc_path=$(arm-none-eabi-gcc -print-file-name=libc.a 2>/dev/null || true)
+  if [ -z "$libc_path" ] || [ "$libc_path" = "libc.a" ] || [ ! -f "$libc_path" ]; then
+    return 1
+  fi
+
+  libc_root=$(cd "$(dirname "$libc_path")/.." && pwd)
+  [ -d "$libc_root/include" ] || return 1
+  printf '%s\n' "$libc_root/include"
+}
+
 detect_arm_toolchain_root() {
   local gcc_path
   local sysroot
@@ -152,14 +168,17 @@ detect_arm_toolchain_root() {
 collect_arm_clang_include_dirs() {
   local sysroot
   local gcc_include
+  local libc_include
   local toolchain_root
   local dirs=""
 
   sysroot=$(detect_arm_sysroot)
   gcc_include=$(detect_arm_gcc_include)
+  libc_include=$(detect_arm_libc_include || true)
   toolchain_root=$(detect_arm_toolchain_root || true)
 
   append_unique_dir dirs "$gcc_include"
+  append_unique_dir dirs "$libc_include"
 
   if [ -n "$sysroot" ] && [ "$sysroot" != "/" ]; then
     append_unique_dir dirs "$sysroot/include"

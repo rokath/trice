@@ -8,7 +8,9 @@ CLANG_CC = clang$(VERSION)
 CLANG_AS = clang$(VERSION) -x assembler-with-cpp
 CLANG_CP = arm-none-eabi-objcopy #llvm-objcopy$(VERSION)
 #CLANG_CP = objcopy
-CLANG_SZ = llvm-size$(VERSION)
+# Ask the selected Clang driver for its matching size utility so installations
+# with versioned or toolchain-local LLVM executable names work unchanged.
+CLANG_SZ = $(shell clang$(VERSION) --print-prog-name=llvm-size)
 CLANG_HEX = $(CLANG_CP) -O ihex
 CLANG_BIN = $(CLANG_CP) -O binary -S
 
