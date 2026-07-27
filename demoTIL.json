@@ -1,4 +1,8 @@
 {
+	"1000": {
+		"Type": "TRice",
+		"Strg": "vis_demo:%f,%f,%f\\n"
+	},
 	"1071": {
 		"Type": "trice",
 		"Strg": "log:(from node=N3_bi) from=%u phase=%u\\n"
@@ -9291,6 +9295,10 @@
 		"Type": "TRice8C",
 		"Strg": "call:FunctionNameWb"
 	},
+	"15352": {
+		"Type": "TRice",
+		"Strg": "time:%.1f s\\n"
+	},
 	"15354": {
 		"Type": "TRIce64_C",
 		"Strg": "info:FunctionNameZa"
@@ -9302,6 +9310,14 @@
 	"15374": {
 		"Type": "TRIce32_C",
 		"Strg": "info:FunctionNameYa"
+	},
+	"15383": {
+		"Type": "TRice",
+		"Strg": "sig:%.1f s\\n"
+	},
+	"15396": {
+		"Type": "trice",
+		"Strg": "msg:time_s,x,y,z\\n"
 	},
 	"15496": {
 		"Type": "Trice32C",
@@ -9398,6 +9414,14 @@
 	"15917": {
 		"Type": "TRICE_C",
 		"Strg": "abc:all:GetState"
+	},
+	"15959": {
+		"Type": "trice",
+		"Strg": "vis_demo:time_s,x,y,z\\n"
+	},
+	"15963": {
+		"Type": "trice",
+		"Strg": "msg:Hello LabPlot!\\n"
 	},
 	"15976": {
 		"Type": "TRice16C",

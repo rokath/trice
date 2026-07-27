@@ -256,8 +256,17 @@ static void generate_values(
     double *y,
     double *z)
 {
+    /*
+     * Modulate y slowly so the Lissajous trace keeps changing visibly even
+     * after the plot has collected enough samples to cover the full figure.
+     */
+    double phase_drift = (DEMO_PI / 3.0)
+                       * sin(2.0 * DEMO_PI * 0.04 * t_seconds);
+
     *x = sin(2.0 * DEMO_PI * 0.70 * t_seconds);
-    *y = sin(2.0 * DEMO_PI * 0.91 * t_seconds + DEMO_PI / 2.0);
+    *y = sin(2.0 * DEMO_PI * 0.91 * t_seconds
+           + DEMO_PI / 2.0
+           + phase_drift);
 
     double cycle_position = fmod(t_seconds, 8.0);
     double pulse = cycle_position >= 7.75 ? 0.8 : 0.0;
@@ -502,7 +511,7 @@ int main(int argc, char **argv)
     }
 
     TriceInit();
-
+    trice("msg:Hello LabPlot!\n");
     /*
      * Derive seconds and the 10 ms timestamp from the integer sample index.
      * Rounding to the nearest tick also gives sensible timestamps for sample
@@ -527,12 +536,14 @@ int main(int argc, char **argv)
             (uint64_t)(time_seconds * 100.0 + 0.5);
         demo_plot_timestamp_10ms = (uint32_t)absolute_ticks_10ms;
 
-        /*
+        if(absolute_ticks_10ms % 100 == 0) {
+            TRice("sig:%.1f s\n", aFloat(time_seconds));
+        }
+        /*#
          * aFloat() transfers the IEEE-754 float bit pattern as a 32-bit Trice
          * value. The decoder uses the three %f specifiers from til.json.
          */
         TRice(
-            iD(1000),
             "vis_demo:%f,%f,%f\n",
             aFloat((float)x),
             aFloat((float)y),

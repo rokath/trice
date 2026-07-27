@@ -166,7 +166,9 @@ jobs:
 
           # Fallback: search all installed packages (slower, but very robust in CI).
           if [ -z "${NEWLIB_STDLIB}" ]; then
-            NEWLIB_STDLIB="$(dpkg -L $(dpkg -l | awk '/^ii/{print $2}') 2>/dev/null | grep -E '/newlib/stdlib\.h$' | head -n 1 || true)"
+            INSTALLED_PACKAGES=()
+            mapfile -t INSTALLED_PACKAGES < <(dpkg -l | awk '/^ii/{print $2}')
+            NEWLIB_STDLIB="$(dpkg -L "${INSTALLED_PACKAGES[@]}" 2>/dev/null | grep -E '/newlib/stdlib\.h$' | head -n 1 || true)"
           fi
 
           NEWLIB_INC="$(dirname "${NEWLIB_STDLIB}")"

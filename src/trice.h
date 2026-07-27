@@ -366,9 +366,9 @@ extern uint32_t* TriceBufferWritePosition;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifndef __cplusplus // see \#571
-#ifdef __GNUC__ // see \#594
+#if defined(__GNUC__) && (__GNUC__ >= 5) // see \#594
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-#endif // __GNUC__
+#endif // GCC >= 5
 #endif
 //! TRICE_PUT16 copies 16-bit value x into the Trice buffer.
 #define TRICE_PUT16(x)                                                 \
@@ -768,10 +768,10 @@ extern uint32_t* TriceBufferWritePosition;
 // These explicit zero-value spellings are kept as fixed-arity macros.
 //
 // Why keep them:
-// - In strict C modes (`-std=c11`, `-std=c99`, ...), empty variadic argument
-//   lists are notoriously fragile across older or non-GNU-compatible compilers.
-// - The explicit `trice0(...)`, `Trice0(...)`, `TRice0(...)` forms therefore
-//   remain useful as a portable source-level fallback.
+// - They preserve source compatibility and make an explicitly zero-value
+//   message visible at the call site.
+// - The convenience macros are also strict-C compatible because their
+//   variadic list always contains the mandatory format argument.
 //
 // Why these are macros instead of functions:
 // - The format string must disappear before the compiler sees a function call.

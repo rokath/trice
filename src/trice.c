@@ -179,14 +179,14 @@
 #endif
 
 #if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
-#error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
+#error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DEFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
 #endif
 
 #if (TRICE_DEFERRED_UARTA == 1) && !defined(TRICE_UARTA)
 #error configuration: deferred TRICE_DEFERRED_UARTA == 1 needs a defined TRICE_UARTA.
 #endif
 
-#if (TRICE_DEFERRED_UARTB == 1) && !defined(TRICE_UARTA)
+#if (TRICE_DEFERRED_UARTB == 1) && !defined(TRICE_UARTB)
 #error configuration: deferred TRICE_DEFERRED_UARTB == 1 needs a defined TRICE_UARTB.
 #endif
 

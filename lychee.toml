@@ -139,7 +139,12 @@ exclude = [
   # intermittently times out for automated link checks although the URLs are
   # valid in normal browser use.
   "^https://goreportcard\\.com/report/github\\.com/rokath/trice$",
-  "^https://goreportcard\\.com/badge/github\\.com/rokath/trice$"
+  "^https://goreportcard\\.com/badge/github\\.com/rokath/trice$",
+
+  # These GNU manual pages are valid for humans but repeatedly time out when
+  # checked automatically. Keep the exclusions limited to the affected pages.
+  "^https://sourceware\\.org/binutils/docs/(ld/(Assignments|Source-Code-Reference)|binutils/objcopy)\\.html$",
+  "^https://gcc\\.gnu\\.org/onlinedocs/cpp/Common-Predefined-Macros\\.html$"
 ]
 
 

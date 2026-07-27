@@ -118,6 +118,22 @@ trice log \
   -i examples/DemoPlotData_Trice/til.json
 ```
 
+For a fresh CSV file with one header line, use the `header` output option on
+the visualization rule:
+
+```sh
+tlog -p FILEBUFFER \
+  -args DemoPlotData_Trice.bin \
+  -til ../../../demoTIL.json \
+  -ulabel vis_demo \
+  -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\\n",ts/100.0,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\\n";log=drop'
+```
+
+File visualization outputs are recreated automatically when `tlog` starts, so
+an existing `log.csv` is replaced. The `header` option is written once per
+output sink; its value is a quoted Go string, which allows escapes such as
+`\\n`.
+
 ## Planned `-vis` demo
 
 When the discussed `-vis` functionality is available, use this live pipeline:

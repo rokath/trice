@@ -33,64 +33,53 @@ extern "C" {
 #define _DISPATCH_IMPL(name, N) name##_##N
 #define _DISPATCH_EXPAND(name, N) _DISPATCH_IMPL(name, N)
 
-// Portable pragma macros for disabling nonnull warnings
-#if defined(__GNUC__) || defined(__clang__)
-// GCC and Clang
-#define DISABLE_NONNULL_WARNING_BEGIN \
-	_Pragma("GCC diagnostic push")    \
-	    _Pragma("GCC diagnostic ignored \"-Wnonnull\"")
-#define DISABLE_NONNULL_WARNING_END \
-	_Pragma("GCC diagnostic pop")
-#elif defined(_MSC_VER)
-// Microsoft Visual C++
-#define DISABLE_NONNULL_WARNING_BEGIN \
-	__pragma(warning(push))           \
-	    __pragma(warning(disable : 6387))
-#define DISABLE_NONNULL_WARNING_END \
-	__pragma(warning(pop))
-#else
-// Unknown compiler - no-op
-#define DISABLE_NONNULL_WARNING_BEGIN
-#define DISABLE_NONNULL_WARNING_END
-#endif
-
-#define ASSERT_MESSAGE_HELPER_VAR(out_var, condition_str, file_path, line_number, fmt, ...) \
-	char full_msg[512];                                                                     \
-	if (fmt != NULL) {                                                                      \
-		DISABLE_NONNULL_WARNING_BEGIN                                                       \
-		char user_msg[256];                                                                 \
-		npf_snprintf(user_msg, sizeof(user_msg), fmt, ##__VA_ARGS__);                       \
-		DISABLE_NONNULL_WARNING_END                                                         \
-		npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s -> %s\n",              \
-		             FILENAME(file_path), line_number, condition_str, user_msg);            \
-	} else {                                                                                \
-		npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s\n",                    \
-		             FILENAME(file_path), line_number, condition_str);                      \
-	}                                                                                       \
+// Build an assertion message without a user-provided format string.
+#define ASSERT_MESSAGE_HELPER(out_var, condition_str, file_path, line_number)    \
+	char full_msg[512];                                                          \
+	npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s\n",             \
+	             FILENAME(file_path), line_number, condition_str);               \
 	char* out_var = full_msg
 
-#define CUSTOM_ASSERT_IMPL(id, condition, condition_str, file, line, fmt, ...)                    \
-	do {                                                                                          \
-		if (!(condition)) {                                                                       \
-			ASSERT_MESSAGE_HELPER_VAR(assert_msg, condition_str, file, line, fmt, ##__VA_ARGS__); \
-			triceS(id, "%s", assert_msg);                                                         \
-		}                                                                                         \
+// Build an assertion message from a mandatory format string and optional values.
+// The format string is part of __VA_ARGS__, so the variadic list is never empty.
+#define ASSERT_FORMATTED_MESSAGE_HELPER(out_var, condition_str, file_path, line_number, ...) \
+	char user_msg[256];                                                                       \
+	npf_snprintf(user_msg, sizeof(user_msg), __VA_ARGS__);                                     \
+	char full_msg[512];                                                                       \
+	npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s -> %s\n",                    \
+	             FILENAME(file_path), line_number, condition_str, user_msg);                  \
+	char* out_var = full_msg
+
+#define CUSTOM_ASSERT_IMPL(id, condition, condition_str, file, line)         \
+	do {                                                                     \
+		if (!(condition)) {                                                  \
+			ASSERT_MESSAGE_HELPER(assert_msg, condition_str, file, line);    \
+			triceS(id, "%s", assert_msg);                                    \
+		}                                                                    \
 	} while (0)
 
-#define CUSTOM_PRINT(id, ...) trice(id, ##__VA_ARGS__)
+#define CUSTOM_ASSERT_FORMAT_IMPL(id, condition, condition_str, file, line, ...)         \
+	do {                                                                                 \
+		if (!(condition)) {                                                              \
+			ASSERT_FORMATTED_MESSAGE_HELPER(assert_msg, condition_str, file, line, __VA_ARGS__); \
+			triceS(id, "%s", assert_msg);                                                \
+		}                                                                                \
+	} while (0)
+
+#define CUSTOM_PRINT(id, ...) trice(id, __VA_ARGS__)
 
 // Assert implementations
 #define CUSTOM_ASSERT_1(id) \
 	static_assert(0, "CUSTOM_ASSERT requires at least 2 arguments: id, condition")
 
 #define CUSTOM_ASSERT_2(id, condition) \
-	CUSTOM_ASSERT_IMPL(id, condition, #condition, __FILE__, __LINE__, NULL)
+	CUSTOM_ASSERT_IMPL(id, condition, #condition, __FILE__, __LINE__)
 
-#define CUSTOM_ASSERT_3(id, condition, fmt) \
-	CUSTOM_ASSERT_IMPL(id, condition, #condition, __FILE__, __LINE__, fmt)
+#define CUSTOM_ASSERT_3(id, condition, ...) \
+	CUSTOM_ASSERT_FORMAT_IMPL(id, condition, #condition, __FILE__, __LINE__, __VA_ARGS__)
 
-#define CUSTOM_ASSERT_4(id, condition, fmt, ...) \
-	CUSTOM_ASSERT_IMPL(id, condition, #condition, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define CUSTOM_ASSERT_4(id, condition, ...) \
+	CUSTOM_ASSERT_FORMAT_IMPL(id, condition, #condition, __FILE__, __LINE__, __VA_ARGS__)
 
 #define CUSTOM_ASSERT(...) \
 	_DISPATCH_EXPAND(CUSTOM_ASSERT, COUNT_ARGS_4(__VA_ARGS__))(__VA_ARGS__)

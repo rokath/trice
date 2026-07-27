@@ -17,7 +17,7 @@ uint32_t* triceSingleBufferStartWritePosition = (uint32_t*)0;
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 static void triceSingleDeferredOut(int* wordCount);
 #else
-static void triceMultiDeferredOut(int* triceCount, int* wordCount);
+static void triceMultiDeferredOut(unsigned* triceCount, int* wordCount);
 #endif
 
 #if TRICE_RING_BUFFER_OVERFLOW_WATCH == 1
@@ -222,7 +222,7 @@ void triceTransferMultiFraming(void) {
 	// The Ring Buffer can contain a fair amount of trices and we do not want them copy in a separate buffer for less RAM usage.
 	// Therefore we pack all Trices until the Ring Buffer end (where it wraps) together.
 	// We know here, that at least one Trice is inside the Ring Buffer.
-	static int triceCount = 0; // triceCount it the count of Trices from the last call.
+	static unsigned triceCount = 0; // triceCount it the count of Trices from the last call.
 	TRICE_ENTER_CRITICAL_SECTION
 	// It is known here, that the previous transmission is finished and we can advance.
 	TricesCountRingBuffer -= triceCount;
@@ -386,7 +386,7 @@ static void triceSingleDeferredOut(int* wordCount) {
 //! Packs Trices until the ring-buffer end and returns their count and total length in words.
 //! These values are used after transmission finishes to advance the read position.
 //! TricesCountRingBuffer is inspected internally but not modified.
-static void triceMultiDeferredOut(int* triceCount, int* multiWordCount) {
+static void triceMultiDeferredOut(unsigned* triceCount, int* multiWordCount) {
 	*triceCount = 0;
 	*multiWordCount = 0;
 	if (TricesCountRingBuffer == 0) {

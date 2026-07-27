@@ -85,7 +85,7 @@ int main(void)
   LogTriceConfiguration();
   {
     char buf[] = { 0, 1, 2, 3, 4, 0xff, 0xfe, 0xfd, 0xfc };
-    for( int i = 0; i < sizeof(buf); i++ ){
+    for( size_t i = 0; i < sizeof(buf); i++ ){
         triceX0(buf, i);
     }
   }

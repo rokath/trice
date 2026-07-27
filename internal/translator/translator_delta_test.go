@@ -4,11 +4,13 @@ package translator
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -17,6 +19,9 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/trexDecoder"
+	"github.com/rokath/trice/internal/vis"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -49,6 +54,40 @@ func (d *scriptedDecoder) Read(buf []byte) (int, error) {
 }
 
 func (*scriptedDecoder) SetInput(io.Reader) {}
+
+// visScriptedDecoder adds the optional typed-record capability to deterministic translator-loop input.
+type visScriptedDecoder struct {
+	scriptedDecoder
+	records   []decoder.VisRecord
+	current   decoder.VisRecord
+	available bool
+	enabled   bool
+}
+
+// Read returns one formatted message and retains the corresponding test record for the same iteration.
+func (d *visScriptedDecoder) Read(buffer []byte) (int, error) {
+	recordIndex := d.scriptedDecoder.index
+	count, err := d.scriptedDecoder.Read(buffer)
+	d.available = false
+	if d.enabled && count > 0 && recordIndex < len(d.records) {
+		d.current = d.records[recordIndex]
+		d.available = true
+	}
+	return count, err
+}
+
+// SetVisRecordEnabled implements decoder.VisRecordController for production-equivalent enable behavior.
+func (d *visScriptedDecoder) SetVisRecordEnabled(enabled bool) {
+	d.enabled = enabled
+	if !enabled {
+		d.available = false
+	}
+}
+
+// VisRecord returns only the typed record belonging to the most recent scripted Read.
+func (d *visScriptedDecoder) VisRecord() (decoder.VisRecord, bool) {
+	return d.current, d.available
+}
 
 func configureTranslatorLoopTest(t *testing.T) {
 	t.Helper()
@@ -591,7 +630,7 @@ func TestDecodeAndComposeLoopPrependsMetadataOncePerLine(t *testing.T) {
 	var out bytes.Buffer
 	sw := emitter.New(&out)
 
-	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li)
+	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li, nil)
 	require.ErrorIs(t, err, io.EOF)
 	assert.Equal(t, "main.c:42 TS:1234  DT:-  ID:17  message end\n", out.String())
 }
@@ -617,7 +656,7 @@ func TestDecodeAndComposeLoopBlanksMetadataWhenRequested(t *testing.T) {
 	var out bytes.Buffer
 	sw := emitter.New(&out)
 
-	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li)
+	err := decodeAndComposeLoop(&out, sw, dec, id.TriceIDLookUp{}, li, nil)
 	require.ErrorIs(t, err, io.EOF)
 	want := strings.Repeat(" ", visibleMetadataWidth(locationInformation(17, li))) +
 		"TS:       " +
@@ -638,7 +677,7 @@ func TestDecodeAndComposeLoopFlushesPartialBufferLine(t *testing.T) {
 	var out bytes.Buffer
 	sw := emitter.New(&out)
 
-	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil)
+	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil, nil)
 	require.ErrorIs(t, err, io.EOF)
 	assert.Equal(t, "partial\n", out.String())
 }
@@ -656,9 +695,171 @@ func TestDecodeAndComposeLoopHonorsBanFilter(t *testing.T) {
 	var out bytes.Buffer
 	sw := emitter.New(&out)
 
-	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil)
+	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil, nil)
 	require.ErrorIs(t, err, io.EOF)
 	assert.Empty(t, out.String())
+}
+
+// runTranslatorVisCase executes one formatted/typed record through filter, router, and line composer.
+func runTranslatorVisCase(t *testing.T, tag, option, filter string) (normalOutput string, visOutput string) {
+	t.Helper()
+	configureTranslatorLoopTest(t)
+	switch filter {
+	case "ban":
+		emitter.Ban = []string{tag}
+	case "exclude-by-pick":
+		emitter.Pick = []string{"other"}
+	}
+
+	format := tag + ":value=%d\n"
+	lut := id.TriceIDLookUp{
+		7: {Type: "TRICE32_1", Strg: format},
+	}
+	fileSystem := &afero.Afero{Fs: afero.NewMemMapFs()}
+	var output bytes.Buffer
+	router, err := vis.NewRouter(
+		&output,
+		fileSystem,
+		lut,
+		new(sync.RWMutex),
+		[]string{fmt.Sprintf(`%s:printf("%%d\n",v0)@vis.txt%s`, tag, option)},
+		false,
+	)
+	require.NoError(t, err)
+
+	record := decoder.VisRecord{
+		ID:         7,
+		Type:       "TRICE32_1",
+		Format:     format,
+		ValueCount: 1,
+		SingleLine: true,
+	}
+	record.Values[0] = decoder.VisValue{
+		Kind:   decoder.VisValueSigned,
+		Bits:   32,
+		Signed: 7,
+	}
+	dec := &visScriptedDecoder{
+		scriptedDecoder: scriptedDecoder{
+			steps: []scriptedDecoderStep{{data: tag + ":value=7\n", lastTriceID: 7}},
+		},
+		records: []decoder.VisRecord{record},
+	}
+	dec.SetVisRecordEnabled(true)
+	sw := emitter.New(&output)
+
+	err = decodeAndComposeLoop(&output, sw, dec, lut, nil, router)
+	require.ErrorIs(t, err, io.EOF)
+	require.NoError(t, router.Close())
+	visualized, err := fileSystem.ReadFile("vis.txt")
+	require.NoError(t, err)
+	return output.String(), string(visualized)
+}
+
+// TestDecodeAndComposeLoopIntegratesVisAfterFiltering verifies ordering, drop, and unchanged tag handling.
+func TestDecodeAndComposeLoopIntegratesVisAfterFiltering(t *testing.T) {
+	t.Run("successful drop suppresses normal output", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "")
+		assert.Empty(t, normal)
+		assert.Equal(t, "7\n", visualized)
+	})
+
+	t.Run("ban makes record invisible to vis", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "ban")
+		assert.Empty(t, normal)
+		assert.Empty(t, visualized)
+	})
+
+	t.Run("pick exclusion makes record invisible to vis", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "exclude-by-pick")
+		assert.Empty(t, normal)
+		assert.Empty(t, visualized)
+	})
+
+	t.Run("vis does not register unknown normal tag", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "imu_custom", "", "")
+		assert.Equal(t, "imu_custom:value=7\n", normal)
+		assert.Equal(t, "7\n", visualized)
+	})
+}
+
+// TestTREXVisIntegrationRoutesUnstampedAndBothStampWidths exercises real encoded decoder input end to end.
+func TestTREXVisIntegrationRoutesUnstampedAndBothStampWidths(t *testing.T) {
+	configureTranslatorLoopTest(t)
+	oldFraming := decoder.PackageFraming
+	oldInitialCycle := decoder.InitialCycle
+	oldDoubledID := trexDecoder.Doubled16BitID
+	oldAddNewline := trexDecoder.AddNewlineToEachTriceMessage
+	oldDisableCycleErrors := trexDecoder.DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitialCycle
+		trexDecoder.Doubled16BitID = oldDoubledID
+		trexDecoder.AddNewlineToEachTriceMessage = oldAddNewline
+		trexDecoder.DisableCycleErrors = oldDisableCycleErrors
+	})
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = true
+	trexDecoder.Doubled16BitID = false
+	trexDecoder.AddNewlineToEachTriceMessage = false
+	trexDecoder.DisableCycleErrors = false
+
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE32_1", Strg: `sample:unstamped=%d\n`},
+		2: {Type: "TRICE32_1", Strg: `sample:stamp16=%d\n`},
+		3: {Type: "TRICE32_1", Strg: `sample:stamp32=%d\n`},
+	}
+	// Three unframed little-endian records carry no stamp, a 16-bit stamp,
+	// and a 32-bit stamp respectively. Their cycle counters are c0, c1, c2.
+	input := []byte{
+		0x01, 0x40, 0xc0, 0x04, 10, 0, 0, 0,
+		0x02, 0x80, 20, 0, 0xc1, 0x04, 20, 0, 0, 0,
+		0x03, 0xc0, 30, 0, 0, 0, 0xc2, 0x04, 30, 0, 0, 0,
+	}
+	lutMutex := new(sync.RWMutex)
+	dec := trexDecoder.New(
+		io.Discard,
+		lut,
+		lutMutex,
+		id.TriceIDLookUpLI{},
+		bytes.NewReader(input),
+		decoder.LittleEndian,
+	)
+	controller, ok := dec.(decoder.VisRecordController)
+	require.True(t, ok)
+	controller.SetVisRecordEnabled(true)
+
+	fileSystem := &afero.Afero{Fs: afero.NewMemMapFs()}
+	var normal bytes.Buffer
+	router, err := vis.NewRouter(
+		&normal,
+		fileSystem,
+		lut,
+		lutMutex,
+		[]string{
+			`sample:printf("%d\n",v0)@all.csv;log=drop`,
+			`sample:printf("%d,%d\n",ts16,v0)@stamp16.csv`,
+			`sample:printf("%d,%d\n",ts32,v0)@stamp32.csv`,
+		},
+		false,
+	)
+	require.NoError(t, err)
+	sw := emitter.New(&normal)
+
+	err = decodeAndComposeLoop(&normal, sw, dec, lut, nil, router)
+	require.ErrorIs(t, err, io.EOF)
+	require.NoError(t, router.Close())
+	assert.Empty(t, normal.String())
+
+	all, err := fileSystem.ReadFile("all.csv")
+	require.NoError(t, err)
+	assert.Equal(t, "10\n20\n30\n", string(all))
+	stamp16, err := fileSystem.ReadFile("stamp16.csv")
+	require.NoError(t, err)
+	assert.Equal(t, "20,20\n", string(stamp16))
+	stamp32, err := fileSystem.ReadFile("stamp32.csv")
+	require.NoError(t, err)
+	assert.Equal(t, "30,30\n", string(stamp32))
 }
 
 // TestFormatTargetStampEpochAndBuiltinVariants verifies additional built-in timestamp branches.
@@ -683,7 +884,7 @@ func TestFormatTargetStampEpochAndBuiltinVariants(t *testing.T) {
 func TestTranslateInvalidEndiannessExits(t *testing.T) {
 	if os.Getenv("TRICE_TRANSLATE_INVALID_ENDIANNESS") == "1" {
 		TriceEndianness = "invalid"
-		Translate(io.Discard, nil, nil, nil, nil, nil)
+		Translate(io.Discard, nil, nil, nil, nil, nil, nil)
 		return
 	}
 
@@ -716,7 +917,7 @@ func TestHandleSIGTERMExitsAndCloses(t *testing.T) {
 
 	if os.Getenv("TRICE_HANDLE_SIGTERM") == "1" {
 		Verbose = true
-		handleSIGTERM(io.Discard, &closeRecorder{})
+		handleSIGTERM(io.Discard, &closeRecorder{}, nil)
 		return
 	}
 

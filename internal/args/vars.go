@@ -4,6 +4,8 @@ package args
 
 import (
 	"flag"
+
+	"github.com/rokath/trice/internal/vis"
 )
 
 var (
@@ -30,6 +32,9 @@ var (
 
 	// BuiltBy is an optional builder identifier (see .goreleaser.yaml).
 	BuiltBy string
+
+	// visRules retains every repeatable -vis specification in command-line order.
+	visRules vis.RuleStrings
 
 	// fsScAdd is flag set for sub command 'add' for updating ID list without touching the sources.
 	fsScAdd *flag.FlagSet

@@ -73,6 +73,26 @@ type trexDec struct {
 	pFmt           string // modified trice format string: %u -> %d
 	u              []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
 	packageFraming int
+	visEnabled     bool              // avoids record-capture work unless the translator has an active -vis router
+	visRecord      decoder.VisRecord // typed data for the most recently decoded supported numeric Trice
+	visValid       bool              // true only when visRecord belongs to the most recent successful Read
+}
+
+// SetVisRecordEnabled controls optional typed-record capture without changing normal decoding.
+func (p *trexDec) SetVisRecordEnabled(enabled bool) {
+	p.visEnabled = enabled
+	if !enabled {
+		p.visRecord = decoder.VisRecord{}
+		p.visValid = false
+	}
+}
+
+// VisRecord returns the typed fixed-width numeric record produced by the most recent Read.
+//
+// Returning a value copy prevents downstream visualization processing from
+// retaining or mutating decoder-owned state across subsequent reads.
+func (p *trexDec) VisRecord() (decoder.VisRecord, bool) {
+	return p.visRecord, p.visValid
 }
 
 // New provides a TREX decoder instance.
@@ -290,6 +310,11 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	decoder.BlankMetadata = false
+	if p.visEnabled {
+		// A failed, incomplete, or unsupported read must never expose the previous record again.
+		p.visRecord = decoder.VisRecord{}
+		p.visValid = false
+	}
 	if p.packageFraming == packageFramingNone {
 		p.nextData() // returns all unprocessed data inside p.B
 		p.B0 = p.B   // keep data for re-sync
@@ -464,6 +489,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	var ok bool
 	p.LutMutex.RLock()
 	p.Trice, ok = p.Lut[triceID]
+	// Keep the LUT representation separate from the optional display-only newline mutation.
+	originalTrice := p.Trice
 	if AddNewlineToEachTriceMessage {
 		p.Trice.Strg += `\n` // this adds a newline to each single Trice message
 	}
@@ -485,7 +512,23 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		return
 	}
 
+	if p.visEnabled {
+		p.visRecord = decoder.VisRecord{
+			ID:         triceID,
+			Type:       originalTrice.Type,
+			Format:     originalTrice.Strg,
+			Stamp:      decoder.TargetTimestamp,
+			StampBits:  decoder.TargetTimestampSize * 8,
+			SingleLine: isSingleVisLine(p.Trice.Strg),
+		}
+	}
+	// Decoder diagnostics prefixed to a valid message make this Read unsuitable
+	// for record-oriented visualization, even if the numeric payload decodes.
+	hadPrefixedDiagnostic := n != 0
 	n += p.sprintTrice(b[n:]) // use param info
+	if p.visEnabled && hadPrefixedDiagnostic {
+		p.visValid = false
+	}
 	if len(p.B) < p.ParamSpace {
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
@@ -518,6 +561,37 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 	}
 	return
+}
+
+// isSingleVisLine mirrors the line composer's escaped-newline interpretation.
+//
+// A visualization record is self-contained only when its format contributes
+// exactly one logical newline and that newline terminates the message.
+func isSingleVisLine(format string) bool {
+	var normalized strings.Builder
+	normalized.Grow(len(format))
+	for i := 0; i < len(format); i++ {
+		switch {
+		case format[i] == '\r' && i+1 < len(format) && format[i+1] == '\n':
+			normalized.WriteByte('\n')
+			i++
+		case format[i] == '\\' && i+1 < len(format) && format[i+1] == '\\':
+			// The line composer protects an escaped backslash before interpreting \n.
+			normalized.WriteByte('\\')
+			i++
+		case format[i] == '\\' && i+3 < len(format) &&
+			format[i+1] == 'r' && format[i+2] == '\\' && format[i+3] == 'n':
+			normalized.WriteByte('\n')
+			i += 3
+		case format[i] == '\\' && i+1 < len(format) && format[i+1] == 'n':
+			normalized.WriteByte('\n')
+			i++
+		default:
+			normalized.WriteByte(format[i])
+		}
+	}
+	logical := normalized.String()
+	return strings.Count(logical, "\n") == 1 && strings.HasSuffix(logical, "\n")
 }
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
@@ -955,6 +1029,10 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 
 // trice0 prints the trice format string.
 func (p *trexDec) trice0(b []byte, _ int, _ int) int {
+	if p.visEnabled {
+		p.visRecord.ValueCount = 0
+		p.visValid = true
+	}
 	return copy(b, fmt.Sprint(p.pFmt))
 }
 
@@ -968,17 +1046,35 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.Trice.Type, p.Trice.Strg))
 	}
-	v := make([]interface{}, 32768) // theoretical 2^15 bytes could arrive
+	// Keep normal decoding compatible with larger fixed-width Trices. The MVP
+	// visualization record deliberately captures only v0 through v11.
+	captureVis := p.visEnabled
+	var fixedValues [decoder.VisValueCapacity]interface{}
+	var values []interface{}
+	if count > decoder.VisValueCapacity {
+		values = make([]interface{}, count)
+	} else {
+		values = fixedValues[:count]
+	}
 	switch bitwidth {
 	case 8:
 		for i, f := range p.u {
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
-				v[i] = p.B[i]
+				values[i] = p.B[i]
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisUnsigned(i, bitwidth, uint64(p.B[i]))
+				}
 			case decoder.SignedFormatSpecifier:
-				v[i] = int8(p.B[i])
+				values[i] = int8(p.B[i])
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisSigned(i, bitwidth, int64(int8(p.B[i])))
+				}
 			case decoder.BooleanFormatSpecifier:
-				v[i] = p.B[i] != 0
+				values[i] = p.B[i] != 0
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisBool(i, bitwidth, p.B[i] != 0)
+				}
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
@@ -988,11 +1084,20 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			n := p.ReadU16(p.B[2*i:])
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
-				v[i] = n
+				values[i] = n
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisUnsigned(i, bitwidth, uint64(n))
+				}
 			case decoder.SignedFormatSpecifier:
-				v[i] = int16(n)
+				values[i] = int16(n)
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisSigned(i, bitwidth, int64(int16(n)))
+				}
 			case decoder.BooleanFormatSpecifier:
-				v[i] = n != 0
+				values[i] = n != 0
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisBool(i, bitwidth, n != 0)
+				}
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
@@ -1002,13 +1107,25 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			n := p.ReadU32(p.B[4*i:])
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
-				v[i] = n
+				values[i] = n
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisUnsigned(i, bitwidth, uint64(n))
+				}
 			case decoder.SignedFormatSpecifier:
-				v[i] = int32(n)
+				values[i] = int32(n)
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisSigned(i, bitwidth, int64(int32(n)))
+				}
 			case decoder.FloatFormatSpecifier:
-				v[i] = math.Float32frombits(n)
+				values[i] = math.Float32frombits(n)
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisFloat(i, bitwidth, float64(math.Float32frombits(n)))
+				}
 			case decoder.BooleanFormatSpecifier:
-				v[i] = n != 0
+				values[i] = n != 0
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisBool(i, bitwidth, n != 0)
+				}
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.Trice.Type, p.Trice.Strg))
 			}
@@ -1018,19 +1135,71 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			n := p.ReadU64(p.B[8*i:])
 			switch f {
 			case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier: // see comment inside decoder.UReplaceN
-				v[i] = n
+				values[i] = n
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisUnsigned(i, bitwidth, n)
+				}
 			case decoder.SignedFormatSpecifier:
-				v[i] = int64(n)
+				values[i] = int64(n)
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisSigned(i, bitwidth, int64(n))
+				}
 			case decoder.FloatFormatSpecifier:
-				v[i] = math.Float64frombits(n)
+				values[i] = math.Float64frombits(n)
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisFloat(i, bitwidth, math.Float64frombits(n))
+				}
 			case decoder.BooleanFormatSpecifier:
-				v[i] = n != 0
+				values[i] = n != 0
+				if captureVis && i < decoder.VisValueCapacity {
+					p.setVisBool(i, bitwidth, n != 0)
+				}
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.Trice.Type, p.Trice.Strg))
 			}
 		}
 	}
-	return copy(b, fmt.Sprintf(p.pFmt, v[:len(p.u)]...))
+	if captureVis {
+		p.visRecord.ValueCount = min(count, decoder.VisValueCapacity)
+		p.visValid = true
+	}
+	return copy(b, fmt.Sprintf(p.pFmt, values...))
+}
+
+// setVisSigned stores an exact signed TREX parameter in the pending typed record.
+func (p *trexDec) setVisSigned(index, bits int, value int64) {
+	p.visRecord.Values[index] = decoder.VisValue{
+		Kind:   decoder.VisValueSigned,
+		Bits:   bits,
+		Signed: value,
+	}
+}
+
+// setVisUnsigned stores an exact unsigned TREX parameter in the pending typed record.
+func (p *trexDec) setVisUnsigned(index, bits int, value uint64) {
+	p.visRecord.Values[index] = decoder.VisValue{
+		Kind:     decoder.VisValueUnsigned,
+		Bits:     bits,
+		Unsigned: value,
+	}
+}
+
+// setVisFloat stores a decoded TREX floating-point parameter in the pending typed record.
+func (p *trexDec) setVisFloat(index, bits int, value float64) {
+	p.visRecord.Values[index] = decoder.VisValue{
+		Kind:  decoder.VisValueFloat,
+		Bits:  bits,
+		Float: value,
+	}
+}
+
+// setVisBool stores a decoded TREX Boolean parameter in the pending typed record.
+func (p *trexDec) setVisBool(index, bits int, value bool) {
+	p.visRecord.Values[index] = decoder.VisValue{
+		Kind: decoder.VisValueBool,
+		Bits: bits,
+		Bool: value,
+	}
 }
 
 var testTableVirgin = true

@@ -250,8 +250,17 @@ static void generate_values(
     double *y,
     double *z)
 {
+    /*
+     * Modulate y slowly so the Lissajous trace keeps changing visibly even
+     * after the plot has collected enough samples to cover the full figure.
+     */
+    double phase_drift = (DEMO_PI / 3.0)
+                       * sin(2.0 * DEMO_PI * 0.04 * t_seconds);
+
     *x = sin(2.0 * DEMO_PI * 0.70 * t_seconds);
-    *y = sin(2.0 * DEMO_PI * 0.91 * t_seconds + DEMO_PI / 2.0);
+    *y = sin(2.0 * DEMO_PI * 0.91 * t_seconds
+           + DEMO_PI / 2.0
+           + phase_drift);
 
     /* Add a 250 ms pulse at the end of every eight-second interval. */
     double cycle_position = fmod(t_seconds, 8.0);

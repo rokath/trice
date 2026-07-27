@@ -158,6 +158,14 @@ details.toc[open] .toc-hide {
     * [12.2.9. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * [12.2.10. Explore and modify tags and their colors](#explore-and-modify-tags-and-their-colors)
     * [12.2.11. Location Information](#location-information)
+  * [12.3. Visualization output with -vis](#visualization-output-with--vis)
+  * [12.4. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
+    * [12.4.1. The common live-data format](#the-common-live-data-format)
+    * [12.4.2. ./examples/DemoPlotDataCSV](#examplesdemoplotdatacsv)
+    * [12.4.3. ./examples/DemoPlotDataTrice](#examplesdemoplotdatatrice)
+    * [12.4.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
+    * [12.4.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
+    * [12.4.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
 * [13. Limitations](#limitations-1)
   * [13.1. Permanent Limitations](#permanent-limitations)
     * [13.1.1. Limitation TRICE in TRICE not possible](#limitation-trice-in-trice-not-possible)
@@ -2066,6 +2074,281 @@ See chapter [Trice Tags and Color](#trice-tags-and-color).
 #### 12.2.11. <a id="location-information"></a>Location Information
 
 When running  `trice insert`, a file `li.json` is created, which you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuilt with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
+
+### 12.3. <a id="visualization-output-with--vis"></a>Visualization output with `-vis`
+
+`tlog` and `trice log` support the same repeatable `-vis` option for sending selected numeric measurements to external visualization tools. Consumers can, for example, be LabPlot, Serial Studio, PlotJuggler, uPlot, Grafana, or a custom program; these names do not imply a tool-specific protocol. Trice itself does not draw a graph. It transforms one typed Trice message into one user-defined text record and writes that record to a file or UDP destination.
+
+The MVP syntax is:
+
+```text
+-vis='<tag>:printf("<go-fmt>",<expression-list>)@<file-path-or-udp-sink>[;log=keep|drop]'
+```
+
+For example, this target message keeps its visualization details independent of the host tool:
+
+```c
+TRice("imu:ax=%f,ay=%f,az=%f\n", aFloat(ax), aFloat(ay), aFloat(az));
+```
+
+It can be written as CSV:
+
+```bash
+tlog ... \
+  -vis='imu:printf("%d,%0.3f,%0.3f,%0.3f\n",ts32,v0,v1,v2)@imu.csv'
+```
+
+or sent as one UDP datagram per record:
+
+```bash
+tlog ... \
+  -vis='imu:printf("%0.3f,%0.3f,%0.3f\n",v0*0.5,v1*0.5,v2*0.5)@udp://127.0.0.1:7010;log=drop'
+```
+
+The selector matches the original Trice format prefix `<tag>:`. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
+
+The supported fields are:
+
+```text
+id                unsigned Trice ID
+ts                raw 16- or 32-bit Target-Stamp, with one width latched per rule
+ts16              raw 16-bit Target-Stamp
+ts32              raw 32-bit Target-Stamp
+v0 ... v11        typed positional Trice values
+```
+
+The value fields are positional and can be reordered in the expression list. The MVP does not extract names such as `ax` or `rpm` from the human-readable target format and does not accept those names as identifiers. For example, `printf("%g,%g\n",v2,v0)` deliberately emits the third value before the first.
+
+A Target-Stamp is an unscaled number. `-vis` does not assume that it represents time and does not perform unit conversion, wrap extension, or mixed-width reconstruction. Scaling is explicit in an expression, for example `ts32*0.001`. A rule may use `ts16` or `ts32`, but not both. A generic `ts` rule is disabled with a warning if an otherwise eligible message later changes between 16 and 32 bits.
+
+Separate rules make the expected stamp width explicit:
+
+```bash
+tlog ... \
+  -vis='fast:printf("%d,%g\n",ts16,v0)@fast.csv' \
+  -vis='slow:printf("%d,%g\n",ts32,v0)@slow.csv'
+```
+
+Expressions support decimal, floating-point, and hexadecimal literals, parentheses, unary minus, and `+`, `-`, `*`, `/`. A direct field retains its signed, unsigned, floating-point, or Boolean type. Arithmetic is evaluated as `float64`. A floating result used with an integer verb must be finite and inside the `int64` range; it is then truncated toward zero.
+
+The `printf` encoder supports:
+
+```text
+integer:       %d %b %o %x %X
+floating:      %f %e %E %g %G
+generic:       %v
+Boolean:       %t with a direct Boolean field
+literal:       %%
+formatting:    literal width and precision, such as %08x or %0.3f
+```
+
+`%u`, dynamic `*` width or precision, explicit argument indexes, string conversions, and other Go formatting verbs are not supported. The expression count must equal the number of consuming verbs. The encoder adds no implicit newline; include `\n` in the format when the receiving tool expects one. A one-line JSON record is possible as well:
+
+```bash
+tlog ... \
+  -vis='imu:printf("{\"stamp\":%d,\"x\":%g,\"y\":%g,\"z\":%g}\n",ts32,v0,v1,v2)@udp://127.0.0.1:7011'
+```
+
+A bare path and `file:<path>` both select an append-only file:
+
+```text
+@out.csv
+@logs/imu.csv
+@file:out.csv
+```
+
+Missing files are created. Rules using the same normalized file path share one open file. `file://out.csv` is rejected because standard URI parsing treats `out.csv` as a host, not as a relative path. Full file-URI semantics are not part of this implementation.
+
+UDP destinations use:
+
+```text
+@udp://127.0.0.1:7010
+@udp://localhost:7010
+```
+
+The address is resolved and opened before decoding starts. File and UDP writes are synchronous. There is no queue, retry, reconnect, acknowledgement, TCP, WebSocket, or named-pipe support in this first implementation.
+
+`log=keep` is the default and leaves the decoded message in normal output. `log=drop` removes it from normal output only after that rule has encoded and written the visualization record successfully. All overlapping rules are still attempted; one successful `log=drop` rule wins. An ignored record or a failed encoder or sink write does not drop the normal log.
+
+Only fixed-width numeric Trice messages are eligible. The first twelve values are addressable as `v0` through `v11`; additional values do not prevent a rule from using that addressable prefix and remain available to normal logging. `Trice` string, buffer, function-display, character, typeX0, `CHAR`, and `DUMP` inputs are not supported. Named values, specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are deferred behind the same selector/encoder/sink separation. One eligible Trice must also form one complete log line by itself. Partial, multi-line, and multi-Trice lines continue through normal logging but are ignored by `-vis`; verbose mode reports every such occurrence.
+
+At startup, each rule checks all matching historical `til.json` entries. Incompatible old entries are excluded independently, so one stale ID does not block another compatible ID. A rule with no compatible entry is disabled with a prominent warning. Rules are also disabled, never silently, after a generic Target-Stamp width conflict, an unsafe runtime expression conversion, or a sink failure. Normal logging continues.
+
+### 12.4. <a id="setting-up-the-labplot-demo"></a>Setting up the LabPlot Demo
+
+This section uses [LabPlot](https://labplot.org/), a cross-platform interactive
+plotting application. The finished, ready-to-run example is in
+`./examples/LabPlotDemo/`; the guided learning path is in
+`./examples/LabPlotUser/`. The project uses a UDP socket so that it can
+display an endless stream without repeatedly importing files.
+
+#### 12.4.1. <a id="the-common-live-data-format"></a>The common live-data format
+
+Both producers describe the same three signals: `x`, `y`, and `z`. LabPlot
+receives normalized numeric CSV records with this column layout:
+
+```text
+time_s,x,y,z
+```
+
+The finished project predeclares the four numeric columns and performs one
+initial read while loading. This prepares LabPlot's UDP socket before the
+first live record arrives. The UDP stream therefore needs no header row.
+
+The LabPlot demo rate is 50 samples per second. The project retains 500 rows.
+The time plot is configured for the last 500 values, so its horizontal
+resolution stays constant and it always displays approximately the most
+recent ten seconds. The Lissajous plot uses only the last 150 values, which
+creates a moving three-second trace instead of an increasingly dense full
+history. A slow phase modulation of `y` makes the figure change continuously.
+The CSV producer sends this format directly. The Trice producer sends binary
+Trice records to `tlog`; `tlog` decodes them and sends the same CSV format
+onward. This separation means that one LabPlot project works for both
+examples.
+
+#### 12.4.2. <a id="examplesdemoplotdatacsv"></a>./examples/DemoPlotData_CSV
+
+After running `build.sh` inside `./examples/DemoPlotData_CSV/` you can run inside the build folder
+
+```txt
+th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_CSV --header -o log.csv 
+^C
+th@Thomass-MacBook-Pro-7 build % head log.csv                           
+time_s,x,y,z
+0.000000,0.000000,1.000000,0.000000
+0.020000,0.087851,0.992854,0.027246
+0.040000,0.175023,0.971519,0.053608
+0.060000,0.260842,0.936300,0.078239
+0.080000,0.344643,0.887701,0.100367
+0.100000,0.425779,0.826415,0.119328
+0.120000,0.503623,0.753319,0.134594
+0.140000,0.577573,0.669459,0.145795
+0.160000,0.647056,0.576032,0.152736
+th@Thomass-MacBook-Pro-7 build % 
+```
+
+#### 12.4.3. <a id="examplesdemoplotdatatrice"></a>./examples/DemoPlotData_Trice
+
+After running `build.sh` inside `./examples/DemoPlotData_Trice/` you can run inside the build folder:
+
+- Create binary log file:
+
+```txt
+th@Thomass-MacBook-Pro-7 build % ./DemoPlotData_Trice -o log.bin                                                    
+Writing log.bin
+^C
+```
+
+- Show logs in binary log file: 
+
+```txt
+th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo | head
+Jul 25 15:38:55.411676  FILEBUFFER:    0,000_000 0.000000,1.000000,0.000000
+Jul 25 15:38:55.411691  FILEBUFFER:    0,000_002 0.087851,0.992854,0.027246
+Jul 25 15:38:55.411705  FILEBUFFER:    0,000_004 0.175023,0.971519,0.053608
+Jul 25 15:38:55.411714  FILEBUFFER:    0,000_006 0.260842,0.936300,0.078239
+Jul 25 15:38:55.411725  FILEBUFFER:    0,000_008 0.344643,0.887701,0.100367
+Jul 25 15:38:55.411737  FILEBUFFER:    0,000_010 0.425779,0.826415,0.119328
+Jul 25 15:38:55.411752  FILEBUFFER:    0,000_012 0.503623,0.753319,0.134594
+Jul 25 15:38:55.411765  FILEBUFFER:    0,000_014 0.577573,0.669459,0.145795
+Jul 25 15:38:55.411776  FILEBUFFER:    0,000_016 0.647056,0.576032,0.152736
+th@Thomass-MacBook-Pro-7 build %
+```
+
+- Get CSV log file:
+
+```txt
+th@Thomass-MacBook-Pro-7 build % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
+th@Thomass-MacBook-Pro-7 build % head log.csv
+time_s,X,Y,Z
+0.000,0.000,1.000,0.000
+0.020,0.088,0.993,0.027
+0.040,0.175,0.972,0.054
+0.060,0.261,0.936,0.078
+0.080,0.345,0.888,0.100
+0.100,0.426,0.826,0.119
+0.120,0.504,0.753,0.135
+0.140,0.578,0.669,0.146
+0.160,0.647,0.576,0.153
+th@Thomass-MacBook-Pro-7 build % 
+```
+
+#### 12.4.4. <a id="quick-labplot-demonstration"></a>Quick LabPlot demonstration
+
+Install LabPlot 2.12 or newer. From the repository root, run one of these
+commands in a POSIX shell:
+
+```sh
+./examples/LabPlotDemo/run_csv.sh
+./examples/LabPlotDemo/run_trice.sh
+```
+
+The script opens `LabPlotDemo.lml` and starts the selected producer. The first
+script sends CSV directly to UDP port `9000`. The second uses UDP port `9001`
+for binary Trice input and runs `tlog` as the decoder/forwarder to port `9000`.
+The script first waits until LabPlot has opened port `9000`, then starts
+`tlog` and waits until its input port `9001` is ready. Only then does it start
+the Trice producer. The project opens one worksheet containing two plots side
+by side:
+
+* `Time series`: `x`, `y`, and `z` versus `time_s`, always showing the last
+  500 values (ten seconds).
+* `Lissajous`: `y` versus `x`, showing the last 150 values (three seconds) on
+  fixed axes. The producer's slow phase drift keeps the figure in motion.
+
+Press `Ctrl-C` in the shell to stop the producer and decoder. If LabPlot is
+not found automatically, set `LABPLOT` to its executable. On Windows, Git
+Bash is a suitable shell; for example, use
+`LABPLOT=/c/Program\ Files/LabPlot/bin/labplot.exe`.
+
+#### 12.4.5. <a id="recreate-the-project-in-labplot"></a>Recreate the project in LabPlot
+
+The following steps explain the project without requiring prior LabPlot
+knowledge. Start `run_csv.sh` first and leave it running.
+
+1. Create a new LabPlot project and choose **Add New > Live Data Source**.
+2. Select **Network UDP Socket**, enter host `127.0.0.1` and port `9000`.
+3. Select the ASCII filter, comma as separator, and disable header detection.
+   Set all four data types to `Double` and enter the names `time_s`, `x`, `y`,
+   and `z`.
+4. Select **Update on new data** and retain `500` values. This is the moving
+   ten-second window at the demo's 50 Hz rate.
+5. Add a worksheet with a Cartesian plot. Add three XY curves. For every
+   curve choose `time_s` as the X column and choose `x`, `y`, or `z` as the Y
+   column. Enable the legend and automatic range scaling. In the plot's range
+   settings select **Last values** and enter `500`; otherwise the time axis
+   keeps growing and the curves become increasingly compressed.
+6. Add a second Cartesian plot to the same worksheet and select a horizontal
+   two-column worksheet layout. Add one XY curve with `x` as its X column and
+   `y` as its Y column. Select **Last values** and enter `150`. Fixed X and Y
+   ranges from `-1.1` to `1.1` keep the scale stable while the three-second
+   trace and the signal's slow phase drift make the movement visible.
+7. Save the project as `LabPlotUser.lml`.
+
+The finished project in `./examples/LabPlotDemo/LabPlotDemo.lml` contains
+exactly these settings. Open it to inspect the result, or use the detailed
+notes in `./examples/LabPlotUser/README.md` while building it manually.
+
+#### 12.4.6. <a id="troubleshooting-and-adaptations"></a>Troubleshooting and adaptations
+
+* If the plots remain empty, verify that the producer is running and that no
+  other process owns UDP port `9000`.
+* If `tlog` reports that a `-vis` rule was disabled because writing to port
+  `9000` was refused, LabPlot was not listening when the decoder started.
+  Restart `run_trice.sh`; its readiness check normally prevents this race.
+  Once a visualization rule is disabled, normal logging intentionally
+  resumes, and its `log=drop` option is no longer applied.
+* For the Trice path, verify that `tlog` is on `PATH` and that
+  `demoTIL.json` is present at the repository root. Set `TLOG` or
+  `TRICE_TIL` when using non-default locations.
+* Keep the complete `-vis` expression inside one pair of quotes. The semicolon
+  separates `header` and `log` options inside that expression; it must not be
+  interpreted by the shell.
+* To show another history length, change the retained-value count to
+  `50 * seconds`. For example, `1000` values show approximately 20 seconds.
+* The Trice path still uses UDP port `9001` internally between the demo and
+  `tlog`. If that port is busy, stop the other receiver or change it in
+  `run_trice.sh` and its `-args` value together.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -6357,38 +6640,61 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ```
 
 * For some reason `sudo apt install gdb-arm-none-eabi` gives the message `Note, selecting 'gdb-multiarch' instead of 'gdb-arm-none-eabi'` and *arm-none-eabi-gdb* is not installed afterwards.
-* To try the newest version, download it from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads.
-  * Setup:
-    * Unpack and extend $PATH at the beginning:
-      
-    ```bash
-    cd ~/Downloads
-    tar xf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
-    su
-    echo export PATH=/home/th/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/:'$PATH' > /etc/profile.d/arm14.2path.sh
-    exit
-    ```
 
-    * Logout and login
+##### Recommended complete Arm GNU Toolchain
 
-    ```bash
-    arm-none-eabi-gcc --version
-    arm-none-eabi-gcc (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119
-    Copyright (C) 2024 Free Software Foundation, Inc.
-    This is free software; see the source for copying conditions.  There is NO
-    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-    ```
+For the Trice bare-metal examples, use a complete, internally consistent toolchain containing GCC, GNU Binutils, Newlib, and Newlib-Nano. The official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm) provide matching packages for Linux, macOS, and Windows. Select the package for the host platform whose target name ends in `arm-none-eabi`, and verify its accompanying SHA-256 file before installing it.
 
-    ```bash
-    arm-none-eabi-gdb --version
-    GNU gdb (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 15.2.90.20241130-git
-    Copyright (C) 2024 Free Software Foundation, Inc.
-    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-    This is free software: you are free to change and redistribute it.
-    There is NO WARRANTY, to the extent permitted by law.
-    ```
+Arm GNU Toolchain 15.3.Rel1 is the currently tested version for the Trice GCC example builds. It reports:
 
-  * Remove: Delete `/etc/profile.d/arm14.2path.sh` and `~/Downloads/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi`
+```text
+arm-none-eabi-gcc (Arm GNU Toolchain 15.3.Rel1 (Build arm-15.149)) 15.3.1 20260627
+GNU assembler (Arm GNU Toolchain 15.3.Rel1 (Build arm-15.149)) 2.45.1.20260126
+```
+
+Install new releases side by side instead of replacing a working toolchain immediately. Prepend the selected installation's `bin` directory to `PATH` for the current shell or configure it permanently using the host operating system's normal environment-variable settings. On Linux and macOS, an unpacked archive can be selected temporarily as follows:
+
+```bash
+toolchain_dir="$HOME/opt/arm-gnu-toolchain-15.3.rel1"
+export PATH="$toolchain_dir/bin:$PATH"
+```
+
+On Windows, add the corresponding extracted or installed `bin` directory at the beginning of the user `Path`. Afterwards, open a new terminal. Do not combine GCC, `as`, libraries, or specifications from different toolchain installations.
+
+Check which installation is active and whether the required runtime files are present:
+
+```bash
+command -v arm-none-eabi-gcc
+command -v arm-none-eabi-as
+arm-none-eabi-gcc --version
+arm-none-eabi-as --version
+arm-none-eabi-gcc -print-file-name=nano.specs
+arm-none-eabi-gcc -print-file-name=libnosys.a
+```
+
+Use `where.exe` instead of `command -v` in a Windows command prompt. The last two commands must print resolved paths. Output containing only `nano.specs` or `libnosys.a` means that the active installation is incomplete.
+
+On macOS, `brew install --cask gcc-arm-embedded` installs an official complete Arm package, but the cask can lag behind the newest Arm release. In contrast, the Homebrew formula installed by `brew install arm-none-eabi-gcc` builds GCC with `--without-headers` and installs GCC plus `libgcc`, but not Newlib/Newlib-Nano. A newer GCC version number from that formula therefore does not make it a complete replacement for the official package used by these examples.
+
+##### GNU assembler `unable to rebuffer file` warning
+
+The G0B1 build requests assembler listings with `-Wa,-a,...`. While generating such a listing, GNU `as` reopens and rereads source text associated with the temporary compiler-generated assembly file. A diagnostic such as
+
+```text
+ccXXXX.s: Warning: unable to rebuffer file: path/to/source.c
+```
+
+means that this second source-file read returned fewer bytes than expected. It is an assembler-listing diagnostic, not a C-language warning. The object and executable may still have been generated correctly, but the Trice full test intentionally treats every warning as a failure.
+
+The warning was observed once with Arm GNU Toolchain 15.2.Rel1 on macOS and did not recur when the identical G0B1 build was repeated. The complete test with 15.3.Rel1, including the G0B1 X0 matrix and listing generation, completed without warnings. This establishes the warning as intermittent; it does not prove that 15.3.Rel1 contains a specific fix for it.
+
+If the warning occurs:
+
+1. Keep listing generation and strict warning checks enabled.
+2. Confirm the active GCC and assembler paths and versions with the commands above.
+3. Ensure that no editor, generator, formatter, synchronization tool, or parallel build step rewrites the named source file while `as` is running.
+4. Repeat the affected build once with the complete 15.3.Rel1 package.
+5. If it is reproducible, retain the complete compiler command, tool versions, source file, and generated listing and report the case as a GNU Binutils or Arm GNU Toolchain issue.
 
 #### 37.4.7. <a id="j-link-if-needed"></a>J-Link (if needed)
 

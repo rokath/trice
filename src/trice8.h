@@ -72,7 +72,7 @@
 #include "triceVariadic.h"
 
 //! TRICE8 inlining code for up to 12 8-bit parameters.
-#define TRICE8(tid, fmt, ...) TRICE_CONCAT2(TRICE8_, TRICE_COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRICE8(tid, ...) TRICE_CONCAT2(TRICE8_, TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 
 //! TRICE8_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //!  It is usable for showing n 8-bit values.
