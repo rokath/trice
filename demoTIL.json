@@ -9367,6 +9367,10 @@
 		"Type": "TRICe64_C",
 		"Strg": "info:FunctionNameZa"
 	},
+	"15671": {
+		"Type": "TRice64",
+		"Strg": "sig:%.1f s\\n"
+	},
 	"15689": {
 		"Type": "TRICe8_C",
 		"Strg": "info:FunctionNameWa"
@@ -9415,6 +9419,10 @@
 		"Type": "trice16C",
 		"Strg": "call:FunctionNameXd"
 	},
+	"15910": {
+		"Type": "TRice",
+		"Strg": "vis_demo:%f,%f,%f\\n"
+	},
 	"15917": {
 		"Type": "TRICE_C",
 		"Strg": "abc:all:GetState"
@@ -9438,6 +9446,10 @@
 	"16005": {
 		"Type": "triceC",
 		"Strg": "abc:all:GetState"
+	},
+	"16011": {
+		"Type": "trice",
+		"Strg": "msg:Hello LabPlot!\\n"
 	},
 	"16014": {
 		"Type": "TriceC",
