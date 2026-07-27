@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 tlog -port FILEBUFFER -args abc.bus \
     -li ../../demoLI.json \
     -til ../../demoTIL.json \
