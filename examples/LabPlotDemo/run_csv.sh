@@ -4,7 +4,7 @@ set -eu
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
-demo_dir="$repo_root/examples/DemoPlotData_CSV"
+demo_dir="$repo_root/examples/DemoData_CSV"
 
 find_labplot() {
   if [ -n "${LABPLOT:-}" ]; then
@@ -55,7 +55,7 @@ labplot=$(find_labplot) || {
   echo "LabPlot not found. Set LABPLOT to its executable." >&2
   exit 1
 }
-demo_bin="$demo_dir/bin/DemoPlotData_CSV"
+demo_bin="$demo_dir/bin/DemoData_CSV"
 if [ ! -x "$demo_bin" ] && [ ! -x "$demo_bin.exe" ]; then
   (cd "$demo_dir" && ./build.sh)
 fi
@@ -63,7 +63,7 @@ if [ ! -x "$demo_bin" ]; then
   demo_bin="$demo_bin.exe"
 fi
 if [ ! -x "$demo_bin" ]; then
-  echo "DemoPlotData_CSV executable not found in $demo_dir/bin." >&2
+  echo "DemoData_CSV executable not found in $demo_dir/bin." >&2
   exit 1
 fi
 if [ "$(uname -s)" = Darwin ] && [ -z "${LABPLOT:-}" ] && ! command -v labplot >/dev/null 2>&1; then

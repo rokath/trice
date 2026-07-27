@@ -8,16 +8,16 @@ failCount=0
 
 # Directories are relative to this script's location
 targets=(
-  "DemoPlotData_CSV"
-  "DemoPlotData_Trice"
+  "DemoData_CSV"
+  "DemoData_Trice"
   "F030_bare"
   "G0B1_bare"
   "L432_bare"
   "F030_inst"
   "G0B1_inst"
   "L432_inst"
-  "DemoPlotData_CSV"
-  "DemoPlotData_Trice"
+  "DemoData_CSV"
+  "DemoData_Trice"
 )
 
 for d in "${targets[@]}"; do

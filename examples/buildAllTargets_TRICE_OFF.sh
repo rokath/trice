@@ -14,8 +14,8 @@ targets=(
   "F030_inst"
   "G0B1_inst"
   "L432_inst"
-  "DemoPlotData_CSV"
-  "DemoPlotData_Trice"
+  "DemoData_CSV"
+  "DemoData_Trice"
 )
 
 for d in "${targets[@]}"; do

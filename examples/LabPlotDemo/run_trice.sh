@@ -4,7 +4,7 @@ set -eu
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
-demo_dir="$repo_root/examples/DemoPlotData_Trice"
+demo_dir="$repo_root/examples/DemoData_Trice"
 til_file=${TRICE_TIL:-$repo_root/demoTIL.json}
 
 find_labplot() {
@@ -80,7 +80,7 @@ if [ ! -x "$tlog_bin" ] && ! command -v "$tlog_bin" >/dev/null 2>&1; then
   echo "tlog not found. Set TLOG to its executable." >&2
   exit 1
 fi
-demo_bin="$demo_dir/bin/DemoPlotData_Trice"
+demo_bin="$demo_dir/bin/DemoData_Trice"
 if [ ! -x "$demo_bin" ] && [ ! -x "$demo_bin.exe" ]; then
   (cd "$demo_dir" && ./build.sh)
 fi
@@ -88,7 +88,7 @@ if [ ! -x "$demo_bin" ]; then
   demo_bin="$demo_bin.exe"
 fi
 if [ ! -x "$demo_bin" ]; then
-  echo "DemoPlotData_Trice executable not found in $demo_dir/bin." >&2
+  echo "DemoData_Trice executable not found in $demo_dir/bin." >&2
   exit 1
 fi
 if [ "$(uname -s)" = Darwin ] && [ -z "${LABPLOT:-}" ] && ! command -v labplot >/dev/null 2>&1; then
