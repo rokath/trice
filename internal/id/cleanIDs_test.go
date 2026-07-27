@@ -123,7 +123,7 @@ func TestCleanWithLIExtension(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestCleanTriceALias is with the alias functionality and a check for the json files.
@@ -201,7 +201,7 @@ func TestCleanTriceALias(t *testing.T) {
 	// check li.json
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, exsLI, string(actLI))
+	assertLocationJSONEqual(t, exsLI, actLI)
 
 	// cleanup
 	FSys.Remove(FnJSON)

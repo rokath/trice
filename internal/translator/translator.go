@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -680,7 +679,7 @@ func correctWrappedTimestamp(ts32 uint32) time.Time {
 func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 	if li != nil && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
 		if li, ok := li[tid]; ok {
-			return fmt.Sprintf(decoder.LocationInformationFormatString, filepath.Base(li.File), li.Line)
+			return fmt.Sprintf(decoder.LocationInformationFormatString, id.LocationFile(li), li.Line)
 		} else {
 			return fmt.Sprintf(decoder.LocationInformationFormatString, "", 0)
 		}

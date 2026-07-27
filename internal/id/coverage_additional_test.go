@@ -421,7 +421,7 @@ func TestZeroTriceIDsAdditionalBranches(t *testing.T) {
 	Verbose = true
 	t.Cleanup(func() { Verbose = oldVerbose })
 
-	got, modified, err := zeroTriceIDs(&out, "pkg/source.c", in, admin)
+	got, modified, err := zeroTriceIDs(&out, "pkg/source.c", "pkg/source.c", in, admin)
 	require.NoError(t, err)
 	assert.True(t, modified)
 
@@ -432,8 +432,12 @@ func TestZeroTriceIDsAdditionalBranches(t *testing.T) {
 	assert.Contains(t, text, `trice(iD(0), "fresh");`)
 
 	assert.Equal(t, TriceFmt{Type: "trice", Strg: "fresh"}, IDData.idToTrice[333])
-	require.Equal(t, TriceLI{"pkg/source.c", 1}, IDData.idToLocNew[111])
-	require.Equal(t, TriceLI{"pkg/source.c", 4}, IDData.idToLocNew[333])
+	require.Equal(t, "source.c", IDData.idToLocNew[111].File)
+	require.NotEmpty(t, IDData.idToLocNew[111].Path)
+	require.Equal(t, 1, IDData.idToLocNew[111].Line)
+	require.Equal(t, "source.c", IDData.idToLocNew[333].File)
+	require.NotEmpty(t, IDData.idToLocNew[333].Path)
+	require.Equal(t, 4, IDData.idToLocNew[333].Line)
 	_, exists := IDData.idToLocNew[222]
 	assert.False(t, exists)
 

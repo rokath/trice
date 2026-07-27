@@ -119,6 +119,8 @@ type globalDefaults struct {
 	defaultMax                        TriceID
 	defaultSearchMethod               string
 	defaultLIPathKind                 string
+	defaultLIDisplayPathKind          string
+	defaultLIRoot                     string
 	defaultSrcs                       ArrayFlag
 	defaultExcludeSrcs                ArrayFlag
 	defaultTriceAliases               ArrayFlag
@@ -142,6 +144,8 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultMax = Max
 	p.defaultSearchMethod = SearchMethod
 	p.defaultLIPathKind = LIPathKind
+	p.defaultLIDisplayPathKind = LIDisplayPathKind
+	p.defaultLIRoot = LIRoot
 	p.defaultSrcs = Srcs
 	p.defaultExcludeSrcs = ExcludeSrcs
 	p.defaultTriceAliases = TriceAliases
@@ -168,6 +172,8 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	Max = p.defaultMax
 	SearchMethod = p.defaultSearchMethod
 	LIPathKind = p.defaultLIPathKind
+	LIDisplayPathKind = p.defaultLIDisplayPathKind
+	LIRoot = p.defaultLIRoot
 	Srcs = p.defaultSrcs
 	ExcludeSrcs = p.defaultExcludeSrcs
 	TriceAliases = p.defaultTriceAliases

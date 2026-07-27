@@ -14,7 +14,7 @@ import (
 // zeroTriceIDs sets all trice IDs inside in to 0. If an ID is not inside til.json it is added.
 // If an ID is inside til.json referencing to a different trice, it is reported and set to 0 inside in.
 // All valid IDs are used to build a new li.json file.
-func zeroTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+func zeroTriceIDs(w io.Writer, path, sourcePath string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID                              // idn is the last found id inside the source.
 	var idS string                               // idS is the "iD(n)" statement, if found.
 	var ignore bool                              // ignore gets true if a found trice statement is skipped.
@@ -81,7 +81,7 @@ func zeroTriceIDs(w io.Writer, path string, in []byte, a *ant.Admin) (out []byte
 			t.Alias = alias // restore
 		}
 		if idn != 0 {
-			IDData.idToLocNew[idn] = TriceLI{path, line} // Add idn to new location information.
+			IDData.idToLocNew[idn] = newTriceLI(sourcePath, line) // Add idn to new location information.
 			if Verbose {
 				fmt.Fprintln(w, idn, path, line, "added to li")
 			}

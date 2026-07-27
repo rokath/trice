@@ -248,3 +248,20 @@ func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 		assert.Contains(t, out.String(), "missing-source-tree does not exist!")
 	}
 }
+
+// TestLogLocationPathFlags verifies log-specific defaults and root overrides.
+func TestLogLocationPathFlags(t *testing.T) {
+	oldPathKind := id.LIDisplayPathKind
+	oldRoot := id.LIRoot
+	t.Cleanup(func() {
+		id.LIDisplayPathKind = oldPathKind
+		id.LIRoot = oldRoot
+	})
+
+	FlagsInit()
+	assert.Equal(t, "legacy", fsScLog.Lookup("liPath").DefValue)
+	assert.Equal(t, "", fsScLog.Lookup("liRoot").DefValue)
+	assert.NoError(t, fsScLog.Parse([]string{"-liPath", "full", "-liRoot", "checkout"}))
+	assert.Equal(t, "full", id.LIDisplayPathKind)
+	assert.Equal(t, "checkout", id.LIRoot)
+}

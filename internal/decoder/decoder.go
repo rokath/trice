@@ -7,7 +7,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -390,7 +389,7 @@ func PrintTriceStatistics(w io.Writer) {
 		if !found {
 			newline = `0`
 		}
-		file := id.ToLIPath(li.File)
+		file := id.LocationFile(li)
 		fmt.Fprintf(w, "%8d | %32s |%5d | %5d | %10s |%s| %s\n", count, file, li.Line, tid, trice.Type, newline, emitter.Colorize(trice.Strg))
 	}
 	fmt.Fprintln(w, " ------------------------------------------------------------------------------------------------------------------")
@@ -401,7 +400,7 @@ func PrintTriceStatistics(w io.Writer) {
 func LocationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
 	if li != nil && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
 		if li, ok := li[tid]; ok {
-			return fmt.Sprintf(LocationInformationFormatString, filepath.Base(li.File), li.Line)
+			return fmt.Sprintf(LocationInformationFormatString, id.LocationFile(li), li.Line)
 		} else {
 			return fmt.Sprintf(LocationInformationFormatString, "", 0)
 		}

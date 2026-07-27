@@ -175,7 +175,7 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagBinaryLogfile(fsScLog)
 	flagVerbosity(fsScLog)
 	flagIDList(fsScLog)
-	flagLIList(fsScLog)
+	flagLogLIList(fsScLog)
 	flagIPAddress(fsScLog)
 	fsScLog.Var(&emitter.Ban, "ban", `Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
 Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".`) // multi flag
@@ -375,6 +375,20 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 }
 
 func flagLIList(p *flag.FlagSet) {
+	flagLIFile(p)
+	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
+`) // flag
+}
+
+// flagLogLIList registers location-file flags with log-specific display semantics.
+func flagLogLIList(p *flag.FlagSet) {
+	flagLIFile(p)
+	p.StringVar(&id.LIDisplayPathKind, "liPath", "legacy", `How to display location information paths: legacy, base, relative or full. Legacy displays File exactly as stored. Relative uses Path when available. Full resolves Path against -liRoot.`) // flag
+	p.StringVar(&id.LIRoot, "liRoot", "", `Root directory used to resolve relative location paths for -liPath full. The default is the directory containing li.json.`)                                                                                  // flag
+}
+
+// flagLIFile registers the shared location-information file aliases.
+func flagLIFile(p *flag.FlagSet) {
 	p.StringVar(&id.LIFnJSON, "locationInformation", "li.json", `The trice location information file.
 The specified JSON file is needed to display the location information for each ID during runtime.
 It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
@@ -383,8 +397,6 @@ This way the newest til.json can be used also with legacy firmware, but the li.j
 With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
-`) // flag
-	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
 `) // flag
 }
 

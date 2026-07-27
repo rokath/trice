@@ -232,11 +232,17 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byt
 				}
 				break
 			}
-			filenameMatch = liPath == ToLIPath(li.File)
+			// Prefer the complete path when available so generation-time path
+			// changes can still identify the same source unambiguously.
+			referencePath := li.File
+			if li.Path != "" {
+				referencePath = filepath.Join(filepath.Dir(LIFnJSON), filepath.FromSlash(li.Path))
+			}
+			filenameMatch = liPath == ToLIPath(referencePath)
 
 			if !filenameMatch {
 				if Verbose {
-					fmt.Fprintln(w, "ID", id, "is from a different file:", ToLIPath(li.File), li.File)
+					fmt.Fprintln(w, "ID", id, "is from a different file:", ToLIPath(referencePath), li.File)
 				}
 				continue
 			}
@@ -341,7 +347,7 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byt
 		if Verbose {
 			fmt.Fprintln(w, "Add to new location information. ID:", idN, liPath, line)
 		}
-		p.idToLocNew[idN] = TriceLI{liPath, line}
+		p.idToLocNew[idN] = newTriceLI(sourcePath, line)
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information. // issue #523
 		rest = rest[loc[6]:]

@@ -236,9 +236,11 @@ func TestHandleTypeX0(t *testing.T) {
 func TestLocationInformation(t *testing.T) {
 	oldFmt := LocationInformationFormatString
 	oldVerbose := Verbose
+	oldPathKind := id.LIDisplayPathKind
 	t.Cleanup(func() {
 		LocationInformationFormatString = oldFmt
 		Verbose = oldVerbose
+		id.LIDisplayPathKind = oldPathKind
 	})
 
 	li := id.TriceIDLookUpLI{
@@ -246,6 +248,7 @@ func TestLocationInformation(t *testing.T) {
 	}
 
 	LocationInformationFormatString = "%s:%d "
+	id.LIDisplayPathKind = "base"
 	assert.Equal(t, "main.c:77 ", LocationInformation(12, li))
 	assert.Equal(t, ":0 ", LocationInformation(13, li))
 

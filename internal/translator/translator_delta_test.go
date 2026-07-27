@@ -117,6 +117,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	savedTargetTimestamp := decoder.TargetTimestamp
 	savedTargetTimestampSize := decoder.TargetTimestampSize
 	savedBlankMetadata := decoder.BlankMetadata
+	savedLIDisplayPathKind := id.LIDisplayPathKind
 
 	t.Cleanup(func() {
 		receiver.Port = savedPort
@@ -144,6 +145,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 		decoder.TargetTimestamp = savedTargetTimestamp
 		decoder.TargetTimestampSize = savedTargetTimestampSize
 		decoder.BlankMetadata = savedBlankMetadata
+		id.LIDisplayPathKind = savedLIDisplayPathKind
 	})
 
 	receiver.Port = "BUFFER"
@@ -171,6 +173,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	decoder.TargetTimestamp = 0
 	decoder.TargetTimestampSize = 0
 	decoder.BlankMetadata = false
+	id.LIDisplayPathKind = "base"
 }
 
 // TestRenderTargetStampColumns16DeltaWraparound verifies the expected behavior.
@@ -523,13 +526,16 @@ func TestCorrectWrappedTimestamp(t *testing.T) {
 func TestLocationInformation(t *testing.T) {
 	savedFormat := decoder.LocationInformationFormatString
 	savedVerbose := Verbose
+	savedPathKind := id.LIDisplayPathKind
 	defer func() {
 		decoder.LocationInformationFormatString = savedFormat
 		Verbose = savedVerbose
+		id.LIDisplayPathKind = savedPathKind
 	}()
 
 	decoder.LocationInformationFormatString = "%s:%d "
 	Verbose = false
+	id.LIDisplayPathKind = "base"
 	li := id.TriceIDLookUpLI{
 		17: {File: "/tmp/demo/main.c", Line: 42},
 	}
