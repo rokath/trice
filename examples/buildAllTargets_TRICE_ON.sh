@@ -1,4 +1,4 @@
-cd #!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # Resolve this script's directory (works with symlinks as well)
