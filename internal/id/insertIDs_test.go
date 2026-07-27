@@ -123,7 +123,7 @@ func TestAliasesInsertion(t *testing.T) {
 }`
 	actLi, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLi, string(actLi))
+	assertLocationJSONEqual(t, expLi, actLi)
 }
 
 // TestInsertKnownID verifies the expected behavior.
@@ -257,7 +257,7 @@ func TestInsertCopiedKnownIDGetsNewID(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 func TestInsertCopiedKnownIDInDifferentFileGetsNewID(t *testing.T) {
@@ -332,7 +332,7 @@ func TestInsertCopiedKnownIDInDifferentFileGetsNewID(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestInsertKnownID2 is TestInsertKnownID extended with the alias functionality and a check for the json files.
@@ -406,7 +406,7 @@ func TestInsertKnownID2(t *testing.T) {
 	// check li.json
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, exsLI, string(actLI))
+	assertLocationJSONEqual(t, exsLI, actLI)
 
 	// cleanup
 	FSys.Remove(FnJSON)
@@ -452,7 +452,7 @@ func TestInsertExistingID_A(t *testing.T) {
 }`
 	actLi, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLi, string(actLi))
+	assertLocationJSONEqual(t, expLi, actLi)
 }
 
 // TestInsertExistingID_B verifies the expected behavior.
@@ -494,7 +494,7 @@ func TestInsertExistingID_B(t *testing.T) {
 }`
 	actLi, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLi, string(actLi))
+	assertLocationJSONEqual(t, expLi, actLi)
 }
 
 // TestInsert99 verifies the expected behavior.
@@ -640,7 +640,7 @@ func TestInsert2(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	// check modified til.json file
 	expTIL := `{
@@ -686,7 +686,7 @@ func TestInsert1(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	// check modified til.json file
 	expTIL := `{
@@ -728,7 +728,7 @@ func TestInsert0(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	// check modified til.json file
 	expTIL := `{
@@ -999,8 +999,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 }`
 	actLIJSONs, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	actLIJSON := string(actLIJSONs)
-	assert.Equal(t, actLIJSON, expLIJSON)
+	assertLocationJSONEqual(t, expLIJSON, actLIJSONs)
 
 	expTil0 := `{
 	"1200": {
@@ -1097,8 +1096,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 }`
 	actLIJSONs, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	actLIJSON := string(actLIJSONs)
-	assert.Equal(t, actLIJSON, expLIJSON)
+	assertLocationJSONEqual(t, expLIJSON, actLIJSONs)
 
 	expTil0 := `{
 	"1200": {
@@ -1288,12 +1286,7 @@ func TestInsertIDsForNewTrice2(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	result = expLI == string(actLI)
-	if !result {
-		fmt.Println("ACTUAL LI:", string(actLI))
-		fmt.Println("EXPECT LI:", expLI)
-	}
-	assert.True(t, result)
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	// action 1 (2nd action)
 	IDData.TagList = IDData.TagList[:0] // reset ID space
@@ -1391,12 +1384,7 @@ func _TestInsertIDsForNewTrice_Issue_523(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	result = expLI == string(actLI)
-	if !result {
-		fmt.Println("ACTUAL LI:", string(actLI))
-		fmt.Println("EXPECT LI:", expLI)
-	}
-	assert.True(t, result)
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	// action 1 (2nd action)
 	IDData.TagList = IDData.TagList[:0] // reset ID space

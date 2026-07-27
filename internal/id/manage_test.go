@@ -179,14 +179,21 @@ func TestLutLocationInfoFromFile(t *testing.T) {
 	"17": {
 		"File": "demo.c",
 		"Line": 42
+	},
+	"18": {
+		"File": "main.c",
+		"Path": "src/main.c",
+		"Line": 7
 	}
 }`
 	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0o777))
 
 	li := NewLutLI(&bytes.Buffer{}, FSys, LIFnJSON)
-	require.Len(t, li, 1)
+	require.Len(t, li, 2)
 	assert.Equal(t, "demo.c", li[17].File)
+	assert.Empty(t, li[17].Path)
 	assert.Equal(t, 42, li[17].Line)
+	assert.Equal(t, "src/main.c", li[18].Path)
 }
 
 // TestLutFileTransferMemMap verifies the expected behavior.

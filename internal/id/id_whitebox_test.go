@@ -63,7 +63,7 @@ func TestInsertIDsAndJSONDownward(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestInsertIDsAndJSONUpward verifies the expected behavior.
@@ -118,7 +118,7 @@ func TestInsertIDsAndJSONUpward(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestInsertIDsIntoTilJSONFromFileWithEmptyLi verifies the expected behavior.
@@ -217,7 +217,7 @@ func TestInsertLineDuplicates(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestChangeIDAfterStringModification verifies the expected behavior.
@@ -272,7 +272,7 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	tearDown()
 	// part 2
@@ -288,7 +288,7 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(expLI), 0777))
 	actLI, e = FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 
 	// modify src file
 	src0 = `
@@ -352,7 +352,7 @@ func TestChangeIDAfterStringModification(t *testing.T) {
 }`
 	actLI, e = FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestChangeIDAfterStringModification2 verifies the expected behavior.
@@ -394,7 +394,7 @@ func TestChangeIDAfterStringModification2(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(LI), 0777))
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, LI, string(actLI))
+	assertLocationJSONEqual(t, LI, actLI)
 
 	// action
 	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-til", FnJSON, "-li", LIFnJSON, "-IDMin", "10", "-IDMax", "20", "-IDMethod", "upward"}))
@@ -435,7 +435,7 @@ func TestChangeIDAfterStringModification2(t *testing.T) {
 }`
 	actLI, e = FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestAddIDToTilJSON tests to not change src file if not needed.
@@ -477,7 +477,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(LI), 0777))
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, LI, string(actLI))
+	assertLocationJSONEqual(t, LI, actLI)
 
 	// action
 	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-til", FnJSON, "-li", LIFnJSON, "-IDMin", "10", "-IDMax", "20", "-IDMethod", "upward"}))
@@ -518,7 +518,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 }`
 	actLI, e = FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }
 
 // TestGenerateNewIDIfUsedToTilJSON tests to change src file if ID used differently.
@@ -564,7 +564,7 @@ func TestGenerateNewIDIfUsedToTilJSON(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(LI), 0777))
 	actLI, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, LI, string(actLI))
+	assertLocationJSONEqual(t, LI, actLI)
 
 	// action
 	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-src", fn0, "-til", FnJSON, "-li", LIFnJSON, "-IDMin", "10", "-IDMax", "20", "-IDMethod", "upward"}))
@@ -601,5 +601,5 @@ func TestGenerateNewIDIfUsedToTilJSON(t *testing.T) {
 }`
 	actLI, e = FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	assert.Equal(t, expLI, string(actLI))
+	assertLocationJSONEqual(t, expLI, actLI)
 }

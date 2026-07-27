@@ -57,8 +57,9 @@ type triceFmtLookUp map[TriceFmt]TriceIDs
 
 // TriceLI is the trice location information assigned to a trice ID.
 type TriceLI struct {
-	File string `json:"File"` // source file name of trice id
-	Line int    `json:"Line"` // source file line of trice id
+	File string `json:"File"`           // source file name of trice id
+	Path string `json:"Path,omitempty"` // normalized source path relative to li.json
+	Line int    `json:"Line"`           // source file line of trice id
 }
 
 type TriceIDLookUpLI map[TriceID]TriceLI

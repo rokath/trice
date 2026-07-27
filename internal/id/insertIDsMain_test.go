@@ -98,12 +98,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithNoIDinsideLi(t *testing.T) {
 }`
 	actLiJSON, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	resultLI := expLiJSON == string(actLiJSON)
-	if !resultLI {
-		fmt.Println("ACTUAL LI:", string(actLiJSON))
-		fmt.Println("EXPECT LI:", string(expLiJSON))
-	}
-	assert.True(t, resultLI)
+	assertLocationJSONEqual(t, expLiJSON, actLiJSON)
 
 	// trice ID list
 	expTilJSON := `{
@@ -221,12 +216,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithSingleIDinsideLi(t *testing.
 }`
 	actLiJSON, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	resultLI := expLiJSON == string(actLiJSON)
-	if !resultLI {
-		fmt.Println("ACTUAL LI:", string(actLiJSON))
-		fmt.Println("EXPECT LI:", string(expLiJSON))
-	}
-	assert.True(t, resultLI)
+	assertLocationJSONEqual(t, expLiJSON, actLiJSON)
 
 	// trice ID list
 	expTilJSON := `{
@@ -345,12 +335,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi(t *testing
 
 	actLiJSON, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	resultLI := expLiJSON == string(actLiJSON)
-	if !resultLI {
-		fmt.Println("ACTUAL LI:", string(actLiJSON))
-		fmt.Println("EXPECT LI:", string(expLiJSON))
-	}
-	assert.True(t, resultLI)
+	assertLocationJSONEqual(t, expLiJSON, actLiJSON)
 
 	// trice ID list
 	expTilJSON := `{
@@ -478,12 +463,7 @@ func TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
 
 	actLiJSON, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	resultLI := expLiJSON == string(actLiJSON)
-	if !resultLI {
-		fmt.Println("ACTUAL LI:", string(actLiJSON))
-		fmt.Println("EXPECT LI:", string(expLiJSON))
-	}
-	assert.True(t, resultLI)
+	assertLocationJSONEqual(t, expLiJSON, actLiJSON)
 
 	// trice ID list
 	expTilJSON := `{
@@ -580,12 +560,7 @@ func TestInsertIDsFromFilesInEmptyJSON(t *testing.T) {
 
 	actLiJSON, e := FSys.ReadFile(LIFnJSON)
 	assert.Nil(t, e)
-	resultLI := expLiJSON == string(actLiJSON)
-	if !resultLI {
-		fmt.Println("ACTUAL LI:", string(actLiJSON))
-		fmt.Println("EXPECT LI:", string(expLiJSON))
-	}
-	assert.True(t, resultLI)
+	assertLocationJSONEqual(t, expLiJSON, actLiJSON)
 
 	// trice ID list
 	expTilJSON := `{
