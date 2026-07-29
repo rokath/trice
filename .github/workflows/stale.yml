@@ -29,7 +29,7 @@ jobs:
     steps:
       # Run the official stale action (v10 is the current major version)
       - name: Run stale bot
-        uses: actions/stale@v10
+        uses: actions/stale@v11
         with:
           # GitHub token used for authentication (by default provided by GitHub)
           repo-token: ${{ secrets.GITHUB_TOKEN }}
