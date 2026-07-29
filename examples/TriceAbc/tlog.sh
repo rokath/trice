@@ -4,7 +4,7 @@ cd "$(dirname "$0")" || exit 1
 
 tlog -port FILEBUFFER -args abc.bus \
   -li ../../demoLI.json \
-  -liPath legacy \
+  -liMaxDirs 1 \
   -til ../../demoTIL.json \
   -d16 \
   -pf COBS \

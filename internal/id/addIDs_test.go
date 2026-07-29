@@ -4,7 +4,10 @@ package id_test
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -13,22 +16,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// assertLocationJSONEqual compares legacy location fields while allowing generated Path metadata.
+// assertLocationJSONEqual compares generated location entries and rejects obsolete Path fields.
+// Older behavioral fixtures name only the expected source suffix; dedicated
+// Issue 712 tests above verify the complete root-relative path semantics.
 func assertLocationJSONEqual(t *testing.T, expected string, actual []byte) {
 	t.Helper()
 	var expectedLI TriceIDLookUpLI
 	var actualLI TriceIDLookUpLI
 	require.NoError(t, json.Unmarshal([]byte(expected), &expectedLI))
 	require.NoError(t, json.Unmarshal(actual, &actualLI))
-	for triceID, location := range expectedLI {
-		location.Path = ""
-		expectedLI[triceID] = location
-	}
-	for triceID, location := range actualLI {
-		location.Path = ""
-		actualLI[triceID] = location
+	for triceID, expectedLocation := range expectedLI {
+		actualLocation, ok := actualLI[triceID]
+		if !ok || expectedLocation.File == actualLocation.File {
+			continue
+		}
+		expectedFile := strings.TrimPrefix(filepath.ToSlash(expectedLocation.File), "./")
+		actualFile := filepath.ToSlash(actualLocation.File)
+		if strings.HasSuffix(actualFile, "/"+expectedFile) {
+			expectedLocation.File = actualLocation.File
+			expectedLI[triceID] = expectedLocation
+		}
 	}
 	assert.Equal(t, expectedLI, actualLI)
+	assert.NotContains(t, string(actual), `"Path"`)
 }
 
 // TestAddWithLIExtension verifies the expected behavior.
@@ -54,7 +64,7 @@ func TestAddWithLIExtension(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn, []byte(src), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "add", "-v", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "add", "-v", "-src", sFn, "-til", FnJSON, "-li", LIFnJSON, "-liRoot", "."}))
 
 	// check un-modified src file
 	expSrc := src
@@ -82,27 +92,32 @@ func TestAddWithLIExtension(t *testing.T) {
 	assertLocationJSONEqual(t, expLI, actLI)
 }
 
-// TestToLIPath verifies the expected behavior.
-func TestToLIPath(t *testing.T) {
+// TestToLIFile verifies default and explicit location roots.
+func TestToLIFile(t *testing.T) {
 	defer Setup(t)()
 
-	LIPathKind = "base"
-	assert.Equal(t, "demo.c", ToLIPath(filepath.Join("dir", "demo.c")))
+	LIFnJSON = filepath.Join(Proj, "build", "demoLI.json")
+	sourcePath := filepath.Join(Proj, "examples", "TriceABC", "src", "main.c")
+	LIRoot = ""
+	assert.Equal(t, "../examples/TriceABC/src/main.c", ToLIFile(sourcePath))
 
-	LIPathKind = filepath.Join("root", "relative")
-	assert.Equal(t, filepath.ToSlash(filepath.Join("sub", "demo.c")), ToLIPath(filepath.Join("root", "sub", "demo.c")))
+	LIRoot = Proj
+	assert.Equal(t, "examples/TriceABC/src/main.c", ToLIFile(sourcePath))
 
-	LIPathKind = "full"
-	got := ToLIPath("demo.c")
-	assert.True(t, filepath.IsAbs(got))
-	assert.Equal(t, "demo.c", filepath.Base(got))
+	workingDirectory, err := os.Getwd()
+	require.NoError(t, err)
+	LIRoot = "."
+	assert.Equal(t, "nested/main.c", ToLIFile(filepath.Join(workingDirectory, "nested", ".", "main.c")))
 
-	LIPathKind = "weird"
-	assert.Equal(t, "demo.c", ToLIPath(filepath.Join("dir", "demo.c")))
+	if runtime.GOOS == "windows" {
+		LIRoot = `C:\project`
+		assert.Equal(t, "D:/sources/main.c", ToLIFile(`D:\sources\main.c`))
+		assert.Equal(t, "//server/share/sources/main.c", ToLIFile(`\\server\share\sources\main.c`))
+	}
 }
 
-// TestIssue708GeneratedPaths verifies that duplicate basenames retain distinct portable paths.
-func TestIssue708GeneratedPaths(t *testing.T) {
+// TestIssue712GeneratedPaths verifies that all ID commands retain canonical paths.
+func TestIssue712GeneratedPaths(t *testing.T) {
 	defer Setup(t)()
 
 	firstSource := filepath.Join(Proj, "one", "main.c")
@@ -113,14 +128,11 @@ func TestIssue708GeneratedPaths(t *testing.T) {
 	require.NoError(t, FSys.WriteFile(secondSource, []byte(`trice(iD(102), "two");`), 0o600))
 
 	commands := []struct {
-		name       string
-		pathKind   string
-		firstFile  string
-		secondFile string
+		name string
 	}{
-		{name: "add", pathKind: "base", firstFile: "main.c", secondFile: "main.c"},
-		{name: "clean", pathKind: "base", firstFile: "main.c", secondFile: "main.c"},
-		{name: "insert", pathKind: filepath.Join(Proj, "relative"), firstFile: "one/main.c", secondFile: "two/main.c"},
+		{name: "add"},
+		{name: "clean"},
+		{name: "insert"},
 	}
 	for _, command := range commands {
 		require.NoError(t, args.Handler(W, FSys, []string{
@@ -129,40 +141,76 @@ func TestIssue708GeneratedPaths(t *testing.T) {
 			"-src", secondSource,
 			"-til", FnJSON,
 			"-li", LIFnJSON,
-			"-liPath", command.pathKind,
+			"-liRoot", Proj,
 		}))
 
 		encodedLocations, err := FSys.ReadFile(LIFnJSON)
 		require.NoError(t, err)
 		var locations TriceIDLookUpLI
 		require.NoError(t, json.Unmarshal(encodedLocations, &locations))
-		assert.Equal(t, TriceLI{File: command.firstFile, Path: "one/main.c", Line: 1}, locations[101])
-		assert.Equal(t, TriceLI{File: command.secondFile, Path: "two/main.c", Line: 1}, locations[102])
+		assert.Equal(t, TriceLI{File: "one/main.c", Line: 1}, locations[101])
+		assert.Equal(t, TriceLI{File: "two/main.c", Line: 1}, locations[102])
+		assert.NotContains(t, string(encodedLocations), `"Path"`)
 	}
 }
 
-// TestIssue708LocationFileSelectors verifies new files and backward-compatible old entries.
-func TestIssue708LocationFileSelectors(t *testing.T) {
+// TestIssue712LocationFileLimits verifies trailing-directory selection.
+func TestIssue712LocationFileLimits(t *testing.T) {
 	defer Setup(t)()
 
-	location := TriceLI{File: "stored/legacy.c", Path: "src/feature/main.c", Line: 7}
-	LIDisplayPathKind = "legacy"
-	assert.Equal(t, "stored/legacy.c", LocationFile(location))
+	location := TriceLI{File: "examples/TriceABC/src/main.c", Line: 7}
+	expected := []string{
+		"main.c",
+		"src/main.c",
+		"TriceABC/src/main.c",
+		"examples/TriceABC/src/main.c",
+	}
+	for maxDirs, want := range expected {
+		LIMaxDirs = maxDirs
+		assert.Equal(t, want, LocationFile(location))
+	}
 
-	LIDisplayPathKind = "base"
+	LIMaxDirs = 3
+	assert.Equal(t, "src/main.c", LocationFile(TriceLI{File: "src/main.c"}))
+	assert.Equal(t, "examples/TriceABC/src/main.c", LocationFile(TriceLI{File: "../../../examples/TriceABC/src/main.c"}))
+	assert.Equal(t, "examples/TriceABC/src/main.c", LocationFile(TriceLI{File: "/checkout/examples/TriceABC/src/main.c"}))
+	assert.Equal(t, "examples/TriceABC/src/main.c", LocationFile(TriceLI{File: `D:\checkout\examples\TriceABC\src\main.c`}))
+
+	LIMaxDirs = -1
 	assert.Equal(t, "main.c", LocationFile(location))
+}
 
-	LIDisplayPathKind = "relative"
-	assert.Equal(t, "src/feature/main.c", LocationFile(location))
-	assert.Equal(t, "old/source.c", LocationFile(TriceLI{File: "old/source.c"}))
+// TestIssue712LocationJSONHasOnlyFileAndLine verifies the serialized schema.
+func TestIssue712LocationJSONHasOnlyFileAndLine(t *testing.T) {
+	encoded, err := json.Marshal(TriceLI{File: "src/main.c", Line: 42})
+	require.NoError(t, err)
+	assert.JSONEq(t, `{"File":"src/main.c","Line":42}`, string(encoded))
+	assert.False(t, strings.Contains(string(encoded), "Path"))
+}
 
-	LIDisplayPathKind = "full"
-	LIFnJSON = filepath.Join(Proj, "logs", "li.json")
-	LIRoot = ""
-	assert.Equal(t, filepath.Join(Proj, "logs", "src", "feature", "main.c"), LocationFile(location))
+// TestIssue712ObsoletePathMigration verifies rewriting without source changes.
+func TestIssue712ObsoletePathMigration(t *testing.T) {
+	defer Setup(t)()
 
-	LIRoot = filepath.Join(Proj, "checkout")
-	assert.Equal(t, filepath.Join(Proj, "checkout", "src", "feature", "main.c"), LocationFile(location))
-	assert.Equal(t, filepath.Join(Proj, "checkout", "old", "source.c"), LocationFile(TriceLI{File: "old/source.c"}))
-	assert.Equal(t, "source.c", LocationFile(TriceLI{File: "source.c"}))
+	const oldLocationJSON = `{
+	"17": {
+		"File": "src/main.c",
+		"Path": "src/main.c",
+		"Line": 42
+	}
+}`
+	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte(oldLocationJSON), 0o600))
+	emptySource := filepath.Join(Proj, "empty.c")
+	require.NoError(t, FSys.WriteFile(emptySource, nil, 0o600))
+
+	require.NoError(t, args.Handler(W, FSys, []string{
+		"trice", "add",
+		"-src", emptySource,
+		"-til", FnJSON,
+		"-li", LIFnJSON,
+	}))
+
+	actual, err := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, err)
+	assertLocationJSONEqual(t, `{"17":{"File":"src/main.c","Line":42}}`, actual)
 }

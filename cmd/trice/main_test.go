@@ -37,7 +37,8 @@ func setupTest(t *testing.T, fSys *afero.Afero) func() {
 	id.Min = id.TriceID(1000)
 	id.Max = id.TriceID(7999)
 	id.SearchMethod = "random"
-	id.LIPathKind = "base"
+	id.LIRoot = ""
+	id.LIMaxDirs = 0
 	//id.Srcs                     ArrayFlag
 	//id.IDData                   idData
 	id.ExtendMacrosWithParamCount = false

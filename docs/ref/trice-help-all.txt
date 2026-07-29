@@ -186,10 +186,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	 (default "li.json")
   -liFmt string
     	Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%21s%6d ")
-  -liPath string
-    	How to display location information paths: legacy, base, relative or full. Legacy displays File exactly as stored. Relative uses Path when available. Full resolves Path against -liRoot. (default "legacy")
-  -liRoot string
-    	Root directory used to resolve relative location paths for -liPath full. The default is the directory containing li.json.
+  -liMaxDirs int
+        Maximum number of parent directories displayed before the source filename. The filename is always shown; leading ".." components are omitted.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.
@@ -339,9 +337,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPath string
-    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-    	 (default "base")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.
@@ -496,9 +493,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPath string
-    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-    	 (default "base")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.
@@ -584,9 +580,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPath string
-    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-    	 (default "base")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.

@@ -41,8 +41,8 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	p.join(err)
 	// msg.Tell(w, path)
 
-	lip := ToLIPath(path)
-	out, modified, err := p.insertTriceIDs(w, path, lip, in, a)
+	liFile := ToLIFile(path)
+	out, modified, err := p.insertTriceIDs(w, path, liFile, in, a)
 	p.join(err)
 
 	if filepath.Base(path) == "triceConfig.h" && p.err == nil {
@@ -78,7 +78,7 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 // insertTriceIDs does the ID insertion task on in and returns the result in out with modified==true when out != in.
 //
 // in is the read sourcePath content and out is the file content which needs to be written.
-// a is used for mutex access to IDData. sourcePath is needed for diagnostics, liPath for location information.
+// a is used for mutex access to IDData. sourcePath is needed for diagnostics, liFile for location information.
 // insertTriceIDs is intended to be used in several Go routines (one for each file) for faster ID insertion.
 // Data usage:
 // - p.idToTrice is the serialized til.json. It is extended with unknown and new IDs and written back to til.json finally.
@@ -93,15 +93,15 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 // insertTriceIDs parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
 // - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and inside p.triceToId -> use ID (remove from p.triceToId)
-//   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
+//   - If trice is assigned to several IDs, the location information consulted. If a matching liFile exists, its first occurrence is used.
 //
 // - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and not in p.triceToId -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is inside p.idToTrice with different trice                       -> used ID! -> create new ID && invalidate ID in source
 // - idInSourceIsNonZero, id is not inside p.idToTrice (cannot be inside p.triceToId)         -> add ID to p.idToTrice
 // - idInSourceIsZero,    trice is not inside p.triceToId                                     -> create new ID & add ID to p.idToTrice
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
-//   - If trice is assigned to several IDs, the location information consulted. If a matching liPath exists, its first occurrence is used.
-func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+//   - If trice is assigned to several IDs, the location information consulted. If a matching liFile exists, its first occurrence is used.
+func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
 	var idn TriceID                              // idn is the last found id inside the source.
 	var idN TriceID                              // idN is the to be written id into the source.
 	var idS string                               // idS is the "iD(n)" statement, if found.
@@ -232,17 +232,17 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byt
 				}
 				break
 			}
-			// Prefer the complete path when available so generation-time path
-			// changes can still identify the same source unambiguously.
-			referencePath := li.File
-			if li.Path != "" {
-				referencePath = filepath.Join(filepath.Dir(LIFnJSON), filepath.FromSlash(li.Path))
+			// New location files compare their canonical root-relative path.
+			// A basename fallback keeps older location files usable when they
+			// did not retain enough directory context.
+			filenameMatch = liFile == normalizeLocationPath(li.File)
+			if !filenameMatch && filepath.Base(filepath.FromSlash(li.File)) == li.File {
+				filenameMatch = filepath.Base(filepath.FromSlash(liFile)) == li.File
 			}
-			filenameMatch = liPath == ToLIPath(referencePath)
 
 			if !filenameMatch {
 				if Verbose {
-					fmt.Fprintln(w, "ID", id, "is from a different file:", ToLIPath(referencePath), li.File)
+					fmt.Fprintln(w, "ID", id, "is from a different file:", liFile, li.File)
 				}
 				continue
 			}
@@ -345,7 +345,7 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liPath string, in []byt
 		}
 		a.Mutex.Lock()
 		if Verbose {
-			fmt.Fprintln(w, "Add to new location information. ID:", idN, liPath, line)
+			fmt.Fprintln(w, "Add to new location information. ID:", idN, liFile, line)
 		}
 		p.idToLocNew[idN] = newTriceLI(sourcePath, line)
 		a.Mutex.Unlock()

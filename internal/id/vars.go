@@ -16,9 +16,8 @@ var (
 	Min                          = TriceID(1000) // Min is the smallest allowed ID for normal trices.
 	Max                          = TriceID(7999) // Max is the biggest allowed ID for normal trices.
 	SearchMethod                 = "random"      // SearchMethod is the next ID search method.
-	LIPathKind                   string          // LIPathKind controls how to store paths inside li.json: base, relative, full
-	LIDisplayPathKind            string          // LIDisplayPathKind selects the location path representation used by log.
-	LIRoot                       string          // LIRoot optionally overrides the li.json directory used for full log paths.
+	LIRoot                       string          // LIRoot optionally overrides the li.json directory used as the source path anchor.
+	LIMaxDirs                    int             // LIMaxDirs limits the parent directories shown with log location information.
 	Srcs                         ArrayFlag       // Srcs gets multiple files or directories.
 	ExcludeSrcs                  ArrayFlag       // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
 	IDRange                      ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".

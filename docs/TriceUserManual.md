@@ -2073,7 +2073,28 @@ See chapter [Trice Tags and Color](#trice-tags-and-color).
 
 #### 12.2.11. <a id="location-information"></a>Location Information
 
-When running `trice insert`, a file `li.json` is created, which you can control with the `-li|locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. Each newly generated location entry retains both the legacy `File` value and a normalized `/`-separated `Path` relative to the directory containing `li.json`. For `trice log`, `-liPath legacy|base|relative|full` selects the displayed representation without regenerating `li.json`; `full` resolves the stored path against the `li.json` directory or an explicit `-liRoot`. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves as an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuilt with each compilation, when `trice i` is a prebuild step. When `trice clean` is used, the file `li.json` should go into the version management too to secure that identical trices get the same ID back.
+The `add`, `insert`, and `clean` commands generate the file selected by `-li|locationInformation`. Each entry stores one canonical source path and its line number:
+
+```json
+{
+  "1234": {
+    "File": "examples/TriceABC/src/main.c",
+    "Line": 42
+  }
+}
+```
+
+`File` is relative to `-liRoot` and always uses `/` separators. The default root is the directory containing the selected `li.json`. An explicit relative `-liRoot` is resolved from the current working directory. If a relative path cannot be represented, for example across Windows volumes, Trice stores a normalized absolute path without resolving symbolic links.
+
+For example, when `build/demoLI.json` and `examples/TriceABC/src/main.c` are below the project directory, the default stores `../examples/TriceABC/src/main.c`. To store a project-relative path instead, run:
+
+```bash
+trice insert -li build/demoLI.json -liRoot . -src examples/TriceABC
+```
+
+During logging, `-liMaxDirs` controls how much of the stored path is shown. Its default `0` shows only the filename. For `examples/TriceABC/src/main.c`, values `1`, `2`, and `3` show `src/main.c`, `TriceABC/src/main.c`, and the complete stored path respectively. Leading `..` components describe the relation to `-liRoot` and are not displayed or counted. `-liFmt` continues to control the surrounding filename and line-number format.
+
+Location information must match the exact firmware version. In field deployments, keeping `li.json` private and showing the numeric ID with `-showID` can be preferable. When `trice clean` is used, consider versioning the matching `li.json` so later insert operations can reuse locations consistently.
 
 ### 12.3. <a id="visualization-output-with--vis"></a>Visualization output with `-vis`
 
@@ -3514,11 +3535,12 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * If the generated `li.json` is available, the Trice tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
 * The Trice tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID "inf:%5d"` could be used. This allows later an easy location of the relevant source code.
 * Another option is to record the binary trice messages (`trice log -p com1 -blf aFileName`) and to play them later with the Trice tool using the correct `li.json` (`trice log -p FILEBUFFER -args aFileName` ).
-* For `add`, `insert`, and `clean`, `-liPath` continues to select the legacy `File` representation (`base`, `relative`, a prefixed `path/relative`, or `full`). Independently, every newly generated entry stores `Path` as the complete normalized source path relative to the directory containing `li.json`.
-* For `log`, `-liPath legacy` displays `File` exactly as stored and is the default. `base` displays only the basename, `relative` displays `Path` with a fallback to `File` for older files, and `full` resolves the available path against `-liRoot`. If `-liRoot` is omitted, the directory containing the selected `li.json` is used.
-* Older Trice tools ignore the optional `Path` field when reading a new `li.json`. If an older `add`, `insert`, or `clean` command rewrites that file, it drops the unknown `Path` field; a current ID-management command restores it.
-* The user has the possibility to change the legacy `File` path. Normally it is "base" and just the source code file names containing Trice macros occur inside the _li.json_ file. That is sufficient as long there are no files with identical names on different places possibly containing identical Trices. Then it is not guarantied that the same IDs are always assigned. For such cases "relative" or "full" is selectable for the generation-time location information path kind. But both have weaknesses: The "full" path can differ between different machines and "relative" can differ between different projects on the same PC. Again: we are talking here about identical Trice messages in files with identical names and the worst happening is that these "exchange" their IDs between `trice insert && trice clean && trice insert`. When using the Trice cache even less inconsistencies are expected.
-  * The Trice folder itself is an example, how to deal with several projects and user library code. The "user libraries" here are inside `./_test/testdata` and `./examples/exampleData`. The "user projects" are the folders `./examples/*_inst/`. You can take the `*.sh` scripts as examples how to deal with such case.
+* Each entry contains only `File` and `Line`. `File` retains the normalized source path relative to `-liRoot`; the default root is the directory containing `li.json`.
+* Use an explicit project root when `li.json` lives in a build directory but stable project-relative paths are wanted: `trice insert -li build/demoLI.json -liRoot .`.
+* `File` uses `/` separators on every platform. Required leading `..` components are preserved. If Windows cannot make a source path relative across volumes, the normalized absolute path is stored.
+* `trice log` and `tlog` show only the filename by default. `-liMaxDirs=N` adds at most `N` immediately preceding parent directories. Leading `..` components are never displayed or counted.
+* The former `Path` field and `-liPath` option are intentionally removed. Regenerating an old location file with a current ID-management command removes obsolete `Path` fields.
+* The Trice repository uses `-liRoot .` while generating the shared `demoLI.json`, so all stored paths remain relative to the repository root across supported platforms.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

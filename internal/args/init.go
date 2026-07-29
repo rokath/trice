@@ -376,15 +376,13 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 
 func flagLIList(p *flag.FlagSet) {
 	flagLIFile(p)
-	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-`) // flag
+	p.StringVar(&id.LIRoot, "liRoot", "", `Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.`) // flag
 }
 
-// flagLogLIList registers location-file flags with log-specific display semantics.
+// flagLogLIList registers location-file flags with log-specific display limits.
 func flagLogLIList(p *flag.FlagSet) {
 	flagLIFile(p)
-	p.StringVar(&id.LIDisplayPathKind, "liPath", "legacy", `How to display location information paths: legacy, base, relative or full. Legacy displays File exactly as stored. Relative uses Path when available. Full resolves Path against -liRoot.`) // flag
-	p.StringVar(&id.LIRoot, "liRoot", "", `Root directory used to resolve relative location paths for -liPath full. The default is the directory containing li.json.`)                                                                                  // flag
+	p.IntVar(&id.LIMaxDirs, "liMaxDirs", 0, `Maximum number of parent directories displayed before the source filename. The filename is always shown; leading ".." components are omitted.`) // flag
 }
 
 // flagLIFile registers the shared location-information file aliases.

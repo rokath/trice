@@ -4,6 +4,7 @@ package args
 
 import (
 	"bytes"
+	"flag"
 	"io"
 	"strings"
 	"testing"
@@ -249,19 +250,31 @@ func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	}
 }
 
-// TestLogLocationPathFlags verifies log-specific defaults and root overrides.
+// TestLogLocationPathFlags verifies the log-specific directory display limit.
 func TestLogLocationPathFlags(t *testing.T) {
-	oldPathKind := id.LIDisplayPathKind
-	oldRoot := id.LIRoot
+	oldMaxDirs := id.LIMaxDirs
 	t.Cleanup(func() {
-		id.LIDisplayPathKind = oldPathKind
-		id.LIRoot = oldRoot
+		id.LIMaxDirs = oldMaxDirs
 	})
 
 	FlagsInit()
-	assert.Equal(t, "legacy", fsScLog.Lookup("liPath").DefValue)
-	assert.Equal(t, "", fsScLog.Lookup("liRoot").DefValue)
-	assert.NoError(t, fsScLog.Parse([]string{"-liPath", "full", "-liRoot", "checkout"}))
-	assert.Equal(t, "full", id.LIDisplayPathKind)
-	assert.Equal(t, "checkout", id.LIRoot)
+	assert.Nil(t, fsScLog.Lookup("liPath"))
+	assert.Nil(t, fsScLog.Lookup("liRoot"))
+	assert.Equal(t, "0", fsScLog.Lookup("liMaxDirs").DefValue)
+	assert.NoError(t, fsScLog.Parse([]string{"-liMaxDirs", "3"}))
+	assert.Equal(t, 3, id.LIMaxDirs)
+}
+
+// TestGenerationLocationRootFlags verifies the shared root flag on all ID commands.
+func TestGenerationLocationRootFlags(t *testing.T) {
+	oldRoot := id.LIRoot
+	t.Cleanup(func() { id.LIRoot = oldRoot })
+
+	FlagsInit()
+	for _, flagSet := range []*flag.FlagSet{fsScAdd, fsScInsert, fsScClean} {
+		assert.Nil(t, flagSet.Lookup("liPath"))
+		assert.Equal(t, "", flagSet.Lookup("liRoot").DefValue)
+	}
+	assert.NoError(t, fsScInsert.Parse([]string{"-liRoot", "project"}))
+	assert.Equal(t, "project", id.LIRoot)
 }

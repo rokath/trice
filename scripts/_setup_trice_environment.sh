@@ -4,12 +4,12 @@
 
 TRICE_TIL_JSON=${TRICE_TIL_JSON:-./demoTIL.json}
 TRICE_LI_JSON=${TRICE_LI_JSON:-./demoLI.json}
-TRICE_LI_PATH_GENERATION=${TRICE_LI_PATH_GENERATION:-relative}
+TRICE_LI_ROOT=${TRICE_LI_ROOT:-.}
 
 # trice command line common part
-TRICE_DEFAULTS+="-i ${TRICE_TIL_JSON} "                # Use a common til.json for all examples and tests.
-TRICE_DEFAULTS+="-li ${TRICE_LI_JSON} "                # Use a common  li.json for all examples and tests.
-TRICE_DEFAULTS+="-liPath ${TRICE_LI_PATH_GENERATION} " # Select the legacy File representation generated in li.json.
+TRICE_DEFAULTS+="-i ${TRICE_TIL_JSON} "     # Use a common til.json for all examples and tests.
+TRICE_DEFAULTS+="-li ${TRICE_LI_JSON} "     # Use a common li.json for all examples and tests.
+TRICE_DEFAULTS+="-liRoot ${TRICE_LI_ROOT} " # Store portable location paths relative to this root.
 #TRICE_DEFAULTS+="-cache "                # Do not forget to create ~/.trice/cache folder, if the Trice cache should work or disable this line.
 
 # trice user aliases

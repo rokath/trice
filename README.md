@@ -162,6 +162,10 @@ You can also build your own receiver that reads Trice packages, maps IDs to form
 
 Keep the one accumulated `til.json` to decode all previously released firmware versions.
 The repository example file is [demoTIL.json](./demoTIL.json).
+Each `li.json` entry stores a normalized `File` path relative to the location-file
+directory by default. Use `-liRoot` to select a different project root when
+creating location data. Log output shows only the file name by default; use
+`-liMaxDirs` to include trailing parent directories.
 
 </details>
 

@@ -766,7 +766,7 @@ Diese Optionen dürfen weiterhin den erzeugten ASCII-Strom verändern, sind aber
 
 ### 13.4 Location Information
 
-`li.json`, `-locationInformation`, `-liFmt` und `-liPath` bleiben außerhalb des Schemas. Quellpfad und Zeilennummer sind nicht im binären Trice-Datenstrom enthalten und nicht zur inhaltlichen Decodierung erforderlich.
+`li.json`, `-locationInformation`, `-liRoot`, `-liFmt` und `-liMaxDirs` bleiben außerhalb des Schemas. Quellpfad und Zeilennummer sind nicht im binären Trice-Datenstrom enthalten und nicht zur inhaltlichen Decodierung erforderlich.
 
 ## 14. V1-/V2-Kompatibilität
 
