@@ -249,6 +249,51 @@ export_clang_cross_env() {
   fi
 }
 
+set_windows_make_jobs() {
+  local detected_jobs=""
+
+  # Respect an explicit caller choice. This lets developers and CI lower the
+  # job count for constrained systems or raise it after validating a specific
+  # Windows toolchain. A bare "-j" remains the caller's responsibility because
+  # GNU Make interprets it as an unlimited job count, not as "one job per CPU".
+  if [ -n "${MAKE_JOBS:-}" ]; then
+    log_info "Respecting pre-set Windows build parallelism: MAKE_JOBS=$MAKE_JOBS"
+    export MAKE_JOBS
+    return 0
+  fi
+
+  # Native Windows exposes the logical processor count through this variable,
+  # and both Git Bash/MSYS and Cygwin normally inherit it. Prefer it because it
+  # does not depend on an additional Unix utility being installed.
+  if [ -n "${NUMBER_OF_PROCESSORS:-}" ]; then
+    detected_jobs="$NUMBER_OF_PROCESSORS"
+    log_info "Detected Windows logical processor count from NUMBER_OF_PROCESSORS: $detected_jobs"
+  elif command -v nproc >/dev/null 2>&1; then
+    # nproc is the usual fallback in Unix-like Windows environments.
+    detected_jobs=$(nproc 2>/dev/null || true)
+    log_info "Detected Windows logical processor count from nproc: ${detected_jobs:-unavailable}"
+  elif command -v getconf >/dev/null 2>&1; then
+    # getconf is more widely standardized, but it is not present in every
+    # minimal Git Bash installation.
+    detected_jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)
+    log_info "Detected Windows logical processor count from getconf: ${detected_jobs:-unavailable}"
+  fi
+
+  # Accept only a positive decimal integer. If detection is unavailable or
+  # malformed, use two jobs: this preserves some parallelism without restoring
+  # the unbounded process burst that caused ARM GCC to crash on Windows.
+  case "$detected_jobs" in
+    "" | *[!0-9]* | 0)
+      detected_jobs=2
+      log_warn "Could not determine a valid Windows processor count; defaulting to $detected_jobs make jobs."
+      ;;
+  esac
+
+  MAKE_JOBS="-j$detected_jobs"
+  export MAKE_JOBS
+  log_info "Using bounded Windows build parallelism: MAKE_JOBS=$MAKE_JOBS"
+}
+
 ###############################################################################
 # OS-specific configuration
 #
@@ -303,25 +348,24 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 elif [[ "$OSTYPE" == "cygwin" ]]; then
   log_info "Detected platform: Cygwin on Windows (OSTYPE=$OSTYPE)"
 
-  # Under Cygwin, aggressive parallel builds (-j) are known to cause blocking
-  # or instability on some setups. We therefore disable it by default.
-  export MAKE_JOBS="-j"
+  # Limit make to the detected logical processor count. GNU Make's bare "-j"
+  # would otherwise permit an unlimited number of concurrent compiler jobs.
+  set_windows_make_jobs
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "msys"* ]]; then
   log_info "Detected platform: MSYS / MinGW on Windows (OSTYPE=$OSTYPE)"
 
-  # Same reasoning as for Cygwin: parallel make can be problematic; keep it off
-  # by default to avoid hard-to-debug hangs.
-  export MAKE_JOBS="-j"
+  # Git Bash normally reaches this branch. Use all detected logical processors
+  # while keeping the number of concurrent compiler processes bounded.
+  set_windows_make_jobs
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "win32" ]]; then
   # This branch is rarely seen with modern bash installations. It is kept
   # only as a diagnostic in case OSTYPE is literally "win32".
   log_info "Detected platform: Windows (OSTYPE=$OSTYPE)"
-  log_info "No default configuration implemented for plain win32."
-  export MAKE_JOBS="-j"
+  set_windows_make_jobs
   export_clang_cross_env 0
 
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
