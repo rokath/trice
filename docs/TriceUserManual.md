@@ -6931,9 +6931,10 @@ There is NO WARRANTY, to the extent permitted by law.
 
 With the ARM Clang you get quicker compilation runs and smaller images.
 
-- You need to install ARM GCC as well to use ARM Clang.
-  - ARM Clang uses the GCC libraries. For that it looks for `C_INCLUDE_PATH`.
-  - ARM Clang uses the GCC debugger. For that it looks into the Windows path variable directly.
+- You need to install ARM GCC as well to use ARM Clang for the embedded examples.
+  - Clang supplies the compiler frontend, but it does not supply the ARM C library, target headers, linker, or debugger.
+  - The repository setup script derives the required ARM header locations from `arm-none-eabi-gcc` and exports them through `CLANG_SYS_INCLUDES`.
+  - Keep `C_INCLUDE_PATH` unset globally. A global value can leak ARM headers into host builds and CGO tests.
 - Uninstall existing ARM clang compilers or make sure they are hidden.
 - Check if $PATH is clean.
   - In fact you can leave is as it is.
@@ -6945,6 +6946,28 @@ With the ARM Clang you get quicker compilation runs and smaller images.
 - Download latest version from https://github.com/llvm/llvm-project/releases.
 - Install exactly into `C:\bin\ArmClang` and do **not** add it to path variable.
   - The path is extended temporarily inside the Makefile for the compiler run.
+- Verify the ARM frontend explicitly with `C:\bin\ArmClang\bin\clang --target=arm-none-eabi --version`.
+  - The reported target must be `arm-none-unknown-eabi`.
+  - A plain `clang --version` reports the default host target and therefore does not verify the ARM build configuration.
+
+On Windows, a globally visible `clang` is also detected by some Go regression tests as a host C compiler. LLVM does not include a Windows C runtime or its standard headers. Therefore, a host Clang installation must use one of these runtime setups:
+
+- MSVC target: Install the Visual Studio C++ Build Tools and a Windows SDK. This is the native Microsoft setup, but it is a comparatively large installation.
+- GNU target: Install a matching 64-bit MinGW-w64 distribution, such as TDM-GCC, and make its `bin` directory available in `PATH`. If Clang otherwise defaults to the MSVC target, create `clang.cfg` next to `clang.exe` containing:
+
+  ```text
+  --target=x86_64-w64-windows-gnu
+  ```
+
+  Explicit embedded options such as `--target=arm-none-eabi` still override this host default.
+
+Check the host installation before running the Go test suite:
+
+```bash
+printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -
+```
+
+The command must finish without diagnostics. An error such as `fatal error: 'string.h' file not found` means that the compiler executable exists, but its matching host C runtime headers are not configured. Do not add ARM include directories globally to work around that host error.
 
 <a id='check-project-makefile-(if-it-already-exists)'></a><h5>Check Project Makefile (if it already exists)</h5>
 
@@ -6970,9 +6993,9 @@ Copyright (C) 2022 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-/c/bin/ArmClang/bin/clang
+/c/bin/ArmClang/bin/clang --target=arm-none-eabi
 clang version 17.0.0
-Target: x86_64-pc-windows-msvc
+Target: arm-none-unknown-eabi
 Thread model: posix
 InstalledDir: C:\bin\ArmClang\bin
 ```
@@ -7061,6 +7084,11 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
 
 https://releases.llvm.org/download.html -> https://github.com/llvm/llvm-project/releases/ (example)
 
+The LLVM download supplies Clang and its builtin headers. It does not supply the target C runtime:
+
+- ARM builds additionally need the ARM GNU toolchain headers and libraries.
+- Windows host builds need either an MSVC/Windows SDK installation or a matching MinGW-w64 runtime.
+
 #### 37.7.2. <a id="gcc-1"></a>GCC
 
 https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads (example))
@@ -7068,6 +7096,8 @@ https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://deve
 ### 37.8. <a id="install-locations"></a>Install Locations
 
 Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` for example. This avoids trouble caused by spaces inside path names.
+
+Keep embedded and host compiler roles distinguishable. For example, use `C:\bin\ArmGNUToolchain` for `arm-none-eabi-gcc`, `C:\bin\ArmClang` for Clang, and a separate directory for a MinGW-w64 host runtime. A compiler executable in `PATH` is not sufficient by itself; its matching standard headers and libraries must also be discoverable.
 
 ### 37.9. <a id="environment-variables"></a>Environment Variables
 
@@ -7714,6 +7744,11 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 
 ### 40.2. <a id="how-to-run-the-tests"></a>How to run the tests
 
+* Host compiler prerequisites:
+  * CGO and host-side target-code tests need a working host C compiler, not only a compiler executable in `PATH`.
+  * On Windows, TDM-GCC or another matching MinGW-w64 GCC installation can provide the host compiler and C runtime.
+  * Some Go regression tests execute every supported compiler found in `PATH`, including `clang`. If Clang is visible, verify it first with `printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -`.
+  * Keep `C_INCLUDE_PATH` unset globally so ARM cross-compiler headers do not leak into host and CGO builds.
 * In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can lead to confusing results.
 * Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
 * To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
@@ -10208,12 +10243,13 @@ In GitHub are some Actions defined. Some of them get triggered on a `git push` a
   * `tlog` is a separate binary for the `trice log` runtime path. It accepts the log flags directly, for example `tlog -port HEX ...`, and release archives/packages ship it next to `trice`.
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
   * Use GoReleaser if you wish to create releases on your forked Trice repository.
-  * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) if you wish to execute the CGO tests as well.
-    * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
-    * Recommendation: Minimal online installer.
-    * GCC is only needed to test the target C-code on the host.
-    * Make sure TDM-GCC is found first in the path, if you have several compilers installed.
-    * Other gcc variants could work also but not tested.
+  * On Windows, install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) or another compatible MinGW-w64 GCC distribution if you wish to execute the CGO and host C-code tests.
+    * Match the compiler architecture to Go, normally 64-bit Go with a 64-bit host compiler.
+    * The minimal TDM-GCC online installation is sufficient for these host tests.
+    * Put the selected host compiler first in `PATH` when several GCC variants are installed.
+    * If `clang` is also in `PATH`, the regression tests can execute it in addition to GCC. Clang must therefore have a usable host C runtime configuration; merely finding `clang.exe` is not enough.
+    * A Windows Clang using the GNU target can reuse the installed MinGW-w64 runtime. A Clang using the MSVC target instead requires the Visual Studio C++ Build Tools and a Windows SDK.
+    * Verify each visible host compiler can include `string.h` before running `go test ./...`.
   * Open a console inside the Trice directory, recommended is the git-bash, when using Windows.
   * Tests:
 

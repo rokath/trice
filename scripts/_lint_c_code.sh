@@ -238,20 +238,23 @@ find_cppcheck() {
 }
 
 find_c_compiler() {
-  if command -v clang >/dev/null 2>&1; then
-    command -v clang
-    return 0
-  fi
+  local compiler
+  local compiler_bin
 
-  if command -v cc >/dev/null 2>&1; then
-    command -v cc
-    return 0
-  fi
+  # A compiler executable can be present while its standard-library headers
+  # are missing. Select the first candidate that can compile a minimal C input
+  # so the targeted syntax check can fall back to another installed toolchain.
+  for compiler in clang cc gcc; do
+    if ! command -v "$compiler" >/dev/null 2>&1; then
+      continue
+    fi
 
-  if command -v gcc >/dev/null 2>&1; then
-    command -v gcc
-    return 0
-  fi
+    compiler_bin=$(command -v "$compiler")
+    if printf '#include <string.h>\n' | "$compiler_bin" -std=c99 -fsyntax-only -x c - >/dev/null 2>&1; then
+      printf '%s\n' "$compiler_bin"
+      return 0
+    fi
+  done
 
   return 1
 }
