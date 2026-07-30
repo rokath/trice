@@ -381,11 +381,13 @@ details.toc[open] .toc-hide {
     * [37.4.7. J-Link (if needed)](#j-link-if-needed)
     * [37.4.8. Beyond Compare (if no other diff tool)](#beyond-compare-if-no-other-diff-tool)
   * [37.5. Setup Windows PC Example](#setup-windows-pc-example)
-    * [37.5.1. Setup Trice](#setup-trice)
-    * [37.5.2. Setup ARM Environment Example](#setup-arm-environment-example)
-    * [37.5.3. Setup STM32](#setup-stm32)
-    * [37.5.4. Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-other-st-evaluation-boards-too)
-    * [37.5.5. Setup VS-Code](#setup-vs-code)
+    * [37.5.1. Choose the right Windows compiler](#choose-the-right-windows-compiler)
+    * [37.5.2. Setup Trice](#setup-trice)
+    * [37.5.3. Setup ARM Environment Example](#setup-arm-environment-example)
+    * [37.5.4. Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions)
+    * [37.5.5. Setup STM32](#setup-stm32)
+    * [37.5.6. Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)](#setup-onboard-j-link-on-nucleo-other-st-evaluation-boards-too)
+    * [37.5.7. Setup VS-Code](#setup-vs-code)
   * [37.6. Makefile with Clang too](#makefile-with-clang-too)
   * [37.7. Download Locations](#download-locations)
     * [37.7.1. Clang](#clang)
@@ -6719,7 +6721,11 @@ toolchain_dir="$HOME/opt/arm-gnu-toolchain-15.3.rel1"
 export PATH="$toolchain_dir/bin:$PATH"
 ```
 
-On Windows, add the corresponding extracted or installed `bin` directory at the beginning of the user `Path`. Afterwards, open a new terminal. Do not combine GCC, `as`, libraries, or specifications from different toolchain installations.
+On Windows, keep versioned installations side by side and prepend the selected
+`bin` directory for the current terminal. See
+[Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions).
+Make the selection persistent only after it passes the tests. Do not combine
+GCC, `as`, libraries, or specifications from different toolchain installations.
 
 Check which installation is active and whether the required runtime files are present:
 
@@ -6813,33 +6819,55 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
   - This is my favorite editor with many optional Add-Ons. It is used for debugging as well.
 - Install Go if you wish to compile Go programs.
   - `go test ./...` should succeed in a terminal window.
-  - When GCC is not installed you get some strange errors with `TestAll.sh`:
-    ```bash
-    ms@PaulPCWin11 MINGW64 ~/repos/trice (devel)
-    $ ./scripts/testAll.sh
-    Fri Jan 10 11:19:39 WEST 2025
-    This can take several minutes ...
-
-    ...
-
-    ok      github.com/rokath/trice/pkg/tst 0.601s
-    # github.com/rokath/trice/_test/dblB_de_cobs_ua [github.com/rokath/trice/_test/dblB_de_cobs_ua.test]
-    dblB_de_cobs_ua\cgo_test.go:20:110: undefined: triceDir
-    dblB_de_cobs_ua\cgo_test.go:24:2: undefined: triceLogTest
-    dblB_de_cobs_ua\cgo_test.go:24:28: undefined: testLines
-    # github.com/rokath/trice/_test/dblB_de_tcobs_ua [github.com/rokath/trice/_test/dblB_de_tcobs_ua.test]
-    dblB_de_tcobs_ua\cgo_test.go:20:92: undefined: triceDir
-    dblB_de_tcobs_ua\cgo_test.go:24:2: undefined: triceLogTest
-    dblB_de_tcobs_ua\cgo_test.go:24:28: undefined: testLines
-    ```
-  - Download and install latest GCC then, from https://winlibs.com for example.
-    - Extract to `C:\bin\mingw64` and extend PATH with `C:\bin\mingw64\bin`
-    - Open terminal and execute `gcc --version` to check success.
+  - Some Go tests use CGO and therefore additionally need a Windows host C
+    compiler. This is not the ARM compiler used for the embedded examples.
+    See [Choose the right Windows compiler](#choose-the-right-windows-compiler).
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
 - Install [Make for Windows](#install-make) and add its installation bin folder location to the PATH variable.
 
-#### 37.5.1. <a id="setup-trice"></a>Setup Trice
+#### 37.5.1. <a id="choose-the-right-windows-compiler"></a>Choose the right Windows compiler
+
+Three different compiler roles occur in this repository. A higher GCC version
+number does not make one role a replacement for another:
+
+| Role | Command or target | Used for | Recommended source |
+|---|---|---|---|
+| ARM bare-metal GCC cross-toolchain | `arm-none-eabi-gcc`; target `arm-none-eabi` | Firmware and `scripts/_testAll_12_GccExampleBuilds.sh` | Official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm); choose a Windows package ending in `arm-none-eabi` |
+| Windows host GCC | `gcc`; target such as `x86_64-w64-mingw32` or `i686-w64-mingw32` | CGO and native Windows C tests | Optional MinGW-w64 distribution, for example [WinLibs](https://winlibs.com/) |
+| Clang frontend | `clang`; use `--target=arm-none-eabi` for firmware | Optional ARM firmware builds and, when correctly configured, native host tests | Official [LLVM releases](https://github.com/llvm/llvm-project/releases/latest) |
+
+WinLibs is a third-party distribution of upstream GCC and MinGW-w64 for
+Windows. Its GCC 16.1 packages are Windows host compilers, not
+`arm-none-eabi-gcc`. They cannot build the ARM examples or replace the Arm GNU
+Toolchain. WinLibs is useful only when a Windows host GCC is needed. Normally
+choose its Win64 `x86_64` build for a 64-bit Go installation; a Win32 package
+reports `i686-w64-mingw32`. Use `go env GOARCH` to check the Go architecture;
+`amd64` normally needs the Win64 host compiler.
+
+Do not infer the compiler target from the download page, folder name, or
+`--version` alone. Check it explicitly:
+
+```bash
+arm-none-eabi-gcc -dumpmachine # must print: arm-none-eabi
+gcc -dumpmachine               # host GCC normally prints: x86_64-w64-mingw32
+clang --target=arm-none-eabi -dumpmachine
+```
+
+For example, a `C:\bin\mingw32\bin\gcc.exe` reporting GCC 16.1 and
+`i686-w64-mingw32` is an optional 32-bit Windows host compiler. The executable
+needed by Step 12 is named `arm-none-eabi-gcc.exe` and comes from a separate
+Arm GNU Toolchain installation.
+
+At the time of writing, GCC 16.1 is the newest upstream GCC major release and
+WinLibs offers it as its current Windows host build. The current official Arm
+GNU Toolchain version can differ because Arm publishes an integrated
+cross-toolchain on its own release schedule. Use the version identified as
+tested in [Recommended complete Arm GNU Toolchain](#recommended-complete-arm-gnu-toolchain)
+for the ARM examples; do not select a host GCC merely because its GCC number
+is higher.
+
+#### 37.5.2. <a id="setup-trice"></a>Setup Trice
 
 - from inside folder `repos` clone trice repo with `git clone https://github.com/rokath/trice.git`.
 - Run `go install ./cmd/trice/...` from folder `repos/trice`.
@@ -6851,7 +6879,7 @@ OR
 - Put trice/src into `repos` if you want access the trice library code from several projects and have it only once.
   - Alternatively copy it into your project.
 
-#### 37.5.2. <a id="setup-arm-environment-example"></a>Setup ARM Environment Example
+#### 37.5.3. <a id="setup-arm-environment-example"></a>Setup ARM Environment Example
 
 <a id='install-make'></a><h5>Install make</h5>
 
@@ -6898,32 +6926,41 @@ There is NO WARRANTY, to the extent permitted by law.
 
 <a id='install-arm-gcc'></a><h5>Install ARM GCC</h5>
 
-- Uninstall existing ARM GCC compilers optionally.
-- Check if $PATH is clean.
-  - In fact you can leave it as it is.
-- Check if `C_INCLUDE_PATH` is not defined.
-  - It would cause issues performing Go tests with CGO.
-  - The environment variable `C_INCLUDE_PATH` is needed by Clang, but is set temporarily inside the Makefile.
-- Open a console.
-  - `which arm-none-eabi-gcc` should return `no arm-none-eabi-gcc` if no legacy compilers installed.
-- Download latest version from https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads.
-- Install exactly into `C:\bin\ArmGNUToolchain` and add `C:\bin\ArmGNUToolchain\bin` it to the **beginning** of the path variable.
-  - The path is temporarily extendable inside the manually edited Makefiles as well, but for debugging the Windows path is used directly.
-  - The path is used directly also in generated Makefiles.
-  - Extending the path variable at the beginning avoids accidentally usage of installed legacy compilers with the same name.
-  - To use exactly `C:\bin\ArmGNUToolchain` as install location allows a more easy project collaboration.
-  - Check path:
-  ```bash
-  $ echo $PATH | tr : '\n'
-  ...
-  /c/bin
-  /c/bin/ArmGNUToolchain/bin
-  /c/bin/mingw64/bin
-  /c/Program Files/Go/bin
-  /c/Users/ms/go/bin
-  /c/Users/ms/AppData/Local/Microsoft/WinGet/Packages/ezwinports.make_Microsoft.Winget.Source_8wekyb3d8bbwe/bin
-  ...
+- Download the Windows package whose name ends in `arm-none-eabi` from the
+  official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm).
+  The old Arm Developer download page redirects there and is no longer updated.
+- Prefer a ZIP package for testing versions side by side. Verify the published
+  checksum and extract each version to its own directory, for example:
+
+  ```text
+  C:\bin\ArmGNUToolchain-13.2.Rel1
+  C:\bin\ArmGNUToolchain-15.3.Rel1
   ```
+
+- Do not merge or copy files between toolchain directories. Compiler,
+  assembler, linker, Newlib, specifications, and DLLs must stay from the same
+  package.
+- Do not uninstall the previous working version before the new version passes
+  the tests. Select one version for the current terminal as described in
+  [Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions).
+- Keep `C_INCLUDE_PATH` unset globally. The repository setup derives the ARM
+  headers needed by Clang from the selected `arm-none-eabi-gcc`; a global ARM
+  include path can break CGO and other host builds.
+- Verify the complete selected toolchain in Git Bash:
+
+  ```bash
+  type -a arm-none-eabi-gcc
+  type -a arm-none-eabi-as
+  arm-none-eabi-gcc -dumpmachine
+  arm-none-eabi-gcc --version
+  arm-none-eabi-as --version
+  arm-none-eabi-gcc -print-file-name=nano.specs
+  arm-none-eabi-gcc -print-file-name=libnosys.a
+  ```
+
+  The target must be `arm-none-eabi`. The last two commands must print absolute
+  paths inside the selected installation, not only `nano.specs` or
+  `libnosys.a`.
 
 <a id='macos'></a><h5>macOS</h5>
 
@@ -6957,18 +6994,14 @@ With the ARM Clang you get quicker compilation runs and smaller images.
   - Clang supplies the compiler frontend, but it does not supply the ARM C library, target headers, linker, or debugger.
   - The repository setup script derives the required ARM header locations from `arm-none-eabi-gcc` and exports them through `CLANG_SYS_INCLUDES`.
   - Keep `C_INCLUDE_PATH` unset globally. A global value can leak ARM headers into host builds and CGO tests.
-- Uninstall existing ARM clang compilers or make sure they are hidden.
-- Check if $PATH is clean.
-  - In fact you can leave is as it is.
-- Check if `C_INCLUDE_PATH` is not defined.
-  - It would cause issues performing Go tests with CGO.
-- Open a console.
-  - `which clang` should return `no clang`.
-  - If you have other clang compilers installed, do not touch them.
-- Download latest version from https://github.com/llvm/llvm-project/releases.
-- Install exactly into `C:\bin\ArmClang` and do **not** add it to path variable.
-  - The path is extended temporarily inside the Makefile for the compiler run.
-- Verify the ARM frontend explicitly with `C:\bin\ArmClang\bin\clang --target=arm-none-eabi --version`.
+- Download a Windows x64 package from the official
+  [LLVM releases](https://github.com/llvm/llvm-project/releases/latest).
+  Install versions side by side, for example `C:\bin\LLVM-22.1.6`.
+- Select the intended version temporarily in `PATH`; do not uninstall other
+  Clang installations merely to hide them.
+- Verify the ARM frontend explicitly with
+  `clang --target=arm-none-eabi --version` and
+  `clang --target=arm-none-eabi -dumpmachine`.
   - The reported target must be `arm-none-unknown-eabi`.
   - A plain `clang --version` reports the default host target and therefore does not verify the ARM build configuration.
 
@@ -6993,19 +7026,12 @@ The command must finish without diagnostics. An error such as `fatal error: 'str
 
 <a id='check-project-makefile-(if-it-already-exists)'></a><h5>Check Project Makefile (if it already exists)</h5>
 
-- The Makefile should start with these lines:
-
-```mak
-# Put ARM Clang first in path temporary to avoid compiler variants issues.
-export PATH := C:\bin\ArmClang\bin:$(PATH)
-
-# ARM Clang uses the ARM GNU toolchain libraries and finds them over C_INCLUDE_PATH.
-export C_INCLUDE_PATH := C:\bin\ArmGNUToolchain\arm-none-eabi\include
-```
-
-The `C:\bin\ArmGNUToolchain\bin:` is in fact not needed, because it must be in the path anyway for debugging.
-
-- `make version` should give output like that:
+- Do not hard-code a global `C_INCLUDE_PATH` or mix paths from different ARM
+  toolchain versions in the Makefile.
+- Select the intended ARM GCC and Clang `bin` directories in the terminal
+  before invoking `make`. The repository setup script then computes
+  `CLANG_SYS_INCLUDES` from the active complete ARM GCC installation.
+- `make version` should give output like this:
 
 ```bash
 $ make version
@@ -7022,9 +7048,125 @@ Thread model: posix
 InstalledDir: C:\bin\ArmClang\bin
 ```
 
-The paths must match with the installation locations.
+The paths and versions must match the installations selected in the current
+terminal.
 
-#### 37.5.3. <a id="setup-stm32"></a>Setup STM32
+#### 37.5.4. <a id="inventory-select-and-remove-compiler-versions"></a>Inventory, select, and remove compiler versions
+
+An extracted ZIP toolchain is usually not registered as an installed Windows
+application. Therefore no single Windows dialog lists every compiler. Inspect
+both command resolution and likely installation directories before changing
+anything.
+
+In PowerShell, list every matching executable visible through `Path`:
+
+```powershell
+Get-Command arm-none-eabi-gcc,gcc,clang -All -ErrorAction SilentlyContinue |
+    Format-Table Name,Source
+where.exe arm-none-eabi-gcc
+where.exe gcc
+where.exe clang
+
+arm-none-eabi-gcc -dumpmachine
+gcc -dumpmachine
+clang --version
+
+[Environment]::GetEnvironmentVariable('Path', 'User') -split ';'
+[Environment]::GetEnvironmentVariable('Path', 'Machine') -split ';'
+Get-ChildItem C:\bin -Directory
+```
+
+In Git Bash, use:
+
+```bash
+type -a arm-none-eabi-gcc
+type -a gcc
+type -a clang
+arm-none-eabi-gcc -dumpmachine
+gcc -dumpmachine
+clang --version
+printf '%s\n' "$PATH" | tr : '\n'
+```
+
+`where.exe` and `type -a` show all visible duplicates in search order. The first
+entry is executed. `winget list` and Windows **Installed apps** provide an
+additional list of registered installers, but they do not include manually
+extracted archives.
+
+Install compiler versions side by side and test a selection in a fresh terminal
+before modifying the persistent user `Path`. For example, select Arm GNU
+Toolchain 15.3.Rel1 for only the current PowerShell session:
+
+```powershell
+$savedPath = $env:Path
+$env:Path = 'C:\bin\ArmGNUToolchain-15.3.Rel1\bin;' + $savedPath
+
+where.exe arm-none-eabi-gcc
+arm-none-eabi-gcc -dumpmachine
+arm-none-eabi-gcc --version
+
+# Restore the session when the test is complete.
+$env:Path = $savedPath
+```
+
+The equivalent Git Bash commands are:
+
+```bash
+saved_path=$PATH
+export PATH="/c/bin/ArmGNUToolchain-15.3.Rel1/bin:$saved_path"
+hash -r
+
+type -a arm-none-eabi-gcc
+arm-none-eabi-gcc -dumpmachine
+arm-none-eabi-gcc --version
+
+# Restore the session when the test is complete.
+export PATH="$saved_path"
+hash -r
+```
+
+Use the same pattern for Clang or host GCC by prepending that version's `bin`
+directory. Start from a fresh terminal for each comparison so that a path from
+the previous test cannot leak into the next one. Shell command caches are
+cleared by `hash -r` in Git Bash. Do not put several directories containing the
+same compiler command permanently in `Path`; their order otherwise becomes an
+implicit and easily missed version switch.
+
+After selecting ARM GCC, test the known serial baseline and then the desired
+parallelism from the repository root:
+
+```bash
+MAKE_JOBS=-j1 ./scripts/_testAll_12_GccExampleBuilds.sh
+MAKE_JOBS=-j4 ./scripts/_testAll_12_GccExampleBuilds.sh
+```
+
+Record `type -a arm-none-eabi-gcc`, both tool versions, `MAKE_JOBS`, and
+`temp/log/_testAll_12_GccExampleBuilds.log` with every comparison. Windows exit
+code `-1073741819` is `0xC0000005` (`STATUS_ACCESS_VIOLATION`): a compiler
+process crashed; it is not a normal C diagnostic. If `-j1` succeeds but a
+bounded parallel build crashes, preserve the evidence and compare another
+complete official Arm GNU Toolchain before concluding that source code or job
+count is the root cause.
+
+Remove an old compiler only after all of the following are true:
+
+1. A new terminal resolves every command to the intended replacement.
+2. The relevant ARM, CGO, and Clang tests pass with that replacement.
+3. Neither the user nor machine `Path`, a Makefile, `clang.cfg`, IDE setting, or
+   debugger configuration refers to the old directory.
+4. The old package name, version, source URL, and checksum have been recorded
+   so that the setup can be reproduced.
+
+Use **Installed apps** or the package manager that installed a registered
+toolchain. For a manually extracted archive, first remove its `Path` entry,
+open a new terminal, repeat the inventory commands, and only then delete that
+one version directory. Keep at least one complete `arm-none-eabi` toolchain;
+ARM Clang needs its target headers and libraries. Keep one Windows host compiler
+when CGO tests require it. A 32-bit `i686-w64-mingw32` WinLibs installation is
+normally unnecessary when Go and the required host builds are all 64-bit, but
+verify that no project depends on 32-bit output before removing it.
+
+#### 37.5.5. <a id="setup-stm32"></a>Setup STM32
 
 <a id='generate-base-project'></a><h5>Generate Base Project</h5>
 
@@ -7057,7 +7199,7 @@ This step is recommended before re-flashing with the J-Link onboard debugger sof
     - Selecting the other option, would not allow to update with the SEGGER STLinkReflash tool.
   - Close
 
-#### 37.5.4. <a id="setup-onboard-j-link-on-nucleo-other-st-evaluation-boards-too"></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
+#### 37.5.6. <a id="setup-onboard-j-link-on-nucleo-other-st-evaluation-boards-too"></a>Setup Onboard J-Link on NUCLEO (other ST evaluation boards too)
 
 (https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 
@@ -7073,7 +7215,7 @@ Unfortunately this is not possible with **v3** onboard debugger hardware! But yo
   - Re-Flash onboard debugger.
     - You can undo this step anytime.
 
-#### 37.5.5. <a id="setup-vs-code"></a>Setup VS-Code
+#### 37.5.7. <a id="setup-vs-code"></a>Setup VS-Code
 
 - Start VS Code
   - Install Go rich language support if you want to use Go as well (not needed for ARM debugging).
@@ -7113,20 +7255,38 @@ The LLVM download supplies Clang and its builtin headers. It does not supply the
 
 #### 37.7.2. <a id="gcc-1"></a>GCC
 
-https://developer.arm.com/Tools%20and%20Software/GNU%20Toolchain -> https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads (example))
+- ARM firmware: official
+  [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm);
+  select a Windows package ending in `arm-none-eabi`.
+- Windows host and CGO tests only: a MinGW-w64 host distribution such as
+  [WinLibs](https://winlibs.com/).
+
+These downloads are not interchangeable. Confirm the target with
+`-dumpmachine` after selecting the compiler.
 
 ### 37.8. <a id="install-locations"></a>Install Locations
 
-Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin` for example. This avoids trouble caused by spaces inside path names.
+Do not use locations containing spaces, like `C:\Program Files`. Take `C:\bin`
+for example. This avoids trouble caused by spaces inside path names.
 
-Keep embedded and host compiler roles distinguishable. For example, use `C:\bin\ArmGNUToolchain` for `arm-none-eabi-gcc`, `C:\bin\ArmClang` for Clang, and a separate directory for a MinGW-w64 host runtime. A compiler executable in `PATH` is not sufficient by itself; its matching standard headers and libraries must also be discoverable.
+Keep roles and versions distinguishable. For example, use
+`C:\bin\ArmGNUToolchain-15.3.Rel1` for `arm-none-eabi-gcc`,
+`C:\bin\LLVM-22.1.6` for Clang, and `C:\bin\WinLibs-GCC-16.1-x86_64`
+for a MinGW-w64 host compiler. A compiler executable in `Path` is not sufficient
+by itself; its matching standard headers, libraries, support programs, and DLLs
+must also remain in the same installation.
 
 ### 37.9. <a id="environment-variables"></a>Environment Variables
 
-Extend the path variable:
+Prepend only the currently selected compiler's `bin` directory to `Path`.
+Prefer a temporary terminal selection while comparing versions. If the
+selection is made persistent, place it before other directories containing the
+same command and verify it from a new terminal with `where.exe` or `type -a`.
+See
+[Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions).
 
-- PATH += `C:\bin\ArmGNUToolchain\bin`
-- PATH += `C:\Program Files\SEGGER\JLink`. (may be C:\Program Files\SEGGER\JLink_V812a or similar)
+The debugger path can be added independently, for example
+`C:\Program Files\SEGGER\JLink` or a versioned `JLink_V...` directory.
 
 ### 37.10. <a id="build-command"></a>Build command
 
