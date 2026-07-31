@@ -35,6 +35,7 @@ run_step() {
   shift
   local rc=0
   local step_log
+  local detail
   local warning
   printf '%s: ' "$s" >>"$SUMMARY_LOG"
   printf '%s: ' "$s"
@@ -52,6 +53,13 @@ run_step() {
     else
       printf 'PASS\n' >>"$SUMMARY_LOG"
       printf '%sPASS%s\n' "$PASS_COLOR" "$RESET_COLOR"
+      # Surface non-fatal compatibility information from quiet step logs so a
+      # passing aggregate run still shows degraded local-tool behavior.
+      if [ -f "$step_log" ]; then
+        while IFS= read -r detail; do
+          summary_line "  $detail"
+        done < <(grep -E '^Hint:' "$step_log")
+      fi
     fi
   else
     printf 'FAIL\n' >>"$SUMMARY_LOG"
