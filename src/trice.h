@@ -95,6 +95,15 @@ extern "C" {
 
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
+
+// Bind mode compiles ID-free calls after trice clean has restored the source.
+// Treat TRICE_CLEAN as active-code state internally because generated sidecars
+// now provide the IDs which insert would otherwise place in the user source.
+#if defined(TRICE_BIND) && (TRICE_BIND == 1)
+#undef TRICE_CLEAN
+#define TRICE_CLEAN 0
+#endif
+
 #include "triceRx.h"
 
 // Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN

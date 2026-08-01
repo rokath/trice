@@ -13,7 +13,18 @@
 
 // clang-format off
 #define TRICE(  tid, ...) TRICE_CONCAT2(TRICE_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
+#if defined(TRICE_BIND) && (TRICE_BIND == 1)
+// TRICE_BIND_ID_I forms the sidecar macro name for one file key and source line.
+#define TRICE_BIND_ID_I(fileKey, line) TRICE_ID_##fileKey##_L##line
+// TRICE_BIND_ID expands the file key and line before token concatenation.
+#define TRICE_BIND_ID(fileKey, line) TRICE_BIND_ID_I(fileKey, line)
+// TRICE_BIND_ID_HERE resolves the stable ID selected by the active sidecar.
+#define TRICE_BIND_ID_HERE() TRICE_BIND_ID(TRICE_FILE_KEY, __LINE__)
+// In bind mode the user-facing lowercase macro receives no explicit ID.
+#define trice(...) TRICE_CONCAT2(trice_, TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(iD(TRICE_BIND_ID_HERE()), __VA_ARGS__)
+#else
 #define trice(  tid, ...) TRICE_CONCAT2(trice_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
+#endif
 #define Trice(  tid, ...) TRICE_CONCAT2(Trice_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 #define TRice(  tid, ...) TRICE_CONCAT2(TRice_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 #define TRICE8( tid, ...) TRICE_CONCAT2(TRICE8_,  TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
