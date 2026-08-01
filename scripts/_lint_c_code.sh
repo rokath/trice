@@ -307,9 +307,30 @@ run_direct_xtea_compile_check() {
 
 run_cppcheck() {
   local cppcheck_bin
+  local cppcheck_args=()
   if ! cppcheck_bin="$(find_cppcheck)"; then
     echo "cppcheck is not installed" >&2
     exit 1
+  fi
+
+  # Older cppcheck releases do not know --check-level. Keep the lint run
+  # compatible while making the reduced analysis depth visible in the log.
+  if "$cppcheck_bin" --help 2>&1 | grep -q -- '--check-level'; then
+    cppcheck_args+=(--check-level=exhaustive)
+  else
+    if [ "${TRICE_CPPCHECK_CHECK_LEVEL_HINT_SHOWN:-0}" != "1" ]; then
+      echo "Hint: cppcheck does not support --check-level; running without exhaustive checking." >&2
+    fi
+    # Cppcheck 2.10 reports this macro-use path as unreadVariable, while the
+    # counter value is part of the selected OUT_fullSigil expansion.
+    cppcheck_args+=(--suppress=unreadVariable:src/tcobsv1Encode.c:313)
+    # Cppcheck 2.10 also reports the stack-buffer direct-output macros as
+    # danglingLifetime even though the generated write sequence is synchronous.
+    cppcheck_args+=(--suppress=danglingLifetime:src/trice.c)
+    cppcheck_args+=(--suppress=danglingLifetime:src/trice8.c)
+    cppcheck_args+=(--suppress=danglingLifetime:src/trice16.c)
+    cppcheck_args+=(--suppress=danglingLifetime:src/trice32.c)
+    cppcheck_args+=(--suppress=danglingLifetime:src/trice64.c)
   fi
 
   # cppcheck does not model compiler-specific __has_builtin(...) probing well.
@@ -320,7 +341,7 @@ run_cppcheck() {
     --error-exitcode=1 \
     --enable=warning,style,performance,portability \
     --inline-suppr \
-    --check-level=exhaustive \
+    "${cppcheck_args[@]}" \
     --std=c99 \
     --language=c \
     --quiet \

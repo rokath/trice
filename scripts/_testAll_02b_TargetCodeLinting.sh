@@ -13,6 +13,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
+  local cppcheck_bin
   local verbose=0
   for arg in "$@"; do
     if [ "$arg" = "--verbose" ]; then
@@ -25,6 +26,21 @@ main() {
     log "MISSING TOOL: cppcheck"
     log "SKIP: cppcheck not installed"
     exit 0
+  fi
+
+  # Resolve the same cppcheck executable shape that _lint_c_code.sh accepts so
+  # this step can print the compatibility hint once before spawning profiles.
+  if has_command cppcheck; then
+    cppcheck_bin="$(command -v cppcheck)"
+  else
+    cppcheck_bin="/c/Program Files/Cppcheck/cppcheck.exe"
+  fi
+
+  # Older cppcheck releases lack --check-level. The helper keeps running without
+  # it; this exported flag prevents one duplicate hint per lint profile.
+  if ! "$cppcheck_bin" --help 2>&1 | grep -q -- '--check-level'; then
+    log "Hint: cppcheck does not support --check-level; running without exhaustive checking."
+    export TRICE_CPPCHECK_CHECK_LEVEL_HINT_SHOWN=1
   fi
 
   run_profile() {
