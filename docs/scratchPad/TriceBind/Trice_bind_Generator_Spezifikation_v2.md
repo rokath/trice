@@ -15,7 +15,7 @@ Build
 trice clean
 ```
 
-Es verwendet dieselbe stabile ID-Verwaltung wie `trice insert`, schreibt die zugeordneten IDs jedoch nicht in die Trice-Aufrufe der Userquellen. Stattdessen erzeugt es pro Source- oder Headerdatei einen temporären Sidecar-Header mit Präprozessordefinitionen.
+Es verwendet dieselbe stabile ID-Verwaltung wie `trice insert`, schreibt die zugeordneten IDs jedoch nicht in die Trice-Aufrufe der Userquellen. Stattdessen erzeugt es pro Source- oder Headerdatei einen direkt in der jeweiligen Datei zu inkludierenden temporären Sidecar-Header mit Präprozessordefinitionen als Buildartefakt.
 
 Der Usercode bleibt beispielsweise:
 
@@ -128,9 +128,26 @@ Der derzeitige PoC-Schalter `TRICE_BIND` ist nicht als zusätzliche dauerhafte �
 
 `TRICE_OFF == 1` hat weiterhin Vorrang und schaltet Trice unabhängig vom gewählten Modus ab.
 
+>DISKUSSION BEGIN
+- Aktueller Status (vorbehaltlich Irrtum):
+  - trice insert prüft auf TRICE_CLEAN in triceConfig.h und setzt den Wert auf 0, falls gefunden.
+  - trice clean prüft auf TRICE_CLEAN in triceConfig.h und setzt den Wert auf 1, falls gefunden.
+  - TRICE_CLEAN in projektspezifischer triceConfig.h ist eine User Option um false positive Markierungen von Editoren zu unterdrücken, wenn die IDs nicht inserted sind.
+- Wenn ein Projekt nach trice bind migriert werden soll, 
+  - sollte der User zunächst trice clean laufen lassen. 
+  - Unabhängig davon kann der die TRICE_CLEAN Zeile aus seiner trice config entfernen
+- Es entstehen die Fragen,
+  - ob TRICE_MODE dann überhaupt benötigt wird, denn der User Code bleibt unverändert.
+  - Wenn, wo es definiert wird
+  - Findet trice bind ein TRICE_CLEAN in triceConfig.h sollte es
+    - TRICE_CLEAN auf 1 setzen? Trices mit IDs im User Code sollte hier nicht berücksichtigt werden?
+    - Einen Hinweis ausgeben, dass TRICE_CLEAN aus triceConfig.h entfernt werden sollte?
+    - TRICE_CLEAN selbsttätig aus der triceConfig.h entfernen?
+>DISKUSSION END
+
 ### 3.3 Bewusste einmalige Sourceänderung
 
-`trice bind` KANN einmalig eine markierte Sidecar-Include-Zeile in eine Userdatei einfügen:
+`trice bind` SOLL einmalig eine markierte Sidecar-Include-Zeile in eine Userdatei einfügen:
 
 ```c
 #include "trice_module_c_K73A915E9C4021B8.h" // trice-bind
@@ -164,6 +181,12 @@ Die konkrete Vollständigkeitsreferenz ist nicht eine handgeschriebene Namenslis
 3. `_test/testdata/triceCheck.c`.
 
 Neue eingebaute User-Level-Makros sollen künftig nur dann als vollständig integriert gelten, wenn auch ihr Bind-Verhalten festgelegt und getestet ist.
+
+>DISKUSSION BEGIN
+- Bei der Implementierung sollte der gleiche Parser von trice insert verwendet werden. Wenn das nicht möglich ist, zumindest weitgehend.
+- `_test/testdata/triceCheck.c` enthält nicht notwendigerweise alle Trice Formen. Sollte es aber. 
+- Unterstützung von Sonderfällen wie triceAssertOrReturnValue sind ein MUSS.
+>DISKUSSION END
 
 ### 4.2 Drei ID-Zustände
 
@@ -211,6 +234,10 @@ Der Aufruf bleibt unverändert. `trice bind` MUSS ihn jedoch mit derselben Seman
 Würde `trice insert` die explizite ID wegen einer Kollision oder Inkonsistenz ändern, darf `trice bind` diese Korrektur nicht nur in einer virtuellen Kopie ausführen. Es MUSS die Inkonsistenz melden und fehlschlagen, weil die Userquelle unverändert bleibt.
 
 ID-freie, Platzhalter- und explizite Aufrufe dürfen in derselben Datei gemischt vorkommen.
+
+>DISKUSSION BEGIN
+- Explizite Aufrufe mit ID !=0 gemischt mit Trices ohne explizite ID innerhalb einer Datei können für trice bind verboten werden, wenn dadurch Implementierungsaufwand entsteht. Mit trice clean wären solche Fälle einfach zu bereitigen.
+>DISKUSSION END
 
 ### 4.3 Stamp-Semantik
 
@@ -270,6 +297,11 @@ Der bestehende Maskierungsmechanismus soll wiederverwendet werden. Ausgeschlosse
 - werden bei bind-spezifischen Syntaxprüfungen ignoriert,
 - behalten Byteoffsets und Zeilennummern der restlichen Datei bei.
 
+>DISKUSSION BEGIN
+- TRICE_INSERT_OFF/ON soll weiterhin unterstützt werden
+- Zukünftig, sollten diese Begriffe allgemeiner lauten, vielleicht `TRICE_<IDS>_OFF/ON`. Was wäre für `<IDS>` am passendsten?
+>DISKUSSION END
+
 ### 4.6 Unterstützte Sourcekontexte
 
 Das MVP unterstützt direkte User-Level-Trice-Aufrufe in:
@@ -287,10 +319,17 @@ Nicht die spätere Codegenerierung oder Inlining-Entscheidung des Compilers best
 
 Das MVP unterstützt zunächst nicht:
 
-- mehrere bindbare Trice-Stellen in derselben physischen Sourcezeile,
-- Trice-Aufrufe innerhalb gewöhnlicher Präprozessormakrodefinitionen,
-- durch Präprozessorlogik zusammengesetzte oder veränderte Formatstrings,
-- nicht transparente Custom-Aliase ohne Bind-Adapter.
+- `trice bind` Einschränkungen gegenüber `trice insert/clean`:
+  - mehrere bindbare Trice-Stellen in derselben physischen Sourcezeile,
+    - Lösungsoption: 
+      - Füge `\n`dazwischen ein.  
+  - Trice-Aufrufe innerhalb gewöhnlicher Präprozessormakrodefinitionen, 
+    - Lösungsoption: 
+      - Statt `#define LOG_ERROR(x) trice("msg:error=%d\n", x)`
+      - Nimm `static inline  LOG_ERROR(x){trice("msg:error=%d\n", x);}`
+- Ohnehin bestehende `trice insert/clean` Einschränkungen:
+  - durch Präprozessorlogik zusammengesetzte oder veränderte Formatstrings,
+  - nicht transparente Custom-Aliase ohne Bind-Adapter.
 
 Diese Fälle sind mit Beispielen, Anwendungsfällen, Begründung und möglichen späteren Lösungen in [Anhang A](#anhang-a-nicht-unterstützte-konstruktionen-im-mvp) beschrieben.
 
@@ -372,6 +411,12 @@ Alle Sidecars liegen standardmäßig in einem flachen Ordner:
 
 Der Compiler benötigt dafür genau einen zusätzlichen Include-Pfad. Der Ordner MUSS automatisch vom Source-Scan ausgeschlossen werden.
 
+>DISKUSSION BEGIN
+- Was genau ist damit gemeint: "Der Ordner MUSS automatisch vom Source-Scan ausgeschlossen werden."? Warum MUSS?
+- Wenn ein User einfach angibt `trice bind -src .` und der ./build Ordner wird von Trice bind mit gescannt, ist das zwar nicht optimal aber im allg. nicht problematisch und auch der Inhalt der Sidecars kann keine Probleme machen, wenn prophylaktisch `// TRICE_<IDS>_OFF - Trice parser exclusion marker` in den Sidecars steht. Zusätzlich gibt es `-exclude <dir>`.
+- Es ist natürlich nett den Ordner auszuschließen, aber wäre SOLLTE vielleicht nicht besser um den Code einfacher zu halten? 
+>DISKUSSION END
+
 ### 5.4 Sidecar-Inhalt
 
 Ein Sidecar enthält mindestens:
@@ -401,11 +446,20 @@ Die exakten internen Namen können bei der Implementierung angepasst werden. Nor
 - Kommentare werden auf eine Zeile normalisiert und dürfen keine unbeabsichtigte Präprozessor-Zeilenfortsetzung erzeugen.
 - Eine Datei wird nur ersetzt, wenn sich ihr Inhalt tatsächlich ändert.
 
+>DISKUSSION BEGIN
+- Mehrzeilige Trice Messages werden in den Kommentaren nur mit der ersten Zeile und dann ... angegeben
+>DISKUSSION END
+
 ### 5.5 Kein klassischer Include-Guard
 
 Der Sidecar erhält keinen klassischen Include-Guard. Eine erneute Einbindung desselben Sidecars kann den zugehörigen `TRICE_FILE_KEY` bewusst wiederherstellen.
 
 `trice bind` SOLL eine mehrfache Einbindung desselben Sidecars als Warnung melden. Sie ist allein kein Fehler, sofern alle Vorkommen denselben File Key und denselben Sidecar betreffen.
+
+>DISKUSSION BEGIN
+- Die mehrfache Einbindung desselben Sidecars von unterschiedlichen Dateien MUSS als Fehler gemeldet werden.
+- Das kann z.B. passieren wenn eine Datei in einen anderen Folder kopiert und nicht umbenannt wird.
+>DISKUSSION END
 
 ### 5.6 Datei ohne aktuelle Trice-Stelle
 
@@ -426,6 +480,12 @@ Für jede Datei mit mindestens einer bindbaren Trice-Stelle existiert genau eine
 Der Dateiname und der darin gespeicherte File Key müssen zum aktuellen Projektfile gehören. Der Include wird normalerweise nach den für die Datei wirksamen normalen Includes und vor der ersten eigenen Trice-Stelle platziert.
 
 Der dateilokale Include ist erforderlich, weil in einer Translation Unit Sidecars mehrerer physischer Dateien verarbeitet werden können. Die eindeutigen Makronamen verhindern Kollisionen; der jeweils zuletzt aktivierte `TRICE_FILE_KEY` bestimmt, zu welcher physischen Datei `__LINE__` gehört.
+
+>DISKUSSION BEGIN
+- Wird `#include "trice_module_c_K73A915E9C4021B8.h" // trice-bind` komplett gelöscht, geht der File-Key verloren und muss neu erzeugt werden.
+- Frage: Was wenn z.B. nur der Kommentar entfernt wird?
+- Ist `#nclude<whitespace>"trice_<filename>_K<64-bit key>.h"` ausreichend für die Erkennung? Ist also `// trice-bind` verzichtbar und nur gut für die Lesbarkeit/schnelle Auffindbarkeit?
+>DISKUSSION END
 
 ### 6.2 Bereits vorhandener Include
 
@@ -478,6 +538,12 @@ Die Position gilt mindestens in folgenden Fällen als unsicher:
 
 Bei unsicherer Position darf `trice bind` die wahrscheinlichste Position verwenden, MUSS jedoch eine Warnung mit Datei, Zeile und konkretem Grund ausgeben. Ist eine Position offensichtlich falsch oder würde sie zu einer nicht auflösbaren ID führen, ist dies ein Fehler.
 
+>DISKUSSION BEGIN
+- Diese ganzen Checks dem initialen MVP aufzubürden erscheint Overkill
+- Vielleicht ist es praktikabel einfach nach der letzten `#include` Zeile den Sidecar einzufügen und den Rest den User machen zu lassen.
+- Diese ganzen Checks als Erweiterungsoption angeben würde ich machen.
+>DISKUSSION END
+
 ### 6.5 Zeilennummer nach Include-Einfügung
 
 Eine neu eingefügte Include-Zeile kann die Zeilennummern nachfolgender Trice-Stellen verschieben. Deshalb MUSS die Sidecar-Erzeugung auf dem finalen, für den Build vorgesehenen Sourcezustand basieren.
@@ -503,6 +569,10 @@ TRICE_ID_K73A915E9C4021B8_L10
 
 Wurde eine Datei nach dem letzten Bind-Lauf so verändert, dass eine Trice-Stelle auf eine andere Zeile rutscht, MUSS `trice bind` erneut ausgeführt werden. Ein veralteter Sidecar soll vorzugsweise zu einem nicht definierten Makronamen und damit zu einem Compilerfehler führen, nicht zu einer stillschweigend falschen ID.
 
+>DISKUSSION BEGIN
+- Wenn die Include-Änderung im Speicher vorgenommen wurde, stimmen doch im Speicher die Source-Zeilennummern, oder? Wo ist das Problem?
+>DISKUSSION END
+
 ### 6.6 Verhalten bei `-insertIncludes=false`
 
 Mit:
@@ -526,6 +596,11 @@ bind: missing include: src/foo/module.c:17: #include "trice_module_c_K73A915E9C4
 ```
 
 Der File Key wird dabei bereits erzeugt und in der Ausgabe stabil verwendet. Ohne gespeicherte Include-Zeile muss der Lauf sicherstellen, dass derselbe Key innerhalb dieses Laufs für Sidecar, Diagnosen und Debugartefakte verwendet wird.
+
+>DISKUSSION BEGIN
+- Ist nicht --dry-run und -insertIncludes=false doppelt gemoppelt? Überhaupt wozu überhaupt derartige Schalter? Was kann schon groß schiefgehen? Im Sinne der Einfachheit würde ich das weglassen. Oder gibt es startke Argumente dadür?
+- Bei der Inbertiebnahme kann doch auf Testdaten gearbeitet werden.
+>DISKUSSION END
 
 ## 7. Kommandozeilenschnittstelle
 
@@ -554,6 +629,10 @@ Soweit fachlich anwendbar, MUSS `bind` dieselben Optionen und Defaults wie `inse
 - Verbosity- beziehungsweise Logoptionen.
 
 Optionen, die ausschließlich die textuelle Darstellung einer instrumentierten Userquelle steuern, sollen nicht unkritisch übernommen werden. Beispiele sind reine Whitespace- oder Cache-Optionen. Sie werden nur registriert, wenn sie im Bind-Ablauf eine klar definierte Wirkung haben.
+
+>DISKUSSION BEGIN
+- Sollte hier nicht einfach gesagt werden, dass die Optionen zu insert identisch sind und nur auf die Unterschiede hingewiesen? Also was wegfällt, dazukommt und anders ist.
+>DISKUSSION END
 
 ### 7.3 Bind-spezifische Optionen
 
@@ -698,6 +777,10 @@ Diese Dateien:
 
 Der Name `TriceIDs` ist bewusst vom Sidecar-Ordner `build/triceIDs` verschieden. Eine spätere Option zum Abschalten dieser Debugausgabe ist möglich; für Version 1 ist die Ausgabe verbindlich.
 
+>DISKUSSION BEGIN
+- Das ist vermutlich nicht nötig, da immer auf Testdaten gearbeitet werden kann die man auch vorher sichern kann um dann zu vergleichen.
+>DISKUSSION END
+
 ### 8.6 Konsistentes Schreiben
 
 Reguläre Ausgaben werden erst geschrieben, nachdem alle Dateien analysiert und globale Konflikte geprüft wurden.
@@ -729,6 +812,11 @@ Version 1 MUSS alle Prüfungen enthalten, deren Auslassen falschen Targetcode od
 - Sidecar steht nach der ersten zu bindenden Trice-Stelle.
 - Der aktive File Key kann für eine Stelle nicht eindeutig bestimmt werden.
 - Erzeugter Sidecar würde einen im Build nicht definierten Site-Namen liefern.
+
+
+>DISKUSSION BEGIN
+- `trice insert` prüft vermutlich auch die Anzahl der jeweiligen Trice Statement Parameter gegen die Anzahl der Formatverben und berücksichtigt dabei auch Sonderfälle wie triceC.
+>DISKUSSION END
 
 ### 9.2 Warnungen
 
@@ -798,6 +886,10 @@ src/trice*.h                 TRICE_MODE und bind-fähige User-Level-Makros
 Gemeinsame Insert-/Bind-Funktionalität soll nicht dupliziert werden. Geeignete vorhandene Funktionen werden extrahiert oder parametrisiert, sofern dies ohne Verhaltensänderung von `insert` möglich ist.
 
 ### 10.2 Interne Datenstrukturen
+
+>DISKUSSION BEGIN
+- Die bind CLI Parameter sollen analog zu den insert CLI Parametern in den trice code eingebunden werden und nicht separat zum Code dazukommemn.
+>DISKUSSION END
 
 Eine Bind-Stelle benötigt mindestens:
 
@@ -902,6 +994,21 @@ Ein vorhandenes `iD(n)`, `id(n)`, `Id(n)` oder `ID(n)` mit `n > 0` wird vom Targ
 
 Die Host-Validierung stellt vor dem Build sicher, dass die explizite ID konsistent ist.
 
+>DISKUSSION BEGIN
+- Das Makro `TRICE` z.B. kann so vorkommen, sogar innerhalb einer Datei:
+
+```C
+TRICE("hi");
+TRICE(ID(0), "hi")
+TRICE(ID(7), "hi")
+TRICE("hi %d", x);
+TRICE(ID(0), "hi %d", x)
+TRICE(ID(8), "hi %d", x)
+```
+
+Zeige im Detail wie dessen Definition unter Verwendung von z.B. `TRICE_BIND_TID_HERE()` umgesetzt werden kann, auch im Hinblick auf zu vermeidende false-positive Editor Warnungen, so dass diese 6 Zeilen sauber compilierbar sind. Wie gesagt ID(7) kann verboten werden, wenn dadurch der Code einfacher wird.
+>DISKUSSION END
+
 ### 10.6 Makrofamilien und erwarteter Aufwand
 
 Die Repositoryanalyse ergibt folgende Implementierungsgruppen:
@@ -919,11 +1026,19 @@ Die Repositoryanalyse ergibt folgende Implementierungsgruppen:
 
 Die Parserseite ist bereits breit angelegt. Der wesentliche Implementierungsaufwand liegt in einer konsistenten Target-Makroschicht und ihrer Testabdeckung.
 
+>DISKUSSION BEGIN
+- Bitte konkretes Beispiel, was mit "Angepasste funktionsartige Aliase" gemeint ist. Ich denke das wurde bereits ausgeschlossen, da `trice insert` das auch nichzt unterstützt.
+>DISKUSSION END
+
 ### 10.7 Keine automatische Source-Fallback-Instrumentierung
 
 Version 1 führt bei einer nicht bindbaren Stelle keinen impliziten Teil-`insert` aus. Ein solcher Fallback würde erneut Sourceänderungen und einen Cleanup-Ablauf einführen.
 
 Nicht unterstützte Stellen werden gesammelt gemeldet. Das bestehende `trice insert` bleibt als separater Workflow verfügbar.
+
+>DISKUSSION BEGIN
+- Bitte Beispiele angeben für "Nicht unterstützte Stellen"
+>DISKUSSION END
 
 ## 11. Tests und Nachweise
 
@@ -995,6 +1110,10 @@ Mindestens folgende Abläufe werden automatisiert:
 
 ### 11.5 Parallelitäts- und Race-Tests
 
+>DISKUSSION BEGIN
+- Verwendung eines virtuellen Dateisystems für Tests fordern?
+>DISKUSSION END
+
 Der Bind-Lauf wird mit vielen Dateien und unter dem Go-Race-Detector ausgeführt. Zu prüfen sind:
 
 - keine Data Races in ID-Listen, Location-Listen, Key-Registry und Diagnosen,
@@ -1029,6 +1148,11 @@ Das MVP gilt als implementiert, wenn:
 14. Die virtuellen instrumentierten Fassungen unter `./TriceIDs` erzeugt werden.
 15. Bestehende Projekte ohne `TRICE_MODE` und mit bisherigem `TRICE_CLEAN` unverändert bauen.
 16. Kein neues buildspezifisches Decoderartefakt und keine Änderung des Drahtformats erforderlich ist.
+
+>DISKUSSION BEGIN
+- Mit der unveränderten Trice Library (./src/) sollte `trice insert|clean|bind` wahlweise möglich sein.
+- Wenn dadurch extrem viel Code dupliziert wird, sollten wir das vorher anhand von Beispielen besprechen.
+>DISKUSSION END
 
 ## 13. Zukünftige Erweiterungen und Optimierungen
 
