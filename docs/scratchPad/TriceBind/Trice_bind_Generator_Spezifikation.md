@@ -453,7 +453,7 @@ Ein automatisches Re-Migrationskommando ist nicht Bestandteil des MVP.
 
 ---
 
-# Anhang A: Verifizierte Target-Makromechanik
+## Anhang A: Verifizierte Target-Makromechanik
 
 Die beiden vor V4 erforderlichen Präprozessormechanismen wurden in zwei unabhängigen PoCs unter folgendem Repositorypfad verifiziert:
 
@@ -465,7 +465,7 @@ docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs/
 
 Die PoCs sind Referenznachweise für die Mechanik, noch keine vollständige Integration in die Trice-Makromatrix.
 
-## A.1 Warum ein einfaches `#ifdef` nicht genügt
+### A.1 Warum ein einfaches `#ifdef` nicht genügt
 
 Folgendes funktioniert nicht:
 
@@ -491,7 +491,7 @@ Beim Einlesen von `trice.h` ist `TRICE_BIND_FILE_KEY` noch nicht definiert. Der 
 
 Präprozessordirektiven können auch nicht verzögert in eine Makro-Replacement-Liste eingebettet werden.
 
-## A.2 Expansion-Time-Dispatch
+### A.2 Expansion-Time-Dispatch
 
 Stattdessen wird die Route bei jeder Makroexpansion aus dem aktuell sichtbaren Key gebildet.
 
@@ -516,7 +516,7 @@ Sidecar:
 #define TRICE_BIND_ROUTE_K73A915E9C4021B8 BIND
 ```
 
-### Ohne aktiven Sidecar
+#### Ohne aktiven Sidecar
 
 `TRICE_BIND_FILE_KEY` ist nicht definiert und bleibt bei der Expansion als Token stehen:
 
@@ -532,7 +532,7 @@ Der bestehende Inserted-Pfad wird gewählt:
 trice(iD(1001u), "msg:inserted\n");
 ```
 
-### Mit aktivem Sidecar
+#### Mit aktivem Sidecar
 
 ```text
 TRICE_BIND_ROUTE(TRICE_BIND_FILE_KEY)
@@ -547,7 +547,7 @@ Der Bind-Pfad wird gewählt:
 trice("msg:bound\n");
 ```
 
-### Rückkehr zum Inserted-Pfad
+#### Rückkehr zum Inserted-Pfad
 
 ```c
 #undef TRICE_BIND_FILE_KEY
@@ -563,7 +563,7 @@ Damit dient `TRICE_BIND_FILE_KEY` gleichzeitig als:
 
 Ein zusätzlicher öffentlicher Modus oder ein `TRICE_SOURCE_KIND` ist nicht erforderlich.
 
-## A.3 Einzeiliger Site-Deskriptor
+### A.3 Einzeiliger Site-Deskriptor
 
 Die zweite Verifikation zeigt, dass pro Site genau eine Definition genügt:
 
@@ -594,7 +594,7 @@ Vereinfachte Referenzmechanik aus `poc2_site_descriptor`:
 
 In der vollständigen Library wird dieser Site-Mechanismus in den unter A.2 beschriebenen lokalen Route-Dispatch eingebettet. Der bestehende Inserted-Pfad bleibt unverändert.
 
-## A.4 Vollständiges Beispiel
+### A.4 Vollständiges Beispiel
 
 Userdatei:
 
@@ -652,7 +652,7 @@ TRICE_BIND_REPLACE(id(12346u), id(0), "world")
 
 Die Legacy-Stamp-Form `id` bleibt erhalten. Der Null-Platzhalter wird nicht im Usercode verändert.
 
-## A.5 Verifikationsstatus
+### A.5 Verifikationsstatus
 
 Die PoCs wurden mit GCC und Clang als C11- sowie C++17-Frontend und mit strengen Warnoptionen ausgeführt. Sie verifizieren:
 
@@ -666,15 +666,15 @@ Die PoCs wurden mit GCC und Clang als C11- sowie C++17-Frontend und mit strengen
 
 Die Integration in alle echten Trice-Makrofamilien bleibt eine Implementierungs- und Testaufgabe.
 
-# Anhang B: `TRICE_CLEAN`, Migration und Re-Migration
+## Anhang B: `TRICE_CLEAN`, Migration und Re-Migration
 
-## B.1 Rolle von `TRICE_CLEAN`
+### B.1 Rolle von `TRICE_CLEAN`
 
 `TRICE_CLEAN` bleibt ein optionaler Legacy-Status beziehungsweise Compile-Time-Schalter. Bei Wert `1` verwendet `trice.h` den bestehenden Clean-/Off-Pfad. Bei Wert `0` oder fehlender Definition wird die lokale Insert-/Bind-Auswahl aus Anhang A verwendet.
 
 `TRICE_CLEAN` ersetzt keine fehlende Sidecar-Datei. Ein physisch nicht vorhandener, aber inkludierter Sidecar kann weiterhin eine Editor- oder Compilerdiagnose erzeugen.
 
-## B.2 Wirkung der Werkzeuge
+### B.2 Wirkung der Werkzeuge
 
 | Werkzeug | User-Trice-Aufrufe | Sidecar-Includes | Sidecars | vorhandenes `TRICE_CLEAN` |
 |---|---|---|---|---|
@@ -684,9 +684,9 @@ Die Integration in alle echten Trice-Makrofamilien bleibt eine Implementierungs-
 
 Fehlt `TRICE_CLEAN`, fügt `trice bind` keine Definition hinzu.
 
-## B.3 `trice clean` nach `trice bind`
+### B.3 `trice clean` nach `trice bind`
 
-### Mit `TRICE_CLEAN` in `triceConfig.h`
+#### Mit `TRICE_CLEAN` in `triceConfig.h`
 
 Ausgangszustand:
 
@@ -716,7 +716,7 @@ trice bind
 
 setzt die vorhandene Definition wieder auf `0` und aktualisiert die Sidecars.
 
-### Ohne `TRICE_CLEAN`
+#### Ohne `TRICE_CLEAN`
 
 `trice clean` findet in Bind-owned Dateien keine IDs größer null. Es entfernt weder Sidecar-Includes noch Sidecars und ändert keinen Modus. Der Bind-Zustand bleibt daher praktisch unverändert.
 
@@ -724,7 +724,7 @@ Folgerung:
 
 > In einem stabilen Bind-Projekt wird `trice clean` nicht verwendet.
 
-## B.4 Migration von `insert` zu `bind`
+### B.4 Migration von `insert` zu `bind`
 
 1. Projektzustand sichern beziehungsweise committen.
 2. `trice clean` ausführen, damit die zu migrierenden Dateien keine IDs größer null mehr enthalten.
@@ -735,7 +735,7 @@ Folgerung:
 
 Ist `TRICE_CLEAN` vorhanden, setzt `clean` den Wert zunächst auf `1`; `bind` setzt ihn anschließend auf `0`.
 
-## B.5 Re-Migration von `bind` zu `insert`
+### B.5 Re-Migration von `bind` zu `insert`
 
 Der Rückweg erfolgt manuell und dateiweise:
 
@@ -747,7 +747,7 @@ Der Rückweg erfolgt manuell und dateiweise:
 
 Durch die manuelle Entfernung des Sidecar-Includes wird die Datei wieder vom Inserted-Pfad übernommen.
 
-## B.6 Hybridprojekte
+### B.6 Hybridprojekte
 
 Ein Projekt darf Insert-owned und Bind-owned Dateien enthalten. Der Workflow ist dateibezogen:
 
@@ -757,15 +757,15 @@ Ein Projekt darf Insert-owned und Bind-owned Dateien enthalten. Der Workflow ist
 
 Ein globales `trice clean` in einem Hybridprojekt sollte deshalb nur bei beabsichtigter Migration ausgeführt werden.
 
-# Anhang C: Implementierungsumriss
+## Anhang C: Implementierungsumriss
 
-## C.1 CLI-Integration
+### C.1 CLI-Integration
 
 `bind` wird wie die bestehenden Subkommandos in die vorhandene CLI- und Flag-Infrastruktur eingebunden. Gemeinsame Insert-/Bind-Optionen werden aus denselben Definitionen registriert und validiert.
 
 Nur tatsächlich bind-spezifische Werte erhalten neue Felder, insbesondere der Sidecar-Ausgabeordner.
 
-## C.2 Vorgeschlagene Verantwortlichkeiten
+### C.2 Vorgeschlagene Verantwortlichkeiten
 
 Die konkrete Dateiaufteilung darf der Repositorystruktur folgen. Sinngemäß werden benötigt:
 
@@ -779,7 +779,7 @@ src/trice*.h                 lokaler Dispatch und Site-Anwendung
 
 Gemeinsame Insert-/Bind-Funktionalität wird extrahiert oder parametrisiert, nicht dupliziert.
 
-## C.3 Verarbeitungsphasen
+### C.3 Verarbeitungsphasen
 
 1. Optionen und Pfade validieren.
 2. `til.json` und `li.json` mit der bestehenden Logik laden.
@@ -793,7 +793,7 @@ Gemeinsame Insert-/Bind-Funktionalität wird extrahiert oder parametrisiert, nic
 10. Sidecar-Deskriptoren, Diagnosen und globale Konflikte bestimmen.
 11. Nach fehlerfreier Analyse JSON-Dateien, Source-Includes und Sidecars konsistent schreiben.
 
-## C.4 In-Memory-Insert-Pass
+### C.4 In-Memory-Insert-Pass
 
 Für Bind-owned Dateien wird der finale In-Memory-Sourcezustand an die bestehende Insert-Logik übergeben. Diese liefert beziehungsweise bestimmt:
 
@@ -811,7 +811,7 @@ Aus der Änderung pro Site wird gerendert:
 
 Der virtuell instrumentierte Sourceinhalt wird nicht in die Userdatei geschrieben.
 
-## C.5 Dateiplan
+### C.5 Dateiplan
 
 Eine interne Dateiplan-Struktur enthält mindestens:
 
@@ -834,15 +834,15 @@ Ein Bind-Site enthält mindestens:
 - Modus `AUTO` oder `REPLACE`,
 - normalisierten Sourcetext für den Kommentar.
 
-## C.6 Transaktion und Parallelität
+### C.6 Transaktion und Parallelität
 
 Analyse und Sidecar-Aufbereitung laufen parallel entsprechend dem vorhandenen Insert-Modell. Globale ID- und Key-Konflikte werden mit den bestehenden Synchronisationsmechanismen beziehungsweise klar abgegrenzten Registries geschützt.
 
 Nach der Analyse folgt eine deterministische Commit-Phase. Ein echtes virtuelles Dateisystem ist nicht vorgeschrieben; Tests können reale temporäre Verzeichnisse verwenden.
 
-# Anhang D: Implementierung und Tests
+## Anhang D: Implementierung und Tests
 
-## D.1 Essenzielle Target-Nachweise
+### D.1 Essenzielle Target-Nachweise
 
 Die beiden vorhandenen PoCs sind vor und während der Integration als Regressionstests beizubehalten:
 
@@ -856,7 +856,7 @@ Die echte Trice-Library MUSS dieselben Eigenschaften für repräsentative Makrof
 3. Spezialfamilie wie String oder Buffer,
 4. Assertion beziehungsweise `triceAssertOrReturnValue`.
 
-## D.2 Unit-Tests
+### D.2 Unit-Tests
 
 Mindestens:
 
@@ -875,13 +875,13 @@ Mindestens:
 - gesammelte und sortierte Diagnosen,
 - atomisches beziehungsweise inhaltsabhängiges Schreiben.
 
-## D.3 Makroabdeckung
+### D.3 Makroabdeckung
 
 `_test/testdata/triceCheck.c` ist in einem temporären Testbaum zu verwenden. `trice bind` fügt dort die benötigten Sidecar-Includes selbst ein. Die kanonische Testquelle soll keine Bind-spezifischen `#if`-Blöcke erhalten.
 
 Für jedes vom Projekt angebotene User-Level-Makro muss ein positiver Bind-Test oder ein dokumentierter Negativtest existieren.
 
-## D.4 Testskripte
+### D.4 Testskripte
 
 Während der Inbetriebnahme ist der kurze Pflichtlauf:
 
@@ -903,12 +903,12 @@ Der vollständige Lauf bleibt Bestandteil der abschließenden Repository- bezieh
 ./scripts/testAll.sh full
 ```
 
-## D.5 Generator-PoC
+### D.5 Generator-PoC
 
 `examples/PoC_bind_v2` sowie die beiden Verifikations-PoCs bleiben unverändert erhalten. Für den echten Generator wird ein zusätzlicher unabhängiger PoC mit eigenem Namen angelegt.
 
 
-## D.6 Abnahmekriterien
+### D.6 Abnahmekriterien
 
 Das MVP gilt als implementiert, wenn:
 
@@ -928,9 +928,9 @@ Das MVP gilt als implementiert, wenn:
 14. Die bestehenden Insert-, Clean-, Update- und Logtests grün bleiben.
 15. Die in [Anhang D](#anhang-d-implementierung-und-tests) festgelegten Entwicklungs- und Regressionstests erfolgreich sind.
 
-# Anhang E: Nicht unterstützte Konstruktionen im MVP
+## Anhang E: Nicht unterstützte Konstruktionen im MVP
 
-## E.1 Mehrere direkte Trice-Stellen pro Zeile
+### E.1 Mehrere direkte Trice-Stellen pro Zeile
 
 ```c
 trice("msg:first\n"); trice("msg:second\n");
@@ -938,7 +938,7 @@ trice("msg:first\n"); trice("msg:second\n");
 
 Beide Stellen besitzen denselben File Key und denselben `__LINE__`-Wert. Im MVP sind getrennte Sourcezeilen zu verwenden.
 
-## E.2 Trice-Aufruf in einer Makrodefinition
+### E.2 Trice-Aufruf in einer Makrodefinition
 
 ```c
 #define LOG_ERROR(n) trice("msg:error=%d\n", n)
@@ -955,7 +955,7 @@ static inline void logError(int n)
 }
 ```
 
-## E.3 Zusammengesetzter Formatstring
+### E.3 Zusammengesetzter Formatstring
 
 ```c
 #define PREFIX "msg:"
@@ -964,7 +964,7 @@ trice(PREFIX "value=%d\n", value);
 
 Diese Form folgt den bereits bestehenden Grenzen des Insert-Parsers und des Trice-Formatstringmodells. Variable Texte sollen über geeignete Parameter- beziehungsweise Stringformen übertragen werden.
 
-## E.4 Nicht transparenter Custom-Wrapper
+### E.4 Nicht transparenter Custom-Wrapper
 
 ```c
 #define MY_TRACE(x) trice("msg:value=%d\n", transform(x))
@@ -972,11 +972,11 @@ Diese Form folgt den bereits bestehenden Grenzen des Insert-Parsers und des Tric
 
 Dies ist kein bloßer Aliasname, sondern eine Makrodefinition mit eigener Semantik und fällt unter E.2.
 
-# Anhang F: MVP2-Optionen und unabhängige spätere Erweiterungen
+## Anhang F: MVP2-Optionen und unabhängige spätere Erweiterungen
 
 Alle Inhalte dieses Anhangs liegen ausdrücklich außerhalb des MVP. Sie dürfen erst nach separater Spezifikation und Verifikation implementiert werden.
 
-## F.1 MVP2-Option: Check-Modus
+### F.1 MVP2-Option: Check-Modus
 
 Ein späteres:
 
@@ -998,7 +998,7 @@ kann zusätzliche Hygiene- und Berichtsfunktionen enthalten:
 
 Der normale MVP-Lauf bleibt auf bindungsrelevante Fehler konzentriert.
 
-## F.2 MVP2-Option: Begrenzte Wrappermakros
+### F.2 MVP2-Option: Begrenzte Wrappermakros
 
 Ein späteres MVP2 kann einfache Wrapper unterstützen:
 
@@ -1034,13 +1034,13 @@ Eine portable sourcebasierte Unterstützung ist für folgende begrenzte Klasse d
 
 Ein GCC-/Clang-Präprozessorlauf kann optional Aufrufstellen liefern, ist aber wegen abweichender Targetcompiler, vordefinierter Makros und inaktiver Zweige nicht die bevorzugte normative Grundlage.
 
-## F.3 MVP2-Option: Mehrere Trice-Stellen pro Zeile
+### F.3 MVP2-Option: Mehrere Trice-Stellen pro Zeile
 
 Ein gesonderter `__COUNTER__`-PoC kann prüfen, ob mehrere direkte Trice-Stellen derselben Sourcezeile zuverlässig unterscheidbar sind. Generator- und Compilerexpansion müssen dabei nachweislich denselben Counterverlauf besitzen.
 
 Diese Option ist unabhängig von F.2. `__COUNTER__` stellt nicht automatisch die bisherige Definitionsstellen-Semantik eines Wrappermakros her.
 
-## F.4 MVP2-Option: Maximale Sidecar-Zeilenlänge
+### F.4 MVP2-Option: Maximale Sidecar-Zeilenlänge
 
 Das MVP bricht Site-Definitionen nicht um. Falls praktische Compiler- oder Werkzeuggrenzen auftreten, kann später eine Option wie:
 
@@ -1050,23 +1050,23 @@ Das MVP bricht Site-Definitionen nicht um. Falls praktische Compiler- oder Werkz
 
 spezifiziert werden.
 
-## F.5 MVP2-Option: Aktive Präprozessorkonfiguration
+### F.5 MVP2-Option: Aktive Präprozessorkonfiguration
 
 Ein optionaler Lauf des tatsächlichen Targetpräprozessors kann berichten, welche sourcebasiert erfassten Logstellen in einer konkreten Buildkonfiguration aktiv sind. Das Binding und die stabile ID-Vergabe bleiben sourcebasiert.
 
-## F.6 MVP2-Option: Post-Link-Inventur
+### F.6 MVP2-Option: Post-Link-Inventur
 
 Eine optionale ELF- oder Link-Map-Auswertung kann berichten, welche aktiven Logstellen nach Optimierung, LTO, Archivselektion und Section-Garbage-Collection im finalen Image verbleiben. Sie verändert das Binding nicht.
 
-## F.7 MVP2-Option: Vorbereitete statische Libraries
+### F.7 MVP2-Option: Vorbereitete statische Libraries
 
 Vorbereitete `.a`-Libraries können Metadaten und bindbare ID-Platzhalter enthalten. Ein späterer Bind-Schritt kann sie in den ID-Raum des Endprodukts einordnen. Beliebige unvorbereitete Libraries sind damit nicht nachträglich bindbar.
 
-## F.8 MVP2-Option: Tiefere `insert`-Prüfung von Bind-Dateien
+### F.8 MVP2-Option: Tiefere `insert`-Prüfung von Bind-Dateien
 
 Das MVP lässt `trice insert` Dateien mit eigenem Sidecar-Include aus. Eine spätere Erweiterung kann zusätzlich Sidecar, `til.json` und `li.json` auf Konsistenz prüfen.
 
-## F.9 Unabhängige spätere Option: Referenzliste der User-Level-Makros
+### F.9 Unabhängige spätere Option: Referenzliste der User-Level-Makros
 
 Unabhängig von `trice bind` kann `trice generate` eine maschinenlesbare und dokumentierbare Referenz der User-Level-Makros erzeugen, beispielsweise unter `docs/ref`. Parser, Tests und Dokumentation sollten dafür möglichst eine gemeinsame Registry verwenden.
 
@@ -1079,37 +1079,37 @@ docs/ref/TriceUserMacros.json
 
 Diese Option ist keine Voraussetzung des Bind-MVP.
 
-## F.10 Unabhängige spätere Option: Allgemeinere Parser-Marker
+### F.10 Unabhängige spätere Option: Allgemeinere Parser-Marker
 
 Die vorhandenen Marker `TRICE_INSERT_OFF` und `TRICE_INSERT_ON` bleiben im MVP unverändert. Später können zusätzliche neutrale Synonyme wie `TRICE_ID_OFF` und `TRICE_ID_ON` geprüft werden.
 
-# Anhang G: Nicht verfolgte Alternativen
+## Anhang G: Nicht verfolgte Alternativen
 
-## G.1 Globales `TRICE_MODE`
+### G.1 Globales `TRICE_MODE`
 
 Ein zusätzlicher globaler Modus ist nicht erforderlich. `TRICE_CLEAN` wählt weiterhin den Off-Pfad; der lokale File Key wählt bei der Makroexpansion Insert oder Bind.
 
-## G.2 Einfaches `#ifdef TRICE_BIND_FILE_KEY`
+### G.2 Einfaches `#ifdef TRICE_BIND_FILE_KEY`
 
 Ein beim Einlesen von `trice.h` ausgewertetes `#ifdef` sieht den später inkludierten Sidecar nicht. Der verifizierte Expansion-Time-Dispatch aus Anhang A wird verwendet.
 
-## G.3 Automatischer Vorrang expliziter IDs
+### G.3 Automatischer Vorrang expliziter IDs
 
 Ein Bind-Dispatch, der ein vorhandenes explizites ID-Argument automatisch erkennt und bevorzugt, würde die Target-Makrokomplexität erhöhen. Im MVP erfolgt die Trennung dateiweise; im seltenen Hybridfall wird `TRICE_BIND_FILE_KEY` explizit undefiniert.
 
-## G.4 Separate `HAS_TID`-Definitionen
+### G.4 Separate `HAS_TID`-Definitionen
 
 Zwei Sidecar-Definitionen pro Site sind nicht erforderlich. Der einzeilige Deskriptor enthält Verarbeitungsmodus und vollständigen TID-Ausdruck.
 
-## G.5 Generierte Schattenquellen
+### G.5 Generierte Schattenquellen
 
 Das MVP kompiliert die Userquellen direkt. Ein virtueller Insert-Inhalt darf intern zur Ermittlung der Site-Daten entstehen, wird aber nicht als Buildquelle verwendet.
 
-## G.6 Allgemeines ELF-Patching
+### G.6 Allgemeines ELF-Patching
 
 Eine allgemeine ELF-Patch-Lösung wird für normale Userquellen nicht verfolgt. Spezielle ELF-basierte Analysen oder vorbereitete Libraries können additive Erweiterungen sein; siehe die separate Architekturentscheidung unter `docs/scratchPad/TriceBind/Trice_bind_vs_ELF_Patch.md`.
 
-# Anhang H: Repositoryreferenzen
+## Anhang H: Repositoryreferenzen
 
 - [`internal/id`](https://github.com/rokath/trice/tree/wip/internal/id): gemeinsame Parser-, Alias- und ID-Verwaltung
 - [`internal/id/insertIDs.go`](https://github.com/rokath/trice/blob/wip/internal/id/insertIDs.go): bestehende Insert-Zuordnung und Parallelverarbeitung
