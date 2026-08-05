@@ -1,0 +1,3 @@
+route=INSERT id=1001 text=before sidecar
+route=BIND id=2002 text=with sidecar
+route=INSERT id=3003 text=after undef
