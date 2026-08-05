@@ -160,6 +160,7 @@ func TestInfoHelpersWriteText(t *testing.T) {
 		{"displayServerInfo", displayServerInfo, "sub-command 'ds|displayServer'"},
 		{"shutdownInfo", shutdownInfo, "sub-command 'sd|shutdown'"},
 		{"insertIDsInfo", insertIDsInfo, "sub-command 'i|insert'"},
+		{"bindIDsInfo", bindIDsInfo, "sub-command 'bind'"},
 		{"cleanIDsInfo", cleanIDsInfo, "sub-command 'c|clean'"},
 		{"addInfo", addInfo, "sub-command 'a|add'"},
 		{"generateInfo", generateInfo, "sub-command 'g|gen|generate'"},
@@ -239,6 +240,7 @@ func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	tests := [][]string{
 		{"trice", "add", "-src", "missing-source-tree"},
 		{"trice", "insert", "-src", "missing-source-tree"},
+		{"trice", "bind", "-src", "missing-source-tree"},
 		{"trice", "clean", "-src", "missing-source-tree"},
 	}
 	for _, args := range tests {
@@ -271,10 +273,41 @@ func TestGenerationLocationRootFlags(t *testing.T) {
 	t.Cleanup(func() { id.LIRoot = oldRoot })
 
 	FlagsInit()
-	for _, flagSet := range []*flag.FlagSet{fsScAdd, fsScInsert, fsScClean} {
+	for _, flagSet := range []*flag.FlagSet{fsScAdd, fsScInsert, fsScBind, fsScClean} {
 		assert.Nil(t, flagSet.Lookup("liPath"))
 		assert.Equal(t, "", flagSet.Lookup("liRoot").DefValue)
 	}
 	assert.NoError(t, fsScInsert.Parse([]string{"-liRoot", "project"}))
 	assert.Equal(t, "project", id.LIRoot)
+}
+
+// TestHandlerBindGeneratesSidecar exercises the public command and bind-specific directory flag.
+func TestHandlerBindGeneratesSidecar(t *testing.T) {
+	FlagsInit()
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	assert.NoError(t, fSys.MkdirAll("project", 0o755))
+	assert.NoError(t, fSys.WriteFile("til.json", []byte("{}\n"), 0o644))
+	assert.NoError(t, fSys.WriteFile("li.json", []byte("{}\n"), 0o644))
+	const source = "trice(\"msg:handler=%d\\n\", 1);\n"
+	assert.NoError(t, fSys.WriteFile("project/module.c", []byte(source), 0o644))
+
+	var output bytes.Buffer
+	err := Handler(&output, fSys, []string{
+		"trice", "bind",
+		"-src", "project/module.c",
+		"-til", "til.json",
+		"-li", "li.json",
+		"-bindDir", "generated/triceIDs",
+		"-IDMin", "100",
+		"-IDMax", "199",
+		"-IDMethod", "upward",
+		"-defaultStampSize", "16",
+	})
+	assert.NoError(t, err)
+	bound, readErr := fSys.ReadFile("project/module.c")
+	assert.NoError(t, readErr)
+	assert.Contains(t, string(bound), `#include "trice_module_c_K`)
+	entries, readErr := fSys.ReadDir("generated/triceIDs")
+	assert.NoError(t, readErr)
+	assert.Len(t, entries, 1)
 }

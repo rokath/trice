@@ -28,6 +28,7 @@ func scHelp(w io.Writer) error {
 		{allHelp || shutdownHelp, shutdownInfo},
 		{allHelp || versionHelp, versionInfo},
 		{allHelp || insertIDsHelp, insertIDsInfo},
+		{allHelp || bindIDsHelp, bindIDsInfo},
 		{allHelp || cleanIDsHelp, cleanIDsInfo},
 	}
 	for _, z := range x {
@@ -113,6 +114,17 @@ func insertIDsInfo(w io.Writer) error {
 #	Example: 'trice i -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json`)
 	fsScInsert.SetOutput(w)
 	fsScInsert.PrintDefaults()
+	return e
+}
+
+func bindIDsInfo(w io.Writer) error {
+	_, e := fmt.Fprintln(w, `sub-command 'bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
+#	"trice bind" scans C/C++ source and headers, updates til.json and li.json with insert-compatible semantics,
+#	adds a file-local sidecar include where it is safe, and writes generated headers below -bindDir.
+#	Insert-owned files remain unchanged; mixed explicit and bind-style sites in one file are rejected.
+#	Example: 'trice bind -src ./src -bindDir ./build/triceIDs'`)
+	fsScBind.SetOutput(w)
+	fsScBind.PrintDefaults()
 	return e
 }
 

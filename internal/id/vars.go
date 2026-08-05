@@ -9,18 +9,19 @@ import (
 )
 
 var (
-	Verbose                      bool            // Verbose gives more information on output if set. The value is injected from main packages.
-	DryRun                       bool            // DryRun if set, inhibits real changes
-	FnJSON                       = "til.json"    // FnJSON is the filename for the JSON formatted ID list.
-	LIFnJSON                     string          // LIFnJSON is the filename for the JSON formatted location information list.
-	Min                          = TriceID(1000) // Min is the smallest allowed ID for normal trices.
-	Max                          = TriceID(7999) // Max is the biggest allowed ID for normal trices.
-	SearchMethod                 = "random"      // SearchMethod is the next ID search method.
-	LIRoot                       string          // LIRoot optionally overrides the li.json directory used as the source path anchor.
-	LIMaxDirs                    int             // LIMaxDirs limits the parent directories shown with log location information.
-	Srcs                         ArrayFlag       // Srcs gets multiple files or directories.
-	ExcludeSrcs                  ArrayFlag       // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
-	IDRange                      ArrayFlag       // IDPolicy gets ID ranges for Trice ID message channels like "err:".
+	Verbose                      bool                 // Verbose gives more information on output if set. The value is injected from main packages.
+	DryRun                       bool                 // DryRun if set, inhibits real changes
+	FnJSON                       = "til.json"         // FnJSON is the filename for the JSON formatted ID list.
+	LIFnJSON                     string               // LIFnJSON is the filename for the JSON formatted location information list.
+	Min                          = TriceID(1000)      // Min is the smallest allowed ID for normal trices.
+	Max                          = TriceID(7999)      // Max is the biggest allowed ID for normal trices.
+	SearchMethod                 = "random"           // SearchMethod is the next ID search method.
+	LIRoot                       string               // LIRoot optionally overrides the li.json directory used as the source path anchor.
+	LIMaxDirs                    int                  // LIMaxDirs limits the parent directories shown with log location information.
+	BindDir                      = "./build/triceIDs" // BindDir is the flat output directory for generated bind sidecar headers.
+	Srcs                         ArrayFlag            // Srcs gets multiple files or directories.
+	ExcludeSrcs                  ArrayFlag            // ExcludeSrcs is an ArrayFlag representing source files to be excluded from processing.
+	IDRange                      ArrayFlag            // IDPolicy gets ID ranges for Trice ID message channels like "err:".
 	IDData                       idData
 	matchSourceFile              = regexp.MustCompile(patSourceFile)
 	matchNbID                    = regexp.MustCompile(patNbID)

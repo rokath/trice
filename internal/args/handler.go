@@ -93,6 +93,18 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		//fmt.Println(id.StructuredLoggingValuesString)
 		//return err
 		return id.SubCmdIdInsert(w, fSys)
+	case "bind":
+		if err := fsScBind.Parse(subArgs); err != nil {
+			return err
+		}
+		id.CompactSrcs()
+		id.ProcessAliases()
+		emitter.AddUserLabels()
+		if err := id.EvaluateIDRangeStrings(); err != nil {
+			return err
+		}
+		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+		return id.SubCmdIdBind(w, fSys)
 	case "c", "clean":
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()

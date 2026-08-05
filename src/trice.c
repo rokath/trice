@@ -5,8 +5,10 @@
 //! \file trice.c
 //! \brief trice implementation.
 
-
+// Keep function-backed public wrapper macros disabled while their ABI symbols are defined here.
+#define TRICE_BIND_IMPLEMENTATION
 #include "trice.h"
+#undef TRICE_BIND_IMPLEMENTATION
 #include "cobs.h"
 #include "tcobs.h"
 

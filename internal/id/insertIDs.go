@@ -40,6 +40,12 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	in, err := fSys.ReadFile(path)
 	p.join(err)
 	// msg.Tell(w, path)
+	if p.err == nil && hasTriceBindSidecarInclude(string(in)) {
+		if Verbose {
+			fmt.Fprintln(w, "Skipped bind-owned source during insert:", path)
+		}
+		return nil
+	}
 
 	liFile := ToLIFile(path)
 	out, modified, err := p.insertTriceIDs(w, path, liFile, in, a)

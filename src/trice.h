@@ -96,14 +96,6 @@ extern "C" {
 #include "triceConfig.h"        // Project specific settings are overwriting the default settings.
 #include "triceDefaultConfig.h" // default settings
 
-// Bind mode compiles ID-free calls after trice clean has restored the source.
-// Treat TRICE_CLEAN as active-code state internally because generated sidecars
-// now provide the IDs which insert would otherwise place in the user source.
-#if defined(TRICE_BIND) && (TRICE_BIND == 1)
-#undef TRICE_CLEAN
-#define TRICE_CLEAN 0
-#endif
-
 #include "triceRx.h"
 
 // Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
@@ -769,10 +761,10 @@ extern uint32_t* TriceBufferWritePosition;
 // `Trice0` and `TRice0` spellings are no longer emitted as linker-visible
 // symbols. That is acceptable here because their compatibility role is served
 // by fixed-arity macros below, which work in strict non-GNU C modes as well.
-#define TRICE_0 TRICE32_0 //!< Only the format string without parameter values.
-#define TRice_0 TRice32_0 //!< Only the format string without parameter values.
-#define Trice_0 Trice32_0 //!< Only the format string without parameter values.
-#define trice_0 trice32_0 //!< Only the format string without parameter values.
+#define TRICE_INSERT_TRICE_0 TRICE_INSERT_TRICE32_0 //!< Only the format string without parameter values.
+#define TRICE_INSERT_TRice_0 TRICE_INSERT_TRice32_0 //!< Only the format string without parameter values.
+#define TRICE_INSERT_Trice_0 TRICE_INSERT_Trice32_0 //!< Only the format string without parameter values.
+#define TRICE_INSERT_trice_0 TRICE_INSERT_trice32_0 //!< Only the format string without parameter values.
 
 // These explicit zero-value spellings are kept as fixed-arity macros.
 //
@@ -790,9 +782,9 @@ extern uint32_t* TriceBufferWritePosition;
 //
 // The `pFmt` parameter is intentionally accepted for source compatibility but
 // ignored by the expansion.
-#define trice0(tid, pFmt) trice32_0(tid, pFmt)
-#define Trice0(tid, pFmt) Trice32_0(tid, pFmt)
-#define TRice0(tid, pFmt) TRice32_0(tid, pFmt)
+#define TRICE_INSERT_trice0(tid, pFmt) TRICE_INSERT_trice32_0(tid, pFmt)
+#define TRICE_INSERT_Trice0(tid, pFmt) TRICE_INSERT_Trice32_0(tid, pFmt)
+#define TRICE_INSERT_TRice0(tid, pFmt) TRICE_INSERT_TRice32_0(tid, pFmt)
 
 #ifndef TRICE_N
 
@@ -810,7 +802,7 @@ extern uint32_t* TriceBufferWritePosition;
 //
 // todo: for some reason this macro is not working well with name len instead of len_, probably when injected len as value.
 //
-#define TRICE_N(tid, pFmt, buf, n)                                                                                                           \
+#define TRICE_INSERT_TRICE_N(tid, pFmt, buf, n)                                                                                                           \
 	do {                                                                                                                                     \
 		TRICE_UNUSED(pFmt);                                                                                                                  \
 		uint32_t limit_TRICE_N = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
@@ -833,21 +825,42 @@ void triceN(int tid, char const* fmt, const void* buf, uint32_t n);
 void TriceN(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRiceN(int tid, char const* fmt, const void* buf, uint32_t n);
 
+// These adapters keep the public function ABI while making expansion-time routing possible.
+#define TRICE_INSERT_triceN(tid, ...) (triceN)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TriceN(tid, ...) (TriceN)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRiceN(tid, ...) (TRiceN)(tid, __VA_ARGS__)
+
 void trice8B(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice8B(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice8B(int tid, char const* fmt, const void* buf, uint32_t n);
+
+#define TRICE_INSERT_trice8B(tid, ...) (trice8B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice8B(tid, ...) (Trice8B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice8B(tid, ...) (TRice8B)(tid, __VA_ARGS__)
 
 void trice16B(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice16B(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice16B(int tid, char const* fmt, const void* buf, uint32_t n);
 
+#define TRICE_INSERT_trice16B(tid, ...) (trice16B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice16B(tid, ...) (Trice16B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice16B(tid, ...) (TRice16B)(tid, __VA_ARGS__)
+
 void trice32B(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice32B(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice32B(int tid, char const* fmt, const void* buf, uint32_t n);
 
+#define TRICE_INSERT_trice32B(tid, ...) (trice32B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice32B(tid, ...) (Trice32B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice32B(tid, ...) (TRice32B)(tid, __VA_ARGS__)
+
 void trice64B(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice64B(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice64B(int tid, char const* fmt, const void* buf, uint32_t n);
+
+#define TRICE_INSERT_trice64B(tid, ...) (trice64B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice64B(tid, ...) (Trice64B)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice64B(tid, ...) (TRice64B)(tid, __VA_ARGS__)
 
 #if TRICE_LEGACY_RPC_SUPPORT == 1
 
@@ -855,17 +868,33 @@ void trice8F(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice8F(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice8F(int tid, char const* fmt, const void* buf, uint32_t n);
 
+#define TRICE_INSERT_trice8F(tid, ...) (trice8F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice8F(tid, ...) (Trice8F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice8F(tid, ...) (TRice8F)(tid, __VA_ARGS__)
+
 void trice16F(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice16F(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice16F(int tid, char const* fmt, const void* buf, uint32_t n);
+
+#define TRICE_INSERT_trice16F(tid, ...) (trice16F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice16F(tid, ...) (Trice16F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice16F(tid, ...) (TRice16F)(tid, __VA_ARGS__)
 
 void trice32F(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice32F(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice32F(int tid, char const* fmt, const void* buf, uint32_t n);
 
+#define TRICE_INSERT_trice32F(tid, ...) (trice32F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice32F(tid, ...) (Trice32F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice32F(tid, ...) (TRice32F)(tid, __VA_ARGS__)
+
 void trice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 void Trice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n);
+
+#define TRICE_INSERT_trice64F(tid, ...) (trice64F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_Trice64F(tid, ...) (Trice64F)(tid, __VA_ARGS__)
+#define TRICE_INSERT_TRice64F(tid, ...) (TRice64F)(tid, __VA_ARGS__)
 
 #endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 
@@ -877,10 +906,10 @@ void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 //! \param tid trice identifier
 //! \param pFmt format string for trice (ignored here but used by the trice tool)
 //! \param runtimeGeneratedString 0-terminated runtime generated string
-#define TRICE_S(tid, pFmt, runtimeGeneratedString)                \
+#define TRICE_INSERT_TRICE_S(tid, pFmt, runtimeGeneratedString)                \
 	do {                                                          \
 		size_t ssiz_TRICE_S = strlen(runtimeGeneratedString);     \
-		TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
+		TRICE_INSERT_TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
 // These fixed-arity source-level forms are intentionally macros instead of
@@ -910,9 +939,9 @@ void triceSfn(uint16_t tid, const char* runtimeGeneratedString);
 void TriceSfn(uint16_t tid, const char* runtimeGeneratedString);
 void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 
-#define triceS(tid, fmt, runtimeGeneratedString) triceSfn((uint16_t)(tid), runtimeGeneratedString)
-#define TriceS(tid, fmt, runtimeGeneratedString) TriceSfn((uint16_t)(tid), runtimeGeneratedString)
-#define TRiceS(tid, fmt, runtimeGeneratedString) TRiceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TRICE_INSERT_triceS(tid, fmt, runtimeGeneratedString) triceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TRICE_INSERT_TriceS(tid, fmt, runtimeGeneratedString) TriceSfn((uint16_t)(tid), runtimeGeneratedString)
+#define TRICE_INSERT_TRiceS(tid, fmt, runtimeGeneratedString) TRiceSfn((uint16_t)(tid), runtimeGeneratedString)
 
 #endif // #ifndef TRICE_S
 
@@ -1000,7 +1029,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 #define TRICE_C_STAMP16(stamp16) TRICE_PUT16((uint16_t)(stamp16))
 
 //! TRICE_C_0_0 writes a no-payload ABC command without stamp.
-#define TRICE_C_0_0(tid, pFmt) \
+#define TRICE_INSERT_TRICE_C_0_0(tid, pFmt) \
 	do {                       \
 		TRICE_UNUSED(pFmt);    \
 		TRICE_ENTER tid;       \
@@ -1009,7 +1038,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 	} while (0)
 
 //! TRICE_C_0_16 writes a no-payload ABC command with an explicit 16-bit stamp.
-#define TRICE_C_0_16(tid, pFmt, stamp16) \
+#define TRICE_INSERT_TRICE_C_0_16(tid, pFmt, stamp16) \
 	do {                                 \
 		TRICE_UNUSED(pFmt);              \
 		TRICE_ENTER tid;                 \
@@ -1019,7 +1048,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 	} while (0)
 
 //! TRICE_C_0_32 writes a no-payload ABC command with an explicit 32-bit stamp.
-#define TRICE_C_0_32(tid, pFmt, stamp32) \
+#define TRICE_INSERT_TRICE_C_0_32(tid, pFmt, stamp32) \
 	do {                                 \
 		TRICE_UNUSED(pFmt);              \
 		TRICE_ENTER tid;                 \
@@ -1028,10 +1057,10 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 		TRICE_LEAVE                      \
 	} while (0)
 
-#define TRICE_C_N0(tid, pFmt, buf, n) TRICE_N(tid, pFmt, buf, n)
+#define TRICE_INSERT_TRICE_C_N0(tid, pFmt, buf, n) TRICE_INSERT_TRICE_N(tid, pFmt, buf, n)
 
 //! TRICE_C_N16 writes a counted-buffer ABC command with an explicit 16-bit stamp.
-#define TRICE_C_N16(tid, pFmt, stamp16, buf, n)                                                                                             \
+#define TRICE_INSERT_TRICE_C_N16(tid, pFmt, stamp16, buf, n)                                                                                             \
 	do {                                                                                                                                     \
 		TRICE_UNUSED(pFmt);                                                                                                                  \
 		uint32_t limit_TRICE_C_N16 = TRICE_SINGLE_MAX_SIZE - 12;                                                                             \
@@ -1052,7 +1081,7 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 	} while (0)
 
 //! TRICE_C_N32 writes a counted-buffer ABC command with an explicit 32-bit stamp.
-#define TRICE_C_N32(tid, pFmt, stamp32, buf, n)                                                                                             \
+#define TRICE_INSERT_TRICE_C_N32(tid, pFmt, stamp32, buf, n)                                                                                             \
 	do {                                                                                                                                     \
 		TRICE_UNUSED(pFmt);                                                                                                                  \
 		uint32_t limit_TRICE_C_N32 = TRICE_SINGLE_MAX_SIZE - 12;                                                                             \
@@ -1072,55 +1101,55 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 		TRICE_LEAVE                                                                                                                          \
 	} while (0)
 
-#define TRIce_C(tid, pFmt) TRICE_C_0_0(TRICE_C_ID0(tid), pFmt)
-#define TRICe_C(tid, pFmt, stamp16) TRICE_C_0_16(TRICE_C_ID16(tid), pFmt, stamp16)
-#define TRICE_C(tid, pFmt, stamp32) TRICE_C_0_32(TRICE_C_ID32(tid), pFmt, stamp32)
+#define TRICE_INSERT_TRIce_C(tid, pFmt) TRICE_INSERT_TRICE_C_0_0(TRICE_C_ID0(tid), pFmt)
+#define TRICE_INSERT_TRICe_C(tid, pFmt, stamp16) TRICE_INSERT_TRICE_C_0_16(TRICE_C_ID16(tid), pFmt, stamp16)
+#define TRICE_INSERT_TRICE_C(tid, pFmt, stamp32) TRICE_INSERT_TRICE_C_0_32(TRICE_C_ID32(tid), pFmt, stamp32)
 
-#define TRIce8_C(tid, pFmt, buf, n) TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 1u * (uint32_t)(n))
-#define TRICe8_C(tid, pFmt, stamp16, buf, n) TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 1u * (uint32_t)(n))
-#define TRICE8_C(tid, pFmt, stamp32, buf, n) TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 1u * (uint32_t)(n))
+#define TRICE_INSERT_TRIce8_C(tid, pFmt, buf, n) TRICE_INSERT_TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 1u * (uint32_t)(n))
+#define TRICE_INSERT_TRICe8_C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 1u * (uint32_t)(n))
+#define TRICE_INSERT_TRICE8_C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 1u * (uint32_t)(n))
 
-#define TRIce16_C(tid, pFmt, buf, n) TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 2u * (uint32_t)(n))
-#define TRICe16_C(tid, pFmt, stamp16, buf, n) TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 2u * (uint32_t)(n))
-#define TRICE16_C(tid, pFmt, stamp32, buf, n) TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 2u * (uint32_t)(n))
+#define TRICE_INSERT_TRIce16_C(tid, pFmt, buf, n) TRICE_INSERT_TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 2u * (uint32_t)(n))
+#define TRICE_INSERT_TRICe16_C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 2u * (uint32_t)(n))
+#define TRICE_INSERT_TRICE16_C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 2u * (uint32_t)(n))
 
-#define TRIce32_C(tid, pFmt, buf, n) TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 4u * (uint32_t)(n))
-#define TRICe32_C(tid, pFmt, stamp16, buf, n) TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 4u * (uint32_t)(n))
-#define TRICE32_C(tid, pFmt, stamp32, buf, n) TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 4u * (uint32_t)(n))
+#define TRICE_INSERT_TRIce32_C(tid, pFmt, buf, n) TRICE_INSERT_TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 4u * (uint32_t)(n))
+#define TRICE_INSERT_TRICe32_C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 4u * (uint32_t)(n))
+#define TRICE_INSERT_TRICE32_C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 4u * (uint32_t)(n))
 
 #if (TRICE_64_BIT_SUPPORT == 1)
-#define TRIce64_C(tid, pFmt, buf, n) TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 8u * (uint32_t)(n))
-#define TRICe64_C(tid, pFmt, stamp16, buf, n) TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 8u * (uint32_t)(n))
-#define TRICE64_C(tid, pFmt, stamp32, buf, n) TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 8u * (uint32_t)(n))
+#define TRICE_INSERT_TRIce64_C(tid, pFmt, buf, n) TRICE_INSERT_TRICE_C_N0(TRICE_C_ID0(tid), pFmt, buf, 8u * (uint32_t)(n))
+#define TRICE_INSERT_TRICe64_C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICE_C_N16(TRICE_C_ID16(tid), pFmt, stamp16, buf, 8u * (uint32_t)(n))
+#define TRICE_INSERT_TRICE64_C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE_C_N32(TRICE_C_ID32(tid), pFmt, stamp32, buf, 8u * (uint32_t)(n))
 #endif // #if (TRICE_64_BIT_SUPPORT == 1)
 
-#define triceC(tid, pFmt) TRIce_C(tid, pFmt)
-#define TriceC(tid, pFmt, stamp16) TRICe_C(tid, pFmt, stamp16)
-#define TRiceC(tid, pFmt, stamp32) TRICE_C(tid, pFmt, stamp32)
+#define TRICE_INSERT_triceC(tid, pFmt) TRICE_INSERT_TRIce_C(tid, pFmt)
+#define TRICE_INSERT_TriceC(tid, pFmt, stamp16) TRICE_INSERT_TRICe_C(tid, pFmt, stamp16)
+#define TRICE_INSERT_TRiceC(tid, pFmt, stamp32) TRICE_INSERT_TRICE_C(tid, pFmt, stamp32)
 
-#define trice8C(tid, pFmt, buf, n) TRIce8_C(tid, pFmt, buf, n)
-#define Trice8C(tid, pFmt, stamp16, buf, n) TRICe8_C(tid, pFmt, stamp16, buf, n)
-#define TRice8C(tid, pFmt, stamp32, buf, n) TRICE8_C(tid, pFmt, stamp32, buf, n)
+#define TRICE_INSERT_trice8C(tid, pFmt, buf, n) TRICE_INSERT_TRIce8_C(tid, pFmt, buf, n)
+#define TRICE_INSERT_Trice8C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICe8_C(tid, pFmt, stamp16, buf, n)
+#define TRICE_INSERT_TRice8C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE8_C(tid, pFmt, stamp32, buf, n)
 
-#define trice16C(tid, pFmt, buf, n) TRIce16_C(tid, pFmt, buf, n)
-#define Trice16C(tid, pFmt, stamp16, buf, n) TRICe16_C(tid, pFmt, stamp16, buf, n)
-#define TRice16C(tid, pFmt, stamp32, buf, n) TRICE16_C(tid, pFmt, stamp32, buf, n)
+#define TRICE_INSERT_trice16C(tid, pFmt, buf, n) TRICE_INSERT_TRIce16_C(tid, pFmt, buf, n)
+#define TRICE_INSERT_Trice16C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICe16_C(tid, pFmt, stamp16, buf, n)
+#define TRICE_INSERT_TRice16C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE16_C(tid, pFmt, stamp32, buf, n)
 
-#define trice32C(tid, pFmt, buf, n) TRIce32_C(tid, pFmt, buf, n)
-#define Trice32C(tid, pFmt, stamp16, buf, n) TRICe32_C(tid, pFmt, stamp16, buf, n)
-#define TRice32C(tid, pFmt, stamp32, buf, n) TRICE32_C(tid, pFmt, stamp32, buf, n)
+#define TRICE_INSERT_trice32C(tid, pFmt, buf, n) TRICE_INSERT_TRIce32_C(tid, pFmt, buf, n)
+#define TRICE_INSERT_Trice32C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICe32_C(tid, pFmt, stamp16, buf, n)
+#define TRICE_INSERT_TRice32C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE32_C(tid, pFmt, stamp32, buf, n)
 
 #if (TRICE_64_BIT_SUPPORT == 1)
-#define trice64C(tid, pFmt, buf, n) TRIce64_C(tid, pFmt, buf, n)
-#define Trice64C(tid, pFmt, stamp16, buf, n) TRICe64_C(tid, pFmt, stamp16, buf, n)
-#define TRice64C(tid, pFmt, stamp32, buf, n) TRICE64_C(tid, pFmt, stamp32, buf, n)
+#define TRICE_INSERT_trice64C(tid, pFmt, buf, n) TRICE_INSERT_TRIce64_C(tid, pFmt, buf, n)
+#define TRICE_INSERT_Trice64C(tid, pFmt, stamp16, buf, n) TRICE_INSERT_TRICe64_C(tid, pFmt, stamp16, buf, n)
+#define TRICE_INSERT_TRice64C(tid, pFmt, stamp32, buf, n) TRICE_INSERT_TRICE64_C(tid, pFmt, stamp32, buf, n)
 #endif // #if (TRICE_64_BIT_SUPPORT == 1)
 
 #endif // #if TRICE_TX_ABC_SUPPORT == 1
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-#define TRICE0(tid, pFmt) \
+#define TRICE_INSERT_TRICE0(tid, pFmt) \
 	TRICE_ENTER tid;      \
 	TRICE_CNTC(0);        \
 	TRICE_LEAVE
@@ -1141,25 +1170,27 @@ void triceAssertFalseFn(uint16_t idN, int flag);
 void TriceAssertFalseFn(uint16_t idN, int flag);
 void TRiceAssertFalseFn(uint16_t idN, int flag);
 
-#define triceAssertTrue(idN, msg, flag) triceAssertTrueFn((uint16_t)(idN), flag)
-#define TriceAssertTrue(idN, msg, flag) TriceAssertTrueFn((uint16_t)(idN), flag)
-#define TRiceAssertTrue(idN, msg, flag) TRiceAssertTrueFn((uint16_t)(idN), flag)
+#define TRICE_INSERT_triceAssertTrue(idN, msg, flag) triceAssertTrueFn((uint16_t)(idN), flag)
+#define TRICE_INSERT_TriceAssertTrue(idN, msg, flag) TriceAssertTrueFn((uint16_t)(idN), flag)
+#define TRICE_INSERT_TRiceAssertTrue(idN, msg, flag) TRiceAssertTrueFn((uint16_t)(idN), flag)
 
-#define triceAssertFalse(idN, msg, flag) triceAssertFalseFn((uint16_t)(idN), flag)
-#define TriceAssertFalse(idN, msg, flag) TriceAssertFalseFn((uint16_t)(idN), flag)
-#define TRiceAssertFalse(idN, msg, flag) TRiceAssertFalseFn((uint16_t)(idN), flag)
+#define TRICE_INSERT_triceAssertFalse(idN, msg, flag) triceAssertFalseFn((uint16_t)(idN), flag)
+#define TRICE_INSERT_TriceAssertFalse(idN, msg, flag) TriceAssertFalseFn((uint16_t)(idN), flag)
+#define TRICE_INSERT_TRiceAssertFalse(idN, msg, flag) TRiceAssertFalseFn((uint16_t)(idN), flag)
 
-#define triceAssert(idN, msg, flag) triceAssertTrue(idN, msg, flag)
-#define TriceAssert(idN, msg, flag) TriceAssertTrue(idN, msg, flag)
-#define TRiceAssert(idN, msg, flag) TRiceAssertTrue(idN, msg, flag)
+#define TRICE_INSERT_triceAssert(idN, msg, flag) TRICE_INSERT_triceAssertTrue(idN, msg, flag)
+#define TRICE_INSERT_TriceAssert(idN, msg, flag) TRICE_INSERT_TriceAssertTrue(idN, msg, flag)
+#define TRICE_INSERT_TRiceAssert(idN, msg, flag) TRICE_INSERT_TRiceAssertTrue(idN, msg, flag)
 
-#define triceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {trice(idN, msg); return;}} while(0)
-#define TriceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {Trice(idN, msg); return;}} while(0)
-#define TRiceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRice(idN, msg); return;}} while(0)
+#define TRICE_INSERT_triceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRICE_INSERT_trice(idN, msg); return;}} while(0)
+#define TRICE_INSERT_TriceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRICE_INSERT_Trice(idN, msg); return;}} while(0)
+#define TRICE_INSERT_TRiceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRICE_INSERT_TRice(idN, msg); return;}} while(0)
 
-#define triceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {trice(idN, msg); return (value);}} while(0)
-#define TriceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {Trice(idN, msg); return (value);}} while(0)
-#define TRiceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRice(idN, msg); return (value);}} while(0)
+#define TRICE_INSERT_triceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRICE_INSERT_trice(idN, msg); return (value);}} while(0)
+#define TRICE_INSERT_TriceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRICE_INSERT_Trice(idN, msg); return (value);}} while(0)
+#define TRICE_INSERT_TRiceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRICE_INSERT_TRice(idN, msg); return (value);}} while(0)
+
+#include "triceBind.h"
 
 #endif // #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 

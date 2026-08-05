@@ -147,6 +147,18 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.GetIDStateFromJSONFiles(w, fSys)
 
+	// Rebuild all free-ID slices for every command invocation. Tag-specific
+	// ranges survive from option evaluation, while the common range and stale
+	// allocation state from an earlier in-process command are discarded.
+	tagRanges := p.TagList[:0]
+	for _, entry := range p.TagList {
+		if entry.tagName != "" {
+			entry.iDSpace = nil
+			tagRanges = append(tagRanges, entry)
+		}
+	}
+	p.TagList = tagRanges
+
 	var common TagEntry
 
 	common.tagName = ""

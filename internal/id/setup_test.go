@@ -120,6 +120,7 @@ type globalDefaults struct {
 	defaultSearchMethod               string
 	defaultLIRoot                     string
 	defaultLIMaxDirs                  int
+	defaultBindDir                    string
 	defaultSrcs                       ArrayFlag
 	defaultExcludeSrcs                ArrayFlag
 	defaultTriceAliases               ArrayFlag
@@ -144,6 +145,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultSearchMethod = SearchMethod
 	p.defaultLIRoot = LIRoot
 	p.defaultLIMaxDirs = LIMaxDirs
+	p.defaultBindDir = BindDir
 	p.defaultSrcs = Srcs
 	p.defaultExcludeSrcs = ExcludeSrcs
 	p.defaultTriceAliases = TriceAliases
@@ -171,6 +173,7 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	SearchMethod = p.defaultSearchMethod
 	LIRoot = p.defaultLIRoot
 	LIMaxDirs = p.defaultLIMaxDirs
+	BindDir = p.defaultBindDir
 	Srcs = p.defaultSrcs
 	ExcludeSrcs = p.defaultExcludeSrcs
 	TriceAliases = p.defaultTriceAliases

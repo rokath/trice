@@ -100,6 +100,7 @@ main() {
   run_step "_testAll_07_GoCoverage.sh" || failed=1
   run_step "_testAll_08_RuntimePrepare.sh" || failed=1
   run_step "_testAll_09_GoTests.sh" || failed=1
+  run_step "_testAll_09b_BindTests.sh" || failed=1
   run_step "_testAll_10_PcTargetTests.sh" "$selected" || failed=1
   run_step "_testAll_11_ClangTranslation.sh" || failed=1
   run_step "_testAll_12_GccExampleBuilds.sh" || failed=1
