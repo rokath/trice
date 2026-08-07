@@ -184,19 +184,31 @@ void TriceCheck(int index) {
         break; case __LINE__: Test_TRiceAssertOrReturnValue(0); //exp: "time:feed3322default: ASSERT:flag not true!\n"
         
         // The following asserts are expected to be silent, so we add some output just for the testing here.
-        break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: triceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TriceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TRiceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: triceAssert("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TriceAssert("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TRiceAssert("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", 0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", 0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", 0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
 
-        break; case __LINE__: triceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TriceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
-        break; case __LINE__: TRiceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+        break; case __LINE__: triceAssertOrReturn("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TriceAssertOrReturn("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
+        break; case __LINE__: TRiceAssertOrReturn("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
+            TRice("ok\n");
 
         break; case __LINE__: if(Test_triceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         break; case __LINE__: if(Test_TriceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
@@ -2200,8 +2212,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
                 trice("e:7");
                 trice("m:12");
                 trice("m:123\n");
-                trice("e:A"); trice("w:B"); trice("a:c");
-                trice("wr:d"); trice("rd:e\n"); trice("diag:f");
+                trice("e:A");
+                trice("w:B");
+                trice("a:c");
+                trice("wr:d");
+                trice("rd:e\n");
+                trice("diag:f");
         }
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: trice("sig:TRICE8 with variable param count 1 to 12\n" );
@@ -2698,28 +2714,31 @@ static int64_t DoubleToInt64(double f) {
 	return -(int64_t)-f;
 }
 
+// logCopySize keeps serialization diagnostics at fixed source sites so insert
+// and bind assign one stable pair of IDs to every copy operation.
+static inline void logCopySize(char const* name, size_t size) {
+	TRICE_S(ID(0), "rd:sizeof(%8s)", name);
+	TRICE(ID(0), " = %d\n", size);
+}
+
 #endif
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY(element)                             \
-	do {                                           \
-		char const* n_SCOPY = #element;            \
-		size_t size_SCOPY = sizeof(src->element);  \
-		memcpy(p, &(src->element), size_SCOPY);    \
-		p += size_SCOPY;                           \
-		TRICE_S(ID(0), "rd:sizeof(%8s)", n_SCOPY); \
-		TRICE(ID(0), " = %d\n", size_SCOPY);       \
+#define SCOPY(element)                            \
+	do {                                          \
+		size_t size_SCOPY = sizeof(src->element); \
+		memcpy(p, &(src->element), size_SCOPY);   \
+		p += size_SCOPY;                          \
+		logCopySize(#element, size_SCOPY);        \
 	} while (0);
 
 //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY(element)                             \
-	do {                                           \
-		char const* n_DCOPY = #element;            \
-		size_t size_DCOPY = sizeof(dst->element);  \
-		memcpy(&(dst->element), p, size_DCOPY);    \
-		p += size_DCOPY;                           \
-		TRICE_S(ID(0), "rd:sizeof(%8s)", n_DCOPY); \
-		TRICE(ID(0), " = %d\n", size_DCOPY);       \
+#define DCOPY(element)                            \
+	do {                                          \
+		size_t size_DCOPY = sizeof(dst->element); \
+		memcpy(&(dst->element), p, size_DCOPY);   \
+		p += size_DCOPY;                          \
+		logCopySize(#element, size_DCOPY);        \
 	} while (0);
 
 typedef struct {

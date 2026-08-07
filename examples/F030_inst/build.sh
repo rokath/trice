@@ -143,18 +143,16 @@ flags="${trice_flags[*]-}"
 # 4) Run TRICE scripts
 # ------------------------------------------------------------------------------
 
-# Always start from a cleaned state.
-#
-# This pre-clean is intentionally not guarded by ids_inserted. If it fails, the
-# script should fail immediately because the starting state is not trustworthy.
-cd "${ROOT}"
-bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
-
-# Insert IDs before the build.
-#
-# After this command succeeds, cleanup must run trice clean on every exit path.
-bash "${ROOT}/trice_insertIDs_in_examples_and_test_folder.sh"
-ids_inserted=1
+# An outer test wrapper owns Insert/Bind preparation and exact restoration. A
+# direct user invocation keeps the historical local Insert/Clean lifecycle.
+if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
+  echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"
+else
+  cd "${ROOT}"
+  bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
+  bash "${ROOT}/trice_insertIDs_in_examples_and_test_folder.sh"
+  ids_inserted=1
+fi
 
 # ------------------------------------------------------------------------------
 # 5) Load build environment and build

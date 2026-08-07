@@ -69,6 +69,22 @@ volatile uint32_t * const DWT_CONTROL = (uint32_t *) 0xE0001000;
 volatile uint32_t * const DWT_CYCCNT = (uint32_t *) 0xE0001004;
 volatile uint32_t * const DEMCR = (uint32_t *) 0xE000EDFC;
 volatile uint32_t * const LAR  = (uint32_t *) 0xE0001FB0;   // lock access register
+
+// L432LogConfigInfo keeps configuration logging in ordinary source code so
+// both inserted IDs and generated sidecar IDs use the same direct Trice sites.
+void L432LogConfigInfo(void) {
+#if CONFIGURATION == 97
+  trice8("dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\n", CONFIGURATION);
+#elif CONFIGURATION == 98
+  trice8("dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\n", CONFIGURATION);
+#elif CONFIGURATION == 99
+  trice8("dbg:CONFIGURATION == %d - An minimum configuration example.\n", CONFIGURATION);
+#elif CONFIGURATION == 100
+  trice8("dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\n", CONFIGURATION);
+#else
+  trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#endif
+}
 /* USER CODE END 0 */
 
 /**

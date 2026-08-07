@@ -359,6 +359,12 @@ func commitBindWrites(fSys *afero.Afero, writes []bindWrite) error {
 		return err
 	}
 	for index, write := range writes {
+		if write.remove {
+			if err := fSys.Remove(write.path); err != nil {
+				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot remove %s: %w", write.path, err))
+			}
+			continue
+		}
 		if write.kind == "sidecar" {
 			if err := fSys.MkdirAll(filepath.Dir(write.path), 0o755); err != nil {
 				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot create bind directory for %s: %w", write.path, err))

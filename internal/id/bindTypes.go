@@ -87,6 +87,8 @@ type bindWrite struct {
 	data []byte
 	perm os.FileMode
 	kind string
+	// remove distinguishes a planned deletion from an empty-file replacement.
+	remove bool
 }
 
 // bindOriginalFile is the rollback snapshot for one destination in the deterministic commit phase.

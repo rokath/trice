@@ -101,9 +101,14 @@ main() {
   run_step "_testAll_08_RuntimePrepare.sh" || failed=1
   run_step "_testAll_09_GoTests.sh" || failed=1
   run_step "_testAll_09b_BindTests.sh" || failed=1
-  run_step "_testAll_10_PcTargetTests.sh" "$selected" || failed=1
-  run_step "_testAll_11_ClangTranslation.sh" || failed=1
-  run_step "_testAll_12_GccExampleBuilds.sh" || failed=1
+  run_step "_testAll_09c_BindWorkflowTests.sh" || failed=1
+  run_step "_testAll_10a_PcTargetTests_insert.sh" "$selected" || failed=1
+  run_step "_testAll_10b_PcTargetTests_bind.sh" "$selected" || failed=1
+  run_step "_testAll_11a_ClangTranslation_insert.sh" || failed=1
+  run_step "_testAll_11b_ClangTranslation_bind.sh" || failed=1
+  run_step "_testAll_12a_GccExampleBuilds_insert.sh" || failed=1
+  run_step "_testAll_12c_GccExampleBuilds_off.sh" || failed=1
+  run_step "_testAll_12b_GccExampleBuilds_bind.sh" || failed=1
   if [ "$selected" = "full" ]; then
     run_step "_testAll_13_L432Configs.sh" || failed=1
   fi

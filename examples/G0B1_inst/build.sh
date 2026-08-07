@@ -229,28 +229,19 @@ done
 # 4) Run TRICE scripts
 # ------------------------------------------------------------------------------
 
-# Always start from a cleaned state.
-#
-# This pre-clean also helps editors show the Trice IDs cleaned state before the
-# build starts.
-#
-# This pre-clean is intentionally not guarded by ids_inserted. If it fails, the
-# script should fail immediately because the starting state is not trustworthy.
-cd "${ROOT}"
-bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
+# An outer test wrapper owns Insert/Bind preparation and exact restoration. A
+# direct user invocation keeps the historical local Insert/Clean lifecycle.
+if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
+  echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"
+else
+  cd "${ROOT}"
+  bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
 
-if [ "${triceOFF}" != "1" ]; then
-  # Insert IDs before the normal gcc build.
-  #
-  # Trice is called here and not within make, to guarantee it is finished before
-  # any make job starts.
-  #
-  # custom aliases should be excluded or without IDs, when translating with
-  # TRICE_OFF=1. Therefore insert is skipped in the TRICE_OFF=1 case.
-  #
-  # After this command succeeds, cleanup must run trice clean on every exit path.
-  bash "${ROOT}/trice_insertIDs_in_examples_and_test_folder.sh"
-  ids_inserted=1
+  if [ "${triceOFF}" != "1" ]; then
+    # Custom aliases should be excluded or ID-free when TRICE_OFF is selected.
+    bash "${ROOT}/trice_insertIDs_in_examples_and_test_folder.sh"
+    ids_inserted=1
+  fi
 fi
 
 # ------------------------------------------------------------------------------

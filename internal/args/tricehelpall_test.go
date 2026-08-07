@@ -25,7 +25,7 @@ func TestHelpAll(t *testing.T) {
 		"sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.",
 		"sub-command 'ver|version': For displaying version information.",
 		"sub-command 'i|insert': For updating til.json and inserting IDs into source files.",
-		"sub-command 'bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.",
+		"sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.",
 	} {
 		if !strings.Contains(got, snippet) {
 			t.Fatalf("help -all output misses %q\n%s", snippet, got)

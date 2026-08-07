@@ -543,10 +543,7 @@ int main(int argc, char **argv)
          * aFloat() transfers the IEEE-754 float bit pattern as a 32-bit Trice
          * value. The decoder uses the three %f specifiers from til.json.
          */
-        TRice("vis_demo:%f,%f,%f\n",
-            aFloat((float)x),
-            aFloat((float)y),
-            aFloat((float)z));
+        TRice("vis_demo:%f,%f,%f\n", aFloat((float)x), aFloat((float)y), aFloat((float)z));
 
         if (!output_failed &&
             options.delay &&

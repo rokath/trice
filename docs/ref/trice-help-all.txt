@@ -542,7 +542,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -w	Short for (white)spaceInsideParenthesis or "wide".
-sub-command 'bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
+sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
 #	"trice bind" scans C/C++ source and headers, updates til.json and li.json with insert-compatible semantics,
 #	adds a file-local sidecar include where it is safe, and writes generated headers below -bindDir.
 #	Insert-owned files remain unchanged; mixed explicit and bind-style sites in one file are rejected.

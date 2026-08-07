@@ -249,6 +249,15 @@ export_clang_cross_env() {
   fi
 }
 
+# is_positive_job_count accepts only the bounded decimal values GNU Make can
+# safely consume as a Windows parallelism setting.
+is_positive_job_count() {
+  case "$1" in
+    "" | *[!0-9]* | 0) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
 set_windows_make_jobs() {
   local detected_jobs=""
   local detection_source=""
@@ -277,21 +286,41 @@ set_windows_make_jobs() {
       '(Get-CimInstance Win32_Processor | Measure-Object -Property NumberOfCores -Sum).Sum' \
       2>/dev/null | tr -d '\r' | tail -n 1)
     detection_source="Windows physical cores via PowerShell"
-  elif command -v pwsh.exe >/dev/null 2>&1; then
+  fi
+  if ! is_positive_job_count "$detected_jobs"; then
+    detected_jobs=""
+    detection_source=""
+  fi
+  if [ -z "$detected_jobs" ] && command -v pwsh.exe >/dev/null 2>&1; then
     detected_jobs=$(pwsh.exe -NoProfile -NonInteractive -Command \
       '(Get-CimInstance Win32_Processor | Measure-Object -Property NumberOfCores -Sum).Sum' \
       2>/dev/null | tr -d '\r' | tail -n 1)
     detection_source="Windows physical cores via PowerShell 7"
-  elif [ -n "${NUMBER_OF_PROCESSORS:-}" ]; then
-    # This fallback counts logical processors. It is used only when neither
-    # Windows PowerShell executable is available to report physical cores.
+  fi
+  if ! is_positive_job_count "$detected_jobs"; then
+    detected_jobs=""
+    detection_source=""
+  fi
+  if [ -z "$detected_jobs" ] && [ -n "${NUMBER_OF_PROCESSORS:-}" ]; then
+    # This fallback counts logical processors when PowerShell is unavailable or
+    # its CIM query is denied by local policy or sandboxing.
     detected_jobs="$NUMBER_OF_PROCESSORS"
     detection_source="logical processors via NUMBER_OF_PROCESSORS"
-  elif command -v nproc >/dev/null 2>&1; then
+  fi
+  if ! is_positive_job_count "$detected_jobs"; then
+    detected_jobs=""
+    detection_source=""
+  fi
+  if [ -z "$detected_jobs" ] && command -v nproc >/dev/null 2>&1; then
     # nproc is the usual logical-processor fallback in Unix-like environments.
     detected_jobs=$(nproc 2>/dev/null || true)
     detection_source="logical processors via nproc"
-  elif command -v getconf >/dev/null 2>&1; then
+  fi
+  if ! is_positive_job_count "$detected_jobs"; then
+    detected_jobs=""
+    detection_source=""
+  fi
+  if [ -z "$detected_jobs" ] && command -v getconf >/dev/null 2>&1; then
     # getconf is more widely standardized, but it is not present in every
     # minimal Git Bash installation and also reports online logical processors.
     detected_jobs=$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)
@@ -301,12 +330,10 @@ set_windows_make_jobs() {
   # Accept only a positive decimal integer. If detection is unavailable or
   # malformed, use two jobs: this preserves some parallelism without restoring
   # the unbounded process burst that caused ARM GCC to crash on Windows.
-  case "$detected_jobs" in
-    "" | *[!0-9]* | 0)
-      detected_jobs=2
-      log_warn "Could not determine a valid Windows processor count; defaulting to $detected_jobs make jobs."
-      ;;
-  esac
+  if ! is_positive_job_count "$detected_jobs"; then
+    detected_jobs=2
+    log_warn "Could not determine a valid Windows processor count; defaulting to $detected_jobs make jobs."
+  fi
 
   MAKE_JOBS="-j$detected_jobs"
   export MAKE_JOBS

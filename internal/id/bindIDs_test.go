@@ -174,6 +174,20 @@ func TestBindIgnoresCommentedIncludes(t *testing.T) {
 	assert.Contains(t, string(after), "#include \"trice_foreign_c_K0123456789ABCDEF.h\"")
 }
 
+// TestBindIgnoresCommentedCalls keeps parser-like text in comments out of bind diagnostics and sidecars.
+func TestBindIgnoresCommentedCalls(t *testing.T) {
+	source := "// trice(\"line comment\");\n/* TRICE(ID(0), \"block comment\"); */\ntrice(\"active\");\n"
+	defer prepareBindTest(t, map[string]string{"commented-calls.c": source})()
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_commented_calls_c_K1111111111111111.h"))
+	require.NoError(t, err)
+	assert.Equal(t, 1, strings.Count(string(sidecar), "#define TRICE_BIND_SITE_"))
+	assert.Contains(t, string(sidecar), "active")
+	assert.NotContains(t, string(sidecar), "line comment")
+	assert.NotContains(t, string(sidecar), "block comment")
+}
+
 // TestBindRejectsUnsafePlacementWithoutWriting protects all regular outputs after analysis failure.
 func TestBindRejectsUnsafePlacementWithoutWriting(t *testing.T) {
 	source := "void f(void) { trice(\"first\"); }\n#include \"later.h\"\n"

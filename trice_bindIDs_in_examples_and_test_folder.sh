@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
-# file name: trice_cleanIDs_in_examples_and_test_folder.sh
+#
+# Generate bind sidecars for the canonical examples and PC target sources.
 
 set -euo pipefail
 
@@ -10,8 +10,8 @@ source "$ROOT/scripts/_trice_id_workflow.sh"
 
 (
   cd "$ROOT" || exit 1
-  trice_id_workflow clean
+  trice_id_workflow bind
 ) || {
-  echo "FAIL: trice clean failed" >&2
+  echo "FAIL: trice bind failed" >&2
   exit 1
 }

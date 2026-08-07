@@ -33,6 +33,34 @@ has_bind_compilers() {
   [ "$c_found" -eq 1 ] && [ "$cpp_found" -eq 1 ]
 }
 
+# run_verified_bind_pocs preserves the reference PoCs byte-for-byte. MinGW
+# executables write CRLF to redirected stdout, so only the Windows comparison
+# ignores that platform text-mode difference through a temporary diff shim.
+run_verified_bind_pocs() {
+  local poc_runner="$ROOT/docs/TriceBind/Trice_bind_Verification1_PoCs/run_all.sh"
+  local shim_dir=""
+  local system_diff=""
+  local status=0
+
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*)
+      system_diff="$(command -v diff)" || return 1
+      shim_dir="$(mktemp -d "$TRICE_TMP_DIR/trice-poc-diff.XXXXXX")" || return 1
+      printf '%s\n' \
+        '#!/usr/bin/env bash' \
+        'exec "$TRICE_SYSTEM_DIFF" --strip-trailing-cr "$@"' >"$shim_dir/diff"
+      chmod +x "$shim_dir/diff"
+      run_cmd env TRICE_SYSTEM_DIFF="$system_diff" PATH="$shim_dir:$PATH" "$poc_runner" || status=$?
+      case "$shim_dir" in
+        "$TRICE_TMP_DIR"/trice-poc-diff.*) rm -rf -- "$shim_dir" ;;
+        *) log "WARN: retained unexpected PoC diff shim: $shim_dir" ;;
+      esac
+      return "$status"
+      ;;
+    *) run_cmd "$poc_runner" ;;
+  esac
+}
+
 main() {
   local poc_dir="$ROOT/examples/PoC_bind_generator"
   local poc_build="$poc_dir/build"
@@ -57,7 +85,7 @@ main() {
     exit 1
   }
 
-  run_cmd "$ROOT/docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs/run_all.sh" || {
+  run_verified_bind_pocs || {
     log "FAIL: verified Trice bind preprocessor mechanisms regressed"
     exit 1
   }

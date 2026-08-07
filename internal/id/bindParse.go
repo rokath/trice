@@ -106,7 +106,9 @@ func scanBindIncludes(source string) []bindInclude {
 
 // scanBindSites uses matchTrice and the insert marker mask to retain exactly the existing parser surface.
 func scanBindSites(path, source string) (sites []bindSite, diagnostics []bindDiagnostic) {
-	masked := maskTriceInsertDisabledRegions(source)
+	// Keep byte offsets stable while preventing commented examples and disabled
+	// prototypes from becoming diagnostics or generated bind sites.
+	masked := stripCComments(maskTriceInsertDisabledRegions(source))
 	rest := masked
 	offset := 0
 	bindSitesPerLine := make(map[int]int)

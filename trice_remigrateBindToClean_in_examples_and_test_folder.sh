@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
-# file name: trice_cleanIDs_in_examples_and_test_folder.sh
+#
+# Return the canonical examples and PC target sources from Bound to Clean.
 
 set -euo pipefail
 
@@ -10,8 +10,8 @@ source "$ROOT/scripts/_trice_id_workflow.sh"
 
 (
   cd "$ROOT" || exit 1
-  trice_id_workflow clean
+  trice_id_workflow remigrate
 ) || {
-  echo "FAIL: trice clean failed" >&2
+  echo "FAIL: Trice Bind-to-Clean re-migration failed" >&2
   exit 1
 }

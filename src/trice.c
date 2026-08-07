@@ -5,10 +5,11 @@
 //! \file trice.c
 //! \brief trice implementation.
 
-// Keep function-backed public wrapper macros disabled while their ABI symbols are defined here.
-#define TRICE_BIND_IMPLEMENTATION
+// Keep function-backed bind dispatch available when this implementation file
+// is textually included before user sources, as done by the CGO target tests.
+// The corresponding ABI definitions below use parenthesized declarators so
+// their public function-like macro names are not expanded.
 #include "trice.h"
-#undef TRICE_BIND_IMPLEMENTATION
 #include "cobs.h"
 #include "tcobs.h"
 
@@ -1017,116 +1018,116 @@ void TRiceAssertFalseFn(uint16_t idN, int flag) {
 
 #ifdef TRICE_N
 
-void triceN(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (triceN)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE_N(id(tid), fmt, buf, n);
 }
 
-void TriceN(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TriceN)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE_N(Id(tid), fmt, buf, n);
 }
 
-void TRiceN(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRiceN)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE_N(ID(tid), fmt, buf, n);
 }
 
-void trice8B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice8B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_B(id(tid), fmt, buf, n);
 }
 
-void Trice8B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice8B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_B(Id(tid), fmt, buf, n);
 }
 
-void TRice8B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice8B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_B(ID(tid), fmt, buf, n);
 }
 
-void trice16B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice16B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_B(id(tid), fmt, buf, n);
 }
 
-void Trice16B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice16B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_B(Id(tid), fmt, buf, n);
 }
 
-void TRice16B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice16B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_B(ID(tid), fmt, buf, n);
 }
 
-void trice32B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice32B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_B(id(tid), fmt, buf, n);
 }
 
-void Trice32B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice32B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_B(Id(tid), fmt, buf, n);
 }
 
-void TRice32B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice32B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_B(ID(tid), fmt, buf, n);
 }
 
 #if (TRICE_64_BIT_SUPPORT == 1)
-void trice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice64B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_B(id(tid), fmt, buf, n);
 }
 
-void Trice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice64B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_B(Id(tid), fmt, buf, n);
 }
 
-void TRice64B(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice64B)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_B(ID(tid), fmt, buf, n);
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)
 
 #if TRICE_LEGACY_RPC_SUPPORT == 1
 
-void trice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice8F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(id(tid), fmt, buf, n);
 }
 
-void Trice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice8F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(Id(tid), fmt, buf, n);
 }
 
-void TRice8F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice8F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE8_F(ID(tid), fmt, buf, n);
 }
 
-void trice16F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice16F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_F(id(tid), fmt, buf, n);
 }
 
-void Trice16F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice16F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_F(Id(tid), fmt, buf, n);
 }
 
-void TRice16F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice16F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE16_F(ID(tid), fmt, buf, n);
 }
 
-void trice32F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice32F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_F(id(tid), fmt, buf, n);
 }
 
-void Trice32F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice32F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_F(Id(tid), fmt, buf, n);
 }
 
-void TRice32F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice32F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE32_F(ID(tid), fmt, buf, n);
 }
 
 #if (TRICE_64_BIT_SUPPORT == 1)
-void trice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (trice64F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(id(tid), fmt, buf, n);
 }
 
-void Trice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (Trice64F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(Id(tid), fmt, buf, n);
 }
 
-void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n) {
+void (TRice64F)(int tid, char const* fmt, const void* buf, uint32_t n) {
 	TRICE64_F(ID(tid), fmt, buf, n);
 }
 #endif // (TRICE_64_BIT_SUPPORT == 1)

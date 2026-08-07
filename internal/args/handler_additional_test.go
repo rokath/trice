@@ -160,7 +160,7 @@ func TestInfoHelpersWriteText(t *testing.T) {
 		{"displayServerInfo", displayServerInfo, "sub-command 'ds|displayServer'"},
 		{"shutdownInfo", shutdownInfo, "sub-command 'sd|shutdown'"},
 		{"insertIDsInfo", insertIDsInfo, "sub-command 'i|insert'"},
-		{"bindIDsInfo", bindIDsInfo, "sub-command 'bind'"},
+		{"bindIDsInfo", bindIDsInfo, "sub-command 'b|bind'"},
 		{"cleanIDsInfo", cleanIDsInfo, "sub-command 'c|clean'"},
 		{"addInfo", addInfo, "sub-command 'a|add'"},
 		{"generateInfo", generateInfo, "sub-command 'g|gen|generate'"},
@@ -310,4 +310,19 @@ func TestHandlerBindGeneratesSidecar(t *testing.T) {
 	entries, readErr := fSys.ReadDir("generated/triceIDs")
 	assert.NoError(t, readErr)
 	assert.Len(t, entries, 1)
+}
+
+// TestHandlerBindHelp verifies that both public names and both standard help flags exit cleanly.
+func TestHandlerBindHelp(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	for _, subcommand := range []string{"bind", "b"} {
+		for _, helpFlag := range []string{"-h", "--help"} {
+			FlagsInit()
+			var output bytes.Buffer
+			err := Handler(&output, fSys, []string{"trice", subcommand, helpFlag})
+			assert.NoError(t, err)
+			assert.Contains(t, output.String(), "Usage of bind:")
+			assert.NotContains(t, output.String(), "flag: help requested")
+		}
+	}
 }
