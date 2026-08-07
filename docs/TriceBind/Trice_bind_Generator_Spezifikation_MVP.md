@@ -1117,4 +1117,4 @@ Eine allgemeine ELF-Patch-Lösung wird für normale Userquellen nicht verfolgt. 
 - [`_test/testdata/triceCheck.c`](https://github.com/rokath/trice/blob/wip/_test/testdata/triceCheck.c): breite Makroabdeckung
 - [`scripts/testAll.sh`](https://github.com/rokath/trice/blob/wip/scripts/testAll.sh): Repositoryregression
 - [`examples/PoC_bind_v2`](https://github.com/rokath/trice/tree/wip/examples/PoC_bind_v2): bisheriger Target-Bind-PoC
-- [`docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs`](https://github.com/rokath/trice/tree/wip/docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs): verifizierter lokaler Dispatch und einzeiliger Site-Deskriptor
+- [`docs/TriceBind/Trice_bind_Verification1_PoCs`](https://github.com/rokath/trice/tree/wip/docs/TriceBind/Trice_bind_Verification1_PoCs): verifizierter lokaler Dispatch und einzeiliger Site-Deskriptor

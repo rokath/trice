@@ -9423,6 +9423,26 @@
 		"Type": "Trice",
 		"Strg": "ok!\\n"
 	},
+	"15356": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\\n"
+	},
+	"15357": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\\n"
+	},
+	"15358": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An minimum configuration example.\\n"
+	},
+	"15359": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\\n"
+	},
+	"15360": {
+		"Type": "trice8",
+		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
+	},
 	"15918": {
 		"Type": "TRice",
 		"Strg": "vis_demo:%f,%f,%f\\n"

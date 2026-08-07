@@ -1,7 +1,8 @@
+# Codex Report
 
 • Geschafft: Alle fachlich relevanten trice bind-Tests und Compiler-Matrizen sind grün. Es wurde nichts committed oder gepusht.
 
-  ## 1. Architektur
+## 1. Architektur
 
   - Zentrale ID-Konfiguration in _setup_trice_environment.sh.
   - Gemeinsamer Insert-/Bind-Dispatcher in _trice_id_workflow.sh.
@@ -10,7 +11,7 @@
   - Transaktionale Re-Migration inklusive Rollback bei Fehlern.
   - Deterministische Sidecar-Verarbeitung und geordnete Diagnosen.
 
-  ## 2. Geänderte Dateien
+## 2. Geänderte Dateien
 
   Insgesamt 50 fokussierte Dateien:
 
@@ -24,7 +25,7 @@
 
   Spezifikationen und Verification-PoCs wurden nicht verändert.
 
-  ## 3. Wiederverwendete Insert-Logik
+## 3. Wiederverwendete Insert-Logik
 
   Insert und Bind verwenden dieselben:
 
@@ -36,7 +37,7 @@
 
   Es wurde keine zweite unabhängige Trice-Parser- oder ID-Logik eingeführt.
 
-  ## 4. Target-Makrointegration
+## 4. Target-Makrointegration
 
   - Expansion-Time-Dispatch in src/trice.c funktioniert nun auch bei textueller Einbindung.
   - Alias-/salias-Makros verwenden den bestehenden Insert-/Bind-Routingpfad.
@@ -44,7 +45,7 @@
   - DemoData unterstützt TRICE_OFF=0/1 und den Bind-Include-Pfad auch unter CMake/MSVC.
   - GCC, Clang, G++, Clang++, ARM-GCC und MSVC wurden erfolgreich durchlaufen.
 
-  ## 5. CLI
+## 5. CLI
 
   - trice b und trice bind sind in der normalen CLI registriert.
   - -h und --help funktionieren für beide Schreibweisen.
@@ -52,7 +53,7 @@
   - Bind-spezifisch: -bindDir, Default ./build/triceIDs.
   - Kein öffentliches trice remigrate-Subkommando: Das von der Testspezifikation geforderte Re-Migrationsskript verwendet einen internen, nicht öffentlichen Helper.
 
-  ## 6. Neue Tests
+## 6. Neue Tests
 
   Ergänzt wurden insbesondere:
 
@@ -70,7 +71,7 @@
   - identische PC-, Clang- und GCC-Matrizen für Insert und Bind,
   - einmalige TRICE_OFF-Kontrollmatrix.
 
-  ## 7. Testergebnisse
+## 7. Testergebnisse
 
   - Baseline PC quick: PASS
   - rtk go test ./internal/id/... ./internal/args: 331 Tests in 3 Paketen, PASS
@@ -87,11 +88,11 @@
 
   full wurde wegen des Zeitlimits nicht zusätzlich ausgeführt.
 
-  ## 8. Verbleibende MVP-Lücken
+## 8. Verbleibende MVP-Lücken
 
   Keine erkannte Implementierungslücke gegenüber der Test-MVP-Spezifikation. Nicht ausgeführt wurde lediglich der zeitintensive full-Testumfang.
 
-  ## 9. Nicht implementierte MVP2-Punkte
+## 9. Nicht implementierte MVP2-Punkte
 
   Nicht implementiert wurden:
 
@@ -106,7 +107,7 @@
   - generierte Referenzliste der User-Level-Makros,
   - zusätzliche neutrale Parser-Marker.
 
-  ## 10. Abweichungen und Breaking Changes
+## 10. Abweichungen und Breaking Changes
 
   - Keine beabsichtigten Breaking Changes.
   - Keine fachliche Änderung an den Spezifikationen.

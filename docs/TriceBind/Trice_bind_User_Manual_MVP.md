@@ -1,7 +1,7 @@
 # Trice Bind
 
 **Status:** User-Manual-Entwurf für das MVP  
-**Verbindliche technische Spezifikation:** [`Trice_bind_Generator_Spezifikation.md`](Trice_bind_Generator_Spezifikation.md)  
+**Verbindliche technische Spezifikation:** [`Trice_bind_Generator_Spezifikation.md`](Trice_bind_Generator_Spezifikation_MVP.md)  
 **Testanforderungen:** [`Trice_bind_Test_Spezifikation_MVP.md`](Trice_bind_Test_Spezifikation_MVP.md)
 
 ## 1. Überblick
@@ -478,9 +478,9 @@ Mit `trice bind` bleiben bind-verwaltete User-Trice-Aufrufe frei von numerischen
 
 ---
 
-# Anhang A: Präprozessor-Grundmechanik
+## Anhang A: Präprozessor-Grundmechanik
 
-## A.1 Lokaler Insert-/Bind-Dispatch
+### A.1 Lokaler Insert-/Bind-Dispatch
 
 Ein einfaches `#ifdef TRICE_BIND_FILE_KEY` beim Einlesen von `trice.h` genügt nicht, weil der Sidecar typischerweise erst später inkludiert wird.
 
@@ -521,7 +521,7 @@ TRICE_BIND_ROUTE(TRICE_BIND_FILE_KEY)
 → BIND
 ```
 
-## A.2 Site-Deskriptor
+### A.2 Site-Deskriptor
 
 Der Site-Name entsteht aus File Key und `__LINE__`:
 
@@ -549,11 +549,11 @@ docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs
 
 ---
 
-# Anhang B: Hintergrund – stabile ID-Vergabe und Bindung
+## Anhang B: Hintergrund – stabile ID-Vergabe und Bindung
 
 Die Entwicklung von `trice bind` beruht auf der Trennung zweier Aufgaben.
 
-## B.1 Stabile ID-Zuordnung
+### B.1 Stabile ID-Zuordnung
 
 Die erste Aufgabe lautet:
 
@@ -571,7 +571,7 @@ Sie umfasst:
 
 Diese persistente Zuordnung muss nicht im Sourcecode stehen.
 
-## B.2 Übertragung in den Targetcode
+### B.2 Übertragung in den Targetcode
 
 Die zweite Aufgabe lautet:
 
@@ -588,7 +588,7 @@ Nach der Präprozessorauflösung sieht der Compiler ebenfalls eine normale Konst
 - keine zusätzliche Mappingtabelle,
 - keine Änderung des Drahtformats.
 
-## B.3 Warum der Source-Scan maßgeblich bleibt
+### B.3 Warum der Source-Scan maßgeblich bleibt
 
 `trice bind` scannt die nicht präprozessierten Projektquellen. Dadurch können auch Stellen in aktuell inaktiven `#if`-Zweigen eine stabile ID behalten.
 
@@ -596,7 +596,7 @@ Das ist für ID-Stabilität vorteilhaft: Ein Wechsel der Buildkonfiguration entf
 
 Eine spätere Analyse der aktiven Konfiguration oder des finalen Images wäre eine zusätzliche Berichtsfunktion. Sie ist nicht für das Binding erforderlich.
 
-## B.4 Anforderungen, die der Sidecar-Ansatz erfüllt
+### B.4 Anforderungen, die der Sidecar-Ansatz erfüllt
 
 Der gewählte Ansatz verbindet:
 
@@ -612,7 +612,7 @@ Der frühere eigenständige Architekturtext „Trice-IDs ohne Sourcecode-Patchin
 
 ---
 
-# Anhang C: `TRICE_CLEAN`-Zustände im Überblick
+## Anhang C: `TRICE_CLEAN`-Zustände im Überblick
 
 | Zustand | `TRICE_CLEAN` | Eigener Sidecar aktiv | Wirkung |
 |---|---:|---:|---|
@@ -632,21 +632,21 @@ Fehlt die Definition, fügt `trice bind` sie nicht neu ein.
 
 ---
 
-# Anhang D: Unverändert übernommene Architekturentscheidung gegen ELF-Patching
+## Anhang D: Unverändert übernommene Architekturentscheidung gegen ELF-Patching
 
 Der folgende Text ist unverändert aus `Trice_bind_vs_ELF_Patch.md` übernommen. Er dokumentiert die Architekturentscheidung. Einzelne Beispielnamen spiegeln den damaligen Entwurfsstand wider; für das aktuelle normative Verhalten sind der Hauptteil dieses User Manuals und `Trice_bind_Generator_Spezifikation.md` maßgeblich.
 
 <!-- BEGIN unveränderte Übernahme: Trice_bind_vs_ELF_Patch.md -->
 
-# Architekturentscheidung: `trice bind` statt einer ELF-Patch-Lösung
+## Architekturentscheidung: `trice bind` statt einer ELF-Patch-Lösung
 
-## 1. Zweck dieses Dokuments
+### 1. Zweck dieses Dokuments
 
 Dieses Dokument begründet die Entscheidung, stabile Trice-IDs mit `trice bind` und generierten Sidecar-Headern in den Targetcode einzubringen. Als Alternative wurde eine ELF-basierte Patch- beziehungsweise Link-Lösung untersucht.
 
 Die Entscheidung betrifft ausschließlich den Mechanismus, mit dem eine bereits bestimmte Trice-ID den Compiler beziehungsweise den finalen Targetcode erreicht. Die bestehende dauerhafte ID-Verwaltung mit `til.json` und `li.json` bleibt unverändert.
 
-## 2. Anforderungen
+### 2. Anforderungen
 
 Der Bindungsmechanismus soll:
 
@@ -660,9 +660,9 @@ Der Bindungsmechanismus soll:
 - inkrementelle Builds nicht unnötig vergrößern,
 - verständliche und reproduzierbare Buildartefakte erzeugen.
 
-## 3. MVP von `trice bind`
+### 3. MVP von `trice bind`
 
-### 3.1 Grundprinzip
+#### 3.1 Grundprinzip
 
 Der User schreibt eine ID-lose Trice-Logstelle:
 
@@ -691,7 +691,7 @@ Der generierte Header enthält beispielsweise:
 
 Die Trice-Makros kombinieren den aktuellen `TRICE_FILE_KEY` mit dem standardisierten Präprozessormakro `__LINE__`. Der Compiler sieht dadurch letztlich eine gewöhnliche ganzzahlige Konstante.
 
-### 3.2 Warum ein dateilokales Include erforderlich ist
+#### 3.2 Warum ein dateilokales Include erforderlich ist
 
 Alle in einer Translation Unit verarbeiteten Sidecars teilen denselben Makronamensraum. Der 64-Bit-Dateischlüssel verhindert Kollisionen zwischen ihren ID-Definitionen. Zusätzlich muss für jeden direkten Trice-Aufruf bekannt sein, zu welcher Datei dessen Zeilennummer gehört.
 
@@ -699,7 +699,7 @@ Eine zentrale Einbindung aller Sidecars, beispielsweise in `triceConfig.h`, stel
 
 Deshalb setzt der Sidecar jeder Datei unmittelbar vor deren eigenen Trice-Logstellen den aktuellen `TRICE_FILE_KEY`. Das dateilokale Include ist nicht nur ein Ablageort für Definitionen, sondern Teil der eindeutigen Auswahl von `Datei + Zeile`.
 
-### 3.3 Sidecar-Verzeichnis und Dateinamen
+#### 3.3 Sidecar-Verzeichnis und Dateinamen
 
 Alle Sidecars können in einem einzigen Buildverzeichnis liegen, beispielsweise:
 
@@ -717,13 +717,13 @@ trice_module_h_F1111111111111111.h
 
 Eine Abbildung der vollständigen Source-Verzeichnisstruktur unterhalb von `build/` ist nicht erforderlich.
 
-### 3.4 Persistenz und Prüfung des Dateischlüssels
+#### 3.4 Persistenz und Prüfung des Dateischlüssels
 
 Der Dateischlüssel wird in der versionsverwalteten Include-Zeile der Userdatei gespeichert. Dadurch bleibt er erhalten, wenn das Buildverzeichnis gelöscht oder die Datei verschoben wird.
 
 64 Bit sind hierfür ausreichend. Zusätzlich prüft `trice bind`, dass innerhalb eines Projekts kein Schlüssel mehreren unterschiedlichen Dateien zugeordnet ist. Dadurch werden sowohl eine extrem unwahrscheinliche Zufallskollision als auch ein durch Kopieren einer Quelldatei duplizierter Schlüssel eindeutig erkannt.
 
-### 3.5 Einmaliges Einfügen des Includes
+#### 3.5 Einmaliges Einfügen des Includes
 
 Fehlt der Sidecar-Include, fügt `trice bind` ihn einmalig anhand einer Heuristik an einer wahrscheinlich geeigneten Stelle ein. Bevorzugt wird eine Position:
 
@@ -740,7 +740,7 @@ Die Position lässt sich ohne vollständige Auswertung aller Präprozessorbeding
 
 Die einmalige Include-Ergänzung ist keine wiederkehrende Instrumentierung. Im normalen Build werden Userquellen nicht verändert.
 
-### 3.6 Headerdateien und `static inline`
+#### 3.6 Headerdateien und `static inline`
 
 Headerdateien mit direkten Trice-Aufrufen erhalten einen eigenen Dateischlüssel und Sidecar. Das gilt auch für Trice-Aufrufe innerhalb von `static inline`-Funktionen.
 
@@ -763,7 +763,7 @@ static inline void moduleCheck(int value)
 
 Nach der Verarbeitung dieses Headers setzt der Sidecar der einbindenden `.c`-Datei deren eigenen `TRICE_FILE_KEY`. Dadurch bleiben Logstellen aus Header und Quelldatei kollisionsfrei.
 
-### 3.7 MVP-Einschränkungen
+#### 3.7 MVP-Einschränkungen
 
 Das MVP unterstützt direkte Trice-Aufrufe in `.c`-, `.cc`-, `.cpp`- und Headerdateien sowie in normalen und `static inline`-Funktionen.
 
@@ -780,7 +780,7 @@ Bei einem Trice-Aufruf in einer Makrodefinition werden `__LINE__` und der aktuel
 
 `trice bind` meldet solche Konstruktionen im MVP als Fehler. Bestehende Projekte, die darauf angewiesen sind, verwenden weiterhin `trice insert`.
 
-## 4. Untersuchte ELF-Patch-Lösung
+### 4. Untersuchte ELF-Patch-Lösung
 
 Bei einer ELF-basierten Lösung würden Trice-Makros während der Compilation zusätzliche Metadaten und bindbare ID-Platzhalter in Objektdateien erzeugen. Ein späteres Werkzeug müsste diese Informationen auswerten und die endgültigen IDs durch Relocations, zusätzliche Linkobjekte oder direktes Patchen des Objekt- beziehungsweise Imagecodes einsetzen.
 
@@ -796,7 +796,7 @@ Eine solche Lösung benötigt mindestens:
 
 Auch eine ELF-Lösung benötigt vorbereitete Trice-Makros beziehungsweise vorbereitete Libraries. Aus einer beliebigen bereits kompilierten `.a`-Datei lassen sich weder die vollständigen Trice-Metadaten noch sicher patchbare ID-Stellen rekonstruieren.
 
-## 5. Vergleich der beiden Ansätze
+### 5. Vergleich der beiden Ansätze
 
 | Kriterium | `trice bind` MVP | ELF-Patch-Lösung |
 |---|---|---|
@@ -816,9 +816,9 @@ Auch eine ELF-Lösung benötigt vorbereitete Trice-Makros beziehungsweise vorber
 
 Für das normale Sourceprojekt besteht der verbleibende allgemeine Vorteil der ELF-Lösung damit im Wesentlichen darin, dass kein dateilokaler Sidecar-Include erforderlich wäre. Dieser Komfortgewinn steht einer wesentlich größeren Toolchain- und Implementierungskomplexität gegenüber.
 
-## 6. Prüfung der scheinbaren ELF-Vorteile
+### 6. Prüfung der scheinbaren ELF-Vorteile
 
-### 6.1 Vorkompilierte statische Libraries
+#### 6.1 Vorkompilierte statische Libraries
 
 Eine vorbereitete `.a`-Library kann später unterstützt werden, ohne den normalen Sidecar-Mechanismus zu ersetzen. Die Library müsste beim eigenen Build pro Trice-Stelle Metadaten und einen bindbaren ID-Platzhalter erzeugen. `trice bind` könnte diese Informationen beim Produkt-Build lesen, freie oder neue IDs bestimmen, `til.json` und `li.json` ergänzen und ein zusätzliches Bindeartefakt für den finalen Link erzeugen.
 
@@ -826,13 +826,13 @@ Der Gewinn wäre die nachträgliche Einordnung vorbereiteter Libraries in den st
 
 Diese Funktion kann ELF intern verwenden, ist aber eine additive Library-Erweiterung. Sie erfordert keine ELF-basierte Behandlung normaler Userquellen und ist deshalb kein eigenständiger Vorteil einer allgemeinen ELF-Patch-Architektur.
 
-### 6.2 Erfassung inaktiver Logstellen
+#### 6.2 Erfassung inaktiver Logstellen
 
 Das MVP scannt die nicht präprozessierten Quellen. Dadurch werden auch Logstellen in aktuell inaktiven `#if`-Zweigen erfasst. Das ist für stabile IDs erwünscht: Eine Logstelle verliert ihre Zuordnung nicht, nur weil eine bestimmte Buildkonfiguration sie vorübergehend deaktiviert.
 
 Eine ELF-Datei enthält dagegen nur Code, der mindestens bis zur Objekt- oder Linkphase gelangt ist. Sie ist daher nicht die geeignete Quelle für die vollständige, konfigurationsunabhängige ID-Inventur.
 
-### 6.3 Aktive Logstellen einer Buildkonfiguration
+#### 6.3 Aktive Logstellen einer Buildkonfiguration
 
 Falls zusätzlich die in einer konkreten Konfiguration aktiven Logstellen bestimmt werden sollen, kann später der reale Präprozessor mit den Defines und Include-Pfaden dieses Builds ausgeführt werden.
 
@@ -845,7 +845,7 @@ Dafür werden benötigt:
 
 Der Gewinn ist ein Bericht über die aktive Teilmenge. Die ID-Vergabe und das Sidecar-Binding ändern sich dadurch nicht.
 
-### 6.4 Tatsächlich im finalen Image enthaltene Logstellen
+#### 6.4 Tatsächlich im finalen Image enthaltene Logstellen
 
 Eine aktive Logstelle kann durch Optimierung, LTO, Section Garbage Collection oder Nichtauswahl eines Archivmitglieds aus dem finalen Image verschwinden. Falls eine exakte Image-Inventur benötigt wird, kann später das fertige ELF oder eine Link-Map ausgewertet werden.
 
@@ -867,41 +867,41 @@ alle textuell vorhandenen Logstellen
 
 Nur die erste Menge ist für die stabile ID-Vergabe des MVP erforderlich.
 
-### 6.5 Makroexpansion und Stringerzeugung
+#### 6.5 Makroexpansion und Stringerzeugung
 
 Trice setzt statische, direkt erkennbare Formatstrings voraus. Die Erzeugung verschiedener Formatstrings durch Präprozessorverkettung ist nicht vorgesehen. Variable Inhalte werden als Parameter übertragen, beispielsweise mit einer Stringvariante von Trice.
 
 Damit entfällt die Notwendigkeit, einzelne expandierte Formatstringvarianten erst im Objektcode zu unterscheiden. Auch daraus entsteht kein relevanter ELF-Vorteil.
 
-## 7. Zukünftige additive Erweiterungen
+### 7. Zukünftige additive Erweiterungen
 
 Die folgenden Funktionen sind ausdrücklich nicht Teil des MVP. Sie können später ergänzt werden, ohne das Sidecar-Grundmodell zu verändern.
 
-### 7.1 Analyse der aktiven Konfiguration
+#### 7.1 Analyse der aktiven Konfiguration
 
 **Erforderlich:** Aufruf des realen Präprozessors mit den Buildoptionen jeder Translation Unit.
 
 **Gewinn:** Bericht, welche der bereits gebundenen Logstellen in einer konkreten Konfiguration aktiv sind.
 
-### 7.2 Post-Link-Image-Inventur
+#### 7.2 Post-Link-Image-Inventur
 
 **Erforderlich:** ELF- oder Link-Map-Auswertung und toolchainspezifische Zuordnung zu Trice-IDs.
 
 **Gewinn:** Exakte Liste der im finalen Image enthaltenen Logstellen.
 
-### 7.3 Vorbereitete `.a`-Libraries
+#### 7.3 Vorbereitete `.a`-Libraries
 
 **Erforderlich:** Libraryseitige Metadaten und bindbare ID-Platzhalter sowie ein zusätzliches Bindeartefakt für den finalen Link.
 
 **Gewinn:** Nachträgliche Vergabe stabiler IDs aus dem ID-Raum des Endprodukts, ohne die Library aus ihren Quellen neu zu binden.
 
-### 7.4 Mehrere Trice-Aufrufe pro Sourcezeile
+#### 7.4 Mehrere Trice-Aufrufe pro Sourcezeile
 
 **Erforderlich:** Ein zusätzlicher stabiler Auftretensindex oder ein geeignetes, ausreichend portables Zählerverfahren.
 
 **Gewinn:** Unterstützung eines derzeit unnötigen, aber syntaktisch möglichen Codestils.
 
-### 7.5 Trice-Aufrufe in Makrodefinitionen
+#### 7.5 Trice-Aufrufe in Makrodefinitionen
 
 **Erforderlich:** Eine festgelegte Semantik für Definitions- oder Aufrufstellen-IDs und ein zusätzlicher Mechanismus, beispielsweise selektives `trice insert`, explizite Wrapperkennungen oder eine Präprozessoranalyse.
 
@@ -909,7 +909,7 @@ Die folgenden Funktionen sind ausdrücklich nicht Teil des MVP. Sie können spä
 
 Diese Erweiterungen ergänzen das MVP. Keine davon erfordert, normale Userquellen auf eine allgemeine ELF-Patch-Lösung umzustellen.
 
-## 8. Entscheidung
+### 8. Entscheidung
 
 Für normale C- und C++-Quellen wird `trice bind` mit dateilokalen Sidecar-Headern verfolgt. Eine allgemeine ELF-Patch-Lösung wird nicht weiterverfolgt.
 
