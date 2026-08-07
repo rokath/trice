@@ -46,6 +46,10 @@ Choose one first path:
 
 For most existing projects, the non-blocking byte writer path is the least disruptive first integration.
 
+## Coming soon
+
+`trice bind ...` stores the IDs in sidecar build artifacts avoiding this way source code changes. This is complete compiler independent. Try it now in branch `wip`.
+
 ## Details and advanced topics
 
 ### Basics

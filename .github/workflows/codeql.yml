@@ -66,7 +66,7 @@ jobs:
 
       # Step 3: Initialize the CodeQL analysis environment (v4)
       - name: Initialize CodeQL (Go)
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.37.4
         with:
           # Analyze Go source code
           languages: go
@@ -95,7 +95,7 @@ jobs:
       # Step 5: Run the CodeQL analysis and upload results to GitHub
       # Findings appear under: Security -> Code scanning alerts
       - name: Perform CodeQL Analysis (Go)
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.37.4
         with:
           # IMPORTANT:
           # This workflow uploads *two* different CodeQL result sets (Go and C/C++).
@@ -131,7 +131,7 @@ jobs:
       # and because manual mode ensures CodeQL can observe the exact compile commands
       # produced by your scripts.
       - name: Initialize CodeQL (C/C++)
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@v4.37.4
         with:
           languages: cpp
           build-mode: manual
@@ -217,7 +217,7 @@ jobs:
 
       # Step 6: Run the CodeQL analysis and upload results to GitHub
       - name: Perform CodeQL Analysis (C/C++)
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@v4.37.4
         with:
           # IMPORTANT:
           # This workflow uploads *two* different CodeQL result sets (Go and C/C++).
