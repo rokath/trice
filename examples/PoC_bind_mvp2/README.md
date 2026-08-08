@@ -47,20 +47,43 @@ The executable also contains two no-`__COUNTER__` controls on same-line calls:
 
 ## Trice inside a macro definition
 
-`macro_definition.c` uses the production line-based dispatch unchanged. The
-logical macro definition at `wrapper_definition.h:50` contains one direct
-`trice` call. Calls at `wrapper_owned.c:300` and `wrapper_owned.c:301` resolve
-two sidecar entries carrying the same ID, proving both relevant properties:
+`macro_definition.c` contains a real multi-line logging macro of this form:
+
+```c
+#define LOG_ERROR(value)           \
+    do {                           \
+        switch (value) {           \
+        case 7:                    \
+            trice("error=%d", 7); \
+            break;                 \
+        case 8:                    \
+            trice("error=%d", 8); \
+            break;                 \
+        default:                   \
+            break;                 \
+        }                          \
+    } while (0)
+```
+
+The logical macro definition starts at `wrapper_definition.h:50`. Calls at
+`wrapper_owned.c:300` and `wrapper_owned.c:301` each expand both Trice branches
+during preprocessing. The sidecar therefore contains four invocation
+descriptors: the case-7 definition consistently carries ID 5101 and the case-8
+definition consistently carries ID 5102. Runtime switch selection emits only
+the applicable branch. This proves three relevant properties:
 
 - nested expansion evaluates `__LINE__` at the wrapper invocation;
-- a generator can preserve definition identity by assigning that definition's
-  stable ID to every generated invocation-site descriptor.
+- separate Trice definitions inside one wrapper can receive separate IDs;
+- a generator can preserve each definition identity by assigning its stable ID
+  to every generated invocation-site descriptor.
 
-A practical generator should initially restrict this to one direct Trice call,
-a static format string, no token pasting or stringification, no nested wrappers,
-and at most one wrapper invocation per physical line. The current MVP parser
-still rejects Trice calls in ordinary macro definitions; this PoC demonstrates
-target feasibility, not generator support.
+This is deliberately stronger than the initial one-Trice wrapper proposal. Two
+inner Trices share the wrapper invocation's `__LINE__`, so this form also needs
+an occurrence key such as `__COUNTER__` or explicit ordinals in generated
+compiler input. A practical generator should still exclude token pasting,
+stringification, nested wrappers, and dynamic format construction initially.
+The current MVP parser rejects Trice calls in ordinary macro definitions; this
+PoC demonstrates target feasibility, not generator support.
 
 ## Can helper files replace `__COUNTER__`?
 

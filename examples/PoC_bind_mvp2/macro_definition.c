@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef __COUNTER__
+#error "macro_definition.c requires a preprocessor providing __COUNTER__."
+#endif
+
 typedef struct {
     uint32_t id;
     unsigned line;
@@ -13,7 +17,7 @@ typedef struct {
 
 static const ExpectedWrapperSite expectedWrapperSites[] = {
     {5101u, 300u, 7},
-    {5101u, 301u, 8},
+    {5102u, 301u, 8},
 };
 
 static size_t observedWrapperSites;
@@ -53,11 +57,30 @@ static void pocWrapperEmit(uint32_t id, unsigned line, const char *format, int v
     pocWrapperEmit((uint32_t)(tid), (unsigned)__LINE__, (format), (value))
 #include "../../src/triceBind.h"
 
+// Multiple Trice definitions in one wrapper invocation need an occurrence key.
+#define POC_BIND_WRAPPER_SITE_II(key, line, counter) TRICE_BIND_SITE_##key##_L##line##_C##counter
+#define POC_BIND_WRAPPER_SITE_I(key, line, counter) POC_BIND_WRAPPER_SITE_II(key, line, counter)
+#define POC_BIND_WRAPPER_SITE(key, line, counter) POC_BIND_WRAPPER_SITE_I(key, line, counter)
+#undef TRICE_BIND_SITE_HERE
+#define TRICE_BIND_SITE_HERE() POC_BIND_WRAPPER_SITE(TRICE_BIND_FILE_KEY, __LINE__, __COUNTER__)
+
 #define POC_WRAPPER_DESCRIPTORS
 #include "poc_bind_descriptors.h"
 
 #line 50 "wrapper_definition.h"
-#define LOG_ERROR(value) trice("error=%d", value)
+#define LOG_ERROR(value)           \
+    do {                           \
+        switch (value) {           \
+        case 7:                    \
+            trice("error=%d", 7); \
+            break;                 \
+        case 8:                    \
+            trice("error=%d", 8); \
+            break;                 \
+        default:                   \
+            break;                 \
+        }                          \
+    } while (0)
 
 int main(void)
 {

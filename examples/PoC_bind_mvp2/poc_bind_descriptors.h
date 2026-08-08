@@ -38,9 +38,12 @@
 #define TRICE_BIND_FILE_KEY K000000000000A001
 #define TRICE_BIND_ROUTE_K000000000000A001 BIND
 
-// Both wrapper call sites deliberately reuse the stable ID of the macro definition.
-#define TRICE_BIND_SITE_K000000000000A001_L300 TRICE_BIND_AUTO, iD(5101u)
-#define TRICE_BIND_SITE_K000000000000A001_L301 TRICE_BIND_AUTO, iD(5101u)
+// Every wrapper invocation expands both switch branches during preprocessing.
+// IDs 5101 and 5102 belong to the two Trice definitions and remain stable.
+#define TRICE_BIND_SITE_K000000000000A001_L300_C0 TRICE_BIND_AUTO, iD(5101u)
+#define TRICE_BIND_SITE_K000000000000A001_L300_C1 TRICE_BIND_AUTO, iD(5102u)
+#define TRICE_BIND_SITE_K000000000000A001_L301_C2 TRICE_BIND_AUTO, iD(5101u)
+#define TRICE_BIND_SITE_K000000000000A001_L301_C3 TRICE_BIND_AUTO, iD(5102u)
 
 #endif
 
