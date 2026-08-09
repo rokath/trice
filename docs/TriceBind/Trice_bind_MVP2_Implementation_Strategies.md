@@ -627,7 +627,7 @@ Definitionsordinale:
         case 0:                                               \
             break;                                            \
         case 7:                                               \
-            triceS("cannot open file\n");                     \
+            trice("cannot open file\n");                      \
             break;                                            \
         default:                                              \
             trice("error=%d", 8);                             \
