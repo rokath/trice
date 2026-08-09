@@ -21,7 +21,7 @@
 	},
 	"13005": {
 		"File": "examples/G0B1_inst/Core/Src/main.c",
-		"Line": 139
+		"Line": 140
 	},
 	"13006": {
 		"File": "examples/G0B1_inst/Core/Src/main.c",
@@ -1581,11 +1581,11 @@
 	},
 	"13395": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 581
+		"Line": 582
 	},
 	"13396": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 582
+		"Line": 583
 	},
 	"13397": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9205,7 +9205,7 @@
 	},
 	"15301": {
 		"File": "_test/testdata/triceCheck.c",
-		"Line": 2901
+		"Line": 2902
 	},
 	"15302": {
 		"File": "_test/testdata/triceCheck.c",
@@ -9533,19 +9533,19 @@
 	},
 	"16345": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 40
+		"Line": 41
 	},
 	"16346": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 39
+		"Line": 40
 	},
 	"16347": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 38
+		"Line": 39
 	},
 	"16348": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 37
+		"Line": 38
 	},
 	"16349": {
 		"File": "examples/exampleData/triceExamples.c",
@@ -9581,51 +9581,51 @@
 	},
 	"16357": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 28
+		"Line": 29
 	},
 	"16358": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 27
+		"Line": 28
 	},
 	"16359": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 26
+		"Line": 27
 	},
 	"16360": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 25
+		"Line": 26
 	},
 	"16361": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 24
+		"Line": 25
 	},
 	"16362": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 23
+		"Line": 24
 	},
 	"16363": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 22
+		"Line": 23
 	},
 	"16364": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 21
+		"Line": 22
 	},
 	"16365": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 20
+		"Line": 21
 	},
 	"16366": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 19
+		"Line": 20
 	},
 	"16367": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 18
+		"Line": 19
 	},
 	"16368": {
 		"File": "examples/exampleData/triceExamples.c",
-		"Line": 17
+		"Line": 18
 	},
 	"16369": {
 		"File": "examples/exampleData/triceExamples.c",
