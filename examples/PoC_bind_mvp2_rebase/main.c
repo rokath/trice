@@ -10,16 +10,16 @@ typedef struct {
     const char *kind;
     uint32_t id;
     const char *format;
-    const char *stringValue;
+    int hasIntegerValue;
     int integerValue;
 } ExpectedEmission;
 
 // Every invocation expands both Trice definitions, but the switch executes one.
 static const ExpectedEmission expectedEmissions[] = {
-    {"triceS", 6101u, "%s", "cannot open file\n", 0},
-    {"trice", 6102u, "error=%d", NULL, 8},
-    {"triceS", 6101u, "%s", "cannot open file\n", 0},
-    {"trice", 6102u, "error=%d", NULL, 8},
+    {"trice", 6101u, "cannot open file\n", 0, 0},
+    {"trice", 6102u, "error=%d", 1, 8},
+    {"trice", 6101u, "cannot open file\n", 0, 0},
+    {"trice", 6102u, "error=%d", 1, 8},
 };
 
 // These counters collect all mismatches so one run reports more than one error.
@@ -31,7 +31,7 @@ static int emissionFailures;
 static void pocEmit(const char *kind,
                     uint32_t id,
                     const char *format,
-                    const char *stringValue,
+                    int hasIntegerValue,
                     int integerValue)
 {
     const size_t expectedCount = sizeof expectedEmissions / sizeof expectedEmissions[0];
@@ -43,11 +43,9 @@ static void pocEmit(const char *kind,
     }
 
     const ExpectedEmission *expected = &expectedEmissions[observedEmissions];
-    const int stringsDiffer =
-        (stringValue == NULL) != (expected->stringValue == NULL) ||
-        (stringValue != NULL && strcmp(stringValue, expected->stringValue) != 0);
     if (strcmp(kind, expected->kind) != 0 || id != expected->id ||
-        strcmp(format, expected->format) != 0 || stringsDiffer ||
+        strcmp(format, expected->format) != 0 ||
+        hasIntegerValue != expected->hasIntegerValue ||
         integerValue != expected->integerValue) {
         fprintf(stderr,
                 "emission %zu mismatch: got kind=%s id=%u format=%s, "
@@ -66,12 +64,14 @@ static void pocEmit(const char *kind,
     observedEmissions++;
 }
 
-// These PoC emitters preserve the current production argument shapes.
+// These PoC emitters preserve the relevant zero- and one-value trice shapes.
 #define iD(n) (n)
-#define TRICE_INSERT_triceS(tid, format, stringValue) \
-    pocEmit("triceS", (uint32_t)(tid), (format), (stringValue), 0)
-#define TRICE_INSERT_trice(tid, format, integerValue) \
-    pocEmit("trice", (uint32_t)(tid), (format), NULL, (int)(integerValue))
+#define POC_TRICE_TEXT(tid, format) pocEmit("trice", (uint32_t)(tid), (format), 0, 0)
+#define POC_TRICE_INTEGER(tid, format, integerValue) \
+    pocEmit("trice", (uint32_t)(tid), (format), 1, (int)(integerValue))
+#define POC_TRICE_SELECT(_format, _value, selected, ...) selected
+#define TRICE_INSERT_trice(tid, ...) \
+    POC_TRICE_SELECT(__VA_ARGS__, POC_TRICE_INTEGER, POC_TRICE_TEXT, unused)(tid, __VA_ARGS__)
 #include "../../src/triceBind.h"
 
 // This setup include models the file-level sidecar installed by `trice bind`.
@@ -79,15 +79,14 @@ static void pocEmit(const char *kind,
 #include "trice_bind_rebase_generated.h"
 #undef TRICE_BIND_REBASE_SETUP
 
-// triceS takes a format and a runtime string in the current Trice API. Apart
-// from that required argument correction, this is the requested user macro.
+// This is the requested user macro without IDs or bind-specific syntax.
 #define LOG_ERROR(value)                                      \
     do {                                                      \
         switch (value) {                                      \
         case 0:                                               \
             break;                                            \
         case 7:                                               \
-            triceS("%s", "cannot open file\n");              \
+            trice("cannot open file\n");                     \
             break;                                            \
         default:                                              \
             trice("error=%d", 8);                             \

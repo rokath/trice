@@ -18,7 +18,7 @@ Counterwert oder neue Kommandozeilenoption auf:
         case 0:                                               \
             break;                                            \
         case 7:                                               \
-            triceS("%s", "cannot open file\n");              \
+            trice("cannot open file\n");                     \
             break;                                            \
         default:                                              \
             trice("error=%d", 8);                             \
@@ -30,13 +30,6 @@ LOG_ERROR(0);   // no log record
 LOG_ERROR(7);   // stable ID 6101
 LOG_ERROR(99);  // stable ID 6102
 ```
-
-Die in der Frage gezeigte Form `triceS("cannot open file\n")` besitzt nur ein
-Argument. Die aktuelle Trice-API definiert `triceS` für einen Formatstring und
-einen zur Laufzeit vorliegenden String. Das PoC verwendet deshalb die
-produktionskompatible Form `triceS("%s", "cannot open file\n")`. Alternativ
-könnte ein vollständig statischer Text mit `trice("cannot open file\n")`
-geschrieben werden. Diese Korrektur ist unabhängig vom Bind-Verfahren.
 
 `main.c` enthält außerdem zwei Wrapperaufrufe auf derselben physischen Zeile:
 
