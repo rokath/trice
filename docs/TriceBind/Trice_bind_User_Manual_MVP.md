@@ -1,8 +1,8 @@
 # Trice Bind
 
-**Status:** User-Manual-Entwurf für das MVP  
-**Verbindliche technische Spezifikation:** [`Trice_bind_Generator_Spezifikation.md`](Trice_bind_Generator_Spezifikation_MVP.md)  
-**Testanforderungen:** [`Trice_bind_Test_Spezifikation_MVP.md`](Trice_bind_Test_Spezifikation_MVP.md)
+**Status:** User-Manual-Entwurf für das MVP
+**Verbindliche technische Spezifikation:** [`Trice_bind_Generator_Spezifikation_MVP.md`](./Trice_bind_Test_Spezifikation_MVP.md)  
+**Testanforderungen:** [`Trice_bind_Test_Spezifikation_MVP.md`](./Trice_bind_Test_Spezifikation_MVP.md)
 
 ## 1. Überblick
 
