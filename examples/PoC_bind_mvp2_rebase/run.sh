@@ -17,8 +17,7 @@ trap 'rm -rf "$TMP"' EXIT HUP INT TERM
 
 # expect_failure accepts a compiler, language, standard, define, and diagnostic.
 # A rejected build counts as success only when it contains the intended guard.
-expect_failure()
-{
+expect_failure() {
   compiler=$1
   language=$2
   standard=$3
@@ -42,11 +41,10 @@ expect_failure()
 
 # counter_available probes the selected language mode without relying on a
 # compiler brand or version list.
-counter_available()
-{
+counter_available() {
   compiler=$1
   language=$2
-  printf '%s\n' '#ifndef __COUNTER__' '#error __COUNTER__ unavailable' '#endif' | \
+  printf '%s\n' '#ifndef __COUNTER__' '#error __COUNTER__ unavailable' '#endif' |
     "$compiler" -x "$language" -E - >/dev/null 2>&1
 }
 
