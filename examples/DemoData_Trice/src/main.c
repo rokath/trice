@@ -34,6 +34,7 @@ typedef int SocketHandle;
 #endif
 
 #include "trice.h"
+#include "trice_main_c_K59380759EB9D6878.h" // trice-bind: keep as last include before this file's Trice calls
 
 #define DEMO_PI 3.14159265358979323846
 #define DEFAULT_BINARY_FILE "DemoData_Trice.bin"

@@ -247,7 +247,11 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	canonical, err := os.ReadFile(filepath.Join(root, "_test", "testdata", "triceCheck.c"))
 	require.NoError(t, err)
 
-	source := maskCanonicalMacroDefinitions(t, string(canonical))
+	// The repository fixture may intentionally be committed Bound. Normalize
+	// only this temporary copy so the test always exercises include insertion.
+	canonicalSource := string(canonical)
+	canonicalSource = string(removeBindSidecarIncludes(canonical, scanBindIncludes(canonicalSource)))
+	source := maskCanonicalMacroDefinitions(t, canonicalSource)
 	source = splitCanonicalBindLines(t, source)
 	sites, diagnostics := scanBindSites("triceCheck.c", source)
 	require.Empty(t, diagnostics)

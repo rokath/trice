@@ -5,6 +5,7 @@
 #if 1 // !TRICE_OFF - We do not exclude this file globally for TRICE_OFF == 1, to check if TRICE_OFF works well.
 #include <float.h>
 #include "trice.h"
+#include "trice_triceCheck_c_KE43C28474024C67C.h" // trice-bind: keep as last include before this file's Trice calls
 
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 

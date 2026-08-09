@@ -4,6 +4,7 @@ package id
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -41,6 +42,17 @@ func writeValidBindSidecar(t *testing.T, name, key string) string {
 	return path
 }
 
+// readBindRemigrationLocations decodes the generated location file without
+// relying on fatal-style production loaders inside a unit test.
+func readBindRemigrationLocations(t *testing.T) (TriceIDLookUpLI, []byte) {
+	t.Helper()
+	content, err := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, err)
+	locations := make(TriceIDLookUpLI)
+	require.NoError(t, json.Unmarshal(content, &locations))
+	return locations, content
+}
+
 // TestBindRemigrationRemovesValidatedArtifacts verifies exact source-byte
 // preservation, repeated owner reactivation, sidecar deletion, and idempotence.
 func TestBindRemigrationRemovesValidatedArtifacts(t *testing.T) {
@@ -51,11 +63,27 @@ func TestBindRemigrationRemovesValidatedArtifacts(t *testing.T) {
 	expected := "#include \"trice.h\"\r\ntrice(\"first\");\r\n#include \"module.h\"\r\ntrice(id(0), \"second\");\r\n"
 	defer prepareBindTest(t, map[string]string{"module.c": source})()
 	sidecarPath := writeValidBindSidecar(t, name, key)
+	sidecar := "#define TRICE_BIND_FILE_KEY " + key + "\n" +
+		"#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L3 TRICE_BIND_AUTO, iD(100u)\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L6 TRICE_BIND_REPLACE, id(101u)\n"
+	require.NoError(t, FSys.WriteFile(sidecarPath, []byte(sidecar), 0o644))
+	locationFile := ToLIFile(Srcs[0])
+	locations := TriceIDLookUpLI{
+		100: {File: locationFile, Line: 3},
+		101: {File: locationFile, Line: 6},
+		999: {File: "unmanaged.c", Line: 9},
+	}
+	require.NoError(t, locations.toFile(FSys.Fs, LIFnJSON))
 
 	require.NoError(t, SubCmdIdRemigrateBindToClean(io.Discard, FSys))
 	after, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
 	assert.Equal(t, expected, string(after))
+	remigratedLocations, firstLocationBytes := readBindRemigrationLocations(t)
+	assert.Equal(t, TriceLI{File: locationFile, Line: 2}, remigratedLocations[100])
+	assert.Equal(t, TriceLI{File: locationFile, Line: 4}, remigratedLocations[101])
+	assert.Equal(t, TriceLI{File: "unmanaged.c", Line: 9}, remigratedLocations[999])
 	_, err = FSys.Stat(sidecarPath)
 	assert.ErrorIs(t, err, os.ErrNotExist)
 
@@ -63,6 +91,38 @@ func TestBindRemigrationRemovesValidatedArtifacts(t *testing.T) {
 	afterSecondRun, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
 	assert.Equal(t, after, afterSecondRun)
+	_, secondLocationBytes := readBindRemigrationLocations(t)
+	assert.Equal(t, firstLocationBytes, secondLocationBytes)
+}
+
+// TestBindRemigrationRejectsStaleLocation prevents source and sidecar changes
+// when li.json does not describe the currently validated Bound descriptor.
+func TestBindRemigrationRejectsStaleLocation(t *testing.T) {
+	key := "K0123456789ABCDEF"
+	name := "trice_stale_c_" + key + ".h"
+	source := "#include \"" + name + "\"\ntrice(\"stale\");\n"
+	defer prepareBindTest(t, map[string]string{"stale.c": source})()
+	sidecarPath := writeValidBindSidecar(t, name, key)
+	sidecar := "#define TRICE_BIND_FILE_KEY " + key + "\n" +
+		"#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L2 TRICE_BIND_AUTO, iD(100u)\n"
+	require.NoError(t, FSys.WriteFile(sidecarPath, []byte(sidecar), 0o644))
+	locations := TriceIDLookUpLI{100: {File: ToLIFile(Srcs[0]), Line: 1}}
+	require.NoError(t, locations.toFile(FSys.Fs, LIFnJSON))
+	beforeLocations, err := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, err)
+
+	err = SubCmdIdRemigrateBindToClean(io.Discard, FSys)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "expected")
+	afterSource, readErr := FSys.ReadFile(Srcs[0])
+	require.NoError(t, readErr)
+	assert.Equal(t, source, string(afterSource))
+	afterLocations, readErr := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, readErr)
+	assert.Equal(t, beforeLocations, afterLocations)
+	_, statErr := FSys.Stat(sidecarPath)
+	require.NoError(t, statErr)
 }
 
 // TestBindRemigrationRejectsAmbiguousOwnership ensures one generated sidecar
@@ -138,6 +198,14 @@ func TestBindRemigrationRollsBackDeleteFailure(t *testing.T) {
 	source := "#include \"" + name + "\"\ntrice(\"rollback\");\n"
 	defer prepareBindTest(t, map[string]string{"rollback.c": source})()
 	sidecarPath := writeValidBindSidecar(t, name, key)
+	sidecar := "#define TRICE_BIND_FILE_KEY " + key + "\n" +
+		"#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L2 TRICE_BIND_AUTO, iD(100u)\n"
+	require.NoError(t, FSys.WriteFile(sidecarPath, []byte(sidecar), 0o644))
+	locations := TriceIDLookUpLI{100: {File: ToLIFile(Srcs[0]), Line: 2}}
+	require.NoError(t, locations.toFile(FSys.Fs, LIFnJSON))
+	beforeLocations, readErr := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, readErr)
 	failing := &bindFailRemoveFs{Fs: FSys.Fs, destination: sidecarPath}
 	failingFileSystem := &afero.Afero{Fs: failing}
 
@@ -146,6 +214,9 @@ func TestBindRemigrationRollsBackDeleteFailure(t *testing.T) {
 	after, readErr := FSys.ReadFile(Srcs[0])
 	require.NoError(t, readErr)
 	assert.Equal(t, source, string(after))
+	afterLocations, readErr := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, readErr)
+	assert.Equal(t, beforeLocations, afterLocations)
 	_, statErr := FSys.Stat(sidecarPath)
 	require.NoError(t, statErr)
 }

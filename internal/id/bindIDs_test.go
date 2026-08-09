@@ -186,6 +186,8 @@ func TestBindIgnoresCommentedCalls(t *testing.T) {
 	assert.Contains(t, string(sidecar), "active")
 	assert.NotContains(t, string(sidecar), "line comment")
 	assert.NotContains(t, string(sidecar), "block comment")
+	assert.Len(t, IDData.idToTrice, 1)
+	assert.Len(t, IDData.idToLocNew, 1)
 }
 
 // TestBindRejectsUnsafePlacementWithoutWriting protects all regular outputs after analysis failure.

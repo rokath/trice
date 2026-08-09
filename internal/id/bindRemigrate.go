@@ -4,25 +4,36 @@ package id
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/afero"
 )
 
+var (
+	// bindRemigrationSiteDefinition extracts the generated key, physical line,
+	// and stable ID needed to validate and relocate li.json entries.
+	bindRemigrationSiteDefinition = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*define[\t ]+TRICE_BIND_SITE_(K[0-9A-F]{16})_L([0-9]+)[\t ]+TRICE_BIND_(AUTO|REPLACE),[\t ]+(iD|id|Id|ID)\(([0-9]+)u\)`)
+)
+
 // bindRemigratePlan holds the exact source replacement and generated sidecar
 // deletion that return one bind-owned physical file to the clean state.
 type bindRemigratePlan struct {
-	path        string
-	info        os.FileInfo
-	original    []byte
-	final       []byte
-	sidecarPath string
+	path         string
+	info         os.FileInfo
+	original     []byte
+	final        []byte
+	sidecarPath  string
+	includeLines []int           // includeLines identifies every owner line removed from the Bound source.
+	siteLines    map[TriceID]int // siteLines maps each generated ID to its validated Bound line.
 }
 
 // SubCmdIdRemigrateBindToClean removes validated bind ownership artifacts while
@@ -50,7 +61,10 @@ func SubCmdIdRemigrateBindToClean(w io.Writer, fSys *afero.Afero) error {
 		return reportBindRemigrationDiagnostics(w, diagnostics)
 	}
 
-	writes := buildBindRemigrationWrites(plans)
+	writes, err := buildBindRemigrationWrites(fSys, plans)
+	if err != nil {
+		return err
+	}
 	if Verbose {
 		for _, plan := range plans {
 			fmt.Fprintf(w, "%s: remove bind include(s) and sidecar %s\n", plan.path, plan.sidecarPath)
@@ -115,14 +129,27 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 			diagnostics = append(diagnostics, sidecarDiagnostics...)
 			continue
 		}
+		siteLines, err := parseBindRemigrationSiteLines(content, key)
+		if err != nil {
+			diagnostics = append(diagnostics, bindDiagnostic{path: sidecarPath, message: err.Error()})
+			continue
+		}
+		includeLines := make([]int, 0, len(includes))
+		for _, include := range includes {
+			if include.isSidecar {
+				includeLines = append(includeLines, include.line)
+			}
+		}
 
 		owners[sidecarPath] = append(owners[sidecarPath], input.path)
 		plans = append(plans, bindRemigratePlan{
-			path:        input.path,
-			info:        input.info,
-			original:    input.data,
-			final:       removeBindSidecarIncludes(input.data, includes),
-			sidecarPath: sidecarPath,
+			path:         input.path,
+			info:         input.info,
+			original:     input.data,
+			final:        removeBindSidecarIncludes(input.data, includes),
+			sidecarPath:  sidecarPath,
+			includeLines: includeLines,
+			siteLines:    siteLines,
 		})
 	}
 
@@ -141,6 +168,31 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 	return plans, nil
 }
 
+// parseBindRemigrationSiteLines reads only generator-owned descriptor syntax.
+// It does not parse user Trice calls or duplicate the shared source parser.
+func parseBindRemigrationSiteLines(content []byte, expectedKey string) (map[TriceID]int, error) {
+	result := make(map[TriceID]int)
+	for _, match := range bindRemigrationSiteDefinition.FindAllSubmatch(content, -1) {
+		if string(match[1]) != expectedKey {
+			return nil, fmt.Errorf("site descriptor uses file key %s instead of %s", match[1], expectedKey)
+		}
+		line, err := strconv.Atoi(string(match[2]))
+		if err != nil {
+			return nil, fmt.Errorf("invalid site line %q", match[2])
+		}
+		value, err := strconv.Atoi(string(match[5]))
+		if err != nil {
+			return nil, fmt.Errorf("invalid site ID %q", match[5])
+		}
+		id := TriceID(value)
+		if previous, exists := result[id]; exists && previous != line {
+			return nil, fmt.Errorf("site ID %d occurs on multiple physical lines", id)
+		}
+		result[id] = line
+	}
+	return result, nil
+}
+
 // removeBindSidecarIncludes deletes complete active sidecar include lines in
 // reverse byte order, preserving every other byte and the original line endings.
 func removeBindSidecarIncludes(source []byte, includes []bindInclude) []byte {
@@ -155,20 +207,109 @@ func removeBindSidecarIncludes(source []byte, includes []bindInclude) []byte {
 	return result
 }
 
-// buildBindRemigrationWrites orders source replacements before sidecar
-// deletions. The shared commit helper snapshots every destination first and
-// rolls earlier changes back if any later operation fails.
-func buildBindRemigrationWrites(plans []bindRemigratePlan) []bindWrite {
-	writes := make([]bindWrite, 0, len(plans)*2)
+// buildBindRemigrationWrites plans source and location-list replacements before
+// sidecar deletions. The shared commit helper snapshots every destination first
+// and rolls earlier changes back if any later operation fails.
+func buildBindRemigrationWrites(fSys *afero.Afero, plans []bindRemigratePlan) ([]bindWrite, error) {
+	writes := make([]bindWrite, 0, len(plans)*2+1)
 	for _, plan := range plans {
 		if !bytes.Equal(plan.original, plan.final) {
 			writes = append(writes, bindWrite{path: plan.path, data: plan.final, perm: plan.info.Mode(), kind: "source"})
 		}
 	}
+	liWrite, err := buildBindRemigrationLocationWrite(fSys, plans)
+	if err != nil {
+		return nil, err
+	}
+	if liWrite != nil {
+		writes = append(writes, *liWrite)
+	}
 	for _, plan := range plans {
 		writes = append(writes, bindWrite{path: plan.sidecarPath, kind: "sidecar-delete", remove: true})
 	}
-	return writes
+	return writes, nil
+}
+
+// buildBindRemigrationLocationWrite restores Clean-source line numbers only
+// when every generated descriptor still matches its current li.json entry.
+func buildBindRemigrationLocationWrite(fSys *afero.Afero, plans []bindRemigratePlan) (*bindWrite, error) {
+	if len(plans) == 0 || LIFnJSON == "" || LIFnJSON == "off" || LIFnJSON == "none" {
+		return nil, nil
+	}
+	original, err := fSys.ReadFile(LIFnJSON)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("cannot read %s before bind remigration: %w", LIFnJSON, err)
+	}
+	locations := make(TriceIDLookUpLI)
+	if len(bytes.TrimSpace(original)) > 0 {
+		if err := json.Unmarshal(original, &locations); err != nil {
+			return nil, fmt.Errorf("cannot parse %s before bind remigration: %w", LIFnJSON, err)
+		}
+	}
+
+	changed := false
+	for _, plan := range plans {
+		locationFile := ToLIFile(plan.path)
+		// Map iteration must not decide which stale-location diagnostic is
+		// reported first, so descriptor IDs are validated in numeric order.
+		siteIDs := make([]TriceID, 0, len(plan.siteLines))
+		for id := range plan.siteLines {
+			siteIDs = append(siteIDs, id)
+		}
+		sort.Slice(siteIDs, func(i, j int) bool { return siteIDs[i] < siteIDs[j] })
+		for _, id := range siteIDs {
+			boundLine := plan.siteLines[id]
+			location, exists := locations[id]
+			if !exists {
+				return nil, fmt.Errorf("cannot remigrate %s: ID %d is missing from %s", plan.path, id, LIFnJSON)
+			}
+			if normalizeLocationPath(location.File) != locationFile || location.Line != boundLine {
+				return nil, fmt.Errorf(
+					"cannot remigrate %s: ID %d location is %s:%d, expected %s:%d",
+					plan.path,
+					id,
+					location.File,
+					location.Line,
+					locationFile,
+					boundLine,
+				)
+			}
+			removedBefore := 0
+			for _, includeLine := range plan.includeLines {
+				if includeLine < boundLine {
+					removedBefore++
+				}
+			}
+			if removedBefore == 0 {
+				continue
+			}
+			location.Line -= removedBefore
+			if location.Line < 1 {
+				return nil, fmt.Errorf("cannot remigrate %s: ID %d would receive invalid line %d", plan.path, id, location.Line)
+			}
+			locations[id] = location
+			changed = true
+		}
+	}
+	if !changed {
+		return nil, nil
+	}
+	rendered, err := locations.toJSON()
+	if err != nil {
+		return nil, fmt.Errorf("cannot render %s after bind remigration: %w", LIFnJSON, err)
+	}
+	if bytes.Equal(original, rendered) {
+		return nil, nil
+	}
+	return &bindWrite{
+		path: LIFnJSON,
+		data: rendered,
+		perm: fileWritePerm(fSys, LIFnJSON, 0o666),
+		kind: "li",
+	}, nil
 }
 
 // reportBindRemigrationDiagnostics emits all stable diagnostics and returns one

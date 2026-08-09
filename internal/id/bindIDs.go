@@ -230,8 +230,15 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 			if plan.class != class {
 				continue
 			}
+			insertInput := plan.final
+			if plan.class == bindFileBound {
+				// Bind's source scanner deliberately ignores commented examples.
+				// Give the reused Insert engine the same byte-aligned view so it
+				// cannot allocate IDs or rewrite location data for non-sites.
+				insertInput = []byte(stripCComments(string(plan.final)))
+			}
 			var insertOutput bytes.Buffer
-			virtual, modified, err := IDData.insertTriceIDs(&insertOutput, plan.path, ToLIFile(plan.path), plan.final, admin)
+			virtual, modified, err := IDData.insertTriceIDs(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin)
 			if err != nil {
 				message := strings.TrimSpace(insertOutput.String())
 				if message == "" {

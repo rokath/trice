@@ -3,6 +3,7 @@
 //! \file triceExamples.c
 
 #include "trice.h"
+#include "trice_triceExamples_c_K2A55E9986F0B1C24.h" // trice-bind: keep as last include before this file's Trice calls
 
 #if !TRICE_OFF
 

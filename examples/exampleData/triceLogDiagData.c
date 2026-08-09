@@ -3,6 +3,7 @@
 //! \file triceLogDiagData.c
 
 #include "trice.h"
+#include "trice_triceLogDiagData_c_KA5A58B1312AE3CE2.h" // trice-bind: keep as last include before this file's Trice calls
 
 #ifdef __cplusplus
 extern "C" {

@@ -31,6 +31,27 @@ fail_workflow() {
   return 1
 }
 
+# run_silent_workflow requires a successful public state-transition wrapper to
+# emit no stdout or stderr. On failure it retains the complete captured output
+# so the test log remains actionable.
+run_silent_workflow() {
+  local output
+  local status=0
+
+  log "+ $* (expect silent success)"
+  output="$("$@" 2>&1)" || status=$?
+  if [ "$status" -ne 0 ]; then
+    [ -z "$output" ] || log "$output"
+    fail_workflow "silent workflow failed with exit code $status: $*"
+    return 1
+  fi
+  if [ -n "$output" ]; then
+    log "$output"
+    fail_workflow "successful workflow emitted output: $*"
+    return 1
+  fi
+}
+
 # create_fixture builds one isolated project controlled through the public
 # repository workflow variables. Runtime files stay below ignored ./temp.
 create_fixture() {
@@ -44,6 +65,7 @@ create_fixture() {
     '// SPDX-License-Identifier: MIT' \
     '#include "trice.h"' \
     'static inline void fixture_log(int value) {' \
+    '    // trice("msg:commented\n");' \
     '    trice("msg:inline=%d\n", value);' \
     '}' \
     'int main(void) {' \
@@ -151,15 +173,15 @@ test_public_workflows() {
   reset_fixture
   mkdir -p "$inserted" "$bound" "$remigrated"
 
-  run_cmd "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || return 1
+  run_silent_workflow "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || return 1
   grep -Eq '(iD|Id|ID)[[:space:]]*\([[:space:]]*[1-9][0-9]*' "$project_abs/main.c" || return 1
   cp "$project_abs/main.c" "$inserted/main.c"
   cp "$project_abs/triceConfig.h" "$inserted/triceConfig.h"
   cp "$project_abs/til.json" "$inserted/til.json"
   cp "$project_abs/li.json" "$inserted/li.json"
 
-  run_cmd "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || return 1
-  run_cmd "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || return 1
+  run_silent_workflow "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || return 1
+  run_silent_workflow "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || return 1
   verify_bound_fixture || return 1
   cmp "$inserted/til.json" "$project_abs/til.json" >/dev/null || fail_workflow "Inserted and Bound TIL content differs"
 
@@ -168,14 +190,20 @@ test_public_workflows() {
   cp "$project_abs/til.json" "$bound/til.json"
   cp "$project_abs/li.json" "$bound/li.json"
   cp -R "$project_abs/bind" "$bound/bind"
-  run_cmd "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || return 1
+  run_silent_workflow "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || return 1
   cmp "$bound/main.c" "$project_abs/main.c" >/dev/null || fail_workflow "Second Bind changed main.c"
   cmp "$bound/triceConfig.h" "$project_abs/triceConfig.h" >/dev/null || fail_workflow "Second Bind changed triceConfig.h"
   cmp "$bound/til.json" "$project_abs/til.json" >/dev/null || fail_workflow "Second Bind changed til.json"
   cmp "$bound/li.json" "$project_abs/li.json" >/dev/null || fail_workflow "Second Bind changed li.json"
   diff -r "$bound/bind" "$project_abs/bind" >/dev/null || fail_workflow "Second Bind changed sidecar content"
 
-  run_cmd "$ROOT/trice_remigrateBindToClean_in_examples_and_test_folder.sh" || return 1
+  # Clean after Bind is a supported mode switch, not a re-migration: owner
+  # includes and sidecars must survive until the explicit remigration step.
+  run_silent_workflow "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || return 1
+  grep -q 'trice-bind: keep as last include' "$project_abs/main.c" || fail_workflow "Clean removed the active Bind owner include"
+  find "$project_abs/bind" -type f -name '*.h' -print | grep -q . || fail_workflow "Clean removed generated sidecars"
+
+  run_silent_workflow "$ROOT/trice_remigrateBindToClean_in_examples_and_test_folder.sh" || return 1
   if grep -q 'trice-bind: keep as last include' "$project_abs/main.c"; then
     fail_workflow "Re-migration left an active owner include"
     return 1
@@ -184,13 +212,14 @@ test_public_workflows() {
     fail_workflow "Re-migration left generated sidecars"
     return 1
   fi
+  cmp "$inserted/li.json" "$project_abs/li.json" >/dev/null || fail_workflow "Re-migration did not restore Clean-source locations"
   cp "$project_abs/main.c" "$remigrated/main.c"
   cp "$project_abs/triceConfig.h" "$remigrated/triceConfig.h"
-  run_cmd "$ROOT/trice_remigrateBindToClean_in_examples_and_test_folder.sh" || return 1
+  run_silent_workflow "$ROOT/trice_remigrateBindToClean_in_examples_and_test_folder.sh" || return 1
   cmp "$remigrated/main.c" "$project_abs/main.c" >/dev/null || fail_workflow "Second re-migration changed main.c"
   cmp "$remigrated/triceConfig.h" "$project_abs/triceConfig.h" >/dev/null || fail_workflow "Second re-migration changed triceConfig.h"
 
-  run_cmd "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || return 1
+  run_silent_workflow "$ROOT/trice_insertIDs_in_examples_and_test_folder.sh" || return 1
   cmp "$inserted/main.c" "$project_abs/main.c" >/dev/null || fail_workflow "Re-migrated Insert source differs"
   cmp "$inserted/triceConfig.h" "$project_abs/triceConfig.h" >/dev/null || fail_workflow "Re-migrated Insert config differs"
   cmp "$inserted/til.json" "$project_abs/til.json" >/dev/null || fail_workflow "Re-migrated Insert til.json differs"

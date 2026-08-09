@@ -2,6 +2,7 @@
 //! \file TargetActivity.c
 
 #include "trice.h"
+#include "trice_TargetActivity_c_K000ACB09960854DC.h" // trice-bind: keep as last include before this file's Trice calls
 
 // Needed safety space is 4*((TRICE_DATA_OFFSET>>2) + (TRICE_SINGLE_MAX_SIZE>>1)-1) = 208
 // Needed safety space is TRICE_DATA_OFFSET + (2*TRICE_SINGLE_MAX_SIZE)-4) = 208

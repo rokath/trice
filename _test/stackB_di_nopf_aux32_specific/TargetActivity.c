@@ -2,6 +2,7 @@
 //! \file TargetActivity.c
 
 #include "trice.h"
+#include "trice_TargetActivity_c_KA864B0B35472E566.h" // trice-bind: keep as last include before this file's Trice calls
 
 // clang-format off
 
