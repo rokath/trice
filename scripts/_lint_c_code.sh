@@ -308,6 +308,7 @@ run_direct_xtea_compile_check() {
 run_cppcheck() {
   local cppcheck_bin
   local cppcheck_args=()
+  local cppcheck_help
   if ! cppcheck_bin="$(find_cppcheck)"; then
     echo "cppcheck is not installed" >&2
     exit 1
@@ -315,23 +316,27 @@ run_cppcheck() {
 
   # Older cppcheck releases do not know --check-level. Keep the lint run
   # compatible while making the reduced analysis depth visible in the log.
-  if "$cppcheck_bin" --help 2>&1 | grep -q -- '--check-level'; then
-    cppcheck_args+=(--check-level=exhaustive)
-  else
-    if [ "${TRICE_CPPCHECK_CHECK_LEVEL_HINT_SHOWN:-0}" != "1" ]; then
-      echo "Hint: cppcheck does not support --check-level; running without exhaustive checking." >&2
-    fi
-    # Cppcheck 2.10 reports this macro-use path as unreadVariable, while the
-    # counter value is part of the selected OUT_fullSigil expansion.
-    cppcheck_args+=(--suppress=unreadVariable:src/tcobsv1Encode.c:313)
-    # Cppcheck 2.10 also reports the stack-buffer direct-output macros as
-    # danglingLifetime even though the generated write sequence is synchronous.
-    cppcheck_args+=(--suppress=danglingLifetime:src/trice.c)
-    cppcheck_args+=(--suppress=danglingLifetime:src/trice8.c)
-    cppcheck_args+=(--suppress=danglingLifetime:src/trice16.c)
-    cppcheck_args+=(--suppress=danglingLifetime:src/trice32.c)
-    cppcheck_args+=(--suppress=danglingLifetime:src/trice64.c)
-  fi
+  # Capture the complete help text first: short-circuiting grep pipelines can
+  # mis-detect the option when a parent shell exports pipefail.
+  cppcheck_help="$("$cppcheck_bin" --help 2>&1 || true)"
+  case "$cppcheck_help" in
+    *--check-level*) cppcheck_args+=(--check-level=exhaustive) ;;
+    *)
+      if [ "${TRICE_CPPCHECK_CHECK_LEVEL_HINT_SHOWN:-0}" != "1" ]; then
+        echo "Hint: cppcheck does not support --check-level; running without exhaustive checking." >&2
+      fi
+      # Cppcheck 2.10 reports this macro-use path as unreadVariable, while the
+      # counter value is part of the selected OUT_fullSigil expansion.
+      cppcheck_args+=(--suppress=unreadVariable:src/tcobsv1Encode.c:313)
+      # Cppcheck 2.10 also reports the stack-buffer direct-output macros as
+      # danglingLifetime even though the generated write sequence is synchronous.
+      cppcheck_args+=(--suppress=danglingLifetime:src/trice.c)
+      cppcheck_args+=(--suppress=danglingLifetime:src/trice8.c)
+      cppcheck_args+=(--suppress=danglingLifetime:src/trice16.c)
+      cppcheck_args+=(--suppress=danglingLifetime:src/trice32.c)
+      cppcheck_args+=(--suppress=danglingLifetime:src/trice64.c)
+      ;;
+  esac
 
   # cppcheck does not model compiler-specific __has_builtin(...) probing well.
   # Define it to 0 so Clang-only feature tests stay parseable during analysis.
