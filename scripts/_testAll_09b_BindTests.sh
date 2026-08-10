@@ -65,6 +65,7 @@ main() {
   local poc_dir="$ROOT/examples/PoC_bind_generator"
   local poc_build="$poc_dir/build"
   local poc_executable="$poc_build/bin/PoC_bind_generator"
+  local go_executable
 
   init_logfile
   if ! has_command go; then
@@ -77,6 +78,13 @@ main() {
     log "SKIP: Trice bind target integration requires GCC- or Clang-compatible frontends"
     exit 0
   fi
+  # Pass the executable selected through PATH back to CMake on every configure
+  # run. This replaces an obsolete find_program cache entry after Go was moved,
+  # replaced, or installed at a different path on another supported host.
+  go_executable="$(command -v go)" || {
+    log "FAIL: cannot resolve the Go executable from PATH"
+    exit 1
+  }
 
   run_cmd env TRICE_BIND_INTEGRATION=1 go test ./internal/id \
     -run '^TestBind(GeneratedTargetCompilesCAndCPP|CanonicalTriceCheckGeneratesCompleteSidecar)$' \
@@ -99,7 +107,8 @@ main() {
   run_cmd cmake -S "$poc_dir" -B "$poc_build" \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$poc_build/bin" \
-    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG="$poc_build/bin" || {
+    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG="$poc_build/bin" \
+    -DGO_EXECUTABLE:FILEPATH="$go_executable" || {
     log "FAIL: cannot configure examples/PoC_bind_generator"
     exit 1
   }
