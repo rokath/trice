@@ -105,13 +105,23 @@ print_global_coverage_hotspots() {
 main() {
   local coverage_file="./temp/log/coverage.out"
   local goexe
+  local go_toolchain
   init_logfile
   if ! has_command go; then
     log "MISSING TOOL: go"
     log "SKIP: Go not installed"
     exit 0
   fi
-  run_cmd go test ./... -covermode=atomic -coverprofile="$coverage_file" -coverpkg=./... || {
+  # Keep nested Go commands on the toolchain selected for this module. Go's
+  # coverage implementation invokes "go tool covdata" for packages without
+  # tests; an older PATH launcher must not combine itself with the selected
+  # toolchain's GOROOT after an automatic toolchain switch.
+  go_toolchain="$(go env GOVERSION)" || {
+    log "FAIL: unable to determine the selected Go toolchain"
+    exit 1
+  }
+  log "Go coverage toolchain: $go_toolchain"
+  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test ./... -covermode=atomic -coverprofile="$coverage_file" -coverpkg=./... || {
     log "FAIL: go coverage test failed"
     exit 1
   }
