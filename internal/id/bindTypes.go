@@ -52,26 +52,105 @@ type bindSite struct {
 	id          TriceID
 	comment     string
 	wasExplicit bool
+
+	// definitionName is non-empty only for a Trice site owned by a supported
+	// statement-macro definition. The ordinal is local to that definition.
+	definitionName    string
+	definitionOrdinal int
+	// sourceOrdinal distinguishes direct sites that share one physical line.
+	sourceOrdinal int
+	// counterSelected records that at least one generated invocation region
+	// selects this logical site through the local counter-rebase path.
+	counterSelected bool
+}
+
+// bindSiteReference identifies one logical Trice site after deterministic plan sorting.
+type bindSiteReference struct {
+	plan int
+	site int
+}
+
+// bindMacroDefinition describes one complete physical #define directive and
+// the shared-parser Trice sites found in its replacement list.
+type bindMacroDefinition struct {
+	name             string
+	start            int
+	end              int
+	replacementStart int
+	line             int
+	functionLike     bool
+	siteIndexes      []int
+	hasTokenPaste    bool
+	hasStringify     bool
+	hasCounter       bool
+}
+
+// bindWrapperDefinition is the project-wide identity of one supported logging wrapper.
+type bindWrapperDefinition struct {
+	name      string
+	plan      int
+	macro     int
+	siteRefs  []bindSiteReference
+	duplicate bool
+}
+
+// bindWrapperInvocation records one standalone wrapper expansion in user source.
+type bindWrapperInvocation struct {
+	name    string
+	start   int
+	end     int
+	line    int
+	column  int
+	comment string
+}
+
+// bindSiteDescriptor maps one ordinary File-Key-plus-line expansion to a logical site.
+type bindSiteDescriptor struct {
+	line    int
+	column  int
+	ref     bindSiteReference
+	comment string
+}
+
+// bindRebaseRegion describes one generated, statement-local counter scope.
+type bindRebaseRegion struct {
+	scope      string
+	line       int
+	column     int
+	start      int
+	end        int
+	expansions []bindSiteReference
+}
+
+// bindProjectModel is rebuilt after every in-memory source transformation so
+// all references use the final physical lines seen by the target compiler.
+type bindProjectModel struct {
+	wrappers map[string]bindWrapperDefinition
 }
 
 // bindFilePlan contains all read-only analysis and all bytes intended for the commit phase.
 type bindFilePlan struct {
-	path           string
-	info           os.FileInfo
-	original       []byte
-	final          []byte
-	class          bindFileClass
-	includes       []bindInclude
-	sites          []bindSite
-	key            string
-	sidecarName    string
-	sidecarPath    string
-	sidecarContent []byte
-	includeAdded   bool
-	configChanged  bool
-	newIDs         int
-	reusedIDs      int
-	diagnostics    []bindDiagnostic
+	path             string
+	info             os.FileInfo
+	original         []byte
+	final            []byte
+	class            bindFileClass
+	includes         []bindInclude
+	sites            []bindSite
+	macroDefinitions []bindMacroDefinition
+	invocations      []bindWrapperInvocation
+	descriptors      []bindSiteDescriptor
+	regions          []bindRebaseRegion
+	managedOffset    int
+	key              string
+	sidecarName      string
+	sidecarPath      string
+	sidecarContent   []byte
+	includeAdded     bool
+	configChanged    bool
+	newIDs           int
+	reusedIDs        int
+	diagnostics      []bindDiagnostic
 }
 
 // bindDiagnostic is sortable so parallel analysis never changes diagnostic order.

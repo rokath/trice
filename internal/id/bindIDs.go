@@ -42,7 +42,26 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 		diagnostics = append(diagnostics, plans[i].diagnostics...)
 		plans[i].diagnostics = nil
 	}
+	_, projectDiagnostics := analyzeBindProject(plans, true)
+	diagnostics = append(diagnostics, projectDiagnostics...)
 	diagnostics = append(diagnostics, prepareBindPlans(fSys, plans)...)
+
+	model, _ := analyzeBindProject(plans, false)
+	diagnostics = append(diagnostics, planBindExecution(plans, model, true)...)
+	applyBindRebaseRegions(plans)
+	for i := range plans {
+		plans[i].includes = scanBindIncludes(string(plans[i].final))
+		plans[i].sites, _ = scanBindSites(plans[i].path, string(plans[i].final))
+	}
+	model, _ = analyzeBindProject(plans, false)
+	_ = planBindExecution(plans, model, false)
+	for i := range plans {
+		if plans[i].class == bindFileBound && plans[i].key != "" {
+			validateActiveBindIncludes(&plans[i])
+		}
+		diagnostics = append(diagnostics, plans[i].diagnostics...)
+		plans[i].diagnostics = nil
+	}
 
 	IDData.err = nil
 	IDData.PreProcessing(w, fSys)
@@ -54,7 +73,7 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 
 	for i := range plans {
 		if plans[i].class == bindFileBound && plans[i].key != "" {
-			plans[i].sidecarContent = renderBindSidecar(&plans[i])
+			plans[i].sidecarContent = renderBindSidecar(plans, i)
 		}
 	}
 	if len(diagnostics) > 0 {
@@ -169,7 +188,7 @@ func prepareBindPlans(fSys *afero.Afero, plans []bindFilePlan) []bindDiagnostic 
 
 	for i := range plans {
 		plan := &plans[i]
-		if plan.class == bindFileBound && plan.key == "" && len(plan.sites) > 0 {
+		if plan.class == bindFileBound && plan.key == "" && plan.managedOffset >= 0 {
 			key, err := newBindFileKey(keyOwners)
 			if err != nil {
 				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: "cannot generate file key: " + err.Error()})
@@ -235,7 +254,7 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 				// Bind's source scanner deliberately ignores commented examples.
 				// Give the reused Insert engine the same byte-aligned view so it
 				// cannot allocate IDs or rewrite location data for non-sites.
-				insertInput = []byte(stripCComments(string(plan.final)))
+				insertInput = []byte(stripCComments(maskTriceInsertDisabledRegions(string(plan.final))))
 			}
 			var insertOutput bytes.Buffer
 			virtual, modified, err := IDData.insertTriceIDs(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin)

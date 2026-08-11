@@ -95,6 +95,39 @@ func TestBindRemigrationRemovesValidatedArtifacts(t *testing.T) {
 	assert.Equal(t, firstLocationBytes, secondLocationBytes)
 }
 
+// TestBindMVP2RemigrationRemovesRebaseArtifacts verifies that generated
+// begin/end blocks, owner includes, advanced descriptors, and LI shifts are
+// reversed together without touching the original ID-free source text.
+func TestBindMVP2RemigrationRemovesRebaseArtifacts(t *testing.T) {
+	source := "#define LOG(value) do { trice(\"first\"); trice(\"second=%d\", value); } while (0)\n" +
+		"void f(void) { LOG(1); trice(\"third\"); trice(\"fourth\"); }\n"
+	defer prepareBindTest(t, map[string]string{"advanced.c": source})()
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	owner, sidecar := readOwnedBindSidecar(t, Srcs[0])
+	assert.Contains(t, string(sidecar), "TRICE_BIND_DEFINITION_")
+	assert.Contains(t, string(sidecar), "TRICE_BIND_LOCATION_")
+	bound, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Contains(t, string(bound), bindRebaseBeginMarker)
+
+	require.NoError(t, SubCmdIdRemigrateBindToClean(io.Discard, FSys))
+	clean, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, source, string(clean))
+	_, err = FSys.Stat(filepath.Join(BindDir, owner.name))
+	assert.ErrorIs(t, err, os.ErrNotExist)
+
+	locations, _ := readBindRemigrationLocations(t)
+	require.Len(t, locations, 4)
+	lineCounts := map[int]int{}
+	for _, location := range locations {
+		assert.Equal(t, ToLIFile(Srcs[0]), normalizeLocationPath(location.File))
+		lineCounts[location.Line]++
+	}
+	assert.Equal(t, map[int]int{1: 2, 2: 2}, lineCounts)
+}
+
 // TestBindRemigrationRejectsStaleLocation prevents source and sidecar changes
 // when li.json does not describe the currently validated Bound descriptor.
 func TestBindRemigrationRejectsStaleLocation(t *testing.T) {

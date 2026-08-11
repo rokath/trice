@@ -211,10 +211,10 @@ func TestBindRejectsUnsafePlacementWithoutWriting(t *testing.T) {
 	assert.Equal(t, tilBefore, tilAfter)
 }
 
-// TestBindRejectsMixedAndMultipleSitesWithSortedDiagnostics verifies deterministic error aggregation.
-func TestBindRejectsMixedAndMultipleSitesWithSortedDiagnostics(t *testing.T) {
+// TestBindRejectsMixedSites verifies deterministic ownership diagnostics.
+func TestBindRejectsMixedSites(t *testing.T) {
 	sources := map[string]string{
-		"z.c": "trice(\"one\"); trice(\"two\");\n",
+		"z.c": "trice(iD(124), \"insert\");\ntrice(\"bind\");\n",
 		"a.c": "trice(iD(123), \"insert\");\ntrice(\"bind\");\n",
 	}
 	defer prepareBindTest(t, sources)()
@@ -224,7 +224,6 @@ func TestBindRejectsMixedAndMultipleSitesWithSortedDiagnostics(t *testing.T) {
 	require.Error(t, err)
 	text := output.String()
 	assert.Contains(t, text, "file mixes explicit non-zero IDs")
-	assert.Contains(t, text, "multiple bindable Trice sites")
 	assert.Less(t, strings.Index(text, "a.c"), strings.Index(text, "z.c"))
 	for _, path := range Srcs {
 		content, readErr := FSys.ReadFile(path)
@@ -233,20 +232,99 @@ func TestBindRejectsMixedAndMultipleSitesWithSortedDiagnostics(t *testing.T) {
 	}
 }
 
-// TestBindMarkersAliasesAndMacroDefinitionValidation combines parser sharing with an unsupported context.
-func TestBindMarkersAliasesAndMacroDefinitionValidation(t *testing.T) {
+// TestBindMarkersAliasesAndMacroDefinitionSupport combines parser sharing with an unused wrapper definition.
+func TestBindMarkersAliasesAndMacroDefinitionSupport(t *testing.T) {
 	source := "// TRICE_INSERT_OFF\ntrice(iD(777), \"ignored\");\n// TRICE_INSERT_ON\nLOG(\"alias=%d\", 1);\n#define BAD() trice(\"bad\")\n"
 	defer prepareBindTest(t, map[string]string{"alias.c": source})()
 	TriceAliases = ArrayFlag{"LOG"}
 	ProcessAliases()
 
-	var output bytes.Buffer
-	err := SubCmdIdBind(&output, FSys)
-	require.Error(t, err)
-	assert.Contains(t, output.String(), "inside a preprocessor macro definition")
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 	after, readErr := FSys.ReadFile(Srcs[0])
 	require.NoError(t, readErr)
-	assert.Equal(t, source, string(after))
+	assert.Contains(t, string(after), "trice-bind: keep as last include")
+	sidecar, readErr := FSys.ReadFile(filepath.Join(BindDir, "trice_alias_c_K1111111111111111.h"))
+	require.NoError(t, readErr)
+	assert.Contains(t, string(sidecar), "TRICE_BIND_DEFINITION_K1111111111111111")
+	assert.NotContains(t, string(sidecar), "777u")
+}
+
+// TestBindMultipleDirectSitesGenerateLocalRebase covers two and three direct sites on one line.
+func TestBindMultipleDirectSitesGenerateLocalRebase(t *testing.T) {
+	source := "#include \"trice.h\"\nvoid f(void) { trice(\"one\"); trice(\"two\"); trice(\"three\"); }\n"
+	defer prepareBindTest(t, map[string]string{"multi.c": source})()
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	bound, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Contains(t, string(bound), "trice-bind: generated rebase begin K1111111111111111_R0")
+	assert.Contains(t, string(bound), "trice-bind: generated rebase end K1111111111111111_R0")
+	assert.Equal(t, 1, strings.Count(string(bound), "#define TRICE_BIND_REBASE_BEGIN"))
+	assert.NotContains(t, string(bound), "iD(100")
+
+	sidecarPath := filepath.Join(BindDir, "trice_multi_c_K1111111111111111.h")
+	sidecar, err := FSys.ReadFile(sidecarPath)
+	require.NoError(t, err)
+	assert.Contains(t, string(sidecar), "#define TRICE_BIND_REBASE_COUNT_K1111111111111111_R0 3")
+	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L9_O0)")
+	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L9_O1)")
+	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L9_O2)")
+	assert.Equal(t, 3, strings.Count(string(sidecar), "TRICE_BIND_LOCATION_"))
+
+	firstSource := append([]byte(nil), bound...)
+	firstSidecar := append([]byte(nil), sidecar...)
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	bound, err = FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	sidecar, err = FSys.ReadFile(sidecarPath)
+	require.NoError(t, err)
+	assert.Equal(t, firstSource, bound)
+	assert.Equal(t, firstSidecar, sidecar)
+}
+
+// TestBindWrapperDefinitionsReuseIDsAtAllInvocations covers normal and same-line calls.
+func TestBindWrapperDefinitionsReuseIDsAtAllInvocations(t *testing.T) {
+	source := "#define LOG_ERROR(value) do { trice(\"first\"); trice(\"second=%d\", value); } while (0)\n" +
+		"void a(void) { LOG_ERROR(1); }\n" +
+		"void b(void) { LOG_ERROR(2); LOG_ERROR(3); }\n"
+	defer prepareBindTest(t, map[string]string{"wrapper.c": source})()
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_wrapper_c_K1111111111111111.h"))
+	require.NoError(t, err)
+	text := string(sidecar)
+	assert.Equal(t, 2, strings.Count(text, "#define TRICE_BIND_DEFINITION_"))
+	assert.Contains(t, text, "TRICE_BIND_ID_DEFINITION_K1111111111111111_L")
+	assert.Contains(t, text, " 100u // numeric definition descriptor")
+	assert.Contains(t, text, " 101u // numeric definition descriptor")
+	assert.Contains(t, text, "TRICE_BIND_REBASE_COUNT_K1111111111111111_R0 2")
+	assert.Contains(t, text, "TRICE_BIND_REBASE_COUNT_K1111111111111111_R1 4")
+	assert.Len(t, IDData.idToTrice, 2)
+	assert.Len(t, IDData.idToLocNew, 2)
+	for _, location := range IDData.idToLocNew {
+		assert.Equal(t, ToLIFile(Srcs[0]), normalizeLocationPath(location.File))
+	}
+}
+
+// TestBindSingleSiteWrapperUsesNormalLineDescriptors avoids an unnecessary counter dependency.
+func TestBindSingleSiteWrapperUsesNormalLineDescriptors(t *testing.T) {
+	source := "#define LOG_VALUE(value) trice(\"value=%d\", value)\n" +
+		"void f(void) {\n    LOG_VALUE(1);\n    LOG_VALUE(2);\n}\n"
+	defer prepareBindTest(t, map[string]string{"single-wrapper.c": source})()
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	bound, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.NotContains(t, string(bound), "TRICE_BIND_REBASE_BEGIN")
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_single_wrapper_c_K1111111111111111.h"))
+	require.NoError(t, err)
+	text := string(sidecar)
+	assert.NotContains(t, text, "__COUNTER__")
+	assert.NotContains(t, text, "TRICE_BIND_REBASE_")
+	assert.Equal(t, 1, strings.Count(text, "#define TRICE_BIND_DEFINITION_"))
+	assert.Equal(t, 2, strings.Count(text, "#define TRICE_BIND_SITE_"))
+	assert.Equal(t, 1, strings.Count(text, " 100u // numeric definition descriptor"), "the wrapper definition has one numeric source of truth")
+	assert.Contains(t, text, "iD(TRICE_BIND_ID_DEFINITION_")
 }
 
 // TestBindDetectsDuplicateFileKey rejects copied owner identity across physical files.

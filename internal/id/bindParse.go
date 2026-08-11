@@ -26,14 +26,19 @@ var (
 
 // analyzeBindFile classifies one source using the shared Trice matcher and marker masking.
 func analyzeBindFile(input bindFileInput) bindFilePlan {
+	clean, artifactDiagnostics, _ := stripBindRebaseArtifacts(input.path, input.data)
 	plan := bindFilePlan{
-		path:     input.path,
-		info:     input.info,
-		original: input.data,
-		final:    input.data,
+		path:          input.path,
+		info:          input.info,
+		original:      input.data,
+		final:         clean,
+		managedOffset: -1,
+		diagnostics:   artifactDiagnostics,
 	}
-	plan.includes = scanBindIncludes(string(input.data))
-	plan.sites, plan.diagnostics = scanBindSites(input.path, string(input.data))
+	plan.includes = scanBindIncludes(string(clean))
+	var siteDiagnostics []bindDiagnostic
+	plan.sites, siteDiagnostics = scanBindSites(input.path, string(clean))
+	plan.diagnostics = append(plan.diagnostics, siteDiagnostics...)
 
 	var hasBindSite, hasExplicitSite bool
 	for _, site := range plan.sites {
@@ -111,7 +116,6 @@ func scanBindSites(path, source string) (sites []bindSite, diagnostics []bindDia
 	masked := stripCComments(maskTriceInsertDisabledRegions(source))
 	rest := masked
 	offset := 0
-	bindSitesPerLine := make(map[int]int)
 	for {
 		loc, matchIssues := matchTriceWithIssues(rest)
 		for _, issue := range matchIssues {
@@ -165,15 +169,6 @@ func scanBindSites(path, source string) (sites []bindSite, diagnostics []bindDia
 			}
 		}
 
-		if isInsideMacroDefinition(source, absolute[0]) {
-			diagnostics = append(diagnostics, bindDiagnostic{path: path, line: site.line, message: "Trice site inside a preprocessor macro definition is not supported by bind"})
-		}
-		if !site.wasExplicit {
-			bindSitesPerLine[site.line]++
-			if bindSitesPerLine[site.line] == 2 {
-				diagnostics = append(diagnostics, bindDiagnostic{path: path, line: site.line, message: "multiple bindable Trice sites on one physical source line are not supported"})
-			}
-		}
 		sites = append(sites, site)
 		offset = absolute[6]
 		rest = masked[offset:]
@@ -227,20 +222,20 @@ func bindSidecarFilename(sourcePath, key string) string {
 
 // addBindInclude applies the conservative placement rule and returns a re-parsed final source.
 func addBindInclude(plan *bindFilePlan) {
-	if plan.key == "" || plan.sidecarName == "" || len(plan.sites) == 0 {
+	if plan.key == "" || plan.sidecarName == "" || plan.managedOffset < 0 {
 		return
 	}
 	if hasSidecarInclude(plan.includes) {
-		validateActiveBindIncludes(plan)
 		return
 	}
-	firstSite := plan.sites[0]
-	insertAt := lineStart(string(plan.final), firstSite.loc[0])
+	firstPosition := plan.managedOffset
+	firstLine := sourceLine(string(plan.final), firstPosition)
+	insertAt := lineStart(string(plan.final), firstPosition)
 	for _, include := range plan.includes {
-		if include.start > firstSite.loc[0] {
+		if include.start > firstPosition {
 			plan.diagnostics = append(plan.diagnostics, bindDiagnostic{
 				path:    plan.path,
-				line:    firstSite.line,
+				line:    firstLine,
 				message: fmt.Sprintf("cannot place bind include safely before a later include; add #include \"%s\" manually as the last include before this file's Trice calls", plan.sidecarName),
 			})
 			return
@@ -262,19 +257,30 @@ func addBindInclude(plan *bindFilePlan) {
 	plan.includeAdded = true
 	plan.includes = scanBindIncludes(string(plan.final))
 	plan.sites, _ = scanBindSites(plan.path, string(plan.final))
-	validateActiveBindIncludes(plan)
 }
 
 // validateActiveBindIncludes requires the owner's sidecar to be the last include before every managed site.
 func validateActiveBindIncludes(plan *bindFilePlan) {
+	type managedPosition struct {
+		position int
+		line     int
+	}
+	positions := make([]managedPosition, 0, len(plan.sites)+len(plan.invocations))
 	for _, site := range plan.sites {
 		if site.wasExplicit {
 			continue
 		}
+		positions = append(positions, managedPosition{position: site.loc[0], line: site.line})
+	}
+	for _, invocation := range plan.invocations {
+		positions = append(positions, managedPosition{position: invocation.start, line: invocation.line})
+	}
+	sort.SliceStable(positions, func(i, j int) bool { return positions[i].position < positions[j].position })
+	for _, position := range positions {
 		var active *bindInclude
 		for i := range plan.includes {
 			include := &plan.includes[i]
-			if include.start >= site.loc[0] {
+			if include.start >= position.position {
 				break
 			}
 			active = include
@@ -282,7 +288,7 @@ func validateActiveBindIncludes(plan *bindFilePlan) {
 		if active == nil || !active.isSidecar || active.key != plan.key || active.name != plan.sidecarName {
 			plan.diagnostics = append(plan.diagnostics, bindDiagnostic{
 				path:    plan.path,
-				line:    site.line,
+				line:    position.line,
 				message: fmt.Sprintf("file key is not active unambiguously; add #include \"%s\" as the last include before this Trice site", plan.sidecarName),
 			})
 		}

@@ -22,6 +22,9 @@ var (
 	// bindRemigrationSiteDefinition extracts the generated key, physical line,
 	// and stable ID needed to validate and relocate li.json entries.
 	bindRemigrationSiteDefinition = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*define[\t ]+TRICE_BIND_SITE_(K[0-9A-F]{16})_L([0-9]+)[\t ]+TRICE_BIND_(AUTO|REPLACE),[\t ]+(iD|id|Id|ID)\(([0-9]+)u\)`)
+	// bindRemigrationAdvancedDefinition extracts stable IDs owned by wrapper
+	// definitions and direct counter-selected locations.
+	bindRemigrationAdvancedDefinition = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*define[\t ]+TRICE_BIND_ID_(?:DEFINITION|LOCATION)_(K[0-9A-F]{16})_L([0-9]+)_O[0-9]+[\t ]+([0-9]+)u\b`)
 )
 
 // bindRemigratePlan holds the exact source replacement and generated sidecar
@@ -32,7 +35,7 @@ type bindRemigratePlan struct {
 	original     []byte
 	final        []byte
 	sidecarPath  string
-	includeLines []int           // includeLines identifies every owner line removed from the Bound source.
+	removedLines []int           // removedLines identifies every generated line removed from the Bound source.
 	siteLines    map[TriceID]int // siteLines maps each generated ID to its validated Bound line.
 }
 
@@ -90,6 +93,11 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 
 	for _, input := range inputs {
 		includes := scanBindIncludes(string(input.data))
+		blocks, blockDiagnostics := scanBindRebaseArtifacts(input.path, input.data)
+		if len(blockDiagnostics) > 0 {
+			diagnostics = append(diagnostics, blockDiagnostics...)
+			continue
+		}
 		identities := make(map[string]string)
 		for _, include := range includes {
 			if include.isSidecar {
@@ -134,21 +142,34 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 			diagnostics = append(diagnostics, bindDiagnostic{path: sidecarPath, message: err.Error()})
 			continue
 		}
-		includeLines := make([]int, 0, len(includes))
+		removedLineSet := make(map[int]bool)
 		for _, include := range includes {
 			if include.isSidecar {
-				includeLines = append(includeLines, include.line)
+				removedLineSet[include.line] = true
 			}
 		}
+		for _, block := range blocks {
+			for position := block.start; position < block.end; position = lineEndIncludingNewline(string(input.data), position) {
+				removedLineSet[sourceLine(string(input.data), position)] = true
+			}
+		}
+		removedLines := make([]int, 0, len(removedLineSet))
+		for line := range removedLineSet {
+			removedLines = append(removedLines, line)
+		}
+		sort.Ints(removedLines)
+
+		cleaned, _, _ := stripBindRebaseArtifacts(input.path, input.data)
+		cleanIncludes := scanBindIncludes(string(cleaned))
 
 		owners[sidecarPath] = append(owners[sidecarPath], input.path)
 		plans = append(plans, bindRemigratePlan{
 			path:         input.path,
 			info:         input.info,
 			original:     input.data,
-			final:        removeBindSidecarIncludes(input.data, includes),
+			final:        removeBindSidecarIncludes(cleaned, cleanIncludes),
 			sidecarPath:  sidecarPath,
-			includeLines: includeLines,
+			removedLines: removedLines,
 			siteLines:    siteLines,
 		})
 	}
@@ -183,6 +204,24 @@ func parseBindRemigrationSiteLines(content []byte, expectedKey string) (map[Tric
 		value, err := strconv.Atoi(string(match[5]))
 		if err != nil {
 			return nil, fmt.Errorf("invalid site ID %q", match[5])
+		}
+		id := TriceID(value)
+		if previous, exists := result[id]; exists && previous != line {
+			return nil, fmt.Errorf("site ID %d occurs on multiple physical lines", id)
+		}
+		result[id] = line
+	}
+	for _, match := range bindRemigrationAdvancedDefinition.FindAllSubmatch(content, -1) {
+		if string(match[1]) != expectedKey {
+			return nil, fmt.Errorf("advanced descriptor uses file key %s instead of %s", match[1], expectedKey)
+		}
+		line, err := strconv.Atoi(string(match[2]))
+		if err != nil {
+			return nil, fmt.Errorf("invalid advanced descriptor line %q", match[2])
+		}
+		value, err := strconv.Atoi(string(match[3]))
+		if err != nil {
+			return nil, fmt.Errorf("invalid advanced descriptor ID %q", match[3])
 		}
 		id := TriceID(value)
 		if previous, exists := result[id]; exists && previous != line {
@@ -278,8 +317,8 @@ func buildBindRemigrationLocationWrite(fSys *afero.Afero, plans []bindRemigrateP
 				)
 			}
 			removedBefore := 0
-			for _, includeLine := range plan.includeLines {
-				if includeLine < boundLine {
+			for _, removedLine := range plan.removedLines {
+				if removedLine < boundLine {
 					removedBefore++
 				}
 			}

@@ -87,14 +87,19 @@ main() {
   }
 
   run_cmd env TRICE_BIND_INTEGRATION=1 go test ./internal/id \
-    -run '^TestBind(GeneratedTargetCompilesCAndCPP|CanonicalTriceCheckGeneratesCompleteSidecar)$' \
+    -run '^TestBind(GeneratedTargetCompilesCAndCPP|CanonicalTriceCheckGeneratesCompleteSidecar|MVP2RebaseCompilesCAndCPP|MVP2CounterGuardsAndGeneratedInvariants|MVP2RebaseEmitsStableRuntimeIDs)$' \
     -count=1 || {
-    log "FAIL: generated target or canonical Trice bind integration failed"
+    log "FAIL: generated target, canonical, or MVP2 Trice bind integration failed"
     exit 1
   }
 
   run_verified_bind_pocs || {
     log "FAIL: verified Trice bind preprocessor mechanisms regressed"
+    exit 1
+  }
+
+  run_cmd "$ROOT/experiments/TriceBind/60_MVP2_Local_Counter_Rebase/run.sh" || {
+    log "FAIL: verified local-counter Rebase PoC regressed"
     exit 1
   }
 
