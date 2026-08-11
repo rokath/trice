@@ -81,7 +81,7 @@ static void pocExplicitOrdinalEmit(uint32_t id, unsigned line, const char *text)
 // The real target implementation remains unchanged; only the PoC emitter replaces it.
 #define iD(n) ((uint32_t)(n))
 #define TRICE_INSERT_trice(tid, text) pocCounterEmit((uint32_t)(tid), (unsigned)__LINE__, (text))
-#include "../../src/triceBind.h"
+#include "../../../src/triceBind.h"
 
 // This candidate extends the current (file key, line) lookup with one counter component.
 #define POC_BIND_COUNTER_SITE_II(key, line, counter) TRICE_BIND_SITE_##key##_L##line##_C##counter

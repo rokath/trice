@@ -72,7 +72,7 @@ static void pocEmit(const char *kind,
 #define POC_TRICE_SELECT(_format, _value, selected, ...) selected
 #define TRICE_INSERT_trice(tid, ...) \
     POC_TRICE_SELECT(__VA_ARGS__, POC_TRICE_INTEGER, POC_TRICE_TEXT, unused)(tid, __VA_ARGS__)
-#include "../../src/triceBind.h"
+#include "../../../src/triceBind.h"
 
 // This setup include models the file-level sidecar installed by `trice bind`.
 #define TRICE_BIND_REBASE_SETUP

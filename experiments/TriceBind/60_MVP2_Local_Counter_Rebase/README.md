@@ -1,9 +1,9 @@
 # PoC: lokaler `__COUNTER__`-Rebase für `trice bind`
 
 Dieses ausführbare PoC konkretisiert Variante 1 aus
-[`Trice_bind_MVP2_Implementation_Strategies.md`](../../docs/TriceBind/Trice_bind_MVP2_Implementation_Strategies.md).
-Es verändert weder den aktuellen Generator noch Dateien in [`src`](../../src/).
-Der produktive Dispatch aus [`triceBind.h`](../../src/triceBind.h) wird jedoch
+[`Trice_bind_60_MVP2_Implementation_Strategies.md`](../../../docs/TriceBind/Trice_bind_60_MVP2_Implementation_Strategies.md).
+Es verändert weder den aktuellen Generator noch Dateien in [`src`](../../../src/).
+Der produktive Dispatch aus [`triceBind.h`](../../../src/triceBind.h) wird jedoch
 direkt eingebunden.
 
 ## Sicht des Anwenders
@@ -91,7 +91,7 @@ einer Anpassung des Makros.
 ## Ausführen
 
 ```sh
-cd examples/PoC_bind_mvp2_rebase
+cd experiments/TriceBind/60_MVP2_Local_Counter_Rebase
 ./run.sh
 ```
 

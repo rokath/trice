@@ -1,8 +1,8 @@
 # Trice Bind
 
 **Status:** User-Manual-Entwurf für das MVP
-**Verbindliche technische Spezifikation:** [`Trice_bind_Generator_Spezifikation_MVP.md`](./Trice_bind_Test_Spezifikation_MVP.md)  
-**Testanforderungen:** [`Trice_bind_Test_Spezifikation_MVP.md`](./Trice_bind_Test_Spezifikation_MVP.md)
+**Verbindliche technische Spezifikation:** [`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md)<br>
+**Testanforderungen:** [`Trice_bind_30_MVP_Test_Spezifikation.md`](./Trice_bind_30_MVP_Test_Spezifikation.md)
 
 ## 1. Überblick
 
@@ -544,7 +544,7 @@ liefert sowohl die Operation als auch den vollständigen TID-Ausdruck.
 Die Mechanismen wurden in unabhängigen PoCs unter folgendem Repositorypfad verifiziert:
 
 ```text
-docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs
+experiments/TriceBind/30_Preprocessor_Verification
 ```
 
 ---
@@ -634,7 +634,7 @@ Fehlt die Definition, fügt `trice bind` sie nicht neu ein.
 
 ## Anhang D: Unverändert übernommene Architekturentscheidung gegen ELF-Patching
 
-Der folgende Text ist unverändert aus `Trice_bind_vs_ELF_Patch.md` übernommen. Er dokumentiert die Architekturentscheidung. Einzelne Beispielnamen spiegeln den damaligen Entwurfsstand wider; für das aktuelle normative Verhalten sind der Hauptteil dieses User Manuals und `Trice_bind_Generator_Spezifikation.md` maßgeblich.
+Der folgende Text ist unverändert aus `Trice_bind_vs_ELF_Patch.md` übernommen. Er dokumentiert die Architekturentscheidung. Einzelne Beispielnamen spiegeln den damaligen Entwurfsstand wider; für das aktuelle normative Verhalten sind der Hauptteil dieses User Manuals und [`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md) maßgeblich.
 
 <!-- BEGIN unveränderte Übernahme: Trice_bind_vs_ELF_Patch.md -->
 

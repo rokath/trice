@@ -2,7 +2,7 @@
 
 Dieses Beispiel prüft, ob ID-freie `trice(...)`-Aufrufe über dateilokale
 Sidecar-Header ohne Compilerprobleme gegen die echte Target-Library in
-`../../src` übersetzt werden können.
+`../../../src` übersetzt werden können.
 
 ## Geprüfte Fälle
 
@@ -41,7 +41,7 @@ tlog -p FILEBUFFER -args log.bin -pf TCOBS -prefix off -hs off \
 Alternativ kann das Repository-Kommando verwendet werden:
 
 ```sh
-go run ../../cmd/trice log -p FILEBUFFER -args log.bin -pf TCOBS \
+go run ../../../cmd/trice log -p FILEBUFFER -args log.bin -pf TCOBS \
   -prefix off -hs off -i til.json -li li.json
 ```
 
@@ -55,7 +55,7 @@ wurde das Ergebnis folgendermaßen simuliert:
    angewendet:
 
    ```sh
-   go run ../../cmd/trice insert \
+   go run ../../../cmd/trice insert \
      -src . -i til.json -li li.json -liRoot . \
      -IDMin 1000 -IDMax 1999 -IDMethod upward
    ```
@@ -65,7 +65,7 @@ wurde das Ergebnis folgendermaßen simuliert:
 4. Danach wurden die numerischen IDs wieder aus den Userquellen entfernt:
 
    ```sh
-   go run ../../cmd/trice clean \
+   go run ../../../cmd/trice clean \
      -src . -i til.json -li li.json -liRoot .
    ```
 

@@ -8,14 +8,14 @@ project(PoC_bind_v2
 
 # The example intentionally compiles the repository's target library directly.
 get_filename_component(TRICE_SOURCE_DIR
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../../src"
     ABSOLUTE
 )
 
 if(NOT EXISTS "${TRICE_SOURCE_DIR}/trice.h")
     message(FATAL_ERROR
         "Trice target sources are missing at ${TRICE_SOURCE_DIR}. "
-        "Keep this example below the repository examples directory."
+        "Keep this experiment below the repository experiments/TriceBind directory."
     )
 endif()
 

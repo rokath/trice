@@ -7,7 +7,7 @@ Arbeite im Repository `trice` auf dem Branch `wip`.
 Lies zuerst vollständig:
 
 ```text
-docs/scratchPad/TriceBind/Trice_bind_Test_Spezifikation_MVP.md
+docs/TriceBind/Trice_bind_30_MVP_Test_Spezifikation.md
 ```
 
 Diese Datei ist die einzige fachlich verbindliche Spezifikation für Testaufbau, Testzustände, Workflow-Skripte und Testorchestrierung. Wiederhole oder interpretiere ihre Anforderungen nicht eigenmächtig neu. Bei Widersprüchen zwischen diesem Prompt und der Testspezifikation gilt die Testspezifikation.
@@ -15,7 +15,7 @@ Diese Datei ist die einzige fachlich verbindliche Spezifikation für Testaufbau,
 Lies außerdem die dort referenzierten Dokumente und vorhandenen Skripte, soweit sie zum Verständnis oder zur Umsetzung benötigt werden, insbesondere:
 
 ```text
-docs/scratchPad/TriceBind/Trice_bind_Generator_Spezifikation.md
+docs/TriceBind/Trice_bind_10_MVP_Spezifikation.md
 scripts/
 examples/
 _test/

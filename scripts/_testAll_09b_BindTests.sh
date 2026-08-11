@@ -37,7 +37,7 @@ has_bind_compilers() {
 # executables write CRLF to redirected stdout, so only the Windows comparison
 # ignores that platform text-mode difference through a temporary diff shim.
 run_verified_bind_pocs() {
-  local poc_runner="$ROOT/docs/TriceBind/Trice_bind_Verification1_PoCs/run_all.sh"
+  local poc_runner="$ROOT/experiments/TriceBind/30_Preprocessor_Verification/run_all.sh"
   local shim_dir=""
   local system_diff=""
   local status=0
@@ -62,7 +62,7 @@ run_verified_bind_pocs() {
 }
 
 main() {
-  local poc_dir="$ROOT/examples/PoC_bind_generator"
+  local poc_dir="$ROOT/experiments/TriceBind/40_MVP_Generator"
   local poc_build="$poc_dir/build"
   local poc_executable="$poc_build/bin/PoC_bind_generator"
   local go_executable
@@ -109,11 +109,11 @@ main() {
     -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$poc_build/bin" \
     -DCMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG="$poc_build/bin" \
     -DGO_EXECUTABLE:FILEPATH="$go_executable" || {
-    log "FAIL: cannot configure examples/PoC_bind_generator"
+    log "FAIL: cannot configure experiments/TriceBind/40_MVP_Generator"
     exit 1
   }
   run_cmd cmake --build "$poc_build" --config Debug --parallel || {
-    log "FAIL: cannot build examples/PoC_bind_generator"
+    log "FAIL: cannot build experiments/TriceBind/40_MVP_Generator"
     exit 1
   }
 
@@ -131,7 +131,7 @@ main() {
     log "FAIL: generated bind PoC executable failed"
     exit 1
   }
-  run_cmd cmake -E chdir "$poc_dir" go run ../../cmd/trice log \
+  run_cmd cmake -E chdir "$poc_dir" go run ../../../cmd/trice log \
     -p FILEBUFFER -args log.bin -pf TCOBS -d16 -prefix off -hs off \
     -i til.json -li li.json -color none || {
     log "FAIL: generated bind PoC log could not be decoded"

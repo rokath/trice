@@ -2,7 +2,7 @@
 
 **Version:** 1  
 **Status:** Spezifikationsentwurf für das MVP-Testsystem  
-**Repository-Bezug:** Branch `wip`, insbesondere `scripts`, `_test`, `examples`, `internal/id` und `docs/scratchPad/TriceBind`  
+**Repository-Bezug:** Branch `wip`, insbesondere `scripts`, `_test`, `examples`, `experiments/TriceBind`, `internal/id` und `docs/TriceBind`<br>
 **Zielgruppe:** Implementierung, Review, CI und Release-Absicherung
 
 ## 1. Ziel
@@ -18,7 +18,7 @@ Die Tests MÜSSEN nachweisen, dass:
 - Migration und Re-Migration reproduzierbar funktionieren,
 - Testabbrüche den Arbeitsbaum nicht in einem unklaren Zwischenzustand hinterlassen.
 
-Die Generatorfunktion ist in `Trice_bind_Generator_Spezifikation.md` definiert. Dieses Dokument spezifiziert ausschließlich Testaufbau, Testzustände und Orchestrierung.
+Die Generatorfunktion ist in [`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md) definiert. Dieses Dokument spezifiziert ausschließlich Testaufbau, Testzustände und Orchestrierung.
 
 ## 2. Normative Begriffe
 

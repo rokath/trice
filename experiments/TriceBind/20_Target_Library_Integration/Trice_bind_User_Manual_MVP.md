@@ -137,7 +137,7 @@ Build
 Bis das Kommando existiert, wurde nur für dieses Verzeichnis ausgeführt:
 
 ```sh
-go run ../../cmd/trice insert \
+go run ../../../cmd/trice insert \
   -src . -i til.json -li li.json -liRoot . \
   -IDMin 1000 -IDMax 1999 -IDMethod upward
 ```
@@ -146,7 +146,7 @@ Die eingefügten IDs wurden in die Sidecars übertragen. Anschließend stellte
 folgender Lauf die ID-freien Userquellen wieder her:
 
 ```sh
-go run ../../cmd/trice clean \
+go run ../../../cmd/trice clean \
   -src . -i til.json -li li.json -liRoot .
 ```
 
@@ -173,7 +173,7 @@ Datei- und Positionsdiagnose abbrechen.
 
 ## Build und Logausgabe
 
-Das CMake-Projekt bindet `../../src` direkt ein. Die lokale `triceConfig.h`
+Das CMake-Projekt bindet `../../../src` direkt ein. Die lokale `triceConfig.h`
 wählt Stackbuffer, direkte Ausgabe und TCOBS-Framing. `main.c` implementiert
 den synchron aufgerufenen Auxiliary-Writer und öffnet `log.bin` mit Modus
 `wb`, sodass jeder Programmlauf eine neue Datei erzeugt.

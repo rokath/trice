@@ -7,7 +7,7 @@ Arbeite im Repository `trice` auf dem Branch `wip`.
 Lies zuerst vollständig:
 
 ```text
-docs/scratchPad/TriceBind/Trice_bind_Generator_Spezifikation.md
+docs/TriceBind/Trice_bind_10_MVP_Spezifikation.md
 ```
 
 Diese Datei ist die einzige fachlich verbindliche Spezifikation. Wiederhole oder interpretiere ihre Anforderungen nicht eigenmächtig neu. Bei Widersprüchen zwischen diesem Prompt und der Spezifikation gilt die Spezifikation.
@@ -15,7 +15,7 @@ Diese Datei ist die einzige fachlich verbindliche Spezifikation. Wiederhole oder
 Lies anschließend die beiden verifizierten PoCs unter:
 
 ```text
-docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs/
+experiments/TriceBind/30_Preprocessor_Verification/
 ```
 
 Sie sind die technische Referenz für die dort geprüften Präprozessormechanismen.

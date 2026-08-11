@@ -29,7 +29,7 @@ Der Sidecar enthält nur die Zeilenbindung:
 
 ## Bindung im Trice-Makro
 
-Der PoC enthält unter `trice/src` einen kleinen Ausschnitt der Target-Library-Struktur von [rokath/trice](https://github.com/rokath/trice/tree/main/src).
+Der PoC enthält unter `trice/src` einen kleinen Ausschnitt der [Target-Library-Struktur](../../../src) dieses Repositorys.
 
 `triceOn.h` bildet die aktuelle Sourcezeile auf den Sidecar-Eintrag ab:
 

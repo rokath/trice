@@ -15,7 +15,7 @@ klar begrenzten Regeln implementierbar:
    Makros mit mehreren Trice-Stellen wie einem `switch`-Logger.
 
 Das vorhandene PoC unter
-[`../../examples/PoC_bind_mvp2`](../../examples/PoC_bind_mvp2/README.md)
+[`../../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions`](../../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions/README.md)
 belegt die grundsätzliche Target-Machbarkeit. Es zeigt außerdem zwei wichtige
 Grenzen:
 
@@ -49,7 +49,7 @@ Fallback-Technik, verlangt aber eine Integration in das Buildsystem.
 ## 2. Geltungsbereich und Abgrenzung
 
 Die bestehende
-[`Trice_bind_Generator_Spezifikation_MVP.md`](Trice_bind_Generator_Spezifikation_MVP.md)
+[`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md)
 führt die folgenden Punkte getrennt als MVP2-Ideen:
 
 - begrenzte Wrappermakros;
@@ -991,4 +991,3 @@ Die empfohlene Reihenfolge lautet daher:
 3. automatische Target-Capability-Diagnose integrieren;
 4. exakten Präprozessorlauf optional zur Verifikation ergänzen;
 5. Shadow-Source nur bei realem Bedarf als separaten Fallback entwickeln.
-

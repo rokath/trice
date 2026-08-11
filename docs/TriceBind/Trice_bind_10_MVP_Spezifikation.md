@@ -2,7 +2,7 @@
 
 **Version:** 4  
 **Status:** Spezifikationsentwurf für das MVP  
-**Repository-Bezug:** Branch `wip`, insbesondere `internal/id`, `src`, `_test/testdata/triceCheck.c`, `examples/PoC_bind_v2` sowie `docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs`  
+**Repository-Bezug:** Branch `wip`, insbesondere `internal/id`, `src`, `_test/testdata/triceCheck.c`, `experiments/TriceBind/20_Target_Library_Integration` sowie `experiments/TriceBind/30_Preprocessor_Verification`<br>
 **Zielgruppe:** Implementierung, Review, Tests und spätere Übernahme in die Trice-Dokumentation
 
 ## 1. Ziel
@@ -458,9 +458,9 @@ Ein automatisches Re-Migrationskommando ist nicht Bestandteil des MVP.
 Die beiden vor V4 erforderlichen Präprozessormechanismen wurden in zwei unabhängigen PoCs unter folgendem Repositorypfad verifiziert:
 
 ```text
-docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs/
-├── poc1_local_dispatch/
-└── poc2_site_descriptor/
+experiments/TriceBind/30_Preprocessor_Verification/
+├── 10_Local_Dispatch/
+└── 20_Site_Descriptor/
 ```
 
 Die PoCs sind Referenznachweise für die Mechanik, noch keine vollständige Integration in die Trice-Makromatrix.
@@ -495,7 +495,7 @@ Präprozessordirektiven können auch nicht verzögert in eine Makro-Replacement-
 
 Stattdessen wird die Route bei jeder Makroexpansion aus dem aktuell sichtbaren Key gebildet.
 
-Vereinfachte Referenzmechanik aus `poc1_local_dispatch`:
+Vereinfachte Referenzmechanik aus `10_Local_Dispatch`:
 
 ```c
 #define TRICE_BIND_ROUTE_TRICE_BIND_FILE_KEY INSERT
@@ -576,7 +576,7 @@ Der Deskriptor enthält:
 1. `TRICE_BIND_AUTO` oder `TRICE_BIND_REPLACE`,
 2. den vollständigen TID-Ausdruck.
 
-Vereinfachte Referenzmechanik aus `poc2_site_descriptor`:
+Vereinfachte Referenzmechanik aus `20_Site_Descriptor`:
 
 ```c
 #define TRICE_BIND_SITE_I(key, line) TRICE_BIND_SITE_##key##_L##line
@@ -846,8 +846,8 @@ Nach der Analyse folgt eine deterministische Commit-Phase. Ein echtes virtuelles
 
 Die beiden vorhandenen PoCs sind vor und während der Integration als Regressionstests beizubehalten:
 
-- `poc1_local_dispatch`: lokaler Expansion-Time-Dispatch,
-- `poc2_site_descriptor`: einzeiliger Site-Deskriptor.
+- `10_Local_Dispatch`: lokaler Expansion-Time-Dispatch,
+- `20_Site_Descriptor`: einzeiliger Site-Deskriptor.
 
 Die echte Trice-Library MUSS dieselben Eigenschaften für repräsentative Makrofamilien nachweisen:
 
@@ -905,7 +905,7 @@ Der vollständige Lauf bleibt Bestandteil der abschließenden Repository- bezieh
 
 ### D.5 Generator-PoC
 
-`examples/PoC_bind_v2` sowie die beiden Verifikations-PoCs bleiben unverändert erhalten. Für den echten Generator wird ein zusätzlicher unabhängiger PoC mit eigenem Namen angelegt.
+`experiments/TriceBind/20_Target_Library_Integration` sowie die beiden Verifikations-PoCs bleiben unverändert erhalten. Für den echten Generator wird unter `experiments/TriceBind/40_MVP_Generator` ein zusätzlicher unabhängiger PoC angelegt.
 
 
 ### D.6 Abnahmekriterien
@@ -922,8 +922,8 @@ Das MVP gilt als implementiert, wenn:
 8. Direkte Trice-Aufrufe in Source-, Header- und `static inline`-Code funktionieren.
 9. `TRICE_INSERT_OFF` und `TRICE_INSERT_ON` identisch zu `insert` wirken.
 10. `til.json`, `li.json` und der Datenstrom kompatibel bleiben.
-11. `examples/PoC_bind_v2` unverändert erhalten bleibt und ein zusätzlicher unabhängiger Generator-PoC hinzukommt.
-12. Die beiden Verifikations-PoCs aus `docs/scratchPad/TriceBind/Trice_bind_Verification_PoCs` weiterhin erfolgreich laufen.
+11. `experiments/TriceBind/20_Target_Library_Integration` unverändert erhalten bleibt und unter `experiments/TriceBind/40_MVP_Generator` ein zusätzlicher unabhängiger Generator-PoC hinzukommt.
+12. Die beiden Verifikations-PoCs aus `experiments/TriceBind/30_Preprocessor_Verification` weiterhin erfolgreich laufen.
 13. `_test/testdata/triceCheck.c` über einen temporären Bind-Testbaum bind-fähig geprüft wird.
 14. Die bestehenden Insert-, Clean-, Update- und Logtests grün bleiben.
 15. Die in [Anhang D](#anhang-d-implementierung-und-tests) festgelegten Entwicklungs- und Regressionstests erfolgreich sind.
@@ -1107,14 +1107,14 @@ Das MVP kompiliert die Userquellen direkt. Ein virtueller Insert-Inhalt darf int
 
 ### G.6 Allgemeines ELF-Patching
 
-Eine allgemeine ELF-Patch-Lösung wird für normale Userquellen nicht verfolgt. Spezielle ELF-basierte Analysen oder vorbereitete Libraries können additive Erweiterungen sein; siehe die separate Architekturentscheidung unter `docs/scratchPad/TriceBind/Trice_bind_vs_ELF_Patch.md`.
+Eine allgemeine ELF-Patch-Lösung wird für normale Userquellen nicht verfolgt. Spezielle ELF-basierte Analysen oder vorbereitete Libraries können additive Erweiterungen sein; siehe die in [`Trice_bind_90_MVP_User_Manual.md`](./Trice_bind_90_MVP_User_Manual.md#anhang-d-unverändert-übernommene-architekturentscheidung-gegen-elf-patching) übernommene Architekturentscheidung.
 
 ## Anhang H: Repositoryreferenzen
 
-- [`internal/id`](https://github.com/rokath/trice/tree/wip/internal/id): gemeinsame Parser-, Alias- und ID-Verwaltung
-- [`internal/id/insertIDs.go`](https://github.com/rokath/trice/blob/wip/internal/id/insertIDs.go): bestehende Insert-Zuordnung und Parallelverarbeitung
-- [`src/trice.h`](https://github.com/rokath/trice/blob/wip/src/trice.h), [`src/triceOn.h`](https://github.com/rokath/trice/blob/wip/src/triceOn.h) und [`src/triceOff.h`](https://github.com/rokath/trice/blob/wip/src/triceOff.h): Target-Makroschicht
-- [`_test/testdata/triceCheck.c`](https://github.com/rokath/trice/blob/wip/_test/testdata/triceCheck.c): breite Makroabdeckung
-- [`scripts/testAll.sh`](https://github.com/rokath/trice/blob/wip/scripts/testAll.sh): Repositoryregression
-- [`examples/PoC_bind_v2`](https://github.com/rokath/trice/tree/wip/examples/PoC_bind_v2): bisheriger Target-Bind-PoC
-- [`docs/TriceBind/Trice_bind_Verification1_PoCs`](https://github.com/rokath/trice/tree/wip/docs/TriceBind/Trice_bind_Verification1_PoCs): verifizierter lokaler Dispatch und einzeiliger Site-Deskriptor
+- [`internal/id`](../../internal/id): gemeinsame Parser-, Alias- und ID-Verwaltung
+- [`internal/id/insertIDs.go`](../../internal/id/insertIDs.go): bestehende Insert-Zuordnung und Parallelverarbeitung
+- [`src/trice.h`](../../src/trice.h), [`src/triceOn.h`](../../src/triceOn.h) und [`src/triceOff.h`](../../src/triceOff.h): Target-Makroschicht
+- [`_test/testdata/triceCheck.c`](../../_test/testdata/triceCheck.c): breite Makroabdeckung
+- [`scripts/testAll.sh`](../../scripts/testAll.sh): Repositoryregression
+- [`experiments/TriceBind/20_Target_Library_Integration`](../../experiments/TriceBind/20_Target_Library_Integration): bisheriger Target-Bind-PoC
+- [`experiments/TriceBind/30_Preprocessor_Verification`](../../experiments/TriceBind/30_Preprocessor_Verification): verifizierter lokaler Dispatch und einzeiliger Site-Deskriptor

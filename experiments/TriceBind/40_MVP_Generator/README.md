@@ -1,7 +1,7 @@
 # PoC_bind_generator
 
 Dieser PoC verwendet den echten `trice bind`-Generator und kompiliert die
-Repository-Library direkt aus `../../src`. Die Trice-Aufrufe bleiben in den
+Repository-Library direkt aus `../../../src`. Die Trice-Aufrufe bleiben in den
 Userquellen ID-frei; nur die einmal erzeugten Sidecar-Includes sowie `til.json`
 und `li.json` sind dauerhafte Projektdateien.
 
@@ -36,7 +36,7 @@ tlog -p FILEBUFFER -args log.bin -pf TCOBS -d16 -prefix off -hs off \
 Alternativ:
 
 ```sh
-go run ../../cmd/trice log -p FILEBUFFER -args log.bin -pf TCOBS -d16 \
+go run ../../../cmd/trice log -p FILEBUFFER -args log.bin -pf TCOBS -d16 \
   -prefix off -hs off -i til.json -li li.json
 ```
 

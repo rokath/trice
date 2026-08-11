@@ -8,7 +8,7 @@ project(PoC_bind_generator
 
 # The PoC deliberately builds the target library directly from the repository.
 get_filename_component(TRICE_REPOSITORY_ROOT
-    "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../.."
     ABSOLUTE
 )
 set(TRICE_SOURCE_DIR "${TRICE_REPOSITORY_ROOT}/src")
@@ -16,7 +16,7 @@ set(TRICE_SOURCE_DIR "${TRICE_REPOSITORY_ROOT}/src")
 if(NOT EXISTS "${TRICE_SOURCE_DIR}/trice.h")
     message(FATAL_ERROR
         "Trice target sources are missing below ${TRICE_SOURCE_DIR}. "
-        "Keep this PoC in the repository examples directory."
+        "Keep this experiment in the repository experiments/TriceBind directory."
     )
 endif()
 
@@ -25,7 +25,7 @@ find_program(GO_EXECUTABLE NAMES go REQUIRED)
 # Running bind before every compile is intentional because physical source lines
 # are the target-side lookup identity and stale sidecars are not build-safe.
 add_custom_target(PoC_bind_generator_sidecars ALL
-    COMMAND "${GO_EXECUTABLE}" run ../../cmd/trice bind
+    COMMAND "${GO_EXECUTABLE}" run ../../../cmd/trice bind
         -src .
         -exclude ./build
         -til til.json

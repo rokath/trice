@@ -4,7 +4,7 @@ Dieses Paket enthält zwei voneinander unabhängige Präprozessor-PoCs für die 
 
 ## Inhalt
 
-### `poc1_local_dispatch`
+### `10_Local_Dispatch`
 
 Verifiziert den lokalen Insert-/Bind-Dispatch über `TRICE_BIND_FILE_KEY`.
 
@@ -18,7 +18,7 @@ Nachgewiesen wird:
 
 Der PoC verwendet einen tokenbasierten Expansion-Time-Dispatch. Die Laufzeitausgabe und die Präprozessorausgabe werden geprüft.
 
-### `poc2_site_descriptor`
+### `20_Site_Descriptor`
 
 Verifiziert einen einzigen einzeiligen Site-Deskriptor pro Trice-Stelle.
 
@@ -54,14 +54,14 @@ Alle verfügbaren GCC-/Clang-C- und C++-Frontends prüfen:
 Einen einzelnen PoC mit dem standardmäßigen C-Compiler prüfen:
 
 ```sh
-cd poc1_local_dispatch
+cd 10_Local_Dispatch
 ./run.sh
 ```
 
 oder:
 
 ```sh
-cd poc2_site_descriptor
+cd 20_Site_Descriptor
 ./run.sh
 ```
 

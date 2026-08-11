@@ -55,7 +55,7 @@ static void pocWrapperEmit(uint32_t id, unsigned line, const char *format, int v
 #define iD(n) ((uint32_t)(n))
 #define TRICE_INSERT_trice(tid, format, value) \
     pocWrapperEmit((uint32_t)(tid), (unsigned)__LINE__, (format), (value))
-#include "../../src/triceBind.h"
+#include "../../../src/triceBind.h"
 
 // Multiple Trice definitions in one wrapper invocation need an occurrence key.
 #define POC_BIND_WRAPPER_SITE_II(key, line, counter) TRICE_BIND_SITE_##key##_L##line##_C##counter

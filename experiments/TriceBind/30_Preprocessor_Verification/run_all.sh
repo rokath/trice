@@ -15,15 +15,15 @@ run_c_suite() {
   compiler=$1
   found=1
   printf '\n== C compiler: %s ==\n' "$compiler"
-  (cd "$ROOT/poc1_local_dispatch" && CC="$compiler" ./run.sh)
-  (cd "$ROOT/poc2_site_descriptor" && CC="$compiler" ./run.sh)
+  (cd "$ROOT/10_Local_Dispatch" && CC="$compiler" ./run.sh)
+  (cd "$ROOT/20_Site_Descriptor" && CC="$compiler" ./run.sh)
 }
 
 run_cpp_suite() {
   compiler=$1
   found=1
   printf '\n== C++ compiler: %s ==\n' "$compiler"
-  for poc in poc1_local_dispatch poc2_site_descriptor; do
+  for poc in 10_Local_Dispatch 20_Site_Descriptor; do
     exe="$TMP/${poc}_${compiler##*/}"
     out="$exe.out"
     "$compiler" -x c++ -std=c++17 -Wall -Wextra -Werror -pedantic \
