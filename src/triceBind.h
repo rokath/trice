@@ -34,14 +34,14 @@
 #define TRICE_BIND_REBASE_LOCAL_INDEX(counter) ((counter) - TRICE_BIND_REBASE_ACTIVE_BASE - 1)
 #define TRICE_BIND_REBASE_AUTO_CAPTURE(constructor, implementation, counter, ...) \
 	TRICE_BIND_REBASE_AUTO_APPLY(constructor, implementation, counter, __VA_ARGS__)
-#define TRICE_BIND_REBASE_AUTO_APPLY(constructor, implementation, counter, ...)                                  \
-	do {                                                                                                             \
-		TRICE_BIND_REBASE_STATIC_ASSERT(                                                                              \
-			TRICE_BIND_REBASE_LOCAL_INDEX(counter) >= 0 &&                                                             \
-				TRICE_BIND_REBASE_LOCAL_INDEX(counter) < TRICE_BIND_REBASE_ACTIVE_COUNT,                                 \
-			triceBindRebaseOrdinalOutOfRange);                                                                         \
-		TRICE_BIND_REBASE_ACTIVE_AUTO_APPLY(                                                                          \
-			constructor, implementation, TRICE_BIND_REBASE_LOCAL_INDEX(counter), __VA_ARGS__);                         \
+#define TRICE_BIND_REBASE_AUTO_APPLY(constructor, implementation, counter, ...)                \
+	do {                                                                                       \
+		TRICE_BIND_REBASE_STATIC_ASSERT(                                                       \
+		    TRICE_BIND_REBASE_LOCAL_INDEX(counter) >= 0 &&                                     \
+		        TRICE_BIND_REBASE_LOCAL_INDEX(counter) < TRICE_BIND_REBASE_ACTIVE_COUNT,       \
+		    triceBindRebaseOrdinalOutOfRange);                                                 \
+		TRICE_BIND_REBASE_ACTIVE_AUTO_APPLY(                                                   \
+		    constructor, implementation, TRICE_BIND_REBASE_LOCAL_INDEX(counter), __VA_ARGS__); \
 	} while (0)
 
 // Descriptor application inserts a missing TID or replaces a source-level zero placeholder.
@@ -1584,6 +1584,5 @@
 #define triceN(...) TRICE_BIND_DISPATCH(TRICE_BIND_ROUTE(TRICE_BIND_FILE_KEY), TRICE_INSERT_triceN, __VA_ARGS__)
 #endif
 #endif // #ifndef TRICE_BIND_IMPLEMENTATION
-
 
 #endif // TRICE_BIND_H_

@@ -74,6 +74,10 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	for i := range plans {
 		if plans[i].class == bindFileBound && plans[i].key != "" {
 			plans[i].sidecarContent = renderBindSidecar(plans, i)
+			plans[i].rebaseArtifacts = renderBindRebaseArtifacts(&plans[i])
+			for artifactIndex := range plans[i].rebaseArtifacts {
+				plans[i].rebaseArtifacts[artifactIndex].path = filepath.Join(BindDir, plans[i].rebaseArtifacts[artifactIndex].name)
+			}
 		}
 	}
 	if len(diagnostics) > 0 {
@@ -209,6 +213,7 @@ func prepareBindPlans(fSys *afero.Afero, plans []bindFilePlan) []bindDiagnostic 
 			} else if !errors.Is(err, os.ErrNotExist) {
 				diagnostics = append(diagnostics, bindDiagnostic{path: plan.sidecarPath, message: "cannot read existing sidecar: " + err.Error()})
 			}
+			diagnostics = append(diagnostics, validateExistingBindRebaseArtifacts(fSys, plan)...)
 		}
 		if filepath.Base(plan.path) == "triceConfig.h" {
 			updated := bytes.Replace(plan.final, []byte("#define TRICE_CLEAN 1"), []byte("#define TRICE_CLEAN 0"), 1)
@@ -219,6 +224,36 @@ func prepareBindPlans(fSys *afero.Afero, plans []bindFilePlan) []bindDiagnostic 
 		}
 		diagnostics = append(diagnostics, plan.diagnostics...)
 		plan.diagnostics = nil
+	}
+	return diagnostics
+}
+
+// validateExistingBindRebaseArtifacts checks source-owned helper identities
+// and refuses to overwrite edited helper content. Missing build artifacts are
+// intentionally repairable by the next successful bind run.
+func validateExistingBindRebaseArtifacts(fSys *afero.Afero, plan *bindFilePlan) []bindDiagnostic {
+	var diagnostics []bindDiagnostic
+	for _, existing := range plan.existingRebaseArtifacts {
+		expected := renderBindRebaseArtifact(plan.sidecarName, plan.key, existing.scope, existing.kind)
+		if expected.name == "" || existing.name != expected.name {
+			diagnostics = append(diagnostics, bindDiagnostic{
+				path:    plan.path,
+				message: fmt.Sprintf("generated Trice bind rebase include %s does not belong to owner sidecar %s", existing.name, plan.sidecarName),
+			})
+			continue
+		}
+		path := filepath.Join(BindDir, existing.name)
+		content, err := fSys.ReadFile(path)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "cannot read existing generated rebase helper: " + err.Error()})
+			continue
+		}
+		if !bytes.Equal(content, expected.content) {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "existing generated Trice bind rebase helper was modified; restore it or remove it together with its generated source include"})
+		}
 	}
 	return diagnostics
 }
@@ -308,7 +343,7 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 
 // buildBindWrites renders JSON in memory and omits every destination whose bytes are unchanged.
 func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, error) {
-	writes := make([]bindWrite, 0, len(plans)*2+2)
+	writes := make([]bindWrite, 0, len(plans)*4+2)
 	for i := range plans {
 		plan := &plans[i]
 		if !bytes.Equal(plan.original, plan.final) {
@@ -322,6 +357,27 @@ func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, erro
 			if !unchanged {
 				writes = append(writes, bindWrite{path: plan.sidecarPath, data: plan.sidecarContent, perm: fileWritePerm(fSys, plan.sidecarPath, 0o644), kind: "sidecar"})
 			}
+		}
+		desiredArtifacts := make(map[string]bool, len(plan.rebaseArtifacts))
+		for _, artifact := range plan.rebaseArtifacts {
+			if artifact.name == "" || artifact.path == "" {
+				return nil, fmt.Errorf("cannot render generated Trice bind rebase helper for %s scope %s", plan.path, artifact.scope)
+			}
+			desiredArtifacts[artifact.path] = true
+			unchanged, err := bindFileHasContent(fSys, artifact.path, artifact.content)
+			if err != nil {
+				return nil, err
+			}
+			if !unchanged {
+				writes = append(writes, bindWrite{path: artifact.path, data: artifact.content, perm: fileWritePerm(fSys, artifact.path, 0o644), kind: "rebase"})
+			}
+		}
+		staleArtifacts, err := findStaleBindRebaseArtifacts(fSys, plan, desiredArtifacts)
+		if err != nil {
+			return nil, err
+		}
+		for _, path := range staleArtifacts {
+			writes = append(writes, bindWrite{path: path, kind: "rebase-delete", remove: true})
 		}
 	}
 
@@ -356,7 +412,7 @@ func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, erro
 		}
 	}
 
-	order := map[string]int{"sidecar": 0, "til": 1, "li": 2, "source": 3}
+	order := map[string]int{"sidecar": 0, "rebase": 0, "til": 1, "li": 2, "source": 3, "rebase-delete": 4}
 	sort.SliceStable(writes, func(i, j int) bool {
 		if order[writes[i].kind] != order[writes[j].kind] {
 			return order[writes[i].kind] < order[writes[j].kind]
@@ -364,6 +420,36 @@ func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, erro
 		return writes[i].path < writes[j].path
 	})
 	return writes, nil
+}
+
+// findStaleBindRebaseArtifacts lists only generated helper names belonging to
+// the exact owner sidecar and leaves unrelated BindDir content untouched.
+func findStaleBindRebaseArtifacts(fSys *afero.Afero, plan *bindFilePlan, desired map[string]bool) ([]string, error) {
+	if plan.sidecarName == "" || plan.key == "" {
+		return nil, nil
+	}
+	entries, err := fSys.ReadDir(BindDir)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("cannot inspect bind directory %s for stale rebase helpers: %w", BindDir, err)
+	}
+	var stale []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if _, _, ok := parseBindRebaseArtifactName(entry.Name(), plan.sidecarName, plan.key); !ok {
+			continue
+		}
+		path := filepath.Join(BindDir, entry.Name())
+		if !desired[path] {
+			stale = append(stale, path)
+		}
+	}
+	sort.Strings(stale)
+	return stale, nil
 }
 
 // bindFileHasContent compares bytes without treating an absent generated destination as an error.
@@ -391,7 +477,7 @@ func commitBindWrites(fSys *afero.Afero, writes []bindWrite) error {
 			}
 			continue
 		}
-		if write.kind == "sidecar" {
+		if write.kind == "sidecar" || write.kind == "rebase" {
 			if err := fSys.MkdirAll(filepath.Dir(write.path), 0o755); err != nil {
 				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot create bind directory for %s: %w", write.path, err))
 			}

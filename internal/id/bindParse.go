@@ -26,7 +26,7 @@ var (
 
 // analyzeBindFile classifies one source using the shared Trice matcher and marker masking.
 func analyzeBindFile(input bindFileInput) bindFilePlan {
-	clean, artifactDiagnostics, _ := stripBindRebaseArtifacts(input.path, input.data)
+	clean, generatedBlocks, artifactDiagnostics, _ := stripBindRebaseArtifacts(input.path, input.data)
 	plan := bindFilePlan{
 		path:          input.path,
 		info:          input.info,
@@ -34,6 +34,16 @@ func analyzeBindFile(input bindFileInput) bindFilePlan {
 		final:         clean,
 		managedOffset: -1,
 		diagnostics:   artifactDiagnostics,
+	}
+	for _, block := range generatedBlocks {
+		if block.helperName == "" {
+			continue
+		}
+		plan.existingRebaseArtifacts = append(plan.existingRebaseArtifacts, bindRebaseArtifact{
+			name:  block.helperName,
+			kind:  block.kind,
+			scope: block.scope,
+		})
 	}
 	plan.includes = scanBindIncludes(string(clean))
 	var siteDiagnostics []bindDiagnostic
@@ -103,6 +113,11 @@ func scanBindIncludes(source string) []bindInclude {
 			include.name = match[1]
 			include.key = match[2]
 			include.isSidecar = true
+		}
+		if name, key, _, _, ok := parseBindCompactRebaseInclude(lineText); ok {
+			include.name = name
+			include.key = key
+			include.isRebase = true
 		}
 		includes = append(includes, include)
 	}
@@ -282,6 +297,9 @@ func validateActiveBindIncludes(plan *bindFilePlan) {
 			include := &plan.includes[i]
 			if include.start >= position.position {
 				break
+			}
+			if include.isRebase {
+				continue
 			}
 			active = include
 		}

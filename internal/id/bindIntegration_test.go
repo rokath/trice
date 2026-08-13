@@ -307,6 +307,7 @@ func TestBindMVP2RebaseCompilesCAndCPP(t *testing.T) {
             break;                                            \
         }                                                     \
     } while (0)
+#define STRINGIFIED_LOG(value) do { const char *bindName = #value; triceS("name=%s", bindName); TRICE("value=%d", value); } while (0);
 static inline void bind_header_direct(void) { trice("header-a"); trice("header-b"); }
 static inline void bind_header_wrapper(int value) { LOG_ERROR(value); }
 #endif
@@ -325,6 +326,7 @@ void bind_mvp2_c(int value) {
     enum { unrelatedBefore = __COUNTER__ };
     (void)unrelatedBefore;
     LOG_ERROR(value);
+    STRINGIFIED_LOG(value)
     trice("direct-a"); trice("direct-b"); trice("direct-c");
     LOG_ERROR(7); LOG_ERROR(8);
     bind_header_direct();
@@ -337,6 +339,7 @@ void bind_mvp2_c(int value) {
 #include "logging.h"
 void bind_mvp2_cpp(int value) {
     LOG_ERROR(value);
+    STRINGIFIED_LOG(value)
     trice("cpp-a"); trice("cpp-b");
     bind_header_direct();
     bind_header_wrapper(value);
@@ -347,6 +350,7 @@ void bind_mvp2_cpp(int value) {
 #include "shared.h"
 void bind_mvp2_second_c(int value) {
     LOG_ERROR(value);
+    STRINGIFIED_LOG(value)
     bind_header_direct();
     bind_header_wrapper(value);
     SHARED_LOG(value);
@@ -363,8 +367,9 @@ void bind_mvp2_second_c(int value) {
 	boundHeader, err := os.ReadFile(filepath.Join(project, "logging.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(boundHeader), "trice-bind: generated rebase begin")
-	assert.Equal(t, 2, strings.Count(string(boundHeader), "#define TRICE_BIND_REBASE_BEGIN"))
-	assert.Len(t, IDData.idToTrice, 11, "wrapper definitions are allocated once across all invocation sites")
+	assert.Equal(t, 2, strings.Count(string(boundHeader), bindRebaseIncludeMarker+"begin"))
+	assert.NotContains(t, string(boundHeader), "#define TRICE_BIND_REBASE_BEGIN")
+	assert.Len(t, IDData.idToTrice, 13, "wrapper definitions are allocated once across all invocation sites")
 
 	cCompilers := availableBindCompilers("gcc", "clang", "cc")
 	cppCompilers := availableBindCompilers("g++", "clang++", "c++")
@@ -460,7 +465,10 @@ void normal(void) {
 	require.NoError(t, err)
 
 	t.Run("foreign counter drift", func(t *testing.T) {
-		drifted := strings.Replace(string(boundSource), bindRebaseBlockEnd+"\n", bindRebaseBlockEnd+"\nenum { triceBindForeignCounter = __COUNTER__ };\n", 1)
+		beginPosition := strings.Index(string(boundSource), bindRebaseIncludeMarker+"begin")
+		require.GreaterOrEqual(t, beginPosition, 0)
+		insertPosition := lineEndIncludingNewline(string(boundSource), beginPosition)
+		drifted := string(boundSource[:insertPosition]) + "enum { triceBindForeignCounter = __COUNTER__ };\n" + string(boundSource[insertPosition:])
 		require.NoError(t, os.WriteFile(advancedPath, []byte(drifted), 0o644))
 		output, compileErr := runBindFixtureCompiler(compiler, "c99", advancedPath, filepath.Join(project, "advanced_drift.o"), nil, includes...)
 		require.Error(t, compileErr)
@@ -535,7 +543,9 @@ int main(void) {
     enum { foreignBefore = __COUNTER__ };
     (void)foreignBefore;
     trice("direct-first"); TRICE("direct-second");
-    LOG_ERROR(7);
+    LOG_ERROR(
+        7
+    );
     LOG_ERROR(8);
     CUSTOM("custom-first"); CUSTOM("custom-second");
     if (emittedCount != 6u) { return 1; }
@@ -571,22 +581,6 @@ int main(void) {
 	}
 }
 
-// maskCanonicalMacroDefinitions excludes the two intentionally unsupported wrapper macros in the temporary copy.
-func maskCanonicalMacroDefinitions(t *testing.T, source string) string {
-	t.Helper()
-	start := strings.Index(source, "//! SCOPY is a helper macro")
-	end := strings.Index(source[start:], "typedef struct")
-	require.GreaterOrEqual(t, start, 0)
-	require.GreaterOrEqual(t, end, 0)
-	end += start
-	macroDefinitions := source[start:end]
-	// The temporary compile keeps these explicitly unsupported wrapper bodies on
-	// the inserted implementation path while every direct user site stays bound.
-	macroDefinitions = strings.ReplaceAll(macroDefinitions, "TRICE_S(", "TRICE_INSERT_TRICE_S(")
-	macroDefinitions = strings.ReplaceAll(macroDefinitions, "TRICE(", "TRICE_INSERT_TRICE(")
-	return source[:start] + "// TRICE_INSERT_OFF\n" + macroDefinitions + "// TRICE_INSERT_ON\n" + source[end:]
-}
-
 // TestBindCanonicalTriceCheckGeneratesCompleteSidecar uses the canonical macro matrix in a temporary bind tree.
 func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	bindIntegrationEnabled(t)
@@ -596,9 +590,11 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 
 	// The repository fixture may intentionally be committed Bound. Normalize
 	// only this temporary copy so the test always exercises include insertion.
+	canonical, _, artifactDiagnostics, _ := stripBindRebaseArtifacts("triceCheck.c", canonical)
+	require.Empty(t, artifactDiagnostics)
 	canonicalSource := string(canonical)
 	canonicalSource = string(removeBindSidecarIncludes(canonical, scanBindIncludes(canonicalSource)))
-	source := maskCanonicalMacroDefinitions(t, canonicalSource)
+	source := canonicalSource
 	sites, diagnostics := scanBindSites("triceCheck.c", source)
 	require.Empty(t, diagnostics)
 	require.Greater(t, len(sites), 500, "canonical source should exercise the broad public macro matrix")
@@ -632,15 +628,30 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	assert.Contains(t, string(bound), "trice-bind: keep as last include")
 	entries, err := os.ReadDir(BindDir)
 	require.NoError(t, err)
-	require.Len(t, entries, 1)
-	sidecar, err := os.ReadFile(filepath.Join(BindDir, entries[0].Name()))
+	rebaseRegionCount := strings.Count(string(bound), bindRebaseIncludeMarker+"begin")
+	require.Len(t, entries, 1+2*rebaseRegionCount)
+	var ownerName string
+	for _, include := range scanBindIncludes(string(bound)) {
+		if include.isSidecar {
+			ownerName = include.name
+			break
+		}
+	}
+	require.NotEmpty(t, ownerName)
+	sidecar, err := os.ReadFile(filepath.Join(BindDir, ownerName))
 	require.NoError(t, err)
-	assert.Equal(t, len(sites), bytes.Count(sidecar, []byte("#define TRICE_BIND_SITE_")))
+	ordinarySites := bytes.Count(sidecar, []byte("#define TRICE_BIND_SITE_"))
+	definitionSites := bytes.Count(sidecar, []byte("#define TRICE_BIND_DEFINITION_"))
+	definitionIDs := bytes.Count(sidecar, []byte("#define TRICE_BIND_ID_DEFINITION_"))
+	locationSites := bytes.Count(sidecar, []byte("#define TRICE_BIND_LOCATION_"))
+	locationIDs := bytes.Count(sidecar, []byte("#define TRICE_BIND_ID_LOCATION_"))
+	require.Equal(t, definitionSites, definitionIDs, "each wrapper definition site has one numeric descriptor")
+	require.Equal(t, locationSites, locationIDs, "each counter-selected site has one numeric descriptor")
+	assert.Equal(t, len(sites), ordinarySites+definitionSites+locationSites)
+	assert.Positive(t, definitionSites, "canonical source should exercise logging wrapper definitions")
+	assert.Positive(t, locationSites, "canonical source should exercise counter-selected locations")
 	for _, line := range strings.Split(string(sidecar), "\n") {
 		assert.Falsef(t, strings.HasSuffix(line, "\\"), "sidecar line must not continue physically: %s", line)
-	}
-	for _, site := range sites {
-		assert.Contains(t, string(sidecar), fmt.Sprintf("_L%d ", site.line+1), "auto-inserted include shifts every canonical site by one line")
 	}
 
 	cCompiler := firstAvailableCompiler("cc", "gcc", "clang")

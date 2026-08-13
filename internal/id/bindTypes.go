@@ -29,7 +29,8 @@ type bindFileInput struct {
 	data []byte
 }
 
-// bindInclude records one physical preprocessor include and, for sidecars, its identity.
+// bindInclude records one physical preprocessor include and any recognized
+// owner-sidecar or compact rebase-helper identity.
 type bindInclude struct {
 	start     int
 	end       int
@@ -38,6 +39,7 @@ type bindInclude struct {
 	name      string
 	key       string
 	isSidecar bool
+	isRebase  bool
 }
 
 // bindSite records parser-derived source identity and the later insert-derived ID assignment.
@@ -73,16 +75,17 @@ type bindSiteReference struct {
 // bindMacroDefinition describes one complete physical #define directive and
 // the shared-parser Trice sites found in its replacement list.
 type bindMacroDefinition struct {
-	name             string
-	start            int
-	end              int
-	replacementStart int
-	line             int
-	functionLike     bool
-	siteIndexes      []int
-	hasTokenPaste    bool
-	hasStringify     bool
-	hasCounter       bool
+	name                    string
+	start                   int
+	end                     int
+	replacementStart        int
+	line                    int
+	functionLike            bool
+	siteIndexes             []int
+	hasTokenPaste           bool
+	hasFormatStringify      bool
+	hasTerminatingSemicolon bool
+	hasCounter              bool
 }
 
 // bindWrapperDefinition is the project-wide identity of one supported logging wrapper.
@@ -96,12 +99,13 @@ type bindWrapperDefinition struct {
 
 // bindWrapperInvocation records one standalone wrapper expansion in user source.
 type bindWrapperInvocation struct {
-	name    string
-	start   int
-	end     int
-	line    int
-	column  int
-	comment string
+	name            string
+	start           int
+	end             int
+	line            int
+	column          int
+	comment         string
+	macroTerminated bool
 }
 
 // bindSiteDescriptor maps one ordinary File-Key-plus-line expansion to a logical site.
@@ -122,6 +126,16 @@ type bindRebaseRegion struct {
 	expansions []bindSiteReference
 }
 
+// bindRebaseArtifact describes one generated helper header that moves verbose
+// preprocessor state management out of an owner source file.
+type bindRebaseArtifact struct {
+	name    string
+	path    string
+	kind    string
+	scope   string
+	content []byte
+}
+
 // bindProjectModel is rebuilt after every in-memory source transformation so
 // all references use the final physical lines seen by the target compiler.
 type bindProjectModel struct {
@@ -130,27 +144,29 @@ type bindProjectModel struct {
 
 // bindFilePlan contains all read-only analysis and all bytes intended for the commit phase.
 type bindFilePlan struct {
-	path             string
-	info             os.FileInfo
-	original         []byte
-	final            []byte
-	class            bindFileClass
-	includes         []bindInclude
-	sites            []bindSite
-	macroDefinitions []bindMacroDefinition
-	invocations      []bindWrapperInvocation
-	descriptors      []bindSiteDescriptor
-	regions          []bindRebaseRegion
-	managedOffset    int
-	key              string
-	sidecarName      string
-	sidecarPath      string
-	sidecarContent   []byte
-	includeAdded     bool
-	configChanged    bool
-	newIDs           int
-	reusedIDs        int
-	diagnostics      []bindDiagnostic
+	path                    string
+	info                    os.FileInfo
+	original                []byte
+	final                   []byte
+	class                   bindFileClass
+	includes                []bindInclude
+	sites                   []bindSite
+	macroDefinitions        []bindMacroDefinition
+	invocations             []bindWrapperInvocation
+	descriptors             []bindSiteDescriptor
+	regions                 []bindRebaseRegion
+	existingRebaseArtifacts []bindRebaseArtifact
+	rebaseArtifacts         []bindRebaseArtifact
+	managedOffset           int
+	key                     string
+	sidecarName             string
+	sidecarPath             string
+	sidecarContent          []byte
+	includeAdded            bool
+	configChanged           bool
+	newIDs                  int
+	reusedIDs               int
+	diagnostics             []bindDiagnostic
 }
 
 // bindDiagnostic is sortable so parallel analysis never changes diagnostic order.

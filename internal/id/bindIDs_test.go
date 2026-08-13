@@ -259,17 +259,26 @@ func TestBindMultipleDirectSitesGenerateLocalRebase(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, string(bound), "trice-bind: generated rebase begin K1111111111111111_R0")
 	assert.Contains(t, string(bound), "trice-bind: generated rebase end K1111111111111111_R0")
-	assert.Equal(t, 1, strings.Count(string(bound), "#define TRICE_BIND_REBASE_BEGIN"))
+	assert.Equal(t, 1, strings.Count(string(bound), bindRebaseIncludeMarker+"begin"))
+	assert.NotContains(t, string(bound), "#define TRICE_BIND_REBASE_BEGIN")
 	assert.NotContains(t, string(bound), "iD(100")
+	assert.Equal(t, strings.Count(source, "\n")+3, strings.Count(string(bound), "\n"), "one owner include and two rebase boundary includes are added")
 
 	sidecarPath := filepath.Join(BindDir, "trice_multi_c_K1111111111111111.h")
 	sidecar, err := FSys.ReadFile(sidecarPath)
 	require.NoError(t, err)
 	assert.Contains(t, string(sidecar), "#define TRICE_BIND_REBASE_COUNT_K1111111111111111_R0 3")
-	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L9_O0)")
-	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L9_O1)")
-	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L9_O2)")
+	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L4_O0)")
+	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L4_O1)")
+	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L4_O2)")
 	assert.Equal(t, 3, strings.Count(string(sidecar), "TRICE_BIND_LOCATION_"))
+	beginHelper, err := FSys.ReadFile(filepath.Join(BindDir, "trice_multi_c_K1111111111111111_R0_begin.h"))
+	require.NoError(t, err)
+	assert.Contains(t, string(beginHelper), "#define TRICE_BIND_REBASE_SCOPE K1111111111111111_R0")
+	assert.Contains(t, string(beginHelper), "#include \"trice_multi_c_K1111111111111111.h\"")
+	endHelper, err := FSys.ReadFile(filepath.Join(BindDir, "trice_multi_c_K1111111111111111_R0_end.h"))
+	require.NoError(t, err)
+	assert.Contains(t, string(endHelper), "#define TRICE_BIND_REBASE_END")
 
 	firstSource := append([]byte(nil), bound...)
 	firstSidecar := append([]byte(nil), sidecar...)
@@ -480,9 +489,10 @@ func TestBindDoesNotReplaceUnchangedFiles(t *testing.T) {
 	assert.Zero(t, counting.renames)
 }
 
-// TestBindRollsBackCommitFailure prevents a late metadata error from leaving an earlier sidecar behind.
+// TestBindRollsBackCommitFailure prevents a late metadata error from leaving
+// earlier sidecar or rebase-helper writes behind.
 func TestBindRollsBackCommitFailure(t *testing.T) {
-	source := "trice(\"msg:rollback\");\n"
+	source := "trice(\"msg:rollback-a\"); trice(\"msg:rollback-b\");\n"
 	defer prepareBindTest(t, map[string]string{"rollback.c": source})()
 	tilBefore, err := FSys.ReadFile(FnJSON)
 	require.NoError(t, err)

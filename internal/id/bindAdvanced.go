@@ -10,53 +10,70 @@ import (
 )
 
 const (
-	bindRebaseBeginMarker = "/* trice-bind: generated rebase begin "
-	bindRebaseEndMarker   = "/* trice-bind: generated rebase end "
-	bindRebaseBlockEnd    = "/* trice-bind: generated rebase block end */"
+	bindRebaseBeginMarker   = "/* trice-bind: generated rebase begin "
+	bindRebaseEndMarker     = "/* trice-bind: generated rebase end "
+	bindRebaseBlockEnd      = "/* trice-bind: generated rebase block end */"
+	bindRebaseIncludeMarker = "// trice-bind: generated rebase "
 )
 
 var (
-	bindRebaseGeneratedInclude = regexp.MustCompile(`^#include "trice_[A-Za-z0-9_]+_(K[0-9A-F]{16})\.h" // trice-bind: generated rebase (begin|end)$`)
-	bindRebaseScope            = regexp.MustCompile(`^K[0-9A-F]{16}_R[0-9]+$`)
+	// bindRebaseGeneratedInclude recognizes the owner-sidecar line inside the
+	// legacy verbose source representation retained for migration compatibility.
+	// Horizontal directive whitespace may be normalized by C formatters and is
+	// therefore not part of the generated ownership identity.
+	bindRebaseGeneratedInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"trice_[A-Za-z0-9_]+_(K[0-9A-F]{16})\.h"[\t ]+// trice-bind: generated rebase (begin|end)[\t ]*$`)
+	// bindRebaseCompactInclude recognizes the complete current source boundary
+	// and captures identities that must agree before it may be removed. As with
+	// the legacy form, formatter-controlled horizontal whitespace is ignored.
+	bindRebaseCompactInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"(trice_[A-Za-z0-9_]+_(K[0-9A-F]{16})_(R[0-9]+)_(begin|end)\.h)"[\t ]+// trice-bind: generated rebase (begin|end) (K[0-9A-F]{16}_R[0-9]+)[\t ]*$`)
+	// bindRebaseHelperInclude catches edited helper includes that no longer
+	// match the exact removable form above.
+	bindRebaseHelperInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"trice_[A-Za-z0-9_]+_K[0-9A-F]{16}_R[0-9]+_(begin|end)\.h"`)
+	bindRebaseScope         = regexp.MustCompile(`^K[0-9A-F]{16}_R[0-9]+$`)
 )
 
-// bindGeneratedBlock identifies one complete generator-owned source block.
+// bindGeneratedBlock identifies one complete generator-owned source artifact,
+// either a legacy verbose block or one current compact include line.
 type bindGeneratedBlock struct {
-	start int
-	end   int
-	kind  string
-	scope string
-	line  int
+	start      int
+	end        int
+	kind       string
+	scope      string
+	line       int
+	helperName string
 }
 
 // bindOccurrence is one direct Trice call or one supported wrapper invocation.
 type bindOccurrence struct {
-	start   int
-	end     int
-	line    int
-	column  int
-	refs    []bindSiteReference
-	comment string
+	start           int
+	end             int
+	line            int
+	column          int
+	refs            []bindSiteReference
+	comment         string
+	wrapper         bool
+	macroTerminated bool
 }
 
 // stripBindRebaseArtifacts removes only complete, structurally valid blocks
 // emitted by trice bind. Malformed markers remain byte-for-byte untouched and
 // become fatal diagnostics so user text can never be removed heuristically.
-func stripBindRebaseArtifacts(path string, source []byte) ([]byte, []bindDiagnostic, bool) {
+func stripBindRebaseArtifacts(path string, source []byte) ([]byte, []bindGeneratedBlock, []bindDiagnostic, bool) {
 	blocks, diagnostics := scanBindRebaseArtifacts(path, source)
 	if len(diagnostics) > 0 {
-		return source, diagnostics, false
+		return source, nil, diagnostics, false
 	}
 	if len(blocks) == 0 {
-		return source, nil, false
+		return source, nil, nil, false
 	}
 
 	result := append([]byte(nil), source...)
-	sort.Slice(blocks, func(i, j int) bool { return blocks[i].start > blocks[j].start })
-	for _, block := range blocks {
+	removals := append([]bindGeneratedBlock(nil), blocks...)
+	sort.Slice(removals, func(i, j int) bool { return removals[i].start > removals[j].start })
+	for _, block := range removals {
 		result = append(result[:block.start], result[block.end:]...)
 	}
-	return result, nil, true
+	return result, blocks, nil, true
 }
 
 // scanBindRebaseArtifacts validates generator markers and returns their exact
@@ -67,7 +84,30 @@ func scanBindRebaseArtifacts(path string, source []byte) ([]bindGeneratedBlock, 
 	var diagnostics []bindDiagnostic
 	for position := 0; position < len(text); {
 		end := lineEndIncludingNewline(text, position)
-		line := strings.TrimSpace(strings.TrimRight(text[position:end], "\r\n"))
+		rawLine := strings.TrimRight(text[position:end], "\r\n")
+		if helperName, _, scope, kind, ok := parseBindCompactRebaseInclude(rawLine); ok {
+			blocks = append(blocks, bindGeneratedBlock{
+				start:      position,
+				end:        end,
+				kind:       kind,
+				scope:      scope,
+				line:       sourceLine(text, position),
+				helperName: helperName,
+			})
+			position = end
+			continue
+		}
+		if strings.Contains(rawLine, bindRebaseIncludeMarker) || bindRebaseHelperInclude.MatchString(rawLine) {
+			diagnostics = append(diagnostics, bindDiagnostic{
+				path:    path,
+				line:    sourceLine(text, position),
+				message: "generated Trice bind rebase include does not match the generated directive structure",
+			})
+			position = end
+			continue
+		}
+
+		line := strings.TrimSpace(rawLine)
 		kind, scope, ok := parseBindRebaseMarker(line)
 		if !ok {
 			if line == bindRebaseBlockEnd {
@@ -166,6 +206,21 @@ func scanBindRebaseArtifacts(path string, source []byte) ([]bindGeneratedBlock, 
 		return nil, diagnostics
 	}
 	return blocks, nil
+}
+
+// parseBindCompactRebaseInclude accepts only a generator-owned helper include
+// whose filename, phase comment, file key, and scope encode the same identity.
+func parseBindCompactRebaseInclude(line string) (name, key, scope, kind string, ok bool) {
+	match := bindRebaseCompactInclude.FindStringSubmatch(line)
+	if len(match) != 7 {
+		return "", "", "", "", false
+	}
+	name, key = match[1], match[2]
+	ordinal, nameKind, commentKind, commentScope := match[3], match[4], match[5], match[6]
+	if nameKind != commentKind || commentScope != key+"_"+ordinal {
+		return "", "", "", "", false
+	}
+	return name, key, commentScope, nameKind, true
 }
 
 // validateBindRebaseBlock accepts only the exact generator-owned directive
@@ -277,7 +332,7 @@ func scanBindMacroDefinitions(source string) []bindMacroDefinition {
 		replacement := source[definition.replacementStart:definition.end]
 		code := maskBindCommentsAndLiterals(replacement)
 		definition.hasTokenPaste = strings.Contains(code, "##")
-		definition.hasStringify = strings.Contains(strings.ReplaceAll(code, "##", ""), "#")
+		definition.hasTerminatingSemicolon = strings.HasSuffix(strings.TrimSpace(code), ";")
 		definition.hasCounter = bindContainsIdentifier(code, "__COUNTER__")
 		definitions = append(definitions, definition)
 		start = logicalEnd
@@ -468,6 +523,9 @@ func analyzeBindProject(plans []bindFilePlan, diagnose bool) (bindProjectModel, 
 			site.definitionName = definition.name
 			site.definitionOrdinal = len(definition.siteIndexes)
 			definition.siteIndexes = append(definition.siteIndexes, siteIndex)
+			if bindSiteExtendsFormatWithStringification(string(plan.final), *site) {
+				definition.hasFormatStringify = true
+			}
 			plan.managedOffset = bindEarlierOffset(plan.managedOffset, definition.start)
 		}
 
@@ -505,8 +563,8 @@ func analyzeBindProject(plans []bindFilePlan, diagnose bool) (bindProjectModel, 
 			if definition.hasTokenPaste {
 				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: definition.line, message: "logging wrapper " + definition.name + " uses unsupported token pasting"})
 			}
-			if definition.hasStringify {
-				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: definition.line, message: "logging wrapper " + definition.name + " uses unsupported stringification"})
+			if definition.hasFormatStringify {
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: definition.line, message: "logging wrapper " + definition.name + " uses unsupported stringification to extend a Trice format string"})
 			}
 			if bindRegisteredAlias(definition.name) {
 				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: definition.line, message: "logging wrapper " + definition.name + " conflicts with a configured Trice alias"})
@@ -595,6 +653,19 @@ func analyzeBindProject(plans []bindFilePlan, diagnose bool) (bindProjectModel, 
 	return model, diagnostics
 }
 
+// bindSiteExtendsFormatWithStringification distinguishes preprocessing that
+// changes a recognized static format from safe #parameter use in later data
+// arguments or unrelated statements in the same wrapper replacement.
+func bindSiteExtendsFormatWithStringification(source string, site bindSite) bool {
+	closing := findBindClosingParen(source, site.loc[2])
+	if closing < 0 || site.loc[6] < 0 || site.loc[6] >= closing {
+		return false
+	}
+	masked := maskBindCommentsAndLiterals(source)
+	position := skipBindSpace(masked, site.loc[6])
+	return position < closing && masked[position] == '#' && (position+1 >= closing || masked[position+1] != '#')
+}
+
 // bindContainingMacro returns the definition whose replacement owns position.
 func bindContainingMacro(definitions []bindMacroDefinition, position int) int {
 	for index, definition := range definitions {
@@ -674,8 +745,8 @@ func scanBindWrapperInvocations(planIndex int, plans []bindFilePlan, model bindP
 		if !exists || bindContainingMacro(plan.macroDefinitions, start) >= 0 {
 			continue
 		}
+		definition := plans[wrapper.plan].macroDefinitions[wrapper.macro]
 		if wrapper.plan == planIndex {
-			definition := plan.macroDefinitions[wrapper.macro]
 			if start < definition.end {
 				continue
 			}
@@ -689,31 +760,30 @@ func scanBindWrapperInvocations(planIndex int, plans []bindFilePlan, model bindP
 			diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: sourceLine(source, start), message: "logging wrapper invocation " + name + " has no matching closing parenthesis"})
 			continue
 		}
-		semicolon := closing + 1
-		for semicolon < len(masked) && (masked[semicolon] == ' ' || masked[semicolon] == '\t') {
-			semicolon++
-		}
+		semicolon := skipBindSpace(masked, closing+1)
 		line := sourceLine(source, start)
-		if semicolon >= len(masked) || masked[semicolon] != ';' {
-			diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "logging wrapper " + name + " must be used as a standalone statement ending in ';'"})
+		end := closing + 1
+		macroTerminated := false
+		if semicolon < len(masked) && masked[semicolon] == ';' {
+			end = semicolon + 1
+		} else if !definition.hasTerminatingSemicolon {
+			diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "logging wrapper " + name + " must be used as a standalone statement ending in ';' at the invocation or in the macro replacement"})
 			continue
-		}
-		end := semicolon + 1
-		if sourceLine(source, end-1) != line {
-			diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "multi-line invocation of logging wrapper " + name + " is not supported by the local rebase generator"})
-			continue
+		} else {
+			macroTerminated = true
 		}
 		if !bindStandaloneCallContext(masked, start) {
 			diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "logging wrapper " + name + " is not in a supported standalone statement context"})
 			continue
 		}
 		invocations = append(invocations, bindWrapperInvocation{
-			name:    name,
-			start:   start,
-			end:     end,
-			line:    line,
-			column:  sourceColumn(source, start),
-			comment: strings.Join(strings.Fields(source[start:end]), " "),
+			name:            name,
+			start:           start,
+			end:             end,
+			line:            line,
+			column:          sourceColumn(source, start),
+			comment:         strings.Join(strings.Fields(source[start:end]), " "),
+			macroTerminated: macroTerminated,
 		})
 		position = end
 	}
@@ -785,19 +855,49 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 				continue
 			}
 			occurrences = append(occurrences, bindOccurrence{
-				start:   invocation.start,
-				end:     invocation.end,
-				line:    invocation.line,
-				column:  invocation.column,
-				refs:    append([]bindSiteReference(nil), wrapper.siteRefs...),
-				comment: invocation.comment,
+				start:           invocation.start,
+				end:             invocation.end,
+				line:            invocation.line,
+				column:          invocation.column,
+				refs:            append([]bindSiteReference(nil), wrapper.siteRefs...),
+				comment:         invocation.comment,
+				wrapper:         true,
+				macroTerminated: invocation.macroTerminated,
 			})
 		}
 		sort.SliceStable(occurrences, func(i, j int) bool { return occurrences[i].start < occurrences[j].start })
+		macroTerminatedEnds := make(map[int]bool)
+		for _, occurrence := range occurrences {
+			if occurrence.macroTerminated {
+				macroTerminatedEnds[occurrence.end] = true
+			}
+		}
+		// Overlapping tokens cannot receive independent preprocessor boundaries;
+		// retain the diagnostic while excluding them from in-memory rendering.
+		invalidOccurrences := make(map[int]bool)
+		for index := 1; index < len(occurrences); index++ {
+			previous := occurrences[index-1]
+			current := occurrences[index]
+			if current.start >= previous.end {
+				continue
+			}
+			invalidOccurrences[previous.start] = true
+			invalidOccurrences[current.start] = true
+			if diagnose {
+				diagnostics = append(diagnostics, bindDiagnostic{
+					path:    plan.path,
+					line:    current.line,
+					message: "overlapping Trice or logging-wrapper invocations cannot be assigned independent bind descriptors",
+				})
+			}
+		}
 
 		byLine := make(map[int][]bindOccurrence)
 		var lines []int
 		for _, occurrence := range occurrences {
+			if invalidOccurrences[occurrence.start] {
+				continue
+			}
 			if _, exists := byLine[occurrence.line]; !exists {
 				lines = append(lines, occurrence.line)
 			}
@@ -809,7 +909,7 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 			group := byLine[line]
 			requiresCounter := len(group) > 1
 			for _, occurrence := range group {
-				if len(occurrence.refs) > 1 {
+				if len(occurrence.refs) > 1 || occurrence.wrapper && sourceLine(string(plan.final), occurrence.end-1) != occurrence.line {
 					requiresCounter = true
 				}
 			}
@@ -820,34 +920,59 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 			}
 
 			valid := true
-			lineStartPosition := lineStart(string(plan.final), group[0].start)
-			lineEndPosition := lineEndIncludingNewline(string(plan.final), group[0].start)
-			if lineEndPosition == len(plan.final) && (len(plan.final) == 0 || plan.final[len(plan.final)-1] != '\n') {
-				valid = false
-				if diagnose {
-					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement line must end with a newline so generated rebase blocks remain removable"})
+			regionStartPosition := lineStart(string(plan.final), group[0].start)
+			lastOccurrenceEnd := group[0].end
+			for _, occurrence := range group[1:] {
+				if occurrence.end > lastOccurrenceEnd {
+					lastOccurrenceEnd = occurrence.end
 				}
 			}
-			if !bindRebaseLineIsIndependent(string(plan.final), lineStartPosition, lineEndPosition, group[0].start) {
+			regionEndPosition := lineEndIncludingNewline(string(plan.final), lastOccurrenceEnd-1)
+			if regionEndPosition == len(plan.final) && (len(plan.final) == 0 || plan.final[len(plan.final)-1] != '\n') {
 				valid = false
 				if diagnose {
-					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement line is not an independent block item; generated rebase directives cannot safely surround a control-flow continuation or closing outer scope"})
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement region must end with a newline so generated rebase includes remain removable"})
 				}
 			}
-			lineCode := maskBindCommentsAndLiterals(string(plan.final[lineStartPosition:lineEndPosition]))
-			if bindContainsIdentifier(lineCode, "__COUNTER__") {
+			if !bindRebaseLineIsIndependent(string(plan.final), regionStartPosition, regionEndPosition, group[0].start, macroTerminatedEnds) {
+				valid = false
+				if diagnose {
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement region is not an independent block item; generated rebase directives cannot safely surround a control-flow continuation or closing outer scope"})
+				}
+			}
+			regionCode := maskBindCommentsAndLiterals(string(plan.final[regionStartPosition:regionEndPosition]))
+			if bindContainsIdentifier(regionCode, "__COUNTER__") {
 				valid = false
 				if diagnose {
 					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected region contains an additional explicit __COUNTER__; use trice insert/clean or remove it"})
 				}
 			}
+			if bindRebaseRegionContainsDirective(regionCode) {
+				valid = false
+				if diagnose {
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement region contains a preprocessing directive and cannot be surrounded safely"})
+				}
+			}
+			for _, occurrence := range occurrences {
+				if occurrence.line == line || occurrence.start < regionStartPosition || occurrence.start >= regionEndPosition {
+					continue
+				}
+				valid = false
+				if diagnose {
+					diagnostics = append(diagnostics, bindDiagnostic{
+						path:    plan.path,
+						line:    occurrence.line,
+						message: "a multi-line logging-wrapper invocation shares its boundary line with another Trice site; place the sites on separate lines",
+					})
+				}
+			}
 
 			var expansions []bindSiteReference
 			for _, occurrence := range group {
-				if occurrence.end <= occurrence.start || sourceLine(string(plan.final), occurrence.end-1) != line || !bindStandaloneCallContext(maskBindCommentsAndLiterals(string(plan.final)), occurrence.start) {
+				if occurrence.end <= occurrence.start || occurrence.end > regionEndPosition || !bindStandaloneCallContext(maskBindCommentsAndLiterals(string(plan.final)), occurrence.start) {
 					valid = false
 					if diagnose {
-						diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice calls must be complete standalone statements on one physical line"})
+						diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice calls and logging wrappers must be complete standalone statements"})
 					}
 				}
 				for _, ref := range occurrence.refs {
@@ -881,8 +1006,8 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 				scope:      fmt.Sprintf("%s_R%d", plan.key, regionOrdinal),
 				line:       line,
 				column:     group[0].column,
-				start:      lineStartPosition,
-				end:        lineEndPosition,
+				start:      regionStartPosition,
+				end:        regionEndPosition,
 				expansions: expansions,
 			})
 			regionOrdinal++
@@ -891,11 +1016,24 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 	return diagnostics
 }
 
-// bindRebaseLineIsIndependent rejects physical lines whose surrounding C/C++
-// syntax would bind to, or leave the scope of, declarations emitted by BEGIN
-// and END. The generator deliberately rejects these cases instead of changing
-// control flow by inserting a declaration between two dependent statements.
-func bindRebaseLineIsIndependent(source string, start, end, firstOccurrence int) bool {
+// bindRebaseRegionContainsDirective rejects directives inside a multi-line
+// invocation because directive handling within macro arguments is non-portable.
+func bindRebaseRegionContainsDirective(masked string) bool {
+	for start := 0; start < len(masked); {
+		end := lineEndIncludingNewline(masked, start)
+		if strings.HasPrefix(strings.TrimSpace(masked[start:end]), "#") {
+			return true
+		}
+		start = end
+	}
+	return false
+}
+
+// bindRebaseLineIsIndependent rejects candidate regions whose surrounding
+// C/C++ syntax would bind to, or leave the scope of, declarations emitted by
+// BEGIN and END. The generator rejects these cases instead of changing control
+// flow by inserting a declaration between two dependent statements.
+func bindRebaseLineIsIndependent(source string, start, end, firstOccurrence int, macroTerminatedEnds map[int]bool) bool {
 	masked := maskBindCommentsAndLiterals(source)
 	lineCode := masked[start:end]
 	depth := 0
@@ -927,13 +1065,17 @@ func bindRebaseLineIsIndependent(source string, start, end, firstOccurrence int)
 		previousStart := lineStart(masked, previous)
 		previousEnd := lineEndIncludingNewline(source, previousStart)
 		previousLine := strings.TrimSpace(source[previousStart:previousEnd])
-		if strings.HasPrefix(previousLine, "#") && bindSidecarName.MatchString(previousLine) {
+		_, _, _, _, isRebaseInclude := parseBindCompactRebaseInclude(previousLine)
+		if strings.HasPrefix(previousLine, "#") && (bindSidecarName.MatchString(previousLine) || isRebaseInclude) {
 			previous = previousStart - 1
 			continue
 		}
 		break
 	}
 	if previous < 0 {
+		return true
+	}
+	if macroTerminatedEnds[previous+1] {
 		return true
 	}
 	if isInsideMacroDefinition(source, previous) {
@@ -970,7 +1112,7 @@ func bindDirectCallEnd(source string, site bindSite) int {
 	return end
 }
 
-// applyBindRebaseRegions inserts generated blocks in reverse source order so
+// applyBindRebaseRegions inserts compact generated includes in reverse source order so
 // all offsets calculated by the analysis remain valid.
 func applyBindRebaseRegions(plans []bindFilePlan) {
 	for planIndex := range plans {
@@ -982,8 +1124,10 @@ func applyBindRebaseRegions(plans []bindFilePlan) {
 		sort.Slice(regions, func(i, j int) bool { return regions[i].start > regions[j].start })
 		for _, region := range regions {
 			newline := sourceNewline(string(plan.final))
-			begin := renderBindRebaseSourceBlock("begin", region.scope, plan.sidecarName, newline)
-			end := renderBindRebaseSourceBlock("end", region.scope, plan.sidecarName, newline)
+			beginName := bindRebaseArtifactName(plan.sidecarName, plan.key, region.scope, "begin")
+			endName := bindRebaseArtifactName(plan.sidecarName, plan.key, region.scope, "end")
+			begin := renderBindRebaseSourceInclude("begin", region.scope, beginName, newline)
+			end := renderBindRebaseSourceInclude("end", region.scope, endName, newline)
 			updated := make([]byte, 0, len(plan.final)+len(begin)+len(end))
 			updated = append(updated, plan.final[:region.start]...)
 			updated = append(updated, begin...)
@@ -995,20 +1139,7 @@ func applyBindRebaseRegions(plans []bindFilePlan) {
 	}
 }
 
-// renderBindRebaseSourceBlock emits one unambiguous, removable include mode.
-func renderBindRebaseSourceBlock(kind, scope, sidecar, newline string) []byte {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "/* trice-bind: generated rebase %s %s */%s", kind, scope, newline)
-	if kind == "begin" {
-		fmt.Fprintf(&builder, "#define TRICE_BIND_REBASE_SCOPE %s%s", scope, newline)
-		fmt.Fprintf(&builder, "#define TRICE_BIND_REBASE_BEGIN%s", newline)
-		fmt.Fprintf(&builder, "#include \"%s\" // trice-bind: generated rebase begin%s", sidecar, newline)
-		fmt.Fprintf(&builder, "#undef TRICE_BIND_REBASE_BEGIN%s", newline)
-	} else {
-		fmt.Fprintf(&builder, "#define TRICE_BIND_REBASE_END%s", newline)
-		fmt.Fprintf(&builder, "#include \"%s\" // trice-bind: generated rebase end%s", sidecar, newline)
-		fmt.Fprintf(&builder, "#undef TRICE_BIND_REBASE_END%s", newline)
-	}
-	fmt.Fprintf(&builder, "%s%s", bindRebaseBlockEnd, newline)
-	return []byte(builder.String())
+// renderBindRebaseSourceInclude emits one exact, removable phase boundary.
+func renderBindRebaseSourceInclude(kind, scope, helperName, newline string) []byte {
+	return []byte(fmt.Sprintf("#include \"%s\" %s%s %s%s", helperName, bindRebaseIncludeMarker, kind, scope, newline))
 }

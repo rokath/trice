@@ -35,6 +35,7 @@ type bindRemigratePlan struct {
 	original     []byte
 	final        []byte
 	sidecarPath  string
+	rebasePaths  []string
 	removedLines []int           // removedLines identifies every generated line removed from the Bound source.
 	siteLines    map[TriceID]int // siteLines maps each generated ID to its validated Bound line.
 }
@@ -142,6 +143,11 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 			diagnostics = append(diagnostics, bindDiagnostic{path: sidecarPath, message: err.Error()})
 			continue
 		}
+		rebasePaths, rebaseDiagnostics := validateBindRemigrationRebaseArtifacts(fSys, input.path, name, key, blocks)
+		if len(rebaseDiagnostics) > 0 {
+			diagnostics = append(diagnostics, rebaseDiagnostics...)
+			continue
+		}
 		removedLineSet := make(map[int]bool)
 		for _, include := range includes {
 			if include.isSidecar {
@@ -159,7 +165,7 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 		}
 		sort.Ints(removedLines)
 
-		cleaned, _, _ := stripBindRebaseArtifacts(input.path, input.data)
+		cleaned, _, _, _ := stripBindRebaseArtifacts(input.path, input.data)
 		cleanIncludes := scanBindIncludes(string(cleaned))
 
 		owners[sidecarPath] = append(owners[sidecarPath], input.path)
@@ -169,6 +175,7 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 			original:     input.data,
 			final:        removeBindSidecarIncludes(cleaned, cleanIncludes),
 			sidecarPath:  sidecarPath,
+			rebasePaths:  rebasePaths,
 			removedLines: removedLines,
 			siteLines:    siteLines,
 		})
@@ -187,6 +194,48 @@ func prepareBindRemigration(fSys *afero.Afero, inputs []bindFileInput) ([]bindRe
 		return nil, diagnostics
 	}
 	return plans, nil
+}
+
+// validateBindRemigrationRebaseArtifacts requires every compact source phase
+// to have its exact generated helper before source ownership can be removed.
+func validateBindRemigrationRebaseArtifacts(fSys *afero.Afero, sourcePath, sidecarName, key string, blocks []bindGeneratedBlock) ([]string, []bindDiagnostic) {
+	paths := make(map[string]bool)
+	var diagnostics []bindDiagnostic
+	for _, block := range blocks {
+		if block.helperName == "" {
+			continue
+		}
+		expected := renderBindRebaseArtifact(sidecarName, key, block.scope, block.kind)
+		if expected.name == "" || expected.name != block.helperName {
+			diagnostics = append(diagnostics, bindDiagnostic{
+				path:    sourcePath,
+				line:    block.line,
+				message: fmt.Sprintf("generated Trice bind rebase include %s does not belong to owner sidecar %s", block.helperName, sidecarName),
+			})
+			continue
+		}
+		path := filepath.Join(BindDir, block.helperName)
+		content, err := fSys.ReadFile(path)
+		if errors.Is(err, os.ErrNotExist) {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "referenced generated Trice bind rebase helper does not exist"})
+			continue
+		}
+		if err != nil {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "cannot read referenced generated rebase helper: " + err.Error()})
+			continue
+		}
+		if !bytes.Equal(content, expected.content) {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "referenced generated Trice bind rebase helper does not match its source include"})
+			continue
+		}
+		paths[path] = true
+	}
+	result := make([]string, 0, len(paths))
+	for path := range paths {
+		result = append(result, path)
+	}
+	sort.Strings(result)
+	return result, diagnostics
 }
 
 // parseBindRemigrationSiteLines reads only generator-owned descriptor syntax.
@@ -264,6 +313,9 @@ func buildBindRemigrationWrites(fSys *afero.Afero, plans []bindRemigratePlan) ([
 		writes = append(writes, *liWrite)
 	}
 	for _, plan := range plans {
+		for _, path := range plan.rebasePaths {
+			writes = append(writes, bindWrite{path: path, kind: "rebase-delete", remove: true})
+		}
 		writes = append(writes, bindWrite{path: plan.sidecarPath, kind: "sidecar-delete", remove: true})
 	}
 	return writes, nil
