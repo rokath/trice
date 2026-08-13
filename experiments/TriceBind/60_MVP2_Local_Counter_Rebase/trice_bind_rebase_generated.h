@@ -50,21 +50,21 @@
 // A captured counter becomes a number before it is reused in several checks.
 #define POC_REBASE_LOCAL_INDEX(counter) ((counter) - POC_REBASE_ACTIVE_BASE - 1)
 #define POC_REBASE_CAPTURE(implementation, counter, ...) \
-    POC_REBASE_APPLY(implementation, counter, __VA_ARGS__)
-#define POC_REBASE_APPLY(implementation, counter, ...)                                      \
-    do {                                                                                    \
-        POC_REBASE_STATIC_ASSERT(                                                           \
-            POC_REBASE_LOCAL_INDEX(counter) >= 0 &&                                         \
-                POC_REBASE_LOCAL_INDEX(counter) < POC_REBASE_ACTIVE_COUNT,                  \
-            "trice bind: unexpected __COUNTER__ expansion inside an advanced scope; "      \
-            "use trice insert/clean or change the macro");                                 \
-        implementation(iD(POC_REBASE_ACTIVE_ID(POC_REBASE_LOCAL_INDEX(counter))),           \
-                       __VA_ARGS__);                                                         \
-    } while (0)
+	POC_REBASE_APPLY(implementation, counter, __VA_ARGS__)
+#define POC_REBASE_APPLY(implementation, counter, ...)                                \
+	do {                                                                              \
+		POC_REBASE_STATIC_ASSERT(                                                     \
+		    POC_REBASE_LOCAL_INDEX(counter) >= 0 &&                                   \
+		        POC_REBASE_LOCAL_INDEX(counter) < POC_REBASE_ACTIVE_COUNT,            \
+		    "trice bind: unexpected __COUNTER__ expansion inside an advanced scope; " \
+		    "use trice insert/clean or change the macro");                            \
+		implementation(iD(POC_REBASE_ACTIVE_ID(POC_REBASE_LOCAL_INDEX(counter))),     \
+		               __VA_ARGS__);                                                  \
+	} while (0)
 
 // The extra dispatch route is selected only between generated BEGIN and END.
 #define TRICE_BIND_ROUTE_REBASE(implementation, ...) \
-    POC_REBASE_CAPTURE(implementation, __COUNTER__, __VA_ARGS__)
+	POC_REBASE_CAPTURE(implementation, __COUNTER__, __VA_ARGS__)
 
 #elif defined(TRICE_BIND_REBASE_BEGIN)
 

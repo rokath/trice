@@ -19,42 +19,40 @@ static FILE* logFile;
 static bool logWriteFailed;
 
 // TriceNonBlockingDirectWrite8Auxiliary appends one framed record to log.bin.
-void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* data, size_t length)
-{
-    if (logFile == NULL || logWriteFailed) {
-        return;
-    }
-    if (fwrite(data, 1, length, logFile) != length) {
-        logWriteFailed = true;
-    }
+void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* data, size_t length) {
+	if (logFile == NULL || logWriteFailed) {
+		return;
+	}
+	if (fwrite(data, 1, length, logFile) != length) {
+		logWriteFailed = true;
+	}
 }
 
 // main recreates log.bin, exercises all translation units, and reports I/O errors.
-int main(void)
-{
-    logFile = fopen("log.bin", "wb");
-    if (logFile == NULL) {
-        perror("log.bin");
-        return 1;
-    }
+int main(void) {
+	logFile = fopen("log.bin", "wb");
+	if (logFile == NULL) {
+		perror("log.bin");
+		return 1;
+	}
 
-    TriceInit();
-    trice("msg:main started\n");
-    primaryDevInline(11);
-    secondaryDevInline(22);
-    primaryDevRun(33);
-    secondaryDevRun(44);
-    trice("msg:main completed value=%d\n", 55);
+	TriceInit();
+	trice("msg:main started\n");
+	primaryDevInline(11);
+	secondaryDevInline(22);
+	primaryDevRun(33);
+	secondaryDevRun(44);
+	trice("msg:main completed value=%d\n", 55);
 
-    if (fclose(logFile) != 0) {
-        perror("log.bin");
-        return 1;
-    }
-    logFile = NULL;
+	if (fclose(logFile) != 0) {
+		perror("log.bin");
+		return 1;
+	}
+	logFile = NULL;
 
-    if (logWriteFailed) {
-        fputs("Could not write all Trice records to log.bin\n", stderr);
-        return 1;
-    }
-    return 0;
+	if (logWriteFailed) {
+		fputs("Could not write all Trice records to log.bin\n", stderr);
+		return 1;
+	}
+	return 0;
 }

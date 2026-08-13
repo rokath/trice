@@ -5,7 +5,6 @@
 //! \file trice.h
 //! \brief trice declarations and macros.
 
-
 #ifndef TRICE_H_
 #define TRICE_H_
 
@@ -338,7 +337,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #else // #if TRICE_CYCLE_COUNTER == 1
 
-#define TRICE_CYCLE ((uint_fast32_t) 0xC0) //!< TRICE_CYCLE is no trice cycle counter, just a static value.
+#define TRICE_CYCLE ((uint_fast32_t)0xC0) //!< TRICE_CYCLE is no trice cycle counter, just a static value.
 
 #endif // #else // #if TRICE_CYCLE_COUNTER == 1
 
@@ -366,7 +365,7 @@ extern uint32_t* TriceBufferWritePosition;
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __cplusplus // see \#571
+#ifndef __cplusplus                      // see \#571
 #if defined(__GNUC__) && (__GNUC__ >= 5) // see \#594
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 #endif // GCC >= 5
@@ -465,15 +464,15 @@ extern uint32_t* TriceBufferWritePosition;
 #define TRICE_MCU_IS_BIG_ENDIAN 1
 
 //! Try compiler/endian macros next.
-#elif (defined(BYTE_ORDER) && defined(ORDER_LITTLE_ENDIAN) && (BYTE_ORDER == ORDER_LITTLE_ENDIAN)) || \
-      (defined(__BYTE_ORDER) && defined(__ORDER_LITTLE_ENDIAN) && (__BYTE_ORDER == __ORDER_LITTLE_ENDIAN)) || \
-      (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
+#elif (defined(BYTE_ORDER) && defined(ORDER_LITTLE_ENDIAN) && (BYTE_ORDER == ORDER_LITTLE_ENDIAN)) ||       \
+    (defined(__BYTE_ORDER) && defined(__ORDER_LITTLE_ENDIAN) && (__BYTE_ORDER == __ORDER_LITTLE_ENDIAN)) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
 
 #define TRICE_MCU_IS_BIG_ENDIAN 0
 
-#elif (defined(BYTE_ORDER) && defined(ORDER_BIG_ENDIAN) && (BYTE_ORDER == ORDER_BIG_ENDIAN)) || \
-      (defined(__BYTE_ORDER) && defined(__ORDER_BIG_ENDIAN) && (__BYTE_ORDER == __ORDER_BIG_ENDIAN)) || \
-      (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
+#elif (defined(BYTE_ORDER) && defined(ORDER_BIG_ENDIAN) && (BYTE_ORDER == ORDER_BIG_ENDIAN)) ||       \
+    (defined(__BYTE_ORDER) && defined(__ORDER_BIG_ENDIAN) && (__BYTE_ORDER == __ORDER_BIG_ENDIAN)) || \
+    (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
 
 #define TRICE_MCU_IS_BIG_ENDIAN 1
 
@@ -483,7 +482,7 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else #if defined(__STDC_ENDIAN_NATIVE__) && defined(__STDC_ENDIAN_LITTLE__) && (__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__)
 
-#endif // #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)	
+#endif // #if (__STDC_VERSION__ >= 202000) //! C23 standard specification for endianess detection (Note N3022)
 
 #endif // TRICE_MCU_IS_BIG_ENDIAN
 //
@@ -802,7 +801,7 @@ extern uint32_t* TriceBufferWritePosition;
 //
 // todo: for some reason this macro is not working well with name len instead of len_, probably when injected len as value.
 //
-#define TRICE_INSERT_TRICE_N(tid, pFmt, buf, n)                                                                                                           \
+#define TRICE_INSERT_TRICE_N(tid, pFmt, buf, n)                                                                                              \
 	do {                                                                                                                                     \
 		TRICE_UNUSED(pFmt);                                                                                                                  \
 		uint32_t limit_TRICE_N = TRICE_SINGLE_MAX_SIZE - 12; /* 12 = head(2) + max timestamp size(4) + count(2) + max 3 zeroes, we take 4 */ \
@@ -907,8 +906,8 @@ void TRice64F(int tid, char const* fmt, const void* buf, uint32_t n);
 //! \param pFmt format string for trice (ignored here but used by the trice tool)
 //! \param runtimeGeneratedString 0-terminated runtime generated string
 #define TRICE_INSERT_TRICE_S(tid, pFmt, runtimeGeneratedString)                \
-	do {                                                          \
-		size_t ssiz_TRICE_S = strlen(runtimeGeneratedString);     \
+	do {                                                                       \
+		size_t ssiz_TRICE_S = strlen(runtimeGeneratedString);                  \
 		TRICE_INSERT_TRICE_N(tid, pFmt, runtimeGeneratedString, ssiz_TRICE_S); \
 	} while (0)
 
@@ -999,9 +998,9 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 #define TRICE_C_ID32(n) TRICE_PUT16((uint16_t)(0xC000) | (uint16_t)(n));
 
 //! TRICE_C_ID16 writes the 16-bit-stamped ABC ID header without fetching TriceStamp16.
-#define TRICE_C_ID16(n)                                                                      \
-	do {                                                                                     \
-		TRICE_PUT(TRICE_HTOTL(0x80008000u | (((uint32_t)(n)) << 16) | ((uint32_t)(n))));     \
+#define TRICE_C_ID16(n)                                                                  \
+	do {                                                                                 \
+		TRICE_PUT(TRICE_HTOTL(0x80008000u | (((uint32_t)(n)) << 16) | ((uint32_t)(n)))); \
 	} while (0)
 
 //! TRICE_C_ID0 writes the no-stamp ABC ID header.
@@ -1009,17 +1008,17 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 
 #if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
 //! TRICE_C_STAMP32 writes a user-supplied 32-bit ABC stamp in transfer order.
-#define TRICE_C_STAMP32(stamp32)                 \
-	do {                                         \
-		uint32_t ts_TRICE_C_STAMP32 = (stamp32); \
+#define TRICE_C_STAMP32(stamp32)                           \
+	do {                                                   \
+		uint32_t ts_TRICE_C_STAMP32 = (stamp32);           \
 		TRICE_PUT16((uint16_t)ts_TRICE_C_STAMP32);         \
 		TRICE_PUT16((uint16_t)(ts_TRICE_C_STAMP32 >> 16)); \
 	} while (0)
 #else
 //! TRICE_C_STAMP32 writes a user-supplied 32-bit ABC stamp in transfer order.
-#define TRICE_C_STAMP32(stamp32)                 \
-	do {                                         \
-		uint32_t ts_TRICE_C_STAMP32 = (stamp32); \
+#define TRICE_C_STAMP32(stamp32)                           \
+	do {                                                   \
+		uint32_t ts_TRICE_C_STAMP32 = (stamp32);           \
 		TRICE_PUT16((uint16_t)(ts_TRICE_C_STAMP32 >> 16)); \
 		TRICE_PUT16((uint16_t)ts_TRICE_C_STAMP32);         \
 	} while (0)
@@ -1030,75 +1029,75 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 
 //! TRICE_C_0_0 writes a no-payload ABC command without stamp.
 #define TRICE_INSERT_TRICE_C_0_0(tid, pFmt) \
-	do {                       \
-		TRICE_UNUSED(pFmt);    \
-		TRICE_ENTER tid;       \
-		TRICE_CNTC(0);         \
-		TRICE_LEAVE            \
+	do {                                    \
+		TRICE_UNUSED(pFmt);                 \
+		TRICE_ENTER tid;                    \
+		TRICE_CNTC(0);                      \
+		TRICE_LEAVE                         \
 	} while (0)
 
 //! TRICE_C_0_16 writes a no-payload ABC command with an explicit 16-bit stamp.
 #define TRICE_INSERT_TRICE_C_0_16(tid, pFmt, stamp16) \
-	do {                                 \
-		TRICE_UNUSED(pFmt);              \
-		TRICE_ENTER tid;                 \
-		TRICE_C_STAMP16(stamp16);        \
-		TRICE_CNTC(0);                   \
-		TRICE_LEAVE                      \
+	do {                                              \
+		TRICE_UNUSED(pFmt);                           \
+		TRICE_ENTER tid;                              \
+		TRICE_C_STAMP16(stamp16);                     \
+		TRICE_CNTC(0);                                \
+		TRICE_LEAVE                                   \
 	} while (0)
 
 //! TRICE_C_0_32 writes a no-payload ABC command with an explicit 32-bit stamp.
 #define TRICE_INSERT_TRICE_C_0_32(tid, pFmt, stamp32) \
-	do {                                 \
-		TRICE_UNUSED(pFmt);              \
-		TRICE_ENTER tid;                 \
-		TRICE_C_STAMP32(stamp32);        \
-		TRICE_CNTC(0);                   \
-		TRICE_LEAVE                      \
+	do {                                              \
+		TRICE_UNUSED(pFmt);                           \
+		TRICE_ENTER tid;                              \
+		TRICE_C_STAMP32(stamp32);                     \
+		TRICE_CNTC(0);                                \
+		TRICE_LEAVE                                   \
 	} while (0)
 
 #define TRICE_INSERT_TRICE_C_N0(tid, pFmt, buf, n) TRICE_INSERT_TRICE_N(tid, pFmt, buf, n)
 
 //! TRICE_C_N16 writes a counted-buffer ABC command with an explicit 16-bit stamp.
-#define TRICE_INSERT_TRICE_C_N16(tid, pFmt, stamp16, buf, n)                                                                                             \
-	do {                                                                                                                                     \
-		TRICE_UNUSED(pFmt);                                                                                                                  \
-		uint32_t limit_TRICE_C_N16 = TRICE_SINGLE_MAX_SIZE - 12;                                                                             \
-		uint32_t len_TRICE_C_N16 = (uint32_t)(n);                                                                                            \
-		if (len_TRICE_C_N16 > limit_TRICE_C_N16) {                                                                                           \
-			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                   \
-			len_TRICE_C_N16 = limit_TRICE_C_N16;                                                                                              \
-		}                                                                                                                                    \
-		TRICE_ENTER tid;                                                                                                                     \
-		TRICE_C_STAMP16(stamp16);                                                                                                            \
-		if (len_TRICE_C_N16 <= 127) {                                                                                                        \
-			TRICE_CNTC(len_TRICE_C_N16);                                                                                                      \
-		} else {                                                                                                                             \
-			TRICE_LCNT(len_TRICE_C_N16);                                                                                                      \
-		}                                                                                                                                    \
-		TRICE_PUT_BUFFER(buf, len_TRICE_C_N16);                                                                                              \
-		TRICE_LEAVE                                                                                                                          \
+#define TRICE_INSERT_TRICE_C_N16(tid, pFmt, stamp16, buf, n)     \
+	do {                                                         \
+		TRICE_UNUSED(pFmt);                                      \
+		uint32_t limit_TRICE_C_N16 = TRICE_SINGLE_MAX_SIZE - 12; \
+		uint32_t len_TRICE_C_N16 = (uint32_t)(n);                \
+		if (len_TRICE_C_N16 > limit_TRICE_C_N16) {               \
+			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();       \
+			len_TRICE_C_N16 = limit_TRICE_C_N16;                 \
+		}                                                        \
+		TRICE_ENTER tid;                                         \
+		TRICE_C_STAMP16(stamp16);                                \
+		if (len_TRICE_C_N16 <= 127) {                            \
+			TRICE_CNTC(len_TRICE_C_N16);                         \
+		} else {                                                 \
+			TRICE_LCNT(len_TRICE_C_N16);                         \
+		}                                                        \
+		TRICE_PUT_BUFFER(buf, len_TRICE_C_N16);                  \
+		TRICE_LEAVE                                              \
 	} while (0)
 
 //! TRICE_C_N32 writes a counted-buffer ABC command with an explicit 32-bit stamp.
-#define TRICE_INSERT_TRICE_C_N32(tid, pFmt, stamp32, buf, n)                                                                                             \
-	do {                                                                                                                                     \
-		TRICE_UNUSED(pFmt);                                                                                                                  \
-		uint32_t limit_TRICE_C_N32 = TRICE_SINGLE_MAX_SIZE - 12;                                                                             \
-		uint32_t len_TRICE_C_N32 = (uint32_t)(n);                                                                                            \
-		if (len_TRICE_C_N32 > limit_TRICE_C_N32) {                                                                                           \
-			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();                                                                                   \
-			len_TRICE_C_N32 = limit_TRICE_C_N32;                                                                                              \
-		}                                                                                                                                    \
-		TRICE_ENTER tid;                                                                                                                     \
-		TRICE_C_STAMP32(stamp32);                                                                                                            \
-		if (len_TRICE_C_N32 <= 127) {                                                                                                        \
-			TRICE_CNTC(len_TRICE_C_N32);                                                                                                      \
-		} else {                                                                                                                             \
-			TRICE_LCNT(len_TRICE_C_N32);                                                                                                      \
-		}                                                                                                                                    \
-		TRICE_PUT_BUFFER(buf, len_TRICE_C_N32);                                                                                              \
-		TRICE_LEAVE                                                                                                                          \
+#define TRICE_INSERT_TRICE_C_N32(tid, pFmt, stamp32, buf, n)     \
+	do {                                                         \
+		TRICE_UNUSED(pFmt);                                      \
+		uint32_t limit_TRICE_C_N32 = TRICE_SINGLE_MAX_SIZE - 12; \
+		uint32_t len_TRICE_C_N32 = (uint32_t)(n);                \
+		if (len_TRICE_C_N32 > limit_TRICE_C_N32) {               \
+			TRICE_DYN_STRG_BUF_TRUNCATE_COUNT_INCREMENT();       \
+			len_TRICE_C_N32 = limit_TRICE_C_N32;                 \
+		}                                                        \
+		TRICE_ENTER tid;                                         \
+		TRICE_C_STAMP32(stamp32);                                \
+		if (len_TRICE_C_N32 <= 127) {                            \
+			TRICE_CNTC(len_TRICE_C_N32);                         \
+		} else {                                                 \
+			TRICE_LCNT(len_TRICE_C_N32);                         \
+		}                                                        \
+		TRICE_PUT_BUFFER(buf, len_TRICE_C_N32);                  \
+		TRICE_LEAVE                                              \
 	} while (0)
 
 #define TRICE_INSERT_TRIce_C(tid, pFmt) TRICE_INSERT_TRICE_C_0_0(TRICE_C_ID0(tid), pFmt)
@@ -1150,8 +1149,8 @@ void TRiceSfn(uint16_t tid, const char* runtimeGeneratedString);
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param tid is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE_INSERT_TRICE0(tid, pFmt) \
-	TRICE_ENTER tid;      \
-	TRICE_CNTC(0);        \
+	TRICE_ENTER tid;                   \
+	TRICE_CNTC(0);                     \
 	TRICE_LEAVE
 
 // The Assert spellings follow the same hybrid pattern as the string helpers:
@@ -1182,13 +1181,49 @@ void TRiceAssertFalseFn(uint16_t idN, int flag);
 #define TRICE_INSERT_TriceAssert(idN, msg, flag) TRICE_INSERT_TriceAssertTrue(idN, msg, flag)
 #define TRICE_INSERT_TRiceAssert(idN, msg, flag) TRICE_INSERT_TRiceAssertTrue(idN, msg, flag)
 
-#define TRICE_INSERT_triceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRICE_INSERT_trice(idN, msg); return;}} while(0)
-#define TRICE_INSERT_TriceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRICE_INSERT_Trice(idN, msg); return;}} while(0)
-#define TRICE_INSERT_TRiceAssertOrReturn(idN, msg, flag) do {if (!(flag)) {TRICE_INSERT_TRice(idN, msg); return;}} while(0)
+#define TRICE_INSERT_triceAssertOrReturn(idN, msg, flag) \
+	do {                                                 \
+		if (!(flag)) {                                   \
+			TRICE_INSERT_trice(idN, msg);                \
+			return;                                      \
+		}                                                \
+	} while (0)
+#define TRICE_INSERT_TriceAssertOrReturn(idN, msg, flag) \
+	do {                                                 \
+		if (!(flag)) {                                   \
+			TRICE_INSERT_Trice(idN, msg);                \
+			return;                                      \
+		}                                                \
+	} while (0)
+#define TRICE_INSERT_TRiceAssertOrReturn(idN, msg, flag) \
+	do {                                                 \
+		if (!(flag)) {                                   \
+			TRICE_INSERT_TRice(idN, msg);                \
+			return;                                      \
+		}                                                \
+	} while (0)
 
-#define TRICE_INSERT_triceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRICE_INSERT_trice(idN, msg); return (value);}} while(0)
-#define TRICE_INSERT_TriceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRICE_INSERT_Trice(idN, msg); return (value);}} while(0)
-#define TRICE_INSERT_TRiceAssertOrReturnValue(idN, msg, flag, value) do {if (!(flag)) {TRICE_INSERT_TRice(idN, msg); return (value);}} while(0)
+#define TRICE_INSERT_triceAssertOrReturnValue(idN, msg, flag, value) \
+	do {                                                             \
+		if (!(flag)) {                                               \
+			TRICE_INSERT_trice(idN, msg);                            \
+			return (value);                                          \
+		}                                                            \
+	} while (0)
+#define TRICE_INSERT_TriceAssertOrReturnValue(idN, msg, flag, value) \
+	do {                                                             \
+		if (!(flag)) {                                               \
+			TRICE_INSERT_Trice(idN, msg);                            \
+			return (value);                                          \
+		}                                                            \
+	} while (0)
+#define TRICE_INSERT_TRiceAssertOrReturnValue(idN, msg, flag, value) \
+	do {                                                             \
+		if (!(flag)) {                                               \
+			TRICE_INSERT_TRice(idN, msg);                            \
+			return (value);                                          \
+		}                                                            \
+	} while (0)
 
 #include "triceBind.h"
 

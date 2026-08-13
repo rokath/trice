@@ -28,11 +28,11 @@ extern "C" {
 //! This is slow but we can integrate user code without changing it.
 // Route the registered simple alias at its invocation site so bound sources
 // obtain the ID from their sidecar and inserted sources retain their ID argument.
-#define PRINTS_WITH_ID(id, ...)                        \
-	do {                                               \
-		char buf[96];                                  \
-		npf_snprintf(buf, sizeof(buf), __VA_ARGS__);   \
-		TRICE_INSERT_triceS(id, "%s", buf);            \
+#define PRINTS_WITH_ID(id, ...)                      \
+	do {                                             \
+		char buf[96];                                \
+		npf_snprintf(buf, sizeof(buf), __VA_ARGS__); \
+		TRICE_INSERT_triceS(id, "%s", buf);          \
 	} while (0)
 #define prints(...) \
 	TRICE_BIND_DISPATCH(TRICE_BIND_ROUTE(TRICE_BIND_FILE_KEY), PRINTS_WITH_ID, __VA_ARGS__)

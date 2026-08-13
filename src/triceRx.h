@@ -47,24 +47,24 @@ enum {
 // payload points into the caller-owned input buffer; no payload bytes are copied.
 // It is a struct which gets filled during trice rx.
 typedef struct triceRx_t {
-    uint16_t id;            // Trice id
-    uint8_t  bitWidth;      // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
-    uint8_t  stampBits;     //  `0`, `16`, or `32` valid stamp bits or 0xffu for typeX0 Trices.
-    uint32_t stamp;         // usually timestamp for Trice messages, any stamp for Trice ABC messages
-    const uint8_t* payload; // points into the input buffer
-    uint16_t payloadBytes;  // byte count or count typeX0 Trice payload.
+	uint16_t id;            // Trice id
+	uint8_t bitWidth;       // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
+	uint8_t stampBits;      //  `0`, `16`, or `32` valid stamp bits or 0xffu for typeX0 Trices.
+	uint32_t stamp;         // usually timestamp for Trice messages, any stamp for Trice ABC messages
+	const uint8_t* payload; // points into the input buffer
+	uint16_t payloadBytes;  // byte count or count typeX0 Trice payload.
 	uint8_t paramCount;     // Parsed records keep 0 here; log resolution replaces it with a fixed count.
-    uint8_t cycleCounter;   // optional part of the nc field
+	uint8_t cycleCounter;   // optional part of the nc field
 
 #if TRICE_RX_ABC_SUPPORT == 1
 	void (*abcFnHandler)(const struct triceRx_t* rx); // abc function handler resolved from generated triceAbc[]. ( triceFn_t fn; )
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
-    const char* pFmt; // Trice format string resolved from generated TIL metadata.
+	const char* pFmt; // Trice format string resolved from generated TIL metadata.
 #if TRICE_LOCATION_SUPPORT == 1
-    const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
-    uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
+	const char* file; // `file` is name where the Trice statements was used. Resolved from li.json.
+	uint32_t line;    // Source code line in `file` where the Trice statements was used. Resolved from li.json.
 #endif
 #endif
 
@@ -72,7 +72,7 @@ typedef struct triceRx_t {
 } triceRx_t;
 
 // triceFn_t is the generated ABC handler signature.
-// The receive record is const during handler execution so nested 
+// The receive record is const during handler execution so nested
 // dispatch cannot mutate the caller's current record by accident.
 typedef void (*triceFn_t)(const triceRx_t* rx);
 
@@ -83,7 +83,7 @@ typedef void (*triceNodeFn_t)(const void* node, const triceRx_t* rx);
 //! \brief parses exactly one already deframed/decrypted Trice record at buf[0].
 //! \details
 //! It returns the logical record length and never consumes alignment padding after the record.
-//! It does not parse multiple records, expects deframed/decrypted data and does not use an ID table. 
+//! It does not parse multiple records, expects deframed/decrypted data and does not use an ID table.
 //! It expects a plain trice binary stream according to the [Trice Binary Encoding](./TriceUserManual.md#binary-encoding)
 //! \li It fills:
 //! \li   rx->id
@@ -105,14 +105,14 @@ int TriceParseRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
 
 #if TRICE_RX_ABC_SUPPORT == 1
 
-//! \brief triceAbc_t is the generated ABC table entry type. 
+//! \brief triceAbc_t is the generated ABC table entry type.
 //! \details The field order keeps existing generated positional initializers compatible: { id, bitWidth, fn }.
 //! \li `triceAbc_t` is the type for generated triceAbc[] list.
 //! \li ABC metadata should be generated from `trice generate -abc path/target` and should contain ID, bit width, and function pointer.
 typedef struct {
-    uint16_t id;       // Trice id
-    uint8_t  bitWidth; // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
-	triceFn_t fn;      // abc function handler resolved from generated triceAbc[]. 
+	uint16_t id;      // Trice id
+	uint8_t bitWidth; // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
+	triceFn_t fn;     // abc function handler resolved from generated triceAbc[].
 } triceAbc_t;
 
 extern const triceAbc_t triceAbc[]; // generated ABC resolver table, defined in <device>_abc.c
@@ -123,10 +123,10 @@ extern const unsigned triceAbcElements;
 //! \li The resolver searches `list[0..count-1]` for `rx->id`. If found, it fills:
 //! \li    rx->bitWidth
 //! \li    rx->fn
-//! 
-//! If `rx->bitWidth` is still `TRICE_BIT_WIDTH_UNKNOWN`, the resolver sets it. 
+//!
+//! If `rx->bitWidth` is still `TRICE_BIT_WIDTH_UNKNOWN`, the resolver sets it.
 //! If it is already set and differs from the table entry, the resolver returns a bit-width conflict error.
-//! 
+//!
 //! \retval TRICE_RX_RESULT_OK on success.
 //! \retval TRICE_RX_ERR_NOT_FOUND if the ID is not in the table. Unknown IDs are normal in mixed streams.
 int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
@@ -151,7 +151,7 @@ typedef struct {
 	const char* pFmt;   // Trice format string resolved from til.json.
 } triceLog_t;
 
-extern const triceLog_t triceLog[]; // generated log resolver table, defined in the generated TIL C source.
+extern const triceLog_t triceLog[];     // generated log resolver table, defined in the generated TIL C source.
 extern const unsigned triceLogElements; // generated log resolver table element count, must match triceLocationElements when locations are enabled.
 
 //! \brief TriceResolveLog attaches log rendering metadata to a parsed record.
@@ -159,7 +159,7 @@ extern const unsigned triceLogElements; // generated log resolver table element 
 //! \li   rx->bitWidth
 //! \li   rx->paramCount
 //! \li   rx->pFmt;   // Trice format string resolved from til.json.
-//! 
+//!
 //! The bit width and parameter count are generated TIL facts, not parsed from the Trice macro name at runtime.
 //! If already assigned, the value must be identical or an error is reported.
 //! \retval TRICE_RX_RESULT_OK if found.
@@ -178,7 +178,7 @@ typedef struct {
 } triceLocation_t;
 
 extern const triceLocation_t triceLocation[]; // generated Location resolver table, defined in li.json
-extern const unsigned triceLocationElements; // generated Location resolver table element count, defined in li.json, must be equal to triceLogElements
+extern const unsigned triceLocationElements;  // generated Location resolver table element count, defined in li.json, must be equal to triceLogElements
 
 //! TriceResolveLocation attaches source file and line metadata to a record.
 //! \details It fills location data from a generated/transformed location table derived from `li.json`.

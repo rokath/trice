@@ -11,10 +11,9 @@
 #include "trice_dev_h_F3030303030303030.h" // trice-bind
 
 // secondaryDevInline repeats one format and adds a distinct header log record.
-static inline void secondaryDevInline(int value)
-{
-    trice("msg:inline shared value=%d\n", value);
-    trice("msg:inline secondary value=%d\n", value);
+static inline void secondaryDevInline(int value) {
+	trice("msg:inline shared value=%d\n", value);
+	trice("msg:inline secondary value=%d\n", value);
 }
 
 // secondaryDevRun emits records from the matching deep source file.

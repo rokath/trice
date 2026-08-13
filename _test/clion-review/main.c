@@ -6,6 +6,6 @@
 void TriceCheck(int index);
 
 int main(void) {
-    TriceCheck(0);
-    return 0;
+	TriceCheck(0);
+	return 0;
 }

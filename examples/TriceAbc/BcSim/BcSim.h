@@ -41,14 +41,14 @@ extern "C" {
  * stable error codes suitable for switches and diagnostic output.
  */
 enum {
-    BCSIM_OK = 0,                  /* Generic success value. */
-    BCSIM_ERR_ARG = -1,            /* A required pointer or path argument was invalid. */
-    BCSIM_ERR_IO = -2,             /* fopen/fread/fwrite/fseek/ftell/fclose failed. */
-    BCSIM_ERR_LOCK = -3,           /* Creating or removing the lock directory failed. */
-    BCSIM_ERR_LOCK_TIMEOUT = -4,   /* Waiting for the lock directory exceeded the limit. */
-    BCSIM_ERR_RANGE_OVERFLOW = -5, /* The own-write range table is full. */
-    BCSIM_ERR_PATH_TOO_LONG = -6,  /* A path or participant name does not fit the fixed field. */
-    BCSIM_ERR_NOT_OPEN = -7        /* The handle was not initialized with bcSimOpen(). */
+	BCSIM_OK = 0,                  /* Generic success value. */
+	BCSIM_ERR_ARG = -1,            /* A required pointer or path argument was invalid. */
+	BCSIM_ERR_IO = -2,             /* fopen/fread/fwrite/fseek/ftell/fclose failed. */
+	BCSIM_ERR_LOCK = -3,           /* Creating or removing the lock directory failed. */
+	BCSIM_ERR_LOCK_TIMEOUT = -4,   /* Waiting for the lock directory exceeded the limit. */
+	BCSIM_ERR_RANGE_OVERFLOW = -5, /* The own-write range table is full. */
+	BCSIM_ERR_PATH_TOO_LONG = -6,  /* A path or participant name does not fit the fixed field. */
+	BCSIM_ERR_NOT_OPEN = -7        /* The handle was not initialized with bcSimOpen(). */
 };
 
 /*
@@ -59,8 +59,8 @@ enum {
  * unambiguous.
  */
 typedef struct {
-    uint64_t from; /* First byte offset belonging to the range. */
-    uint64_t to;   /* First byte offset after the range. */
+	uint64_t from; /* First byte offset belonging to the range. */
+	uint64_t to;   /* First byte offset after the range. */
 } bcSimRange_t;
 
 /*
@@ -73,39 +73,39 @@ typedef struct {
  * except where the documentation explicitly states otherwise.
  */
 typedef struct {
-    char busPath[BCSIM_PATH_MAX];  /* Path of the append-only binary bus file. */
-    char logPath[BCSIM_PATH_MAX];  /* Path of the optional human-readable log file. */
-    char lockPath[BCSIM_PATH_MAX]; /* Derived path of the writer lock directory. */
-    char deviceName[BCSIM_NAME_MAX]; /* Participant name printed in bc.log. */
+	char busPath[BCSIM_PATH_MAX];    /* Path of the append-only binary bus file. */
+	char logPath[BCSIM_PATH_MAX];    /* Path of the optional human-readable log file. */
+	char lockPath[BCSIM_PATH_MAX];   /* Derived path of the writer lock directory. */
+	char deviceName[BCSIM_NAME_MAX]; /* Participant name printed in bc.log. */
 
-    /*
-     * Current read position in the binary bus file.
-     *
-     * bcSimOpen() initializes this to the current bus file size. Therefore a
-     * newly started process does not replay historical bytes by default. It
-     * only receives bytes appended after it joined the bus.
-     *
-     * A special replay/monitor program may set readOffset manually after
-     * bcSimOpen(). Normal participants should not casually expose such a mode
-     * because historical own writes cannot be recognized after restart.
-     */
-    uint64_t readOffset;
+	/*
+	 * Current read position in the binary bus file.
+	 *
+	 * bcSimOpen() initializes this to the current bus file size. Therefore a
+	 * newly started process does not replay historical bytes by default. It
+	 * only receives bytes appended after it joined the bus.
+	 *
+	 * A special replay/monitor program may set readOffset manually after
+	 * bcSimOpen(). Normal participants should not casually expose such a mode
+	 * because historical own writes cannot be recognized after restart.
+	 */
+	uint64_t readOffset;
 
-    /*
-     * Own write ranges used by bcSimRead() for offset-based self-echo filtering.
-     *
-     * Each successful bcSimWrite() stores the appended bus-file range here.
-     * Later bcSimRead() advances over those ranges internally without returning
-     * their bytes to the caller.
-     */
-    bcSimRange_t own[BCSIM_MAX_OWN_RANGES];
-    unsigned ownCount; /* Number of valid entries in own[]. */
+	/*
+	 * Own write ranges used by bcSimRead() for offset-based self-echo filtering.
+	 *
+	 * Each successful bcSimWrite() stores the appended bus-file range here.
+	 * Later bcSimRead() advances over those ranges internally without returning
+	 * their bytes to the caller.
+	 */
+	bcSimRange_t own[BCSIM_MAX_OWN_RANGES];
+	unsigned ownCount; /* Number of valid entries in own[]. */
 
-    /*
-     * Set to 1 after a successful bcSimOpen(). Public operations reject handles
-     * where this flag is still zero or has been cleared by bcSimClose().
-     */
-    int isOpen;
+	/*
+	 * Set to 1 after a successful bcSimOpen(). Public operations reject handles
+	 * where this flag is still zero or has been cleared by bcSimClose().
+	 */
+	int isOpen;
 } BcSim_t;
 
 /*

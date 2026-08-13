@@ -25,14 +25,13 @@
 #define TRICE_ROUTE_INSERT(tid, ...) poc1_emit("INSERT", (tid), __VA_ARGS__)
 #define TRICE_ROUTE_BIND(...) poc1_emit("BIND", TRICE_BIND_TID_HERE(), __VA_ARGS__)
 
-static inline void poc1_emit(const char *route, uint32_t tid, const char *format, ...)
-{
-    va_list ap;
-    printf("route=%s id=%u text=", route, (unsigned)(tid & 0x00FFFFFFu));
-    va_start(ap, format);
-    vprintf(format, ap);
-    va_end(ap);
-    putchar('\n');
+static inline void poc1_emit(const char* route, uint32_t tid, const char* format, ...) {
+	va_list ap;
+	printf("route=%s id=%u text=", route, (unsigned)(tid & 0x00FFFFFFu));
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
+	putchar('\n');
 }
 
 #endif

@@ -42,20 +42,20 @@ extern "C" {
 
 // One process-local node state used by the shared demo runtime.
 typedef struct {
-    const char* name;     // Short node label such as "N3_bi".
-    BcSim_t bus;          // File-backed broadcast medium handle.
-    uint8_t leds;         // Eight demo LED states packed into one byte.
-    char key[NODE_KEY_MAX + 1u]; // Stored printable key, always zero-terminated.
-    uint8_t keyLen;       // Number of valid key bytes before the terminating zero.
-    uint8_t canSend;      // 1 if this node may emit to the bus.
-    uint8_t canReceive;   // 1 if this node polls and decodes incoming frames.
-    uint8_t rxLogEnabled; // 1 if normal Trice log records should be printed.
-    uint32_t replyStampMask; // Demo-only responder bit used for stamped routing.
+	const char* name;            // Short node label such as "N3_bi".
+	BcSim_t bus;                 // File-backed broadcast medium handle.
+	uint8_t leds;                // Eight demo LED states packed into one byte.
+	char key[NODE_KEY_MAX + 1u]; // Stored printable key, always zero-terminated.
+	uint8_t keyLen;              // Number of valid key bytes before the terminating zero.
+	uint8_t canSend;             // 1 if this node may emit to the bus.
+	uint8_t canReceive;          // 1 if this node polls and decodes incoming frames.
+	uint8_t rxLogEnabled;        // 1 if normal Trice log records should be printed.
+	uint32_t replyStampMask;     // Demo-only responder bit used for stamped routing.
 
 #if TRICE_RX_SUPPORT == 1
-    uint8_t stream[NODE_STREAM_MAX]; // Raw bus bytes waiting for frame scanning.
-    size_t streamLen;                // Number of valid bytes in stream[].
-    uint8_t frame[NODE_FRAME_MAX];   // Decoded single-record buffer.
+	uint8_t stream[NODE_STREAM_MAX]; // Raw bus bytes waiting for frame scanning.
+	size_t streamLen;                // Number of valid bytes in stream[].
+	uint8_t frame[NODE_FRAME_MAX];   // Decoded single-record buffer.
 #endif
 } node_t;
 

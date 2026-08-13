@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// TRICE_INSERT_OFF - Trice parser exclusion marker 
+// TRICE_INSERT_OFF - Trice parser exclusion marker
 // This is a test file. It must not get the Trice IDs changed!
 
 #include <string.h>
@@ -29,35 +29,35 @@ int TriceAbcTxHostCheck(int n) {
 	abcTxReset();
 	switch (n) {
 	case 1: {
-		static const uint8_t expected[] = { 0x34u, 0x52u, 0xc0u, 0x00u };
+		static const uint8_t expected[] = {0x34u, 0x52u, 0xc0u, 0x00u};
 		triceC(iD(0x1234), "cmd:stop");
 		return abcTxEquals(expected, sizeof(expected)) ? 0 : 1;
 	}
 	case 2: {
-		static const uint8_t expected[] = { 0x23u, 0x81u, 0x23u, 0x81u, 0xcdu, 0xabu, 0xc0u, 0x00u };
+		static const uint8_t expected[] = {0x23u, 0x81u, 0x23u, 0x81u, 0xcdu, 0xabu, 0xc0u, 0x00u};
 		TriceC(iD(0x0123), "cmd:stop", 0xabcdu);
 		return abcTxEquals(expected, sizeof(expected)) ? 0 : 2;
 	}
 	case 3: {
-		static const uint8_t expected[] = { 0x23u, 0xc1u, 0x44u, 0x33u, 0x22u, 0x11u, 0xc0u, 0x00u };
+		static const uint8_t expected[] = {0x23u, 0xc1u, 0x44u, 0x33u, 0x22u, 0x11u, 0xc0u, 0x00u};
 		TRiceC(iD(0x0123), "cmd:stop", 0x11223344u);
 		return abcTxEquals(expected, sizeof(expected)) ? 0 : 3;
 	}
 	case 4: {
-		int8_t payload[] = { 1, 2, 3 };
-		static const uint8_t expected[] = { 0x55u, 0x40u, 0xc0u, 0x03u, 0x01u, 0x02u, 0x03u, 0x00u };
+		int8_t payload[] = {1, 2, 3};
+		static const uint8_t expected[] = {0x55u, 0x40u, 0xc0u, 0x03u, 0x01u, 0x02u, 0x03u, 0x00u};
 		trice8C(iD(0x0055), "cmd:set_leds", payload, 3);
 		return abcTxEquals(expected, sizeof(expected)) ? 0 : 4;
 	}
 	case 5: {
-		int16_t payload[] = { 0x1122, 0x3344 };
-		static const uint8_t expected[] = { 0x23u, 0x81u, 0x23u, 0x81u, 0xcdu, 0xabu, 0xc0u, 0x04u, 0x22u, 0x11u, 0x44u, 0x33u };
+		int16_t payload[] = {0x1122, 0x3344};
+		static const uint8_t expected[] = {0x23u, 0x81u, 0x23u, 0x81u, 0xcdu, 0xabu, 0xc0u, 0x04u, 0x22u, 0x11u, 0x44u, 0x33u};
 		Trice16C(iD(0x0123), "cmd:set_pwm", 0xabcdu, payload, 2);
 		return abcTxEquals(expected, sizeof(expected)) ? 0 : 5;
 	}
 	case 6: {
-		int32_t payload[] = { 0x11223344 };
-		static const uint8_t expected[] = { 0x23u, 0xc1u, 0x04u, 0x03u, 0x02u, 0x01u, 0xc0u, 0x04u, 0x44u, 0x33u, 0x22u, 0x11u };
+		int32_t payload[] = {0x11223344};
+		static const uint8_t expected[] = {0x23u, 0xc1u, 0x04u, 0x03u, 0x02u, 0x01u, 0xc0u, 0x04u, 0x44u, 0x33u, 0x22u, 0x11u};
 		TRice32C(iD(0x0123), "cmd:set_time", 0x01020304u, payload, 1);
 		return abcTxEquals(expected, sizeof(expected)) ? 0 : 6;
 	}

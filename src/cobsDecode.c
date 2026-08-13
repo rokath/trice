@@ -5,14 +5,13 @@
 //! \file cobsDecode.c
 //! \brief cobs Decode implementation.
 
-
 #include "cobs.h"
 
 // Public API is documented in cobs.h.
 // Implementation adapted from the Wikipedia COBS reference.
 size_t COBSDecode(void* __restrict out, const void* __restrict in, size_t length) {
-	uint8_t* data = (uint8_t*) out;
-	const uint8_t* buffer = (const uint8_t*) in;
+	uint8_t* data = (uint8_t*)out;
+	const uint8_t* buffer = (const uint8_t*)in;
 	const uint8_t* byte = buffer; // Encoded input byte pointer
 	uint8_t* decode = data;       // Decoded output byte pointer
 

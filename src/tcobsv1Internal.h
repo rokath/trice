@@ -5,7 +5,6 @@
 //! \file tcobsv1Internal.h
 //! \brief tcobsv 1 Internal declarations and macros.
 
-
 #ifndef TCOBS_INTERNAL_H_
 #define TCOBS_INTERNAL_H_
 

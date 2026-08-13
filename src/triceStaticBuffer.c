@@ -5,7 +5,6 @@
 //! \file triceStaticBuffer.c
 //! \brief trice Static Buffer implementation.
 
-
 #include "trice.h"
 
 #if TRICE_BUFFER == TRICE_STATIC_BUFFER && TRICE_BACKEND_ACTIVE

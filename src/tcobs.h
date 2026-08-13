@@ -5,7 +5,6 @@
 //! \file tcobs.h
 //! \brief tcobs declarations and macros.
 
-
 #ifndef TCOBS_H_
 #define TCOBS_H_
 

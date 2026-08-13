@@ -5,7 +5,6 @@
 //! \file xtea.c
 //! \brief xtea implementation.
 
-
 #include "xtea.h"
 #include "trice.h"
 

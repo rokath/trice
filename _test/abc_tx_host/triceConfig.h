@@ -15,8 +15,14 @@ extern "C" {
 extern uint32_t abcTxWords[];
 extern uint32_t abcTxLength;
 
-#define TRICE_ENTER do { uint32_t* TriceBufferWritePosition = abcTxWords;
-#define TRICE_LEAVE abcTxLength = (uint32_t)((uint8_t*)TriceBufferWritePosition - (uint8_t*)abcTxWords); } while (0);
+#define TRICE_ENTER \
+	do {            \
+		uint32_t* TriceBufferWritePosition = abcTxWords;
+#define TRICE_LEAVE                                                                      \
+	abcTxLength = (uint32_t)((uint8_t*)TriceBufferWritePosition - (uint8_t*)abcTxWords); \
+	}                                                                                    \
+	while (0)                                                                            \
+		;
 
 #ifdef __cplusplus
 }

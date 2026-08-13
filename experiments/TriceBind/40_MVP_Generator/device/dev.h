@@ -10,10 +10,9 @@
 #include "trice_dev_h_KB8F7A5E5F865D5AF.h" // trice-bind: keep as last include before this file's Trice calls
 
 // primaryDevInline emits one shared and one shallow-header-specific record.
-static inline void primaryDevInline(int value)
-{
-    trice("msg:inline shared value=%d\n", value);
-    Trice("msg:inline primary value=%d\n", value);
+static inline void primaryDevInline(int value) {
+	trice("msg:inline shared value=%d\n", value);
+	Trice("msg:inline primary value=%d\n", value);
 }
 
 // primaryDevRun emits records from the matching shallow source file.

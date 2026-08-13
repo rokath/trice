@@ -36,43 +36,43 @@ static uint32_t readU32(const uint8_t* p) {
 // setBitWidthAndParamCount assigns the first resolved width and rejects later conflicts.
 // Additionally it checks for matching rx->payloadBytes and assigns paramCount.
 static int setBitWidthAndParamCount(triceRx_t* rx, uint8_t bitWidth) {
-	if (rx->bitWidth == bitWidth){
+	if (rx->bitWidth == bitWidth) {
 		return TRICE_RX_RESULT_OK; // already set and identical
 	}
 	if (rx->bitWidth != TRICE_BIT_WIDTH_UNKNOWN) {
 		return TRICE_RX_ERR_BIT_WIDTH_CONFLICT; // already set but different
-	}	
-	switch( bitWidth ){
-	case  0: 
-		if (rx->payloadBytes > 0){
+	}
+	switch (bitWidth) {
+	case 0:
+		if (rx->payloadBytes > 0) {
 			return TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 		}
 		rx->paramCount = 0;
-	break;
-	case  8:
+		break;
+	case 8:
 		rx->paramCount = rx->payloadBytes;
-	break;
-	case  16:
-		if (rx->payloadBytes & 1){
+		break;
+	case 16:
+		if (rx->payloadBytes & 1) {
 			return TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 		}
-		rx->paramCount = rx->payloadBytes>>1;
-	break;
-	case  32:
-		if (rx->payloadBytes & 3){
+		rx->paramCount = rx->payloadBytes >> 1;
+		break;
+	case 32:
+		if (rx->payloadBytes & 3) {
 			return TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 		}
-		rx->paramCount = rx->payloadBytes>>2;
-	break;
-	case  64:
-		if (rx->payloadBytes & 7){
+		rx->paramCount = rx->payloadBytes >> 2;
+		break;
+	case 64:
+		if (rx->payloadBytes & 7) {
 			return TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 		}
-		rx->paramCount = rx->payloadBytes>>3;
-	break;
+		rx->paramCount = rx->payloadBytes >> 3;
+		break;
 	default: // de-facto impossible because of generated tables
 		return TRICE_RX_ERR_INVALID_BITWIDTH_VALUE;
-	break;
+		break;
 	}
 	rx->bitWidth = bitWidth;
 	return TRICE_RX_RESULT_OK;
@@ -153,10 +153,10 @@ int TriceParseRecord(triceRx_t* rx, const uint8_t* buf, size_t len) {
 	if (len < offset + (size_t)rx->payloadBytes) {
 		return TRICE_RX_LEN_TOO_SHORT;
 	}
-	if (rx->payloadBytes > 0u){
+	if (rx->payloadBytes > 0u) {
 		rx->payload = buf + offset;
 	}
-	
+
 	return (int)(offset + (size_t)rx->payloadBytes);
 }
 
@@ -187,8 +187,7 @@ int TriceResolveLog(triceRx_t* rx, const triceLog_t* list, size_t count) {
 			if (e != TRICE_RX_RESULT_OK) {
 				return e;
 			}
-			if ((list[i].paramCount != TRICE_LOG_PARAM_COUNT_DYNAMIC) 
-			 && (list[i].paramCount != rx->paramCount)){
+			if ((list[i].paramCount != TRICE_LOG_PARAM_COUNT_DYNAMIC) && (list[i].paramCount != rx->paramCount)) {
 				return TRICE_RX_ERR_PARAM_COUNT_MISMATCH;
 			}
 			rx->paramCount = list[i].paramCount;
@@ -226,7 +225,7 @@ triceNodeFn_t fn_TriceHandleTypeX0 = 0;
 //! \brief parse, classify, and dispatch one fully decoded Trice record.
 //! \param node is a node specific struct. Set it to 0 if not needed.
 //! \param record data start
-//! \param len record byte count 
+//! \param len record byte count
 //! \retval
 static int TriceRxHandleRecord(const void* node, triceRx_t* rx, const uint8_t* record, size_t len) {
 	int used = TriceParseRecord(rx, record, len);
@@ -238,12 +237,12 @@ static int TriceRxHandleRecord(const void* node, triceRx_t* rx, const uint8_t* r
 	(void)node; // avoid [-Wunused-parameter]
 	if (TriceResolveAbc(rx, triceAbc, (size_t)triceAbcElements) == TRICE_RX_RESULT_OK) {
 		rx->abcFnHandler(rx);
-		rx->executed_logged_handled = 0x4u;	
+		rx->executed_logged_handled = 0x4u;
 	}
 #endif
 
 #if TRICE_RX_LOG_SUPPORT == 1
-	if (fn_TricePrintLog != 0 && TriceResolveLog(rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK){
+	if (fn_TricePrintLog != 0 && TriceResolveLog(rx, triceLog, (size_t)triceLogElements) == TRICE_RX_RESULT_OK) {
 		fn_TricePrintLog(node, rx);
 		rx->executed_logged_handled = 0x2;
 	}
@@ -253,11 +252,11 @@ static int TriceRxHandleRecord(const void* node, triceRx_t* rx, const uint8_t* r
 	if (fn_TriceHandleTypeX0 != 0 && rx->stampBits == TRICE_STAMP_BITS_UNKNOWN) {
 		fn_TriceHandleTypeX0(node, rx);
 		rx->executed_logged_handled = 0x1;
-	}	
+	}
 #endif
 
 #if TRICE_RX_SUPPORT == 1
-	if( fn_TricePrintIgnoredID != 0 && rx->executed_logged_handled == 0) {
+	if (fn_TricePrintIgnoredID != 0 && rx->executed_logged_handled == 0) {
 		fn_TricePrintIgnoredID(node, rx);
 	}
 #endif

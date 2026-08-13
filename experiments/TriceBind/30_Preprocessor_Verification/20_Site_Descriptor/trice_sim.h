@@ -29,30 +29,28 @@
 #define TRICE(...) TRICE_BIND_APPLY(TRICE_BIND_SITE_HERE(), __VA_ARGS__)
 #define trice(...) TRICE_BIND_APPLY(TRICE_BIND_SITE_HERE(), __VA_ARGS__)
 
-static inline const char *poc2_stamp_name(uint32_t tid)
-{
-    switch (tid & 0xF0000000u) {
-    case 0x00000000u:
-        return "id";
-    case 0x10000000u:
-        return "Id";
-    case 0x20000000u:
-        return "ID";
-    case 0xA0000000u:
-        return "iD";
-    default:
-        return "unknown";
-    }
+static inline const char* poc2_stamp_name(uint32_t tid) {
+	switch (tid & 0xF0000000u) {
+	case 0x00000000u:
+		return "id";
+	case 0x10000000u:
+		return "Id";
+	case 0x20000000u:
+		return "ID";
+	case 0xA0000000u:
+		return "iD";
+	default:
+		return "unknown";
+	}
 }
 
-static inline void poc2_emit(const char *mode, uint32_t tid, const char *format, ...)
-{
-    va_list ap;
-    printf("mode=%s stamp=%s id=%u text=", mode, poc2_stamp_name(tid), (unsigned)(tid & 0x00FFFFFFu));
-    va_start(ap, format);
-    vprintf(format, ap);
-    va_end(ap);
-    putchar('\n');
+static inline void poc2_emit(const char* mode, uint32_t tid, const char* format, ...) {
+	va_list ap;
+	printf("mode=%s stamp=%s id=%u text=", mode, poc2_stamp_name(tid), (unsigned)(tid & 0x00FFFFFFu));
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
+	putchar('\n');
 }
 
 #endif

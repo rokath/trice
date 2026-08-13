@@ -2,12 +2,12 @@
 #include "module.c.triceIDs.h"
 
 int main(void) {
-    if (TriceInit() != 0) {
-        return 1;
-    }
+	if (TriceInit() != 0) {
+		return 1;
+	}
 
-    trice("msg:Hello trice bind world\n");
+	trice("msg:Hello trice bind world\n");
 
-    TriceClose();
-    return 0;
+	TriceClose();
+	return 0;
 }

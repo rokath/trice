@@ -5,7 +5,6 @@
 //! \file triceDoubleBuffer.c
 //! \brief trice Double Buffer implementation.
 
-
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"
@@ -125,7 +124,7 @@ void TriceTransfer(void) {
 //! \li after:     ^- pStart    (is input buf or input buf + 2)
 //! \li after:     <- pLen ->   (maybe 1-3 bytes shorter)
 static int TriceNext(uint8_t** buf, size_t* pSize, const uint8_t** pStart, size_t* pLen) {
-	uint16_t const * pTID = (uint16_t*)*buf;  // lint !e826, get TID address
+	uint16_t const* pTID = (uint16_t*)*buf;  // lint !e826, get TID address
 	unsigned const TID = TRICE_TTOHS(*pTID); // type and id
 	int const triceID = (int)(0x3FFF & TID);
 	int const triceType = (int)(TID >> 14);
@@ -197,7 +196,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	uint8_t* nxt = dat;                     // This is the start of next 32-bit aligned Trices.
 	size_t encLen = 0;
 #if (TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE) && ((TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1))
-	uint8_t const * dst; // This value dst must not get > nxt to avoid overwrites.
+	uint8_t const* dst; // This value dst must not get > nxt to avoid overwrites.
 #endif
 	int triceID = 0; // This assignment is only needed to silence compiler complains about being uninitialized.
 #if TRICE_DIAGNOSTICS == 1
@@ -239,7 +238,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		memset(crypt + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 		XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
 		size_t len = (size_t)TCOBSEncode(dst, crypt, len8); // encLen is re-used here
-		dst[len++] = 0; // Add zero as package delimiter.
+		dst[len++] = 0;                                     // Add zero as package delimiter.
 		encLen += len;
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)
 		//! When XTEA enabled, (XTEA can encrypt only multiple of 8 length packages.) we need to copy th data first, because the 4 bytes
@@ -249,7 +248,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		memset((crypt) + triceNettoLen, 0, len8 - triceNettoLen); // Clear padding space.
 		XTEAEncrypt((uint32_t*)crypt, len8 >> 2);
 		size_t len = (size_t)COBSEncode(dst, crypt, len8); // encLen is re-used here
-		dst[len++] = 0; // Add zero as package delimiter.
+		dst[len++] = 0;                                    // Add zero as package delimiter.
 		encLen += len;
 #elif (TRICE_DEFERRED_XTEA_ENCRYPT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_NONE)
 #if TRICE_CONFIG_WARNINGS == 1
@@ -300,7 +299,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
        //////////////////////////////////////////////////////////////////////////////
 
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
-		dst = enc + encLen;                           // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
+		dst = enc + encLen;                                        // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
 		int const triceDataOffsetSpaceRemained = (int)(nxt - dst); // The beginning of unprocessed data MINUS next dst must not be negative.
 #endif
 #if (TRICE_PROTECT == 1)
@@ -358,7 +357,7 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	// Mostly eLen < encLen, but it could be eLen = encLen + 1 + (encLen>>5) in TCOBS worst case.
 	// dat - enc = TRICE_DATA_OFFSET
 	// if eLen > encLen, then TriceDataOffsetDepth = eLen - encLen
-	/*int*/ triceDataOffsetDepth =(int)(eLen - encLen); // usually negative
+	/*int*/ triceDataOffsetDepth = (int)(eLen - encLen); // usually negative
 	TriceDataOffsetDepthMax = triceDataOffsetDepth < TriceDataOffsetDepthMax ? TriceDataOffsetDepthMax : triceDataOffsetDepth;
 #endif
 	encLen = eLen;

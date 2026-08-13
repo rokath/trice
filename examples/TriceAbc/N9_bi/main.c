@@ -5,20 +5,20 @@
 #include <stdio.h>
 
 int main(void) {
-    node_t node;
-    unsigned loop;
+	node_t node;
+	unsigned loop;
 
-    if (nodeOpen(&node, "N9_bi", 1, 1, 0) < 0) {
-        fprintf(stderr, "N9_bi: unable to open abc.bus\n");
-        return 1;
-    }
-    node.replyStampMask = 0x0004u;
+	if (nodeOpen(&node, "N9_bi", 1, 1, 0) < 0) {
+		fprintf(stderr, "N9_bi: unable to open abc.bus\n");
+		return 1;
+	}
+	node.replyStampMask = 0x0004u;
 
-    for (loop = 0u; loop < 34u; ++loop) {
-        (void)nodePoll(&node);
-        nodeSleepMs(100u);
-    }
+	for (loop = 0u; loop < 34u; ++loop) {
+		(void)nodePoll(&node);
+		nodeSleepMs(100u);
+	}
 
-    nodeClose(&node);
-    return 0;
+	nodeClose(&node);
+	return 0;
 }

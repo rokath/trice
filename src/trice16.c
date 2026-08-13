@@ -5,7 +5,6 @@
 //! \file trice16.c
 //! \brief trice 16 implementation.
 
-
 #include "trice.h"
 
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced

@@ -11,10 +11,9 @@
 #include "trice_device_dev_h_F1010101010101010.h" // trice-bind
 
 // primaryDevInline emits one shared and one file-specific header log record.
-static inline void primaryDevInline(int value)
-{
-    trice("msg:inline shared value=%d\n", value);
-    trice("msg:inline primary value=%d\n", value);
+static inline void primaryDevInline(int value) {
+	trice("msg:inline shared value=%d\n", value);
+	trice("msg:inline primary value=%d\n", value);
 }
 
 // primaryDevRun emits records from the matching source file.

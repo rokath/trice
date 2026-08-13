@@ -34,36 +34,36 @@ extern "C" {
 #define _DISPATCH_EXPAND(name, N) _DISPATCH_IMPL(name, N)
 
 // Build an assertion message without a user-provided format string.
-#define ASSERT_MESSAGE_HELPER(out_var, condition_str, file_path, line_number)    \
-	char full_msg[512];                                                          \
-	npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s\n",             \
-	             FILENAME(file_path), line_number, condition_str);               \
+#define ASSERT_MESSAGE_HELPER(out_var, condition_str, file_path, line_number) \
+	char full_msg[512];                                                       \
+	npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s\n",          \
+	             FILENAME(file_path), line_number, condition_str);            \
 	char* out_var = full_msg
 
 // Build an assertion message from a mandatory format string and optional values.
 // The format string is part of __VA_ARGS__, so the variadic list is never empty.
 #define ASSERT_FORMATTED_MESSAGE_HELPER(out_var, condition_str, file_path, line_number, ...) \
-	char user_msg[256];                                                                       \
-	npf_snprintf(user_msg, sizeof(user_msg), __VA_ARGS__);                                     \
-	char full_msg[512];                                                                       \
-	npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s -> %s\n",                    \
-	             FILENAME(file_path), line_number, condition_str, user_msg);                  \
+	char user_msg[256];                                                                      \
+	npf_snprintf(user_msg, sizeof(user_msg), __VA_ARGS__);                                   \
+	char full_msg[512];                                                                      \
+	npf_snprintf(full_msg, sizeof(full_msg), "[ASSERT] %s:%d: %s -> %s\n",                   \
+	             FILENAME(file_path), line_number, condition_str, user_msg);                 \
 	char* out_var = full_msg
 
-#define CUSTOM_ASSERT_IMPL(id, condition, condition_str, file, line)         \
-	do {                                                                     \
-		if (!(condition)) {                                                  \
-			ASSERT_MESSAGE_HELPER(assert_msg, condition_str, file, line);    \
-			TRICE_INSERT_triceS(id, "%s", assert_msg);                       \
-		}                                                                    \
+#define CUSTOM_ASSERT_IMPL(id, condition, condition_str, file, line)      \
+	do {                                                                  \
+		if (!(condition)) {                                               \
+			ASSERT_MESSAGE_HELPER(assert_msg, condition_str, file, line); \
+			TRICE_INSERT_triceS(id, "%s", assert_msg);                    \
+		}                                                                 \
 	} while (0)
 
-#define CUSTOM_ASSERT_FORMAT_IMPL(id, condition, condition_str, file, line, ...)         \
-	do {                                                                                 \
-		if (!(condition)) {                                                              \
+#define CUSTOM_ASSERT_FORMAT_IMPL(id, condition, condition_str, file, line, ...)                 \
+	do {                                                                                         \
+		if (!(condition)) {                                                                      \
 			ASSERT_FORMATTED_MESSAGE_HELPER(assert_msg, condition_str, file, line, __VA_ARGS__); \
-			TRICE_INSERT_triceS(id, "%s", assert_msg);                                   \
-		}                                                                                \
+			TRICE_INSERT_triceS(id, "%s", assert_msg);                                           \
+		}                                                                                        \
 	} while (0)
 
 #define CUSTOM_PRINT(id, ...) trice(id, __VA_ARGS__)

@@ -10,10 +10,9 @@
 #include "trice_dev_h_KF740E4CA1ED0340D.h" // trice-bind: keep as last include before this file's Trice calls
 
 // secondaryDevInline repeats the shared format and adds a deep-specific record.
-static inline void secondaryDevInline(int value)
-{
-    trice("msg:inline shared value=%d\n", value);
-    TRice("msg:inline secondary value=%d\n", value);
+static inline void secondaryDevInline(int value) {
+	trice("msg:inline shared value=%d\n", value);
+	TRice("msg:inline secondary value=%d\n", value);
 }
 
 // secondaryDevRun emits records from the matching deep source file.
