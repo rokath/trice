@@ -252,6 +252,10 @@ trice_test_prepare_workflow() {
   local workflow="$1"
 
   trice_state_log "Prepared ID state requested: $workflow"
+  # Bound source ownership is versioned while BindDir is generated and may be
+  # absent or stale after a checkout. Refresh it transactionally before asking
+  # re-migration to validate descriptor and location line numbers.
+  trice_state_run_command "$TRICE_STATE_ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || return 1
   trice_state_run_command "$TRICE_STATE_ROOT/trice_remigrateBindToClean_in_examples_and_test_folder.sh" || return 1
   trice_state_run_command "$TRICE_STATE_ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || return 1
   case "$workflow" in

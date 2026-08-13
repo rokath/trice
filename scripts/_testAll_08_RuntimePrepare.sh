@@ -52,6 +52,13 @@ main() {
     log "FAIL: renew IDs failed"
     exit 1
   }
+  # The renewal helper intentionally finishes Clean after rebuilding the ID
+  # lists. Keep the repository fixtures in their canonical Bind state for all
+  # following test steps and for the state restored when testAll finishes.
+  run_cmd "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || {
+    log "FAIL: restoring canonical Bind state failed"
+    exit 1
+  }
 }
 
 main "$@"

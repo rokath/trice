@@ -37,6 +37,32 @@ static int Test_TRiceAssertOrReturnValue(int flag);
 
 void TriceCheck(int index); // Avoid noise with option -Wmissing-prototypes.
 
+//! LOG_ERROR_EXAMPLE demonstrates a logging statement macro.
+#define LOG_ERROR_EXAMPLE(n)                                  \
+	do {                                                    \
+		switch (n) {                                     \
+		case 0:                                          \
+			break;                                     \
+		case 7:                                          \
+			trice("err:file not found (error code 7)"); \
+			break;                                     \
+		default:                                          \
+			trice("err:unknown error code %d\n", n);   \
+		}                                                   \
+	} while (0)
+
+//! LogErrorExample demonstrates the equivalent function implementation.
+static void LogErrorExample(int n) {
+	switch (n) {
+	case 0:
+		break;
+	case 7:
+		trice("err:file not found (error code 7)");
+		break;
+	default:
+		trice("err:unknown error code %d\n", n);
+	}
+}
 //! TriceCheck performs trice code sequence n. TriceCheck writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -183,33 +209,59 @@ void TriceCheck(int index) {
         break; case __LINE__: Test_triceAssertOrReturnValue(0); //exp: "time:        default: ASSERT:flag not true!\n"
         break; case __LINE__: Test_TriceAssertOrReturnValue(0); //exp: "time:    be16default: ASSERT:flag not true!\n"
         break; case __LINE__: Test_TRiceAssertOrReturnValue(0); //exp: "time:feed3322default: ASSERT:flag not true!\n"
-        
-        // The following asserts are expected to be silent, so we add some output just for the testing here.
-        break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: triceAssert("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TriceAssert("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TRiceAssert("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", 0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", 0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", 0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
 
-        break; case __LINE__: triceAssertOrReturn("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TriceAssertOrReturn("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
-        break; case __LINE__: TRiceAssertOrReturn("ASSERT:flag not true!\n", !0 ); //exp: "time:feed3322default: ok\n"
-            TRice("ok\n");
+#include "trice_triceCheck_c_KE43C28474024C67C_R0_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R0
+        break; case __LINE__: LOG_ERROR_EXAMPLE(0); //exp: ""
+#include "trice_triceCheck_c_KE43C28474024C67C_R0_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R0
+#include "trice_triceCheck_c_KE43C28474024C67C_R1_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R1
+		break; case __LINE__: LOG_ERROR_EXAMPLE(7); //exp: "time:        default: err:file not found (error code 7)\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R1_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R1
+#include "trice_triceCheck_c_KE43C28474024C67C_R2_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R2
+		break; case __LINE__: LOG_ERROR_EXAMPLE(9); //exp: "time:        default: err:unknown error code 9\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R2_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R2
+
+        break; case __LINE__: LogErrorExample(0); //exp: ""
+		break; case __LINE__: LogErrorExample(7); //exp: "time:        default: err:file not found (error code 7)\n"
+		break; case __LINE__: LogErrorExample(9); //exp: "time:        default: err:unknown error code 9\n"
+
+        // The following asserts are expected to be silent, so we add some output just for the testing here.
+#include "trice_triceCheck_c_KE43C28474024C67C_R3_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R3
+        break; case __LINE__: triceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R3_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R3
+#include "trice_triceCheck_c_KE43C28474024C67C_R4_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R4
+        break; case __LINE__: TriceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R4_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R4
+#include "trice_triceCheck_c_KE43C28474024C67C_R5_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R5
+        break; case __LINE__: TRiceAssertTrue("ASSERT:flag not true!\n", !0 );  TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R5_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R5
+#include "trice_triceCheck_c_KE43C28474024C67C_R6_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R6
+        break; case __LINE__: triceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R6_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R6
+#include "trice_triceCheck_c_KE43C28474024C67C_R7_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R7
+        break; case __LINE__: TriceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R7_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R7
+#include "trice_triceCheck_c_KE43C28474024C67C_R8_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R8
+        break; case __LINE__: TRiceAssert("ASSERT:flag not true!\n", !0 );  TRice("ok\n");     //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R8_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R8
+#include "trice_triceCheck_c_KE43C28474024C67C_R9_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R9
+        break; case __LINE__: triceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R9_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R9
+#include "trice_triceCheck_c_KE43C28474024C67C_R10_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R10
+        break; case __LINE__: TriceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R10_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R10
+#include "trice_triceCheck_c_KE43C28474024C67C_R11_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R11
+        break; case __LINE__: TRiceAssertFalse("ASSERT:flag not false!\n", 0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R11_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R11
+
+#include "trice_triceCheck_c_KE43C28474024C67C_R12_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R12
+        break; case __LINE__: triceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R12_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R12
+#include "trice_triceCheck_c_KE43C28474024C67C_R13_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R13
+        break; case __LINE__: TriceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R13_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R13
+#include "trice_triceCheck_c_KE43C28474024C67C_R14_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R14
+        break; case __LINE__: TRiceAssertOrReturn("ASSERT:flag not true!\n", !0 ); TRice("ok\n"); //exp: "time:feed3322default: ok\n"
+#include "trice_triceCheck_c_KE43C28474024C67C_R14_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R14
 
         break; case __LINE__: if(Test_triceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         break; case __LINE__: if(Test_TriceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
@@ -2213,12 +2265,12 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
                 trice("e:7");
                 trice("m:12");
                 trice("m:123\n");
-                trice("e:A");
-                trice("w:B");
-                trice("a:c");
-                trice("wr:d");
-                trice("rd:e\n");
-                trice("diag:f");
+#include "trice_triceCheck_c_KE43C28474024C67C_R15_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R15
+                trice("e:A"); trice("w:B"); trice("a:c");
+#include "trice_triceCheck_c_KE43C28474024C67C_R15_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R15
+#include "trice_triceCheck_c_KE43C28474024C67C_R16_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R16
+                trice("wr:d"); trice("rd:e\n"); trice("diag:f");
+#include "trice_triceCheck_c_KE43C28474024C67C_R16_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R16
         }
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
         break; case __LINE__: trice("sig:TRICE8 with variable param count 1 to 12\n" );
@@ -2715,32 +2767,61 @@ static int64_t DoubleToInt64(double f) {
 	return -(int64_t)-f;
 }
 
-// logCopySize keeps serialization diagnostics at fixed source sites so insert
-// and bind assign one stable pair of IDs to every copy operation.
-static inline void logCopySize(char const* name, size_t size) {
-	TRICE_S(ID(0), "rd:sizeof(%8s)", name);
-	TRICE(ID(0), " = %d\n", size);
+#endif
+
+//! Variant 1: SCOPY keeps copying and logging in a statement macro with data stringification and a replacement-owned semicolon.
+#define SCOPY(element)                            \
+	do {                                          \
+		char const* n_SCOPY = #element;           \
+		size_t size_SCOPY = sizeof(src->element); \
+		memcpy(p, &(src->element), size_SCOPY);   \
+		p += size_SCOPY;                          \
+		triceS("rd:sizeof(%8s)", n_SCOPY);        \
+		trice(" = %d\n", size_SCOPY);             \
+	} while (0);
+
+//! Variant 1: DCOPY is the equivalent deserialization statement macro.
+#define DCOPY(element)                            \
+	do {                                          \
+		char const* n_DCOPY = #element;           \
+		size_t size_DCOPY = sizeof(dst->element); \
+		memcpy(&(dst->element), p, size_DCOPY);   \
+		p += size_DCOPY;                          \
+		triceS("rd:sizeof(%8s)", n_DCOPY);        \
+		trice(" = %d\n", size_DCOPY);             \
+	} while (0);
+
+#if !TRICE_OFF
+
+//! Variant 2: sCopyField implements serialization and logging as a normal inline function.
+static inline char* sCopyField(char* p, void const* field, size_t size, char const* name) {
+	memcpy(p, field, size);
+	triceS("rd:sizeof(%8s)", name);
+	trice(" = %d\n", size);
+	return p + size;
+}
+
+//! Variant 2: dCopyField implements deserialization and logging as a normal inline function.
+static inline char const* dCopyField(char const* p, void* field, size_t size, char const* name) {
+	memcpy(field, p, size);
+	triceS("rd:sizeof(%8s)", name);
+	trice(" = %d\n", size);
+	return p + size;
 }
 
 #endif
 
-//! SCOPY is a helper macro for struct serialization.
-#define SCOPY(element)                            \
-	do {                                          \
-		size_t size_SCOPY = sizeof(src->element); \
-		memcpy(p, &(src->element), size_SCOPY);   \
-		p += size_SCOPY;                          \
-		logCopySize(#element, size_SCOPY);        \
-	} while (0);
+//! Variant 3: SCOPY_VIA_FUNCTION retains token convenience while keeping Trice calls in the function.
+#define SCOPY_VIA_FUNCTION(element)                                         \
+	do {                                                                    \
+		p = sCopyField(p, &(src->element), sizeof(src->element), #element); \
+	} while (0)
 
-//! DCOPY is a helper macro for struct deserialization.
-#define DCOPY(element)                            \
-	do {                                          \
-		size_t size_DCOPY = sizeof(dst->element); \
-		memcpy(&(dst->element), p, size_DCOPY);   \
-		p += size_DCOPY;                          \
-		logCopySize(#element, size_DCOPY);        \
-	} while (0);
+//! Variant 3: DCOPY_VIA_FUNCTION retains token convenience while keeping Trice calls in the function.
+#define DCOPY_VIA_FUNCTION(element)                                         \
+	do {                                                                    \
+		p = dCopyField(p, &(dst->element), sizeof(dst->element), #element); \
+	} while (0)
 
 typedef struct {
 	float x;
@@ -2754,9 +2835,11 @@ typedef struct {
 static int serializePoint(char* dst, const Point_t* src) {
 	char* p = dst;
 
-	SCOPY(x)
-	SCOPY(y)
-	SCOPY(rgb)
+#include "trice_triceCheck_c_KE43C28474024C67C_R17_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R17
+	SCOPY(x)                                                // Variant 1: logging statement macro.
+#include "trice_triceCheck_c_KE43C28474024C67C_R17_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R17
+	p = sCopyField(p, &src->y, sizeof(src->y), "y");        // Variant 2: direct inline-function call.
+	SCOPY_VIA_FUNCTION(rgb);                                // Variant 3: Trice-free convenience macro.
 
 	return (int)(p - dst);
 }
@@ -2764,9 +2847,11 @@ static int serializePoint(char* dst, const Point_t* src) {
 static int deserializePoint(Point_t* const dst, const char* src) {
 	char const* p = src;
 
-	DCOPY(x)
-	DCOPY(y)
-	DCOPY(rgb)
+#include "trice_triceCheck_c_KE43C28474024C67C_R18_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R18
+	DCOPY(x)                                                // Variant 1: logging statement macro.
+#include "trice_triceCheck_c_KE43C28474024C67C_R18_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R18
+	p = dCopyField(p, &dst->y, sizeof(dst->y), "y");        // Variant 2: direct inline-function call.
+	DCOPY_VIA_FUNCTION(rgb);                                // Variant 3: Trice-free convenience macro.
 
 	return (int)(p - src);
 }
@@ -2790,15 +2875,31 @@ typedef struct {
 static int serializeTryout(char* dst, const Tryout_t* src) {
 	char* p = dst;
 
+#include "trice_triceCheck_c_KE43C28474024C67C_R19_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R19
 	SCOPY(z)
+#include "trice_triceCheck_c_KE43C28474024C67C_R19_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R19
+#include "trice_triceCheck_c_KE43C28474024C67C_R20_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R20
 	SCOPY(u)
+#include "trice_triceCheck_c_KE43C28474024C67C_R20_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R20
+#include "trice_triceCheck_c_KE43C28474024C67C_R21_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R21
 	SCOPY(s)
+#include "trice_triceCheck_c_KE43C28474024C67C_R21_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R21
+#include "trice_triceCheck_c_KE43C28474024C67C_R22_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R22
 	SCOPY(addr)
+#include "trice_triceCheck_c_KE43C28474024C67C_R22_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R22
+#include "trice_triceCheck_c_KE43C28474024C67C_R23_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R23
 	SCOPY(x)
+#include "trice_triceCheck_c_KE43C28474024C67C_R23_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R23
+#include "trice_triceCheck_c_KE43C28474024C67C_R24_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R24
 	SCOPY(y)
+#include "trice_triceCheck_c_KE43C28474024C67C_R24_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R24
+#include "trice_triceCheck_c_KE43C28474024C67C_R25_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R25
 	SCOPY(names)
+#include "trice_triceCheck_c_KE43C28474024C67C_R25_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R25
 	p += serializePoint(p, src->point);
+#include "trice_triceCheck_c_KE43C28474024C67C_R26_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R26
 	SCOPY(bitmask)
+#include "trice_triceCheck_c_KE43C28474024C67C_R26_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R26
 
 	return (int)(p - dst);
 }
@@ -2806,15 +2907,31 @@ static int serializeTryout(char* dst, const Tryout_t* src) {
 static int deserializeTryout(Tryout_t* const dst, const char* src) {
 	char const* p = src;
 
+#include "trice_triceCheck_c_KE43C28474024C67C_R27_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R27
 	DCOPY(z)
+#include "trice_triceCheck_c_KE43C28474024C67C_R27_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R27
+#include "trice_triceCheck_c_KE43C28474024C67C_R28_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R28
 	DCOPY(u)
+#include "trice_triceCheck_c_KE43C28474024C67C_R28_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R28
+#include "trice_triceCheck_c_KE43C28474024C67C_R29_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R29
 	DCOPY(s)
+#include "trice_triceCheck_c_KE43C28474024C67C_R29_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R29
+#include "trice_triceCheck_c_KE43C28474024C67C_R30_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R30
 	DCOPY(addr)
+#include "trice_triceCheck_c_KE43C28474024C67C_R30_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R30
+#include "trice_triceCheck_c_KE43C28474024C67C_R31_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R31
 	DCOPY(x)
+#include "trice_triceCheck_c_KE43C28474024C67C_R31_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R31
+#include "trice_triceCheck_c_KE43C28474024C67C_R32_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R32
 	DCOPY(y)
+#include "trice_triceCheck_c_KE43C28474024C67C_R32_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R32
+#include "trice_triceCheck_c_KE43C28474024C67C_R33_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R33
 	DCOPY(names)
+#include "trice_triceCheck_c_KE43C28474024C67C_R33_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R33
 	p += deserializePoint(dst->point, p);
+#include "trice_triceCheck_c_KE43C28474024C67C_R34_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R34
 	DCOPY(bitmask)
+#include "trice_triceCheck_c_KE43C28474024C67C_R34_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R34
 
 	return (int)(p - src);
 }
@@ -2877,10 +2994,10 @@ static void exampleOfManualSerialization(void) {
 
 	TRICE(Id(0), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
 
-        #if TRICE_LEGACY_RPC_SUPPORT == 1
+#if TRICE_LEGACY_RPC_SUPPORT == 1
 	TRICE8_F(Id(0), "info:TryoutStructFunction", &tx, sizeof(tx));
 	TRICE8_F(Id(0), "info:TryoutBufferFunction", dst, len); // lint !e670
-        #endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
+#endif                                                      // #if TRICE_LEGACY_RPC_SUPPORT == 1
 }
 
 static void exampleOfManualJSONencoding(void) {
@@ -2904,21 +3021,21 @@ static void dynString(int n) {
 }
 
 static int Test_triceAssertOrReturnValue(int flag) {
-    triceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
+	triceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
 
-    return 1;
+	return 1;
 }
 
 static int Test_TriceAssertOrReturnValue(int flag) {
-    TriceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
+	TriceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
 
-    return 1;
+	return 1;
 }
 
 static int Test_TRiceAssertOrReturnValue(int flag) {
-    TRiceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
+	TRiceAssertOrReturnValue("ASSERT:flag not true!\n", flag != 0, 0);
 
-    return 1;
+	return 1;
 }
 
 #endif // #ifndef TRICE_CHECK_MIN
