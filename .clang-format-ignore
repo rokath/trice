@@ -54,6 +54,12 @@ examples/*_bare/**
 # STM32 HAL driver code is machine-generated and should not be modified.
 examples/*_inst/Drivers/**
 
+# 3) Ignore every vendor middleware tree below ./examples/.
+#
+# These directories contain third-party sources such as FreeRTOS and must stay
+# byte-identical to the versions supplied by their vendors.
+examples/**/Middlewares/**
+
 
 
 ###############################################################################
