@@ -97,14 +97,15 @@ Dauerhaft und normalerweise versioniert sind:
 - `til.json`,
 - `li.json`,
 - die von `trice bind` eingefügten Sidecar-Include-Zeilen,
-- bei counter-pflichtigen Konstruktionen die eindeutig markierten generierten Rebase-Blöcke in der Source- oder Headerdatei.
+- bei counter-pflichtigen Konstruktionen je eine eindeutig markierte Begin- und End-Include-Zeile in der Source- oder Headerdatei.
 
 Generiert und normalerweise nicht versioniert sind:
 
-- die Sidecars unter `./build/triceIDs`,
+- die Besitzer-Sidecars unter `./build/triceIDs`,
+- die dort liegenden Rebase-Hilfsheader mit den Suffixen `_begin.h` und `_end.h`,
 - sonstige normale Buildartefakte.
 
-Die Include-Zeile speichert den stabilen File Key. Der Sidecar selbst kann jederzeit neu erzeugt werden. Rebase-Blöcke werden bei jedem Bind-Lauf validiert, entfernt und aus der aktuellen Sourceanalyse neu erzeugt; sie dürfen nicht manuell verschoben oder teilweise editiert werden.
+Die Besitzer-Include-Zeile speichert den stabilen File Key. Der Sidecar und die Rebase-Hilfsheader können jederzeit durch `trice bind` neu erzeugt werden. Rebase-Include-Paare werden bei jedem Bind-Lauf validiert, entfernt und aus der aktuellen Sourceanalyse neu erzeugt; sie dürfen nicht manuell verschoben, umbenannt oder teilweise editiert werden.
 
 ## 5. File Key und Sidecar-Name
 
@@ -198,6 +199,8 @@ static inline void moduleCheck(int value)
 ```
 
 Alle Translation Units verwenden für diese textuelle Headerstelle dieselbe stabile ID.
+
+Für wiederverwendbare Logging-Helfer mit mehreren Trice-Stellen ist eine `static inline`-Funktion normalerweise günstiger als ein Präprozessormakro. Ihre Trice-Stellen können den normalen Datei-und-Zeile-Pfad verwenden und benötigen deshalb keine Rebase-Includes pro Aufrufstelle. Abschnitt 17.4 zeigt die empfohlene Umsetzung und die semantischen Unterschiede.
 
 Nach dem Header-Include aktiviert die `.c`-Datei mit ihrem eigenen Sidecar wieder ihren eigenen File Key.
 
@@ -402,9 +405,9 @@ Ein erneutes `trice bind` setzt eine vorhandene Definition wieder auf `0` und ak
 
 ## 16. Re-Migration zu `trice insert`
 
-Ein öffentliches Re-Migrationssubkommando gehört weiterhin nicht zum normalen Userworkflow. Das Repository-Hilfsskript für den Wechsel zurück zum Clean-Zustand verwendet jedoch dieselbe validierte Bind-Remigration wie die Tests. Sie entfernt vollständige generierte Rebase-Blöcke, Sidecar-Includes und Sidecars gemeinsam und korrigiert die betroffenen Zeilen in `li.json`.
+Ein öffentliches Re-Migrationssubkommando gehört weiterhin nicht zum normalen Userworkflow. Das Repository-Hilfsskript für den Wechsel zurück zum Clean-Zustand verwendet jedoch dieselbe validierte Bind-Remigration wie die Tests. Sie entfernt vollständige Rebase-Include-Paare, ihre Hilfsheader, Sidecar-Includes und Besitzer-Sidecars gemeinsam und korrigiert die betroffenen Zeilen in `li.json`.
 
-Wer den Rückweg manuell ausführt, muss alle zusammengehörigen Artefakte entfernen und darf keinen halben Begin-/End-Block stehen lassen. Anschließend folgt der bisherige Ablauf:
+Wer den Rückweg manuell ausführt, muss alle zusammengehörigen Artefakte entfernen und darf keine einzelne Begin- oder End-Include-Zeile stehen lassen. Anschließend folgt der bisherige Ablauf:
 
 ```text
 trice insert
@@ -430,7 +433,7 @@ Eindeutige Stellen verwenden weiterhin ausschließlich File Key und `__LINE__`. 
 - Trice-Aufrufe in normalen, `inline`- und `static inline`-Funktionen,
 - ein Statement-Wrapper mit genau einer inneren Trice-Stelle, wenn seine Aufrufe zeilenweise eindeutig sind.
 
-Solche Source- und Headerdateien erhalten keinen Counter-Guard und keine Rebase-Blöcke. Ein Compiler ohne `__COUNTER__` kann sie wie bisher bauen.
+Solche Source- und Headerdateien erhalten keinen Counter-Guard, keine Rebase-Grenzen und keine Rebase-Hilfsheader. Ein Compiler ohne `__COUNTER__` kann sie wie bisher bauen.
 
 ### 17.2 Wann `trice bind` lokal rebased
 
@@ -440,7 +443,22 @@ Ein lokaler Rebase wird automatisch nur dort erzeugt, wo Datei und Zeile eine Ex
 trice("msg:first\n"); trice("msg:second\n"); trice("msg:third\n");
 ```
 
-Das gilt außerdem für Wrapper mit mehreren inneren Trice-Stellen und für mehrere Wrapperaufrufe auf derselben physischen Zeile. Vor der kleinsten sicher umschließbaren Statement-Zeile erfasst der generierte Code einen lokalen Counter-Basiswert. Nach der Zeile wird der normale Bind-Pfad wiederhergestellt. Früherer Counterverbrauch in derselben Translation Unit ist dadurch bedeutungslos.
+Das gilt außerdem für Wrapper mit mehreren inneren Trice-Stellen, für mehrere Wrapperaufrufe auf derselben physischen Zeile und für einen über mehrere Zeilen geschriebenen Wrapperaufruf. Vor dem kleinsten sicher umschließbaren Bereich erfasst der generierte Code einen lokalen Counter-Basiswert. Unmittelbar danach wird der normale Bind-Pfad wiederhergestellt. Früherer Counterverbrauch in derselben Translation Unit ist dadurch bedeutungslos.
+
+Der kleinste Bereich ist normalerweise genau eine physische Quellzeile. Zwei unabhängige benachbarte Zeilen werden bewusst nicht zu einem gemeinsamen Rebase zusammengefasst. Ein größerer Bereich würde zwar Include-Zeilen einsparen, könnte aber auch fremde Makroexpansionen, bedingte Übersetzung oder eine zusätzliche indirekte `__COUNTER__`-Verwendung einschließen. Damit würde eine lokale Änderung unnötig mehrere Logstellen beeinflussen.
+
+Eine notwendige Ausnahme ist ein einzelner, syntaktisch zusammengehöriger Wrapperaufruf, dessen Argumentliste über mehrere physische Zeilen reicht:
+
+```c
+LOG_ERROR(
+    determineErrorCode(
+        fileHandle,
+        operation
+    )
+);
+```
+
+Eine Präprozessordirektive wie `#include` muss auf einer eigenen physischen Zeile stehen und darf nicht mitten in die noch offene Argumentliste eingefügt werden. Deshalb umfasst der minimale Rebase in diesem Fall den vollständigen Aufruf vom Makronamen bis zum abschließenden Semikolon. Das ist kein Zusammenfassen unabhängiger Anweisungen, sondern die kleinste syntaktisch mögliche Klammerung eines einzigen Aufrufs.
 
 ### 17.3 Konkretes Wrapperbeispiel
 
@@ -472,49 +490,123 @@ Die beiden Trice-Stellen in `LOG_ERROR` erhalten insgesamt zwei stabile IDs. Die
 
 `li.json` zeigt für beide IDs auf die jeweilige innere Definitionsstelle des Makros. Die Aufrufstellen besitzen nur generierte Auswahlbeschreibungen.
 
-### 17.4 Header und Translation Units
+### 17.4 Bevorzugte Form: normale oder `static inline`-Funktion
+
+Wenn ein Logging-Helfer keine echte Präprozessorfunktion benötigt, sollte er vorzugsweise als normale oder `static inline`-Funktion geschrieben werden. Für das vorherige Beispiel lautet die empfohlene Form:
+
+```c
+static inline void logError(int value)
+{
+    switch (value) {
+    case 0:
+        break;
+    case 7:
+        trice("cannot open file\n");
+        break;
+    default:
+        trice("error=%d", 8);
+        break;
+    }
+}
+
+void report(int status)
+{
+    logError(status);
+    logError(7);
+    logError(8);
+}
+```
+
+Die beiden Trice-Aufrufe stehen hier auf zwei eindeutigen physischen Zeilen innerhalb der Funktion. Sie verwenden den normalen File-Key-plus-`__LINE__`-Pfad. Die drei Aufrufstellen von `logError` benötigen weder lokale Counter-Scopes noch zusätzliche Begin-/End-Includes. Damit werden die von `trice bind` vorgenommenen Source-Insertionen und die Anzahl generierter Rebase-Hilfsheader minimiert. Auch ein Targetcompiler ohne `__COUNTER__` kann diese Konstruktion übersetzen.
+
+`static inline` bedeutet nicht, dass zwingend ein Funktionsaufruf zur Laufzeit entsteht. Übliche C- und C++-Compiler können die Funktion abhängig von Optimierung, Größe und Zielarchitektur direkt an der Aufrufstelle einfügen. Ob sie tatsächlich inlinen, bleibt eine Compilerentscheidung; die stabile Trice-ID hängt davon nicht ab.
+
+Bei einer Definition in einer Headerdatei gehört der Sidecar zum Header. Alle Translation Units verwenden dieselben beiden textuellen Trice-Stellen und damit dieselben stabilen IDs. Bei einer Definition in einer `.c`-Datei bleiben die Stellen entsprechend Eigentum dieser `.c`-Datei.
+
+Beim Umstellen eines Makros auf eine Funktion sind die normalen C/C++-Unterschiede zu beachten:
+
+- Funktionsargumente werden genau einmal ausgewertet und typgeprüft.
+- Ein Makro kann bewusst Tokens, Typnamen oder Compile-Time-Konfiguration verarbeiten; eine Funktion kann das nicht in jedem Fall ersetzen.
+- `return`, `break` oder lokale Deklarationen mit beabsichtigter Wirkung im aufrufenden Kontext dürfen nicht unbesehen aus einem Makro in eine Funktion übertragen werden.
+- Wenn die Aufrufstelle selbst als Log-Metadatum benötigt wird, verschiebt eine Funktion die Trice-Stelle definitionsgemäß in ihren eigenen Funktionskörper.
+
+Für gewöhnliche Helfer wie `LOG_ERROR(value)`, die lediglich anhand eines Wertes mehrere feste Trice-Meldungen auswählen, ist `static inline` die robusteste und einfachste Form. Ein Logging-Makro mit mehreren inneren Trices sollte nur verwendet werden, wenn seine Präprozessorsemantik tatsächlich erforderlich ist.
+
+### 17.5 Header und Translation Units
 
 Ist `LOG_ERROR` in `logging.h` definiert und wird aus mehreren `.c`-Dateien aufgerufen, bleiben seine Definitions-IDs in allen Translation Units identisch. Der Rebase für den Aufruf liegt in der jeweils aufrufenden Datei.
 
 Liegt dagegen der Wrapperaufruf oder eine Zeile mit mehreren direkten Trices selbst in einem Header, liegt auch der Rebase im Header. Dann benötigt jede Translation Unit, die genau diesen Headerbereich verarbeitet, `__COUNTER__`. Unbeteiligte Dateien und gewöhnliche Header werden dadurch nicht counter-abhängig. Der lokale Basiswert macht es unerheblich, wie viele Counterwerte vor dem Header verbraucht wurden.
 
-### 17.5 Generierte Sourceblöcke
+### 17.6 Kompakte Sourcegrenzen und generierte Hilfsheader
 
-Eine betroffene Zeile wird durch eindeutig markierte Blöcke umschlossen, schematisch:
+Eine betroffene einzeilige Anweisung wird durch genau zwei eindeutig markierte Include-Zeilen umschlossen:
 
 ```c
-/* trice-bind: generated rebase begin K73A915E9C4021B8_R0 */
-/* ... generierte Scope-Definitionen und Sidecar-Include ... */
-/* trice-bind: generated rebase block end */
+#include "trice_module_c_K73A915E9C4021B8_R0_begin.h" // trice-bind: generated rebase begin K73A915E9C4021B8_R0
 trice("first"); trice("second");
-/* trice-bind: generated rebase end K73A915E9C4021B8_R0 */
-/* ... generierter Sidecar-Include und Cleanup ... */
-/* trice-bind: generated rebase block end */
+#include "trice_module_c_K73A915E9C4021B8_R0_end.h" // trice-bind: generated rebase end K73A915E9C4021B8_R0
 ```
 
-Diese Blöcke sind Generatorartefakte. Sie dürfen nicht verschoben, geteilt oder teilweise gelöscht werden. Nach relevanten Sourceänderungen muss erneut `trice bind` laufen; der Generator aktualisiert Marker, Deskriptoren, IDs und Location Information transaktional.
+Aus einer betroffenen Userzeile werden damit drei Sourcezeilen. Die früher direkt in der Source sichtbaren Scope-Definitionen, Phasenmakros und Aufräumanweisungen liegen vollständig in den beiden generierten Hilfsheadern unter `./build/triceIDs`. Die Begin-Datei erfasst die lokale Counterbasis und aktiviert die passende Auswahlbeschreibung. Die End-Datei prüft die verbrauchte Counteranzahl und stellt den normalen Bind-Pfad wieder her.
 
-### 17.6 Fehlendes `__COUNTER__`
+Zwei unabhängige Zeilen bleiben zwei unabhängige Bereiche:
+
+```c
+#include "trice_module_c_K73A915E9C4021B8_R0_begin.h" // trice-bind: generated rebase begin K73A915E9C4021B8_R0
+trice("first"); trice("second");
+#include "trice_module_c_K73A915E9C4021B8_R0_end.h" // trice-bind: generated rebase end K73A915E9C4021B8_R0
+#include "trice_module_c_K73A915E9C4021B8_R1_begin.h" // trice-bind: generated rebase begin K73A915E9C4021B8_R1
+trice("third"); trice("fourth");
+#include "trice_module_c_K73A915E9C4021B8_R1_end.h" // trice-bind: generated rebase end K73A915E9C4021B8_R1
+```
+
+`trice bind` fasst diese Zeilen auch dann nicht zusammen, wenn sie unmittelbar aufeinanderfolgen. Der Gewinn von zwei eingesparten Include-Zeilen rechtfertigt nicht den vergrößerten Counter-Einflussbereich. Insbesondere soll ein fremdes Makro zwischen zwei Logzeilen niemals die Zuordnung beider Zeilen gemeinsam gefährden.
+
+Ein einzelner mehrzeiliger Wrapperaufruf wird dagegen als eine syntaktische Einheit umfasst:
+
+```c
+#include "trice_module_c_K73A915E9C4021B8_R2_begin.h" // trice-bind: generated rebase begin K73A915E9C4021B8_R2
+LOG_ERROR(
+    determineErrorCode(
+        fileHandle,
+        operation
+    )
+);
+#include "trice_module_c_K73A915E9C4021B8_R2_end.h" // trice-bind: generated rebase end K73A915E9C4021B8_R2
+```
+
+Die Grenze steht vor der ersten Zeile des Aufrufs und nach der Zeile mit seinem Semikolon. Innerhalb der offenen Argumentliste wird keine Direktive eingefügt. Enthält dieser minimale Bereich selbst eine Präprozessordirektive, eine zusätzliche nicht zuordenbare Trice-Stelle auf einer Grenzzeile oder eine nicht sicher begrenzbare `__COUNTER__`-Expansion, lehnt `trice bind` die Stelle ab und verändert keine regulären Ausgabedateien.
+
+Ein Rebase über eine ganze Funktion, mehrere unabhängige Statements oder die gesamte Datei wird bewusst nicht erzeugt. Technisch könnte ein solcher Bereich funktionieren, solange exakt die erwarteten Trice-Makros und keine andere Expansion `__COUNTER__` verbrauchen. Praktisch wächst mit jeder eingeschlossenen Zeile die Abhängigkeit von fremden Makros, Buildkonfigurationen und bedingter Übersetzung. Die minimale Klammerung begrenzt einen möglichen Fehler auf genau eine Quellstelle, und die Abschlussprüfung macht eine Abweichung zu einem Compilerfehler statt zu einer still falschen ID.
+
+Die Include-Zeilen und Hilfsheader sind zusammengehörige Generatorartefakte. Sie dürfen nicht verschoben, umbenannt, geteilt oder einzeln gelöscht werden. Nach relevanten Sourceänderungen muss erneut `trice bind` laufen; der Generator validiert vorhandene Artefakte und aktualisiert Sourcegrenzen, Hilfsheader, Deskriptoren, IDs und Location Information transaktional. Fehlende Hilfsheader kann ein erneuter Bind-Lauf wiederherstellen. Veränderte Hilfsheader werden nicht still überschrieben, sondern mit einer Diagnose zurückgewiesen. Nicht mehr benötigte Hilfsheader werden entfernt.
+
+Ältere, mehrzeilige Rebase-Blöcke aus einer vorherigen Generatorversion werden weiterhin erkannt. Ein erfolgreicher neuer Bind-Lauf ersetzt sie durch die kompakten Include-Grenzen.
+
+### 17.7 Fehlendes `__COUNTER__`
 
 Nur der betroffene Rebase-Bereich enthält einen Capability-Guard. Fehlt `__COUNTER__`, stoppt der Targetcompiler mit einer Meldung, die ausdrücklich darauf hinweist, dass normale Bind-Stellen nicht betroffen sind.
 
 Die vorgesehenen Auswege sind:
 
-- `trice insert`/`trice clean` verwenden,
-- mehrere Trice-Aufrufe auf getrennte physische Zeilen verteilen,
-- einen Logging-Wrapper als normale oder `static inline`-Funktion formulieren.
+- einen gewöhnlichen Logging-Helfer bevorzugt als normale oder `static inline`-Funktion formulieren,
+- mehrere direkte Trice-Aufrufe auf getrennte physische Zeilen verteilen,
+- falls die Makroform unverzichtbar ist, einen Targetcompiler mit `__COUNTER__` oder den Workflow `trice insert`/`trice clean` verwenden.
+
+Für häufig aufgerufene `LOG_ERROR`-ähnliche Helfer ist die `static inline`-Form besonders empfehlenswert: Eine einzige Funktionsdefinition ersetzt Rebase-Includes und Hilfsheader an jeder einzelnen Aufrufstelle.
 
 Compile-Time-Prüfungen erkennen außerdem zusätzlichen Counterverbrauch innerhalb der Region, eine falsche Expansionsanzahl und fehlende generierte Deskriptoren. Solche Abweichungen brechen den Build ab, statt still eine andere ID auszuwählen.
 
-### 17.7 Unveränderte Schnittstellen
+### 17.8 Unveränderte Schnittstellen
 
 Der Rebase erzeugt keinen veränderlichen Laufzeitzustand, keine dynamische Allokation und keine Runtime-ID-Tabelle. `til.json`, `li.json`, das Trice-Drahtformat, Decoder und öffentliche CLI-Optionen bleiben unverändert.
 
-`TRICE_CLEAN=1` und `TRICE_OFF=1` deaktivieren die Trice-Makros weiterhin vollständig. Generierte Rebase-Blöcke werden in diesen Buildmodi ohne Counterprüfung durchlaufen, sodass ein deaktivierter Build auch für eine ansonsten counter-pflichtige Datei kein `__COUNTER__` benötigt.
+`TRICE_CLEAN=1` und `TRICE_OFF=1` deaktivieren die Trice-Makros weiterhin vollständig. Generierte Rebase-Hilfsheader werden in diesen Buildmodi ohne Counterprüfung verarbeitet, sodass ein deaktivierter Build auch für eine ansonsten counter-pflichtige Datei kein `__COUNTER__` benötigt.
 
 ## 18. Unterstützte Grenzen und verbleibende Einschränkungen
 
-Unterstützt werden ID-freie Trice-Aufrufe mit statisch direkt erkennbarem Formatstring sowie gewöhnliche funktionsartige Statement-Makros mit einem oder mehreren direkten Trice-Aufrufen.
+Unterstützt werden ID-freie Trice-Aufrufe mit statisch direkt erkennbarem Formatstring sowie gewöhnliche funktionsartige Statement-Makros mit einem oder mehreren direkten Trice-Aufrufen. Ein einzelner Wrapperaufruf darf über mehrere physische Zeilen geschrieben sein, wenn sein vollständiger Bereich bis zum Semikolon eindeutig und sicher umschließbar ist.
 
 In einem counter-selektierten Bereich werden weiterhin mit präziser Diagnose abgelehnt:
 
@@ -525,7 +617,9 @@ In einem counter-selektierten Bereich werden weiterhin mit präziser Diagnose ab
 - dynamisch zusammengesetzte Formatstrings,
 - indirekte Umdefinitionen von Trice-Makros,
 - expliziter oder nicht sicher begrenzbarer zusätzlicher `__COUNTER__`-Verbrauch,
-- mehrzeilige Wrapperaufrufe, syntaktisch nicht sicher umschließbare Ausdruckskontexte und Kontrollflussfortsetzungen über physische Zeilengrenzen,
+- Präprozessordirektiven innerhalb eines mehrzeiligen Wrapperaufrufs,
+- weitere Trice- oder Wrapperstellen auf einer physischen Grenzzeile eines mehrzeiligen Aufrufs,
+- syntaktisch nicht sicher umschließbare Ausdruckskontexte und Kontrollflussfortsetzungen über physische Zeilengrenzen,
 - widersprüchliche Wrapperdefinitionen, für die keine eindeutige gemeinsame Semantik ermittelt werden kann.
 
 Null-Platzhalter auf gewöhnlichen, zeilenweise eindeutigen Bind-Stellen bleiben wie im MVP unterstützt. Formatstrings müssen weiterhin im Umfang des gemeinsamen Insert-/Bind-Parsers statisch erkennbar sein.
@@ -566,11 +660,11 @@ Der Sidecar muss aktiv sein, wenn die direkten Trice-Aufrufe der physischen Date
 
 ### Erweiterte Konstruktion benötigt `__COUNTER__`
 
-Der Compiler verarbeitet einen generierten Rebase-Bereich, stellt aber kein `__COUNTER__` bereit. Nur diese Sourcekonstruktion ist betroffen. Verwende einen der in Abschnitt 17.6 beschriebenen Auswege oder einen Targetcompiler mit lokaler Counter-Unterstützung.
+Der Compiler verarbeitet einen generierten Rebase-Bereich, stellt aber kein `__COUNTER__` bereit. Nur diese Sourcekonstruktion ist betroffen. Verwende einen der in Abschnitt 17.7 beschriebenen Auswege oder einen Targetcompiler mit lokaler Counter-Unterstützung.
 
 ### Counter-Anzahl oder Rebase-Deskriptor stimmt nicht
 
-Der Build verwendet veraltete oder manuell veränderte Generatorartefakte, oder innerhalb der Region expandiert zusätzlicher Counterverbrauch. Generierte Blöcke nicht manuell reparieren, sondern die Sourcekonstruktion prüfen und `trice bind` erneut ausführen.
+Der Build verwendet veraltete oder manuell veränderte Generatorartefakte, oder innerhalb der Region expandiert zusätzlicher Counterverbrauch. Generierte Include-Grenzen und Hilfsheader nicht manuell reparieren, sondern die Sourcekonstruktion prüfen und `trice bind` erneut ausführen.
 
 ## 20. Ergebnis
 
