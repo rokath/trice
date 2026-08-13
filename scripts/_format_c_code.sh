@@ -116,21 +116,68 @@ if [ "${#FILTERED_FILES[@]}" -eq 0 ]; then
 fi
 
 ###############################################################################
-# 5. FORMAT MODE — apply clang-format in-place (-i)
+# 5. Validate the configuration and prepare isolated stdin processing.
 #
-# Used locally before committing changes.
+# clang-format also reads .clang-format-ignore itself when a real file name is
+# passed. Releases with the old negation implementation can incorrectly ignore
+# unrelated files when the ignore file contains re-inclusion patterns. The Go
+# filter above already made the authoritative selection, so process each file
+# via stdin with a guaranteed-nonexistent assumed path. This preserves language
+# detection without triggering clang-format's second ignore-file evaluation.
+###############################################################################
+if ! clang-format -style=file:.clang-format -dump-config >/dev/null; then
+  echo "clang-format: Failed to parse .clang-format." >&2
+  clang-format --version >&2 || true
+  exit 1
+fi
+
+FORMAT_TMP_DIR="$(mktemp -d)" || {
+  echo "clang-format: Failed to create a temporary directory." >&2
+  exit 1
+}
+FORMAT_TMP_FILE="$FORMAT_TMP_DIR/output"
+
+# cleanup_format_tmp removes only artifacts created by this script invocation.
+cleanup_format_tmp() {
+  rm -f "$FORMAT_TMP_FILE"
+  rmdir "$FORMAT_TMP_DIR" 2>/dev/null || true
+}
+trap cleanup_format_tmp EXIT
+
+# clang_format_file writes formatted output or replacement XML for one source
+# file to stdout. The nonexistent assumed path retains the source extension but
+# cannot match clang-format's native ignore processing.
+clang_format_file() {
+  local source_file="$1"
+  shift
+  local extension="${source_file##*.}"
+  local assumed_file="$FORMAT_TMP_DIR/input.$extension"
+  clang-format -style=file:.clang-format --assume-filename="$assumed_file" "$@" <"$source_file"
+}
+
+###############################################################################
+# 6. FORMAT MODE — apply clang-format output to changed files only.
+#
+# Direct -i processing would invoke clang-format's native ignore handling. A
+# temporary output also ensures a formatter failure cannot partially overwrite
+# the source file.
 ###############################################################################
 if [ "$MODE" = "format" ]; then
-  if [ "${#FILTERED_FILES[@]}" -eq 0 ]; then
-    exit 0
-  fi
   if [ "$VERBOSE" -eq 1 ]; then
     echo "clang-format: The following files will be processed:"
     printf "  %s\n" "${FILTERED_FILES[@]}"
     echo
     echo "clang-format: Running in FORMAT mode (in-place changes)."
   fi
-  clang-format -style=file -i "${FILTERED_FILES[@]}"
+  for f in "${FILTERED_FILES[@]}"; do
+    if ! clang_format_file "$f" >"$FORMAT_TMP_FILE"; then
+      echo "clang-format: Failed to format '$f'." >&2
+      exit 1
+    fi
+    if ! cmp -s "$f" "$FORMAT_TMP_FILE"; then
+      cp "$FORMAT_TMP_FILE" "$f"
+    fi
+  done
   if [ "$VERBOSE" -eq 1 ]; then
     echo "clang-format: Formatting completed."
   fi
@@ -138,7 +185,7 @@ if [ "$MODE" = "format" ]; then
 fi
 
 ###############################################################################
-# 6. CHECK MODE — do NOT modify files, but detect formatting problems.
+# 7. CHECK MODE — do NOT modify files, but detect formatting problems.
 #
 # This mode is CI-friendly:
 #   - For each file, run clang-format with -output-replacements-xml
@@ -153,7 +200,11 @@ for f in "${FILTERED_FILES[@]}"; do
   # clang-format outputs an XML diff where <replacement> tags represent
   # formatting operations that *would* be applied. If any are found,
   # the file is not correctly formatted.
-  if clang-format -style=file -output-replacements-xml "$f" | grep -q "<replacement "; then
+  if ! clang_format_file "$f" -output-replacements-xml >"$FORMAT_TMP_FILE"; then
+    echo "clang-format: Failed to check '$f'." >&2
+    exit 1
+  fi
+  if grep -q "<replacement " "$FORMAT_TMP_FILE"; then
     # GitHub Actions annotation: makes clickable errors in PR UI
     echo "::error file=$f::File is not formatted according to .clang-format"
     NEEDS_FORMAT+=("$f")
