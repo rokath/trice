@@ -17,8 +17,8 @@ static bool logFail;  // logFail preserves callback failures because the callbac
 
 //! writeLogFile writes each transferred record through the configured hook.
 static void writeLogFile(
-	const uint8_t* data,
-	size_t length) {
+    const uint8_t* data,
+    size_t length) {
 	if (logFile == NULL || logFail) {
 		return;
 	}
