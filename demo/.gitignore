@@ -1,0 +1,2 @@
+# Every demo keeps all generated files in its own build directory.
+*/build/
