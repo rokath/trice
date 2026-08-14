@@ -268,7 +268,7 @@ details.toc[open] .toc-hide {
     * [24.17.4. Preferred Form: Normal or static inline Function](#preferred-form-normal-or-static-inline-function)
     * [24.17.5. Headers and Translation Units](#headers-and-translation-units)
     * [24.17.6. Compact Source Boundaries and Generated Helper Headers](#compact-source-boundaries-and-generated-helper-headers)
-    * [24.17.7. Missing __COUNTER__](#missing-__counter__)
+    * [24.17.7. Missing &#95;&#95;COUNTER&#95;&#95;](#missing-9595counter9595)
     * [24.17.8. Unchanged Interfaces](#unchanged-interfaces)
   * [24.18. Supported Boundaries and Remaining Limitations](#supported-boundaries-and-remaining-limitations)
   * [24.19. Diagnostics and Troubleshooting](#diagnostics-and-troubleshooting)
@@ -277,7 +277,7 @@ details.toc[open] .toc-hide {
     * [24.19.3. File Is mixed](#file-is-mixed)
     * [24.19.4. Bind Include Is in the Wrong Place](#bind-include-is-in-the-wrong-place)
     * [24.19.5. Unexpected Message After a Source Change](#unexpected-message-after-a-source-change)
-    * [24.19.6. Advanced Construct Requires __COUNTER__](#advanced-construct-requires-__counter__)
+    * [24.19.6. Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;](#advanced-construct-requires-9595counter9595)
     * [24.19.7. Counter Count or Rebase Descriptor Does Not Match](#counter-count-or-rebase-descriptor-does-not-match)
   * [24.20. Result](#result)
   * [24.21. Appendix: Preprocessor Fundamentals](#appendix-preprocessor-fundamentals)
@@ -4320,7 +4320,9 @@ The include lines and helper headers are related generator artifacts. They must 
 
 Older multiline rebase blocks from a previous generator version are still recognized. A successful new bind run replaces them with the compact include boundaries.
 
-#### 24.17.7. <a id="missing-__counter__"></a>Missing `__COUNTER__`
+<a id="missing-__counter__"></a>
+<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
+#### 24.17.7. <a id="missing-9595counter9595"></a>Missing &#95;&#95;COUNTER&#95;&#95;
 
 Only the affected rebase region contains a capability guard. If `__COUNTER__` is unavailable, the target compiler stops with a message explicitly stating that normal bind sites are unaffected.
 
@@ -4394,7 +4396,9 @@ The sidecar must be active when the direct Trice calls of the physical file are 
 
 Run `trice bind` again. The line number is part of the build-local site name.
 
-#### 24.19.6. <a id="advanced-construct-requires-__counter__"></a>Advanced Construct Requires `__COUNTER__`
+<a id="advanced-construct-requires-__counter__"></a>
+<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
+#### 24.19.6. <a id="advanced-construct-requires-9595counter9595"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
 
 The compiler is processing a generated rebase region but does not provide `__COUNTER__`. Only this source construct is affected. Use one of the alternatives described under [Missing `__COUNTER__`](#missing-__counter__) or a target compiler with local counter support.
 
