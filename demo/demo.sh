@@ -41,7 +41,7 @@ for mode in deferred direct; do
 
   # Run inside build so the application writes its log.bin there.
   (
-    cd "$mode/build"
+    cd "$mode/build" || exit 1
     "./$app"
   )
 done

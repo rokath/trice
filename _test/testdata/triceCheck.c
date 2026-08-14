@@ -2837,7 +2837,7 @@ static int serializePoint(char* dst, const Point_t* src) {
 
 #include "trice_triceCheck_c_KE43C28474024C67C_R17_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R17
 	SCOPY(x)                                                // Variant 1: logging statement macro.
-#include "trice_triceCheck_c_KE43C28474024C67C_R17_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R17
+#include "trice_triceCheck_c_KE43C28474024C67C_R17_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R17
 	p = sCopyField(p, &src->y, sizeof(src->y), "y");        // Variant 2: direct inline-function call.
 	SCOPY_VIA_FUNCTION(rgb);                                // Variant 3: Trice-free convenience macro.
 
@@ -2849,7 +2849,7 @@ static int deserializePoint(Point_t* const dst, const char* src) {
 
 #include "trice_triceCheck_c_KE43C28474024C67C_R18_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R18
 	DCOPY(x)                                                // Variant 1: logging statement macro.
-#include "trice_triceCheck_c_KE43C28474024C67C_R18_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R18
+#include "trice_triceCheck_c_KE43C28474024C67C_R18_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R18
 	p = dCopyField(p, &dst->y, sizeof(dst->y), "y");        // Variant 2: direct inline-function call.
 	DCOPY_VIA_FUNCTION(rgb);                                // Variant 3: Trice-free convenience macro.
 
@@ -2877,22 +2877,22 @@ static int serializeTryout(char* dst, const Tryout_t* src) {
 
 #include "trice_triceCheck_c_KE43C28474024C67C_R19_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R19
 	SCOPY(z)
-#include "trice_triceCheck_c_KE43C28474024C67C_R19_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R19
+#include "trice_triceCheck_c_KE43C28474024C67C_R19_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R19
 #include "trice_triceCheck_c_KE43C28474024C67C_R20_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R20
 	SCOPY(u)
-#include "trice_triceCheck_c_KE43C28474024C67C_R20_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R20
+#include "trice_triceCheck_c_KE43C28474024C67C_R20_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R20
 #include "trice_triceCheck_c_KE43C28474024C67C_R21_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R21
 	SCOPY(s)
-#include "trice_triceCheck_c_KE43C28474024C67C_R21_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R21
+#include "trice_triceCheck_c_KE43C28474024C67C_R21_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R21
 #include "trice_triceCheck_c_KE43C28474024C67C_R22_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R22
 	SCOPY(addr)
-#include "trice_triceCheck_c_KE43C28474024C67C_R22_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R22
+#include "trice_triceCheck_c_KE43C28474024C67C_R22_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R22
 #include "trice_triceCheck_c_KE43C28474024C67C_R23_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R23
 	SCOPY(x)
-#include "trice_triceCheck_c_KE43C28474024C67C_R23_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R23
+#include "trice_triceCheck_c_KE43C28474024C67C_R23_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R23
 #include "trice_triceCheck_c_KE43C28474024C67C_R24_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R24
 	SCOPY(y)
-#include "trice_triceCheck_c_KE43C28474024C67C_R24_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R24
+#include "trice_triceCheck_c_KE43C28474024C67C_R24_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R24
 #include "trice_triceCheck_c_KE43C28474024C67C_R25_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R25
 	SCOPY(names)
 #include "trice_triceCheck_c_KE43C28474024C67C_R25_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R25
@@ -2909,22 +2909,22 @@ static int deserializeTryout(Tryout_t* const dst, const char* src) {
 
 #include "trice_triceCheck_c_KE43C28474024C67C_R27_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R27
 	DCOPY(z)
-#include "trice_triceCheck_c_KE43C28474024C67C_R27_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R27
+#include "trice_triceCheck_c_KE43C28474024C67C_R27_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R27
 #include "trice_triceCheck_c_KE43C28474024C67C_R28_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R28
 	DCOPY(u)
-#include "trice_triceCheck_c_KE43C28474024C67C_R28_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R28
+#include "trice_triceCheck_c_KE43C28474024C67C_R28_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R28
 #include "trice_triceCheck_c_KE43C28474024C67C_R29_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R29
 	DCOPY(s)
-#include "trice_triceCheck_c_KE43C28474024C67C_R29_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R29
+#include "trice_triceCheck_c_KE43C28474024C67C_R29_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R29
 #include "trice_triceCheck_c_KE43C28474024C67C_R30_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R30
 	DCOPY(addr)
-#include "trice_triceCheck_c_KE43C28474024C67C_R30_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R30
+#include "trice_triceCheck_c_KE43C28474024C67C_R30_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R30
 #include "trice_triceCheck_c_KE43C28474024C67C_R31_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R31
 	DCOPY(x)
-#include "trice_triceCheck_c_KE43C28474024C67C_R31_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R31
+#include "trice_triceCheck_c_KE43C28474024C67C_R31_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R31
 #include "trice_triceCheck_c_KE43C28474024C67C_R32_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R32
 	DCOPY(y)
-#include "trice_triceCheck_c_KE43C28474024C67C_R32_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R32
+#include "trice_triceCheck_c_KE43C28474024C67C_R32_end.h"   // trice-bind: generated rebase end KE43C28474024C67C_R32
 #include "trice_triceCheck_c_KE43C28474024C67C_R33_begin.h" // trice-bind: generated rebase begin KE43C28474024C67C_R33
 	DCOPY(names)
 #include "trice_triceCheck_c_KE43C28474024C67C_R33_end.h" // trice-bind: generated rebase end KE43C28474024C67C_R33
