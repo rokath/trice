@@ -246,24 +246,29 @@ trice_test_state_restore() {
   esac
 }
 
-# trice_test_prepare_workflow reaches a reproducible Inserted or Bound state
-# from any valid Clean, Inserted, or Bound starting state.
+# trice_test_prepare_workflow reaches the requested test state while keeping
+# Bind-only tests independent of the legacy Insert/Clean lifecycle.
 trice_test_prepare_workflow() {
   local workflow="$1"
 
   trice_state_log "Prepared ID state requested: $workflow"
+  if [ "$workflow" = "bind" ]; then
+    # Canonical sources are checked in Bound. Regenerating their sidecars is
+    # sufficient and preserves stable file keys throughout quick test runs.
+    trice_state_run_command "$TRICE_STATE_ROOT/trice_bindIDs_in_examples_and_test_folder.sh"
+    return $?
+  fi
+
   # Bound source ownership is versioned while BindDir is generated and may be
   # absent or stale after a checkout. Refresh it transactionally before asking
-  # re-migration to validate descriptor and location line numbers.
+  # re-migration to validate descriptor and location line numbers. Only full
+  # test runs select the Inserted or Off workflows that need this transition.
   trice_state_run_command "$TRICE_STATE_ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || return 1
   trice_state_run_command "$TRICE_STATE_ROOT/trice_remigrateBindToClean_in_examples_and_test_folder.sh" || return 1
   trice_state_run_command "$TRICE_STATE_ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || return 1
   case "$workflow" in
     insert)
       trice_state_run_command "$TRICE_STATE_ROOT/trice_insertIDs_in_examples_and_test_folder.sh"
-      ;;
-    bind)
-      trice_state_run_command "$TRICE_STATE_ROOT/trice_bindIDs_in_examples_and_test_folder.sh"
       ;;
     off)
       # TRICE_OFF builds use the clean source state and need no ID generator.

@@ -24,7 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "trice.h"
 #include "triceUart.h"
-#include "trice_stm32l4xx_it_c_KBCD27C10E4A772E5.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_stm32l4xx_it_c_K099BA7612893E1E0.h" // trice-bind: keep as last include before this file's Trice calls
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

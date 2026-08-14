@@ -85,6 +85,11 @@ main() {
   : >"$SUMMARY_LOG"
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
+  if [ "$selected" = "quick" ]; then
+    summary_line "ID workflows: bind"
+  else
+    summary_line "ID workflows: bind plus legacy insert/clean"
+  fi
 
   run_step "_testAll_00a_FormatShellScripts.sh" || failed=1
   run_step "_testAll_00b_checkShell.sh" || failed=1
@@ -101,13 +106,19 @@ main() {
   run_step "_testAll_08_RuntimePrepare.sh" || failed=1
   run_step "_testAll_09_GoTests.sh" || failed=1
   run_step "_testAll_09b_BindTests.sh" || failed=1
-  run_step "_testAll_09c_BindWorkflowTests.sh" || failed=1
-  run_step "_testAll_10a_PcTargetTests_insert.sh" "$selected" || failed=1
+  if [ "$selected" = "full" ]; then
+    run_step "_testAll_09c_BindWorkflowTests.sh" || failed=1
+    run_step "_testAll_10a_PcTargetTests_insert.sh" "$selected" || failed=1
+  fi
   run_step "_testAll_10b_PcTargetTests_bind.sh" "$selected" || failed=1
-  run_step "_testAll_11a_ClangTranslation_insert.sh" || failed=1
+  if [ "$selected" = "full" ]; then
+    run_step "_testAll_11a_ClangTranslation_insert.sh" || failed=1
+  fi
   run_step "_testAll_11b_ClangTranslation_bind.sh" || failed=1
-  run_step "_testAll_12a_GccExampleBuilds_insert.sh" || failed=1
-  run_step "_testAll_12c_GccExampleBuilds_off.sh" || failed=1
+  if [ "$selected" = "full" ]; then
+    run_step "_testAll_12a_GccExampleBuilds_insert.sh" || failed=1
+    run_step "_testAll_12c_GccExampleBuilds_off.sh" || failed=1
+  fi
   run_step "_testAll_12b_GccExampleBuilds_bind.sh" || failed=1
   if [ "$selected" = "full" ]; then
     run_step "_testAll_13_L432Configs.sh" || failed=1
