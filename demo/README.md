@@ -1,78 +1,77 @@
-# Minimale Trice-Demos
+# Minimal Trice Demos
 
-Diese beiden kleinen PC-Programme zeigen denselben Trice-Ausgabekanal in zwei
-Betriebsarten:
+These two small PC programs demonstrate the same Trice output channel in two
+modes:
 
-- `direct`: Jeder Trice-Aufruf schreibt seine Binärdaten sofort nach
+- `direct`: Each Trice call writes its binary data immediately to
   `build/log.bin`.
-- `deferred`: Die Trice-Aufrufe schreiben zunächst in einen Ringpuffer.
-  `TriceTransfer()` überträgt die Daten anschließend nach `build/log.bin`.
+- `deferred`: The Trice calls first write to a ring buffer. `TriceTransfer()`
+  subsequently transfers the data to `build/log.bin`.
 
-Beide Programme verwenden unmittelbar die Trice-Quellen aus `../src`. Es wird
-keine Bibliothek kopiert und kein Buildsystem benötigt.
+Both programs use the Trice sources from `../src` directly. No library is
+copied, and no build system is required.
 
-## Voraussetzungen
+## Requirements
 
-Benötigt werden nur:
+Only the following tools are needed:
 
-- `trice` im `PATH`,
-- ein C-Compiler mit dem Kommando `cc` oder `gcc`,
-- Bash beziehungsweise eine vergleichbare POSIX-Shell.
+- `trice` in `PATH`,
+- a C compiler available as `cc` or `gcc`,
+- Bash or a comparable POSIX shell.
 
-Die kompakten, auskommentierten Vorabprüfungen am Anfang von `demo.sh` können
-bei Bedarf aktiviert werden. Das Script installiert nichts automatisch.
+The concise, commented-out prerequisite checks at the beginning of `demo.sh`
+can be enabled if needed. The script does not install anything automatically.
 
-## Demos starten
+## Running the Demos
 
-Das zentrale Script wird aus dem Ordner `demo` gestartet:
+Run the central script from the `demo` directory:
 
 ```sh
 cd demo
 ./demo.sh
 ```
 
-Es bindet einmal beide Programme, übersetzt und startet zuerst `deferred` und
-danach `direct`. Anschließend zeigt es beide Logdateien nacheinander an.
+It runs `trice bind` once for both programs, then builds and starts `deferred`
+followed by `direct`. Finally, it displays both log files in sequence.
 
-Jede Demo besitzt ihr eigenes `build`-Verzeichnis. Darin liegen ausschließlich
-erzeugte Dateien:
+Each demo has its own `build` directory. These directories contain generated
+files only:
 
 ```text
-demo/build/triceIDs/       gemeinsame generierte Bind-Header
-demo/deferred/build/       demo_deferred und log.bin
-demo/direct/build/         demo_direct und log.bin
+demo/build/triceIDs/       shared generated bind headers
+demo/deferred/build/       demo_deferred and log.bin
+demo/direct/build/         demo_direct and log.bin
 ```
 
-Unter Windows erhält der Anwendungsname zusätzlich die Endung `.exe`. Das Script
-startet ihn automatisch mit dem richtigen Namen.
+On Windows, the application name additionally has the `.exe` suffix. The script
+automatically starts it under the correct name.
 
-`trice bind` läuft aus dem Demo-Ordner ohne Optionen und verwendet damit direkt
-`til.json`, `li.json` sowie `build/triceIDs`. Auch `trice log` läuft dort und
-benötigt neben `FILEBUFFER` nur den jeweiligen Pfad zu `log.bin`. `tlog` wird
-für diese Demos nicht benötigt.
+`trice bind` runs without options from the demo directory and therefore uses
+`til.json`, `li.json`, and `build/triceIDs` directly. `trice log` also runs from
+this directory and needs only `FILEBUFFER` and the path to the respective
+`log.bin`. These demos do not require `tlog`.
 
-Beim ersten Lauf ergänzt `trice bind` in jeder `main.c` automatisch die zunächst
-ungewohnt aussehende Zeile `#include "trice_main_c_K...h"`. Der Dateiname wird
-generiert und muss vom Benutzer weder geschrieben noch gepflegt werden. Der
-eingebundene Header liegt anschließend unter `build/triceIDs`.
+On the first run, `trice bind` automatically adds the initially unfamiliar line
+`#include "trice_main_c_K...h"` to each `main.c`. The file name is generated; the
+user neither writes nor maintains it. The included header is then located under
+`build/triceIDs`.
 
-## Gemeinsame und lokale Dateien
+## Shared and Local Files
 
-`til.json` und `li.json` liegen gemeinsam in diesem Ordner. Sie enthalten die
-IDs und Quellorte aller ausgeführten Demos und gehören zum Demo-Projekt.
+`til.json` and `li.json` are shared in this directory. They contain the IDs and
+source locations of all executed demos and belong to the demo project.
 
-Der Compiler-Ausdruck `../src/[a-z]*.c` erfasst alle regulären Trice-Quellen.
-Die unbenutzte Vendor-Datei `SEGGER_RTT.c` beginnt mit einem Großbuchstaben und
-bleibt deshalb außen vor. Eine Dummy-Konfiguration für SEGGER RTT ist nicht
-erforderlich.
+The compiler glob `../src/[a-z]*.c` selects all regular Trice sources. The unused
+vendor file `SEGGER_RTT.c` starts with an uppercase letter and is therefore
+excluded. A dummy SEGGER RTT configuration is not required.
 
-Jeder Unterordner enthält dagegen nur seine eigene Anwendungskonfiguration:
+Each subdirectory contains only its own application configuration:
 
 ```text
-direct/ oder deferred/
+direct/ or deferred/
 ├── main.c
 ├── triceConfig.h
-└── build/                 erzeugt und nicht versioniert
+└── build/                 generated and not versioned
 ```
 
-Der gemeinsame Ablauf steht ausschließlich in `demo.sh`.
+The shared workflow is defined only in `demo.sh`.

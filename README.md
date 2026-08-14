@@ -46,9 +46,11 @@ Choose one first path:
 
 For most existing projects, the non-blocking byte writer path is the least disruptive first integration.
 
-## Coming soon
+## Recommended ID workflow: `trice bind`
 
-`trice bind ...` stores the IDs in sidecar build artifacts avoiding this way source code changes. This is complete compiler independent. Try it now in branch `wip`.
+`trice bind` is the successor to the legacy `trice insert` / `trice clean` workflow. It keeps numeric IDs out of bind-managed Trice calls by generating sidecar headers as temporary build artefacts. Existing `insert` / `clean` projects remain fully supported and continue to work unchanged. This technique does not patch the user sources anymore during the build process. See [Trice Bind in User Manual](./docs/TriceUserManual.md#trice-bind) for details.
+
+Try the minimal [`demo`](./demo). It uses only the installed `trice` binary and the target sources in [`src`](./src) from this repository.
 
 ## Details and advanced topics
 
@@ -70,6 +72,8 @@ This reduces target FLASH usage, transfer bandwidth, log files and log-call exec
 
 <details markdown="1"><summary>How ID-based decoding works</summary>
 
+The recommended workflow uses `trice bind` as described above. The following steps describe the legacy source-modifying workflow, which remains supported:
+
 1. Write `trice(...)` calls in firmware code.
 2. Run `trice insert` before compilation.
 3. The compiler sees stable numeric IDs.
@@ -85,9 +89,9 @@ A typical source-level idea is:
 
 </details>
 
-<details markdown="1"><summary>What about source code modification?</summary>
+<details markdown="1"><summary>Legacy source-code ID workflow (still supported)</summary>
 
-Trice assigns IDs by processing source files with `trice insert`.
+The legacy workflow assigns IDs by processing source files with `trice insert`. This workflow remains supported for existing and new projects.
 A call such as this:
 
 ```c
@@ -173,7 +177,9 @@ creating location data. Log output shows only the file name by default; use
 
 </details>
 
-<details markdown="1"><summary>Three common ID workflows</summary>
+<details markdown="1"><summary>Legacy insert/clean ID workflows (still supported)</summary>
+
+These three source-modifying workflows remain fully supported:
 
 **Keep IDs in source** - good for small projects and maximum robustness.
 
@@ -204,7 +210,7 @@ If other tools also rewrite source files, such as formatters or code generators,
 
 </details>
 
-<details markdown="1"><summary>Trice cache</summary>
+<details markdown="1"><summary>Legacy insert/clean cache (still supported)</summary>
 
 The Trice cache avoids unnecessary rebuilds when using `trice insert` and `trice clean` around the build.
 It keeps cached inserted and cleaned copies of unchanged files.
@@ -229,7 +235,7 @@ See [Trice Cache for Compilation Speed](./docs/TriceUserManual.md#trice-cache-fo
 
 </details>
 
-<details markdown="1"><summary>Normal workflow</summary>
+<details markdown="1"><summary>Legacy insert workflow (still supported)</summary>
 
 1. Add the Trice target sources from [`src/`](./src) to your firmware project.
 2. Add a project-specific `triceConfig.h`.
