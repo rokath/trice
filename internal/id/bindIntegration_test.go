@@ -433,7 +433,10 @@ void normal(void) {
 		t.Fatal("MVP2 negative integration requires a GCC- or Clang-compatible C frontend")
 	}
 	includes := []string{BindDir, project, filepath.Join(root, "src")}
-	noCounterFlags := []string{"-U__COUNTER__", "-Wno-builtin-macro-redefined"}
+	// Some GCC versions emit an unclassified warning for -U__COUNTER__. Keep
+	// that deliberate simulation warning visible without letting the common
+	// -Werror policy hide the Trice capability-guard result under test.
+	noCounterFlags := []string{"-U__COUNTER__", "-Wno-error"}
 	output, err := runBindFixtureCompiler(compiler, "c99", advancedPath, filepath.Join(project, "advanced_no_counter.o"), noCounterFlags, includes...)
 	require.Error(t, err)
 	assert.Contains(t, string(output), "this advanced source construct requires __COUNTER__")
