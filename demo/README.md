@@ -16,52 +16,55 @@ keine Bibliothek kopiert und kein Buildsystem benötigt.
 Benötigt werden nur:
 
 - `trice` im `PATH`,
-- ein C-Compiler mit dem Kommando `cc`,
+- ein C-Compiler mit dem Kommando `cc` oder `gcc`,
 - Bash beziehungsweise eine vergleichbare POSIX-Shell.
 
-Fehlt `trice` oder `cc`, bricht das Script vor dem Binden oder Kompilieren mit
-einer verständlichen Meldung ab. Es installiert nichts automatisch.
+Die kompakten, auskommentierten Vorabprüfungen am Anfang von `demo.sh` können
+bei Bedarf aktiviert werden. Das Script installiert nichts automatisch.
 
-## Direct-Demo starten
+## Demos starten
 
-Wichtig: Zuerst in den Ordner der Demo wechseln und das Script dort starten:
-
-```sh
-cd demo/direct
-./build_and_run.sh
-```
-
-## Deferred-Demo starten
-
-Auch diese Demo wird in ihrem eigenen Ordner gestartet:
+Das zentrale Script wird aus dem Ordner `demo` gestartet:
 
 ```sh
-cd demo/deferred
-./build_and_run.sh
+cd demo
+./demo.sh
 ```
+
+Es bindet einmal beide Programme, übersetzt und startet zuerst `deferred` und
+danach `direct`. Anschließend zeigt es beide Logdateien nacheinander an.
 
 Jede Demo besitzt ihr eigenes `build`-Verzeichnis. Darin liegen ausschließlich
 erzeugte Dateien:
 
 ```text
-build/
-├── demo_direct oder demo_deferred
-├── log.bin
-└── triceIDs/
+demo/build/triceIDs/       gemeinsame generierte Bind-Header
+demo/deferred/build/       demo_deferred und log.bin
+demo/direct/build/         demo_direct und log.bin
 ```
 
 Unter Windows erhält der Anwendungsname zusätzlich die Endung `.exe`. Das Script
 startet ihn automatisch mit dem richtigen Namen.
 
-Nach dem Programmstart liest dasselbe Script `log.bin` mit `trice log`. `tlog`
-wird für diese Demos nicht benötigt.
+`trice bind` läuft aus dem Demo-Ordner ohne Optionen und verwendet damit direkt
+`til.json`, `li.json` sowie `build/triceIDs`. Auch `trice log` läuft dort und
+benötigt neben `FILEBUFFER` nur den jeweiligen Pfad zu `log.bin`. `tlog` wird
+für diese Demos nicht benötigt.
+
+Beim ersten Lauf ergänzt `trice bind` in jeder `main.c` automatisch die zunächst
+ungewohnt aussehende Zeile `#include "trice_main_c_K...h"`. Der Dateiname wird
+generiert und muss vom Benutzer weder geschrieben noch gepflegt werden. Der
+eingebundene Header liegt anschließend unter `build/triceIDs`.
 
 ## Gemeinsame und lokale Dateien
 
 `til.json` und `li.json` liegen gemeinsam in diesem Ordner. Sie enthalten die
-IDs und Quellorte aller ausgeführten Demos und gehören zum Demo-Projekt. Die
-kleine `SEGGER_RTT_Conf.h` wird nur benötigt, weil der bewusst einfache
-Compileraufruf mit `../../src/*.c` auch die optionale RTT-Quelle erfasst.
+IDs und Quellorte aller ausgeführten Demos und gehören zum Demo-Projekt.
+
+Der Compiler-Ausdruck `../src/[a-z]*.c` erfasst alle regulären Trice-Quellen.
+Die unbenutzte Vendor-Datei `SEGGER_RTT.c` beginnt mit einem Großbuchstaben und
+bleibt deshalb außen vor. Eine Dummy-Konfiguration für SEGGER RTT ist nicht
+erforderlich.
 
 Jeder Unterordner enthält dagegen nur seine eigene Anwendungskonfiguration:
 
@@ -69,10 +72,7 @@ Jeder Unterordner enthält dagegen nur seine eigene Anwendungskonfiguration:
 direct/ oder deferred/
 ├── main.c
 ├── triceConfig.h
-├── build_and_run.sh
 └── build/                 erzeugt und nicht versioniert
 ```
 
-`build_and_run.sh` prüft nur, ob es aus dem richtigen Demo-Ordner gestartet
-wurde, und ruft dann `../build_demo.sh` auf. Dort stehen die gemeinsamen,
-ausführlich kommentierten Schritte genau einmal.
+Der gemeinsame Ablauf steht ausschließlich in `demo.sh`.

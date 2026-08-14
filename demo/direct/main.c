@@ -8,21 +8,21 @@
 #include <stdio.h>
 
 #include "trice.h"
+// trice bind adds the following generated include automatically during its
+// first run; users do not need to create or maintain the file name.
 #include "trice_main_c_K6B53773E459BC817.h" // trice-bind: keep as last include before this file's Trice calls
 
-// logFile is open only while the synchronous demo emits its Trice records.
-static FILE* logFile;
-// logWriteFailed preserves callback failures because the callback returns void.
-static bool logWriteFailed;
+static FILE* logFile; // logFile is open only while the synchronous demo emits its Trice records.
+static bool logFail;  // logFail preserves callback failures because the callback returns void.
 
 //! writeLogFile writes each framed record immediately through the configured hook.
 static void writeLogFile(const uint8_t* data, size_t length) {
-	if (logFile == NULL || logWriteFailed) {
+	if (logFile == NULL || logFail) {
 		return;
 	}
 
 	if (fwrite(data, 1, length, logFile) != length) {
-		logWriteFailed = true;
+		logFail = true;
 	}
 }
 
@@ -44,7 +44,7 @@ int main(void) {
 	}
 	logFile = NULL;
 
-	if (logWriteFailed) {
+	if (logFail) {
 		fputs("Could not write all Trice records to log.bin.\n", stderr);
 		return 1;
 	}
