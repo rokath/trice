@@ -3737,9 +3737,9 @@ int main(void){
 ## 24. <a id="trice-bind"></a>Trice Bind
 
 **Status:** User manual for MVP and MVP2 with local counter rebasing<br>
-**Authoritative technical specification:** [`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md)<br>
-**MVP test requirements:** [`Trice_bind_30_MVP_Test_Spezifikation.md`](./Trice_bind_30_MVP_Test_Spezifikation.md)<br>
-**Technical background for MVP2:** [`Trice_bind_60_MVP2_Implementation_Strategies.md`](./Trice_bind_60_MVP2_Implementation_Strategies.md) and [`60_MVP2_Local_Counter_Rebase`](../../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md)
+**Authoritative technical specification:** [`Trice_bind_10_MVP_Spezifikation.md`](./TriceBind/Trice_bind_10_MVP_Spezifikation.md)<br>
+**MVP test requirements:** [`Trice_bind_30_MVP_Test_Spezifikation.md`](./TriceBind/Trice_bind_30_MVP_Test_Spezifikation.md)<br>
+**Technical background for MVP2:** [`Trice_bind_60_MVP2_Implementation_Strategies.md`](./TriceBind/Trice_bind_60_MVP2_Implementation_Strategies.md) and [`60_MVP2_Local_Counter_Rebase`](../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md)
 
 ### 24.1. <a id="overview"></a>Overview
 
@@ -4568,7 +4568,7 @@ If the definition is absent, `trice bind` does not add it.
 
 ### 24.24. <a id="appendix-retained-architecture-decision-against-elf-patching"></a>Appendix: Retained Architecture Decision Against ELF Patching
 
-The following text is an English translation of the content retained unchanged from `Trice_bind_vs_ELF_Patch.md`. It documents the architecture decision. Some example names reflect the design stage at the time; the main body of this user manual and [`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md) define the current normative behavior.
+The following text is an English translation of the content retained unchanged from `Trice_bind_vs_ELF_Patch.md`. It documents the architecture decision. Some example names reflect the design stage at the time; the main body of this user manual and [`Trice_bind_10_MVP_Spezifikation.md`](./TriceBind/Trice_bind_10_MVP_Spezifikation.md) define the current normative behavior.
 
 <!-- BEGIN translated unchanged adoption: Trice_bind_vs_ELF_Patch.md -->
 
@@ -7900,7 +7900,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 ##### Recommended complete Arm GNU Toolchain
 
-For the Trice bare-metal examples, use a complete, internally consistent toolchain containing GCC, GNU Binutils, Newlib, and Newlib-Nano. The official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm) provide matching packages for Linux, macOS, and Windows. Select the package for the host platform whose target name ends in `arm-none-eabi`, and verify its accompanying SHA-256 file before installing it.
+For the Trice bare-metal examples, use a complete, internally consistent toolchain containing GCC, GNU Binutils, Newlib, and Newlib-Nano. The official [Arm GNU Toolchain installation guide](https://learn.arm.com/install-guides/gcc/arm-gnu/) covers matching packages for Linux, macOS, and Windows. Select the package for the host platform whose target name ends in `arm-none-eabi`, and verify its accompanying SHA-256 file before installing it.
 
 Arm GNU Toolchain 15.3.Rel1 is the currently tested version for the Trice GCC example builds. It reports:
 
@@ -8028,7 +8028,7 @@ number does not make one role a replacement for another:
 
 | Role                               | Command or target                                                | Used for                                                                       | Recommended source                                                                                                                               |
 |------------------------------------|------------------------------------------------------------------|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| ARM bare-metal GCC cross-toolchain | `arm-none-eabi-gcc`; target `arm-none-eabi`                      | Firmware and `scripts/_testAll_12_GccExampleBuilds.sh`                         | Official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm); choose a Windows package ending in `arm-none-eabi` |
+| ARM bare-metal GCC cross-toolchain | `arm-none-eabi-gcc`; target `arm-none-eabi`                      | Firmware and `scripts/_testAll_12_GccExampleBuilds.sh`                         | Official [Arm GNU Toolchain installation guide](https://learn.arm.com/install-guides/gcc/arm-gnu/); choose a Windows package ending in `arm-none-eabi` |
 | Windows host GCC                   | `gcc`; target such as `x86_64-w64-mingw32` or `i686-w64-mingw32` | CGO and native Windows C tests                                                 | Optional MinGW-w64 distribution, for example [WinLibs](https://winlibs.com/)                                                                     |
 | Clang frontend                     | `clang`; use `--target=arm-none-eabi` for firmware               | Optional ARM firmware builds and, when correctly configured, native host tests | Official [LLVM releases](https://github.com/llvm/llvm-project/releases/latest)                                                                   |
 
@@ -8121,9 +8121,8 @@ There is NO WARRANTY, to the extent permitted by law.
 
 <a id='install-arm-gcc'></a><h5>Install ARM GCC</h5>
 
-- Download the Windows package whose name ends in `arm-none-eabi` from the
-  official [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm).
-  The old Arm Developer download page redirects there and is no longer updated.
+- Use the official [Arm GNU Toolchain installation guide](https://learn.arm.com/install-guides/gcc/arm-gnu/)
+  to select a Windows package whose name ends in `arm-none-eabi`.
 - Prefer a ZIP package for testing versions side by side. Verify the published
   checksum and extract each version to its own directory, for example:
 
@@ -8451,7 +8450,7 @@ The LLVM download supplies Clang and its builtin headers. It does not supply the
 #### 38.7.2. <a id="gcc-1"></a>GCC
 
 - ARM firmware: official
-  [Arm GNU Toolchain releases](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm);
+  [Arm GNU Toolchain installation guide](https://learn.arm.com/install-guides/gcc/arm-gnu/);
   select a Windows package ending in `arm-none-eabi`.
 - Windows host and CGO tests only: a MinGW-w64 host distribution such as
   [WinLibs](https://winlibs.com/).
