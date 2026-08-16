@@ -41,6 +41,25 @@ func readOwnedBindSidecar(t *testing.T, sourcePath string) (bindInclude, []byte)
 	return bindInclude{}, nil
 }
 
+// writeBindTestTIL writes one deterministic lookup and returns the exact bytes
+// so tests can prove that read-only metadata remains untouched.
+func writeBindTestTIL(t *testing.T, path string, lookup TriceIDLookUp) []byte {
+	t.Helper()
+	content, err := lookup.toJSON()
+	require.NoError(t, err)
+	require.NoError(t, FSys.WriteFile(path, content, 0o644))
+	return content
+}
+
+// writeBindTestLI is the location-list counterpart of writeBindTestTIL.
+func writeBindTestLI(t *testing.T, path string, lookup TriceIDLookUpLI) []byte {
+	t.Helper()
+	content, err := lookup.toJSON()
+	require.NoError(t, err)
+	require.NoError(t, FSys.WriteFile(path, content, 0o644))
+	return content
+}
+
 // TestBindRebaseLineContextRejectsGeneratedIncludeAfterIf verifies that the
 // safety check looks through the automatically inserted owner include and
 // still sees the control-flow dependency in the original source.
@@ -254,8 +273,7 @@ func TestBindMVP2AllowsDataStringificationAndMacroOwnedSemicolon(t *testing.T) {
 }
 
 // TestBindMVP2AcceptsFormattedGeneratedIncludes proves that formatter-owned
-// horizontal spacing cannot make an otherwise intact generated boundary look
-// corrupt. A normal bind run may canonicalize that spacing again.
+// horizontal spacing remains byte-for-byte intact across a normal bind run.
 func TestBindMVP2AcceptsFormattedGeneratedIncludes(t *testing.T) {
 	source := "void f(void) { trice(\"first\"); trice(\"second\"); }\n"
 	defer prepareBindTest(t, map[string]string{"formatted.c": source})()
@@ -271,6 +289,7 @@ func TestBindMVP2AcceptsFormattedGeneratedIncludes(t *testing.T) {
 	require.NoErrorf(t, SubCmdIdBind(&output, FSys), "%s", output.String())
 	regenerated, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
+	assert.Equal(t, formatted, regenerated)
 	assert.Equal(t, 1, strings.Count(string(regenerated), bindRebaseIncludeMarker+"begin"))
 	assert.Equal(t, 1, strings.Count(string(regenerated), bindRebaseIncludeMarker+"end"))
 }
@@ -448,4 +467,218 @@ func TestBindMVP2RejectsModifiedHelperTransactionally(t *testing.T) {
 	helperAfter, readErr := FSys.ReadFile(helperPath)
 	require.NoError(t, readErr)
 	assert.Equal(t, modified, helperAfter)
+}
+
+// TestBindReusesReadOnlyMetadataAndRegeneratesMovedSidecar verifies the normal
+// nested-project migration path: a custom-named TIL and LI plus an old sidecar
+// preserve the ID, while the current BindDir receives freshly rendered bytes.
+func TestBindReusesReadOnlyMetadataAndRegeneratesMovedSidecar(t *testing.T) {
+	key := "K2222222222222222"
+	sidecarName := "trice_module_c_" + key + ".h"
+	source := "#include \"" + sidecarName + "\" // trice-bind: keep as last include before this file's Trice calls\n" +
+		"\n// Lines added after the historical sidecar was generated.\n\n" +
+		"void f(void) { trice(\"nested message\"); }\n"
+	defer prepareBindTest(t, map[string]string{"sub/deep/module.c": source})()
+
+	project := filepath.Join(Proj, t.Name())
+	metadataRoot := filepath.Join(project, "sub")
+	secondaryTILPath := filepath.Join(metadataRoot, "demoIDs.json")
+	secondaryLIPath := filepath.Join(metadataRoot, "sourceLocations.json")
+	secondaryTIL := writeBindTestTIL(t, secondaryTILPath, TriceIDLookUp{151: {Type: "trice", Strg: "nested message"}})
+	secondaryLI := writeBindTestLI(t, secondaryLIPath, TriceIDLookUpLI{151: {File: "deep/module.c", Line: 2}})
+
+	historicalDir := filepath.Join(metadataRoot, "build", "triceIDs")
+	require.NoError(t, FSys.MkdirAll(historicalDir, 0o755))
+	historicalSidecar := []byte("#define TRICE_BIND_FILE_KEY " + key + "\n" +
+		"#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L2 TRICE_BIND_AUTO, iD(151u)\n")
+	require.NoError(t, FSys.WriteFile(filepath.Join(historicalDir, sidecarName), historicalSidecar, 0o644))
+
+	// A different output tree proves that historical sidecars are evidence, not
+	// files copied into the current build.
+	BindDir = filepath.Join(project, "parent-build", "triceIDs")
+	beforeSource, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	Verbose = true
+	var output bytes.Buffer
+	require.NoErrorf(t, SubCmdIdBind(&output, FSys), "%s", output.String())
+
+	afterSource, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, beforeSource, afterSource)
+	assert.Contains(t, output.String(), "reuse ID 151 from read-only metadata")
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "nested message"}, IDData.idToTrice[151])
+
+	generated, err := FSys.ReadFile(filepath.Join(BindDir, sidecarName))
+	require.NoError(t, err)
+	assert.Contains(t, string(generated), "iD(151u)")
+	assert.NotEqual(t, historicalSidecar, generated)
+	historicalAfter, err := FSys.ReadFile(filepath.Join(historicalDir, sidecarName))
+	require.NoError(t, err)
+	assert.Equal(t, historicalSidecar, historicalAfter)
+	secondaryTILAfter, err := FSys.ReadFile(secondaryTILPath)
+	require.NoError(t, err)
+	assert.Equal(t, secondaryTIL, secondaryTILAfter)
+	secondaryLIAfter, err := FSys.ReadFile(secondaryLIPath)
+	require.NoError(t, err)
+	assert.Equal(t, secondaryLI, secondaryLIAfter)
+}
+
+// TestBindReusesContentDetectedTILWithoutHistoricalSidecar proves that build
+// artifacts are optional and that a source without a File Key receives one
+// while retaining an ID from arbitrarily named JSON one level above -src.
+func TestBindReusesContentDetectedTILWithoutHistoricalSidecar(t *testing.T) {
+	source := "void f(void) { trice(\"metadata only\"); }\n"
+	defer prepareBindTest(t, map[string]string{"firmware/src/module.c": source})()
+
+	project := filepath.Join(Proj, t.Name())
+	Srcs = ArrayFlag{filepath.Join(project, "firmware", "src")}
+	metadataRoot := filepath.Join(project, "firmware")
+	secondaryTILPath := filepath.Join(metadataRoot, "productMessageDatabase.json")
+	secondaryLIPath := filepath.Join(metadataRoot, "anything.json")
+	secondaryTIL := writeBindTestTIL(t, secondaryTILPath, TriceIDLookUp{160: {Type: "trice", Strg: "metadata only"}})
+	secondaryLI := writeBindTestLI(t, secondaryLIPath, TriceIDLookUpLI{160: {File: "src/module.c", Line: 1}})
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	sourcePath := filepath.Join(project, "firmware", "src", "module.c")
+	bound, err := FSys.ReadFile(sourcePath)
+	require.NoError(t, err)
+	assert.Contains(t, string(bound), "// trice-bind: keep as last include")
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "metadata only"}, IDData.idToTrice[160])
+	_, sidecar := readOwnedBindSidecar(t, sourcePath)
+	assert.Contains(t, string(sidecar), "iD(160u)")
+
+	secondaryTILAfter, err := FSys.ReadFile(secondaryTILPath)
+	require.NoError(t, err)
+	assert.Equal(t, secondaryTIL, secondaryTILAfter)
+	secondaryLIAfter, err := FSys.ReadFile(secondaryLIPath)
+	require.NoError(t, err)
+	assert.Equal(t, secondaryLI, secondaryLIAfter)
+}
+
+// TestBindSecondaryIDCollisionYieldsToPrimary verifies that a nested project's
+// conflicting numeric ID is a recoverable condition rather than a fatal merge.
+func TestBindSecondaryIDCollisionYieldsToPrimary(t *testing.T) {
+	key := "K3333333333333333"
+	sidecarName := "trice_collision_c_" + key + ".h"
+	source := "#include \"" + sidecarName + "\" // trice-bind: keep as last include before this file's Trice calls\n" +
+		"void f(void) { trice(\"secondary format\"); }\n"
+	defer prepareBindTest(t, map[string]string{"nested/collision.c": source})()
+
+	project := filepath.Join(Proj, t.Name())
+	writeBindTestTIL(t, FnJSON, TriceIDLookUp{151: {Type: "trice", Strg: "primary format"}})
+	secondaryTILPath := filepath.Join(project, "nested", "demoIDs.json")
+	secondaryBefore := writeBindTestTIL(t, secondaryTILPath, TriceIDLookUp{151: {Type: "trice", Strg: "secondary format"}})
+	historicalDir := filepath.Join(project, "nested", "build", "triceIDs")
+	require.NoError(t, FSys.MkdirAll(historicalDir, 0o755))
+	require.NoError(t, FSys.WriteFile(filepath.Join(historicalDir, sidecarName), []byte(
+		"#define TRICE_BIND_FILE_KEY "+key+"\n"+
+			"#define TRICE_BIND_ROUTE_"+key+" BIND\n"+
+			"#define TRICE_BIND_SITE_"+key+"_L2 TRICE_BIND_AUTO, iD(151u)\n"), 0o644))
+	BindDir = filepath.Join(project, "root-build", "triceIDs")
+
+	Verbose = true
+	var output bytes.Buffer
+	require.NoErrorf(t, SubCmdIdBind(&output, FSys), "%s", output.String())
+	assert.Contains(t, output.String(), "read-only ID 151")
+	assert.Contains(t, output.String(), "yields to the primary TIL")
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "primary format"}, IDData.idToTrice[151])
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "secondary format"}, IDData.idToTrice[100])
+	generated, err := FSys.ReadFile(filepath.Join(BindDir, sidecarName))
+	require.NoError(t, err)
+	assert.Contains(t, string(generated), "iD(100u)")
+	secondaryAfter, err := FSys.ReadFile(secondaryTILPath)
+	require.NoError(t, err)
+	assert.Equal(t, secondaryBefore, secondaryAfter)
+}
+
+// TestBindConflictingSecondaryProjectsResolveDeterministically verifies that
+// two read-only projects may reuse one local number differently. Sorted source
+// order claims the free primary number once; the later project receives a new
+// primary ID without either secondary TIL being rewritten.
+func TestBindConflictingSecondaryProjectsResolveDeterministically(t *testing.T) {
+	keyA := "K4444444444444444"
+	keyB := "K5555555555555555"
+	sourceA := "#include \"trice_module_c_" + keyA + ".h\" // trice-bind: keep as last include before this file's Trice calls\n" +
+		"void a(void) { trice(\"project a\"); }\n"
+	sourceB := "#include \"trice_module_c_" + keyB + ".h\" // trice-bind: keep as last include before this file's Trice calls\n" +
+		"void b(void) { trice(\"project b\"); }\n"
+	defer prepareBindTest(t, map[string]string{"a/module.c": sourceA, "b/module.c": sourceB})()
+
+	project := filepath.Join(Proj, t.Name())
+	Srcs = ArrayFlag{project}
+	aTILPath := filepath.Join(project, "a", "local.json")
+	bTILPath := filepath.Join(project, "b", "local.json")
+	aBefore := writeBindTestTIL(t, aTILPath, TriceIDLookUp{150: {Type: "trice", Strg: "project a"}})
+	bBefore := writeBindTestTIL(t, bTILPath, TriceIDLookUp{150: {Type: "trice", Strg: "project b"}})
+	writeBindTestLI(t, filepath.Join(project, "a", "where.json"), TriceIDLookUpLI{150: {File: "module.c", Line: 2}})
+	writeBindTestLI(t, filepath.Join(project, "b", "where.json"), TriceIDLookUpLI{150: {File: "module.c", Line: 2}})
+
+	Verbose = true
+	var output bytes.Buffer
+	require.NoErrorf(t, SubCmdIdBind(&output, FSys), "%s", output.String())
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "project a"}, IDData.idToTrice[150])
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "project b"}, IDData.idToTrice[100])
+	assert.Contains(t, output.String(), "read-only ID 150")
+	assert.Contains(t, output.String(), "yields to the primary TIL")
+
+	aAfter, err := FSys.ReadFile(aTILPath)
+	require.NoError(t, err)
+	assert.Equal(t, aBefore, aAfter)
+	bAfter, err := FSys.ReadFile(bTILPath)
+	require.NoError(t, err)
+	assert.Equal(t, bBefore, bAfter)
+}
+
+// TestBindDirectorySourceIgnoresHiddenFolders ensures neither source files nor
+// tempting metadata below .git-like or .trice-like trees influence bind.
+func TestBindDirectorySourceIgnoresHiddenFolders(t *testing.T) {
+	defer prepareBindTest(t, map[string]string{
+		"visible.c":                "void visible(void) { trice(\"visible\"); }\n",
+		".trice/cache/hidden.c":    "void hidden(void) { trice(\"hidden\"); }\n",
+		".git/generated/ignored.c": "void ignored(void) { trice(\"ignored\"); }\n",
+	})()
+
+	project := filepath.Join(Proj, t.Name())
+	Srcs = ArrayFlag{project}
+	hiddenTILPath := filepath.Join(project, ".trice", "cache", "oldIDs.json")
+	writeBindTestTIL(t, hiddenTILPath, TriceIDLookUp{155: {Type: "trice", Strg: "visible"}})
+	hiddenBefore, err := FSys.ReadFile(filepath.Join(project, ".trice", "cache", "hidden.c"))
+	require.NoError(t, err)
+	gitBefore, err := FSys.ReadFile(filepath.Join(project, ".git", "generated", "ignored.c"))
+	require.NoError(t, err)
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	visible, err := FSys.ReadFile(filepath.Join(project, "visible.c"))
+	require.NoError(t, err)
+	assert.Contains(t, string(visible), "// trice-bind: keep as last include")
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "visible"}, IDData.idToTrice[100])
+	_, importedHiddenID := IDData.idToTrice[155]
+	assert.False(t, importedHiddenID)
+	hiddenAfter, err := FSys.ReadFile(filepath.Join(project, ".trice", "cache", "hidden.c"))
+	require.NoError(t, err)
+	assert.Equal(t, hiddenBefore, hiddenAfter)
+	gitAfter, err := FSys.ReadFile(filepath.Join(project, ".git", "generated", "ignored.c"))
+	require.NoError(t, err)
+	assert.Equal(t, gitBefore, gitAfter)
+}
+
+// TestClassifyBindMetadataJSONByContent documents the filename-independent
+// schema discriminator and its deliberate treatment of empty optional maps.
+func TestClassifyBindMetadataJSONByContent(t *testing.T) {
+	tilKind, til, _, err := classifyBindMetadataJSON([]byte(`{"123":{"Type":"trice","Strg":"x"}}`))
+	require.NoError(t, err)
+	assert.Equal(t, bindMetadataTIL, tilKind)
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "x"}, til[123])
+
+	liKind, _, li, err := classifyBindMetadataJSON([]byte(`{"123":{"File":"src/a.c","Line":7}}`))
+	require.NoError(t, err)
+	assert.Equal(t, bindMetadataLI, liKind)
+	assert.Equal(t, TriceLI{File: "src/a.c", Line: 7}, li[123])
+
+	emptyKind, _, _, err := classifyBindMetadataJSON([]byte(`{}`))
+	require.NoError(t, err)
+	assert.Equal(t, bindMetadataUnknown, emptyKind)
+	_, _, _, err = classifyBindMetadataJSON([]byte(`{"123":{"Type":"trice","Line":7}}`))
+	assert.Error(t, err)
 }

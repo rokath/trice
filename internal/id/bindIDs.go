@@ -50,6 +50,9 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	diagnostics = append(diagnostics, planBindExecution(plans, model, true)...)
 	applyBindRebaseRegions(plans)
 	for i := range plans {
+		// A formatter owns horizontal spacing around a valid generated include.
+		// Reuse those exact bytes when the regenerated semantic identity agrees.
+		preserveBindRebaseFormatting(&plans[i])
 		plans[i].includes = scanBindIncludes(string(plans[i].final))
 		plans[i].sites, _ = scanBindSites(plans[i].path, string(plans[i].final))
 	}
@@ -65,11 +68,13 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 
 	IDData.err = nil
 	IDData.PreProcessing(w, fSys)
+	metadataResolver := newBindMetadataResolver(w, fSys)
+	preferredIDs := preferredBindIDs(w, plans, metadataResolver)
 	initialIDs := make(map[TriceID]struct{}, len(IDData.idToTrice))
 	for id := range IDData.idToTrice {
 		initialIDs[id] = struct{}{}
 	}
-	diagnostics = append(diagnostics, assignBindIDs(w, plans, initialIDs)...)
+	diagnostics = append(diagnostics, assignBindIDs(w, plans, initialIDs, preferredIDs)...)
 
 	for i := range plans {
 		if plans[i].class == bindFileBound && plans[i].key != "" {
@@ -109,51 +114,6 @@ func validateBindOptions() error {
 		return errors.New("trice bind: -bindDir must not be empty")
 	}
 	return nil
-}
-
-// collectBindInputs uses the same concurrent ant walker and source-file predicate as insert.
-func collectBindInputs(w io.Writer, fSys *afero.Afero) ([]bindFileInput, []bindDiagnostic) {
-	var (
-		inputs      = make(map[string]bindFileInput)
-		diagnostics []bindDiagnostic
-		mutex       sync.Mutex
-	)
-	exclusions := append([]string(nil), ExcludeSrcs...)
-	exclusions = append(exclusions, filepath.Clean(BindDir))
-	if absoluteBindDir, err := filepath.Abs(BindDir); err == nil {
-		exclusions = append(exclusions, absoluteBindDir)
-	}
-	admin := &ant.Admin{
-		Trees:            append([]string(nil), Srcs...),
-		ExcludeTrees:     exclusions,
-		Verbose:          Verbose,
-		MatchingFileName: isSourceFile,
-	}
-	admin.Action = func(_ io.Writer, fileSystem *afero.Afero, path string, info os.FileInfo, _ *ant.Admin) error {
-		content, err := fileSystem.ReadFile(path)
-		mutex.Lock()
-		defer mutex.Unlock()
-		if err != nil {
-			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "cannot read source: " + err.Error()})
-			return nil
-		}
-		cleanPath := filepath.Clean(path)
-		inputs[cleanPath] = bindFileInput{path: cleanPath, info: info, data: content}
-		return nil
-	}
-	if err := admin.Walk(w, fSys); err != nil {
-		diagnostics = append(diagnostics, bindDiagnostic{message: "source walk failed: " + err.Error()})
-	}
-	paths := make([]string, 0, len(inputs))
-	for path := range inputs {
-		paths = append(paths, path)
-	}
-	sort.Strings(paths)
-	result := make([]bindFileInput, 0, len(paths))
-	for _, path := range paths {
-		result = append(result, inputs[path])
-	}
-	return result, diagnostics
 }
 
 // analyzeBindInputs performs independent classification in parallel and retains sorted plan order.
@@ -274,13 +234,15 @@ func newBindFileKey(owners map[string][]string) (string, error) {
 }
 
 // assignBindIDs runs the established insert pass in memory in deterministic source-path order.
-func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]struct{}) []bindDiagnostic {
+// Read-only historical candidates are inserted only into this virtual parser
+// view, keeping source files ID-free and retaining the one shared ID engine.
+func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]struct{}, preferred map[bindSiteReference]TriceID) []bindDiagnostic {
 	var diagnostics []bindDiagnostic
 	admin := new(ant.Admin)
 	classes := []bindFileClass{bindFileInsert, bindFileBound}
 	for _, class := range classes {
-		for i := range plans {
-			plan := &plans[i]
+		for planIndex := range plans {
+			plan := &plans[planIndex]
 			if plan.class != class {
 				continue
 			}
@@ -290,6 +252,7 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 				// Give the reused Insert engine the same byte-aligned view so it
 				// cannot allocate IDs or rewrite location data for non-sites.
 				insertInput = []byte(stripCComments(maskTriceInsertDisabledRegions(string(plan.final))))
+				insertInput = applyBindPreferredIDs(insertInput, planIndex, plan, preferred)
 			}
 			var insertOutput bytes.Buffer
 			virtual, modified, err := IDData.insertTriceIDs(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin)
