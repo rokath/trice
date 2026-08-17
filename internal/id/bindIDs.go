@@ -50,6 +50,12 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	diagnostics = append(diagnostics, planBindExecution(plans, model, true)...)
 	applyBindRebaseRegions(plans)
 	for i := range plans {
+		if len(plans[i].regions) == 0 {
+			// The first analysis and include planning already describe an
+			// unchanged file. Only inserted rebase boundaries invalidate offsets
+			// and require the comparatively expensive full source rescan.
+			continue
+		}
 		// A formatter owns horizontal spacing around a valid generated include.
 		// Reuse those exact bytes when the regenerated semantic identity agrees.
 		preserveBindRebaseFormatting(&plans[i])
@@ -252,10 +258,18 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 				// Give the reused Insert engine the same byte-aligned view so it
 				// cannot allocate IDs or rewrite location data for non-sites.
 				insertInput = []byte(stripCComments(maskTriceInsertDisabledRegions(string(plan.final))))
-				insertInput = applyBindPreferredIDs(insertInput, planIndex, plan, preferred)
+				preferredInput, preferredErr := applyBindPreferredIDs(insertInput, planIndex, plan, preferred)
+				if preferredErr != nil {
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: "cannot apply preferred IDs to the in-memory source: " + preferredErr.Error()})
+					continue
+				}
+				insertInput = preferredInput
 			}
+			var assignedIDs []TriceID
 			var insertOutput bytes.Buffer
-			virtual, modified, err := IDData.insertTriceIDs(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin)
+			_, modified, err := IDData.insertTriceIDsVisit(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin, func(id TriceID) {
+				assignedIDs = append(assignedIDs, id)
+			})
 			if err != nil {
 				message := strings.TrimSpace(insertOutput.String())
 				if message == "" {
@@ -271,29 +285,19 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 				continue
 			}
 
-			assigned, parseDiagnostics := scanBindSites(plan.path, string(virtual))
-			for _, diagnostic := range parseDiagnostics {
-				if strings.Contains(diagnostic.message, "multiple bindable") {
-					continue
-				}
-				diagnostics = append(diagnostics, diagnostic)
-			}
-			if len(assigned) != len(plan.sites) {
-				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: fmt.Sprintf("in-memory insert returned %d sites for %d parsed bind sites", len(assigned), len(plan.sites))})
+			if len(assignedIDs) != len(plan.sites) {
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: fmt.Sprintf("in-memory insert returned %d sites for %d parsed bind sites", len(assignedIDs), len(plan.sites))})
 				continue
 			}
 			for siteIndex := range plan.sites {
-				assignedSite := assigned[siteIndex]
-				if assignedSite.id <= 0 || assignedSite.wrapper == "" {
+				assignedID := assignedIDs[siteIndex]
+				if assignedID <= 0 || plan.sites[siteIndex].wrapper == "" {
 					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: plan.sites[siteIndex].line, message: "in-memory insert did not produce a valid site ID"})
 					continue
 				}
-				plan.sites[siteIndex].id = assignedSite.id
-				if plan.sites[siteIndex].mode == bindSiteAuto {
-					plan.sites[siteIndex].wrapper = assignedSite.wrapper
-				}
-				IDData.idToLocNew[assignedSite.id] = newTriceLI(plan.path, plan.sites[siteIndex].line)
-				if _, existed := initialIDs[assignedSite.id]; existed {
+				plan.sites[siteIndex].id = assignedID
+				IDData.idToLocNew[assignedID] = newTriceLI(plan.path, plan.sites[siteIndex].line)
+				if _, existed := initialIDs[assignedID]; existed {
 					plan.reusedIDs++
 				} else {
 					plan.newIDs++

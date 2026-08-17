@@ -36,6 +36,15 @@ const (
 	atomicRenameAttempts        = 20
 )
 
+// sourceEdit describes one replacement against the unchanged input text.
+// Insert and Bind collect these edits while the shared parser makes its normal
+// ID decisions, then apply all replacements in one linear output pass.
+type sourceEdit struct {
+	start       int
+	end         int
+	replacement string
+}
+
 // maskTriceInsertDisabledRegions blanks source regions between TRICE_INSERT_OFF
 // and TRICE_INSERT_ON markers while preserving byte offsets and line numbers.
 func maskTriceInsertDisabledRegions(s string) string {
@@ -785,8 +794,10 @@ func shortenDiagnosticLine(s string, maxRunes int) string {
 	return string(runes[:maxRunes]) + " ..."
 }
 
-// writeID inserts id into s according to loc information and returns the result together with the changed len.
-func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
+// idSourceEdit creates the source replacement needed to write one ID. Offset
+// and loc refer to the unchanged input, which lets callers defer all copying
+// until every parser-derived edit is known.
+func idSourceEdit(s string, offset int, loc []int, t TriceFmt, id TriceID) sourceEdit {
 	gap := ""
 	if SpaceInsideParenthesis {
 		gap = " "
@@ -809,14 +820,60 @@ func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result st
 		}
 	}
 	idName += gap
-	first := s[:offset+loc[2]]                      // first is the not touched s part before the replacement space.
-	idSiz := loc[5] - loc[2]                        // idSiz is the size of the replaced ID space inside the source code.
-	last := s[offset+loc[5]:]                       // last is the not touched s part after the replacement space.
 	prefix := keptOpeningWhitespace(s, offset, loc) // prefix preserves user whitespace after the opening parenthesis.
 	idIns := prefix + idName + strconv.Itoa(int(id)) + gap + "), "
-	result = first + idIns + last //
-	delta = len(idIns) - idSiz    // delta is the offset change.
-	return
+	return sourceEdit{start: offset + loc[2], end: offset + loc[5], replacement: idIns}
+}
+
+// applySourceEdits validates sorted, non-overlapping replacements and applies
+// them with one allocation. Returning an error keeps an internal offset defect
+// transactional instead of producing a partially transformed source string.
+func applySourceEdits(source string, edits []sourceEdit) (string, error) {
+	if len(edits) == 0 {
+		return source, nil
+	}
+
+	finalSize := len(source)
+	previousEnd := 0
+	for index, edit := range edits {
+		if edit.start < 0 || edit.end < edit.start || edit.end > len(source) {
+			return "", fmt.Errorf("source edit %d has invalid range [%d:%d] for %d bytes", index, edit.start, edit.end, len(source))
+		}
+		if edit.start < previousEnd {
+			return "", fmt.Errorf("source edit %d overlaps the previous edit at byte %d", index, edit.start)
+		}
+		finalSize += len(edit.replacement) - (edit.end - edit.start)
+		previousEnd = edit.end
+	}
+	if finalSize < 0 {
+		return "", errors.New("source edits produced an invalid negative output size")
+	}
+
+	var result strings.Builder
+	result.Grow(finalSize)
+	previousEnd = 0
+	for _, edit := range edits {
+		result.WriteString(source[previousEnd:edit.start])
+		result.WriteString(edit.replacement)
+		previousEnd = edit.end
+	}
+	result.WriteString(source[previousEnd:])
+	return result.String(), nil
+}
+
+// writeID inserts id into s according to loc information and returns the result together with the changed len.
+// It remains the single-edit compatibility helper for Clean, Zero, and focused tests.
+func writeID(s string, offset int, loc []int, t TriceFmt, id TriceID) (result string, delta int) {
+	edit := idSourceEdit(s, offset, loc, t, id)
+	result, err := applySourceEdits(s, []sourceEdit{edit})
+	if err != nil {
+		// Parser-derived locations were historically trusted by direct slicing
+		// in this helper. Preserve that invariant while making its violation
+		// explicit for developers.
+		panic(err)
+	}
+	delta = len(edit.replacement) - (edit.end - edit.start)
+	return result, delta
 }
 
 func keptOpeningWhitespace(s string, offset int, loc []int) string {

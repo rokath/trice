@@ -288,6 +288,7 @@ func parseBindRebaseMarker(line string) (kind, scope string, ok bool) {
 // leaving all Trice-call recognition to scanBindSites and matchTrice.
 func scanBindMacroDefinitions(source string) []bindMacroDefinition {
 	var definitions []bindMacroDefinition
+	line := 1
 	for start := 0; start < len(source); {
 		end := lineEndIncludingNewline(source, start)
 		logicalEnd := end
@@ -298,11 +299,13 @@ func scanBindMacroDefinitions(source string) []bindMacroDefinition {
 		masked := stripCComments(logical)
 		position := skipBindSpace(masked, 0)
 		if position >= len(masked) || masked[position] != '#' {
+			line += strings.Count(logical, "\n")
 			start = logicalEnd
 			continue
 		}
 		position = skipBindSpace(masked, position+1)
 		if !bindIdentifierAt(masked, position, "define") {
+			line += strings.Count(logical, "\n")
 			start = logicalEnd
 			continue
 		}
@@ -312,6 +315,7 @@ func scanBindMacroDefinitions(source string) []bindMacroDefinition {
 			position++
 		}
 		if position == nameStart || !bindIdentifierStart(masked[nameStart]) {
+			line += strings.Count(logical, "\n")
 			start = logicalEnd
 			continue
 		}
@@ -319,7 +323,7 @@ func scanBindMacroDefinitions(source string) []bindMacroDefinition {
 			name:  strings.TrimSpace(masked[nameStart:position]),
 			start: start,
 			end:   logicalEnd,
-			line:  sourceLine(source, start),
+			line:  line,
 		}
 		definition.replacementStart = start + position
 		if position < len(masked) && masked[position] == '(' {
@@ -335,6 +339,7 @@ func scanBindMacroDefinitions(source string) []bindMacroDefinition {
 		definition.hasTerminatingSemicolon = strings.HasSuffix(strings.TrimSpace(code), ";")
 		definition.hasCounter = bindContainsIdentifier(code, "__COUNTER__")
 		definitions = append(definitions, definition)
+		line += strings.Count(logical, "\n")
 		start = logicalEnd
 	}
 	return definitions
@@ -471,15 +476,61 @@ func maskBindCommentsAndLiterals(source string) string {
 	return string(out)
 }
 
-// findBindClosingParen matches a call parenthesis while ignoring comments and literals.
+// findBindClosingParen matches a call parenthesis while ignoring comments and
+// literals. The scan starts immediately after a known opening parenthesis, so
+// it can track lexical state locally instead of masking the complete source for
+// every Trice site in a large file.
 func findBindClosingParen(source string, position int) int {
-	masked := maskBindCommentsAndLiterals(source)
 	depth := 1
-	for index := position; index < len(masked); index++ {
-		switch masked[index] {
-		case '(':
+	var inBlockComment, inLineComment, inString, inChar, escaped bool
+	for index := position; index < len(source); index++ {
+		value := source[index]
+		switch {
+		case inLineComment:
+			if value == '\n' || value == '\r' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if value == '*' && index+1 < len(source) && source[index+1] == '/' {
+				inBlockComment = false
+				index++
+			}
+			continue
+		case inString:
+			if escaped {
+				escaped = false
+			} else if value == '\\' {
+				escaped = true
+			} else if value == '"' {
+				inString = false
+			}
+			continue
+		case inChar:
+			if escaped {
+				escaped = false
+			} else if value == '\\' {
+				escaped = true
+			} else if value == '\'' {
+				inChar = false
+			}
+			continue
+		}
+
+		switch {
+		case value == '/' && index+1 < len(source) && source[index+1] == '/':
+			inLineComment = true
+			index++
+		case value == '/' && index+1 < len(source) && source[index+1] == '*':
+			inBlockComment = true
+			index++
+		case value == '"':
+			inString = true
+		case value == '\'':
+			inChar = true
+		case value == '(':
 			depth++
-		case ')':
+		case value == ')':
 			depth--
 			if depth == 0 {
 				return index
@@ -728,6 +779,19 @@ func bindNestedWrapperName(replacement string, wrappers map[string]bindWrapperDe
 func scanBindWrapperInvocations(planIndex int, plans []bindFilePlan, model bindProjectModel) ([]bindWrapperInvocation, []bindDiagnostic) {
 	plan := &plans[planIndex]
 	source := string(plan.final)
+	mayContainWrapper := false
+	for name := range model.wrappers {
+		if strings.Contains(source, name) {
+			mayContainWrapper = true
+			break
+		}
+	}
+	if !mayContainWrapper {
+		// An invocation cannot appear after lexical masking when its identifier
+		// bytes are absent from the original source. Avoid allocating two masked
+		// copies for the usual files unrelated to logging wrappers.
+		return nil, nil
+	}
 	masked := maskBindCommentsAndLiterals(maskTriceInsertDisabledRegions(source))
 	var invocations []bindWrapperInvocation
 	var diagnostics []bindDiagnostic
@@ -832,6 +896,8 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 		if plan.class != bindFileBound || plan.key == "" {
 			continue
 		}
+		source := string(plan.final)
+		maskedSource := maskBindCommentsAndLiterals(source)
 
 		var occurrences []bindOccurrence
 		for siteIndex := range plan.sites {
@@ -839,7 +905,7 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 			if site.wasExplicit || site.definitionName != "" {
 				continue
 			}
-			end := bindDirectCallEnd(string(plan.final), *site)
+			end := bindDirectCallEnd(source, *site)
 			occurrences = append(occurrences, bindOccurrence{
 				start:   site.loc[0],
 				end:     end,
@@ -909,7 +975,7 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 			group := byLine[line]
 			requiresCounter := len(group) > 1
 			for _, occurrence := range group {
-				if len(occurrence.refs) > 1 || occurrence.wrapper && sourceLine(string(plan.final), occurrence.end-1) != occurrence.line {
+				if len(occurrence.refs) > 1 || occurrence.wrapper && sourceLine(source, occurrence.end-1) != occurrence.line {
 					requiresCounter = true
 				}
 			}
@@ -920,27 +986,27 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 			}
 
 			valid := true
-			regionStartPosition := lineStart(string(plan.final), group[0].start)
+			regionStartPosition := lineStart(source, group[0].start)
 			lastOccurrenceEnd := group[0].end
 			for _, occurrence := range group[1:] {
 				if occurrence.end > lastOccurrenceEnd {
 					lastOccurrenceEnd = occurrence.end
 				}
 			}
-			regionEndPosition := lineEndIncludingNewline(string(plan.final), lastOccurrenceEnd-1)
+			regionEndPosition := lineEndIncludingNewline(source, lastOccurrenceEnd-1)
 			if regionEndPosition == len(plan.final) && (len(plan.final) == 0 || plan.final[len(plan.final)-1] != '\n') {
 				valid = false
 				if diagnose {
 					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement region must end with a newline so generated rebase includes remain removable"})
 				}
 			}
-			if !bindRebaseLineIsIndependent(string(plan.final), regionStartPosition, regionEndPosition, group[0].start, macroTerminatedEnds) {
+			if !bindRebaseLineIsIndependentMasked(source, maskedSource, regionStartPosition, regionEndPosition, group[0].start, macroTerminatedEnds) {
 				valid = false
 				if diagnose {
 					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice statement region is not an independent block item; generated rebase directives cannot safely surround a control-flow continuation or closing outer scope"})
 				}
 			}
-			regionCode := maskBindCommentsAndLiterals(string(plan.final[regionStartPosition:regionEndPosition]))
+			regionCode := maskedSource[regionStartPosition:regionEndPosition]
 			if bindContainsIdentifier(regionCode, "__COUNTER__") {
 				valid = false
 				if diagnose {
@@ -969,7 +1035,7 @@ func planBindExecution(plans []bindFilePlan, model bindProjectModel, diagnose bo
 
 			var expansions []bindSiteReference
 			for _, occurrence := range group {
-				if occurrence.end <= occurrence.start || occurrence.end > regionEndPosition || !bindStandaloneCallContext(maskBindCommentsAndLiterals(string(plan.final)), occurrence.start) {
+				if occurrence.end <= occurrence.start || occurrence.end > regionEndPosition || !bindStandaloneCallContext(maskedSource, occurrence.start) {
 					valid = false
 					if diagnose {
 						diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: line, message: "counter-selected Trice calls and logging wrappers must be complete standalone statements"})
@@ -1035,6 +1101,13 @@ func bindRebaseRegionContainsDirective(masked string) bool {
 // flow by inserting a declaration between two dependent statements.
 func bindRebaseLineIsIndependent(source string, start, end, firstOccurrence int, macroTerminatedEnds map[int]bool) bool {
 	masked := maskBindCommentsAndLiterals(source)
+	return bindRebaseLineIsIndependentMasked(source, masked, start, end, firstOccurrence, macroTerminatedEnds)
+}
+
+// bindRebaseLineIsIndependentMasked applies the context rules to a reusable
+// lexical view. planBindExecution calls it repeatedly for one source file and
+// must not rebuild that full-size view for every candidate region.
+func bindRebaseLineIsIndependentMasked(source, masked string, start, end, firstOccurrence int, macroTerminatedEnds map[int]bool) bool {
 	lineCode := masked[start:end]
 	depth := 0
 	for index := 0; index < len(lineCode); index++ {

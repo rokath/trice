@@ -45,10 +45,23 @@ func analyzeBindFile(input bindFileInput) bindFilePlan {
 			scope: block.scope,
 		})
 	}
-	plan.includes = scanBindIncludes(string(clean))
-	var siteDiagnostics []bindDiagnostic
-	plan.sites, siteDiagnostics = scanBindSites(input.path, string(clean))
-	plan.diagnostics = append(plan.diagnostics, siteDiagnostics...)
+	cleanSource := string(clean)
+	// The configured shared matcher must see every actual Trice start in the
+	// original bytes as well as in the comment-masked view. A cheap raw miss is
+	// therefore conclusive and avoids two full-size masking passes for the many
+	// project files that contain no Trice call at all.
+	mayHaveTrice := matchAnyTriceStart.FindStringIndex(cleanSource) != nil
+	if mayHaveTrice || strings.Contains(cleanSource, "trice_") {
+		// Include parsing is required for a live site and for a source that may
+		// already carry a generated sidecar. Files with neither raw token cannot
+		// affect bind ownership or include placement.
+		plan.includes = scanBindIncludes(cleanSource)
+	}
+	if mayHaveTrice {
+		var siteDiagnostics []bindDiagnostic
+		plan.sites, siteDiagnostics = scanBindSites(input.path, cleanSource)
+		plan.diagnostics = append(plan.diagnostics, siteDiagnostics...)
+	}
 
 	var hasBindSite, hasExplicitSite bool
 	for _, site := range plan.sites {
@@ -131,11 +144,31 @@ func scanBindSites(path, source string) (sites []bindSite, diagnostics []bindDia
 	masked := stripCComments(maskTriceInsertDisabledRegions(source))
 	rest := masked
 	offset := 0
+	// Matches and their parser issues arrive in source order. Advancing one
+	// cursor computes line and column information in total O(source size), while
+	// repeatedly counting from byte zero would make large files quadratic.
+	line, lineStartOffset, positionOffset := 1, 0, 0
+	positionOf := func(position int) (int, int) {
+		if position < positionOffset {
+			// This defensive path preserves correctness if a future parser reports
+			// issues out of order; the current shared matcher never takes it.
+			return sourceLine(source, position), sourceColumn(source, position)
+		}
+		for index := positionOffset; index < position; index++ {
+			if source[index] == '\n' {
+				line++
+				lineStartOffset = index + 1
+			}
+		}
+		positionOffset = position
+		return line, position - lineStartOffset + 1
+	}
 	for {
 		loc, matchIssues := matchTriceWithIssues(rest)
 		for _, issue := range matchIssues {
 			position := offset + issue.offset
-			diagnostics = append(diagnostics, bindDiagnostic{path: path, line: sourceLine(source, position), message: issue.message})
+			issueLine, _ := positionOf(position)
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, line: issueLine, message: issue.message})
 		}
 		if loc == nil {
 			break
@@ -144,9 +177,10 @@ func scanBindSites(path, source string) (sites []bindSite, diagnostics []bindDia
 		for i := range absolute {
 			absolute[i] = offset + loc[i]
 		}
+		siteLine, siteColumn := positionOf(absolute[0])
 		site := bindSite{
-			line:    sourceLine(source, absolute[0]),
-			column:  sourceColumn(source, absolute[0]),
+			line:    siteLine,
+			column:  siteColumn,
 			loc:     absolute,
 			macro:   source[absolute[0]:absolute[1]],
 			comment: bindSourceComment(source, absolute),

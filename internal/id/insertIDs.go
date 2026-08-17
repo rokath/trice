@@ -81,7 +81,16 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 	return ids // unchanged, if id not found inside ids
 }
 
-// insertTriceIDs does the ID insertion task on in and returns the result in out with modified==true when out != in.
+// insertTriceIDs preserves the established insertion API while the optional
+// visit hook used by bind remains an internal implementation detail.
+func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+	return p.insertTriceIDsVisit(w, sourcePath, liFile, in, a, nil)
+}
+
+// insertTriceIDsVisit does the ID insertion task on in and returns the result
+// in out with modified==true when out != in. When visitAssignedID is non-nil,
+// it receives each final ID in parser order after the shared allocator accepts
+// it. Bind uses that sequence to avoid reparsing its complete virtual output.
 //
 // in is the read sourcePath content and out is the file content which needs to be written.
 // a is used for mutex access to IDData. sourcePath is needed for diagnostics, liFile for location information.
@@ -107,14 +116,14 @@ func removeIDFromSlice(ids []TriceID, id TriceID) []TriceID {
 // - idInSourceIsZero,    trice is not inside p.triceToId                                     -> create new ID & add ID to p.idToTrice
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching liFile exists, its first occurrence is used.
-func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin) (out []byte, modified bool, err error) {
+func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin, visitAssignedID func(TriceID)) (out []byte, modified bool, err error) {
 	var idn TriceID                              // idn is the last found id inside the source.
 	var idN TriceID                              // idN is the to be written id into the source.
 	var idS string                               // idS is the "iD(n)" statement, if found.
 	outs := string(in)                           // outs is the resulting string.
 	rest := maskTriceInsertDisabledRegions(outs) // rest is the so far not processed part of the file.
-	var offset int                               // offset is incremented by n, when rest is reduced by n.
-	var delta int                                // offset change cause by ID statement insertion
+	var sourceOffset int                         // sourceOffset locates rest inside the unchanged input.
+	var edits []sourceEdit                       // edits are applied together after all shared ID decisions succeed.
 	var t TriceFmt                               // t is the actual located trice.
 	line := 1                                    // line counts source code lines, these start with 1.
 	if p.err != nil {
@@ -167,7 +176,7 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 				}
 				//line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information. // issue # 523
 				rest = rest[loc[6]:]
-				offset += loc[6]
+				sourceOffset += loc[6]
 				continue // ignore such cases
 			} else { // This is the normal case like trice( iD( 111)... .
 				nStrg := idS[nLoc[0]:nLoc[1]] // nStrg is the plain number string.
@@ -181,7 +190,7 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 					fmt.Fprintln(w, "unexpected ", err, nStrg) // report
 					//line += strings.Count(rest[:loc[6]], "\n") // Keep line number up-to-date for location information. // issue # 523
 					rest = rest[loc[6]:]
-					offset += loc[6]
+					sourceOffset += loc[6]
 					continue // ignore such cases
 				}
 			}
@@ -340,13 +349,17 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 		}
 		p.idToTrice[idN] = t // add ID to p.idToTrice
 		a.Mutex.Unlock()
+		if visitAssignedID != nil {
+			visitAssignedID(idN)
+		}
 		//line += strings.Count(rest[:loc[1]], "\n") // Update line number for location information. // issue #523
 		if idN != idn {
 			if Verbose {
 				fmt.Fprintln(w, "Need to change source.", idn, " -> ", idN, " for ", t, "in file", sourcePath)
 			}
-			outs, delta = writeID(outs, offset, loc, t, idN)
-			offset += delta
+			// Keep parsing the unchanged input. Rebuilding the complete source
+			// here for every site made large cleaned files quadratic in size.
+			edits = append(edits, idSourceEdit(outs, sourceOffset, loc, t, idN))
 			modified = true
 		}
 		a.Mutex.Lock()
@@ -357,7 +370,11 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 		a.Mutex.Unlock()
 		line += strings.Count(rest[loc[1]:loc[6]], "\n") // Keep line number up-to-date for location information. // issue #523
 		rest = rest[loc[6]:]
-		offset += loc[6]
+		sourceOffset += loc[6]
+	}
+	outs, err = applySourceEdits(outs, edits)
+	if err != nil {
+		return nil, false, fmt.Errorf("cannot apply collected Trice ID insertions in %s: %w", sourcePath, err)
 	}
 	out = []byte(outs)
 	return

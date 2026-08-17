@@ -5,6 +5,9 @@ package id
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/rokath/trice/pkg/ant"
@@ -157,6 +160,77 @@ func TestWriteAndCleanIDHelpers(t *testing.T) {
 	got, delta = cleanID(lower, 0, matchTrice(lower), TriceFmt{Type: "trice", Strg: "msg"})
 	assert.Equal(t, `trice( "msg");`, got)
 	assert.NotZero(t, delta)
+}
+
+// TestApplySourceEditsBatchesNonOverlappingReplacements verifies the linear
+// transformation primitive used by both Insert and Bind, including its
+// transactional rejection of malformed internal edit ranges.
+func TestApplySourceEditsBatchesNonOverlappingReplacements(t *testing.T) {
+	source := "alpha beta gamma"
+	edits := []sourceEdit{
+		{start: 0, end: 5, replacement: "A"},
+		{start: 6, end: 10, replacement: "B"},
+		{start: 11, end: 16, replacement: "C"},
+	}
+
+	result, err := applySourceEdits(source, edits)
+	require.NoError(t, err)
+	assert.Equal(t, "A B C", result)
+
+	_, err = applySourceEdits(source, []sourceEdit{
+		{start: 0, end: 5, replacement: "A"},
+		{start: 4, end: 6, replacement: "overlap"},
+	})
+	assert.ErrorContains(t, err, "overlaps")
+
+	_, err = applySourceEdits(source, []sourceEdit{{start: 0, end: len(source) + 1, replacement: "invalid"}})
+	assert.ErrorContains(t, err, "invalid range")
+}
+
+// TestFindBindClosingParenScansOnlyCallExtent covers the lexical states needed
+// by the allocation-free local scanner. Parentheses inside comments, strings,
+// character literals, and nested calls must not terminate the outer call.
+func TestFindBindClosingParenScansOnlyCallExtent(t *testing.T) {
+	source := "call(nested(1), \"text ) \\\" still string\", ')' /* ) */, // )\n value) trailing"
+	opening := strings.IndexByte(source, '(')
+	require.NotEqual(t, -1, opening)
+	expected := strings.Index(source, ") trailing")
+	require.NotEqual(t, -1, expected)
+	assert.Equal(t, expected, findBindClosingParen(source, opening+1))
+
+	assert.Equal(t, -1, findBindClosingParen("call(nested(1)", len("call(")))
+}
+
+// TestInsertTriceIDsBatchesLargeSource verifies that the established allocator
+// and parser still produce byte-identical ordered IDs when many edits are
+// deferred until one final source transformation.
+func TestInsertTriceIDsBatchesLargeSource(t *testing.T) {
+	defer Setup(t)()
+
+	const siteCount = 512
+	idSpace := make([]TriceID, siteCount)
+	var source strings.Builder
+	var expected strings.Builder
+	for index := 0; index < siteCount; index++ {
+		idSpace[index] = TriceID(1000 + index)
+		fmt.Fprintf(&source, "trice(\"message %04d\");\n", index)
+		fmt.Fprintf(&expected, "trice(iD(%d), \"message %04d\");\n", idSpace[index], index)
+	}
+	p := &idData{
+		idToTrice:  make(TriceIDLookUp),
+		triceToId:  make(triceFmtLookUp),
+		idToLocRef: make(TriceIDLookUpLI),
+		idToLocNew: make(TriceIDLookUpLI),
+		TagList:    []TagEntry{{tagName: "", iDSpace: idSpace}},
+	}
+	SearchMethod = "upward"
+
+	out, modified, err := p.insertTriceIDs(io.Discard, "large.c", "large.c", []byte(source.String()), &ant.Admin{})
+	require.NoError(t, err)
+	assert.True(t, modified)
+	assert.Equal(t, expected.String(), string(out))
+	assert.Len(t, p.idToTrice, siteCount)
+	assert.Len(t, p.idToLocNew, siteCount)
 }
 
 // TestRemoveIDFromSlice verifies both the removal and unchanged branches.
