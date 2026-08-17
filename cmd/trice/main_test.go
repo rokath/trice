@@ -6,6 +6,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net"
+	"net/rpc"
 	"os"
 	"testing"
 	"time"
@@ -16,6 +18,50 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
+
+// reserveLoopbackAddress selects an ephemeral IPv4 port. Using an explicit
+// address avoids platform-dependent localhost resolution between IPv4 and
+// IPv6 while the server and shutdown client start concurrently.
+func reserveLoopbackAddress(t *testing.T) (host, port, address string) {
+	t.Helper()
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("cannot reserve loopback address: %v", err)
+	}
+	address = listener.Addr().String()
+	if err := listener.Close(); err != nil {
+		t.Fatalf("cannot release reserved loopback address %s: %v", address, err)
+	}
+	host, port, err = net.SplitHostPort(address)
+	if err != nil {
+		t.Fatalf("cannot split loopback address %s: %v", address, err)
+	}
+	return host, port, address
+}
+
+// waitForDisplayServer waits for the listener rather than for its earlier
+// startup text. ScDisplayServer emits that text immediately before net.Listen,
+// so the text alone does not prove that an RPC client can connect yet.
+func waitForDisplayServer(t *testing.T, address string, serverDone <-chan error) {
+	t.Helper()
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		connection, err := net.DialTimeout("tcp", address, 100*time.Millisecond)
+		if err == nil {
+			_ = connection.Close()
+			return
+		}
+		select {
+		case serverErr := <-serverDone:
+			t.Fatalf("display server stopped before becoming reachable at %s: %v", address, serverErr)
+		default:
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("display server did not become reachable at %s: %v", address, err)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
 
 // setupTest - look for "This is the greatest answer in this thread" in  https://stackoverflow.com/questions/23729790/how-can-i-do-test-setup-using-the-testing-package-in-go
 func setupTest(t *testing.T, fSys *afero.Afero) func() {
@@ -111,31 +157,40 @@ func _TestDisplayServerStartAndShutdownLegacy(t *testing.T) {
 	assert.Equal(t, "", sd.String())
 }
 
-// TestDisplayServerStartAndShutdown fails with -race.
-// ds should be a channel to avoid that, but I do notknow how to do that here without changing the args.Handler signature.
+// TestDisplayServerStartAndShutdown0 verifies CLI-level display-server startup
+// and RPC shutdown after the listener is ready for connections. Calling the
+// shutdown CLI through args.Handler here would run the process-global argument
+// parser concurrently with the server CLI, unlike two real trice processes.
 func TestDisplayServerStartAndShutdown0(t *testing.T) {
 
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer setupTest(t, fSys)()
+	host, port, address := reserveLoopbackAddress(t)
 
 	var ds bytes.Buffer
-	go args.Handler(&ds, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61497"})
+	serverDone := make(chan error, 1)
+	go func() {
+		serverDone <- args.Handler(&ds, fSys, []string{"trice", "ds", "-color", "none", "-ipa", host, "-ipp", port})
+	}()
+	waitForDisplayServer(t, address, serverDone)
 
-	for ds.String() != "displayServer @ localhost:61497\n" {
-		time.Sleep(1 * time.Millisecond)
+	client, err := rpc.Dial("tcp", address)
+	if err != nil {
+		t.Fatalf("cannot connect shutdown RPC client to %s: %v", address, err)
+	}
+	var shutdownReply int64
+	shutdownErr := client.Call("DisplayServer.Shutdown", []int64{0}, &shutdownReply)
+	assert.NoError(t, shutdownErr)
+	assert.NoError(t, client.Close())
+	select {
+	case <-serverDone:
+	case <-time.After(3 * time.Second):
+		t.Fatal("display server did not stop after the shutdown RPC")
 	}
 
-	expect := "displayServer @ localhost:61497\n"
-	actual := ds.String()
-	assert.Equal(t, expect, actual)
-
-	var sd bytes.Buffer
-	args.Handler(&sd, fSys, []string{"trice", "sd", "-ipp", "61497"})
-
-	exp := "displayServer @ localhost:61497\n\n\ndisplayServer shutdown\n\n\n"
+	exp := "displayServer @ " + address + "\n\n\ndisplayServer shutdown\n\n\n"
 	act := ds.String()
 	assert.Equal(t, exp, act)
-	assert.Equal(t, "", sd.String())
 }
 
 // TestDisplayServerStartAndShutdown1 does not come to an end  for some reason!
