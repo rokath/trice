@@ -29,6 +29,8 @@
 #   By default we use:
 #       go run ./cmd/clang-filter
 #   which means no binary needs to be checked in or built manually.
+#   CLANG_FORMAT_BIN can select the required clang-format executable when it is
+#   not named `clang-format` on the current platform.
 #
 
 set -euo pipefail
@@ -73,6 +75,34 @@ done
 #       CLANG_FILTER_CMD=./clang-filter ./clang-format.sh check
 ###############################################################################
 CLANG_FILTER_CMD="${CLANG_FILTER_CMD:-go run ./cmd/clang-filter}"
+
+# clang-format output is not guaranteed to be stable across releases. Keep the
+# repository and CI on the exact release that produced the checked-in files so
+# `format` and `check` cannot disagree merely because they run on different
+# operating systems or rolling CI images.
+CLANG_FORMAT_BIN="${CLANG_FORMAT_BIN:-clang-format}"
+CLANG_FORMAT_REQUIRED_VERSION="19.1.7"
+
+if ! command -v "$CLANG_FORMAT_BIN" >/dev/null 2>&1; then
+  echo "clang-format: Required executable not found: $CLANG_FORMAT_BIN" >&2
+  echo "Install clang-format $CLANG_FORMAT_REQUIRED_VERSION or set CLANG_FORMAT_BIN to that executable." >&2
+  exit 1
+fi
+
+CLANG_FORMAT_VERSION_OUTPUT="$("$CLANG_FORMAT_BIN" --version)" || {
+  echo "clang-format: Failed to query the formatter version from $CLANG_FORMAT_BIN." >&2
+  exit 1
+}
+case "$CLANG_FORMAT_VERSION_OUTPUT" in
+  *"version $CLANG_FORMAT_REQUIRED_VERSION"*) ;;
+  *)
+    echo "clang-format: Unsupported formatter version." >&2
+    echo "  required: $CLANG_FORMAT_REQUIRED_VERSION" >&2
+    echo "  detected: $CLANG_FORMAT_VERSION_OUTPUT" >&2
+    echo "Install the required version or set CLANG_FORMAT_BIN to its executable." >&2
+    exit 1
+    ;;
+esac
 
 ###############################################################################
 # 3. Collect *all* tracked C/C++ source/header files from git.
@@ -125,9 +155,9 @@ fi
 # via stdin with a guaranteed-nonexistent assumed path. This preserves language
 # detection without triggering clang-format's second ignore-file evaluation.
 ###############################################################################
-if ! clang-format -style=file:.clang-format -dump-config >/dev/null; then
+if ! "$CLANG_FORMAT_BIN" -style=file:.clang-format -dump-config >/dev/null; then
   echo "clang-format: Failed to parse .clang-format." >&2
-  clang-format --version >&2 || true
+  "$CLANG_FORMAT_BIN" --version >&2 || true
   exit 1
 fi
 
@@ -152,7 +182,7 @@ clang_format_file() {
   shift
   local extension="${source_file##*.}"
   local assumed_file="$FORMAT_TMP_DIR/input.$extension"
-  clang-format -style=file:.clang-format --assume-filename="$assumed_file" "$@" <"$source_file"
+  "$CLANG_FORMAT_BIN" -style=file:.clang-format --assume-filename="$assumed_file" "$@" <"$source_file"
 }
 
 ###############################################################################
