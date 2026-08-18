@@ -25,10 +25,24 @@ clean_all_targets() {
   "$ROOT/examples/cleanAllTargets.sh"
 }
 
-# run_on_matrix executes the historical G0B1 X0 matrix and complete TRICE_ON
-# target list without embedding any ID preparation in this worker.
+# run_on_matrix executes one representative Bound GCC build in quick mode. Full
+# mode retains the historical G0B1 X0 matrix and complete TRICE_ON target list.
+# ID preparation remains owned by the calling workflow wrapper in both modes.
 run_on_matrix() {
+  local selected="$1"
+
   clean_all_targets
+  if [ "$selected" = "quick" ]; then
+    printf '+ examples/G0B1_inst/build.sh\n'
+    (
+      cd "$ROOT/examples/G0B1_inst" || exit 1
+      ./build.sh
+    )
+    fail_on_compiler_diagnostics "G0B1_inst quick build"
+    clean_all_targets
+    return 0
+  fi
+
   printf '+ examples/G0B1_inst/build.sh --x0-matrix\n'
   (
     cd "$ROOT/examples/G0B1_inst" || exit 1
@@ -61,8 +75,16 @@ run_off_matrix() {
 
 main() {
   local mode="${1:-}"
+  local selected="${2:-full}"
 
   : "${LOGFILE:?LOGFILE must be exported by the GCC workflow wrapper}"
+  case "$selected" in
+    quick | full) ;;
+    *)
+      printf 'Unsupported GCC Example selection: %s\n' "$selected" >&2
+      return 2
+      ;;
+  esac
   # shellcheck source=./_setup_build_environment.sh
   source "$SCRIPT_DIR/_setup_build_environment.sh"
   printf '+ arm-none-eabi-gcc --version\n'
@@ -71,7 +93,7 @@ main() {
   command -v arm-none-eabi-gcc
 
   case "$mode" in
-    on) run_on_matrix ;;
+    on) run_on_matrix "$selected" ;;
     off) run_off_matrix ;;
     *)
       printf 'Unsupported GCC Example worker mode: %s\n' "$mode" >&2

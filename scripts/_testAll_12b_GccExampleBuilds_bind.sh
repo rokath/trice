@@ -11,6 +11,9 @@ source "$SCRIPT_DIR/_testAll_00_common.sh"
 source "$SCRIPT_DIR/_trice_test_state.sh"
 
 main() {
+  local selected
+
+  selected="$(get_mode "${1:-full}")"
   init_logfile
   export LOGFILE
   if ! has_command arm-none-eabi-gcc; then
@@ -18,7 +21,7 @@ main() {
     log "SKIP: arm-none-eabi-gcc not installed"
     return 0
   fi
-  trice_test_run_managed_workflow bind example "$SCRIPT_DIR/_testAll_12_GccExampleBuilds_common.sh" on
+  trice_test_run_managed_workflow bind example "$SCRIPT_DIR/_testAll_12_GccExampleBuilds_common.sh" on "$selected"
 }
 
 main "$@"

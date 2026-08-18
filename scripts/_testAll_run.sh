@@ -119,7 +119,7 @@ main() {
     run_step "_testAll_12a_GccExampleBuilds_insert.sh" || failed=1
     run_step "_testAll_12c_GccExampleBuilds_off.sh" || failed=1
   fi
-  run_step "_testAll_12b_GccExampleBuilds_bind.sh" || failed=1
+  run_step "_testAll_12b_GccExampleBuilds_bind.sh" "$selected" || failed=1
   if [ "$selected" = "full" ]; then
     run_step "_testAll_13_L432Configs.sh" || failed=1
   fi
