@@ -3,6 +3,11 @@ set -euo pipefail
 
 # Resolve this script's directory (works with symlinks as well)
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
+
+# shellcheck source=./prepareTriceBind.sh
+source "$SCRIPT_DIR/prepareTriceBind.sh"
+prepare_trice_bind_build "$REPO_ROOT"
 
 failCount=0
 

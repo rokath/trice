@@ -27,40 +27,12 @@ for option; do
   esac
 done
 
-# Track whether this build inserted generated Trice IDs. The EXIT trap only
-# cleans the repository after a successful insert, including failed builds or
-# interrupted builds.
-ids_inserted=0
-
-cleanup_after_build() {
-  status=$1
-  trap - EXIT INT TERM
-
-  if [ "$ids_inserted" -eq 1 ]; then
-    echo "cleanup: running trice clean"
-    if ! bash "$repo_root/trice_cleanIDs_in_examples_and_test_folder.sh"; then
-      if [ "$status" -eq 0 ]; then
-        status=1
-      fi
-    fi
-  fi
-
-  exit "$status"
-}
-
-trap 'cleanup_after_build "$?"' EXIT
-trap 'cleanup_after_build 130' INT
-trap 'cleanup_after_build 143' TERM
-
-# An outer test wrapper owns Insert/Bind preparation and exact restoration. A
-# direct user invocation keeps the historical local Insert/Clean lifecycle.
-if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
-  echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"
-else
-  bash "$repo_root/trice_cleanIDs_in_examples_and_test_folder.sh"
-  bash "$repo_root/trice_insertIDs_in_examples_and_test_folder.sh"
-  ids_inserted=1
-fi
+# Bound sources depend on generated headers but those build artifacts are not
+# committed. The shared preparation runs Bind for direct builds and respects an
+# outer test workflow that already owns the source state.
+# shellcheck source=../prepareTriceBind.sh
+. "$script_dir/../prepareTriceBind.sh"
+prepare_trice_bind_build "$repo_root"
 
 cd "$script_dir"
 
