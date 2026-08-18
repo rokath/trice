@@ -50,6 +50,12 @@ For most existing projects, the non-blocking byte writer path is the least disru
 
 `trice bind` is the successor to the legacy `trice insert` / `trice clean` workflow. It keeps numeric IDs out of bind-managed Trice calls by generating sidecar headers as temporary build artefacts. Existing `insert` / `clean` projects remain fully supported and continue to work unchanged. This technique does not patch the user sources anymore during the build process. See [Trice Bind in User Manual](./docs/TriceUserManual.md#trice-bind) for details.
 
+`trice bind` is currently experimental and is not yet included in an official release. To try it before the next release, build the `trice` tool from this repository and ensure the resulting executable is in your `PATH`:
+
+```sh
+./scripts/buildTriceTool.sh
+```
+
 Try the minimal [`demo`](./demo). It uses only the installed `trice` binary and the target sources in [`src`](./src) from this repository.
 
 ## Details and advanced topics
