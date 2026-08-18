@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -32,6 +33,24 @@ type bindFailOnceRenameFs struct {
 	afero.Fs
 	destination string
 	failed      bool
+}
+
+// bindMetadataReadFailFs injects a stable read error for one optional metadata
+// candidate while leaving directory discovery and every primary file intact.
+type bindMetadataReadFailFs struct {
+	afero.Fs
+	path         string
+	readAttempts int
+}
+
+// Open records and rejects access to the selected secondary JSON file. The
+// resolver should cache this negative result and therefore call Open only once.
+func (f *bindMetadataReadFailFs) Open(name string) (afero.File, error) {
+	if name == f.path {
+		f.readAttempts++
+		return nil, os.ErrPermission
+	}
+	return f.Fs.Open(name)
 }
 
 // Rename fails the first replacement of destination and delegates every other rename.
@@ -487,6 +506,106 @@ func TestBindDoesNotReplaceUnchangedFiles(t *testing.T) {
 	counting.renames = 0
 	require.NoError(t, SubCmdIdBind(io.Discard, countedFileSystem))
 	assert.Zero(t, counting.renames)
+}
+
+// TestBindMetadataResolverCachesSecondaryFailures verifies that optional
+// project metadata is identified by content, malformed or unreadable files stay
+// non-fatal, and repeated source corridors do not repeat filesystem work or
+// verbose diagnostics.
+func TestBindMetadataResolverCachesSecondaryFailures(t *testing.T) {
+	teardown := Setup(t)
+	defer teardown()
+
+	metadataDir := filepath.Join(Proj, t.Name(), "nested")
+	defer func() { require.NoError(t, FSys.RemoveAll(metadataDir)) }()
+	require.NoError(t, FSys.MkdirAll(filepath.Join(metadataDir, "directory.json"), 0o755))
+	require.NoError(t, FSys.WriteFile(filepath.Join(metadataDir, "notes.txt"), []byte("not metadata"), 0o644))
+	require.NoError(t, FSys.WriteFile(filepath.Join(metadataDir, "empty.json"), []byte("{}"), 0o644))
+	require.NoError(t, FSys.WriteFile(filepath.Join(metadataDir, "broken.json"), []byte("{"), 0o644))
+	validPath := filepath.Join(metadataDir, "arbitrary-name.json")
+	writeBindTestTIL(t, validPath, TriceIDLookUp{151: {Type: "trice", Strg: "cached"}})
+	unreadablePath := filepath.Join(metadataDir, "unreadable.json")
+	writeBindTestTIL(t, unreadablePath, TriceIDLookUp{152: {Type: "trice", Strg: "unreadable"}})
+
+	failing := &bindMetadataReadFailFs{Fs: FSys.Fs, path: unreadablePath}
+	resolverFS := &afero.Afero{Fs: failing}
+	Verbose = true
+	var output bytes.Buffer
+	resolver := newBindMetadataResolver(&output, resolverFS)
+
+	first := resolver.metadataInDirectory(metadataDir)
+	second := resolver.metadataInDirectory(metadataDir)
+	require.Len(t, first, 1)
+	require.Len(t, second, 1)
+	assert.Same(t, first[0], second[0])
+	assert.Equal(t, validPath, first[0].path)
+	assert.Equal(t, TriceFmt{Type: "trice", Strg: "cached"}, first[0].til[151])
+	assert.Equal(t, 1, failing.readAttempts)
+	assert.Equal(t, 1, strings.Count(output.String(), "ignore unreadable secondary JSON"))
+	assert.Equal(t, 1, strings.Count(output.String(), "ignore secondary JSON"))
+	missingDir := filepath.Join(metadataDir, "missing")
+	assert.Nil(t, resolver.metadataInDirectory(missingDir))
+	assert.Nil(t, resolver.metadataInDirectory(missingDir))
+
+	// Disabling the primary LI is a supported command configuration. A nil
+	// diagnostic writer must remain silent instead of becoming a nil interface.
+	LIFnJSON = "off"
+	silentResolver := newBindMetadataResolver(nil, FSys)
+	assert.Empty(t, silentResolver.primaryLI)
+	assert.Equal(t, io.Discard, silentResolver.w)
+}
+
+// TestClassifyBindMetadataJSONRejectsInvalidFieldTypes covers the explicit
+// schema errors that distinguish a malformed optional catalog from a valid TIL
+// or LI. These errors remain non-fatal when discovery calls this classifier.
+func TestClassifyBindMetadataJSONRejectsInvalidFieldTypes(t *testing.T) {
+	invalidDocuments := []string{
+		`{"not-an-id":{"Type":"trice","Strg":"x"}}`,
+		`{"1":"not an object"}`,
+		`{"1":{"Type":7,"Strg":"x"}}`,
+		`{"1":{"File":"x.c","Line":"seven"}}`,
+	}
+	for _, document := range invalidDocuments {
+		_, _, _, err := classifyBindMetadataJSON([]byte(document))
+		assert.Error(t, err, document)
+	}
+}
+
+// TestCompactBindIDCandidatesKeepsStrongestDeterministicChoice exercises every
+// tie breaker and proves that duplicate numeric IDs retain their strongest,
+// lexically stable occurrence.
+func TestCompactBindIDCandidatesKeepsStrongestDeterministicChoice(t *testing.T) {
+	candidates := []bindIDCandidate{
+		{id: 50, priority: 2, source: "last"},
+		{id: 40, priority: 1, rank: 2, source: "rank"},
+		{id: 30, priority: 1, rank: 1, lineDistance: 3, source: "distance"},
+		{id: 20, priority: 1, rank: 1, lineDistance: 2, source: "id"},
+		{id: 10, priority: 1, rank: 1, lineDistance: 2, source: "weaker duplicate"},
+		{id: 10, priority: 0, rank: 9, lineDistance: 9, source: "strong duplicate"},
+		{id: 80, priority: 1, rank: 1, lineDistance: 2, source: "z-source"},
+		{id: 80, priority: 1, rank: 1, lineDistance: 2, source: "a-source"},
+	}
+
+	result := compactBindIDCandidates(candidates)
+	ids := make([]TriceID, 0, len(result))
+	for _, candidate := range result {
+		ids = append(ids, candidate.id)
+	}
+	assert.Equal(t, []TriceID{10, 20, 80, 30, 40, 50}, ids)
+	assert.Equal(t, "strong duplicate", result[0].source)
+	assert.Equal(t, "a-source", result[2].source)
+}
+
+// TestBindFormatIndexAddMaintainsSortedUniqueIDs verifies the live reverse
+// index update used after importing an ID from secondary read-only metadata.
+func TestBindFormatIndexAddMaintainsSortedUniqueIDs(t *testing.T) {
+	format := TriceFmt{Type: "trice", Strg: "indexed"}
+	index := make(bindFormatIndex)
+	index.add(format, 20)
+	index.add(format, 10)
+	index.add(format, 30)
+	index.add(format, 20)
+	assert.Equal(t, []TriceID{10, 20, 30}, index[format])
 }
 
 // TestBindRollsBackCommitFailure prevents a late metadata error from leaving
