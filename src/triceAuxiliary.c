@@ -5,7 +5,6 @@
 //! \file triceAuxiliary.c
 //! \brief trice Auxiliary implementation.
 
-
 #include "trice.h"
 #include <stdint.h>
 #include <stdlib.h>

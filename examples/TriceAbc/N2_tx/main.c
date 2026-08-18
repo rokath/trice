@@ -18,7 +18,7 @@ static void sendTraffic(unsigned loop) {
 	trice("log:(from node=N2_tx) from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:from=%u phase=%u\n", 2u, (loop + 1u) & 3u);
-	
+
 	triceS("log:(from node=N2_tx) text=%s\n", text);
 	// Demo-only TX trace: make ABC replies visible at the sender as well.
 	nodePrintLineF("N2_tx: TX-> log:text=%s\n", text);
@@ -34,11 +34,11 @@ static void sendTraffic(unsigned loop) {
 
 /* The TX-only nodes never send divide requests because they cannot receive answers. */
 static void sendCommand(unsigned loop) {
-	static const uint8_t key[] = { 'b', 'r', 'a', 'v', 'o', '7' };
+	static const uint8_t key[] = {'b', 'r', 'a', 'v', 'o', '7'};
 	uint8_t leds = (uint8_t)(0x80u >> (loop & 3u));
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
-	
+
 	switch (loop & 3u) {
 	case 0u:
 		Trice8C("cmd:setLeds", 102, &leds, 1);

@@ -5,7 +5,6 @@
 //! \file cobsEncode.c
 //! \brief cobs Encode implementation.
 
-
 #include "cobs.h"
 
 // Public API is documented in cobs.h.

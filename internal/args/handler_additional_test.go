@@ -4,6 +4,7 @@ package args
 
 import (
 	"bytes"
+	"flag"
 	"io"
 	"strings"
 	"testing"
@@ -159,6 +160,7 @@ func TestInfoHelpersWriteText(t *testing.T) {
 		{"displayServerInfo", displayServerInfo, "sub-command 'ds|displayServer'"},
 		{"shutdownInfo", shutdownInfo, "sub-command 'sd|shutdown'"},
 		{"insertIDsInfo", insertIDsInfo, "sub-command 'i|insert'"},
+		{"bindIDsInfo", bindIDsInfo, "sub-command 'b|bind'"},
 		{"cleanIDsInfo", cleanIDsInfo, "sub-command 'c|clean'"},
 		{"addInfo", addInfo, "sub-command 'a|add'"},
 		{"generateInfo", generateInfo, "sub-command 'g|gen|generate'"},
@@ -238,6 +240,7 @@ func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	tests := [][]string{
 		{"trice", "add", "-src", "missing-source-tree"},
 		{"trice", "insert", "-src", "missing-source-tree"},
+		{"trice", "bind", "-src", "missing-source-tree"},
 		{"trice", "clean", "-src", "missing-source-tree"},
 	}
 	for _, args := range tests {
@@ -249,19 +252,77 @@ func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	}
 }
 
-// TestLogLocationPathFlags verifies log-specific defaults and root overrides.
+// TestLogLocationPathFlags verifies the log-specific directory display limit.
 func TestLogLocationPathFlags(t *testing.T) {
-	oldPathKind := id.LIDisplayPathKind
-	oldRoot := id.LIRoot
+	oldMaxDirs := id.LIMaxDirs
 	t.Cleanup(func() {
-		id.LIDisplayPathKind = oldPathKind
-		id.LIRoot = oldRoot
+		id.LIMaxDirs = oldMaxDirs
 	})
 
 	FlagsInit()
-	assert.Equal(t, "legacy", fsScLog.Lookup("liPath").DefValue)
-	assert.Equal(t, "", fsScLog.Lookup("liRoot").DefValue)
-	assert.NoError(t, fsScLog.Parse([]string{"-liPath", "full", "-liRoot", "checkout"}))
-	assert.Equal(t, "full", id.LIDisplayPathKind)
-	assert.Equal(t, "checkout", id.LIRoot)
+	assert.Nil(t, fsScLog.Lookup("liPath"))
+	assert.Nil(t, fsScLog.Lookup("liRoot"))
+	assert.Equal(t, "0", fsScLog.Lookup("liMaxDirs").DefValue)
+	assert.NoError(t, fsScLog.Parse([]string{"-liMaxDirs", "3"}))
+	assert.Equal(t, 3, id.LIMaxDirs)
+}
+
+// TestGenerationLocationRootFlags verifies the shared root flag on all ID commands.
+func TestGenerationLocationRootFlags(t *testing.T) {
+	oldRoot := id.LIRoot
+	t.Cleanup(func() { id.LIRoot = oldRoot })
+
+	FlagsInit()
+	for _, flagSet := range []*flag.FlagSet{fsScAdd, fsScInsert, fsScBind, fsScClean} {
+		assert.Nil(t, flagSet.Lookup("liPath"))
+		assert.Equal(t, "", flagSet.Lookup("liRoot").DefValue)
+	}
+	assert.NoError(t, fsScInsert.Parse([]string{"-liRoot", "project"}))
+	assert.Equal(t, "project", id.LIRoot)
+}
+
+// TestHandlerBindGeneratesSidecar exercises the public command and bind-specific directory flag.
+func TestHandlerBindGeneratesSidecar(t *testing.T) {
+	FlagsInit()
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	assert.NoError(t, fSys.MkdirAll("project", 0o755))
+	assert.NoError(t, fSys.WriteFile("til.json", []byte("{}\n"), 0o644))
+	assert.NoError(t, fSys.WriteFile("li.json", []byte("{}\n"), 0o644))
+	const source = "trice(\"msg:handler=%d\\n\", 1);\n"
+	assert.NoError(t, fSys.WriteFile("project/module.c", []byte(source), 0o644))
+
+	var output bytes.Buffer
+	err := Handler(&output, fSys, []string{
+		"trice", "bind",
+		"-src", "project/module.c",
+		"-til", "til.json",
+		"-li", "li.json",
+		"-bindDir", "generated/triceIDs",
+		"-IDMin", "100",
+		"-IDMax", "199",
+		"-IDMethod", "upward",
+		"-defaultStampSize", "16",
+	})
+	assert.NoError(t, err)
+	bound, readErr := fSys.ReadFile("project/module.c")
+	assert.NoError(t, readErr)
+	assert.Contains(t, string(bound), `#include "trice_module_c_K`)
+	entries, readErr := fSys.ReadDir("generated/triceIDs")
+	assert.NoError(t, readErr)
+	assert.Len(t, entries, 1)
+}
+
+// TestHandlerBindHelp verifies that both public names and both standard help flags exit cleanly.
+func TestHandlerBindHelp(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	for _, subcommand := range []string{"bind", "b"} {
+		for _, helpFlag := range []string{"-h", "--help"} {
+			FlagsInit()
+			var output bytes.Buffer
+			err := Handler(&output, fSys, []string{"trice", subcommand, helpFlag})
+			assert.NoError(t, err)
+			assert.Contains(t, output.String(), "Usage of bind:")
+			assert.NotContains(t, output.String(), "flag: help requested")
+		}
+	}
 }

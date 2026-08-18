@@ -1,0 +1,6 @@
+mode=AUTO stamp=Id id=12345 text=Hello
+mode=REPLACE stamp=id id=12346 text=world
+mode=REPLACE stamp=Id id=12347 text=stamp16
+mode=REPLACE stamp=ID id=12348 text=stamp32
+mode=AUTO stamp=iD id=12349 text=value=7
+mode=REPLACE stamp=ID id=12350 text=value=8

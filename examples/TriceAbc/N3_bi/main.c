@@ -39,12 +39,12 @@ static void sendTraffic(unsigned loop) {
 // 0x00000002 -> N8_bi
 // 0x00000004 -> N9_bi
 static void sendCommand(unsigned loop) {
-	static const uint8_t key[] = { 'n', '3', '-', 'k', 'e', 'y' };
+	static const uint8_t key[] = {'n', '3', '-', 'k', 'e', 'y'};
 	uint32_t args[2];
 	uint8_t leds = (uint8_t)(0x03u << (loop & 2u));
 
 	/* Show the local TX side because BcSim suppresses self echo on receive. */
-	
+
 	switch (loop) {
 	case 1u:
 		TriceC("cmd:getLeds", 103);

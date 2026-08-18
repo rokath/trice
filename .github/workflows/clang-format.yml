@@ -4,7 +4,7 @@ name: Clang-Format Check
 # are formatted according to the .clang-format rules.
 #
 # It uses:
-#   - clang-format (installed via apt)
+#   - clang-format 19.1.7 (installed in an isolated Python environment)
 #   - a Go-based helper (cmd/clang-filter) via `go run`
 #   - the shell script `./scripts/_format_c_code.sh` to orchestrate everything
 #
@@ -39,15 +39,20 @@ jobs:
           fetch-depth: 0
 
       #########################################################################
-      # 2) Install clang-format on the runner.
+      # 2) Install the repository's canonical clang-format release.
       #
-      # We rely on Ubuntu's clang-format package. If you require a specific
-      # version, you can pin it here or use a prebuilt toolchain image.
+      # clang-format output changes between releases. An unversioned apt package
+      # therefore makes local formatting and CI checks disagree when the hosted
+      # runner changes its Ubuntu image. The PyPI package supplies the exact
+      # native formatter binary in an isolated environment.
       #########################################################################
       - name: Install clang-format
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format
+          python3 -m venv "$RUNNER_TEMP/clang-format"
+          "$RUNNER_TEMP/clang-format/bin/python" -m pip install \
+            --disable-pip-version-check \
+            "clang-format==19.1.7"
+          echo "$RUNNER_TEMP/clang-format/bin" >> "$GITHUB_PATH"
 
       - name: Show clang-format version
         run: clang-format --version

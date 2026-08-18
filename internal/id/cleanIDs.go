@@ -33,7 +33,7 @@ func (p *idData) processTriceIDCleaning(w io.Writer, fSys *afero.Afero, path str
 		return msg.OnErrFv(w, err)
 	}
 
-	out, modified, err := p.cleanTriceIDs(w, ToLIPath(path), path, in, a)
+	out, modified, err := p.cleanTriceIDs(w, ToLIFile(path), path, in, a)
 	p.join(err)
 	if p.err != nil {
 		return msg.OnErrFv(w, err)

@@ -1,0 +1,558 @@
+// SPDX-License-Identifier: MIT
+
+package id
+
+import (
+	"bytes"
+	cryptorand "crypto/rand"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
+
+	"github.com/rokath/trice/pkg/ant"
+	"github.com/spf13/afero"
+)
+
+var (
+	// bindRandomReader is replaceable inside package tests while production always uses crypto/rand.Reader.
+	bindRandomReader io.Reader = cryptorand.Reader
+)
+
+// SubCmdIdBind generates stable sidecars while keeping bind-owned user Trice calls ID-free.
+func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
+	if w == nil {
+		w = io.Discard
+	}
+	if fSys == nil || fSys.Fs == nil {
+		return errors.New("trice bind: nil filesystem")
+	}
+	if err := validateBindOptions(); err != nil {
+		return err
+	}
+
+	inputs, diagnostics := collectBindInputs(w, fSys)
+	plans := analyzeBindInputs(inputs)
+	for i := range plans {
+		diagnostics = append(diagnostics, plans[i].diagnostics...)
+		plans[i].diagnostics = nil
+	}
+	_, projectDiagnostics := analyzeBindProject(plans, true)
+	diagnostics = append(diagnostics, projectDiagnostics...)
+	diagnostics = append(diagnostics, prepareBindPlans(fSys, plans)...)
+
+	model, _ := analyzeBindProject(plans, false)
+	diagnostics = append(diagnostics, planBindExecution(plans, model, true)...)
+	applyBindRebaseRegions(plans)
+	for i := range plans {
+		if len(plans[i].regions) == 0 {
+			// The first analysis and include planning already describe an
+			// unchanged file. Only inserted rebase boundaries invalidate offsets
+			// and require the comparatively expensive full source rescan.
+			continue
+		}
+		// A formatter owns horizontal spacing around a valid generated include.
+		// Reuse those exact bytes when the regenerated semantic identity agrees.
+		preserveBindRebaseFormatting(&plans[i])
+		plans[i].includes = scanBindIncludes(string(plans[i].final))
+		plans[i].sites, _ = scanBindSites(plans[i].path, string(plans[i].final))
+	}
+	model, _ = analyzeBindProject(plans, false)
+	_ = planBindExecution(plans, model, false)
+	for i := range plans {
+		if plans[i].class == bindFileBound && plans[i].key != "" {
+			validateActiveBindIncludes(&plans[i])
+		}
+		diagnostics = append(diagnostics, plans[i].diagnostics...)
+		plans[i].diagnostics = nil
+	}
+
+	IDData.err = nil
+	IDData.PreProcessing(w, fSys)
+	metadataResolver := newBindMetadataResolver(w, fSys)
+	preferredIDs := preferredBindIDs(w, plans, metadataResolver)
+	initialIDs := make(map[TriceID]struct{}, len(IDData.idToTrice))
+	for id := range IDData.idToTrice {
+		initialIDs[id] = struct{}{}
+	}
+	diagnostics = append(diagnostics, assignBindIDs(w, plans, initialIDs, preferredIDs)...)
+
+	for i := range plans {
+		if plans[i].class == bindFileBound && plans[i].key != "" {
+			plans[i].sidecarContent = renderBindSidecar(plans, i)
+			plans[i].rebaseArtifacts = renderBindRebaseArtifacts(&plans[i])
+			for artifactIndex := range plans[i].rebaseArtifacts {
+				plans[i].rebaseArtifacts[artifactIndex].path = filepath.Join(BindDir, plans[i].rebaseArtifacts[artifactIndex].name)
+			}
+		}
+	}
+	if len(diagnostics) > 0 {
+		return reportBindDiagnostics(w, diagnostics)
+	}
+
+	writes, err := buildBindWrites(fSys, plans)
+	if err != nil {
+		return err
+	}
+	printBindSummary(w, plans, writes)
+	if DryRun {
+		return nil
+	}
+	return commitBindWrites(fSys, writes)
+}
+
+// validateBindOptions rejects invalid semantic choices before any source or generated file can change.
+func validateBindOptions() error {
+	if DefaultStampSize != 0 && DefaultStampSize != 16 && DefaultStampSize != 32 {
+		return fmt.Errorf("trice bind: invalid -defaultStampSize %d; expected 0, 16, or 32", DefaultStampSize)
+	}
+	switch SearchMethod {
+	case "random", "upward", "downward":
+	default:
+		return fmt.Errorf("trice bind: invalid -IDMethod %q; expected random, upward, or downward", SearchMethod)
+	}
+	if strings.TrimSpace(BindDir) == "" {
+		return errors.New("trice bind: -bindDir must not be empty")
+	}
+	return nil
+}
+
+// analyzeBindInputs performs independent classification in parallel and retains sorted plan order.
+func analyzeBindInputs(inputs []bindFileInput) []bindFilePlan {
+	plans := make([]bindFilePlan, len(inputs))
+	var workers sync.WaitGroup
+	workers.Add(len(inputs))
+	for i := range inputs {
+		i := i
+		go func() {
+			defer workers.Done()
+			plans[i] = analyzeBindFile(inputs[i])
+		}()
+	}
+	workers.Wait()
+	return plans
+}
+
+// prepareBindPlans resolves stable keys, plans includes, validates ownership, and reads old sidecars.
+func prepareBindPlans(fSys *afero.Afero, plans []bindFilePlan) []bindDiagnostic {
+	var diagnostics []bindDiagnostic
+	keyOwners := make(map[string][]string)
+	for i := range plans {
+		plan := &plans[i]
+		if plan.key != "" {
+			keyOwners[plan.key] = append(keyOwners[plan.key], plan.path)
+		}
+	}
+	for key, owners := range keyOwners {
+		owners = compactSortedStrings(owners)
+		keyOwners[key] = owners
+		if len(owners) > 1 {
+			diagnostics = append(diagnostics, bindDiagnostic{message: fmt.Sprintf("file key %s belongs to multiple owner files: %s", key, strings.Join(owners, ", "))})
+		}
+	}
+
+	for i := range plans {
+		plan := &plans[i]
+		if plan.class == bindFileBound && plan.key == "" && plan.managedOffset >= 0 {
+			key, err := newBindFileKey(keyOwners)
+			if err != nil {
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: "cannot generate file key: " + err.Error()})
+				continue
+			}
+			plan.key = key
+			plan.sidecarName = bindSidecarFilename(plan.path, key)
+			keyOwners[key] = []string{plan.path}
+		}
+		if plan.key != "" {
+			if plan.sidecarName == "" {
+				plan.sidecarName = bindSidecarFilename(plan.path, plan.key)
+			}
+			plan.sidecarPath = filepath.Join(BindDir, plan.sidecarName)
+			addBindInclude(plan)
+			if content, err := fSys.ReadFile(plan.sidecarPath); err == nil {
+				diagnostics = append(diagnostics, validateExistingSidecar(plan.sidecarPath, plan.key, content)...)
+			} else if !errors.Is(err, os.ErrNotExist) {
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.sidecarPath, message: "cannot read existing sidecar: " + err.Error()})
+			}
+			diagnostics = append(diagnostics, validateExistingBindRebaseArtifacts(fSys, plan)...)
+		}
+		if filepath.Base(plan.path) == "triceConfig.h" {
+			updated := bytes.Replace(plan.final, []byte("#define TRICE_CLEAN 1"), []byte("#define TRICE_CLEAN 0"), 1)
+			if !bytes.Equal(updated, plan.final) {
+				plan.final = updated
+				plan.configChanged = true
+			}
+		}
+		diagnostics = append(diagnostics, plan.diagnostics...)
+		plan.diagnostics = nil
+	}
+	return diagnostics
+}
+
+// validateExistingBindRebaseArtifacts checks source-owned helper identities
+// and refuses to overwrite edited helper content. Missing build artifacts are
+// intentionally repairable by the next successful bind run.
+func validateExistingBindRebaseArtifacts(fSys *afero.Afero, plan *bindFilePlan) []bindDiagnostic {
+	var diagnostics []bindDiagnostic
+	for _, existing := range plan.existingRebaseArtifacts {
+		expected := renderBindRebaseArtifact(plan.sidecarName, plan.key, existing.scope, existing.kind)
+		if expected.name == "" || existing.name != expected.name {
+			diagnostics = append(diagnostics, bindDiagnostic{
+				path:    plan.path,
+				message: fmt.Sprintf("generated Trice bind rebase include %s does not belong to owner sidecar %s", existing.name, plan.sidecarName),
+			})
+			continue
+		}
+		path := filepath.Join(BindDir, existing.name)
+		content, err := fSys.ReadFile(path)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "cannot read existing generated rebase helper: " + err.Error()})
+			continue
+		}
+		if !bytes.Equal(content, expected.content) {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, message: "existing generated Trice bind rebase helper was modified; restore it or remove it together with its generated source include"})
+		}
+	}
+	return diagnostics
+}
+
+// newBindFileKey returns a cryptographically random key that is unique in the current plan set.
+func newBindFileKey(owners map[string][]string) (string, error) {
+	var random [8]byte
+	for attempt := 0; attempt < 128; attempt++ {
+		if _, err := io.ReadFull(bindRandomReader, random[:]); err != nil {
+			return "", err
+		}
+		key := "K" + strings.ToUpper(hex.EncodeToString(random[:]))
+		if _, exists := owners[key]; !exists {
+			return key, nil
+		}
+	}
+	return "", errors.New("128 random file keys collided")
+}
+
+// assignBindIDs runs the established insert pass in memory in deterministic source-path order.
+// Read-only historical candidates are inserted only into this virtual parser
+// view, keeping source files ID-free and retaining the one shared ID engine.
+func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]struct{}, preferred map[bindSiteReference]TriceID) []bindDiagnostic {
+	var diagnostics []bindDiagnostic
+	admin := new(ant.Admin)
+	classes := []bindFileClass{bindFileInsert, bindFileBound}
+	for _, class := range classes {
+		for planIndex := range plans {
+			plan := &plans[planIndex]
+			if plan.class != class {
+				continue
+			}
+			insertInput := plan.final
+			if plan.class == bindFileBound {
+				// Bind's source scanner deliberately ignores commented examples.
+				// Give the reused Insert engine the same byte-aligned view so it
+				// cannot allocate IDs or rewrite location data for non-sites.
+				insertInput = []byte(stripCComments(maskTriceInsertDisabledRegions(string(plan.final))))
+				preferredInput, preferredErr := applyBindPreferredIDs(insertInput, planIndex, plan, preferred)
+				if preferredErr != nil {
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: "cannot apply preferred IDs to the in-memory source: " + preferredErr.Error()})
+					continue
+				}
+				insertInput = preferredInput
+			}
+			var assignedIDs []TriceID
+			var insertOutput bytes.Buffer
+			_, modified, err := IDData.insertTriceIDsVisit(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin, func(id TriceID) {
+				assignedIDs = append(assignedIDs, id)
+			})
+			if err != nil {
+				message := strings.TrimSpace(insertOutput.String())
+				if message == "" {
+					message = err.Error()
+				}
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: message})
+				continue
+			}
+			if plan.class == bindFileInsert {
+				if modified {
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: "insert validation would change this insert-owned file; run trice insert and resolve its ID conflicts first"})
+				}
+				continue
+			}
+
+			if len(assignedIDs) != len(plan.sites) {
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, message: fmt.Sprintf("in-memory insert returned %d sites for %d parsed bind sites", len(assignedIDs), len(plan.sites))})
+				continue
+			}
+			for siteIndex := range plan.sites {
+				assignedID := assignedIDs[siteIndex]
+				if assignedID <= 0 || plan.sites[siteIndex].wrapper == "" {
+					diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: plan.sites[siteIndex].line, message: "in-memory insert did not produce a valid site ID"})
+					continue
+				}
+				plan.sites[siteIndex].id = assignedID
+				IDData.idToLocNew[assignedID] = newTriceLI(plan.path, plan.sites[siteIndex].line)
+				if _, existed := initialIDs[assignedID]; existed {
+					plan.reusedIDs++
+				} else {
+					plan.newIDs++
+				}
+			}
+		}
+	}
+	return diagnostics
+}
+
+// buildBindWrites renders JSON in memory and omits every destination whose bytes are unchanged.
+func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, error) {
+	writes := make([]bindWrite, 0, len(plans)*4+2)
+	for i := range plans {
+		plan := &plans[i]
+		if !bytes.Equal(plan.original, plan.final) {
+			writes = append(writes, bindWrite{path: plan.path, data: plan.final, perm: plan.info.Mode(), kind: "source"})
+		}
+		if len(plan.sidecarContent) > 0 {
+			unchanged, err := bindFileHasContent(fSys, plan.sidecarPath, plan.sidecarContent)
+			if err != nil {
+				return nil, err
+			}
+			if !unchanged {
+				writes = append(writes, bindWrite{path: plan.sidecarPath, data: plan.sidecarContent, perm: fileWritePerm(fSys, plan.sidecarPath, 0o644), kind: "sidecar"})
+			}
+		}
+		desiredArtifacts := make(map[string]bool, len(plan.rebaseArtifacts))
+		for _, artifact := range plan.rebaseArtifacts {
+			if artifact.name == "" || artifact.path == "" {
+				return nil, fmt.Errorf("cannot render generated Trice bind rebase helper for %s scope %s", plan.path, artifact.scope)
+			}
+			desiredArtifacts[artifact.path] = true
+			unchanged, err := bindFileHasContent(fSys, artifact.path, artifact.content)
+			if err != nil {
+				return nil, err
+			}
+			if !unchanged {
+				writes = append(writes, bindWrite{path: artifact.path, data: artifact.content, perm: fileWritePerm(fSys, artifact.path, 0o644), kind: "rebase"})
+			}
+		}
+		staleArtifacts, err := findStaleBindRebaseArtifacts(fSys, plan, desiredArtifacts)
+		if err != nil {
+			return nil, err
+		}
+		for _, path := range staleArtifacts {
+			writes = append(writes, bindWrite{path: path, kind: "rebase-delete", remove: true})
+		}
+	}
+
+	if len(IDData.idToTrice) > IDData.idInitialCount {
+		til, err := IDData.idToTrice.toJSON()
+		if err != nil {
+			return nil, fmt.Errorf("cannot render %s: %w", FnJSON, err)
+		}
+		unchanged, err := bindFileHasContent(fSys, FnJSON, til)
+		if err != nil {
+			return nil, err
+		}
+		if !unchanged {
+			writes = append(writes, bindWrite{path: FnJSON, data: til, perm: fileWritePerm(fSys, FnJSON, 0o666), kind: "til"})
+		}
+	}
+
+	if LIFnJSON != "off" && LIFnJSON != "none" && (len(IDData.idToLocNew) > 0 || IDData.liNeedsRewrite) {
+		for id, location := range IDData.idToLocNew {
+			IDData.idToLocRef[id] = location
+		}
+		li, err := IDData.idToLocRef.toJSON()
+		if err != nil {
+			return nil, fmt.Errorf("cannot render %s: %w", LIFnJSON, err)
+		}
+		unchanged, err := bindFileHasContent(fSys, LIFnJSON, li)
+		if err != nil {
+			return nil, err
+		}
+		if !unchanged {
+			writes = append(writes, bindWrite{path: LIFnJSON, data: li, perm: fileWritePerm(fSys, LIFnJSON, 0o666), kind: "li"})
+		}
+	}
+
+	order := map[string]int{"sidecar": 0, "rebase": 0, "til": 1, "li": 2, "source": 3, "rebase-delete": 4}
+	sort.SliceStable(writes, func(i, j int) bool {
+		if order[writes[i].kind] != order[writes[j].kind] {
+			return order[writes[i].kind] < order[writes[j].kind]
+		}
+		return writes[i].path < writes[j].path
+	})
+	return writes, nil
+}
+
+// findStaleBindRebaseArtifacts lists only generated helper names belonging to
+// the exact owner sidecar and leaves unrelated BindDir content untouched.
+func findStaleBindRebaseArtifacts(fSys *afero.Afero, plan *bindFilePlan, desired map[string]bool) ([]string, error) {
+	if plan.sidecarName == "" || plan.key == "" {
+		return nil, nil
+	}
+	entries, err := fSys.ReadDir(BindDir)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("cannot inspect bind directory %s for stale rebase helpers: %w", BindDir, err)
+	}
+	var stale []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if _, _, ok := parseBindRebaseArtifactName(entry.Name(), plan.sidecarName, plan.key); !ok {
+			continue
+		}
+		path := filepath.Join(BindDir, entry.Name())
+		if !desired[path] {
+			stale = append(stale, path)
+		}
+	}
+	sort.Strings(stale)
+	return stale, nil
+}
+
+// bindFileHasContent compares bytes without treating an absent generated destination as an error.
+func bindFileHasContent(fSys *afero.Afero, path string, expected []byte) (bool, error) {
+	content, err := fSys.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("cannot read %s before commit: %w", path, err)
+	}
+	return bytes.Equal(content, expected), nil
+}
+
+// commitBindWrites creates only required parent directories and rolls back earlier replacements on failure.
+func commitBindWrites(fSys *afero.Afero, writes []bindWrite) error {
+	originals, err := snapshotBindWrites(fSys, writes)
+	if err != nil {
+		return err
+	}
+	for index, write := range writes {
+		if write.remove {
+			if err := fSys.Remove(write.path); err != nil {
+				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot remove %s: %w", write.path, err))
+			}
+			continue
+		}
+		if write.kind == "sidecar" || write.kind == "rebase" {
+			if err := fSys.MkdirAll(filepath.Dir(write.path), 0o755); err != nil {
+				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot create bind directory for %s: %w", write.path, err))
+			}
+		}
+		if err := atomicWriteFile(fSys, write.path, write.data, write.perm); err != nil {
+			return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot write %s: %w", write.path, err))
+		}
+	}
+	return nil
+}
+
+// snapshotBindWrites captures every old destination before the first regular output is replaced.
+func snapshotBindWrites(fSys *afero.Afero, writes []bindWrite) ([]bindOriginalFile, error) {
+	originals := make([]bindOriginalFile, len(writes))
+	for index, write := range writes {
+		info, err := fSys.Stat(write.path)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			return nil, fmt.Errorf("cannot inspect %s before commit: %w", write.path, err)
+		}
+		content, err := fSys.ReadFile(write.path)
+		if err != nil {
+			return nil, fmt.Errorf("cannot snapshot %s before commit: %w", write.path, err)
+		}
+		originals[index] = bindOriginalFile{existed: true, data: content, perm: info.Mode()}
+	}
+	return originals, nil
+}
+
+// rollbackBindWrites restores every already-applied destination in reverse commit order.
+func rollbackBindWrites(fSys *afero.Afero, writes []bindWrite, originals []bindOriginalFile, cause error) error {
+	var rollbackErrors []error
+	for index := len(writes) - 1; index >= 0; index-- {
+		write := writes[index]
+		original := originals[index]
+		if original.existed {
+			if err := atomicWriteFile(fSys, write.path, original.data, original.perm); err != nil {
+				rollbackErrors = append(rollbackErrors, fmt.Errorf("cannot restore %s: %w", write.path, err))
+			}
+			continue
+		}
+		if err := fSys.Remove(write.path); err != nil && !errors.Is(err, os.ErrNotExist) {
+			rollbackErrors = append(rollbackErrors, fmt.Errorf("cannot remove newly created %s: %w", write.path, err))
+		}
+	}
+	if len(rollbackErrors) == 0 {
+		return cause
+	}
+	return errors.Join(cause, fmt.Errorf("bind commit rollback failed: %w", errors.Join(rollbackErrors...)))
+}
+
+// printBindSummary emits the requested classification and plan details only in verbose mode.
+func printBindSummary(w io.Writer, plans []bindFilePlan, writes []bindWrite) {
+	if !Verbose {
+		return
+	}
+	writeKinds := make(map[string]string, len(writes))
+	for _, write := range writes {
+		writeKinds[write.path] = write.kind
+	}
+	for i := range plans {
+		plan := &plans[i]
+		fmt.Fprintf(w, "%s: %s\n", plan.path, plan.class)
+		if plan.class == bindFileInsert {
+			fmt.Fprintln(w, "  skipped: insert-owned")
+			continue
+		}
+		if plan.includeAdded {
+			fmt.Fprintf(w, "  include planned: %s\n", plan.sidecarName)
+		} else if plan.sidecarName != "" {
+			fmt.Fprintf(w, "  include recognized: %s\n", plan.sidecarName)
+		}
+		if writeKinds[plan.sidecarPath] == "sidecar" {
+			fmt.Fprintf(w, "  sidecar generated or updated: %s\n", plan.sidecarPath)
+		}
+		if plan.newIDs+plan.reusedIDs > 0 {
+			fmt.Fprintf(w, "  IDs: %d reused, %d new\n", plan.reusedIDs, plan.newIDs)
+		}
+	}
+	if DryRun {
+		fmt.Fprintf(w, "dry-run: %d file write(s) suppressed\n", len(writes))
+	}
+}
+
+// reportBindDiagnostics prints every stable diagnostic and returns one non-zero command error.
+func reportBindDiagnostics(w io.Writer, diagnostics []bindDiagnostic) error {
+	diagnostics = sortedBindDiagnostics(diagnostics)
+	for _, diagnostic := range diagnostics {
+		fmt.Fprintln(w, formatBindDiagnostic(diagnostic))
+	}
+	return fmt.Errorf("trice bind failed with %d error(s)", len(diagnostics))
+}
+
+// compactSortedStrings returns a deterministic unique owner list.
+func compactSortedStrings(values []string) []string {
+	result := append([]string(nil), values...)
+	sort.Strings(result)
+	if len(result) == 0 {
+		return result
+	}
+	write := 1
+	for read := 1; read < len(result); read++ {
+		if result[read] != result[write-1] {
+			result[write] = result[read]
+			write++
+		}
+	}
+	return result[:write]
+}

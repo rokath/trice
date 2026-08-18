@@ -2,6 +2,12 @@
 
 package id
 
+// triceMatchIssue records a recognized macro start that the shared parser cannot resolve.
+type triceMatchIssue struct {
+	offset  int
+	message string
+}
+
 // matchTrice searches in s for the next trice statement. If not found loc is nil.
 // When found, s[loc[0]:loc[1]] is the typeName and at s[loc[2] is the opening parenthesis behind the typeName.
 // If the found trice statement contains an ID statement, it is s[loc[3]:loc[4]]. Otherwise is loc[3]==loc[4].
@@ -24,6 +30,12 @@ package id
 // -               `)`
 // - nil
 func matchTrice(s string) (loc []int) {
+	loc, _ = matchTriceWithIssues(s)
+	return
+}
+
+// matchTriceWithIssues exposes skipped recognized starts without implementing a second parser.
+func matchTriceWithIssues(s string) (loc []int, issues []triceMatchIssue) {
 	var offset int
 	var clpIndex = -1
 
@@ -34,11 +46,14 @@ func matchTrice(s string) (loc []int) {
 		}
 
 		typeNameLoc := matchTypNameTRICE.FindStringIndex(s[triceStartloc[0]:triceStartloc[1]])
+		var trice TriceFmt
+		trice.Type = s[triceStartloc[0] : triceStartloc[0]+typeNameLoc[1]]
+		resolveTriceAlias(&trice)
 		clpIndex = findClosingParentis(s, triceStartloc[1])
 		if clpIndex == -1 {
-			// Skip this occurrence
-			offset += triceStartloc[1]
+			issues = append(issues, triceMatchIssue{offset: offset + triceStartloc[0], message: "recognized Trice call has no matching closing parenthesis"})
 			cut := triceStartloc[1]
+			offset += cut
 			s = s[cut:]
 			continue
 		}
@@ -47,20 +62,15 @@ func matchTrice(s string) (loc []int) {
 		fmtLoc := matchStringLiteral(args)
 
 		if fmtLoc == nil { // not found
-			var t TriceFmt
-			t.Type = s[triceStartloc[0] : triceStartloc[0]+typeNameLoc[1]]
-			resolveTriceAlias(&t)
-
-			if t.isAlias() {
+			if trice.isAlias() {
 				// Custom macros are flexible and might not have a format string: MyAssert(2>2)
 				// At this point, to ensure proper down-the-code matching, let's use the clp (closing parenthesis)
 				// and call its position (location) as an empty format location (zero-length format string)
 				fmtLoc = []int{clpIndex - triceStartloc[1], clpIndex - triceStartloc[1]}
 			} else {
-				// if it is a built-in macro
-
-				// Skip this occurrence
+				issues = append(issues, triceMatchIssue{offset: offset + triceStartloc[0], message: "recognized Trice call has no supported format string"})
 				cut := triceStartloc[1]
+				offset += cut
 				s = s[cut:]
 				continue
 			}
@@ -73,8 +83,9 @@ func matchTrice(s string) (loc []int) {
 		rest := args[:fmtLoc[0]]
 		idLoc := matchNbID.FindStringIndex(rest)
 
-		// Calculate the leftmost position of the format string, skipping trailing spaces
-		// and the comma after ID (if present)
+		actualFormatStart := fmtLoc[0]
+		// Calculate the leftmost position of the first semantic argument, skipping
+		// trailing spaces and the comma after ID when present.
 		fmtLoc[0] = 0
 		if idLoc != nil {
 			fmtLoc[0] += idLoc[1]
@@ -83,6 +94,16 @@ func matchTrice(s string) (loc []int) {
 		skipSpacesBeforeFmtLoc := matchSpacesWithOptionalComma.FindStringIndex(args[fmtLoc[0]:])
 		if skipSpacesBeforeFmtLoc != nil {
 			fmtLoc[0] += skipSpacesBeforeFmtLoc[1]
+		}
+		if !trice.isAlias() && actualFormatStart > fmtLoc[0] {
+			prefix := args[fmtLoc[0]:actualFormatStart]
+			if isTriceFormatContinuationWhitespace(prefix) {
+				// A physical line continuation is still leading whitespace, so the
+				// shared insert parser should expose the actual literal boundary.
+				fmtLoc[0] = actualFormatStart
+			} else {
+				issues = append(issues, triceMatchIssue{offset: offset + triceStartloc[0], message: "Trice site uses an unsupported composite or non-leading format string"})
+			}
 		}
 
 		if idLoc == nil { // no ids
@@ -104,4 +125,27 @@ func matchTrice(s string) (loc []int) {
 		}
 		return
 	}
+}
+
+// isTriceFormatContinuationWhitespace accepts only whitespace and physical C line continuations.
+func isTriceFormatContinuationWhitespace(s string) bool {
+	for index := 0; index < len(s); index++ {
+		switch s[index] {
+		case ' ', '\t', '\n', '\r', '\f', '\v':
+			continue
+		case '\\':
+			if index+1 < len(s) && s[index+1] == '\n' {
+				index++
+				continue
+			}
+			if index+2 < len(s) && s[index+1] == '\r' && s[index+2] == '\n' {
+				index += 2
+				continue
+			}
+			return false
+		default:
+			return false
+		}
+	}
+	return true
 }

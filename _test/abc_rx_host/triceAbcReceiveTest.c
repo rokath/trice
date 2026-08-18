@@ -8,9 +8,9 @@
 // triceLog is a small generated-table stand-in for testing log resolution
 // without adding another generated fixture file.
 const triceLog_t triceLog[] = {
-	{ 2001u, TRICE_DEFAULT_PARAMETER_BIT_WIDTH, 1u, "default:%d" },
-	{ 2002u, 0u, 0u, "cmd:no-payload" },
-	{ 2003u, 16u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "cmd:%d" },
+    {2001u, TRICE_DEFAULT_PARAMETER_BIT_WIDTH, 1u, "default:%d"},
+    {2002u, 0u, 0u, "cmd:no-payload"},
+    {2003u, 16u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "cmd:%d"},
 };
 
 // triceLogElements mirrors the generated element-count symbol used by runtime wrappers.
@@ -154,8 +154,8 @@ static int TriceAbcOnReceive(const uint8_t* pBuf, int len) {
 	}
 
 	rx.abcFnHandler(&rx);
-	//e = TriceDispatchAbc(&rx);
-	return used; //TRICE_RX_RESULT_OK; // (e == TRICE_RX_RESULT_OK || e == TRICE_RX_ERR_NOT_FOUND) ? used : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
+	// e = TriceDispatchAbc(&rx);
+	return used; // TRICE_RX_RESULT_OK; // (e == TRICE_RX_RESULT_OK || e == TRICE_RX_ERR_NOT_FOUND) ? used : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 }
 
 // rx_i8_bulk verifies the long-count path and byte-granular payload handling.
@@ -263,7 +263,7 @@ static int triceValidateLogPayload(const triceRx_t* rx) {
 		return (rx->payloadBytes == 0u && rx->paramCount == 0u) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 	}
 	{
-		uint32_t expectedBytes = (uint32_t)rx->paramCount * (uint32_t)(rx->bitWidth>>3);
+		uint32_t expectedBytes = (uint32_t)rx->paramCount * (uint32_t)(rx->bitWidth >> 3);
 		return (rx->payloadBytes == expectedBytes) ? TRICE_RX_RESULT_OK : TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH;
 	}
 }
@@ -321,7 +321,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 2: { // Selected int16 payload ABC with 32-bit stamp dispatches one aligned payload record.
-		int16_t payload[2] = { 123, -456 };
+		int16_t payload[2] = {123, -456};
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used);
@@ -330,7 +330,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 3: { // Selected int32 payload ABC without stamp dispatches one no-stamp record.
-		int32_t payload[1] = { 0x11223344 };
+		int32_t payload[1] = {0x11223344};
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used);
@@ -339,7 +339,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 4: { // Selected int64 payload ABC with 16-bit stamp returns logical length without padding.
-		int64_t payload[1] = { (int64_t)0x1122334455667788ll };
+		int64_t payload[1] = {(int64_t)0x1122334455667788ll};
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1004u, 16u, 0x8877u, payload, (uint16_t)sizeof(payload), 1);
 		result = TriceAbcOnReceive(record, used);
@@ -365,7 +365,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 7: { // Misaligned int32 payload size is rejected before handler execution.
-		uint8_t payload[2] = { 1u, 2u };
+		uint8_t payload[2] = {1u, 2u};
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 1003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used);
@@ -374,7 +374,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 8: { // Truncated selected record is rejected before handler execution.
-		int16_t payload[2] = { 123, -456 };
+		int16_t payload[2] = {123, -456};
 		uint8_t record[16];
 		int used = rxBuildAbcRecord(record, 1002u, 32u, 0x12345678u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceAbcOnReceive(record, used - 1);
@@ -404,7 +404,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 11: { // Log resolver applies the configured default bit width to no-width log names.
-		int32_t payload[1] = { 0x01020304 };
+		int32_t payload[1] = {0x01020304};
 		uint8_t record[8];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
@@ -433,12 +433,12 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rx.payload == 0);
 		rxFailUnless(rx.payloadBytes == 0u);
 		result = triceValidateLogPayload(&rx);
-		//rxFailUnless(result == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME);
+		// rxFailUnless(result == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
 	case 13: { // Explicit log bit widths still win over the no-width default for resolved metadata.
-		int16_t payload[2] = { 11, 22 };
+		int16_t payload[2] = {11, 22};
 		uint8_t record[8];
 		triceRx_t rx;
 		int used = rxBuildAbcRecord(record, 2003u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
@@ -451,16 +451,16 @@ int TriceAbcRxHostCheck(int n) {
 		rxFailUnless(rx.paramCount == TRICE_LOG_PARAM_COUNT_DYNAMIC);
 		rxFailUnless(rx.payloadBytes == sizeof(payload));
 		result = triceValidateLogPayload(&rx);
-		//rxFailUnless(result == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME);
+		// rxFailUnless(result == TRICE_RX_ERR_UNSUPPORTED_X0_FRAME);
 		rxFailUnless(rxCalls == 0);
 		break;
 	}
 	case 14: { // TriceLogOnReceive consumes known and unknown log IDs without dispatch side effects.
-		int32_t payload[1] = { 0x55667788 };
+		int32_t payload[1] = {0x55667788};
 		uint8_t record[8];
 		int used = rxBuildAbcRecord(record, 2001u, 0u, 0u, payload, (uint16_t)sizeof(payload), 0);
 		result = TriceLogOnReceive(record, used);
-		//rxFailUnless(result == used);
+		// rxFailUnless(result == used);
 		used = rxBuildAbcRecord(record, 2999u, 0u, 0u, 0, 0u, 0);
 		result = TriceLogOnReceive(record, used);
 		rxFailUnless(result == used);
@@ -473,7 +473,7 @@ int TriceAbcRxHostCheck(int n) {
 		break;
 	}
 	case 15: { // A caller advances through a stream because TriceAbcOnReceive consumes only one record.
-		int32_t payload[1] = { 0x11223344 };
+		int32_t payload[1] = {0x11223344};
 		uint8_t stream[16];
 		int firstLen;
 		int secondLen;

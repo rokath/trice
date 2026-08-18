@@ -219,6 +219,18 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
+# A replaced Go installation can leave an inherited GOROOT pointing at a
+# directory that no longer exists. Preserve valid custom toolchains, but let
+# the selected go executable discover its own root when that override is stale.
+if [ -n "${GOROOT:-}" ] && [ ! -d "$GOROOT" ]; then
+  stale_goroot="$GOROOT"
+  unset GOROOT
+  log_info "Ignoring stale GOROOT override: $stale_goroot"
+  if [ "$SILENT" = false ] && [ "$VERBOSE" = true ]; then
+    log_verbose "Detected GOROOT: $(go env GOROOT)"
+  fi
+fi
+
 ##############################################
 # Collect Git information
 ##############################################

@@ -3,6 +3,7 @@
 package emitter
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -22,6 +23,10 @@ import (
 // DisplayServer exposes RPC methods for remote line rendering.
 type DisplayServer struct { // must be exported for rpc.Register
 	Display colorDisplay
+
+	// listener belongs exclusively to this server instance. Shutdown closes it
+	// to unblock the matching accept loop without package-global coordination.
+	listener net.Listener
 }
 
 // WriteLine is the exported server method for string display, if trice tool acts as display server.
@@ -60,47 +65,38 @@ func (p *DisplayServer) Shutdown(ts []int64, _ *int64) error {
 	}
 	p.Display.WriteLine([]string{""})
 	p.Display.WriteLine([]string{""})
-	defer func() {
-		if listener != nil {
-			msg.OnErr(listener.Close())
-		}
-		exit = true // do not set true before closing listener, otherwise panic!
-	}()
+	if p.listener != nil {
+		msg.OnErr(p.listener.Close())
+	}
 	return nil
 }
-
-var (
-	// exit terminates ScDisplayServer accept loop after listener close.
-	exit = false
-
-	// conn stores the last accepted connection.
-	conn net.Conn
-
-	// listener is closed by Shutdown.
-	listener net.Listener
-)
 
 // ScDisplayServer serves RPC display requests until the listener is closed.
 func ScDisplayServer(w io.Writer) error {
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Fprintln(w, "displayServer @", a)
-	srv := new(DisplayServer)
-	srv.Display = *newColorDisplay(w, ColorPalette)
-	msg.OnErr(rpc.Register(srv))
-	var err error
-	listener, err = net.Listen("tcp", a)
+	srv := &DisplayServer{Display: *newColorDisplay(w, ColorPalette)}
+	rpcServer := rpc.NewServer()
+	if err := rpcServer.Register(srv); err != nil {
+		fmt.Fprintln(w, err)
+		return err
+	}
+	listener, err := net.Listen("tcp", a)
 	if nil != err {
 		fmt.Fprintln(w, err)
 		return err
 	}
+	// The listener is assigned before any RPC handler can run and remains
+	// immutable afterwards. net.Listener supports concurrent Accept and Close.
+	srv.listener = listener
 	for {
-		conn, err = listener.Accept()
+		conn, err := listener.Accept()
 		if nil != err {
-			if exit {
+			if errors.Is(err, net.ErrClosed) {
 				return err
 			}
 			continue
 		}
-		go rpc.ServeConn(conn)
+		go rpcServer.ServeConn(conn)
 	}
 }

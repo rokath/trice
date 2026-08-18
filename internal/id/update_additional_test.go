@@ -101,11 +101,14 @@ func TestRefreshListCollectsSourceFiles(t *testing.T) {
 
 	oldVerbose := Verbose
 	oldFnJSON := FnJSON
+	oldRoot := LIRoot
 	Verbose = false
 	FnJSON = "til.json"
+	LIRoot = dir
 	t.Cleanup(func() {
 		Verbose = oldVerbose
 		FnJSON = oldFnJSON
+		LIRoot = oldRoot
 	})
 
 	ilu := TriceIDLookUp{}
@@ -114,7 +117,7 @@ func TestRefreshListCollectsSourceFiles(t *testing.T) {
 	refreshList(ioDiscard{}, &afero.Afero{Fs: afero.NewOsFs()}, srcDir, ilu, flu, lim)
 
 	assert.Equal(t, TriceFmt{Type: "TRICE8_1", Strg: "demo=%d\\n"}, ilu[321])
-	assert.Equal(t, "demo.c", lim[321].File)
+	assert.Equal(t, "src/demo.c", lim[321].File)
 }
 
 // TestRefreshListVerbose verifies the expected behavior.

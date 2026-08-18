@@ -5,7 +5,6 @@
 //! \file triceMcuReverse.h
 //! \brief trice Mcu Reverse declarations and macros.
 
-
 #ifndef TRICE_MCU_REVERSE_H_
 #define TRICE_MCU_REVERSE_H_
 

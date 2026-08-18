@@ -98,7 +98,7 @@ func TestAddToListAdapter(t *testing.T) {
 	assert.Equal(t, "TRice", ilu[1234].Type)
 	assert.Equal(t, "msg:%d", ilu[1234].Strg)
 	assert.Contains(t, lim, TriceID(1234))
-	assert.Equal(t, filepath.Base(sourceFile), lim[1234].File)
+	assert.Equal(t, ToLIFile(sourceFile), lim[1234].File)
 	assert.Equal(t, 1, lim[1234].Line)
 }
 

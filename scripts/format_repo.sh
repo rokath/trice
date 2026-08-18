@@ -20,11 +20,30 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 main() {
+  local mode="format"
+  local arg
+
+  # Keep the mode in sync with the delegated formatters. The last explicit
+  # mode wins, matching their existing argument handling.
+  for arg in "$@"; do
+    case "$arg" in
+      check | format) mode="$arg" ;;
+    esac
+  done
+
   echo "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@" && "$SCRIPT_DIR/_refresh_trice_user_manual.sh" "$@"
   echo "$SCRIPT_DIR/_format_shell_scripts.sh" "$@" && "$SCRIPT_DIR/_format_shell_scripts.sh" "$@"
   echo "$SCRIPT_DIR/_format_go_code.sh" "$@" && "$SCRIPT_DIR/_format_go_code.sh" "$@"
-  echo "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh" && "$SCRIPT_DIR/../trice_cleanIDs_in_examples_and_test_folder.sh"
+
   echo "$SCRIPT_DIR/_format_c_code.sh" "$@" && "$SCRIPT_DIR/_format_c_code.sh" "$@"
+  if [ "$mode" = "format" ]; then
+    # Bind records the line layout produced by the first formatting pass. It
+    # can also generate or normalize directives with trailing comments, so a
+    # final formatting pass restores their repository-wide alignment.
+    echo "$SCRIPT_DIR/../trice_bindIDs_in_examples_and_test_folder.sh" && "$SCRIPT_DIR/../trice_bindIDs_in_examples_and_test_folder.sh"
+    echo "$SCRIPT_DIR/_format_c_code.sh" "$@" && "$SCRIPT_DIR/_format_c_code.sh" "$@"
+  fi
+
   echo "$SCRIPT_DIR/../examples/cleanAllTargets.sh" && "$SCRIPT_DIR/../examples/cleanAllTargets.sh"
   echo "$SCRIPT_DIR/_clean-dsstore.sh" "$SCRIPT_DIR/.." --silent && "$SCRIPT_DIR/_clean-dsstore.sh" "$SCRIPT_DIR/.." --silent
 }

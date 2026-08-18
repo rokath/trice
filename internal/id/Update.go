@@ -160,7 +160,7 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 	subs := maskTriceInsertDisabledRegions(text) // create a copy of text and assign it to subs
 	line := 1                                    // source code lines start with 1 for some reason
 	var li TriceLI
-	li.File = filepath.Base(fileName)
+	li.File = ToLIFile(fileName)
 	for {
 		loc := matchTrice(subs) // find the next TRICE location in file
 		if nil == loc {

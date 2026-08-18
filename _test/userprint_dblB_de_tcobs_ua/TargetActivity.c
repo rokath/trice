@@ -4,6 +4,7 @@
 //! \details Go func triceLogSpecialTest parses additionally this file to collect the expected results line by line for later test execution.
 
 #include "trice.h"
+#include "trice_TargetActivity_c_K0E2E9EBE4CCB577F.h" // trice-bind: keep as last include before this file's Trice calls
 
 // The strings behind "//exp:" are the expected result for each line (-color=off)
 // Lines ending with a comment starting with `//exp:` are executed during the automatic Go tests.

@@ -40,6 +40,8 @@ sub-command 'h|help': For command line usage.
     	Show a|add specific help.
   -all
     	Show all help.
+  -bind
+    	Show bind specific help.
   -c	Show c|clean specific help.
   -clean
     	Show c|clean specific help.
@@ -186,10 +188,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	 (default "li.json")
   -liFmt string
     	Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%21s%6d ")
-  -liPath string
-    	How to display location information paths: legacy, base, relative or full. Legacy displays File exactly as stored. Relative uses Path when available. Full resolves Path against -liRoot. (default "legacy")
-  -liRoot string
-    	Root directory used to resolve relative location paths for -liPath full. The default is the directory containing li.json.
+  -liMaxDirs int
+        Maximum number of parent directories displayed before the source filename. The filename is always shown; leading ".." components are omitted.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.
@@ -339,9 +339,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPath string
-    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-    	 (default "base")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.
@@ -496,9 +495,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPath string
-    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-    	 (default "base")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.
@@ -544,6 +542,104 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
   -w	Short for (white)spaceInsideParenthesis or "wide".
+sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
+#	"trice bind" scans C/C++ source and headers, updates til.json and li.json with insert-compatible semantics,
+#	adds a file-local sidecar include where it is safe, and writes generated headers below -bindDir.
+#	Insert-owned files remain unchanged; mixed explicit and bind-style sites in one file are rejected.
+#	Example: 'trice bind -src ./src -bindDir ./build/triceIDs'
+  -IDMax value
+    	Upper end of ID range for normal trices. (default 7999)
+  -IDMethod string
+    	Search method for new IDs in range. Options are 'upward', 'downward', and 'random'. (default "random")
+  -IDMin value
+    	Lower end of ID range for normal trices. (default 1000)
+  -IDRange value
+    	This allows tag specific routing in the target code.
+    	This switch has one parameter string and is a multi-flag switch. It can be used for each Trice tag. Example:
+    	Assign error tag Trice IDs in the range 10-99 and msg tag IDs in the range 100-199:
+    	"trice bind -IDRange err:10,99 -IDRange msg:100,999" (overlapping ID ranges are forbidden)
+    	All other trice tags get IDs from the -IDMin, -IDMax range. The used -IDMethod is the same for all tags.
+    	For example you can have all trice messages in direct mode over RTT but err & msg tagged trices additionally
+    	in deferred mode over a serial port and, if you need, store all error tagged Trice logs additionally in the Flash memory.
+    	You need to configure the target code in your triceConfig.h accordingly (search trice code for MIN_ID):
+    	Use "#define TRICE_UARTA_MIN_ID 10" and "#define TRICE_UARTA_MAX_ID 999" for example. (default "")
+  -a value
+    	Short for trice() aliases.
+  -alias value
+    	Additional macro names to treat like trice().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a trice() call. (default none)
+    	 (default none)
+  -bindDir string
+    	Output directory for generated Trice bind sidecar headers. (default "./build/triceIDs")
+  -defaultStampSize int
+    	Default stamp size for uppercase TRICE macros without id(0), Id(0), or ID(0). Valid values are 0, 16, or 32.
+  -dry-run
+    	No changes applied but output shows what would happen.
+    	"trice bind -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -e value
+    	Short for exclude.
+  -exclude value
+    	Exclude dir or file, It has one parameter. Not usable in the form "-exclude *.c".
+    	This is a multi-flag switch. It can be used several times for directories and also for files.
+    	Example: "trice bind -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
+    	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
+    	 (default none)
+  -i string
+    	Short for '-idlist'.
+    	 (default "til.json")
+  -idlist string
+    	The trice ID list file.
+    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+    	 (default "til.json")
+  -li string
+    	Short for '-locationInformation'.
+    	 (default "li.json")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
+  -locationInformation string
+    	The trice location information file.
+    	The specified JSON file is needed to display the location information for each ID during runtime.
+    	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
+    	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
+    	 (default "li.json")
+  -s value
+    	Short for src.
+  -sa value
+    	Short for triceS() aliases.
+  -salias value
+    	Additional macro names to treat like triceS().
+    	This flag can be specified multiple times to add more aliases. Each provided name will be
+    	recognized as equivalent to a triceS() call.
+    	 (default none)
+  -skip
+    	short for skipAdditionalChecks
+  -skipAdditionalChecks
+    	No parameter count checks, when this flag is true.
+    	This reduces the processing time by a few percent but does not detect wrong parameter counts, anyway the compiler would complain.
+    	Add this flag for script speed-up, when not editing the sources. Alternatively consider the -cache switch.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+  -src value
+    	Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+    	This is a multi-flag switch. It can be used several times for directories and also for files.
+    	Example: "trice bind -dry-run -v -src ./_test/ -src pkg/src/trice.h" will scan all C|C++ header and
+    	source code files inside directory ./_test and scan also file trice.h inside pkg/src directory.
+    	Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+    	 (default "./")
+  -til string
+    	Short for '-idlist'.
+    	 (default "til.json")
+  -ulabel value
+    	Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
+    	Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".
+  -v	short for verbose
+  -verbose
+    	Gives more informal output if used. Can be helpful during setup.
+    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
+    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID](0). Remove all iD(n).
 #	All in source code found IDs are added to til.json if not already there. Inside til.json differently used IDs are 
 #	reported and just cleaned inside the source files. The existing li.json is updated/extended. 
@@ -584,9 +680,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -li string
     	Short for '-locationInformation'.
     	 (default "li.json")
-  -liPath string
-    	How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-    	 (default "base")
+  -liRoot string
+        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.
   -locationInformation string
     	The trice location information file.
     	The specified JSON file is needed to display the location information for each ID during runtime.

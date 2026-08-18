@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Step 08: Writes environment information to the log and prepares the shared JSON files.
+# Step 08: Writes environment information and prepares the canonical Bind state.
 #
 # Direct invocation:
 # - ./_testAll_08_RuntimePrepare.sh
@@ -43,13 +43,12 @@ main() {
     log "MISSING TOOL: trice"
     log "WARN: trice not found in PATH"
   fi
-  run_cmd "$ROOT/trice_cleanIDs_in_examples_and_test_folder.sh" || {
-    log "FAIL: initial clean IDs failed"
-    exit 1
-  }
-  log "Keeping shared json files and reusing existing ID history"
-  run_cmd "$SCRIPTS_DIR/_renewIDs_in_examples_and_refresh_test_folder.sh" keepHistory || {
-    log "FAIL: renew IDs failed"
+
+  # Both selections start from the checked-in Bind state. Full-mode Legacy
+  # checks run later in isolated or transactionally restored test workflows.
+  # Keeping ID renewal out of this shared preparation preserves stable file keys.
+  run_cmd "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || {
+    log "FAIL: preparing canonical Bind state failed"
     exit 1
   }
 }

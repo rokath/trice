@@ -29,9 +29,11 @@ func RenderHelpText(helpArgs ...string) (string, error) {
 // space-before-tab whitespace without reformatting the historical help file.
 func normalizeGeneratedHelpWhitespace(s string) string {
 	replacements := map[string]string{
-		"    \tCreate or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.":  "        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.",
-		"    \tCreate a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.": "        Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.",
-		"    \tCreate a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.": "        Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.",
+		"    \tCreate or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.":                                                "        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.",
+		"    \tCreate a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.":                                               "        Create a deprecated legacy til_rpc.c file. Use -abc=<target> for new command-style communication.",
+		"    \tCreate a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.":                                               "        Create a deprecated legacy til_rpc.h file. Use -abc=<target> for new command-style communication.",
+		"    \tMaximum number of parent directories displayed before the source filename. The filename is always shown; leading \"..\" components are omitted.": "        Maximum number of parent directories displayed before the source filename. The filename is always shown; leading \"..\" components are omitted.",
+		"    \tBase directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, \"-liRoot ..\" stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.": "        Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, \"-liRoot ..\" stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.",
 	}
 	for old, newText := range replacements {
 		s = strings.ReplaceAll(s, old, newText)
@@ -49,6 +51,7 @@ func resetHelpGenerationDefaults() {
 	scanHelp = false
 	shutdownHelp = false
 	insertIDsHelp = false
+	bindIDsHelp = false
 	versionHelp = false
 	cleanIDsHelp = false
 	Verbose = false
@@ -56,7 +59,9 @@ func resetHelpGenerationDefaults() {
 
 	id.FnJSON = "til.json"
 	id.LIFnJSON = "li.json"
-	id.LIPathKind = "base"
+	id.LIRoot = ""
+	id.LIMaxDirs = 0
+	id.BindDir = "./build/triceIDs"
 	id.Min = id.TriceID(1000)
 	id.Max = id.TriceID(7999)
 	id.SearchMethod = "random"

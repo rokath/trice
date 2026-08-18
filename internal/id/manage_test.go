@@ -171,7 +171,7 @@ func TestNewIDUnknownMethod(t *testing.T) {
 	assert.Equal(t, TriceID(0), ilu.newID(&bytes.Buffer{}, 10, 20, "mystery"))
 }
 
-// TestLutLocationInfoFromFile verifies the expected behavior.
+// TestLutLocationInfoFromFile verifies the File-only schema and ignores obsolete fields.
 func TestLutLocationInfoFromFile(t *testing.T) {
 	defer Setup(t)()
 
@@ -191,9 +191,8 @@ func TestLutLocationInfoFromFile(t *testing.T) {
 	li := NewLutLI(&bytes.Buffer{}, FSys, LIFnJSON)
 	require.Len(t, li, 2)
 	assert.Equal(t, "demo.c", li[17].File)
-	assert.Empty(t, li[17].Path)
 	assert.Equal(t, 42, li[17].Line)
-	assert.Equal(t, "src/main.c", li[18].Path)
+	assert.Equal(t, "main.c", li[18].File)
 }
 
 // TestLutFileTransferMemMap verifies the expected behavior.

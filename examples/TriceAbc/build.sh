@@ -17,10 +17,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-# Use the shared ID files while rooting legacy location paths at this example.
+# Use the shared ID files and store paths relative to the repository root.
 TRICE_TIL_JSON=${TRICE_TIL_JSON:-"${ROOT}/demoTIL.json"}
 TRICE_LI_JSON=${TRICE_LI_JSON:-"${ROOT}/demoLI.json"}
-TRICE_LI_PATH_GENERATION=${TRICE_LI_PATH_GENERATION:-"${SCRIPT_DIR}/relative"}
+TRICE_LI_ROOT=${TRICE_LI_ROOT:-"${ROOT}"}
 source "${ROOT}/scripts/_setup_trice_environment.sh"
 
 ids_inserted=0
@@ -60,7 +60,7 @@ cleanup() {
     if ! run_trice clean \
       -til "${TRICE_TIL_JSON}" \
       -li "${TRICE_LI_JSON}" \
-      -liPath "${TRICE_LI_PATH_GENERATION}" \
+      -liRoot "${TRICE_LI_ROOT}" \
       -src "${SCRIPT_DIR}/NodeLib" \
       -src "${SCRIPT_DIR}/N1_tx" \
       -src "${SCRIPT_DIR}/N2_tx" \
@@ -136,7 +136,7 @@ echo "prepare: trice insert examples/TriceAbc"
 run_trice insert \
   -til "${TRICE_TIL_JSON}" \
   -li "${TRICE_LI_JSON}" \
-  -liPath "${TRICE_LI_PATH_GENERATION}" \
+  -liRoot "${TRICE_LI_ROOT}" \
   -src "${SCRIPT_DIR}/NodeLib" \
   -src "${SCRIPT_DIR}/N1_tx" \
   -src "${SCRIPT_DIR}/N2_tx" \

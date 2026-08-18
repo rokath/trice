@@ -1,14 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # file name: trice_cleanIDs_in_examples_and_test_folder.sh
 
 set -euo pipefail
 
-cd "$(dirname "$0")" || exit 1
-source ./scripts/_setup_trice_environment.sh
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=./scripts/_trice_id_workflow.sh
+source "$ROOT/scripts/_trice_id_workflow.sh"
 
-# shellcheck disable=SC2086
-if ! trice clean $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES; then
+(
+  cd "$ROOT" || exit 1
+  trice_id_workflow clean
+) || {
   echo "FAIL: trice clean failed" >&2
   exit 1
-fi
+}

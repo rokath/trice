@@ -12,6 +12,13 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
+# The repository build matrix selects the target logging mode through the
+# existing build.sh TRICE_OFF option.
+set(TRICE_OFF 0 CACHE STRING "Compile Trice target logging out (0 or 1)")
+if(NOT TRICE_OFF MATCHES "^[01]$")
+    message(FATAL_ERROR "TRICE_OFF must be 0 or 1, got '${TRICE_OFF}'")
+endif()
+
 # The project is intended to live in trice/examples/DemoData_Trice.
 # Therefore the unmodified Trice target library is two levels above this file.
 get_filename_component(TRICE_SOURCE_DIR
@@ -37,12 +44,24 @@ add_executable(DemoData_Trice
 )
 
 target_compile_features(DemoData_Trice PRIVATE c_std_11)
+target_compile_definitions(DemoData_Trice PRIVATE TRICE_OFF=${TRICE_OFF})
 
 # Put the project directory first so trice.h finds this demo's triceConfig.h.
 target_include_directories(DemoData_Trice PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${TRICE_SOURCE_DIR}"
 )
+
+# Managed Bound tests provide the generated sidecar directory through a
+# compiler-independent absolute path. Normal standalone builds leave it unset.
+if(DEFINED ENV{TRICE_BIND_INCLUDE_DIR} AND NOT "$ENV{TRICE_BIND_INCLUDE_DIR}" STREQUAL "")
+    if(NOT IS_DIRECTORY "$ENV{TRICE_BIND_INCLUDE_DIR}")
+        message(FATAL_ERROR
+            "TRICE_BIND_INCLUDE_DIR is not a directory: '$ENV{TRICE_BIND_INCLUDE_DIR}'"
+        )
+    endif()
+    target_include_directories(DemoData_Trice PRIVATE "$ENV{TRICE_BIND_INCLUDE_DIR}")
+endif()
 
 if(MSVC)
     # C5105 originates in older Windows SDK headers, not in this project.

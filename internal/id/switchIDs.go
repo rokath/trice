@@ -5,6 +5,7 @@ package id
 // source tree management
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -24,6 +25,7 @@ type idData struct {
 	idToLocRef     TriceIDLookUpLI // idToLocRef is the trice ID location information as reference generated from li.json (if exists) at the begin of SubCmdIdInsert and is not modified at all. At the end of SubCmdIdInsert a new li.json is generated from itemToId.
 	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
 	idInitialCount int             // idInitialCount is the initial used ID count.
+	liNeedsRewrite bool            // liNeedsRewrite removes obsolete schema fields even when no source locations changed.
 	TagList        []TagEntry      // IDSpace contains the tag specific unused IDs.
 	err            error
 }
@@ -124,6 +126,19 @@ func (p *idData) GetIDStateFromJSONFiles(w io.Writer, fSys *afero.Afero) {
 	p.idInitialCount = len(p.idToTrice)
 	p.idToLocRef = NewLutLI(w, fSys, LIFnJSON) // for reference lookup
 	p.idToLocNew = make(TriceIDLookUpLI, 4000) // for new li.json
+	p.liNeedsRewrite = locationInformationNeedsRewrite(fSys)
+}
+
+// locationInformationNeedsRewrite detects the obsolete Issue 708 Path field.
+func locationInformationNeedsRewrite(fSys *afero.Afero) bool {
+	if LIFnJSON == "off" || LIFnJSON == "none" {
+		return false
+	}
+	content, err := fSys.ReadFile(LIFnJSON)
+	if err != nil {
+		return false
+	}
+	return bytes.Contains(content, []byte(`"Path"`))
 }
 
 // PreProcessing reads til.json and li.json and converts the data for processing.
@@ -131,6 +146,18 @@ func (p *idData) GetIDStateFromJSONFiles(w io.Writer, fSys *afero.Afero) {
 func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 
 	p.GetIDStateFromJSONFiles(w, fSys)
+
+	// Rebuild all free-ID slices for every command invocation. Tag-specific
+	// ranges survive from option evaluation, while the common range and stale
+	// allocation state from an earlier in-process command are discarded.
+	tagRanges := p.TagList[:0]
+	for _, entry := range p.TagList {
+		if entry.tagName != "" {
+			entry.iDSpace = nil
+			tagRanges = append(tagRanges, entry)
+		}
+	}
+	p.TagList = tagRanges
 
 	var common TagEntry
 
@@ -187,7 +214,7 @@ func (p *idData) postProcessing(w io.Writer, fSys *afero.Afero) error {
 	}
 
 	// li.json
-	if len(p.idToLocNew) > 0 { // Renew li.json only if there are some data.
+	if len(p.idToLocNew) > 0 || (p.liNeedsRewrite && !DryRun) {
 		// extend li.json
 		for k, v := range p.idToLocNew {
 			p.idToLocRef[k] = v

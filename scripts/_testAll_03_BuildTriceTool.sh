@@ -31,7 +31,10 @@ main() {
   fi
   goexe="$(go env GOEXE)"
   log "TRICE_BIN_DIR: ${TRICE_BIN_DIR:-unset}"
-  run_cmd "$SCRIPTS_DIR/buildTriceTool.sh" --target-file "$TRICE_BIN_DIR/trice${goexe}" --force --no-backup --silent || {
+  # The logfile is an existing regular file, so it is a deterministic invalid
+  # GOROOT. This verifies that the standalone build helper ignores stale
+  # overrides instead of depending on the test harness to sanitize them.
+  run_cmd env GOROOT="$LOGFILE" "$SCRIPTS_DIR/buildTriceTool.sh" --target-file "$TRICE_BIN_DIR/trice${goexe}" --force --no-backup --silent || {
     log "FAIL: buildTriceTool.sh failed"
     exit 1
   }

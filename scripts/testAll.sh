@@ -9,9 +9,11 @@
 #
 # Selection:
 # - quick
-#   Standard run with the normal steps.
+#   Standard Bind-only run. It does not transition repository sources through
+#   the legacy Insert/Clean workflow.
 # - full
-#   Runs the additional full PC target tests and the L432 configuration loop.
+#   Also validates legacy Insert/Clean, the TRICE_OFF builds, the complete PC
+#   target matrix, and the L432 configuration loop.
 #
 # Structure:
 # - scripts/testAll.sh resolves the CLI mode and only calls the steps needed for that mode.

@@ -23,6 +23,13 @@
 
 set -u
 
+# A replaced Go installation can leave an inherited GOROOT pointing at a
+# directory that no longer exists. Preserve valid custom toolchains, but let
+# the selected go executable discover its own root when that override is stale.
+if [ -n "${GOROOT:-}" ] && [ ! -d "$GOROOT" ]; then
+  unset GOROOT
+fi
+
 # ROOT points to the repository root. The helper scripts themselves live in
 # ./scripts/, so derive the project root from the parent directory.
 SCRIPTS_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"

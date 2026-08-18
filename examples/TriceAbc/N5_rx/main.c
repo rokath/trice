@@ -5,19 +5,19 @@
 #include <stdio.h>
 
 int main(void) {
-    node_t node;
-    unsigned loop;
+	node_t node;
+	unsigned loop;
 
-    if (nodeOpen(&node, "N5_rx", 0, 1, 0) < 0) {
-        fprintf(stderr, "N5_rx: unable to open abc.bus\n");
-        return 1;
-    }
+	if (nodeOpen(&node, "N5_rx", 0, 1, 0) < 0) {
+		fprintf(stderr, "N5_rx: unable to open abc.bus\n");
+		return 1;
+	}
 
-    for (loop = 0u; loop < 30u; ++loop) {
-        (void)nodePoll(&node);
-        nodeSleepMs(130u);
-    }
+	for (loop = 0u; loop < 30u; ++loop) {
+		(void)nodePoll(&node);
+		nodeSleepMs(130u);
+	}
 
-    nodeClose(&node);
-    return 0;
+	nodeClose(&node);
+	return 0;
 }

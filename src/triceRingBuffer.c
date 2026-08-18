@@ -5,7 +5,6 @@
 //! \file triceRingBuffer.c
 //! \brief trice Ring Buffer implementation.
 
-
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"

@@ -5,7 +5,6 @@
 //! \file triceUart.c
 //! \brief trice Uart implementation.
 
-
 #include "trice.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -109,7 +108,7 @@ TRICE_WEAK void TriceNonBlockingWriteUartB(const void* buf, size_t nByte) {
 #if TRICE_CGO == 1 // automated tests
 	TriceWriteDeviceCgo(buf, nByte);
 #else  // #if TRICE_CGO == 1// automated tests
-	triceOutBufferUartB = (const uint8_t*) buf;
+	triceOutBufferUartB = (const uint8_t*)buf;
 	triceOutIndexUartB = 0;
 	triceOutCountUartB = nByte;
 	triceTriggerTransmitUartB();

@@ -70,7 +70,6 @@ type emitterSnapshot struct {
 	userLabel       ArrayFlag
 	userLabelsAdded bool
 	tags            []tagSnapshot
-	exit            bool
 	logFlags        int
 }
 
@@ -118,7 +117,6 @@ func snapshotEmitterState() emitterSnapshot {
 		userLabel:       append(ArrayFlag(nil), UserLabel...),
 		userLabelsAdded: userLabelsAdded,
 		tags:            cloneTags(Tags),
-		exit:            exit,
 		logFlags:        log.Flags(),
 	}
 }
@@ -141,7 +139,6 @@ func restoreEmitterState(s emitterSnapshot) {
 	UserLabel = append(ArrayFlag(nil), s.userLabel...)
 	userLabelsAdded = s.userLabelsAdded
 	restoreTags(s.tags)
-	exit = s.exit
 	log.SetFlags(s.logFlags)
 }
 
@@ -504,48 +501,51 @@ func TestShowAllColorsSmoke(t *testing.T) {
 	}
 }
 
-// TestScDisplayServerStartAndShutdown verifies the expected behavior.
+// TestScDisplayServerStartAndShutdown verifies two complete server lifecycles.
+// Running twice in one process guards against accidental use of net/rpc's
+// package-global server registry, which cannot register DisplayServer twice.
 func TestScDisplayServerStartAndShutdown(t *testing.T) {
 	requireWindowsTCPTestsEnabled(t)
 
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 
-	addr := pickLoopbackAddr(t)
-	host, port, err := net.SplitHostPort(addr)
-	if err != nil {
-		t.Fatalf("SplitHostPort failed: %v", err)
-	}
-	IPAddr = host
-	IPPort = port
-	ColorPalette = "none"
-	exit = false
-
-	var serverOut bytes.Buffer
-	errCh := make(chan error, 1)
-	go func() {
-		errCh <- ScDisplayServer(&serverOut)
-	}()
-
-	waitForTCPListener(t, addr)
-
-	if err := ScShutdownRemoteDisplayServer(io.Discard, 0, host, port); err != nil {
-		t.Fatalf("shutdown rpc failed: %v", err)
-	}
-
-	select {
-	case err := <-errCh:
-		if err == nil {
-			t.Fatalf("expected listener close error from ScDisplayServer")
+	for cycle := 1; cycle <= 2; cycle++ {
+		addr := pickLoopbackAddr(t)
+		host, port, err := net.SplitHostPort(addr)
+		if err != nil {
+			t.Fatalf("cycle %d: SplitHostPort failed: %v", cycle, err)
 		}
-	case <-time.After(3 * time.Second):
-		t.Fatalf("ScDisplayServer did not return after shutdown")
-	}
+		IPAddr = host
+		IPPort = port
+		ColorPalette = "none"
 
-	if !strings.Contains(serverOut.String(), "displayServer @ "+addr) {
-		t.Fatalf("missing startup output: %q", serverOut.String())
-	}
-	if !strings.Contains(serverOut.String(), "displayServer shutdown") {
-		t.Fatalf("missing shutdown output: %q", serverOut.String())
+		var serverOut bytes.Buffer
+		errCh := make(chan error, 1)
+		go func() {
+			errCh <- ScDisplayServer(&serverOut)
+		}()
+
+		waitForTCPListener(t, addr)
+
+		if err := ScShutdownRemoteDisplayServer(io.Discard, 0, host, port); err != nil {
+			t.Fatalf("cycle %d: shutdown rpc failed: %v", cycle, err)
+		}
+
+		select {
+		case err := <-errCh:
+			if err == nil {
+				t.Fatalf("cycle %d: expected listener close error from ScDisplayServer", cycle)
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatalf("cycle %d: ScDisplayServer did not return after shutdown", cycle)
+		}
+
+		if !strings.Contains(serverOut.String(), "displayServer @ "+addr) {
+			t.Fatalf("cycle %d: missing startup output: %q", cycle, serverOut.String())
+		}
+		if !strings.Contains(serverOut.String(), "displayServer shutdown") {
+			t.Fatalf("cycle %d: missing shutdown output: %q", cycle, serverOut.String())
+		}
 	}
 }

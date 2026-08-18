@@ -11,7 +11,7 @@ extern "C" {
 
 #define TRICE_LEGACY_RPC_SUPPORT 1
 //! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
-#define TRICE_CLEAN 1 // Do not define this at an other place! But you can delete this here.
+#define TRICE_CLEAN 0 // Do not define this at an other place! But you can delete this here.
 
 #include <stdint.h>
 
@@ -26,6 +26,7 @@ extern volatile uint32_t* const LAR; // lock access register
 void TriceHeadLine(char* name);
 void LogTriceConfiguration(void);
 void SomeExampleTrices(int burstCount);
+void L432LogConfigInfo(void);
 
 #define TRICE_FULL_CHECK // enable all code inside triceCheck.c
 
@@ -41,7 +42,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_LEAVE_CRITICAL_SECTION } // SEGGER_RTT_UNLOCK() }
 
 #if CONFIGURATION == 0 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 
 // Windows: trice log -p jlink -args "-Device STM32L432KC" -pf none -prefix off -hs off -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json
 // Unix:   ./RTTLogUnix.sh or manually:
@@ -59,7 +60,7 @@ void SomeExampleTrices(int burstCount);
 // #undef  TRICE_FULL_CHECK // disble additional code inside triceCheck.c
 
 #elif CONFIGURATION == 1 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -69,7 +70,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 2 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -79,7 +80,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 3 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -89,7 +90,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 4 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -99,7 +100,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 5 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -109,7 +110,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 6 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -119,7 +120,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 7 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -129,7 +130,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_CONFIG_WARNINGS 0
 
 #elif CONFIGURATION == 8 //////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 1
@@ -947,7 +948,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
 
 #elif CONFIGURATION == 97 /////////////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration with direct RTT output only and optimized for speed\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_PROTECT 0
@@ -957,7 +958,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 #elif CONFIGURATION == 98 /////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - UART, no cycle counter, no critical sections.\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_PROTECT 0
@@ -974,7 +975,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_LEAVE_CRITICAL_SECTION }
 
 #elif CONFIGURATION == 99 /////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An minimum configuration example.\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 // #undef TriceStamp16
 // #undef TriceStamp32
@@ -983,7 +984,7 @@ void SomeExampleTrices(int burstCount);
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
 #elif CONFIGURATION == 100 /////////////////////////////////////////////////////
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration with direct RTT output and parallel deferred UART output.\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_RING_BUFFER
 
@@ -1000,7 +1001,7 @@ void SomeExampleTrices(int burstCount);
 #endif
 
 #ifndef LogConfigInfo
-#define LogConfigInfo() trice8("dbg:CONFIGURATION == %d - An example configuration\n", CONFIGURATION);
+#define LogConfigInfo() L432LogConfigInfo()
 #endif
 
 #ifdef __cplusplus

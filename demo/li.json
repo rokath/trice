@@ -1,0 +1,18 @@
+{
+	"1000": {
+		"File": "direct/main.c",
+		"Line": 38
+	},
+	"1001": {
+		"File": "direct/main.c",
+		"Line": 39
+	},
+	"1002": {
+		"File": "deferred/main.c",
+		"Line": 40
+	},
+	"1003": {
+		"File": "deferred/main.c",
+		"Line": 41
+	}
+}

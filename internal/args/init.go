@@ -46,6 +46,7 @@ func FlagsInit() {
 	addInit()
 	generateInit()
 	insertIDsInit()
+	bindIDsInit()
 	cleanIDsInit()
 	versionInit()
 	dsInit()
@@ -71,6 +72,7 @@ func helpInit() {
 	fsScHelp.BoolVar(&shutdownHelp, "sd", false, "Show sd|shutdown specific help.")
 	fsScHelp.BoolVar(&insertIDsHelp, "insert", false, "Show i|insert specific help.")
 	fsScHelp.BoolVar(&insertIDsHelp, "i", false, "Show i|insert specific help.")
+	fsScHelp.BoolVar(&bindIDsHelp, "bind", false, "Show bind specific help.")
 	fsScHelp.BoolVar(&versionHelp, "version", false, "Show ver|version specific help.")
 	fsScHelp.BoolVar(&versionHelp, "ver", false, "Show ver|version specific help.")
 	fsScHelp.BoolVar(&cleanIDsHelp, "clean", false, "Show c|clean specific help.")
@@ -210,17 +212,37 @@ func generateInit() {
 
 func insertIDsInit() {
 	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
-	flagsRefreshAndUpdate(fsScInsert)
-	flagTriceIDRange(fsScInsert)
-	fsScInsert.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
-	fsScInsert.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
-	fsScInsert.IntVar(&id.DefaultStampSize, "defaultStampSize", 0, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
-	fsScInsert.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
+	flagsInsertAndBind(fsScInsert)
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space inside Trice braces: `trice(<space>iD(<space>123<space>), \"...);`. Use this if your default code auto-formatting is with space inside braces.")
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "w", false, "Short for (white)spaceInsideParenthesis or \"wide\".")
 	flagUserLabel(fsScInsert)
+}
+
+// bindIDsInit registers the insert-compatible semantic options plus the sidecar output directory.
+func bindIDsInit() {
+	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
+	flagsInsertAndBind(fsScBind)
+	fsScBind.StringVar(&id.BindDir, "bindDir", "./build/triceIDs", "Output directory for generated Trice bind sidecar headers.")
+	flagUserLabel(fsScBind)
+}
+
+// flagsInsertAndBind registers options whose parser, ID, and list semantics are shared by insert and bind.
+func flagsInsertAndBind(p *flag.FlagSet) {
+	flagsRefreshAndUpdate(p)
+	flagTriceIDRange(p)
+	p.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
+	p.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
+	defaultStampDescription := "Default stamp size for uppercase TRICE macros without id(0), Id(0), or ID(0). Valid values are 0, 16, or 32."
+	searchMethodDescription := "Search method for new IDs in range. Options are 'upward', 'downward', and 'random'."
+	if p.Name() == "insert" {
+		// Preserve the established insert help text byte-for-byte while sharing its flag registration.
+		defaultStampDescription = "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32."
+		searchMethodDescription = "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'."
+	}
+	p.IntVar(&id.DefaultStampSize, "defaultStampSize", 0, defaultStampDescription)
+	p.StringVar(&id.SearchMethod, "IDMethod", "random", searchMethodDescription)
 }
 
 func cleanIDsInit() {
@@ -376,15 +398,13 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 
 func flagLIList(p *flag.FlagSet) {
 	flagLIFile(p)
-	p.StringVar(&id.LIPathKind, "liPath", "base", `How to store location information paths inside li.json: base, relative, path/relative or full. When relative is given, the location information is stored relative to the current location. If a path is given additionally, like ../../relative the path is added to the location information.
-`) // flag
+	p.StringVar(&id.LIRoot, "liRoot", "", `Base directory for File paths stored in li.json. Each File path is stored relative to this directory. A relative -liRoot value is resolved from the current working directory. Examples: when running in project/build, "-liRoot .." stores ../src/main.c as src/main.c; without -liRoot, the directory containing li.json is used as the base.`) // flag
 }
 
-// flagLogLIList registers location-file flags with log-specific display semantics.
+// flagLogLIList registers location-file flags with log-specific display limits.
 func flagLogLIList(p *flag.FlagSet) {
 	flagLIFile(p)
-	p.StringVar(&id.LIDisplayPathKind, "liPath", "legacy", `How to display location information paths: legacy, base, relative or full. Legacy displays File exactly as stored. Relative uses Path when available. Full resolves Path against -liRoot.`) // flag
-	p.StringVar(&id.LIRoot, "liRoot", "", `Root directory used to resolve relative location paths for -liPath full. The default is the directory containing li.json.`)                                                                                  // flag
+	p.IntVar(&id.LIMaxDirs, "liMaxDirs", 0, `Maximum number of parent directories displayed before the source filename. The filename is always shown; leading ".." components are omitted.`) // flag
 }
 
 // flagLIFile registers the shared location-information file aliases.

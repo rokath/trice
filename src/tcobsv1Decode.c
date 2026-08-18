@@ -5,7 +5,6 @@
 //! \file tcobsv1Decode.c
 //! \brief tcobsv 1 Decode implementation.
 
-
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h> // memcpy
@@ -86,15 +85,15 @@ int TCOBSDecode(void* __restrict output, size_t max, const void* __restrict inpu
 		}
 
 	copyBytes: {
-		uint8_t* to = out + Max - olen - offset;   // to := len(d) - n - offset
-		uint8_t const * from = in + ilen - offset; // from := len(in) - offset // sigil byte is already removed
+		uint8_t* to = out + Max - olen - offset;  // to := len(d) - n - offset
+		uint8_t const* from = in + ilen - offset; // from := len(in) - offset // sigil byte is already removed
 		if (to < out) {
 			return OUT_BUFFER_TOO_SMALL - __LINE__;
 		}
 		memcpy(to, from, (size_t)offset); // n += copy(d[to:], in[from:])
 		olen += offset;
 		ilen -= offset; // in = in[:len(in)-offset] // remove copied bytes
-		// continue;
+		                // continue;
 	}
 	}
 	return olen;

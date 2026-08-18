@@ -3,11 +3,12 @@
 //! \file triceExamples.c
 
 #include "trice.h"
+#include "trice_triceExamples_c_K2A55E9986F0B1C24.h" // trice-bind: keep as last include before this file's Trice calls
 
 #if !TRICE_OFF
 
 //! TriceHeadLine emits a decorated name. The name length should be 18 characters.
-void TriceHeadLine(char * name) {
+void TriceHeadLine(char* name) {
 	//! This is usable as the very first trice sequence after restart. Adapt it. Use a UTF-8 capable editor like VS-Code or use pure ASCII.
 	triceS("w: Hello! 👋🙂 \n\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \n        🎈🎈🎈🎈%s🎈🎈🎈🎈\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \n\n\n", name);
 }

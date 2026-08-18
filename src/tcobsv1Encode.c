@@ -5,7 +5,6 @@
 //! \file tcobsv1Encode.c
 //! \brief tcobsv 1 Encode implementation.
 
-
 #include <stdint.h>
 #include <stddef.h>
 #include "tcobs.h"
@@ -76,9 +75,9 @@
 // Public API is documented in tcobs.h.
 // The overlap assumptions are implemented according to the encoder state machine below.
 int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t length) {
-	uint8_t* o = (uint8_t*) output; // write pointer
-	uint8_t const* out = (uint8_t*) output;
-	uint8_t const* i = (uint8_t const*) input;       // read pointer
+	uint8_t* o = (uint8_t*)output; // write pointer
+	uint8_t const* out = (uint8_t*)output;
+	uint8_t const* i = (uint8_t const*)input;        // read pointer
 	uint8_t const* limit = (uint8_t*)input + length; // read limit
 	uint8_t zeroCount = 0;                           // counts zero bytes 1-3 for Z1-Z3
 	uint8_t fullCount = 0;                           // counts 0xFF bytes 1-4 for FF and F2-F4
@@ -222,7 +221,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 				// , aa xx. yy ...
 				ASSERT(1 <= b_1 && b_1 <= 0xFE)
 				OUTB(b_1) // aa, -- xx. yy ...
-				// continue;
+				          // continue;
 
 			} else { // last 2 bytes
 				// , zn|fn|rn xx yy.
@@ -311,7 +310,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 					ASSERT(b_1 == 0xFF)
 					if (b == 0xFF) {  // , f3 FF FF.
 						OUT_fullSigil // F3, FF FF.
-						ASSERT(offset <= 31);
+						    ASSERT(offset <= 31);
 						*o++ = F2 | offset;    // F3 F2, -- --.
 						return (int)(o - out); // option: F4 FF, -- --. is also right
 					}
@@ -388,7 +387,7 @@ int TCOBSEncode(void* __restrict output, const void* __restrict input, size_t le
 	}
 	if (length == 1) { // , . xx
 		b = *i;        // , -- xx.
-		// goto lastByte;
+		               // goto lastByte;
 	}
 
 lastByte:         // , -- xx.

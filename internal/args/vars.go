@@ -48,6 +48,9 @@ var (
 	// fsScInsert is flag set for sub command 'insert' for updating src tree and ID list.
 	fsScInsert *flag.FlagSet
 
+	// fsScBind is the flag set for generating stable ID sidecars without instrumenting user sources.
+	fsScBind *flag.FlagSet
+
 	// fsScHelp is flag set for sub command 'help'.
 	fsScHelp *flag.FlagSet
 
@@ -78,6 +81,7 @@ var (
 	scanHelp          bool // flag for partial help
 	shutdownHelp      bool // flag for partial help
 	insertIDsHelp     bool // flag for partial help
+	bindIDsHelp       bool // flag for partial help
 	versionHelp       bool // flag for partial help
 	cleanIDsHelp      bool // flag for partial help
 )

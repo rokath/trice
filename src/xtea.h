@@ -5,7 +5,6 @@
 //! \file xtea.h
 //! \brief xtea declarations and macros.
 
-
 #ifndef TRICE_XTEA_H_
 #define TRICE_XTEA_H_
 

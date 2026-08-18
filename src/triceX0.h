@@ -39,8 +39,8 @@ extern "C" {
 void triceX0(const void* buf, uint16_t len);
 #else
 static inline void triceX0(const void* buf, uint16_t len) {
-    (void)buf;
-    (void)len;
+	(void)buf;
+	(void)len;
 }
 #endif
 

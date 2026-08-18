@@ -5,7 +5,6 @@
 //! \file cobs.h
 //! \brief cobs declarations and macros.
 
-
 #ifndef COBS_H_
 #define COBS_H_
 
