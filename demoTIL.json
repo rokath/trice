@@ -9449,7 +9449,7 @@
 	},
 	"15621": {
 		"Type": "trice",
-		"Strg": "err:file not found (error code 7)"
+		"Strg": "err:file not found (error code 7)\\n"
 	},
 	"15651": {
 		"Type": "trice",
@@ -9461,7 +9461,7 @@
 	},
 	"15827": {
 		"Type": "trice",
-		"Strg": "err:file not found (error code 7)"
+		"Strg": "err:file not found (error code 7)\\n"
 	},
 	"15849": {
 		"Type": "triceS",

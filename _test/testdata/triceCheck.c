@@ -44,7 +44,7 @@ void TriceCheck(int index); // Avoid noise with option -Wmissing-prototypes.
 		case 0:                                          \
 			break;                                     \
 		case 7:                                          \
-			trice("err:file not found (error code 7)"); \
+			trice("err:file not found (error code 7)\n"); \
 			break;                                     \
 		default:                                          \
 			trice("err:unknown error code %d\n", n);   \
@@ -57,7 +57,7 @@ static void LogErrorExample(int n) {
 	case 0:
 		break;
 	case 7:
-		trice("err:file not found (error code 7)");
+		trice("err:file not found (error code 7)\n");
 		break;
 	default:
 		trice("err:unknown error code %d\n", n);
