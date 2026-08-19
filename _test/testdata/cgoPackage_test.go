@@ -10,6 +10,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	// pcTestModeEnvironment lets the PC-test runner select an execution strategy
+	// without changing or duplicating any target-configuration directory.
+	pcTestModeEnvironment = "TRICE_PC_TEST_MODE"
+	pcTestModeBulk        = "bulk"
+	pcTestModeLineByLine  = "line-by-line"
+)
+
 // TestMain - see for example https://medium.com/goingogo/why-use-testmain-for-testing-in-go-dafb52b406bc
 func TestMain(m *testing.M) {
 	g.getGlobalVarsDefaults() // Do stuff BEFORE the package tests!
@@ -30,9 +38,39 @@ func setup(t *testing.T) func() {
 	}
 }
 
+// selectedTargetMode applies the runner-selected execution strategy to pure
+// deferred configurations. Direct, combined, and special configurations keep
+// their configured behavior because they do not have an equivalent bulk path.
+// An empty environment value preserves direct `go test` compatibility.
+func selectedTargetMode(t *testing.T) string {
+	t.Helper()
+	switch os.Getenv(pcTestModeEnvironment) {
+	case "":
+		return targetMode
+	case pcTestModeBulk:
+		switch targetMode {
+		case "deferredModeLineByLineAndBulk", "deferredModeBulk":
+			return "deferredModeBulk"
+		default:
+			t.Skipf("%s is not bulk-capable for target mode %q", pcTestModeEnvironment, targetMode)
+			return ""
+		}
+	case pcTestModeLineByLine:
+		switch targetMode {
+		case "deferredModeLineByLineAndBulk", "deferredModeLineByLine", "deferredModeBulk":
+			return "deferredModeLineByLine"
+		default:
+			return targetMode
+		}
+	default:
+		t.Fatalf("unsupported %s value %q", pcTestModeEnvironment, os.Getenv(pcTestModeEnvironment))
+		return ""
+	}
+}
+
 func TestTriceLog(t *testing.T) {
 	defer setup(t)() // This executes setup(t) and puts the returned function into the defer list.
-	switch targetMode {
+	switch selectedTargetMode(t) {
 	case "deferredModeLineByLineAndBulk":
 		assert.NotNil(t, triceLog)
 		triceLogLineByLine(t, triceLog, testLines, targetActivityC)
