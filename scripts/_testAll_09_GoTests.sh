@@ -13,6 +13,10 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_testAll_00_common.sh"
 
 main() {
+  local package
+  local package_list
+  local packages=()
+
   init_logfile
   if ! has_command go; then
     log "MISSING TOOL: go"
@@ -32,8 +36,27 @@ main() {
     log "FAIL: go clean failed"
     exit 1
   }
-  run_cmd go test ./... || {
-    log "FAIL: go test ./... failed"
+
+  # The CGO target matrix under ./_test has its own transactional workflow in
+  # step 10. Excluding it here prevents every configuration from being executed
+  # once with its historical per-folder mode before the ordered Bulk/Line pass.
+  log "+ go list ./..."
+  package_list="$(go list ./... 2>>"$LOGFILE")" || {
+    log "FAIL: go list ./... failed"
+    exit 1
+  }
+  for package in $package_list; do
+    case "$package" in
+      */_test/*) continue ;;
+      *) packages+=("$package") ;;
+    esac
+  done
+  if [ "${#packages[@]}" -eq 0 ]; then
+    log "FAIL: go list returned no non-PC-test packages"
+    exit 1
+  fi
+  run_cmd go test "${packages[@]}" || {
+    log "FAIL: normal Go package tests failed"
     exit 1
   }
   if grep_log '(^|[[:space:]])FAIL([[:space:]:]|$)' "$LOGFILE"; then

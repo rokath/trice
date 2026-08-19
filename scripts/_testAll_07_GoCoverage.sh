@@ -7,7 +7,9 @@
 # If Go is not installed locally, the step is marked as SKIP.
 #
 # Notes:
-# - The coverage run still uses Go's native test coverage across ./....
+# - The coverage run instruments normal repository packages globally.
+# - The dedicated CGO target matrix under ./_test runs only in step 10, where
+#   Bulk-first ordering and line-by-line diagnostics are controlled explicitly.
 # - The follow-up tool build now writes explicitly into the disposable
 #   TRICE_BIN_DIR instead of relying on go install destination resolution.
 # - This keeps any user-installed trice binary outside the test sandbox
@@ -104,8 +106,13 @@ print_global_coverage_hotspots() {
 
 main() {
   local coverage_file="./temp/log/coverage.out"
+  local coverage_packages=""
   local goexe
   local go_toolchain
+  local package
+  local package_list
+  local packages=()
+
   init_logfile
   if ! has_command go; then
     log "MISSING TOOL: go"
@@ -121,7 +128,32 @@ main() {
     exit 1
   }
   log "Go coverage toolchain: $go_toolchain"
-  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test ./... -covermode=atomic -coverprofile="$coverage_file" -coverpkg=./... || {
+
+  # Step 10 owns the PC/CGO packages transactionally. Testing them during
+  # coverage would run their historical per-folder modes before the ordered PC
+  # pass and would dominate quick-test duration. Keep all normal Go packages as
+  # both test targets and coverage targets instead.
+  log "+ go list ./..."
+  package_list="$(go list ./... 2>>"$LOGFILE")" || {
+    log "FAIL: go list ./... failed"
+    exit 1
+  }
+  for package in $package_list; do
+    case "$package" in
+      */_test/*) continue ;;
+    esac
+    packages+=("$package")
+    if [ -n "$coverage_packages" ]; then
+      coverage_packages="$coverage_packages,$package"
+    else
+      coverage_packages="$package"
+    fi
+  done
+  if [ "${#packages[@]}" -eq 0 ] || [ -z "$coverage_packages" ]; then
+    log "FAIL: go list returned no non-PC-test packages for coverage"
+    exit 1
+  fi
+  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test "${packages[@]}" -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
     log "FAIL: go coverage test failed"
     exit 1
   }
