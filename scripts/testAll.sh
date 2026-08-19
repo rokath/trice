@@ -6,6 +6,8 @@
 # - ./scripts/testAll.sh
 # - ./scripts/testAll.sh quick
 # - ./scripts/testAll.sh full
+# It is extended by an optional continue-on-failure switch:
+# - ./scripts/testAll.sh [quick|full] --no-stop
 #
 # Selection:
 # - quick
@@ -14,6 +16,8 @@
 # - full
 #   Also validates legacy Insert/Clean, the TRICE_OFF builds, the complete PC
 #   target matrix, and the L432 configuration loop.
+# - Failures stop the run immediately by default. --no-stop records failures
+#   and continues with later recoverable checks.
 #
 # Structure:
 # - scripts/testAll.sh resolves the CLI mode and only calls the steps needed for that mode.

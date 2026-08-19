@@ -68,15 +68,98 @@ run_step() {
   return "$rc"
 }
 
+# parse_test_all_arguments accepts the historical selection plus the optional
+# failure policy in either order. The default is deliberately fail-fast.
+parse_test_all_arguments() {
+  local argument
+  local selection_seen=0
+
+  TEST_ALL_SELECTED="quick"
+  TEST_ALL_NO_STOP=0
+  for argument in "$@"; do
+    case "$argument" in
+      quick | full)
+        if [ "$selection_seen" -eq 1 ]; then
+          printf 'Test selection specified more than once: %s\n' "$argument" >&2
+          return 2
+        fi
+        TEST_ALL_SELECTED="$(get_mode "$argument")"
+        selection_seen=1
+        ;;
+      --no-stop) TEST_ALL_NO_STOP=1 ;;
+      *)
+        printf 'Unsupported testAll argument: %s\n' "$argument" >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop]\n' >&2
+        return 2
+        ;;
+    esac
+  done
+}
+
+# run_step_with_policy records every failure. In the default mode it returns a
+# failure immediately; --no-stop converts that control result to success so the
+# caller can continue while retaining the failed final status.
+run_step_with_policy() {
+  if run_step "$@"; then
+    return 0
+  fi
+  TEST_ALL_FAILED=1
+  if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
+    return 0
+  fi
+  return 1
+}
+
+# run_selected_steps keeps the suite order in one place and returns at the first
+# failed step unless --no-stop was selected. Transactional step wrappers finish
+# their own restoration before their failure reaches this function.
+run_selected_steps() {
+  run_step_with_policy "_testAll_00a_FormatShellScripts.sh" || return 1
+  run_step_with_policy "_testAll_00b_checkShell.sh" || return 1
+  run_step_with_policy "_testAll_01_CleanDsStore.sh" || return 1
+  run_step_with_policy "_testAll_02_ClangFormat.sh" || return 1
+  run_step_with_policy "_testAll_02b_TargetCodeLinting.sh" || return 1
+  run_step_with_policy "_testAll_03_BuildTriceTool.sh" || return 1
+  run_step_with_policy "_testAll_04_FormatManual.sh" || return 1
+  run_step_with_policy "_testAll_05_MarkdownLint.sh" || return 1
+  run_step_with_policy "_testAll_06_LinkCheck.sh" || return 1
+  run_step_with_policy "_testAll_06a_GoReleaser.sh" || return 1
+  run_step_with_policy "_testAll_06b_ActionLint.sh" || return 1
+  run_step_with_policy "_testAll_07_GoCoverage.sh" || return 1
+  run_step_with_policy "_testAll_08_RuntimePrepare.sh" || return 1
+  run_step_with_policy "_testAll_09_GoTests.sh" || return 1
+  run_step_with_policy "_testAll_09b_BindTests.sh" || return 1
+  if [ "$TEST_ALL_SELECTED" = "full" ]; then
+    run_step_with_policy "_testAll_09c_BindWorkflowTests.sh" || return 1
+    run_step_with_policy "_testAll_10a_PcTargetTests_insert.sh" "$TEST_ALL_SELECTED" || return 1
+  fi
+  run_step_with_policy "_testAll_10b_PcTargetTests_bind.sh" "$TEST_ALL_SELECTED" || return 1
+  if [ "$TEST_ALL_SELECTED" = "full" ]; then
+    run_step_with_policy "_testAll_11a_ClangTranslation_insert.sh" || return 1
+  fi
+  run_step_with_policy "_testAll_11b_ClangTranslation_bind.sh" || return 1
+  if [ "$TEST_ALL_SELECTED" = "full" ]; then
+    run_step_with_policy "_testAll_12a_GccExampleBuilds_insert.sh" || return 1
+    run_step_with_policy "_testAll_12c_GccExampleBuilds_off.sh" || return 1
+  fi
+  run_step_with_policy "_testAll_12b_GccExampleBuilds_bind.sh" "$TEST_ALL_SELECTED" || return 1
+  if [ "$TEST_ALL_SELECTED" = "full" ]; then
+    run_step_with_policy "_testAll_13_L432Configs.sh" || return 1
+  fi
+  run_step_with_policy "_testAll_14_GoReleaserSnapshot.sh" || return 1
+}
+
 main() {
   local selected
   local started_at
   local finished_at
   local duration
-  local failed=0
   # local initial_tracked_status
   # local final_tracked_status
-  selected="$(get_mode "${1:-quick}")"
+  parse_test_all_arguments "$@" || exit $?
+  selected="$TEST_ALL_SELECTED"
+  TEST_ALL_FAILED=0
+  export TRICE_TEST_NO_STOP="$TEST_ALL_NO_STOP"
   export SELECTED="$selected"
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   started_at=$(date +%s)
@@ -90,40 +173,13 @@ main() {
   else
     summary_line "ID workflows: bind plus legacy insert/clean"
   fi
+  if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
+    summary_line "Failure policy: continue after failures (--no-stop)"
+  else
+    summary_line "Failure policy: stop after the first failure"
+  fi
 
-  run_step "_testAll_00a_FormatShellScripts.sh" || failed=1
-  run_step "_testAll_00b_checkShell.sh" || failed=1
-  run_step "_testAll_01_CleanDsStore.sh" || failed=1
-  run_step "_testAll_02_ClangFormat.sh" || failed=1
-  run_step "_testAll_02b_TargetCodeLinting.sh" || failed=1
-  run_step "_testAll_03_BuildTriceTool.sh" || failed=1
-  run_step "_testAll_04_FormatManual.sh" || failed=1
-  run_step "_testAll_05_MarkdownLint.sh" || failed=1
-  run_step "_testAll_06_LinkCheck.sh" || failed=1
-  run_step "_testAll_06a_GoReleaser.sh" || failed=1
-  run_step "_testAll_06b_ActionLint.sh" || failed=1
-  run_step "_testAll_07_GoCoverage.sh" || failed=1
-  run_step "_testAll_08_RuntimePrepare.sh" || failed=1
-  run_step "_testAll_09_GoTests.sh" || failed=1
-  run_step "_testAll_09b_BindTests.sh" || failed=1
-  if [ "$selected" = "full" ]; then
-    run_step "_testAll_09c_BindWorkflowTests.sh" || failed=1
-    run_step "_testAll_10a_PcTargetTests_insert.sh" "$selected" || failed=1
-  fi
-  run_step "_testAll_10b_PcTargetTests_bind.sh" "$selected" || failed=1
-  if [ "$selected" = "full" ]; then
-    run_step "_testAll_11a_ClangTranslation_insert.sh" || failed=1
-  fi
-  run_step "_testAll_11b_ClangTranslation_bind.sh" || failed=1
-  if [ "$selected" = "full" ]; then
-    run_step "_testAll_12a_GccExampleBuilds_insert.sh" || failed=1
-    run_step "_testAll_12c_GccExampleBuilds_off.sh" || failed=1
-  fi
-  run_step "_testAll_12b_GccExampleBuilds_bind.sh" "$selected" || failed=1
-  if [ "$selected" = "full" ]; then
-    run_step "_testAll_13_L432Configs.sh" || failed=1
-  fi
-  run_step "_testAll_14_GoReleaserSnapshot.sh" || failed=1
+  run_selected_steps || true
 
   # Temporarily disabled until the remaining testAll steps are fully read-only again.
   # final_tracked_status="$(tracked_worktree_status)"
@@ -142,7 +198,7 @@ main() {
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
-  if [ "$failed" -eq 0 ]; then
+  if [ "$TEST_ALL_FAILED" -eq 0 ]; then
     summary_line "Result: PASS"
   else
     summary_line "Result: FAIL"
@@ -150,7 +206,7 @@ main() {
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"
 
-  exit "$failed"
+  exit "$TEST_ALL_FAILED"
 }
 
 main "$@"
