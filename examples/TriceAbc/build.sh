@@ -21,7 +21,7 @@ ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 TRICE_TIL_JSON=${TRICE_TIL_JSON:-"${ROOT}/demoTIL.json"}
 TRICE_LI_JSON=${TRICE_LI_JSON:-"${ROOT}/demoLI.json"}
 TRICE_LI_ROOT=${TRICE_LI_ROOT:-"${ROOT}"}
-source "${ROOT}/scripts/_setup_trice_environment.sh"
+source "${ROOT}/scripts/_120_setup_trice_environment.sh"
 
 ids_inserted=0
 

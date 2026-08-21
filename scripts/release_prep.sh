@@ -55,13 +55,13 @@ main() {
     run_step format_repo.sh format "$@"
   fi
 
-  run_step _testAll_05_MarkdownLint.sh
-  run_step _testAll_06_LinkCheck.sh
-  run_step _testAll_06a_GoReleaser.sh
-  run_step _testAll_06b_ActionLint.sh
+  run_step _450_test_markdownlint.sh
+  run_step _530_test_links.sh
+  run_step _460_test_goreleaser_config.sh
+  run_step _470_test_actionlint.sh
 
   if [ "$MODE" = "format" ]; then
-    run_step _testAll_14_GoReleaserSnapshot.sh
+    run_step _610_test_goreleaser_snapshot.sh
   fi
 }
 

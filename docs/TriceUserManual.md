@@ -1920,7 +1920,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 mkdir -p ~/.trice/cache
 ```
 
-* Apply `-cache` CLI switch on `trice insert` and `trice clean`. See [../trice_insertIDs_in_examples_and_test_folder.sh](../trice_insertIDs_in_examples_and_test_folder.sh) and [../trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh) which both call [../scripts/_setup_trice_environment.sh](../scripts/_setup_trice_environment.sh) and used for example in [../examples/G0B1_inst/build.sh](../examples/G0B1_inst/build.sh)
+* Apply `-cache` CLI switch on `trice insert` and `trice clean`. See [../scripts/_230_legacy_insert_ids.sh](../scripts/_230_legacy_insert_ids.sh) and [../scripts/_240_legacy_clean_ids.sh](../scripts/_240_legacy_clean_ids.sh), which both call [../scripts/_120_setup_trice_environment.sh](../scripts/_120_setup_trice_environment.sh) and are used for example in [../examples/G0B1_inst/build.sh](../examples/G0B1_inst/build.sh).
 
 * Do **NOT** add the Trice cache to the version control.
 * It is safe to `rm -rf ~/.trice/cache` and not to use the `-cache` CLI switch anymore.
@@ -3511,7 +3511,7 @@ The shared test configurations that build `triceCheck.c` define:
 #define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1
 ```
 
-`src/triceX0.c` is compiled into the CGO test target through the master file `_test/testdata/cgoPackage.go`. Generated `generated_cgoPackage.go` copies are refreshed from that master file by `scripts/_renewIDs_in_examples_and_refresh_test_folder.sh`.
+`src/triceX0.c` is compiled into the CGO test target through the master file `_test/testdata/cgoPackage.go`. Generated `generated_cgoPackage.go` copies are refreshed from that master file by `scripts/_330_renew_ids_and_refresh_tests.sh`.
 
 The X0 block in `_test/testdata/triceCheck.c` is guarded by `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1` and intentionally mixes different counted X0 lengths with normal Trices:
 
@@ -8041,7 +8041,7 @@ number does not make one role a replacement for another:
 
 | Role                               | Command or target                                                | Used for                                                                       | Recommended source                                                                                                                               |
 |------------------------------------|------------------------------------------------------------------|--------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| ARM bare-metal GCC cross-toolchain | `arm-none-eabi-gcc`; target `arm-none-eabi`                      | Firmware and `scripts/_testAll_12_GccExampleBuilds.sh`                         | Official [Arm GNU Toolchain installation guide](https://learn.arm.com/install-guides/gcc/arm-gnu/); choose a Windows package ending in `arm-none-eabi` |
+| ARM bare-metal GCC cross-toolchain | `arm-none-eabi-gcc`; target `arm-none-eabi`                      | Firmware and `scripts/_210_gcc_example_builds_all_workflows.sh`                | Official [Arm GNU Toolchain installation guide](https://learn.arm.com/install-guides/gcc/arm-gnu/); choose a Windows package ending in `arm-none-eabi` |
 | Windows host GCC                   | `gcc`; target such as `x86_64-w64-mingw32` or `i686-w64-mingw32` | CGO and native Windows C tests                                                 | Optional MinGW-w64 distribution, for example [WinLibs](https://winlibs.com/)                                                                     |
 | Clang frontend                     | `clang`; use `--target=arm-none-eabi` for firmware               | Optional ARM firmware builds and, when correctly configured, native host tests | Official [LLVM releases](https://github.com/llvm/llvm-project/releases/latest)                                                                   |
 
@@ -8343,12 +8343,12 @@ After selecting ARM GCC, test the known serial baseline and then the desired
 parallelism from the repository root:
 
 ```bash
-MAKE_JOBS=-j1 ./scripts/_testAll_12_GccExampleBuilds.sh
-MAKE_JOBS=-j4 ./scripts/_testAll_12_GccExampleBuilds.sh
+MAKE_JOBS=-j1 ./scripts/_210_gcc_example_builds_all_workflows.sh
+MAKE_JOBS=-j4 ./scripts/_210_gcc_example_builds_all_workflows.sh
 ```
 
-Record `type -a arm-none-eabi-gcc`, both tool versions, `MAKE_JOBS`, and
-`temp/log/_testAll_12_GccExampleBuilds.log` with every comparison. Windows exit
+Record `type -a arm-none-eabi-gcc`, both tool versions, `MAKE_JOBS`, and the
+`temp/log/_5*_test_gcc_*.log` files with every comparison. Windows exit
 code `-1073741819` is `0xC0000005` (`STATUS_ACCESS_VIOLATION`): a compiler
 process crashed; it is not a normal C diagnostic. If `-j1` succeeds but a
 bounded parallel build crashes, preserve the evidence and compare another
@@ -9123,7 +9123,7 @@ This folder is per default named to `_test` to avoid VS Code slow down. Also, wh
 
 The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way. 
 
-`scripts/testAll.sh quick` performs just a short test. `scripts/testAll.sh full` runs all tests. That can take hours on a Windows PC because make is executed only as single thread there for stability reasons. On Darwin and Linux systems about an hour test duration should be expected. 
+`scripts/testAll.sh quick` performs the standard Bind-only selection. `scripts/testAll.sh full` also runs the legacy Insert/Clean and extended compiler matrices and can take many hours, depending strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
 
 * Partial tests:
   * In `./examples` you can translate all examples with `./buildAllTargets.sh`.
@@ -9139,11 +9139,12 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
   * Some Go regression tests execute every supported compiler found in `PATH`, including `clang`. If Clang is visible, verify it first with `printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -`.
   * Keep `C_INCLUDE_PATH` unset globally so ARM cross-compiler headers do not leak into host and CGO builds.
 * In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can lead to confusing results.
-* Execute `./renewIDs_in_examples_and_test_folder.sh` after you edited files in the `./examples` or `_test` folder.
+* Execute `./scripts/_330_renew_ids_and_refresh_tests.sh` after you edited files in the `./examples` or `_test` folder.
 * To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
-* To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` fom there. It is more handy to run `trice_insertIDs_in_examples_and_test_folder.sh` from the Trice root folder.
+* To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` from there. It is more convenient to run `scripts/_230_legacy_insert_ids.sh` from the Trice root folder.
 * It is convenient to run `scripts/testAll.sh` from the Trice root folder to perform this.
 * `scripts/testAll.sh` creates its local helper artifacts inside the ignored `./temp/log` folder. The versioned `demoTIL.json` and `demoLI.json` files in the repository root stay available as example reference files. When `GOCACHE` is unset, `scripts/testAll.sh` also uses the ignored repo-local cache folder `./.gocache`.
+* A script name beginning with `_` marks an internal helper or an individually runnable test step. Its three-digit prefix groups the flat `scripts` folder: `100`--`250` are shared workflow helpers, `260`--`330` are maintenance helpers, and `400`--`640` are tests ordered broadly from short checks to long compiler matrices.
 * It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
 
 ### 41.3. <a id="tests-details"></a>Tests Details
@@ -10958,9 +10959,9 @@ Generated commit message:
 | [_config.yml](../_config.yml)                                                                                           | [jekyll configuration](https://jekyllrb.com/docs/configuration/)                                                                  |
 | [_test](../_test)                                                                                                       | automatic target code tests                                                                                                       |
 | [scripts/buildTriceTool.sh](../scripts/buildTriceTool.sh)                                                               | [Build Trice tool from Go sources](#build-trice-tool-from-go-sources)                                                             |
-| [scripts/_setup_build_environment.sh](../scripts/_setup_build_environment.sh)                                           | see inside                                                                                                                        |
-| [scripts/_format_c_code.sh](../scripts/_format_c_code.sh)                                                               | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-formatyml---check-c-code-formatting)          |
-| [scripts/_clean-dsstore.sh](../scripts/_clean-dsstore.sh)                                                               | Ru to remove macOS artifacts                                                                                                      |
+| [scripts/_150_setup_build_environment.sh](../scripts/_150_setup_build_environment.sh)                                   | see inside                                                                                                                        |
+| [scripts/_280_format_c_code.sh](../scripts/_280_format_c_code.sh)                                                       | See [GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-formatyml---check-c-code-formatting)          |
+| [scripts/_300_clean_dsstore.sh](../scripts/_300_clean_dsstore.sh)                                                       | Run to remove macOS artifacts                                                                                                     |
 | `temp/log/coverage.out`                                                                                                 | Go test coverage output                                                                                                           |
 | [cmd/_cui/](../cmd/_cui)                                                                                                | (do not use) command user interface tryout code                                                                                   |
 | [cmd/_stim/](../cmd/_stim)                                                                                              | (do not use) target stimulation tool tryout code                                                                                  |
@@ -10971,7 +10972,7 @@ Generated commit message:
 | `dist/`                                                                                                                 | local distribution files folder created by GoReleaser                                                                             |
 | [docs](../docs)                                                                                                         | documentation folder with link forwarding                                                                                         |
 | [examples/](../examples)                                                                                                | example target projects                                                                                                           |
-| [scripts/_refresh_trice_user_manual.sh](../scripts/_refresh_trice_user_manual.sh)                                       | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-or-any-md-file)                               |
+| [scripts/_310_refresh_trice_user_manual.sh](../scripts/_310_refresh_trice_user_manual.sh)                               | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-or-any-md-file)                               |
 | [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside                                    |
 | [scripts/gitAddWorktreesBetween.sh](../scripts/gitAddWorktreesBetween.sh)                                               | helper to get easy git worktree folders from any time range                                                                       |
 | [scripts/gitLogWithBranches.sh](../scripts/gitLogWithBranches.sh)                                                       | helper to get easy a history view                                                                                                 |
@@ -10980,15 +10981,16 @@ Generated commit message:
 | [index.md](../index.md)                                                                                                 | Jekyll index site for README.md                                                                                                   |
 | [internal/](../internal)                                                                                                | Trice tool internal Go packages                                                                                                   |
 | [pkg/](../pkg)                                                                                                          | Trice tool common Go packages                                                                                                     |
-| [scripts/_renewIDs_in_examples_and_refresh_test_folder.sh](../scripts/_renewIDs_in_examples_and_refresh_test_folder.sh) | renew all ID data                                                                                                                 |
+| [scripts/_330_renew_ids_and_refresh_tests.sh](../scripts/_330_renew_ids_and_refresh_tests.sh)                           | renew all ID data                                                                                                                 |
 | [src/](../src)                                                                                                          | C sources for trice instrumentation -> Add to target project                                                                      |
 | `temp/`                                                                                                                 | ignored local workspace for binary logfiles and other runtime artifacts like `scripts/testAll.sh` helper files under `./temp/log` |
 | `testAll.log`                                                                                                           | ignored local output of the last `./scripts/testAll.sh` run                                                                       |
 | [scripts/testAll.sh](../scripts/testAll.sh)                                                                             | run all tests                                                                                                                     |
 | [third_party/](../third_party)                                                                                          | external components                                                                                                               |
-| [trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh)                       | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                          |
-| [scripts/_setup_trice_environment.sh](../scripts/_setup_trice_environment.sh)                                           | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                          |
-| [trice_insertIDs_in_examples_and_test_folder.sh](../trice_insertIDs_in_examples_and_test_folder.sh)                     | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                          |
+| [trice_bindIDs_in_examples_and_test_folder.sh](../trice_bindIDs_in_examples_and_test_folder.sh)                         | run the canonical Trice Bind workflow                                                                                              |
+| [scripts/_240_legacy_clean_ids.sh](../scripts/_240_legacy_clean_ids.sh)                                                 | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                          |
+| [scripts/_120_setup_trice_environment.sh](../scripts/_120_setup_trice_environment.sh)                                   | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                          |
+| [scripts/_230_legacy_insert_ids.sh](../scripts/_230_legacy_insert_ids.sh)                                               | [Cleaning the Sources](#cleaning-the-sources)  [Activating the Trice Cache](#activating-the-trice-cache)                          |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -11327,8 +11329,8 @@ These files are not executed; they simply inform GitHub how certain workflows be
 
 #### 47.2.3. <a id="github-action-clang-formatyml---check-c-code-formatting"></a>GitHub Action clang-format.yml - Check C Code Formatting
 
-* **Local Action (developer machine):** [./scripts/_format_c_code.sh](../scripts/_format_c_code.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
-  > The file [./scripts/_format_c_code.sh](../scripts/_format_c_code.sh) is used to auto-format the Trice code.
+* **Local Action (developer machine):** [./scripts/_280_format_c_code.sh](../scripts/_280_format_c_code.sh) - adjust all C files excluding [.clang-format-ignore](../.clang-format-ignore) according rule set in [.clang-format](../.clang-format).
+  > The file [./scripts/_280_format_c_code.sh](../scripts/_280_format_c_code.sh) is used to auto-format the Trice code.
   > 
   > File [.clang-format](../.clang-format)
   > 
@@ -11564,8 +11566,8 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
     -->
     <!-- /mdtoc -->
     ```
-    * Run `./scripts/_refresh_trice_user_manual.sh format docs/TriceUserManual.md` to regenerate the TOC, numbering, and anchors with `mdtoc`.
-    * Run `./scripts/_refresh_trice_user_manual.sh check docs/TriceUserManual.md` to verify that the checked-in manual matches the persisted `mdtoc` state.
+    * Run `./scripts/_310_refresh_trice_user_manual.sh format docs/TriceUserManual.md` to regenerate the TOC, numbering, and anchors with `mdtoc`.
+    * Run `./scripts/_310_refresh_trice_user_manual.sh check docs/TriceUserManual.md` to verify that the checked-in manual matches the persisted `mdtoc` state.
     * The repository no longer uses a VS Code TOC extension for manual maintenance.
   * Markdown Paste (telesoho)
     * Helpful to get web site content preformatted as Markdown. Use mouse context menu.
@@ -11583,8 +11585,8 @@ In GitHub are some Actions defined. Some of them get triggered on a `git push` a
 
 * `npx markdownlint *.md` (or just `markdownlint`) - uses [.markdownlint.yaml](../.markdownlint.yaml) to allow exceptions.
   * `npx markdownlint ./docs/TriceUserManual.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors. 
-* [./scripts/_clean-dsstore.sh](../scripts/_clean-dsstore.sh) - remove macOS maintenance data. 
-* [./trice_cleanIDs_in_examples_and_test_folder.sh](../trice_cleanIDs_in_examples_and_test_folder.sh) removes all IDs.
+* [./scripts/_300_clean_dsstore.sh](../scripts/_300_clean_dsstore.sh) - remove macOS maintenance data.
+* [./scripts/_240_legacy_clean_ids.sh](../scripts/_240_legacy_clean_ids.sh) removes all IDs in the legacy workflow.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -11956,7 +11958,7 @@ run_trice_clean_if_needed() {
 
     (
       cd "${ROOT}" || exit 1
-      bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
+      bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
     )
 
     ids_inserted=0
@@ -11983,8 +11985,8 @@ trap 'cleanup_and_exit 143' TERM
 
 (
   cd "${ROOT}" || exit 1
-  bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
-  bash "${ROOT}/trice_insertIDs_in_examples_and_test_folder.sh"
+  bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
+  bash "${ROOT}/scripts/_230_legacy_insert_ids.sh"
 )
 
 ids_inserted=1
@@ -12041,7 +12043,7 @@ For example:
 ```bash
 run_trice_clean_if_needed() {
   cd "${ROOT}" || exit 1
-  bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
+  bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
 }
 ```
 
@@ -12060,7 +12062,7 @@ Prefer one of these forms:
 ```bash
 (
   cd "${ROOT}" || exit 1
-  bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
+  bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
 )
 ```
 
@@ -12103,16 +12105,16 @@ The following scripts are useful examples for Ctrl-C robust wrapping of `trice i
 They illustrate slightly different situations:
 
 ```text
-_testAll_10_PcTargetTests_trap_cleanup.sh
+scripts/_160_pc_target_test_worker.sh
   PC/CGO test wrapper.
   Shows how an outer test script can run cleanup after insert and restore
   temporary environment changes such as C_INCLUDE_PATH.
 
-_testAll_12_GccExampleBuilds_trap_cleanup.sh
+scripts/_200_gcc_example_build_worker.sh
   First Step-12 variant.
   Shows a global outer-script cleanup owner.
 
-_testAll_12_GccExampleBuilds_orchestrator_cleanup.sh
+scripts/_210_gcc_example_builds_all_workflows.sh
   Improved Step-12 orchestrator variant.
   Shows the case where child example build scripts own insert/clean, while the
   outer script only runs a final safety clean.

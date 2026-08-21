@@ -91,15 +91,15 @@ Folgende Zustände dürfen nicht stillschweigend als erfolgreiche Testvorbereitu
 Die vorhandenen Skripte bleiben erhalten:
 
 ```text
-trice_insertIDs_in_examples_and_test_folder.sh
-trice_cleanIDs_in_examples_and_test_folder.sh
+scripts/_230_legacy_insert_ids.sh
+scripts/_240_legacy_clean_ids.sh
 ```
 
 Zusätzlich MÜSSEN bereitgestellt werden:
 
 ```text
 trice_bindIDs_in_examples_and_test_folder.sh
-trice_remigrateBindToClean_in_examples_and_test_folder.sh
+scripts/_250_legacy_remigrate_bind_to_clean.sh
 ```
 
 Die endgültige Benennung darf an die bestehenden Repositorykonventionen angepasst werden. Die Semantik ist verbindlich.
@@ -109,7 +109,7 @@ Die endgültige Benennung darf an die bestehenden Repositorykonventionen angepas
 Alle vier Skripte MÜSSEN dieselbe Projekt- und Listen-Konfiguration verwenden, insbesondere die Werte aus:
 
 ```text
-scripts/_setup_trice_environment.sh
+scripts/_120_setup_trice_environment.sh
 ```
 
 Dazu gehören:
@@ -136,7 +136,7 @@ Die Listen der bearbeiteten `_test`- und `examples`-Quellen dürfen nicht unabh�
 
 ### 5.3 Re-Migrationsskript
 
-`trice_remigrateBindToClean_in_examples_and_test_folder.sh` MUSS einen Bind-Zustand in einen insert-bereiten Clean-Zustand überführen.
+`scripts/_250_legacy_remigrate_bind_to_clean.sh` MUSS einen Bind-Zustand in einen insert-bereiten Clean-Zustand überführen.
 
 Es MUSS:
 
@@ -226,7 +226,7 @@ Insert- und Bind-Varianten MÜSSEN getrennte Logs und getrennte Ergebniszeilen i
 Der derzeitige Schritt:
 
 ```text
-scripts/_testAll_10_PcTargetTests.sh
+scripts/_170_pc_target_tests_all_workflows.sh
 ```
 
 verwendet einen Ablauf nach dem Muster:
@@ -256,12 +256,12 @@ Im Quick-Modus betrifft dies mindestens denselben aktuellen Paketsatz wie die In
 Eine zulässige Struktur ist beispielsweise:
 
 ```text
-scripts/_testAll_10_PcTargetTests_common.sh
-scripts/_testAll_10a_PcTargetTests_insert.sh
-scripts/_testAll_10b_PcTargetTests_bind.sh
+scripts/_160_pc_target_test_worker.sh
+scripts/_630_test_pc_targets_insert.sh
+scripts/_640_test_pc_targets_bind.sh
 ```
 
-Alternativ darf `_testAll_10_PcTargetTests.sh` beide Varianten orchestrieren, sofern:
+Alternativ darf `_170_pc_target_tests_all_workflows.sh` beide Varianten orchestrieren, sofern:
 
 - die gemeinsame Testlogik nur einmal implementiert ist,
 - getrennte Logs beziehungsweise klar getrennte Logabschnitte entstehen,
@@ -295,7 +295,7 @@ Die bestehende Testorchestrierung umfasst insbesondere:
 - `examples/buildAllTargets_TRICE_OFF.sh`,
 - die G0B1-X0-Matrix,
 - die Clang-Übersetzung für `examples/G0B1_inst`,
-- die in `scripts/_setup_trice_environment.sh` genannten instrumentierten Example-Quellen.
+- die in `scripts/_120_setup_trice_environment.sh` genannten instrumentierten Example-Quellen.
 
 Dieser Umfang darf durch die Bind-Erweiterung nicht reduziert werden.
 
@@ -359,7 +359,7 @@ Die einzelnen Example-Buildkommandos bleiben dabei möglichst unverändert.
 Der vorhandene Bind-Testschritt unter:
 
 ```text
-scripts/_testAll_09b_BindTests.sh
+scripts/_500_test_bind.sh
 ```
 
 bleibt bestehen und SOLL mindestens prüfen:
@@ -420,11 +420,11 @@ Für eine manuelle Gesamtprüfung ist folgende Sequenz geeignet:
 ./trice_bindIDs_in_examples_and_test_folder.sh
 ./scripts/testAll.sh quick
 
-./trice_remigrateBindToClean_in_examples_and_test_folder.sh
-./trice_insertIDs_in_examples_and_test_folder.sh
+./scripts/_250_legacy_remigrate_bind_to_clean.sh
+./scripts/_230_legacy_insert_ids.sh
 ./scripts/testAll.sh quick
 
-./trice_cleanIDs_in_examples_and_test_folder.sh
+./scripts/_240_legacy_clean_ids.sh
 ./trice_bindIDs_in_examples_and_test_folder.sh
 ```
 
@@ -474,7 +474,7 @@ Die Tests SOLLEN prüfen, dass sich der Status der versionierten Dateien vor und
 Während der Inbetriebnahme darf als kurzer Zyklus weiterhin verwendet werden:
 
 ```sh
-./scripts/_testAll_10_PcTargetTests.sh
+./scripts/_170_pc_target_tests_all_workflows.sh
 ```
 
 beziehungsweise dessen neue workflowbezogenen Teilschritte.

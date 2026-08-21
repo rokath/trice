@@ -378,7 +378,7 @@ Führe während der Entwicklung regelmäßig gezielte Bind-Tests aus.
 Verwende für den kurzen Integrationszyklus mindestens:
 
 ```sh
-./scripts/_testAll_10_PcTargetTests.sh
+./scripts/_170_pc_target_tests_all_workflows.sh
 ```
 
 beziehungsweise die im Repository tatsächlich vorhandene äquivalente Aufrufsyntax ohne den langen `full`-Modus.

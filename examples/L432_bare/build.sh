@@ -27,9 +27,9 @@ cd "${SCRIPT_DIR}"
 
 # Source the environment file from repo root (absolute path).
 # shellcheck disable=SC1090
-source ../../scripts/_setup_build_environment.sh
+source ../../scripts/_150_setup_build_environment.sh
 
-# Optional: provide a default if _setup_build_environment.sh does not set MAKE_JOBS.
+# Optional: provide a default if _150_setup_build_environment.sh does not set MAKE_JOBS.
 # : "${MAKE_JOBS:=-j2}"
 
 make ${MAKE_JOBS}
