@@ -46,7 +46,7 @@ Alle ausdrücklich als **MVP2**, spätere Erweiterung, Option oder verworfene Al
 2. Führe vor Änderungen den kurzen Baseline-Test aus:
 
    ```sh
-   ./_testAll_10_PcTargetTests.sh quick
+   ./scripts/_170_pc_target_tests_all_workflows.sh quick
    ```
 
 3. Erstelle einen kompakten Implementierungsplan mit:
@@ -60,7 +60,7 @@ Alle ausdrücklich als **MVP2**, spätere Erweiterung, Option oder verworfene Al
 6. Verwende während der Entwicklung regelmäßig den u.U. einige Minuten dauernden Test (also Geduld!):
 
    ```sh
-   ./_testAll_10_PcTargetTests.sh quick
+   ./scripts/_170_pc_target_tests_all_workflows.sh quick
    ```
 
 7. Führe vor Abschluss mindestens aus:

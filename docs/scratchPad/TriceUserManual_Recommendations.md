@@ -5,7 +5,7 @@ This document contains suggestions and critical notes only.
 ## Recommended checks before committing
 
 ```bash
-./scripts/_refresh_trice_user_manual.sh
+./scripts/_310_refresh_trice_user_manual.sh
 # or regenerate the TOC with your normal mdtoc workflow first, then check
 
 markdownlint .

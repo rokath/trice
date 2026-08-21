@@ -886,7 +886,7 @@ Für jedes vom Projekt angebotene User-Level-Makro muss ein positiver Bind-Test 
 Während der Inbetriebnahme ist der kurze Pflichtlauf:
 
 ```sh
-./_testAll_10_PcTargetTests.sh
+./scripts/_170_pc_target_tests_all_workflows.sh
 ```
 
 Zusätzlich ist ein Bind-Testskript analog zu den bestehenden Insert-Tests vorzusehen. Gemeinsame Shell-Hilfen und temporäre Kopien vermeiden Codeduplizierung.

@@ -67,7 +67,7 @@ Die Testspezifikation enthält die vollständigen fachlichen Anforderungen; dupl
 2. Führe vor Änderungen geeignete Baseline-Tests aus. Mindestens:
 
 ```sh
-./scripts/_testAll_10_PcTargetTests.sh
+./scripts/_170_pc_target_tests_all_workflows.sh
 ```
 
 Verwende die im Repository tatsächlich vorhandene Aufrufsyntax. Dokumentiere bestehende Fehler getrennt von neu verursachten Fehlern.

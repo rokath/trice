@@ -4,8 +4,8 @@
 
 ## 1. Architektur
 
-  - Zentrale ID-Konfiguration in _setup_trice_environment.sh.
-  - Gemeinsamer Insert-/Bind-Dispatcher in _trice_id_workflow.sh.
+  - Zentrale ID-Konfiguration in _120_setup_trice_environment.sh.
+  - Gemeinsamer Insert-/Bind-Dispatcher in _130_trice_id_workflow.sh.
   - Bytegenaue Zustandsverwaltung mit Restore bei Erfolg, Fehler, SIGINT und SIGTERM.
   - Gemeinsame Worker für PC-, Clang- und GCC-Tests; getrennte Insert-, Bind- und OFF-Wrapper sowie Logs.
   - Transaktionale Re-Migration inklusive Rollback bei Fehlern.
@@ -20,7 +20,7 @@
   - Target/Testquellen: src/trice.c, _test/testdata/triceCheck.c und zwei Alias-triceConfig.h
   - Beispiele: DemoData, F030, G0B1 und L432 Build-/Konfigurationsdateien
   - Testinfrastruktur: neue gemeinsame Worker und Wrapper für Schritte 09b/09c, 10, 11 und 12
-  - Workflow: _trice_id_workflow.sh, _trice_test_state.sh sowie vier Root-Workflow-Skripte
+  - Workflow: _130_trice_id_workflow.sh, _140_trice_test_state.sh sowie die öffentlichen und Legacy-Workflow-Skripte
   - Generierte Hilfe: docs/ref/trice-help-all.txt
 
   Spezifikationen und Verification-PoCs wurden nicht verändert.
