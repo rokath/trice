@@ -5,8 +5,8 @@
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=./scripts/_trice_id_workflow.sh
-source "$ROOT/scripts/_trice_id_workflow.sh"
+# shellcheck source=./scripts/_130_trice_id_workflow.sh
+source "$ROOT/scripts/_130_trice_id_workflow.sh"
 
 (
   cd "$ROOT" || exit 1

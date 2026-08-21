@@ -11,11 +11,11 @@
 # Cleanup / Ctrl-C behavior:
 # - This script modifies source files indirectly by calling:
 #
-#       trice_insertIDs_in_examples_and_test_folder.sh
+#       scripts/_230_legacy_insert_ids.sh
 #
 # - After that point, the repository should be cleaned again by calling:
 #
-#       trice_cleanIDs_in_examples_and_test_folder.sh
+#       scripts/_240_legacy_clean_ids.sh
 #
 # - The cleanup is intentionally handled in this outer script, because this is
 #   the level that knows the complete sequence:
@@ -84,7 +84,7 @@ cleanup() {
   if [ "${ids_inserted}" -eq 1 ]; then
     echo "cleanup: running trice clean"
 
-    if ! bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"; then
+    if ! bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"; then
       clean_status=$?
       echo "warning: cleanup: trice clean failed with exit code ${clean_status}" >&2
 
@@ -149,8 +149,8 @@ if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
   echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"
 else
   cd "${ROOT}"
-  bash "${ROOT}/trice_cleanIDs_in_examples_and_test_folder.sh"
-  bash "${ROOT}/trice_insertIDs_in_examples_and_test_folder.sh"
+  bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
+  bash "${ROOT}/scripts/_230_legacy_insert_ids.sh"
   ids_inserted=1
 fi
 
@@ -159,9 +159,9 @@ fi
 # ------------------------------------------------------------------------------
 
 # shellcheck disable=SC1091
-source "${ROOT}/scripts/_setup_build_environment.sh"
+source "${ROOT}/scripts/_150_setup_build_environment.sh"
 
-# Optional: provide a default if _setup_build_environment.sh does not set MAKE_JOBS.
+# Optional: provide a default if _150_setup_build_environment.sh does not set MAKE_JOBS.
 # : "${MAKE_JOBS:=-j2}"
 
 # Ensure we build from the example directory, where the Makefile is expected.

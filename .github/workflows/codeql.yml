@@ -160,8 +160,8 @@ jobs:
       # Step 4: Provide `trice` on PATH for scripts that call it
       #
       # Some example build scripts call:
-      #   trice_cleanIDs_in_examples_and_test_folder.sh
-      #   trice_insertIDs_in_examples_and_test_folder.sh
+      #   scripts/_240_legacy_clean_ids.sh
+      #   scripts/_230_legacy_insert_ids.sh
       # and those scripts expect the `trice` executable to be available.
       #
       # We build/install trice here (again) because jobs are isolated: the Go job's artifacts/PATH
