@@ -14,11 +14,11 @@
 #     the long configuration sweep in L432_inst.
 #
 # Typical usages:
-#   ./ci_build.sh --toolchain=gcc  --trice=on
-#   ./ci_build.sh --toolchain=gcc  --trice=off
-#   ./ci_build.sh --toolchain=clang --trice=on          # only builds the clang target(s) that exist
-#   ./ci_build.sh --toolchain=gcc  --trice=on --configs=quick
-#   ./ci_build.sh --toolchain=gcc  --trice=on --configs=full
+#   ./scripts/_220_ci_build.sh --toolchain=gcc  --trice=on
+#   ./scripts/_220_ci_build.sh --toolchain=gcc  --trice=off
+#   ./scripts/_220_ci_build.sh --toolchain=clang --trice=on
+#   ./scripts/_220_ci_build.sh --toolchain=gcc  --trice=on --configs=quick
+#   ./scripts/_220_ci_build.sh --toolchain=gcc  --trice=on --configs=full
 #
 # Notes:
 #   - Your repository already has:
@@ -50,7 +50,7 @@ EXAMPLES_DIR="examples"
 ###############################################################################
 usage() {
   cat <<'EOF'
-Usage: ./ci_build.sh [options]
+Usage: ./scripts/_220_ci_build.sh [options]
 
 Options:
   --toolchain=gcc|clang
@@ -215,6 +215,16 @@ if [[ "$TOOLCHAIN" == "gcc" ]]; then
 elif [[ "$TOOLCHAIN" == "clang" ]]; then
   require_cmd clang
 fi
+
+# Prepare generated Bind headers in this orchestrator process. The all-target
+# script and the later configuration sweep run in separate child shells; if
+# only the first child prepared Bind, its exported include path would disappear
+# before the sweep and the compiler could not find the generated sidecars.
+prepare_bind_script="$EXAMPLES_DIR/prepareTriceBind.sh"
+[[ -f "$prepare_bind_script" ]] || die "Bind preparation helper not found: $prepare_bind_script"
+# shellcheck disable=SC1090
+source "$prepare_bind_script"
+prepare_trice_bind_build "$REPO_ROOT" || die "Preparing Trice Bind headers failed"
 
 ###############################################################################
 # Run builds
