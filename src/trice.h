@@ -96,6 +96,7 @@ extern "C" {
 #include "triceDefaultConfig.h" // default settings
 
 #include "triceRx.h"
+#include "triceLog.h"
 
 // Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
 // switches. Without typeX0, TRICE_CLEAN still disables the ordinary backend.

@@ -162,6 +162,21 @@ extern "C" {
 #define TRICE_DEFERRED_OUTPUT 0
 #endif
 
+#ifndef TRICE_LOCAL_LOG
+//! TRICE_LOCAL_LOG == 1 lets TriceLog format buffered binary records on the
+//! target. It requires ring or double buffering and is an alternative to all
+//! binary deferred output channels and TriceTransfer.
+#define TRICE_LOCAL_LOG 0
+#endif
+
+#ifndef TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER
+//! TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1 links the exact %d/%x fallback.
+//! Set it to 0 when UserTriceLogPrintfFn is always configured. The guarded
+//! fallback lives in its own source file and then contributes no code even
+//! when the build has no LTO or section garbage collection.
+#define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 1
+#endif
+
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
 //! TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING == 1 makes only sense, when TRICE_DIRECT_OUTPUT is 1.
 //! Enable this only, if you want only a specific ID range for direct Trice output.
