@@ -381,27 +381,58 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
     	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 'g|gen|generate': Use for creating colors or support files.
+  -a value
+        Short for trice() aliases.
   -abc string
         Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.
+  -alias value
+        Additional macro names to treat like trice().
+        This flag can be specified multiple times to add more aliases. Each provided name will be
+        recognized as equivalent to a trice() call. (default none)
+         (default none)
+  -bindDir string
+        Non-default directory containing Trice bind sidecars when selected sources use File Keys. (default "./build/triceIDs")
   -colors
-    	Write all possible colors.
+        Write all possible colors.
+  -e value
+        Short for exclude.
+  -exclude value
+        Exclude dir or file, It has one parameter. Not usable in the form "-exclude *.c".
+        This is a multi-flag switch. It can be used several times for directories and also for files.
+        Example: "trice generate -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
+        source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
+         (default none)
   -i string
-    	Short for '-idlist'.
-    	 (default "til.json")
+        Short for '-idlist'.
+         (default "til.json")
   -idlist string
-    	The trice ID list file.
-    	The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-    	 (default "til.json")
+        The trice ID list file.
+        The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+         (default "til.json")
+  -logC
+        Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.
+  -s value
+        Short for src.
+  -sa value
+        Short for triceS() aliases.
+  -salias value
+        Additional macro names to treat like triceS().
+        This flag can be specified multiple times to add more aliases. Each provided name will be
+        recognized as equivalent to a triceS() call.
+         (default none)
+  -src value
+        Source directory or file to inspect for current Trice sites.
+        This multi-flag switch can be used several times for directories and files.
+        Only IDs already made authoritative by trice insert or trice bind are selected.
+        If omitted, the current directory is inspected. Globs such as "-src *.c" are not supported.
   -til string
-    	Short for '-idlist'.
-    	 (default "til.json")
-  -tilC
-    	Create til.c or [path/filename].c. The optional path can be passed as -tilC=path/filename or -tilC path/filename.
+        Short for '-idlist'.
+         (default "til.json")
   -v	short for verbose
   -verbose
-    	Gives more informal output if used. Can be helpful during setup.
-    	For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
-    	This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+        Gives more informal output if used. Can be helpful during setup.
+        For example "trice log -p JLINK -v" is the same as "trice log -p JLINK" but with more descriptive output what could be helpful during setup.
+        This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 sub-command 's|scan': Shows available serial ports)
 #	Example: 'trice s': Show COM ports.
 sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.

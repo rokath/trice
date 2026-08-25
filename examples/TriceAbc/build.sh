@@ -162,9 +162,9 @@ rm -f "${SCRIPT_DIR}/NodeLib/til.c"
 (
   cd "${ROOT}"
 
-  # Since Issue #680, bare -tilC writes ./til.c. Pass the target path
-  # explicitly so the demo always receives its private NodeLib/til.c.
-  run_trice generate -i "${ROOT}/demoTIL.json" -tilC="examples/TriceAbc/NodeLib/til.c"
+  # logC filters the historical TIL through the sources prepared by insert and
+  # writes only metadata used by the current TriceAbc programs.
+  run_trice generate -i "${ROOT}/demoTIL.json" -src "examples/TriceAbc" -logC="examples/TriceAbc/NodeLib/til.c"
 )
 
 if [ ! -f "${SCRIPT_DIR}/NodeLib/til.c" ]; then

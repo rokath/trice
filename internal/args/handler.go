@@ -156,8 +156,8 @@ func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
 func normalizeGenerateArgs(args []string) []string {
 	out := make([]string, 0, len(args))
 	for i := 0; i < len(args); i++ {
-		if args[i] == "-tilC" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-			out = append(out, "-tilC="+args[i+1])
+		if args[i] == "-logC" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+			out = append(out, "-logC="+args[i+1])
 			i++
 			continue
 		}

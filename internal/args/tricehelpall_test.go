@@ -26,10 +26,14 @@ func TestHelpAll(t *testing.T) {
 		"sub-command 'ver|version': For displaying version information.",
 		"sub-command 'i|insert': For updating til.json and inserting IDs into source files.",
 		"sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.",
+		"-logC",
 	} {
 		if !strings.Contains(got, snippet) {
 			t.Fatalf("help -all output misses %q\n%s", snippet, got)
 		}
+	}
+	if strings.Contains(got, "-tilC") {
+		t.Fatalf("help -all still advertises the removed -tilC spelling\n%s", got)
 	}
 }
 

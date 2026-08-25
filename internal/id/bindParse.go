@@ -139,9 +139,27 @@ func scanBindIncludes(source string) []bindInclude {
 
 // scanBindSites uses matchTrice and the insert marker mask to retain exactly the existing parser surface.
 func scanBindSites(path, source string) (sites []bindSite, diagnostics []bindDiagnostic) {
+	return scanSourceSites(path, source, true)
+}
+
+// scanGenerateSites uses the same parser as insert and bind but retains Trice
+// calls inside ordinary C comments. Legacy insert also processes those calls,
+// so -logC can preserve their already explicit IDs without inventing a second
+// source grammar. TRICE_INSERT_OFF regions remain authoritative exclusions.
+func scanGenerateSites(path, source string) (sites []bindSite, diagnostics []bindDiagnostic) {
+	return scanSourceSites(path, source, false)
+}
+
+// scanSourceSites is the one shared implementation behind the bind-active and
+// generate-including-comments views. maskComments changes only the byte-stable
+// lexical mask presented to the existing Trice matcher.
+func scanSourceSites(path, source string, maskComments bool) (sites []bindSite, diagnostics []bindDiagnostic) {
 	// Keep byte offsets stable while preventing commented examples and disabled
 	// prototypes from becoming diagnostics or generated bind sites.
-	masked := stripCComments(maskTriceInsertDisabledRegions(source))
+	masked := maskTriceInsertDisabledRegions(source)
+	if maskComments {
+		masked = stripCComments(masked)
+	}
 	rest := masked
 	offset := 0
 	// Matches and their parser issues arrive in source order. Advancing one

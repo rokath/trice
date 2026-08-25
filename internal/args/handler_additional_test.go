@@ -230,6 +230,14 @@ func TestHandlerGenerateWithoutParameters(t *testing.T) {
 	assert.Contains(t, out.String(), `The "trice generate" command needs at least one parameter.`)
 }
 
+// TestNormalizeGenerateLogCPath verifies both documented optional-path forms
+// without retaining the removed -tilC compatibility spelling.
+func TestNormalizeGenerateLogCPath(t *testing.T) {
+	assert.Equal(t, []string{"-logC=build/til.c", "-src", "src"}, normalizeGenerateArgs([]string{"-logC", "build/til.c", "-src", "src"}))
+	assert.Equal(t, []string{"-logC=build/til.c"}, normalizeGenerateArgs([]string{"-logC=build/til.c"}))
+	assert.Equal(t, []string{"-tilC", "old.c"}, normalizeGenerateArgs([]string{"-tilC", "old.c"}))
+}
+
 // TestHandlerAddInsertCleanOnMissingSource verifies the expected behavior.
 func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}

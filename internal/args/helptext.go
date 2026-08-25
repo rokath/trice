@@ -25,8 +25,9 @@ func RenderHelpText(helpArgs ...string) (string, error) {
 	return normalizeGeneratedHelpWhitespace(out.String()), err
 }
 
-// normalizeGeneratedHelpWhitespace keeps new generated help lines free of
-// space-before-tab whitespace without reformatting the historical help file.
+// normalizeGeneratedHelpWhitespace keeps generated help lines free of
+// space-before-tab whitespace. The generate section is normalized as one unit
+// because its repeatable source flags add several standard flag-package lines.
 func normalizeGeneratedHelpWhitespace(s string) string {
 	replacements := map[string]string{
 		"    \tCreate or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.":                                                "        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.",
@@ -37,6 +38,15 @@ func normalizeGeneratedHelpWhitespace(s string) string {
 	}
 	for old, newText := range replacements {
 		s = strings.ReplaceAll(s, old, newText)
+	}
+	const generateHeading = "sub-command 'g|gen|generate':"
+	const nextHeading = "sub-command 's|scan':"
+	if start := strings.Index(s, generateHeading); start >= 0 {
+		if relativeEnd := strings.Index(s[start:], nextHeading); relativeEnd >= 0 {
+			end := start + relativeEnd
+			section := strings.ReplaceAll(s[start:end], "    \t", "        ")
+			s = s[:start] + section + s[end:]
+		}
 	}
 	return s
 }
@@ -75,6 +85,10 @@ func resetHelpGenerationDefaults() {
 	id.TriceCacheEnabled = false
 	id.SpaceInsideParenthesis = false
 	id.SkipAdditionalChecks = false
+	id.GenerateLogC = false
+	id.GenerateLogCPath = ""
+	id.GenerateABC = ""
+	id.WriteAllColors = false
 
 	emitter.Ban = nil
 	emitter.Pick = nil

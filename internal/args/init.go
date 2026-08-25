@@ -204,10 +204,26 @@ func addInit() {
 func generateInit() {
 	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
 	flagIDList(fsScGenerate)
+	flagGenerateSrcs(fsScGenerate)
+	flagExcludeSrcs(fsScGenerate)
+	flagTriceAliases(fsScGenerate)
+	flagTriceSAliases(fsScGenerate)
 	flagVerbosity(fsScGenerate)
-	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateTilC, Path: &id.GenerateTilCPath}, "tilC", `Create til.c or [path/filename].c. The optional path can be passed as -tilC=path/filename or -tilC path/filename.`)
+	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
+	fsScGenerate.StringVar(&id.BindDir, "bindDir", "./build/triceIDs", "Non-default directory containing Trice bind sidecars when selected sources use File Keys.")
 	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
+}
+
+// flagGenerateSrcs documents the read-only source selection used by -logC.
+// The shared insert/clean wording mentions mutation switches that do not exist
+// for generate, so keeping this focused text avoids advertising invalid CLI.
+func flagGenerateSrcs(p *flag.FlagSet) {
+	p.Var(&id.Srcs, "src", `Source directory or file to inspect for current Trice sites.
+This multi-flag switch can be used several times for directories and files.
+Only IDs already made authoritative by trice insert or trice bind are selected.
+If omitted, the current directory is inspected. Globs such as "-src *.c" are not supported.`)
+	p.Var(&id.Srcs, "s", "Short for src.")
 }
 
 func insertIDsInit() {

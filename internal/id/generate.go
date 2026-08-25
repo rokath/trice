@@ -6,6 +6,7 @@ package id
 // List management
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -18,14 +19,15 @@ import (
 )
 
 var (
-	GenerateTilC     bool
-	GenerateTilCPath string
+	GenerateLogC bool // GenerateLogC selects the current target-side log table generator.
+	// GenerateLogCPath optionally overrides the conventional til.c output path.
+	GenerateLogCPath string
 	GenerateABC      string
 	WriteAllColors   bool
 )
 
 // OptionalFilenameFlag allows a flag to be used either as a boolean switch or
-// with an optional output path, for example -tilC, -tilC=out/til, or -tilC=out/til.c.
+// with an optional output path, for example -logC, -logC=out/til, or -logC=out/til.c.
 type OptionalFilenameFlag struct {
 	Enabled *bool
 	Path    *string
@@ -69,7 +71,10 @@ func (f OptionalFilenameFlag) IsBoolFlag() bool {
 	return true
 }
 
-func TilCOutputPath(target string) string {
+// LogCOutputPath returns the explicit C filename or the conventional til.c
+// default. Keeping the extension normalization here makes CLI and package tests
+// exercise the same path semantics.
+func LogCOutputPath(target string) string {
 	if target == "" {
 		return "til.c"
 	}
@@ -81,9 +86,12 @@ func TilCOutputPath(target string) string {
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
-	if !GenerateTilC && GenerateABC == "" && !WriteAllColors {
+	if !GenerateLogC && GenerateABC == "" && !WriteAllColors {
 		fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
 		return nil
+	}
+	if GenerateLogC && GenerateABC != "" {
+		return errors.New("trice generate: -logC and -abc are alternative generators and cannot be used together")
 	}
 
 	if WriteAllColors {
@@ -93,15 +101,48 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 		}
 	}
 
-	ilu := NewLut(w, fSys, FnJSON) // read til.json
-	msg.FatalOnErr(err)
-
-	if GenerateTilC {
-		fnC := TilCOutputPath(GenerateTilCPath)
-		if dir := filepath.Dir(fnC); dir != "." && dir != "" {
-			msg.FatalOnErr(fSys.MkdirAll(dir, 0o755))
+	ilu := make(TriceIDLookUp)
+	if GenerateLogC || GenerateABC != "" {
+		content, readErr := fSys.ReadFile(FnJSON)
+		if readErr != nil {
+			return fmt.Errorf("trice generate: cannot read TIL %s: %w", FnJSON, readErr)
 		}
-		msg.FatalOnErr(ilu.ToFileTilC(fSys, fnC))
+		if parseErr := ilu.FromJSON(content); parseErr != nil {
+			return fmt.Errorf("trice generate: cannot parse TIL %s: %w", FnJSON, parseErr)
+		}
+		if Verbose {
+			fmt.Fprintln(w, "Read ID List file", FnJSON, "with", len(ilu), "items.")
+		}
+	}
+
+	if GenerateLogC {
+		current, selectErr := selectCurrentLogEntries(w, fSys, ilu)
+		if selectErr != nil {
+			return selectErr
+		}
+		fnC := LogCOutputPath(GenerateLogCPath)
+		generated, renderErr := current.toListTilC(fnC)
+		if renderErr != nil {
+			return fmt.Errorf("trice generate: cannot render %s: %w", fnC, renderErr)
+		}
+		unchanged, compareErr := bindFileHasContent(fSys, fnC, generated)
+		if compareErr != nil {
+			return fmt.Errorf("trice generate: %w", compareErr)
+		}
+		if unchanged {
+			if Verbose {
+				fmt.Fprintln(w, "unchanged", fnC)
+			}
+			return nil
+		}
+		if dir := filepath.Dir(fnC); dir != "." && dir != "" {
+			if mkdirErr := fSys.MkdirAll(dir, 0o755); mkdirErr != nil {
+				return fmt.Errorf("trice generate: cannot create output directory %s: %w", dir, mkdirErr)
+			}
+		}
+		if writeErr := atomicWriteFile(fSys, fnC, generated, fileWritePerm(fSys, fnC, 0o644)); writeErr != nil {
+			return fmt.Errorf("trice generate: cannot write %s: %w", fnC, writeErr)
+		}
 		if Verbose {
 			fmt.Fprintln(w, "generated", fnC)
 		}
