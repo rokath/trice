@@ -3595,7 +3595,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ### 21.1. <a id="trice-id-list-tiljson"></a>Trice ID list til.json
 
 * This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
-* The files `til.h` and `til.c` are generated to help writing an own trice decoder tool in your preferred language. Use `trice generate -tilH -tilC` for creation. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692). See also chapter [Trice Generate](#trice-generate).
+* A compact C metadata table can be generated to help write a decoder or format buffered Trices on the target. First run `trice insert` or `trice bind`, then use `trice generate -src <source> -logC[=<output.c>]`. That can be interesting in environments where Go-compiled binaries are not executable, such as [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692). See also chapter [Trice Generate](#trice-generate).
 
 ### 21.2. <a id="trice-location-information-file-lijson"></a>Trice location information file li.json
 
@@ -6620,6 +6620,26 @@ The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice l
     * int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     * TriceNonBlockingWrite( triceID, pEnc, encLen );
 
+#### 35.6.3. <a id="local-deferred-log"></a>Local Deferred Text Log
+
+`TRICE_LOCAL_LOG 1` is an optional alternative consumer for ring and double buffers. Producer tasks and interrupts keep the normal short binary Trice path. One background task repeatedly calls `TriceLog(outbuf, maxlen)`, which resolves the ID through a generated C table and formats directly from the still-buffered payload into the application-owned output buffer. Do not mix `TriceLog()` and `TriceTransfer()` for the same buffer.
+
+Generate the current table only after IDs are authoritative:
+
+```sh
+trice insert -src <source> -til til.json
+# or: trice bind -src <source> -til til.json
+trice generate -src <source> -til til.json -logC=build/til.c
+```
+
+For bind-owned sources the default `build/triceIDs` directory is used. Pass `-bindDir` only when their File Key sidecars live elsewhere. Missing, stale, or ambiguous IDs stop generation before the output file is touched. `-abc` and `-logC` are separate modes and cannot be combined.
+
+The `TriceLog` output capacity includes the final NUL. A positive return value is the visible byte count excluding that NUL, zero means that no printable record is available, and a negative value is a documented `TRICE_LOG_ERR_*` result. `NULL` or `maxlen == 0` is rejected without consuming a record. A valid one-byte buffer can hold only the NUL; when a non-empty record is waiting, `TriceLog` consumes it and returns `TRICE_LOG_ERR_OUTPUT_TOO_SMALL`.
+
+With `UserTriceLogPrintfFn` set to an snprintf-compatible function, scalar integer conversions including flags and widths are supported. TriceLog invokes the hook once per value and normalizes each argument to the target's `long` or `long long` width. Suitable implementations include the system, newlib, or picolibc `snprintf`, nanoprintf, eyalroz/printf, and an snprintf-compatible adapter around stb_sprintf. With a zero hook, the separately linkable minimal formatter accepts exact `%d`, `%x`, and `%%`. Set `TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 0` when an external formatter is always installed so the fallback consumes no code space without LTO. Dynamic strings, buffers, ABC records, and floating-point conversions are not part of this initial local formatter.
+
+See [`examples/PC_log`](../examples/PC_log/README.md) for an immediately runnable host example and [`examples/G0B1_log`](../examples/G0B1_log/README.md) for a FreeRTOS background task using nanoprintf and USART2.
+
 ### 35.7. <a id="direct-transfer"></a>Direct Transfer
 
 * TRICE_LEAVE
@@ -7454,7 +7474,7 @@ The build script demonstrates the full workflow:
 ```bash
 trice insert ...
 trice generate -i ../../demoTIL.json -abc NodeLib/nodeAbc
-trice generate -i ../../demoTIL.json -tilC
+trice generate -i ../../demoTIL.json -src . -logC=NodeLib/til.c
 ```
 
 It produces:
@@ -8904,39 +8924,22 @@ See [Check Alternatives](#check-alternatives) chapter.
 
 ### 40.2. <a id="c-code"></a>C-Code
 
-If you intend to get the `trice log` functionality full or partially as a `tlog` C-Source and do not wish to parse the _til.json_ file, you can run `trice generate -tilH --tilC` to create a C-file with header as starting point. That could be interesting for compiling the log functionality into a small separate microcontroller board.
+To generate a compact C metadata table for current target-side Trice sites, first run `trice insert` or `trice bind` and then run `trice generate -src <source> -logC[=<output.c>]`. Multiple `-src` options are accepted. Explicit Insert IDs and numeric Bind sidecar descriptors are validated against the selected TIL; no ID is guessed from a matching format string. Historical TIL entries that are absent from the selected sources are omitted without changing the TIL itself. Bind sidecars are read from `build/triceIDs` by default; specify `-bindDir` only for a different sidecar directory. `-logC` and `-abc` are alternative generation modes and cannot be combined.
+
+Commented Trice calls with explicit Insert IDs remain selectable. An ID-free call that exists only in a C comment has no Bind preprocessor site and therefore no exact sidecar ID; `-logC` reports it instead of guessing or silently omitting it. Use `trice insert` for such retained commented calls, give the commented example an explicit authoritative ID, or exclude that source from this generated table.
 
 ```C
-//! \file til.c
-//! ///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: MIT
 
-//! Trice generated code - do not edit!
+#include "triceRx.h"
 
-#include "til.h"
-
-//! triceFormatStringList contains all trice format strings together with id and parameter information.
-//!
-//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
-//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md#binary-encoding.
-//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
-const triceFormatStringList_t triceFormatStringList[] = {
-	/* Trice type (  extended  ) */  //  id, bitWidth, paramCount, format-string
-	/*      trice (  trice32_9 ) */ { 14016,  32,  9, "rd:trice %d, %d, %d, %d, %d, %d, %d, %d, %d\n" },
-	/*      trice (     trice0 ) */ { 14224,  32,  0, "\n" },
-	/*    trice32 (  trice32_1 ) */ { 14337,  32,  1, "msg:%u (%%u)\n" },
-	/*     TRICE8 (  TRICE8_10 ) */ { 15063,   8, 10, "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n" },
-	/*     Trice8 (   Trice8_9 ) */ { 15124,   8,  9, "rd:Trice8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n" },
-	/*     TRICE8 (   TRICE8_5 ) */ { 15058,   8,  5, "rd:TRICE8 %d, %d, %d, %d, %d\n" },
-	/*      TRice (     TRice0 ) */ { 14885,  32,  0, "TEST:yellow+h:black\n" },
-	/*    Trice64 (  Trice64_1 ) */ { 15560,  64,  1, "rd:Trice64 %d\n" },
-	/*      trice (  trice32_1 ) */ { 15860,  32,  1, "rd:TRICE float %9.f (%%9.f)\n" },
-...
-	/*  TRICE64_0 (  TRICE64_0 ) */ { 16157,  64,  0, "w: Hello! 👋🙂 \a\n" },
-	/*      TRICE (     TRICE0 ) */ { 14658,  32,  0, "interrupt:magenta+i:default+h\n" },
+const triceLog_t triceLog[] = {
+	/* Trice type ( extended ) */ /*   id, bitWidth, paramCount, format-string */
+	/* trice      ( trice_0   ) */ { 1000u, 32u, 0u, "ready\n" },
+	/* trice      ( trice32_2 ) */ { 1001u, 32u, 2u, "value=%d hex=%x\n" },
 };
 
-//! triceFormatStringListElements holds the compile time computed count of list elements.
-const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / sizeof(triceFormatStringList_t);
+const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 ```
 
 ### 40.3. <a id="c-code-1"></a>C#-Code
