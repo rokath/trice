@@ -24,7 +24,7 @@
 /* USER CODE BEGIN Includes */
 #define NANOPRINTF_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 1
 #define NANOPRINTF_USE_PRECISION_FORMAT_SPECIFIERS 1
-#define NANOPRINTF_USE_FLOAT_FORMAT_SPECIFIERS 0
+#define NANOPRINTF_USE_FLOAT_FORMAT_SPECIFIERS 1
 #define NANOPRINTF_USE_LARGE_FORMAT_SPECIFIERS 1
 #define NANOPRINTF_USE_SMALL_FORMAT_SPECIFIERS 1
 #define NANOPRINTF_USE_BINARY_FORMAT_SPECIFIERS 0
@@ -122,9 +122,13 @@ int main(void) {
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 	// nanoprintf has snprintf-compatible return semantics and is already bundled
-	// with this target. TriceLog will call it once per scalar conversion.
+	// with this target. TriceLog calls it once per scalar numeric conversion.
 	UserTriceLogPrintfFn = npf_snprintf;
 	trice("msg:G0B1 local logging ready\n");
+	triceS("text:runtime=[%s]\n", "hello from G0B1");
+	triceS("text:width and precision=[%-12.5s]\n", "abcdefgh");
+	trice32("float:single=%+.3f scientific=%.2e\n", aFloat(3.125f), aFloat(-0.03125f));
+	trice64("float:double=%.9f compact=%.6g\n", aDouble(3.141592653589793), aDouble(123456.0));
 
 	/* USER CODE END 2 */
 

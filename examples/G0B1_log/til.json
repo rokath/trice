@@ -18,5 +18,21 @@
 	"1104": {
 		"Type": "trice",
 		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+	},
+	"1105": {
+		"Type": "triceS",
+		"Strg": "text:runtime=[%s]\\n"
+	},
+	"1106": {
+		"Type": "triceS",
+		"Strg": "text:width and precision=[%-12.5s]\\n"
+	},
+	"1107": {
+		"Type": "trice32",
+		"Strg": "float:single=%+.3f scientific=%.2e\\n"
+	},
+	"1108": {
+		"Type": "trice64",
+		"Strg": "float:double=%.9f compact=%.6g\\n"
 	}
 }

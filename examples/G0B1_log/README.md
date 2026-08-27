@@ -32,4 +32,8 @@ and the generated C table stay below `build/`.
 
 Connect a serial terminal to the USART2 virtual COM port at 115200 baud to see
 the locally formatted text. No `trice log`, TIL file, or binary decoder is
-needed at runtime.
+needed at runtime. The startup records demonstrate integers, a runtime `%s`,
+bounded string width/precision, a 32-bit `aFloat()` value, and a 64-bit
+`aDouble()` value. Enabling floating-point support in nanoprintf increases this
+example's code size; applications that need only integers and strings can
+disable that nanoprintf option again.

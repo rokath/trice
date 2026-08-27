@@ -3,7 +3,9 @@
 This example keeps the normal fast, binary Trice producer path but formats the
 records later inside the application. It uses a ring buffer, the system
 `snprintf`, and standard output. No serial device or host-side decoder is
-needed.
+needed. The emitted records demonstrate integers, a runtime `%s`, bounded
+string width/precision, a 32-bit `aFloat()` value, and a 64-bit `aDouble()`
+value.
 
 Put the `trice` executable in `PATH`, then run:
 

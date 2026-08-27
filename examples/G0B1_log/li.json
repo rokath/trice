@@ -5,18 +5,34 @@
 	},
 	"1101": {
 		"File": "Core/Src/main.c",
-		"Line": 321
+		"Line": 325
 	},
 	"1102": {
 		"File": "Core/Src/main.c",
-		"Line": 326
+		"Line": 330
 	},
 	"1103": {
 		"File": "Core/Src/main.c",
-		"Line": 343
+		"Line": 347
 	},
 	"1104": {
 		"File": "Core/Src/stm32g0xx_it.c",
 		"Line": 120
+	},
+	"1105": {
+		"File": "Core/Src/main.c",
+		"Line": 128
+	},
+	"1106": {
+		"File": "Core/Src/main.c",
+		"Line": 129
+	},
+	"1107": {
+		"File": "Core/Src/main.c",
+		"Line": 130
+	},
+	"1108": {
+		"File": "Core/Src/main.c",
+		"Line": 131
 	}
 }
