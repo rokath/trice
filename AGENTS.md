@@ -1,10 +1,9 @@
 # Repository Agent Rules
 
-## Source Code Protection
+## Source Code Changes
 
-* Files inside `./src` are considered user-owned target source code.
-* Do not modify files in `./src` unless the user explicitly requests changes to specific files or explicitly allows modifications in that directory.
-* If a task would normally require changes in `./src`, stop and ask for confirmation before proceeding.
+* All repository source files, including files inside `./src`, are protected by Git and may be modified without separate confirmation when the change is directly required by the requested task.
+* Keep changes to user-owned target source code focused and reviewable, but do not stop merely to request additional permission for editing it.
 
 ---
 
@@ -24,6 +23,16 @@
 - If you see a useful improvement outside the requested scope, describe it and ask before implementing it.
 - Prefer focused patches over wholesale rewrites. Keep unrelated formatting churn out of the change.
 - In CI, release, and packaging scripts, prefer actionable failure messages over terse `test` failures. Missing files, empty files, and unmatched globs should report the expected path or pattern and print nearby context such as generated artifact lists and relevant tool versions.
+
+---
+
+## Autonomy and Approvals
+
+* Work continuously through the requested task and do not pause for routine, piecemeal permission requests.
+* All read-only operations and all task-relevant builds, formatting commands, diagnostics, and tests are pre-approved and must not require separate user confirmation.
+* Task-relevant edits to version-controlled files are pre-approved, including source files in `./src`; do not request a special file or directory permission.
+* Pause only for a genuinely important ambiguous decision, an unrecoverable or destructive action outside the clearly requested scope, or a technically enforced platform approval that cannot be avoided.
+* Only `git commit` and `git push` require an explicit user instruction. Never infer either operation from a request to implement, fix, test, or format changes.
 
 ---
 
@@ -159,6 +168,7 @@
 ## Commits
 
 * If asked to "commit first", create only the requested safety commit and stop for confirmation before further edits.
+* Whenever the user requests commits, always create sensible, cohesive individual commits rather than one broad catch-all commit.
 * Keep unrelated changes out of the same commit.
 * If asked to commit and the work contains multiple distinct changes, split them into sensible separate commits instead of one combined commit.
 * A sensible commit may span multiple files, but only when those files belong to the same cohesive change.
@@ -166,9 +176,8 @@
 * Group commits by change intent (e.g., tests/coverage, script behavior, documentation, generated data) and keep those groups separate unless the documentation change is required to explain the exact same code change.
 * Before committing, inspect the worktree for mixed concerns and exclude unrelated or suspicious files until the grouping is clear.
 * When a documentation file is modified independently of the code change, treat it as its own commit unless the user explicitly asks to bundle it.
-* If the user asks for a `push`, stop first and ask whether `./scripts/format_repo.sh` should be run before pushing.
-* If `./scripts/format_repo.sh` is run for that purpose, ask whether the resulting formatting changes should be committed before the `push`.
-* Treat this formatting-and-commit step as an optional append-on to the requested push workflow, not as an automatic action.
+* When a push is explicitly requested, do not pause for optional formatting questions. Run appropriate already-authorized validation, then push only existing or explicitly requested commits.
+* A push request alone does not authorize creating an additional commit from uncommitted work.
 
 ---
 
@@ -178,6 +187,14 @@
 * For thorough routine validation, prefer `./scripts/testAll.sh` without arguments.
 * Use `./scripts/testAll.sh full` only as a final validation step or when C-code-relevant changes need broad compiler-switch coverage.
 * Do not run `./scripts/testAll.sh full` automatically for every step; it can take about an hour and is often better run manually by the user.
+
+## Coverage
+
+* When non-test Go code changes, run the same coverage command as `.github/workflows/coverage.yml` before pushing, or use a repository script only if it has equivalent package and `-coverpkg` selection.
+* Compare Coveralls-style covered-line coverage with the target-branch baseline; do not rely only on the rounded Go statement percentage.
+* Add behavioral tests for changed success, error, and boundary paths. Do not add tests that merely execute lines without asserting externally relevant behavior or invariants.
+* Do not push a total coverage decrease without reporting its exact cause and obtaining explicit user approval.
+* Go coverage does not measure target C code. Validate C changes separately with the relevant compiler or integration tests.
 
 ---
 
@@ -192,6 +209,6 @@
 Rationale:
 - This repository contains encoding-sensitive files. Shell-based rewrites have caused corruption in the past.
 - Minimal, explicit patches are preferred over bulk rewrites.
-- Source code in ./src is protected and must not be modified without explicit permission.
+- Version control provides recovery for source edits, so task-relevant source changes do not need piecemeal approvals.
 - The rules are optimized for safe autonomous operation with Codex CLI and --full-auto.
 -->
