@@ -23,9 +23,20 @@
 #define TRICE_RX_ABC_SUPPORT 0
 #endif
 
+// TRICE_LOCAL_LOG selects target-side formatting of locally buffered records.
+// It is repeated here because triceRx.h can be included without trice.h and its
+// broader transmit-side default configuration.
+#ifndef TRICE_LOCAL_LOG
+#define TRICE_LOCAL_LOG 0
+#endif
+
 // TRICE_RX_LOG_SUPPORT enables log metadata fields and resolver declarations.
 #ifndef TRICE_RX_LOG_SUPPORT
-#define TRICE_RX_LOG_SUPPORT 0
+#define TRICE_RX_LOG_SUPPORT TRICE_LOCAL_LOG
+#endif
+
+#if (TRICE_LOCAL_LOG == 1) && (TRICE_RX_LOG_SUPPORT != 1)
+#error configuration: TRICE_LOCAL_LOG == 1 needs TRICE_RX_LOG_SUPPORT == 1; remove an explicit TRICE_RX_SUPPORT == 0 or TRICE_RX_LOG_SUPPORT == 0
 #endif
 
 // TRICE_RX_X0_COUNTED_BUFFER_SUPPORT enables parsing counted selector-0 records.

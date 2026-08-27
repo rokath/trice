@@ -49,10 +49,12 @@ _test/*/SEGGER_RTT_Conf.h
 # auto-generated code, or STM32 HAL code that must not be edited.
 examples/*_bare/**
 
-# 2) Ignore EVERYTHING inside: ./examples/*_inst/Drivers/
+# 2) Ignore EVERYTHING inside STM32 ./examples/*_inst/Drivers/ and
+#    ./examples/*_log/Drivers/ trees.
 #
 # STM32 HAL driver code is machine-generated and should not be modified.
 examples/*_inst/Drivers/**
+examples/*_log/Drivers/**
 
 # 3) Ignore every vendor middleware tree below ./examples/.
 #
@@ -67,7 +69,8 @@ examples/**/Middlewares/**
 ###############################################################################
 
 # ---------------------------------------------------------------------------
-# 3A — Directory: ./examples/*_inst/Core/Inc/
+# 3A — Directories: ./examples/*_inst/Core/Inc/ and
+#                   ./examples/*_log/Core/Inc/
 #
 # Rule:
 #   - Ignore ALL .h files
@@ -80,14 +83,17 @@ examples/**/Middlewares/**
 
 # Ignore all .h files in Core/Inc
 examples/*_inst/Core/Inc/*.h
+examples/*_log/Core/Inc/*.h
 
 # Re-include trice*.h — these files SHALL be formatted.
 !examples/*_inst/Core/Inc/trice*.h
+!examples/*_log/Core/Inc/trice*.h
 
 
 
 # ---------------------------------------------------------------------------
-# 3B — Directory: ./examples/*_inst/Core/Src/
+# 3B — Directories: ./examples/*_inst/Core/Src/ and
+#                   ./examples/*_log/Core/Src/
 #
 # Rule:
 #   - Ignore ALL .c files
@@ -100,9 +106,11 @@ examples/*_inst/Core/Inc/*.h
 
 # Ignore all .c files in Core/Src
 examples/*_inst/Core/Src/*.c
+examples/*_log/Core/Src/*.c
 
 # Re-include main.c — this file SHALL be formatted.
 !examples/*_inst/Core/Src/main.c
+!examples/*_log/Core/Src/main.c
 
 
 

@@ -380,12 +380,12 @@ func TestGeneratorFileOutputs(t *testing.T) {
 func _TestSubCmdGenerate(t *testing.T) {
 	defer Setup(t)()
 
-	previousGenerateTilC := GenerateTilC
+	previousGenerateLogC := GenerateLogC
 	previousGenerateABC := GenerateABC
 	previousWriteAllColors := WriteAllColors
 	previousVerbose := Verbose
 	t.Cleanup(func() {
-		GenerateTilC = previousGenerateTilC
+		GenerateLogC = previousGenerateLogC
 		GenerateABC = previousGenerateABC
 		WriteAllColors = previousWriteAllColors
 		Verbose = previousVerbose
@@ -396,7 +396,7 @@ func _TestSubCmdGenerate(t *testing.T) {
 	}
 	require.NoError(t, lu.toFile(FSys.Fs, FnJSON))
 
-	GenerateTilC = false
+	GenerateLogC = false
 	GenerateABC = ""
 	WriteAllColors = false
 
@@ -405,7 +405,7 @@ func _TestSubCmdGenerate(t *testing.T) {
 	assert.Contains(t, w.String(), `needs at least one parameter`)
 
 	w.Reset()
-	GenerateTilC = true
+	GenerateLogC = true
 	Verbose = true
 
 	require.NoError(t, SubCmdGenerate(&w, FSys))

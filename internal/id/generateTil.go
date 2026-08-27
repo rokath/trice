@@ -33,7 +33,9 @@ func (ilu TriceIDLookUp) ToFileTilC(fSys afero.Fs, fn string) (err error) {
 
 // toListTilC converts ilu into a human-readable C-source byte slice.
 func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
-	text := []byte(`// File: ` + filename + `
+	text := []byte(`// SPDX-License-Identifier: MIT
+
+// File: ` + filename + `
 
 // Trice generated code - do not edit.
 
@@ -47,13 +49,10 @@ func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
 const triceLog_t triceLog[] = {
 	/* Trice type ( extended ) */  /*   id, bitWidth, paramCount, format-string */
 `)
-	tail := []byte(`};
-
-// triceLogElements is used by the RX resolver to bound the generated table.
-const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
-`)
 	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
-	msg.FatalOnErr(err)
+	if err != nil {
+		return nil, fmt.Errorf("invalid default Trice bit width %q: %w", DefaultTriceBitWidth, err)
+	}
 
 	ids := make([]int, 0, len(ilu))
 	for id := range ilu {
@@ -75,8 +74,20 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 		quotedFormat := tilCFormatLiteral(t.Strg)
 		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
 	}
+	if len(ids) == 0 {
+		// ISO C has no zero-length arrays. The reserved ID 0 sentinel keeps the
+		// declaration portable while the public element count remains zero.
+		text = append(text, []byte("\t{ 0u, 0u, 0u, 0 }, // Portable storage for an empty generated table.\n")...)
+	}
+	text = append(text, []byte(`};
 
-	text = append(text, tail...)
+// triceLogElements is used by the RX resolver to bound the generated table.
+`)...)
+	if len(ids) == 0 {
+		text = append(text, []byte("const unsigned triceLogElements = 0u;\n")...)
+	} else {
+		text = append(text, []byte("const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);\n")...)
+	}
 	return text, nil
 }
 

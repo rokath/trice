@@ -134,6 +134,10 @@ type globalDefaults struct {
 	defaultSkipAdditionalChecks       bool
 	defaultIDRange                    ArrayFlag
 	defaultLogging                    bool
+	defaultGenerateLogC               bool
+	defaultGenerateLogCPath           string
+	defaultGenerateABC                string
+	defaultWriteAllColors             bool
 }
 
 func (p *globalDefaults) GetGlobalVars() {
@@ -159,6 +163,10 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultSkipAdditionalChecks = SkipAdditionalChecks
 	p.defaultIDRange = IDRange
 	p.defaultLogging = Logging
+	p.defaultGenerateLogC = GenerateLogC
+	p.defaultGenerateLogCPath = GenerateLogCPath
+	p.defaultGenerateABC = GenerateABC
+	p.defaultWriteAllColors = WriteAllColors
 }
 
 // SetGlobalVars sets all global variables in a definitive state.
@@ -187,4 +195,8 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	SkipAdditionalChecks = p.defaultSkipAdditionalChecks
 	IDRange = p.defaultIDRange
 	Logging = p.defaultLogging
+	GenerateLogC = p.defaultGenerateLogC
+	GenerateLogCPath = p.defaultGenerateLogCPath
+	GenerateABC = p.defaultGenerateABC
+	WriteAllColors = p.defaultWriteAllColors
 }

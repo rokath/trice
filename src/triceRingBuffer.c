@@ -8,6 +8,7 @@
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"
+#include "triceLogInternal.h"
 
 #if TRICE_BUFFER == TRICE_RING_BUFFER && TRICE_BACKEND_ACTIVE
 
@@ -184,6 +185,56 @@ TRICE_INLINE void triceRingBufferDiagnostics(void) {
 	TriceRingBufferDepthMax = (depth > TriceRingBufferDepthMax) ? depth : TriceRingBufferDepthMax;
 #endif // #if TRICE_DIAGNOSTICS == 1
 }
+
+#if TRICE_LOCAL_LOG == 1
+
+int triceLogBufferPeek(const uint8_t** record, size_t* available) {
+	unsigned count;
+	if (record == 0 || available == 0) {
+		return TRICE_LOG_ERR_BUFFER;
+	}
+	TRICE_ENTER_CRITICAL_SECTION
+	count = TricesCountRingBuffer;
+	TRICE_LEAVE_CRITICAL_SECTION
+	if (count == 0u) {
+		*record = 0;
+		*available = 0u;
+		return 0;
+	}
+	triceRingBufferDiagnostics();
+	*record = (const uint8_t*)TriceRingBufferReadPosition;
+	// Writers wrap before less than one maximum record remains. Consequently
+	// this complete contiguous view is valid even near the physical ring end.
+	*available = TRICE_SINGLE_MAX_SIZE;
+	return 1;
+}
+
+int triceLogBufferRelease(size_t storageBytes) {
+	int result = 0;
+	if (storageBytes == 0u || (storageBytes & 3u) != 0u || storageBytes > TRICE_SINGLE_MAX_SIZE) {
+		return TRICE_LOG_ERR_BUFFER;
+	}
+	TRICE_ENTER_CRITICAL_SECTION
+	if (TricesCountRingBuffer == 0u) {
+		result = TRICE_LOG_ERR_BUFFER;
+	} else {
+		triceIncrementRingBufferReadPosition((int)(storageBytes >> 2));
+		TricesCountRingBuffer--;
+	}
+	TRICE_LEAVE_CRITICAL_SECTION
+	return result;
+}
+
+void triceLogBufferDiscardAll(void) {
+	TRICE_ENTER_CRITICAL_SECTION
+	// Resetting the reader to the current writer drops only queued records and
+	// leaves the producer's next write position valid.
+	TriceRingBufferReadPosition = TriceBufferWritePosition;
+	TricesCountRingBuffer = 0u;
+	TRICE_LEAVE_CRITICAL_SECTION
+}
+
+#endif // TRICE_LOCAL_LOG == 1
 
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
 void triceTransferSingleFraming(void); // Avoid noise with enabled -Wmissing-prototypes.

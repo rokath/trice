@@ -230,6 +230,14 @@ func TestHandlerGenerateWithoutParameters(t *testing.T) {
 	assert.Contains(t, out.String(), `The "trice generate" command needs at least one parameter.`)
 }
 
+// TestNormalizeGenerateLogCPath verifies both documented optional-path forms
+// without retaining the removed -tilC compatibility spelling.
+func TestNormalizeGenerateLogCPath(t *testing.T) {
+	assert.Equal(t, []string{"-logC=build/til.c", "-src", "src"}, normalizeGenerateArgs([]string{"-logC", "build/til.c", "-src", "src"}))
+	assert.Equal(t, []string{"-logC=build/til.c"}, normalizeGenerateArgs([]string{"-logC=build/til.c"}))
+	assert.Equal(t, []string{"-tilC", "old.c"}, normalizeGenerateArgs([]string{"-tilC", "old.c"}))
+}
+
 // TestHandlerAddInsertCleanOnMissingSource verifies the expected behavior.
 func TestHandlerAddInsertCleanOnMissingSource(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -310,6 +318,49 @@ func TestHandlerBindGeneratesSidecar(t *testing.T) {
 	entries, readErr := fSys.ReadDir("generated/triceIDs")
 	assert.NoError(t, readErr)
 	assert.Len(t, entries, 1)
+}
+
+// TestHandlerBindImplicitSourceHint verifies that a failed recursive default
+// scan explains its scope, while the same failure under an explicit source
+// selection does not add the hint.
+func TestHandlerBindImplicitSourceHint(t *testing.T) {
+	oldSrcs := append(id.ArrayFlag(nil), id.Srcs...)
+	oldLogfileName := LogfileName
+	t.Cleanup(func() {
+		id.Srcs = oldSrcs
+		LogfileName = oldLogfileName
+		FlagsInit()
+	})
+	LogfileName = "off"
+
+	for _, test := range []struct {
+		name       string
+		sourceArgs []string
+		wantHint   bool
+	}{
+		{name: "implicit recursive root", wantHint: true},
+		{name: "explicit source", sourceArgs: []string{"-src", "broken.c"}, wantHint: false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			id.Srcs = nil
+			FlagsInit()
+			fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+			assert.NoError(t, fSys.WriteFile("til.json", []byte("{}\n"), 0o644))
+			assert.NoError(t, fSys.WriteFile("li.json", []byte("{}\n"), 0o644))
+			assert.NoError(t, fSys.WriteFile("broken.c", []byte("trice(value);\n"), 0o644))
+
+			args := []string{"trice", "bind", "-til", "til.json", "-li", "li.json"}
+			args = append(args, test.sourceArgs...)
+			var output bytes.Buffer
+			err := Handler(&output, fSys, args)
+			assert.Error(t, err)
+			if test.wantHint {
+				assert.Contains(t, output.String(), implicitBindSourceHint)
+			} else {
+				assert.NotContains(t, output.String(), implicitBindSourceHint)
+			}
+		})
+	}
 }
 
 // TestHandlerBindHelp verifies that both public names and both standard help flags exit cleanly.

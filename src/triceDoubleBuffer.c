@@ -8,6 +8,7 @@
 #include "cobs.h"
 #include "tcobs.h"
 #include "trice.h"
+#include "triceLogInternal.h"
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE
 
@@ -88,6 +89,67 @@ static uint32_t* triceBufferSwap(void) {
 //! TriceHalfBufferDepthMax is a diagnostics value usable to optimize buffer size.
 unsigned TriceHalfBufferDepthMax = 0;
 #endif
+
+#if TRICE_LOCAL_LOG == 1
+
+// triceLogReadPosition and triceLogReadBytes are owned exclusively by the one
+// local logging consumer. Producers continue writing into the opposite half.
+static uint8_t* triceLogReadPosition = 0;
+static size_t triceLogReadBytes = 0u;
+
+int triceLogBufferPeek(const uint8_t** record, size_t* available) {
+	if (record == 0 || available == 0) {
+		return TRICE_LOG_ERR_BUFFER;
+	}
+	if (triceLogReadBytes == 0u) {
+		size_t writtenWords;
+		uint32_t* completed = 0;
+		TRICE_ENTER_CRITICAL_SECTION
+		writtenWords = (size_t)(TriceBufferWritePosition - TriceBufferWritePositionStart);
+		if (writtenWords != 0u) {
+			completed = triceBufferSwap();
+		}
+		TRICE_LEAVE_CRITICAL_SECTION
+		if (writtenWords == 0u) {
+			*record = 0;
+			*available = 0u;
+			return 0;
+		}
+		triceLogReadPosition = (uint8_t*)completed;
+		triceLogReadBytes = writtenWords << 2;
+#if TRICE_DIAGNOSTICS == 1
+		unsigned depth = (unsigned)(triceLogReadBytes + TRICE_DATA_OFFSET);
+		TriceHalfBufferDepthMax = depth < TriceHalfBufferDepthMax ? TriceHalfBufferDepthMax : depth;
+#endif
+	}
+	*record = triceLogReadPosition;
+	*available = triceLogReadBytes;
+	return 1;
+}
+
+int triceLogBufferRelease(size_t storageBytes) {
+	if (storageBytes == 0u || (storageBytes & 3u) != 0u || storageBytes > triceLogReadBytes) {
+		return TRICE_LOG_ERR_BUFFER;
+	}
+	triceLogReadPosition += storageBytes;
+	triceLogReadBytes -= storageBytes;
+	if (triceLogReadBytes == 0u) {
+		triceLogReadPosition = 0;
+	}
+	return 0;
+}
+
+void triceLogBufferDiscardAll(void) {
+	triceLogReadPosition = 0;
+	triceLogReadBytes = 0u;
+	TRICE_ENTER_CRITICAL_SECTION
+	// The active producer half can be reset safely only inside the configured
+	// critical section. The already swapped read half is discarded above.
+	TriceBufferWritePosition = TriceBufferWritePositionStart;
+	TRICE_LEAVE_CRITICAL_SECTION
+}
+
+#endif // TRICE_LOCAL_LOG == 1
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the responsibility of the app to call this function once every 10-100 milliseconds.

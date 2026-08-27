@@ -181,8 +181,20 @@
 #error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
+#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_LOCAL_LOG == 0) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
 #error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DEFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
+#endif
+
+#if (TRICE_LOCAL_LOG == 1) && (TRICE_DEFERRED_OUTPUT == 0)
+#error configuration: TRICE_LOCAL_LOG == 1 needs TRICE_DEFERRED_OUTPUT == 1
+#endif
+
+#if (TRICE_LOCAL_LOG == 1) && !((TRICE_BUFFER == TRICE_RING_BUFFER) || (TRICE_BUFFER == TRICE_DOUBLE_BUFFER))
+#error configuration: TRICE_LOCAL_LOG == 1 needs TRICE_RING_BUFFER or TRICE_DOUBLE_BUFFER
+#endif
+
+#if (TRICE_LOCAL_LOG == 1) && ((TRICE_DEFERRED_UARTA == 1) || (TRICE_DEFERRED_UARTB == 1) || (TRICE_DEFERRED_AUXILIARY8 == 1) || (TRICE_DEFERRED_AUXILIARY32 == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1))
+#error configuration: TRICE_LOCAL_LOG and binary deferred output channels are alternative consumers
 #endif
 
 #if (TRICE_DEFERRED_UARTA == 1) && !defined(TRICE_UARTA)
@@ -830,6 +842,14 @@ void TriceNonBlockingDirectWrite(uint32_t* triceStart, unsigned wordCount) {
 
 // TriceNonBlockingDeferredWrite8 routes trice data to output channels.
 void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encLen) {
+
+#if TRICE_LOCAL_LOG == 1
+	// Local text logging consumes raw records before binary framing and therefore
+	// intentionally configures no deferred binary destination.
+	TRICE_UNUSED(triceID)
+	TRICE_UNUSED(enc)
+	TRICE_UNUSED(encLen)
+#endif
 
 #if TRICE_DEFERRED_UARTA == 1
 #if (TRICE_UARTA_MIN_ID != 0) || (TRICE_UARTA_MAX_ID != 0)

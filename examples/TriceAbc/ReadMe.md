@@ -205,8 +205,7 @@ Generator steps:
 
 ```sh
 trice generate -i ../../demoTIL.json -abc NodeLib/nodeAbc
-trice generate -i ../../demoTIL.json -tilC
-# move generated ../../demoTIL.c to NodeLib/til.c
+trice generate -i ../../demoTIL.json -src . -logC=NodeLib/til.c
 ```
 
 This yields:
@@ -217,10 +216,9 @@ NodeLib/nodeAbc.c   shared generated ABC table
 NodeLib/til.c       shared generated compact log metadata table
 ```
 
-`-tilC` currently derives the output file name from the input JSON base name.
-With `../../demoTIL.json` as input the generated file is therefore
-`../../demoTIL.c`. `build.sh` relocates that file to `NodeLib/til.c` so the
-demo can keep a small and predictable local source layout.
+`-logC` validates IDs already established by the preceding `trice insert` and
+emits only entries found below the selected `-src` roots. `build.sh` supplies an
+explicit output path so the demo keeps a small and predictable local layout.
 
 Why one shared ABC pair is enough:
 
