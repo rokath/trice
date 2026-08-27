@@ -18,27 +18,30 @@ extern "C" {
 
 //! TriceLogPrintfFn_t is the optional snprintf-compatible formatter hook.
 //!
-//! TriceLog invokes the hook once for every scalar conversion. The function
-//! must use snprintf return semantics: the returned count excludes the final
-//! NUL and reports the required size even when the destination is too small.
+//! TriceLog invokes the hook once for every scalar numeric conversion. Dynamic
+//! strings are copied separately with their record-bounded length and never
+//! passed to the hook. The function must use snprintf return semantics: the
+//! returned count excludes the final NUL and reports the required size even
+//! when the destination is too small.
 typedef int (*TriceLogPrintfFn_t)(char* buffer, size_t size, const char* format, ...);
 
 //! UserTriceLogPrintfFn selects an application or third-party formatter.
 //!
 //! With TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1, leave it zero to use the
-//! separately linked fallback for exact %d and %x plus literal %%. With that
-//! switch at zero, a zero hook makes TriceLog return TRICE_LOG_ERR_PRINTF.
+//! separately linked fallback for exact %d and %x. Literal %% and bounded %s
+//! do not need a hook. With that switch at zero, other numeric conversions
+//! with a zero hook make TriceLog return TRICE_LOG_ERR_PRINTF.
 extern TriceLogPrintfFn_t UserTriceLogPrintfFn;
 
 //! Stable negative results returned by TriceLog.
 enum {
-	TRICE_LOG_ERR_ARGUMENT = -100,           //!< outbuf is NULL or maxlen is zero; no record is consumed.
-	TRICE_LOG_ERR_OUTPUT_TOO_SMALL = -101,   //!< The current record was consumed but did not fit including its final NUL.
-	TRICE_LOG_ERR_RECORD = -102,             //!< The buffered record was malformed; the buffer was cleared to guarantee progress.
-	TRICE_LOG_ERR_ID = -103,                 //!< The current ID was absent from the generated log table.
-	TRICE_LOG_ERR_FORMAT = -104,             //!< The format uses a conversion unsupported by local scalar logging.
-	TRICE_LOG_ERR_PRINTF = -105,             //!< The configured printf hook reported an error.
-	TRICE_LOG_ERR_BUFFER = -106,             //!< The selected deferred buffer rejected a peek or release operation.
+	TRICE_LOG_ERR_ARGUMENT = -100,         //!< outbuf is NULL or maxlen is zero; no record is consumed.
+	TRICE_LOG_ERR_OUTPUT_TOO_SMALL = -101, //!< The current record was consumed but did not fit including its final NUL.
+	TRICE_LOG_ERR_RECORD = -102,           //!< The buffered record was malformed; the buffer was cleared to guarantee progress.
+	TRICE_LOG_ERR_ID = -103,               //!< The current ID was absent from the generated log table.
+	TRICE_LOG_ERR_FORMAT = -104,           //!< The record metadata or format uses an unsupported local conversion.
+	TRICE_LOG_ERR_PRINTF = -105,           //!< The configured printf hook reported an error.
+	TRICE_LOG_ERR_BUFFER = -106,           //!< The selected deferred buffer rejected a peek or release operation.
 };
 
 //! \brief Formats and consumes the next buffered Trice record.
