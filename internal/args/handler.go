@@ -27,6 +27,16 @@ import (
 	"github.com/spf13/afero"
 )
 
+// implicitBindSourceHint explains the recursive default only after it caused a
+// failed bind. Successful commands remain silent, and an explicitly selected
+// "./" does not receive a redundant hint.
+const implicitBindSourceHint = `
+============================ TRICE BIND HINT ============================
+No -src was specified, so trice bind recursively scanned "./".
+If this directory contains independent projects or verification sources,
+restrict the selection with one or more -src or -exclude options.
+=========================================================================`
+
 // Handler parses args and executes the selected sub-command.
 //
 // args is expected in os.Args form where args[0] is the executable name and
@@ -101,6 +111,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			}
 			return err
 		}
+		// Remember why CompactSrcs adds "./". Once expanded, the default is
+		// indistinguishable from a deliberate `-src ./` selection.
+		implicitSourceSelection := len(id.Srcs) == 0
 		id.CompactSrcs()
 		id.ProcessAliases()
 		emitter.AddUserLabels()
@@ -108,7 +121,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			return err
 		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-		return id.SubCmdIdBind(w, fSys)
+		err := id.SubCmdIdBind(w, fSys)
+		if err != nil && implicitSourceSelection {
+			fmt.Fprintln(w, implicitBindSourceHint)
+		}
+		return err
 	case "c", "clean":
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()
