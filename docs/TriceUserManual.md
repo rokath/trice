@@ -392,6 +392,7 @@ details.toc[open] .toc-hide {
   * [35.6. Deferred Out](#deferred-out)
     * [35.6.1. Double Buffer](#double-buffer)
     * [35.6.2. Ring Buffer](#ring-buffer)
+    * [35.6.3. Local Deferred Text Log](#local-deferred-text-log)
   * [35.7. Direct Transfer](#direct-transfer)
   * [35.8. Possible Target Code Improvements](#possible-target-code-improvements)
 * [36. Trice Similarities and Differences to printf Usage](#trice-similarities-and-differences-to-printf-usage)
@@ -6620,7 +6621,7 @@ The `TRICE_RING_BUFFER` allocates incremental ring buffer space and each trice l
     * int triceID = TriceIDAndBuffer( pData, &wordCount, &pStart, &Length );
     * TriceNonBlockingWrite( triceID, pEnc, encLen );
 
-#### 35.6.3. <a id="local-deferred-log"></a>Local Deferred Text Log
+#### 35.6.3. <a id="local-deferred-text-log"></a>Local Deferred Text Log
 
 `TRICE_LOCAL_LOG 1` is an optional alternative consumer for ring and double buffers. Producer tasks and interrupts keep the normal short binary Trice path. One background task repeatedly calls `TriceLog(outbuf, maxlen)`, which resolves the ID through a generated C table and formats directly from the still-buffered payload into the application-owned output buffer. Do not mix `TriceLog()` and `TriceTransfer()` for the same buffer.
 
