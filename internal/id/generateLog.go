@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/spf13/afero"
 )
@@ -42,7 +43,14 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 	selected := make(TriceIDLookUp)
 	for planIndex := range plans {
 		plan := &plans[planIndex]
-		allSites, _ := scanGenerateSites(plan.path, string(plan.original))
+		// Project analysis operates on the logical source with generated rebase
+		// includes removed. Scan the same view here: physical helper lines shift
+		// every following line and would otherwise make active sites appear to be
+		// unrelated ID-free calls. Ordinary comments remain present in cleanSource
+		// and therefore retain the legacy-insert diagnostics required below.
+		cleanSource, _, artifactDiagnostics, _ := stripBindRebaseArtifacts(plan.path, plan.original)
+		diagnostics = append(diagnostics, artifactDiagnostics...)
+		allSites, _ := scanGenerateSites(plan.path, string(cleanSource))
 		switch plan.class {
 		case bindFileInsert:
 			for _, site := range allSites {
@@ -80,7 +88,7 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 			for _, site := range allSites {
 				if site.wasExplicit {
 					diagnostics = append(diagnostics, addCurrentLogSite(selected, til, plan.path, site, site.id)...)
-				} else if !bindSiteIsActive(site, plan.sites) {
+				} else if !bindSiteIsActive(site, plan.sites) && !currentLogSiteIsInherentlyUnsupported(site) {
 					diagnostics = append(diagnostics, unresolvedCurrentLogSite(plan.path, site))
 				}
 			}
@@ -106,6 +114,22 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 		}})
 	}
 	return selected, nil
+}
+
+// currentLogSiteIsInherentlyUnsupported permits an ID-free call in an ordinary
+// C comment to remain documentation when -logC cannot represent its format or
+// Trice family at all. This exception belongs only to local table generation:
+// bind and legacy insert keep their existing comment behavior, and a supported
+// commented Trice still needs an authoritative explicit ID.
+func currentLogSiteIsInherentlyUnsupported(site bindSite) bool {
+	entry := TriceFmt{Type: site.macro, Strg: site.format}
+	resolveTriceAlias(&entry)
+	defaultBitWidth, err := strconv.Atoi(DefaultTriceBitWidth)
+	if err != nil {
+		return false
+	}
+	_, bitWidth, _ := computeLogValues(entry, defaultBitWidth)
+	return logFeatureCondition(entry, bitWidth) == "0"
 }
 
 // bindSiteIsActive distinguishes an ID-free source site already covered by a

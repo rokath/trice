@@ -69,3 +69,23 @@ func TestNormalizeRejectsInvalidLengthModifierCombinations(t *testing.T) {
 		})
 	}
 }
+
+// TestNormalizeReportsLocalFormatterFeatures verifies the metadata used by
+// the generated target table. Keeping this in the shared parser prevents the
+// generator from growing a second, subtly different printf grammar.
+func TestNormalizeReportsLocalFormatterFeatures(t *testing.T) {
+	_, specs := Normalize("plain=%d padded=%#08x precise=%.3f empty=%.s")
+	assert.Len(t, specs, 4)
+	assert.False(t, specs[0].HasFlags)
+	assert.False(t, specs[0].HasFieldWidth)
+	assert.False(t, specs[0].HasPrecision)
+	assert.False(t, specs[0].HasAltForm)
+	assert.True(t, specs[1].HasFlags)
+	assert.Equal(t, "#0", specs[1].Flags)
+	assert.True(t, specs[1].HasFieldWidth)
+	assert.False(t, specs[1].HasPrecision)
+	assert.True(t, specs[1].HasAltForm)
+	assert.True(t, specs[2].HasPrecision)
+	assert.False(t, specs[3].HasFieldWidth)
+	assert.True(t, specs[3].HasPrecision)
+}

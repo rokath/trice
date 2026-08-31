@@ -6,6 +6,8 @@
 #ifndef TRICE_RX_DEFAULT_CONFIG_H_
 #define TRICE_RX_DEFAULT_CONFIG_H_
 
+#include "triceLogDefaultConfig.h"
+
 #if defined TRICE_RX_SUPPORT && TRICE_RX_SUPPORT == 0
 #define TRICE_RX_LOG_SUPPORT 0               // The device canot receive Trice log data
 #define TRICE_RX_ABC_SUPPORT 0               // Disables Trice ABC command receive.
@@ -21,13 +23,6 @@
 // TRICE_RX_ABC_SUPPORT enables generated ABC receive metadata and dispatch.
 #ifndef TRICE_RX_ABC_SUPPORT
 #define TRICE_RX_ABC_SUPPORT 0
-#endif
-
-// TRICE_LOCAL_LOG selects target-side formatting of locally buffered records.
-// It is repeated here because triceRx.h can be included without trice.h and its
-// broader transmit-side default configuration.
-#ifndef TRICE_LOCAL_LOG
-#define TRICE_LOCAL_LOG 0
 #endif
 
 // TRICE_RX_LOG_SUPPORT enables log metadata fields and resolver declarations.

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -50,6 +51,10 @@ func TestLocalLogCompilesAndRunsWithBothDeferredBuffers(t *testing.T) {
 #define TRICE_DEFERRED_BUFFER_SIZE 1024
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_LOCAL_LOG 1
+#define TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 1
+#define TRICE_LOCAL_LOG_USE_PREFIX_HOOK 1
 #define TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN ` + buffer.transferOrder + `
 #define TRICE_DIRECT_OUTPUT 0
 #define TRICE_DIAGNOSTICS 0
@@ -87,6 +92,12 @@ const triceLog_t triceLog[] = {
     { 1025u,  8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "raw=[%s]\n" },
     { 1026u,  8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "overflow=[%999999999999999999999999999999999999999s]\n" },
     { 1027u,  8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "dynamic-width=[%*s]\n" },
+    { 1028u,  8u, 5u, "special=%b/%#b/%O/%t/%p\n" },
+    { 1029u,  8u, 1u, "quote=%q\n" },
+    { 1030u,  8u, TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING, "quoted=%q\n" },
+    { 1031u, 16u, TRICE_LOG_PARAM_COUNT_DYNAMIC_BUFFER, "buffer:%04x \n" },
+    { 1032u, 32u, 0u, NULL },
+    { 1033u, 32u, 0u, "prefixed\n" },
 };
 const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 `
@@ -102,6 +113,7 @@ static int check(int condition) { return condition ? 0 : 1; }
 static int checkText(int result, const char *actual, const char *expected) {
     return result == (int)strlen(expected) && strcmp(actual, expected) == 0 ? 0 : 1;
 }
+
 static int hookCalls;
 // countingSnprintf proves that TriceLog invokes its hook once per scalar while
 // retaining ordinary snprintf return and truncation semantics.
@@ -112,6 +124,23 @@ static int countingSnprintf(char *dst, size_t size, const char *format, ...) {
     va_end(arguments);
     hookCalls++;
     return result;
+}
+// idPrefix demonstrates that presentation policy is optional and receives
+// parsed metadata without changing record decoding or generated strings.
+static int idPrefix(char *dst, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp) {
+    (void)stampBits;
+    (void)stamp;
+    return snprintf(dst, size, "[%u] ", (unsigned)id);
+}
+// failingPrefix verifies error mapping and the no-partial-output contract.
+static int failingPrefix(char *dst, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp) {
+    (void)dst; (void)size; (void)id; (void)stampBits; (void)stamp;
+    return -1;
+}
+// longPrefix reports snprintf's required length to exercise prefix truncation.
+static int longPrefix(char *dst, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp) {
+    (void)id; (void)stampBits; (void)stamp;
+    return snprintf(dst, size, "prefix-too-long");
 }
 
 int main(void) {
@@ -246,6 +275,41 @@ int main(void) {
 
     trice(iD(1022), "scalar-string=%s\n", 0u);
     if (check(TriceLog(text, sizeof(text)) == TRICE_LOG_ERR_FORMAT && text[0] == 0)) return 45;
+
+    trice8(iD(1028), "special=%b/%#b/%O/%t/%p\n", 5u, 5u, 9u, 1u, 255u);
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "special=101/0b101/0o11/true/ff\n")) return 46;
+
+    trice8(iD(1029), "quote=%q\n", 'A');
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "quote='A'\n")) return 47;
+
+    triceS(iD(1030), "quoted=%q\n", "a\n\"");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "quoted=\"a\\n\\\"\"\n")) return 48;
+
+#if TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN == 0
+    const uint16_t values[] = {1u, 0x2au};
+    TRICE16_B(id(1031), "buffer:%04x \n", values, 2u);
+    result = TriceLog(text, sizeof(text));
+    if (check(checkText(result, text, "buffer:0001 002a \n") == 0 && hookCalls == 10)) return 49;
+#endif
+
+    trice(iD(1032), "known-but-disabled\n");
+    if (check(TriceLog(text, sizeof(text)) == TRICE_LOG_ERR_FEATURE_DISABLED && text[0] == 0)) return 50;
+
+    UserTriceLogPrefixFn = idPrefix;
+    trice(iD(1033), "prefixed\n");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "[1033] prefixed\n")) return 51;
+
+    UserTriceLogPrefixFn = failingPrefix;
+    trice(iD(1033), "prefixed\n");
+    if (check(TriceLog(text, sizeof(text)) == TRICE_LOG_ERR_PREFIX && text[0] == 0)) return 52;
+
+    UserTriceLogPrefixFn = longPrefix;
+    trice(iD(1033), "prefixed\n");
+    if (check(TriceLog(small, sizeof(small)) == TRICE_LOG_ERR_OUTPUT_TOO_SMALL && small[0] == 0)) return 53;
     return 0;
 }
 `
@@ -267,6 +331,83 @@ int main(void) {
 			assert.NoError(t, runErr, "%s", output)
 		})
 	}
+}
+
+// TestGeneratedLocalLogTableHonorsFeatureSubsets preprocesses one generated
+// table under two target configurations. This verifies the complete path from
+// shared format analysis to C preprocessor selection, including the important
+// invariant that disabled format strings are absent from the target input.
+func TestGeneratedLocalLogTableHonorsFeatureSubsets(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	defer Setup(t)()
+	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	project := t.TempDir()
+	list := TriceIDLookUp{
+		1000: {Type: "trice_0", Strg: "always-ready"},
+		1001: {Type: "trice32", Strg: "minimal=%d"},
+		1002: {Type: "trice32", Strg: "unsigned=%u"},
+		1003: {Type: "triceS", Strg: "dynamic=%s"},
+		1004: {Type: "TRICE16_B", Strg: "buffer:%04x"},
+		1005: {Type: "trice64", Strg: "double=%.2f"},
+		1006: {Type: "trice8", Strg: "custom=%#b/%O/%t/%p/%q"},
+		1007: {Type: "TRICE8_C", Strg: "abc-command"},
+	}
+	table, err := list.toListTilC("til.c")
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(project, "til.c"), table, 0o644))
+
+	preprocess := func(name, options string) string {
+		t.Helper()
+		config := "// SPDX-License-Identifier: MIT\n#ifndef TRICE_CONFIG_H_\n#define TRICE_CONFIG_H_\n#define TRICE_LOCAL_LOG 1\n" + options + "#endif\n"
+		require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
+		output, compileErr := exec.Command(
+			compiler, "-E", "-P",
+			"-I", project,
+			"-I", filepath.Join(repositoryRoot, "src"),
+			filepath.Join(project, "til.c"),
+		).CombinedOutput()
+		require.NoError(t, compileErr, "%s configuration:\n%s", name, output)
+		return string(output)
+	}
+
+	minimal := preprocess("literal only", `#define TRICE_LOCAL_LOG_USE_PRINTF_HOOK 0
+#define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 0
+#define TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_64_BIT_VALUES 0
+#define TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG 0
+#define TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES 0
+#define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 0
+#define TRICE_LOCAL_LOG_KEEP_DISABLED_IDS 0
+`)
+	assert.Contains(t, minimal, "always-ready")
+	for _, omitted := range []string{"minimal=%d", "unsigned=%u", "dynamic=%s", "buffer:%04x", "double=%.2f", "custom=%#b", "abc-command"} {
+		assert.False(t, strings.Contains(minimal, omitted), "disabled preprocessor output retained %q", omitted)
+	}
+
+	full := preprocess("full", `#define TRICE_LOCAL_LOG_USE_PRINTF_HOOK 1
+#define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 0
+#define TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_64_BIT_VALUES 1
+#define TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG 1
+#define TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS 1
+#define TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES 1
+#define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 1
+`)
+	for _, retained := range []string{"always-ready", "minimal=%d", "unsigned=%u", "dynamic=%s", "buffer:%04x", "double=%.2f", "custom=%#b"} {
+		assert.True(t, strings.Contains(full, retained), "full preprocessor output omitted %q", retained)
+	}
+	assert.NotContains(t, full, "abc-command")
 }
 
 // TestLocalLogDynamicStringNeedsNoPrintfImplementation verifies that bounded
@@ -293,7 +434,12 @@ func TestLocalLogDynamicStringNeedsNoPrintfImplementation(t *testing.T) {
 #define TRICE_DEFERRED_BUFFER_SIZE 256
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_LOCAL_LOG 1
+#define TRICE_LOCAL_LOG_USE_PRINTF_HOOK 0
 #define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 0
+#define TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_64_BIT_VALUES 0
 #define TRICE_DIRECT_OUTPUT 0
 #define TRICE_DIAGNOSTICS 0
 #define TRICE_CONFIG_WARNINGS 0
@@ -303,6 +449,14 @@ func TestLocalLogDynamicStringNeedsNoPrintfImplementation(t *testing.T) {
 #include "triceRx.h"
 const triceLog_t triceLog[] = {
     { 1000u, 8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "text=[%s]\n" },
+    { 1001u, 8u, TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING, "wide=[%4s]\n" },
+    { 1002u, 8u, TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING, "precise=[%.2s]\n" },
+    { 1003u, 8u, 1u, "binary=%b\n" },
+    { 1004u, 8u, 1u, "bool=%t\n" },
+    { 1005u, 16u, TRICE_LOG_PARAM_COUNT_DYNAMIC_BUFFER, "buffer:%x\n" },
+    { 1006u, 32u, 1u, "float=%f\n" },
+    { 1007u, 64u, 1u, "wide=%x\n" },
+    { 1008u, 32u, 0u, 0 },
 };
 const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 `
@@ -312,9 +466,27 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 
 int main(void) {
     char text[32];
+    uint16_t value = 1u;
     triceS(iD(1000), "text=[%s]\n", "standalone");
     int result = TriceLog(text, sizeof(text));
-    return result == 18 && strcmp(text, "text=[standalone]\n") == 0 ? 0 : 1;
+    if (result != 18 || strcmp(text, "text=[standalone]\n") != 0) return 1;
+    triceS(iD(1001), "wide=[%4s]\n", "x");
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 2;
+    triceS(iD(1002), "precise=[%.2s]\n", "abc");
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 3;
+    trice8(iD(1003), "binary=%b\n", 1u);
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 4;
+    trice8(iD(1004), "bool=%t\n", 1u);
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 5;
+    TRICE16_B(id(1005), "buffer:%x\n", &value, 1u);
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 6;
+    trice32(iD(1006), "float=%f\n", aFloat(1.0f));
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 7;
+    trice64(iD(1007), "wide=%x\n", UINT64_C(1));
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 8;
+    trice(iD(1008), "known-disabled\n");
+    if (TriceLog(text, sizeof(text)) != TRICE_LOG_ERR_FEATURE_DISABLED) return 9;
+    return text[0] == 0 ? 0 : 10;
 }
 `
 	require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
@@ -337,6 +509,80 @@ int main(void) {
 	output, compileErr := exec.Command(compiler, arguments...).CombinedOutput()
 	require.NoError(t, compileErr, "%s", output)
 
+	output, runErr := exec.Command(executable).CombinedOutput()
+	assert.NoError(t, runErr, "%s", output)
+}
+
+// TestLocalLogMinimalFormatterWithout64BitValues verifies the smallest numeric
+// path as a complete producer-to-text flow. In particular, its strict build
+// catches accidental 64-bit signatures or helpers in a 32-bit-only setup.
+func TestLocalLogMinimalFormatterWithout64BitValues(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	sourceDirectory := filepath.Join(repositoryRoot, "src")
+	librarySources, err := filepath.Glob(filepath.Join(sourceDirectory, "[a-z]*.c"))
+	require.NoError(t, err)
+	sort.Strings(librarySources)
+	project := t.TempDir()
+	config := `// SPDX-License-Identifier: MIT
+#ifndef TRICE_CONFIG_H_
+#define TRICE_CONFIG_H_
+#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_DEFERRED_BUFFER_SIZE 256
+#define TRICE_DEFERRED_OUTPUT 1
+#define TRICE_LOCAL_LOG 1
+#define TRICE_LOCAL_LOG_USE_PRINTF_HOOK 0
+#define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 1
+#define TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS 0
+#define TRICE_LOCAL_LOG_USE_64_BIT_VALUES 0
+#define TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES 0
+#define TRICE_DIRECT_OUTPUT 0
+#define TRICE_DIAGNOSTICS 0
+#define TRICE_CONFIG_WARNINGS 0
+#endif
+`
+	table := `// SPDX-License-Identifier: MIT
+#include "triceRx.h"
+const triceLog_t triceLog[] = {
+    { 1000u, 32u, 2u, "values=%d/%x\n" },
+};
+const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
+`
+	mainSource := `// SPDX-License-Identifier: MIT
+#include <string.h>
+#include "trice.h"
+
+int main(void) {
+    char text[40];
+    trice(iD(1000), "values=%d/%x\n", -2147483647, 0xabcdefu);
+    int result = TriceLog(text, sizeof(text));
+    return result == 26 && strcmp(text, "values=-2147483647/abcdef\n") == 0 ? 0 : 1;
+}
+`
+	require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(project, "til.c"), []byte(table), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(project, "main.c"), []byte(mainSource), 0o644))
+	executable := filepath.Join(project, "local_log_minimal32")
+	if runtime.GOOS == "windows" {
+		executable += ".exe"
+	}
+	arguments := []string{
+		"-std=c11", "-Wall", "-Wextra", "-Werror",
+		"-I", project,
+		"-I", sourceDirectory,
+		filepath.Join(project, "main.c"),
+		filepath.Join(project, "til.c"),
+	}
+	arguments = append(arguments, librarySources...)
+	arguments = append(arguments, "-o", executable)
+	output, compileErr := exec.Command(compiler, arguments...).CombinedOutput()
+	require.NoError(t, compileErr, "%s", output)
 	output, runErr := exec.Command(executable).CombinedOutput()
 	assert.NoError(t, runErr, "%s", output)
 }
@@ -378,6 +624,34 @@ int main(void) { return 0; }
 	).CombinedOutput()
 	require.Error(t, compileErr)
 	assert.Contains(t, string(output), "TRICE_LOCAL_LOG == 1 needs TRICE_RX_LOG_SUPPORT == 1")
+}
+
+// TestLocalLogRejectsNonBooleanFeatureConfiguration verifies that local-log
+// mistakes fail at the configuration boundary with the switch name, rather
+// than selecting inconsistent preprocessor paths across translation units.
+func TestLocalLogRejectsNonBooleanFeatureConfiguration(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	project := t.TempDir()
+	config := `// SPDX-License-Identifier: MIT
+#define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 2
+#include "triceLogDefaultConfig.h"
+`
+	require.NoError(t, os.WriteFile(filepath.Join(project, "invalid.c"), []byte(config), 0o644))
+	object := filepath.Join(project, "invalid.o")
+	output, compileErr := exec.Command(
+		compiler,
+		"-std=c11",
+		"-I", filepath.Join(repositoryRoot, "src"),
+		"-c", filepath.Join(project, "invalid.c"),
+		"-o", object,
+	).CombinedOutput()
+	require.Error(t, compileErr)
+	assert.Contains(t, string(output), "TRICE_LOCAL_LOG_USE_BUFFER_TRICES must be 0 or 1")
 }
 
 // TestLocalLogMinimalFormatterCompilesOut checks the no-LTO size contract of

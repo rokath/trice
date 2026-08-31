@@ -8,6 +8,8 @@
 #ifndef TRICE_DEFAULT_CONFIG_H_
 #define TRICE_DEFAULT_CONFIG_H_
 
+#include "triceLogDefaultConfig.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -160,21 +162,6 @@ extern "C" {
 //! TRICE_BUFFER == TRICE_STACK_BUFFER or TRICE_BUFFER == TRICE_STATIC_BUFFER needs TRICE_DEFERRED_OUTPUT == 0.
 //! When TRICE_BUFFER == TRICE_RING_BUFFER or TRICE_BUFFER == TRICE_DOUBLE_BUFFER for deferred output, additional direct output can be on.
 #define TRICE_DEFERRED_OUTPUT 0
-#endif
-
-#ifndef TRICE_LOCAL_LOG
-//! TRICE_LOCAL_LOG == 1 lets TriceLog format buffered binary records on the
-//! target. It requires ring or double buffering and is an alternative to all
-//! binary deferred output channels and TriceTransfer.
-#define TRICE_LOCAL_LOG 0
-#endif
-
-#ifndef TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER
-//! TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1 links the exact %d/%x fallback.
-//! Set it to 0 when UserTriceLogPrintfFn is always configured. The guarded
-//! fallback lives in its own source file and then contributes no code even
-//! when the build has no LTO or section garbage collection.
-#define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 1
 #endif
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING

@@ -368,12 +368,49 @@ func TestGeneratorFileOutputs(t *testing.T) {
 	content, err := FSys.ReadFile("til.c")
 	require.NoError(t, err)
 	assert.Contains(t, string(content), "const triceLog_t triceLog[]")
-	assert.Contains(t, string(content), `{  1002u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "msg:%s" }`)
+	assert.Contains(t, string(content), `{  1002u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING, "msg:%s" }`)
 	assert.Contains(t, string(content), `{  1003u,   0u, 0u, "cmd:Stop" }`)
-	assert.Contains(t, string(content), `{  1004u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "cmd:Set" }`)
-	assert.Contains(t, string(content), `{  1005u,  32u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "buf:%02x" }`)
+	assert.Contains(t, string(content), `{  1004u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC_ABC, "cmd:Set" }`)
+	assert.Contains(t, string(content), `{  1005u,  32u, TRICE_LOG_PARAM_COUNT_DYNAMIC_BUFFER, "buf:%02x" }`)
 	assert.Contains(t, string(content), `{  1006u,  32u, 1u, "temp:%d" }`)
-	assert.Contains(t, string(content), `{  1007u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC, "raw:%s" }`)
+	assert.Contains(t, string(content), `{  1007u,   8u, TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING, "raw:%s" }`)
+	assert.Contains(t, string(content), "#if TRICE_LOCAL_LOG_USE_BUFFER_TRICES == 1")
+	assert.Contains(t, string(content), "#elif TRICE_LOCAL_LOG_KEEP_DISABLED_IDS == 1")
+	assert.Contains(t, string(content), "Portable generated-table sentinel")
+	assert.Contains(t, string(content), "sizeof(triceLog) / sizeof(triceLog[0]) - 1u")
+}
+
+// TestLogFeatureCondition covers the generator-to-target configuration
+// contract. These exact expressions are compiled into generated til.c files,
+// so a regression could otherwise retain unwanted strings or remove a format
+// that the selected local formatter can render.
+func TestLogFeatureCondition(t *testing.T) {
+	tests := []struct {
+		name     string
+		trice    TriceFmt
+		bitWidth int
+		want     string
+	}{
+		{name: "literal", trice: TriceFmt{Type: "TRICE_0", Strg: "ready"}, bitWidth: 32, want: "1"},
+		{name: "abc", trice: TriceFmt{Type: "TRICE8_C", Strg: "Run"}, bitWidth: 8, want: "0"},
+		{name: "function", trice: TriceFmt{Type: "TRICE32_F", Strg: "Run"}, bitWidth: 32, want: "0"},
+		{name: "dynamic string", trice: TriceFmt{Type: "triceS", Strg: "name=%s"}, bitWidth: 8, want: "TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES == 1"},
+		{name: "dynamic quote", trice: TriceFmt{Type: "triceN", Strg: "name=%q"}, bitWidth: 8, want: "TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES == 1 && TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS == 1"},
+		{name: "invalid dynamic count", trice: TriceFmt{Type: "triceS", Strg: "%s%s"}, bitWidth: 8, want: "0"},
+		{name: "minimal integer", trice: TriceFmt{Type: "trice32", Strg: "%d/%x"}, bitWidth: 32, want: "(TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1 || TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1)"},
+		{name: "width needs hook", trice: TriceFmt{Type: "trice32", Strg: "%08x"}, bitWidth: 32, want: "TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS == 1 && TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1"},
+		{name: "float double", trice: TriceFmt{Type: "trice64", Strg: "%.3f"}, bitWidth: 64, want: "TRICE_LOCAL_LOG_USE_64_BIT_VALUES == 1 && TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS == 1 && TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS == 1 && TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1"},
+		{name: "64-bit binary buffer", trice: TriceFmt{Type: "TRICE64_B", Strg: "%#b"}, bitWidth: 64, want: "TRICE_LOCAL_LOG_USE_BUFFER_TRICES == 1 && TRICE_LOCAL_LOG_USE_64_BIT_VALUES == 1 && TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG == 1 && TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS == 1"},
+		{name: "fixed string unsupported", trice: TriceFmt{Type: "trice32", Strg: "%s"}, bitWidth: 32, want: "0"},
+		{name: "scalar quote precision unsupported", trice: TriceFmt{Type: "trice8", Strg: "%.2q"}, bitWidth: 8, want: "0"},
+		{name: "ordinary unsigned", trice: TriceFmt{Type: "trice16", Strg: "%u"}, bitWidth: 16, want: "TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1"},
+		{name: "unicode unsupported", trice: TriceFmt{Type: "trice32", Strg: "%U"}, bitWidth: 32, want: "0"},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, logFeatureCondition(tc.trice, tc.bitWidth))
+		})
+	}
 }
 
 // TestSubCmdGenerate verifies the expected behavior.

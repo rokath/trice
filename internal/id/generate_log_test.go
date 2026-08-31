@@ -58,6 +58,31 @@ func TestSelectCurrentLogEntriesFromBoundSource(t *testing.T) {
 	assert.Equal(t, til, selected)
 }
 
+// TestSelectCurrentLogEntriesIgnoresOriginalZeroIDInSidecarComment protects
+// replace descriptors generated from insert-style source. Their diagnostic
+// comment retains the original Id(0), but the first constructor is the only
+// authoritative ID and must be selected for -logC.
+func TestSelectCurrentLogEntriesIgnoresOriginalZeroIDInSidecarComment(t *testing.T) {
+	defer Setup(t)()
+	const key = "K5555555555555555"
+	source := filepath.Join(Proj, "replaced.c")
+	sidecarName := "trice_replaced_c_" + key + ".h"
+	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"value=%d\", 7); }\n"
+	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
+	BindDir = filepath.Join(Proj, "build", "triceIDs")
+	require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
+	sidecar := "#define TRICE_BIND_FILE_KEY " + key + "\n" +
+		"#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L2 TRICE_BIND_REPLACE, Id(1001u) // trice(Id(0), \"value=%d\", 7);\n"
+	require.NoError(t, FSys.WriteFile(filepath.Join(BindDir, sidecarName), []byte(sidecar), 0o644))
+	Srcs = ArrayFlag{source}
+
+	til := TriceIDLookUp{1001: {Type: "trice", Strg: "value=%d"}}
+	selected, err := selectCurrentLogEntries(&B, FSys, til)
+	require.NoError(t, err)
+	assert.Equal(t, til, selected)
+}
+
 // TestSelectCurrentLogEntriesRejectsStaleDescriptorCount verifies that -logC
 // does not pair current source sites with an incomplete, stale bind sidecar.
 // Regenerating the sidecar is safer than assigning the remaining IDs by order.
@@ -89,7 +114,8 @@ func TestSelectCurrentLogEntriesRejectsStaleDescriptorCount(t *testing.T) {
 // wrapper with multiple inner Trices and repeated invocation sites.
 func TestSelectCurrentLogEntriesFromBoundWrapper(t *testing.T) {
 	source := "#define LOG_PAIR(value) do { trice(\"first\"); trice(\"second=%d\", value); } while (0)\n" +
-		"void f(void) { LOG_PAIR(1); LOG_PAIR(2); }\n"
+		"void f(void) { LOG_PAIR(1); LOG_PAIR(2); }\n" +
+		"void g(void) { trice(\"after-generated-rebase\"); }\n"
 	defer prepareBindTest(t, map[string]string{"wrapper.c": source})()
 
 	require.NoError(t, SubCmdIdBind(&B, FSys))
@@ -125,6 +151,31 @@ func TestSelectCurrentLogEntriesRejectsUnresolvedCommentedBindSite(t *testing.T)
 	_, err := selectCurrentLogEntries(&B, FSys, TriceIDLookUp{1000: {Type: "trice", Strg: "active"}})
 	require.Error(t, err)
 	assert.Contains(t, B.String(), "commented.c:3: error: Trice site has no resolved non-zero ID")
+}
+
+// TestSelectCurrentLogEntriesSkipsUnsupportedCommentedSite limits the comment
+// exception to formats that the local target formatter cannot represent. The
+// active supported site remains selected while the documentation-only %U call
+// needs neither a bind descriptor nor a target table row.
+func TestSelectCurrentLogEntriesSkipsUnsupportedCommentedSite(t *testing.T) {
+	defer Setup(t)()
+	const key = "K6666666666666666"
+	source := filepath.Join(Proj, "unsupported-comment.c")
+	sidecarName := "trice_unsupported_comment_c_" + key + ".h"
+	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"active\"); }\n// trice(\"unicode=%U\", 'A');\n"
+	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
+	BindDir = filepath.Join(Proj, "build", "triceIDs")
+	require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
+	sidecar := "#define TRICE_BIND_FILE_KEY " + key + "\n" +
+		"#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+		"#define TRICE_BIND_SITE_" + key + "_L2 TRICE_BIND_AUTO, iD(1000u)\n"
+	require.NoError(t, FSys.WriteFile(filepath.Join(BindDir, sidecarName), []byte(sidecar), 0o644))
+	Srcs = ArrayFlag{source}
+
+	til := TriceIDLookUp{1000: {Type: "trice", Strg: "active"}}
+	selected, err := selectCurrentLogEntries(&B, FSys, til)
+	require.NoError(t, err)
+	assert.Equal(t, til, selected)
 }
 
 // TestAddCurrentLogSiteRejectsInvalidMappings exercises the fail-closed TIL

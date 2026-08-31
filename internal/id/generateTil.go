@@ -41,8 +41,12 @@ func (ilu TriceIDLookUp) toListTilC(filename string) ([]byte, error) {
 
 // triceLog stores compact receive-side facts derived from til.json.
 // bitWidth is generated because it is not present in the binary record.
-// paramCount is exact for scalar Trices; TRICE_LOG_PARAM_COUNT_DYNAMIC means
-// the record byte count controls the number of string, buffer, or ABC values.
+// paramCount is exact for scalar Trices; distinct dynamic family markers keep
+// strings, buffers, functions, and ABC records unambiguous at runtime.
+//
+// Feature guards use the target's triceConfig.h through triceRx.h. A disabled
+// row either retains only ID/shape metadata for a useful runtime diagnostic or
+// disappears completely when TRICE_LOCAL_LOG_KEEP_DISABLED_IDS is zero.
 
 #include "triceRx.h"
 
@@ -58,37 +62,137 @@ const triceLog_t triceLog[] = {
 	for id := range ilu {
 		ids = append(ids, int(id))
 	}
-	sort.Slice(ids, func(i, j int) bool {
-		a := ilu[TriceID(ids[i])]
-		b := ilu[TriceID(ids[j])]
-		if a.Strg != b.Strg {
-			return a.Strg < b.Strg
-		}
-		return ids[i] < ids[j]
-	})
+	sort.Ints(ids)
 
 	for _, n := range ids {
 		id := TriceID(n)
 		t := ilu[id]
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
 		quotedFormat := tilCFormatLiteral(t.Strg)
-		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat))...)
+		row := fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat)
+		condition := logFeatureCondition(t, bitWidth)
+		if condition == "1" {
+			text = append(text, []byte(row)...)
+			continue
+		}
+		text = append(text, []byte("#if "+condition+"\n")...)
+		text = append(text, []byte(row)...)
+		text = append(text, []byte("#elif TRICE_LOCAL_LOG_KEEP_DISABLED_IDS == 1\n")...)
+		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, 0 }, // Known ID; local feature disabled.`+"\n", t.Type, extType, id, bitWidth, paramCount))...)
+		text = append(text, []byte("#endif\n")...)
 	}
-	if len(ids) == 0 {
-		// ISO C has no zero-length arrays. The reserved ID 0 sentinel keeps the
-		// declaration portable while the public element count remains zero.
-		text = append(text, []byte("\t{ 0u, 0u, 0u, 0 }, // Portable storage for an empty generated table.\n")...)
-	}
+	// A permanent trailing sentinel makes the declaration valid even when all
+	// real rows are compiled out. It is excluded from triceLogElements.
+	text = append(text, []byte("\t{ 0u, 0u, 0u, 0 }, // Portable generated-table sentinel.\n")...)
 	text = append(text, []byte(`};
 
 // triceLogElements is used by the RX resolver to bound the generated table.
 `)...)
-	if len(ids) == 0 {
-		text = append(text, []byte("const unsigned triceLogElements = 0u;\n")...)
-	} else {
-		text = append(text, []byte("const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);\n")...)
-	}
+	text = append(text, []byte("const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]) - 1u;\n")...)
 	return text, nil
+}
+
+// logFeatureCondition maps a TIL entry to the smallest set of target-side
+// configuration switches needed to retain its format string. It consumes the
+// shared fmtspec parser result instead of growing a second printf parser in the
+// generator. Generated and runtime checks remain deliberately redundant: the
+// former saves flash while the latter protects hand-written/stale tables.
+func logFeatureCondition(t TriceFmt, bitWidth int) string {
+	category := triceTypeCategory(t.Type)
+	specs := formatSpecifierSpecs(t.Strg)
+	conditions := make([]string, 0, 8)
+	add := func(condition string) {
+		for _, existing := range conditions {
+			if existing == condition {
+				return
+			}
+		}
+		conditions = append(conditions, condition)
+	}
+
+	if info := abcTypeInfo(t.Type); info.isABC {
+		return "0"
+	}
+	switch category {
+	case "S", "N":
+		add("TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES == 1")
+		if len(specs) != 1 || (specs[0].Verb != 's' && specs[0].Verb != 'q') {
+			return "0"
+		}
+		if strings.Trim(specs[0].Flags, "-") != "" {
+			return "0"
+		}
+	case "B":
+		add("TRICE_LOCAL_LOG_USE_BUFFER_TRICES == 1")
+		if len(specs) != 1 {
+			return "0"
+		}
+	case "F":
+		return "0"
+	}
+	if bitWidth == 64 && (category == "B" || (category != "S" && category != "N" && len(specs) != 0)) {
+		add("TRICE_LOCAL_LOG_USE_64_BIT_VALUES == 1")
+	}
+
+	hasMinimalScalar := false
+	needsHook := false
+	for _, spec := range specs {
+		if spec.HasFieldWidth {
+			add("TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS == 1")
+		}
+		if spec.HasPrecision {
+			add("TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS == 1")
+		}
+		if spec.HasAltForm {
+			add("TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG == 1")
+		}
+		switch spec.Verb {
+		case 'd', 'x':
+			if spec.HasFlags || spec.HasFieldWidth || spec.HasPrecision {
+				needsHook = true
+			} else {
+				hasMinimalScalar = true
+			}
+		case 'b':
+			if strings.Trim(spec.Flags, "-0#") != "" {
+				return "0"
+			}
+			add("TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS == 1")
+		case 'O', 'p':
+			if strings.Trim(spec.Flags, "-0#") != "" {
+				return "0"
+			}
+			add("TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS == 1")
+		case 't', 'q':
+			if strings.Trim(spec.Flags, "-") != "" {
+				return "0"
+			}
+			if spec.HasPrecision && (spec.Verb == 't' || (category != "S" && category != "N")) {
+				return "0"
+			}
+			add("TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS == 1")
+		case 's':
+			if category != "S" && category != "N" {
+				return "0"
+			}
+		case 'e', 'E', 'f', 'F', 'g', 'G':
+			add("TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS == 1")
+			needsHook = true
+		case 'i', 'u', 'o', 'X', 'c':
+			needsHook = true
+		default:
+			return "0"
+		}
+	}
+	if needsHook {
+		add("TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1")
+	} else if hasMinimalScalar {
+		add("(TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1 || TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1)")
+	}
+	if len(conditions) == 0 {
+		return "1"
+	}
+	return strings.Join(conditions, " && ")
 }
 
 // tilCFormatLiteral converts the TIL-stored source spelling into a generated C
@@ -191,17 +295,17 @@ func computeLogValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth
 		if info.bitWidth == 0 {
 			return t.Type, 0, "0u"
 		}
-		return t.Type, info.bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+		return t.Type, info.bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC_ABC"
 	}
 	switch triceTypeCategory(t.Type) {
 	case "S", "N":
-		return t.Type, 8, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+		return t.Type, 8, "TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING"
 	case "B":
 		extType, bitWidth = logDynamicTypeWidth(t.Type, 1, defaultBitWidth)
-		return extType, bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+		return extType, bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC_BUFFER"
 	case "F":
 		extType, bitWidth = logDynamicTypeWidth(t.Type, 0, defaultBitWidth)
-		return extType, bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC"
+		return extType, bitWidth, "TRICE_LOG_PARAM_COUNT_DYNAMIC_FUNCTION"
 	default:
 		count := formatSpecifierCount(t.Strg)
 		extType, _ = ConstructFullTriceInfo(t.Type, count)

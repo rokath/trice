@@ -31,10 +31,17 @@ void triceLogBufferDiscardAll(void);
 #if TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1
 
 //! triceLogMinimalSigned appends one base-10 signed value without libc printf.
+#if TRICE_LOCAL_LOG_USE_64_BIT_VALUES == 1
 int triceLogMinimalSigned(char* dst, size_t size, int64_t value);
 
 //! triceLogMinimalHex appends one lowercase base-16 unsigned value.
 int triceLogMinimalHex(char* dst, size_t size, uint64_t value);
+#else
+int triceLogMinimalSigned(char* dst, size_t size, int32_t value);
+
+//! triceLogMinimalHex appends one lowercase base-16 unsigned value.
+int triceLogMinimalHex(char* dst, size_t size, uint32_t value);
+#endif
 
 #endif // TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1
 
