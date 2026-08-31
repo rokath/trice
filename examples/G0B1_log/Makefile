@@ -74,7 +74,9 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 
 # Compile the complete portable Trice source set. The upper-case SEGGER vendor
 # source is intentionally outside this simple glob and is not used here.
-C_SOURCES += $(wildcard ../../src/[a-z]*.c) build/til.c
+C_SOURCES += $(wildcard ../../src/[a-z]*.c) \
+../../_test/testdata/triceCheck.c \
+build/til.c
 
 # ASM sources
 ASM_SOURCES =  \

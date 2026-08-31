@@ -122,13 +122,18 @@ int main(void) {
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 	// nanoprintf has snprintf-compatible return semantics and is already bundled
-	// with this target. TriceLog calls it once per scalar numeric conversion.
+	// with this target. TriceLog calls it once per ordinary scalar conversion;
+	// Trice-specific conversions below use the selected internal paths.
 	UserTriceLogPrintfFn = npf_snprintf;
+	const uint16_t localLogSamples[] = {1u, 0x2au, 0x1234u};
 	trice("msg:G0B1 local logging ready\n");
 	triceS("text:runtime=[%s]\n", "hello from G0B1");
 	triceS("text:width and precision=[%-12.5s]\n", "abcdefgh");
 	trice32("float:single=%+.3f scientific=%.2e\n", aFloat(3.125f), aFloat(-0.03125f));
 	trice64("float:double=%.9f compact=%.6g\n", aDouble(3.141592653589793), aDouble(123456.0));
+	trice8("special:binary=%#b bool=%t octal=%O pointer=%p quoted=%q\n", 5u, 1u, 9u, 0xabu, 'A');
+	triceS("text:quoted=%q\n", "line 1\n\"line 2\"");
+	TRICE16_B("buffer:%04x \n", localLogSamples, sizeof(localLogSamples) / sizeof(localLogSamples[0]));
 
 	/* USER CODE END 2 */
 
@@ -326,10 +331,16 @@ void StartDefaultTask(void const* argument) {
 	/* Infinite loop */
 	for (;;) {
 #if !TRICE_OFF
-		static unsigned counter = 0;
-		trice("task:counter=%u\n", counter++);
+		// TriceCheck uses physical source line numbers as switch selectors. This
+		// mirrors G0B1_inst while extending its former 2500 limit past the current
+		// end of the shared test corpus.
+		static int index = 0;
+		if (index++ > 3200) {
+			index = 0;
+		}
+		TriceCheck(index);
 #endif
-		osDelay(500);
+		osDelay(50);
 	}
 	/* USER CODE END 5 */
 }
@@ -348,7 +359,9 @@ void StartTask02(void const* argument) {
 	/* Infinite loop */
 	for (;;) {
 #if !TRICE_OFF
-		char text[160];
+		// Static storage preserves the CubeMX-generated task stack size while
+		// accommodating the longest enabled triceCheck format strings.
+		static char text[512];
 		int length;
 		while ((length = TriceLog(text, sizeof(text))) > 0) {
 			TriceLocalUartWrite(text, (size_t)length);

@@ -4,6 +4,12 @@ This is an independent copy of `../G0B1_inst`. Its CubeMX project, hardware
 setup, FreeRTOS task names, priorities, and stack sizes remain directly
 comparable with the original example.
 
+Like `G0B1_inst`, the default task executes the shared
+`_test/testdata/triceCheck.c` producer corpus. The diagnostics task formats its
+ordinary log records locally. Command/RPC, selector-0 transport, and the few
+host-decoder-only string cases are excluded only when `TRICE_LOCAL_LOG` is
+enabled.
+
 The difference is the logging path:
 
 ```text
@@ -26,14 +32,17 @@ cd examples/G0B1_log
 ./build.sh
 ```
 
-The script runs `trice bind`, generates the filtered target table with
-`trice generate -logC`, and builds `out.gcc/G0B1_log.elf`. Generated sidecars
-and the generated C table stay below `build/`.
+The script runs `trice bind` for the application and shared test corpus,
+generates the filtered target table with `trice generate -logC`, and builds
+`out.gcc/G0B1_log.elf`. Generated sidecars and the generated C table stay below
+`build/`.
 
 Connect a serial terminal to the USART2 virtual COM port at 115200 baud to see
 the locally formatted text. No `trice log`, TIL file, or binary decoder is
 needed at runtime. The startup records demonstrate integers, a runtime `%s`,
-bounded string width/precision, a 32-bit `aFloat()` value, and a 64-bit
-`aDouble()` value. Enabling floating-point support in nanoprintf increases this
-example's code size; applications that need only integers and strings can
-disable that nanoprintf option again.
+bounded string width/precision, 32-bit `aFloat()` and 64-bit `aDouble()` values,
+Trice-specific conversions, and a buffer Trice. The matching explicit switches
+in `triceConfig.h` show which local-log capabilities are included. Enabling
+floating-point support in nanoprintf increases this example's code size;
+applications that need only integers and strings can disable both corresponding
+nanoprintf and Trice local-log options.
