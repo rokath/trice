@@ -55,6 +55,8 @@ func TestLocalLogCompilesAndRunsWithBothDeferredBuffers(t *testing.T) {
 #define TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS 1
 #define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 1
 #define TRICE_LOCAL_LOG_USE_PREFIX_HOOK 1
+#define TRICE_LOCAL_LOG_USE_ANSI_COLORS 1
+#define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 1
 #define TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN ` + buffer.transferOrder + `
 #define TRICE_DIRECT_OUTPUT 0
 #define TRICE_DIAGNOSTICS 0
@@ -98,6 +100,12 @@ const triceLog_t triceLog[] = {
     { 1031u, 16u, TRICE_LOG_PARAM_COUNT_DYNAMIC_BUFFER, "buffer:%04x \n" },
     { 1032u, 32u, 0u, NULL },
     { 1033u, 32u, 0u, "prefixed\n" },
+    { 1034u, 32u, 0u, "msg:colored\n" },
+    { 1035u, 32u, 0u, "MSG:visible\r\n" },
+    { 1036u, 32u, 0u, "unknown:plain\n" },
+    { 1037u, 32u, 0u, "def:plain\n" },
+    { 1038u, 32u, 0u, "msg:prefixed\n" },
+    { 1039u, 32u, 0u, "msg:x\n" },
 };
 const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 `
@@ -310,6 +318,33 @@ int main(void) {
     UserTriceLogPrefixFn = longPrefix;
     trice(iD(1033), "prefixed\n");
     if (check(TriceLog(small, sizeof(small)) == TRICE_LOG_ERR_OUTPUT_TOO_SMALL && small[0] == 0)) return 53;
+
+    UserTriceLogPrefixFn = NULL;
+    trice(iD(1034), "msg:colored\n");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "\x1b[0;92;40mcolored\x1b[0m\n")) return 54;
+
+    trice(iD(1035), "MSG:visible\r\n");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "\x1b[0;92;40mMSG:visible\x1b[0m\r\n")) return 55;
+
+    trice(iD(1036), "unknown:plain\n");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "unknown:plain\n")) return 56;
+
+    trice(iD(1037), "def:plain\n");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "plain\n")) return 57;
+
+    UserTriceLogPrefixFn = idPrefix;
+    trice(iD(1038), "msg:prefixed\n");
+    result = TriceLog(text, sizeof(text));
+    if (checkText(result, text, "[1038] \x1b[0;92;40mprefixed\x1b[0m\n")) return 58;
+
+    UserTriceLogPrefixFn = NULL;
+    trice(iD(1039), "msg:x\n");
+    if (check(TriceLog(small, sizeof(small)) == TRICE_LOG_ERR_OUTPUT_TOO_SMALL && small[0] == 0)) return 59;
+    if (check(TriceLog(text, sizeof(text)) == 0 && text[0] == 0)) return 60;
     return 0;
 }
 `
@@ -327,6 +362,100 @@ int main(void) {
 			output, compileErr := exec.Command(compiler, arguments...).CombinedOutput()
 			require.NoError(t, compileErr, "%s", output)
 
+			output, runErr := exec.Command(executable).CombinedOutput()
+			assert.NoError(t, runErr, "%s", output)
+		})
+	}
+}
+
+// TestLocalLogPresentationIndependentModes compiles the two presentation
+// switches independently. The complete producer test above covers both-on,
+// while the many pre-existing local-log tests cover both-off. These focused
+// variants protect the useful host-like distinctions between keeping tags,
+// stripping lower-case tags, and adding ANSI colors.
+func TestLocalLogPresentationIndependentModes(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	sourceDirectory := filepath.Join(repositoryRoot, "src")
+
+	tests := []struct {
+		name       string
+		colors     string
+		strip      string
+		input      string
+		expected   string
+		bufferSize string
+	}{
+		{
+			name:       "strip-only",
+			colors:     "0",
+			strip:      "1",
+			input:      `"msg:value\r\n"`,
+			expected:   `"value\r\n"`,
+			bufferSize: "32",
+		},
+		{
+			name:       "color-only",
+			colors:     "1",
+			strip:      "0",
+			input:      `"msg:value\r\n"`,
+			expected:   `"\x1b[0;92;40mmsg:value\x1b[0m\r\n"`,
+			bufferSize: "48",
+		},
+		{
+			name:       "utf8-lower-case-strip",
+			colors:     "0",
+			strip:      "1",
+			input:      `"\xC2\xB5s:value\n"`,
+			expected:   `"value\n"`,
+			bufferSize: "32",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			project := t.TempDir()
+			config := `// SPDX-License-Identifier: MIT
+#ifndef TRICE_CONFIG_H_
+#define TRICE_CONFIG_H_
+#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_LOCAL_LOG 1
+#define TRICE_LOCAL_LOG_USE_ANSI_COLORS ` + tc.colors + `
+#define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS ` + tc.strip + `
+#define TRICE_CONFIG_WARNINGS 0
+#endif
+`
+			mainSource := `// SPDX-License-Identifier: MIT
+#include <string.h>
+#include "trice.h"
+#include "triceLogInternal.h"
+
+int main(void) {
+    char text[` + tc.bufferSize + `] = ` + tc.input + `;
+    int result = triceLogApplyAnsiAndTagPolicy(text, sizeof(text), strlen(text));
+    const char *expected = ` + tc.expected + `;
+    return result == (int)strlen(expected) && strcmp(text, expected) == 0 ? 0 : 1;
+}
+`
+			require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
+			require.NoError(t, os.WriteFile(filepath.Join(project, "main.c"), []byte(mainSource), 0o644))
+			executable := filepath.Join(project, "local_log_presentation")
+			if runtime.GOOS == "windows" {
+				executable += ".exe"
+			}
+			output, compileErr := exec.Command(
+				compiler,
+				"-std=c11", "-Wall", "-Wextra", "-Werror",
+				"-I", project,
+				"-I", sourceDirectory,
+				filepath.Join(project, "main.c"),
+				filepath.Join(sourceDirectory, "triceLogAnsi.c"),
+				"-o", executable,
+			).CombinedOutput()
+			require.NoError(t, compileErr, "%s", output)
 			output, runErr := exec.Command(executable).CombinedOutput()
 			assert.NoError(t, runErr, "%s", output)
 		})
@@ -636,22 +765,27 @@ func TestLocalLogRejectsNonBooleanFeatureConfiguration(t *testing.T) {
 	}
 	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	require.NoError(t, err)
-	project := t.TempDir()
-	config := `// SPDX-License-Identifier: MIT
-#define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 2
-#include "triceLogDefaultConfig.h"
-`
-	require.NoError(t, os.WriteFile(filepath.Join(project, "invalid.c"), []byte(config), 0o644))
-	object := filepath.Join(project, "invalid.o")
-	output, compileErr := exec.Command(
-		compiler,
-		"-std=c11",
-		"-I", filepath.Join(repositoryRoot, "src"),
-		"-c", filepath.Join(project, "invalid.c"),
-		"-o", object,
-	).CombinedOutput()
-	require.Error(t, compileErr)
-	assert.Contains(t, string(output), "TRICE_LOCAL_LOG_USE_BUFFER_TRICES must be 0 or 1")
+	for _, option := range []string{
+		"TRICE_LOCAL_LOG_USE_BUFFER_TRICES",
+		"TRICE_LOCAL_LOG_USE_ANSI_COLORS",
+		"TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS",
+	} {
+		t.Run(option, func(t *testing.T) {
+			project := t.TempDir()
+			config := "// SPDX-License-Identifier: MIT\n#define " + option + " 2\n#include \"triceLogDefaultConfig.h\"\n"
+			require.NoError(t, os.WriteFile(filepath.Join(project, "invalid.c"), []byte(config), 0o644))
+			object := filepath.Join(project, "invalid.o")
+			output, compileErr := exec.Command(
+				compiler,
+				"-std=c11",
+				"-I", filepath.Join(repositoryRoot, "src"),
+				"-c", filepath.Join(project, "invalid.c"),
+				"-o", object,
+			).CombinedOutput()
+			require.Error(t, compileErr)
+			assert.Contains(t, string(output), option+" must be 0 or 1")
+		})
+	}
 }
 
 // TestLocalLogMinimalFormatterCompilesOut checks the no-LTO size contract of
@@ -696,4 +830,48 @@ func TestLocalLogMinimalFormatterCompilesOut(t *testing.T) {
 	symbols, symbolErr := exec.Command(nm, object).CombinedOutput()
 	require.NoError(t, symbolErr, "%s", symbols)
 	assert.NotContains(t, string(symbols), "triceLogMinimal")
+}
+
+// TestLocalLogPresentationCompilesOut checks that the separately compiled
+// presentation unit contributes no function or tag table when both switches
+// keep their defaults. This is the no-LTO size guarantee promised by the
+// configuration documentation.
+func TestLocalLogPresentationCompilesOut(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	nm, err := exec.LookPath("nm")
+	if err != nil {
+		t.Skip("no object-file symbol reader named nm available")
+	}
+	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	project := t.TempDir()
+	config := `// SPDX-License-Identifier: MIT
+#ifndef TRICE_CONFIG_H_
+#define TRICE_CONFIG_H_
+#define TRICE_BUFFER TRICE_RING_BUFFER
+#define TRICE_LOCAL_LOG 1
+#define TRICE_LOCAL_LOG_USE_ANSI_COLORS 0
+#define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 0
+#define TRICE_CONFIG_WARNINGS 0
+#endif
+`
+	require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
+	object := filepath.Join(project, "triceLogAnsi.o")
+	output, compileErr := exec.Command(
+		compiler,
+		"-std=c11", "-Wall", "-Wextra", "-Werror",
+		"-I", project,
+		"-I", filepath.Join(repositoryRoot, "src"),
+		"-c", filepath.Join(repositoryRoot, "src", "triceLogAnsi.c"),
+		"-o", object,
+	).CombinedOutput()
+	require.NoError(t, compileErr, "%s", output)
+
+	symbols, symbolErr := exec.Command(nm, object).CombinedOutput()
+	require.NoError(t, symbolErr, "%s", symbols)
+	assert.NotContains(t, string(symbols), "triceLogApplyAnsiAndTagPolicy")
+	assert.NotContains(t, string(symbols), "triceLogTagStyles")
 }

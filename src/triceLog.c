@@ -873,6 +873,11 @@ int TriceLog(char* outbuf, size_t maxlen) {
 		}
 #endif
 		int formatResult = triceLogFormatRecord(outbuf + prefixBytes, maxlen - prefixBytes, &rx);
+#if TRICE_LOCAL_LOG_USE_ANSI_COLORS == 1 || TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS == 1
+		if (formatResult >= 0) {
+			formatResult = triceLogApplyAnsiAndTagPolicy(outbuf + prefixBytes, maxlen - prefixBytes, (size_t)formatResult);
+		}
+#endif
 		if (formatResult < 0) {
 			outbuf[0] = 0;
 		} else if (formatResult > 0 && prefixBytes > (size_t)INT_MAX - (size_t)formatResult) {

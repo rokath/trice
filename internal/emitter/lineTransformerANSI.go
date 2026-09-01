@@ -124,6 +124,13 @@ type tag struct {
 }
 
 // Tags contains all usable trice Tags and their possible names.
+//
+// The optional target-side local-log hints in src/triceLogAnsi.c deliberately
+// duplicate a subset of this host presentation policy without introducing a
+// generated file or a Go dependency into the C library. Neither list is
+// authoritative for the other. Maintainers may manually synchronize aliases
+// and palette colors when matching local and host presentation is desired; the
+// C file contains the reciprocal maintenance note.
 var Tags = []tag{
 	// log level
 	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},

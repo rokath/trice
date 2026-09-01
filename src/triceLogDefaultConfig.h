@@ -158,6 +158,28 @@
 #define TRICE_LOCAL_LOG_USE_PREFIX_HOOK 0
 #endif
 
+//! TRICE_LOCAL_LOG_USE_ANSI_COLORS adds a built-in ANSI palette for recognized
+//! tags at the start of each locally formatted record.
+//!
+//! Color state is deliberately reset within the same record, before trailing
+//! CR/LF bytes. This makes the behavior robust for multiple producers and does
+//! not retain presentation state between TriceLog calls. The optional palette
+//! and tag table live in the separately compiled triceLogAnsi.c file, so a
+//! disabled option contributes no tag strings or color code without LTO.
+#ifndef TRICE_LOCAL_LOG_USE_ANSI_COLORS
+#define TRICE_LOCAL_LOG_USE_ANSI_COLORS 0
+#endif
+
+//! TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS removes a recognized all-lower-case
+//! tag and its first colon from the locally formatted record body.
+//!
+//! For example, msg:Hello becomes Hello, while MSG:Hello, Error:Hello, and an
+//! unknown foo:Hello remain unchanged. This switch is independent of ANSI
+//! colors, matching the useful distinction between host -color off and none.
+#ifndef TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS
+#define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 0
+#endif
+
 //! TRICE_LOCAL_LOG_KEEP_DISABLED_IDS keeps compact metadata rows for generated
 //! IDs whose format strings require disabled local-log features.
 //!
@@ -210,6 +232,12 @@
 #endif
 #if (TRICE_LOCAL_LOG_USE_PREFIX_HOOK != 0) && (TRICE_LOCAL_LOG_USE_PREFIX_HOOK != 1)
 #error configuration: TRICE_LOCAL_LOG_USE_PREFIX_HOOK must be 0 or 1
+#endif
+#if (TRICE_LOCAL_LOG_USE_ANSI_COLORS != 0) && (TRICE_LOCAL_LOG_USE_ANSI_COLORS != 1)
+#error configuration: TRICE_LOCAL_LOG_USE_ANSI_COLORS must be 0 or 1
+#endif
+#if (TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS != 0) && (TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS != 1)
+#error configuration: TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS must be 0 or 1
 #endif
 #if (TRICE_LOCAL_LOG_KEEP_DISABLED_IDS != 0) && (TRICE_LOCAL_LOG_KEEP_DISABLED_IDS != 1)
 #error configuration: TRICE_LOCAL_LOG_KEEP_DISABLED_IDS must be 0 or 1
