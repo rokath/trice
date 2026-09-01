@@ -39,7 +39,11 @@ generates the filtered target table with `trice generate -logC`, and builds
 
 Connect a serial terminal to the USART2 virtual COM port at 115200 baud to see
 the locally formatted text. No `trice log`, TIL file, or binary decoder is
-needed at runtime. The startup records demonstrate integers, a runtime `%s`,
+needed at runtime. Use an ANSI-capable terminal to see the configured colors;
+set `TRICE_LOCAL_LOG_USE_ANSI_COLORS` to `0` for plain text. Recognized
+lower-case tags are removed independently through
+`TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS`. The startup records demonstrate
+integers, a runtime `%s`,
 bounded string width/precision, 32-bit `aFloat()` and 64-bit `aDouble()` values,
 Trice-specific conversions, and a buffer Trice. The matching explicit switches
 in `triceConfig.h` show which local-log capabilities are included. Enabling

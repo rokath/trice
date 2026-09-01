@@ -41,6 +41,11 @@ extern "C" {
 #define TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES 1
 #define TRICE_LOCAL_LOG_USE_BUFFER_TRICES 1
 
+// Match the familiar host presentation: recognized lower-case tags disappear,
+// while their message bodies receive record-local terminal colors.
+#define TRICE_LOCAL_LOG_USE_ANSI_COLORS 1
+#define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 1
+
 // Local logging consumes ordinary binary log records. The shared TriceCheck
 // corpus also contains command/RPC and selector-0 transport tests for other
 // workflows; keep only those unrelated families disabled in this target.
