@@ -93,6 +93,8 @@ includes nanoprintf nor defines `NANOPRINTF_*` macros.
 | `TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES` | `1` | Includes bounded `triceS` and string-form `triceN`. |
 | `TRICE_LOCAL_LOG_USE_BUFFER_TRICES` | `0` | Includes `TRICE8_B` through `TRICE64_B`. |
 | `TRICE_LOCAL_LOG_USE_PREFIX_HOOK` | `0` | Declares and calls `UserTriceLogPrefixFn` before each message body. |
+| `TRICE_LOCAL_LOG_USE_ANSI_COLORS` | `0` | Colors records which begin with a recognized Trice tag. |
+| `TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` | `0` | Removes a recognized all-lower-case tag and its first colon. |
 | `TRICE_LOCAL_LOG_KEEP_DISABLED_IDS` | `1` | Keeps ID and shape metadata, but no string, for disabled generated entries. |
 
 Every switch is Boolean and invalid values fail during preprocessing. Defaults
@@ -104,6 +106,39 @@ opt-in so an existing target does not acquire avoidable code or data.
 ID whose formatter feature is off from an absent or obsolete ID. It returns
 `TRICE_LOG_ERR_FEATURE_DISABLED` for the former. Set it to `0` for the smallest
 table; such an ID then returns `TRICE_LOG_ERR_ID` because its row is absent.
+
+##### Optional tag presentation
+
+The two presentation switches are independent. With both set to `0`, local
+logging returns exactly the formatted record body as before. Enabling only
+`TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` changes `msg:Hello` to `Hello`, but
+keeps `MSG:Hello`, `Message:Hello`, and unknown `project:Hello` prefixes. The
+test is an exact match against a recognized built-in alias; arbitrary text
+before a colon is never removed.
+
+Enabling only `TRICE_LOCAL_LOG_USE_ANSI_COLORS` retains the tag and surrounds
+the complete record body with its matching ANSI Select Graphic Rendition
+sequence. Enabling both removes a recognized lower-case tag and colors the
+remaining body. A reset is inserted before trailing CR and LF bytes in every
+record. Color state therefore never crosses a `TriceLog()` call, even when
+several tasks produce records or the consumer encounters an error. An optional
+prefix hook remains outside the colored body.
+
+The target alias and palette table is in `src/triceLogAnsi.c`. It intentionally
+mirrors the established host hints in
+`internal/emitter/lineTransformerANSI.go` instead of generating a target
+dependency on Go. Reciprocal comments in those files identify the manual,
+optional synchronization point. User-defined host labels and host log-level
+filtering are not part of local presentation. Applications which compile an
+explicit source list must add `triceLogAnsi.c` when either presentation switch
+is enabled; source-wildcard builds already pick it up with the other Trice C
+files.
+
+ANSI bytes are ordinary output bytes. A compatible serial terminal interprets
+them as colors, while a redirected file retains the escape sequences. Disable
+the color switch for consumers which require plain text. When both presentation
+switches are off, the separately compiled `triceLogAnsi.c` contributes neither
+code nor its alias and palette strings, even without link-time optimization.
 
 ##### Selecting a printf implementation
 
@@ -218,9 +253,10 @@ its Flash cost.
 Dynamic function (`F`) and ABC records are not local text records and remain
 unsupported. Other deliberate exclusions are `%n`, dynamic `*`, wide `%lc` and
 `%ls`, byte-slice `%x`/`% x` formatting of dynamic string records, host
-color/tag routing, and host-side location presentation. These restrictions
-apply only to `TriceLog()` and its generated target table; they do not remove
-the corresponding records or decoder behavior from normal binary logging.
+log-level filtering, user-defined host labels, and host-side location
+presentation. These restrictions apply only to `TriceLog()` and its generated
+target table; they do not remove the corresponding records or decoder behavior
+from normal binary logging.
 
 ##### Optional prefix hook
 
