@@ -14,9 +14,8 @@ extern "C" {
 
 // hardware specific trice lib settings
 #include "main.h"
-#define TriceStamp16 TIM17->CNT    // 0...999 us
-#define TriceStamp32 HAL_GetTick() // 0...2^32-1 ms (wraps after 49.7 days)
-// #define TriceStamp32 1750507965 // Output of 'date +"%s"' at Sa 21 Jun 2025 14:12:45 CEST
+#define TriceStamp16 ((uint16_t)HAL_GetTick()) // Elapsed milliseconds modulo 65.536 seconds.
+#define TriceStamp32 HAL_GetTick()             // Elapsed milliseconds; wraps after 49.7 days.
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 16384
@@ -26,10 +25,14 @@ extern "C" {
 // Producer tasks and interrupts only append compact binary records. The idle
 // diagnostics task later formats those records locally and writes plain text
 // through USART2. No binary Trice transfer channel is enabled in this mode.
-#define TRICE_DIRECT_OUTPUT 0
+// In Windows, run "trice s" to detect the COM port number (for example 5).
+// In cmd.exe, run "mode COM5: BAUD=115200 PARITY=N DATA=8 STOP=1 XON=OFF OCTS=OFF ODSR=OFF" to setup COM port.
+// `type COM5` is suitable for ASCII only: it may split a multi-byte UTF-8 code
+// point between reads. Use a serial terminal configured for UTF-8 to see emoji.
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_LOCAL_LOG 1
 #define TRICE_LOCAL_LOG_USE_PRINTF_HOOK 1
+#define TRICE_LOCAL_LOG_USE_PREFIX_HOOK 1
 #define TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER 0
 #define TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS 1
 #define TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS 1
@@ -45,6 +48,22 @@ extern "C" {
 // while their message bodies receive record-local terminal colors.
 #define TRICE_LOCAL_LOG_USE_ANSI_COLORS 1
 #define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 1
+
+// The local prefix hook formats millisecond stamps like `trice log -ts ms` but
+// omits the "time:" label. Keeping these strings here makes the presentation a
+// target setting; the callback in main.c only supplies the calculated fields.
+// STAMP16 receives seconds and milliseconds; STAMP32 receives hours, minutes,
+// seconds, and milliseconds, in that order.
+#if TRICE_LOCAL_LOG_USE_ANSI_COLORS == 1
+#define TRICE_LOCAL_LOG_STAMP_COLOR "\x1b[0;7;34;103m"
+#define TRICE_LOCAL_LOG_STAMP_RESET "\x1b[0m"
+#else
+#define TRICE_LOCAL_LOG_STAMP_COLOR ""
+#define TRICE_LOCAL_LOG_STAMP_RESET ""
+#endif
+#define TRICE_LOCAL_LOG_STAMP0_FORMAT "            "
+#define TRICE_LOCAL_LOG_STAMP16_FORMAT "      %2u,%03u"
+#define TRICE_LOCAL_LOG_STAMP32_FORMAT "%2lu:%02lu:%02lu,%03lu"
 
 // Local logging consumes ordinary binary log records. The shared TriceCheck
 // corpus also contains command/RPC and selector-0 transport tests for other

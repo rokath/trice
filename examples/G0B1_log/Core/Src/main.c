@@ -68,7 +68,7 @@ void StartDefaultTask(void const* argument);
 void StartTask02(void const* argument);
 
 /* USER CODE BEGIN PFP */
-
+static int TriceLocalStampPrefix(char*, size_t, uint16_t, uint8_t, uint32_t);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -121,10 +121,10 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
-	// nanoprintf has snprintf-compatible return semantics and is already bundled
-	// with this target. TriceLog calls it once per ordinary scalar conversion;
-	// Trice-specific conversions below use the selected internal paths.
+	// nanoprintf has the snprintf semantics required by both local-log hooks.
+	// Trice-specific conversions use the selected internal formatter paths.
 	UserTriceLogPrintfFn = npf_snprintf;
+	UserTriceLogPrefixFn = TriceLocalStampPrefix;
 	const uint16_t localLogSamples[] = {1u, 0x2au, 0x1234u};
 	trice("msg:G0B1 local logging ready\n");
 	triceS("text:runtime=[%s]\n", "hello from G0B1");
@@ -315,6 +315,38 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+// TriceLocalStampPrefix converts the millisecond stamps using the display policy
+// selected in triceConfig.h. Unstamped records retain twelve-column alignment.
+static int TriceLocalStampPrefix(char* buffer, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp) {
+	(void)id;
+	switch (stampBits) {
+	case 0u:
+		return npf_snprintf(buffer, size, TRICE_LOCAL_LOG_STAMP0_FORMAT " ");
+	case 16u: {
+		unsigned int milliseconds = (unsigned int)(uint16_t)stamp % 1000u;
+		unsigned int seconds = (unsigned int)(uint16_t)stamp / 1000u;
+		return npf_snprintf(buffer, size,
+		                    TRICE_LOCAL_LOG_STAMP_COLOR TRICE_LOCAL_LOG_STAMP16_FORMAT TRICE_LOCAL_LOG_STAMP_RESET " ", seconds,
+		                    milliseconds);
+	}
+	case 32u: {
+		uint32_t milliseconds = stamp % 1000u;
+		uint32_t totalSeconds = stamp / 1000u;
+		uint32_t seconds = totalSeconds % 60u;
+		uint32_t totalMinutes = totalSeconds / 60u;
+		uint32_t minutes = totalMinutes % 60u;
+		uint32_t hours = totalMinutes / 60u;
+		return npf_snprintf(buffer, size,
+		                    TRICE_LOCAL_LOG_STAMP_COLOR TRICE_LOCAL_LOG_STAMP32_FORMAT TRICE_LOCAL_LOG_STAMP_RESET " ",
+		                    (unsigned long)hours, (unsigned long)minutes, (unsigned long)seconds, (unsigned long)milliseconds);
+	}
+	default:
+		if (size != 0u) {
+			buffer[0] = '\0';
+		}
+		return -1;
+	}
+}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartDefaultTask */

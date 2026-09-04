@@ -5,7 +5,7 @@
 	},
 	"1101": {
 		"File": "Core/Src/main.c",
-		"Line": 330
+		"Line": 362
 	},
 	"1102": {
 		"File": "Core/Src/main.c",
@@ -13,7 +13,7 @@
 	},
 	"1103": {
 		"File": "Core/Src/main.c",
-		"Line": 358
+		"Line": 390
 	},
 	"1104": {
 		"File": "Core/Src/stm32g0xx_it.c",
