@@ -229,11 +229,15 @@ done
 # 4) Run TRICE scripts
 # ------------------------------------------------------------------------------
 
-# An outer test wrapper owns Insert/Bind preparation and exact restoration. A
-# direct user invocation keeps the historical local Insert/Clean lifecycle.
-if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
-  echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"
-else
+# Bound sources need generated sidecar headers and their include path even when
+# this script is called directly instead of through the aggregate test wrapper.
+# shellcheck source=../prepareTriceBind.sh
+source "${ROOT}/examples/prepareTriceBind.sh"
+prepare_trice_bind_build "${ROOT}"
+
+# A managed test wrapper or the direct Bind preparation owns the source state.
+# Only the legacy fallback needs to modify and later restore the sources.
+if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" != "1" ]; then
   cd "${ROOT}"
   bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
 
@@ -257,11 +261,23 @@ source "${ROOT}/scripts/_150_setup_build_environment.sh"
 # Ensure we build from the example directory, where the Makefile is expected.
 cd "${SCRIPT_DIR}"
 
-# Command-line defines passed through TRICE_FLAGS change the preprocessor result.
-# Make does not automatically know that all affected objects must be rebuilt
-# when only TRICE_FLAGS changes. Avoid linking stale objects from a previous
-# matrix entry.
-make clean
+# Make cannot detect command-line define or ID-workflow changes from object
+# dependencies. Record both inputs beside the objects and clean only when that
+# build signature changes. A missing signature beside existing objects is
+# treated as unknown state and therefore triggers one compatibility clean.
+build_state_dir="${SCRIPT_DIR}/out.gcc"
+build_signature_file="${build_state_dir}/.trice-build-signature"
+build_signature="workflow=${TRICE_ID_WORKFLOW:-legacy};flags=${flags}"
+previous_build_signature=""
+if [ -f "${build_signature_file}" ]; then
+  IFS= read -r previous_build_signature <"${build_signature_file}" || true
+fi
+if [ -d "${build_state_dir}" ] && [ "${previous_build_signature}" != "${build_signature}" ]; then
+  echo "Build configuration changed; cleaning out.gcc"
+  make clean
+fi
+mkdir -p "${build_state_dir}"
+printf '%s\n' "${build_signature}" >"${build_signature_file}"
 
 # We translate here with inserted IDs in the normal case, and without inserted IDs
 # in the TRICE_OFF=1 case. In both cases, we expect no warnings.
@@ -292,6 +308,8 @@ if [ "${triceOFF}" = "1" ]; then
   cd "${SCRIPT_DIR}"
 
   make clean
+  mkdir -p "${build_state_dir}"
+  printf '%s\n' "${build_signature}" >"${build_signature_file}"
   make ${MAKE_JOBS} TRICE_FLAGS="${flags}" gcc
 fi
 

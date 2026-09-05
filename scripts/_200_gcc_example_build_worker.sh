@@ -25,6 +25,46 @@ clean_all_targets() {
   "$ROOT/examples/cleanAllTargets.sh"
 }
 
+# run_standalone_bind_examples validates every public example entry point whose
+# checked-in sources include generated Bind headers. Scrubbing the outer
+# workflow variables reproduces a direct invocation from a fresh shell.
+run_standalone_bind_examples() {
+  local entry
+  local entry_log
+  local failed=0
+  local status
+  local entries=(
+    "DemoData_Trice/build.sh"
+    "PC_log/build_and_run.sh"
+    "G0B1_log/build.sh"
+    "F030_inst/build.sh"
+    "G0B1_inst/build.sh"
+    "L432_inst/build.sh"
+  )
+
+  for entry in "${entries[@]}"; do
+    printf '+ standalone examples/%s\n' "$entry"
+    entry_log="$LOGFILE.standalone.${entry%/*}"
+    if (
+      unset C_INCLUDE_PATH CPLUS_INCLUDE_PATH CPATH OBJC_INCLUDE_PATH
+      unset TRICE_BIND_INCLUDE_DIR TRICE_ID_WORKFLOW_OWNER TRICE_ID_WORKFLOW
+      cd "$ROOT/examples/${entry%/*}" || exit 1
+      "./${entry##*/}"
+    ) >"$entry_log" 2>&1; then
+      continue
+    else
+      status=$?
+    fi
+    cat "$entry_log"
+    printf 'FAIL: standalone examples/%s exited with status %d\n' "$entry" "$status" >&2
+    failed=1
+  done
+
+  if [ "$failed" -ne 0 ]; then
+    return 2
+  fi
+}
+
 # run_on_matrix executes one representative Bound GCC build in quick mode. Full
 # mode retains the historical G0B1 X0 matrix and complete TRICE_ON target list.
 # ID preparation remains owned by the calling workflow wrapper in both modes.
@@ -85,6 +125,15 @@ main() {
       return 2
       ;;
   esac
+  if [ "$mode" = "on" ] && [ "$selected" = "full" ]; then
+    clean_all_targets
+    if ! run_standalone_bind_examples; then
+      clean_all_targets
+      return 2
+    fi
+    clean_all_targets
+  fi
+
   # shellcheck source=./_150_setup_build_environment.sh
   source "$SCRIPT_DIR/_150_setup_build_environment.sh"
   printf '+ arm-none-eabi-gcc --version\n'
