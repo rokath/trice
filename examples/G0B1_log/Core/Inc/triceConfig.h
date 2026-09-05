@@ -14,8 +14,8 @@ extern "C" {
 
 // hardware specific trice lib settings
 #include "main.h"
-#define TriceStamp16 ((uint16_t)HAL_GetTick()) // Elapsed milliseconds modulo 65.536 seconds.
-#define TriceStamp32 HAL_GetTick()             // Elapsed milliseconds; wraps after 49.7 days.
+#define TriceStamp16 TIM17->CNT    // 0...999 us, matching G0B1_inst.
+#define TriceStamp32 HAL_GetTick() // Elapsed milliseconds; wraps after 49.7 days.
 
 #define TRICE_BUFFER TRICE_RING_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 16384
@@ -49,11 +49,9 @@ extern "C" {
 #define TRICE_LOCAL_LOG_USE_ANSI_COLORS 1
 #define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 1
 
-// The local prefix hook formats millisecond stamps like `trice log -ts ms` but
-// omits the "time:" label. Keeping these strings here makes the presentation a
-// target setting; the callback in main.c only supplies the calculated fields.
-// STAMP16 receives seconds and milliseconds; STAMP32 receives hours, minutes,
-// seconds, and milliseconds, in that order.
+// Match `trice log -ts16 us -ts32 ms` without its stripped "time:" tag.
+// TIM17 supplies the 0...999 microseconds after the millisecond boundary.
+// STAMP32 receives hours, minutes, seconds, and milliseconds, in that order.
 #if TRICE_LOCAL_LOG_USE_ANSI_COLORS == 1
 #define TRICE_LOCAL_LOG_STAMP_COLOR "\x1b[0;7;34;103m"
 #define TRICE_LOCAL_LOG_STAMP_RESET "\x1b[0m"
@@ -62,7 +60,7 @@ extern "C" {
 #define TRICE_LOCAL_LOG_STAMP_RESET ""
 #endif
 #define TRICE_LOCAL_LOG_STAMP0_FORMAT "            "
-#define TRICE_LOCAL_LOG_STAMP16_FORMAT "      %2u,%03u"
+#define TRICE_LOCAL_LOG_STAMP16_FORMAT "       0_%03u"
 #define TRICE_LOCAL_LOG_STAMP32_FORMAT "%2lu:%02lu:%02lu,%03lu"
 
 // Local logging consumes ordinary binary log records. The shared TriceCheck

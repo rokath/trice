@@ -1,11 +1,11 @@
 {
 	"1100": {
 		"File": "Core/Src/main.c",
-		"Line": 129
+		"Line": 132
 	},
 	"1101": {
 		"File": "Core/Src/main.c",
-		"Line": 362
+		"Line": 369
 	},
 	"1102": {
 		"File": "Core/Src/main.c",
@@ -13,7 +13,7 @@
 	},
 	"1103": {
 		"File": "Core/Src/main.c",
-		"Line": 390
+		"Line": 397
 	},
 	"1104": {
 		"File": "Core/Src/stm32g0xx_it.c",
@@ -21,19 +21,19 @@
 	},
 	"1105": {
 		"File": "Core/Src/main.c",
-		"Line": 130
+		"Line": 133
 	},
 	"1106": {
 		"File": "Core/Src/main.c",
-		"Line": 131
+		"Line": 134
 	},
 	"1107": {
 		"File": "Core/Src/main.c",
-		"Line": 132
+		"Line": 135
 	},
 	"1108": {
 		"File": "Core/Src/main.c",
-		"Line": 133
+		"Line": 136
 	},
 	"1109": {
 		"File": "../../_test/testdata/triceCheck.c",
@@ -793,15 +793,15 @@
 	},
 	"1298": {
 		"File": "Core/Src/main.c",
-		"Line": 134
+		"Line": 137
 	},
 	"1299": {
 		"File": "Core/Src/main.c",
-		"Line": 135
+		"Line": 138
 	},
 	"1300": {
 		"File": "Core/Src/main.c",
-		"Line": 136
+		"Line": 139
 	},
 	"13028": {
 		"File": "../../_test/testdata/triceCheck.c",

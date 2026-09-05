@@ -61,7 +61,7 @@ int main(void) {
 	}
 	return 0;
 }
-
+static int localLogLineStart = 1; // Keeps record prefixes aligned with logical output lines.
 // TriceDemoMilliseconds returns elapsed demo time. Unsigned subtraction makes
 // the Windows tick-count wrap well-defined; the POSIX fallback restarts at zero
 // if an external wall-clock correction moves the clock backwards.
@@ -91,9 +91,31 @@ uint32_t TriceDemoMilliseconds(void) {
 #endif
 }
 
+// TriceDemoMicrosecondOffset mirrors the free-running 0...999 us TIM17 stamp
+// used by G0B1_inst. Only the position inside the current millisecond matters.
+uint16_t TriceDemoMicrosecondOffset(void) {
+#if defined(_WIN32)
+	LARGE_INTEGER counter;
+	LARGE_INTEGER frequency;
+	if (QueryPerformanceCounter(&counter) == 0 || QueryPerformanceFrequency(&frequency) == 0 || frequency.QuadPart <= 0) {
+		return 0u;
+	}
+	return (uint16_t)(((uint64_t)(counter.QuadPart % frequency.QuadPart) * 1000000u / (uint64_t)frequency.QuadPart) % 1000u);
+#else
+	struct timeval currentTime;
+	if (gettimeofday(&currentTime, NULL) != 0) {
+		return 0u;
+	}
+	return (uint16_t)((uint32_t)currentTime.tv_usec % 1000u);
+#endif
+}
+
 // writeLocalLog bypasses narrow Windows console conversion. Real consoles get
 // UTF-16; pipes and redirected files keep the original UTF-8 bytes.
 static void writeLocalLog(const char* text, size_t length) {
+	if (length != 0u) {
+		localLogLineStart = text[length - 1u] == '\n' || text[length - 1u] == '\r';
+	}
 #if defined(_WIN32)
 	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (output != NULL && output != INVALID_HANDLE_VALUE) {
@@ -114,19 +136,23 @@ static void writeLocalLog(const char* text, size_t length) {
 	(void)fwrite(text, 1u, length, stdout);
 }
 
-// stampPrefix converts the millisecond stamps using the display policy selected
-// in triceConfig.h. Unstamped records retain the same twelve-column alignment.
+// stampPrefix mirrors the G0B1_inst host presentation at logical line starts.
+// Unstamped records retain the same twelve-column alignment as stamped records.
 static int stampPrefix(char* buffer, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp) {
 	(void)id;
+	if (localLogLineStart == 0) {
+		if (size != 0u) {
+			buffer[0] = '\0';
+		}
+		return 0;
+	}
 	switch (stampBits) {
 	case 0u:
 		return snprintf(buffer, size, TRICE_LOCAL_LOG_STAMP0_FORMAT " ");
 	case 16u: {
-		unsigned int milliseconds = (unsigned int)(uint16_t)stamp % 1000u;
-		unsigned int seconds = (unsigned int)(uint16_t)stamp / 1000u;
 		return snprintf(buffer, size,
-		                TRICE_LOCAL_LOG_STAMP_COLOR TRICE_LOCAL_LOG_STAMP16_FORMAT TRICE_LOCAL_LOG_STAMP_RESET " ", seconds,
-		                milliseconds);
+		                TRICE_LOCAL_LOG_STAMP_COLOR TRICE_LOCAL_LOG_STAMP16_FORMAT TRICE_LOCAL_LOG_STAMP_RESET " ",
+		                (unsigned int)(uint16_t)stamp);
 	}
 	case 32u: {
 		uint32_t milliseconds = stamp % 1000u;

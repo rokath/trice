@@ -57,7 +57,7 @@ osThreadId defaultTaskHandle;
 osThreadId myTask02_DiagnoHandle;
 /* USER CODE BEGIN PV */
 int LoopCount = 0;
-
+static int TriceLocalLogLineStart = 1; // Keeps record prefixes aligned with logical output lines.
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,6 +85,9 @@ static void TriceLocalUartWrite(const char* text, size_t length) {
 		while (!LL_USART_IsActiveFlag_TXE_TXFNF(USART2)) {
 		}
 		LL_USART_TransmitData8(USART2, (uint8_t)text[index]);
+	}
+	if (length != 0u) {
+		TriceLocalLogLineStart = text[length - 1u] == '\n' || text[length - 1u] == '\r';
 	}
 }
 
@@ -315,19 +318,23 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
-// TriceLocalStampPrefix converts the millisecond stamps using the display policy
-// selected in triceConfig.h. Unstamped records retain twelve-column alignment.
+// TriceLocalStampPrefix mirrors the G0B1_inst host presentation at logical line
+// starts. Unstamped records retain twelve-column alignment.
 static int TriceLocalStampPrefix(char* buffer, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp) {
 	(void)id;
+	if (TriceLocalLogLineStart == 0) {
+		if (size != 0u) {
+			buffer[0] = '\0';
+		}
+		return 0;
+	}
 	switch (stampBits) {
 	case 0u:
 		return npf_snprintf(buffer, size, TRICE_LOCAL_LOG_STAMP0_FORMAT " ");
 	case 16u: {
-		unsigned int milliseconds = (unsigned int)(uint16_t)stamp % 1000u;
-		unsigned int seconds = (unsigned int)(uint16_t)stamp / 1000u;
 		return npf_snprintf(buffer, size,
-		                    TRICE_LOCAL_LOG_STAMP_COLOR TRICE_LOCAL_LOG_STAMP16_FORMAT TRICE_LOCAL_LOG_STAMP_RESET " ", seconds,
-		                    milliseconds);
+		                    TRICE_LOCAL_LOG_STAMP_COLOR TRICE_LOCAL_LOG_STAMP16_FORMAT TRICE_LOCAL_LOG_STAMP_RESET " ",
+		                    (unsigned int)(uint16_t)stamp);
 	}
 	case 32u: {
 		uint32_t milliseconds = stamp % 1000u;

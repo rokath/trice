@@ -5,11 +5,11 @@
 
 #include <stdint.h>
 
-// Both stamp widths carry elapsed milliseconds. The implementation in main.c
-// uses the native monotonic millisecond source on Windows and elapsed wall time
-// on POSIX hosts; narrowing to 16 bits deliberately preserves Trice semantics.
+// Match G0B1_inst: 16-bit stamps are microsecond offsets inside a millisecond,
+// while 32-bit stamps carry elapsed milliseconds.
+uint16_t TriceDemoMicrosecondOffset(void);
 uint32_t TriceDemoMilliseconds(void);
-#define TriceStamp16 ((uint16_t)TriceDemoMilliseconds())
+#define TriceStamp16 TriceDemoMicrosecondOffset()
 #define TriceStamp32 TriceDemoMilliseconds()
 
 // Store short binary records quickly in the producer context. TriceLog reads
@@ -38,11 +38,9 @@ uint32_t TriceDemoMilliseconds(void);
 #define TRICE_LOCAL_LOG_USE_ANSI_COLORS 1
 #define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 1
 
-// The local prefix hook formats millisecond stamps like `trice log -ts ms` but
-// omits the "time:" label. Keeping these strings here makes the presentation a
-// target setting; the callback in main.c only supplies the calculated fields.
-// STAMP16 receives seconds and milliseconds; STAMP32 receives hours, minutes,
-// seconds, and milliseconds, in that order.
+// Match `trice log -ts16 us -ts32 ms` without its stripped "time:" tag.
+// STAMP16 receives the 0...999 microseconds after the millisecond boundary.
+// STAMP32 receives hours, minutes, seconds, and milliseconds, in that order.
 #if TRICE_LOCAL_LOG_USE_ANSI_COLORS == 1
 #define TRICE_LOCAL_LOG_STAMP_COLOR "\x1b[0;7;34;103m"
 #define TRICE_LOCAL_LOG_STAMP_RESET "\x1b[0m"
@@ -51,7 +49,7 @@ uint32_t TriceDemoMilliseconds(void);
 #define TRICE_LOCAL_LOG_STAMP_RESET ""
 #endif
 #define TRICE_LOCAL_LOG_STAMP0_FORMAT "            "
-#define TRICE_LOCAL_LOG_STAMP16_FORMAT "      %2u,%03u"
+#define TRICE_LOCAL_LOG_STAMP16_FORMAT "       0_%03u"
 #define TRICE_LOCAL_LOG_STAMP32_FORMAT "%2lu:%02lu:%02lu,%03lu"
 
 // Local logging consumes ordinary binary log records. The shared TriceCheck
