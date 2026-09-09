@@ -40,6 +40,24 @@ summary_line() {
   printf '%s\n' "$1"
 }
 
+# clear_previous_test_logs removes only flat, runner-owned outputs. Recovery
+# snapshots and unrelated files are deliberately retained, including after an
+# interrupted run. Do this once before the new summary, never in a step script.
+clear_previous_test_logs() {
+  local file
+  local removed=0
+  for file in "$LOG_DIR"/_testAll_*.log* "$LOG_DIR"/_[0-9][0-9][0-9]_test_*.log* \
+    "$LOG_DIR/testAll_summary.log" "$LOG_DIR/format_shell_scripts.log" "$LOG_DIR/coverage.out"; do
+    [ -f "$file" ] && [ ! -L "$file" ] || continue
+    rm -f -- "$file" || {
+      printf 'FAIL: could not remove previous test log: %s\n' "$file" >&2
+      return 1
+    }
+    removed=$((removed + 1))
+  done
+  printf 'INFO: removed %d previous test log files from %s; recovery directories retained.\n' "$removed" "$LOG_DIR"
+}
+
 # progress_spinner provides a quiet life sign for long-running steps. It only
 # runs on an interactive terminal and rewrites one line, so redirected output
 # and CI logs never receive repeated spinner frames.
@@ -112,14 +130,14 @@ run_step() {
     "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step"
   if [ "$rc" -eq 0 ]; then
     step_log="$LOG_DIR/$(basename "$step" .sh).log"
-    if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP: .*not installed)' "$step_log"; then
+    if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
       printf 'WARN\n' >>"$SUMMARY_LOG"
       printf '%sWARN%s\n' "$WARN_COLOR" "$RESET_COLOR"
       # Surface tool-related skip details that would otherwise only be visible
       # in the per-step log during a quiet aggregate test run.
       while IFS= read -r warning; do
         summary_line "  $warning"
-      done < <(grep -E '^(MISSING TOOL:|SKIP: .*not installed)' "$step_log")
+      done < <(grep -E '^(MISSING TOOL:|SKIP:)' "$step_log")
     else
       printf 'PASS\n' >>"$SUMMARY_LOG"
       printf '%sPASS%s\n' "$PASS_COLOR" "$RESET_COLOR"
@@ -131,6 +149,9 @@ run_step() {
         done < <(grep -E '^Hint:' "$step_log")
       fi
     fi
+  elif [ "$rc" -eq 130 ] || [ "$rc" -eq 143 ]; then
+    printf 'ABORTED\n' >>"$SUMMARY_LOG"
+    printf '%sABORTED%s\n' "$WARN_COLOR" "$RESET_COLOR"
   else
     printf 'FAIL\n' >>"$SUMMARY_LOG"
     printf '%sFAIL%s\n' "$FAIL_COLOR" "$RESET_COLOR"
@@ -246,8 +267,15 @@ parse_test_all_arguments() {
 # failure immediately; --no-stop converts that control result to success so the
 # caller can continue while retaining the failed final status.
 run_step_with_policy() {
-  if run_step "$@"; then
+  local rc=0
+  run_step "$@" || rc=$?
+  if [ "$rc" -eq 0 ]; then
     return 0
+  fi
+  # --no-stop continues after test failures, not after a user's cancellation.
+  if [ "$rc" -eq 130 ] || [ "$rc" -eq 143 ]; then
+    TEST_ALL_ABORTED="$rc"
+    return "$rc"
   fi
   TEST_ALL_FAILED=1
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
@@ -304,6 +332,7 @@ main() {
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
   TEST_ALL_FAILED=0
+  TEST_ALL_ABORTED=0
   export TRICE_TEST_NO_STOP="$TEST_ALL_NO_STOP"
   export SELECTED="$selected"
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
@@ -311,6 +340,7 @@ main() {
   started_at=$(date +%s)
   # initial_tracked_status="$(tracked_worktree_status)"
 
+  clear_previous_test_logs || exit 1
   : >"$SUMMARY_LOG"
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
@@ -345,7 +375,9 @@ main() {
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
-  if [ "$TEST_ALL_FAILED" -eq 0 ]; then
+  if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
+    summary_line "Result: ABORTED (signal exit status $TEST_ALL_ABORTED)"
+  elif [ "$TEST_ALL_FAILED" -eq 0 ]; then
     summary_line "Result: PASS"
   else
     summary_line "Result: FAIL"
@@ -353,6 +385,9 @@ main() {
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"
 
+  if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
+    exit "$TEST_ALL_ABORTED"
+  fi
   exit "$TEST_ALL_FAILED"
 }
 

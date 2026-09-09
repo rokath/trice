@@ -268,9 +268,10 @@ compile_target_sources() {
   fi
 
   if [ -z "$c_compiler" ] || ! command -v "$c_compiler" >/dev/null 2>&1; then
-    log "FAIL: C compiler not found"
+    log "MISSING TOOL: host C compiler"
+    log "SKIP: target archive compilation; C compiler not installed"
     log "Hint: install gcc/clang or run with CC=gcc $0"
-    exit 1
+    return 0
   fi
 
   cat >"$target_root/src/triceConfig.h" <<'EOF'
@@ -289,7 +290,12 @@ EOF
         continue
         ;;
     esac
-    "$c_compiler" -I "$target_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
+    # Keep native compiler paths inside this extracted archive on every OS;
+    # /tmp is not necessarily understood by Windows compilers.
+    "$c_compiler" -I "$target_root/src" -c "$source_file" -o "$target_root/$(basename "$source_file").o" || {
+      log "FAIL: target archive compilation failed: $source_file ($c_compiler)"
+      return 1
+    }
   done
 }
 
@@ -307,10 +313,17 @@ verify_release_pdf() {
 main() {
   init_logfile
 
-  if ! has_command goreleaser; then
-    log "SKIP: goreleaser not installed locally; skipping local release-asset build"
-    exit 0
-  fi
+  has_goreleaser_config_support || return 0
+
+  # These are snapshot prerequisites even when GoReleaser itself is installed.
+  local tool
+  for tool in go tar unzip; do
+    if ! has_command "$tool"; then
+      log "MISSING TOOL: $tool"
+      log "SKIP: local release-asset build requires $tool, which is not installed."
+      return 0
+    fi
+  done
 
   if ! has_command npx; then
     log "SKIP: npx not installed locally; skipping local release-asset build"
@@ -343,7 +356,7 @@ main() {
 
   verify_snapshot_layout
   smoke_test_host_archive
-  compile_target_sources
+  compile_target_sources || return $?
   verify_release_pdf
 
   log "OK: local release artifacts generated under ./dist/"

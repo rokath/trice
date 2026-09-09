@@ -15,6 +15,7 @@ source "$SCRIPT_DIR/_100_test_common.sh"
 main() {
   local shell_files=()
   local file
+  local shebang
 
   init_logfile
 
@@ -28,6 +29,15 @@ main() {
   # influence the result of a pre-PR check.
   while IFS= read -r file; do
     if [ -n "$file" ] && [ -f "$file" ]; then
+      # ShellCheck has no zsh/fish parser. Do not reinterpret those scripts as
+      # Bash just to silence SC1071; report the unsupported dialect explicitly.
+      IFS= read -r shebang <"$file" || true
+      case "$shebang" in
+        '#!'*zsh* | '#!'*fish*)
+          log "SKIP: ShellCheck does not support this interpreter: $file ($shebang)"
+          continue
+          ;;
+      esac
       shell_files+=("$file")
     fi
   done < <(git ls-files '*.sh')

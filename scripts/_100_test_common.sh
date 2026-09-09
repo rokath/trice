@@ -40,6 +40,7 @@ cd "$ROOT" || exit 1
 # for normal local runs.
 mkdir -p "./temp/log" "./.gocache"
 LOG_DIR="${LOG_DIR:-$(cd "./temp/log" && pwd)}"
+mkdir -p "$LOG_DIR"
 
 # Support a quiet mode for aggregated testAll runs:
 # - direct step invocation: keep terminal output plus logfile output
@@ -118,6 +119,37 @@ log_pipe() {
 has_command() {
   # command -v checks whether a tool name exists in PATH.
   command -v "$1" >/dev/null 2>&1
+}
+
+# has_goreleaser_config_support shares the optional prerequisite between config
+# validation and snapshot builds. Old releases cannot read homebrew_casks; their
+# absence of schema support is not a project failure. Real check/build errors
+# from a supported release still propagate from run_cmd.
+has_goreleaser_config_support() {
+  local version
+  local major
+  local minor
+  if ! has_command goreleaser; then
+    log "MISSING TOOL: goreleaser"
+    log "SKIP: goreleaser not installed locally"
+    return 1
+  fi
+  version="$(goreleaser --version 2>/dev/null | awk '/GitVersion:/ { print $2; exit }')"
+  version="${version#v}"
+  major="${version%%.*}"
+  minor="${version#*.}"
+  minor="${minor%%.*}"
+  case "$major:$minor" in
+    *[!0-9:]* | :* | *:) ;;
+    *)
+      if [ "$major" -gt 2 ] || { [ "$major" -eq 2 ] && [ "$minor" -ge 10 ]; }; then
+        log "INFO: GoReleaser $version ($(command -v goreleaser))"
+        return 0
+      fi
+      ;;
+  esac
+  log "SKIP: GoReleaser >= 2.10 is needed for homebrew_casks; detected ${version:-unknown} ($(command -v goreleaser))."
+  return 1
 }
 
 grep_log() {

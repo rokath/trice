@@ -39,9 +39,21 @@ case "$(uname -s)" in
   MINGW* | MSYS* | CYGWIN*) suffix=".exe" ;;
 esac
 
+# A range such as [a-z] also matches uppercase letters in some locales. Exclude
+# the embedded-only RTT transport explicitly: this host example needs neither
+# SEGGER_RTT_Conf.h nor an installed SEGGER/J-Link tool.
+set --
+for source_file in ../../src/*.c; do
+  case "$source_file" in
+    */SEGGER_RTT.c) continue ;;
+  esac
+  set -- "$@" "$source_file"
+done
+echo "INFO: PC_log uses local output; SEGGER RTT sources, SEGGER_RTT_Conf.h and J-Link tools are not required."
+
 "$compiler" -std=c11 -Wall -Wextra -Werror \
   -I. -Ibuild/triceIDs -I../../src \
-  main.c ../../_test/testdata/triceCheck.c build/til.c ../../src/[a-z]*.c \
+  main.c ../../_test/testdata/triceCheck.c build/til.c "$@" \
   -o "build/pc_log${suffix}"
 
 "./build/pc_log${suffix}"
