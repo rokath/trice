@@ -1,3 +1,5 @@
 # .markdownlintignore
 # Ignore all Drivers folders under examples/*
 examples/**/Drivers/**
+# Ignore generated tools, logs, and other disposable test artifacts.
+temp/**

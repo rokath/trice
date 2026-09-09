@@ -23,7 +23,7 @@
 typedef struct {
 	const char* aliases; //!< Pipe-separated exact aliases; first table match wins.
 #if TRICE_LOCAL_LOG_USE_ANSI_COLORS == 1
-	const char* ansi;    //!< ANSI Select Graphic Rendition sequence, or empty.
+	const char* ansi; //!< ANSI Select Graphic Rendition sequence, or empty.
 #endif
 } triceLogTagStyle_t;
 
@@ -39,34 +39,34 @@ typedef struct {
 // occur in more than one group (notably w, rx, tx, and s); matching the first
 // group preserves the host's established precedence.
 static const triceLogTagStyle_t triceLogTagStyles[] = {
-	TRICE_LOG_TAG_STYLE("Fatal|fatal|FATAL", "\x1b[0;1;35;41m"),
-	TRICE_LOG_TAG_STYLE("crit|Critical|critical|CRITICAL|Crit|CRIT", "\x1b[0;7;31;109m"),
-	TRICE_LOG_TAG_STYLE("em|Emergency|emergency|EMERGENCY", "\x1b[0;7;31;44m"),
-	TRICE_LOG_TAG_STYLE("e|Error|err|error|E|ERR|ERROR", "\x1b[0;38;5;11;41m"),
-	TRICE_LOG_TAG_STYLE("w|wrn|Warning|warning|W|WRN|WARNING|Warn|warn|WARN", "\x1b[0;7;38;5;11;41m"),
-	TRICE_LOG_TAG_STYLE("att|attention|Attention|ATT|ATTENTION", "\x1b[0;38;5;11;42m"),
-	TRICE_LOG_TAG_STYLE("i|inf|info|Info|informal|I|INF|INFO|INFORMAL", "\x1b[0;1;36;109m"),
-	TRICE_LOG_TAG_STYLE("d|db|Debug|dbg|deb|debug|D|DB|DBG|DEBUG", "\x1b[0;7;38;5;130m"),
-	TRICE_LOG_TAG_STYLE("tr|Trace|trace|TRACE", "\x1b[0;7;39;109m"),
-	TRICE_LOG_TAG_STYLE("tim|time|Time|TIM|TIME|TIMESTAMP|timestamp|Timestamp", "\x1b[0;7;34;103m"),
-	TRICE_LOG_TAG_STYLE("m|msg|message|M|MSG|MESSAGE|OK", "\x1b[0;92;40m"),
-	TRICE_LOG_TAG_STYLE("r|rx|rd|read|rd_|RD|RD_|READ", "\x1b[0;7;30;103m"),
-	TRICE_LOG_TAG_STYLE("w|tx|wr|write|wr_|WR|WR_|WRITE", "\x1b[0;4;30;103m"),
-	TRICE_LOG_TAG_STYLE("rx|receive|RECEIVE|Receive|RX", "\x1b[0;90;40m"),
-	TRICE_LOG_TAG_STYLE("tx|transmit|TRANSMIT|Transmit|TX", "\x1b[0;30;100m"),
-	TRICE_LOG_TAG_STYLE("dia|diag|Diag|DIA|DIAG", "\x1b[0;7;33;109m"),
-	TRICE_LOG_TAG_STYLE("int|isr|ISR|INT|interrupt|Interrupt|INTERRUPT", "\x1b[0;7;35;109m"),
-	TRICE_LOG_TAG_STYLE("s|sig|signal|S|SIG|SIGNAL", "\x1b[0;7;38;5;118m"),
-	TRICE_LOG_TAG_STYLE("t|tst|test|T|TST|TEST", "\x1b[0;93;40m"),
-	TRICE_LOG_TAG_STYLE("def|Default|DEFAULT|default", ""),
-	TRICE_LOG_TAG_STYLE("note|Notice|NOTICE|notice|Note|NOTE", "\x1b[0;34;107m"),
-	TRICE_LOG_TAG_STYLE("Alert|alert|ALERT", "\x1b[0;35;105m"),
-	TRICE_LOG_TAG_STYLE("Assert|assert|ASSERT", "\x1b[0;7;33;44m"),
-	TRICE_LOG_TAG_STYLE("a|Alarm|alarm|ALARM", "\x1b[0;7;31;107m"),
-	TRICE_LOG_TAG_STYLE("CYCLE_ERROR", "\x1b[0;7;35;103m"),
-	TRICE_LOG_TAG_STYLE("v|Verbose|verbose|VERBOSE", "\x1b[0;34;49m"),
-	TRICE_LOG_TAG_STYLE("cfg|config", ""),
-	TRICE_LOG_TAG_STYLE("us|\xC2\xB5s|uS|\xC2\xB5S|uSec|\xC2\xB5Sec|uSEC|\xC2\xB5SEC|MicroSec|Microsecond|Microseconds|ms|mS|mSec|mSEC|MSEC|MilliSec|Millisecond|Milliseconds|s|S|Sec|SEC|SECOND|SECONDS|Second|Seconds|dt|delta|dT|deltaTime|delta-time", "\x1b[0;7;34;103m"),
+    TRICE_LOG_TAG_STYLE("Fatal|fatal|FATAL", "\x1b[0;1;35;41m"),
+    TRICE_LOG_TAG_STYLE("crit|Critical|critical|CRITICAL|Crit|CRIT", "\x1b[0;7;31;109m"),
+    TRICE_LOG_TAG_STYLE("em|Emergency|emergency|EMERGENCY", "\x1b[0;7;31;44m"),
+    TRICE_LOG_TAG_STYLE("e|Error|err|error|E|ERR|ERROR", "\x1b[0;38;5;11;41m"),
+    TRICE_LOG_TAG_STYLE("w|wrn|Warning|warning|W|WRN|WARNING|Warn|warn|WARN", "\x1b[0;7;38;5;11;41m"),
+    TRICE_LOG_TAG_STYLE("att|attention|Attention|ATT|ATTENTION", "\x1b[0;38;5;11;42m"),
+    TRICE_LOG_TAG_STYLE("i|inf|info|Info|informal|I|INF|INFO|INFORMAL", "\x1b[0;1;36;109m"),
+    TRICE_LOG_TAG_STYLE("d|db|Debug|dbg|deb|debug|D|DB|DBG|DEBUG", "\x1b[0;7;38;5;130m"),
+    TRICE_LOG_TAG_STYLE("tr|Trace|trace|TRACE", "\x1b[0;7;39;109m"),
+    TRICE_LOG_TAG_STYLE("tim|time|Time|TIM|TIME|TIMESTAMP|timestamp|Timestamp", "\x1b[0;7;34;103m"),
+    TRICE_LOG_TAG_STYLE("m|msg|message|M|MSG|MESSAGE|OK", "\x1b[0;92;40m"),
+    TRICE_LOG_TAG_STYLE("r|rx|rd|read|rd_|RD|RD_|READ", "\x1b[0;7;30;103m"),
+    TRICE_LOG_TAG_STYLE("w|tx|wr|write|wr_|WR|WR_|WRITE", "\x1b[0;4;30;103m"),
+    TRICE_LOG_TAG_STYLE("rx|receive|RECEIVE|Receive|RX", "\x1b[0;90;40m"),
+    TRICE_LOG_TAG_STYLE("tx|transmit|TRANSMIT|Transmit|TX", "\x1b[0;30;100m"),
+    TRICE_LOG_TAG_STYLE("dia|diag|Diag|DIA|DIAG", "\x1b[0;7;33;109m"),
+    TRICE_LOG_TAG_STYLE("int|isr|ISR|INT|interrupt|Interrupt|INTERRUPT", "\x1b[0;7;35;109m"),
+    TRICE_LOG_TAG_STYLE("s|sig|signal|S|SIG|SIGNAL", "\x1b[0;7;38;5;118m"),
+    TRICE_LOG_TAG_STYLE("t|tst|test|T|TST|TEST", "\x1b[0;93;40m"),
+    TRICE_LOG_TAG_STYLE("def|Default|DEFAULT|default", ""),
+    TRICE_LOG_TAG_STYLE("note|Notice|NOTICE|notice|Note|NOTE", "\x1b[0;34;107m"),
+    TRICE_LOG_TAG_STYLE("Alert|alert|ALERT", "\x1b[0;35;105m"),
+    TRICE_LOG_TAG_STYLE("Assert|assert|ASSERT", "\x1b[0;7;33;44m"),
+    TRICE_LOG_TAG_STYLE("a|Alarm|alarm|ALARM", "\x1b[0;7;31;107m"),
+    TRICE_LOG_TAG_STYLE("CYCLE_ERROR", "\x1b[0;7;35;103m"),
+    TRICE_LOG_TAG_STYLE("v|Verbose|verbose|VERBOSE", "\x1b[0;34;49m"),
+    TRICE_LOG_TAG_STYLE("cfg|config", ""),
+    TRICE_LOG_TAG_STYLE("us|\xC2\xB5s|uS|\xC2\xB5S|uSec|\xC2\xB5Sec|uSEC|\xC2\xB5SEC|MicroSec|Microsecond|Microseconds|ms|mS|mSec|mSEC|MSEC|MilliSec|Millisecond|Milliseconds|s|S|Sec|SEC|SECOND|SECONDS|Second|Seconds|dt|delta|dT|deltaTime|delta-time", "\x1b[0;7;34;103m"),
 };
 
 #undef TRICE_LOG_TAG_STYLE
