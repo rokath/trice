@@ -187,7 +187,7 @@ int TriceResolveLog(triceRx_t* rx, const triceLog_t* list, size_t count) {
 			if (e != TRICE_RX_RESULT_OK) {
 				return e;
 			}
-			if ((list[i].paramCount != TRICE_LOG_PARAM_COUNT_DYNAMIC) && (list[i].paramCount != rx->paramCount)) {
+			if (!TRICE_LOG_PARAM_COUNT_IS_DYNAMIC(list[i].paramCount) && (list[i].paramCount != rx->paramCount)) {
 				return TRICE_RX_ERR_PARAM_COUNT_MISMATCH;
 			}
 			rx->paramCount = list[i].paramCount;

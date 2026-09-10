@@ -33,7 +33,7 @@ MODE="format"
 VERBOSE=0
 SHFMT_VERSION="v3.8.0"
 TOOLS_DIR="$REPO_ROOT/temp/tools"
-SHFMT_BIN="$TOOLS_DIR/shfmt"
+SHFMT_BIN="${SHFMT_BIN:-$TOOLS_DIR/shfmt}"
 
 for arg in "$@"; do
   case "$arg" in
@@ -54,8 +54,30 @@ done
 ensure_shfmt() {
   mkdir -p "$TOOLS_DIR"
 
+  # Native Windows Go installations append .exe even when called from Git Bash.
+  if [ ! -x "$SHFMT_BIN" ] && [ -x "$SHFMT_BIN.exe" ]; then
+    SHFMT_BIN="$SHFMT_BIN.exe"
+  fi
   if [ -x "$SHFMT_BIN" ] && "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
     return 0
+  fi
+
+  # Checks never install tools or depend on network access. A differently
+  # versioned formatter cannot give a reproducible verdict on the pinned style.
+  if [ "$MODE" = "check" ]; then
+    if [ ! -x "$SHFMT_BIN" ] && command -v shfmt >/dev/null 2>&1; then
+      SHFMT_BIN="$(command -v shfmt)"
+    fi
+    if [ -x "$SHFMT_BIN" ]; then
+      if "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
+        return 0
+      fi
+      echo "SKIP: shfmt check requires $SHFMT_VERSION; detected $("$SHFMT_BIN" --version 2>&1)."
+    else
+      echo "MISSING TOOL: shfmt $SHFMT_VERSION"
+      echo "SKIP: canonical shfmt not installed; no tools are downloaded during tests."
+    fi
+    exit 0
   fi
 
   if ! command -v go >/dev/null 2>&1; then

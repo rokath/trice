@@ -410,6 +410,40 @@ trice_test_run_managed_workflow() {
   local worker="$3"
   shift 3
 
+  # Missing prerequisites must be detected before taking a snapshot or changing
+  # IDs. In particular a skipped Go build must not cause later workflow steps to
+  # fail just because the repository tool could not be built on this machine.
+  local tool
+  local prerequisites=(trice tar)
+  if [ "$workflow" != "bind" ] || [ "$include_mode" = "pc" ]; then
+    prerequisites+=(go)
+  fi
+  if [ "$include_mode" = "example" ]; then
+    prerequisites+=(make)
+  fi
+  for tool in "${prerequisites[@]}"; do
+    if ! command -v "$tool" >/dev/null 2>&1; then
+      trice_state_log "MISSING TOOL: $tool"
+      trice_state_log "SKIP: $workflow/$include_mode tests require $tool, which is not installed."
+      return 0
+    fi
+  done
+  if [ "$include_mode" = "pc" ]; then
+    local cgo_enabled
+    local cgo_compiler
+    cgo_enabled="$(go env CGO_ENABLED)" || return 1
+    if [ "$cgo_enabled" != "1" ]; then
+      trice_state_log "SKIP: PC target tests require CGO_ENABLED=1 and a host C compiler."
+      return 0
+    fi
+    cgo_compiler="$(go env CC)" || return 1
+    if ! command -v "$cgo_compiler" >/dev/null 2>&1; then
+      trice_state_log "MISSING TOOL: $cgo_compiler"
+      trice_state_log "SKIP: Go's selected host C compiler is not installed."
+      return 0
+    fi
+  fi
+
   TRICE_TEST_ACTIVE_WORKFLOW="$workflow"
   export TRICE_ID_WORKFLOW="$workflow"
   trap 'trice_test_finish $?' EXIT

@@ -22,7 +22,11 @@ var (
 	// bindHistoricalOrdinaryID extracts a numeric ID from an ordinary generated
 	// line descriptor. Descriptors referring to a wrapper definition are handled
 	// by bindHistoricalDefinitionID instead because they contain no numeric TID.
-	bindHistoricalOrdinaryID = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*define[\t ]+TRICE_BIND_SITE_(K[0-9A-F]{16})_L([0-9]+)[\t ]+[^\r\n]*\b(?:iD|id|Id|ID)\([\t ]*([0-9]+)u?[\t ]*\)`)
+	// The descriptor scan must stop at the first ID constructor. Generated
+	// comments intentionally preserve the original source and can therefore end
+	// in a second constructor such as Id(0). A greedy scan would capture that
+	// commented zero instead of the authoritative generated ID.
+	bindHistoricalOrdinaryID = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*define[\t ]+TRICE_BIND_SITE_(K[0-9A-F]{16})_L([0-9]+)[\t ]+[^\r\n]*?\b(?:iD|id|Id|ID)\([\t ]*([0-9]+)u?[\t ]*\)`)
 	// bindHistoricalDefinitionID extracts the persistent ID of a Trice site in
 	// a supported logging-wrapper definition.
 	bindHistoricalDefinitionID = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*define[\t ]+TRICE_BIND_ID_DEFINITION_(K[0-9A-F]{16})_L([0-9]+)_O([0-9]+)[\t ]+([0-9]+)u?\b`)

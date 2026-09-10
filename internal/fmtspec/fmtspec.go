@@ -25,8 +25,13 @@ const (
 
 // Spec describes one parsed and normalized format specifier.
 type Spec struct {
-	Kind Kind
-	Verb byte
+	Kind          Kind
+	Verb          byte
+	Flags         string // Source flags in their original order, without width or precision.
+	HasFlags      bool   // At least one printf flag character was present.
+	HasFieldWidth bool   // A fixed decimal width was present; dynamic '*' is not recognized.
+	HasPrecision  bool   // A fixed precision, including an empty ".", was present.
+	HasAltForm    bool   // The source conversion contains the '#' flag.
 }
 
 // Normalize rewrites valid C length-modified format specifiers to a length-free
@@ -81,13 +86,21 @@ func parseSpecifier(s string) (normalized string, spec Spec, width int, ok bool)
 	}
 
 	i := 1
+	hasAltForm := false
+	flagsStart := i
 	for i < len(s) && strings.ContainsRune(" +-0#'", rune(s[i])) {
+		hasAltForm = hasAltForm || s[i] == '#'
 		i++
 	}
+	flagsEnd := i
+	widthStart := i
 	for i < len(s) && isDigit(s[i]) {
 		i++
 	}
+	hasFieldWidth := widthStart != i
+	hasPrecision := false
 	if i < len(s) && s[i] == '.' {
+		hasPrecision = true
 		i++
 		for i < len(s) && isDigit(s[i]) {
 			i++
@@ -106,6 +119,11 @@ func parseSpecifier(s string) (normalized string, spec Spec, width int, ok bool)
 		return "", Spec{}, 0, false
 	}
 	spec.Verb = conv
+	spec.Flags = s[flagsStart:flagsEnd]
+	spec.HasFlags = flagsStart != flagsEnd
+	spec.HasFieldWidth = hasFieldWidth
+	spec.HasPrecision = hasPrecision
+	spec.HasAltForm = hasAltForm
 	goConv := normalizedConversion(conv)
 
 	var b strings.Builder

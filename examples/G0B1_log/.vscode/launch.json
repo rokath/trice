@@ -20,7 +20,7 @@
         {
             "name": "gcc Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./out.gcc/G0B1.elf",
+            "executable": "./out.gcc/G0B1_log.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

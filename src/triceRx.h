@@ -137,9 +137,16 @@ extern triceFn_t fn_TriceDispatchAbc;
 
 #if TRICE_RX_LOG_SUPPORT == 1
 
-// TRICE_LOG_PARAM_COUNT_DYNAMIC marks entries whose value count is controlled by
-// the received byte count (specified in nc). Fixed scalar Trices use an exact count in 0..12.
-#define TRICE_LOG_PARAM_COUNT_DYNAMIC ((uint8_t)0xffu)
+// Dynamic record families share the received byte count (specified in nc) but
+// need different local interpretations. Distinct values at the top of the
+// uint8_t range preserve the compact table layout; fixed scalar Trices use only
+// exact counts in 0..12.
+#define TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING ((uint8_t)0xffu)
+#define TRICE_LOG_PARAM_COUNT_DYNAMIC_BUFFER ((uint8_t)0xfeu)
+#define TRICE_LOG_PARAM_COUNT_DYNAMIC_FUNCTION ((uint8_t)0xfdu)
+#define TRICE_LOG_PARAM_COUNT_DYNAMIC_ABC ((uint8_t)0xfcu)
+#define TRICE_LOG_PARAM_COUNT_DYNAMIC TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING //!< Backward-compatible spelling for generated string metadata.
+#define TRICE_LOG_PARAM_COUNT_IS_DYNAMIC(n) ((uint8_t)(n) >= TRICE_LOG_PARAM_COUNT_DYNAMIC_ABC)
 
 // triceLog_t is the compact generated log metadata table entry derived from
 // TIL data. bitWidth and paramCount are generated once so the RX code does not
@@ -147,7 +154,7 @@ extern triceFn_t fn_TriceDispatchAbc;
 typedef struct {
 	uint16_t id;        // Trice id.
 	uint8_t bitWidth;   // Payload element width: 0, 8, 16, 32, 64, or TRICE_BIT_WIDTH_UNKNOWN.
-	uint8_t paramCount; // Fixed value count or TRICE_LOG_PARAM_COUNT_DYNAMIC for string/buffer/ABC payload.
+	uint8_t paramCount; // Fixed value count or a TRICE_LOG_PARAM_COUNT_DYNAMIC_* family marker.
 	const char* pFmt;   // Trice format string resolved from til.json.
 } triceLog_t;
 

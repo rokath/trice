@@ -41,7 +41,8 @@ main() {
     }
   else
     log "MISSING TOOL: trice"
-    log "WARN: trice not found in PATH"
+    log "SKIP: trice not installed or built; canonical Bind preparation requires it."
+    return 0
   fi
 
   # Both selections start from the checked-in Bind state. Full-mode Legacy

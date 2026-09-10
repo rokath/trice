@@ -9,6 +9,7 @@
 #define TRICE_LOG_H_
 
 #include <stddef.h>
+#include <stdint.h>
 
 #if TRICE_LOCAL_LOG == 1
 
@@ -18,13 +19,14 @@ extern "C" {
 
 //! TriceLogPrintfFn_t is the optional snprintf-compatible formatter hook.
 //!
-//! TriceLog invokes the hook once for every scalar numeric conversion. Dynamic
-//! strings are copied separately with their record-bounded length and never
-//! passed to the hook. The function must use snprintf return semantics: the
-//! returned count excludes the final NUL and reports the required size even
-//! when the destination is too small.
+//! TriceLog invokes the hook once for every ordinary scalar conversion assigned
+//! to it. Dynamic strings and Trice-specific %b/%O/%t/%p/%q conversions are
+//! rendered internally and never passed to the hook. The function must use
+//! snprintf return semantics: the returned count excludes the final NUL and
+//! reports the required size even when the destination is too small.
 typedef int (*TriceLogPrintfFn_t)(char* buffer, size_t size, const char* format, ...);
 
+#if TRICE_LOCAL_LOG_USE_PRINTF_HOOK == 1
 //! UserTriceLogPrintfFn selects an application or third-party formatter.
 //!
 //! With TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER == 1, leave it zero to use the
@@ -32,6 +34,20 @@ typedef int (*TriceLogPrintfFn_t)(char* buffer, size_t size, const char* format,
 //! do not need a hook. With that switch at zero, other numeric conversions
 //! with a zero hook make TriceLog return TRICE_LOG_ERR_PRINTF.
 extern TriceLogPrintfFn_t UserTriceLogPrintfFn;
+#endif
+
+#if TRICE_LOCAL_LOG_USE_PREFIX_HOOK == 1
+//! TriceLogPrefixFn_t optionally prepends application presentation data.
+//!
+//! The callback receives transport facts rather than assuming that a Trice
+//! stamp is always time. It must follow snprintf return semantics and leave a
+//! final NUL whenever size is non-zero. Returning a negative value makes
+//! TriceLog consume the current record and return TRICE_LOG_ERR_PREFIX.
+typedef int (*TriceLogPrefixFn_t)(char* buffer, size_t size, uint16_t id, uint8_t stampBits, uint32_t stamp);
+
+//! UserTriceLogPrefixFn is null by default, which produces message bodies only.
+extern TriceLogPrefixFn_t UserTriceLogPrefixFn;
+#endif
 
 //! Stable negative results returned by TriceLog.
 enum {
@@ -42,6 +58,8 @@ enum {
 	TRICE_LOG_ERR_FORMAT = -104,           //!< The record metadata or format uses an unsupported local conversion.
 	TRICE_LOG_ERR_PRINTF = -105,           //!< The configured printf hook reported an error.
 	TRICE_LOG_ERR_BUFFER = -106,           //!< The selected deferred buffer rejected a peek or release operation.
+	TRICE_LOG_ERR_FEATURE_DISABLED = -107, //!< The ID or format is known but needs a disabled local-log feature.
+	TRICE_LOG_ERR_PREFIX = -108,           //!< The optional prefix hook reported an error.
 };
 
 //! \brief Formats and consumes the next buffered Trice record.

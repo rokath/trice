@@ -663,8 +663,12 @@ void TriceCheck(int index) {
         break; case __LINE__: s = "café"; triceS("rd: ␣␣café 		%6s 		Width 6, right justify\n", s );     //exp: "time:        default: rd: ␣␣café 		  café 		Width 6, right justify\n"
         break; case __LINE__: s = "café"; triceS("rd: café␣␣ 		%-6s 		Width 6, left justify\n", s );      //exp: "time:        default: rd: café␣␣ 		café   		Width 6, left justify\n"
         break; case __LINE__: s = "café"; triceS("rd: \"café\" 		%q		Quoted string\n", s );             //exp: "time:        default: rd: \"café\" 		"café"		Quoted string\n"
-        break; case __LINE__: s = "café"; triceS("rd: 636166c3a9 		%x	Hex dump of byte values\n", s );   //exp: "time:        default: rd: 636166c3a9 		636166c3a9	Hex dump of byte values\n"
-        break; case __LINE__: s = "café"; triceS("rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );    //exp: "time:        default: rd: 63 61 66 c3 a9 	63 61 66 c3 a9	Hex dump with spaces\n"
+#if TRICE_LOCAL_LOG == 0
+		// Byte-slice hex formatting is performed by the host decoder and is not
+		// part of target-side local string formatting.
+		break; case __LINE__: s = "café"; triceS("rd: 636166c3a9 		%x	Hex dump of byte values\n", s );   //exp: "time:        default: rd: 636166c3a9 		636166c3a9	Hex dump of byte values\n"
+		break; case __LINE__: s = "café"; triceS("rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );    //exp: "time:        default: rd: 63 61 66 c3 a9 	63 61 66 c3 a9	Hex dump with spaces\n"
+#endif
 
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
         break; case __LINE__: exampleOfManualSerialization(); // ATTENTION: This occupies ~1024 bytes in one half buffer when double buffer ist used!
@@ -2995,9 +2999,13 @@ static void exampleOfManualSerialization(void) {
 	TRICE(Id(0), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
 
 #if TRICE_LEGACY_RPC_SUPPORT == 1
+#if TRICE_LOCAL_LOG == 0
+	// Function/RPC records are dispatched by a receiver and have no local text
+	// representation. The surrounding serialization log remains enabled.
 	TRICE8_F(Id(0), "info:TryoutStructFunction", &tx, sizeof(tx));
 	TRICE8_F(Id(0), "info:TryoutBufferFunction", dst, len); // lint !e670
-#endif                                                      // #if TRICE_LEGACY_RPC_SUPPORT == 1
+#endif
+#endif // #if TRICE_LEGACY_RPC_SUPPORT == 1
 }
 
 static void exampleOfManualJSONencoding(void) {
@@ -3016,7 +3024,7 @@ static void dynString(int n) {
 	const size_t l = strlen(s);
 	size_t N_dynString = (size_t)n; // avoid warning: comparison of integer expressions of different signedness: 'int' and 'size_t'
 	N_dynString = N_dynString < l ? N_dynString : l;
-	// trice("sig:%3d:", n ); - this gets overwritten in CGO_Test case, so we avoid it to keep testing simple.
+	// The Trice statement for "sig:%3d:" gets overwritten in the CGO test case, so we avoid it here to keep testing simple.
 	TRICE_N(id(0), "wr:%s\n", s, N_dynString);
 }
 

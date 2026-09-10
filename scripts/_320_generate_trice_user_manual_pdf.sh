@@ -14,6 +14,8 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 MANUAL_FILE="docs/TriceUserManual.md"
 PDF_FILE="docs/TriceUserManual.pdf"
 REF_DIR="docs/ref"
+MD_TO_PDF_PACKAGE="md-to-pdf@5.2.4"
+PUPPETEER_PACKAGE="puppeteer@24.31.0"
 
 cd "$REPO_ROOT"
 
@@ -50,6 +52,8 @@ show_context() {
   else
     echo "  npx:    not found" >&2
   fi
+
+  echo "  renderer: $MD_TO_PDF_PACKAGE with $PUPPETEER_PACKAGE" >&2
 
   echo "  related files:" >&2
   find docs -maxdepth 3 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -print 2>/dev/null | sort >&2 || true
@@ -104,7 +108,16 @@ rm -f -- "$PDF_FILE"
 echo "Generating manual PDF from $MANUAL_FILE"
 echo "Output PDF: $PDF_FILE"
 
-if ! npx -y md-to-pdf@5.2.4 \
+# md-to-pdf 5.2.4 declares Puppeteer as an open-ended >=8 dependency. Letting
+# npx resolve that range implicitly makes an otherwise pinned release step
+# depend on the newest Puppeteer, its Node.js floor, and its Chrome revision.
+# Supplying both exact packages at the npx root keeps npm's satisfying package
+# selection deterministic. Puppeteer 24.31.0 supports Node.js 18 and newer and
+# installs its matching browser in Puppeteer's normal cross-platform cache.
+if ! npx -y \
+  --package="$MD_TO_PDF_PACKAGE" \
+  --package="$PUPPETEER_PACKAGE" \
+  md-to-pdf \
   "$MANUAL_FILE" \
   --basedir "$REPO_ROOT" \
   --css "$css" \

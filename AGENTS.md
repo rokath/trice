@@ -168,6 +168,9 @@
 ## Commits
 
 * If asked to "commit first", create only the requested safety commit and stop for confirmation before further edits.
+* For a commit request, the primary deliverable is a meaningful, accurate commit message for each cohesive change group. Creating the Git commit itself is preferred when the environment permits it, but is not required when `.git` writes are blocked by the sandbox.
+* If `.git` writes are blocked, do not repeatedly request permissions or wait on approval dialogs. Make at most one normal commit attempt, then stage the relevant files when permitted and show the user the exact ready-to-run `git commit -m "..."` command.
+* When handing off a staged commit, state clearly which files or change topic are staged and which worktree changes were intentionally excluded. Do not claim that a commit was created unless `git commit` actually succeeded.
 * Whenever the user requests commits, always create sensible, cohesive individual commits rather than one broad catch-all commit.
 * Keep unrelated changes out of the same commit.
 * If asked to commit and the work contains multiple distinct changes, split them into sensible separate commits instead of one combined commit.
