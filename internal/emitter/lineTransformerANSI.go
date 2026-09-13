@@ -137,7 +137,7 @@ var Tags = []tag{
 	{0, []string{"crit", "Critical", "critical", "CRITICAL", "Crit", "CRIT"}, colorizeCRITICAL},
 	{0, []string{"em", "Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
 	{0, []string{"e", "Error", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
-	{0, []string{"w", "wrn", "Warning", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
+	{0, []string{"wrn", "Warning", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
 	{0, []string{"att", "attention", "Attention", "ATT", "ATTENTION"}, colorizeATTENTION},
 	{0, []string{"i", "inf", "info", "Info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
 	{0, []string{"d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
