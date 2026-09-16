@@ -31,6 +31,7 @@ PDF Generation
 
 <h2>Table of Contents</h2>
 
+<!--
 <style>
 details.toc .toc-hide {
   display: none;
@@ -57,6 +58,11 @@ details.toc[open] .toc-hide {
   <span class="toc-show">Show</span>
   <span class="toc-hide">Hide</span>
 </summary>
+-->
+
+<details open markdown="1">
+<summary>Show/hide Table of Contents</summary>
+
 <!-- mdtoc -->
 
 * [1. Abstract](#abstract)
