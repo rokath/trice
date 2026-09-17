@@ -3861,6 +3861,12 @@ Discovered JSON and historical `build/triceIDs` sidecars are read-only evidence.
 
 The primary TIL always wins a numeric-ID conflict. A conflicting subproject ID quietly yields to another matching or newly allocated primary ID; `-verbose` explains such decisions. A conflict-free historical ID is retained and only its actively used mapping is added to the primary TIL. Secondary TILs, LIs, and build artifacts are never modified.
 
+For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions. The current `bindDir` sidecar has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match.
+
+Without a usable sidecar assignment, LI candidates for repeated calls are consumed in stored line order as the current calls are visited in source order. Metadata search priority is retained; equal stored lines are ordered by numeric ID. For example, IDs 15982 and 15849 previously stored at lines 2799 and 2807 remain in that order when their calls move to lines 2803 and 2811. Bind does not independently choose the closest old line for each repeated call. A single current call still uses line proximity to select among matching LI candidates.
+
+`li.json` stores one position per ID, not a sequence of past versions. Bind writes the newly assigned positions back to the primary LI. These rules use the already parsed source sites and metadata; they require no additional source scan. Inserting, deleting, or reordering identical calls can still make their former identities ambiguous. Without usable sidecar or LI evidence, existing matching IDs are assigned in deterministic numeric order; the original per-call association cannot be recovered from TIL alone.
+
 All discovery and conflict resolution completes before regular output is written. A fatal ambiguity therefore leaves sources, JSON files, and generated outputs unchanged. The complete normative implementation strategy and fallback order are documented in [`internal/id/bindIDs_doc.go`](../internal/id/bindIDs_doc.go).
 
 ### 24.6. <a id="file-key-and-sidecar-name"></a>File Key and Sidecar Name

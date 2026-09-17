@@ -494,6 +494,113 @@ func TestBindKeepsRepeatedFormatsDistinctAndStable(t *testing.T) {
 	assert.Equal(t, first, second)
 }
 
+// TestBindRepeatedFormatsKeepLIOrder covers LI-only reuse after source shifts,
+// including equal distances, exhausted history, and secondary read-only catalogs.
+func TestBindRepeatedFormatsKeepLIOrder(t *testing.T) {
+	for _, secondary := range []bool{false, true} {
+		for _, test := range []struct {
+			name    string
+			old     []int
+			current []int
+			want    []TriceID
+		}{
+			{name: "equal_distance", old: []int{2799, 2807}, current: []int{2803, 2811}, want: []TriceID{15982, 15849}},
+			{name: "closer_to_later", old: []int{2799, 2807}, current: []int{2804, 2812}, want: []TriceID{15982, 15849}},
+			{name: "shift_up", old: []int{2799, 2807}, current: []int{2794, 2802}, want: []TriceID{15982, 15849}},
+			{name: "same_stored_line", old: []int{2799, 2799}, current: []int{2803, 2811}, want: []TriceID{15849, 15982}},
+			{name: "extra_site", old: []int{2799, 2807}, current: []int{2803, 2811, 2819}, want: []TriceID{15982, 15849, 100}},
+			{name: "single_site_keeps_distance", old: []int{2799, 2807}, current: []int{2807}, want: []TriceID{15849}},
+		} {
+			t.Run(fmt.Sprintf("secondary_%t/%s", secondary, test.name), func(t *testing.T) {
+				// A persistent owner include keeps the fixture's physical lines exact.
+				const key = "K1111111111111111"
+				source := "#include \"trice_same_c_" + key + ".h\"\n"
+				nextLine := 2
+				for _, line := range test.current {
+					source += strings.Repeat("\n", line-nextLine) + "trice(\"same\");\n"
+					nextLine = line + 1
+				}
+				defer prepareBindTest(t, map[string]string{"same.c": source})()
+				sourcePath := Srcs[0]
+				tilPath, liPath := FnJSON, LIFnJSON
+				if secondary {
+					tilPath = filepath.Join(filepath.Dir(sourcePath), "messages.json")
+					liPath = filepath.Join(filepath.Dir(sourcePath), "locations.json")
+				}
+				// Persist LI paths relative to their metadata file, as real catalogs do.
+				// The memory filesystem's slash-rooted paths are not absolute on Windows.
+				storedPath, err := filepath.Rel(filepath.Dir(liPath), sourcePath)
+				require.NoError(t, err)
+				storedPath = filepath.ToSlash(storedPath)
+				// Foreign ownership and a different transport type must not enter the group.
+				tilBefore := writeBindTestTIL(t, tilPath, TriceIDLookUp{
+					15982: {Type: "trice", Strg: "same"}, 15849: {Type: "trice", Strg: "same"},
+					121: {Type: "triceS", Strg: "same"}, 122: {Type: "trice", Strg: "same"},
+				})
+				liBefore := writeBindTestLI(t, liPath, TriceIDLookUpLI{
+					15982: {File: storedPath, Line: test.old[0]}, 15849: {File: storedPath, Line: test.old[1]},
+					121: {File: storedPath, Line: 1}, 122: {File: filepath.ToSlash(filepath.Join(filepath.Dir(storedPath), "other.c")), Line: 1},
+				})
+
+				require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+				_, sidecar := readOwnedBindSidecar(t, sourcePath)
+				locations := NewLutLI(io.Discard, FSys, LIFnJSON)
+				for index, id := range test.want {
+					assert.Regexp(t, fmt.Sprintf(`(?m)^#define TRICE_BIND_SITE_%s_L%d\s+TRICE_BIND_AUTO,\s+iD\(%du\)`, key, test.current[index], id), string(sidecar))
+					assert.Equal(t, test.current[index], locations[id].Line)
+					assert.Equal(t, ToLIFile(sourcePath), normalizeLocationPath(locations[id].File))
+				}
+				bound, err := FSys.ReadFile(sourcePath)
+				require.NoError(t, err)
+				assert.Equal(t, source, string(bound))
+				if secondary {
+					tilAfter, err := FSys.ReadFile(tilPath)
+					require.NoError(t, err)
+					assert.Equal(t, tilBefore, tilAfter)
+					liAfter, err := FSys.ReadFile(liPath)
+					require.NoError(t, err)
+					assert.Equal(t, liBefore, liAfter)
+				}
+			})
+		}
+	}
+}
+
+// TestBindSidecarWinsConflictingLI keeps existing compiler assignments when LI
+// suggests the opposite order, in both the fast and verbose metadata paths.
+func TestBindSidecarWinsConflictingLI(t *testing.T) {
+	for _, verbose := range []bool{false, true} {
+		t.Run(fmt.Sprintf("verbose_%t", verbose), func(t *testing.T) {
+			const key = "K1111111111111111"
+			const name = "trice_same_c_" + key + ".h"
+			source := "#include \"" + name + "\"\ntrice(\"same\");\ntrice(\"same\");\n"
+			defer prepareBindTest(t, map[string]string{"same.c": source})()
+			Verbose = verbose
+			// Use the primary LI's portable relative path convention on every OS.
+			storedPath, err := filepath.Rel(filepath.Dir(LIFnJSON), Srcs[0])
+			require.NoError(t, err)
+			storedPath = filepath.ToSlash(storedPath)
+			writeBindTestTIL(t, FnJSON, TriceIDLookUp{150: {Type: "trice", Strg: "same"}, 160: {Type: "trice", Strg: "same"}})
+			writeBindTestLI(t, LIFnJSON, TriceIDLookUpLI{150: {File: storedPath, Line: 2}, 160: {File: storedPath, Line: 3}})
+			require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
+			oldSidecar := "#define TRICE_BIND_FILE_KEY " + key + "\n#define TRICE_BIND_ROUTE_" + key + " BIND\n" +
+				"#define TRICE_BIND_SITE_" + key + "_L2 TRICE_BIND_AUTO, iD(160u)\n" +
+				"#define TRICE_BIND_SITE_" + key + "_L3 TRICE_BIND_AUTO, iD(150u)\n"
+			require.NoError(t, FSys.WriteFile(filepath.Join(BindDir, name), []byte(oldSidecar), 0o644))
+			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+			_, first := readOwnedBindSidecar(t, Srcs[0])
+			assert.Regexp(t, `(?m)^#define TRICE_BIND_SITE_`+key+`_L2\s+TRICE_BIND_AUTO,\s+iD\(160u\)`, string(first))
+			assert.Regexp(t, `(?m)^#define TRICE_BIND_SITE_`+key+`_L3\s+TRICE_BIND_AUTO,\s+iD\(150u\)`, string(first))
+			locations := NewLutLI(io.Discard, FSys, LIFnJSON)
+			assert.Equal(t, 2, locations[160].Line)
+			assert.Equal(t, 3, locations[150].Line)
+			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+			_, second := readOwnedBindSidecar(t, Srcs[0])
+			assert.Equal(t, first, second)
+		})
+	}
+}
+
 // TestBindDoesNotReplaceUnchangedFiles observes that a second successful run performs no rename.
 func TestBindDoesNotReplaceUnchangedFiles(t *testing.T) {
 	source := "trice(\"msg:stable\");\n"
@@ -578,12 +685,12 @@ func TestCompactBindIDCandidatesKeepsStrongestDeterministicChoice(t *testing.T) 
 	candidates := []bindIDCandidate{
 		{id: 50, priority: 2, source: "last"},
 		{id: 40, priority: 1, rank: 2, source: "rank"},
-		{id: 30, priority: 1, rank: 1, lineDistance: 3, source: "distance"},
-		{id: 20, priority: 1, rank: 1, lineDistance: 2, source: "id"},
-		{id: 10, priority: 1, rank: 1, lineDistance: 2, source: "weaker duplicate"},
-		{id: 10, priority: 0, rank: 9, lineDistance: 9, source: "strong duplicate"},
-		{id: 80, priority: 1, rank: 1, lineDistance: 2, source: "z-source"},
-		{id: 80, priority: 1, rank: 1, lineDistance: 2, source: "a-source"},
+		{id: 30, priority: 1, rank: 1, lineOrder: 3, source: "distance"},
+		{id: 20, priority: 1, rank: 1, lineOrder: 2, source: "id"},
+		{id: 10, priority: 1, rank: 1, lineOrder: 2, source: "weaker duplicate"},
+		{id: 10, priority: 0, rank: 9, lineOrder: 9, source: "strong duplicate"},
+		{id: 80, priority: 1, rank: 1, lineOrder: 2, source: "z-source"},
+		{id: 80, priority: 1, rank: 1, lineOrder: 2, source: "a-source"},
 	}
 
 	result := compactBindIDCandidates(candidates)

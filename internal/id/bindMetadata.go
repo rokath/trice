@@ -105,14 +105,15 @@ type bindPlanMetadata struct {
 }
 
 // bindIDCandidate describes one recoverable site ID. Lower priority and rank
-// values are stronger; lineDistance breaks ties without trusting old lines as
-// permanent identity.
+// values are stronger; lineOrder ranks positional evidence without treating
+// old lines as permanent identity (stored order for repeated LI formats,
+// distance for other candidates).
 type bindIDCandidate struct {
-	id           TriceID
-	priority     int
-	rank         int
-	lineDistance int
-	source       string
+	id        TriceID
+	priority  int
+	rank      int
+	lineOrder int
+	source    string
 }
 
 // bindMetadataResolver caches directory listings, parsed JSON, and parsed
@@ -740,12 +741,18 @@ func preferredBindIDs(w io.Writer, plans []bindFilePlan, resolver *bindMetadataR
 
 		metadata := resolver.metadataForPlan(plan)
 		sidecarCandidates := bindSidecarCandidates(plan, metadata, IDData.idToTrice)
+		// Count the already parsed sites once per file, including sites resolved
+		// by the sidecar fast path, so remaining duplicates retain LI order.
+		formatCounts := make(map[TriceFmt]int)
+		for _, site := range plan.sites {
+			formatCounts[bindSiteFormat(site)]++
+		}
 		for _, siteIndex := range unresolved {
 			site := plan.sites[siteIndex]
 			ref := bindSiteReference{plan: planIndex, site: siteIndex}
 			format := bindSiteFormat(site)
 			candidates := append([]bindIDCandidate(nil), sidecarCandidates[siteIndex]...)
-			candidates = append(candidates, bindCatalogCandidates(plan, site, format, metadata, primaryByFormat, locationMatches)...)
+			candidates = append(candidates, bindCatalogCandidates(plan, site, format, metadata, primaryByFormat, locationMatches, formatCounts[format] > 1)...)
 			candidates = compactBindIDCandidates(candidates)
 			acceptBindPreferredID(w, resolver, plan, site, ref, format, candidates, claimed, primaryByFormat, locationMatches, preferred)
 		}
@@ -854,11 +861,11 @@ func bindSidecarCandidates(plan *bindFilePlan, metadata bindPlanMetadata, primar
 				currentSite := plan.sites[currentIndexes[index]]
 				oldSite := historicalSites[index]
 				result[currentIndexes[index]] = append(result[currentIndexes[index]], bindIDCandidate{
-					id:           oldSite.id,
-					priority:     0,
-					rank:         sidecar.rank,
-					lineDistance: bindLineDistance(currentSite.line, oldSite.line),
-					source:       sidecar.path,
+					id:        oldSite.id,
+					priority:  0,
+					rank:      sidecar.rank,
+					lineOrder: bindLineDistance(currentSite.line, oldSite.line),
+					source:    sidecar.path,
 				})
 			}
 		}
@@ -889,15 +896,16 @@ func bindHistoricalFormat(id TriceID, primarySidecar bool, metadata bindPlanMeta
 
 // bindCatalogCandidates returns primary and read-only TIL candidates for one
 // exact TriceFmt. Existing LI ownership in another file prevents format-only
-// reuse; a matching file and nearby line improve the candidate priority.
-func bindCatalogCandidates(plan *bindFilePlan, site bindSite, format TriceFmt, metadata bindPlanMetadata, primaryByFormat bindFormatIndex, locationMatches bindLocationMatchCache) []bindIDCandidate {
+// reuse. Repeated formats consume matching-file LI candidates in stored line
+// order; single occurrences retain nearest-line matching.
+func bindCatalogCandidates(plan *bindFilePlan, site bindSite, format TriceFmt, metadata bindPlanMetadata, primaryByFormat bindFormatIndex, locationMatches bindLocationMatchCache, repeated bool) []bindIDCandidate {
 	var candidates []bindIDCandidate
 	for _, id := range primaryByFormat[format] {
 		if location, ok := IDData.idToLocRef[id]; ok {
 			if !locationMatches.matches(location.File, LIFnJSON, plan.path) {
 				continue
 			}
-			candidates = append(candidates, bindIDCandidate{id: id, priority: 1, lineDistance: bindLineDistance(site.line, location.Line), source: FnJSON})
+			candidates = append(candidates, bindIDCandidate{id: id, priority: 1, lineOrder: bindLocationOrder(site.line, location.Line, repeated), source: FnJSON})
 			continue
 		}
 		candidates = append(candidates, bindIDCandidate{id: id, priority: 2, source: FnJSON})
@@ -915,12 +923,23 @@ func bindCatalogCandidates(plan *bindFilePlan, site bindSite, format TriceFmt, m
 			candidate := bindIDCandidate{id: id, priority: 3, rank: ranked.rank, source: ranked.data.path}
 			if hasLocation {
 				candidate.priority = 1
-				candidate.lineDistance = bindLineDistance(site.line, location.Line)
+				candidate.lineOrder = bindLocationOrder(site.line, location.Line, repeated)
 			}
 			candidates = append(candidates, candidate)
 		}
 	}
 	return candidates
+}
+
+// bindLocationOrder preserves the stored ID sequence for repeated formats.
+// Sites are visited in source order and claimed IDs are skipped, so the next
+// available stored line is paired with the next unresolved current occurrence.
+// A single occurrence still chooses the closest known position.
+func bindLocationOrder(current, stored int, repeated bool) int {
+	if repeated {
+		return stored
+	}
+	return bindLineDistance(current, stored)
 }
 
 // newBindFormatIndex builds one deterministic reverse view of a TIL. The
@@ -1028,8 +1047,8 @@ func compactBindIDCandidates(candidates []bindIDCandidate) []bindIDCandidate {
 		if candidates[i].rank != candidates[j].rank {
 			return candidates[i].rank < candidates[j].rank
 		}
-		if candidates[i].lineDistance != candidates[j].lineDistance {
-			return candidates[i].lineDistance < candidates[j].lineDistance
+		if candidates[i].lineOrder != candidates[j].lineOrder {
+			return candidates[i].lineOrder < candidates[j].lineOrder
 		}
 		if candidates[i].id != candidates[j].id {
 			return candidates[i].id < candidates[j].id

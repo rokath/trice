@@ -79,12 +79,25 @@
 //   - a newly allocated ID from the primary ID range.
 //
 // Candidate ordering is deterministic by evidence strength, search proximity,
-// line distance, numeric ID, and metadata path. Each numeric ID is claimed by
+// positional evidence, numeric ID, and metadata path. Each numeric ID is claimed by
 // at most one active site in a bind plan. Repeated equal TriceFmt values use
 // sidecar and LI evidence when available and otherwise receive sorted IDs in
 // sorted source order. Without any persistent location evidence, the exact old
 // per-site association of identical formats is unknowable, but decoding remains
 // correct and the fallback remains reproducible.
+//
+// For repeated equal TriceFmt values in one source file, LI candidates use
+// stored line order instead of distance to each current call. Source-order
+// traversal consumes the earliest available candidate first, preserving the ID
+// sequence across line shifts. Equal stored lines use numeric ID order. Single
+// current occurrences retain nearest-line matching. This uses the existing
+// parsed sites and format indexes without an additional source scan.
+//
+// Valid sidecar assignments take precedence over conflicting LI positions;
+// the current BindDir sidecar outranks discovered sidecars. File modification
+// times are irrelevant. LI stores only one position per ID, not version history,
+// and receives the current assigned positions after bind. Adding, removing, or
+// reordering identical calls can leave their former identities ambiguous.
 //
 // Preferred historical IDs are inserted only into an in-memory copy of the
 // source and then processed by insertTriceIDs. Bind therefore does not maintain
