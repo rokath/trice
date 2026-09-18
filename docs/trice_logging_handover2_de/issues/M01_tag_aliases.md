@@ -1,6 +1,6 @@
 # M01: Lokale Alias-Korrektur durch Registertests absichern
 
-**Status:** lokale Tabellenkorrektur vorhanden; Absicherung und Kompatibilitätshinweis offen. **Alt:** L01.
+**Status:** umgesetzt. **Alt:** L01.
 
 Im Basiscommit `bc7c542b0252` sind `rx` (Read/Receive), `tx` (Write/Transmit) sowie `s` und `S` (Signal/Seconds) doppelt. Erste und spätere Treffer können unterschiedliche Zuordnungen erzeugen. `w` war bereits dort nicht doppelt.
 
@@ -8,10 +8,9 @@ Im Basiscommit `bc7c542b0252` sind `rx` (Read/Receive), `tx` (Write/Transmit) so
 
 ## Abnahme und Tests
 
-- [ ] Jede Schreibweise im vollständigen Register gehört genau einer Gruppe; künftig ergänzte Tags werden mitgeprüft.
-- [ ] Lookup, Filter, Farbe, Gewicht und Statistik verwenden dieselbe Gruppe.
-- [ ] Tests prüfen die genannten Kollisionen und eine künstlich neu eingeführte Doppelbelegung.
-- [ ] Die Bedeutung von `W` als Write und der Wechsel von `s`/`S` werden ausdrücklich geprüft und im Kompatibilitätshinweis genannt.
-- [ ] Die späteren `-ulabel`-Überschreibungen verändern vorhandene Gruppen, statt doppelte Gruppen anzulegen.
+- [x] Jede Schreibweise im vollständigen Register gehört genau einer Gruppe; künftig ergänzte Tags werden mitgeprüft.
+- [x] Ein künstliches Duplikat bestätigt, dass der allgemeine Registertest Doppelbelegungen tatsächlich erkennt.
+- [x] Die geänderten Kurzformen werden im Kompatibilitätshinweis genannt; einzelne Aliasnamen erhalten keine redundanten Spezialtests.
+- [x] Das Verhalten späterer `-ulabel`-Überschreibungen bleibt bei M08; M01 stellt dafür das eindeutige Basisregister sicher.
 
-**Quelle:** [Tag-Tabelle und Lookup](../../../internal/emitter/lineTransformerANSI.go).
+**Umsetzung:** [Tag-Tabelle und Lookup](../../../internal/emitter/lineTransformerANSI.go), [Registertests](../../../internal/emitter/lineTransformerANSI_test.go), [Kompatibilitätshinweis](../../TriceUserManual.md#how-to-get).

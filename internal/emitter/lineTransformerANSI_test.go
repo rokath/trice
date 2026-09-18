@@ -11,6 +11,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// duplicateTagAliases reports every alias that belongs to more than one tag group.
+func duplicateTagAliases(tags []tag) map[string][]string {
+	owners := make(map[string][]string)
+	for _, group := range tags {
+		canonical := group.Names[0]
+		for _, alias := range group.Names {
+			owners[alias] = append(owners[alias], canonical)
+		}
+	}
+	for alias, groups := range owners {
+		if len(groups) == 1 {
+			delete(owners, alias)
+		}
+	}
+	return owners
+}
+
+// TestTagAliasesAreUnique protects the complete registry, including future additions.
+func TestTagAliasesAreUnique(t *testing.T) {
+	assert.Empty(t, duplicateTagAliases(Tags))
+
+	duplicate := []tag{
+		{Names: []string{"first", "shared"}},
+		{Names: []string{"second", "shared"}},
+	}
+	assert.Equal(t, map[string][]string{"shared": {"first", "second"}}, duplicateTagAliases(duplicate))
+}
+
 // Test1colorize verifies the expected behavior.
 func Test1colorize(t *testing.T) {
 	lw := newCheckDisplay()

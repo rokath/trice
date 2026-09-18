@@ -5910,6 +5910,13 @@ Please check the manuals and create a pull request or simply let me know.
 * An option using tag specific ID ranges with optional routing exists.
 * The Trice tool offers the 2 command line switches `-pick` and `-ban` to control tag visualization during runtime.
 
+Short aliases have one unambiguous meaning. `W` and `w` select Write, while
+`wrn`, `WARN`, and `WARNING` select Warning. `rx` selects Receive, `tx`
+selects Transmit, `s` and `S` select Seconds, and `sig` selects Signal.
+Configurations created for older Trice versions should replace an ambiguous
+short alias with the intended explicit name before using it for `-pick`,
+`-ban`, `-logLevel`, or `-IDRange`.
+
 #### 31.1.1. <a id="output-options"></a>Output options
 
 ![./ref/ColorOptions.PNG](./ref/ColorOptions.PNG)
