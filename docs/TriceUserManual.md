@@ -524,16 +524,16 @@ details.toc[open] .toc-hide {
     * [45.1.1. What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?](#what-log-levels-exist-in-general-including-exotic-ones-and-what-is-their-exact-weighting-relative-to-each-other)
     * [45.1.2. Compile-time Log-level Control](#compile-time-log-level-control)
     * [45.1.3. Run-time Log-level Control](#run-time-log-level-control)
-  * [45.2. Trice Structured Logging](#trice-structured-logging)
-    * [45.2.1. Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information)
-    * [45.2.2. Trice Structured Logging Runtime Information](#trice-structured-logging-runtime-information)
-    * [45.2.3. Trice Structured Logging Limitations and Special Cases](#trice-structured-logging-limitations-and-special-cases)
-    * [45.2.4. A Trice Structured Logging Example](#a-trice-structured-logging-example)
-    * [45.2.5. Trice Structured Logging CLI Switches and Variables](#trice-structured-logging-cli-switches-and-variables)
-    * [45.2.6. Trice Structured Logging User Defined Values](#trice-structured-logging-user-defined-values)
-    * [45.2.7. Trice Structured Logging CLI Switches Usage Options](#trice-structured-logging-cli-switches-usage-options)
-    * [45.2.8. Trice Structured Logging Level Specific Configuration](#trice-structured-logging-level-specific-configuration)
-    * [45.2.9. Trice Structured Logging Assert Macros (TODO)](#trice-structured-logging-assert-macros-todo)
+  * [45.2. Trice Context Enrichment](#trice-context-enrichment)
+    * [45.2.1. Trice Context Enrichment Compile-time Information](#trice-context-enrichment-compile-time-information)
+    * [45.2.2. Trice Context Enrichment Runtime Information](#trice-context-enrichment-runtime-information)
+    * [45.2.3. Trice Context Enrichment Limitations and Special Cases](#trice-context-enrichment-limitations-and-special-cases)
+    * [45.2.4. A Trice Context Enrichment Example](#a-trice-context-enrichment-example)
+    * [45.2.5. Trice Context Enrichment CLI Switches and Variables](#trice-context-enrichment-cli-switches-and-variables)
+    * [45.2.6. Trice Context Enrichment User Defined Values](#trice-context-enrichment-user-defined-values)
+    * [45.2.7. Trice Context Enrichment CLI Switches Usage Options](#trice-context-enrichment-cli-switches-usage-options)
+    * [45.2.8. Trice Context Enrichment Level Specific Configuration](#trice-context-enrichment-level-specific-configuration)
+    * [45.2.9. Trice Context Enrichment Assert Macros (TODO)](#trice-context-enrichment-assert-macros-todo)
   * [45.3. Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser)
     * [45.3.1. Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
   * [45.4. Using Trice on Servers](#using-trice-on-servers)
@@ -9535,7 +9535,7 @@ The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which lim
 
 ### 41.5. <a id="test-internals"></a>Test Internals
 
-The `./trice/_test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one single Trice test binary, resulting in as many test binaries as there are test folders. Calling its TestFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted usually in real life over a (serial) port or RTT. In the tests here, this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string is then compared to the expected string for the activated line.
+The `./trice/_test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one single Trice test binary, resulting in as many test binaries as there are test folders. Calling its TeCEFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted usually in real life over a (serial) port or RTT. In the tests here, this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string is then compared to the expected string for the activated line.
 
 Each `tf` is a **Go** package, which is not part of any **Go** application. They all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `testdata/cgoPackage.go`. After editing the master, running the command `./renewIDs_in_examples_and_test_folder.sh` copies the master to all `tf` and renames it to `generated_cgoPackage.go`.
 
@@ -9549,7 +9549,7 @@ During the test, the file `triceCheck.c` is scanned for lines like
 break; case __LINE__: TRice( iD(3537), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
 ```
 
-Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** testfunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-function `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data. The between **Go** and **C** shared buffer limits the executed Trices per line to one, because they use the same buffer from the beginning. This could be done better with an increment to allow several trices in one single line.
+Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** teCEFunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-function `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data. The between **Go** and **C** shared buffer limits the executed Trices per line to one, because they use the same buffer from the beginning. This could be done better with an increment to allow several trices in one single line.
 
 Because each test runs a different configuration, all possible combinations are testable.
 
@@ -10508,20 +10508,20 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptations w
   - #endif
   +   /* Some Custom Trice Alias Examples */  
   +   const int theRightAnswer = 42;
-  +   const int theFastFoundAnswer = 24;
+  +   const int theFaCEFoundAnswer = 24;
   +   const char* theQuestion = "What could be the answer to the Ultimate Question of + Life, the Universe, and Everything?";
   +   
   +   // Some Trice custom alias examples
   +   CUSTOM_PRINT("CUSTOM_PRINT example: the right answer is: %d\n", theRightAnswer);
   +   
   +   // Assert with condition 
-  +   CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer);
+  +   CUSTOM_ASSERT(theFaCEFoundAnswer == theRightAnswer);
   +   
   +   // Assert with condition and a message: This works too, but triggers a clang + compiler warning, we cannot suppress.
-  +   CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)theQuestion ); // + https://stackoverflow.com/questions/52692564/+ how-can-i-disable-format-security-error-with-clang
+  +   CUSTOM_ASSERT(theFaCEFoundAnswer == theRightAnswer, (char*)theQuestion ); // + https://stackoverflow.com/questions/52692564/+ how-can-i-disable-format-security-error-with-clang
   +   
   +   // Assert with condition and a message and some extra message arguments
-  +   CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", + (char*)theQuestion, theRightAnswer);
+  +   CUSTOM_ASSERT(theFaCEFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", + (char*)theQuestion, theRightAnswer);
   + #endif
     /* USER CODE END 2 */
 
@@ -10707,31 +10707,31 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 45.2. <a id="trice-structured-logging"></a>Trice Structured Logging
+### 45.2. <a id="trice-context-enrichment"></a>Trice Context Enrichment
 
 > **Specification Draft**
 
-Structured logging, in contrast to unformatted logging, automatically adds compile time and runtime data to logs as well as log level information. The user should be able to configure, which data get added and also should have control about the data formatting. The generic data insertion allows later an automatic log file analysis and frees the developer from manually typing defaults, what is also error-prone.
+Context Enrichment automatically adds compile time and runtime data to logs. The user should be able to configure, which data get added and also should have control about the data formatting. The generic data insertion should also work with structured logging as option.
 
-Trice is considerable already a bit as a (very limited) structured logger, if we look at the file and line insertion capability and the timestamp options. The following is about how Trice could get full structured logging capability without making a breaking change.
+Trice is considerable already a bit as a (very limited) context enrichment logger, if we look at the file and line insertion capability and the timestamp options. The following is about how Trice could get full Context Enrichment capability without making a breaking change.
 
-#### 45.2.1. <a id="trice-structured-logging-compile-time-information"></a>Trice Structured Logging Compile-time Information
+#### 45.2.1. <a id="trice-context-enrichment-compile-time-information"></a>Trice Context Enrichment Compile-time Information
 
-*file, line, function, compiler version, module, build time, firmware version, machine name, user name, locale, host OS version, log level, an (unstructured) format string, compiler flags, (locally) defined values...*
+*file, line, function, compiler version, module, build time, firmware version, machine name, user name, locale, host OS version, log level, format string, compiler flags, (locally) defined values...*
 
 These data can be strings or numbers.
 
-#### 45.2.2. <a id="trice-structured-logging-runtime-information"></a>Trice Structured Logging Runtime Information
+#### 45.2.2. <a id="trice-context-enrichment-runtime-information"></a>Trice Context Enrichment Runtime Information
 
-*uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, position, variables values, parameter values ...*
+*uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, device position, variables values, parameter values ...*
 
 In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and `triceS` relatives like `triceB`. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
 
-#### 45.2.3. <a id="trice-structured-logging-limitations-and-special-cases"></a>Trice Structured Logging Limitations and Special Cases
+#### 45.2.3. <a id="trice-context-enrichment-limitations-and-special-cases"></a>Trice Context Enrichment Limitations and Special Cases
 
 For performance reasons, Trice was designed to only transmit 0-12 (straight forward extendable) numbers of equal bit-width **OR** a single runtime generated string. Firstly we look at only "normal" Trice macros `trice`, `Trice`, `TRice` and exclude the special cases `triceS`, `TriceS`, `TRiceS`. Also we consider just trices without specified bit-width, assume 32-bit and exlude cases like `trice32_4` firstly.
 
-#### 45.2.4. <a id="a-trice-structured-logging-example"></a>A Trice Structured Logging Example
+#### 45.2.4. <a id="a-trice-context-enrichment-example"></a>A Trice Context Enrichment Example
 
 User may have written inside *val.c*:
 
@@ -10763,14 +10763,14 @@ void doStuff( void ){
 }
 ```
 
-#### 45.2.5. <a id="trice-structured-logging-cli-switches-and-variables"></a>Trice Structured Logging CLI Switches and Variables
+#### 45.2.5. <a id="trice-context-enrichment-cli-switches-and-variables"></a>Trice Context Enrichment CLI Switches and Variables
 
-To achieve that, 2 structured logging CLI switches `-stf` and `-stv` on `trice insert` and `trice clean` are usable:
+To achieve that, 2 Context Enrichment CLI switches `-cef` and `-cev` on `trice insert` and `trice clean` are usable:
 
 | CLI switch | meaning                   |
 |------------|---------------------------|
-| `-stf`     | structured logging format |
-| `-stv`     | structured logging values |
+| `-cef`     | Context Enrichment format |
+| `-cev`     | Context Enrichment values |
 
 Additionally the Trice tool uses these internal variables (no bash variables!) as replacements during `trice insert` and `trice clean`:
 
@@ -10784,7 +10784,7 @@ Additionally the Trice tool uses these internal variables (no bash variables!) a
 | `$values` | `42`                  | The bare Trice statement values.                                                                                                                 |
 | `$usr0`   | `abc` \| ` ` \| `xyz` | A predefined string value with location dependent values (see below).                                                                            |
 
-#### 45.2.6. <a id="trice-structured-logging-user-defined-values"></a>Trice Structured Logging User Defined Values
+#### 45.2.6. <a id="trice-context-enrichment-user-defined-values"></a>Trice Context Enrichment User Defined Values
 
 This use case is not expected for most cases, but mentioned here to show the possibilities. Adding user specific values like `$usr0` can be done in this way:
 
@@ -10826,8 +10826,8 @@ Those things are compiler and user specific and not part of the Trice tool desig
 
 ```bash
 
-STF='{"level":"%s","loc":"%s:%d","fmt":"$fmt","etc":"%s"}'
-STV='$level, $file, $line, $values, $usr0'
+CEF='{"level":"%s","loc":"%s:%d","fmt":"$fmt","etc":"%s"}'
+CEV='$level, $file, $line, $values, $usr0'
 
 # user script generated begin ################################################
 ST0='usr0="xyz":main.c:95'                        # user script generated line
@@ -10836,7 +10836,7 @@ ST2='usr0="abc":main.c:103'                       # user script generated line
 STU="-stu $ST0 -stu $ST1 -stu $ST2"               # user script generated line
 # user script generated end ##################################################
 
-trice insert $STU -stf $STF -stv $STV
+trice insert $STU -cef $CEF -cev $CEV
 ```
 
 The structured log output would be:
@@ -10850,14 +10850,14 @@ The structured log output would be:
 {...}
 ```
 
-#### 45.2.7. <a id="trice-structured-logging-cli-switches-usage-options"></a>Trice Structured Logging CLI Switches Usage Options
+#### 45.2.7. <a id="trice-context-enrichment-cli-switches-usage-options"></a>Trice Context Enrichment CLI Switches Usage Options
 
-The in [A Trice Structured Logging Example](#a-trice-structured-logging-example) shown `trice insert` result is possible with
+The in [A Trice Context Enrichment Example](#a-trice-structured-logging-example) shown `trice insert` result is possible with
  
 ```bash
 trice insert \
--stf='[level=$level][file=$file][line=$line][func=$func][taskID=%x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
--stv='getTaskID(), $values, uptime(), aFloat(sensorValue)'
+-cef='[level=$level][file=$file][line=$line][func=$func][taskID=%x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
+-cev='getTaskID(), $values, uptime(), aFloat(sensorValue)'
 ```
 
 The raw string syntax is mandatory here, to pass the internal Trice tool variables names. 
@@ -10866,24 +10866,24 @@ Adding variable values like `$line` as strings has performance advantages, but o
 
 ```bash
 trice insert \
--stf='[level=$level][file=$file][line=%5d][func=$func][taskID=%04x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
--stv='$line, getTaskID(), $values, uptime(), aFloat(sensorValue)'
+-cef='[level=$level][file=$file][line=%5d][func=$func][taskID=%04x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
+-cev='$line, getTaskID(), $values, uptime(), aFloat(sensorValue)'
 ```
 
 It is also possible to use string format specifiers to allow somehow aligned values. For example:
 
 ```bash
 trice insert \
--stf='[level=%-6s][file=%24s][line=%5d][func=%-16s][taskID=%04x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
--stv='$level, $file, $line, $func, getTaskID(), $values, uptime(), aFloat(sensorValue)'
+-cef='[level=%-6s][file=%24s][line=%5d][func=%-16s][taskID=%04x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
+-cev='$level, $file, $line, $func, getTaskID(), $values, uptime(), aFloat(sensorValue)'
 ```
 
 Or, if you like alignment after the format string, even:
 
 ```bash
 trice insert \
--stf='[level=%-6s][file=%24s][line=%5d][func=%-16s][taskID=%04x][fmt=%64s][uptime=%08us][temperature=%3.1f°C]' \
--stv='$level, $file, $line, $func, getTaskID(), $fmt, $values, uptime(), aFloat(sensorValue)'
+-cef='[level=%-6s][file=%24s][line=%5d][func=%-16s][taskID=%04x][fmt=%64s][uptime=%08us][temperature=%3.1f°C]' \
+-cev='$level, $file, $line, $func, getTaskID(), $fmt, $values, uptime(), aFloat(sensorValue)'
 ```
 
 The user has full control and could also use any other syntax like a JSON format. Only the format specifiers are requested to match the passed values after the Trice tool internal variables replacement during `trice insert`, so that the Trice tool can perform a printf during logging.
@@ -10892,8 +10892,8 @@ To achieve a log output in compact JSON with line as string we can use:
 
 ```bash
 trice insert \
--stf='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
--stv='getTaskID(), $values, uptime()'
+-cef='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
+-cev='getTaskID(), $values, uptime()'
 ```
 
 **To put things together:** Any structured format string design is possible and the user can insert the $line (example) value:
@@ -10902,7 +10902,7 @@ trice insert \
 * indirectly as formatted string (fastest execution alignment option)
 * indirectly as formatted number (recommended when often changing)
 
-After `trice insert` we get this (compact JSON) log line according to `-stf` and `-stv`:
+After `trice insert` we get this (compact JSON) log line according to `-cef` and `-cev`:
 
 ```C
 void doStuff( void ){
@@ -10934,70 +10934,70 @@ The appropriate Trice tool log line output would be similar to
 {...}
 ```
 
-When *stf* and *stv* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only, if *stf* and *stv* where not changed by the user inbetween. In the same way `trice clean` would remove the context information only, if *stf* and *stv* kept unchanged. If the user wants to change *stf* and *stv* during development, first a `trice clean` is needed. Use a `build.sh` script like this:
+When *CEF* and *CEV* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only, if *CEF* and *CEV* where not changed by the user inbetween. In the same way `trice clean` would remove the context information only, if *CEF* and *CEV* kept unchanged. If the user wants to change *CEF* and *CEV* during development, first a `trice clean` is needed. Use a `build.sh` script like this:
 
 ```bash
 #!/bin/bash
 
 # Run "rm -rf ~/.trice/cache/*" automatically after changing this file !!! 
 
-STF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
-STV='getTaskID(), $values, uptime()'
+CEF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
+CEV='getTaskID(), $values, uptime()'
 
-trice insert -cache -stf="$STF" -stv="$STV"
+trice insert -cache -cef="$CEF" -cev="$CEV"
 # make
-trice clean  -cache -stf="$STF" -stv="$STV"
+trice clean  -cache -cef="$CEF" -cev="$CEV"
 ```
 
 The `-cache` switch is still experimental - to stay safe, use (here again with `$line` as string):
 
 ```bash
 #!/bin/bash
-STF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
-STV='getTaskID(), $values, uptime()'
+CEF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
+CEV='getTaskID(), $values, uptime()'
 
-trice insert -stf="$STF" -stv="$STV"
+trice insert -cef="$CEF" -cev="$CEV"
 # make
-trice clean  -stf="$STF" -stv="$STV"
+trice clean  -cef="$CEF" -cev="$CEV"
 ```
 
-#### 45.2.8. <a id="trice-structured-logging-level-specific-configuration"></a>Trice Structured Logging Level Specific Configuration
+#### 45.2.8. <a id="trice-context-enrichment-level-specific-configuration"></a>Trice Context Enrichment Level Specific Configuration
 
-Configure the Trice Structured Logging selectively in a way, to provide as much helpful diagnostic info as possible on `ERROR` level for example. Example script:
+Configure the Trice Context Enrichment selectively in a way, to provide as much helpful diagnostic info as possible on `ERROR` level for example. Example script:
 
 ```bash
 #!/bin/bash
 
-# Specify `-stf` and `-stv` differently for different channels/tags.
+# Specify `-cef` and `-cev` differently for different channels/tags.
 
-STL="" # Trice Structured Logging configuration
+STL="" # Trice Context Enrichment configuration
 
 # Trices with an `ERROR:` tag `trice("err:...", ...);`:
-STF_ERROR='ERROR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'` # (with location)
-STV_ERROR='ERROR:$level, $file, $line, $func, getTaskID(), $values, uptime()'`
-STL+=" -stf $STF_ERROR -stv $STV_ERROR "
+CEF_ERROR='ERROR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'` # (with location)
+CEV_ERROR='ERROR:$level, $file, $line, $func, getTaskID(), $values, uptime()'`
+STL+=" -cef $CEF_ERROR -cev $CEV_ERROR "
 
 # Trices with an underscore tag, like `trice("_DEBUG:...", ...);` or `trice("_info:...", ...);`:
-STF_underscoreTagStart='_*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt","uptime":"%08u us"}'` # (no task ID)
-STV_underscoreTagStart='_*:$level, $file, $line, $func, $values, uptime()'`
-STL+=" -stf $STF_underscoreTagStart -stv $STV_underscoreTagStart "
+CEF_underscoreTagStart='_*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt","uptime":"%08u us"}'` # (no task ID)
+CEV_underscoreTagStart='_*:$level, $file, $line, $func, $values, uptime()'`
+STL+=" -cef $CEF_underscoreTagStart -cev $CEV_underscoreTagStart "
 
 # Tices with any other tag:
-STF_anyTag='*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt"}'` # (no task ID, no uptime)
-STV_anyTag='*:$level, $file, $line, $func, $values'`
-STL+=" -stf $STF_anyTag -stv $STV_anyTag "
+CEF_anyTag='*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt"}'` # (no task ID, no uptime)
+CEV_anyTag='*:$level, $file, $line, $func, $values'`
+STL+=" -cef $CEF_anyTag -cev $CEV_anyTag "
 
 # Trices with no tag at all:
-STF_noTag='{"file":"%24s","line:"%5d","fmt":"$fmt"}'` # (only location information)
-STV_noTag='$file, $line, $values'`
-STL+=" -stf $STF_noTag -stv $STV_noTag "
+CEF_noTag='{"file":"%24s","line:"%5d","fmt":"$fmt"}'` # (only location information)
+CEV_noTag='$file, $line, $values'`
+STL+=" -cef $CEF_noTag -cev $CEV_noTag "
 
 trice insert $STL ...
 source make.sh # build process
 trice clean  $STL ...
 ```
 
-#### 45.2.9. <a id="trice-structured-logging-assert-macros-todo"></a>Trice Structured Logging Assert Macros (TODO)
+#### 45.2.9. <a id="trice-context-enrichment-assert-macros-todo"></a>Trice Context Enrichment Assert Macros (TODO)
 
 Configure `TriceAssert` like macros and this works also with the `-salias` switch.
 
