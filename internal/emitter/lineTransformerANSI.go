@@ -133,41 +133,43 @@ type tag struct {
 // C file contains the reciprocal maintenance note.
 var Tags = []tag{
 	// log level
-	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
-	{0, []string{"crit", "Critical", "critical", "CRITICAL", "Crit", "CRIT"}, colorizeCRITICAL},
-	{0, []string{"em", "Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
-	{0, []string{"e", "Error", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
-	{0, []string{"wrn", "Warning", "warning", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
-	{0, []string{"att", "attention", "Attention", "ATT", "ATTENTION"}, colorizeATTENTION},
-	{0, []string{"i", "inf", "info", "Info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
-	{0, []string{"d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
-	{0, []string{"tr", "Trace", "trace", "TRACE"}, colorizeTRACE},
+	{0, []string{"FATAL", "Fatal", "fatal"}, colorizeFATAL},
+	{0, []string{"CRITICAL", "crit", "Critical", "critical", "Crit", "CRIT"}, colorizeCRITICAL},
+	{0, []string{"EMERGENCY", "em", "Emergency", "emergency"}, colorizeEMERGENCY},
+	{0, []string{"ERROR", "e", "Error", "err", "error", "E", "ERR"}, colorizeERROR},
+	{0, []string{"WARNING", "wrn", "Warning", "warning", "WRN", "Warn", "warn", "WARN"}, colorizeWARNING},
+	{0, []string{"ATTENTION", "att", "attention", "Attention", "ATT"}, colorizeATTENTION},
+	{0, []string{"INFO", "i", "inf", "info", "Info", "informal", "I", "INF", "INFORMAL"}, colorizeINFO},
+	{0, []string{"DEBUG", "d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG"}, colorizeDEBUG},
+	{0, []string{"TRACE", "tr", "Trace", "trace"}, colorizeTRACE},
 
 	// user modes
-	{0, []string{"tim", "time", "Time", "TIM", "TIME", "TIMESTAMP", "timestamp", "Timestamp"}, colorizeTIME},
-	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE", "OK"}, colorizeMESSAGE},
-	{0, []string{"r", "rd", "read", "rd_", "RD", "RD_", "READ"}, colorizeREAD},
-	{0, []string{"w", "wr", "write", "wr_", "W", "WR", "WR_", "WRITE"}, colorizeWRITE},
-	{0, []string{"rx", "receive", "RECEIVE", "Receive", "RX"}, colorizeRECEIVE},
-	{0, []string{"tx", "transmit", "TRANSMIT", "Transmit", "TX"}, colorizeTRANSMIT},
-	{0, []string{"dia", "diag", "Diag", "DIA", "DIAG"}, colorizeDIAG},
-	{0, []string{"int", "isr", "ISR", "INT", "interrupt", "Interrupt", "INTERRUPT"}, colorizeINTERRUPT},
-	{0, []string{"sig", "signal", "SIG", "SIGNAL"}, colorizeSIGNAL},
-	{0, []string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
+	{0, []string{"TIME", "tim", "time", "Time", "TIM", "TIMESTAMP", "timestamp", "Timestamp"}, colorizeTIME},
+	{0, []string{"MESSAGE", "m", "msg", "message", "M", "MSG", "OK"}, colorizeMESSAGE},
+	{0, []string{"READ", "r", "rd", "read", "rd_", "RD", "RD_"}, colorizeREAD},
+	{0, []string{"WRITE", "w", "wr", "write", "wr_", "W", "WR", "WR_"}, colorizeWRITE},
+	{0, []string{"RECEIVE", "rx", "receive", "Receive", "RX"}, colorizeRECEIVE},
+	{0, []string{"TRANSMIT", "tx", "transmit", "Transmit", "TX"}, colorizeTRANSMIT},
+	{0, []string{"DIAG", "dia", "diag", "Diag", "DIA"}, colorizeDIAG},
+	{0, []string{"INTERRUPT", "int", "isr", "ISR", "INT", "interrupt", "Interrupt"}, colorizeINTERRUPT},
+	{0, []string{"SIGNAL", "sig", "signal", "SIG"}, colorizeSIGNAL},
+	{0, []string{"TEST", "t", "tst", "test", "T", "TST"}, colorizeTEST},
 
-	{0, []string{"def", "Default", "DEFAULT", "default"}, colorizeDEFAULT},
-	{0, []string{"note", "Notice", "NOTICE", "notice", "Note", "NOTE"}, colorizeNOTICE},
-	{0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
-	{0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
-	{0, []string{"a", "Alarm", "alarm", "ALARM"}, colorizeALARM},
+	{0, []string{"DEFAULT", "def", "Default", "default"}, colorizeDEFAULT},
+	{0, []string{"NOTICE", "note", "Notice", "notice", "Note", "NOTE"}, colorizeNOTICE},
+	{0, []string{"ALERT", "Alert", "alert"}, colorizeALERT},
+	{0, []string{"ASSERT", "Assert", "assert"}, colorizeASSERT},
+	{0, []string{"ALARM", "a", "Alarm", "alarm"}, colorizeALARM},
 	{0, []string{"CYCLE_ERROR"}, colorizeCYCLE}, // not for user code!
-	{0, []string{"v", "Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
-	{0, []string{"cfg", "config"}, colorizeDEFAULT},
-	{0, []string{"us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorizeTIME},
-	{0, []string{"ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorizeTIME},
-	{0, []string{"s", "S", "Sec", "SEC", "SECOND", "SECONDS", "Second", "Seconds"}, colorizeTIME},
-	{0, []string{"dt", "delta", "dT", "deltaTime", "delta-time"}, colorizeTIME},
+	{0, []string{"VERBOSE", "v", "Verbose", "verbose"}, colorizeVERBOSE},
+	{0, []string{"CONFIG", "cfg", "config"}, colorizeDEFAULT},
+	{0, []string{"MICROSECOND", "us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorizeTIME},
+	{0, []string{"MILLISECOND", "ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorizeTIME},
+	{0, []string{"SECOND", "s", "S", "Sec", "SEC", "SECONDS", "Second", "Seconds"}, colorizeTIME},
+	{0, []string{"DELTATIME", "dt", "delta", "dT", "deltaTime", "delta-time"}, colorizeTIME},
 }
+
+// levelTags = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL", "EMERGENCY", "ATTENTION", "TRACE"}
 
 // FindTagName maps any tag alias to its canonical name.
 func FindTagName(name string) (tagName string, err error) {
