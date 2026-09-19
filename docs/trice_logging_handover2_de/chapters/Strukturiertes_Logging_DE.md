@@ -1,5 +1,10 @@
 <a id="sl-redaktion"></a>
-**Redaktioneller Kommentar — nicht Teil des UM.** Dieser Entwurf beschreibt eine mögliche allgemeine Structured-Logging-Erweiterung für Trice; sie ist noch nicht implementiert. Bevorzugt wird **A: ein Message-Template mit benannten oder automatisch aus einfachen Argumenten abgeleiteten Feldnamen**. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen bleiben Host-/Wörterbuchinformation. Eine optionale Feldnamen-Registry kann durch `bind`/`insert` automatisch und schweigend erzeugt und erweitert und anschließend manuell reviewed werden. **C: explizite Name/Wert-Paare** bleibt als möglicher späterer syntaktischer Zucker offen. Ein separat definiertes Event-Schema nach Art von ETW/LTTng (B) ist etabliert, für die allgemeine Trice-Logstelle aber deutlich schwergewichtiger und löst insbesondere das Problem vertauschter gleichartiger Werte nicht.
+
+**Redaktioneller Kommentar — nicht Teil des UM.** 
+
+Dieser Entwurf beschreibt eine mögliche allgemeine Structured-Logging-Erweiterung für Trice; sie ist noch nicht implementiert. Bevorzugt wird **A: ein Message-Template mit benannten oder automatisch aus einfachen Argumenten abgeleiteten Feldnamen**. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen bleiben Host-/Wörterbuchinformation.
+
+Eine optionale Feldnamen-Registry kann durch `bind`/`insert` automatisch und schweigend erzeugt und erweitert und anschließend manuell reviewed werden. **C: explizite Name/Wert-Paare** bleibt als möglicher späterer syntaktischer Zucker offen. Ein separat definiertes Event-Schema nach Art von ETW/LTTng (B) ist etabliert, für die allgemeine Trice-Logstelle aber deutlich schwergewichtiger und löst insbesondere das Problem vertauschter gleichartiger Werte nicht.
 
 ---
 
@@ -18,7 +23,8 @@ kann der Host beispielsweise erzeugen:
 
 ```json
 {
-  "tag": "info",
+  "tag": "INFO",
+  "level": "INFO",
   "fields": {"motor_id": 3, "temperature_c": 87.5},
   "message": "Motor 3: 87.500000 C"
 }
@@ -133,6 +139,31 @@ temperature_c     27
 ```
 
 Die Registry ist alphabetisch sortiert; die Zahl gibt an, an wie vielen Logstellen der Name im analysierten Quellbestand verwendet wird. Dadurch fallen beim Review ähnliche oder versehentlich neu entstandene Namen wie `temperature_c` und `temperture_c` leicht auf. Die Registry ist eine Qualitätskontrolle, keine Voraussetzung für das Drahtprotokoll und kein Ersatz für Compiler- oder Build-Prüfungen.
+
+**Tags und Level:** Beginnt der Formatstring mit einem bereits bekannten Trice-Tag beziehungsweise einem seiner Aliase, übernimmt der Host dafür den festen Feldnamen `tag`. Als Wert wird immer der **erste Eintrag der zugehörigen Tag-Gruppe als kanonischer Name** verwendet, unabhängig davon, welcher Alias im Formatstring steht. Die kanonischen Namen stehen deshalb jeweils an erster Stelle in der jeweilen Tag Gruppe im Go Code `./internal/emitter/lineTransformerANSI.go` und sind einheitlich großgeschrieben. Beispielsweise kann `msg:`, `message:` oder `MESSAGE:` zu
+
+```json
+"tag": "MESSAGE"
+```
+
+normalisiert werden. Ist kein bekannter Tag vorhanden, wird kein `tag`-Feld erzeugt; ein künstlicher Wert wie `untagged` ist nicht erforderlich.
+
+Tags, die zugleich Log-Level darstellen, werden zusätzlich über eine kleine Liste kanonischer Namen gekennzeichnet, gedanklich etwa:
+
+```text
+levelTags = {"DEBUG", "INFO", "WARNING", "ERROR", ...}
+```
+
+Nach der normalen Alias-Auflösung genügt damit ein Vergleich des kanonischen Tag-Namens mit `levelTags`. Ist er dort enthalten, erzeugt der Host zusätzlich den festen Feldnamen `level` mit demselben kanonischen Wert:
+
+```json
+"tag": "INFO",
+"level": "INFO"
+```
+
+Bei entsprechendem Bedarf kann die levelTags Liste per CLI Switch modifiziert werden.
+
+`tag` und `level` sind damit reservierte, feste Host-Feldnamen; projektspezifische Umbenennungen sind nicht vorgesehen. Die Feldnamen-Registry führt auch diese Host-Felder, also können `tag` und `level` automatisch eingetragen und gezählt werden. Die Aliasnamen selbst gehören nicht in die Registry. Die gedankliche Implementierung bleibt dadurch klein: kanonischer Name an Position 0 jeder Tag-Gruppe, Alias-Auflösung wie bisher, danach optionaler Membership-Test gegen `levelTags`.
 
 **Vorgesehener Ablauf:** A als Grundmodell implementieren, `{}` als kurze und sichere Namensableitung für einfache Bezeichner einschließlich `aFloat()`/`aDouble()` zulassen, optionale Darstellungen nach `:` unterstützen und alles in dasselbe Host-Datenmodell überführen. Die Registry kann optional durch `bind`/`insert` gepflegt werden; C kann später ohne Änderung dieses Modells ergänzt werden.
 
