@@ -1,87 +1,145 @@
 <a id="sl-redaktion"></a>
-**Redaktioneller Kommentar — nicht Teil des UM.** Der Entwurf erklärt den Nutzen anhand einer Messwertauswertung. Eine allgemeine strukturierte Trice-Schnittstelle ist noch nicht implementiert; vorhandene typisierte Visualisierungsdaten sind ein Anknüpfungspunkt. Vor einer verbindlichen API sind zwei Varianten zu vergleichen:
-
-| Variante | Bedienung | Vorteil / Preis |
-|---|---|---|
-| A: benannte Platzhalter | `strice("info:Motor {motor_id}: {temperature_c} C", motor, temperature);` | Name steht bei der Verwendung; neue Syntax und sichere Typzuordnung erforderlich |
-| B: vorhandene Aufrufe plus Feldzuordnung | `trice("info:Motor %d: %d C\n", motor, temperature);`, ergänzt um `arg0 → motor_id`, `arg1 → temperature_c` | Quellsyntax bleibt; separate Zuordnung muss Änderungen der Logstelle folgen |
-
-Vorschlag: A als Bedienungsentwurf prüfen, B als Alternative behalten. Beide liefern dasselbe Datenmodell. Projektspezifische typisierte Wrapper können beide ergänzen; sie ersetzen nicht die Entscheidung. Wrapper können Quellposition, Codegröße und Argumentauswertung bei ausgeschaltetem Logging beeinflussen.
-
-Ein konkreter Nutzen wäre ein Firmwaretest, der `temperature_c` über verschiedene Meldungen und Builds vergleicht, ohne Text zu parsen. [M19](../issues/M19_strukturierte_felder.md) verlangt zunächst ein nachvollziehbares Beispiel und die Entscheidung über Typen und Feldnamen. Die Parser-Neuorganisation aus UM 45.3 bleibt zurückgestellt.
-
-Für einen Server, der Gerätedaten auswertet, reicht zunächst ein nutzbarer Host-Export. Einen nativen Serverlogger zu ersetzen ist eine andere Aufgabe mit Anforderungen an Parallelität, dynamische Daten und vorhandene Werkzeuge. Dafür wird hier kein neues System spezifiziert. Optionale numerische Feldschlüssel können auf dem Host entstehen; sie verlangen weder globale Target-IDs noch ein Target-Ereignis je Schlüssel.
-
-Begriffliche Orientierung: [Go slog](https://pkg.go.dev/log/slog) trennt Meldung, Attribute und Ausgabe; [OpenTelemetry](https://opentelemetry.io/docs/specs/otel/logs/data-model/) trennt unter anderem Inhalt, Schweregrad und Attribute. Daraus folgt keine Pflicht, deren Datenmodell vollständig zu übernehmen.
+**Redaktioneller Kommentar — nicht Teil des UM.** Dieser Entwurf beschreibt eine mögliche allgemeine Structured-Logging-Erweiterung für Trice; sie ist noch nicht implementiert. Bevorzugt wird **A: ein Message-Template mit benannten oder automatisch aus einfachen Argumenten abgeleiteten Feldnamen**. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen bleiben Host-/Wörterbuchinformation. Eine optionale Feldnamen-Registry kann durch `bind`/`insert` automatisch und schweigend erzeugt und erweitert und anschließend manuell reviewed werden. **C: explizite Name/Wert-Paare** bleibt als möglicher späterer syntaktischer Zucker offen. Ein separat definiertes Event-Schema nach Art von ETW/LTTng (B) ist etabliert, für die allgemeine Trice-Logstelle aber deutlich schwergewichtiger und löst insbesondere das Problem vertauschter gleichartiger Werte nicht.
 
 ---
 
 ## <a id="strukturiertes-logging"></a>Strukturiertes Logging
 
-Beim strukturierten Logging bleiben Werte einzeln verfügbar. Ein Auswerteprogramm kann etwa `temperature_c > 80` prüfen, ohne den Satz „Motor 3: 87 C“ zu zerlegen. Ein lesbarer Meldungstext darf zusätzlich vorhanden sein.
+### 1. Was ist es?
 
-JSON ist dafür nicht erforderlich. Auch ein binärer Datensatz mit bekanntem Schema kann strukturierte Informationen enthalten. Automatisch ergänzter Kontext ist ebenfalls optional.
-
-### Vorhanden: ID und Werte als Grundlage
-
-Trice überträgt bei gewöhnlichen ID-basierten Meldungen eine ID und die zugehörigen Werte. Das Wörterbuch liefert die Darstellung. Für die [Visualisierung](../../TriceUserManual.md#visualization-output-with--vis) gibt es einen begrenzten Pfad mit typisierten Zahlenwerten.
-
-Eine allgemeine Benennung dieser Werte und der hier beschriebene Ausgabeablauf sind geplant.
-
-### Geplant: Werte benennen und auswerten
-
-Bedienungsentwurf mit Variante A, **keine derzeit aufrufbare API**:
+Strukturiertes Logging bewahrt die Werte einer Meldung zusätzlich zum lesbaren Text als einzeln benannte Felder auf. Aus
 
 ```c
-strice("info:Motor {motor_id}: {temperature_c} C", motor, temperature);
+strice("info:Motor {motor_id}: {temperature_c} C",
+       motor_id, aFloat(temperature_c));
 ```
 
-Du gibst jeden Wert einmal an. Die Vorlage nennt seine Bedeutung und liefert den lesbaren Text. Hier sind beide Werte als vorzeichenbehaftete 32-Bit-Zahlen vorgesehen; die verbindliche Syntax zur Festlegung beziehungsweise Prüfung der Typen ist noch offen.
-
-Der Host könnte daraus erzeugen:
+kann der Host beispielsweise erzeugen:
 
 ```json
 {
   "tag": "info",
-  "fields": {"motor_id": 3, "temperature_c": 87},
-  "message": "Motor 3: 87 C"
+  "fields": {"motor_id": 3, "temperature_c": 87.5},
+  "message": "Motor 3: 87.500000 C"
 }
 ```
 
-Für die Auswertung verwendest du `fields.temperature_c`; für die Konsole `message`. Du kannst die Formulierung ändern, ohne die Feldabfrage ändern zu müssen. Eine zweite Meldungsart darf ebenfalls `temperature_c` liefern, sofern Typ, Einheit und Bedeutung zusammenpassen.
+Ein Auswerteprogramm kann damit direkt `temperature_c > 80` prüfen, ohne Text zu parsen. JSON ist nur ein mögliches Ausgabeformat; auf dem Draht genügt weiterhin die kompakte Trice-ID mit ihren Werten.
 
-Der vorgesehene Ablauf ist:
+### 2. Gängige Methoden
 
-1. Benenne die Werte, die du später einzeln auswerten möchtest.
-2. Prüfe Namen, Typen, Einheiten und Argumentzuordnung beim Build.
-3. Bewahre Werte unabhängig vom gerenderten Text auf.
-4. Wähle auf dem Host lesbare Ausgabe oder eine maschinenlesbare Darstellung.
+Etablierte Systeme verwenden im Wesentlichen drei Modelle:
 
-### Geplant: Tippfehler und Datenverluste vermeiden
+- **Benannte Message-Templates (A):** Serilog und Microsoft Logging verwenden Platzhalter wie `{motor_id}`. Name und Wert bleiben als strukturierte Information erhalten; die Zuordnung der Argumente erfolgt üblicherweise positionsabhängig. Rust `tracing` kennt zusätzlich die Kurzform, einen Variablennamen zugleich als Feldname und Wert zu verwenden.
+- **Separates Event-Schema (B):** ETW und LTTng definieren Ereignisse mit festen Namen, Typen und Feldern getrennt von der Aufrufstelle. Das ist sinnvoll für einen zentral verwalteten Katalog wiederverwendbarer Ereignistypen. Es erkennt jedoch nicht Vertauschung wie `Event(temperature_c, motor_id)`, wenn beide Parameter denselben Typ haben.
+- **Explizite Name/Wert-Paare (C):** beispielsweise Go `slog`: `"motor_id", motor_id`.
 
-Ein Wörterbuch kann gegen bereits geprüfte Namen und Typen vergleichen. Ein neuer Name wie `temperture_c` muss auffallen und geprüft werden; bloßes automatisches Eintragen in `til.json` erkennt keinen Tippfehler. Legitime neue Namen müssen ausdrücklich in den geprüften Feldbestand aufgenommen werden können. Die Bedienung dieser Freigabe ist noch festzulegen.
+B ist daher kein sichererer Ersatz für A, sondern löst ein anderes Problem: die zentrale Definition stabiler Ereignisschemata.
 
-Der Build soll doppelte beziehungsweise widersprüchliche Felddefinitionen und eine falsche Zahl oder Art von Argumenten melden. Die Zuordnung bleibt unabhängig von der Formatierungsbreite. Ein auf eine Nachkommastelle gerundeter Konsolentext ersetzt nicht den ursprünglichen Zahlenwert.
+### 3. Sinnvolle Optionen für Trice
 
-Bei JSON-Ausgabe übernimmt ein Serializer Anführungszeichen, Backslashes und Steuerzeichen. Für sehr große Ganzzahlen und nicht endliche Gleitkommawerte braucht das Ausgabeformat eine ausdrückliche Regel; diese ist vor der Freigabe festzulegen. Ein frei formulierter printf-String ist keine Zusicherung gültigen JSONs.
+Für Trice passt A besonders gut, weil Feldnamen vollständig auf dem Host bleiben können und weder Target-Codegröße noch Übertragungsbandbreite erhöhen müssen.
 
-### Geplant: mehrere Felder je Ereignis
+**Expliziter Feldname:**
 
-Ein Aufruf bildet ein Ereignis, auch wenn sein Meldungstext Zeilenumbrüche enthält. Eine einzige ID darf mehrere Felder beschreiben:
-
-```text
-ID 4711: arg0 = motor_id, arg1 = temperature_c
-ID 5822: arg0 = temperature_c, arg1 = fan_rpm
+```c
+strice("info:Motor {motor_id}: {temperature_c} C",
+       motor, aFloat(temp));
 ```
 
-Der Host kann `temperature_c` in beiden Ereignistypen finden. Ein zusätzliches Target-Ereignis je Feld würde zusammengehörige Werte auseinanderreißen und ist nicht vorgesehen.
+Der Feldname ist stabil und unabhängig vom C-Ausdruck. `bind`/`insert` kann bei einfachen Argumenten zusätzlich prüfen, ob Platzhalter und Argumentname plausibel zusammenpassen.
 
-Die ID bezeichnet die Dekodierdefinition, nicht einen einzelnen Auftritt. Dieselbe ID kann tausendfach auftreten. Beim Zusammenführen mehrerer Geräte oder Wörterbücher wird zusätzlich die passende Quellen-/Wörterbuchkennung benötigt.
+**Feldname automatisch aus dem Argument:**
 
-### Geplant: Kontext ergänzen und Meldungen auswählen
+```c
+strice("info:Motor {}: {} C",
+       motor_id, aFloat(temperature_c));
+```
 
-[Kontextanreicherung](Kontextanreicherung_DE.md#ce-zusammen) ergänzt denselben Datensatz, etwa um `ctx.task_id`. Benannte Nutzwerte funktionieren auch ohne Kontext; Kontext kann umgekehrt gewöhnliche Textmeldungen ergänzen.
+Bei `{}` wird der Name eines einfachen C-Bezeichners übernommen. Bei `aFloat(x)` und `aDouble(x)` wird `x` als Name verwendet. Damit sind Feldname und Wert gekoppelt; ein Tippfehler im Bezeichner wird normalerweise bereits vom Compiler erkannt.
 
-Die [Tag- und Gewichtsauswahl](Log_Auswahl_DE.md#la-gewichte) gilt für das gesamte Ereignis. Ein anderes Ausgabeformat oder eine andere Farbe verändert die Auswahl nicht. Kontextfelder gehören zum angenommenen Ereignis und werden nicht nochmals einzeln gefiltert.
+Ohne explizite Darstellung gilt als Default:
 
-Unbekannte IDs oder beschädigte Daten dürfen keine scheinbar gültigen Datensätze mit erfundenen Nullwerten erzeugen. Werkzeugdiagnosen werden getrennt ausgegeben, damit ein maschinenlesbarer Datenstrom lesbar bleibt. Die binäre Rohaufzeichnung bleibt von diesen Ausgabefiltern unabhängig.
+```text
+aFloat(...) / aDouble(...) -> %f
+sonst                       -> %d
+```
+
+Eine abweichende Darstellung kann nach dem ersten `:` frei angegeben werden:
+
+```c
+strice("Temperature{: = %.1f |}", aFloat(temperature_c));
+strice("Motor{motor_id:: %d, }", motor_id);
+```
+
+Alles zwischen dem ersten `:` und der schließenden `}` ist Darstellungstext einschließlich genau eines `printf`-Formatspezifizierers. Der erste Doppelpunkt trennt nur Feldname und Darstellung; weitere Doppelpunkte sind normaler Text.
+
+Für Ausdrücke, aus denen kein stabiler Feldname eindeutig abgeleitet werden kann, ist ein expliziter Name erforderlich:
+
+```c
+strice("{temperature_c:%.1f C}", aFloat(getTemperature()));
+```
+
+**Nicht als primäre Lösung vorgesehen:**
+
+- Eine manuell gepflegte Zuordnung `arg0 -> motor_id` außerhalb der Logstelle ist fehleranfällig.
+- Ein vollständiges B-Modell mit zentralen Event-Schemata und generierter API ist möglich, aber für allgemeines Trice-Logging unnötig schwergewichtig. Es wäre nur bei Bedarf an einem verbindlichen, vielfach wiederverwendeten Ereigniskatalog sinnvoll.
+
+**C als spätere Option:**
+
+```c
+striceX("info:Motor temperature %d: %.1f C", "motor_id", motor_id,
+        "temperature_c", aFloat(getTemperature());
+striceX("info:Motor temperature %d: %.1f C", "", motor_id,
+        "temperature_c", aFloat(getTemperature()); // possible short form
+```
+
+C kann später als syntaktischer Zucker ergänzt werden. Hostseitig kann es in dasselbe Datenmodell wie A überführt werden; das Drahtformat muss sich dadurch nicht ändern.
+
+### 4. Entwurf für A mit Kurzform und optionaler Registry
+
+Die Platzhalter folgen grundsätzlich der Form
+
+```text
+{ [name] [ ":" Darstellung ] }
+```
+
+`bind`/`insert` extrahiert für jede strukturierte Logstelle ID, Feldnamen, Argumentpositionen und die für Trice erforderliche Konvertierung. Beispiele:
+
+```c
+{}                         // Name aus Argument, Defaultdarstellung
+{motor_id}                 // expliziter Name, Defaultdarstellung
+{:%.1f}                    // Name aus Argument, explizite Darstellung
+{: = %.1f C}               // Name aus Argument, freier Darstellungstext
+{temperature_c:%.1f C}     // expliziter Name und Darstellung
+{motor_id:: %d, }          // Name motor_id, Darstellung ": %d, "
+```
+
+Alle Varianten erzeugen dasselbe Host-Schema, beispielsweise:
+
+```text
+ID 4711:
+    arg0 -> motor_id
+    arg1 -> temperature_c
+```
+
+Optional führt das Trice Tool eine Feldnamen-Registry. Sie wird beim ersten Lauf **automatisch und ohne Rückfrage erzeugt**, bei späteren Läufen ebenso **schweigend erweitert und aktualisiert** und anschließend wie eine normale Projektdatei manuell reviewed.
+
+Beispiel:
+
+```text
+motor_id          12
+temperature_c     27
+```
+
+Die Registry ist alphabetisch sortiert; die Zahl gibt an, an wie vielen Logstellen der Name im analysierten Quellbestand verwendet wird. Dadurch fallen beim Review ähnliche oder versehentlich neu entstandene Namen wie `temperature_c` und `temperture_c` leicht auf. Die Registry ist eine Qualitätskontrolle, keine Voraussetzung für das Drahtprotokoll und kein Ersatz für Compiler- oder Build-Prüfungen.
+
+**Vorgesehener Ablauf:** A als Grundmodell implementieren, `{}` als kurze und sichere Namensableitung für einfache Bezeichner einschließlich `aFloat()`/`aDouble()` zulassen, optionale Darstellungen nach `:` unterstützen und alles in dasselbe Host-Datenmodell überführen. Die Registry kann optional durch `bind`/`insert` gepflegt werden; C kann später ohne Änderung dieses Modells ergänzt werden.
+
+### Referenzen
+
+- Microsoft Logging: https://learn.microsoft.com/dotnet/core/extensions/logging
+- Microsoft source-generated Logging: https://learn.microsoft.com/dotnet/core/extensions/high-performance-logging
+- Go `slog`: https://pkg.go.dev/log/slog
+- Rust `tracing`: https://docs.rs/tracing/latest/tracing/
+- LTTng Tracepoints: https://lttng.org/docs/v2.14/
