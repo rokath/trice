@@ -14,39 +14,33 @@ Ein bekannter Name vor dem ersten Doppelpunkt ist ein Tag:
 trice("wrn:Motor temperature is %d C\n", temperature);
 ```
 
-Der Host erkennt `wrn`, färbt die Meldung und kann sie auswählen. Der Tag steht im Formatstring des Wörterbuchs; für ihn werden bei gewöhnlichen ID-basierten Trice-Meldungen keine zusätzlichen Target-Nutzdaten übertragen.
+Der Host erkennt `wrn`, färbt die Meldung entsprechend `./internal/emitter/lineTransformerANSI.go` und kann sie auswählen. Der Tag ist optionaler Teil des Formatstrings und damit in `til.json` (Wörterbuch); für ihn werden bei gewöhnlichen ID-basierten Trice-Meldungen keine zusätzlichen Target-Nutzdaten übertragen.
 
 | Aufgabe | Option für `trice log` |
 |---|---|
-| Genau Warnungen und Fehler sehen | `-pick wrn:err` |
+| Genau nur Warnungen und Fehler sehen | `-pick wrn:err` oder `-pick wrn -pick err`|
 | Debug-Meldungen ausblenden | `-ban dbg` |
-| Mehrere Gruppen auswählen | `-pick wrn -pick err` |
-| Eigenen Tag bekannt machen | `-ulabel motor` |
+| Eigene Tags bekannt machen | `-ulabel motor` `-ulabel pressure`|
 
-`-pick` und `-ban` schließen einander aus. `-pick wrn:err` enthält keine anderen Gruppen wie Fatal oder Critical. Das ist nützlich, wenn du gezielt einen Meldungstyp untersuchst.
+`-pick` und `-ban` schließen einander aus und sind nützlich, wenn du gezielt einzelne Meldungstypen (Gruppen) untersuchst. Sie wirken immer auf eine gesamte Gruppe.
 
-Aliase wie `err` und `ERROR` gehören zur selben Gruppe. Bei `-color default` werden bekannte kleingeschriebene Tag-Präfixe entfernt und Farben hinzugefügt; großgeschriebene Präfixe bleiben sichtbar. `-color none` entfernt ebenfalls die kleingeschriebenen Präfixe, erzeugt aber keine Farben. `-color off` lässt Präfixe unverändert. Details: [Tags und Farben](../../TriceUserManual.md#trice-tags-and-color).
+Aliase wie `err` und `ERROR` gehören zur selben Gruppe. Welche Tag Aliase existieren, steht in der Tags Slice innerhalb von `./internal/emitter/lineTransformerANSI.go`. Mit CLI Switch `-color default` werden bekannte rein kleingeschriebene Tag-Präfixe entfernt und Farben hinzugefügt; Präfixe (Tags) mit mindestens einem Großbuchstaben bleiben sichtbar. `-color none` entfernt ebenfalls komplett kleingeschriebenen Präfixe, erzeugt aber keine Farben. `-color off` lässt Präfixe unverändert, fügt aber keine Farben hinzu. Details: [Tags und Farben](../../TriceUserManual.md#trice-tags-and-color).
 
-Im geprüften lokalen Arbeitsstand gehört `rx` zu Receive, `tx` zu Transmit, `s`/`S` zu Seconds und `W` zu Write; für Warnungen verwende beispielsweise `wrn`. Ältere Stände enthalten mehrdeutige Kurzformen. Ausgeschriebene Namen wie `read`, `write`, `receive`, `transmit`, `signal` und `Seconds` erleichtern den Wechsel.
-
-**Derzeitige Einschränkungen:** Gib eigene Tags einzeln mit wiederholtem `-ulabel` an. Doppelpunktlisten für `-ulabel` funktionieren nicht wie beschrieben. Auch die Auswahl neu registrierter User-Tags durch `-pick`/`-ban` ist derzeit fehlerhaft.
+Gib eigene Tags einzeln mit wiederholtem `-ulabel` an. Doppelpunktlisten für `-ulabel` funktionieren nicht. Die Auswahl mit `-ulabel` neu registrierter User-Tags durch `-pick`/`-ban` ist in v1.3.0 fehlerhaft.
 
 ### <a id="la-heute-loglevel"></a>Vorhanden: logLevel mit Einschränkungen
 
-`-logLevel wrn` verwendet derzeit die Reihenfolge der Tag-Tabelle: Es lässt `wrn` und davor stehende Gruppen durch. Diese Reihenfolge vermischt Prioritäten mit anderen Tags. Außerdem kann die Filterung Zeitstempel, Quellposition, ID, Präfix und Suffix unterdrücken. Für die alltägliche gezielte Auswahl sind vorerst `-pick` und `-ban` leichter vorhersehbar.
+`-logLevel wrn` verwendet derzeit die Reihenfolge der Tag-Tabelle: Es lässt `wrn` und davor stehende Gruppen durch. Diese Reihenfolge vermischt Prioritäten mit anderen Tags. Außerdem kann die Filterung Zeitstempel, Quellposition, ID, Präfix und Suffix unterdrücken. Für die alltägliche gezielte Auswahl sind vorerst `-pick` und `-ban` leichter vorhersehbar (v1.3.0).
 
 Wer die vorhandene Level-Schwelle benötigt, kann ergänzte Spalten ohne eigene Tag-Präfixe formatieren. Beispiel für eine vorhandene TREX/TCOBSv1-Aufzeichnung ohne Verschlüsselung und passende `til.json`/`li.json` im Arbeitsverzeichnis:
 
 ```sh
-trice log -p FILEBUFFER -args capture.bin -til til.json -li li.json \
-  -encoding TREX -pf TCOBSv1 -logLevel wrn -color none \
-  -hs UTCmicro -liFmt '[%s:%d] ' -showID '[id=%d] ' \
-  -ts0 '[no target stamp] ' -ts16 '[t16=%d] ' -ts32 '[t32=%d] ' \
-  -ts0delta '' -ts16delta '' -ts32delta '' \
+trice log -p FILEBUFFER -args capture.bin \
+  -logLevel wrn \
+  -hs UTCmicro -liFmt '[%20s:%3d] ' -showID '[id=%d] ' \
+  -ts0 '[no target stamp] ' -ts16 '[t16 = %9d] ' -ts32 '[t32 = %9d] ' \
   -prefix '[' -suffix ']'
 ```
-
-Die Metadaten beginnen nicht mit einem bekannten Darstellungstag und werden deshalb im aktuellen Pfad nicht als niedriger priorisierte Gruppe ausgeblendet. Hostzeit bezeichnet beim Abspielen die Wiedergabezeit. Die Targetwerte werden hier ohne Einheitenumrechnung angezeigt.
 
 Das Beispiel zielt auf Meldungen mit jeweils abschließendem Zeilenumbruch; Teilzeilen können sich anders verhalten. Weitere Optionen: [Zeitstempel](../../TriceUserManual.md#trice-timestamps).
 
@@ -58,25 +52,24 @@ Ein höheres Gewicht bedeutet höhere Priorität. Eine Meldung passiert `-logLev
 
 | Gruppe | Gewicht |
 |---|---:|
-| Fatal | 990 |
-| Critical | 980 |
-| Emergency | 970 |
-| Error | 960 |
-| Warning | 950 |
-| Attention | 940 |
-| Assert, Alarm, Alert | 960 |
+| Fatal | 790 |
+| Critical | 780 |
+| Emergency | 770 |
+| Error | 760 |
+| Warning | 750 |
+| Attention | 740 |
+| Assert, Alarm, Alert | 760 |
 | Notice | 600 |
-| Info | 500 |
+| INFO, Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 500 |
+| `untagged` | 500 (INFO-Anfangswert) |
+| Neue User-Tags ohne explizites Gewicht | endgültiges INFO-Gewicht |
 | Debug | 200 |
 | Trace | 100 |
 | Verbose | 50 |
-| Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 500 |
-| `untagged` | 500 (INFO-Anfangswert) |
-| Neue User-Tags ohne explizites Gewicht | endgültiges INFO-Gewicht |
 
 `CYCLE_ERROR` kennzeichnet eine Werkzeugdiagnose und nimmt nicht an der Auswahl von Anwendungsmeldungen teil. Die Tabelle ist eine Trice-Auswahlkonvention; sie behauptet keine allgemeingültige Schweregradordnung. Ein fachlicher Tag wie `receive` bezeichnet zunächst ein Thema. Sein Gewicht ist eine konfigurierbare Priorität.
 
-Für den Normalbetrieb ist `-logLevel wrn` praktisch: Neue Gruppen mit ausreichend hohem Gewicht erscheinen automatisch. Für eine Untersuchung nur bestimmter Gruppen passt `-pick` besser.
+Für den Normalbetrieb ist `-logLevel info` praktisch: Neue Gruppen mit ausreichend hohem Gewicht erscheinen automatisch. Für eine Untersuchung nur bestimmter Gruppen passt `-pick` besser.
 
 ### Geplant: eigene Gewichte und kombinierte Filter
 
@@ -88,17 +81,17 @@ Für den Normalbetrieb ist `-logLevel wrn` praktisch: Neue Gruppen mit ausreiche
 
 `motor` übernimmt das INFO-Gewicht. `sensor` erhält 150. `msg:600` ändert das Gewicht der Message-Gruppe samt Aliasen für diesen Aufruf. Ein bekanntes `-ulabel msg` ohne Zahl verändert nichts. Bei mehreren expliziten Gewichten für dieselbe Gruppe gilt die letzte Angabe, auch über verschiedene Aliase.
 
-Alle Labels werden registriert, bevor Selektoren und Schwellen aufgelöst werden. Daher sind `-pick motor -ulabel motor` und die umgekehrte Reihenfolge gleichwertig. Vorschlag: Ein neuer Tag ohne explizites Gewicht übernimmt das endgültige INFO-Gewicht nach Verarbeitung aller Optionen.
+Alle Labels werden registriert, bevor Selektoren und Schwellen aufgelöst werden. Daher sind `-pick motor -ulabel motor` und die umgekehrte Reihenfolge gleichwertig. Ein neuer Tag ohne explizites Gewicht übernimmt das endgültige INFO-Gewicht nach Verarbeitung aller Optionen.
 
 Nach dem Doppelpunkt von `-ulabel` darf nur ein Gewicht stehen: `tagA:tagB` bleibt ungültig. Bei `-pick` und `-ban` bleibt der Doppelpunkt dagegen das Listentrennzeichen. Unbekannte oder leere Selektoren, ungültige Gewichte und `-pick` zusammen mit `-ban` führen vor dem Öffnen der Eingabe zu einem CLI-Fehler. Vorschlag: rein numerische Tag-Namen sowie `all` und `off` sind reserviert, damit die Level-Eingabe eindeutig bleibt.
 
-Tag-Auswahl und Schwelle wirken gemeinsam:
+Tag-Auswahl und Schwelle wirken gemeinsam. Es bleiben von den ausgewählten Gruppen nur Meldungen ab Fehlergewicht übrig. Für `-ban` gilt z.B.: nicht verboten **und** ausreichend wichtig. Beispiele:
 
-```text
--pick err:wrn -logLevel err
-```
-
-Damit bleiben von den ausgewählten Gruppen nur Meldungen ab Fehlergewicht übrig. Für `-ban` gilt: nicht verboten **und** ausreichend wichtig.
+`-pick err:wrn -logLevel err` zeigt nur die ERROR Gruppe, wenn WARNIG geringeres Gewicht als ERROR hat.
+`-ban err:wrn -logLevel err` zeigt nur die Gruppen mit Gewicht größer ERROR an, aber auf keinen Fall die WARNING Gruppe.
+`-ban all -logLevel info` wird nicht als CLI Fehler behandelt. Es werden keine Messages angezeigt.
+`-pick off -logLevel info` wird nicht als CLI Fehler behandelt. Es werden keine Messages angezeigt.
+`-pick all -logLevel info` wird nicht als CLI Fehler behandelt. Es werden alle Messages ab Fehlergewicht INFO angezeigt. Gleichbedeutend mit `-ban off -logLevel info` oder einfach `-logLevel info`
 
 ### <a id="la-untagged"></a>Geplant: untagged
 
@@ -110,17 +103,18 @@ Fehlt ein bekannter Tag, ordnet der Host die Anwendungsmeldung der reservierten 
 -ulabel untagged:150
 ```
 
-`untagged` kann nicht als zusätzliche unabhängige User-Gruppe angelegt werden. Ein gleichnamiges `-ulabel` ist wie bei anderen vorhandenen Gruppen zulässig.
+`untagged` kann nicht als zusätzliche unabhängige User-Gruppe angelegt werden. Ein gleichnamiges `-ulabel` ist wie bei anderen vorhandenen Gruppen zulässig. Kommt im Code vor `trice("untagged:Hi\n");`, ist das gleichbedeutend mit ungetaggtem Text.
 
 | Ursprünglicher Text | Interne Darstellung für den Textausgabepfad |
 |---|---|
 | `Hello` | `untagged:Hello` |
+| `untagged:Hello` | `untagged:untagged:Hello` |
 | `mgs:blah` | `untagged:mgs:blah` |
 | `msg:Hello` | `msg:Hello` |
 
-Bei `default`/`none` wird nur das erkannte äußere Präfix entfernt; der Tippfehler `mgs:` bleibt sichtbar. Bei `-color off` bleibt nach der allgemeinen Präfixregel auch das intern ergänzte `untagged:` sichtbar. Das ist eine bewusst dokumentierte Änderung der Textausgabe.
+Bei `default`/`none` wird nur das erkannte äußere Präfix entfernt; der Tippfehler `mgs:` bleibt sichtbar. Bei `-color off` wird trotz der allgemeinen Präfixregel das intern ergänzte `untagged:` wieder entfernt.
 
-Die Zuordnung erfolgt einmal für die Meldung, bevor Zusatzspalten entstehen. Bei ID-basierten Meldungen ist der Formatstring im Wörterbuch maßgeblich; ein Laufzeitwert mit Text `err:...` darf keine neue Priorität vortäuschen. Originalquelle, gespeicherter Formatstring, IDs und binäre Rohaufzeichnung werden durch diese Hostzuordnung nicht umgeschrieben. Diese Hostzuordnung ändert die ID-Vergabe nicht.
+**Diese Formulierung ist nicht klar verständlich und sollte klarer sein oder entfallen:** Die Zuordnung erfolgt einmal für die Meldung, bevor Zusatzspalten entstehen. Bei ID-basierten Meldungen ist der Formatstring im Wörterbuch maßgeblich; ein Laufzeitwert mit Text `err:...` darf keine neue Priorität vortäuschen. Originalquelle, gespeicherter Formatstring, IDs und binäre Rohaufzeichnung werden durch diese Hostzuordnung nicht umgeschrieben. Diese Hostzuordnung ändert die ID-Vergabe nicht.
 
 ### <a id="la-ereignisse"></a>Geplant: Meldung samt Zusatzspalten auswählen
 
@@ -128,19 +122,21 @@ Wenn eine Warnung angezeigt wird, bleiben ihre eingeschalteten Zeitstempel, Quel
 
 Ein Trice-Aufruf ist ein Ereignis. Eine Zeile kann mehrere Aufrufe enthalten. **Entwurf für Teilzeilen:** Jeder Aufruf wird einzeln ausgewählt; nur angenommene Textteile bilden die Ausgabe. Wird ein Teil unterdrückt, werden die übrigen Teile direkt aneinandergefügt. Die Zusatzspalten gehören zum ersten angenommenen Ereignis der Zeile. Ein unterdrückter Zeilenumbruch beendet sie nicht; ein offener Rest wird spätestens am Eingabeende ausgegeben. `-addNL` beendet jeden angenommenen Aufruf als eigene Zeile. Bei einem mehrzeiligen Aufruf gehören alle Zeilen zur selben Filterentscheidung.
 
-Werkzeugfehler wie „unbekannte ID“ bleiben unabhängig von Anwendungsfiltern sichtbar, auch bei `-logLevel off`. Sie sind keine `untagged`-Anwendungsmeldungen. Die gemeinsame Ereignisauswahl soll auch für die Visualisierung mit `-vis` gelten.
+Werkzeugfehler (im Trice Tool entstandene) wie „unbekannte ID“ bleiben unabhängig von Anwendungsfiltern sichtbar, auch bei `-logLevel off`. Sie sind keine `untagged`-Anwendungsmeldungen. Die gemeinsame Ereignisauswahl soll auch für die Visualisierung mit `-vis` gelten.
+
+**Zu diskutieren:** `off` und `all` Bedeutung für `-logLevel`. Diese Werte sollten verboten werden, um Missverständnisse beim Lesen von Skripts zu vermeiden. 
 
 ### Vorhanden und geplant: IDs vergeben und auf dem Target routen
 
 `insert` und `bind` bieten allgemeine ID-Grenzen und tagbezogene Bereiche:
 
 ```sh
-trice bind -src app -IDMin 1000 -IDMax 9999 -IDRange err:10,99
+trice bind -IDMin 1000 -IDMax 9999 -IDRange err:10,99
 ```
 
-Der Bereich `10..99` ist für Fehler vorgesehen; der allgemeine Bereich überschneidet ihn nicht. Vergabegrenzen sind einschließlich. Der Befehl allein konfiguriert keinen Target-Ausgang.
+Der Bereich `10..99` ist hier für Fehler vorgesehen; der allgemeine Bereich überschneidet ihn nicht. Vergabegrenzen sind einschließlich. Der Befehl allein konfiguriert nur die ID-Vergabe, keinen Target-Ausgang.
 
-ID-Routing wird durch Defines im Build eingerichtet. Zur Laufzeit entscheidet die ID, an welchen Ausgang die Meldung geht. Aktives Deferred-Routing benötigt den vorhandenen Single-Pack-Modus. Konfiguration: [triceDefaultConfig.h](../../../src/triceDefaultConfig.h); Hintergrund: [ID-Management](../../TriceUserManual.md#trice-id-management) und [ID-Routing](../../TriceUserManual.md#id-routing).
+ID-Routing wird durch Defines wie `TRICE_UARTA_MIN_ID` im Build eingerichtet. Zur Laufzeit entscheidet die ID, an welchen Ausgang die Meldung geht. Aktives Deferred-Routing benötigt den vorhandenen Single-Pack-Modus. Konfiguration in projektspezifischer `triceConfig.h`, siehe [triceDefaultConfig.h](../../../src/triceDefaultConfig.h); Hintergrund: [ID-Management](../../TriceUserManual.md#trice-id-management) und [ID-Routing](../../TriceUserManual.md#id-routing).
 
 **Vorhandene Einschränkung:** Im Deferred-Routing werden Bereichsgrenzen derzeit ausgeschlossen; die Aktivierung bei nur einer gesetzten Grenze ist je nach Ausgang unterschiedlich. Geplant sind inklusive Grenzen und klare Konfigurationsfehler für unvollständige Bereiche.
 
