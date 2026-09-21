@@ -95,9 +95,13 @@ int main(void) {
 // routingTestConfig enables the smallest host-runnable deferred setup.
 const routingTestConfig = `#ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
+#ifndef TRICE_BUFFER
 #define TRICE_BUFFER TRICE_RING_BUFFER
+#endif
 #define TRICE_DEFERRED_OUTPUT 1
+#ifndef TRICE_DEFERRED_TRANSFER_MODE
 #define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE
+#endif
 #define TRICE_CYCLE_COUNTER 0
 #define TRICE_CONFIG_WARNINGS 0
 #define TRICE_CGO 1
@@ -206,6 +210,59 @@ func TestDeferredRoutingConfiguration(t *testing.T) {
 		t.Run(output.name+"/zero bounds route all IDs", func(t *testing.T) {
 			compileAndRunRoutingHarness(t, compiler, output, 0, 0, 3)
 		})
+	}
+}
+
+// TestDeferredIDRoutingRequiresSinglePack verifies the existing transfer-mode
+// guard for both deferred buffer implementations and every routed output.
+func TestDeferredIDRoutingRequiresSinglePack(t *testing.T) {
+	compiler := hostCCompiler(t)
+	if compiler == "" {
+		t.Skip("no host C compiler available")
+	}
+
+	for _, output := range routingOutputs {
+		output := output
+		for _, buffer := range []string{"TRICE_RING_BUFFER", "TRICE_DOUBLE_BUFFER"} {
+			buffer := buffer
+			prefix := []string{"-DTRICE_BUFFER=" + buffer}
+			t.Run(output.name+"/"+buffer+"/single pack with routing", func(t *testing.T) {
+				definitions := append(append([]string(nil), prefix...),
+					"-DTRICE_DEFERRED_TRANSFER_MODE=TRICE_SINGLE_PACK_MODE",
+					"-D"+output.minimum+"=10",
+					"-D"+output.maximum+"=20",
+				)
+				compileOutput, err := compileRoutingConfiguration(t, compiler, output, definitions)
+				require.NoErrorf(t, err, "%s", compileOutput)
+			})
+
+			t.Run(output.name+"/"+buffer+"/multi pack with routing", func(t *testing.T) {
+				definitions := append(append([]string(nil), prefix...),
+					"-DTRICE_DEFERRED_TRANSFER_MODE=TRICE_MULTI_PACK_MODE",
+					"-D"+output.minimum+"=10",
+					"-D"+output.maximum+"=20",
+				)
+				compileOutput, err := compileRoutingConfiguration(t, compiler, output, definitions)
+				require.Error(t, err)
+				require.Contains(t, string(compileOutput), "TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE")
+			})
+
+			for _, inactive := range []struct {
+				name   string
+				bounds []string
+			}{
+				{name: "missing bounds"},
+				{name: "zero bounds", bounds: []string{"-D" + output.minimum + "=0", "-D" + output.maximum + "=0"}},
+			} {
+				inactive := inactive
+				t.Run(output.name+"/"+buffer+"/multi pack without routing/"+inactive.name, func(t *testing.T) {
+					definitions := append(append([]string(nil), prefix...), "-DTRICE_DEFERRED_TRANSFER_MODE=TRICE_MULTI_PACK_MODE")
+					definitions = append(definitions, inactive.bounds...)
+					compileOutput, err := compileRoutingConfiguration(t, compiler, output, definitions)
+					require.NoErrorf(t, err, "%s", compileOutput)
+				})
+			}
+		}
 	}
 }
 

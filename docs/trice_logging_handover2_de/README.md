@@ -33,7 +33,6 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 
 | Neu | Aufgabe | Alt | Umfang / Voraussetzung |
 |---|---|---|---|
-| [M07](issues/M07_single_pack_tests.md) | Vorhandene Single-Pack-Sperren testen | L10 | S/M; nach M06 |
 | [M08](issues/M08_tag_gewichte_ulabel.md) | Gewichte und gewichtete User-Tags | L05, L06, Teil L11 | M; nach M01 |
 | [M09](issues/M09_selektoren_validieren.md) | Selektoren nach Registrierung prüfen | L07, Teil L05/L11 | S/M; nach M08 |
 | [M10](issues/M10_diagnosen_trennen.md) | Werkzeugfehler von Logmeldungen trennen | L14 | M |
@@ -48,7 +47,7 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 | [M19](issues/M19_strukturierte_felder.md) | Strukturierte Bedienung auswählen | L26 | Entwurfsaufgabe |
 | [M20](issues/M20_kontext_vertrag.md) | Reversible Kontextanreicherung spezifizieren | L22 | Entwurfsaufgabe; mit M19 abstimmen |
 
-Abgeschlossen: [M01](issues/M01_tag_aliases.md) ordnet alle eingebauten Alias-Schreibweisen eindeutig zu, prüft das vollständige Register und dokumentiert den Kompatibilitätswechsel. [M02](issues/M02_idrange_validierung.md) weist fehlerhafte Bereichsregeln atomar vor Dateiänderungen ab. [M03](issues/M03_pick_ban_konflikt.md) erkennt den Pick-/Ban-Konflikt vor dem Start des Eingabekanals. [M04](issues/M04_rohaufzeichnung.md) schützt ungefilterte Rohbytes, Replay, Append und Schreibfehler. [M05](issues/M05_routing_grenzen.md) schließt beide Grenzen aller Deferred-ID-Routen ein. [M06](issues/M06_routing_konfiguration.md) vereinheitlicht Aktivierung, Defaultgrenzen und Konfigurationsfehler. Damit verbleiben 14 aktive M-Issues.
+Abgeschlossen: [M01](issues/M01_tag_aliases.md) ordnet alle eingebauten Alias-Schreibweisen eindeutig zu, prüft das vollständige Register und dokumentiert den Kompatibilitätswechsel. [M02](issues/M02_idrange_validierung.md) weist fehlerhafte Bereichsregeln atomar vor Dateiänderungen ab. [M03](issues/M03_pick_ban_konflikt.md) erkennt den Pick-/Ban-Konflikt vor dem Start des Eingabekanals. [M04](issues/M04_rohaufzeichnung.md) schützt ungefilterte Rohbytes, Replay, Append und Schreibfehler. [M05](issues/M05_routing_grenzen.md) schließt beide Grenzen aller Deferred-ID-Routen ein. [M06](issues/M06_routing_konfiguration.md) vereinheitlicht Aktivierung, Defaultgrenzen und Konfigurationsfehler. [M07](issues/M07_single_pack_tests.md) sichert die vorhandene Single-Pack-Sperre für Ring- und Double-Buffer ab. Damit verbleiben 13 aktive M-Issues.
 
 L11 legt fest, **welche Wichtigkeit** ein Tag hat; L12 verhindert, dass eine erlaubte Meldung ihren Zeitstempel verliert; L13 betrifft mehrere Aufrufe pro Zeile beziehungsweise mehrere Zeilen pro Aufruf; L17 soll unnötige Formatierungsarbeit sparen. Das sind unterschiedliche Aufgaben.
 
