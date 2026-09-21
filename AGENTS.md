@@ -46,8 +46,10 @@
 * Prefer minimal, reviewable diffs over large transformations.
 * Keep formatting changes separate from functional changes.
 * Do not reformat entire files unless explicitly requested.
+* Preserve existing blank lines and paragraph spacing in documentation and other text files unless the requested change explicitly requires altering them; do not collapse or normalize blank-line structure as incidental formatting.
 * Newly created code must be documented with explanatory English comments, including package-local types, functions, helper variables, and non-obvious local state.
 * Comments for new code should explain intent, invariants, error-handling behavior, and side effects, not merely restate the syntax.
+* Insert Headlines with several # only, according to the intended level. Add no link anchors and no numbers to headlines. 
 
 ---
 
