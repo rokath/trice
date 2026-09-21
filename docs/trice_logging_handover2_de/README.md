@@ -33,7 +33,6 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 
 | Neu | Aufgabe | Alt | Umfang / Voraussetzung |
 |---|---|---|---|
-| [M02](issues/M02_idrange_validierung.md) | Fehlerhafte IDRange vollständig abweisen | L27 | S |
 | [M03](issues/M03_pick_ban_konflikt.md) | Pick/Ban-Konflikt vor dem Start melden | L08 | S |
 | [M04](issues/M04_rohaufzeichnung.md) | Ungefilterte Rohaufzeichnung absichern | L15 | S/M |
 | [M05](issues/M05_routing_grenzen.md) | Routing-Grenzen einschließlich behandeln | L02 | S/M |
@@ -53,7 +52,7 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 | [M19](issues/M19_strukturierte_felder.md) | Strukturierte Bedienung auswählen | L26 | Entwurfsaufgabe |
 | [M20](issues/M20_kontext_vertrag.md) | Reversible Kontextanreicherung spezifizieren | L22 | Entwurfsaufgabe; mit M19 abstimmen |
 
-Abgeschlossen: [M01](issues/M01_tag_aliases.md) ordnet alle eingebauten Alias-Schreibweisen eindeutig zu, prüft das vollständige Register und dokumentiert den Kompatibilitätswechsel. Damit verbleiben 19 aktive M-Issues.
+Abgeschlossen: [M01](issues/M01_tag_aliases.md) ordnet alle eingebauten Alias-Schreibweisen eindeutig zu, prüft das vollständige Register und dokumentiert den Kompatibilitätswechsel. [M02](issues/M02_idrange_validierung.md) weist fehlerhafte Bereichsregeln atomar vor Dateiänderungen ab. Damit verbleiben 18 aktive M-Issues.
 
 L11 legt fest, **welche Wichtigkeit** ein Tag hat; L12 verhindert, dass eine erlaubte Meldung ihren Zeitstempel verliert; L13 betrifft mehrere Aufrufe pro Zeile beziehungsweise mehrere Zeilen pro Aufruf; L17 soll unnötige Formatierungsarbeit sparen. Das sind unterschiedliche Aufgaben.
 
@@ -69,7 +68,7 @@ L11 legt fest, **welche Wichtigkeit** ein Tag hat; L12 verhindert, dass eine erl
 ## Konkrete Befunde und Prüfgrenze
 
 - Im Basiscommit sind `rx`, `tx`, `s` und `S` gruppenübergreifend doppelt. Die inzwischen vorliegende lokale Korrektur ordnet sie eindeutig zu und verschiebt `W` von Warning zu Write. M01 hält noch nötige Registertests und Kompatibilitätshinweise fest. Das im alten Handover genannte `w` war bereits im Basiscommit nicht doppelt.
-- IDRange-Überlappungen werden bereits abgewiesen und getestet. Ein fehlender Doppelpunkt wird ignoriert; ein vorhandener Test erwartet das ausdrücklich. M02 muss diese Erwartung ändern.
+- IDRange-Regeln werden vollständig und atomar geprüft; fehlerhafte Angaben erreichen weder Insert noch Bind.
 - Binäre Aufzeichnung liegt bereits vor der Hostfilterung; die Single-Pack-Sperren im Deferred-Routing existieren ebenfalls. M04/M07 sichern vorhandenes Verhalten ab.
 - Gewichte, `untagged` und die neue Neuzuweisungsregel sind geplant. Tabellenposition und mögliche Wiederverwendung regelwidriger IDs sind noch im Code.
 

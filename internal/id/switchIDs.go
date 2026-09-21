@@ -258,21 +258,27 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 // Each tag (like "err:") is allowed to occur only once, so a "e:" will fail after "err" was applied.
 // IDRanges are not allowed to overlap.
 func EvaluateIDRangeStrings() error {
+	// Trice IDs occupy the lower 14 bits of the encoded ID word.
+	const highestTriceID = 16383
+
 	var (
 		tis    *TagEntry
 		mi, ma int
 		err    error
 	)
+	// Validate into a copy so one valid rule cannot leave partial state behind
+	// when a later rule is malformed.
+	tagList := append([]TagEntry(nil), IDData.TagList...)
 	// Interpret supplied IDRange string.
 	for _, x := range IDRange {
 		tis = new(TagEntry)
 		name, mima, found := strings.Cut(x, ":")
 		if !found {
-			continue
+			return fmt.Errorf("invalid syntax in %s - expecting \"TagName:number,number\"", x)
 		}
 		min, max, ok := strings.Cut(mima, ",")
-		if !ok {
-			goto returnErr
+		if !ok || name == "" || min == "" || max == "" {
+			return fmt.Errorf("invalid syntax in %s - expecting \"TagName:number,number\"", x)
 		}
 		mi, err = strconv.Atoi(min)
 		if err != nil {
@@ -284,8 +290,11 @@ func EvaluateIDRangeStrings() error {
 			goto returnErr
 		}
 		tis.max = TriceID(ma)
+		if mi < 1 || ma > highestTriceID {
+			return fmt.Errorf("invalid -IDRange %q: IDs must satisfy 1 <= Min <= Max <= %d", x, highestTriceID)
+		}
 		if mi > ma {
-			return fmt.Errorf("the with -IDRange applied ID range is inval Min(%d) > Max(%d)", mi, ma)
+			return fmt.Errorf("invalid -IDRange %q: Min(%d) > Max(%d)", x, mi, ma)
 		}
 		// Find tis.TagName.
 		for _, t := range emitter.Tags {
@@ -299,8 +308,8 @@ func EvaluateIDRangeStrings() error {
 		return fmt.Errorf("the with -IDRange applied name %s is unknown. Please check var Tags inside trice/internal/emitter/lineTransformerANSI.go for options", name)
 	next:
 		// Check for single name range assignment.
-		for i := range IDData.TagList {
-			e := &(IDData.TagList[i]) // get list entry address
+		for i := range tagList {
+			e := &(tagList[i]) // get list entry address
 			if e.tagName == tis.tagName {
 				return fmt.Errorf("tagName %s has already an assigned ID range. Please check your command line", tis.tagName)
 			}
@@ -309,8 +318,8 @@ func EvaluateIDRangeStrings() error {
 		if !(Max < tis.min || tis.max < Min) {
 			return fmt.Errorf("overlapping ID ranges for %s (Min %d, Max %d) and default (Min %d, Max %d)", tis.tagName, tis.min, tis.max, Min, Max)
 		}
-		for i := range IDData.TagList {
-			e := &(IDData.TagList[i]) // get list entry address
+		for i := range tagList {
+			e := &(tagList[i]) // get list entry address
 			if e.tagName == tis.tagName {
 				return fmt.Errorf("tagName %s has already an assigned ID range. Please check your command line", tis.tagName)
 			}
@@ -328,11 +337,12 @@ func EvaluateIDRangeStrings() error {
 		// for iD := tis.min; iD <= tis.max; iD++ {
 		// 	tis.iDSpace = append(tis.iDSpace, iD)
 		// }
-		IDData.TagList = append(IDData.TagList, *tis)
+		tagList = append(tagList, *tis)
 		continue
 
 	returnErr:
 		return fmt.Errorf("invalid syntax in %s - expecting \"TagName:number,number\"", x)
 	}
+	IDData.TagList = tagList
 	return nil
 }

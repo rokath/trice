@@ -9,7 +9,46 @@ import (
 	"github.com/rokath/trice/internal/args"
 	. "github.com/rokath/trice/internal/id"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// TestMalformedIDRangeLeavesCommandFilesUnchanged verifies that insert and
+// bind reject all range rules before they can modify sources or sidecars.
+func TestMalformedIDRangeLeavesCommandFilesUnchanged(t *testing.T) {
+	for _, command := range []string{"insert", "bind"} {
+		t.Run(command, func(t *testing.T) {
+			defer Setup(t)()
+
+			source := []byte(`TRice("info:unchanged");`)
+			til := []byte(`{"7":{"Type":"TRICE","Strg":"info:unchanged"}}`)
+			li := []byte(`{"7":{"File":"unchanged.c","Line":1}}`)
+			require.NoError(t, FSys.WriteFile(SFName, source, 0o600))
+			require.NoError(t, FSys.WriteFile(FnJSON, til, 0o600))
+			require.NoError(t, FSys.WriteFile(LIFnJSON, li, 0o600))
+
+			err := args.Handler(W, FSys, []string{
+				"trice", command,
+				"-src", SFName,
+				"-til", FnJSON,
+				"-li", LIFnJSON,
+				"-IDRange", "e:100,101",
+				"-IDRange", "missing-separator",
+			})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "missing-separator")
+
+			gotSource, readErr := FSys.ReadFile(SFName)
+			require.NoError(t, readErr)
+			gotTIL, readErr := FSys.ReadFile(FnJSON)
+			require.NoError(t, readErr)
+			gotLI, readErr := FSys.ReadFile(LIFnJSON)
+			require.NoError(t, readErr)
+			assert.Equal(t, source, gotSource)
+			assert.Equal(t, til, gotTIL)
+			assert.Equal(t, li, gotLI)
+		})
+	}
+}
 
 // TestInsertIDsAndJSONDownward verifies the expected behavior.
 func TestInsertIDsAndJSONDownward(t *testing.T) {
