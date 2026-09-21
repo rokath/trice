@@ -219,8 +219,11 @@ func ensureDate(fSys *afero.Afero) {
 }
 
 func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
-	id.Logging = true
 	msg.OnErr(fsScLog.Parse(subArgs))
+	if isLogFlagPassed("pick") && isLogFlagPassed("ban") {
+		return errors.New("switches -pick and -ban cannot be used together")
+	}
+	id.Logging = true
 	id.ProcessAliases()
 	emitter.AddUserLabels()
 	decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
@@ -231,9 +234,13 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
 	decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
 	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-	logLoop(w, fSys) // endless loop
+	startLogLoop(w, fSys) // endless loop
 	return nil
 }
+
+// startLogLoop starts the input/output path after all command-line validation.
+// Tests replace it to prove invalid options cannot open an input channel.
+var startLogLoop = logLoop
 
 // https://stackoverflow.com/questions/35809252/check-if-flag-was-provided-in-go
 func isLogFlagPassed(name string) bool {

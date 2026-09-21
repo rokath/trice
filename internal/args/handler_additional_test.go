@@ -9,9 +9,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type versionState struct {
@@ -124,6 +126,46 @@ func TestIsLogFlagPassed(t *testing.T) {
 	assert.True(t, isLogFlagPassed("ts32"))
 	assert.True(t, isLogFlagPassed("encoding"))
 	assert.False(t, isLogFlagPassed("ts16"))
+}
+
+// TestRunLogValidatesPickAndBanBeforeStartingInput verifies that the conflict
+// is based on option presence, including empty or unknown selector values.
+func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
+	originalStartLogLoop := startLogLoop
+	t.Cleanup(func() { startLogLoop = originalStartLogLoop })
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{name: "pick then ban", args: []string{"-pick", "err", "-ban", "dbg"}, wantErr: true},
+		{name: "ban then pick", args: []string{"-ban", "dbg", "-pick", "err"}, wantErr: true},
+		{name: "empty pick still conflicts", args: []string{"-pick", "", "-ban", "dbg"}, wantErr: true},
+		{name: "unknown ban still conflicts", args: []string{"-ban", "misspelled", "-pick", "err"}, wantErr: true},
+		{name: "pick with log level", args: []string{"-pick", "err", "-logLevel", "all"}},
+		{name: "ban with log level", args: []string{"-ban", "dbg", "-logLevel", "all"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			FlagsInit()
+			started := false
+			startLogLoop = func(io.Writer, *afero.Afero) { started = true }
+
+			err := runLog(io.Discard, &afero.Afero{Fs: afero.NewMemMapFs()}, tt.args)
+			if tt.wantErr {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "-pick and -ban")
+				assert.False(t, started)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.True(t, started)
+			assert.True(t, len(emitter.Pick) > 0 || len(emitter.Ban) > 0)
+		})
+	}
 }
 
 // TestVisFlagIsRepeatableAndResetWithLogFlags verifies CLI collection without leaking rules across parses.
