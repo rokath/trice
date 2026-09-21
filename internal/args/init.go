@@ -306,8 +306,8 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 }
 
 func flagUserLabel(p *flag.FlagSet) {
-	p.Var(&emitter.UserLabel, "ulabel", `Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
-Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".`) // multi flag
+	p.Var(&emitter.UserLabel, "ulabel", `Register an additional tag or set a tag group's weight in the range 0..999. This is a multi-flag switch with syntax name[:weight].
+Example: "-ulabel motor -ulabel sensor:150 -ulabel msg:600" adds motor and sensor and sets the complete MESSAGE group to weight 600. A new tag without a weight uses the final INFO weight. Values such as "tagA:tagB", numeric tag names, "all", and "off" are invalid. See also "-logLevel".`) // multi flag
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {

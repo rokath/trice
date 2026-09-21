@@ -18,7 +18,6 @@ Die Einzel-Issues enthalten ihre Testanforderungen. Es gibt keine zusätzliche S
 
 | Frage | Vorschlag / Ort |
 |---|---|
-| Welche konkreten Zahlen und Grenzen gelten für Gewichte? | Bereich `0..999` und Gruppentabelle im [Log-Kapitel](chapters/Log_Auswahl_DE.md#la-gewichte). Richtung und inklusiver Vergleich sind festgelegt. |
 | Wie sollen synthetische Präfixe und Teilzeilen erscheinen? | `untagged:` bei `-color off` sichtbar lassen; nur angenommene Teilaufrufe zusammensetzen. Vorschläge im [Log-Kapitel](chapters/Log_Auswahl_DE.md#la-untagged) und [M12](issues/M12_teilzeilen.md). |
 | Wie werden strukturierte Felder angegeben? | Benannte Platzhalter oder separate Feldzuordnung; [Variantenvergleich](chapters/Strukturiertes_Logging_DE.md#sl-redaktion). |
 | Wie werden Feldtypen und neue Feldnamen freigegeben? | Kleiner geprüfter Feldkatalog; automatische Aufnahme allein erkennt keine Tippfehler. [M19](issues/M19_strukturierte_felder.md). |
@@ -33,7 +32,6 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 
 | Neu | Aufgabe | Alt | Umfang / Voraussetzung |
 |---|---|---|---|
-| [M08](issues/M08_tag_gewichte_ulabel.md) | Gewichte und gewichtete User-Tags | L05, L06, Teil L11 | M; nach M01 |
 | [M09](issues/M09_selektoren_validieren.md) | Selektoren nach Registrierung prüfen | L07, Teil L05/L11 | S/M; nach M08 |
 | [M10](issues/M10_diagnosen_trennen.md) | Werkzeugfehler von Logmeldungen trennen | L14 | M |
 | [M11](issues/M11_untagged.md) | Reservierten Auffangtag einführen | neu | M; nach M08–M10 |
@@ -47,7 +45,7 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 | [M19](issues/M19_strukturierte_felder.md) | Strukturierte Bedienung auswählen | L26 | Entwurfsaufgabe |
 | [M20](issues/M20_kontext_vertrag.md) | Reversible Kontextanreicherung spezifizieren | L22 | Entwurfsaufgabe; mit M19 abstimmen |
 
-Abgeschlossen: [M01](issues/M01_tag_aliases.md) ordnet alle eingebauten Alias-Schreibweisen eindeutig zu, prüft das vollständige Register und dokumentiert den Kompatibilitätswechsel. [M02](issues/M02_idrange_validierung.md) weist fehlerhafte Bereichsregeln atomar vor Dateiänderungen ab. [M03](issues/M03_pick_ban_konflikt.md) erkennt den Pick-/Ban-Konflikt vor dem Start des Eingabekanals. [M04](issues/M04_rohaufzeichnung.md) schützt ungefilterte Rohbytes, Replay, Append und Schreibfehler. [M05](issues/M05_routing_grenzen.md) schließt beide Grenzen aller Deferred-ID-Routen ein. [M06](issues/M06_routing_konfiguration.md) vereinheitlicht Aktivierung, Defaultgrenzen und Konfigurationsfehler. [M07](issues/M07_single_pack_tests.md) sichert die vorhandene Single-Pack-Sperre für Ring- und Double-Buffer ab. Damit verbleiben 13 aktive M-Issues.
+Abgeschlossen: [M01](issues/M01_tag_aliases.md) ordnet alle eingebauten Alias-Schreibweisen eindeutig zu, prüft das vollständige Register und dokumentiert den Kompatibilitätswechsel. [M02](issues/M02_idrange_validierung.md) weist fehlerhafte Bereichsregeln atomar vor Dateiänderungen ab. [M03](issues/M03_pick_ban_konflikt.md) erkennt den Pick-/Ban-Konflikt vor dem Start des Eingabekanals. [M04](issues/M04_rohaufzeichnung.md) schützt ungefilterte Rohbytes, Replay, Append und Schreibfehler. [M05](issues/M05_routing_grenzen.md) schließt beide Grenzen aller Deferred-ID-Routen ein. [M06](issues/M06_routing_konfiguration.md) vereinheitlicht Aktivierung, Defaultgrenzen und Konfigurationsfehler. [M07](issues/M07_single_pack_tests.md) sichert die vorhandene Single-Pack-Sperre für Ring- und Double-Buffer ab. [M08](issues/M08_tag_gewichte_ulabel.md) speichert feste Gruppengewichte unabhängig von Tabellenposition und Farbe und verarbeitet `-ulabel name[:gewicht]` atomar pro Befehl. Damit verbleiben 12 aktive M-Issues.
 
 L11 legt fest, **welche Wichtigkeit** ein Tag hat; L12 verhindert, dass eine erlaubte Meldung ihren Zeitstempel verliert; L13 betrifft mehrere Aufrufe pro Zeile beziehungsweise mehrere Zeilen pro Aufruf; L17 soll unnötige Formatierungsarbeit sparen. Das sind unterschiedliche Aufgaben.
 
@@ -65,7 +63,7 @@ L11 legt fest, **welche Wichtigkeit** ein Tag hat; L12 verhindert, dass eine erl
 - Im Basiscommit sind `rx`, `tx`, `s` und `S` gruppenübergreifend doppelt. Die inzwischen vorliegende lokale Korrektur ordnet sie eindeutig zu und verschiebt `W` von Warning zu Write. M01 hält noch nötige Registertests und Kompatibilitätshinweise fest. Das im alten Handover genannte `w` war bereits im Basiscommit nicht doppelt.
 - IDRange-Regeln werden vollständig und atomar geprüft; fehlerhafte Angaben erreichen weder Insert noch Bind.
 - Binäre Aufzeichnung vor der Hostfilterung ist einschließlich Replay, Append und Fehlerweitergabe abgesichert. Die Single-Pack-Sperren im Deferred-Routing werden mit M07 geprüft.
-- Gewichte, `untagged` und die neue Neuzuweisungsregel sind geplant. Tabellenposition und mögliche Wiederverwendung regelwidriger IDs sind noch im Code.
+- Gruppengewichte im Bereich `0..999` und gewichtete `-ulabel`-Angaben sind umgesetzt. `untagged` und die neue Neuzuweisungsregel sind geplant; mögliche Wiederverwendung regelwidriger IDs ist noch im Code.
 
 Gelesen wurden insbesondere [Tag-Tabelle](../../internal/emitter/lineTransformerANSI.go), [Selektoren](../../internal/emitter/emitter.go), [CLI](../../internal/args/init.go), [Startablauf](../../internal/args/handler.go), [Übersetzer](../../internal/translator/translator.go), [ID-Regeln](../../internal/id/switchIDs.go), [ID-Wiederverwendung](../../internal/id/insertIDs.go), [Range-Tests](../../internal/id/coverage_additional_test.go), [Routing](../../src/trice.c) und [Default-Konfiguration](../../src/triceDefaultConfig.h).
 

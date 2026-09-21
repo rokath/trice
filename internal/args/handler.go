@@ -93,7 +93,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScInsert.Parse(subArgs))
 		id.CompactSrcs()
 		id.ProcessAliases()
-		emitter.AddUserLabels()
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
 			return err
@@ -116,7 +118,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		implicitSourceSelection := len(id.Srcs) == 0
 		id.CompactSrcs()
 		id.ProcessAliases()
-		emitter.AddUserLabels()
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		if err := id.EvaluateIDRangeStrings(); err != nil {
 			return err
 		}
@@ -225,7 +229,9 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	}
 	id.Logging = true
 	id.ProcessAliases()
-	emitter.AddUserLabels()
+	if err := emitter.AddUserLabels(); err != nil {
+		return err
+	}
 	decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 	decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 	decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")

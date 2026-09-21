@@ -5,28 +5,101 @@ package emitter
 // TODO: Now the color is reset after each string. This is needed only after the last string in a line.
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"unicode"
 
 	"github.com/mgutz/ansi"
 )
 
-var userLabelsAdded bool
+const (
+	minTagWeight = 0
+	maxTagWeight = 999
+)
 
-// AddUserLabels appends user-defined labels to Tags once per process.
-func AddUserLabels() {
-	if userLabelsAdded {
-		return
+// AddUserLabels rebuilds the per-command tag registry and applies all -ulabel
+// specifications atomically. A specification is either name or name:weight.
+func AddUserLabels() error {
+	tags := copyTagRegistry(defaultTags)
+	pendingDefaultWeight := make([]string, 0, len(UserLabel))
+
+	for _, specification := range UserLabel {
+		name, weight, hasWeight, err := parseUserLabel(specification)
+		if err != nil {
+			return fmt.Errorf("invalid -ulabel %q: %w", specification, err)
+		}
+
+		if i := tagIndex(tags, name); i >= 0 {
+			if hasWeight {
+				tags[i].weight = weight
+			}
+			continue
+		}
+		if hasWeight {
+			tags = append(tags, tag{weight: weight, Names: []string{name}, colorize: colorizeUSER})
+			continue
+		}
+		pendingDefaultWeight = appendIfMissing(pendingDefaultWeight, name)
 	}
-	userLabelsAdded = true
-	for _, v := range UserLabel {
-		var t tag
-		t.Names = append(t.Names, v) // User labels get only one name.
-		t.colorize = colorizeUSER
-		Tags = append(Tags, t)
+
+	infoIndex := tagIndex(tags, "INFO")
+	if infoIndex < 0 {
+		return errors.New("built-in INFO tag is missing")
 	}
+	for _, name := range pendingDefaultWeight {
+		if tagIndex(tags, name) >= 0 {
+			continue
+		}
+		tags = append(tags, tag{weight: tags[infoIndex].weight, Names: []string{name}, colorize: colorizeUSER})
+	}
+
+	Tags = tags
+	return nil
+}
+
+// parseUserLabel validates one name[:weight] value without changing registry state.
+func parseUserLabel(specification string) (name string, weight int, hasWeight bool, err error) {
+	if strings.Count(specification, ":") > 1 {
+		return "", 0, false, errors.New("expected name or name:weight")
+	}
+	parts := strings.SplitN(specification, ":", 2)
+	name = parts[0]
+	if name == "" {
+		return "", 0, false, errors.New("tag name is empty")
+	}
+	if name == "all" || name == "off" || isDecimal(name) {
+		return "", 0, false, fmt.Errorf("tag name %q is reserved", name)
+	}
+	if len(parts) == 1 {
+		return name, 0, false, nil
+	}
+	if parts[1] == "" {
+		return "", 0, false, errors.New("tag weight is empty")
+	}
+	if !isDecimal(parts[1]) {
+		return "", 0, false, fmt.Errorf("tag weight %q is not a decimal integer", parts[1])
+	}
+	weight, err = strconv.Atoi(parts[1])
+	if err != nil || weight < minTagWeight || weight > maxTagWeight {
+		return "", 0, false, fmt.Errorf("tag weight must be in range %d..%d", minTagWeight, maxTagWeight)
+	}
+	return name, weight, true, nil
+}
+
+// isDecimal reports whether s consists exclusively of ASCII decimal digits.
+func isDecimal(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 // lineTransformerANSI implements a Linewriter interface.
@@ -119,11 +192,76 @@ func isLower(s string) bool {
 
 type tag struct {
 	count    int                 // count counts each occurance of the trice tag.
+	weight   int                 // weight is the group priority and is independent of table order and color.
 	Names    []string            // Names contains all aliases for one tag.
 	colorize func(string) string // colorize is the function called for each tag.
 }
 
-// Tags contains all usable trice Tags and their possible names.
+// defaultTags contains the immutable built-in tag definitions used to start
+// each command. CYCLE_ERROR is a tool diagnostic and its weight is not used
+// for application-message selection.
+var defaultTags = []tag{
+	// log level
+	{weight: 790, Names: []string{"FATAL", "Fatal", "fatal"}, colorize: colorizeFATAL},
+	{weight: 780, Names: []string{"CRITICAL", "crit", "Critical", "critical", "Crit", "CRIT"}, colorize: colorizeCRITICAL},
+	{weight: 770, Names: []string{"EMERGENCY", "em", "Emergency", "emergency"}, colorize: colorizeEMERGENCY},
+	{weight: 760, Names: []string{"ERROR", "e", "Error", "err", "error", "E", "ERR"}, colorize: colorizeERROR},
+	{weight: 750, Names: []string{"WARNING", "wrn", "Warning", "warning", "WRN", "Warn", "warn", "WARN"}, colorize: colorizeWARNING},
+	{weight: 740, Names: []string{"ATTENTION", "att", "attention", "Attention", "ATT"}, colorize: colorizeATTENTION},
+	{weight: 500, Names: []string{"INFO", "i", "inf", "info", "Info", "informal", "I", "INF", "INFORMAL"}, colorize: colorizeINFO},
+	{weight: 200, Names: []string{"DEBUG", "d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG"}, colorize: colorizeDEBUG},
+	{weight: 100, Names: []string{"TRACE", "tr", "Trace", "trace"}, colorize: colorizeTRACE},
+
+	// user modes
+	{weight: 500, Names: []string{"TIME", "tim", "time", "Time", "TIM", "TIMESTAMP", "timestamp", "Timestamp"}, colorize: colorizeTIME},
+	{weight: 500, Names: []string{"MESSAGE", "m", "msg", "message", "M", "MSG", "OK"}, colorize: colorizeMESSAGE},
+	{weight: 500, Names: []string{"READ", "r", "rd", "read", "rd_", "RD", "RD_"}, colorize: colorizeREAD},
+	{weight: 500, Names: []string{"WRITE", "w", "wr", "write", "wr_", "W", "WR", "WR_"}, colorize: colorizeWRITE},
+	{weight: 500, Names: []string{"RECEIVE", "rx", "receive", "Receive", "RX"}, colorize: colorizeRECEIVE},
+	{weight: 500, Names: []string{"TRANSMIT", "tx", "transmit", "Transmit", "TX"}, colorize: colorizeTRANSMIT},
+	{weight: 500, Names: []string{"DIAG", "dia", "diag", "Diag", "DIA"}, colorize: colorizeDIAG},
+	{weight: 500, Names: []string{"INTERRUPT", "int", "isr", "ISR", "INT", "interrupt", "Interrupt"}, colorize: colorizeINTERRUPT},
+	{weight: 500, Names: []string{"SIGNAL", "sig", "signal", "SIG"}, colorize: colorizeSIGNAL},
+	{weight: 500, Names: []string{"TEST", "t", "tst", "test", "T", "TST"}, colorize: colorizeTEST},
+
+	{weight: 500, Names: []string{"DEFAULT", "def", "Default", "default"}, colorize: colorizeDEFAULT},
+	{weight: 600, Names: []string{"NOTICE", "note", "Notice", "notice", "Note", "NOTE"}, colorize: colorizeNOTICE},
+	{weight: 760, Names: []string{"ALERT", "Alert", "alert"}, colorize: colorizeALERT},
+	{weight: 760, Names: []string{"ASSERT", "Assert", "assert"}, colorize: colorizeASSERT},
+	{weight: 760, Names: []string{"ALARM", "a", "Alarm", "alarm"}, colorize: colorizeALARM},
+	{weight: 0, Names: []string{"CYCLE_ERROR"}, colorize: colorizeCYCLE}, // not for user code!
+	{weight: 50, Names: []string{"VERBOSE", "v", "Verbose", "verbose"}, colorize: colorizeVERBOSE},
+	{weight: 500, Names: []string{"CONFIG", "cfg", "config"}, colorize: colorizeDEFAULT},
+	{weight: 500, Names: []string{"MICROSECOND", "us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorize: colorizeTIME},
+	{weight: 500, Names: []string{"MILLISECOND", "ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorize: colorizeTIME},
+	{weight: 500, Names: []string{"SECOND", "s", "S", "Sec", "SEC", "SECONDS", "Second", "Seconds"}, colorize: colorizeTIME},
+	{weight: 500, Names: []string{"DELTATIME", "dt", "delta", "dT", "deltaTime", "delta-time"}, colorize: colorizeTIME},
+}
+
+// copyTagRegistry returns a deep copy so command-specific weights, counts, and
+// user groups cannot modify the built-in definitions or a later command.
+func copyTagRegistry(src []tag) []tag {
+	dst := make([]tag, len(src))
+	for i := range src {
+		dst[i] = src[i]
+		dst[i].Names = append([]string(nil), src[i].Names...)
+	}
+	return dst
+}
+
+// tagIndex returns the group index for any canonical name or alias.
+func tagIndex(tags []tag, name string) int {
+	for i, group := range tags {
+		for _, alias := range group.Names {
+			if alias == name {
+				return i
+			}
+		}
+	}
+	return -1
+}
+
+// Tags contains all usable Trice tags for the current command.
 //
 // The optional target-side local-log hints in src/triceLogAnsi.c deliberately
 // duplicate a subset of this host presentation policy without introducing a
@@ -131,43 +269,7 @@ type tag struct {
 // authoritative for the other. Maintainers may manually synchronize aliases
 // and palette colors when matching local and host presentation is desired; the
 // C file contains the reciprocal maintenance note.
-var Tags = []tag{
-	// log level
-	{0, []string{"FATAL", "Fatal", "fatal"}, colorizeFATAL},
-	{0, []string{"CRITICAL", "crit", "Critical", "critical", "Crit", "CRIT"}, colorizeCRITICAL},
-	{0, []string{"EMERGENCY", "em", "Emergency", "emergency"}, colorizeEMERGENCY},
-	{0, []string{"ERROR", "e", "Error", "err", "error", "E", "ERR"}, colorizeERROR},
-	{0, []string{"WARNING", "wrn", "Warning", "warning", "WRN", "Warn", "warn", "WARN"}, colorizeWARNING},
-	{0, []string{"ATTENTION", "att", "attention", "Attention", "ATT"}, colorizeATTENTION},
-	{0, []string{"INFO", "i", "inf", "info", "Info", "informal", "I", "INF", "INFORMAL"}, colorizeINFO},
-	{0, []string{"DEBUG", "d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG"}, colorizeDEBUG},
-	{0, []string{"TRACE", "tr", "Trace", "trace"}, colorizeTRACE},
-
-	// user modes
-	{0, []string{"TIME", "tim", "time", "Time", "TIM", "TIMESTAMP", "timestamp", "Timestamp"}, colorizeTIME},
-	{0, []string{"MESSAGE", "m", "msg", "message", "M", "MSG", "OK"}, colorizeMESSAGE},
-	{0, []string{"READ", "r", "rd", "read", "rd_", "RD", "RD_"}, colorizeREAD},
-	{0, []string{"WRITE", "w", "wr", "write", "wr_", "W", "WR", "WR_"}, colorizeWRITE},
-	{0, []string{"RECEIVE", "rx", "receive", "Receive", "RX"}, colorizeRECEIVE},
-	{0, []string{"TRANSMIT", "tx", "transmit", "Transmit", "TX"}, colorizeTRANSMIT},
-	{0, []string{"DIAG", "dia", "diag", "Diag", "DIA"}, colorizeDIAG},
-	{0, []string{"INTERRUPT", "int", "isr", "ISR", "INT", "interrupt", "Interrupt"}, colorizeINTERRUPT},
-	{0, []string{"SIGNAL", "sig", "signal", "SIG"}, colorizeSIGNAL},
-	{0, []string{"TEST", "t", "tst", "test", "T", "TST"}, colorizeTEST},
-
-	{0, []string{"DEFAULT", "def", "Default", "default"}, colorizeDEFAULT},
-	{0, []string{"NOTICE", "note", "Notice", "notice", "Note", "NOTE"}, colorizeNOTICE},
-	{0, []string{"ALERT", "Alert", "alert"}, colorizeALERT},
-	{0, []string{"ASSERT", "Assert", "assert"}, colorizeASSERT},
-	{0, []string{"ALARM", "a", "Alarm", "alarm"}, colorizeALARM},
-	{0, []string{"CYCLE_ERROR"}, colorizeCYCLE}, // not for user code!
-	{0, []string{"VERBOSE", "v", "Verbose", "verbose"}, colorizeVERBOSE},
-	{0, []string{"CONFIG", "cfg", "config"}, colorizeDEFAULT},
-	{0, []string{"MICROSECOND", "us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorizeTIME},
-	{0, []string{"MILLISECOND", "ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorizeTIME},
-	{0, []string{"SECOND", "s", "S", "Sec", "SEC", "SECONDS", "Second", "Seconds"}, colorizeTIME},
-	{0, []string{"DELTATIME", "dt", "delta", "dT", "deltaTime", "delta-time"}, colorizeTIME},
-}
+var Tags = copyTagRegistry(defaultTags)
 
 // levelTags = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL", "EMERGENCY", "ATTENTION", "TRACE"}
 
@@ -182,6 +284,15 @@ func FindTagName(name string) (tagName string, err error) {
 		}
 	}
 	return "", fmt.Errorf("no tagName found for name %s", name)
+}
+
+// TagWeight returns the current command's weight for a canonical tag name or alias.
+func TagWeight(name string) (int, error) {
+	i := tagIndex(Tags, name)
+	if i < 0 {
+		return 0, fmt.Errorf("no tag weight found for name %s", name)
+	}
+	return Tags[i].weight, nil
 }
 
 // TagEvents returns count of occurred channel events.

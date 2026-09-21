@@ -13,6 +13,9 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
@@ -49,28 +52,28 @@ func (s *rpcWriteLineStub) WriteLine(line []string, reply *int64) error {
 
 type tagSnapshot struct {
 	count    int
+	weight   int
 	names    []string
 	colorize func(string) string
 }
 
 type emitterSnapshot struct {
-	verbose         bool
-	hostStamp       string
-	prefix          string
-	suffix          string
-	colorPalette    string
-	displayRemote   bool
-	ipAddr          string
-	ipPort          string
-	logLevel        string
-	allStats        bool
-	tagStats        bool
-	ban             channelArrayFlag
-	pick            channelArrayFlag
-	userLabel       ArrayFlag
-	userLabelsAdded bool
-	tags            []tagSnapshot
-	logFlags        int
+	verbose       bool
+	hostStamp     string
+	prefix        string
+	suffix        string
+	colorPalette  string
+	displayRemote bool
+	ipAddr        string
+	ipPort        string
+	logLevel      string
+	allStats      bool
+	tagStats      bool
+	ban           channelArrayFlag
+	pick          channelArrayFlag
+	userLabel     ArrayFlag
+	tags          []tagSnapshot
+	logFlags      int
 }
 
 // cloneTags copies the current tag state into a stable snapshot for restoration.
@@ -79,6 +82,7 @@ func cloneTags(src []tag) []tagSnapshot {
 	for i := range src {
 		dst[i] = tagSnapshot{
 			count:    src[i].count,
+			weight:   src[i].weight,
 			names:    append([]string(nil), src[i].Names...),
 			colorize: src[i].colorize,
 		}
@@ -92,6 +96,7 @@ func restoreTags(src []tagSnapshot) {
 	for i := range src {
 		Tags[i] = tag{
 			count:    src[i].count,
+			weight:   src[i].weight,
 			Names:    append([]string(nil), src[i].names...),
 			colorize: src[i].colorize,
 		}
@@ -101,23 +106,22 @@ func restoreTags(src []tagSnapshot) {
 // snapshotEmitterState captures emitter package globals so tests can restore them afterwards.
 func snapshotEmitterState() emitterSnapshot {
 	return emitterSnapshot{
-		verbose:         Verbose,
-		hostStamp:       HostStamp,
-		prefix:          Prefix,
-		suffix:          Suffix,
-		colorPalette:    ColorPalette,
-		displayRemote:   DisplayRemote,
-		ipAddr:          IPAddr,
-		ipPort:          IPPort,
-		logLevel:        LogLevel,
-		allStats:        AllStatistics,
-		tagStats:        TagStatistics,
-		ban:             append(channelArrayFlag(nil), Ban...),
-		pick:            append(channelArrayFlag(nil), Pick...),
-		userLabel:       append(ArrayFlag(nil), UserLabel...),
-		userLabelsAdded: userLabelsAdded,
-		tags:            cloneTags(Tags),
-		logFlags:        log.Flags(),
+		verbose:       Verbose,
+		hostStamp:     HostStamp,
+		prefix:        Prefix,
+		suffix:        Suffix,
+		colorPalette:  ColorPalette,
+		displayRemote: DisplayRemote,
+		ipAddr:        IPAddr,
+		ipPort:        IPPort,
+		logLevel:      LogLevel,
+		allStats:      AllStatistics,
+		tagStats:      TagStatistics,
+		ban:           append(channelArrayFlag(nil), Ban...),
+		pick:          append(channelArrayFlag(nil), Pick...),
+		userLabel:     append(ArrayFlag(nil), UserLabel...),
+		tags:          cloneTags(Tags),
+		logFlags:      log.Flags(),
 	}
 }
 
@@ -137,7 +141,6 @@ func restoreEmitterState(s emitterSnapshot) {
 	Ban = append(channelArrayFlag(nil), s.ban...)
 	Pick = append(channelArrayFlag(nil), s.pick...)
 	UserLabel = append(ArrayFlag(nil), s.userLabel...)
-	userLabelsAdded = s.userLabelsAdded
 	restoreTags(s.tags)
 	log.SetFlags(s.logFlags)
 }
@@ -254,25 +257,114 @@ func TestBanOrPickFilterUsesFunctionArgs(t *testing.T) {
 	}
 }
 
-// TestAddUserLabelsIsIdempotent verifies the expected behavior.
-func TestAddUserLabelsIsIdempotent(t *testing.T) {
+// tagWeightsByAlias captures registry membership and weights without depending
+// on table position or function identity.
+func tagWeightsByAlias(tags []tag) map[string]int {
+	weights := make(map[string]int)
+	for _, group := range tags {
+		for _, alias := range group.Names {
+			weights[alias] = group.weight
+		}
+	}
+	return weights
+}
+
+// TestDefaultTagWeights protects the documented built-in priority policy.
+func TestDefaultTagWeights(t *testing.T) {
+	expected := map[string]int{
+		"FATAL": 790, "CRITICAL": 780, "EMERGENCY": 770,
+		"ERROR": 760, "WARNING": 750, "ATTENTION": 740,
+		"INFO": 500, "DEBUG": 200, "TRACE": 100,
+		"TIME": 500, "MESSAGE": 500, "READ": 500, "WRITE": 500,
+		"RECEIVE": 500, "TRANSMIT": 500, "DIAG": 500,
+		"INTERRUPT": 500, "SIGNAL": 500, "TEST": 500,
+		"DEFAULT": 500, "NOTICE": 600, "ALERT": 760,
+		"ASSERT": 760, "ALARM": 760, "CYCLE_ERROR": 0,
+		"VERBOSE": 50, "CONFIG": 500, "MICROSECOND": 500,
+		"MILLISECOND": 500, "SECOND": 500, "DELTATIME": 500,
+	}
+
+	for canonical, weight := range expected {
+		actual, err := TagWeight(canonical)
+		require.NoError(t, err)
+		assert.Equal(t, weight, actual, canonical)
+	}
+}
+
+// TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups verifies aliases,
+// repeated options, the final INFO default, and isolation between commands.
+func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 
-	userLabelsAdded = false
-	UserLabel = ArrayFlag{"myTag"}
-	base := len(Tags)
-	AddUserLabels()
-	AddUserLabels()
-	if len(Tags) != base+1 {
-		t.Fatalf("expected exactly one added user tag, got delta %d", len(Tags)-base)
+	UserLabel = ArrayFlag{
+		"msg:150", "M:600", "msg",
+		"motor", "INFO:550", "afterInfo",
+		"sensor:150", "sensor:175", "zero:0", "maximum:999", "µs",
 	}
-	name, err := FindTagName("myTag")
-	if err != nil {
-		t.Fatalf("FindTagName failed: %v", err)
+	require.NoError(t, AddUserLabels())
+	assert.Empty(t, duplicateTagAliases(Tags))
+	assert.Equal(t, len(defaultTags)+5, len(Tags))
+
+	for _, alias := range []string{"MESSAGE", "msg", "M"} {
+		weight, err := TagWeight(alias)
+		require.NoError(t, err)
+		assert.Equal(t, 600, weight)
 	}
-	if name != "myTag" {
-		t.Fatalf("unexpected canonical user tag name: %q", name)
+	motorWeight, err := TagWeight("motor")
+	require.NoError(t, err)
+	assert.Equal(t, 550, motorWeight)
+	afterInfoWeight, err := TagWeight("afterInfo")
+	require.NoError(t, err)
+	assert.Equal(t, 550, afterInfoWeight)
+	sensorWeight, err := TagWeight("sensor")
+	require.NoError(t, err)
+	assert.Equal(t, 175, sensorWeight)
+	zeroWeight, err := TagWeight("zero")
+	require.NoError(t, err)
+	assert.Equal(t, 0, zeroWeight)
+	maximumWeight, err := TagWeight("maximum")
+	require.NoError(t, err)
+	assert.Equal(t, 999, maximumWeight)
+	microsecondsWeight, err := TagWeight("µs")
+	require.NoError(t, err)
+	assert.Equal(t, 500, microsecondsWeight)
+
+	// Table order and palette changes do not alter the stored group priority.
+	for left, right := 0, len(Tags)-1; left < right; left, right = left+1, right-1 {
+		Tags[left], Tags[right] = Tags[right], Tags[left]
+	}
+	Tags[tagIndex(Tags, "msg")].colorize = colorizeFATAL
+	reorderedWeight, err := TagWeight("msg")
+	require.NoError(t, err)
+	assert.Equal(t, 600, reorderedWeight)
+
+	UserLabel = ArrayFlag{"next"}
+	require.NoError(t, AddUserLabels())
+	_, err = TagWeight("motor")
+	require.Error(t, err)
+	nextWeight, err := TagWeight("next")
+	require.NoError(t, err)
+	assert.Equal(t, 500, nextWeight)
+}
+
+// TestAddUserLabelsRejectsInvalidSpecificationsAtomically verifies that no
+// partial registration survives any malformed -ulabel value.
+func TestAddUserLabelsRejectsInvalidSpecificationsAtomically(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+
+	invalid := []string{"", ":150", "tag:", "tagA:tagB", "tag:1:2", "tag:-1", "tag:1000", "123", "all", "off"}
+	for _, specification := range invalid {
+		t.Run(specification, func(t *testing.T) {
+			UserLabel = nil
+			require.NoError(t, AddUserLabels())
+			before := tagWeightsByAlias(Tags)
+
+			UserLabel = ArrayFlag{"valid:42", specification}
+			require.Error(t, AddUserLabels())
+			assert.Equal(t, before, tagWeightsByAlias(Tags))
+		})
 	}
 }
 
