@@ -5,6 +5,7 @@ package args
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -166,6 +167,85 @@ func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
 			assert.True(t, len(emitter.Pick) > 0 || len(emitter.Ban) > 0)
 		})
 	}
+}
+
+// decimalByteArguments formats raw input for the BUFFER receiver without
+// changing or interpreting any byte values.
+func decimalByteArguments(data []byte) string {
+	values := make([]string, len(data))
+	for i, value := range data {
+		values[i] = fmt.Sprint(value)
+	}
+	return strings.Join(values, " ")
+}
+
+// TestBinaryRecordingPrecedesHostFiltering verifies that every host filter
+// records the same received bytes and that replay can select a hidden event.
+func TestBinaryRecordingPrecedesHostFiltering(t *testing.T) {
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	raw := []byte("dbg:hidden during capture\n")
+	common := []string{
+		"-port", "BUFFER",
+		"-args", decimalByteArguments(raw),
+		"-encoding", "CHAR",
+		"-til", "emptyFile",
+		"-li", "emptyFile",
+		"-hs", "off",
+		"-prefix", "off",
+		"-color", "off",
+	}
+	tests := []struct {
+		name   string
+		filter []string
+	}{
+		{name: "pick", filter: []string{"-pick", "err"}},
+		{name: "ban", filter: []string{"-ban", "dbg"}},
+		{name: "log level all", filter: []string{"-logLevel", "all"}},
+		{name: "log level off", filter: []string{"-logLevel", "off"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			emitter.Pick = nil
+			emitter.Ban = nil
+			FlagsInit()
+			logfile := strings.ReplaceAll(tt.name, " ", "-") + ".bin"
+			args := append([]string{"trice"}, common...)
+			args = append(args, "-binaryLogfile", logfile)
+			args = append(args, tt.filter...)
+
+			require.NoError(t, LogHandler(io.Discard, fSys, args))
+			logged, err := fSys.ReadFile(logfile)
+			require.NoError(t, err)
+			assert.Equal(t, raw, logged)
+		})
+	}
+
+	// The capture hid the dbg event, but replay applies a new selection to the
+	// unchanged raw file and does not record back into its own input.
+	emitter.Pick = nil
+	emitter.Ban = nil
+	FlagsInit()
+	beforeReplay, err := fSys.ReadFile("pick.bin")
+	require.NoError(t, err)
+	var replay bytes.Buffer
+	require.NoError(t, LogHandler(&replay, fSys, []string{
+		"trice",
+		"-port", "FILEBUFFER",
+		"-args", "pick.bin",
+		"-encoding", "CHAR",
+		"-til", "emptyFile",
+		"-li", "emptyFile",
+		"-hs", "off",
+		"-prefix", "off",
+		"-color", "off",
+		"-binaryLogfile", "off",
+		"-pick", "dbg",
+	}))
+	assert.Contains(t, replay.String(), "dbg:hidden during capture")
+	afterReplay, err := fSys.ReadFile("pick.bin")
+	require.NoError(t, err)
+	assert.Equal(t, beforeReplay, afterReplay)
 }
 
 // TestVisFlagIsRepeatableAndResetWithLogFlags verifies CLI collection without leaking rules across parses.

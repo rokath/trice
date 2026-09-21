@@ -4,6 +4,7 @@ package receiver
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -200,6 +201,14 @@ func (s *stubReadWriteCloser) Write(buf []byte) (int, error) {
 
 func (s *stubReadWriteCloser) Close() error { return nil }
 
+// failingWriter returns the configured error for every binary log write.
+type failingWriter struct {
+	err error
+}
+
+// Write implements io.Writer for binary logger error propagation tests.
+func (w failingWriter) Write([]byte) (int, error) { return 0, w.err }
+
 // TestNewBinaryLoggerAutoFileNameAndRead verifies auto log naming and binary mirroring.
 func TestNewBinaryLoggerAutoFileNameAndRead(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -289,6 +298,59 @@ func TestBinaryLoggerReadSkipsPureEOF(t *testing.T) {
 	data, readErr := fs.ReadFile("trace.bin")
 	require.NoError(t, readErr)
 	assert.Empty(t, data)
+}
+
+// TestBinaryLoggerPreservesPartialInputAndReportsWriteErrors verifies that
+// received bytes are retained even when the source reports truncation, while
+// storage failures are returned to the caller.
+func TestBinaryLoggerPreservesPartialInputAndReportsWriteErrors(t *testing.T) {
+	t.Run("partial input", func(t *testing.T) {
+		fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+		source := &stubReadWriteCloser{readData: []byte{0xde, 0xad}, readErr: io.ErrUnexpectedEOF}
+		savedLogfileName := BinaryLogfileName
+		BinaryLogfileName = "partial.bin"
+		t.Cleanup(func() { BinaryLogfileName = savedLogfileName })
+
+		logger := NewBinaryLogger(io.Discard, fs, source)
+		buf := make([]byte, 8)
+		n, err := logger.Read(buf)
+		assert.Equal(t, 2, n)
+		assert.ErrorIs(t, err, io.ErrUnexpectedEOF)
+
+		logged, readErr := fs.ReadFile("partial.bin")
+		require.NoError(t, readErr)
+		assert.Equal(t, []byte{0xde, 0xad}, logged)
+	})
+
+	t.Run("write failure", func(t *testing.T) {
+		writeErr := errors.New("storage unavailable")
+		logger := &binaryLogger{
+			r: &stubReadWriteCloser{readData: []byte{0x01}},
+			w: failingWriter{err: writeErr},
+		}
+
+		n, err := logger.Read(make([]byte, 8))
+		assert.Equal(t, 1, n)
+		assert.ErrorIs(t, err, writeErr)
+		assert.ErrorContains(t, err, "write binary logfile")
+	})
+}
+
+// TestBinaryLoggerAppendsToExistingFile protects the documented append mode.
+func TestBinaryLoggerAppendsToExistingFile(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("append.bin", []byte{0x01, 0x02}, 0o600))
+	savedLogfileName := BinaryLogfileName
+	BinaryLogfileName = "append.bin"
+	t.Cleanup(func() { BinaryLogfileName = savedLogfileName })
+
+	logger := NewBinaryLogger(io.Discard, fs, &stubReadWriteCloser{readData: []byte{0x03, 0x04}})
+	_, err := logger.Read(make([]byte, 8))
+	require.NoError(t, err)
+
+	logged, err := fs.ReadFile("append.bin")
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x01, 0x02, 0x03, 0x04}, logged)
 }
 
 // TestUDP4ConnectionReceivesPackets verifies the expected behavior.

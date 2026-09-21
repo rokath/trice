@@ -34,6 +34,7 @@ package receiver
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -415,8 +416,15 @@ func NewBinaryLogger(w io.Writer, fSys *afero.Afero, from io.ReadWriteCloser) (i
 
 func (p *binaryLogger) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
-	if 0 < count || (err != nil && err != io.EOF) {
-		p.w.Write(buf[:count])
+	if count == 0 {
+		return
+	}
+	written, writeErr := p.w.Write(buf[:count])
+	if writeErr != nil {
+		return count, errors.Join(err, fmt.Errorf("write binary logfile: %w", writeErr))
+	}
+	if written != count {
+		return count, errors.Join(err, io.ErrShortWrite)
 	}
 	return
 }
