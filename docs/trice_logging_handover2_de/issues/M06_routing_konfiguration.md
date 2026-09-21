@@ -1,6 +1,6 @@
 # M06: Routing-Aktivierung und unvollständige Bereiche vereinheitlichen
 
-**Status:** geplante C-Konfigurationskorrektur. **Alt:** L09.
+**Status:** umgesetzt. **Alt:** L09.
 
 UARTA aktiviert den Bereich derzeit bei mindestens einer von null verschiedenen Grenze; UARTB verlangt beide. Andere Deferred-Ausgänge prüfen die Existenz der Defines. Gleiche Absichten können dadurch unterschiedlich wirken.
 
@@ -8,9 +8,9 @@ UARTA aktiviert den Bereich derzeit bei mindestens einer von null verschiedenen 
 
 ## Abnahme und Tests
 
-- [ ] Für jeden betroffenen Ausgang: fehlend, `0/0`, nur Minimum, nur Maximum, gültiger Bereich und umgekehrter Bereich.
-- [ ] Fehlermeldungen nennen die zu korrigierenden Defines; ein zufälliger anderer Compilerfehler zählt nicht als Erfolg.
-- [ ] Erlaubte Konfigurationen routen nach M05 inklusive Grenzen.
-- [ ] Custom-/Direct-Routing wird anhand seines eigenen Vertrags bewertet; keine pauschale Änderung fremder Callback-Pfade.
+- [x] Für jeden betroffenen Ausgang werden fehlend, `0/0`, nur Minimum, nur Maximum, gültig, umgekehrt, negativ und oberhalb von 16383 kompiliert.
+- [x] Fehlermeldungen nennen beide zu korrigierenden Defines und die verletzte Regel; die Tests prüfen genau diese Diagnose.
+- [x] Gültige Bereiche routen nach M05 inklusive Grenzen; `0/0` lässt alle geprüften IDs durch.
+- [x] Custom-/Direct-Routing und seine Callback-Pfade bleiben unverändert.
 
-**Quellen:** [Aktivierungsbedingungen](../../../src/trice.c), [Defaultwerte](../../../src/triceDefaultConfig.h).
+**Umsetzung:** [einheitliche Aktivierung und Diagnosen](../../../src/trice.c), [Defaultgrenzen](../../../src/triceDefaultConfig.h), [Compiler- und Laufzeitmatrix](../../../pkg/tst/trice_routing_test.go).

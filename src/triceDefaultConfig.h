@@ -43,6 +43,30 @@ extern "C" {
 #define TRICE_UARTB_MAX_ID 0 //!< TRICE_UARTB_MAX_ID, if > 0, is the largest ID routed to UARTA.
 #endif
 
+#ifndef TRICE_DEFERRED_AUXILIARY8_MIN_ID
+#define TRICE_DEFERRED_AUXILIARY8_MIN_ID 0 //!< Smallest ID routed to the deferred 8-bit auxiliary output; 0 disables ID routing together with MAX_ID 0.
+#endif
+
+#ifndef TRICE_DEFERRED_AUXILIARY8_MAX_ID
+#define TRICE_DEFERRED_AUXILIARY8_MAX_ID 0 //!< Largest ID routed to the deferred 8-bit auxiliary output; 0 disables ID routing together with MIN_ID 0.
+#endif
+
+#ifndef TRICE_DEFERRED_AUXILIARY32_MIN_ID
+#define TRICE_DEFERRED_AUXILIARY32_MIN_ID 0 //!< Smallest ID routed to the deferred 32-bit auxiliary output; 0 disables ID routing together with MAX_ID 0.
+#endif
+
+#ifndef TRICE_DEFERRED_AUXILIARY32_MAX_ID
+#define TRICE_DEFERRED_AUXILIARY32_MAX_ID 0 //!< Largest ID routed to the deferred 32-bit auxiliary output; 0 disables ID routing together with MIN_ID 0.
+#endif
+
+#ifndef TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID
+#define TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID 0 //!< Smallest ID routed to deferred RTT; 0 disables ID routing together with MAX_ID 0.
+#endif
+
+#ifndef TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID
+#define TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID 0 //!< Largest ID routed to deferred RTT; 0 disables ID routing together with MIN_ID 0.
+#endif
+
 #ifndef TRICE_DEFERRED_UARTA
 #define TRICE_DEFERRED_UARTA 0 //!< TRICE_DEFERRED_UARTA enables a user defined deferred trice write over TRICE_UARTA.
 #endif

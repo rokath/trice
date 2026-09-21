@@ -104,6 +104,20 @@ const routingTestConfig = `#ifndef TRICE_CONFIG_H_
 #endif
 `
 
+// routingCompileSource includes trice.c without linking so configuration
+// diagnostics can be checked independently from target hardware functions.
+const routingCompileSource = `// SPDX-License-Identifier: MIT
+#include <stddef.h>
+#include <stdint.h>
+#define SEGGER_RTT_H
+#define SEGGER_RTT_MAX_NUM_UP_BUFFERS 1
+#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS 1
+#define BUFFER_SIZE_UP 1024
+#define BUFFER_SIZE_DOWN 0
+#define SEGGER_RTT_PRINTF_BUFFER_SIZE 0
+#include "trice.c"
+`
+
 // routingOutput defines one deferred output and the names of its range bounds.
 type routingOutput struct {
 	name    string // name identifies the output in test names.
@@ -148,6 +162,85 @@ func TestDeferredRoutingIncludesBothBounds(t *testing.T) {
 	}
 }
 
+// TestDeferredRoutingConfiguration validates the same activation and range
+// contract for every supported deferred output.
+func TestDeferredRoutingConfiguration(t *testing.T) {
+	compiler := hostCCompiler(t)
+	if compiler == "" {
+		t.Skip("no host C compiler available")
+	}
+
+	for _, output := range routingOutputs {
+		output := output
+		cases := []struct {
+			name       string
+			bounds     []string
+			wantError  bool
+			diagnostic string
+		}{
+			{name: "missing bounds"},
+			{name: "zero bounds", bounds: []string{"-D" + output.minimum + "=0", "-D" + output.maximum + "=0"}},
+			{name: "minimum only", bounds: []string{"-D" + output.minimum + "=10"}, wantError: true, diagnostic: "must both be 0 or both be set"},
+			{name: "maximum only", bounds: []string{"-D" + output.maximum + "=20"}, wantError: true, diagnostic: "must both be 0 or both be set"},
+			{name: "valid range", bounds: []string{"-D" + output.minimum + "=10", "-D" + output.maximum + "=20"}},
+			{name: "reversed range", bounds: []string{"-D" + output.minimum + "=20", "-D" + output.maximum + "=10"}, wantError: true, diagnostic: "must satisfy 1 <= MIN_ID <= MAX_ID <= 16383"},
+			{name: "negative minimum", bounds: []string{"-D" + output.minimum + "=-1", "-D" + output.maximum + "=10"}, wantError: true, diagnostic: "must satisfy 1 <= MIN_ID <= MAX_ID <= 16383"},
+			{name: "maximum above ID space", bounds: []string{"-D" + output.minimum + "=10", "-D" + output.maximum + "=16384"}, wantError: true, diagnostic: "must satisfy 1 <= MIN_ID <= MAX_ID <= 16383"},
+		}
+		for _, tc := range cases {
+			tc := tc
+			t.Run(output.name+"/"+tc.name, func(t *testing.T) {
+				compileOutput, err := compileRoutingConfiguration(t, compiler, output, tc.bounds)
+				if !tc.wantError {
+					require.NoErrorf(t, err, "%s", compileOutput)
+					return
+				}
+				require.Error(t, err)
+				diagnostics := string(compileOutput)
+				require.Contains(t, diagnostics, output.minimum)
+				require.Contains(t, diagnostics, output.maximum)
+				require.Contains(t, diagnostics, tc.diagnostic)
+			})
+		}
+
+		t.Run(output.name+"/zero bounds route all IDs", func(t *testing.T) {
+			compileAndRunRoutingHarness(t, compiler, output, 0, 0, 3)
+		})
+	}
+}
+
+// routingEnableDefinitions returns the output switch and any required UART
+// hardware selector for one compile invocation.
+func routingEnableDefinitions(output routingOutput) []string {
+	definitions := []string{"-D" + output.enable + "=1"}
+	if output.name == "uarta" {
+		definitions = append(definitions, "-DTRICE_UARTA=1")
+	}
+	if output.name == "uartb" {
+		definitions = append(definitions, "-DTRICE_UARTB=1")
+	}
+	return definitions
+}
+
+// compileRoutingConfiguration compiles trice.c with one output configuration
+// and returns the complete compiler diagnostics for positive and negative cases.
+func compileRoutingConfiguration(t *testing.T, compiler string, output routingOutput, bounds []string) ([]byte, error) {
+	t.Helper()
+
+	tempDir := t.TempDir()
+	srcDir, err := filepath.Abs(filepath.Join("..", "..", "src"))
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(tempDir, "triceConfig.h"), []byte(routingTestConfig), 0o644))
+	sourceFile := filepath.Join(tempDir, "routing_configuration.c")
+	require.NoError(t, os.WriteFile(sourceFile, []byte(routingCompileSource), 0o644))
+
+	arguments := []string{"-std=c99", "-I", tempDir, "-I", srcDir}
+	arguments = append(arguments, routingEnableDefinitions(output)...)
+	arguments = append(arguments, bounds...)
+	arguments = append(arguments, "-c", sourceFile, "-o", filepath.Join(tempDir, "routing_configuration.o"))
+	return exec.Command(compiler, arguments...).CombinedOutput()
+}
+
 // compileAndRunRoutingHarness builds one route with explicit bounds and runs
 // the executable so the output stub observes the selected IDs.
 func compileAndRunRoutingHarness(t *testing.T, compiler string, output routingOutput, minimum, maximum, expectedHits int) {
@@ -164,20 +257,14 @@ func compileAndRunRoutingHarness(t *testing.T, compiler string, output routingOu
 	if filepath.Ext(os.Args[0]) == ".exe" {
 		executable += ".exe"
 	}
-	definitions := []string{
-		"-D" + output.enable + "=1",
-		"-D" + output.minimum + "=" + strconv.Itoa(minimum),
-		"-D" + output.maximum + "=" + strconv.Itoa(maximum),
-		"-DROUTE_MIN=" + strconv.Itoa(minimum),
-		"-DROUTE_MAX=" + strconv.Itoa(maximum),
-		"-DEXPECTED_HITS=" + strconv.Itoa(expectedHits),
-	}
-	if output.name == "uarta" {
-		definitions = append(definitions, "-DTRICE_UARTA=1")
-	}
-	if output.name == "uartb" {
-		definitions = append(definitions, "-DTRICE_UARTB=1")
-	}
+	definitions := routingEnableDefinitions(output)
+	definitions = append(definitions,
+		"-D"+output.minimum+"="+strconv.Itoa(minimum),
+		"-D"+output.maximum+"="+strconv.Itoa(maximum),
+		"-DROUTE_MIN="+strconv.Itoa(minimum),
+		"-DROUTE_MAX="+strconv.Itoa(maximum),
+		"-DEXPECTED_HITS="+strconv.Itoa(expectedHits),
+	)
 	arguments := []string{
 		"-std=c99",
 		"-ffunction-sections",
