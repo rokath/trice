@@ -181,8 +181,8 @@
 #error configuration: direct-only mode needs TRICE_DIRECT_OUTPUT == 1
 #endif
 
-#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_LOCAL_LOG == 0) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0)
-#error configuration: TRICE_DEFERRED_OUTPUT == 1 needs TRICE_DEFERRED_UARTx or TRICE_DEFERRED_AUXILIARYx
+#if (TRICE_DEFERRED_OUTPUT == 1) && (TRICE_LOCAL_LOG == 0) && (TRICE_DEFERRED_UARTA == 0) && (TRICE_DEFERRED_UARTB == 0) && (TRICE_DEFERRED_AUXILIARY8 == 0) && (TRICE_DEFERRED_AUXILIARY32 == 0) && (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 0)
+#error configuration: TRICE_DEFERRED_OUTPUT == 1 needs a deferred UART, auxiliary, or RTT output
 #endif
 
 #if (TRICE_LOCAL_LOG == 1) && (TRICE_DEFERRED_OUTPUT == 0)
@@ -637,7 +637,7 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 
 #endif // #if TRICE_DIRECT32
 
-#if TRICE_DIRECT8
+#if TRICE_DIRECT8 || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
 #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
 
@@ -708,7 +708,7 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 #endif
 }
 
-#endif // #if TRICE_DIRECT8
+#endif // #if TRICE_DIRECT8 || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
 #if TRICE_DIRECT_OUTPUT == 1
 
@@ -856,7 +856,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 #error configuration: TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE
 #endif
-	if ((TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID))
+	if ((TRICE_UARTA_MIN_ID <= triceID) && (triceID <= TRICE_UARTA_MAX_ID))
 #else
 	TRICE_UNUSED(triceID)
 #endif
@@ -870,7 +870,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 #error configuration: TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE
 #endif
-	if ((TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID))
+	if ((TRICE_UARTB_MIN_ID <= triceID) && (triceID <= TRICE_UARTB_MAX_ID))
 #else
 	TRICE_UNUSED(triceID)
 #endif
@@ -884,7 +884,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 #error configuration: TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE
 #endif
-	if ((TRICE_DEFERRED_AUXILIARY8_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY8_MAX_ID))
+	if ((TRICE_DEFERRED_AUXILIARY8_MIN_ID <= triceID) && (triceID <= TRICE_DEFERRED_AUXILIARY8_MAX_ID))
 #else
 	TRICE_UNUSED(triceID)
 #endif
@@ -898,7 +898,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 #error configuration: TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE
 #endif
-	if ((TRICE_DEFERRED_AUXILIARY32_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_AUXILIARY32_MAX_ID))
+	if ((TRICE_DEFERRED_AUXILIARY32_MIN_ID <= triceID) && (triceID <= TRICE_DEFERRED_AUXILIARY32_MAX_ID))
 #else
 	TRICE_UNUSED(triceID)
 #endif
@@ -913,7 +913,7 @@ void TriceNonBlockingDeferredWrite8(int triceID, const uint8_t* enc, size_t encL
 
 #if (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 #if defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID) && defined(TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID)
-	if ((TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID < triceID) && (triceID < TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID))
+	if ((TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MIN_ID <= triceID) && (triceID <= TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE_MAX_ID))
 #if TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 #error configuration: TRICE_MULTI_PACK_MODE cannot support ID routing, consider TRICE_SINGLE_PACK_MODE
 #endif
