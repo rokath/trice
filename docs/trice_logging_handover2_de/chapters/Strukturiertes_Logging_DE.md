@@ -15,8 +15,7 @@ Eine optionale Feldnamen-Registry kann durch `bind`/`insert` automatisch und sch
 Strukturiertes Logging bewahrt die Werte einer Meldung zusätzlich zum lesbaren Text als einzeln benannte Felder auf. Aus
 
 ```c
-strice("info:Motor {motor_id}: {temperature_c} C",
-       motor_id, aFloat(temperature_c));
+strice("info:Motor {motor_id}: {temperature_c} C", motor_id, aFloat(temperature_c));
 ```
 
 kann der Host beispielsweise erzeugen:
@@ -37,7 +36,7 @@ Ein Auswerteprogramm kann damit direkt `temperature_c > 80` prüfen, ohne Text z
 Etablierte Systeme verwenden im Wesentlichen drei Modelle:
 
 - **Benannte Message-Templates (A):** Serilog und Microsoft Logging verwenden Platzhalter wie `{motor_id}`. Name und Wert bleiben als strukturierte Information erhalten; die Zuordnung der Argumente erfolgt üblicherweise positionsabhängig. Rust `tracing` kennt zusätzlich die Kurzform, einen Variablennamen zugleich als Feldname und Wert zu verwenden.
-- **Separates Event-Schema (B):** ETW und LTTng definieren Ereignisse mit festen Namen, Typen und Feldern getrennt von der Aufrufstelle. Das ist sinnvoll für einen zentral verwalteten Katalog wiederverwendbarer Ereignistypen. Es erkennt jedoch nicht Vertauschung wie `Event(temperature_c, motor_id)`, wenn beide Parameter denselben Typ haben.
+- **Separates Event-Schema (B):** ETW und LTTng definieren Ereignisse mit festen Namen, Typen und Feldern getrennt von der Aufrufstelle. Das ist sinnvoll für einen zentral verwalteten Katalog wiederverwendbarer Ereignistypen. Es erkennt jedoch auch nicht Vertauschung wie `Event(temperature_c, motor_id)`, wenn beide Parameter denselben Typ haben.
 - **Explizite Name/Wert-Paare (C):** beispielsweise Go `slog`: `"motor_id", motor_id`.
 
 B ist daher kein sichererer Ersatz für A, sondern löst ein anderes Problem: die zentrale Definition stabiler Ereignisschemata.
@@ -49,17 +48,17 @@ Für Trice passt A besonders gut, weil Feldnamen vollständig auf dem Host bleib
 **Expliziter Feldname:**
 
 ```c
-strice("info:Motor {motor_id}: {temperature_c} C",
-       motor, aFloat(temp));
+strice("info:Motor {motor_id}: {temperature_c} C", motor, aFloat(temp));
 ```
 
-Der Feldname ist stabil und unabhängig vom C-Ausdruck. `bind`/`insert` kann bei einfachen Argumenten zusätzlich prüfen, ob Platzhalter und Argumentname plausibel zusammenpassen.
+Der Feldname ist stabil und unabhängig vom C-Ausdruck. 
+
+<!-- Ob Platzhalter und Argumentname plausibel zusammenpassen, könnte in einem zusätzlichen separatem `check` Kommando geprüft werden. Das wäre aber ein optionaler nachgelagerter Erntwicklungsschritt. -->
 
 **Feldname automatisch aus dem Argument:**
 
 ```c
-strice("info:Motor {}: {} C",
-       motor_id, aFloat(temperature_c));
+strice("info:Motor {}: {} C", motor_id, aFloat(temperature_c));
 ```
 
 Bei `{}` wird der Name eines einfachen C-Bezeichners übernommen. Bei `aFloat(x)` und `aDouble(x)` wird `x` als Name verwendet. Damit sind Feldname und Wert gekoppelt; ein Tippfehler im Bezeichner wird normalerweise bereits vom Compiler erkannt.
@@ -68,10 +67,10 @@ Ohne explizite Darstellung gilt als Default:
 
 ```text
 aFloat(...) / aDouble(...) -> %f
-sonst                       -> %d
+sonst                      -> %d
 ```
 
-Eine abweichende Darstellung kann nach dem ersten `:` frei angegeben werden:
+Eine abweichende Darstellung kann nach dem ersten `:` frei angegeben werden, um direkte Logs gefälliger lesbar zu machen, ohne den (zusätzlichen) strukturierten Output zu beeinflussen:
 
 ```c
 strice("Temperature{: = %.1f |}", aFloat(temperature_c));
@@ -89,15 +88,13 @@ strice("{temperature_c:%.1f C}", aFloat(getTemperature()));
 **Nicht als primäre Lösung vorgesehen:**
 
 - Eine manuell gepflegte Zuordnung `arg0 -> motor_id` außerhalb der Logstelle ist fehleranfällig.
-- Ein vollständiges B-Modell mit zentralen Event-Schemata und generierter API ist möglich, aber für allgemeines Trice-Logging unnötig schwergewichtig. Es wäre nur bei Bedarf an einem verbindlichen, vielfach wiederverwendeten Ereigniskatalog sinnvoll.
+- Ein vollständiges B-Modell mit zentralen Event-Schemata und generierter API ist möglich, aber für allgemeines Trice-Logging unnötig schwergewichtig. Es wäre nur bei Bedarf an einem verbindlichen, vielfach wiederverwendeten Ereigniskatalog sinnvoll und könnte später als unabhängige Option gestaltet werden.
 
 **C als spätere Option:**
 
 ```c
-striceX("info:Motor temperature %d: %.1f C", "motor_id", motor_id,
-        "temperature_c", aFloat(getTemperature());
-striceX("info:Motor temperature %d: %.1f C", "", motor_id,
-        "temperature_c", aFloat(getTemperature()); // possible short form
+striceX("info:Motor %d: %.1f C", "motor_id", motor_id, "temperature_c", aFloat(Temp()));
+striceX("info:Motor %d: %.1f C",         "", motor_id, "temperature_c", aFloat(Temp())); // short form
 ```
 
 C kann später als syntaktischer Zucker ergänzt werden. Hostseitig kann es in dasselbe Datenmodell wie A überführt werden; das Drahtformat muss sich dadurch nicht ändern.
@@ -121,7 +118,49 @@ Die Platzhalter folgen grundsätzlich der Form
 {motor_id:: %d, }          // Name motor_id, Darstellung ": %d, "
 ```
 
-Alle Varianten erzeugen dasselbe Host-Schema, beispielsweise:
+**Hierarchische Feldnamen:** Punkte trennen Namenssegmente. Einfache C-Memberketten können automatisch abgeleitet werden; `.` und `->` werden dabei beide zu `.` kanonisiert. `aFloat()` und `aDouble()` sind für die Namensableitung transparente Hüllen.
+
+```c
+"{motor.temperature_c}", x            // -> motor.temperature_c
+"{}", motor.temperature_c             // -> motor.temperature_c
+"{}", motor->temperature_c            // -> motor.temperature_c
+"{}", controller->motor.temperature_c // -> controller.motor.temperature_c
+"{motor.}", temperature_c             // -> motor.temperature_c
+```
+
+`{prefix.}` ergänzt somit einen expliziten Präfix um den aus dem Argument abgeleiteten Namen. Automatische Ableitung ist nur für Bezeichner und reine `.`/`->`-Memberketten vorgesehen. Bei `&`, `*`, Arrayzugriffen, allgemeinen Funktionsaufrufen oder Ausdrücken ist ein expliziter Feldname erforderlich, beispielsweise:
+
+```c
+"{motor.temperature_c}", &motor->temperature_c
+```
+
+Der **aufgelöste kanonische Feldname** wird in `til.json` gespeichert; `{}` selbst ist nur Source-Kurzform. Der Feldname ist Bestandteil des Trice-Schemas: Ändert sich beispielsweise `motor.temperature_c` zu `motor.temperature_f`, ist eine neue Trice-ID erforderlich. Ein Wechsel im C-Code von `motor.temperature_c` zu `motor->temperature_c` erfordert dagegen keine neue ID, da beide denselben kanonischen Feldnamen ergeben.
+
+**Ausgabe mit `trice log`:** In der initialen Ausbauform ersetzt `trice log` `{...}` im Formatstring wie angegeben und erzeugt damit weiterhin die normale Textausgabe. Ein neuer CLI-Schalter `-logFormat` wählt die äußere Darstellung:
+
+```text
+-logFormat text   // Default, bisherige Ausgabe
+-logFormat json   // ein JSON-Objekt pro Logrecord
+-logFormat kv     // ein key=value-Record pro Zeile
+```
+
+Alle drei Formate verwenden denselben dekodierten Logrecord. Die Darstellung innerhalb `{...}` beeinflusst nur `message`; strukturierte Feldwerte bleiben typisiert und unformatiert. Beispielsweise kann `%.1f C` im Text `87.5 C` erzeugen, während das strukturierte Feld weiterhin den numerischen Wert `87.51234` enthält. Hierarchische Feldnamen bleiben dabei als kanonische Punktnamen erhalten.
+
+Bei `json` und `kv` erscheinen Metafelder nur, wenn die entsprechende bestehende Trice-Ausgabeoption aktiv ist und der Wert vorhanden ist: beispielsweise `id`, Target-Zeitstempel `ts`, Host-Zeitstempel `hs` sowie `file` und `line`. `tag` und gegebenenfalls `level` werden wie unten beschrieben ergänzt. Die bestehende Wertformatierung für `ts` und `hs` kann übernommen werden; reine Textdekoration wie Padding, Spaltentrenner oder ANSI-Sequenzen entfällt. Ein zusätzlicher allgemeiner `-ignore`-/`-suppress`-Schalter ist zunächst nicht vorgesehen.
+
+Beispiel für JSON:
+
+```json
+{"tag":"INFO","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}
+```
+
+Beispiel für `kv`:
+
+```text
+tag=INFO level=INFO message="Motor 3: 87.5 C" motor_id=3 temperature_c=87.5
+```
+
+Alle Varianten erzeugen dasselbe Host-Schema, welches implizit in `til.json` vorliegt, beispielsweise:
 
 ```text
 ID 4711:
@@ -135,6 +174,7 @@ Beispiel:
 
 ```text
 motor_id          12
+s.t.u              3
 temperature_c     27
 ```
 
