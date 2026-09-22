@@ -169,6 +169,99 @@ func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
 	}
 }
 
+// TestLogEntryPointsResolveUserSelectorsAfterRegistration verifies option-order
+// independence for Pick and Ban through both supported log entry points.
+func TestLogEntryPointsResolveUserSelectorsAfterRegistration(t *testing.T) {
+	originalStartLogLoop := startLogLoop
+	t.Cleanup(func() { startLogLoop = originalStartLogLoop })
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+
+	tests := []struct {
+		name string
+		args []string
+		run  func([]string) error
+		pick bool
+	}{
+		{name: "trice pick before label", args: []string{"-pick", "motor", "-ulabel", "motor"}, run: func(args []string) error {
+			return Handler(io.Discard, fSys, append([]string{"trice", "log"}, args...))
+		}, pick: true},
+		{name: "tlog label before pick", args: []string{"-ulabel", "motor", "-pick", "motor"}, run: func(args []string) error {
+			return LogHandler(io.Discard, fSys, append([]string{"tlog"}, args...))
+		}, pick: true},
+		{name: "trice ban before label", args: []string{"-ban", "motor", "-ulabel", "motor"}, run: func(args []string) error {
+			return Handler(io.Discard, fSys, append([]string{"trice", "log"}, args...))
+		}},
+		{name: "tlog label before ban", args: []string{"-ulabel", "motor", "-ban", "motor"}, run: func(args []string) error {
+			return LogHandler(io.Discard, fSys, append([]string{"tlog"}, args...))
+		}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			FlagsInit()
+			started := false
+			startLogLoop = func(io.Writer, *afero.Afero) { started = true }
+
+			require.NoError(t, tt.run(tt.args))
+			assert.True(t, started)
+			if tt.pick {
+				assert.Contains(t, emitter.Pick, "motor")
+				assert.Nil(t, emitter.Ban)
+			} else {
+				assert.Contains(t, emitter.Ban, "motor")
+				assert.Nil(t, emitter.Pick)
+			}
+		})
+	}
+}
+
+// TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput verifies the
+// shared validation path used by trice log and tlog.
+func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
+	originalStartLogLoop := startLogLoop
+	t.Cleanup(func() { startLogLoop = originalStartLogLoop })
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+
+	entryPoints := []struct {
+		name string
+		run  func([]string) error
+	}{
+		{name: "trice log", run: func(args []string) error {
+			return Handler(io.Discard, fSys, append([]string{"trice", "log"}, args...))
+		}},
+		{name: "tlog", run: func(args []string) error {
+			return LogHandler(io.Discard, fSys, append([]string{"tlog"}, args...))
+		}},
+	}
+	invalid := []struct {
+		name     string
+		args     []string
+		contains string
+	}{
+		{name: "unknown pick", args: []string{"-pick", "missing"}, contains: "unknown tag"},
+		{name: "empty pick", args: []string{"-pick", ""}, contains: "empty tag name"},
+		{name: "double separator", args: []string{"-ban", "err::wrn"}, contains: "empty tag name"},
+		{name: "unknown level", args: []string{"-logLevel", "missing"}, contains: "unknown tag"},
+		{name: "negative level", args: []string{"-logLevel", "-1"}, contains: "range 0..999"},
+		{name: "large level", args: []string{"-logLevel", "1000"}, contains: "range 0..999"},
+	}
+
+	for _, entryPoint := range entryPoints {
+		for _, tt := range invalid {
+			t.Run(entryPoint.name+" "+tt.name, func(t *testing.T) {
+				FlagsInit()
+				started := false
+				startLogLoop = func(io.Writer, *afero.Afero) { started = true }
+
+				err := entryPoint.run(tt.args)
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tt.contains)
+				assert.False(t, started)
+			})
+		}
+	}
+}
+
 // decimalByteArguments formats raw input for the BUFFER receiver without
 // changing or interpreting any byte values.
 func decimalByteArguments(data []byte) string {

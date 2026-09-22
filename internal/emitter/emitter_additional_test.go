@@ -187,21 +187,126 @@ func TestAppendIfMissing(t *testing.T) {
 	}
 }
 
-// TestChannelArrayFlagSetAddsUniqueVariants verifies the expected behavior.
-func TestChannelArrayFlagSetAddsUniqueVariants(t *testing.T) {
+// TestChannelArrayFlagSetCollectsRawSelectors verifies that parsing preserves
+// names and empty parts until the complete tag registry is available.
+func TestChannelArrayFlagSetCollectsRawSelectors(t *testing.T) {
 	var f channelArrayFlag
-	if err := f.Set("msg:msg:inf"); err != nil {
-		t.Fatalf("set failed: %v", err)
+	require.NoError(t, f.Set("msg::motor"))
+	assert.Equal(t, channelArrayFlag{"msg", "", "motor"}, f)
+}
+
+// TestResolveFilterSelectorsUsesCompleteTagRegistry verifies that built-in and
+// user-defined groups resolve identically after all -ulabel values are known.
+func TestResolveFilterSelectorsUsesCompleteTagRegistry(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+
+	UserLabel = ArrayFlag{"motor:350"}
+	require.NoError(t, AddUserLabels())
+	Pick = channelArrayFlag{"motor", "msg", "M"}
+	Ban = nil
+	LogLevel = "M"
+	require.NoError(t, ResolveFilterSelectors())
+
+	assert.Contains(t, []string(Pick), "motor")
+	for _, alias := range tagVariants("msg") {
+		assert.Contains(t, []string(Pick), alias)
 	}
-	seen := map[string]bool{}
-	for _, s := range f {
-		if seen[s] {
-			t.Fatalf("duplicate element found: %q", s)
-		}
-		seen[s] = true
+	assert.Equal(t, len(tagVariants("msg"))+1, len(Pick))
+	messageThreshold, err := logLevelWeight(LogLevel)
+	require.NoError(t, err)
+	assert.Equal(t, 500, messageThreshold)
+}
+
+// TestResolveFilterSelectorsRejectsInvalidValues verifies understandable
+// errors for malformed selectors and levels without partially resolving state.
+func TestResolveFilterSelectorsRejectsInvalidValues(t *testing.T) {
+	tests := []struct {
+		name     string
+		ban      channelArrayFlag
+		pick     channelArrayFlag
+		logLevel string
+		contains string
+	}{
+		{name: "unknown pick", pick: channelArrayFlag{"missing"}, logLevel: "all", contains: "unknown tag"},
+		{name: "empty pick", pick: channelArrayFlag{""}, logLevel: "all", contains: "empty tag name"},
+		{name: "double separator", ban: channelArrayFlag{"err", "", "wrn"}, logLevel: "all", contains: "empty tag name"},
+		{name: "empty level", logLevel: "", contains: "level is empty"},
+		{name: "negative level", logLevel: "-1", contains: "range 0..999"},
+		{name: "large level", logLevel: "1000", contains: "range 0..999"},
+		{name: "unknown level", logLevel: "missing", contains: "unknown tag"},
+		{name: "fractional level", logLevel: "1.5", contains: "numeric weight"},
 	}
-	if !seen["msg"] || !seen["inf"] {
-		t.Fatalf("expected canonical aliases in set: %#v", []string(f))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := snapshotEmitterState()
+			t.Cleanup(func() { restoreEmitterState(s) })
+			UserLabel = nil
+			require.NoError(t, AddUserLabels())
+			Ban = append(channelArrayFlag(nil), tt.ban...)
+			Pick = append(channelArrayFlag(nil), tt.pick...)
+			LogLevel = tt.logLevel
+			beforeBan := append(channelArrayFlag(nil), Ban...)
+			beforePick := append(channelArrayFlag(nil), Pick...)
+
+			err := ResolveFilterSelectors()
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tt.contains)
+			assert.Equal(t, beforeBan, Ban)
+			assert.Equal(t, beforePick, Pick)
+		})
+	}
+}
+
+// TestResolveFilterSelectorsAcceptsLevelAliasesAndBoundaries verifies all
+// supported threshold forms and the inclusive numeric range.
+func TestResolveFilterSelectorsAcceptsLevelAliasesAndBoundaries(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+
+	for _, level := range []string{"all", "off", "0", "999", "MESSAGE", "msg", "M"} {
+		LogLevel = level
+		Ban = nil
+		Pick = nil
+		assert.NoError(t, ResolveFilterSelectors(), level)
+	}
+	for _, level := range []string{"MESSAGE", "msg", "M"} {
+		weight, err := logLevelWeight(level)
+		require.NoError(t, err)
+		assert.Equal(t, 500, weight)
+	}
+}
+
+// TestSpecialPickAndBanSelectors verifies that all denotes the complete set
+// and off denotes the empty set for either selector type.
+func TestSpecialPickAndBanSelectors(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	line := []byte("msg:hello")
+	tests := []struct {
+		name string
+		ban  channelArrayFlag
+		pick channelArrayFlag
+		want int
+	}{
+		{name: "pick all", pick: channelArrayFlag{"all"}, want: len(line)},
+		{name: "pick off", pick: channelArrayFlag{"off"}, want: 0},
+		{name: "ban all", ban: channelArrayFlag{"all"}, want: 0},
+		{name: "ban off", ban: channelArrayFlag{"off"}, want: len(line)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			Ban = append(channelArrayFlag(nil), tt.ban...)
+			Pick = append(channelArrayFlag(nil), tt.pick...)
+			LogLevel = "all"
+			require.NoError(t, ResolveFilterSelectors())
+			assert.Equal(t, tt.want, BanOrPickFilter(line))
+		})
 	}
 }
 

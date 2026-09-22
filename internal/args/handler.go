@@ -232,6 +232,9 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	if err := emitter.AddUserLabels(); err != nil {
 		return err
 	}
+	if err := emitter.ResolveFilterSelectors(); err != nil {
+		return err
+	}
 	decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 	decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 	decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")

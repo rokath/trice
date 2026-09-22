@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // duplicateTagAliases reports every alias that belongs to more than one tag group.
@@ -66,6 +67,30 @@ func Test3colorize(t *testing.T) {
 	s := "msg:de"
 	act, _ := p.colorize(s)
 	assert.Equal(t, s, act)
+}
+
+// TestColorizeUsesTagWeights verifies inclusive filtering by alias and numeric
+// threshold while unknown prefixes retain the pre-M11 behavior.
+func TestColorizeUsesTagWeights(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	p := newLineTransformerANSI(newCheckDisplay(), "off")
+
+	for _, threshold := range []string{"INFO", "info", "500"} {
+		LogLevel = threshold
+		require.NoError(t, ResolveFilterSelectors())
+
+		_, show := p.colorize("wrn:shown")
+		assert.True(t, show, threshold)
+		_, show = p.colorize("msg:boundary")
+		assert.True(t, show, threshold)
+		_, show = p.colorize("dbg:hidden")
+		assert.False(t, show, threshold)
+		_, show = p.colorize("misspelled:unchanged")
+		assert.True(t, show, threshold)
+	}
 }
 
 func _Test4colorize(t *testing.T) {

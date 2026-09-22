@@ -111,8 +111,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	port "HEX" or "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	 (default "default")
   -ban value
-    	Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-    	Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".
+    	Tag group(s) to suppress. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" suppresses every message and "off" suppresses none.
+    	Example: "-ban dbg:wrn -ban diag" suppresses Debug, Warning, and Diag messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".
   -baud int
     	Set the serial port baudrate.
     	It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
@@ -199,9 +199,9 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -logLevel string
-    	Level based log filtering. "off" suppresses everything. If equal to a channel specifier, all with a bigger index inside emitter.Tags logs are not not shown.
-    	A typical use case is "-logLevel wrn". Attention this switch influences also location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix and suffix information. Set these channel information appropriate.
-    	Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -ulabel, -pick and -ban. (default "all")
+    	Filter known tagged output at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all output fragments.
+    	A typical use case is "-logLevel wrn". Filtering still occurs on output fragments and can influence location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, and suffix. Numeric and tag thresholds do not suppress logs without a recognized tag.
+    	Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban. (default "all")
   -logfile string
     	Append all output to logfile. Options are: 'off|none|filename|auto':
     	"off": no logfile (same as "none")
@@ -227,8 +227,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -pf string
     	Short for '-packageFraming'. (default "TCOBSv1")
   -pick value
-    	Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-    	Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".
+    	Tag group(s) to display exclusively. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" selects every message and "off" selects none.
+    	Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".
   -port string
     	Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP.
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.

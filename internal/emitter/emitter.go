@@ -77,7 +77,8 @@ func (i *ArrayFlag) Set(value string) error {
 	return nil
 }
 
-// channelArrayFlag stores canonical and alias tag names used by -ban/-pick.
+// channelArrayFlag stores raw selector names while flags are parsed and the
+// resolved aliases after ResolveFilterSelectors succeeds.
 type channelArrayFlag []string
 
 // String implements flag.Value.
@@ -95,16 +96,63 @@ func appendIfMissing(slice []string, item string) []string {
 	return append(slice, item)
 }
 
-// Set expands known tag aliases and appends unique entries.
+// Set collects selector names without resolving them because user tags are
+// registered only after all command-line options have been parsed.
 func (i *channelArrayFlag) Set(value string) error {
-	ss := strings.Split(value, ":")
-	for _, s := range ss {
-		cv := tagVariants(s)
-		for _, c := range cv {
-			*i = appendIfMissing(*i, c)
+	*i = append(*i, strings.Split(value, ":")...)
+	return nil
+}
+
+// ResolveFilterSelectors validates and resolves -pick, -ban, and -logLevel
+// against the complete per-command tag registry. State is replaced only when
+// every selector is valid.
+func ResolveFilterSelectors() error {
+	if Ban != nil && Pick != nil {
+		return fmt.Errorf("switches -pick and -ban cannot be used together")
+	}
+	ban, err := resolveChannelSelectors("ban", Ban)
+	if err != nil {
+		return err
+	}
+	pick, err := resolveChannelSelectors("pick", Pick)
+	if err != nil {
+		return err
+	}
+	if LogLevel != "all" && LogLevel != "off" {
+		if _, err := logLevelWeight(LogLevel); err != nil {
+			return fmt.Errorf("invalid -logLevel %q: %w", LogLevel, err)
 		}
 	}
+	Ban = ban
+	Pick = pick
 	return nil
+}
+
+// resolveChannelSelectors expands each known group to all aliases. The
+// reserved selectors all and off remain explicit so the filter can apply set
+// semantics without inventing tag groups.
+func resolveChannelSelectors(option string, raw channelArrayFlag) (channelArrayFlag, error) {
+	if raw == nil {
+		return nil, nil
+	}
+	resolved := make(channelArrayFlag, 0, len(raw))
+	for _, name := range raw {
+		if name == "" {
+			return nil, fmt.Errorf("invalid -%s selector: empty tag name", option)
+		}
+		if name == "all" || name == "off" {
+			resolved = appendIfMissing(resolved, name)
+			continue
+		}
+		variants := tagVariants(name)
+		if variants == nil {
+			return nil, fmt.Errorf("invalid -%s selector %q: unknown tag", option, name)
+		}
+		for _, alias := range variants {
+			resolved = appendIfMissing(resolved, alias)
+		}
+	}
+	return resolved, nil
 }
 
 // LineWriter is the common interface for output devices.
@@ -164,6 +212,9 @@ func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 	s := string(b)
 	sc := strings.SplitN(s, ":", 2) // example: "deb" -> []string{ "deb"} "deb:" -> []string{ "deb", "" }
 	if ban != nil {
+		if slices.Contains(ban, "all") {
+			return 0
+		}
 		if len(sc) < 2 { // no color separator
 			return len(b) // nothing to filter
 		}
@@ -172,6 +223,9 @@ func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 		}
 		return len(b) // no filter match
 	} else { // Pick is set
+		if slices.Contains(pick, "all") {
+			return len(b)
+		}
 		if len(sc) < 2 { // no color separator
 			return 0 // filter out
 		}

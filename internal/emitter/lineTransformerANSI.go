@@ -295,6 +295,25 @@ func TagWeight(name string) (int, error) {
 	return Tags[i].weight, nil
 }
 
+// logLevelWeight resolves a numeric threshold or a registered tag alias. The
+// special values all and off are handled by the caller.
+func logLevelWeight(value string) (int, error) {
+	if value == "" {
+		return 0, errors.New("level is empty")
+	}
+	if weight, err := strconv.Atoi(value); err == nil {
+		if weight < minTagWeight || weight > maxTagWeight {
+			return 0, fmt.Errorf("numeric level must be in range %d..%d", minTagWeight, maxTagWeight)
+		}
+		return weight, nil
+	}
+	weight, err := TagWeight(value)
+	if err != nil {
+		return 0, fmt.Errorf("unknown tag or numeric weight")
+	}
+	return weight, nil
+}
+
 // TagEvents returns count of occurred channel events.
 // If ch is unknown, the returned value is -1.
 func TagEvents(ch string) int {
@@ -351,35 +370,36 @@ func isTag(tag string) bool {
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is start of string add ANSI color code according to COL:
 // If "col:" is start of string replace "col:" with ANSI color code according to col:
-// Additionally, if global variable LogLevel is not the default "all", but found inside
-// ColorChannels, logs with higher index positions are suppressed.
+// Additionally, LogLevel suppresses known tags below a validated group or
+// numeric weight threshold.
 // As special case LogLevel == "off" does not output anything.
 func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	if LogLevel == "off" {
 		return // do not log at all, return empty string
 	}
-	var logLev int       // numeric log level
-	var logThreshold int // numeric log threshold
 	r = s
 	sc := strings.SplitN(s, ":", 2)
 	if len(sc) < 2 { // no color separator (no log level)
 		return r, true // do nothing, return unchanged string
 	}
+	messageWeight := 0
+	knownTag := false
 	for i, cc := range Tags {
 		for _, c := range cc.Names {
 			if c == sc[0] {
 				Tags[i].count++ // count event
-				logLev = i
-			}
-			if c == LogLevel {
-				logThreshold = i
+				messageWeight = cc.weight
+				knownTag = true
 			}
 		}
 	}
 
-	if LogLevel != "all" && logLev > logThreshold {
-		r = "" // suppress unwanted logs
-		return r, false
+	if LogLevel != "all" && knownTag {
+		threshold, err := logLevelWeight(LogLevel)
+		if err != nil || messageWeight < threshold {
+			r = "" // suppress unwanted logs
+			return r, false
+		}
 	}
 
 	if p.colorPalette == "off" {

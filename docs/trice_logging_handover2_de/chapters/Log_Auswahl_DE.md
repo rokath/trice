@@ -26,11 +26,11 @@ Der Host erkennt `wrn`, färbt die Meldung entsprechend `./internal/emitter/line
 
 Aliase wie `err` und `ERROR` gehören zur selben Gruppe. Welche Tag Aliase existieren, steht in der Tags Slice innerhalb von `./internal/emitter/lineTransformerANSI.go`. Mit CLI Switch `-color default` werden bekannte rein kleingeschriebene Tag-Präfixe entfernt und Farben hinzugefügt; Präfixe (Tags) mit mindestens einem Großbuchstaben bleiben sichtbar. `-color none` entfernt ebenfalls komplett kleingeschriebenen Präfixe, erzeugt aber keine Farben. `-color off` lässt Präfixe unverändert, fügt aber keine Farben hinzu. Details: [Tags und Farben](../../TriceUserManual.md#trice-tags-and-color).
 
-Gib eigene Tags einzeln mit wiederholtem `-ulabel` an. Doppelpunktlisten für `-ulabel` funktionieren nicht. Die Auswahl mit `-ulabel` neu registrierter User-Tags durch `-pick`/`-ban` ist in v1.3.0 fehlerhaft.
+Gib eigene Tags einzeln mit wiederholtem `-ulabel` an. Doppelpunktlisten für `-ulabel` sind ungültig. Neu registrierte User-Tags können unabhängig von der Optionsreihenfolge mit `-pick` und `-ban` ausgewählt werden.
 
 ### <a id="la-heute-loglevel"></a>Vorhanden: logLevel mit Einschränkungen
 
-`-logLevel wrn` verwendet derzeit die Reihenfolge der Tag-Tabelle: Es lässt `wrn` und davor stehende Gruppen durch. Diese Reihenfolge vermischt Prioritäten mit anderen Tags. Außerdem kann die Filterung Zeitstempel, Quellposition, ID, Präfix und Suffix unterdrücken. Für die alltägliche gezielte Auswahl sind vorerst `-pick` und `-ban` leichter vorhersehbar (v1.3.0).
+`-logLevel wrn` verwendet das Gewicht der Warning-Gruppe als inklusive Schwelle. Ein Tag-Alias und ein numerischer Wert zwischen `0` und `999` sind ebenfalls zulässig. Unbekannte Werte werden vor dem Öffnen der Eingabe abgewiesen. Numerische und tagbezogene Schwellen lassen Text ohne erkannten Tag derzeit passieren; `off` unterdrückt alle Ausgabeteile. Die Filterung arbeitet noch auf Ausgabeteilen und kann deshalb Zeitstempel, Quellposition, ID, Präfix und Suffix getrennt unterdrücken. M13 stellt diese Entscheidung auf das vollständige Ereignis um.
 
 Wer die vorhandene Level-Schwelle benötigt, kann ergänzte Spalten ohne eigene Tag-Präfixe formatieren. Beispiel für eine vorhandene TREX/TCOBSv1-Aufzeichnung ohne Verschlüsselung und passende `til.json`/`li.json` im Arbeitsverzeichnis:
 
@@ -44,11 +44,11 @@ trice log -p FILEBUFFER -args capture.bin \
 
 Das Beispiel zielt auf Meldungen mit jeweils abschließendem Zeilenumbruch; Teilzeilen können sich anders verhalten. Weitere Optionen: [Zeitstempel](../../TriceUserManual.md#trice-timestamps).
 
-### <a id="la-gewichte"></a>Geplant: feste Gewichte statt Tabellenposition
+### <a id="la-gewichte"></a>Vorhanden: feste Gewichte statt Tabellenposition
 
 Ein höheres Gewicht bedeutet höhere Priorität. Eine Meldung passiert `-logLevel N`, wenn ihr Gewicht **größer oder gleich N** ist. Ein niedrigerer Schwellenwert zeigt mehr Meldungen. `-logLevel wrn` verwendet das Gewicht der Gruppe `wrn`; `all` lässt alle Anwendungsmeldungen zu, `off` keine.
 
-**Vorschlag für Anfangswerte:** Ganzzahlen von `0` bis `999`. Alle Aliase einer Gruppe haben dasselbe Gewicht.
+Die Anfangswerte sind Ganzzahlen von `0` bis `999`. Alle Aliase einer Gruppe haben dasselbe Gewicht.
 
 | Gruppe | Gewicht |
 |---|---:|
@@ -61,7 +61,7 @@ Ein höheres Gewicht bedeutet höhere Priorität. Eine Meldung passiert `-logLev
 | Assert, Alarm, Alert | 760 |
 | Notice | 600 |
 | INFO, Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 500 |
-| `untagged` | 500 (INFO-Anfangswert) |
+| `untagged` | 500 (mit M11 geplant) |
 | Neue User-Tags ohne explizites Gewicht | endgültiges INFO-Gewicht |
 | Debug | 200 |
 | Trace | 100 |
@@ -71,7 +71,7 @@ Ein höheres Gewicht bedeutet höhere Priorität. Eine Meldung passiert `-logLev
 
 Für den Normalbetrieb ist `-logLevel info` praktisch: Neue Gruppen mit ausreichend hohem Gewicht erscheinen automatisch. Für eine Untersuchung nur bestimmter Gruppen passt `-pick` besser.
 
-### Geplant: eigene Gewichte und kombinierte Filter
+### Vorhanden: eigene Gewichte und validierte Selektoren
 
 ```text
 -ulabel motor
@@ -83,9 +83,11 @@ Für den Normalbetrieb ist `-logLevel info` praktisch: Neue Gruppen mit ausreich
 
 Alle Labels werden registriert, bevor Selektoren und Schwellen aufgelöst werden. Daher sind `-pick motor -ulabel motor` und die umgekehrte Reihenfolge gleichwertig. Ein neuer Tag ohne explizites Gewicht übernimmt das endgültige INFO-Gewicht nach Verarbeitung aller Optionen.
 
-Nach dem Doppelpunkt von `-ulabel` darf nur ein Gewicht stehen: `tagA:tagB` bleibt ungültig. Bei `-pick` und `-ban` bleibt der Doppelpunkt dagegen das Listentrennzeichen. Unbekannte oder leere Selektoren, ungültige Gewichte und `-pick` zusammen mit `-ban` führen vor dem Öffnen der Eingabe zu einem CLI-Fehler. Vorschlag: rein numerische Tag-Namen sowie `all` und `off` sind reserviert, damit die Level-Eingabe eindeutig bleibt.
+Nach dem Doppelpunkt von `-ulabel` darf nur ein Gewicht stehen: `tagA:tagB` ist ungültig. Bei `-pick` und `-ban` bleibt der Doppelpunkt dagegen das Listentrennzeichen. Unbekannte oder leere Selektoren, ungültige Gewichte und `-pick` zusammen mit `-ban` führen vor dem Öffnen der Eingabe zu einem CLI-Fehler. Rein numerische Tag-Namen sowie `all` und `off` sind reserviert, damit die Level-Eingabe eindeutig bleibt.
 
-Tag-Auswahl und Schwelle wirken gemeinsam. Es bleiben von den ausgewählten Gruppen nur Meldungen ab Fehlergewicht übrig. Für `-ban` gilt z.B.: nicht verboten **und** ausreichend wichtig. Beispiele:
+### Geplant: Filter gemeinsam auf das Ereignis anwenden
+
+Für einfache Meldungen wirken Tag-Auswahl und Schwelle bereits nacheinander. M13 fasst beide Entscheidungen für das vollständige Ereignis samt Zusatzspalten zusammen. Dann bleiben von den ausgewählten Gruppen nur Meldungen ab Schwellgewicht übrig. Für `-ban` gilt: nicht verboten **und** ausreichend wichtig. Beispiele:
 
 `-pick err:wrn -logLevel err` zeigt nur die ERROR Gruppe, wenn WARNIG geringeres Gewicht als ERROR hat.
 `-ban err:wrn -logLevel err` zeigt nur die Gruppen mit Gewicht größer ERROR an, aber auf keinen Fall die WARNING Gruppe.
@@ -123,8 +125,6 @@ Wenn eine Warnung angezeigt wird, bleiben ihre eingeschalteten Zeitstempel, Quel
 Ein Trice-Aufruf ist ein Ereignis. Eine Zeile kann mehrere Aufrufe enthalten. **Entwurf für Teilzeilen:** Jeder Aufruf wird einzeln ausgewählt; nur angenommene Textteile bilden die Ausgabe. Wird ein Teil unterdrückt, werden die übrigen Teile direkt aneinandergefügt. Die Zusatzspalten gehören zum ersten angenommenen Ereignis der Zeile. Ein unterdrückter Zeilenumbruch beendet sie nicht; ein offener Rest wird spätestens am Eingabeende ausgegeben. `-addNL` beendet jeden angenommenen Aufruf als eigene Zeile. Bei einem mehrzeiligen Aufruf gehören alle Zeilen zur selben Filterentscheidung.
 
 Werkzeugfehler (im Trice Tool entstandene) wie „unbekannte ID“ bleiben unabhängig von Anwendungsfiltern sichtbar, auch bei `-logLevel off`. Sie sind keine `untagged`-Anwendungsmeldungen. Die gemeinsame Ereignisauswahl soll auch für die Visualisierung mit `-vis` gelten.
-
-**Zu diskutieren:** `off` und `all` Bedeutung für `-logLevel`. Diese Werte sollten verboten werden, um Missverständnisse beim Lesen von Skripts zu vermeiden. 
 
 ### Vorhanden und geplant: IDs vergeben und auf dem Target routen
 

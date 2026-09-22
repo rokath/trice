@@ -85,6 +85,9 @@ func logInit() {
 	const defaultEncoding = "TREX"
 	// Reinitializing flag sets in tests must not retain repeatable rules from an earlier parse.
 	visRules = nil
+	emitter.Ban = nil
+	emitter.Pick = nil
+	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
@@ -100,9 +103,9 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
-	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Level based log filtering. "off" suppresses everything. If equal to a channel specifier, all with a bigger index inside emitter.Tags logs are not not shown.
-A typical use case is "-logLevel wrn". Attention this switch influences also location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix and suffix information. Set these channel information appropriate.
-Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -ulabel, -pick and -ban.`)
+	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter known tagged output at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all output fragments.
+A typical use case is "-logLevel wrn". Filtering still occurs on output fragments and can influence location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, and suffix. Numeric and tag thresholds do not suppress logs without a recognized tag.
+Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban.`)
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
@@ -179,10 +182,10 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagLogLIList(fsScLog)
 	flagIPAddress(fsScLog)
-	fsScLog.Var(&emitter.Ban, "ban", `Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".`) // multi flag
-	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Ban, "ban", `Tag group(s) to suppress. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" suppresses every message and "off" suppresses none.
+Example: "-ban dbg:wrn -ban diag" suppresses Debug, Warning, and Diag messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Pick, "pick", `Tag group(s) to display exclusively. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" selects every message and "off" selects none.
+Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".`) // multi flag
 	flagUserLabel(fsScLog)
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
