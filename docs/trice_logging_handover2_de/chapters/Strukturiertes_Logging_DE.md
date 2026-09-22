@@ -15,7 +15,7 @@ Eine optionale Feldnamen-Registry kann durch `bind`/`insert` automatisch und sch
 Strukturiertes Logging bewahrt die Werte einer Meldung zusätzlich zum lesbaren Text als einzeln benannte Felder auf. Aus
 
 ```c
-strice("info:Motor {motor_id}: {temperature_c} C", motor_id, aFloat(temperature_c));
+trice("info:Motor {motor_id}: {temperature_c} C", motor_id, aFloat(temperature_c));
 ```
 
 kann der Host beispielsweise erzeugen:
@@ -45,10 +45,12 @@ B ist daher kein sichererer Ersatz für A, sondern löst ein anderes Problem: di
 
 Für Trice passt A besonders gut, weil Feldnamen vollständig auf dem Host bleiben können und weder Target-Codegröße noch Übertragungsbandbreite erhöhen müssen.
 
+Eine zusätzliche Target-API ist dafür nicht erforderlich: `trice()` bleibt unverändert die normale Aufrufform. `bind`/`insert` interpretiert die erweiterte Formatstring-Syntax und speichert den daraus abgeleiteten Host-Formatstring sowie die strukturierten Feldnamen in `til.json`; das Target überträgt weiterhin nur ID und Werte.
+
 **Expliziter Feldname:**
 
 ```c
-strice("info:Motor {motor_id}: {temperature_c} C", motor, aFloat(temp));
+trice("info:Motor {motor_id}: {temperature_c} C", motor, aFloat(temp));
 ```
 
 Der Feldname ist stabil und unabhängig vom C-Ausdruck. 
@@ -58,7 +60,7 @@ Der Feldname ist stabil und unabhängig vom C-Ausdruck.
 **Feldname automatisch aus dem Argument:**
 
 ```c
-strice("info:Motor {}: {} C", motor_id, aFloat(temperature_c));
+trice("info:Motor {}: {} C", motor_id, aFloat(temperature_c));
 ```
 
 Bei `{}` wird der Name eines einfachen C-Bezeichners übernommen. Bei `aFloat(x)` und `aDouble(x)` wird `x` als Name verwendet. Damit sind Feldname und Wert gekoppelt; ein Tippfehler im Bezeichner wird normalerweise bereits vom Compiler erkannt.
@@ -73,8 +75,8 @@ sonst                      -> %d
 Eine abweichende Darstellung kann nach dem ersten `:` frei angegeben werden, um direkte Logs gefälliger lesbar zu machen, ohne den (zusätzlichen) strukturierten Output zu beeinflussen:
 
 ```c
-strice("Temperature{: = %.1f |}", aFloat(temperature_c));
-strice("Motor{motor_id:: %d, }", motor_id);
+trice("Temperature{: = %.1f |}", aFloat(temperature_c));
+trice("Motor{motor_id:: %d, }", motor_id);
 ```
 
 Alles zwischen dem ersten `:` und der schließenden `}` ist Darstellungstext einschließlich genau eines `printf`-Formatspezifizierers. Der erste Doppelpunkt trennt nur Feldname und Darstellung; weitere Doppelpunkte sind normaler Text.
@@ -82,7 +84,7 @@ Alles zwischen dem ersten `:` und der schließenden `}` ist Darstellungstext ein
 Für Ausdrücke, aus denen kein stabiler Feldname eindeutig abgeleitet werden kann, ist ein expliziter Name erforderlich:
 
 ```c
-strice("{temperature_c:%.1f C}", aFloat(getTemperature()));
+trice("{temperature_c:%.1f C}", aFloat(getTemperature()));
 ```
 
 **Nicht als primäre Lösung vorgesehen:**
@@ -93,8 +95,8 @@ strice("{temperature_c:%.1f C}", aFloat(getTemperature()));
 **C als spätere Option:**
 
 ```c
-striceX("info:Motor %d: %.1f C", "motor_id", motor_id, "temperature_c", aFloat(Temp()));
-striceX("info:Motor %d: %.1f C",         "", motor_id, "temperature_c", aFloat(Temp())); // short form
+triceX("info:Motor %d: %.1f C", "motor_id", motor_id, "temperature_c", aFloat(Temp()));
+triceX("info:Motor %d: %.1f C",         "", motor_id, "temperature_c", aFloat(Temp())); // short form
 ```
 
 C kann später als syntaktischer Zucker ergänzt werden. Hostseitig kann es in dasselbe Datenmodell wie A überführt werden; das Drahtformat muss sich dadurch nicht ändern.
@@ -118,6 +120,20 @@ Die Platzhalter folgen grundsätzlich der Form
 {motor_id:: %d, }          // Name motor_id, Darstellung ": %d, "
 ```
 
+Klassische `printf`-Platzhalter und strukturierte Platzhalter dürfen im selben Formatstring gemischt werden. Beide konsumieren Argumente in ihrer Reihenfolge; nur `{...}` erzeugt zusätzlich ein strukturiertes Feld:
+
+```c
+trice("%d,{}", a, x);      // %d -> a; {} -> Feld x
+```
+
+Literale geschweifte Klammern werden als `{{` und `}}` geschrieben:
+
+```c
+trice("set={{1,2,3}}, value={}", value);
+```
+
+`bind`/`insert` verarbeitet den Formatstring von links nach rechts. `%...` erzeugt klassische Textformatierung, `{...}` Textformatierung plus Feldmetadaten, `{{`/`}}` erzeugt nur literale Klammern. Bestehende Legacy-`til.json` benötigen dafür keinen zusätzlichen Kompatibilitätspfad im neuen Parser; erforderliche Altbestände können separat migriert werden.
+
 **Hierarchische Feldnamen:** Punkte trennen Namenssegmente. Einfache C-Memberketten können automatisch abgeleitet werden; `.` und `->` werden dabei beide zu `.` kanonisiert. `aFloat()` und `aDouble()` sind für die Namensableitung transparente Hüllen.
 
 ```c
@@ -136,7 +152,7 @@ Die Platzhalter folgen grundsätzlich der Form
 
 Der **aufgelöste kanonische Feldname** wird in `til.json` gespeichert; `{}` selbst ist nur Source-Kurzform. Der Feldname ist Bestandteil des Trice-Schemas: Ändert sich beispielsweise `motor.temperature_c` zu `motor.temperature_f`, ist eine neue Trice-ID erforderlich. Ein Wechsel im C-Code von `motor.temperature_c` zu `motor->temperature_c` erfordert dagegen keine neue ID, da beide denselben kanonischen Feldnamen ergeben.
 
-**Ausgabe mit `trice log`:** In der initialen Ausbauform ersetzt `trice log` `{...}` im Formatstring wie angegeben und erzeugt damit weiterhin die normale Textausgabe. Ein neuer CLI-Schalter `-logFormat` wählt die äußere Darstellung:
+**Ausgabe mit `trice log`:** `bind`/`insert` speichert für `{...}` den effektiven Host-Formatstring in `til.json`. `trice log` setzt die empfangenen Werte entsprechend dieser Darstellung ein und erzeugt damit weiterhin die normale Textausgabe. Ein neuer CLI-Schalter `-logFormat` wählt die äußere Darstellung:
 
 ```text
 -logFormat text   // Default, bisherige Ausgabe
@@ -144,7 +160,7 @@ Der **aufgelöste kanonische Feldname** wird in `til.json` gespeichert; `{}` sel
 -logFormat kv     // ein key=value-Record pro Zeile
 ```
 
-Alle drei Formate verwenden denselben dekodierten Logrecord. Die Darstellung innerhalb `{...}` beeinflusst nur `message`; strukturierte Feldwerte bleiben typisiert und unformatiert. Beispielsweise kann `%.1f C` im Text `87.5 C` erzeugen, während das strukturierte Feld weiterhin den numerischen Wert `87.51234` enthält. Hierarchische Feldnamen bleiben dabei als kanonische Punktnamen erhalten.
+Alle drei Formate verwenden denselben dekodierten Logrecord. Die Darstellung innerhalb `{...}` beeinflusst nur `message`; strukturierte Feldwerte bleiben typisiert und unformatiert. Beispielsweise kann `%.1f C` im Text `87.5 C` erzeugen, während das strukturierte Feld weiterhin den numerischen Wert `87.5` enthält. Hierarchische Feldnamen bleiben dabei als kanonische Punktnamen erhalten.
 
 Bei `json` und `kv` erscheinen Metafelder nur, wenn die entsprechende bestehende Trice-Ausgabeoption aktiv ist und der Wert vorhanden ist: beispielsweise `id`, Target-Zeitstempel `ts`, Host-Zeitstempel `hs` sowie `file` und `line`. `tag` und gegebenenfalls `level` werden wie unten beschrieben ergänzt. Die bestehende Wertformatierung für `ts` und `hs` kann übernommen werden; reine Textdekoration wie Padding, Spaltentrenner oder ANSI-Sequenzen entfällt. Ein zusätzlicher allgemeiner `-ignore`-/`-suppress`-Schalter ist zunächst nicht vorgesehen.
 
@@ -205,7 +221,9 @@ Bei entsprechendem Bedarf kann die levelTags Liste per CLI Switch modifiziert we
 
 `tag` und `level` sind damit reservierte, feste Host-Feldnamen; projektspezifische Umbenennungen sind nicht vorgesehen. Die Feldnamen-Registry führt auch diese Host-Felder, also können `tag` und `level` automatisch eingetragen und gezählt werden. Die Aliasnamen selbst gehören nicht in die Registry. Die gedankliche Implementierung bleibt dadurch klein: kanonischer Name an Position 0 jeder Tag-Gruppe, Alias-Auflösung wie bisher, danach optionaler Membership-Test gegen `levelTags`.
 
-**Vorgesehener Ablauf:** A als Grundmodell implementieren, `{}` als kurze und sichere Namensableitung für einfache Bezeichner einschließlich `aFloat()`/`aDouble()` zulassen, optionale Darstellungen nach `:` unterstützen und alles in dasselbe Host-Datenmodell überführen. Die Registry kann optional durch `bind`/`insert` gepflegt werden; C kann später ohne Änderung dieses Modells ergänzt werden.
+**User-Labels:** `-ulabel` bleibt davon orthogonal und kann zusätzliche Label-Metadaten zuordnen. Trifft sein Selektor einen fest eingebauten Trice-Tag oder einen seiner Aliase, wirkt die Zuordnung auf die gesamte bekannte Tag-Gruppe; beispielsweise gilt `-ulabel msg:300` für alle MESSAGE-Aliase. Freie User-Labels bilden dagegen keine Alias-Gruppen, sodass beispielsweise `new` und `NEW` verschieden bleiben. Zusätzlich zu numerischen Werten kann `-ulabel` künftig einen Farbwert aus genau dem bereits von `trice generate -color` verwendeten Farbvokabular akzeptieren. Numerische Zuordnung und Farbe sind unabhängige Eigenschaften und können für dasselbe Label getrennt angegeben werden. Dies ändert weder Structured-Logging-Felder noch Drahtformat oder CE-Semantik.
+
+**Vorgesehener Ablauf:** A direkt als Erweiterung von `trice()` implementieren, `{}` als kurze und sichere Namensableitung für einfache Bezeichner einschließlich `aFloat()`/`aDouble()` zulassen, `%...` und `{...}` gemeinsam parsen, `{{`/`}}` als Klammer-Escape unterstützen, optionale Darstellungen nach `:` erlauben und alles in dasselbe Host-Datenmodell überführen. Die Registry kann optional durch `bind`/`insert` gepflegt werden; C kann später ohne Änderung dieses Modells ergänzt werden.
 
 ### Referenzen
 
