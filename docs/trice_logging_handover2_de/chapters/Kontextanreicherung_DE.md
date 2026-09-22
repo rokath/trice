@@ -1,84 +1,108 @@
-<a id="ce-redaktion"></a>
-**Redaktioneller Kommentar — nicht Teil des UM.** Dies ist die korrigierte, gekürzte Arbeitskopie der Ideen aus [UM 45.2](../../TriceUserManual.md#trice-structured-logging), keine Änderung des UM. Kontextanreicherung und strukturierte Felder sind unabhängig nutzbar. Statische Angaben im Wörterbuch sind der einfachste Einstieg; zusätzliche Laufzeitwerte benötigen Target-Instrumentierung und kosten Erfassung sowie Nutzdaten. Für Bind ist deren Einbau durch erzeugte Artefakte noch zu entwerfen; ein längerer Eintrag in `til.json` allein kann keine Task-ID erfassen.
+## Context Enrichment
 
-| Weg | Vorteil | Noch zu klären |
-|---|---|---|
-| Statischer Kontext und Darstellungsformat im Wörterbuch | Bind kann Anwendercode unverändert lassen | Historische Formatvarianten und Logstellenzuordnung |
-| Laufzeitkontext über erzeugte Bind-Artefakte | Gemeinsame Bedienung für normale und strukturierte Aufrufe | Makro-/Argumenterweiterung, Herkunft, unterstützte Typen |
-| Temporäre Instrumentierung mit Insert/Clean | Bestehender Ablauf und sichtbarer instrumentierter Code beim Debuggen | Rücknahme trotz geänderter Konfiguration und Unterbrechung |
+### Einordnung
 
-**Vorschlag zur ID-Identität:** Wiederverwendung verlangt dieselbe Logstelle und dieselbe wirksame Definition aus Typen, Argumentreihenfolge, Vorlage und statischen Kontextwerten. Eine geänderte `-stf`-Vorlage ergibt eine andere Definition. Beim Zurückwechseln darf die frühere ID derselben Stelle wiederverwendet werden, sofern sie zur aktuellen ID-Policy passt. Gleicher Text an einer anderen Stelle erhält eine eigene ID. `li.json` kann helfen, aber die aktuelle Dateizeile allein ist kein dauerhafter Herkunftsnachweis. Die Speicherung bleibt Gegenstand von [M20](../issues/M20_kontext_vertrag.md).
+Etablierte Logging-Systeme reichern Logs meist über abgeleitete Logger mit festen Attributen, über logische Scopes oder über Spans an. Beispiele sind Go `slog.Logger.With`, .NET `BeginScope`, Serilog `LogContext` und Rust `tracing`-Spans.
 
-Die Spezialidee aus [45.2.6](../../TriceUserManual.md#trice-structured-logging-user-defined-values), lokale Makrowerte über Compilerdiagnosen einzusammeln, bleibt als spätere Option erhalten. Sie ist nicht der normale Bedienungsweg. Nach `#undef` ergibt die dortige Stringisierung den Token-Namen statt eines leeren Strings.
+Für Trice wird vorerst kein allgemeiner Runtime-Context mit Push/Pop, Task-local State oder Context-Handles vorgesehen. Stattdessen kann `bind` ausgewählte Trice-Aufrufe beim Build gezielt um zusätzliche Runtime-Werte instrumentieren. Damit bleibt jeder Record vollständig und es entsteht kein impliziter Context-Zustand.
 
----
+### Selektive Context-Erweiterung mit `-ce`
 
-## <a id="kontextanreicherung"></a>Automatische Kontextanreicherung
+Eine Trice-Meldung kann statische Context-Selektoren enthalten:
 
-Kontextanreicherung ergänzt Informationen, die du nicht an jeder Logstelle wiederholen möchtest: etwa Quellposition, Firmwarekennung oder Task-ID. Du legst fest, welche Informationen aufgenommen werden und wie sie erscheinen.
-
-### Vorhanden: Quellposition und Zeitstempel anzeigen
-
-Trice kann bereits Datei und Zeile aus den zugehörigen Ortsinformationen sowie Host- und Targetzeitstempel anzeigen. Dafür verwendest du die Optionen für [Quellposition und IDs](../../TriceUserManual.md#trice-id-management) und [Zeitstempel](../../TriceUserManual.md#trice-timestamps).
-
-Das ist ein Teil des gewünschten Nutzens. Die allgemeine Ergänzung frei ausgewählter Build- und Laufzeitinformationen ist geplant. Die im alten UM-Entwurf genannten `-stf`/`-stv` sind Entwurfssyntax, keine hier zugesicherte vorhandene CLI.
-
-### Geplant: Informationen auswählen
-
-| Information | Woher sie kommt | Aufwand |
-|---|---|---|
-| Datei, Funktion, Firmware-/Buildkennung | Build und Wörterbuch | Keine zusätzlichen Werte pro Target-Ereignis nötig |
-| Host-Sitzung, Empfangsquelle | Empfänger | Hostseitige Ergänzung |
-| Task-ID, Core-ID, Laufzeitzähler | Target beim Logaufruf | Erfassen und übertragen |
-
-Der Host kann einen nicht erfassten Laufzeitwert nicht nachträglich rekonstruieren. Ein Hash ersetzt den ursprünglichen Inhalt einer dynamischen Zeichenkette nicht.
-
-Vorgesehener Ablauf:
-
-1. Wähle für den Build statische Angaben und bei Bedarf zusätzliche Laufzeitwerte.
-2. Begrenze teure Ergänzungen auf geeignete Logstellen oder Tag-Gruppen, beispielsweise Task-ID nur bei Fehlern. Die genaue Konfigurationssyntax ist noch offen.
-3. Erzeuge die Bind-Artefakte beziehungsweise instrumentiere mit Insert und baue die Firmware.
-4. Wähle auf dem Host die Darstellung der erfassten Informationen. Reine Host-Darstellung benötigt keinen neuen Firmware-Build.
-
-Zusätzliche Ausdrücke werden pro Ereignis genau einmal ausgewertet. Sie müssen auch im jeweiligen Interrupt-/Fehlerkontext zulässig sein. Eine weitere Sensormessung nur für den Kontext kann deutlich teurer sein als der ursprüngliche Logaufruf.
-
-### Geplant: Bind oder Insert/Clean verwenden
-
-Bei Bind bleibt der selbst geschriebene Trice-Aufruf erhalten; Ergänzungen entstehen in generierten Artefakten und Wörterbucheinträgen. Statischer Kontext kann im Wörterbuch liegen. Für dynamischen Kontext muss der erzeugte Targetcode die zusätzlichen Werte tatsächlich erfassen.
-
-Insert/Clean bleibt als Alternative vorgesehen. `clean` muss den ursprünglichen Aufruf auch dann wiederherstellen können, wenn sich die Kontextkonfiguration geändert hat. Dafür wird die ursprüngliche Form nachvollziehbar aufbewahrt; die Rücknahme darf nicht von unveränderten `-stf`-/`-stv`-Angaben abhängen.
-
-Nach einem abgebrochenen Lauf muss erneutes Ausführen sicher fortsetzen oder einen verständlichen Fehler melden. Cache-Erneuerung richtet sich nach den wirksamen Eingaben; manuelles Cache-Löschen ist keine Voraussetzung für Korrektheit.
-
-### Geplant: Konfiguration ändern und alte Logs weiter lesen
-
-Eine veränderte Erfassung oder Build-Vorlage benötigt neue passende Artefakte und gegebenenfalls eine andere ID:
-
-| Änderung | Verhalten im vorgeschlagenen Vertrag |
-|---|---|
-| Identische Logstelle und Definition erneut bearbeiten | ID beibehalten, sofern zur aktuellen Policy passend |
-| Build-Vorlage, statischen Kontext oder Argumentlayout ändern | Andere Definition zuordnen; bisherige Zuordnung erhalten |
-| Zu einer früheren Definition derselben Stelle zurückkehren | Historische ID wiederverwenden, wenn eindeutig und policykonform |
-| Derselbe Text an einer anderen Logstelle | Eigene ID für deren Herkunft verwenden |
-| Nur Host-Spalten anders anordnen | Erfassung und ID unverändert lassen |
-
-Historische Einträge werden nicht überschrieben. Das passende Wörterbuch muss die vom jeweiligen Firmwarestand übertragene ID weiterhin richtig deuten. Reicht der ID-Bereich nicht aus, meldet das Werkzeug einen Fehler und darf keine historische ID für eine andere Definition verwenden.
-
-### <a id="ce-zusammen"></a>Geplant: mit strukturiertem Logging kombinieren
-
-Ohne strukturierte Felder kann Kontext als zusätzlicher Text erscheinen. Mit [strukturiertem Logging](Strukturiertes_Logging_DE.md#strukturiertes-logging) bleiben Nutzwerte und ergänzte Angaben getrennt auswertbar.
-
-Beispiel des gemeinsamen Zielbilds, **keine vorhandene Ausgabeoption**:
-
-```json
-{
-  "tag": "info",
-  "fields": {"motor_id": 3, "temperature_c": 87},
-  "ctx": {"task_id": 7, "uptime_us": 123456, "file": "motor.c"},
-  "message": "Motor 3: 87 C"
-}
+```c
+trice("MSG:ctx7: hi\n");
 ```
 
-`fields` enthält die ausdrücklich geloggten Werte; `ctx` die automatisch ergänzten Informationen. Die Task-ID wird nicht nochmals als manuelles Logargument benötigt. Kontext darf kein gleichnamiges Nutzfeld überschreiben.
+Eine Bind-Option kann für einen Selektor zusätzliche Darstellung und C-Ausdrücke festlegen:
 
-Für dieselben übertragenen Werte und Bitbreiten benötigen Feldnamen keine zusätzlichen Target-Nutzdaten. Die zusätzlich erfassten Task- und Laufzeitwerte benötigen dagegen Platz und Rechenzeit. JSON ist nur eine mögliche Host-Ausgabe.
+```text
+trice bind -ce 'ctx7:", pos=%d,%d",x,y'
+```
+
+Der effektive Record entspricht dann logisch
+
+```c
+trice("MSG: hi, pos=%d,%d\n", x, y);
+```
+
+ohne dass der User-Sourcecode bei `bind` geändert wird. Die Erweiterung wird vor einem abschließenden `\n` eingefügt, andernfalls am Ende angehängt. Treffende Erweiterungen werden in Selektorreihenfolge angewendet.
+
+`x`, `y` dürfen gültige C-Ausdrücke sein, beispielsweise auch:
+
+```text
+-ce 'ctx7:", x=%d",getX()'
+```
+
+Sie müssen an jeder ausgewählten Logstelle sichtbar und kompilierbar sein.
+
+### Selektoren
+
+Selektoren werden **case-neutral** verglichen. `ctx7`, `Ctx7` und `CTX7` wählen somit dieselbe `-ce`-Regel.
+
+Nur die vollständig kleingeschriebene Schreibweise wird aus dem sichtbaren Meldungstext entfernt. Damit gilt beispielsweise:
+
+```c
+trice("MSG:ctx7: hi\n");  // ctx7 wird entfernt
+trice("MSG:Ctx7: hi\n");  // Ctx7 bleibt sichtbar
+```
+
+Normale Trice-Tags können ebenfalls als `-ce`-Selektoren dienen. Trifft ein `-ce`-Selektor einen fest eingebauten Trice-Tag oder einen seiner Aliase, wird die vorhandene Alias-Gruppe verwendet; `msg` und `message` sind damit beispielsweise gleichwertig. Freie CE-Selektoren besitzen keine zusätzliche Alias-Liste und werden nur case-neutral verglichen. Nur der erste Präfix kann zugleich als normaler Trice-Tag interpretiert werden; danach können mehrere Context-Selektoren folgen:
+
+```text
+[tag-or-ce:][ce:][ce:]...message
+```
+
+Die bestehende Tag-Behandlung bleibt unverändert. `-ulabel` ist dazu orthogonal und kann denselben statischen Selektor unabhängig mit Label-Metadaten versehen. Für bekannte Trice-Tags wirkt `-ulabel` ebenfalls auf die feste Alias-Gruppe; freie User-Labels bleiben dagegen literal, beispielsweise `new` und `NEW` als unterschiedliche Labels.
+
+### Zusammenspiel mit Structured Logging
+
+Der `-ce`-Formatstring verwendet denselben Formatparser wie `trice()`. Klassische `%...`-Platzhalter und strukturierte `{...}`-Platzhalter dürfen gemischt werden:
+
+```text
+-ce 'ctx7:", pos=%d,{position.y}",x,y'
+```
+
+Beide konsumieren C-Ausdrücke in ihrer Reihenfolge; nur `{...}` erzeugt zusätzlich strukturierte Feldmetadaten. Literale geschweifte Klammern werden wie im normalen Formatstring als `{{` und `}}` geschrieben.
+
+Nach der CE-Erweiterung durchläuft der resultierende Record die normale Structured-Logging-Verarbeitung. Feldnamen, Hierarchie, Registry und ID-Vergabe folgen damit denselben Regeln wie bei direkt im Source geschriebenen Feldern. CE ist damit nur eine vorgelagerte Build-Time-Transformation; es entsteht keine zweite Format- oder Target-API.
+
+Auch die Kurzform `{}` ist möglich, wenn der Feldname eindeutig aus dem C-Ausdruck ableitbar ist:
+
+```text
+-ce 'ctx7:", x={}",x'
+```
+
+Bei einem allgemeinen Ausdruck wie `getX()` ist dagegen ein expliziter Name erforderlich:
+
+```text
+-ce 'ctx7:", x={x}",getX()'
+```
+
+Memberzugriffe sind zulässig und werden wie üblich kanonisiert:
+
+```text
+motor.x       -> motor.x
+motor->x      -> motor.x
+```
+
+Ein komplettes C-Struct wird nicht automatisch serialisiert; benötigte Member werden einzeln angegeben.
+
+Damit kollidiert CE nicht mit Structured Logging: injizierte und im Source vorhandene Felder landen im selben flachen Feldschema. Doppelte Feldnamen bleiben zulässig und können von `bind` lediglich gewarnt werden.
+
+### Schema und IDs
+
+Die CE-Erweiterung erfolgt vor der Schema- und ID-Bestimmung. Ändert `-ce` den effektiven Formatstring, die Argumente oder strukturierte Feldnamen, entsteht entsprechend eine andere Trice-ID. Ohne passende `-ce`-Option entstehen keine zusätzlichen Target-Werte.
+
+Doppelte strukturierte Feldnamen sind zulässig. `bind` kann davor warnen, soll sie aber nicht verbieten. Hierarchische Namen wie `motor` und `motor.temperature` sind ebenfalls zulässig, da Trice sie zunächst als flache kanonische Feldnamen behandelt. Eine spätere Umwandlung in verschachtelte JSON-Objekte ist Aufgabe des jeweiligen Output-Renderers.
+
+### Charakter des Ansatzes
+
+`-ce` ist keine allgemeine Context-Vererbung, sondern eine optionale, statisch ausgewählte Instrumentierung mit Runtime-Werten. Dadurch entstehen weder globaler Context-State noch besondere Probleme durch Taskwechsel oder Interrupts. Gleichzeitig kann zusätzliche Diagnoseinformation gezielt für bestimmte Builds aktiviert werden, ohne die betreffenden User-Logstellen einzeln zu ändern.
+
+### Referenzen
+
+- Go `slog.Logger.With`: https://pkg.go.dev/log/slog
+- Microsoft `ILogger.BeginScope`: https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope
+- Serilog `LogContext`: https://github.com/serilog/serilog/wiki/Enrichment
+- Rust `tracing` spans: https://docs.rs/tracing/latest/tracing/span/
