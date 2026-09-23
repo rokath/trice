@@ -188,6 +188,7 @@
 
 ## Tests
 
+* Write thorough, easy-to-understand behavioral tests by default for nontrivial changes; the user need not request them separately. Use descriptive case names, readable inputs and expected outputs, and cover relevant success, rejection, and boundary cases.
 * Prefer `github.com/stretchr/testify/assert` for new assertion-style Go tests.
 * For thorough routine validation, prefer `./scripts/testAll.sh` without arguments.
 * Use `./scripts/testAll.sh full` only as a final validation step or when C-code-relevant changes need broad compiler-switch coverage.
