@@ -356,11 +356,17 @@ details.toc[open] .toc-hide {
     * [30.4.5. Other IDE´s and compilers](#other-ides-and-compilers)
   * [30.5. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
     * [30.5.1. ARMCC compiler v5](#armcc-compiler-v5)
-* [31. Trice Tags and Color](#trice-tags-and-color)
-  * [31.1. How to get](#how-to-get)
-    * [31.1.1. Output options](#output-options)
-    * [31.1.2. Check Alternatives](#check-alternatives)
-  * [31.2. Color issues under Windows](#color-issues-under-windows)
+* [31. Trice Tags, Color, and Weights](#trice-tags-color-and-weights)
+  * [31.1. How to use tags](#how-to-use-tags)
+  * [31.2. Tag weights](#tag-weights)
+  * [31.3. Selecting tags and priority](#selecting-tags-and-priority)
+  * [31.4. Decoder diagnostics](#decoder-diagnostics)
+  * [31.5. User-defined tags, weights, and colors](#user-defined-tags-weights-and-colors)
+  * [31.6. Untagged application events](#untagged-application-events)
+  * [31.7. Event statistics](#event-statistics)
+  * [31.8. Output options](#output-options)
+  * [31.9. Check color alternatives](#check-color-alternatives)
+  * [31.10. Color issues under Windows](#color-issues-under-windows)
 * [32. Trice without UART](#trice-without-uart)
 * [33. Trice over RTT](#trice-over-rtt)
   * [33.1. For the impatient (2 possibilities)](#for-the-impatient-2-possibilities)
@@ -5888,50 +5894,163 @@ Please check the manuals and create a pull request or simply let me know.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 31. <a id="trice-tags-and-color"></a>Trice Tags and Color
+## 31. <a id="trice-tags-color-and-weights"></a>Trice Tags, Color, and Weights
 
-### 31.1. <a id="how-to-get"></a>How to get
+Tags label Trice messages on the host. They can control presentation, selection, ID assignment, and weight-based filtering without adding target runtime data because the tag is part of the format string stored in `til.json`.
 
-* Add a tag name as color descriptor in front of each Trice format string like `"wrn:Peng!"`.
-* In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color tags definable.
-* It is possible to concatenate single colorized letters to get output like this:
+Optionally tags will be usable also for context enrichtment in the future.
 
-![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
+### 31.1. <a id="how-to-use-tags"></a>How to use tags
 
-* [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) contains the code for this example.
-* The Trice tool, if knowing `wrn:` as pattern, prepends the appropriate color code. It removes the sequence `wrn:`, if it is known and completely lower case.
-  * The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give even each letter in a message its color.
+Add a tag and a colon in front of a Trice format string:
 
-    `"wrn:fox"` will display colored "fox"
-    `"Wrn:fox"` will display colored "Wrn:fox"
+```c
+trice("wrn:Motor temperature is %d C\n", temperature);
+```
 
-* The user can define any pattern with any color code to create colored output with the Trice tool.
-* There is no tag enable switch inside the target code. It would need a back channel and add overhead.
-* An option using tag specific ID ranges with optional routing exists.
-* The Trice tool offers the 2 command line switches `-pick` and `-ban` to control tag visualization during runtime.
+The Trice tool recognizes `wrn`, applies the Warning color, and removes the prefix when it is completely lower case. A mixed-case or uppercase prefix remains visible:
 
-Short aliases have one unambiguous meaning. `W` and `w` select Write, while
-`wrn`, `WARN`, and `WARNING` select Warning. `rx` selects Receive, `tx`
-selects Transmit, `s` and `S` select Seconds, and `sig` selects Signal.
-Configurations created for older Trice versions should replace an ambiguous
-short alias with the intended explicit name before using it for `-pick`,
-`-ban`, `-logLevel`, or `-IDRange`.
+```text
+wrn:fox  -> fox
+Wrn:fox  -> Wrn:fox
+```
 
-#### 31.1.1. <a id="output-options"></a>Output options
+The colors, aliases, and weights are defined in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go). The tag itself does not require a target-side enable switch. Use `-pick` or `-ban` to select complete tag groups during host logging. Tag-specific ID ranges can additionally assign and route target IDs.
 
-![./ref/ColorOptions.PNG](./ref/ColorOptions.PNG)
+Short aliases have one unambiguous meaning. For example `W` and `w` select Write, while `wrn`, `WARN`, and `WARNING` select Warning. Configurations created for older Trice versions should replace an ambiguous short alias with the intended explicit name before using it for `-pick`, `-ban`, `-logLevel`, or `-IDRange`.
 
-#### 31.1.2. <a id="check-alternatives"></a>Check Alternatives
+It is possible to concatenate individually tagged fragments to produce output such as:
 
-There are over 1000 possibilities:
+![Colored Trice output](./ref/COLOR_output.PNG)
 
-![./ref/ColorAlternatives.PNG](./ref/ColorAlternatives.PNG)
+The source for this example is in [`triceCheck.c`](../_test/testdata/triceCheck.c). For each such color change a separate Trice message is needed, because tags can only occur at the beginning of a format string.
 
-To see them all run `trice generate -color`. Only file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) needs to be changed and the Trice tool needs to be rebuild afterwards: `go install ./...`. If you design a good looking flavour, feel free to propose it. 
+### 31.2. <a id="tag-weights"></a>Tag weights
 
-### 31.2. <a id="color-issues-under-windows"></a>Color issues under Windows
+Each tag group has one integer weight in the range `0..999`. A larger value means greater importance. The weight belongs to the group and therefore applies to every alias in that group. It is independent of the group's position in the tag table and independent of its color.
 
-**Currently console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start the Trice tool inside there. Unfortunately this can not be done automatically right now because of missing command line switches. [Alacritty](../third_party/alacritty/ReadMe.md) is one of other alternatives.
+The following Table is an example. The implemented default weights are in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-ulabel warn:650`.
+
+| Group | Weight |
+| --- | ---: |
+| Fatal | 800 |
+| Critical | 750 |
+| Emergency | 700 |
+| Error, Assert, Alarm, Alert | 650 |
+| Warning | 750 |
+| Attention | 700 |
+| Notice | 600 |
+| INFO, Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 400 |
+| Untagged | 500 |
+| Debug | 200 |
+| Trace | 100 |
+| Verbose | 100 |
+
+`CYCLE_ERROR` is a Trice tool diagnostic rather than an application tag. Its stored value does not define application-message priority.
+
+### 31.3. <a id="selecting-tags-and-priority"></a>Selecting tags and priority
+
+Use the repeatable `-pick` option to display selected tag groups, or `-ban` to suppress selected groups. The two options are mutually exclusive. Separate names with colons or repeat the option:
+
+```sh
+trice log -pick err:wrn -pick notice
+trice log -ban dbg -ban trace:verbose
+```
+
+Aliases select the complete group. `-pick all` selects every message and `-pick off` selects none; `-ban all` suppresses every message and `-ban off` suppresses none. Empty list entries and unknown names are command-line errors.
+
+Use `-logLevel` with `all`, `off`, a registered tag or alias, or a numeric weight from `0` through `999`. An application event passes when its tag group's weight is greater than or equal to the threshold. A lower threshold therefore displays more messages:
+
+```sh
+trice log -logLevel info
+trice log -logLevel 400
+```
+
+Both commands use the same threshold, when the weight of `ìnfo` is 400. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with weight 400. `-logLevel off` suppresses all application events.
+
+All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
+
+```sh
+trice log -pick motor -ulabel motor:650
+trice log -ulabel motor:650 -pick motor
+```
+
+`-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err:wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
+
+### 31.4. <a id="decoder-diagnostics"></a>Decoder diagnostics
+
+Decoder and transport diagnostics are tool output rather than application messages. Examples include an unknown Trice ID, an invalid COBS/TCOBS frame, an unsupported or truncated packet, and a cycle-counter mismatch. These diagnostics remain visible with restrictive `-pick`, `-ban`, and `-logLevel off` settings. They receive no application metadata, do not enter visualization routing, and are not assigned an application tag.
+
+The translator keeps the diagnostic writer separate from the application line composer. The command currently directs both to its normal local output, while remote display receives application lines only. A machine-readable application sink must keep the separate diagnostic writer on a human-readable tool channel instead of inserting diagnostic text into records. Recoverable decoder diagnostics do not stop logging; writer and input errors retain their existing error handling. Binary recording occurs before decoding and is unaffected.
+
+### 31.5. <a id="user-defined-tags-weights-and-colors"></a>User-defined tags, weights, and colors
+
+Use the repeatable `-ulabel name`, `-ulabel name:weight`, or `-ulabel name:color` option to register a new tag or change a known group's weight or color for one command:
+
+```sh
+trice log -ulabel motor -ulabel sensor:150
+trice insert -ulabel motor:250
+trice bind -ulabel motor:250
+trice log -ulabel motor:red:blue
+trice log -ulabel msg:300 -ulabel msg:red:blue
+```
+
+A new tag without an explicit weight receives the final INFO weight after all `-ulabel` options have been processed. An explicit weight must be between `0` and `999`, inclusive. The color must be exactly one of the tokens printed by `trice generate -colors`, such as `red:blue`. An unknown color is rejected with a hint to that command.
+
+An existing name without a weight leaves its group unchanged. An existing name with a weight changes the complete group, including every alias. The last explicit assignment wins:
+
+```sh
+-ulabel msg:150 -ulabel M:600 -ulabel msg
+```
+
+This results in weight `600` for the complete Message group. It does not create additional groups for `msg` or `M`.
+
+Weight and color are independent. `-ulabel msg:300 -ulabel msg:"yellow+h:green"` gives every built-in Message alias (`msg`, `message`, `MSG`, `MESSAGE`, and the other aliases) weight `300` and the same color. Repeating either property changes only that property; the last value for each property wins. Free user labels are literal: `-ulabel new:300 -ulabel NEW:400` creates two distinct labels with no user-defined alias relationship.
+
+Each option accepts exactly one name. The old colon-separated name-list form is invalid. Empty names or values, unknown colors, weights outside `0..999`, purely numeric names, `all`, and `off` are rejected before the command opens or changes its input and output files. A color token itself contains a colon between foreground and background.
+
+For `insert` and `bind`, only the registered name participates in tag and `-IDRange` handling. Weight and color change no target data and are not stored in the source or `til.json`.
+
+Command-specific user tags, weight overrides, and color overrides are discarded before a later command in the same process starts.
+
+### 31.6. <a id="untagged-application-events"></a>Untagged application events
+
+The host assigns the built-in `untagged` group once to an application event whose stored format string has no recognized tag. This also applies to an empty prefix, an unknown prefix caused by a typo, or ordinary text containing a colon. For ID-based messages, classification uses the format string from the Trice ID lookup table rather than text supplied as a runtime value.
+
+| Stored format string | Internal application text |
+| --- | --- |
+| `Hello` | `untagged:Hello` |
+| `untagged:Hello` | `untagged:Hello` |
+| `mgs:blah` | `untagged:mgs:blah` |
+| `msg:Hello` | `msg:Hello` |
+
+With `-color default` or `-color none`, the synthetic outer prefix is removed and the original text remains visible. For example, `mgs:blah` stays visible. With `-color off`, the synthetic prefix remains visible as `untagged:mgs:blah`. An explicit `untagged:` prefix is never added a second time.
+
+`-pick untagged`, `-ban untagged`, `-logLevel`, and statistics handle this group like other application tags. Its weight is independent of INFO and can be changed for one command with `-ulabel untagged:150`.
+
+Decoder and transport diagnostics are not untagged application events. Byte-oriented CHAR and DUMP decoder chunks also receive no synthetic event tag because they do not identify individual application events. Classification changes neither source format strings, lookup-table entries, IDs, nor recorded raw bytes.
+
+### 31.7. <a id="event-statistics"></a>Event statistics
+
+`-tagStat` counts successfully decoded application events by tag group, including `untagged`; `-triceStat` counts successfully decoded ID-based Trice events by ID. `-stat` prints both reports. These totals are recorded before `-pick`, `-ban`, `-logLevel`, and visualization routing, so they include events hidden from the text display. One call counts once even if it spans several output lines; several calls on one line count separately. Palette changes, metadata columns, and repeated report printing do not change the totals. Decoder diagnostics and malformed records are excluded. Formatted ID-less `typeX0` records contribute to tag statistics but have no Trice ID to count. Byte-oriented CHAR/DUMP chunks have no event boundary and do not contribute to these event totals.
+
+### 31.8. <a id="output-options"></a>Output options
+
+![Trice color output options](./ref/ColorOptions.PNG)
+
+With `-color default`, recognized lower-case tag prefixes are removed and their configured colors are applied. With `-color none`, lower-case prefixes are removed without adding colors. With `-color off`, prefixes remain unchanged and no colors are added.
+
+### 31.9. <a id="check-color-alternatives"></a>Check color alternatives
+
+There are over 1000 foreground, background, and style combinations:
+
+![Trice color alternatives](./ref/ColorAlternatives.PNG)
+
+Run `trice generate -color` to display them. Modify [`lineTransformerANSI.go`](../internal/emitter/lineTransformerANSI.go) and rebuild the Trice tool with `go install ./...` or better `./scripts/buildTriceTool.sh` to change the built-in palette.
+
+### 31.10. <a id="color-issues-under-windows"></a>Color issues under Windows
+
+If a Windows console displays ANSI escape sequences instead of colors, use a terminal with ANSI color support, such as Windows Terminal, Git Bash, or [Alacritty](../third_party/alacritty/ReadMe.md). Additional background is available in [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
