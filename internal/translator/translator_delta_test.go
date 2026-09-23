@@ -101,6 +101,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	savedTestTableMode := emitter.TestTableMode
 	savedBan := emitter.Ban
 	savedPick := emitter.Pick
+	savedLogLevel := emitter.LogLevel
 	savedLIFnJSON := id.LIFnJSON
 	savedShowID := decoder.ShowID
 	savedTargetStamp := decoder.TargetStamp
@@ -129,6 +130,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 		emitter.TestTableMode = savedTestTableMode
 		emitter.Ban = savedBan
 		emitter.Pick = savedPick
+		emitter.LogLevel = savedLogLevel
 		id.LIFnJSON = savedLIFnJSON
 		decoder.ShowID = savedShowID
 		decoder.TargetStamp = savedTargetStamp
@@ -157,6 +159,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	emitter.TestTableMode = true
 	emitter.Ban = nil
 	emitter.Pick = nil
+	emitter.LogLevel = "all"
 	id.LIFnJSON = "off"
 	decoder.ShowID = ""
 	decoder.TargetStamp = "off"
@@ -704,6 +707,142 @@ func TestDecodeAndComposeLoopHonorsBanFilter(t *testing.T) {
 	err := decodeAndComposeLoop(io.Discard, sw, dec, nil, nil, nil)
 	require.ErrorIs(t, err, io.EOF)
 	assert.Empty(t, out.String())
+}
+
+// TestTREXDiagnosticsBypassApplicationFilters verifies that representative
+// decoder failures remain local tool output while valid application text from
+// the same Read still obeys the configured filters.
+func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
+	tests := []struct {
+		name            string
+		framing         string
+		input           []byte
+		lut             id.TriceIDLookUp
+		configureFilter func()
+		want            string
+		wantNot         string
+	}{
+		{
+			name:    "unknown ID survives pick",
+			framing: "cobs",
+			input:   []byte{0x06, 0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00},
+			lut:     id.TriceIDLookUp{},
+			configureFilter: func() {
+				emitter.Pick = []string{"err"}
+			},
+			want: "unknown ID",
+		},
+		{
+			name:    "damaged frame survives ban all",
+			framing: "cobs",
+			input:   []byte{0x03, 0x11, 0x00},
+			lut:     id.TriceIDLookUp{},
+			configureFilter: func() {
+				emitter.Ban = []string{"all"}
+			},
+			want:    "inconsistent COBS buffer",
+			wantNot: "unknown ID",
+		},
+		{
+			name:    "short packet survives pick",
+			framing: "cobs",
+			input:   []byte{0x02, 0xaa, 0x00},
+			lut:     id.TriceIDLookUp{},
+			configureFilter: func() {
+				emitter.Pick = []string{"err"}
+			},
+			want: "unsupported short packet size 1",
+		},
+		{
+			name:    "cycle diagnostic survives level off",
+			framing: "none",
+			input:   []byte{0x01, 0x40, 0x10, 0x01, 0x2a},
+			lut: id.TriceIDLookUp{
+				1: {Type: "TRICE8_1", Strg: "msg:v=%d\\n"},
+			},
+			configureFilter: func() {
+				emitter.LogLevel = "off"
+			},
+			want:    "CYCLE_ERROR",
+			wantNot: "v=42",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configureTranslatorLoopTest(t)
+			oldFraming := decoder.PackageFraming
+			oldInitialCycle := decoder.InitialCycle
+			oldDisableCycleErrors := trexDecoder.DisableCycleErrors
+			t.Cleanup(func() {
+				decoder.PackageFraming = oldFraming
+				decoder.InitialCycle = oldInitialCycle
+				trexDecoder.DisableCycleErrors = oldDisableCycleErrors
+			})
+			decoder.PackageFraming = tt.framing
+			decoder.InitialCycle = false
+			trexDecoder.DisableCycleErrors = false
+			tt.configureFilter()
+
+			var output bytes.Buffer
+			dec := trexDecoder.New(
+				&output,
+				tt.lut,
+				new(sync.RWMutex),
+				nil,
+				bytes.NewReader(tt.input),
+				decoder.LittleEndian,
+			)
+			sw := emitter.New(&output)
+
+			err := decodeAndComposeLoop(&output, sw, dec, tt.lut, nil, nil)
+			require.ErrorIs(t, err, io.EOF)
+			assert.Contains(t, output.String(), tt.want)
+			if tt.wantNot != "" {
+				assert.NotContains(t, output.String(), tt.wantNot)
+			}
+		})
+	}
+}
+
+// TestTREXDiagnosticsUseSeparateWriter verifies that a machine-oriented
+// application composer can remain free of textual decoder diagnostics.
+func TestTREXDiagnosticsUseSeparateWriter(t *testing.T) {
+	configureTranslatorLoopTest(t)
+	oldFraming := decoder.PackageFraming
+	oldInitialCycle := decoder.InitialCycle
+	oldDisableCycleErrors := trexDecoder.DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitialCycle
+		trexDecoder.DisableCycleErrors = oldDisableCycleErrors
+	})
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = false
+	trexDecoder.DisableCycleErrors = false
+
+	lut := id.TriceIDLookUp{
+		1: {Type: "TRICE8_1", Strg: "msg:v=%d\\n"},
+	}
+	input := []byte{0x01, 0x40, 0x10, 0x01, 0x2a}
+	var diagnostics bytes.Buffer
+	var application bytes.Buffer
+	dec := trexDecoder.New(
+		&diagnostics,
+		lut,
+		new(sync.RWMutex),
+		nil,
+		bytes.NewReader(input),
+		decoder.LittleEndian,
+	)
+	sw := emitter.New(&application)
+
+	err := decodeAndComposeLoop(&diagnostics, sw, dec, lut, nil, nil)
+	require.ErrorIs(t, err, io.EOF)
+	assert.Contains(t, diagnostics.String(), "CYCLE_ERROR")
+	assert.NotContains(t, diagnostics.String(), "v=42")
+	assert.Equal(t, "v=42\n", application.String())
+	assert.NotContains(t, application.String(), "CYCLE_ERROR")
 }
 
 // runTranslatorVisCase executes one formatted/typed record through filter, router, and line composer.

@@ -76,6 +76,12 @@ trice log -ulabel motor:650 -pick motor
 
 The current level filter still operates on output fragments. Supplemental columns such as timestamps and source locations can therefore be affected separately. Event-wide filtering that keeps accepted messages and their metadata together is a separate change.
 
+## Decoder diagnostics
+
+Decoder and transport diagnostics are tool output rather than application messages. Examples include an unknown Trice ID, an invalid COBS/TCOBS frame, an unsupported or truncated packet, and a cycle-counter mismatch. These diagnostics remain visible with restrictive `-pick`, `-ban`, and `-logLevel off` settings. They receive no application metadata, do not enter visualization routing, and are not assigned an application tag.
+
+The translator keeps the diagnostic writer separate from the application line composer. The command currently directs both to its normal local output, while remote display receives application lines only. A machine-readable application sink must keep the separate diagnostic writer on a human-readable tool channel instead of inserting diagnostic text into records. Recoverable decoder diagnostics do not stop logging; writer and input errors retain their existing error handling. Binary recording occurs before decoding and is unaffected.
+
 ## User-defined tags and weights
 
 Use the repeatable `-ulabel name[:weight]` option to register a new tag or change a known group's weight for one command:

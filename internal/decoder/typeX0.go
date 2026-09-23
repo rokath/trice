@@ -13,6 +13,7 @@ type TypeX0Result struct {
 	Text          string // Text is the optional host output generated for this X0 record.
 	Consumed      int    // Consumed is the byte count to remove from the current decoded record buffer.
 	BlankMetadata bool   // BlankMetadata requests aligned, value-less metadata for Text.
+	Diagnostic    bool   // Diagnostic distinguishes tool errors from formatted application payload.
 }
 
 // typeX0Mode identifies the initial selector-0 handling variants.
@@ -144,11 +145,12 @@ func isZeroBytes(b []byte) bool {
 	return true
 }
 
-// typeX0ErrorResult formats diagnostics as normal decoder output and consumes the current package.
+// typeX0ErrorResult formats a typed tool diagnostic and consumes the current package.
 func typeX0ErrorResult(consumed int, text string) TypeX0Result {
 	return TypeX0Result{
 		Text:          fmt.Sprintln("ERROR:\a" + text),
 		Consumed:      consumed,
 		BlankMetadata: true,
+		Diagnostic:    true,
 	}
 }

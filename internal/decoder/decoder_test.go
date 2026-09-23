@@ -194,28 +194,29 @@ func TestHandleTypeX0(t *testing.T) {
 	t.Cleanup(func() { TypeX0 = oldTypeX0 })
 
 	tests := []struct {
-		name          string
-		option        string
-		record        []byte
-		endian        bool
-		noneFraming   bool
-		wantText      string
-		wantContains  string
-		wantConsumed  int
-		wantBlankMeta bool
+		name           string
+		option         string
+		record         []byte
+		endian         bool
+		noneFraming    bool
+		wantText       string
+		wantContains   string
+		wantConsumed   int
+		wantBlankMeta  bool
+		wantDiagnostic bool
 	}{
-		{name: "default error", option: "error", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: "typeX0 packet ignored", wantConsumed: 4, wantBlankMeta: true},
+		{name: "default error", option: "error", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: "typeX0 packet ignored", wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
 		{name: "counted string shorthand", option: "%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
 		{name: "counted explicit with colon format", option: "counted:sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "sig:OK", wantConsumed: 4, wantBlankMeta: true},
-		{name: "colon shorthand rejected", option: "sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: `unsupported typeX0 mode "sig"`, wantConsumed: 4, wantBlankMeta: true},
+		{name: "colon shorthand rejected", option: "sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: `unsupported typeX0 mode "sig"`, wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
 		{name: "counted ignore", option: "ignore", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantConsumed: 4},
 		{name: "all ignore consumes package", option: "all:ignore", record: []byte{0x02, 0x00, 'O', 'K', 0x01, 0x40}, endian: LittleEndian, wantConsumed: 6},
 		{name: "big endian counted", option: "%s", record: []byte{0x00, 0x02, 'O', 'K'}, endian: BigEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
 		{name: "none framing skips alignment", option: "%s", record: []byte{0x01, 0x00, 'A', 0x00}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 4, wantBlankMeta: true},
 		{name: "none framing allows compact empty payload", option: "%s", record: []byte{0x00, 0x00}, endian: LittleEndian, noneFraming: true, wantText: "", wantConsumed: 2, wantBlankMeta: true},
 		{name: "none framing keeps compact next record", option: "%s", record: []byte{0x01, 0x00, 'A', 0x01, 0x40}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 3, wantBlankMeta: true},
-		{name: "framed rejects non-zero alignment padding", option: "%s", record: []byte{0x01, 0x00, 'A', 'B'}, endian: LittleEndian, wantContains: "non-zero alignment padding", wantConsumed: 4, wantBlankMeta: true},
-		{name: "malformed ignore still errors", option: "ignore", record: []byte{0x04, 0x00, 'A'}, endian: LittleEndian, wantContains: "malformed counted typeX0 packet", wantConsumed: 3, wantBlankMeta: true},
+		{name: "framed rejects non-zero alignment padding", option: "%s", record: []byte{0x01, 0x00, 'A', 'B'}, endian: LittleEndian, wantContains: "non-zero alignment padding", wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
+		{name: "malformed ignore still errors", option: "ignore", record: []byte{0x04, 0x00, 'A'}, endian: LittleEndian, wantContains: "malformed counted typeX0 packet", wantConsumed: 3, wantBlankMeta: true, wantDiagnostic: true},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -223,6 +224,7 @@ func TestHandleTypeX0(t *testing.T) {
 			got := HandleTypeX0(tc.record, tc.endian, tc.noneFraming)
 			assert.Equal(t, tc.wantConsumed, got.Consumed)
 			assert.Equal(t, tc.wantBlankMeta, got.BlankMetadata)
+			assert.Equal(t, tc.wantDiagnostic, got.Diagnostic)
 			if tc.wantContains != "" {
 				assert.Contains(t, got.Text, tc.wantContains)
 				return

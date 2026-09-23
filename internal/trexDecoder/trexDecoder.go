@@ -69,13 +69,46 @@ func init() {
 // trexDec is the decoder instance for TREX-encoded Trices.
 type trexDec struct {
 	decoder.DecoderData
-	cycle          uint8  // cycle date: c0...bf
-	pFmt           string // modified trice format string: %u -> %d
-	u              []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
-	packageFraming int
-	visEnabled     bool              // avoids record-capture work unless the translator has an active -vis router
-	visRecord      decoder.VisRecord // typed data for the most recently decoded supported numeric Trice
-	visValid       bool              // true only when visRecord belongs to the most recent successful Read
+	cycle            uint8  // cycle date: c0...bf
+	pFmt             string // modified trice format string: %u -> %d
+	u                []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
+	packageFraming   int
+	visEnabled       bool                  // avoids record-capture work unless the translator has an active -vis router
+	visRecord        decoder.VisRecord     // typed data for the most recently decoded supported numeric Trice
+	visValid         bool                  // true only when visRecord belongs to the most recent successful Read
+	outputSpans      [4]decoder.OutputSpan // fixed storage separates diagnostics without per-read allocation
+	outputSpanCount  int                   // number of valid entries in outputSpans for the most recent Read
+	sprintDiagnostic bool                  // classifies text emitted by the current sprintTrice call
+}
+
+// DecodedOutputSpans returns the typed output ranges produced by the most recent Read.
+func (p *trexDec) DecodedOutputSpans() []decoder.OutputSpan {
+	return p.outputSpans[:p.outputSpanCount]
+}
+
+// markOutput records one non-empty decoded range and coalesces adjacent ranges
+// of the same kind. Four slots cover diagnostic/application/diagnostic output.
+func (p *trexDec) markOutput(start, end int, kind decoder.OutputKind) {
+	if start >= end {
+		return
+	}
+	if p.outputSpanCount > 0 {
+		last := &p.outputSpans[p.outputSpanCount-1]
+		if last.End == start && last.Kind == kind {
+			last.End = end
+			return
+		}
+	}
+	if p.outputSpanCount == len(p.outputSpans) {
+		// Overflow is not expected; treating the remaining text as diagnostic
+		// prevents tool output from entering application-only consumers.
+		last := &p.outputSpans[p.outputSpanCount-1]
+		last.End = end
+		last.Kind = decoder.OutputDiagnostic
+		return
+	}
+	p.outputSpans[p.outputSpanCount] = decoder.OutputSpan{Start: start, End: end, Kind: kind}
+	p.outputSpanCount++
 }
 
 // SetVisRecordEnabled controls optional typed-record capture without changing normal decoding.
@@ -152,7 +185,8 @@ func (p *trexDec) nextData() {
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *trexDec) nextPackage() {
+func (p *trexDec) nextPackage() string {
+	var diagnostic strings.Builder
 	// Here p.IBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.IBuf.
 	var index int
@@ -168,7 +202,7 @@ func (p *trexDec) nextPackage() {
 			if index == -1 {                   // p.IBuf has no complete COBS data, so leave
 				// Even err could be io.EOF, some valid data possibly in p.iBUf.
 				// In case of file input (J-LINK usage) a plug off is not detectable here.
-				return // no terminating 0, nothing to do
+				return diagnostic.String() // no terminating 0, nothing to do
 			}
 		}
 		if index != 0 {
@@ -194,11 +228,12 @@ func (p *trexDec) nextPackage() {
 		n, e := cobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
 		p.IBuf = p.IBuf[index+1:]       // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			if decoder.Verbose {
-				fmt.Println("\ainconsistent COBS buffer!") // show also terminating 0
-			}
+			fmt.Fprintln(&diagnostic, "ERROR:\ainconsistent COBS buffer:", e)
+			fmt.Fprintln(&diagnostic, hex.Dump(frame))
+			p.B = p.B[:0] // a partial decoder result is not an application record
+		} else {
+			p.B = p.B[:n]
 		}
-		p.B = p.B[:n]
 
 	case packageFramingTCOBS:
 	repeat:
@@ -211,9 +246,9 @@ func (p *trexDec) nextPackage() {
 			var bytesCount int
 			if len(s) >= 3 {
 				var newLines int
-				fmt.Println(s[0])
-				fmt.Println(s[1])
-				fmt.Println(s[2])
+				fmt.Fprintln(&diagnostic, s[0])
+				fmt.Fprintln(&diagnostic, s[1])
+				fmt.Fprintln(&diagnostic, s[2])
 				for _, b := range frame {
 					frame = frame[1:]
 					bytesCount++
@@ -228,10 +263,8 @@ func (p *trexDec) nextPackage() {
 				index -= bytesCount
 				goto repeat
 			}
-			if decoder.Verbose {
-				fmt.Println(e, "\ainconsistent TCOBSv1 buffer:")
-				fmt.Println(e, hex.Dump(frame)) // show also terminating 0
-			}
+			fmt.Fprintln(&diagnostic, "ERROR:\ainconsistent TCOBSv1 buffer:", e)
+			fmt.Fprintln(&diagnostic, hex.Dump(frame))
 			e = nil
 			p.B = p.B[:0]
 			p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any) // from merging:
@@ -255,6 +288,7 @@ func (p *trexDec) nextPackage() {
 			decoder.Dump(p.W, p.B)
 		}
 	}
+	return diagnostic.String()
 }
 
 // isZero reports whether all bytes in the slice are zero.
@@ -293,7 +327,8 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	return
 }
 
-// Read returns a single Trice conversion result or a single error message in b[:n].
+// Read returns application text and tool diagnostics in b[:n] and classifies
+// their ranges through DecodedOutputSpans.
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
@@ -306,10 +341,12 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 // Therefore, Read needs to be called cyclically even after returning io.EOF to process internal data.
 // When Read returns n=0, all processable complete trice packages are done,
 // but the start of a following trice package can be already inside the internal buffer.
-// In case of a not matching cycle, a warning message in trice format is prefixed.
-// In case of invalid package data, error messages in trice format are returned and the package is dropped.
+// In case of a non-matching cycle, a diagnostic is prefixed to valid application text.
+// Invalid package data produces only diagnostics and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	decoder.BlankMetadata = false
+	p.outputSpanCount = 0
+	p.sprintDiagnostic = false
 	if p.visEnabled {
 		// A failed, incomplete, or unsupported read must never expose the previous record again.
 		p.visRecord = decoder.VisRecord{}
@@ -325,17 +362,22 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if len(p.B) == 1 { // one leftover byte cannot form a supported framed record
 			n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short packet size 1 - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+			p.markOutput(0, n, decoder.OutputDiagnostic)
 			p.B = p.B[:0]
 			return n, nil
 		}
 		if len(p.B) == 0 { // last decoded package exhausted
-			p.nextPackage() // returns one decoded package inside p.B
+			diagnostic := p.nextPackage() // returns one decoded package inside p.B
+			diagnosticStart := n
+			n += copy(b[n:], diagnostic)
+			p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		}
 	}
 	packageSize := len(p.B)
 	if packageSize == 1 && p.packageFraming != packageFramingNone {
 		n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short packet size 1 - ignoring package:"))
 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+		p.markOutput(0, n, decoder.OutputDiagnostic)
 		p.B = p.B[:0]
 		return n, nil
 	}
@@ -361,6 +403,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			return
 		}
 		n += copy(b[n:], x0.Text)
+		kind := decoder.OutputApplication
+		if x0.Diagnostic {
+			kind = decoder.OutputDiagnostic
+		}
+		p.markOutput(0, n, kind)
 		return n, nil
 	}
 
@@ -386,6 +433,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 4
 	default:
 		n += copy(b[n:], fmt.Sprintln("ERROR:\aunknown trice type", triceType, "(hint: IDBits value?)"))
+		p.markOutput(0, n, decoder.OutputDiagnostic)
 		p.B = p.B[:0]
 		return n, nil
 	}
@@ -394,6 +442,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if p.packageFraming != packageFramingNone {
 			n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short non-X0 packet size", packageSize, "- ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(packed)))
+			p.markOutput(0, n, decoder.OutputDiagnostic)
 			p.B = p.B[:0]
 			return n, nil
 		}
@@ -432,35 +481,45 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
+			diagnosticStart := n
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
 				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
 			}
+			p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 			return
 		}
+		diagnosticStart := n
 		if decoder.Verbose {
 			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		p.B = p.B[len(p.B):] // discard buffer
+		return
 	}
 	if SingleFraming && p.TriceSize != packageSize {
+		diagnosticStart := n
 		if decoder.Verbose {
 			n += copy(b[n:], fmt.Sprintln("ERROR:\asingle framed package size", packageSize, "is !=", p.TriceSize, " - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		p.B = p.B[len(p.B):] // discard buffer
+		return
 	}
 
 	// cycle counter automatic & check
 	if cycle == 0xc0 && p.cycle != 0xc0 && decoder.InitialCycle { // with cycle counter and seems to be a target reset
+		diagnosticStart := n
 		n += copy(b[n:], fmt.Sprintln("warning:\a   Target Reset?   "))
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		p.cycle = cycle + 1 // adjust cycle
 		decoder.InitialCycle = false
 	}
@@ -478,9 +537,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 && !DisableCycleErrors { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
+			diagnosticStart := n
 			n += copy(b[n:], fmt.Sprintln("CYCLE_ERROR:\a", cycle, "!=", p.cycle, " (count=", emitter.TagEvents("CYCLE_ERROR")+1, ")"))
 			n += copy(b[n:], "                                         ") // len of location information plus stamp: 41 spaces - see NewlineIndent below - todo: make it generic
-			p.cycle = cycle                                               // adjust cycle
+			p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
+			p.cycle = cycle // adjust cycle
 		}
 		decoder.InitialCycle = false
 		p.cycle++
@@ -496,6 +557,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	p.LutMutex.RUnlock()
 	if !ok {
+		diagnosticStart := n
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
@@ -509,6 +571,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		return
 	}
 
@@ -524,12 +587,19 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	// Decoder diagnostics prefixed to a valid message make this Read unsuitable
 	// for record-oriented visualization, even if the numeric payload decodes.
-	hadPrefixedDiagnostic := n != 0
+	hadPrefixedDiagnostic := p.outputSpanCount != 0
+	applicationStart := n
 	n += p.sprintTrice(b[n:]) // use param info
-	if p.visEnabled && hadPrefixedDiagnostic {
+	applicationKind := decoder.OutputApplication
+	if p.sprintDiagnostic {
+		applicationKind = decoder.OutputDiagnostic
+	}
+	p.markOutput(applicationStart, n, applicationKind)
+	if p.visEnabled && (hadPrefixedDiagnostic || p.sprintDiagnostic) {
 		p.visValid = false
 	}
 	if len(p.B) < p.ParamSpace {
+		diagnosticStart := n
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from:"))
@@ -543,6 +613,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 	} else {
 		if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
 			p.B = p.B[p.ParamSpace:] // drop param info
@@ -598,6 +669,7 @@ func isSingleVisLine(format string) bool {
 //
 // p.Trice.Type is the received trice, in fact the name from til.json.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
+	p.sprintDiagnostic = false
 
 	isSAlias := strings.HasPrefix(p.Trice.Strg, id.SAliasStrgPrefix) && strings.HasSuffix(p.Trice.Strg, id.SAliasStrgSuffix)
 	if isSAlias { // A SAlias Strg is covered with id.SAliasStrgPrefix and id.SAliasStrgSuffix in til.json and it needs to be replaced with "%s" here.
@@ -615,6 +687,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	triceType, err := id.ConstructFullTriceInfo(p.Trice.Type, len(p.u))
 
 	if err != nil {
+		p.sprintDiagnostic = true
 		n += copy(b[n:], fmt.Sprintln("err:ConstructFullTriceInfo failed with:", p.Trice.Type, len(p.B), "- ignoring package:"))
 		return
 	}
@@ -623,6 +696,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
 		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
 			if len(p.B) < p.ParamSpace {
+				p.sprintDiagnostic = true
 				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
 				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
@@ -630,6 +704,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 			}
 			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
 				if !isSpecialCaseTriceType(s.triceType) {
+					p.sprintDiagnostic = true
 					n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package:"))
 					n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 					n += copy(b[n:], fmt.Sprintln(decoder.Hints))
@@ -642,6 +717,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 			return
 		}
 	}
+	p.sprintDiagnostic = true
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data:"))
 	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:p.ParamSpace])))
 	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
@@ -834,12 +910,14 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 
 func (p *trexDec) alignedParamBytes(b []byte, width int) (s []byte, n int, ok bool) {
 	if p.ParamSpace > len(p.B) {
+		p.sprintDiagnostic = true
 		n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		return nil, n, false
 	}
 	if p.ParamSpace%width != 0 {
+		p.sprintDiagnostic = true
 		dumpLen := p.ParamSpace
 		if dumpLen > len(p.B) {
 			dumpLen = len(p.B)

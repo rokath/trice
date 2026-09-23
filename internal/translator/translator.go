@@ -524,11 +524,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			continue // read again
 		}
 
-		// b contains here a single trice message with printed values or a single error message.
+		// b contains decoded application text, tool diagnostics, or both.
 		start := time.Now()
+		application := separateDecoderDiagnostics(w, dec, b[:n])
+		n = len(application)
 
 		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n])
+		n = emitter.BanOrPickFilter(application)
 
 		dropNormalOutput := false
 		if n > 0 && visRouter != nil {
@@ -591,7 +593,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				_, err = sw.Write([]byte("default: ")) // add space as separator
 				msg.OnErr(err)
 			}
-			_, err := sw.Write(b[:n])
+			_, err := sw.Write(application[:n])
 			msg.OnErr(err)
 		}
 
@@ -600,6 +602,58 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
+}
+
+// separateDecoderDiagnostics writes typed tool diagnostics to the local command
+// output and returns the single application range, if present. Diagnostics skip
+// application filters, metadata, visualization, and the line transformer.
+func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte) []byte {
+	classifier, ok := dec.(decoder.OutputClassifier)
+	if !ok {
+		return decoded
+	}
+	spans := classifier.DecodedOutputSpans()
+	applicationIndex := -1
+	expectedStart := 0
+	valid := len(decoded) == 0 || len(spans) > 0
+	for i, span := range spans {
+		if span.Start != expectedStart || span.Start < 0 || span.End <= span.Start || span.End > len(decoded) {
+			valid = false
+			break
+		}
+		expectedStart = span.End
+		switch span.Kind {
+		case decoder.OutputApplication:
+			if applicationIndex != -1 {
+				valid = false
+			}
+			applicationIndex = i
+		case decoder.OutputDiagnostic:
+		default:
+			valid = false
+		}
+	}
+	if expectedStart != len(decoded) {
+		valid = false
+	}
+	if !valid {
+		// A malformed classifier result must never route uncertain tool text
+		// through application filters or machine-oriented consumers.
+		_, err := w.Write(decoded)
+		msg.OnErr(err)
+		return nil
+	}
+	for _, span := range spans {
+		if span.Kind == decoder.OutputDiagnostic {
+			_, err := w.Write(decoded[span.Start:span.End])
+			msg.OnErr(err)
+		}
+	}
+	if applicationIndex == -1 {
+		return nil
+	}
+	span := spans[applicationIndex]
+	return decoded[span.Start:span.End]
 }
 
 // blankMetadataField preserves the occupied metadata width while hiding its value.

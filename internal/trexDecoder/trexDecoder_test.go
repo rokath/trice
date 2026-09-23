@@ -1040,6 +1040,13 @@ func TestReadCOBSFramingUnknownID(t *testing.T) {
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Contains(t, string(buf[:n]), "unknown ID")
+	classifier, ok := dec.(decoder.OutputClassifier)
+	require.True(t, ok)
+	spans := classifier.DecodedOutputSpans()
+	require.Len(t, spans, 1)
+	assert.Equal(t, decoder.OutputDiagnostic, spans[0].Kind)
+	assert.Equal(t, 0, spans[0].Start)
+	assert.Equal(t, n, spans[0].End)
 }
 
 // TestReadFramedUnsupportedShortPackets verifies errors for non-X0 packets that are too short.
@@ -1358,7 +1365,14 @@ func TestReadCycleErrorMessage(t *testing.T) {
 	buf := make([]byte, 1024)
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "CYCLE_ERROR")
+	output := string(buf[:n])
+	assert.Contains(t, output, "CYCLE_ERROR")
+	spans := dec.DecodedOutputSpans()
+	require.Len(t, spans, 2)
+	assert.Equal(t, decoder.OutputDiagnostic, spans[0].Kind)
+	assert.Contains(t, output[spans[0].Start:spans[0].End], "CYCLE_ERROR")
+	assert.Equal(t, decoder.OutputApplication, spans[1].Kind)
+	assert.Equal(t, "v=42", output[spans[1].Start:spans[1].End])
 }
 
 // TestReadFramedDiscardTrailingEncryptedZeroes verifies the expected behavior.
