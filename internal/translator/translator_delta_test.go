@@ -794,6 +794,181 @@ func TestTREXUsesTemplateInsteadOfRuntimeValueForTag(t *testing.T) {
 	assert.Equal(t, "untagged:err:runtime\n", got)
 }
 
+// runTREXPartialCalls sends one ID-only record per format template. Each record
+// models a distinct Trice call, so line joining cannot hide an event boundary.
+func runTREXPartialCalls(t *testing.T, formats []string, addNewline bool, configure func()) string {
+	t.Helper()
+	configureTranslatorLoopTest(t)
+	oldFraming := decoder.PackageFraming
+	oldInitialCycle := decoder.InitialCycle
+	oldAddNewline := trexDecoder.AddNewlineToEachTriceMessage
+	oldDoubledID := trexDecoder.Doubled16BitID
+	oldSingleFraming := trexDecoder.SingleFraming
+	oldDisableCycleErrors := trexDecoder.DisableCycleErrors
+	oldNewlineIndent := decoder.NewlineIndent
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitialCycle
+		trexDecoder.AddNewlineToEachTriceMessage = oldAddNewline
+		trexDecoder.Doubled16BitID = oldDoubledID
+		trexDecoder.SingleFraming = oldSingleFraming
+		trexDecoder.DisableCycleErrors = oldDisableCycleErrors
+		decoder.NewlineIndent = oldNewlineIndent
+	})
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = true
+	trexDecoder.AddNewlineToEachTriceMessage = addNewline
+	trexDecoder.Doubled16BitID = false
+	trexDecoder.SingleFraming = false
+	trexDecoder.DisableCycleErrors = false
+	decoder.NewlineIndent = -1
+	if configure != nil {
+		configure()
+	}
+
+	lut := make(id.TriceIDLookUp, len(formats))
+	input := make([]byte, 0, len(formats)*4)
+	for i, format := range formats {
+		// An unstamped S0 record stores the ID in the first two bytes, a
+		// sequential cycle marker in the third, and a zero payload size.
+		triceID := id.TriceID(i + 1)
+		lut[triceID] = id.TriceFmt{Type: "TRICE_0", Strg: format}
+		input = append(input, byte(triceID), 0x40, 0xc0+byte(i), 0)
+	}
+	var out bytes.Buffer
+	dec := trexDecoder.New(&out, lut, new(sync.RWMutex), nil, bytes.NewReader(input), decoder.LittleEndian)
+	sw := emitter.New(&out)
+	require.ErrorIs(t, decodeAndComposeLoop(&out, sw, dec, lut, nil, nil), io.EOF)
+	return out.String()
+}
+
+// TestPartialCallsWithPickRecordsCurrentLineJoining captures today's early
+// Pick decision. M13 can change the expected output when selection moves to
+// complete events, without losing these boundary cases.
+func TestPartialCallsWithPickRecordsCurrentLineJoining(t *testing.T) {
+	// The decoder currently indents continuation lines by 13 spaces when
+	// no metadata columns request additional width.
+	continuationIndent := strings.Repeat(" ", 13)
+	tests := []struct {
+		name       string
+		formats    []string
+		pick       []string
+		ban        []string
+		addNewline bool
+		want       string
+	}{
+		{name: "accepted A rejected B newline accepted C", formats: []string{`msg:A`, `dbg:B\n`, `msg:C\n`}, pick: []string{"msg"}, want: "AC\n"},
+		{name: "ban removes only B and its newline", formats: []string{`msg:A`, `dbg:B\n`, `msg:C\n`}, ban: []string{"dbg"}, want: "AC\n"},
+		{name: "rejected first call leaves no prefix", formats: []string{`dbg:A`, `msg:B\n`}, pick: []string{"msg"}, want: "B\n"},
+		{name: "rejected last newline leaves an open line for EOF", formats: []string{`msg:A`, `dbg:B\n`}, pick: []string{"msg"}, want: "A\n"},
+		{name: "rejected newline does not end accepted line", formats: []string{`msg:A`, `dbg:\n`, `msg:C\n`}, pick: []string{"msg"}, want: "AC\n"},
+		{name: "accepted multiline call emits both lines with current continuation indent", formats: []string{`msg:A\nB\n`}, pick: []string{"msg"}, want: "A\n" + continuationIndent + "B\n"},
+		{name: "rejected multiline call emits neither line", formats: []string{`dbg:A\nB\n`, `msg:C\n`}, pick: []string{"msg"}, want: "C\n"},
+		{name: "accepted newline-only call emits an empty line", formats: []string{`msg:\n`}, pick: []string{"msg"}, want: "\n"},
+		{name: "empty call emits no line", formats: []string{``}, pick: []string{"untagged"}, want: ""},
+		{name: "addNL gives an empty call a newline", formats: []string{``}, pick: []string{"untagged"}, addNewline: true, want: "\n"},
+		{name: "all rejected calls emit nothing", formats: []string{`dbg:A`, `dbg:B\n`}, pick: []string{"msg"}, want: ""},
+		{name: "accepted open line is flushed at EOF", formats: []string{`msg:A`}, pick: []string{"msg"}, want: "A\n"},
+		{name: "addNL ends each accepted call", formats: []string{`msg:A`, `dbg:B`, `msg:C`}, pick: []string{"msg"}, addNewline: true, want: "A\nC\n"},
+		{name: "addNL currently adds another indented line after an existing newline", formats: []string{`msg:A\n`}, pick: []string{"msg"}, addNewline: true, want: "A\n" + continuationIndent + "\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runTREXPartialCalls(t, tt.formats, tt.addNewline, func() {
+				emitter.Pick = tt.pick
+				emitter.Ban = tt.ban
+			})
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestPartialCallsWithLevelRecordsCurrentLineFiltering documents the remaining
+// line-level decision: a low-weight final fragment can suppress an earlier
+// accepted fragment, while an untagged second line can leak from one call.
+func TestPartialCallsWithLevelRecordsCurrentLineFiltering(t *testing.T) {
+	continuationIndent := strings.Repeat(" ", 13)
+	tests := []struct {
+		name    string
+		formats []string
+		want    string
+	}{
+		{name: "low final fragment suppresses the full line", formats: []string{`msg:A`, `dbg:B\n`, `msg:C\n`}, want: "C\n"},
+		{name: "second line of low weight call escapes line filter", formats: []string{`dbg:A\nB\n`}, want: continuationIndent + "B\n"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runTREXPartialCalls(t, tt.formats, false, func() {
+				emitter.LogLevel = "info"
+			})
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestPartialCallMetadataAndDeltaRecordsCurrentOrigin checks that only the
+// first accepted call of a line supplies its metadata and advances the delta.
+// The rejected B and accepted same-line C timestamps do not become delta bases.
+func TestPartialCallMetadataAndDeltaRecordsCurrentOrigin(t *testing.T) {
+	configureTranslatorLoopTest(t)
+	emitter.Pick = []string{"wrn"}
+	emitter.HostStamp = "zero"
+	emitter.Prefix = "<"
+	emitter.Suffix = ">"
+	id.LIFnJSON = "on"
+	decoder.ShowID = "ID:%d "
+	decoder.TargetStamp16 = "TS:%d "
+	decoder.TargetStamp16Delta = "DT:%d "
+	decoder.ShowTargetStamp16Passed = true
+	decoder.ShowTargetStamp16DeltaPassed = true
+	li := id.TriceIDLookUpLI{
+		1: {File: "/tmp/a.c", Line: 11},
+		2: {File: "/tmp/b.c", Line: 22},
+		3: {File: "/tmp/c.c", Line: 33},
+		4: {File: "/tmp/d.c", Line: 44},
+	}
+	dec := &scriptedDecoder{steps: []scriptedDecoderStep{
+		{data: "wrn:A", lastTriceID: 1, targetTimestamp: 10, targetStampSize: 2},
+		{data: "dbg:B\n", lastTriceID: 2, targetTimestamp: 20, targetStampSize: 2},
+		{data: "wrn:C\n", lastTriceID: 3, targetTimestamp: 30, targetStampSize: 2},
+		{data: "wrn:D\n", lastTriceID: 4, targetTimestamp: 40, targetStampSize: 2},
+	}}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+	require.ErrorIs(t, decodeAndComposeLoop(&out, sw, dec, nil, li, nil), io.EOF)
+	assert.Equal(t, "2006-01-02_1504-05 <a.c:11 TS:10  DT:-  ID:1  AC>\n"+
+		"2006-01-02_1504-05 <d.c:44 TS:40  DT:30  ID:4  D>\n", out.String())
+}
+
+// TestPartialCallMetadataStartsAtFirstAcceptedCall makes a rejected initial
+// fragment visible through its absence: the first emitted line uses B's ID,
+// location and timestamp, and the next delta starts from B rather than A.
+func TestPartialCallMetadataStartsAtFirstAcceptedCall(t *testing.T) {
+	configureTranslatorLoopTest(t)
+	emitter.Pick = []string{"wrn"}
+	id.LIFnJSON = "on"
+	decoder.ShowID = "ID:%d "
+	decoder.TargetStamp16 = "TS:%d "
+	decoder.TargetStamp16Delta = "DT:%d "
+	decoder.ShowTargetStamp16Passed = true
+	decoder.ShowTargetStamp16DeltaPassed = true
+	li := id.TriceIDLookUpLI{
+		1: {File: "/tmp/a.c", Line: 11},
+		2: {File: "/tmp/b.c", Line: 22},
+		3: {File: "/tmp/c.c", Line: 33},
+	}
+	dec := &scriptedDecoder{steps: []scriptedDecoderStep{
+		{data: "dbg:A", lastTriceID: 1, targetTimestamp: 10, targetStampSize: 2},
+		{data: "wrn:B\n", lastTriceID: 2, targetTimestamp: 20, targetStampSize: 2},
+		{data: "wrn:C\n", lastTriceID: 3, targetTimestamp: 30, targetStampSize: 2},
+	}}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+	require.ErrorIs(t, decodeAndComposeLoop(&out, sw, dec, nil, li, nil), io.EOF)
+	assert.Equal(t, "b.c:22 TS:20  DT:-  ID:2  B\n"+
+		"c.c:33 TS:30  DT:10  ID:3  C\n", out.String())
+}
+
 // TestByteOrientedDecodersDoNotCreateUntaggedEvents verifies that arbitrary
 // CHAR and DUMP read chunks remain byte-oriented rather than becoming events.
 func TestByteOrientedDecodersDoNotCreateUntaggedEvents(t *testing.T) {
