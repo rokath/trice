@@ -2,6 +2,8 @@
 
 Tags label Trice messages on the host. They can control presentation, selection, ID assignment, and weight-based filtering without adding target runtime data because the tag is part of the format string stored in `til.json`.
 
+Optionally tags will be usable also for context enrichtment in the future.
+
 ## How to use tags
 
 Add a tag and a colon in front of a Trice format string:
