@@ -526,7 +526,10 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 		// b contains decoded application text, tool diagnostics, or both.
 		start := time.Now()
-		application := separateDecoderDiagnostics(w, dec, b[:n])
+		application, tagCandidate, classifiedEvent := separateDecoderDiagnostics(w, dec, b[:n])
+		if classifiedEvent {
+			application = emitter.NormalizeApplicationTag(application, tagCandidate)
+		}
 		n = len(application)
 
 		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
@@ -605,12 +608,14 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 }
 
 // separateDecoderDiagnostics writes typed tool diagnostics to the local command
-// output and returns the single application range, if present. Diagnostics skip
-// application filters, metadata, visualization, and the line transformer.
-func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte) []byte {
+// output and returns the single application range and its format tag candidate,
+// if present. classifiedEvent is false for byte-oriented decoders without event
+// boundaries. Diagnostics skip application filters, metadata, visualization, and
+// the line transformer.
+func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte) (application []byte, tag string, classifiedEvent bool) {
 	classifier, ok := dec.(decoder.OutputClassifier)
 	if !ok {
-		return decoded
+		return decoded, "", false
 	}
 	spans := classifier.DecodedOutputSpans()
 	applicationIndex := -1
@@ -641,7 +646,7 @@ func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte
 		// through application filters or machine-oriented consumers.
 		_, err := w.Write(decoded)
 		msg.OnErr(err)
-		return nil
+		return nil, "", false
 	}
 	for _, span := range spans {
 		if span.Kind == decoder.OutputDiagnostic {
@@ -650,10 +655,10 @@ func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte
 		}
 	}
 	if applicationIndex == -1 {
-		return nil
+		return nil, "", false
 	}
 	span := spans[applicationIndex]
-	return decoded[span.Start:span.End]
+	return decoded[span.Start:span.End], span.Tag, true
 }
 
 // blankMetadataField preserves the occupied metadata width while hiding its value.

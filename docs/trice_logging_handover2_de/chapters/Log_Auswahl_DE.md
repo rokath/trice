@@ -1,4 +1,4 @@
-**Redaktioneller Kommentar — nicht Teil des UM.** Gewichtungsrichtung, INFO als User-Default, Überschreiben per `-ulabel` und UND-Verknüpfung der Filter sind abgestimmt. Konkrete Zahlen, `0..999` als Bereich, Farbe und Präfixanzeige für `untagged` sowie die Teilzeilenregel sind Vorschläge zur Abnahme. Gewichte sollen als Eigenschaft der Gruppen in `lineTransformerANSI.go` liegen; Tabellenposition und Farbe bestimmen keine Priorität mehr. Tests und Umsetzung: [M08–M14](../README.md#abarbeitungsfolge). Das vollständige Beispiel für den heutigen Level-Filter braucht die Regression aus [M13](../issues/M13_ereignisfilter.md).
+**Redaktioneller Kommentar — nicht Teil des UM.** Gewichtungsrichtung, INFO als User-Default, Überschreiben per `-ulabel`, `untagged` und UND-Verknüpfung der Filter sind abgestimmt. Die Teilzeilenregel ist noch ein Vorschlag zur Abnahme. Gewichte liegen als Eigenschaft der Gruppen in `lineTransformerANSI.go`; Tabellenposition und Farbe bestimmen keine Priorität mehr. Tests und Umsetzung: [M08–M14](../README.md#abarbeitungsfolge). Das vollständige Beispiel für den heutigen Level-Filter braucht die Regression aus [M13](../issues/M13_ereignisfilter.md).
 
 ---
 
@@ -61,7 +61,7 @@ Die Anfangswerte sind Ganzzahlen von `0` bis `999`. Alle Aliase einer Gruppe hab
 | Assert, Alarm, Alert | 760 |
 | Notice | 600 |
 | INFO, Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 500 |
-| `untagged` | 500 (mit M11 geplant) |
+| `untagged` | 500 |
 | Neue User-Tags ohne explizites Gewicht | endgültiges INFO-Gewicht |
 | Debug | 200 |
 | Trace | 100 |
@@ -95,9 +95,9 @@ Für einfache Meldungen wirken Tag-Auswahl und Schwelle bereits nacheinander. M1
 `-pick off -logLevel info` wird nicht als CLI Fehler behandelt. Es werden keine Messages angezeigt.
 `-pick all -logLevel info` wird nicht als CLI Fehler behandelt. Es werden alle Messages ab Fehlergewicht INFO angezeigt. Gleichbedeutend mit `-ban off -logLevel info` oder einfach `-logLevel info`
 
-### <a id="la-untagged"></a>Geplant: untagged
+### <a id="la-untagged"></a>Vorhanden: untagged
 
-Fehlt ein bekannter Tag, ordnet der Host die Anwendungsmeldung der reservierten Gruppe `untagged` zu. Sie erhält im Entwurf den INFO-Anfangswert 500 und eine neutrale Farbe. Ihr eigenes Gewicht lässt sich unabhängig von INFO ändern. Du kannst sie wie andere Gruppen auswählen:
+Fehlt ein bekannter Tag, ordnet der Host die Anwendungsmeldung der reservierten Gruppe `untagged` zu. Sie hat das Gewicht 500 und eine neutrale Farbe. Ihr eigenes Gewicht lässt sich unabhängig von INFO ändern. Du kannst sie wie andere Gruppen auswählen:
 
 ```text
 -pick untagged
@@ -105,18 +105,18 @@ Fehlt ein bekannter Tag, ordnet der Host die Anwendungsmeldung der reservierten 
 -ulabel untagged:150
 ```
 
-`untagged` kann nicht als zusätzliche unabhängige User-Gruppe angelegt werden. Ein gleichnamiges `-ulabel` ist wie bei anderen vorhandenen Gruppen zulässig. Kommt im Code vor `trice("untagged:Hi\n");`, ist das gleichbedeutend mit ungetaggtem Text.
+`untagged` kann nicht als zusätzliche unabhängige User-Gruppe angelegt werden. Ein gleichnamiges `-ulabel` ist wie bei anderen vorhandenen Gruppen zulässig. Ein ausdrückliches `untagged:` im Formatstring wählt die Gruppe direkt und wird nicht verdoppelt.
 
 | Ursprünglicher Text | Interne Darstellung für den Textausgabepfad |
 |---|---|
 | `Hello` | `untagged:Hello` |
-| `untagged:Hello` | `untagged:untagged:Hello` |
+| `untagged:Hello` | `untagged:Hello` |
 | `mgs:blah` | `untagged:mgs:blah` |
 | `msg:Hello` | `msg:Hello` |
 
-Bei `default`/`none` wird nur das erkannte äußere Präfix entfernt; der Tippfehler `mgs:` bleibt sichtbar. Bei `-color off` wird trotz der allgemeinen Präfixregel das intern ergänzte `untagged:` wieder entfernt.
+Bei `default`/`none` wird nur das erkannte äußere Präfix entfernt; der Tippfehler `mgs:` bleibt sichtbar. Bei `-color off` bleibt auch das intern ergänzte `untagged:` sichtbar.
 
-**Diese Formulierung ist nicht klar verständlich und sollte klarer sein oder entfallen:** Die Zuordnung erfolgt einmal für die Meldung, bevor Zusatzspalten entstehen. Bei ID-basierten Meldungen ist der Formatstring im Wörterbuch maßgeblich; ein Laufzeitwert mit Text `err:...` darf keine neue Priorität vortäuschen. Originalquelle, gespeicherter Formatstring, IDs und binäre Rohaufzeichnung werden durch diese Hostzuordnung nicht umgeschrieben. Diese Hostzuordnung ändert die ID-Vergabe nicht.
+Die Zuordnung erfolgt einmal für die Anwendungsmeldung, bevor Zeitstempel, Quellposition, ID, Präfix oder Suffix ergänzt werden. Bei ID-basierten Meldungen ist der Formatstring im Wörterbuch maßgeblich; ein Laufzeitwert mit Text `err:...` ändert die Zuordnung nicht. Originalquelle, gespeicherter Formatstring, IDs und binäre Rohaufzeichnung werden durch diese Hostzuordnung nicht umgeschrieben. Die ID-Vergabe bleibt unverändert. Byteorientierte CHAR-/DUMP-Ausgabe erhält keine Ereigniszuordnung aus einzelnen Decoderblöcken.
 
 ### <a id="la-ereignisse"></a>Geplant: Meldung samt Zusatzspalten auswählen
 

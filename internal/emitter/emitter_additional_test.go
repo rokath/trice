@@ -383,7 +383,7 @@ func TestDefaultTagWeights(t *testing.T) {
 		"TIME": 500, "MESSAGE": 500, "READ": 500, "WRITE": 500,
 		"RECEIVE": 500, "TRANSMIT": 500, "DIAG": 500,
 		"INTERRUPT": 500, "SIGNAL": 500, "TEST": 500,
-		"DEFAULT": 500, "NOTICE": 600, "ALERT": 760,
+		"DEFAULT": 500, "untagged": 500, "NOTICE": 600, "ALERT": 760,
 		"ASSERT": 760, "ALARM": 760, "CYCLE_ERROR": 0,
 		"VERBOSE": 50, "CONFIG": 500, "MICROSECOND": 500,
 		"MILLISECOND": 500, "SECOND": 500, "DELTATIME": 500,
@@ -394,6 +394,62 @@ func TestDefaultTagWeights(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, weight, actual, canonical)
 	}
+}
+
+// TestUntaggedIsAnIndependentBuiltInGroup verifies its fixed default, user
+// override, and separation from later INFO weight changes.
+func TestUntaggedIsAnIndependentBuiltInGroup(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+
+	UserLabel = ArrayFlag{"INFO:650", "untagged:150"}
+	require.NoError(t, AddUserLabels())
+	assert.Empty(t, duplicateTagAliases(Tags))
+	assert.Equal(t, len(defaultTags), len(Tags))
+	weight, err := TagWeight("untagged")
+	require.NoError(t, err)
+	assert.Equal(t, 150, weight)
+
+	UserLabel = ArrayFlag{"INFO:650"}
+	require.NoError(t, AddUserLabels())
+	weight, err = TagWeight("untagged")
+	require.NoError(t, err)
+	assert.Equal(t, 500, weight)
+}
+
+// TestNormalizeApplicationTag preserves the complete original text and adds
+// exactly one reserved prefix only for absent or unknown template tags.
+func TestNormalizeApplicationTag(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = ArrayFlag{"motor"}
+	require.NoError(t, AddUserLabels())
+
+	tests := []struct {
+		name      string
+		candidate string
+		text      string
+		want      string
+	}{
+		{name: "missing", text: "Hello", want: "untagged:Hello"},
+		{name: "empty prefix", text: ":Hello", want: "untagged::Hello"},
+		{name: "unknown typo", candidate: "mgs", text: "mgs:blah", want: "untagged:mgs:blah"},
+		{name: "normal text colon", candidate: "12", text: "12:34", want: "untagged:12:34"},
+		{name: "explicit untagged", candidate: "untagged", text: "untagged:Hello", want: "untagged:Hello"},
+		{name: "built in", candidate: "msg", text: "msg:Hello", want: "msg:Hello"},
+		{name: "user tag", candidate: "motor", text: "motor:running", want: "motor:running"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buffer := make([]byte, len(tt.text), len(tt.text)+len("untagged:"))
+			copy(buffer, tt.text)
+			assert.Equal(t, tt.want, string(NormalizeApplicationTag(buffer, tt.candidate)))
+		})
+	}
+
+	// A full buffer exercises the safe fallback without changing semantics.
+	full := []byte("plain")
+	assert.Equal(t, "untagged:plain", string(NormalizeApplicationTag(full, "")))
 }
 
 // TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups verifies aliases,

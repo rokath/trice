@@ -709,6 +709,119 @@ func TestDecodeAndComposeLoopHonorsBanFilter(t *testing.T) {
 	assert.Empty(t, out.String())
 }
 
+// runTREXApplicationText decodes one unstamped type-S0 event with ID 1. The
+// format template, rather than the formatted payload, supplies its tag candidate.
+func runTREXApplicationText(t *testing.T, triceType, format string, payload []byte, configure func()) string {
+	t.Helper()
+	configureTranslatorLoopTest(t)
+	oldFraming := decoder.PackageFraming
+	oldInitialCycle := decoder.InitialCycle
+	oldDisableCycleErrors := trexDecoder.DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.PackageFraming = oldFraming
+		decoder.InitialCycle = oldInitialCycle
+		trexDecoder.DisableCycleErrors = oldDisableCycleErrors
+	})
+	decoder.PackageFraming = "none"
+	decoder.InitialCycle = true
+	trexDecoder.DisableCycleErrors = false
+	if configure != nil {
+		configure()
+	}
+
+	input := []byte{0x01, 0x40, 0xc0, byte(len(payload))}
+	input = append(input, payload...)
+	lut := id.TriceIDLookUp{1: {Type: triceType, Strg: format}}
+	var output bytes.Buffer
+	dec := trexDecoder.New(&output, lut, new(sync.RWMutex), nil, bytes.NewReader(input), decoder.LittleEndian)
+	sw := emitter.New(&output)
+
+	err := decodeAndComposeLoop(&output, sw, dec, lut, nil, nil)
+	require.ErrorIs(t, err, io.EOF)
+	return output.String()
+}
+
+// TestTREXApplicationTagNormalization verifies host-only untagged assignment,
+// presentation modes, and ordinary Pick/Ban behavior.
+func TestTREXApplicationTagNormalization(t *testing.T) {
+	tests := []struct {
+		name      string
+		format    string
+		palette   string
+		configure func()
+		want      string
+	}{
+		{name: "missing tag", format: `Hello\n`, palette: "none", want: "Hello\n"},
+		{name: "unknown tag", format: `mgs:blah\n`, palette: "none", want: "mgs:blah\n"},
+		{name: "empty prefix", format: `:blah\n`, palette: "none", want: ":blah\n"},
+		{name: "normal text colon", format: `12:34\n`, palette: "none", want: "12:34\n"},
+		{name: "explicit untagged", format: `untagged:Hello\n`, palette: "none", want: "Hello\n"},
+		{name: "known tag", format: `msg:Hello\n`, palette: "none", want: "Hello\n"},
+		{name: "off shows synthetic prefix", format: `mgs:blah\n`, palette: "off", want: "untagged:mgs:blah\n"},
+		{name: "off shows explicit prefix once", format: `untagged:Hello\n`, palette: "off", want: "untagged:Hello\n"},
+		{name: "prefix and suffix stay metadata", format: `Hello\n`, palette: "off", configure: func() {
+			emitter.Prefix = "host:"
+			emitter.Suffix = ":tail"
+		}, want: "host:untagged:Hello:tail\n"},
+		{name: "pick untagged", format: `mgs:blah\n`, palette: "off", configure: func() {
+			emitter.Pick = []string{"untagged"}
+		}, want: "untagged:mgs:blah\n"},
+		{name: "ban untagged", format: `mgs:blah\n`, palette: "off", configure: func() {
+			emitter.Ban = []string{"untagged"}
+		}, want: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := runTREXApplicationText(t, "TRICE_0", tt.format, nil, func() {
+				emitter.ColorPalette = tt.palette
+				if tt.configure != nil {
+					tt.configure()
+				}
+			})
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+// TestTREXUsesTemplateInsteadOfRuntimeValueForTag verifies that a dynamic
+// string beginning with a known tag cannot change an untagged template's group.
+func TestTREXUsesTemplateInsteadOfRuntimeValueForTag(t *testing.T) {
+	got := runTREXApplicationText(t, "TRICE_S", `%s\n`, []byte("err:runtime"), func() {
+		emitter.ColorPalette = "off"
+		emitter.Pick = []string{"untagged"}
+	})
+	assert.Equal(t, "untagged:err:runtime\n", got)
+}
+
+// TestByteOrientedDecodersDoNotCreateUntaggedEvents verifies that arbitrary
+// CHAR and DUMP read chunks remain byte-oriented rather than becoming events.
+func TestByteOrientedDecodersDoNotCreateUntaggedEvents(t *testing.T) {
+	tests := []struct {
+		encoding string
+		input    []byte
+	}{
+		{encoding: "CHAR", input: []byte("plain:stream\n")},
+		{encoding: "DUMP", input: []byte{0x01, 0x02}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.encoding, func(t *testing.T) {
+			configureTranslatorLoopTest(t)
+			oldDumpLineByteCount := decoder.DumpLineByteCount
+			t.Cleanup(func() { decoder.DumpLineByteCount = oldDumpLineByteCount })
+			decoder.DumpLineByteCount = 16
+			var output bytes.Buffer
+			dec, err := decoder.NewForEncoding(tt.encoding, io.Discard, nil, nil, nil, bytes.NewReader(tt.input), decoder.LittleEndian)
+			require.NoError(t, err)
+			sw := emitter.New(&output)
+
+			err = decodeAndComposeLoop(&output, sw, dec, nil, nil, nil)
+			require.ErrorIs(t, err, io.EOF)
+			assert.NotContains(t, output.String(), "untagged:")
+		})
+	}
+}
+
 // TestTREXDiagnosticsBypassApplicationFilters verifies that representative
 // decoder failures remain local tool output while valid application text from
 // the same Read still obeys the configured filters.
@@ -798,6 +911,7 @@ func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
 			err := decodeAndComposeLoop(&output, sw, dec, tt.lut, nil, nil)
 			require.ErrorIs(t, err, io.EOF)
 			assert.Contains(t, output.String(), tt.want)
+			assert.NotContains(t, output.String(), "untagged:")
 			if tt.wantNot != "" {
 				assert.NotContains(t, output.String(), tt.wantNot)
 			}

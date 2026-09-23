@@ -41,6 +41,7 @@ Each tag group has one integer weight in the range `0..999`. A larger value mean
 | Attention | 740 |
 | Notice | 600 |
 | INFO, Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 500 |
+| Untagged | 500 |
 | Debug | 200 |
 | Trace | 100 |
 | Verbose | 50 |
@@ -65,7 +66,7 @@ trice log -logLevel info
 trice log -logLevel 500
 ```
 
-Both commands use the same threshold. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Numeric and tag thresholds leave text without a recognized tag unaffected until the reserved `untagged` group is introduced. `-logLevel off` suppresses all output fragments in the current implementation.
+Both commands use the same threshold. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with weight 500. `-logLevel off` suppresses all application output fragments.
 
 All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
@@ -107,6 +108,23 @@ Each option accepts exactly one name. The old colon-separated name-list form is 
 For `insert` and `bind`, only the registered name participates in tag and `-IDRange` handling. A weight changes no target data and is not stored in the source or `til.json`.
 
 Command-specific user tags and weight overrides are discarded before a later command in the same process starts.
+
+## Untagged application events
+
+The host assigns the built-in `untagged` group once to an application event whose stored format string has no recognized tag. This also applies to an empty prefix, an unknown prefix caused by a typo, or ordinary text containing a colon. For ID-based messages, classification uses the format string from the Trice ID lookup table rather than text supplied as a runtime value.
+
+| Stored format string | Internal application text |
+|---|---|
+| `Hello` | `untagged:Hello` |
+| `untagged:Hello` | `untagged:Hello` |
+| `mgs:blah` | `untagged:mgs:blah` |
+| `msg:Hello` | `msg:Hello` |
+
+With `-color default` or `-color none`, the synthetic outer prefix is removed and the original text remains visible. For example, `mgs:blah` stays visible. With `-color off`, the synthetic prefix remains visible as `untagged:mgs:blah`. An explicit `untagged:` prefix is never added a second time.
+
+`-pick untagged`, `-ban untagged`, `-logLevel`, and statistics handle this group like other application tags. Its weight is independent of INFO and can be changed for one command with `-ulabel untagged:150`.
+
+Decoder and transport diagnostics are not untagged application events. Byte-oriented CHAR and DUMP decoder chunks also receive no synthetic event tag because they do not identify individual application events. Classification changes neither source format strings, lookup-table entries, IDs, nor recorded raw bytes.
 
 ## Output options
 

@@ -202,7 +202,7 @@ Die Registry ist alphabetisch sortiert; die Zahl gibt an, an wie vielen Logstell
 "tag": "MESSAGE"
 ```
 
-normalisiert werden. Ist kein bekannter Tag vorhanden, wird kein `tag`-Feld erzeugt; ein künstlicher Wert wie `untagged` ist nicht erforderlich.
+normalisiert werden. Für Anwendungsmeldungen ohne bekannten Formatstring-Tag liefert die vorhandene Hostklassifikation die Gruppe `untagged`. Ob eine künftige strukturierte Ausgabe dafür ein Feld `"tag": "untagged"` schreibt, ist mit M19 festzulegen; sie darf die Klassifikation nicht erneut aus Laufzeittext ableiten.
 
 Tags, die zugleich Log-Level darstellen, werden zusätzlich über eine kleine Liste kanonischer Namen gekennzeichnet, gedanklich etwa:
 

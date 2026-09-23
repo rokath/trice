@@ -111,6 +111,15 @@ func (p *trexDec) markOutput(start, end int, kind decoder.OutputKind) {
 	p.outputSpanCount++
 }
 
+// markApplication records one application range together with the tag
+// candidate derived from its format template.
+func (p *trexDec) markApplication(start, end int, tag string) {
+	p.markOutput(start, end, decoder.OutputApplication)
+	if start < end && p.outputSpanCount > 0 {
+		p.outputSpans[p.outputSpanCount-1].Tag = tag
+	}
+}
+
 // SetVisRecordEnabled controls optional typed-record capture without changing normal decoding.
 func (p *trexDec) SetVisRecordEnabled(enabled bool) {
 	p.visEnabled = enabled
@@ -403,11 +412,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			return
 		}
 		n += copy(b[n:], x0.Text)
-		kind := decoder.OutputApplication
 		if x0.Diagnostic {
-			kind = decoder.OutputDiagnostic
+			p.markOutput(0, n, decoder.OutputDiagnostic)
+		} else {
+			p.markApplication(0, n, x0.Tag)
 		}
-		p.markOutput(0, n, kind)
 		return n, nil
 	}
 
@@ -590,11 +599,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	hadPrefixedDiagnostic := p.outputSpanCount != 0
 	applicationStart := n
 	n += p.sprintTrice(b[n:]) // use param info
-	applicationKind := decoder.OutputApplication
 	if p.sprintDiagnostic {
-		applicationKind = decoder.OutputDiagnostic
+		p.markOutput(applicationStart, n, decoder.OutputDiagnostic)
+	} else {
+		p.markApplication(applicationStart, n, decoder.FormatTagCandidate(originalTrice.Strg))
 	}
-	p.markOutput(applicationStart, n, applicationKind)
 	if p.visEnabled && (hadPrefixedDiagnostic || p.sprintDiagnostic) {
 		p.visValid = false
 	}

@@ -14,6 +14,7 @@ type TypeX0Result struct {
 	Consumed      int    // Consumed is the byte count to remove from the current decoded record buffer.
 	BlankMetadata bool   // BlankMetadata requests aligned, value-less metadata for Text.
 	Diagnostic    bool   // Diagnostic distinguishes tool errors from formatted application payload.
+	Tag           string // Tag is the prefix candidate from the configured output format.
 }
 
 // typeX0Mode identifies the initial selector-0 handling variants.
@@ -66,7 +67,18 @@ func HandleTypeX0(record []byte, endian bool, noneFraming bool) TypeX0Result {
 		Text:          fmt.Sprintf(cfg.format, payload),
 		Consumed:      consumed,
 		BlankMetadata: true,
+		Tag:           FormatTagCandidate(cfg.format),
 	}
+}
+
+// FormatTagCandidate returns the text before the first colon in a format
+// template. An absent or empty prefix intentionally denotes an untagged event.
+func FormatTagCandidate(format string) string {
+	tag, _, found := strings.Cut(format, ":")
+	if !found {
+		return ""
+	}
+	return tag
 }
 
 // parseTypeX0Config parses the public -typeX0 grammar without consuming record bytes.

@@ -18,6 +18,7 @@ import (
 const (
 	minTagWeight = 0
 	maxTagWeight = 999
+	untaggedTag  = "untagged"
 )
 
 // AddUserLabels rebuilds the per-command tag registry and applies all -ulabel
@@ -181,6 +182,11 @@ var (
 	TagStatistics bool // Print the occured count for each Trice log when Trice is closed.
 )
 
+// colorizeUntagged preserves text without adding ANSI styling.
+func colorizeUntagged(s string) string {
+	return s
+}
+
 func isLower(s string) bool {
 	for _, r := range s {
 		if !unicode.IsLower(r) && unicode.IsLetter(r) {
@@ -225,6 +231,7 @@ var defaultTags = []tag{
 	{weight: 500, Names: []string{"TEST", "t", "tst", "test", "T", "TST"}, colorize: colorizeTEST},
 
 	{weight: 500, Names: []string{"DEFAULT", "def", "Default", "default"}, colorize: colorizeDEFAULT},
+	{weight: 500, Names: []string{untaggedTag}, colorize: colorizeUntagged},
 	{weight: 600, Names: []string{"NOTICE", "note", "Notice", "notice", "Note", "NOTE"}, colorize: colorizeNOTICE},
 	{weight: 760, Names: []string{"ALERT", "Alert", "alert"}, colorize: colorizeALERT},
 	{weight: 760, Names: []string{"ASSERT", "Assert", "assert"}, colorize: colorizeASSERT},
@@ -363,6 +370,27 @@ func tagVariants(ch string) []string {
 func isTag(tag string) bool {
 	cv := tagVariants(tag)
 	return cv != nil
+}
+
+// NormalizeApplicationTag prepends the reserved untagged group when candidate
+// is absent or unknown. The original text remains unchanged after the synthetic
+// prefix. Existing spare buffer capacity avoids allocation in the normal path.
+func NormalizeApplicationTag(text []byte, candidate string) []byte {
+	if isTag(candidate) {
+		return text
+	}
+	prefix := untaggedTag + ":"
+	oldLength := len(text)
+	if cap(text)-oldLength < len(prefix) {
+		tagged := make([]byte, len(prefix)+oldLength)
+		copy(tagged, prefix)
+		copy(tagged[len(prefix):], text)
+		return tagged
+	}
+	text = text[:oldLength+len(prefix)]
+	copy(text[len(prefix):], text[:oldLength])
+	copy(text, prefix)
+	return text
 }
 
 // colorize transforms s according to tag and palette configuration:

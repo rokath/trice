@@ -70,7 +70,7 @@ func Test3colorize(t *testing.T) {
 }
 
 // TestColorizeUsesTagWeights verifies inclusive filtering by alias and numeric
-// threshold while unknown prefixes retain the pre-M11 behavior.
+// threshold. Unknown raw fragments remain unchanged before event normalization.
 func TestColorizeUsesTagWeights(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -91,6 +91,48 @@ func TestColorizeUsesTagWeights(t *testing.T) {
 		_, show = p.colorize("misspelled:unchanged")
 		assert.True(t, show, threshold)
 	}
+}
+
+// TestUntaggedColorAndWeightHandling verifies that presentation removes only
+// the synthetic outer tag unless colors are fully disabled, and that the group
+// participates in ordinary weight filtering.
+func TestUntaggedColorAndWeightHandling(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	text := string(NormalizeApplicationTag([]byte("mgs:blah"), "mgs"))
+
+	for _, palette := range []string{"default", "none"} {
+		LogLevel = "all"
+		p := newLineTransformerANSI(newCheckDisplay(), palette)
+		got, show := p.colorize(text)
+		assert.True(t, show)
+		assert.Equal(t, "mgs:blah", got, palette)
+	}
+
+	LogLevel = "all"
+	p := newLineTransformerANSI(newCheckDisplay(), "off")
+	got, show := p.colorize(text)
+	assert.True(t, show)
+	assert.Equal(t, "untagged:mgs:blah", got)
+	assert.Greater(t, TagEvents("untagged"), 0)
+
+	LogLevel = "notice"
+	require.NoError(t, ResolveFilterSelectors())
+	_, show = p.colorize(text)
+	assert.False(t, show)
+	LogLevel = "500"
+	require.NoError(t, ResolveFilterSelectors())
+	_, show = p.colorize(text)
+	assert.True(t, show)
+
+	UserLabel = ArrayFlag{"untagged:150"}
+	require.NoError(t, AddUserLabels())
+	LogLevel = "200"
+	require.NoError(t, ResolveFilterSelectors())
+	_, show = p.colorize(text)
+	assert.False(t, show)
 }
 
 func _Test4colorize(t *testing.T) {

@@ -204,10 +204,11 @@ func TestHandleTypeX0(t *testing.T) {
 		wantConsumed   int
 		wantBlankMeta  bool
 		wantDiagnostic bool
+		wantTag        string
 	}{
 		{name: "default error", option: "error", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: "typeX0 packet ignored", wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
 		{name: "counted string shorthand", option: "%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
-		{name: "counted explicit with colon format", option: "counted:sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "sig:OK", wantConsumed: 4, wantBlankMeta: true},
+		{name: "counted explicit with colon format", option: "counted:sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "sig:OK", wantConsumed: 4, wantBlankMeta: true, wantTag: "sig"},
 		{name: "colon shorthand rejected", option: "sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: `unsupported typeX0 mode "sig"`, wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
 		{name: "counted ignore", option: "ignore", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantConsumed: 4},
 		{name: "all ignore consumes package", option: "all:ignore", record: []byte{0x02, 0x00, 'O', 'K', 0x01, 0x40}, endian: LittleEndian, wantConsumed: 6},
@@ -225,6 +226,7 @@ func TestHandleTypeX0(t *testing.T) {
 			assert.Equal(t, tc.wantConsumed, got.Consumed)
 			assert.Equal(t, tc.wantBlankMeta, got.BlankMetadata)
 			assert.Equal(t, tc.wantDiagnostic, got.Diagnostic)
+			assert.Equal(t, tc.wantTag, got.Tag)
 			if tc.wantContains != "" {
 				assert.Contains(t, got.Text, tc.wantContains)
 				return

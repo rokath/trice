@@ -146,6 +146,7 @@ type OutputSpan struct {
 	Start int
 	End   int
 	Kind  OutputKind
+	Tag   string // Tag is the prefix candidate from the application format template.
 }
 
 // OutputClassifier is an optional decoder capability for separating tool

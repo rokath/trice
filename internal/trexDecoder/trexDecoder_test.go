@@ -1372,6 +1372,7 @@ func TestReadCycleErrorMessage(t *testing.T) {
 	assert.Equal(t, decoder.OutputDiagnostic, spans[0].Kind)
 	assert.Contains(t, output[spans[0].Start:spans[0].End], "CYCLE_ERROR")
 	assert.Equal(t, decoder.OutputApplication, spans[1].Kind)
+	assert.Empty(t, spans[1].Tag)
 	assert.Equal(t, "v=42", output[spans[1].Start:spans[1].End])
 }
 
