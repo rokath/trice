@@ -309,8 +309,8 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 }
 
 func flagUserLabel(p *flag.FlagSet) {
-	p.Var(&emitter.UserLabel, "ulabel", `Register an additional tag or set a tag group's weight in the range 0..999. This is a multi-flag switch with syntax name[:weight].
-Example: "-ulabel motor -ulabel sensor:150 -ulabel msg:600" adds motor and sensor and sets the complete MESSAGE group to weight 600. A new tag without a weight uses the final INFO weight. Values such as "tagA:tagB", numeric tag names, "all", and "off" are invalid. See also "-logLevel".`) // multi flag
+	p.Var(&emitter.UserLabel, "ulabel", `Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".`) // multi flag
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {

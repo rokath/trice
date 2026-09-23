@@ -21,73 +21,105 @@ const (
 	untaggedTag  = "untagged"
 )
 
+// userLabelSpec keeps independently supplied metadata for one -ulabel value.
+type userLabelSpec struct {
+	name      string
+	weight    int
+	hasWeight bool
+	color     string
+	hasColor  bool
+}
+
 // AddUserLabels rebuilds the per-command tag registry and applies all -ulabel
-// specifications atomically. A specification is either name or name:weight.
+// specifications atomically. Unweighted new labels inherit the final INFO weight.
 func AddUserLabels() error {
 	tags := copyTagRegistry(defaultTags)
-	pendingDefaultWeight := make([]string, 0, len(UserLabel))
+	// Defer unweighted new labels until INFO's final weight is known. This also
+	// preserves the existing order of explicitly weighted and defaulted labels.
+	pending := make(map[string]tag)
+	pendingOrder := make([]string, 0, len(UserLabel))
 
 	for _, specification := range UserLabel {
-		name, weight, hasWeight, err := parseUserLabel(specification)
+		parsed, err := parseUserLabel(specification)
 		if err != nil {
 			return fmt.Errorf("invalid -ulabel %q: %w", specification, err)
 		}
 
-		if i := tagIndex(tags, name); i >= 0 {
-			if hasWeight {
-				tags[i].weight = weight
+		if i := tagIndex(tags, parsed.name); i >= 0 {
+			if parsed.hasWeight {
+				tags[i].weight = parsed.weight
+			}
+			if parsed.hasColor {
+				tags[i].colorize = ansi.ColorFunc(parsed.color)
 			}
 			continue
 		}
-		if hasWeight {
-			tags = append(tags, tag{weight: weight, Names: []string{name}, colorize: colorizeUSER})
+		newTag, wasPending := pending[parsed.name]
+		if !wasPending {
+			newTag = tag{Names: []string{parsed.name}, colorize: colorizeUSER}
+		}
+		if parsed.hasColor {
+			newTag.colorize = ansi.ColorFunc(parsed.color)
+		}
+		if parsed.hasWeight {
+			newTag.weight = parsed.weight
+			tags = append(tags, newTag)
+			delete(pending, parsed.name)
 			continue
 		}
-		pendingDefaultWeight = appendIfMissing(pendingDefaultWeight, name)
+		pending[parsed.name] = newTag
+		if !wasPending {
+			pendingOrder = append(pendingOrder, parsed.name)
+		}
 	}
 
 	infoIndex := tagIndex(tags, "INFO")
 	if infoIndex < 0 {
 		return errors.New("built-in INFO tag is missing")
 	}
-	for _, name := range pendingDefaultWeight {
-		if tagIndex(tags, name) >= 0 {
+	for _, name := range pendingOrder {
+		newTag, ok := pending[name]
+		if !ok {
 			continue
 		}
-		tags = append(tags, tag{weight: tags[infoIndex].weight, Names: []string{name}, colorize: colorizeUSER})
+		newTag.weight = tags[infoIndex].weight
+		tags = append(tags, newTag)
 	}
 
 	Tags = tags
 	return nil
 }
 
-// parseUserLabel validates one name[:weight] value without changing registry state.
-func parseUserLabel(specification string) (name string, weight int, hasWeight bool, err error) {
-	if strings.Count(specification, ":") > 1 {
-		return "", 0, false, errors.New("expected name or name:weight")
-	}
-	parts := strings.SplitN(specification, ":", 2)
-	name = parts[0]
+// parseUserLabel validates one name, name:weight, or name:generated-color value
+// without changing the current registry.
+func parseUserLabel(specification string) (parsed userLabelSpec, err error) {
+	name, value, hasValue := strings.Cut(specification, ":")
+	parsed.name = name
 	if name == "" {
-		return "", 0, false, errors.New("tag name is empty")
+		return parsed, errors.New("tag name is empty")
 	}
 	if name == "all" || name == "off" || isDecimal(name) {
-		return "", 0, false, fmt.Errorf("tag name %q is reserved", name)
+		return parsed, fmt.Errorf("tag name %q is reserved", name)
 	}
-	if len(parts) == 1 {
-		return name, 0, false, nil
+	if !hasValue {
+		return parsed, nil
 	}
-	if parts[1] == "" {
-		return "", 0, false, errors.New("tag weight is empty")
+	if value == "" {
+		return parsed, errors.New("tag weight or color is empty")
 	}
-	if !isDecimal(parts[1]) {
-		return "", 0, false, fmt.Errorf("tag weight %q is not a decimal integer", parts[1])
+	if !isDecimal(value) {
+		if !isGeneratedColor(value) {
+			return parsed, fmt.Errorf("unknown color %q; run trice generate -colors to list supported color strings", value)
+		}
+		parsed.color, parsed.hasColor = value, true
+		return parsed, nil
 	}
-	weight, err = strconv.Atoi(parts[1])
+	weight, err := strconv.Atoi(value)
 	if err != nil || weight < minTagWeight || weight > maxTagWeight {
-		return "", 0, false, fmt.Errorf("tag weight must be in range %d..%d", minTagWeight, maxTagWeight)
+		return parsed, fmt.Errorf("tag weight must be in range %d..%d", minTagWeight, maxTagWeight)
 	}
-	return name, weight, true, nil
+	parsed.weight, parsed.hasWeight = weight, true
+	return parsed, nil
 }
 
 // isDecimal reports whether s consists exclusively of ASCII decimal digits.
@@ -112,9 +144,9 @@ type lineTransformerANSI struct {
 	colorPalette string
 }
 
-// ShowAllColors prints all foreground/background style combinations.
-func ShowAllColors() {
-	var i int
+// forEachGeneratedColor visits the exact color tokens displayed by -colors.
+// Returning true from visit stops enumeration once a requested token is found.
+func forEachGeneratedColor(visit func(string) bool) {
 	fgStyles := []string{"", "+b", "+B", "+u", "+i", "+s", "+h"}
 	bgStyles := []string{"", "+h"}
 	colors := []string{"black", "red", "green", "yellow", "blue", "magenta", "cyan", "white", "default"}
@@ -125,14 +157,34 @@ func ShowAllColors() {
 				for _, fgStyle := range fgStyles {
 					fg := f + fgStyle
 					colorCode := fmt.Sprintf("%s:%s", fg, bg)
-					colorize := ansi.ColorFunc(colorCode)
-					colorized := colorize(colorCode)
-					fmt.Printf("%4d:%24s:%s\n", i, colorCode, colorized)
-					i++
+					if visit(colorCode) {
+						return
+					}
 				}
 			}
 		}
 	}
+}
+
+// isGeneratedColor accepts only strings from the existing -colors vocabulary.
+func isGeneratedColor(value string) bool {
+	found := false
+	forEachGeneratedColor(func(color string) bool {
+		found = color == value
+		return found
+	})
+	return found
+}
+
+// ShowAllColors prints all foreground/background style combinations.
+func ShowAllColors() {
+	i := 0
+	forEachGeneratedColor(func(colorCode string) bool {
+		colorized := ansi.ColorFunc(colorCode)(colorCode)
+		fmt.Printf("%4d:%24s:%s\n", i, colorCode, colorized)
+		i++
+		return false
+	})
 }
 
 // newLineTransformerANSI translates lines to ANSI colors according to colorPalette.

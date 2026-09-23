@@ -288,8 +288,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Selector-0/typeX0 handling for TREX logs. "error" reports X0 packets and is the default. "ignore" and "counted:ignore" silently discard valid counted X0 packets but still report malformed ones. "all:ignore" discards the complete selector-0 package without length checks and must only be used for non-mixed X0 packages. "counted:<format>" prints the counted payload with Go fmt. A value without ':' is shorthand for "counted:<format>". (default "error")
   -u	Short for '-unsigned'. (default true)
   -ulabel value
-    	Register an additional tag or set a tag group's weight in the range 0..999. This is a multi-flag switch with syntax name[:weight].
-    	Example: "-ulabel motor -ulabel sensor:150 -ulabel msg:600" adds motor and sensor and sets the complete MESSAGE group to weight 600. A new tag without a weight uses the final INFO weight. Values such as "tagA:tagB", numeric tag names, "all", and "off" are invalid. See also "-logLevel".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -unsigned
     	Hex, Octal and Bin values are printed as unsigned values. For signed output use -unsigned=false (default true)
   -v	short for verbose
@@ -565,8 +565,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Register an additional tag or set a tag group's weight in the range 0..999. This is a multi-flag switch with syntax name[:weight].
-    	Example: "-ulabel motor -ulabel sensor:150 -ulabel msg:600" adds motor and sensor and sets the complete MESSAGE group to weight 600. A new tag without a weight uses the final INFO weight. Values such as "tagA:tagB", numeric tag names, "all", and "off" are invalid. See also "-logLevel".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
@@ -664,8 +664,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Register an additional tag or set a tag group's weight in the range 0..999. This is a multi-flag switch with syntax name[:weight].
-    	Example: "-ulabel motor -ulabel sensor:150 -ulabel msg:600" adds motor and sensor and sets the complete MESSAGE group to weight 600. A new tag without a weight uses the final INFO weight. Values such as "tagA:tagB", numeric tag names, "all", and "off" are invalid. See also "-logLevel".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

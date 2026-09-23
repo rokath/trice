@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mgutz/ansi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -589,6 +590,87 @@ func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 	nextWeight, err := TagWeight("next")
 	require.NoError(t, err)
 	assert.Equal(t, 500, nextWeight)
+}
+
+// TestAddUserLabelsCombinesGeneratedColorsAndWeights checks alias-wide color
+// overrides, independent metadata order, literal user labels, and command reset.
+func TestAddUserLabelsCombinesGeneratedColorsAndWeights(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	ColorPalette = "default"
+	UserLabel = ArrayFlag{"msg:300", "msg:red+u:blue+h", "new:300", "NEW:400", "new:cyan:default", "plain:yellow:black", "INFO:550"}
+	require.NoError(t, AddUserLabels())
+
+	for _, alias := range []string{"msg", "message", "MSG", "MESSAGE"} {
+		weight, err := TagWeight(alias)
+		require.NoError(t, err)
+		assert.Equal(t, 300, weight)
+		colored, _ := (&lineTransformerANSI{colorPalette: "default"}).colorize(alias + ":hello")
+		wantText := alias + ":hello"
+		if isLower(alias) {
+			wantText = "hello"
+		}
+		assert.Equal(t, ansi.ColorFunc("red+u:blue+h")(wantText), colored)
+	}
+	newWeight, err := TagWeight("new")
+	require.NoError(t, err)
+	assert.Equal(t, 300, newWeight)
+	upperWeight, err := TagWeight("NEW")
+	require.NoError(t, err)
+	assert.Equal(t, 400, upperWeight)
+	colored, _ := (&lineTransformerANSI{colorPalette: "default"}).colorize("new:hello")
+	assert.Equal(t, ansi.ColorFunc("cyan:default")("hello"), colored)
+	plainWeight, err := TagWeight("plain")
+	require.NoError(t, err)
+	assert.Equal(t, 550, plainWeight)
+
+	UserLabel = ArrayFlag{"msg:blue:white", "M:650", "late:green:black", "late:100"}
+	require.NoError(t, AddUserLabels())
+	weight, err := TagWeight("MESSAGE")
+	require.NoError(t, err)
+	assert.Equal(t, 650, weight)
+	colored, _ = (&lineTransformerANSI{colorPalette: "default"}).colorize("message:hello")
+	assert.Equal(t, ansi.ColorFunc("blue:white")("hello"), colored)
+	lateWeight, err := TagWeight("late")
+	require.NoError(t, err)
+	assert.Equal(t, 100, lateWeight)
+	_, err = TagWeight("new")
+	assert.Error(t, err)
+
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	colored, _ = (&lineTransformerANSI{colorPalette: "default"}).colorize("msg:hello")
+	assert.Equal(t, colorizeMESSAGE("hello"), colored)
+}
+
+// TestUserLabelColorValidationSharesGeneratedVocabulary checks that valid
+// generated tokens are accepted and malformed colors leave the registry intact.
+func TestUserLabelColorValidationSharesGeneratedVocabulary(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	count := 0
+	forEachGeneratedColor(func(color string) bool {
+		parsed, err := parseUserLabel("msg:" + color)
+		require.NoError(t, err)
+		assert.True(t, parsed.hasColor)
+		assert.Equal(t, color, parsed.color)
+		count++
+		return false
+	})
+	assert.Equal(t, 1134, count)
+
+	for _, invalid := range []string{"red", "Red:blue", "red:blue+invalid", "off", "red:blue:green"} {
+		t.Run(invalid, func(t *testing.T) {
+			UserLabel = nil
+			require.NoError(t, AddUserLabels())
+			before := tagWeightsByAlias(Tags)
+			UserLabel = ArrayFlag{"valid:42", "msg:" + invalid}
+			err := AddUserLabels()
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "trice generate -colors")
+			assert.Equal(t, before, tagWeightsByAlias(Tags))
+		})
+	}
 }
 
 // TestAddUserLabelsRejectsInvalidSpecificationsAtomically verifies that no
