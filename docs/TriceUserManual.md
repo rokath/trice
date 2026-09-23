@@ -10654,13 +10654,10 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptations w
 
 ## 45. <a id="future-development"></a>Future Development
 
+<!--
 ### 45.1. <a id="trice-log-level-control-specification-draft"></a>Trice Log-level Control Specification Draft
 
 > Specification Draft
-
-```diff
---> IMPORTANT: No breaking changes!
-```
 
 #### 45.1.1. <a id="what-log-levels-exist-in-general-including-exotic-ones-and-what-is-their-exact-weighting-relative-to-each-other"></a>What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?
 
@@ -10824,9 +10821,22 @@ It is important to understand, that all other Trice messages get IDs in the rang
 
 That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific target-side selection, but that would be no big deal to add as well.
 
+-->
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+### Trice Structured Logging
+
+[Strukturiertes_Logging](./docs/scratchPad/trice_logging_handover2_de/chapters/Strukturiertes_Logging_DE.md)
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### 45.2. <a id="trice-context-enrichment"></a>Trice Context Enrichment
+
+[Kontextanreicherung](./docs/scratchPad/trice_logging_handover2_de/chapters/Kontextanreicherung_DE.md)
+
+
+<!--
 
 > **Specification Draft**
 
@@ -11119,10 +11129,11 @@ trice clean  $STL ...
 #### 45.2.9. <a id="trice-context-enrichment-assert-macros-todo"></a>Trice Context Enrichment Assert Macros (TODO)
 
 Configure `TriceAssert` like macros and this works also with the `-salias` switch.
+-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 45.3. <a id="improving-the-trice-tool-internal-parser"></a>Improving the Trice Tool Internal Parser
+### 45.3. <a id="improving-the-trice-tool-internal-parser"></a>Improving the Trice Tool Internal Parser (not planned right now)
 
 #### 45.3.1. <a id="trice-internal-log-code-short-description"></a>Trice Internal Log Code Short Description
 
@@ -11163,6 +11174,9 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 ### 45.4. <a id="using-trice-on-servers"></a>Using Trice on Servers
 
+A server can ingest and analyze Trice streams from devices. Using Trice as the server application's own logger is a separate use case and needs evidence of a practical benefit. Claims about speed, energy use, storage, and additional compression require measurements with equivalent retained information.
+
+<!--
 * The internet traffic causes many megabytes logfiles, which need storage and are also often transferred by themselves.
 * Of course it is possibe to compress them to save space and traffic.
 * But if a server generates binary Trice log data directly:
@@ -11175,7 +11189,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
     * use 32- or 48- or 64-bit IDs. The many zeroes are efficiently compressed internally with TCOBS.
     * use the full 16-bit IDs for ~65000 IDs
   2. Use up to 2^16 or 2^32 different *til.json* files and transmit their index in the optional Trice stamp field. This requests minimal code adaptations.
-
+-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
