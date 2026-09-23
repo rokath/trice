@@ -779,6 +779,11 @@ func acceptBindPreferredID(w io.Writer, resolver *bindMetadataResolver, plan *bi
 			continue
 		}
 		primaryFormat, primaryExists := IDData.idToTrice[candidate.id]
+		// Historical metadata is read-only evidence. It may be reused only when
+		// the candidate still belongs to the current common or tag-specific range.
+		if primaryExists && !IDData.idAllowedForTrice(candidate.id, primaryFormat) {
+			continue
+		}
 		if primaryExists {
 			if primaryFormat != format {
 				resolver.verboseOnce(

@@ -6,6 +6,7 @@ package id
 // List management
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -274,7 +275,14 @@ func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 
 // toJSON converts lut into JSON byte slice in human-readable form.
 func (lu TriceIDLookUp) toJSON() ([]byte, error) {
-	return json.MarshalIndent(lu, "", "\t")
+	var out bytes.Buffer
+	encoder := json.NewEncoder(&out)
+	encoder.SetEscapeHTML(false)
+	encoder.SetIndent("", "\t")
+	if err := encoder.Encode(lu); err != nil {
+		return nil, err
+	}
+	return bytes.TrimSuffix(out.Bytes(), []byte("\n")), nil
 }
 
 // toFile atomically writes the ID lookup table to fn as indented JSON.

@@ -231,6 +231,9 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 				}
 				continue
 			}
+			if !p.idAllowedForTrice(id, t) {
+				continue
+			}
 			// id == idn or idn == 0 here
 			li, ok := p.idToLocRef[id] // Get location information.
 			if !ok {
@@ -338,6 +341,10 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 					}
 				}
 			}
+		}
+		if idN != 0 && !p.idAllowedForTrice(idN, t) {
+			idN = 0
+			idn = 0
 		}
 		if idN == 0 { // newID
 			idN = p.newID(t) // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.colorChannels.

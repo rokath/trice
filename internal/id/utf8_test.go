@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestInsertKeepsLessThanInTil ensures that a trice insert run does not
-// rewrite '<' characters inside the TIL JSON file into '\u003c'.
+// TestInsertKeepsLessThanInTil ensures that a policy-driven reassignment does
+// not rewrite '<' characters inside the historical TIL entry into '\u003c'.
 func TestInsertKeepsLessThanInTil(t *testing.T) {
 	// Setup test environment and ensure cleanup runs afterward.
 	defer id.Setup(t)()
@@ -49,10 +49,12 @@ func TestInsertKeepsLessThanInTil(t *testing.T) {
 	}
 	assert.Nil(t, args.Handler(id.W, id.FSys, argsSlice))
 
-	// check: source file must not be modified by insert
+	// M15 reassigns the active site because the historical ID is below the
+	// default common range. The old TIL entry remains available for decoding.
 	actSrc1, e := id.FSys.ReadFile("file1.c")
 	assert.Nil(t, e)
-	assert.Equal(t, src1, string(actSrc1))
+	assert.NotEqual(t, src1, string(actSrc1))
+	assert.NotContains(t, string(actSrc1), "id(707)")
 
 	// check: til.json still contains "<" and does not contain \u003c
 	actTIL, e := id.FSys.ReadFile(id.FnJSON)
@@ -60,6 +62,7 @@ func TestInsertKeepsLessThanInTil(t *testing.T) {
 	s := string(actTIL)
 
 	assert.Contains(t, s, `modem:<<+QNBIOTEVENT:`)
+	assert.Contains(t, s, `"707"`)
 	assert.NotContains(t, s, `\u003c`, "unexpected unicode escaping for '<' in til.json")
 
 	// cleanup
@@ -68,9 +71,8 @@ func TestInsertKeepsLessThanInTil(t *testing.T) {
 	id.FSys.RemoveAll(id.UserHomeDir)
 }
 
-// TestInsertLessThanIdempotent ensures that running trice insert twice
-// does not change the TIL JSON file between runs and does not introduce
-// unicode escaping for '<' characters.
+// TestInsertLessThanIdempotent ensures that after M15 reassigns an active
+// historical ID, a second insert run is stable and preserves '<' characters.
 func TestInsertLessThanIdempotent(t *testing.T) {
 	// Setup test environment and ensure cleanup runs afterward.
 	defer id.Setup(t)()

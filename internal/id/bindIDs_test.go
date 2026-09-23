@@ -94,6 +94,27 @@ func prepareBindTest(t *testing.T, sources map[string]string) func() {
 	}
 }
 
+// TestBindReassignsHistoricalIDOutsideCurrentPolicy verifies that bind does not
+// reuse a read-only TIL candidate after its current tag range has changed.
+func TestBindReassignsHistoricalIDOutsideCurrentPolicy(t *testing.T) {
+	source := "#include \"trice.h\"\n\nvoid log_message(void) {\n    trice(\"err:reassigned\");\n}\n"
+	defer prepareBindTest(t, map[string]string{"module.c": source})()
+	IDRange = ArrayFlag{"err:10,99"}
+	Min, Max = 1000, 1999
+	require.NoError(t, EvaluateIDRangeStrings())
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte(`{"250":{"Type":"trice","Strg":"err:reassigned"}}`), 0o644))
+	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte(`{"250":{"File":"`+Srcs[0]+`","Line":4}}`), 0o644))
+
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_module_c_K1111111111111111.h"))
+	require.NoError(t, err)
+	assert.Contains(t, string(sidecar), "iD(10u)")
+	assert.NotContains(t, string(sidecar), "iD(250u)")
+	historical, err := FSys.ReadFile(FnJSON)
+	require.NoError(t, err)
+	assert.Contains(t, string(historical), `"250"`)
+}
+
 // TestBindGeneratesStableSidecarAndKeepsCallsIDFree covers the ordinary repeated bind workflow.
 func TestBindGeneratesStableSidecarAndKeepsCallsIDFree(t *testing.T) {
 	source := "#include \"trice.h\"\n\nstatic inline void log_value(int value) {\n    trice(\"msg:value=%d\\n\", value);\n    TRICE8_1(id(0), \"msg:byte=%d\\n\", value);\n}\n"

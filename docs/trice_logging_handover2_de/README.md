@@ -33,8 +33,8 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 |---|---|---|---|
 | [M13](issues/M13_ereignisfilter.md) | Gemeinsam nach Tag und Gewicht filtern | L12, Teil L11 | umgesetzt; nach M03, M08–M12 |
 | [M14](issues/M14_statistik.md) | Statistik von Darstellung entkoppeln | L16 | umgesetzt; nach M13 |
-| [M15](issues/M15_id_neuzuweisung.md) | Aktive IDs an neue Policy anpassen | L04, Teil L03 | M; nach M01/M02 |
-| [M16](issues/M16_id_policy_warnung.md) | Historische Abweichungen knapp melden | Teil L03 | S/M; nach M15 |
+| [M15](issues/M15_id_neuzuweisung.md) | Aktive IDs an neue Policy anpassen | L04, Teil L03 | umgesetzt; nach M01/M02 |
+| [M16](issues/M16_id_policy_warnung.md) | Historische Abweichungen knapp melden | Teil L03 | umgesetzt; nach M15 |
 | [M17](issues/M17_fruehe_filterung.md) | Nutzen früher Hostfilterung messen | L17 | M/L; nach M10–M14 |
 | [M18](issues/M18_beispiele_pruefen.md) | Beispiele vor UM-Übernahme prüfen | L23 | S/M; je freigegebenem Entwurf |
 | [M19](issues/M19_strukturierte_felder.md) | Strukturierte Bedienung auswählen | L26 | Entwurfsaufgabe |
@@ -58,7 +58,7 @@ L11 legt fest, **welche Wichtigkeit** ein Tag hat; L12 verhindert, dass eine erl
 - Im Basiscommit sind `rx`, `tx`, `s` und `S` gruppenübergreifend doppelt. Die inzwischen vorliegende lokale Korrektur ordnet sie eindeutig zu und verschiebt `W` von Warning zu Write. M01 hält noch nötige Registertests und Kompatibilitätshinweise fest. Das im alten Handover genannte `w` war bereits im Basiscommit nicht doppelt.
 - IDRange-Regeln werden vollständig und atomar geprüft; fehlerhafte Angaben erreichen weder Insert noch Bind.
 - Binäre Aufzeichnung vor der Hostfilterung ist einschließlich Replay, Append und Fehlerweitergabe abgesichert. Die Single-Pack-Sperren im Deferred-Routing werden mit M07 geprüft.
-- Gruppengewichte im Bereich `0..999`, gewichtete `-ulabel`-Angaben, die nachgelagerte Selektorvalidierung und die eingebaute Gruppe `untagged` sind umgesetzt. Die neue Neuzuweisungsregel ist geplant; mögliche Wiederverwendung regelwidriger IDs ist noch im Code.
+- Gruppengewichte im Bereich `0..999`, gewichtete `-ulabel`-Angaben, die nachgelagerte Selektorvalidierung und die eingebaute Gruppe `untagged` sind umgesetzt. Aktive IDs außerhalb der aktuellen Policy werden bei Insert und Bind neu vergeben; historische Wörterbucheinträge bleiben zur Dekodierung erhalten und werden nur mit `-v` zusammengefasst gemeldet.
 
 Gelesen wurden insbesondere [Tag-Tabelle](../../internal/emitter/lineTransformerANSI.go), [Selektoren](../../internal/emitter/emitter.go), [CLI](../../internal/args/init.go), [Startablauf](../../internal/args/handler.go), [Übersetzer](../../internal/translator/translator.go), [ID-Regeln](../../internal/id/switchIDs.go), [ID-Wiederverwendung](../../internal/id/insertIDs.go), [Range-Tests](../../internal/id/coverage_additional_test.go), [Routing](../../src/trice.c) und [Default-Konfiguration](../../src/triceDefaultConfig.h).
 

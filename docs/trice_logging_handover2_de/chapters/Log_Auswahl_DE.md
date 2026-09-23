@@ -142,7 +142,7 @@ ID-Routing wird durch Defines wie `TRICE_UARTA_MIN_ID` im Build eingerichtet. Zu
 
 **Vorhandene Einschränkung:** Im Deferred-Routing werden Bereichsgrenzen derzeit ausgeschlossen; die Aktivierung bei nur einer gesetzten Grenze ist je nach Ausgang unterschiedlich. Geplant sind inklusive Grenzen und klare Konfigurationsfehler für unvollständige Bereiche.
 
-**Geplante Neuzuweisung:** Hat eine bearbeitete Logstelle ID `250`, aber nun den Bereich `10..99`, erhalten `insert` beziehungsweise `bind` für sie eine passende ID. Die alte Zuordnung bleibt in `til.json` zur Dekodierung älterer Firmware. Ohne neue Policy-Verletzung bleibt die aktive ID stabil. Quellen außerhalb des bearbeiteten Umfangs werden nicht geändert.
+**Vorhandene Neuzuweisung:** Hat eine bearbeitete Logstelle ID `250`, aber nun den Bereich `10..99`, erhalten `insert` beziehungsweise `bind` für sie eine passende ID. Die alte Zuordnung bleibt in `til.json` zur Dekodierung älterer Firmware. Ohne neue Policy-Verletzung bleibt die aktive ID stabil. Quellen außerhalb des bearbeiteten Umfangs werden nicht geändert.
 
 Mit `-v` wird einmal die Anzahl der zur aktuellen Policy unpassenden Wörterbucheinträge samt einem Beispiel gemeldet. Ohne `-v` entfällt diese zusätzliche Meldung. Alte Einträge werden weder gelöscht noch umgedeutet. Nach Neuzuweisung muss die betroffene Firmware neu gebaut werden.
 

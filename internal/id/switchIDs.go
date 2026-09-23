@@ -39,6 +39,55 @@ type TagEntry struct {
 	iDSpace []TriceID // idSpace is the to tag assigned ID space.
 }
 
+// idAllowedForTrice reports whether an ID belongs to the current common or
+// tag-specific policy range for a format. Historical TIL entries are checked
+// with this predicate before they can be reused by insert or bind.
+func (p *idData) idAllowedForTrice(id TriceID, t TriceFmt) bool {
+	tagName := triceTag(t)
+	canonical, _ := emitter.FindTagName(tagName)
+	for _, entry := range p.TagList {
+		if entry.tagName == canonical {
+			return entry.min <= id && id <= entry.max
+		}
+	}
+	return Min <= id && id <= Max
+}
+
+// reportHistoricalPolicyViolations reports TIL entries outside the current
+// policy once per command. Map iteration is normalized by selecting the
+// smallest offending ID, so verbose output remains reproducible.
+func (p *idData) reportHistoricalPolicyViolations(w io.Writer) {
+	if !Verbose {
+		return
+	}
+	count := 0
+	var exampleID TriceID
+	var example TriceFmt
+	for id, t := range p.idToTrice {
+		if p.idAllowedForTrice(id, t) {
+			continue
+		}
+		count++
+		if exampleID == 0 || id < exampleID {
+			exampleID = id
+			example = t
+		}
+	}
+	if count == 0 {
+		return
+	}
+	tagName := triceTag(example)
+	canonical, _ := emitter.FindTagName(tagName)
+	min, max := Min, Max
+	for _, entry := range p.TagList {
+		if entry.tagName == canonical {
+			min, max = entry.min, entry.max
+			break
+		}
+	}
+	fmt.Fprintf(w, "WARNING: %d historical ID(s) in %s violate the current ID policy; example ID %d (tag %q), expected range %d..%d.\n", count, FnJSON, exampleID, tagName, min, max)
+}
+
 // IDIsPartOfIDSpace returns true if ID is existent inside p.IDSpace.
 func (p *idData) IDIsPartOfIDSpace(id TriceID) bool {
 	for i := range p.TagList {
@@ -166,6 +215,7 @@ func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
 	common.max = Max
 
 	p.TagList = append(p.TagList, common)
+	p.reportHistoricalPolicyViolations(w)
 
 	for i := range p.TagList {
 		e := &(p.TagList[i]) // get list entry address
