@@ -1,6 +1,6 @@
 # M20: Kontextanreicherung für Bind und Insert/Clean zuverlässig spezifizieren
 
-**Status:** offene Entwurfsaufgabe. **Alt:** L22; mit M19 abstimmen.
+**Status:** archivierter früherer Auftrag, durch [aktuellen Bind-CE-Entwurf](../../../Kontextanreicherung_DE.md) und [Implementierungsplan](../../../Implementierungsplan.md) abgelöst. **Alt:** L22. Frühere `-stf`-, `ctx`- und Insert/Clean-Vorschläge unten sind keine zusätzlichen verbindlichen Anforderungen an den neuen `bind -ce`-Entwurf. Noch keine Implementierungsfreigabe.
 
 Der [Kontextentwurf](../chapters/Kontextanreicherung_DE.md) trennt statische Wörterbuchdaten, Hostkontext und zusätzlich erfasste Laufzeitwerte. Bind soll Anwendercode unverändert lassen. Insert/Clean bleibt eine zulässige Alternative, sofern die Rücknahme zuverlässig ist.
 

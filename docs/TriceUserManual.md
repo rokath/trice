@@ -526,21 +526,9 @@ details.toc[open] .toc-hide {
     * [44.4.6. PR536 Doc](#pr536-doc)
     * [44.4.7. Alias Example Project](#alias-example-project)
 * [45. Future Development](#future-development)
-  * [45.1. Trice Log-level Control Specification Draft](#trice-log-level-control-specification-draft)
-    * [45.1.1. What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?](#what-log-levels-exist-in-general-including-exotic-ones-and-what-is-their-exact-weighting-relative-to-each-other)
-    * [45.1.2. Compile-time Log-level Control](#compile-time-log-level-control)
-    * [45.1.3. Run-time Log-level Control](#run-time-log-level-control)
+  * [45.1. Trice Structured Logging](#trice-structured-logging)
   * [45.2. Trice Context Enrichment](#trice-context-enrichment)
-    * [45.2.1. Trice Context Enrichment Compile-time Information](#trice-context-enrichment-compile-time-information)
-    * [45.2.2. Trice Context Enrichment Runtime Information](#trice-context-enrichment-runtime-information)
-    * [45.2.3. Trice Context Enrichment Limitations and Special Cases](#trice-context-enrichment-limitations-and-special-cases)
-    * [45.2.4. A Trice Context Enrichment Example](#a-trice-context-enrichment-example)
-    * [45.2.5. Trice Context Enrichment CLI Switches and Variables](#trice-context-enrichment-cli-switches-and-variables)
-    * [45.2.6. Trice Context Enrichment User Defined Values](#trice-context-enrichment-user-defined-values)
-    * [45.2.7. Trice Context Enrichment CLI Switches Usage Options](#trice-context-enrichment-cli-switches-usage-options)
-    * [45.2.8. Trice Context Enrichment Level Specific Configuration](#trice-context-enrichment-level-specific-configuration)
-    * [45.2.9. Trice Context Enrichment Assert Macros (TODO)](#trice-context-enrichment-assert-macros-todo)
-  * [45.3. Improving the Trice Tool Internal Parser](#improving-the-trice-tool-internal-parser)
+  * [45.3. Improving the Trice Tool Internal Parser (not planned right now)](#improving-the-trice-tool-internal-parser-not-planned-right-now)
     * [45.3.1. Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
   * [45.4. Using Trice on Servers](#using-trice-on-servers)
 * [46. Working with the Trice Git Repository](#working-with-the-trice-git-repository)
@@ -2101,7 +2089,11 @@ trice l -p COM3 -binaryLogfile trice.bin
 
 This creates a new binary logfile `trice.bin` on first start and appends to it on each next Trice start.
 
-Binary logfiles store the Trice messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the Trice tool with the *til.json* is needed for displaying them and the PC timestamps are the displaying time: `trice l -p FILEBUFFER -args trice.log`.
+Binary logfiles store the Trice messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the Trice tool with the matching *til.json* is needed for displaying them and the PC timestamps are the displaying time: `trice l -p FILEBUFFER -args trice.bin`.
+
+Recording happens before decoding, `-pick`, `-ban`, `-logLevel`, and visualization. These host options therefore do not remove received bytes from the binary recording, even with `-logLevel off`. Partial or malformed input is also recorded; a recording write failure is returned as an error. Data already lost or suppressed on the target cannot be recovered from this file.
+
+Replay can use a different selection, for example `trice log -p FILEBUFFER -args trice.bin -pick err:wrn`. Keep the matching dictionary and decoding settings (encoding, framing, and encryption) with the recording. An explicit binary filename is appended to across runs; use a new filename when separate captures are needed. Keep binary recording disabled during replay, or write to a different file, never the replay input itself.
 
 Binary logfiles are handy in the field for long data recordings.
 
@@ -3705,7 +3697,21 @@ The markers are case-sensitive, must be written as comments, and affect only the
 
 #### 23.1.5. <a id="id-routing"></a>ID Routing
 
-With the Trice insert CLI switch `-IDRange` each Trice [tag](#tags-color-and-log-levels) can get a specific ID range assigned and inside the project specific *triceConfig.h* the user can control, which ID range is routed to specific output channels. Search for `_MIN_ID` inside **triceDefaultConfig.h** and extend your search than for example `TRICE_UARTA_MIN_ID` to explore how to use.
+With `trice insert` or `trice bind`, `-IDRange tag:min,max` assigns a range to a complete [tag group](#trice-tags-color-and-weights). Register a free tag with `-ulabel` first; option order does not matter. Groups without a specific range use `-IDMin` through `-IDMax`.
+
+Tag-specific ranges include both endpoints and must satisfy `1 <= min <= max <= 16383`. They must not overlap the general range or any other tag range. A shared endpoint is an overlap; adjacent disjoint ranges and a range containing one ID are valid. Two aliases of the same group cannot define two separate ranges. Missing parts, malformed numbers, unknown tags, reversed bounds, and out-of-range values are rejected before source, dictionary, or bind-artifact changes. All supplied rules are validated together.
+
+```sh
+trice insert -src src -IDMin 1000 -IDMax 1999 -IDRange err:10,99
+```
+
+The current policy also applies to IDs recovered from sources, location data, or the dictionary. An active Error site with ID `250` is reassigned to a usable ID in `10..99` on the next run. Its old mapping remains in `til.json` so recordings from older firmware can still be decoded. A subsequent unchanged run retains the corrected ID. Only the selected source scope is processed. Bind updates its generated descriptors; an insert-owned source requiring correction must first be processed by `trice insert`. Rebuild affected firmware after reassignment.
+
+With `-v`, each run reports historical dictionary entries outside the current policy in one additional warning: their total count, the smallest affected ID as one example, and its expected range. The historical `250` remains part of that count after reassignment; the new compliant ID does not. No warning is emitted without `-v` or when every entry complies. The warning neither changes the dictionary nor turns a successful command into a failure. A historical entry alone does not prove that an ID is still active.
+
+Target routing is configured separately in the project-specific `triceConfig.h`. For the enabled deferred UARTA, UARTB, Auxiliary8, Auxiliary32, and SEGGER RTT 8-bit outputs, the corresponding `*_MIN_ID` and `*_MAX_ID` select inclusive ranges. Missing bounds default to zero. `0/0` disables ID selection for that output, so its ordinary output path accepts all IDs; it does not disable the output itself. Exactly one nonzero bound, reversed bounds, or bounds outside `1..16383` cause a compile-time error naming the defines.
+
+Active deferred ID selection requires `TRICE_DEFERRED_TRANSFER_MODE` to be `TRICE_SINGLE_PACK_MODE`, with both ring and double buffers. Multi-pack is allowed when no ID range is active. This requirement concerns deferred ID routing, not TCOBS framing in general or custom/direct routing. See [triceDefaultConfig.h](../src/triceDefaultConfig.h) for the output-specific define names.
 
 #### 23.1.6. <a id="possibility-to-create-new-tags-without-modifying-trice-tool-source"></a>Possibility to create new tags without modifying trice tool source
 
@@ -5898,7 +5904,7 @@ Please check the manuals and create a pull request or simply let me know.
 
 Tags label Trice messages on the host. They can control presentation, selection, ID assignment, and weight-based filtering without adding target runtime data because the tag is part of the format string stored in `til.json`.
 
-Optionally tags will be usable also for context enrichtment in the future.
+The planned [Context Enrichment](./scratchPad/Kontextanreicherung_DE.md) extension can also use tags as selectors.
 
 ### 31.1. <a id="how-to-use-tags"></a>How to use tags
 
@@ -5929,21 +5935,22 @@ The source for this example is in [`triceCheck.c`](../_test/testdata/triceCheck.
 
 Each tag group has one integer weight in the range `0..999`. A larger value means greater importance. The weight belongs to the group and therefore applies to every alias in that group. It is independent of the group's position in the tag table and independent of its color.
 
-The following Table is an example. The implemented default weights are in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-ulabel warn:650`.
+The following table lists the default weights defined in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-ulabel warn:650`.
 
 | Group | Weight |
 | --- | ---: |
 | Fatal | 800 |
 | Critical | 750 |
 | Emergency | 700 |
-| Error, Assert, Alarm, Alert | 650 |
-| Warning | 750 |
-| Attention | 700 |
-| Notice | 600 |
-| INFO, Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default, Config, Microseconds, Milliseconds, Seconds, Delta | 400 |
-| Untagged | 500 |
-| Debug | 200 |
-| Trace | 100 |
+| Error, Assert, Alarm | 650 |
+| Warning, Notice | 600 |
+| Attention, Alert | 550 |
+| INFO, Config | 500 |
+| Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default | 400 |
+| `untagged` | 400 |
+| Microsecond, Millisecond, Second, DeltaTime | 350 |
+| Debug | 300 |
+| Trace | 200 |
 | Verbose | 100 |
 
 `CYCLE_ERROR` is a Trice tool diagnostic rather than an application tag. Its stored value does not define application-message priority.
@@ -5963,10 +5970,16 @@ Use `-logLevel` with `all`, `off`, a registered tag or alias, or a numeric weigh
 
 ```sh
 trice log -logLevel info
-trice log -logLevel 400
+trice log -logLevel 500
 ```
 
-Both commands use the same threshold, when the weight of `ìnfo` is 400. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with weight 400. `-logLevel off` suppresses all application events.
+Both commands use the same threshold with the default INFO weight of 500. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with default weight 400. `-logLevel off` suppresses all application events.
+
+With the default weights, `-logLevel info` excludes Message and `untagged` events because their weight is 400. Use `-logLevel msg` or `-logLevel 400` to include these groups and all higher-weight groups while still excluding Debug (300), Trace (200), and Verbose (100). Without a `-logLevel` option, the threshold defaults to `all`.
+
+Use a threshold when the requirement is “Warning and everything more important”, including new user tags assigned sufficiently high weights. For example, `trice log -ulabel motor:780 -logLevel wrn` includes `motor` alongside Warning, Notice, Error, and higher-weight groups. Use `-pick` for a specific set of groups such as Receive and Transmit, regardless of their weights. Combining both expresses a selected subsystem or category set with a minimum priority.
+
+These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](#id-routing); received raw bytes can still be kept in a [binary logfile](#binary-logfile).
 
 All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
@@ -5976,6 +5989,10 @@ trice log -ulabel motor:650 -pick motor
 ```
 
 `-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err:wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
+
+Each Trice call is one event. Accepted fragments are concatenated until an accepted newline arrives; a rejected newline does not finish the visible line. For example, the three calls `msg:A`, `dbg:B\n`, `msg:C\n` produce `AC\n` with either `-pick msg` or `-logLevel msg` using the default weights. A multi-line event is accepted or rejected as a whole, preserving its continuation indentation. At the end of buffered input, a remaining visible fragment is flushed with a newline.
+
+Metadata columns belong to the first accepted event of each visible line. Target timestamp differences use the previous visible line's first accepted event; rejected events and later fragments on the same line do not update that reference. `-addNL` appends a newline to every event, including one already ending in a newline; the latter produces an additional indented blank line. Without `-addNL`, an empty event produces no visible output, while an accepted newline-only event produces a blank line.
 
 ### 31.4. <a id="decoder-diagnostics"></a>Decoder diagnostics
 
@@ -5997,7 +6014,7 @@ trice log -ulabel msg:300 -ulabel msg:red:blue
 
 A new tag without an explicit weight receives the final INFO weight after all `-ulabel` options have been processed. An explicit weight must be between `0` and `999`, inclusive. The color must be exactly one of the tokens printed by `trice generate -colors`, such as `red:blue`. An unknown color is rejected with a hint to that command.
 
-An existing name without a weight leaves its group unchanged. An existing name with a weight changes the complete group, including every alias. The last explicit assignment wins:
+An existing name without either property leaves its group unchanged. An existing name with a weight changes the complete group, including every alias. The last explicit assignment wins:
 
 ```sh
 -ulabel msg:150 -ulabel M:600 -ulabel msg
@@ -6046,7 +6063,7 @@ There are over 1000 foreground, background, and style combinations:
 
 ![Trice color alternatives](./ref/ColorAlternatives.PNG)
 
-Run `trice generate -color` to display them. Modify [`lineTransformerANSI.go`](../internal/emitter/lineTransformerANSI.go) and rebuild the Trice tool with `go install ./...` or better `./scripts/buildTriceTool.sh` to change the built-in palette.
+Run `trice generate -colors` to display them. Use `-ulabel name:color` for a per-command override. Modify [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) and rebuild the Trice tool with `go install ./...` or `./scripts/buildTriceTool.sh` to change the built-in palette.
 
 ### 31.10. <a id="color-issues-under-windows"></a>Color issues under Windows
 
@@ -10825,15 +10842,15 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### Trice Structured Logging
+### 45.1. <a id="trice-structured-logging"></a>Trice Structured Logging
 
-[Strukturiertes_Logging](./docs/scratchPad/trice_logging_handover2_de/chapters/Strukturiertes_Logging_DE.md)
+Planned; not implemented. The current [German Structured Logging draft](./scratchPad/Strukturiertes_Logging_DE.md) specifies named format placeholders and text/JSON/key-value output. The [implementation plan](./scratchPad/Implementierungsplan.md) identifies the remaining contract decisions. Implementation requires a separate instruction.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ### 45.2. <a id="trice-context-enrichment"></a>Trice Context Enrichment
 
-[Kontextanreicherung](./docs/scratchPad/trice_logging_handover2_de/chapters/Kontextanreicherung_DE.md)
+Planned; not implemented. The current [German Context Enrichment draft](./scratchPad/Kontextanreicherung_DE.md) specifies selective build-time enrichment through `bind -ce`. It uses the Structured Logging field model. See the [implementation plan](./scratchPad/Implementierungsplan.md) for the bind integration and unresolved boundaries. Implementation requires a separate instruction.
 
 
 <!--
@@ -11133,7 +11150,7 @@ Configure `TriceAssert` like macros and this works also with the `-salias` switc
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 45.3. <a id="improving-the-trice-tool-internal-parser"></a>Improving the Trice Tool Internal Parser (not planned right now)
+### 45.3. <a id="improving-the-trice-tool-internal-parser-not-planned-right-now"></a>Improving the Trice Tool Internal Parser (not planned right now)
 
 #### 45.3.1. <a id="trice-internal-log-code-short-description"></a>Trice Internal Log Code Short Description
 
@@ -12657,6 +12674,8 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 50. <a id="scratch-pad"></a>Scratch Pad
+
+Current drafts, deferred tasks, and the documentation status are indexed in [ScratchPad](./scratchPad/README.md). Superseded handovers are retained in its `obsolete` directory as historical references.
 
 *) The TriceABC examples uses COBS framing and acts without encryption and it is not simple configurable because its main aim is to show just the TriceABC technique in action.
 

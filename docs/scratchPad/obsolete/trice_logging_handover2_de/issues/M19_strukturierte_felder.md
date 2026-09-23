@@ -1,6 +1,6 @@
 # M19: Eine nützliche strukturierte Bedienung auswählen und spezifizieren
 
-**Status:** offene Entwurfsaufgabe, keine API-Freigabe. **Alt:** L26.
+**Status:** archivierter früherer Auftrag, durch [aktuellen Entwurf](../../../Strukturiertes_Logging_DE.md) und [Implementierungsplan](../../../Implementierungsplan.md) abgelöst. **Alt:** L26. Die nachfolgenden Variantenvergleiche und `ctx`-Vorschläge sind historisch; Variante A ist gewählt und CE verwendet das gemeinsame flache Feldschema. Noch keine Implementierungsfreigabe.
 
 Zielbeispiel: `temperature_c` über mindestens zwei Meldungstypen auswerten, obwohl sich deren lesbare Texte ändern. Der [Kapitelentwurf](../chapters/Strukturiertes_Logging_DE.md) vergleicht benannte `strice`-Platzhalter mit einer separaten Feldzuordnung für vorhandene Aufrufe.
 
