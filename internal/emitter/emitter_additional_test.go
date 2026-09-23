@@ -310,6 +310,88 @@ func TestSpecialPickAndBanSelectors(t *testing.T) {
 	}
 }
 
+// TestApplicationEventAllowedMatrix checks the single decision for every
+// selector mode and level mode. Each row names an observable reason to accept
+// or reject a complete event; selectors are resolved as the CLI resolves them.
+func TestApplicationEventAllowedMatrix(t *testing.T) {
+	tests := []struct {
+		name, tag, level string
+		pick, ban        channelArrayFlag
+		want             bool
+	}{
+		{name: "below numeric threshold", tag: "dbg", level: "500"},
+		{name: "on numeric threshold", tag: "msg", level: "500", want: true},
+		{name: "above numeric threshold", tag: "wrn", level: "500", want: true},
+		{name: "alias threshold accepts equal group", tag: "ERROR", level: "err", want: true},
+		{name: "tag threshold rejects lower group", tag: "wrn", level: "ERROR"},
+		{name: "no selector all", tag: "dbg", level: "all", want: true},
+		{name: "no selector off", tag: "err", level: "off"},
+		{name: "pick all still applies weight", tag: "dbg", pick: channelArrayFlag{"all"}, level: "err"},
+		{name: "pick selected all", tag: "wrn", pick: channelArrayFlag{"wrn"}, level: "all", want: true},
+		{name: "pick selected off", tag: "wrn", pick: channelArrayFlag{"wrn"}, level: "off"},
+		{name: "pick selected normal", tag: "wrn", pick: channelArrayFlag{"err", "wrn"}, level: "err"},
+		{name: "pick selected equal", tag: "err", pick: channelArrayFlag{"err", "wrn"}, level: "err", want: true},
+		{name: "pick excludes above threshold", tag: "err", pick: channelArrayFlag{"wrn"}, level: "info"},
+		{name: "pick off selects none", tag: "err", pick: channelArrayFlag{"off"}, level: "all"},
+		{name: "ban selected all", tag: "wrn", ban: channelArrayFlag{"wrn"}, level: "all"},
+		{name: "ban selected off", tag: "wrn", ban: channelArrayFlag{"wrn"}, level: "off"},
+		{name: "ban selected normal", tag: "wrn", ban: channelArrayFlag{"wrn"}, level: "info"},
+		{name: "ban other normal", tag: "err", ban: channelArrayFlag{"wrn"}, level: "err", want: true},
+		{name: "ban all selects none", tag: "err", ban: channelArrayFlag{"all"}, level: "all"},
+		{name: "ban off leaves level active", tag: "dbg", ban: channelArrayFlag{"off"}, level: "info"},
+		{name: "unknown tag uses untagged weight", tag: "mgs", level: "info", want: true},
+		{name: "unknown tag rejected above untagged", tag: "mgs", level: "notice"},
+		{name: "unknown tag selected as untagged", tag: "mgs", pick: channelArrayFlag{"untagged"}, level: "all", want: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := snapshotEmitterState()
+			t.Cleanup(func() { restoreEmitterState(s) })
+			UserLabel = nil
+			require.NoError(t, AddUserLabels())
+			Pick, Ban, LogLevel = tt.pick, tt.ban, tt.level
+			require.NoError(t, ResolveFilterSelectors())
+			assert.Equal(t, tt.want, ApplicationEventAllowed(tt.tag))
+		})
+	}
+}
+
+// TestUnclassifiedFragmentAllowed retains filtering for byte-oriented decoder
+// chunks without assigning an application event or synthetic untagged tag.
+func TestUnclassifiedFragmentAllowed(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	LogLevel = "info"
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("raw bytes")))
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("unknown:raw bytes")))
+	assert.False(t, UnclassifiedFragmentAllowed([]byte("dbg:low priority")))
+	Pick = channelArrayFlag{"msg"}
+	require.NoError(t, ResolveFilterSelectors())
+	assert.False(t, UnclassifiedFragmentAllowed([]byte("unknown:raw bytes")))
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")))
+	LogLevel = "off"
+	assert.False(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")))
+}
+
+// TestApplicationEventAllowedUsesConfiguredWeights checks that a user group
+// and an override of the reserved untagged group use final configured weights,
+// while alias resolution still selects the entire user group.
+func TestApplicationEventAllowedUsesConfiguredWeights(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = ArrayFlag{"motor:650", "untagged:150"}
+	require.NoError(t, AddUserLabels())
+	Pick = channelArrayFlag{"motor", "untagged"}
+	LogLevel = "600"
+	require.NoError(t, ResolveFilterSelectors())
+	assert.True(t, ApplicationEventAllowed("motor"), "motor exceeds the numeric threshold")
+	assert.False(t, ApplicationEventAllowed("unknown"), "unknown format tags use overridden untagged weight")
+	LogLevel = "150"
+	assert.True(t, ApplicationEventAllowed("unknown"), "untagged is admitted exactly on its boundary")
+}
+
 // TestArrayFlagSetAndString verifies the expected behavior.
 func TestArrayFlagSetAndString(t *testing.T) {
 	var f ArrayFlag
@@ -651,6 +733,29 @@ func TestDisplayServerRPCMethodsDirect(t *testing.T) {
 	}
 	if !strings.Contains(out.String(), "hello") {
 		t.Fatalf("expected output to contain payload, got %q", out.String())
+	}
+}
+
+// TestLocalAndRemoteDisplayKeepSelectedLine checks identical rendering of a
+// line already admitted by the event filter. The RPC server must not repeat
+// weight selection on metadata or a low-weight fragment in that line.
+func TestLocalAndRemoteDisplayKeepSelectedLine(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	LogLevel = "wrn"
+	line := []string{"dbg:metadata ", "wrn:accepted\n"}
+	assert.True(t, ApplicationEventAllowed("wrn"))
+	for _, palette := range []string{"off", "none", "default"} {
+		t.Run(palette, func(t *testing.T) {
+			var local, remote bytes.Buffer
+			newColorDisplay(&local, palette).WriteLine(line)
+			server := &DisplayServer{Display: *newColorDisplay(&remote, palette)}
+			var reply int64
+			require.NoError(t, server.WriteLine(line, &reply))
+			assert.Equal(t, int64(len(line)), reply)
+			assert.Equal(t, local.String(), remote.String())
+			assert.Contains(t, remote.String(), "accepted")
+		})
 	}
 }
 

@@ -103,8 +103,8 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
-	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application output at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application output fragments.
-A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Filtering still occurs on output fragments and can influence location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, and suffix.
+	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
+A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
 Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban.`)
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",

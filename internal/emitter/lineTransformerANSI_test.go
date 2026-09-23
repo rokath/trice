@@ -69,9 +69,9 @@ func Test3colorize(t *testing.T) {
 	assert.Equal(t, s, act)
 }
 
-// TestColorizeUsesTagWeights verifies inclusive filtering by alias and numeric
-// threshold. Unknown raw fragments remain unchanged before event normalization.
-func TestColorizeUsesTagWeights(t *testing.T) {
+// TestColorizeOnlyPresentsAcceptedFragments verifies that a metadata-looking
+// prefix cannot cause presentation to discard a line after event selection.
+func TestColorizeOnlyPresentsAcceptedFragments(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 	UserLabel = nil
@@ -82,14 +82,11 @@ func TestColorizeUsesTagWeights(t *testing.T) {
 		LogLevel = threshold
 		require.NoError(t, ResolveFilterSelectors())
 
-		_, show := p.colorize("wrn:shown")
-		assert.True(t, show, threshold)
-		_, show = p.colorize("msg:boundary")
-		assert.True(t, show, threshold)
-		_, show = p.colorize("dbg:hidden")
-		assert.False(t, show, threshold)
-		_, show = p.colorize("misspelled:unchanged")
-		assert.True(t, show, threshold)
+		for _, fragment := range []string{"wrn:shown", "msg:boundary", "dbg:metadata", "misspelled:unchanged"} {
+			got, show := p.colorize(fragment)
+			assert.True(t, show, "%s: %s", threshold, fragment)
+			assert.Equal(t, fragment, got)
+		}
 	}
 }
 
@@ -120,19 +117,16 @@ func TestUntaggedColorAndWeightHandling(t *testing.T) {
 
 	LogLevel = "notice"
 	require.NoError(t, ResolveFilterSelectors())
-	_, show = p.colorize(text)
-	assert.False(t, show)
+	assert.False(t, ApplicationEventAllowed("mgs"))
 	LogLevel = "500"
 	require.NoError(t, ResolveFilterSelectors())
-	_, show = p.colorize(text)
-	assert.True(t, show)
+	assert.True(t, ApplicationEventAllowed("mgs"))
 
 	UserLabel = ArrayFlag{"untagged:150"}
 	require.NoError(t, AddUserLabels())
 	LogLevel = "200"
 	require.NoError(t, ResolveFilterSelectors())
-	_, show = p.colorize(text)
-	assert.False(t, show)
+	assert.False(t, ApplicationEventAllowed("mgs"))
 }
 
 func _Test4colorize(t *testing.T) {

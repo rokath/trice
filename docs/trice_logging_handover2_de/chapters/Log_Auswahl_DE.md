@@ -1,4 +1,4 @@
-**Redaktioneller Kommentar — nicht Teil des UM.** Gewichtungsrichtung, INFO als User-Default, Überschreiben per `-ulabel`, `untagged`, UND-Verknüpfung der Filter und die Teilzeilenregel sind abgestimmt. Die Teilzeilenregel ist für M13 spezifiziert und mit Ist-Regressionen hinterlegt; der Verhaltensumbau steht noch aus. Gewichte liegen als Eigenschaft der Gruppen in `lineTransformerANSI.go`; Tabellenposition und Farbe bestimmen keine Priorität mehr. Tests und Umsetzung: [M08–M14](../README.md#abarbeitungsfolge). Das vollständige Beispiel für den heutigen Level-Filter braucht die Regression aus [M13](../issues/M13_ereignisfilter.md).
+**Redaktioneller Kommentar — nicht Teil des UM.** Gewichtungsrichtung, INFO als User-Default, Überschreiben per `-ulabel`, `untagged`, UND-Verknüpfung der Filter und die Teilzeilenregel sind umgesetzt. Gewichte liegen als Eigenschaft der Gruppen in `lineTransformerANSI.go`; Tabellenposition und Farbe bestimmen keine Priorität. Tests und Umsetzung: [M08–M14](../README.md#abarbeitungsfolge).
 
 ---
 
@@ -28,11 +28,11 @@ Aliase wie `err` und `ERROR` gehören zur selben Gruppe. Welche Tag Aliase exist
 
 Gib eigene Tags einzeln mit wiederholtem `-ulabel` an. Doppelpunktlisten für `-ulabel` sind ungültig. Neu registrierte User-Tags können unabhängig von der Optionsreihenfolge mit `-pick` und `-ban` ausgewählt werden.
 
-### <a id="la-heute-loglevel"></a>Vorhanden: logLevel mit Einschränkungen
+### <a id="la-heute-loglevel"></a>Vorhanden: logLevel für ganze Ereignisse
 
-`-logLevel wrn` verwendet das Gewicht der Warning-Gruppe als inklusive Schwelle. Ein Tag-Alias und ein numerischer Wert zwischen `0` und `999` sind ebenfalls zulässig. Unbekannte Werte werden vor dem Öffnen der Eingabe abgewiesen. Numerische und tagbezogene Schwellen lassen Text ohne erkannten Tag derzeit passieren; `off` unterdrückt alle Ausgabeteile. Die Filterung arbeitet noch auf Ausgabeteilen und kann deshalb Zeitstempel, Quellposition, ID, Präfix und Suffix getrennt unterdrücken. M13 stellt diese Entscheidung auf das vollständige Ereignis um.
+`-logLevel wrn` verwendet das Gewicht der Warning-Gruppe als inklusive Schwelle. Ein Tag-Alias und ein numerischer Wert zwischen `0` und `999` sind ebenfalls zulässig. Unbekannte Werte werden vor dem Öffnen der Eingabe abgewiesen. Ein unbekannter oder fehlender Formatstring-Tag verwendet das Gewicht von `untagged`. `off` unterdrückt alle Anwendungsmeldungen. Die Auswahl erfolgt vor Zeitstempel, Quellposition, ID, Präfix, Suffix und Visualisierung für den vollständigen Trice-Aufruf.
 
-Wer die vorhandene Level-Schwelle benötigt, kann ergänzte Spalten ohne eigene Tag-Präfixe formatieren. Beispiel für eine vorhandene TREX/TCOBSv1-Aufzeichnung ohne Verschlüsselung und passende `til.json`/`li.json` im Arbeitsverzeichnis:
+Ergänzte Spalten können frei formatiert werden; ihre Darstellungstags beeinflussen die Auswahl nicht. Beispiel für eine TREX/TCOBSv1-Aufzeichnung ohne Verschlüsselung und passende `til.json`/`li.json` im Arbeitsverzeichnis:
 
 ```sh
 trice log -p FILEBUFFER -args capture.bin \
@@ -42,7 +42,7 @@ trice log -p FILEBUFFER -args capture.bin \
   -prefix '[' -suffix ']'
 ```
 
-Das Beispiel zielt auf Meldungen mit jeweils abschließendem Zeilenumbruch; Teilzeilen können sich anders verhalten. Weitere Optionen: [Zeitstempel](../../TriceUserManual.md#trice-timestamps).
+Das Beispiel zeigt vollständige Meldungen; Teilzeilen und mehrzeilige Aufrufe folgen derselben Ereignisentscheidung. Weitere Optionen: [Zeitstempel](../../TriceUserManual.md#trice-timestamps).
 
 ### <a id="la-gewichte"></a>Vorhanden: feste Gewichte statt Tabellenposition
 
@@ -85,12 +85,12 @@ Alle Labels werden registriert, bevor Selektoren und Schwellen aufgelöst werden
 
 Nach dem Doppelpunkt von `-ulabel` darf nur ein Gewicht stehen: `tagA:tagB` ist ungültig. Bei `-pick` und `-ban` bleibt der Doppelpunkt dagegen das Listentrennzeichen. Unbekannte oder leere Selektoren, ungültige Gewichte und `-pick` zusammen mit `-ban` führen vor dem Öffnen der Eingabe zu einem CLI-Fehler. Rein numerische Tag-Namen sowie `all` und `off` sind reserviert, damit die Level-Eingabe eindeutig bleibt.
 
-### Geplant: Filter gemeinsam auf das Ereignis anwenden
+### Vorhanden: Filter gemeinsam auf das Ereignis anwenden
 
-Für einfache Meldungen wirken Tag-Auswahl und Schwelle bereits nacheinander. M13 fasst beide Entscheidungen für das vollständige Ereignis samt Zusatzspalten zusammen. Dann bleiben von den ausgewählten Gruppen nur Meldungen ab Schwellgewicht übrig. Für `-ban` gilt: nicht verboten **und** ausreichend wichtig. Beispiele:
+Tag-Auswahl und Gewicht entscheiden gemeinsam über den vollständigen Aufruf samt Zusatzspalten. Von den ausgewählten Gruppen bleiben nur Meldungen ab Schwellgewicht übrig. Für `-ban` gilt: nicht verboten **und** ausreichend wichtig. Beispiele:
 
-`-pick err:wrn -logLevel err` zeigt nur die ERROR Gruppe, wenn WARNIG geringeres Gewicht als ERROR hat.
-`-ban err:wrn -logLevel err` zeigt nur die Gruppen mit Gewicht größer ERROR an, aber auf keinen Fall die WARNING Gruppe.
+`-pick err:wrn -logLevel err` zeigt nur die ERROR-Gruppe, weil WARNING ein geringeres Gewicht als ERROR hat.
+`-ban err:wrn -logLevel err` zeigt nur nicht verbotene Gruppen mit mindestens ERROR-Gewicht an, also beispielsweise FATAL und ASSERT, aber weder ERROR noch WARNING.
 `-ban all -logLevel info` wird nicht als CLI Fehler behandelt. Es werden keine Messages angezeigt.
 `-pick off -logLevel info` wird nicht als CLI Fehler behandelt. Es werden keine Messages angezeigt.
 `-pick all -logLevel info` wird nicht als CLI Fehler behandelt. Es werden alle Messages ab Fehlergewicht INFO angezeigt. Gleichbedeutend mit `-ban off -logLevel info` oder einfach `-logLevel info`
@@ -118,15 +118,15 @@ Bei `default`/`none` wird nur das erkannte äußere Präfix entfernt; der Tippfe
 
 Die Zuordnung erfolgt einmal für die Anwendungsmeldung, bevor Zeitstempel, Quellposition, ID, Präfix oder Suffix ergänzt werden. Bei ID-basierten Meldungen ist der Formatstring im Wörterbuch maßgeblich; ein Laufzeitwert mit Text `err:...` ändert die Zuordnung nicht. Originalquelle, gespeicherter Formatstring, IDs und binäre Rohaufzeichnung werden durch diese Hostzuordnung nicht umgeschrieben. Die ID-Vergabe bleibt unverändert. Byteorientierte CHAR-/DUMP-Ausgabe erhält keine Ereigniszuordnung aus einzelnen Decoderblöcken.
 
-### <a id="la-ereignisse"></a>Geplant: Meldung samt Zusatzspalten auswählen
+### <a id="la-ereignisse"></a>Vorhanden: Meldung samt Zusatzspalten auswählen
 
 Wenn eine Warnung angezeigt wird, bleiben ihre eingeschalteten Zeitstempel, Quellposition und ID erhalten. Ihr Darstellungstag beeinflusst die Auswahl nicht. Wird die Warnung ausgeblendet, erscheinen auch ihre Zusatzspalten nicht. Das gilt ebenso für Präfix und Suffix sowie für lokale und entfernte Anzeige.
 
-Ein Trice-Aufruf ist ein Ereignis. Eine Zeile kann mehrere Aufrufe enthalten. **Festgelegte Regel für M13:** Jeder Aufruf wird genau einmal ausgewählt; nur angenommene Textteile bilden die Ausgabe. Wird ein Teil unterdrückt, werden die übrigen Teile direkt aneinandergefügt. Die Zusatzspalten gehören zum ersten angenommenen Ereignis der sichtbaren Zeile. Ein unterdrückter Zeilenumbruch beendet sie nicht; ein offener Rest wird am Ende einer gepufferten Eingabe ausgegeben. `-addNL` fügt jedem Aufruf einen Zeilenumbruch hinzu und beendet dadurch jeden angenommenen Aufruf. Bei einem mehrzeiligen Aufruf gehören alle Zeilen zur selben Filterentscheidung. Seine vorhandene Fortsetzungseinrückung bleibt erhalten. Ein leerer Aufruf ohne `-addNL` erzeugt keine Ausgabe; ein angenommener reiner Newline-Aufruf eine Leerzeile. Zeitdifferenzen beziehen sich auf das vorherige sichtbare Ereignis am Zeilenanfang.
+Ein Trice-Aufruf ist ein Ereignis. Eine Zeile kann mehrere Aufrufe enthalten. Jeder Aufruf wird genau einmal ausgewählt; nur angenommene Textteile bilden die Ausgabe. Wird ein Teil unterdrückt, werden die übrigen Teile direkt aneinandergefügt. Die Zusatzspalten gehören zum ersten angenommenen Ereignis der sichtbaren Zeile. Ein unterdrückter Zeilenumbruch beendet sie nicht; ein offener Rest wird am Ende einer gepufferten Eingabe ausgegeben. `-addNL` fügt jedem Aufruf einen Zeilenumbruch hinzu und beendet dadurch jeden angenommenen Aufruf. Bei einem mehrzeiligen Aufruf gehören alle Zeilen zur selben Filterentscheidung. Seine vorhandene Fortsetzungseinrückung bleibt erhalten. Ein leerer Aufruf ohne `-addNL` erzeugt keine Ausgabe; ein angenommener reiner Newline-Aufruf eine Leerzeile. Zeitdifferenzen beziehen sich auf das vorherige sichtbare Ereignis am Zeilenanfang.
 
-Beispiel mit `-color none`: `msg:A`, `dbg:B\n`, `msg:C\n` ergibt mit `-pick msg` bereits heute `AC\n`. Mit `-logLevel info` ist das heutige Ergebnis `C\n`, weil der abschließende Debug-Teil die ganze angefangene Zeile unterdrückt. Nach M13 soll auch hier `AC\n` erscheinen. Die [M12-Regressionen](../issues/M12_teilzeilen.md) halten weitere Grenzfälle und die noch bestehende Mehrzeilen-Abweichung fest. Für M13 ist dafür keine zusätzliche unbeschränkte Pufferung vorgesehen. Eine spätere strukturierte Ausgabe behält die Ereignisgrenze je Aufruf.
+Beispiel mit `-color none`: `msg:A`, `dbg:B\n`, `msg:C\n` ergibt sowohl mit `-pick msg` als auch mit `-logLevel info` die Ausgabe `AC\n`. Die [M12-Regressionen](../issues/M12_teilzeilen.md) halten weitere Grenzfälle fest. Dafür wird der vorhandene Zeilenpuffer verwendet. Eine spätere strukturierte Ausgabe behält die Ereignisgrenze je Aufruf.
 
-Werkzeugdiagnosen wie „unbekannte ID“, beschädigte COBS-/TCOBS-Frames, kurze Pakete und Cycle-Fehler werden bereits beim Dekodieren von Anwendungstext getrennt. Sie bleiben unabhängig von `-pick`, `-ban` und `-logLevel off` auf der lokalen Werkzeugausgabe sichtbar, erhalten keine Anwendungsmetadaten und gelangen nicht in `-vis`. Sie sind keine `untagged`-Anwendungsmeldungen. Nicht fatale Diagnosen lassen die Verarbeitung weiterlaufen; Eingabe- und Schreibfehler behalten ihre vorhandene Behandlung. Die Binäraufzeichnung liegt vor dieser Trennung und bleibt bytegleich. Eine künftige maschinenlesbare Anwendungsausgabe verwendet den getrennten Line-Composer und belässt freie Diagnosetexte beim Werkzeug-Writer. Die gemeinsame Ereignisauswahl soll auch für die Visualisierung mit `-vis` gelten.
+Werkzeugdiagnosen wie „unbekannte ID“, beschädigte COBS-/TCOBS-Frames, kurze Pakete und Cycle-Fehler werden bereits beim Dekodieren von Anwendungstext getrennt. Sie bleiben unabhängig von `-pick`, `-ban` und `-logLevel off` auf der lokalen Werkzeugausgabe sichtbar, erhalten keine Anwendungsmetadaten und gelangen nicht in `-vis`. Sie sind keine `untagged`-Anwendungsmeldungen. Nicht fatale Diagnosen lassen die Verarbeitung weiterlaufen; Eingabe- und Schreibfehler behalten ihre vorhandene Behandlung. Die Binäraufzeichnung liegt vor dieser Trennung und bleibt bytegleich. Eine künftige maschinenlesbare Anwendungsausgabe verwendet den getrennten Line-Composer und belässt freie Diagnosetexte beim Werkzeug-Writer. Die gemeinsame Ereignisauswahl gilt auch für die Visualisierung mit `-vis`.
 
 ### Vorhanden und geplant: IDs vergeben und auf dem Target routen
 

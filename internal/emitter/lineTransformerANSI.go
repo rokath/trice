@@ -398,35 +398,20 @@ func NormalizeApplicationTag(text []byte, candidate string) []byte {
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is start of string add ANSI color code according to COL:
 // If "col:" is start of string replace "col:" with ANSI color code according to col:
-// Additionally, LogLevel suppresses known tags below a validated group or
-// numeric weight threshold.
-// As special case LogLevel == "off" does not output anything.
+// Event selection happens before line composition so metadata and all lines of
+// one application call share the same decision. This function only presents
+// surviving fragments and counts their existing tag prefixes.
 func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
-	if LogLevel == "off" {
-		return // do not log at all, return empty string
-	}
 	r = s
 	sc := strings.SplitN(s, ":", 2)
 	if len(sc) < 2 { // no color separator (no log level)
 		return r, true // do nothing, return unchanged string
 	}
-	messageWeight := 0
-	knownTag := false
 	for i, cc := range Tags {
 		for _, c := range cc.Names {
 			if c == sc[0] {
 				Tags[i].count++ // count event
-				messageWeight = cc.weight
-				knownTag = true
 			}
-		}
-	}
-
-	if LogLevel != "all" && knownTag {
-		threshold, err := logLevelWeight(LogLevel)
-		if err != nil || messageWeight < threshold {
-			r = "" // suppress unwanted logs
-			return r, false
 		}
 	}
 
@@ -502,18 +487,9 @@ func Colorize(s string) (r string) {
 // It treats each sub string separately and a color reset code at the end.
 func (p *lineTransformerANSI) WriteLine(line []string) {
 	var colored bool
-	showLine := true
 	l := make([]string, 0, 10)
-	for i, s := range line {
-		cs, show := p.colorize(s)
-		// The relevant channel information is probably in the last string in the line slice before the suffix.
-		// If we have `Trice( "msg:Hello");` and `Trice( att:World\n");` and `-logLevel att`, then
-		// the channel "att" is relevant because it contains the newline and "msg:Hello" is shown too.
-		// But a `Trice("msg:Hi!\n");` would be suppressed.
-		// For the applied CLI switch "-addNL" this needs more finetuning.
-		if !show && i == len(line)-2 {
-			showLine = false
-		}
+	for _, s := range line {
+		cs, _ := p.colorize(s)
 		l = append(l, cs)
 		if cs != s {
 			colored = true
@@ -522,7 +498,5 @@ func (p *lineTransformerANSI) WriteLine(line []string) {
 	if (p.colorPalette == "default" || p.colorPalette == "color") && 1 < len(l) && colored {
 		l = append(l, ansi.Reset)
 	}
-	if showLine { // suppress empty lines when logLevel == "off"
-		p.lw.WriteLine(l)
-	}
+	p.lw.WriteLine(l)
 }

@@ -31,7 +31,7 @@ Kleine unabhängige Aufgaben stehen vorn; Voraussetzungen gehen vor Größe. S/M
 
 | Neu | Aufgabe | Alt | Umfang / Voraussetzung |
 |---|---|---|---|
-| [M13](issues/M13_ereignisfilter.md) | Gemeinsam nach Tag und Gewicht filtern | L12, Teil L11 | M; nach M03, M08–M12 |
+| [M13](issues/M13_ereignisfilter.md) | Gemeinsam nach Tag und Gewicht filtern | L12, Teil L11 | umgesetzt; nach M03, M08–M12 |
 | [M14](issues/M14_statistik.md) | Statistik von Darstellung entkoppeln | L16 | M; nach M13, Aufwand prüfen |
 | [M15](issues/M15_id_neuzuweisung.md) | Aktive IDs an neue Policy anpassen | L04, Teil L03 | M; nach M01/M02 |
 | [M16](issues/M16_id_policy_warnung.md) | Historische Abweichungen knapp melden | Teil L03 | S/M; nach M15 |

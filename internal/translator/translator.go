@@ -529,11 +529,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		application, tagCandidate, classifiedEvent := separateDecoderDiagnostics(w, dec, b[:n])
 		if classifiedEvent {
 			application = emitter.NormalizeApplicationTag(application, tagCandidate)
+			if !emitter.ApplicationEventAllowed(tagCandidate) {
+				continue
+			}
+		} else if !emitter.UnclassifiedFragmentAllowed(application) {
+			continue
 		}
 		n = len(application)
-
-		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(application)
 
 		dropNormalOutput := false
 		if n > 0 && visRouter != nil {

@@ -59,14 +59,14 @@ trice log -ban dbg -ban trace:verbose
 
 Aliases select the complete group. `-pick all` selects every message and `-pick off` selects none; `-ban all` suppresses every message and `-ban off` suppresses none. Empty list entries and unknown names are command-line errors.
 
-Use `-logLevel` with `all`, `off`, a registered tag or alias, or a numeric weight from `0` through `999`. A known tagged output fragment passes when its weight is greater than or equal to the threshold. A lower threshold therefore displays more messages:
+Use `-logLevel` with `all`, `off`, a registered tag or alias, or a numeric weight from `0` through `999`. An application event passes when its tag group's weight is greater than or equal to the threshold. A lower threshold therefore displays more messages:
 
 ```sh
 trice log -logLevel info
 trice log -logLevel 500
 ```
 
-Both commands use the same threshold. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with weight 500. `-logLevel off` suppresses all application output fragments.
+Both commands use the same threshold. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with weight 500. `-logLevel off` suppresses all application events.
 
 All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
@@ -75,7 +75,7 @@ trice log -pick motor -ulabel motor:650
 trice log -ulabel motor:650 -pick motor
 ```
 
-The current level filter still operates on output fragments. Supplemental columns such as timestamps and source locations can therefore be affected separately. Event-wide filtering that keeps accepted messages and their metadata together is a separate change.
+`-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err:wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
 
 ## Decoder diagnostics
 

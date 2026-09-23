@@ -40,6 +40,28 @@ type scriptedDecoder struct {
 	index int
 }
 
+// classifiedScriptedDecoder supplies a format-string tag for each scripted
+// call, so selection tests exercise the same typed boundary as TREX decoding.
+type classifiedScriptedDecoder struct {
+	scriptedDecoder
+	tags []string
+	span []decoder.OutputSpan
+}
+
+// Read retains the tag of the current call without inferring it from payload.
+func (d *classifiedScriptedDecoder) Read(buf []byte) (int, error) {
+	index := d.scriptedDecoder.index
+	n, err := d.scriptedDecoder.Read(buf)
+	d.span = nil
+	if n > 0 {
+		d.span = []decoder.OutputSpan{{Start: 0, End: n, Kind: decoder.OutputApplication, Tag: d.tags[index]}}
+	}
+	return n, err
+}
+
+// DecodedOutputSpans returns the boundary of the latest scripted call.
+func (d *classifiedScriptedDecoder) DecodedOutputSpans() []decoder.OutputSpan { return d.span }
+
 func (d *scriptedDecoder) Read(buf []byte) (int, error) {
 	if d.index >= len(d.steps) {
 		return 0, io.EOF
@@ -62,6 +84,7 @@ type visScriptedDecoder struct {
 	current   decoder.VisRecord
 	available bool
 	enabled   bool
+	span      []decoder.OutputSpan
 }
 
 // Read returns one formatted message and retains the corresponding test record for the same iteration.
@@ -69,12 +92,19 @@ func (d *visScriptedDecoder) Read(buffer []byte) (int, error) {
 	recordIndex := d.scriptedDecoder.index
 	count, err := d.scriptedDecoder.Read(buffer)
 	d.available = false
+	d.span = nil
 	if d.enabled && count > 0 && recordIndex < len(d.records) {
 		d.current = d.records[recordIndex]
 		d.available = true
+		tag, _, _ := strings.Cut(d.current.Format, ":")
+		d.span = []decoder.OutputSpan{{Start: 0, End: count, Kind: decoder.OutputApplication, Tag: tag}}
 	}
 	return count, err
 }
+
+// DecodedOutputSpans makes the visualization record subject to the same
+// event-wide selection as production decoders.
+func (d *visScriptedDecoder) DecodedOutputSpans() []decoder.OutputSpan { return d.span }
 
 // SetVisRecordEnabled implements decoder.VisRecordController for production-equivalent enable behavior.
 func (d *visScriptedDecoder) SetVisRecordEnabled(enabled bool) {
@@ -883,18 +913,16 @@ func TestPartialCallsWithPickRecordsCurrentLineJoining(t *testing.T) {
 	}
 }
 
-// TestPartialCallsWithLevelRecordsCurrentLineFiltering documents the remaining
-// line-level decision: a low-weight final fragment can suppress an earlier
-// accepted fragment, while an untagged second line can leak from one call.
-func TestPartialCallsWithLevelRecordsCurrentLineFiltering(t *testing.T) {
-	continuationIndent := strings.Repeat(" ", 13)
+// TestPartialCallsWithLevelUsesEventDecisions verifies that a rejected call
+// contributes neither its text nor its newline, including later lines.
+func TestPartialCallsWithLevelUsesEventDecisions(t *testing.T) {
 	tests := []struct {
 		name    string
 		formats []string
 		want    string
 	}{
-		{name: "low final fragment suppresses the full line", formats: []string{`msg:A`, `dbg:B\n`, `msg:C\n`}, want: "C\n"},
-		{name: "second line of low weight call escapes line filter", formats: []string{`dbg:A\nB\n`}, want: continuationIndent + "B\n"},
+		{name: "rejected middle call leaves the accepted line open", formats: []string{`msg:A`, `dbg:B\n`, `msg:C\n`}, want: "AC\n"},
+		{name: "rejected multiline call contributes no continuation", formats: []string{`dbg:A\nB\n`}, want: ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -904,6 +932,17 @@ func TestPartialCallsWithLevelRecordsCurrentLineFiltering(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 		})
 	}
+}
+
+// TestEncodedCallsCombinePickAndLevel verifies the documented selector example
+// with actual TREX event boundaries: picking two groups does not bypass the
+// higher error threshold, even when a rejected warning ends a partial line.
+func TestEncodedCallsCombinePickAndLevel(t *testing.T) {
+	got := runTREXPartialCalls(t, []string{`err:A`, `wrn:B\n`, `err:C\n`, `msg:D\n`}, false, func() {
+		emitter.Pick = []string{"err", "wrn"}
+		emitter.LogLevel = "err"
+	})
+	assert.Equal(t, "AC\n", got)
 }
 
 // TestPartialCallMetadataAndDeltaRecordsCurrentOrigin checks that only the
@@ -938,6 +977,106 @@ func TestPartialCallMetadataAndDeltaRecordsCurrentOrigin(t *testing.T) {
 	require.ErrorIs(t, decodeAndComposeLoop(&out, sw, dec, nil, li, nil), io.EOF)
 	assert.Equal(t, "2006-01-02_1504-05 <a.c:11 TS:10  DT:-  ID:1  AC>\n"+
 		"2006-01-02_1504-05 <d.c:44 TS:40  DT:30  ID:4  D>\n", out.String())
+}
+
+// TestLevelSelectionKeepsMetadataAndVisibleDelta verifies that low-weight
+// payloads and their columns disappear together while surviving lines retain
+// every configured column, even when its presentation text looks low priority.
+func TestLevelSelectionKeepsMetadataAndVisibleDelta(t *testing.T) {
+	configureTranslatorLoopTest(t)
+	emitter.LogLevel = "wrn"
+	emitter.HostStamp = "zero"
+	emitter.Prefix = "DBG:<"
+	emitter.Suffix = ">"
+	id.LIFnJSON = "on"
+	decoder.ShowID = "ID:%d "
+	decoder.TargetStamp16 = "TS:%d "
+	decoder.TargetStamp16Delta = "DT:%d "
+	decoder.ShowTargetStamp16Passed = true
+	decoder.ShowTargetStamp16DeltaPassed = true
+	li := id.TriceIDLookUpLI{
+		1: {File: "/tmp/low.c", Line: 10},
+		2: {File: "/tmp/first.c", Line: 20},
+		3: {File: "/tmp/low-again.c", Line: 30},
+		4: {File: "/tmp/second.c", Line: 40},
+	}
+	dec := &classifiedScriptedDecoder{
+		scriptedDecoder: scriptedDecoder{steps: []scriptedDecoderStep{
+			{data: "dbg:hidden\n", lastTriceID: 1, targetTimestamp: 10, targetStampSize: 2},
+			{data: "wrn:shown\n", lastTriceID: 2, targetTimestamp: 20, targetStampSize: 2},
+			{data: "dbg:hidden-again\n", lastTriceID: 3, targetTimestamp: 30, targetStampSize: 2},
+			{data: "wrn:next\n", lastTriceID: 4, targetTimestamp: 40, targetStampSize: 2},
+		}},
+		tags: []string{"dbg", "wrn", "dbg", "wrn"},
+	}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+	require.ErrorIs(t, decodeAndComposeLoop(&out, sw, dec, nil, li, nil), io.EOF)
+	assert.Equal(t, "2006-01-02_1504-05 DBG:<first.c:20 TS:20  DT:-  ID:2  shown>\n"+
+		"2006-01-02_1504-05 DBG:<second.c:40 TS:40  DT:20  ID:4  next>\n", out.String())
+}
+
+// TestLevelSelectionWithDocumentedColumns exercises the manual's combined
+// timestamp, location, ID, prefix, and suffix configuration. A fixed host
+// stamp replaces UTCmicro so each accepted line has a stable expected value.
+func TestLevelSelectionWithDocumentedColumns(t *testing.T) {
+	configureTranslatorLoopTest(t)
+	savedTargetStamp32 := decoder.TargetStamp32
+	savedTargetStamp32Passed := decoder.ShowTargetStamp32Passed
+	t.Cleanup(func() {
+		decoder.TargetStamp32 = savedTargetStamp32
+		decoder.ShowTargetStamp32Passed = savedTargetStamp32Passed
+	})
+	emitter.LogLevel = "wrn"
+	emitter.HostStamp = "zero"
+	emitter.Prefix = "["
+	emitter.Suffix = "]"
+	id.LIFnJSON = "on"
+	decoder.LocationInformationFormatString = "[%20s:%3d] "
+	decoder.ShowID = "[id=%d] "
+	decoder.TargetStamp0 = "[no target stamp] "
+	decoder.TargetStamp16 = "[t16 = %9d] "
+	decoder.TargetStamp32 = "[t32 = %9d] "
+	decoder.ShowTargetStamp0Passed = true
+	decoder.ShowTargetStamp16Passed = true
+	decoder.ShowTargetStamp32Passed = true
+	li := id.TriceIDLookUpLI{
+		1: {File: "/tmp/no-stamp.c", Line: 10},
+		2: {File: "/tmp/hidden.c", Line: 20},
+		3: {File: "/tmp/short.c", Line: 30},
+		4: {File: "/tmp/long.c", Line: 40},
+	}
+	dec := &classifiedScriptedDecoder{
+		scriptedDecoder: scriptedDecoder{steps: []scriptedDecoderStep{
+			{data: "wrn:no stamp\n", lastTriceID: 1, targetStampSize: 0},
+			{data: "dbg:hidden\n", lastTriceID: 2, targetTimestamp: 15, targetStampSize: 2},
+			{data: "wrn:short stamp\n", lastTriceID: 3, targetTimestamp: 25, targetStampSize: 2},
+			{data: "wrn:long stamp\n", lastTriceID: 4, targetTimestamp: 35, targetStampSize: 4},
+		}},
+		tags: []string{"wrn", "dbg", "wrn", "wrn"},
+	}
+	var out bytes.Buffer
+	sw := emitter.New(&out)
+	require.ErrorIs(t, decodeAndComposeLoop(&out, sw, dec, nil, li, nil), io.EOF)
+	lines := strings.Split(strings.TrimSuffix(out.String(), "\n"), "\n")
+	require.Len(t, lines, 3, "only the three warning events should emit lines")
+	for i, want := range []struct {
+		location, stamp, event string
+		id                     int
+	}{
+		{location: "no-stamp.c: 10", stamp: "[no target stamp]", event: "no stamp", id: 1},
+		{location: "short.c: 30", stamp: "[t16 =        25]", event: "short stamp", id: 3},
+		{location: "long.c: 40", stamp: "[t32 =        35]", event: "long stamp", id: 4},
+	} {
+		assert.Contains(t, lines[i], "2006-01-02_1504-05 [", "host stamp and prefix")
+		assert.Contains(t, lines[i], want.location, "source location")
+		assert.Contains(t, lines[i], want.stamp, "target stamp")
+		assert.Contains(t, lines[i], fmt.Sprintf("[id=%d]", want.id), "first visible event ID")
+		assert.True(t, strings.HasSuffix(lines[i], want.event+"]"), "payload and suffix: %q", lines[i])
+	}
+	assert.NotContains(t, out.String(), "hidden")
+	assert.NotContains(t, out.String(), "hidden.c")
+	assert.NotContains(t, out.String(), "[id=2]")
 }
 
 // TestPartialCallMetadataStartsAtFirstAcceptedCall makes a rejected initial
@@ -1135,9 +1274,12 @@ func TestTREXDiagnosticsUseSeparateWriter(t *testing.T) {
 }
 
 // runTranslatorVisCase executes one formatted/typed record through filter, router, and line composer.
-func runTranslatorVisCase(t *testing.T, tag, option, filter string) (normalOutput string, visOutput string) {
+func runTranslatorVisCase(t *testing.T, tag, option, filter string, levels ...string) (normalOutput string, visOutput string) {
 	t.Helper()
 	configureTranslatorLoopTest(t)
+	if len(levels) != 0 {
+		emitter.LogLevel = levels[0]
+	}
 	switch filter {
 	case "ban":
 		emitter.Ban = []string{tag}
@@ -1213,6 +1355,18 @@ func TestDecodeAndComposeLoopIntegratesVisAfterFiltering(t *testing.T) {
 	t.Run("vis does not register unknown normal tag", func(t *testing.T) {
 		normal, visualized := runTranslatorVisCase(t, "imu_custom", "", "")
 		assert.Equal(t, "imu_custom:value=7\n", normal)
+		assert.Equal(t, "7\n", visualized)
+	})
+
+	t.Run("level rejects both normal output and visualization", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", "", "", "notice")
+		assert.Empty(t, normal)
+		assert.Empty(t, visualized)
+	})
+
+	t.Run("level boundary admits visualization with drop", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "", "info")
+		assert.Empty(t, normal)
 		assert.Equal(t, "7\n", visualized)
 	})
 }

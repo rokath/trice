@@ -203,6 +203,53 @@ func BanOrPickFilter(b []byte) (n int) {
 	return banOrPickFilter(Ban, Pick, b)
 }
 
+// ApplicationEventAllowed applies both selector and weight rules to one typed
+// application event. Decoder diagnostics never call this function. An absent or
+// unknown template tag uses the independent built-in untagged group's weight.
+func ApplicationEventAllowed(candidate string) bool {
+	index := tagIndex(Tags, candidate)
+	if index < 0 {
+		candidate = untaggedTag
+		index = tagIndex(Tags, candidate)
+	}
+	if index < 0 || (Pick != nil && !slices.Contains(Pick, "all") && !slices.Contains(Pick, candidate)) {
+		return false
+	}
+	if Ban != nil && (slices.Contains(Ban, "all") || slices.Contains(Ban, candidate)) {
+		return false
+	}
+	if LogLevel == "off" {
+		return false
+	}
+	if LogLevel == "all" {
+		return true
+	}
+	threshold, err := logLevelWeight(LogLevel)
+	return err == nil && Tags[index].weight >= threshold
+}
+
+// UnclassifiedFragmentAllowed preserves the legacy filtering of byte-oriented
+// decoder chunks, which do not have application event boundaries. Unknown raw
+// prefixes remain unclassified rather than becoming synthetic untagged events.
+func UnclassifiedFragmentAllowed(b []byte) bool {
+	if BanOrPickFilter(b) == 0 || LogLevel == "off" {
+		return false
+	}
+	if LogLevel == "all" {
+		return true
+	}
+	prefix, _, found := strings.Cut(string(b), ":")
+	if !found {
+		return true
+	}
+	index := tagIndex(Tags, prefix)
+	if index < 0 {
+		return true
+	}
+	threshold, err := logLevelWeight(LogLevel)
+	return err == nil && Tags[index].weight >= threshold
+}
+
 // banOrPickFilter applies the -ban/-pick channel rules.
 func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 	if ban == nil && pick == nil {

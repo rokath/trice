@@ -199,8 +199,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -logLevel string
-    	Filter application output at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application output fragments.
-    	A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Filtering still occurs on output fragments and can influence location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, and suffix.
+    	Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
+    	A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
     	Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban. (default "all")
   -logfile string
     	Append all output to logfile. Options are: 'off|none|filename|auto':
