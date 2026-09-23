@@ -197,7 +197,7 @@ func isLower(s string) bool {
 }
 
 type tag struct {
-	count    int                 // count counts each occurance of the trice tag.
+	count    int                 // count records successfully decoded application events in this tag group.
 	weight   int                 // weight is the group priority and is independent of table order and color.
 	Names    []string            // Names contains all aliases for one tag.
 	colorize func(string) string // colorize is the function called for each tag.
@@ -321,7 +321,23 @@ func logLevelWeight(value string) (int, error) {
 	return weight, nil
 }
 
-// TagEvents returns count of occurred channel events.
+// RecordTagEvent counts a successfully decoded application event before host
+// selection. Missing and unknown format-string tags use the reserved untagged
+// group; presentation fragments and diagnostics do not call this function.
+func RecordTagEvent(candidate string) {
+	if !TagStatistics && !AllStatistics {
+		return
+	}
+	index := tagIndex(Tags, candidate)
+	if index < 0 {
+		index = tagIndex(Tags, untaggedTag)
+	}
+	if index >= 0 {
+		Tags[index].count++
+	}
+}
+
+// TagEvents returns count of successfully decoded application events in a group.
 // If ch is unknown, the returned value is -1.
 func TagEvents(ch string) int {
 	for _, s := range Tags {
@@ -398,25 +414,17 @@ func NormalizeApplicationTag(text []byte, candidate string) []byte {
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is start of string add ANSI color code according to COL:
 // If "col:" is start of string replace "col:" with ANSI color code according to col:
-// Event selection happens before line composition so metadata and all lines of
-// one application call share the same decision. This function only presents
-// surviving fragments and counts their existing tag prefixes.
+// Event selection and counting happen before line composition so metadata and
+// all lines of one application call share the same decision. This function
+// only presents surviving fragments.
 func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	r = s
 	sc := strings.SplitN(s, ":", 2)
 	if len(sc) < 2 { // no color separator (no log level)
 		return r, true // do nothing, return unchanged string
 	}
-	for i, cc := range Tags {
-		for _, c := range cc.Names {
-			if c == sc[0] {
-				Tags[i].count++ // count event
-			}
-		}
-	}
-
 	if p.colorPalette == "off" {
-		return r, true // do nothing (despite event counting)
+		return r, true // do nothing
 	}
 	if isTag(sc[0]) && isLower(sc[0]) {
 		r = sc[1] // remove channel info
@@ -434,15 +442,9 @@ func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	return r, true
 }
 
-// colorize prefixes s with an ansi color code according to these conditions:
-// If p.colorPalette is "off", do nothing.
-// If p.colorPalette is "none" remove only lower case channel info "col:"
-// If "COL:" is start of string add ANSI color code according to COL:
-// If "col:" is start of string replace "col:" with ANSI color code according to col:
-// Additionally, if global variable LogLevel is not the default "all", but found inside
-// ColorChannels, logs with higher index positions are suppressed.
-// As special case LogLevel == "off" does not output anything.
-// Colorize applies global tag/palette rules to s.
+// Colorize applies global tag/palette rules to a format string in the ID
+// statistics report. It does not count events; LogLevel off still hides the
+// formatted string, preserving the report's existing presentation behavior.
 func Colorize(s string) (r string) {
 	if LogLevel == "off" {
 		return // do not log at all, return empty string
@@ -453,18 +455,8 @@ func Colorize(s string) (r string) {
 	if len(sc) < 2 { // no color separator (no log level)
 		return r // do nothing, return unchanged string
 	}
-	for i, cc := range Tags {
-		for _, c := range cc.Names {
-			if c == sc[0] {
-				Tags[i].count++ // count event
-			}
-			if c == LogLevel {
-			}
-		}
-	}
-
 	if ColorPalette == "off" {
-		return r // do nothing (despite event counting)
+		return r // do nothing
 	}
 	if isTag(sc[0]) && isLower(sc[0]) {
 		r = sc[1] // remove channel info

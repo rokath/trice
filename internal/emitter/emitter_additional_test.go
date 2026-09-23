@@ -647,7 +647,7 @@ func TestPrintTagStatisticsGuardAndContent(t *testing.T) {
 	}
 
 	TagStatistics = true
-	_ = Colorize("msg:hello")
+	RecordTagEvent("msg")
 	PrintTagStatistics(&out)
 	if !strings.Contains(out.String(), "Tag Statistics:") {
 		t.Fatalf("expected statistics header, got %q", out.String())
@@ -661,12 +661,44 @@ func TestTagEvents(t *testing.T) {
 
 	LogLevel = "all"
 	ColorPalette = "none"
-	_ = Colorize("msg:hello")
-	if TagEvents("msg") <= 0 {
-		t.Fatalf("expected msg tag count > 0")
-	}
+	TagStatistics = true
+	RecordTagEvent("msg")
+	assert.Equal(t, 1, TagEvents("msg"))
 	if TagEvents("__unknown__") != -1 {
 		t.Fatalf("expected unknown tag count -1")
+	}
+}
+
+// TestTagStatisticsIgnorePresentation verifies that printing, colorizing, and
+// remote rendering cannot change event totals. Counting is enabled only when
+// a statistics switch requests it, and unknown tags use the untagged group.
+func TestTagStatisticsIgnorePresentation(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	TagStatistics = false
+	AllStatistics = false
+	RecordTagEvent("wrn")
+	assert.Zero(t, TagEvents("wrn"), "disabled statistics do not count")
+
+	TagStatistics = true
+	RecordTagEvent("wrn")
+	RecordTagEvent("WARNING")
+	RecordTagEvent("mgs")
+	assert.Equal(t, 2, TagEvents("wrn"), "aliases share one event counter")
+	assert.Equal(t, 1, TagEvents("untagged"), "unknown format tag has one reserved group")
+
+	for _, palette := range []string{"off", "none", "default"} {
+		var out bytes.Buffer
+		newColorDisplay(&out, palette).WriteLine([]string{"time:metadata ", "wrn:first\n", "wrn:second\n"})
+		ColorPalette = palette
+		_ = Colorize("wrn:formatted again")
+		PrintTagStatistics(&out)
+		PrintTagStatistics(&out)
+		assert.Equal(t, 2, TagEvents("wrn"), palette)
+		assert.Equal(t, 1, TagEvents("untagged"), palette)
+		assert.Zero(t, TagEvents("TIME"), "metadata does not create events")
 	}
 }
 

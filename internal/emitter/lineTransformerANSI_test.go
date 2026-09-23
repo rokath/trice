@@ -109,11 +109,13 @@ func TestUntaggedColorAndWeightHandling(t *testing.T) {
 	}
 
 	LogLevel = "all"
+	TagStatistics = true
+	RecordTagEvent("mgs")
 	p := newLineTransformerANSI(newCheckDisplay(), "off")
 	got, show := p.colorize(text)
 	assert.True(t, show)
 	assert.Equal(t, "untagged:mgs:blah", got)
-	assert.Greater(t, TagEvents("untagged"), 0)
+	assert.Equal(t, 1, TagEvents("untagged"))
 
 	LogLevel = "notice"
 	require.NoError(t, ResolveFilterSelectors())

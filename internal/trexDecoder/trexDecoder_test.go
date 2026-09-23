@@ -1252,6 +1252,119 @@ func TestReadTypeX0DefaultErrorForFramedData(t *testing.T) {
 	assert.Empty(t, decoder.IDStat)
 }
 
+// TestReadStatisticsRequireSuccessfulApplicationDecode proves that a known ID
+// is insufficient for either counter: a failed format/type decode is a tool
+// diagnostic, while following valid records count even with empty display text.
+func TestReadStatisticsRequireSuccessfulApplicationDecode(t *testing.T) {
+	savedTriceStatistics := decoder.TriceStatistics
+	savedIDStat := decoder.IDStat
+	savedTagStatistics := emitter.TagStatistics
+	savedAllStatistics := emitter.AllStatistics
+	savedTags := emitter.Tags
+	savedUserLabel := emitter.UserLabel
+	savedInitialCycle := decoder.InitialCycle
+	savedDisableCycleErrors := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.TriceStatistics = savedTriceStatistics
+		decoder.IDStat = savedIDStat
+		emitter.TagStatistics = savedTagStatistics
+		emitter.AllStatistics = savedAllStatistics
+		emitter.Tags = savedTags
+		emitter.UserLabel = savedUserLabel
+		decoder.InitialCycle = savedInitialCycle
+		DisableCycleErrors = savedDisableCycleErrors
+	})
+	decoder.TriceStatistics = true
+	decoder.IDStat = make(map[id.TriceID]int)
+	emitter.TagStatistics = true
+	emitter.AllStatistics = false
+	emitter.UserLabel = nil
+	require.NoError(t, emitter.AddUserLabels())
+	decoder.InitialCycle = true
+	DisableCycleErrors = true
+
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Endian: decoder.LittleEndian,
+			LUT: id.TriceIDLookUp{
+				1: {Type: "BADTYPE", Strg: "wrn:bad=%d"},
+				2: {Type: "TRICE8_1", Strg: "wrn:good=%d"},
+				3: {Type: "TRICE_0", Strg: ""},
+			},
+		}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc0,
+	}
+	p.B = []byte{0x01, 0x40, 0xc0, 0x01, 0x2a, 0x02, 0x40, 0xc1, 0x01, 0x2b, 0x03, 0x40, 0xc2, 0x00}
+	buf := make([]byte, 512)
+	n, err := p.Read(buf)
+	require.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "ConstructFullTriceInfo failed")
+	assert.Empty(t, decoder.IDStat)
+	assert.Zero(t, emitter.TagEvents("wrn"))
+
+	n, err = p.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "wrn:good=43", string(buf[:n]))
+	assert.Equal(t, map[id.TriceID]int{2: 1}, decoder.IDStat)
+	assert.Equal(t, 1, emitter.TagEvents("wrn"))
+
+	n, err = p.Read(buf)
+	require.NoError(t, err)
+	assert.Zero(t, n, "a valid empty format contributes no display text")
+	assert.Equal(t, map[id.TriceID]int{2: 1, 3: 1}, decoder.IDStat)
+	assert.Equal(t, 1, emitter.TagEvents("untagged"), "an empty but valid event still counts")
+}
+
+// TestTypeX0TagStatisticsExcludeDiagnostics verifies that a formatted selector-0
+// record has an application tag count but no ID count, while the same bytes in
+// error mode produce only a diagnostic and cannot increment either total.
+func TestTypeX0TagStatisticsExcludeDiagnostics(t *testing.T) {
+	savedTypeX0 := decoder.TypeX0
+	savedIDStat := decoder.IDStat
+	savedTriceStatistics := decoder.TriceStatistics
+	savedTagStatistics := emitter.TagStatistics
+	savedAllStatistics := emitter.AllStatistics
+	savedTags := emitter.Tags
+	savedUserLabel := emitter.UserLabel
+	t.Cleanup(func() {
+		decoder.TypeX0 = savedTypeX0
+		decoder.IDStat = savedIDStat
+		decoder.TriceStatistics = savedTriceStatistics
+		emitter.TagStatistics = savedTagStatistics
+		emitter.AllStatistics = savedAllStatistics
+		emitter.Tags = savedTags
+		emitter.UserLabel = savedUserLabel
+	})
+	decoder.IDStat = make(map[id.TriceID]int)
+	decoder.TriceStatistics = true
+	emitter.TagStatistics = true
+	emitter.AllStatistics = false
+	emitter.UserLabel = nil
+	require.NoError(t, emitter.AddUserLabels())
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+	}
+	buf := make([]byte, 128)
+	decoder.TypeX0 = "counted:msg:%s"
+	p.B = []byte{0x02, 0x00, 'O', 'K'}
+	n, err := p.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "msg:OK", string(buf[:n]))
+	assert.Equal(t, 1, emitter.TagEvents("msg"))
+	assert.Empty(t, decoder.IDStat, "selector-0 has no Trice ID")
+
+	decoder.TypeX0 = "error"
+	p.B = []byte{0x02, 0x00, 'O', 'K'}
+	n, err = p.Read(buf)
+	require.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "typeX0 packet ignored")
+	assert.Equal(t, 1, emitter.TagEvents("msg"))
+	assert.Empty(t, decoder.IDStat)
+}
+
 // TestReadTypeX0CountedThenRegularFramedData verifies counted X0 mixed with a regular Trice in one package.
 func TestReadTypeX0CountedThenRegularFramedData(t *testing.T) {
 	oldTypeX0 := decoder.TypeX0

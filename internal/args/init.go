@@ -190,9 +190,9 @@ Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
-	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurrences count on exit.`)
-	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurrences count on exit.`)
-	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
+	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print successfully decoded application-event counts by tag on exit, before -pick, -ban, and -logLevel selection. Diagnostics do not count.`)
+	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print successfully decoded ID-based application-event counts on exit, before host selection. ID-less typeX0 records do not count.`)
+	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print both tag and Trice ID statistics on exit. Counts include successfully decoded application events hidden by host filters.`)
 	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
 	fsScLog.Var(&visRules, "vis", `Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
 <tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop][;header="<go-string>"]

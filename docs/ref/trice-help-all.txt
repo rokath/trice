@@ -252,13 +252,13 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -singleFraming
     	singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.
   -stat
-    	Print complete statistics on exit.
+    	Print both tag and Trice ID statistics on exit. Counts include successfully decoded application events hidden by host filters.
   -stopbits string
     	Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string
     	Append suffix to all lines, options: any string.
   -tagStat
-    	Print Trices occurrences count on exit.
+    	Print successfully decoded application-event counts by tag on exit, before -pick, -ban, and -logLevel selection. Diagnostics do not count.
   -tcp string
     	TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".
   -testTable
@@ -269,7 +269,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -triceEndianness string
     	Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
   -triceStat
-    	Print Trices occurrences count on exit.
+    	Print successfully decoded ID-based application-event counts on exit, before host selection. ID-less typeX0 records do not count.
   -ts string
     	Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" or 'off' or 'none' to suppress existing target timestamps. Sets ts0, ts16, ts32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
   -ts0 string

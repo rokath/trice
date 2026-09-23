@@ -415,6 +415,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if x0.Diagnostic {
 			p.markOutput(0, n, decoder.OutputDiagnostic)
 		} else {
+			emitter.RecordTagEvent(x0.Tag)
 			p.markApplication(0, n, x0.Tag)
 		}
 		return n, nil
@@ -422,7 +423,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 	triceID := id.TriceID(0x3FFF & tyId) // 14 least significant bits are the ID
 	decoder.LastTriceID = triceID        // used for showID
-	decoder.RecordForStatistics(triceID) // This is for the "trice log -stat" flag
 
 	switch triceType {
 	case typeS0: // no timestamp
@@ -602,7 +602,12 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.sprintDiagnostic {
 		p.markOutput(applicationStart, n, decoder.OutputDiagnostic)
 	} else {
-		p.markApplication(applicationStart, n, decoder.FormatTagCandidate(originalTrice.Strg))
+		// Only a successful application decode contributes to ID and tag
+		// statistics. The host may later hide it without changing totals.
+		decoder.RecordForStatistics(triceID)
+		tagCandidate := decoder.FormatTagCandidate(originalTrice.Strg)
+		emitter.RecordTagEvent(tagCandidate)
+		p.markApplication(applicationStart, n, tagCandidate)
 	}
 	if p.visEnabled && (hadPrefixedDiagnostic || p.sprintDiagnostic) {
 		p.visValid = false

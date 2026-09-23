@@ -945,6 +945,100 @@ func TestEncodedCallsCombinePickAndLevel(t *testing.T) {
 	assert.Equal(t, "AC\n", got)
 }
 
+// TestDecodedStatisticsPrecedeSelection exercises actual TREX calls across
+// palettes. Three IDs and tag groups are recorded even though one warning is
+// visible; formatting the ID report again cannot inflate the tag total.
+func TestDecodedStatisticsPrecedeSelection(t *testing.T) {
+	for _, palette := range []string{"off", "none", "default"} {
+		t.Run(palette, func(t *testing.T) {
+			savedTags := emitter.Tags
+			savedUserLabel := emitter.UserLabel
+			savedTagStatistics := emitter.TagStatistics
+			savedAllStatistics := emitter.AllStatistics
+			savedTriceStatistics := decoder.TriceStatistics
+			savedIDStat := decoder.IDStat
+			savedIDLUT := decoder.IDLUT
+			savedLILUT := decoder.LILUT
+			t.Cleanup(func() {
+				emitter.Tags = savedTags
+				emitter.UserLabel = savedUserLabel
+				emitter.TagStatistics = savedTagStatistics
+				emitter.AllStatistics = savedAllStatistics
+				decoder.TriceStatistics = savedTriceStatistics
+				decoder.IDStat = savedIDStat
+				decoder.IDLUT = savedIDLUT
+				decoder.LILUT = savedLILUT
+			})
+
+			output := runTREXPartialCalls(t, []string{`wrn:A\n`, `dbg:B\n`, `mgs:C\n`}, false, func() {
+				emitter.UserLabel = nil
+				require.NoError(t, emitter.AddUserLabels())
+				emitter.ColorPalette = palette
+				if palette != "off" {
+					emitter.HostStamp = "zero"
+					decoder.ShowID = "ID:%d "
+				}
+				emitter.TagStatistics = true
+				emitter.AllStatistics = false
+				decoder.TriceStatistics = true
+				decoder.IDStat = make(map[id.TriceID]int)
+				emitter.Pick = []string{"wrn"}
+				emitter.LogLevel = "wrn"
+			})
+			assert.Contains(t, output, "A")
+			assert.NotContains(t, output, "B")
+			assert.NotContains(t, output, "C")
+			assert.Equal(t, 1, strings.Count(output, "\n"), "only one event is visible")
+			if palette != "off" {
+				assert.Contains(t, output, "2006-01-02_1504-05", "host metadata is preserved")
+				assert.Contains(t, output, "ID:1", "only the selected event contributes an ID column")
+				assert.NotContains(t, output, "ID:2")
+			}
+			assert.Equal(t, 1, emitter.TagEvents("wrn"))
+			assert.Equal(t, 1, emitter.TagEvents("dbg"))
+			assert.Equal(t, 1, emitter.TagEvents("untagged"))
+			assert.Equal(t, map[id.TriceID]int{1: 1, 2: 1, 3: 1}, decoder.IDStat)
+
+			decoder.IDLUT = id.TriceIDLookUp{
+				1: {Type: "TRICE_0", Strg: `wrn:A\n`},
+				2: {Type: "TRICE_0", Strg: `dbg:B\n`},
+				3: {Type: "TRICE_0", Strg: `mgs:C\n`},
+			}
+			var report bytes.Buffer
+			decoder.PrintTriceStatistics(&report)
+			decoder.PrintTriceStatistics(&report)
+			emitter.PrintTagStatistics(&report)
+			assert.Contains(t, report.String(), "3 Trice messsges")
+			assert.Equal(t, 1, emitter.TagEvents("wrn"), "repeated reports do not count display text")
+			assert.Equal(t, 1, emitter.TagEvents("dbg"))
+			assert.Equal(t, 1, emitter.TagEvents("untagged"))
+		})
+	}
+}
+
+// TestTagStatisticsFollowCallsNotOutputLines checks both directions of the
+// mismatch: two Trice calls can share one line, while one call can span two.
+func TestTagStatisticsFollowCallsNotOutputLines(t *testing.T) {
+	savedTags := emitter.Tags
+	savedUserLabel := emitter.UserLabel
+	savedTagStatistics := emitter.TagStatistics
+	savedAllStatistics := emitter.AllStatistics
+	t.Cleanup(func() {
+		emitter.Tags = savedTags
+		emitter.UserLabel = savedUserLabel
+		emitter.TagStatistics = savedTagStatistics
+		emitter.AllStatistics = savedAllStatistics
+	})
+	output := runTREXPartialCalls(t, []string{`wrn:A`, `wrn:B\n`, `wrn:C\nD\n`}, false, func() {
+		emitter.UserLabel = nil
+		require.NoError(t, emitter.AddUserLabels())
+		emitter.TagStatistics = true
+		emitter.AllStatistics = false
+	})
+	assert.Equal(t, "AB\nC\n             D\n", output)
+	assert.Equal(t, 3, emitter.TagEvents("wrn"), "count calls, independent of line count")
+}
+
 // TestPartialCallMetadataAndDeltaRecordsCurrentOrigin checks that only the
 // first accepted call of a line supplies its metadata and advances the delta.
 // The rejected B and accepted same-line C timestamps do not become delta bases.
@@ -1148,6 +1242,7 @@ func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
 		configureFilter func()
 		want            string
 		wantNot         string
+		wantAppCount    int
 	}{
 		{
 			name:    "unknown ID survives pick",
@@ -1190,14 +1285,35 @@ func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
 			configureFilter: func() {
 				emitter.LogLevel = "off"
 			},
-			want:    "CYCLE_ERROR",
-			wantNot: "v=42",
+			want:         "CYCLE_ERROR",
+			wantNot:      "v=42",
+			wantAppCount: 1,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			configureTranslatorLoopTest(t)
+			savedTags := emitter.Tags
+			savedUserLabel := emitter.UserLabel
+			savedTagStatistics := emitter.TagStatistics
+			savedAllStatistics := emitter.AllStatistics
+			savedTriceStatistics := decoder.TriceStatistics
+			savedIDStat := decoder.IDStat
+			t.Cleanup(func() {
+				emitter.Tags = savedTags
+				emitter.UserLabel = savedUserLabel
+				emitter.TagStatistics = savedTagStatistics
+				emitter.AllStatistics = savedAllStatistics
+				decoder.TriceStatistics = savedTriceStatistics
+				decoder.IDStat = savedIDStat
+			})
+			emitter.UserLabel = nil
+			require.NoError(t, emitter.AddUserLabels())
+			emitter.TagStatistics = true
+			emitter.AllStatistics = false
+			decoder.TriceStatistics = true
+			decoder.IDStat = make(map[id.TriceID]int)
 			oldFraming := decoder.PackageFraming
 			oldInitialCycle := decoder.InitialCycle
 			oldDisableCycleErrors := trexDecoder.DisableCycleErrors
@@ -1229,6 +1345,9 @@ func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
 			if tt.wantNot != "" {
 				assert.NotContains(t, output.String(), tt.wantNot)
 			}
+			assert.Len(t, decoder.IDStat, tt.wantAppCount, "only successfully decoded IDs are counted")
+			assert.Equal(t, tt.wantAppCount, emitter.TagEvents("msg"), "valid application output counts before filtering")
+			assert.Zero(t, emitter.TagEvents("CYCLE_ERROR"), "tool diagnostics are not application events")
 		})
 	}
 }
@@ -1374,6 +1493,26 @@ func TestDecodeAndComposeLoopIntegratesVisAfterFiltering(t *testing.T) {
 // TestTREXVisIntegrationRoutesUnstampedAndBothStampWidths exercises real encoded decoder input end to end.
 func TestTREXVisIntegrationRoutesUnstampedAndBothStampWidths(t *testing.T) {
 	configureTranslatorLoopTest(t)
+	savedTags := emitter.Tags
+	savedUserLabel := emitter.UserLabel
+	savedTagStatistics := emitter.TagStatistics
+	savedAllStatistics := emitter.AllStatistics
+	savedTriceStatistics := decoder.TriceStatistics
+	savedIDStat := decoder.IDStat
+	t.Cleanup(func() {
+		emitter.Tags = savedTags
+		emitter.UserLabel = savedUserLabel
+		emitter.TagStatistics = savedTagStatistics
+		emitter.AllStatistics = savedAllStatistics
+		decoder.TriceStatistics = savedTriceStatistics
+		decoder.IDStat = savedIDStat
+	})
+	emitter.UserLabel = []string{"sample"}
+	require.NoError(t, emitter.AddUserLabels())
+	emitter.TagStatistics = true
+	emitter.AllStatistics = false
+	decoder.TriceStatistics = true
+	decoder.IDStat = make(map[id.TriceID]int)
 	oldFraming := decoder.PackageFraming
 	oldInitialCycle := decoder.InitialCycle
 	oldDoubledID := trexDecoder.Doubled16BitID
@@ -1438,6 +1577,8 @@ func TestTREXVisIntegrationRoutesUnstampedAndBothStampWidths(t *testing.T) {
 	require.ErrorIs(t, err, io.EOF)
 	require.NoError(t, router.Close())
 	assert.Empty(t, normal.String())
+	assert.Equal(t, 3, emitter.TagEvents("sample"), "visualization drops text, not decoded event totals")
+	assert.Equal(t, map[id.TriceID]int{1: 1, 2: 1, 3: 1}, decoder.IDStat)
 
 	all, err := fileSystem.ReadFile("all.csv")
 	require.NoError(t, err)
