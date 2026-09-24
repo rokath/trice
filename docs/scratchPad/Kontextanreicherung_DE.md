@@ -148,7 +148,54 @@ Doppelte kanonische Feldnamen innerhalb des finalen Records sind wie in M19 nich
 
 `trice-fields.txt` zählt CE-Felder genauso wie direkt geschriebene Structured-Logging-Felder.
 
-## 7. Schema, `til.json` und IDs
+## 7. Bind-Mechanismus: Runtime-Ausdrücke am ursprünglichen Callsite
+
+`til.json` allein kann CE nicht implementieren. Der CE-erweiterte Template-String ist Host-/Wörterbuchinformation; die zusätzlich konfigurierten C-Ausdrücke müssen auf dem Target tatsächlich ausgewertet und übertragen werden.
+
+Beispiel:
+
+```c
+void f(int x) {
+    trice("msg:hi");
+}
+```
+
+mit:
+
+```text
+-ce 'msg:", x={}", x'
+```
+
+Der User-Source bleibt unverändert. `bind` muss jedoch über sein generiertes Sidecar-/Makro-Artefakt bewirken, dass die effektive Compilerexpansion an genau dieser Logstelle zusätzlich den lokalen Ausdruck `x` verwendet und die passende Trice-Arity auswählt. Logisch entspricht dies einem Aufruf mit einem zusätzlichen Runtime-Wert.
+
+Wichtig ist die Trennung:
+
+- `til.json` enthält den finalen kanonischen CE-erweiterten Template-String;
+- der Target-Build benötigt die dazu passenden zusätzlichen Runtime-Werte;
+- der CE-erweiterte Text selbst muss nicht als Runtime-String auf das Target gelangen;
+- die injizierten C-Ausdrücke müssen im lexikalischen Scope der ursprünglichen `trice(...)`-Logstelle ausgewertet werden;
+- jeder injizierte Ausdruck darf pro tatsächlich ausgeführtem Trice-Aufruf genau einmal ausgewertet werden.
+
+Damit muss `bind` bei CE nicht nur IDs binden, sondern zusätzlich eine callsite-spezifische Argumenterweiterung erzeugen. Bestehende User-Argumente bleiben in ihrer Reihenfolge erhalten; CE-Argumente werden entsprechend der angewendeten CE-Regeln ergänzt.
+
+### 7.1 Verbindlicher Machbarkeitsnachweis vor M20
+
+Vor der eigentlichen M20-Implementierung muss ein isolierter PoC nachweisen, dass diese Callsite-Injektion mit dem Bind-Sidecar technisch sauber funktioniert. Maßgeblich ist [Issue_M20_Bind_CE_Callsite_Injection_PoC.md](Issue_M20_Bind_CE_Callsite_Injection_PoC.md).
+
+Der PoC muss mindestens zeigen:
+
+- zusätzlicher lokaler Wert bei einem bisher argumentlosen Trice;
+- Ergänzung eines CE-Werts hinter bereits vorhandenen Trice-Argumenten;
+- einfacher injizierter Ausdruck wie `x + 1`;
+- exakt einmalige Auswertung, auch bei einem Testausdruck mit beobachtbarem Seiteneffekt;
+- korrekte finale Trice-Arity und Übereinstimmung zwischen übertragenen Werten und `til.json`;
+- unveränderten User-Source und idempotente wiederholte Bind-Läufe.
+
+Zusätzlich darf der Mechanismus keine CE-bedingten False-Positive-Warnungen in üblichen compilerbewussten C/C++-Editoren bzw. Language-Servern erzeugen. Es ist zulässig, dass diese dafür das generierte Build-Verzeichnis und die reale Compile-Konfiguration kennen müssen. Nicht akzeptabel wäre ein Design, das zwar vom Build-Compiler angenommen wird, im normalen Editor aber systematisch falsche Argumentzahl-, Syntax- oder Identifierfehler anzeigt.
+
+Die erfolgreiche Abarbeitung dieses PoC ist eine Implementierungsvoraussetzung für M20. Schlägt der Nachweis fehl, ist die Bind/CE-Architektur vor weiterer M20-Arbeit neu zu bewerten.
+
+## 8. Schema, `til.json` und IDs
 
 CE wird vor Schema- und ID-Bestimmung angewendet.
 
@@ -178,7 +225,7 @@ und entsprechend zu einem CE-erweiterten `Strg` in `til.json`.
 
 Gleicher Source plus gleiche CE-Konfiguration muss bei wiederholtem `bind` dasselbe kanonische Ergebnis und dieselbe ID-Zuordnung ergeben.
 
-## 8. Fehlervertrag
+## 9. Fehlervertrag
 
 Folgende Fälle sind Fehler und müssen vor einem inkonsistenten Schreibzustand scheitern:
 
@@ -192,7 +239,7 @@ Ein C-Ausdruck, der an der ausgewählten Logstelle semantisch ungültig oder nic
 
 Jeder CE-Ausdruck darf pro tatsächlichem Trice-Aufruf genau einmal ausgewertet werden. Ausdrücke mit Seiteneffekten dürfen durch die Bind-Instrumentierung nicht dupliziert werden.
 
-## 9. Aktueller Scope: nur `bind -ce`
+## 10. Aktueller Scope: nur `bind -ce`
 
 M20 implementiert CE zunächst ausschließlich für `bind`.
 
@@ -200,7 +247,7 @@ Der Grund ist nicht eine grundsätzliche Unmöglichkeit von `insert/clean`, sond
 
 M19 Structured Logging selbst bleibt davon getrennt und soll weiterhin `bind` sowie `insert/clean` unterstützen.
 
-## 10. Anhang: mögliche spätere CE-Unterstützung für `insert/clean`
+## 11. Anhang: mögliche spätere CE-Unterstützung für `insert/clean`
 
 CE kann später auch für `insert/clean` ergänzt werden, wenn ein strikter Transformationsvertrag eingehalten wird.
 
@@ -231,11 +278,11 @@ Diese Garantie gilt nur, wenn Source, CE-Konfiguration und Transformationsregeln
 
 Diese spätere Erweiterung ist ausdrücklich nicht Teil des aktuellen M20-Implementierungsumfangs.
 
-## 11. Charakter des Ansatzes
+## 12. Charakter des Ansatzes
 
 `-ce` ist keine allgemeine Context-Vererbung, sondern eine optionale statisch ausgewählte Build-Time-Instrumentierung mit Runtime-Werten. Dadurch entstehen weder globaler Context-State noch besondere Probleme durch Taskwechsel oder Interrupts. Gleichzeitig kann zusätzliche Diagnoseinformation für bestimmte Builds aktiviert werden, ohne die User-Logstellen einzeln zu ändern.
 
-## 12. Referenzen
+## 13. Referenzen
 
 - Go `slog.Logger.With`: https://pkg.go.dev/log/slog
 - Microsoft `ILogger.BeginScope`: https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope
