@@ -44,9 +44,13 @@ var (
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, rwc io.ReadWriteCloser, visRouter *vis.Router) error {
+	diagnostics := w
+	if decoder.LogFormat != "text" {
+		diagnostics = os.Stderr
+	}
 	//var dec Decoder //io.Reader
 	if Verbose {
-		fmt.Fprintln(w, "Encoding is", Encoding)
+		fmt.Fprintln(diagnostics, "Encoding is", Encoding)
 	}
 	var endian bool
 	var dec decoder.Decoder
@@ -58,7 +62,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	default:
 		log.Fatal(fmt.Sprintln("unknown endianness", TriceEndianness, "- accepting litteEndian or bigEndian."))
 	}
-	dec, err := decoder.NewForEncoding(Encoding, w, lut, m, li, rwc, endian)
+	dec, err := decoder.NewForEncoding(Encoding, diagnostics, lut, m, li, rwc, endian)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,9 +72,9 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)
 	} else {
-		go handleSIGTERM(w, rwc, visRouter)
+		go handleSIGTERM(diagnostics, rwc, visRouter)
 	}
-	return decodeAndComposeLoop(w, sw, dec, lut, li, visRouter)
+	return decodeAndComposeLoopOutput(w, diagnostics, sw, dec, lut, li, visRouter)
 }
 
 // handleSIGTERM is called on CTRL-C shutdown.
@@ -488,6 +492,12 @@ func splitSingleFormatDirective(format string) (prefix string, width int, leftAl
 
 // decodeAndComposeLoop does not return.
 func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router) error {
+	return decodeAndComposeLoopOutput(w, w, sw, dec, lut, li, visRouter)
+}
+
+// decodeAndComposeLoopOutput keeps human diagnostics off machine-readable sinks.
+// Tests can supply separate buffers without replacing process-global stderr.
+func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router) error {
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
@@ -499,7 +509,41 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 
 		if err != io.EOF && err != nil {
-			log.Fatal(err)
+			return err
+		}
+		if decoder.LogFormat != "text" {
+			if n > 0 {
+				separateDecoderDiagnostics(diagnostics, dec, b[:n])
+			}
+			if provider, ok := dec.(decoder.RecordProvider); ok {
+				if record, available := provider.ApplicationRecord(); available {
+					if !emitter.ApplicationEventAllowed(record.Tag) {
+						continue
+					}
+					if visRouter != nil {
+						if numeric, ok := dec.(decoder.VisRecordProvider); ok {
+							if value, available := numeric.VisRecord(); available && visRouter.Process(value, false) {
+								continue
+							}
+						}
+					}
+					encoded, err := renderStructuredRecord(record, li, time.Now())
+					if err != nil {
+						return err
+					}
+					written, err := w.Write(encoded)
+					if err != nil {
+						return err
+					}
+					if written != len(encoded) {
+						return io.ErrShortWrite
+					}
+					continue
+				}
+			}
+			if n > 0 {
+				continue
+			}
 		}
 
 		if n == 0 {
@@ -526,7 +570,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 		// b contains decoded application text, tool diagnostics, or both.
 		start := time.Now()
-		application, tagCandidate, classifiedEvent := separateDecoderDiagnostics(w, dec, b[:n])
+		application, tagCandidate, classifiedEvent := separateDecoderDiagnostics(diagnostics, dec, b[:n])
 		if classifiedEvent {
 			application = emitter.NormalizeApplicationTag(application, tagCandidate)
 			if !emitter.ApplicationEventAllowed(tagCandidate) {
