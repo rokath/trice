@@ -1,110 +1,241 @@
-## Context Enrichment
+# Context Enrichment
 
-**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht implementiert. Die gewählte Bedienung ist `bind -ce`. Der [Implementierungsplan](Implementierungsplan.md) beschreibt die noch zu schließenden Regeln und die technische Bind-Machbarkeitsprüfung. Umsetzung erst auf ausdrückliches Kommando. Die ältere Forderung nach zusätzlichem CE über Insert/Clean ist kein stillschweigender Bestandteil dieser Bind-Spezifikation.
+**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht implementiert. Die für den aktuellen Scope nötigen Designentscheidungen sind abgeschlossen. M20 unterstützt zunächst ausschließlich `trice bind -ce`. Eine spätere Erweiterung auf `insert/clean` bleibt unter einem strikten reversiblen Vertrag möglich; siehe Anhang.
 
-### Einordnung
+## 1. Einordnung
 
-Etablierte Logging-Systeme reichern Logs meist über abgeleitete Logger mit festen Attributen, über logische Scopes oder über Spans an. Beispiele sind Go `slog.Logger.With`, .NET `BeginScope`, Serilog `LogContext` und Rust `tracing`-Spans.
+Trice führt für M20 keinen allgemeinen Runtime-Context mit Push/Pop, Task-local State oder Context-Handles ein. Stattdessen kann `bind` ausgewählte Trice-Aufrufe beim Build gezielt um zusätzliche Runtime-Werte instrumentieren.
 
-Für Trice wird vorerst kein allgemeiner Runtime-Context mit Push/Pop, Task-local State oder Context-Handles vorgesehen. Stattdessen kann `bind` ausgewählte Trice-Aufrufe beim Build gezielt um zusätzliche Runtime-Werte instrumentieren. Damit bleibt jeder Record vollständig und es entsteht kein impliziter Context-Zustand.
+Damit bleibt jeder Record vollständig und es entsteht kein impliziter Context-Zustand.
 
-### Selektive Context-Erweiterung mit `-ce`
+## 2. Grundsyntax
 
-Eine Trice-Meldung kann statische Context-Selektoren enthalten:
+Eine Trice-Meldung kann statische Selektorpräfixe enthalten:
 
 ```c
 trice("MSG:ctx7: hi\n");
 ```
 
-Eine Bind-Option kann für einen Selektor zusätzliche Darstellung und C-Ausdrücke festlegen:
+Eine Bind-Option definiert für einen Selektor zusätzliche Darstellung und Runtime-Ausdrücke:
 
 ```text
-trice bind -ce 'ctx7:", pos=%d,%d",x,y'
+trice bind -ce 'ctx7:", pos={x},{y}", x, y'
 ```
 
-Der effektive Record entspricht dann logisch
+Die allgemeine Syntax lautet:
+
+```text
+-ce 'selector:"format-extension"[, <C-expression>]...'
+```
+
+Die Erweiterung wird vor einem abschließenden `\n` eingefügt, andernfalls am Ende angehängt.
+
+Logisch kann daraus werden:
 
 ```c
-trice("MSG: hi, pos=%d,%d\n", x, y);
+trice("MSG: hi, pos={x},{y}\n", x, y);
 ```
 
-ohne dass der User-Sourcecode bei `bind` geändert wird. Die Erweiterung wird vor einem abschließenden `\n` eingefügt, andernfalls am Ende angehängt. Treffende Erweiterungen werden in Selektorreihenfolge angewendet.
+ohne dass der User-Sourcecode durch `bind` geändert wird.
 
-`x`, `y` dürfen gültige C-Ausdrücke sein, beispielsweise auch:
+## 3. C-Ausdrücke in `-ce`
+
+Der CE-Parser bleibt bewusst einfach. Jeder nach dem Formatstring angegebene C-Ausdruck muss selbst **kommafrei** sein. Dadurch kann die CLI-Liste eindeutig an Kommata getrennt werden, ohne einen vollständigen C-Parser einzuführen.
+
+Erlaubte Beispiele:
 
 ```text
--ce 'ctx7:", x=%d",getX()'
+x
+motor.speed
+motor->speed
+array[i]
+&buffer
+*x
+x + 1
+aFloat(temp)
+aDouble(value)
+condition ? a : b
 ```
 
-Sie müssen an jeder ausgewählten Logstelle sichtbar und kompilierbar sein.
+Nicht direkt erlaubt sind beispielsweise Ausdrücke mit eigenem Komma:
 
-### Selektoren
+```text
+getValue(a, b)
+(a++, a)
+```
 
-Selektoren werden **case-neutral** verglichen. `ctx7`, `Ctx7` und `CTX7` wählen somit dieselbe `-ce`-Regel.
+Bei Bedarf wird das Ergebnis vorher in eine lokale Variable gelegt und diese Variable an `-ce` übergeben.
 
-Nur die vollständig kleingeschriebene Schreibweise wird aus dem sichtbaren Meldungstext entfernt. Damit gilt beispielsweise:
+Die Ausdrücke müssen an jeder ausgewählten Logstelle sichtbar und kompilierbar sein.
+
+## 4. Selektoren
+
+### 4.1 Nur konfigurierte Selektoren haben CE-Bedeutung
+
+Ein Präfix wird nur dann als CE-Selektor behandelt, wenn für ihn im aktuellen Lauf eine passende `-ce`-Regel existiert.
+
+Ohne passende Regel bleibt der Text vollständig normaler Logtext:
+
+```c
+trice("msg:ctx7:hi");
+trice("ctx7:ho");
+```
+
+ohne `-ce 'ctx7:...'` ergibt weiterhin sichtbar:
+
+```text
+msg:ctx7:hi
+ctx7:ho
+```
+
+Damit verschwinden keine Logteile nur deshalb, weil eine Zeichenfolge zufällig wie ein möglicher Context-Selektor aussieht.
+
+### 4.2 Case und Aliase
+
+Selektoren werden case-neutral verglichen. `ctx7`, `Ctx7` und `CTX7` treffen dieselbe Regel.
+
+Nur die vollständig kleingeschriebene Schreibweise wird bei aktiver Regel aus dem sichtbaren Meldungstext entfernt:
 
 ```c
 trice("MSG:ctx7: hi\n");  // ctx7 wird entfernt
-trice("MSG:Ctx7: hi\n");  // Ctx7 bleibt sichtbar
+trice("MSG:Ctx7: hi\n");  // Ctx7 bleibt sichtbar, löst CE aber ebenfalls aus
 ```
 
-Normale Trice-Tags können ebenfalls als `-ce`-Selektoren dienen. Trifft ein `-ce`-Selektor einen fest eingebauten Trice-Tag oder einen seiner Aliase, wird die vorhandene Alias-Gruppe verwendet; `msg` und `message` sind damit beispielsweise gleichwertig. Freie CE-Selektoren besitzen keine zusätzliche Alias-Liste und werden nur case-neutral verglichen. Nur der erste Präfix kann zugleich als normaler Trice-Tag interpretiert werden; danach können mehrere Context-Selektoren folgen:
+Bekannte Trice-Tags können ebenfalls als CE-Selektoren dienen. Bei eingebauten Tag-Aliasen wird die vorhandene Alias-Gruppe verwendet. Freie CE-Selektoren besitzen keine zusätzliche Alias-Liste und werden nur case-neutral verglichen.
+
+`-ulabel` ist orthogonal zu `-ce`. Derselbe Name darf gleichzeitig User-Label/Tag und CE-Selektor sein. Die Tag-/Label-Metadaten werden aus dem ursprünglichen Präfix bestimmt und gehen durch die anschließende CE-Transformation nicht verloren.
+
+## 5. Mehrere Selektoren und mehrere Regeln
+
+Verschiedene Selektoren werden in ihrer Reihenfolge im Source ausgewertet.
+
+```c
+trice("msg:ctx7:ctx8: hi");
+```
+
+mit Regeln für `ctx7` und `ctx8` wendet zuerst die `ctx7`-, dann die `ctx8`-Erweiterung an.
+
+Mehrere `-ce`-Regeln für denselben Selektor sind zulässig und werden in CLI-Reihenfolge angewendet.
 
 ```text
-[tag-or-ce:][ce:][ce:]...message
+-ce 'ctx7:", x={x}", x'
+-ce 'ctx7:", y={y}", y'
 ```
 
-Die bestehende Tag-Behandlung bleibt unverändert. `-ulabel` ist dazu orthogonal und kann denselben statischen Selektor unabhängig mit Label-Metadaten versehen. Für bekannte Trice-Tags wirkt `-ulabel` ebenfalls auf die feste Alias-Gruppe; freie User-Labels bleiben dagegen literal, beispielsweise `new` und `NEW` als unterschiedliche Labels.
+Ein Selektor, der an derselben Logstelle mehrfach vorkommt, wird nur einmal wirksam; `bind` warnt über das Duplikat.
 
-### Zusammenspiel mit Structured Logging
+## 6. Zusammenspiel mit Structured Logging
 
-Der geplante `-ce`-Formatstring verwendet denselben Formatparser wie [Strukturiertes Logging](Strukturiertes_Logging_DE.md) für `trice()`. Klassische `%...`-Platzhalter und strukturierte `{...}`-Platzhalter dürfen gemischt werden:
+Der `-ce`-Formatstring verwendet exakt denselben Formatparser wie M19. Klassische `%...`-Platzhalter und strukturierte `{...}`-Platzhalter dürfen gemischt werden.
 
 ```text
--ce 'ctx7:", pos=%d,{position.y}",x,y'
+-ce 'ctx7:", pos=%d,{position_y}", x, y'
 ```
 
-Beide konsumieren C-Ausdrücke in ihrer Reihenfolge; nur `{...}` erzeugt zusätzlich strukturierte Feldmetadaten. Literale geschweifte Klammern werden wie im normalen Formatstring als `{{` und `}}` geschrieben.
+Beide Platzhalterarten konsumieren CE-Ausdrücke in ihrer Reihenfolge; nur `{...}` erzeugt zusätzlich ein strukturiertes Feld. Literale geschweifte Klammern werden wie in M19 als `{{` und `}}` geschrieben.
 
-Nach der CE-Erweiterung durchläuft der resultierende Record die normale Structured-Logging-Verarbeitung. Feldnamen, Hierarchie, Registry und ID-Vergabe folgen damit denselben Regeln wie bei direkt im Source geschriebenen Feldern. CE ist damit nur eine vorgelagerte Build-Time-Transformation; es entsteht keine zweite Format- oder Target-API.
-
-Auch die Kurzform `{}` ist möglich, wenn der Feldname eindeutig aus dem C-Ausdruck ableitbar ist:
+Auch `{}` ist möglich, wenn der Feldname eindeutig aus dem einfachen CE-Ausdruck ableitbar ist:
 
 ```text
--ce 'ctx7:", x={}",x'
+-ce 'ctx7:", x={}", x'
 ```
 
-Bei einem allgemeinen Ausdruck wie `getX()` ist dagegen ein expliziter Name erforderlich:
+Bei einem Ausdruck ohne eindeutige Namensableitung ist ein expliziter Feldname erforderlich.
+
+Nach der CE-Erweiterung durchläuft der resultierende Record die normale M19-Kanonisierung. CE-Felder und direkt im Source geschriebene Felder bilden dasselbe flache Feldschema.
+
+Doppelte kanonische Feldnamen innerhalb des finalen Records sind wie in M19 nicht erlaubt und führen zu einem Fehler.
+
+`trice-fields.txt` zählt CE-Felder genauso wie direkt geschriebene Structured-Logging-Felder.
+
+## 7. Schema, `til.json` und IDs
+
+CE wird vor Schema- und ID-Bestimmung angewendet.
+
+Der User-Source bleibt bei `bind` unverändert, aber `til.json` enthält für den jeweiligen Build den finalen kanonischen, CE-erweiterten Template-String im bestehenden `Strg`-Feld.
+
+Beispiel Source:
+
+```c
+trice("MSG:ctx7:Speed={speed}\n", speed);
+```
+
+mit:
 
 ```text
--ce 'ctx7:", x={x}",getX()'
+-ce 'ctx7:", Pos={position}", position'
 ```
 
-Memberzugriffe sind zulässig und werden wie üblich kanonisiert:
+führt logisch zu einem kanonischen Record wie:
+
+```c
+trice("MSG:Speed={speed}, Pos={position}\n", speed, position);
+```
+
+und entsprechend zu einem CE-erweiterten `Strg` in `til.json`.
+
+Ändert die aktive CE-Konfiguration den finalen Template-String, die Argumente oder die strukturierten Feldnamen, ergibt sich ein anderes Schema und damit eine andere ID. Ohne passende `-ce`-Regel entstehen weder zusätzliche Target-Werte noch eine CE-Transformation.
+
+Gleicher Source plus gleiche CE-Konfiguration muss bei wiederholtem `bind` dasselbe kanonische Ergebnis und dieselbe ID-Zuordnung ergeben.
+
+## 8. Fehlervertrag
+
+Folgende Fälle sind Fehler und müssen vor einem inkonsistenten Schreibzustand scheitern:
+
+- Anzahl Format-Platzhalter und CE-Ausdrücke passt nicht zusammen.
+- Durch CE entstehen doppelte strukturierte Feldnamen im finalen Record.
+- Die resultierende Trice-Arity oder Makrofamilie ist nicht unterstützt.
+- Eine nicht unterstützte Bitbreiten-/Wrapper-Kombination würde entstehen.
+- Die CE-Regel selbst ist syntaktisch ungültig.
+
+Ein C-Ausdruck, der an der ausgewählten Logstelle semantisch ungültig oder nicht sichtbar ist, führt spätestens beim Compiler zu einem klaren Buildfehler.
+
+Jeder CE-Ausdruck darf pro tatsächlichem Trice-Aufruf genau einmal ausgewertet werden. Ausdrücke mit Seiteneffekten dürfen durch die Bind-Instrumentierung nicht dupliziert werden.
+
+## 9. Aktueller Scope: nur `bind -ce`
+
+M20 implementiert CE zunächst ausschließlich für `bind`.
+
+Der Grund ist nicht eine grundsätzliche Unmöglichkeit von `insert/clean`, sondern der derzeit nicht gerechtfertigte Zusatzaufwand für eine vollständig reversible Source-Transformation mit zusätzlichen Runtime-Ausdrücken.
+
+M19 Structured Logging selbst bleibt davon getrennt und soll weiterhin `bind` sowie `insert/clean` unterstützen.
+
+## 10. Anhang: mögliche spätere CE-Unterstützung für `insert/clean`
+
+CE kann später auch für `insert/clean` ergänzt werden, wenn ein strikter Transformationsvertrag eingehalten wird.
+
+Mindestens gelten dann:
+
+- `insert` und `clean` werden mit identischen `-ce`-Optionen in identischer Reihenfolge ausgeführt.
+- Die CE-Transformation ist vollständig deterministisch.
+- Die durch CE erzeugten Formatstring-Anteile und Runtime-Argumente sind eindeutig rekonstruierbar.
+- `insert` ist idempotent:
 
 ```text
-motor.x       -> motor.x
-motor->x      -> motor.x
+insert(insert(S, CE), CE) = insert(S, CE)
 ```
 
-Ein komplettes C-Struct wird nicht automatisch serialisiert; benötigte Member werden einzeln angegeben.
+- `clean` ist idempotent:
 
-Damit kollidiert CE nicht mit Structured Logging: injizierte und im Source vorhandene Felder landen im selben flachen Feldschema. Doppelte Feldnamen bleiben zulässig und können von `bind` lediglich gewarnt werden.
+```text
+clean(clean(S, CE), CE) = clean(S, CE)
+```
 
-### Schema und IDs
+- Die zentrale Rücknahmebedingung lautet:
 
-Die CE-Erweiterung erfolgt vor der Schema- und ID-Bestimmung. Ändert `-ce` den effektiven Formatstring, die Argumente oder strukturierte Feldnamen, entsteht entsprechend eine andere Trice-ID. Ohne passende `-ce`-Option entstehen keine zusätzlichen Target-Werte.
+```text
+clean(insert(S, CE), CE) = S
+```
 
-Doppelte strukturierte Feldnamen sind zulässig. `bind` kann davor warnen, soll sie aber nicht verbieten. Hierarchische Namen wie `motor` und `motor.temperature` sind ebenfalls zulässig, da Trice sie zunächst als flache kanonische Feldnamen behandelt. Eine spätere Umwandlung in verschachtelte JSON-Objekte ist Aufgabe des jeweiligen Output-Renderers.
+Diese Garantie gilt nur, wenn Source, CE-Konfiguration und Transformationsregeln zwischen `insert` und `clean` nicht manuell verändert wurden.
 
-Die verlustfreie JSON-/kv-Darstellung doppelter Namen ist noch im gemeinsamen M19-Ausgabevertrag festzulegen. Das beispielhafte JSON-Objekt aus dem Structured-Logging-Entwurf ist für eindeutige Namen gedacht und erlaubt kein stilles Überschreiben mehrfacher Werte.
+Diese spätere Erweiterung ist ausdrücklich nicht Teil des aktuellen M20-Implementierungsumfangs.
 
-### Charakter des Ansatzes
+## 11. Charakter des Ansatzes
 
-`-ce` ist keine allgemeine Context-Vererbung, sondern eine optionale, statisch ausgewählte Instrumentierung mit Runtime-Werten. Dadurch entstehen weder globaler Context-State noch besondere Probleme durch Taskwechsel oder Interrupts. Gleichzeitig kann zusätzliche Diagnoseinformation gezielt für bestimmte Builds aktiviert werden, ohne die betreffenden User-Logstellen einzeln zu ändern.
+`-ce` ist keine allgemeine Context-Vererbung, sondern eine optionale statisch ausgewählte Build-Time-Instrumentierung mit Runtime-Werten. Dadurch entstehen weder globaler Context-State noch besondere Probleme durch Taskwechsel oder Interrupts. Gleichzeitig kann zusätzliche Diagnoseinformation für bestimmte Builds aktiviert werden, ohne die User-Logstellen einzeln zu ändern.
 
-### Referenzen
+## 12. Referenzen
 
 - Go `slog.Logger.With`: https://pkg.go.dev/log/slog
 - Microsoft `ILogger.BeginScope`: https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope
