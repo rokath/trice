@@ -216,7 +216,7 @@ func TestBindMVP2KeepsAdjacentPhysicalLinesInSeparateScopes(t *testing.T) {
 
 	entries, err := FSys.ReadDir(BindDir)
 	require.NoError(t, err)
-	assert.Len(t, entries, 5, "one owner sidecar plus two explicit helpers per independent source line")
+	assert.Len(t, entries, 6, "one owner sidecar, two explicit helpers per independent source line, and the current-run field registry")
 }
 
 // TestBindMVP2WrapsOneMultilineInvocationAsItsMinimalRegion proves that a

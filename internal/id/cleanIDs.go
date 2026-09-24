@@ -93,6 +93,9 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 			} else {
 				t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
 			}
+			if err = canonicalizeSourceTemplate(&t, rest[loc[6]:]); err != nil {
+				return nil, false, fmt.Errorf("%s:%d: %w", sourcePath, line, err)
+			}
 			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.

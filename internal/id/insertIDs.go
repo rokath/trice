@@ -21,11 +21,18 @@ import (
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
+	if MigrateBraces {
+		return migrateLiteralBraces(w, fSys)
+	}
+	fields, e := collectInsertFields(w, fSys)
+	if e != nil {
+		return e
+	}
 	e = IDData.cmdSwitchTriceIDs(w, fSys, IDData.triceIDInsertion)
 	if e != nil {
 		return e
 	}
-	return
+	return writeInsertFields(fSys, fields)
 }
 
 // processTriceIDInsertion reads file, processes it and writes it back, if needed.
@@ -155,6 +162,10 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 			// The Trice Tool can check for this case and
 			// - on logging replace t.Strg with "%s" then and
 			// - on ID management t.Strg with t.Strg content SAliasFrame prefix and suffix removed.
+		}
+
+		if err = canonicalizeSourceTemplate(&t, rest[loc[6]:]); err != nil {
+			return nil, false, fmt.Errorf("%s:%d: %w", sourcePath, triceStartLine, err)
 		}
 
 		// Only check format specifiers(param count) when the tool has a real format string.

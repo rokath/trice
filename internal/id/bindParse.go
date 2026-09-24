@@ -212,6 +212,9 @@ func scanSourceSites(path, source string, maskComments bool) (sites []bindSite, 
 		} else if absolute[5] < absolute[6] {
 			trice.Strg = source[absolute[5]+1 : absolute[6]-1]
 		}
+		if err := canonicalizeSourceTemplate(&trice, source[absolute[6]:]); err != nil {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, line: site.line, message: err.Error()})
+		}
 		site.format = trice.Strg
 
 		if absolute[3] == absolute[4] {

@@ -1406,19 +1406,19 @@ func TestInsertWithBrackets(t *testing.T) {
 	src1 := `
 	TRice("x" );
 	TRice("(x)" );
-	TRice("{x}" );
+	TRice("{{x}}" );
 	TRice("[x]" );
 	TRice("(x" );
-	TRice("{x" );
+	TRice("{{x" );
 	TRice("[x" );
 	TRice("x)" );
-	TRice("x}" );
+	TRice("x}}" );
 	TRice("x]" );
 	TRice("((" );
-	TRice("{{" );
+	TRice("{{{{" );
 	TRice("[[" );
 	TRice("))" );
-	TRice("}}" );
+	TRice("}}}}" );
 	TRice("]]" );
 	`
 	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
@@ -1430,19 +1430,19 @@ func TestInsertWithBrackets(t *testing.T) {
 	expSrc1 := `
 	TRice(iD(999), "x" );
 	TRice(iD(998), "(x)" );
-	TRice(iD(997), "{x}" );
+	TRice(iD(997), "{{x}}" );
 	TRice(iD(996), "[x]" );
 	TRice(iD(995), "(x" );
-	TRice(iD(994), "{x" );
+	TRice(iD(994), "{{x" );
 	TRice(iD(993), "[x" );
 	TRice(iD(992), "x)" );
-	TRice(iD(991), "x}" );
+	TRice(iD(991), "x}}" );
 	TRice(iD(990), "x]" );
 	TRice(iD(989), "((" );
-	TRice(iD(988), "{{" );
+	TRice(iD(988), "{{{{" );
 	TRice(iD(987), "[[" );
 	TRice(iD(986), "))" );
-	TRice(iD(985), "}}" );
+	TRice(iD(985), "}}}}" );
 	TRice(iD(984), "]]" );
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
