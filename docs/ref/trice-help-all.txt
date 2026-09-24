@@ -198,6 +198,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
+  -logFormat string
+    	Output format: text (classic presentation), json (one JSON object per application event), or kv (one key=value record per event). Structured formats require TREX; diagnostics go to stderr. (default "text")
   -logLevel string
     	Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
     	A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
@@ -500,6 +502,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This flag can be specified multiple times to add more aliases. Each provided name will be
     	recognized as equivalent to a trice() call. (default none)
     	 (default none)
+  -buildDir string
+    	Build directory for the current invocation's trice-fields.txt field registry. (default "./build/triceIDs")
   -cache
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
   -defaultStampSize int
@@ -536,6 +540,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
+  -migrateBraces
+    	One-time legacy migration only: double all literal braces in selected source format strings and the complete TIL, preserving IDs. Does not insert or bind. Use only before introducing structured templates; do not repeat on migrated data. Supports -dry-run.
   -s value
     	Short for src.
   -sa value
@@ -637,6 +643,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
+  -migrateBraces
+    	One-time legacy migration only: double all literal braces in selected source format strings and the complete TIL, preserving IDs. Does not insert or bind. Use only before introducing structured templates; do not repeat on migrated data. Supports -dry-run.
   -s value
     	Short for src.
   -sa value

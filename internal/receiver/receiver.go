@@ -298,7 +298,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		if ExecCommand != "" {
-			fmt.Println("todo: execute ", ExecCommand)
+			fmt.Fprintln(w, "todo: execute ", ExecCommand)
 		}
 		l := newTCP4Connection(args)
 		r = l
@@ -310,7 +310,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		if ExecCommand != "" {
-			fmt.Println("todo: execute ", ExecCommand)
+			fmt.Fprintln(w, "todo: execute ", ExecCommand)
 		}
 		l := newUDPConnection(args)
 		r = l
@@ -351,7 +351,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			args = DefaultCOMArgs
 		}
 		if verbose {
-			fmt.Println("Assuming", port, "is serial port.")
+			fmt.Fprintln(w, "Assuming", port, "is serial port.")
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		var c com.COMport // interface type

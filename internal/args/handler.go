@@ -223,7 +223,18 @@ func ensureDate(fSys *afero.Afero) {
 }
 
 func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
+	// A later invocation in the same process starts with the documented default.
+	decoder.LogFormat = "text"
 	msg.OnErr(fsScLog.Parse(subArgs))
+	if decoder.LogFormat != "text" && decoder.LogFormat != "json" && decoder.LogFormat != "kv" {
+		return fmt.Errorf("invalid -logFormat %q: expected text, json, or kv", decoder.LogFormat)
+	}
+	if decoder.LogFormat != "text" && !strings.EqualFold(translator.Encoding, "TREX") {
+		return fmt.Errorf("-logFormat %s requires -encoding TREX because CHAR/DUMP have no event boundaries", decoder.LogFormat)
+	}
+	if decoder.LogFormat != "text" && (emitter.DisplayRemote || decoder.TestTableMode) {
+		return fmt.Errorf("-logFormat %s cannot use the text-only remote display or test-table output", decoder.LogFormat)
+	}
 	if isLogFlagPassed("pick") && isLogFlagPassed("ban") {
 		return errors.New("switches -pick and -ban cannot be used together")
 	}
@@ -243,8 +254,7 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
 	decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
 	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-	startLogLoop(w, fSys) // endless loop
-	return nil
+	return startLogLoop(w, fSys) // endless loop until EOF or a returned failure
 }
 
 // startLogLoop starts the input/output path after all command-line validation.
@@ -268,7 +278,11 @@ type selector struct {
 }
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
-func logLoop(w io.Writer, fSys *afero.Afero) {
+func logLoop(w io.Writer, fSys *afero.Afero) error {
+	applicationOutput := w
+	if decoder.LogFormat != "text" {
+		w = os.Stderr
+	}
 	msg.FatalOnErr(cipher.SetUp(w)) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
@@ -332,16 +346,19 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		}
 	}
 
-	sw := emitter.New(w)
+	sw := emitter.New(applicationOutput)
 	var interrupted bool
 	var counter int
 
 	for {
 		rwc, e := receiver.NewReadWriteCloser(w, fSys, Verbose, receiver.Port, receiver.PortArguments)
 		if e != nil {
+			if !interrupted && decoder.LogFormat != "text" {
+				return e // Machine commands report a failed input setup to their caller.
+			}
 			fmt.Fprintln(w, e)
 			if !interrupted {
-				return // hopeless
+				return nil // preserve the existing text command's diagnostic-only result
 			}
 			time.Sleep(1000 * time.Millisecond) // retry interval
 			fmt.Fprintf(w, "\rsig:(re-)setup input port...%d", counter)
@@ -356,9 +373,12 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
-		e = translator.Translate(w, sw, ilu, m, li, rwc, visRouter)
+		e = translator.Translate(applicationOutput, sw, ilu, m, li, rwc, visRouter)
 		if io.EOF == e {
-			return // end of predefined buffer
+			return nil // end of predefined buffer
+		}
+		if e != nil {
+			return e
 		}
 	}
 }

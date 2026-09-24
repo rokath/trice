@@ -89,6 +89,7 @@ func logInit() {
 	emitter.Pick = nil
 	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
+	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format: text (classic presentation), json (one JSON object per application event), or kv (one key=value record per event). Structured formats require TREX; diagnostics go to stderr.")
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.
@@ -231,6 +232,7 @@ If omitted, the current directory is inspected. Globs such as "-src *.c" are not
 
 func insertIDsInit() {
 	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
+	fsScInsert.StringVar(&id.FieldsDir, "buildDir", "./build/triceIDs", "Build directory for the current invocation's trice-fields.txt field registry.")
 	flagsInsertAndBind(fsScInsert)
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
@@ -249,6 +251,7 @@ func bindIDsInit() {
 
 // flagsInsertAndBind registers options whose parser, ID, and list semantics are shared by insert and bind.
 func flagsInsertAndBind(p *flag.FlagSet) {
+	p.BoolVar(&id.MigrateBraces, "migrateBraces", false, "One-time legacy migration only: double all literal braces in selected source format strings and the complete TIL, preserving IDs. Does not insert or bind. Use only before introducing structured templates; do not repeat on migrated data. Supports -dry-run.")
 	flagsRefreshAndUpdate(p)
 	flagTriceIDRange(p)
 	p.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")

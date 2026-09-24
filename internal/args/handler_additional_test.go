@@ -152,7 +152,7 @@ func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			FlagsInit()
 			started := false
-			startLogLoop = func(io.Writer, *afero.Afero) { started = true }
+			startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
 
 			err := runLog(io.Discard, &afero.Afero{Fs: afero.NewMemMapFs()}, tt.args)
 			if tt.wantErr {
@@ -200,7 +200,7 @@ func TestLogEntryPointsResolveUserSelectorsAfterRegistration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			FlagsInit()
 			started := false
-			startLogLoop = func(io.Writer, *afero.Afero) { started = true }
+			startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
 
 			require.NoError(t, tt.run(tt.args))
 			assert.True(t, started)
@@ -251,7 +251,7 @@ func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
 			t.Run(entryPoint.name+" "+tt.name, func(t *testing.T) {
 				FlagsInit()
 				started := false
-				startLogLoop = func(io.Writer, *afero.Afero) { started = true }
+				startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
 
 				err := entryPoint.run(tt.args)
 				require.Error(t, err)
@@ -532,7 +532,10 @@ func TestHandlerBindGeneratesSidecar(t *testing.T) {
 	assert.Contains(t, string(bound), `#include "trice_module_c_K`)
 	entries, readErr := fSys.ReadDir("generated/triceIDs")
 	assert.NoError(t, readErr)
-	assert.Len(t, entries, 1)
+	assert.Len(t, entries, 2, "sidecar plus the current-run field registry")
+	fields, readErr := fSys.ReadFile("generated/triceIDs/trice-fields.txt")
+	assert.NoError(t, readErr)
+	assert.Empty(t, fields, "classic printf logs introduce no user fields")
 }
 
 // TestHandlerBindImplicitSourceHint verifies that a failed recursive default
