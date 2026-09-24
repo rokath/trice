@@ -1,5 +1,6 @@
 **Redaktioneller Kommentar — nicht Teil des UM.**
 
+M19 ist implementiert. Dieses Dokument bleibt die Entwurfsreferenz; das [deutsche UM-Kapitel](../TriceUserManual.md#strukturiertes-logging) beschreibt die vorhandene Funktion, konkrete Optionen und Migration. Der bestätigte Scope umfasst skalare Felder sowie Strings über `triceS`/`triceN`; benannte Pufferfelder werden mit einem klaren Fehler abgewiesen. Klassische Pufferlogs bleiben als `message` erhalten. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen und Typsemantik bleiben Host-/Wörterbuchinformation.
 Dieser Entwurf beschreibt die geplante Structured-Logging-Erweiterung M19 für Trice; sie ist noch nicht implementiert. Die für den aktuellen Scope nötigen Designentscheidungen sind abgeschlossen. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen und Typsemantik bleiben Host-/Wörterbuchinformation.
 
 ---
@@ -188,6 +189,8 @@ Source-Kurzformen wie `{}` werden vor Speicherung auf den kanonischen Feldnamen 
 `Type + Strg` bleibt die Schemaidentität. Eine Feldumbenennung ändert `Strg` und erfordert dadurch eine neue ID; eine rein syntaktische Änderung mit identischem kanonischem Ergebnis nicht.
 
 Lokale generierte Texttabellen oder Decoder-Artefakte dürfen aus dem kanonischen `Strg` den erforderlichen printf-kompatiblen Formatstring ableiten. Dafür ist keine zweite dauerhafte Schemaquelle erforderlich.
+
+Für M20 Context Enrichment kann `bind` den finalen kanonischen `Strg` gegenüber dem unveränderten User-Source erweitern. Die dazu zusätzlich auf dem Target benötigten Runtime-Ausdrücke werden nicht aus `til.json` gewonnen, sondern müssen callsite-spezifisch über den Bind-Sidecar in die Compilerexpansion injiziert werden. Der technische Nachweis dafür ist eine separate M20-Implementierungsvoraussetzung; siehe [Kontextanreicherung_DE.md](Kontextanreicherung_DE.md).
 
 ## 6. Ausgabe mit `trice log`
 
