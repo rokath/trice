@@ -11,8 +11,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/rokath/trice/internal/fmtspec"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -167,35 +165,6 @@ func TestStructuredGeneratedLocalFormat(t *testing.T) {
 	assert.Equal(t, "info:Motor {motor_id}: {temperature:%.1f C}", til[4711].Strg)
 }
 
-// TestStructuredLegacyMigrationKeepsHistoricalIDs converts both active source
-// and historical dictionary-only entries. Braces already occurring as pairs
-// were two old literal characters and must therefore become four characters.
-func TestStructuredLegacyMigrationKeepsHistoricalIDs(t *testing.T) {
-	source := `trice(iD(100), "set={1,2}, pair={{, close=}");` + "\n"
-	defer prepareBindTest(t, map[string]string{"module.c": source})()
-	oldMigration := MigrateBraces
-	t.Cleanup(func() { MigrateBraces = oldMigration })
-	MigrateBraces = true
-	assert.NoError(t, FSys.WriteFile(FnJSON, []byte(`{"100":{"Type":"trice","Strg":"set={1,2}, pair={{, close=}"},"99":{"Type":"TRICE32_1","Strg":"old={value:%d}"}}`), 0o644))
-	beforeTIL := structuredTestFile(t, FnJSON)
-	DryRun = true
-	assert.NoError(t, SubCmdIdInsert(io.Discard, FSys))
-	assert.Equal(t, source, string(structuredTestFile(t, Srcs[0])))
-	assert.Equal(t, beforeTIL, structuredTestFile(t, FnJSON))
-	DryRun = false
-	assert.NoError(t, SubCmdIdInsert(io.Discard, FSys))
-	assert.Equal(t, `trice(iD(100), "set={{1,2}}, pair={{{{, close=}}");`+"\n", string(structuredTestFile(t, Srcs[0])))
-	til := structuredTestTIL(t)
-	assert.Equal(t, "set={{1,2}}, pair={{{{, close=}}", til[100].Strg)
-	assert.Equal(t, "old={{value:%d}}", til[99].Strg)
-	assert.Len(t, til, 2, "migration does not allocate or discard IDs")
-	for _, tid := range []TriceID{99, 100} {
-		template, err := fmtspec.ParseTemplate(til[tid].Strg, nil)
-		assert.NoError(t, err)
-		assert.Empty(t, template.Fields, "old braces must not create structured fields")
-	}
-}
-
 // TestStructuredTargetTemplatesCompile runs the real target macros with the
 // generated IDs in both instrumentation workflows. Field syntax remains host
 // information; no target parser, new API, or transmitted field name is needed.
@@ -249,20 +218,6 @@ void report(int motor_id, float temperature_c, double voltage) {
 			compileBindFixture(t, compiler, "c11", source, filepath.Join(project, "module.o"), BindDir, project, filepath.Join(bindRepositoryRoot(t), "src"))
 		})
 	}
-}
-
-// TestStructuredMigrationRollback prevents a failed source replacement from
-// leaving historical dictionary formats migrated ahead of the source corpus.
-func TestStructuredMigrationRollback(t *testing.T) {
-	defer prepareBindTest(t, map[string]string{"module.c": `trice("literal={old}");`})()
-	assert.NoError(t, FSys.WriteFile(FnJSON, []byte(`{"100":{"Type":"trice","Strg":"literal={old}"}}`), 0o644))
-	beforeSource, beforeTIL := structuredTestFile(t, Srcs[0]), structuredTestFile(t, FnJSON)
-	failing := &bindFailOnceRenameFs{Fs: FSys.Fs, destination: Srcs[0]}
-	err := migrateLiteralBraces(io.Discard, &afero.Afero{Fs: failing})
-	assert.ErrorContains(t, err, "injected rename failure")
-	assert.True(t, failing.failed, "source commit must be reached after the TIL replacement")
-	assert.Equal(t, beforeSource, structuredTestFile(t, Srcs[0]))
-	assert.Equal(t, beforeTIL, structuredTestFile(t, FnJSON), "rollback restores the dictionary, including historical meanings")
 }
 
 // TestStructuredRegistryDryRunPreservesPublishedCounts covers a changed source

@@ -21,9 +21,6 @@ import (
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
-	if MigrateBraces {
-		return migrateLiteralBraces(w, fSys)
-	}
 	fields, e := collectInsertFields(w, fSys)
 	if e != nil {
 		return e

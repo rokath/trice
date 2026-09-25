@@ -251,7 +251,6 @@ func bindIDsInit() {
 
 // flagsInsertAndBind registers options whose parser, ID, and list semantics are shared by insert and bind.
 func flagsInsertAndBind(p *flag.FlagSet) {
-	p.BoolVar(&id.MigrateBraces, "migrateBraces", false, "One-time legacy migration only: double all literal braces in selected source format strings and the complete TIL, preserving IDs. Does not insert or bind. Use only before introducing structured templates; do not repeat on migrated data. Supports -dry-run.")
 	flagsRefreshAndUpdate(p)
 	flagTriceIDRange(p)
 	p.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")

@@ -3,7 +3,6 @@
 package id
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -19,10 +18,6 @@ import (
 // FieldsDir is insert's build output directory for the current-run field list.
 // Bind uses its existing BindDir so each build keeps its generated facts together.
 var FieldsDir = "./build/triceIDs"
-
-// MigrateBraces requests an explicit one-time conversion of pre-template data.
-// It never guesses whether a brace in a mixed old/new project was intentional.
-var MigrateBraces bool
 
 // canonicalizeSourceTemplate resolves names without rewriting user-owned string
 // literals. Keeping the source spelling is what makes insert/clean reversible.
@@ -157,83 +152,4 @@ func writeInsertFields(fSys *afero.Afero, counts map[string]int) error {
 	}
 	path := filepath.Join(FieldsDir, "trice-fields.txt")
 	return atomicWriteFile(fSys, path, renderFieldRegistry(counts), fileWritePerm(fSys, path, 0o644))
-}
-
-// migrateLiteralBraces converts an explicitly selected legacy corpus as one
-// rollback-protected write set. Historical IDs retain their meaning and number.
-// Already structured input must never be sent through this one-time operation.
-func migrateLiteralBraces(w io.Writer, fSys *afero.Afero) error {
-	inputs, diagnostics := collectBindInputs(w, fSys)
-	if len(diagnostics) != 0 {
-		return reportBindDiagnostics(w, diagnostics)
-	}
-	var writes []bindWrite
-	for _, input := range inputs {
-		source := string(input.data)
-		rest, offset := maskTriceInsertDisabledRegions(source), 0
-		var edits []sourceEdit
-		for {
-			loc := matchTrice(rest)
-			if loc == nil {
-				break
-			}
-			trice := TriceFmt{Type: rest[loc[0]:loc[1]]}
-			resolveTriceAlias(&trice)
-			if !trice.isSAlias() {
-				start, end := offset+loc[5]+1, offset+loc[6]-1
-				converted := escapeLegacyBraces(source[start:end])
-				if converted != source[start:end] {
-					edits = append(edits, sourceEdit{start: start, end: end, replacement: converted})
-				}
-			}
-			offset += loc[6]
-			rest = rest[loc[6]:]
-		}
-		converted, err := applySourceEdits(source, edits)
-		if err != nil {
-			return err
-		}
-		if converted != source {
-			writes = append(writes, bindWrite{path: input.path, data: []byte(converted), perm: input.info.Mode(), kind: "source"})
-		}
-	}
-	data, err := fSys.ReadFile(FnJSON)
-	if err != nil {
-		return err
-	}
-	til := make(TriceIDLookUp)
-	if len(data) != 0 {
-		if err := json.Unmarshal(data, &til); err != nil {
-			return fmt.Errorf("cannot migrate %s: %w", FnJSON, err)
-		}
-	}
-	changed := false
-	for tid, trice := range til {
-		if isSAliasEncodedString(trice.Strg) {
-			continue
-		}
-		converted := escapeLegacyBraces(trice.Strg)
-		if converted != trice.Strg {
-			trice.Strg, changed = converted, true
-			til[tid] = trice
-		}
-	}
-	if changed {
-		data, err := til.toJSON()
-		if err != nil {
-			return err
-		}
-		writes = append([]bindWrite{{path: FnJSON, data: data, perm: fileWritePerm(fSys, FnJSON, 0o644), kind: "til"}}, writes...)
-	}
-	fmt.Fprintf(w, "Legacy brace migration: %d file(s); all selected braces are treated as literal. Run this conversion only once, before adding structured templates.\n", len(writes))
-	if DryRun {
-		return nil
-	}
-	return commitBindWrites(fSys, writes)
-}
-
-// escapeLegacyBraces doubles every old literal brace, including adjacent ones;
-// treating an existing pair as already migrated would lose old literal text.
-func escapeLegacyBraces(s string) string {
-	return strings.NewReplacer("{", "{{", "}", "}}").Replace(s)
 }

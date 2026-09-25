@@ -36,10 +36,6 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	if err := validateBindOptions(); err != nil {
 		return err
 	}
-	if MigrateBraces {
-		return migrateLiteralBraces(w, fSys)
-	}
-
 	inputs, diagnostics := collectBindInputs(w, fSys)
 	plans := analyzeBindInputs(inputs)
 	for i := range plans {
