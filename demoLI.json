@@ -9483,6 +9483,10 @@
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 2783
 	},
+	"15958": {
+		"File": "_test/testdata/triceCheck.c",
+		"Line": 3019
+	},
 	"15982": {
 		"File": "_test/testdata/triceCheck.c",
 		"Line": 2803

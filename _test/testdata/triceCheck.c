@@ -3016,7 +3016,7 @@ static void exampleOfManualJSONencoding(void) {
 	} Ex_t;
 	Ex_t Ex = {-1, 2, (float)2.781};
 #endif
-	Trice("att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f})\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
+	Trice("att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple:%d}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
 static void dynString(int n) {

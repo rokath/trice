@@ -791,6 +791,10 @@
 		"File": "main.c",
 		"Line": 47
 	},
+	"1198": {
+		"File": "../../_test/testdata/triceCheck.c",
+		"Line": 3019
+	},
 	"13028": {
 		"File": "../../_test/testdata/triceCheck.c",
 		"Line": 74

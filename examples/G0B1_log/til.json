@@ -803,6 +803,10 @@
 		"Type": "TRICE16_B",
 		"Strg": "buffer:%04x \\n"
 	},
+	"1301": {
+		"Type": "Trice",
+		"Strg": "att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\\n"
+	},
 	"13028": {
 		"Type": "TRice",
 		"Strg": "\\rTriceCheck %4d"
@@ -1389,7 +1393,7 @@
 	},
 	"13201": {
 		"Type": "trice",
-		"Strg": "att:mixed int \u0026 float \u0026 double \u0026 bits\\n"
+		"Strg": "att:mixed int & float & double & bits\\n"
 	},
 	"13202": {
 		"Type": "TRice32",
@@ -7033,59 +7037,59 @@
 	},
 	"14688": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8  %%03x -\u003e %03x  %03x  %03x  %03x\\n"
+		"Strg": "tst:TRICE8  %%03x -> %03x  %03x  %03x  %03x\\n"
 	},
 	"14689": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n"
+		"Strg": "tst:TRICE8   %%4d -> %4d %4d %4d %4d\\n"
 	},
 	"14690": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4u -\u003e %4u %4u %4u %4u\\n"
+		"Strg": "tst:TRICE8   %%4u -> %4u %4u %4u %4u\\n"
 	},
 	"14691": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n"
+		"Strg": "tst:TRICE8   %%4o -> %4o %4o %4o %4o\\n"
 	},
 	"14692": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4O -\u003e %4O %4O %4O %4O\\n"
+		"Strg": "tst:TRICE8   %%4O -> %4O %4O %4O %4O\\n"
 	},
 	"14693": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4X -\u003e %4X %4X %4X %4X\\n"
+		"Strg": "tst:TRICE8   %%4X -> %4X %4X %4X %4X\\n"
 	},
 	"14694": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
+		"Strg": "tst:TRICE8   %%4x -> %4x %4x %4x %4x\\n"
 	},
 	"14695": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%8b -\u003e %8b %8b %8b %8b\\n"
+		"Strg": "tst:TRICE8   %%8b -> %8b %8b %8b %8b\\n"
 	},
 	"14696": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8  %%08b -\u003e %08b %08b %08b %08b\\n"
+		"Strg": "tst:TRICE8  %%08b -> %08b %08b %08b %08b\\n"
 	},
 	"14697": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+		"Strg": "tst:TRICE16  %%05x ->   %05x   %05x   %05x   %05x\\n"
 	},
 	"14698": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+		"Strg": "tst:TRICE16   %%6d ->  %6d  %6d  %6d  %6d\\n"
 	},
 	"14699": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n"
+		"Strg": "tst:TRICE16   %%7o -> %7o %7o %7o %7o\\n"
 	},
 	"14700": {
 		"Type": "TRICE32",
-		"Strg": "tst:TRICE32 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+		"Strg": "tst:TRICE32 %%09x ->      %09x      %09x       %09x     %09x\\n"
 	},
 	"14701": {
 		"Type": "TRICE32",
-		"Strg": "tst:TRICE32 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+		"Strg": "tst:TRICE32 %%10d ->     %10d     %10d     %10d    %10x\\n"
 	},
 	"14702": {
 		"Type": "TRICE32",
@@ -7093,11 +7097,11 @@
 	},
 	"14703": {
 		"Type": "TRICE64",
-		"Strg": "tst:TRICE64 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+		"Strg": "tst:TRICE64 %%09x ->      %09x      %09x       %09x     %09x\\n"
 	},
 	"14704": {
 		"Type": "TRICE64",
-		"Strg": "tst:TRICE64 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+		"Strg": "tst:TRICE64 %%10d ->     %10d     %10d     %10d    %10x\\n"
 	},
 	"14705": {
 		"Type": "TRICE64",
@@ -8013,7 +8017,7 @@
 	},
 	"14933": {
 		"Type": "trice",
-		"Strg": "att:positive float \u0026 double in variants\\n"
+		"Strg": "att:positive float & double in variants\\n"
 	},
 	"14934": {
 		"Type": "TRICE32_1",
@@ -8137,7 +8141,7 @@
 	},
 	"14964": {
 		"Type": "trice",
-		"Strg": "att:negative float \u0026 double\\n"
+		"Strg": "att:negative float & double\\n"
 	},
 	"14965": {
 		"Type": "trice",

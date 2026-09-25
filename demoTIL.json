@@ -977,7 +977,7 @@
 	},
 	"13244": {
 		"Type": "trice",
-		"Strg": "att:mixed int \u0026 float \u0026 double \u0026 bits\\n"
+		"Strg": "att:mixed int & float & double & bits\\n"
 	},
 	"13245": {
 		"Type": "TRice32",
@@ -7045,59 +7045,59 @@
 	},
 	"14761": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8  %%03x -\u003e %03x  %03x  %03x  %03x\\n"
+		"Strg": "tst:TRICE8  %%03x -> %03x  %03x  %03x  %03x\\n"
 	},
 	"14762": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n"
+		"Strg": "tst:TRICE8   %%4d -> %4d %4d %4d %4d\\n"
 	},
 	"14763": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4u -\u003e %4u %4u %4u %4u\\n"
+		"Strg": "tst:TRICE8   %%4u -> %4u %4u %4u %4u\\n"
 	},
 	"14764": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n"
+		"Strg": "tst:TRICE8   %%4o -> %4o %4o %4o %4o\\n"
 	},
 	"14765": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4O -\u003e %4O %4O %4O %4O\\n"
+		"Strg": "tst:TRICE8   %%4O -> %4O %4O %4O %4O\\n"
 	},
 	"14766": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4X -\u003e %4X %4X %4X %4X\\n"
+		"Strg": "tst:TRICE8   %%4X -> %4X %4X %4X %4X\\n"
 	},
 	"14767": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
+		"Strg": "tst:TRICE8   %%4x -> %4x %4x %4x %4x\\n"
 	},
 	"14768": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%8b -\u003e %8b %8b %8b %8b\\n"
+		"Strg": "tst:TRICE8   %%8b -> %8b %8b %8b %8b\\n"
 	},
 	"14769": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8  %%08b -\u003e %08b %08b %08b %08b\\n"
+		"Strg": "tst:TRICE8  %%08b -> %08b %08b %08b %08b\\n"
 	},
 	"14770": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+		"Strg": "tst:TRICE16  %%05x ->   %05x   %05x   %05x   %05x\\n"
 	},
 	"14771": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+		"Strg": "tst:TRICE16   %%6d ->  %6d  %6d  %6d  %6d\\n"
 	},
 	"14772": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n"
+		"Strg": "tst:TRICE16   %%7o -> %7o %7o %7o %7o\\n"
 	},
 	"14773": {
 		"Type": "TRICE32",
-		"Strg": "tst:TRICE32 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+		"Strg": "tst:TRICE32 %%09x ->      %09x      %09x       %09x     %09x\\n"
 	},
 	"14774": {
 		"Type": "TRICE32",
-		"Strg": "tst:TRICE32 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+		"Strg": "tst:TRICE32 %%10d ->     %10d     %10d     %10d    %10x\\n"
 	},
 	"14775": {
 		"Type": "TRICE32",
@@ -7105,11 +7105,11 @@
 	},
 	"14776": {
 		"Type": "TRICE64",
-		"Strg": "tst:TRICE64 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+		"Strg": "tst:TRICE64 %%09x ->      %09x      %09x       %09x     %09x\\n"
 	},
 	"14777": {
 		"Type": "TRICE64",
-		"Strg": "tst:TRICE64 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+		"Strg": "tst:TRICE64 %%10d ->     %10d     %10d     %10d    %10x\\n"
 	},
 	"14778": {
 		"Type": "TRICE64",
@@ -8025,7 +8025,7 @@
 	},
 	"15006": {
 		"Type": "trice",
-		"Strg": "att:positive float \u0026 double in variants\\n"
+		"Strg": "att:positive float & double in variants\\n"
 	},
 	"15007": {
 		"Type": "TRICE32_1",
@@ -8149,7 +8149,7 @@
 	},
 	"15037": {
 		"Type": "trice",
-		"Strg": "att:negative float \u0026 double\\n"
+		"Strg": "att:negative float & double\\n"
 	},
 	"15038": {
 		"Type": "trice",
@@ -9285,7 +9285,7 @@
 	},
 	"15321": {
 		"Type": "triceS",
-		"Strg": "SAlias_Strg('\"att:'-alias' \u0026 '-salias' contributor is %s.\\n\"')SAlias_Strg"
+		"Strg": "SAlias_Strg('\"att:'-alias' & '-salias' contributor is %s.\\n\"')SAlias_Strg"
 	},
 	"15322": {
 		"Type": "trice",
@@ -9483,6 +9483,10 @@
 		"Type": "triceS",
 		"Strg": "rd:sizeof(%8s)"
 	},
+	"15958": {
+		"Type": "Trice",
+		"Strg": "att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\\n"
+	},
 	"15982": {
 		"Type": "triceS",
 		"Strg": "rd:sizeof(%8s)"
@@ -9601,7 +9605,7 @@
 	},
 	"16344": {
 		"Type": "TriceS",
-		"Strg": "rd:%s \u003c- float number as string\\n"
+		"Strg": "rd:%s <- float number as string\\n"
 	},
 	"16345": {
 		"Type": "trice",
