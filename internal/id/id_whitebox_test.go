@@ -44,6 +44,7 @@ func TestInsertReportsHistoricalPolicyViolationsOnlyInVerboseMode(t *testing.T) 
 	for _, verbose := range []bool{false, true} {
 		t.Run(fmt.Sprintf("verbose_%t", verbose), func(t *testing.T) {
 			defer Setup(t)()
+			args.Verbose = verbose
 			Verbose = verbose
 			source := []byte(`TRice(iD(250), "err:warning");`)
 			til := []byte(`{"250":{"Type":"TRice","Strg":"err:warning"}}`)
@@ -540,7 +541,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 	// create src file
 	fn0 := t.Name() + "file0.c"
 	src0 := `
-	TRice(iD(88), "Hi!" );
+	TRice(iD(18), "Hi!" );
 	`
 	assert.Nil(t, FSys.WriteFile(fn0, []byte(src0), 0777))
 	// check src
@@ -579,7 +580,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice(iD(88), "Hi!" );
+	TRice(iD(18), "Hi!" );
 	`
 	actSrc0, e = FSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -591,7 +592,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 		"Type": "TRice",
 		"Strg": "Hi!"
 	},
-	"88": {
+	"18": {
 		"Type": "TRice",
 		"Strg": "Hi!"
 	}
@@ -606,7 +607,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 		"File": "` + fn0 + `",
 		"Line": 2
 	},
-	"88": {
+	"18": {
 		"File": "` + fn0 + `",
 		"Line": 2
 	}

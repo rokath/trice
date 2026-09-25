@@ -525,12 +525,12 @@ func TestBindRepeatedFormatsKeepLIOrder(t *testing.T) {
 			current []int
 			want    []TriceID
 		}{
-			{name: "equal_distance", old: []int{2799, 2807}, current: []int{2803, 2811}, want: []TriceID{15982, 15849}},
-			{name: "closer_to_later", old: []int{2799, 2807}, current: []int{2804, 2812}, want: []TriceID{15982, 15849}},
-			{name: "shift_up", old: []int{2799, 2807}, current: []int{2794, 2802}, want: []TriceID{15982, 15849}},
-			{name: "same_stored_line", old: []int{2799, 2799}, current: []int{2803, 2811}, want: []TriceID{15849, 15982}},
-			{name: "extra_site", old: []int{2799, 2807}, current: []int{2803, 2811, 2819}, want: []TriceID{15982, 15849, 100}},
-			{name: "single_site_keeps_distance", old: []int{2799, 2807}, current: []int{2807}, want: []TriceID{15849}},
+			{name: "equal_distance", old: []int{2799, 2807}, current: []int{2803, 2811}, want: []TriceID{198, 199}},
+			{name: "closer_to_later", old: []int{2799, 2807}, current: []int{2804, 2812}, want: []TriceID{198, 199}},
+			{name: "shift_up", old: []int{2799, 2807}, current: []int{2794, 2802}, want: []TriceID{198, 199}},
+			{name: "same_stored_line", old: []int{2799, 2799}, current: []int{2803, 2811}, want: []TriceID{198, 199}},
+			{name: "extra_site", old: []int{2799, 2807}, current: []int{2803, 2811, 2819}, want: []TriceID{198, 199, 100}},
+			{name: "single_site_keeps_distance", old: []int{2799, 2807}, current: []int{2807}, want: []TriceID{199}},
 		} {
 			t.Run(fmt.Sprintf("secondary_%t/%s", secondary, test.name), func(t *testing.T) {
 				// A persistent owner include keeps the fixture's physical lines exact.
@@ -555,11 +555,11 @@ func TestBindRepeatedFormatsKeepLIOrder(t *testing.T) {
 				storedPath = filepath.ToSlash(storedPath)
 				// Foreign ownership and a different transport type must not enter the group.
 				tilBefore := writeBindTestTIL(t, tilPath, TriceIDLookUp{
-					15982: {Type: "trice", Strg: "same"}, 15849: {Type: "trice", Strg: "same"},
+					198: {Type: "trice", Strg: "same"}, 199: {Type: "trice", Strg: "same"},
 					121: {Type: "triceS", Strg: "same"}, 122: {Type: "trice", Strg: "same"},
 				})
 				liBefore := writeBindTestLI(t, liPath, TriceIDLookUpLI{
-					15982: {File: storedPath, Line: test.old[0]}, 15849: {File: storedPath, Line: test.old[1]},
+					198: {File: storedPath, Line: test.old[0]}, 199: {File: storedPath, Line: test.old[1]},
 					121: {File: storedPath, Line: 1}, 122: {File: filepath.ToSlash(filepath.Join(filepath.Dir(storedPath), "other.c")), Line: 1},
 				})
 

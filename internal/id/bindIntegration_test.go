@@ -632,7 +632,7 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	entries, err := os.ReadDir(BindDir)
 	require.NoError(t, err)
 	rebaseRegionCount := strings.Count(string(bound), bindRebaseIncludeMarker+"begin")
-	require.Len(t, entries, 1+2*rebaseRegionCount)
+	require.Len(t, entries, 2+2*rebaseRegionCount, "bind output includes the structured-field registry")
 	var ownerName string
 	for _, include := range scanBindIncludes(string(bound)) {
 		if include.isSidecar {

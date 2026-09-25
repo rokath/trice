@@ -167,7 +167,7 @@ func TestInsertKnownID(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "1", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -386,7 +386,7 @@ func TestInsertKnownID2(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile("file1.c", []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log", "-alias", "printk", "-salias", "AST", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-alias", "log", "-alias", "printk", "-salias", "AST", "-src", "file1.c", "-IDMin", "1", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
 	expSrc1 := `
@@ -426,7 +426,7 @@ func TestInsertExistingID_A(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "1", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check untouched src file1
 	actSrc1, e := FSys.ReadFile(sFn1)
@@ -468,7 +468,7 @@ func TestInsertExistingID_B(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(sFn1, []byte(src1), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-liRoot", ".", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "folder1/file1.c", "-IDMin", "1", "-IDMax", "999", "-IDMethod", "downward", "-liRoot", ".", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check untouched src file1
 	actSrc1, e := FSys.ReadFile(sFn1)
@@ -896,7 +896,7 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 	testSet := []SrcFile{
 		// fn: in:                                                 expected:
 		{fn0, `trice("new" ); trice("Lo!" );` /*           */, `trice(iD(18), "new" ); trice(iD(17), "Lo!" );`},
-		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
+		{fn1, `trice(iD(15), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(15), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
@@ -905,7 +905,7 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 
 	// location information
 	liJSON := `{
-	"1200": {
+	"15": {
 		"File": "` + fn1 + `",
 		"Line": 1
 	},
@@ -937,7 +937,7 @@ func TestInsertIDsForNewTrice2WithLI(t *testing.T) {
 
 	// check til.json
 	expTil := `{
-	"1200": {
+	"15": {
 		"Type": "trice",
 		"Strg": "Hi!"
 	},
@@ -974,7 +974,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 	testSet := []SrcFile{
 		// fn: in:                                              expected:
 		{fn0, `trice("new %d", 1 ); /* ' */ trice("Lo!" );`, `trice(iD(18), "new %d", 1 ); /* ' */ trice(iD(17), "Lo!" );`},
-		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
+		{fn1, `trice(iD(15), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(15), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
@@ -988,7 +988,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 
 	// expected location information
 	expLIJSON := `{
-	"1200": {
+	"15": {
 		"File": "` + fn1 + `",
 		"Line": 1
 	},
@@ -1002,7 +1002,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 	assertLocationJSONEqual(t, expLIJSON, actLIJSONs)
 
 	expTil0 := `{
-	"1200": {
+	"15": {
 		"Type": "trice",
 		"Strg": "Hi!"
 	},
@@ -1032,7 +1032,7 @@ func TestInsertIDsForNewTrice2WithoutLI(t *testing.T) {
 
 	// check til.json
 	expTil := `{
-	"1200": {
+	"15": {
 		"Type": "trice",
 		"Strg": "Hi!"
 	},
@@ -1071,7 +1071,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 	testSet := []SrcFile{
 		// fn: in:                                                 expected:
 		{fn0, `trice("new %d", 1 ); /*'*/ trice("Lo!" );` /**/, `trice(iD(18), "new %d", 1 ); /*'*/ trice(iD(17), "Lo!" );`},
-		{fn1, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(1200), "Hi!" ); trice(iD(19), "old" );`},
+		{fn1, `trice(iD(15), "Hi!" ); trice(iD(19), "old" );`, `trice(iD(15), "Hi!" ); trice(iD(19), "old" );`},
 	}
 	// create src files
 	for _, k := range testSet {
@@ -1085,7 +1085,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 
 	// expected location information
 	expLIJSON := `{
-	"1200": {
+	"15": {
 		"File": "` + fn1 + `",
 		"Line": 1
 	},
@@ -1099,7 +1099,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 	assertLocationJSONEqual(t, expLIJSON, actLIJSONs)
 
 	expTil0 := `{
-	"1200": {
+	"15": {
 		"Type": "trice",
 		"Strg": "Hi!"
 	},
@@ -1129,7 +1129,7 @@ func TestInsertIDsForNewTrice2WithoutLIAndTickInComment(t *testing.T) {
 
 	// check til.json
 	expTil := `{
-	"1200": {
+	"15": {
 		"Type": "trice",
 		"Strg": "Hi!"
 	},

@@ -120,7 +120,7 @@ func TestUntaggedColorAndWeightHandling(t *testing.T) {
 	LogLevel = "notice"
 	require.NoError(t, ResolveFilterSelectors())
 	assert.False(t, ApplicationEventAllowed("mgs"))
-	LogLevel = "500"
+	LogLevel = "400"
 	require.NoError(t, ResolveFilterSelectors())
 	assert.True(t, ApplicationEventAllowed("mgs"))
 

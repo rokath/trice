@@ -927,7 +927,7 @@ func TestPartialCallsWithLevelUsesEventDecisions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := runTREXPartialCalls(t, tt.formats, false, func() {
-				emitter.LogLevel = "info"
+				emitter.LogLevel = "msg"
 			})
 			assert.Equal(t, tt.want, got)
 		})
@@ -1484,7 +1484,7 @@ func TestDecodeAndComposeLoopIntegratesVisAfterFiltering(t *testing.T) {
 	})
 
 	t.Run("level boundary admits visualization with drop", func(t *testing.T) {
-		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "", "info")
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "", "msg")
 		assert.Empty(t, normal)
 		assert.Equal(t, "7\n", visualized)
 	})

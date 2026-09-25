@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"testing"
 
@@ -330,7 +331,11 @@ func compileAndRunRoutingHarness(t *testing.T, compiler string, output routingOu
 		"-I", srcDir,
 	}
 	arguments = append(arguments, definitions...)
-	arguments = append(arguments, harnessFile, "-Wl,--gc-sections", "-o", executable)
+	linkerGarbageCollection := "-Wl,--gc-sections"
+	if runtime.GOOS == "darwin" {
+		linkerGarbageCollection = "-Wl,-dead_strip"
+	}
+	arguments = append(arguments, harnessFile, linkerGarbageCollection, "-o", executable)
 	compileOutput, err := exec.Command(compiler, arguments...).CombinedOutput()
 	require.NoErrorf(t, err, "%s", compileOutput)
 

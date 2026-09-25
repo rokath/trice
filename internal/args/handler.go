@@ -79,18 +79,21 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return versionHandler(w, fSys, subArgs)
 	case "a", "add":
 		msg.OnErr(fsScAdd.Parse(subArgs))
+		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
 		msg.OnErr(fsScGenerate.Parse(normalizeGenerateArgs(subArgs)))
+		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdGenerate(w, fSys)
 	case "i", "insert":
 		msg.OnErr(fsScInsert.Parse(subArgs))
+		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		if err := emitter.AddUserLabels(); err != nil {
@@ -113,6 +116,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			}
 			return err
 		}
+		id.Verbose = Verbose
 		// Remember why CompactSrcs adds "./". Once expanded, the default is
 		// indistinguishable from a deliberate `-src ./` selection.
 		implicitSourceSelection := len(id.Srcs) == 0

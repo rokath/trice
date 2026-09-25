@@ -216,7 +216,7 @@ func TestResolveFilterSelectorsUsesCompleteTagRegistry(t *testing.T) {
 	assert.Equal(t, len(tagVariants("msg"))+1, len(Pick))
 	messageThreshold, err := logLevelWeight(LogLevel)
 	require.NoError(t, err)
-	assert.Equal(t, 500, messageThreshold)
+	assert.Equal(t, 400, messageThreshold)
 }
 
 // TestResolveFilterSelectorsRejectsInvalidValues verifies understandable
@@ -277,7 +277,7 @@ func TestResolveFilterSelectorsAcceptsLevelAliasesAndBoundaries(t *testing.T) {
 	for _, level := range []string{"MESSAGE", "msg", "M"} {
 		weight, err := logLevelWeight(level)
 		require.NoError(t, err)
-		assert.Equal(t, 500, weight)
+		assert.Equal(t, 400, weight)
 	}
 }
 
@@ -321,7 +321,7 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 		want             bool
 	}{
 		{name: "below numeric threshold", tag: "dbg", level: "500"},
-		{name: "on numeric threshold", tag: "msg", level: "500", want: true},
+		{name: "on numeric threshold", tag: "msg", level: "400", want: true},
 		{name: "above numeric threshold", tag: "wrn", level: "500", want: true},
 		{name: "alias threshold accepts equal group", tag: "ERROR", level: "err", want: true},
 		{name: "tag threshold rejects lower group", tag: "wrn", level: "ERROR"},
@@ -340,7 +340,7 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 		{name: "ban other normal", tag: "err", ban: channelArrayFlag{"wrn"}, level: "err", want: true},
 		{name: "ban all selects none", tag: "err", ban: channelArrayFlag{"all"}, level: "all"},
 		{name: "ban off leaves level active", tag: "dbg", ban: channelArrayFlag{"off"}, level: "info"},
-		{name: "unknown tag uses untagged weight", tag: "mgs", level: "info", want: true},
+		{name: "unknown tag uses untagged weight", tag: "mgs", level: "400", want: true},
 		{name: "unknown tag rejected above untagged", tag: "mgs", level: "notice"},
 		{name: "unknown tag selected as untagged", tag: "mgs", pick: channelArrayFlag{"untagged"}, level: "all", want: true},
 	}
@@ -371,7 +371,9 @@ func TestUnclassifiedFragmentAllowed(t *testing.T) {
 	Pick = channelArrayFlag{"msg"}
 	require.NoError(t, ResolveFilterSelectors())
 	assert.False(t, UnclassifiedFragmentAllowed([]byte("unknown:raw bytes")))
-	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")))
+	assert.False(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg is below the info threshold")
+	LogLevel = "msg"
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg is admitted at its own weight")
 	LogLevel = "off"
 	assert.False(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")))
 }
@@ -460,16 +462,16 @@ func tagWeightsByAlias(tags []tag) map[string]int {
 // TestDefaultTagWeights protects the documented built-in priority policy.
 func TestDefaultTagWeights(t *testing.T) {
 	expected := map[string]int{
-		"FATAL": 790, "CRITICAL": 780, "EMERGENCY": 770,
-		"ERROR": 760, "WARNING": 750, "ATTENTION": 740,
-		"INFO": 500, "DEBUG": 200, "TRACE": 100,
-		"TIME": 500, "MESSAGE": 500, "READ": 500, "WRITE": 500,
-		"RECEIVE": 500, "TRANSMIT": 500, "DIAG": 500,
-		"INTERRUPT": 500, "SIGNAL": 500, "TEST": 500,
-		"DEFAULT": 500, "untagged": 500, "NOTICE": 600, "ALERT": 760,
-		"ASSERT": 760, "ALARM": 760, "CYCLE_ERROR": 0,
-		"VERBOSE": 50, "CONFIG": 500, "MICROSECOND": 500,
-		"MILLISECOND": 500, "SECOND": 500, "DELTATIME": 500,
+		"FATAL": 800, "CRITICAL": 750, "EMERGENCY": 700,
+		"ERROR": 650, "WARNING": 600, "ATTENTION": 550,
+		"INFO": 500, "DEBUG": 300, "TRACE": 200,
+		"TIME": 400, "MESSAGE": 400, "READ": 400, "WRITE": 400,
+		"RECEIVE": 400, "TRANSMIT": 400, "DIAG": 400,
+		"INTERRUPT": 400, "SIGNAL": 400, "TEST": 400,
+		"DEFAULT": 400, "untagged": 400, "NOTICE": 600, "ALERT": 550,
+		"ASSERT": 650, "ALARM": 650, "CYCLE_ERROR": 0,
+		"VERBOSE": 100, "CONFIG": 500, "MICROSECOND": 350,
+		"MILLISECOND": 350, "SECOND": 350, "DELTATIME": 350,
 	}
 
 	for canonical, weight := range expected {
@@ -497,7 +499,7 @@ func TestUntaggedIsAnIndependentBuiltInGroup(t *testing.T) {
 	require.NoError(t, AddUserLabels())
 	weight, err = TagWeight("untagged")
 	require.NoError(t, err)
-	assert.Equal(t, 500, weight)
+	assert.Equal(t, 400, weight)
 }
 
 // TestNormalizeApplicationTag preserves the complete original text and adds
@@ -572,7 +574,7 @@ func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 	assert.Equal(t, 999, maximumWeight)
 	microsecondsWeight, err := TagWeight("µs")
 	require.NoError(t, err)
-	assert.Equal(t, 500, microsecondsWeight)
+	assert.Equal(t, 350, microsecondsWeight)
 
 	// Table order and palette changes do not alter the stored group priority.
 	for left, right := 0, len(Tags)-1; left < right; left, right = left+1, right-1 {
