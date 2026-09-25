@@ -1,7 +1,6 @@
 **Redaktioneller Kommentar — nicht Teil des UM.**
 
-M19 ist implementiert. Dieses Dokument bleibt die Entwurfsreferenz; das [deutsche UM-Kapitel](../TriceUserManual.md#strukturiertes-logging) beschreibt die vorhandene Funktion, konkrete Optionen und Migration. Der bestätigte Scope umfasst skalare Felder sowie Strings über `triceS`/`triceN`; benannte Pufferfelder werden mit einem klaren Fehler abgewiesen. Klassische Pufferlogs bleiben als `message` erhalten. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen und Typsemantik bleiben Host-/Wörterbuchinformation.
-Dieser Entwurf beschreibt die geplante Structured-Logging-Erweiterung M19 für Trice; sie ist noch nicht implementiert. Die für den aktuellen Scope nötigen Designentscheidungen sind abgeschlossen. Das Drahtformat ändert sich nicht: Das Target überträgt weiterhin ID und Werte; Feldnamen und Typsemantik bleiben Host-/Wörterbuchinformation.
+Structured Logging ist implementiert und im [deutschen UM-Kapitel](../TriceUserManual.md#strukturiertes-logging) beschrieben. Diese Entwurfskopie enthält noch ältere Beispiele und Vertragsannahmen. Die offenen Korrekturen stehen im [Arbeitsplan](Implementierungsplan.md); nur die danach noch gültigen Inhalte sind ins UM zu übernehmen. Anschließend entfällt diese Kopie.
 
 ---
 
@@ -358,26 +357,13 @@ So stehen seltene und damit besonders reviewwürdige Feldnamen oben. Die Feldnam
 
 Für `bind` ist das Build-Verzeichnis bereits Teil des Workflows. `insert` benötigt für M19 eine analoge eindeutige Build-Verzeichnis-Regel, damit `trice-fields.txt` ebenfalls nur den aktuellen Lauf repräsentiert.
 
-## 10. Migration vorhandener Klammertexte
-
-Mit Einführung der neuen Syntax bedeutet ein einzelnes `{...}` künftig Structured Logging. Alte literal gemeinte Klammern müssen einmalig zu `{{...}}` migriert werden.
-
-```text
-alt: set={1,2,3}
-neu: set={{1,2,3}}
-```
-
-Es gibt keinen dauerhaften Legacy-Modus und keinen zweiten Klammerparser. Eine einmalige Konvertierung bestehender Quellen und vorhandener `til.json`-Bestände ist akzeptierter Bestandteil der Migration.
-
-Ungültige oder nicht balancierte Structured-Syntax ist ein klarer Fehler bei `bind`/`insert`.
-
-## 11. Implementierungsgrenzen
+## 10. Implementierungsgrenzen
 
 M19 umfasst die Template-Unterstützung für `bind` sowie `insert/clean`. Die Transformationen müssen idempotent und die vorhandenen ID-/Schreibsicherungen weiterhin wirksam sein.
 
 Ein zusätzlicher allgemeiner `-ignore`-/`-suppress`-Schalter ist für M19 nicht vorgesehen.
 
-## 12. Referenzen
+## 11. Referenzen
 
 - Microsoft Logging: https://learn.microsoft.com/dotnet/core/extensions/logging
 - Microsoft source-generated Logging: https://learn.microsoft.com/dotnet/core/extensions/high-performance-logging

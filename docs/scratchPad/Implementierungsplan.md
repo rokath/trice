@@ -1,150 +1,74 @@
-# Implementierungsplan für M19 und M20
+# Arbeitsplan für Structured Logging und Context Enrichment
 
-Stand: 24. September 2026. **Nur Planung; Umsetzung erst auf ausdrückliches Kommando.** Maßgeblich sind [Strukturiertes Logging](Strukturiertes_Logging_DE.md) und [Context Enrichment](Kontextanreicherung_DE.md). Die alten M19/M20-Issues sind durch diesen Plan abgelöst.
-Stand: 24. September 2026. **M19 ist implementiert; M20 bleibt geplant und benötigt einen eigenen Auftrag.** Die Bedienungsdokumentation für M19 steht im [deutschen UM-Kapitel](../TriceUserManual.md#strukturiertes-logging). [Strukturiertes Logging](Strukturiertes_Logging_DE.md) bleibt Entwurfsreferenz, [Context Enrichment](Kontextanreicherung_DE.md) beschreibt M20. Die alten M19/M20-Issues sind durch diesen Plan abgelöst.
+Stand: 25. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bedienungsdokumentation für Structured Logging steht in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging); bis zur dortigen Übernahme fehlender Inhalte bleibt der [deutsche Entwurf](Strukturiertes_Logging_DE.md) erhalten. [Context Enrichment](Kontextanreicherung_DE.md) ist zurückgestellt. Die Reihenfolge unten ist verbindlich: erst Structured Logging abschließen, dann den CE-Machbarkeitsnachweis, danach CE implementieren. Die hier beschriebenen Arbeiten an Code, Tests und UM sind mit diesem reinen ScratchPad-Dokumentationsschritt noch nicht ausgeführt.
 
-## Umsetzung und Abnahme von M19
+## Offene Aufgaben in Arbeitsreihenfolge
 
-Vorhanden sind der gemeinsame Template-Parser, die kanonische TIL-Darstellung, `bind`/`insert`/`clean`, typisierte Decoder-Records, `-logFormat text|json|kv`, das Feldregister und die ausdrückliche einmalige Migration mit `-migrateBraces`. Der während der Implementierung bestätigte Scope unterstützt skalare Trices und `triceS`/`triceN`; benannte Pufferfelder werden bereits beim Instrumentieren und auch bei externen TIL-Einträgen abgewiesen.
+### A1 – Test-Ausgangsstand klären und Fehler beheben
 
-Die Verhaltenstests liegen bei [Template-Parser](../../internal/fmtspec/template_test.go), [Feldtypen](../../internal/decoder/record_test.go), [Instrumentierung und Migration](../../internal/id/structured_test.go), [Decoder/Ausgabe](../../internal/translator/structured_test.go) und [CLI](../../internal/args/structured_test.go). Sie prüfen Erfolgs-, Fehler- und Grenzfälle einschließlich unveränderter Quellen bei Schemafehlern, Insert/Clean-Rundlauf, Schemawechsel, historische IDs, Registry-Reihenfolge und `dry-run`, Migration-Rollback, Integergrenzen, Float-/String-Präzision, Unicode, Escapes, Ereignisgrenzen, Metadaten, Filter/Visualisierung und Schreibfehler. Die CLI-Tests prüfen getrennte Diagnosekanäle sowie identische Records in Ausgabe und Logdatei und unveränderte Rohbytes. C-Integrationstests kompilieren die Beispiele mit den tatsächlichen Target-Makros für beide Instrumentierungswege.
+- Erfasse die aktuell fehlschlagenden relevanten Tests mit ihren konkreten Ursachen. Trenne überholte Erwartungen nach der geänderten ID- und Tag-Policy von tatsächlichen Produktfehlern; behaupte keinen grünen Gesamtlauf aufgrund einzelner erfolgreicher Tests. Insbesondere sind die Erwartungen zu ID 77 außerhalb 100..999 in `TestInsertExistingID_A/B` und die Bind-Tests für wiederholte Formate zu prüfen.
+- Passe Tests an die vereinbarte Policy an und behebe echte Fehler. Ergänze verständliche Verhaltenstests für korrigierte Erfolgs-, Ablehnungs- und Grenzfälle. Führe zuerst die betroffenen Pakete und die einschlägigen C-Integrationstests aus; das lange `testAll.sh` nur gezielt, wenn die restlichen Risiken es erfordern.
+- Abnahme: relevante Tests bestehen oder verbleibende, unabhängig bestätigte Fehler sind mit konkretem Testnamen und Ursache dokumentiert. Diese Klärung hat Vorrang vor weiteren Structured-Logging-Erweiterungen.
 
-Der relevante Ausgangsstand wurde vor der Integration erfasst. Bereits dort scheitern Tests mit veralteten Gewichts- und ID-Policy-Erwartungen; insbesondere `TestInsertExistingID_A/B` erwarten noch das Beibehalten von ID 77 außerhalb 100..999. Diese unabhängige Testaltlast wird durch M19 nicht bereinigt. Ein vollständiger grüner Repository-Testlauf wird deshalb nicht behauptet. Das lange `testAll.sh` gehört nicht zu dieser gezielten M19-Abnahme.
+### A2 – Metadatenvertrag für JSON und Key-Value festlegen und umsetzen
 
-Die neuen Tests lassen sich gezielt ausführen:
+- Erhalte die Kontrolle des Users durch die bestehenden CLI-Optionen: `id`, `file`, `line`, `hs` und Target-Zeitstempel nur ausgeben, wenn sie aktiviert und verfügbar sind. `hs` ist der nach CLI-Vorgabe formatierte Host-Zeitstring. Textpräfix und -suffix bleiben außerhalb der maschinenlesbaren Records. Entferne aus Kapitel 32 die Aussage, die Beispiele setzten pauschal deaktivierte Host-Stempel und sonst keine Metadaten voraus; zeige stattdessen die jeweilige Beispielkonfiguration ausdrücklich.
+- Verwende für die vier unabhängigen Zeitstempelarten exakt die JSON-/KV-Schlüssel `ts16`, `ts32`, `ts16Delta` und `ts32Delta`. Jeder vorhandene und aktivierte Wert ist ein String gemäß seiner eigenen CLI-Formatierung: ohne Stempel-Tag, mit konfiguriertem Zusatztext und ohne äußere Leerzeichen. Die Werte dürfen nicht in einem gemeinsamen `ts`- oder `tsDelta`-Feld zusammengefasst werden; zum Beispiel kann `ts32` eine Zeit und `ts16` eine Temperatur bedeuten. `ts0` und `ts0delta` erzeugen kein Metadatenfeld. Sichere Einzelstempel, Differenzen, Formatierung, gleichzeitig konfigurierte Optionen und deaktivierte Fälle mit Tests ab.
+- Beim ersten Ereignis ohne vorherigen Vergleichswert fehlt das jeweilige Delta-Feld vollständig. Sobald ein Vergleichswert vorliegt, wird nur das zur jeweiligen Stempelart gehörende Delta-Feld gemäß deren CLI-Formatierung ausgegeben. Teste das erste und das folgende Ereignis für 16- und 32-Bit-Stempel getrennt.
 
-```sh
-go test ./internal/fmtspec ./internal/decoder ./internal/id ./internal/translator ./internal/args -run 'TestStructured|TestTemplate' -count=1
-```
+### A3 – Bedeutung von `tag`, `message` und Stringwerten korrigieren
 
-Die C-Kompilierungen sind darin enthalten, sofern ein C-Compiler verfügbar ist. Für einen breiteren Abgleich bleiben die vorhandenen Paketsuiten zusätzlich relevant; reine Netzwerkprüfungen benötigen eine Umgebung, die lokale TCP-/UDP-Listener erlaubt.
+- Definiere `tag` in JSON/KV als kanonische Form des erkannten Formatstring-Tags, unabhängig von dessen Schreibweise oder Alias: `trice("inf:Hi")` und `trice("Inf:Hi")` sollen beide `tag=INFO` und `message=Hi` ergeben. `message` soll dem sichtbaren Text-Meldungsinhalt ohne Farbe entsprechen. Prüfe dabei die Behandlung bisheriger Textpräfixe und unbekannter Tags ausdrücklich. Ein unbekannter Präfix wie `mgs:` bleibt als Text sichtbar und erhält `untagged`.
+- Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar; sie erzeugen keine strukturierten User-Werte. Ergänze ein konkretes Beispiel in Kapitel 32 und einen Verhaltenstest.
+- Entferne bei **allen Stringwerten** in JSON/KV führende und folgende Leerzeichen, also auch bei `message`, `hs` und benannten Stringfeldern. Decke leere Werte, Unicode und nur aus Leerzeichen bestehende Werte ab. Die Textausgabe muss gesondert gegen ihre bisherige Semantik geprüft werden.
+- Erläutere mit einem Beispiel, dass ein von `triceS`/`triceN` gelieferter Laufzeitstring wie `err:\n` oder `err:\t` weder erneut als C-Escape noch als Formatstring-Tag interpretiert wird; andernfalls streiche die derzeitige, ohne Kontext schwer verständliche Aussage aus dem UM. Teste diesen Unterschied zwischen Formatstring und Laufzeitwert.
 
-## 1. Einschätzung der Implementierungsreife
+### A4 – Ausgabeformat-Option und TREX-Geltungsbereich bereinigen
 
-Die für den aktuellen Scope nötigen Produkt- und Designentscheidungen sind abgeschlossen. Eine weitere Auswahl zwischen Logging-Modellen, Exportvarianten oder CE-Semantiken ist vor Implementierungsbeginn nicht erforderlich.
+- Mache die Werte von `-logFormat` ohne Rücksicht auf Groß-/Kleinschreibung wählbar. Erlaube zusätzlich `key-value` als verständlichen Alias für `kv`; der bestehende Wert `kv` bleibt gültig. Teste gültige Varianten und ungültige Werte.
+- Bezeichne `-logFormat json` im UM präzise als NDJSON: genau ein JSON-Objekt mit abschließendem LF pro akzeptiertem Ereignis. **Vor einer Umbenennung der CLI entscheiden**, ob `json` als Wert genügt oder zusätzlich `ndjson` angeboten werden soll. Die vorhandene CLI-Verwendung darf nicht stillschweigend gebrochen werden.
+- Stelle nur einmal am Anfang des Structured-Logging-Kapitels klar, dass maschinenlesbare Ausgabe das standardmäßige TREX-Drahtformat voraussetzt und nicht mit CHAR/DUMP arbeitet. Entferne die wiederholten TREX-Hinweise im Kapitel und den Satz „Structured formats require TREX“ aus der `-logFormat`-Hilfe. Prüfe, dass die CLI ungeeignete Eingaben weiterhin verständlich ablehnt.
 
-Offen bleiben technische Implementierungsdetails, konkrete interne Datenstrukturen, Generatorpfade und Tests. Für M20 existiert jedoch ein verbindliches technisches Vorab-Gate: Vor der CE-Implementierung muss [Issue_M20_Bind_CE_Callsite_Injection_PoC.md](Issue_M20_Bind_CE_Callsite_Injection_PoC.md) erfolgreich abgearbeitet sein. Der PoC muss beweisen, dass der Bind-Sidecar zusätzliche lokale Runtime-Ausdrücke am ursprünglichen Callsite injizieren kann, diese genau einmal auswertet, die finale Arity korrekt bildet und dabei keine systematischen False-Positive-Diagnosen in üblichen C/C++-Editoren/Language-Servern verursacht.
+### A5 – Gemeinsames Build-Verzeichnis für das Feldregister
 
-Die übrigen technischen Punkte sollen innerhalb des festgelegten Vertrags ohne neue Freigaberunde entschieden werden, solange sie kein beobachtbares Verhalten ändern.
+- Prüfe die vorhandenen Optionen `-bindDir` und `-buildDir`. Führe für `bind` und `insert` eine gemeinsame, verständliche `-buildDir`-Bedienung für `trice-fields.txt` ein und aktualisiere Kapitel 32.7 sowie die CLI-Hilfe. **Vor der Änderung entscheiden**, ob `-bindDir` als Alias bestehen bleibt und wie abweichende gleichzeitige Angaben behandelt werden.
+- Erkläre in Kapitel 32.7 „Register“ als die Datei `trice-fields.txt` mit den Feldnamen und Häufigkeiten des letzten erfolgreichen Laufs. `-dry-run` darf diese Datei weder überschreiben noch neu veröffentlichen. Teste Pfadwahl, wiederholte Läufe und `dry-run`.
 
-Für M20 bleiben technische Implementierungsdetails, konkrete interne Datenstrukturen, Generatorpfade und Tests offen. Diese sollen innerhalb des festgelegten Vertrags ohne neue Freigaberunde entschieden werden, solange sie kein beobachtbares Verhalten ändern.
+### A6 – Verständliche C-Beispiele und Integrationstests ergänzen
 
-M01–M16 und die Farberweiterung für `-ulabel` bilden die vorhandene Grundlage. M17 bleibt zurückgestellt; M18 wird Abnahmearbeit innerhalb M19/M20.
+- Ergänze in `_test/testdata/triceCheck.c` nach den `assert`-Zeilen einen repräsentativen, kompilierbaren Satz strukturierter Trices. Zeige 8/16/32/64 Bit, Stempelvarianten, `triceS` und `triceN`, gemischte `%d`- und `{}`-Platzhalter, `.` und `->` sowie `aFloat()` und `aDouble()`. Vermeide eine vollständige Kreuzprodukt-Testmatrix.
+- Verwende für die erwartete Textausgabe die CLI-Einstellungen der bestehenden Testläufe. Führe die betroffenen Generator-, C- und Decoder-Tests zusammen aus und prüfe die Beispiele außerdem als nachvollziehbare Anleitung für User.
 
-Vor Codeänderungen ist weiterhin ein nachvollziehbarer Test-Ausgangsstand erforderlich: In [insertIDs_test.go](../../internal/id/insertIDs_test.go) erwarten `TestInsertExistingID_A/B` nach bisherigem Dokumentationsstand noch, dass ID 77 bei Bereich 100..999 unverändert bleibt. Das widerspricht der mit M15 eingeführten Neuzuweisung. Diese bekannte Testaltlast ist separat abzugleichen.
-Vor M20 ist der Test-Ausgangsstand erneut zu erfassen und von den oben beschriebenen bekannten Fehlern abzugrenzen. M19 liefert das gemeinsame Feldmodell; CE-Transformationen müssen davor ansetzen.
+### A7 – Structured Logging dokumentarisch abschließen
 
-## 2. Festgelegter M19-Vertrag
+- Gleiche Kapitel 32 mit dem aktuellen Verhalten und den Ergebnissen aus A1–A6 ab. Übernimm alle noch gültigen, fehlenden Inhalte des [deutschen Entwurfs](Strukturiertes_Logging_DE.md) in das UM, ohne widersprüchliche ältere Entwurfsangaben zu übernehmen. Prüfe besonders Tag-Kanonisierung, NDJSON, Metadaten, Pufferlogs, Strings und Feldregister.
+- Entferne danach die Entwurfskopie `Strukturiertes_Logging_DE.md`. Stelle alle aktiven Links darauf auf das UM um. Der UM-Link auf die bisherige ScratchPad-README ist beim späteren UM-Schritt auf diesen Plan umzusetzen. Am Ende sollen hier nur `Kontextanreicherung_DE.md`, `Implementierungsplan.md` und die unveränderte `scratchPad.md` als aktive Texte verbleiben.
+- Abnahme: kein widersprüchlicher Vertrag zwischen UM, Hilfe, Code und Tests; Beispiele gegen die reale CLI geprüft. CE bleibt bis dahin zurückgestellt.
 
-| Bereich | Vertrag |
-|---|---|
-| Aufruf | Normales `trice()`; keine neue primäre Target-API. |
-| Platzhalter | `{name}`, `{}`, `{prefix.}` und Darstellung nach dem ersten Doppelpunkt; `%...` und `{...}` konsumieren Argumente von links nach rechts. |
-| Literale Klammern | `{{` und `}}`; keine neue `\{`-/`\}`-Semantik. |
-| Namensableitung | Bezeichner und reine Memberketten; `.`/`->` werden zu Punktnamen, `aFloat`/`aDouble` sind transparente Hüllen. Andere Ausdrücke brauchen explizite Namen. |
-| Eindeutigkeit | Kanonische Feldnamen müssen pro Record eindeutig sein; Duplikate sind Fehler. |
-| Typmodell | Keine allgemeine C-Typinferenz. Typ aus Trice-Bitbreite, Formatspezifizierer und Wrapper. |
-| Typen | `%d/%i` signed integer; `%u/%o/%O/%x/%X/%b` unsigned integer; Float-Spezifizierer floating point; `%c/%q` character; `%t` boolean; `%s` string; `%p` address; `%%` ignoriert. |
-| TIL | Bestehendes `til.json`-Schema bleibt unverändert. `Strg` speichert den vollständig kanonisierten strukturierten Template-String. |
-| Schemaidentität | `Type + Strg`; Feldumbenennung erzeugt neues Schema/neue ID. |
-| Text | `-logFormat text` bleibt klassische formatierte Ausgabe ohne zusätzliche Structured-Felder. |
-| JSON | User-Felder unter optionalem `fields`; 64-Bit-Integer als JSON-Zahlen; nicht-endliche Floats werden als Felder weggelassen; leeres `fields` wird weggelassen. |
-| KV | User-Felder als `field.<name>`; String/Character/Message quoted, Zahlen/Boolean/Address unquoted; definierte Escapes für Quote, Backslash, LF, CR, Tab. |
-| Metadaten | Bestehende Optionen steuern `id`, `file`, `line`, `ts`, `hs`; `ts` raw unsigned, `hs` formatierter Host-Zeitstring. |
-| Tag | Immer vorhanden, bei fehlender Klassifikation `untagged`; tatsächliche verwendete Schreibweise wird erhalten. |
-| Level | Kanonischer Levelwert aus case-neutraler Alias->Canonical-Tabelle; Default mit gängigen Log-Level-Namen; später per CLI modifizierbar. |
-| Reihenfolge | User-Felder deterministisch in Quell-/Argumentreihenfolge in JSON und KV. |
-| Registry | `trice-fields.txt` wird pro aktuellem Build-/Instrumentierungslauf im Build-Verzeichnis neu erzeugt; nur User-/CE-Felder. |
-| Registry-Format | `%8d %s\n`, Count aufsteigend, bei Gleichstand Feldname alphabetisch; keine Namenslängenbegrenzung. |
-| Migration | Alte literal gemeinte `{`/`}` in Source und bestehenden TIL-Beständen werden einmalig zu `{{`/`}}` migriert; kein Legacy-Modus. |
-| Scope | M19 Template-Unterstützung für `bind` sowie `insert/clean`. |
-| Unterstützte Nutzdaten | Skalare Trices und Strings über `triceS`/`triceN`; benannte Pufferfelder sind Fehler, klassische Pufferlogs bleiben `message`. |
+### A8 – Einzeilige Einträge in `til.json` und `li.json` nur untersuchen
 
-Die globale Formatspezifizierer->Typ-Zuordnung wird zentral im Trice-Code verankert und nicht redundant pro TIL-Eintrag gespeichert.
+- Entscheide anhand der Vorprüfung am Ende dieses Plans, ob eine kleine eigene Zusammensetzung aus per Standardbibliothek serialisierten Einträgen noch unter die gewünschte Bedingung „Standard-Lib-Konverter“ fällt. Wenn ausschließlich eine eingebaute Formatoption erlaubt ist, entfällt die Formatänderung.
+- Falls später beauftragt: Neue Dateien sollen einen Eintrag pro Zeile erhalten, vorhandene Legacy-Dateien ihre bisherige Darstellung behalten. Prüfe dafür Stilerkennung, stabile Reihenfolge, `Line` vor `File` und Roundtrips. **Jetzt keine Dateiformatänderung.**
 
-## 3. Festgelegter M20-Vertrag
+### A9 – Context Enrichment mit PoC beginnen
 
-| Bereich | Vertrag |
-|---|---|
-| Scope | Aktuell ausschließlich `trice bind -ce`. |
-| Syntax | `-ce 'selector:"format-extension"[, <C-expression>]...'` |
-| C-Ausdrücke | Bewusst einfach; jeder CE-Ausdruck muss kommafrei sein. |
-| Unkonfigurierter Präfix | Ohne passende `-ce`-Regel bleibt der gesamte Präfix normaler Logtext. |
-| Case | Selektoren werden case-neutral verglichen; nur vollständig kleingeschriebene aktive Selektoren werden aus dem sichtbaren Text entfernt. |
-| Aliase | Eingebaute Trice-Tags verwenden ihre feste Alias-Gruppe; freie Selektoren nur case-neutral. |
-| `-ulabel` | Orthogonal; derselbe Name darf gleichzeitig Label/Tag und CE-Selektor sein. |
-| Mehrere Selektoren | Verschiedene Selektoren in Source-Reihenfolge. |
-| Mehrere Regeln | Mehrere `-ce`-Regeln für denselben Selektor in CLI-Reihenfolge. |
-| Doppelte Selektoren | Derselbe Selektor mehrfach an einer Logstelle wirkt einmal; Warnung. |
-| Transformation | CE erfolgt vor M19-Kanonisierung, Schema- und ID-Bestimmung. |
-| TIL | Der finale CE-erweiterte kanonische Template-String wird im bestehenden `Strg` gespeichert. |
-| Feldkonflikte | CE und Source bilden ein gemeinsames Feldschema; doppelte kanonische Feldnamen sind Fehler. |
-| Auswertung | Jeder injizierte Runtime-Ausdruck wird pro Trice-Aufruf genau einmal ausgewertet. |
-| Fehler | Argumentzahl-, Arity-, Bitbreiten-/Wrapper- und syntaktische CE-Fehler müssen vor inkonsistentem Schreiben scheitern. |
-| Idempotenz | Gleicher Source + gleiche CE-Konfiguration -> dasselbe kanonische Ergebnis und dieselbe ID-Zuordnung. |
-| Insert/Clean später | Möglich, aber nicht aktueller Scope; nur unter streng reversiblem/idempotentem Vertrag mit identischen CE-Optionen für `insert` und `clean`. |
+- Erst nach A1–A7: Führe den isolierten Nachweis für die in [Context Enrichment](Kontextanreicherung_DE.md) beschriebene Bind-Injektion aus. Zeige zusätzliche lokale Werte bei argumentlosen und bereits parametrisierten Trices, einfache Ausdrücke, genau einmalige Auswertung, korrekte Arity und TIL-Konsistenz, unveränderten User-Source sowie idempotente Bind-Läufe.
+- Prüfe zusätzlich die Diagnosefreiheit in üblichen compilerbewussten C/C++-Editoren und Language-Servern mit realer Compile-Konfiguration. Scheitert der Nachweis, ist die Architektur vor der CE-Implementierung neu zu entscheiden.
 
-## 4. Vorgesehene Implementierungsreihenfolge
+### A10 – Context Enrichment implementieren und abnehmen
 
-Die Schritte bis einschließlich „Migration“ sind für M19 umgesetzt und getestet. Die anschließenden M20-Schritte bleiben ausstehend; es gibt noch kein `-ce`. Das deutsche M19-Kapitel ist bereits ins UM übernommen, eine englische Übersetzung ist kein Teil dieses Auftrags.
+- Nur nach bestandenem A9: Setze zunächst `trice bind -ce` nach dem [deutschen CE-Vertrag](Kontextanreicherung_DE.md) um. CE ergänzt den finalen strukturierten Template-String vor Schema- und ID-Bestimmung; injizierte Runtime-Ausdrücke werden pro Aufruf genau einmal ausgewertet. Source, Sidecars und TIL müssen bei unveränderter Konfiguration reproduzierbar bleiben.
+- Prüfe Selektoren und Aliase, Regelreihenfolge, doppelte Selektoren, Feldkonflikte, Argumentzahl, Bitbreite/Wrapper, Konfigurationswechsel, `TRICE_OFF`, C-Kompilierung und Decoder-Ausgabe. Eine spätere Ausweitung auf `insert/clean` benötigt einen eigenen reversiblen Vertrag und Auftrag.
 
-| Schritt | Konkretes Ergebnis | Abnahme |
-|---|---|---|
-| Ausgangsstand | Bekannte M15-Testaltlast geklärt; grüne relevante Baseline oder exakt abgegrenzte bekannte Fehler | Keine unbelegten Erfolgsangaben aus alten Checklisten übernehmen |
-| M19 Formatparser | Gemeinsamer Parser für `%...`, `{...}`, `{{`/`}}`, Darstellung und Namensableitung | Erfolgs- und Fehlerfälle für gemischte Platzhalter, unbalancierte Klammern, Namensableitung und Argumentzahl |
-| M19 Kanonisierung/TIL | Source-Kurzformen in kanonisches `Strg`; bestehendes TIL-Schema unverändert | Feldumbenennung -> neue ID; syntaktisch äquivalente Memberkette -> gleiche Schemaidentität |
-| M19 Bind/Insert/Clean | Template-Unterstützung in allen drei M19-Pfaden | Wiederholte Läufe idempotent; `clean(insert(S)) = S` für M19; historische Definitionen bleiben dekodierbar |
-| M19 Decoder-Record | Typisierte Werte vor Textformatierung; feste Metadaten | Typgrenzen, `%p` als address, Character/String/Boolean, 8/16/32/64 Bit, Float/Double |
-| M19 JSON | Vertrag exakt umgesetzt | 64-Bit-Grenzwerte, NaN/Inf-Auslassung, optionale `fields`, Tag/Level, ts/hs, deterministische Reihenfolge |
-| M19 KV | Präfix- und Quotingvertrag exakt umgesetzt | Spaces, Quotes, Backslash, LF/CR/Tab, User-Felder namens `tag`/`message`, stabile Reihenfolge |
-| M19 Registry | `trice-fields.txt` im Build-Verzeichnis neu erzeugen | Count-Sortierung, Tie-Break alphabetisch, CE-/User-Felder, Teil-/Buildlauf-Scope eindeutig |
-| Migration | Einmaliger Pfad für bestehende literal gemeinte Klammern in Source/TIL | Kein Legacy-Parser; migrierte Bestände ergeben gleiche alte Textausgabe |
-| M20 Vorab-Gate | Isolierter Bind/CE-Callsite-Injection-PoC gemäß separater Issue; noch keine vollständige CE-Implementierung | Lokaler Scope, 0->1 und N->N+M Argumente, einfache Ausdrücke, einmalige Auswertung, korrekte Arity/TIL-Konsistenz, unveränderter Source, idempotenter Bind-Lauf und keine CE-bedingten False-Positive-Diagnosen in üblichem Editor/Language-Server |
-| M20 CE-Parser | `-ce`-Syntax mit kommafreien Ausdrücken und deterministischer Regelauswahl | Case/Aliase, unbekannte Präfixe, Mehrfachregeln, doppelte Selektoren |
-| M20 Bind-Erzeugung | Erst nach bestandenem Vorab-Gate: produktive zusätzliche Runtime-Argumente im lokalen Scope ohne Sourceänderung | Kompilierte C-Integration, einmalige Auswertung, `TRICE_OFF`, Arity/Bitbreite, Wrapper |
-| M20 Bind-Erzeugung | Zusätzliche Runtime-Argumente im lokalen Scope ohne Sourceänderung | Kompilierte C-Integration, einmalige Auswertung, `TRICE_OFF`, Arity/Bitbreite, Wrapper |
-| M20 Lebenszyklus | CE-Konfiguration reproduzierbar in den finalen Artefakten | CE an/aus/geändert, Rückkehr zur alten Konfiguration, verschobene/duplizierte Sites, wiederholter identischer Lauf |
-| Gemeinsamer Abschluss | Beispiele gegen reale CLI validiert; spätere englische UM-Übernahme | Passende Go- und C-Tests; Coverage-Prüfung vor Push; keine Implementierung nur zur Bedienung eines Doku-Beispiels |
+### A11 – Frühe Hostfilterung gesondert prüfen
 
-## 5. Technische Anforderungen ohne neue Produktentscheidung
+- Diese zurückgestellte Optimierung (bisher M17: frühe Hostfilterung) ist keine Voraussetzung für Structured Logging oder CE. Miss zuerst Replay mit 0, 50, 90 und 100 Prozent verworfenen Ereignissen; erfasse CPU, Allokationen und Durchsatz. Entscheide erst anhand dieser Daten über Codeänderungen.
+- Framing und Integrität, Stempelzustand, Rohaufzeichnung, Statistik, Diagnosen und akzeptierte Records müssen sich durch eine Optimierung nicht ändern. Beziehe typisierte strukturierte Ausgabe und spätere CE-Records in den Vergleich ein.
 
-Die Implementierung darf folgende Punkte intern lösen, solange der oben festgelegte Vertrag eingehalten wird:
+## Erledigter Stand als Reviewhilfe
 
-- konkrete Go-Strukturen und Helper,
-- Parser-Dateiaufteilung,
-- Generator-/Sidecar-Details nach bestandenem M20-PoC,
-- atomisches Schreiben und bestehende ID-/TIL-Locking-Mechanismen,
-- konkrete Fehlertexte,
-- interne Reihenfolge optionaler Metafelder,
-- Rebase-/Wrapper-Implementierung,
-- genaue CLI-Namensgebung für die spätere Level-Alias-Konfiguration.
+Der gemeinsame Template-Parser, die Kanonisierung in `til.json`, `bind`/`insert`/`clean`, typisierte Decoder-Records, `-logFormat text|json|kv` und `trice-fields.txt` sind vorhanden. Skalare Werte sowie Strings über `triceS`/`triceN` gehören zum aktuellen Scope; benannte Pufferfelder werden abgewiesen. Die Bedienung ist in [UM-Kapitel 32](../TriceUserManual.md#strukturiertes-logging) beschrieben. Diese Bestandsaufnahme ist keine Behauptung, dass alle bestehenden Tests bestehen oder die oben genannten Details bereits dem gewünschten Vertrag entsprechen.
 
-Falls sich bei der Implementierung zeigt, dass einer dieser Punkte beobachtbares Verhalten ändern würde, ist das eine neue Designfrage; andernfalls nicht.
+Die früher abgeschlossenen Arbeiten an Tag-Aliasen, Gewichten, Auswahl, ID-Policy, Rohaufzeichnung, Statistik und Diagnosen stehen in den jeweiligen UM-Kapiteln. Die alten Handovers und Aufgaben liegen unter [obsolete](obsolete/README.md). Beispielvalidierung ist in A6, A7 und A10 als Abnahme enthalten und benötigt keinen eigenen Implementierungsblock.
 
-## 6. Idempotenz und Konsistenz
-
-Normale M19- und M20-Instrumentierungsläufe dürfen keine kumulierenden Transformationen erzeugen. Die ausdrücklich angeforderte Legacy-Konvertierung `-migrateBraces` ist hiervon ausgenommen: Sie behandelt alle ausgewählten Klammern als alte Literale und darf genau einmal vor Einführung strukturierter Templates ausgeführt werden. Sie ist kein wiederholbarer Build-Schritt.
-
-Für `bind` gilt konzeptionell:
-
-```text
-bind(S, config) = bind(S, config)
-```
-
-Für M19 `insert/clean` muss die bestehende reversible Arbeitsweise erhalten bleiben.
-
-Für eine mögliche spätere M20-Erweiterung auf `insert/clean` gelten zusätzlich:
-
-```text
-insert(insert(S, CE), CE) = insert(S, CE)
-clean(clean(S, CE), CE)   = clean(S, CE)
-clean(insert(S, CE), CE)  = S
-```
-
-unter identischer CE-Konfiguration und unverändertem Source zwischen den Operationen.
-
-## 7. M17 und M18
-
-**M17 bleibt zurückgestellt.** Bei späterem Auftrag zuerst Replay-Messungen für 0, 50, 90 und 100 Prozent verworfene Ereignisse mit CPU, Allokationen und Durchsatz. Danach über eine Optimierung entscheiden. Framing/Integritätsprüfung, Stempel-/Cycle-Zustand, Rohaufzeichnung, Statistik, Diagnosen und akzeptierte Records müssen identisch bleiben.
-
-**M18 wird Abnahmearbeit innerhalb M19/M20.** Beispiele erst gegen die dann vorhandene CLI und passende Wörterbücher ausführen; JSON/KV einschließlich Grenzwerten vergleichen, C-Kontexte kompilieren und Shell-Quoting prüfen. Kein eigenes großes Testframework und keine Implementierung einer Option allein zum Ausführen eines Dokumentbeispiels.
+Die Vorprüfung zum JSON-Layout ist erfolgt: Die aktuellen Serializer in `internal/id/manage.go` verwenden `json.Encoder.SetIndent` bzw. `json.MarshalIndent`; die Standardbibliothek bietet dafür keine Option „äußerer Eintrag auf eigener Zeile, inneres Objekt kompakt“. `json.Marshal` pro Eintrag plus eigenes Zusammensetzen der äußeren Datei wäre möglich, aber mehr als eine reine Standard-Converter-Einstellung. `json.Unmarshal` liest beide Layouts unabhängig von Leerraum und Feldreihenfolge. Für `Line` vor `File` wäre eine gezielte Ausgabeform nötig, da `TriceLI` derzeit `File` vor `Line` deklariert. Die heutigen `toFile`-Pfade schreiben vorhandene Dateien bei Aktualisierung neu; die gewünschte Erhaltung ihres Layouts benötigte daher zusätzliche Stilerkennung.

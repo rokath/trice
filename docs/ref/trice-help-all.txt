@@ -540,8 +540,6 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
-  -migrateBraces
-    	One-time legacy migration only: double all literal braces in selected source format strings and the complete TIL, preserving IDs. Does not insert or bind. Use only before introducing structured templates; do not repeat on migrated data. Supports -dry-run.
   -s value
     	Short for src.
   -sa value
@@ -643,8 +641,6 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
-  -migrateBraces
-    	One-time legacy migration only: double all literal braces in selected source format strings and the complete TIL, preserving IDs. Does not insert or bind. Use only before introducing structured templates; do not repeat on migrated data. Supports -dry-run.
   -s value
     	Short for src.
   -sa value

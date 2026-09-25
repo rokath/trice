@@ -180,7 +180,7 @@ Damit muss `bind` bei CE nicht nur IDs binden, sondern zusätzlich eine callsite
 
 ### 7.1 Verbindlicher Machbarkeitsnachweis vor M20
 
-Vor der eigentlichen M20-Implementierung muss ein isolierter PoC nachweisen, dass diese Callsite-Injektion mit dem Bind-Sidecar technisch sauber funktioniert. Maßgeblich ist [Issue_M20_Bind_CE_Callsite_Injection_PoC.md](Issue_M20_Bind_CE_Callsite_Injection_PoC.md).
+Vor der eigentlichen M20-Implementierung muss ein isolierter PoC nachweisen, dass diese Callsite-Injektion mit dem Bind-Sidecar technisch sauber funktioniert. Maßgeblich ist der [Arbeitsplan](Implementierungsplan.md) mit seinem PoC-Schritt.
 
 Der PoC muss mindestens zeigen:
 

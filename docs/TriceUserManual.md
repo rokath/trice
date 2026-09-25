@@ -375,7 +375,6 @@ details.toc[open] .toc-hide {
   * [32.5. JSON- und KV-Vertrag](#json--und-kv-vertrag)
   * [32.6. Optionale Metadaten](#optionale-metadaten)
   * [32.7. Feldregister](#feldregister)
-  * [32.8. Einmalige Migration alter Klammertexte](#einmalige-migration-alter-klammertexte)
 * [33. Trice without UART](#trice-without-uart)
 * [34. Trice over RTT](#trice-over-rtt)
   * [34.1. For the impatient (2 possibilities)](#for-the-impatient-2-possibilities)
@@ -6089,32 +6088,40 @@ trice("info:Motor {motor_id}: {temperature_c:%.1f C}", motor_id, aFloat(temperat
 
 Bei `motor_id = 3` und `temperature_c = 87.5` entstehen daraus je nach Ausgabeformat:
 
+`tlog -logFormat text` (default):
+
 ```text
 Motor 3: 87.5 C
 ```
+
+`tlog -logFormat json`:
 
 ```json
 {"tag":"info","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}
 ```
 
+`tlog -logFormat kv`:
+
 ```text
 tag=info level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature_c=87.5
 ```
 
-Das Textbeispiel zeigt den Meldungsinhalt ohne Metadaten. Die JSON/KV-Beispiele verwenden deaktivierte Host-Zeitstempel und keine weiteren Metadaten. Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
+Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
+
+Das Textbeispiel zeigt den Meldungsinhalt ohne Metadaten. Die JSON und Key-Value Beispiele verwenden deaktivierte Host-Zeitstempel und keine weiteren Metadaten. Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
 
 Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Benannte Felder in Puffer-/Funktionsformaten wie `triceB` oder `triceF` werden mit einem Fehler abgewiesen. Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`, M20) ist eine separate, noch nicht implementierte Erweiterung.
 
 ### 32.1. <a id="platzhalter-und-namen"></a>Platzhalter und Namen
 
-| Schreibweise im Formatstring | Bedeutung |
-|---|---|
-| `{motor_id}` | Expliziter Feldname, Standarddarstellung. |
-| `{}` | Name aus dem zugehörigen C-Argument ableiten. |
-| `{plant.}` | Abgeleiteten Namen mit `plant.` ergänzen. |
-| `{temperature:%.1f C}` | Expliziter Name und Darstellung. |
-| `{: = %.1f C}` | Abgeleiteter Name und Darstellung. |
-| `{{` und `}}` | Literale öffnende und schließende Klammer. |
+| Schreibweise im Formatstring | Bedeutung                                     |
+|------------------------------|-----------------------------------------------|
+| `{motor_id}`                 | Expliziter Feldname, Standarddarstellung.     |
+| `{}`                         | Name aus dem zugehörigen C-Argument ableiten. |
+| `{plant.}`                   | Abgeleiteten Namen mit `plant.` ergänzen.     |
+| `{temperature:%.1f C}`       | Expliziter Name und Darstellung.              |
+| `{: = %.1f C}`               | Abgeleiteter Name und Darstellung.            |
+| `{{` und `}}`                | Literale öffnende und schließende Klammer.    |
 
 Der erste Doppelpunkt trennt Name und Darstellung. Der Darstellungsteil darf freien Text und weitere Doppelpunkte enthalten, muss aber genau einen unterstützten Formatspezifizierer enthalten. `%%` ist kein zusätzlicher Wert. Dynamische Breiten wie `%*d` sind in einem strukturierten Feld nicht erlaubt.
 
@@ -6146,7 +6153,7 @@ Für literale Klammern gilt die neue Schreibweise auch im Textmodus:
 trice("info:set={{1,2}}, value={value}", value);
 ```
 
-Das ergibt `set={1,2}, value=7` bei `value = 7`. Ein Backslash vor einer Klammer ersetzt das Verdoppeln nicht. Bestehende Projekte mit literal gemeinten Klammern müssen vor Verwendung dieser Syntax wie unten beschrieben migriert werden.
+Das ergibt `set={1,2}, value=7` bei `value = 7`. Ein Backslash vor einer Klammer ersetzt das Verdoppeln nicht.
 
 ### 32.2. <a id="feldtypen-und-darstellung"></a>Feldtypen und Darstellung
 
@@ -6170,6 +6177,7 @@ Benannte Stringfelder verwenden `%s`; alternative klassische Stringdarstellungen
 
 Sowohl `bind` als auch `insert` unterstützen strukturierte Templates. `clean` entfernt wie bisher eingefügte IDs und erhält die ursprüngliche Schreibweise des Templates. Die Kurzformen in den Quelltexten werden nicht durch kanonische Feldnamen ersetzt.
 
+<!--
 ```sh
 trice bind -src app -bindDir build/triceIDs -til til.json -li li.json
 ```
@@ -6182,6 +6190,7 @@ trice clean -src app -til til.json -li li.json
 ```
 
 Diese Beispiele setzen wie die vorhandenen Workflows ein initialisiertes TIL voraus. Die übliche Build-Einbindung der Bind-Sidecars bleibt erforderlich.
+-->
 
 In `til.json` bleiben die einzigen Schemafelder `Type` und `Strg`. `Strg` enthält alle zur Dekodierung nötigen Informationen, einschließlich abgeleiteter Namen und Float-Defaults. Zum Beispiel wird
 
@@ -6192,7 +6201,7 @@ trice("info:Motor {}: {} C", motor_id, aFloat(temperature_c));
 mit einem kanonischen `Strg` wie diesem gespeichert:
 
 ```json
-{"Type":"TRICE32_2","Strg":"info:Motor {motor_id}: {temperature_c:%f} C"}
+{"Type":"trice","Strg":"info:Motor {motor_id}: {temperature_c:%f} C"}
 ```
 
 Die konkrete Schreibweise von `Type` folgt weiterhin dem jeweiligen Instrumentierungspfad. Die Schemaidentität bleibt `Type + Strg`. Eine Feldumbenennung ergibt eine neue Schemaidentität und damit eine andere ID; historische TIL-Einträge bleiben für alte Firmware erhalten. Äquivalente Namensschreibweisen wie `motor->temperature` und `motor.temperature` behalten dieselbe kanonische Identität. Wiederholte unveränderte Läufe erzeugen keine zusätzlichen Schemas. Generierte lokale C-Formatdaten enthalten den daraus abgeleiteten printf-Formatstring.
@@ -6253,19 +6262,6 @@ Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt`. Bei `bi
 Gezählt werden die instrumentierten Stellen mit diesem User-Feld im aktuellen Aufruf. Die Datei wird vollständig neu erzeugt, nicht um historische TIL-Felder ergänzt. Ein Lauf über einen Teil der Quellen beschreibt nur diesen Teil; deshalb sollten projektweite Prüfungen alle relevanten Quellen einschließen. Cache-Treffer werden mitgezählt. Hostmetadaten erscheinen nicht, ein tatsächlich vom Benutzer benanntes Feld `tag` dagegen schon.
 
 Die Sortierung ist zuerst nach Anzahl aufsteigend, bei gleicher Anzahl alphabetisch nach Feldname. Das Zeilenformat ist `%8d %s\n`; Feldnamen haben keine künstliche Längenbegrenzung. Ein erfolgreicher Lauf ohne User-Felder erzeugt eine leere Datei. `-dry-run` veröffentlicht keine neue Datei und erhält ein vorhandenes Register.
-
-### 32.8. <a id="einmalige-migration-alter-klammertexte"></a>Einmalige Migration alter Klammertexte
-
-Früher literal gemeinte `{` und `}` müssen in Quellformaten und historischen TIL-Einträgen verdoppelt werden. Dafür gibt es einen ausdrücklichen Konvertierungslauf:
-
-```sh
-trice insert -migrateBraces -dry-run -src app -til til.json
-trice insert -migrateBraces -src app -til til.json
-```
-
-`bind -migrateBraces` führt dieselbe Konvertierung aus. In diesem Modus werden keine IDs eingefügt oder Bind-Artefakte erzeugt. Er behandelt sämtliche Klammern in den ausgewählten Quellformaten und im vollständigen TIL als alten Literaltext, behält alle IDs bei und schreibt die Änderungen mit Rollback bei einem Schreibfehler. Ein altes `{{` wird deshalb zu `{{{{`, damit weiterhin zwei Klammern sichtbar sind.
-
-Diese Konvertierung muss **genau einmal, vor dem Einführen strukturierter Templates**, erfolgen. Alle Quellen, die das betreffende TIL teilen, müssen gemeinsam ausgewählt werden, beispielsweise mit wiederholtem `-src`. Der Modus kann bereits migrierte Klammern nicht von alten Literalpaaren unterscheiden und darf nicht erneut auf denselben Bestand angewendet werden. Bei gemischten alten und bereits strukturierten Formaten sind die alten Literalstellen gezielt zu korrigieren. Anschließend wird der normale `bind`- oder `insert`-Lauf ausgeführt. Es gibt keinen dauerhaften Legacy-Parsermodus.
 
 ## 33. <a id="trice-without-uart"></a>Trice without UART
 

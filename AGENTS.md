@@ -13,6 +13,8 @@
 * Do not refactor, rename, or reorganize unrelated code.
 * Avoid "drive-by" improvements outside the requested scope.
 * If additional improvements seem beneficial, propose them separately instead of applying them automatically.
+* Treat directories named `obsolete` and other explicitly archived material as read-only history, even when the user allows edits to their parent directory. Do not edit, move, delete, reindex, or repair links in archived files unless the user explicitly names the archived material as a target.
+* When an active-document change leaves a stale reference inside an archive, leave the archive unchanged. Update active references within scope and report any remaining link limitation when relevant.
 * Changes to `demo*.json` at the repository root are usually generated or local-test artifacts. Unless the user explicitly asks for them, ignore such worktree changes silently and do not treat them as part of the task.
 
 ## Change scope and confirmation
