@@ -1,18 +1,14 @@
 # Arbeitsplan für Structured Logging und Context Enrichment
 
-Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Structured Logging ist in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging) dokumentiert. [Context Enrichment](Kontextanreicherung_DE.md) ist zurückgestellt. Der CE-Machbarkeitsnachweis muss vor der CE-Implementierung erfolgen.
+Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Structured Logging ist in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging) dokumentiert. Der isolierte [CE-Machbarkeitsnachweis A9](Context_Enrichment_PoC.md) ist bestanden. Die produktive [Context-Enrichment-Implementierung](Kontextanreicherung_DE.md) bleibt Aufgabe A10.
 
 ## Offene Aufgaben in Arbeitsreihenfolge
-
-### A9 – Context Enrichment mit PoC beginnen
-
-- Erst nach A1–A7: Führe den isolierten Nachweis für die in [Context Enrichment](Kontextanreicherung_DE.md) beschriebene Bind-Injektion aus. Zeige zusätzliche lokale Werte bei argumentlosen und bereits parametrisierten Trices, einfache Ausdrücke, genau einmalige Auswertung, korrekte Arity und TIL-Konsistenz, unveränderten User-Source sowie idempotente Bind-Läufe.
-- Prüfe zusätzlich die Diagnosefreiheit in üblichen compilerbewussten C/C++-Editoren und Language-Servern mit realer Compile-Konfiguration. Scheitert der Nachweis, ist die Architektur vor der CE-Implementierung neu zu entscheiden.
 
 ### A10 – Context Enrichment implementieren und abnehmen
 
 - Nur nach bestandenem A9: Setze zunächst `trice bind -ce` nach dem [deutschen CE-Vertrag](Kontextanreicherung_DE.md) um. CE ergänzt den finalen strukturierten Template-String vor Schema- und ID-Bestimmung; injizierte Runtime-Ausdrücke werden pro Aufruf genau einmal ausgewertet. Source, Sidecars und TIL müssen bei unveränderter Konfiguration reproduzierbar bleiben.
 - Prüfe Selektoren und Aliase, Regelreihenfolge, doppelte Selektoren, Feldkonflikte, Argumentzahl, Bitbreite/Wrapper, Konfigurationswechsel, `TRICE_OFF`, C-Kompilierung und Decoder-Ausgabe. Eine spätere Ausweitung auf `insert/clean` benötigt einen eigenen reversiblen Vertrag und Auftrag.
+- Überführe den testinternen A9-Adapter in den produktiven Bind-Ablauf. Direkte Deskriptoren, Wrappermakros und Counter-Rebase sowie Source-/TIL-Abgleiche wie bei `generate -logC` müssen die endgültigen CE-Metadaten konsistent verwenden. Die im [PoC-Bericht](Context_Enrichment_PoC.md) benannten weiteren Varianten sind durch A9 noch nicht abgenommen.
 
 ### A11 – Frühe Hostfilterung gesondert prüfen
 
@@ -58,3 +54,9 @@ Kapitel 32 wurde mit dem aktuellen CLI-Verhalten, den strukturierten Generator- 
 `trice generate -onelineJSON -til til.json -li li.json` erzeugt auf Abruf `til.oneline.json` und `li.oneline.json`. Beide bleiben vollständige JSON-Objekte, nicht NDJSON: Jede ID und ihr kompakter Eintrag stehen zusammen auf einer Zeile. In der LI-Ansicht steht `Line` vor `File`, beispielsweise `"13000": {"Line":163,"File":"src/main.c"}`. Der Name `oneline` bezieht sich auf den Eintrag, nicht auf die ganze Datei. Mit `-li off` wird nur die TIL-Ansicht erzeugt. Fehlende oder ungültige angeforderte Eingabedateien werden vor Ausgabeschreibzugriffen abgewiesen.
 
 Die Originaldateien bleiben maßgeblich und werden bei diesem Export nicht verändert. Der Export wird nach Änderungen an den Originalen erneut ausgeführt; `bind`, `insert`, `clean`, `add` und die Remigration erzeugen keine automatischen Kopien. Die bestehende JSON-Datenstruktur bleibt erhalten. `encoding/json` serialisiert Schlüssel und Werte; nur äußere Klammern, Kommata und Zeilenumbrüche werden für die Ansicht zusammengesetzt. Für TIL bleibt `SetEscapeHTML(false)` maßgeblich. Tests decken stabile ID-Reihenfolge, Escapes, Unicode, Roundtrips, unveränderte Wiederholungsläufe und das Zurückrollen bei einem Schreibfehler ab. Eine externe Abhängigkeit ist nicht erforderlich; der zusätzliche Aufwand entsteht nur beim angeforderten Export auf dem Host.
+
+### A9 – Context-Enrichment-Machbarkeitsnachweis bestanden
+
+Der [isolierte PoC](Context_Enrichment_PoC.md) weist zusätzliche lokale Werte, ursprüngliche Argumentreihenfolge, einfache Ausdrücke, einmalige Auswertung, feste und generische Arity sowie TIL-konsistente Binärrecords nach. Die User-Source bleibt bytegleich; zwei PoC-Bind-Läufe erzeugen dieselben IDs und Artefakte. Die Tests bestehen als C11 und C++17 mit den echten Trice-Headern und der Target-Bibliothek. `clangd` lädt dieselbe Compile-Konfiguration und meldet keine CE-bedingten Fehler; ein nicht sichtbarer Context-Ausdruck wird dagegen von Compiler und Language-Server abgewiesen.
+
+Der Nachweis gilt für direkte skalare 32-Bit-Logstellen mit `iD` und einer Logstelle pro Zeile. Andere Language-Server wurden nicht geprüft. Der Adapter ist ausschließlich Testcode; die produktive Option `bind -ce` ist weiterhin nicht implementiert. A10 benötigt einen eigenen Auftrag.

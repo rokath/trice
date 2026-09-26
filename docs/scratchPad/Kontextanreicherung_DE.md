@@ -1,6 +1,6 @@
 # Context Enrichment
 
-**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht implementiert. Die für den aktuellen Scope nötigen Designentscheidungen sind abgeschlossen. M20 unterstützt zunächst ausschließlich `trice bind -ce`. Eine spätere Erweiterung auf `insert/clean` bleibt unter einem strikten reversiblen Vertrag möglich; siehe Anhang.
+**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht produktiv implementiert. Der isolierte [A9-Machbarkeitsnachweis](Context_Enrichment_PoC.md) für direkte Bind-Logstellen ist bestanden. Die für den aktuellen Scope nötigen Designentscheidungen sind abgeschlossen. M20 unterstützt zunächst ausschließlich `trice bind -ce`. Eine spätere Erweiterung auf `insert/clean` bleibt unter einem strikten reversiblen Vertrag möglich; siehe Anhang.
 
 ## 1. Einordnung
 
@@ -194,6 +194,8 @@ Der PoC muss mindestens zeigen:
 Zusätzlich darf der Mechanismus keine CE-bedingten False-Positive-Warnungen in üblichen compilerbewussten C/C++-Editoren bzw. Language-Servern erzeugen. Es ist zulässig, dass diese dafür das generierte Build-Verzeichnis und die reale Compile-Konfiguration kennen müssen. Nicht akzeptabel wäre ein Design, das zwar vom Build-Compiler angenommen wird, im normalen Editor aber systematisch falsche Argumentzahl-, Syntax- oder Identifierfehler anzeigt.
 
 Die erfolgreiche Abarbeitung dieses PoC ist eine Implementierungsvoraussetzung für M20. Schlägt der Nachweis fehl, ist die Bind/CE-Architektur vor weiterer M20-Arbeit neu zu bewerten.
+
+**A9-Ergebnis:** Der [isolierte PoC](Context_Enrichment_PoC.md) erfüllt diese Mindestfälle für direkte skalare Bind-Logstellen. Er verwendet den vorhandenen Bind-Dispatcher, prüft reale Binärrecords gegen die erweiterte TIL und besteht als C11 und C++17 einschließlich `clangd` mit realer Compile-Konfiguration. Die Source bleibt unverändert, Wiederholungsläufe sind bytegleich und fehlende Context-Bezeichner bleiben Compiler-/Language-Server-Fehler. Die produktive Integration und die weiteren Bind-/Makrovarianten bleiben A10; der Bericht benennt die geprüften Grenzen.
 
 ## 8. Schema, `til.json` und IDs
 
