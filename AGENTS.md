@@ -24,6 +24,8 @@
 - Use documentation to interpret the requested work, but never use it to revive rejected or deferred work or to expand the agreed scope.
 - Do not add migration, compatibility, data-conversion, or cleanup work as an implementation detail unless the user explicitly included or approved that effort.
 - Before implementation, establish the intended observable result and its scope. If any material part is not completely clear, or multiple plausible results remain, ask the user before starting the dependent implementation; do not choose an interpretation and proceed silently.
+- When the user refers to a numbered item in a plan or issue list, distinguish editing that item's specification from implementing it. Requests such as "adjust A4" or "update A4" mean revise the plan text for review; change code, tests, CLI help, or user documentation only when the user explicitly asks to implement the item or names those changes.
+- A decision made while discussing a planned item authorizes recording that decision in the plan when requested; it is not a start command for implementation. If the wording could reasonably mean either plan revision or implementation, ask which one the user intends before touching implementation files.
 - Do not perform opportunistic refactors, broad cleanups, renames, rewrites, or diagnostic-output removals unless the user explicitly asks for them.
 - Preserve existing comments, usage/help text, workflow steps, log output, and diagnostics unless changing them is required for the requested task.
 - If you see a useful improvement outside the requested scope, describe it and ask before implementing it.
