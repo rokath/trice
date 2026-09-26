@@ -199,7 +199,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -logFormat string
-    	Output format: text (classic presentation), json (one JSON object per application event), or kv (one key=value record per event). Structured formats require TREX; diagnostics go to stderr. (default "text")
+    	Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr. (default "text")
   -logLevel string
     	Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
     	A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.

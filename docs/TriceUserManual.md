@@ -6080,6 +6080,8 @@ If a Windows console displays ANSI escape sequences instead of colors, use a ter
 
 ## 32. <a id="strukturiertes-logging"></a>Strukturiertes Logging
 
+Maschinenlesbare Ausgabe setzt das standardmäßige TREX-Drahtformat voraus. CHAR und DUMP haben keine passenden Ereignisgrenzen und werden mit `-logFormat json` oder `-logFormat kv` abgewiesen.
+
 Strukturiertes Logging ergänzt eine lesbare Meldung um benannte, typisierte Werte. Ein normaler Trice-Aufruf genügt:
 
 ```c
@@ -6096,7 +6098,7 @@ Für diese drei Ausgaben sind `-li off -showID '' -hs off -ts off` gesetzt. Dadu
 Motor 3: 87.5 C
 ```
 
-`tlog -logFormat json`:
+`tlog -logFormat json` (NDJSON):
 
 ```json
 {"tag":"INFO","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}
@@ -6212,7 +6214,7 @@ Die konkrete Schreibweise von `Type` folgt weiterhin dem jeweiligen Instrumentie
 
 ### 32.4. <a id="ausgabeformate-und-ereignisgrenzen"></a>Ausgabeformate und Ereignisgrenzen
 
-`trice log` und `tlog` unterstützen `-logFormat text`, `-logFormat json` und `-logFormat kv`. Standard bleibt `text`. Für JSON/KV ist der TREX-Decoder erforderlich; CHAR und DUMP besitzen keine passenden Ereignisgrenzen und werden zusammen mit diesen Ausgabeformaten abgewiesen. Der textbasierte Remote-Display-Modus und Testtabellenausgabe sind ebenfalls nicht kombinierbar.
+`trice log` und `tlog` unterstützen `-logFormat text`, `-logFormat json` und `-logFormat kv` sowie `-logFormat key-value` als Alias für `kv`. Die Werte sind unabhängig von Groß- und Kleinschreibung; Standard bleibt `text`. Der textbasierte Remote-Display-Modus und Testtabellenausgabe sind mit maschinenlesbaren Formaten nicht kombinierbar.
 
 ```sh
 trice log -p FILEBUFFER -args capture.bin -pf TCOBSv1 -til til.json -li off -hs off -ts off -logFormat json
@@ -6220,7 +6222,7 @@ trice log -p FILEBUFFER -args capture.bin -pf TCOBSv1 -til til.json -li off -hs 
 
 Framing und Wörterbuch müssen zur Aufzeichnung passen. Mit `-logFormat kv` wird dieselbe Aufnahme als Schlüssel/Wert-Ausgabe gelesen; mit `text` bleibt die bisherige Textausgabe verfügbar.
 
-JSON wird als JSON Lines ausgegeben: ein JSON-Objekt und ein abschließendes LF pro akzeptiertem Trice-Ereignis. KV erzeugt ebenfalls genau eine Zeile pro Ereignis. Mehrere Teilaufrufe werden nicht zusammengefügt, mehrzeilige Meldungen nicht in mehrere Ereignisse aufgeteilt. Auch eine leere Meldung ist ein Ereignis. Newlines innerhalb der Meldung werden escaped.
+`-logFormat json` erzeugt NDJSON (JSON Lines): ein JSON-Objekt und ein abschließendes LF pro akzeptiertem Trice-Ereignis. Es gibt keinen separaten CLI-Wert `ndjson`. KV erzeugt ebenfalls genau eine Zeile pro Ereignis. Mehrere Teilaufrufe werden nicht zusammengefügt, mehrzeilige Meldungen nicht in mehrere Ereignisse aufgeteilt. Auch eine leere Meldung ist ein Ereignis. Newlines innerhalb der Meldung werden escaped.
 
 Textpräfix, Suffix, Farben, Einrückung, Zeitdifferenzspalten und `-addNL` dekorieren keine JSON/KV-Records. Die tatsächlichen Metadaten werden stattdessen durch eigene Felder dargestellt. Diagnosen und Statusmeldungen gehen bei JSON/KV nach stderr; stdout, `-logfile` und TCP-Logausgabe enthalten die Anwendungsrecords. Fehler beim Schreiben werden an den Aufrufer zurückgegeben.
 

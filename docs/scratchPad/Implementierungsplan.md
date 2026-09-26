@@ -4,12 +4,6 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
-### A4 – Ausgabeformat-Option und TREX-Geltungsbereich bereinigen
-
-- Mache die Werte von `-logFormat` ohne Rücksicht auf Groß-/Kleinschreibung wählbar. Erlaube zusätzlich `key-value` als verständlichen Alias für `kv`; der bestehende Wert `kv` bleibt gültig. Teste gültige Varianten und ungültige Werte.
-- Bezeichne `-logFormat json` im UM präzise als NDJSON: genau ein JSON-Objekt mit abschließendem LF pro akzeptiertem Ereignis. **Vor einer Umbenennung der CLI entscheiden**, ob `json` als Wert genügt oder zusätzlich `ndjson` angeboten werden soll. Die vorhandene CLI-Verwendung darf nicht stillschweigend gebrochen werden.
-- Stelle nur einmal am Anfang des Structured-Logging-Kapitels klar, dass maschinenlesbare Ausgabe das standardmäßige TREX-Drahtformat voraussetzt und nicht mit CHAR/DUMP arbeitet. Entferne die wiederholten TREX-Hinweise im Kapitel und den Satz „Structured formats require TREX“ aus der `-logFormat`-Hilfe. Prüfe, dass die CLI ungeeignete Eingaben weiterhin verständlich ablehnt.
-
 ### A5 – Gemeinsames Build-Verzeichnis für das Feldregister
 
 - Prüfe die vorhandenen Optionen `-bindDir` und `-buildDir`. Führe für `bind` und `insert` eine gemeinsame, verständliche `-buildDir`-Bedienung für `trice-fields.txt` ein und aktualisiere Kapitel 32.7 sowie die CLI-Hilfe. **Vor der Änderung entscheiden**, ob `-bindDir` als Alias bestehen bleibt und wie abweichende gleichzeitige Angaben behandelt werden.
@@ -47,6 +41,10 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 - Framing und Integrität, Stempelzustand, Rohaufzeichnung, Statistik, Diagnosen und akzeptierte Records müssen sich durch eine Optimierung nicht ändern. Beziehe typisierte strukturierte Ausgabe und spätere CE-Records in den Vergleich ein.
 
 ## Erledigter Stand als Reviewhilfe
+
+### A4 – Ausgabeformat-Option und TREX-Geltungsbereich
+
+`-logFormat` akzeptiert die Werte `text`, `json` und `kv` unabhängig von Groß- und Kleinschreibung sowie `key-value` als Alias für `kv`. Der Wert `json` erzeugt NDJSON mit genau einem JSON-Objekt und abschließendem LF pro akzeptiertem Ereignis; einen separaten CLI-Wert `ndjson` gibt es nicht. Die CLI-Hilfe benennt NDJSON kurz, Kapitel 32 beschreibt TREX als Voraussetzung für maschinenlesbare Ereignisse und die CLI weist CHAR/DUMP weiterhin verständlich ab. Gültige Varianten, ungültige Werte und reale Ausgabe werden getestet.
 
 ### A1 – Test-Ausgangsstand und Policy-Anpassungen
 
