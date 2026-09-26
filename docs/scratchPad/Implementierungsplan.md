@@ -1,14 +1,8 @@
 # Arbeitsplan für Structured Logging und Context Enrichment
 
-Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bedienungsdokumentation für Structured Logging steht in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging); bis zur dortigen Übernahme fehlender Inhalte bleibt der [deutsche Entwurf](Strukturiertes_Logging_DE.md) erhalten. [Context Enrichment](Kontextanreicherung_DE.md) ist zurückgestellt. Die Reihenfolge unten ist verbindlich: erst Structured Logging abschließen, dann den CE-Machbarkeitsnachweis, danach CE implementieren.
+Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Structured Logging ist in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging) dokumentiert. [Context Enrichment](Kontextanreicherung_DE.md) ist zurückgestellt. Der CE-Machbarkeitsnachweis muss vor der CE-Implementierung erfolgen.
 
 ## Offene Aufgaben in Arbeitsreihenfolge
-
-### A7 – Structured Logging dokumentarisch abschließen
-
-- Gleiche Kapitel 32 mit dem aktuellen Verhalten und den Ergebnissen aus A1–A6 ab. Übernimm alle noch gültigen, fehlenden Inhalte des [deutschen Entwurfs](Strukturiertes_Logging_DE.md) in das UM, ohne widersprüchliche ältere Entwurfsangaben zu übernehmen. Prüfe besonders Tag-Kanonisierung, NDJSON, Metadaten, Pufferlogs, Strings und Feldregister.
-- Entferne danach die Entwurfskopie `Strukturiertes_Logging_DE.md`. Stelle alle aktiven Links darauf auf das UM um. Der UM-Link auf die bisherige ScratchPad-README ist beim späteren UM-Schritt auf diesen Plan umzusetzen. Am Ende sollen hier nur `Kontextanreicherung_DE.md`, `Implementierungsplan.md` und die unveränderte `scratchPad.md` als aktive Texte verbleiben.
-- Abnahme: kein widersprüchlicher Vertrag zwischen UM, Hilfe, Code und Tests; Beispiele gegen die reale CLI geprüft. CE bleibt bis dahin zurückgestellt.
 
 ### A8 – Einzeilige Einträge in `til.json` und `li.json` nur untersuchen
 
@@ -61,3 +55,7 @@ Die Vorprüfung zum JSON-Layout ist erfolgt: Die aktuellen Serializer in `intern
 ### A6 – Verständliche C-Beispiele und Integrationstests
 
 Nach den `assert`-Zeilen in `_test/testdata/triceCheck.c` stehen neun kompilierbare Beispiele für 8/16/32/64-Bit-Werte, Stempelvarianten, `triceS`/`triceN`, gemischte klassische und strukturierte Platzhalter, per `.` und `->` abgeleitete Feldnamen sowie `aFloat()` und `aDouble()`. Ein gezielter PC-Integrationstest prüft ihre vollständige Textausgabe mit den bestehenden CLI-Einstellungen durch C-Zielcode und Decoder, jeweils nach `bind` und `insert`. Generator- und strukturierte Decoder-Tests bestanden ebenfalls. Die vollständigen PC-Testläufe bleiben unabhängig davon an einer älteren Erwartung hängen: Bei `-color=off` erscheint für ungetaggte Meldungen heute `untagged:`, während die erste Bestandszeile noch ohne dieses Präfix erwartet wird. Diese Bestandsabweichung gehört nicht zu den neun A6-Beispielen.
+
+### A7 – Structured Logging dokumentarisch abgeschlossen
+
+Kapitel 32 wurde mit dem aktuellen CLI-Verhalten, den strukturierten Generator- und Decoder-Tests sowie A1–A6 abgeglichen. Die weiterhin gültigen Hinweise zu Platzhaltern, Typen und C-Beispielen stehen nun im UM; ältere Entwurfsannahmen zu Tag-Schreibweise, Target-Zeitstempeln und Build-Verzeichnis wurden nicht übernommen. Die frühere Entwurfskopie ist entfernt und der UM-Link auf die nicht mehr vorhandene ScratchPad-README zeigt auf diesen Plan. Context Enrichment bleibt ein separater, noch nicht implementierter Auftrag.

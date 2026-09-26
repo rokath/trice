@@ -6127,8 +6127,10 @@ Beispielsweise ergibt `trice8B("msg:%02x ", bytes, 2)` für die Pufferwerte `0x0
 | `{motor_id}`                 | Expliziter Feldname, Standarddarstellung.     |
 | `{}`                         | Name aus dem zugehörigen C-Argument ableiten. |
 | `{plant.}`                   | Abgeleiteten Namen mit `plant.` ergänzen.     |
+| `{:%.1f}`                    | Abgeleiteter Name und explizite Darstellung.  |
 | `{temperature:%.1f C}`       | Expliziter Name und Darstellung.              |
 | `{: = %.1f C}`               | Abgeleiteter Name und Darstellung.            |
+| `{motor_id:: %d, }`          | Name `motor_id`, Darstellung `: %d, `.        |
 | `{{` und `}}`                | Literale öffnende und schließende Klammer.    |
 
 Der erste Doppelpunkt trennt Name und Darstellung. Der Darstellungsteil darf freien Text und weitere Doppelpunkte enthalten, muss aber genau einen unterstützten Formatspezifizierer enthalten. `%%` ist kein zusätzlicher Wert. Dynamische Breiten wie `%*d` sind in einem strukturierten Feld nicht erlaubt.
@@ -6173,7 +6175,9 @@ Das ergibt `set={1,2}, value=7` bei `value = 7`. Ein Backslash vor einer Klammer
 | `%c`, `%q`, `%U` | Zeichen als String; ungültige Unicode-Codepoints werden durch das Ersatzzeichen ersetzt. |
 | `%t` | Boolean: null ist `false`, andere Werte sind `true`. |
 | `%s` | String aus `triceS` oder `triceN`. |
-| `%p` | Adresse in der Form `0x...`. |
+| `%p` | Adresse in der Form `0x...`; kein Rückschluss auf den Typ des referenzierten Objekts. |
+
+`%%` ist ein literales Prozentzeichen und erzeugt weder ein Feld noch ein zusätzliches Argument.
 
 Unterstützte C-Längenmodifikatoren wie `%lu` oder `%llX` ändern diese Semantik nicht; die Trice-Familie bestimmt die transportierte Bitbreite. Präzision, Feldbreite und Darstellungstext beeinflussen ausschließlich `message`. Beispielsweise erzeugt `{value:%.1f}` bei einem Wert von `1.25` die Textdarstellung `1.2`, während das Feld `1.25` enthält. Ebenso kürzt `{text:%.3s}` nur die Meldung, nicht den exportierten String.
 
@@ -6185,7 +6189,6 @@ Benannte Stringfelder verwenden `%s`; alternative klassische Stringdarstellungen
 
 Sowohl `bind` als auch `insert` unterstützen strukturierte Templates. `clean` entfernt wie bisher eingefügte IDs und erhält die ursprüngliche Schreibweise des Templates. Die Kurzformen in den Quelltexten werden nicht durch kanonische Feldnamen ersetzt.
 
-<!--
 ```sh
 trice bind -src app -buildDir build/triceIDs -til til.json -li li.json
 ```
@@ -6198,7 +6201,8 @@ trice clean -src app -til til.json -li li.json
 ```
 
 Diese Beispiele setzen wie die vorhandenen Workflows ein initialisiertes TIL voraus. Die übliche Build-Einbindung der Bind-Sidecars bleibt erforderlich.
--->
+
+Die [C-Testbeispiele](../_test/testdata/triceCheck.c) zeigen zusätzlich 8-, 16-, 32- und 64-Bit-Werte, verschiedene Stempel, `triceS`/`triceN`, gemischte Platzhalter und die Wrapper `aFloat()`/`aDouble()`. Die zugehörigen Integrationstests prüfen ihre Textausgabe nach `bind` und `insert` mit denselben CLI-Einstellungen wie die PC-Target-Tests. Namen aus `motor.state` und `motorPtr->rpm` erscheinen im Feldregister kanonisch als `motor.state` und `motorPtr.rpm`.
 
 In `til.json` bleiben die einzigen Schemafelder `Type` und `Strg`. `Strg` enthält alle zur Dekodierung nötigen Informationen, einschließlich abgeleiteter Namen und Float-Defaults. Zum Beispiel wird
 
@@ -12880,7 +12884,7 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 
 ## 51. <a id="scratch-pad"></a>Scratch Pad
 
-Current drafts, deferred tasks, and the documentation status are indexed in [ScratchPad](./scratchPad/README.md). Superseded handovers are retained in its `obsolete` directory as historical references.
+The remaining draft, deferred tasks, and documentation status are recorded in the [implementation plan](./scratchPad/Implementierungsplan.md). Superseded handovers are retained in `scratchPad/obsolete` as historical references.
 
 *) The TriceABC examples uses COBS framing and acts without encryption and it is not simple configurable because its main aim is to show just the TriceABC technique in action.
 
