@@ -208,12 +208,14 @@ func addInit() {
 func generateInit() {
 	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
 	flagIDList(fsScGenerate)
+	flagLIFile(fsScGenerate)
 	flagGenerateSrcs(fsScGenerate)
 	flagExcludeSrcs(fsScGenerate)
 	flagTriceAliases(fsScGenerate)
 	flagTriceSAliases(fsScGenerate)
 	flagVerbosity(fsScGenerate)
 	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
+	fsScGenerate.BoolVar(&id.GenerateOneLineJSON, "onelineJSON", false, `Export the selected TIL and LI as <name>.oneline.json companions with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.`)
 	fsScGenerate.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Directory containing Trice bind sidecars when selected sources use File Keys.")
 	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)

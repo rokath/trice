@@ -4,12 +4,14 @@ package id
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +35,160 @@ func TestToListTilCEscapesFormatStrings(t *testing.T) {
 
 	runtimeFormat := "quote=\"%s\" path=C:\\temp\\demo\n"
 	assert.Contains(t, generated, fmt.Sprintf(`{  1002u,  32u, 1u, %s },`, strconv.Quote(runtimeFormat)))
+}
+
+// TestGenerateOneLineJSONPreservesOriginalsAndRoundTrips verifies the public
+// JSON shape, deterministic ID order, LI field order, and rerun behavior.
+func TestGenerateOneLineJSONPreservesOriginalsAndRoundTrips(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	Verbose = true
+	tilInput := []byte("{\n  \"2\": {\"Type\": \"triceS\", \"Strg\": \"msg:ä <x> \\\"quoted\\\"\\n\"},\n  \"10\": {\"Type\": \"trice\", \"Strg\": \"path=C:\\\\tmp\"}\n}\n")
+	liInput := []byte("{\n  \"2\": {\"File\": \"src/ä.c\", \"Line\": 7},\n  \"10\": {\"File\": \"src/<main>.c\", \"Line\": 31}\n}\n")
+	require.NoError(t, FSys.WriteFile(FnJSON, tilInput, 0o600))
+	require.NoError(t, FSys.WriteFile(LIFnJSON, liInput, 0o600))
+	tilOutputPath := oneLineJSONPath(FnJSON)
+	liOutputPath := oneLineJSONPath(LIFnJSON)
+	t.Cleanup(func() { _ = FSys.Remove(tilOutputPath); _ = FSys.Remove(liOutputPath) })
+
+	var output bytes.Buffer
+	require.NoError(t, SubCmdGenerate(&output, FSys))
+	tilOutput, err := FSys.ReadFile(tilOutputPath)
+	require.NoError(t, err)
+	liOutput, err := FSys.ReadFile(liOutputPath)
+	require.NoError(t, err)
+	assert.Equal(t, "{\n\t\"10\": {\"Type\":\"trice\",\"Strg\":\"path=C:\\\\tmp\"},\n\t\"2\": {\"Type\":\"triceS\",\"Strg\":\"msg:ä <x> \\\"quoted\\\"\\n\"}\n}", string(tilOutput))
+	assert.Equal(t, "{\n\t\"10\": {\"Line\":31,\"File\":\"src/\\u003cmain\\u003e.c\"},\n\t\"2\": {\"Line\":7,\"File\":\"src/ä.c\"}\n}", string(liOutput))
+	assert.Contains(t, output.String(), "generated "+tilOutputPath)
+	assert.Contains(t, output.String(), "generated "+liOutputPath)
+
+	var originalTIL, exportedTIL map[string]TriceFmt
+	require.NoError(t, json.Unmarshal(tilInput, &originalTIL))
+	require.NoError(t, json.Unmarshal(tilOutput, &exportedTIL))
+	assert.Equal(t, originalTIL, exportedTIL)
+	var originalLI, exportedLI map[string]TriceLI
+	require.NoError(t, json.Unmarshal(liInput, &originalLI))
+	require.NoError(t, json.Unmarshal(liOutput, &exportedLI))
+	assert.Equal(t, originalLI, exportedLI)
+	actualTIL, err := FSys.ReadFile(FnJSON)
+	require.NoError(t, err)
+	actualLI, err := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, err)
+	assert.Equal(t, tilInput, actualTIL)
+	assert.Equal(t, liInput, actualLI)
+
+	output.Reset()
+	require.NoError(t, SubCmdGenerate(&output, FSys))
+	assert.Contains(t, output.String(), "unchanged "+tilOutputPath)
+	assert.Contains(t, output.String(), "unchanged "+liOutputPath)
+	assert.NotContains(t, output.String(), "generated ")
+}
+
+// TestGenerateOneLineJSONOnlyTIL verifies that disabling LI does not require
+// a readable location file and never creates an LI companion.
+func TestGenerateOneLineJSONOnlyTIL(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o600))
+	require.NoError(t, FSys.Remove(LIFnJSON))
+	liOutputPath := oneLineJSONPath(LIFnJSON)
+	LIFnJSON = "off"
+	tilOutputPath := oneLineJSONPath(FnJSON)
+	t.Cleanup(func() { _ = FSys.Remove(tilOutputPath) })
+	require.NoError(t, SubCmdGenerate(&bytes.Buffer{}, FSys))
+	content, err := FSys.ReadFile(tilOutputPath)
+	require.NoError(t, err)
+	assert.Equal(t, "{}", string(content))
+	assert.False(t, fileExists(FSys, liOutputPath))
+}
+
+// TestGenerateOneLineJSONRejectsInvalidInputsBeforeWriting checks that all
+// requested inputs are validated before either existing view is replaced.
+func TestGenerateOneLineJSONRejectsInvalidInputsBeforeWriting(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	tilOutputPath := oneLineJSONPath(FnJSON)
+	liOutputPath := oneLineJSONPath(LIFnJSON)
+	t.Cleanup(func() { _ = FSys.Remove(tilOutputPath); _ = FSys.Remove(liOutputPath) })
+	cases := []struct {
+		name, til, li, want string
+	}{
+		{"empty TIL", "", "{}", "cannot parse TIL"},
+		{"null TIL", "null", "{}", "cannot parse TIL"},
+		{"malformed TIL", "{", "{}", "cannot parse TIL"},
+		{"malformed LI", "{}", "{", "cannot parse LI"},
+		{"null LI", "{}", "null", "cannot parse LI"},
+	}
+	for _, tc := range cases {
+		require.NoError(t, FSys.WriteFile(FnJSON, []byte(tc.til), 0o600), tc.name)
+		require.NoError(t, FSys.WriteFile(LIFnJSON, []byte(tc.li), 0o600), tc.name)
+		require.NoError(t, FSys.WriteFile(tilOutputPath, []byte("old TIL view"), 0o600), tc.name)
+		require.NoError(t, FSys.WriteFile(liOutputPath, []byte("old LI view"), 0o600), tc.name)
+		err := SubCmdGenerate(&bytes.Buffer{}, FSys)
+		require.ErrorContains(t, err, tc.want, tc.name)
+		actualTIL, readErr := FSys.ReadFile(tilOutputPath)
+		require.NoError(t, readErr, tc.name)
+		actualLI, readErr := FSys.ReadFile(liOutputPath)
+		require.NoError(t, readErr, tc.name)
+		assert.Equal(t, "old TIL view", string(actualTIL), tc.name)
+		assert.Equal(t, "old LI view", string(actualLI), tc.name)
+	}
+}
+
+// TestGenerateOneLineJSONMissingInputAndConflictingPaths verifies that the
+// exporter never replaces an original or old view when selection is unsafe.
+func TestGenerateOneLineJSONMissingInputAndConflictingPaths(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o600))
+	tilViewPath := oneLineJSONPath(FnJSON)
+	t.Cleanup(func() { _ = FSys.Remove(tilViewPath) })
+	require.NoError(t, FSys.WriteFile(tilViewPath, []byte("old view"), 0o600))
+	require.NoError(t, FSys.Remove(LIFnJSON))
+	err := SubCmdGenerate(&bytes.Buffer{}, FSys)
+	require.ErrorContains(t, err, "cannot read LI")
+	content, err := FSys.ReadFile(tilViewPath)
+	require.NoError(t, err)
+	assert.Equal(t, "old view", string(content))
+
+	// Selecting the TIL view as an LI input would otherwise replace that input.
+	LIFnJSON = tilViewPath
+	err = SubCmdGenerate(&bytes.Buffer{}, FSys)
+	require.ErrorContains(t, err, "conflicts with an input")
+	content, err = FSys.ReadFile(tilViewPath)
+	require.NoError(t, err)
+	assert.Equal(t, "old view", string(content))
+
+	require.NoError(t, FSys.Remove(FnJSON))
+	LIFnJSON = "off"
+	err = SubCmdGenerate(&bytes.Buffer{}, FSys)
+	require.ErrorContains(t, err, "cannot read TIL")
+	content, err = FSys.ReadFile(tilViewPath)
+	require.NoError(t, err)
+	assert.Equal(t, "old view", string(content))
+}
+
+// TestGenerateOneLineJSONRollsBackFirstViewOnSecondWriteFailure confirms that
+// the two companion files are published together or left as they were.
+func TestGenerateOneLineJSONRollsBackFirstViewOnSecondWriteFailure(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o600))
+	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte("{}"), 0o600))
+	tilViewPath := oneLineJSONPath(FnJSON)
+	liViewPath := oneLineJSONPath(LIFnJSON)
+	t.Cleanup(func() { _ = FSys.Remove(tilViewPath); _ = FSys.Remove(liViewPath) })
+	require.NoError(t, FSys.WriteFile(tilViewPath, []byte("old TIL view"), 0o600))
+	require.NoError(t, FSys.WriteFile(liViewPath, []byte("old LI view"), 0o600))
+	failingFS := &afero.Afero{Fs: &bindFailOnceRenameFs{Fs: FSys.Fs, destination: liViewPath}}
+	err := SubCmdGenerate(&bytes.Buffer{}, failingFS)
+	require.ErrorContains(t, err, "injected rename failure")
+	actualTIL, err := FSys.ReadFile(tilViewPath)
+	require.NoError(t, err)
+	actualLI, err := FSys.ReadFile(liViewPath)
+	require.NoError(t, err)
+	assert.Equal(t, "old TIL view", string(actualTIL))
+	assert.Equal(t, "old LI view", string(actualLI))
 }
 
 // Test_computeValues verifies the expected behavior.

@@ -6,10 +6,13 @@ package id
 // List management
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -22,8 +25,10 @@ var (
 	GenerateLogC bool // GenerateLogC selects the current target-side log table generator.
 	// GenerateLogCPath optionally overrides the conventional til.c output path.
 	GenerateLogCPath string
-	GenerateABC      string
-	WriteAllColors   bool
+	// GenerateOneLineJSON selects the readable, derived TIL and LI JSON views.
+	GenerateOneLineJSON bool
+	GenerateABC         string
+	WriteAllColors      bool
 )
 
 // OptionalFilenameFlag allows a flag to be used either as a boolean switch or
@@ -86,12 +91,15 @@ func LogCOutputPath(target string) string {
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
-	if !GenerateLogC && GenerateABC == "" && !WriteAllColors {
+	if !GenerateLogC && !GenerateOneLineJSON && GenerateABC == "" && !WriteAllColors {
 		fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
 		return nil
 	}
 	if GenerateLogC && GenerateABC != "" {
 		return errors.New("trice generate: -logC and -abc are alternative generators and cannot be used together")
+	}
+	if GenerateOneLineJSON && (GenerateLogC || GenerateABC != "") {
+		return errors.New("trice generate: -onelineJSON cannot be combined with -logC or -abc")
 	}
 
 	if WriteAllColors {
@@ -102,12 +110,16 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	}
 
 	ilu := make(TriceIDLookUp)
-	if GenerateLogC || GenerateABC != "" {
+	if GenerateLogC || GenerateOneLineJSON || GenerateABC != "" {
 		content, readErr := fSys.ReadFile(FnJSON)
 		if readErr != nil {
 			return fmt.Errorf("trice generate: cannot read TIL %s: %w", FnJSON, readErr)
 		}
-		if parseErr := ilu.FromJSON(content); parseErr != nil {
+		parseErr := ilu.FromJSON(content)
+		if GenerateOneLineJSON && (len(bytes.TrimSpace(content)) == 0 || bytes.Equal(bytes.TrimSpace(content), []byte("null"))) && parseErr == nil {
+			parseErr = errors.New("expected a JSON object")
+		}
+		if parseErr != nil {
 			return fmt.Errorf("trice generate: cannot parse TIL %s: %w", FnJSON, parseErr)
 		}
 		if Verbose {
@@ -161,7 +173,137 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 			fmt.Fprintln(w, "generated", sourcePath)
 		}
 	}
+	if GenerateOneLineJSON {
+		if err := generateOneLineJSONFiles(w, fSys, ilu); err != nil {
+			return err
+		}
+	}
 
+	return nil
+}
+
+// oneLineLocation is an output-only view; it places the line number before the
+// filename without changing the persisted TriceLI schema or its normal writer.
+type oneLineLocation struct {
+	Line int    `json:"Line"`
+	File string `json:"File"`
+}
+
+// oneLineJSONPath derives a companion name without overwriting its input.
+func oneLineJSONPath(source string) string {
+	extension := filepath.Ext(source)
+	if strings.EqualFold(extension, ".json") {
+		return strings.TrimSuffix(source, extension) + ".oneline.json"
+	}
+	return source + ".oneline.json"
+}
+
+// renderOneLineJSON keeps the outer lookup object valid JSON while placing one
+// standard-library-encoded key and value on each physical line. Keys use the
+// same lexical order as encoding/json's map encoder.
+func renderOneLineJSON(entries map[TriceID]any, escapeHTML bool) ([]byte, error) {
+	keys := make([]string, 0, len(entries))
+	ids := make(map[string]TriceID, len(entries))
+	for id := range entries {
+		key := strconv.Itoa(int(id))
+		keys = append(keys, key)
+		ids[key] = id
+	}
+	sort.Strings(keys)
+	if len(keys) == 0 {
+		return []byte("{}"), nil
+	}
+	var output bytes.Buffer
+	output.WriteString("{\n")
+	for index, key := range keys {
+		encodedKey, err := json.Marshal(key)
+		if err != nil {
+			return nil, err
+		}
+		var value bytes.Buffer
+		encoder := json.NewEncoder(&value)
+		encoder.SetEscapeHTML(escapeHTML)
+		if err := encoder.Encode(entries[ids[key]]); err != nil {
+			return nil, fmt.Errorf("cannot encode ID %s: %w", key, err)
+		}
+		output.WriteByte('\t')
+		output.Write(encodedKey)
+		output.WriteString(": ")
+		output.Write(bytes.TrimSuffix(value.Bytes(), []byte("\n")))
+		if index < len(keys)-1 {
+			output.WriteByte(',')
+		}
+		output.WriteByte('\n')
+	}
+	output.WriteByte('}')
+	return output.Bytes(), nil
+}
+
+// generateOneLineJSONFiles validates and renders both requested views before
+// publishing either. The original dictionaries remain authoritative and intact.
+func generateOneLineJSONFiles(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) error {
+	includeLI := LIFnJSON != "off" && LIFnJSON != "none"
+	tilPath := oneLineJSONPath(FnJSON)
+	if includeLI {
+		liPath := oneLineJSONPath(LIFnJSON)
+		if filepath.Clean(tilPath) == filepath.Clean(LIFnJSON) || filepath.Clean(liPath) == filepath.Clean(FnJSON) || filepath.Clean(tilPath) == filepath.Clean(liPath) {
+			return errors.New("trice generate: one-line output path conflicts with an input or another output")
+		}
+	}
+	tilEntries := make(map[TriceID]any, len(til))
+	for id, value := range til {
+		tilEntries[id] = value
+	}
+	tilOutput, err := renderOneLineJSON(tilEntries, false)
+	if err != nil {
+		return fmt.Errorf("trice generate: cannot render TIL %s: %w", FnJSON, err)
+	}
+	outputs := []bindWrite{{path: tilPath, data: tilOutput, perm: fileWritePerm(fSys, tilPath, 0o666), kind: "til"}}
+	if includeLI {
+		content, err := fSys.ReadFile(LIFnJSON)
+		if err != nil {
+			return fmt.Errorf("trice generate: cannot read LI %s: %w", LIFnJSON, err)
+		}
+		locations := make(TriceIDLookUpLI)
+		if err := json.Unmarshal(content, &locations); err != nil {
+			return fmt.Errorf("trice generate: cannot parse LI %s: %w", LIFnJSON, err)
+		}
+		if bytes.Equal(bytes.TrimSpace(content), []byte("null")) {
+			return fmt.Errorf("trice generate: cannot parse LI %s: expected a JSON object", LIFnJSON)
+		}
+		liEntries := make(map[TriceID]any, len(locations))
+		for id, location := range locations {
+			liEntries[id] = oneLineLocation{Line: location.Line, File: location.File}
+		}
+		liPath := oneLineJSONPath(LIFnJSON)
+		liOutput, err := renderOneLineJSON(liEntries, true)
+		if err != nil {
+			return fmt.Errorf("trice generate: cannot render LI %s: %w", LIFnJSON, err)
+		}
+		outputs = append(outputs, bindWrite{path: liPath, data: liOutput, perm: fileWritePerm(fSys, liPath, 0o666), kind: "li"})
+	}
+	var changes []bindWrite
+	for _, output := range outputs {
+		unchanged, err := bindFileHasContent(fSys, output.path, output.data)
+		if err != nil {
+			return fmt.Errorf("trice generate: cannot inspect %s: %w", output.path, err)
+		}
+		if unchanged {
+			if Verbose {
+				fmt.Fprintln(w, "unchanged", output.path)
+			}
+			continue
+		}
+		changes = append(changes, output)
+	}
+	if err := commitBindWrites(fSys, changes); err != nil {
+		return fmt.Errorf("trice generate: %w", err)
+	}
+	if Verbose {
+		for _, output := range changes {
+			fmt.Fprintln(w, "generated", output.path)
+		}
+	}
 	return nil
 }
 

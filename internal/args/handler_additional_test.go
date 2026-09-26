@@ -445,6 +445,33 @@ func TestHandlerGenerateWithoutParameters(t *testing.T) {
 	assert.Contains(t, out.String(), `The "trice generate" command needs at least one parameter.`)
 }
 
+// TestHandlerGenerateOneLineJSON verifies that the public generate command
+// accepts both dictionary paths and writes only their requested companions.
+func TestHandlerGenerateOneLineJSON(t *testing.T) {
+	FlagsInit()
+	t.Cleanup(FlagsInit)
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	til := []byte("{\"123\":{\"Type\":\"trice\",\"Strg\":\"msg:hello\"}}")
+	li := []byte("{\"123\":{\"File\":\"src/main.c\",\"Line\":17}}")
+	require.NoError(t, fSys.WriteFile("custom-til.json", til, 0o600))
+	require.NoError(t, fSys.WriteFile("custom-li.json", li, 0o600))
+
+	var output bytes.Buffer
+	require.NoError(t, Handler(&output, fSys, []string{"trice", "generate", "-onelineJSON", "-til", "custom-til.json", "-li", "custom-li.json"}))
+	tilView, err := fSys.ReadFile("custom-til.oneline.json")
+	require.NoError(t, err)
+	liView, err := fSys.ReadFile("custom-li.oneline.json")
+	require.NoError(t, err)
+	assert.Contains(t, string(tilView), "\"123\": {\"Type\":\"trice\",\"Strg\":\"msg:hello\"}")
+	assert.Contains(t, string(liView), "\"123\": {\"Line\":17,\"File\":\"src/main.c\"}")
+	unchangedTIL, err := fSys.ReadFile("custom-til.json")
+	require.NoError(t, err)
+	unchangedLI, err := fSys.ReadFile("custom-li.json")
+	require.NoError(t, err)
+	assert.Equal(t, til, unchangedTIL)
+	assert.Equal(t, li, unchangedLI)
+}
+
 // TestNormalizeGenerateLogCPath verifies both documented optional-path forms
 // without retaining the removed -tilC compatibility spelling.
 func TestNormalizeGenerateLogCPath(t *testing.T) {
