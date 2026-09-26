@@ -3872,15 +3872,15 @@ The owner include line stores the stable file key. The sidecar and rebase helper
 
 ### 24.5. <a id="hierarchical-metadata-reuse"></a>Hierarchical Metadata Reuse
 
-Each `trice bind` invocation has one writable primary TIL, LI, and `bindDir`. Files selected by `-src` may be individual files or directories. Existing valid File Keys remain unchanged; a bind-owned file without a File Key receives one when needed.
+Each `trice bind` invocation has one writable primary TIL, LI, and build directory selected with `-buildDir`. Files selected by `-src` may be individual files or directories. Existing valid File Keys remain unchanged; a bind-owned file without a File Key receives one when needed.
 
 For each source, `bind` performs a bounded search from its directory up to its `-src` anchor, optionally one level higher, and around the configured TIL and LI paths. Hidden directories such as `.git` and `.trice` are ignored. Immediate `*.json` files are recognized as TIL or LI data by their contents, so custom names such as `demoIDs.json` work without another option.
 
-Discovered JSON and historical `build/triceIDs` sidecars are read-only evidence. Sidecars are parsed to recover earlier assignments but are never copied because their line descriptors may be stale. Current sidecars are always regenerated from the current source into the selected `bindDir`.
+Discovered JSON and historical `build/triceIDs` sidecars are read-only evidence. Sidecars are parsed to recover earlier assignments but are never copied because their line descriptors may be stale. Current sidecars are always regenerated from the current source into the selected build directory.
 
 The primary TIL always wins a numeric-ID conflict. A conflicting subproject ID quietly yields to another matching or newly allocated primary ID; `-verbose` explains such decisions. A conflict-free historical ID is retained and only its actively used mapping is added to the primary TIL. Secondary TILs, LIs, and build artifacts are never modified.
 
-For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions. The current `bindDir` sidecar has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match.
+For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions. A sidecar in the current build directory has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match.
 
 Without a usable sidecar assignment, LI candidates for repeated calls are consumed in stored line order as the current calls are visited in source order. Metadata search priority is retained; equal stored lines are ordered by numeric ID. For example, IDs 15982 and 15849 previously stored at lines 2799 and 2807 remain in that order when their calls move to lines 2803 and 2811. Bind does not independently choose the closest old line for each repeated call. A single current call still uses line proximity to select among matching LI candidates.
 
@@ -4112,13 +4112,15 @@ trice b [options]
 
 In general, `bind` accepts the `insert` options relevant to source search, parsing, ID assignment, alias handling, `til.json`, and `li.json`.
 
-The principal bind-specific option is:
+Both `bind` and `insert` accept `-buildDir`:
 
 ```text
--bindDir string
-    Output directory for sidecar headers.
+-buildDir string
+    Output directory for bind sidecar headers and the current field registry.
     Default: ./build/triceIDs
 ```
+
+`-bindDir` is no longer accepted; use `-buildDir` with `bind`, `insert`, and `generate -logC` to select the same output or lookup directory.
 
 With:
 
@@ -6185,7 +6187,7 @@ Sowohl `bind` als auch `insert` unterstützen strukturierte Templates. `clean` e
 
 <!--
 ```sh
-trice bind -src app -bindDir build/triceIDs -til til.json -li li.json
+trice bind -src app -buildDir build/triceIDs -til til.json -li li.json
 ```
 
 Alternativ für den Insert/Clean-Workflow:
@@ -6268,7 +6270,7 @@ Die feste Reihenfolge lautet `tag`, optional `level`, `message`, danach vorhande
 
 ### 32.7. <a id="feldregister"></a>Feldregister
 
-Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt`. Bei `bind` liegt die Datei unter `-bindDir`, bei `insert` unter `-buildDir`; der Default ist jeweils `build/triceIDs`.
+Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt` als Register der Feldnamen und ihrer Häufigkeiten im letzten erfolgreichen Lauf. `-buildDir` wählt für beide Befehle das Verzeichnis; der Default ist `build/triceIDs`. Bei `bind` liegen dort auch die Sidecar-Header. `-bindDir` wird abgewiesen.
 
 ```text
        1 motor_id
@@ -7041,7 +7043,7 @@ trice generate -src <source> -til til.json -logC=build/til.c
 ```
 
 Repeat `-src` for additional files or directories. Bind sidecars are read from
-`build/triceIDs` by default; specify `-bindDir` only for a different sidecar
+`build/triceIDs` by default; specify `-buildDir` only for a different sidecar
 directory. `-logC` and `-abc` are separate generator modes and cannot be used
 together.
 
@@ -9623,7 +9625,7 @@ See [Check Alternatives](#check-color-alternatives) chapter.
 
 ### 41.2. <a id="c-code"></a>C-Code
 
-To generate a compact C metadata table for current target-side Trice sites, first run `trice insert` or `trice bind` and then run `trice generate -src <source> -logC[=<output.c>]`. Multiple `-src` options are accepted. Explicit Insert IDs and numeric Bind sidecar descriptors are validated against the selected TIL; no ID is guessed from a matching format string. Historical TIL entries that are absent from the selected sources are omitted without changing the TIL itself. Bind sidecars are read from `build/triceIDs` by default; specify `-bindDir` only for a different sidecar directory. `-logC` and `-abc` are alternative generation modes and cannot be combined.
+To generate a compact C metadata table for current target-side Trice sites, first run `trice insert` or `trice bind` and then run `trice generate -src <source> -logC[=<output.c>]`. Multiple `-src` options are accepted. Explicit Insert IDs and numeric Bind sidecar descriptors are validated against the selected TIL; no ID is guessed from a matching format string. Historical TIL entries that are absent from the selected sources are omitted without changing the TIL itself. Bind sidecars are read from `build/triceIDs` by default; specify `-buildDir` only for a different sidecar directory. `-logC` and `-abc` are alternative generation modes and cannot be combined.
 
 Commented Trice calls with explicit Insert IDs remain selectable. An ID-free call that exists only in a C comment has no Bind preprocessor site and therefore no exact sidecar ID; `-logC` reports it instead of guessing or silently omitting it. Use `trice insert` for such retained commented calls, give the commented example an explicit authoritative ID, or exclude that source from this generated table.
 

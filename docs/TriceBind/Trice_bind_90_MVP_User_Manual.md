@@ -331,11 +331,11 @@ trice b [Optionen]
 
 `bind` übernimmt grundsätzlich die für Source-Suche, Parser, ID-Vergabe, Aliasbehandlung sowie `til.json` und `li.json` relevanten Optionen von `insert`.
 
-Bind-spezifisch ist insbesondere:
+Für `bind` und `insert` gilt derselbe Build-Verzeichnis-Schalter:
 
 ```text
--bindDir string
-    Ausgabeordner der Sidecar-Header.
+-buildDir string
+    Ausgabeordner der Sidecar-Header und des Feldregisters trice-fields.txt.
     Default: ./build/triceIDs
 ```
 

@@ -4,11 +4,6 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
-### A5 – Gemeinsames Build-Verzeichnis für das Feldregister
-
-- Prüfe die vorhandenen Optionen `-bindDir` und `-buildDir`. Führe für `bind` und `insert` eine gemeinsame, verständliche `-buildDir`-Bedienung für `trice-fields.txt` ein und aktualisiere Kapitel 32.7 sowie die CLI-Hilfe. **Vor der Änderung entscheiden**, ob `-bindDir` als Alias bestehen bleibt und wie abweichende gleichzeitige Angaben behandelt werden.
-- Erkläre in Kapitel 32.7 „Register“ als die Datei `trice-fields.txt` mit den Feldnamen und Häufigkeiten des letzten erfolgreichen Laufs. `-dry-run` darf diese Datei weder überschreiben noch neu veröffentlichen. Teste Pfadwahl, wiederholte Läufe und `dry-run`.
-
 ### A6 – Verständliche C-Beispiele und Integrationstests ergänzen
 
 - Ergänze in `_test/testdata/triceCheck.c` nach den `assert`-Zeilen einen repräsentativen, kompilierbaren Satz strukturierter Trices. Zeige 8/16/32/64 Bit, Stempelvarianten, `triceS` und `triceN`, gemischte `%d`- und `{}`-Platzhalter, `.` und `->` sowie `aFloat()` und `aDouble()`. Vermeide eine vollständige Kreuzprodukt-Testmatrix.
@@ -42,10 +37,6 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 
 ## Erledigter Stand als Reviewhilfe
 
-### A4 – Ausgabeformat-Option und TREX-Geltungsbereich
-
-`-logFormat` akzeptiert die Werte `text`, `json` und `kv` unabhängig von Groß- und Kleinschreibung sowie `key-value` als Alias für `kv`. Der Wert `json` erzeugt NDJSON mit genau einem JSON-Objekt und abschließendem LF pro akzeptiertem Ereignis; einen separaten CLI-Wert `ndjson` gibt es nicht. Die CLI-Hilfe benennt NDJSON kurz, Kapitel 32 beschreibt TREX als Voraussetzung für maschinenlesbare Ereignisse und die CLI weist CHAR/DUMP weiterhin verständlich ab. Gültige Varianten, ungültige Werte und reale Ausgabe werden getestet.
-
 ### A1 – Test-Ausgangsstand und Policy-Anpassungen
 
 Die Erwartungen an ID-Bereich, Tag-Policy und wiederholte Bind-Formate wurden korrigiert. `TestInsertExistingID_A/B` verwenden nun ausdrücklich einen Bereich, der ihre ID 77 enthält. Eine ungültige auskommentierte Trice-Zeile in `examples/G0B1_inst/Core/Inc/triceConfig.h` wurde entfernt. Die betroffenen Go-Pakete und der Clang-Insert-Integrationstest bestanden bei der A1-Prüfung. Das ist keine Aussage über einen vollständigen `testAll.sh`-Lauf; dessen Ergebnis ist gesondert zu bewerten.
@@ -63,3 +54,11 @@ Der gemeinsame Template-Parser, die Kanonisierung in `til.json`, `bind`/`insert`
 Die früher abgeschlossenen Arbeiten an Tag-Aliasen, Gewichten, Auswahl, ID-Policy, Rohaufzeichnung, Statistik und Diagnosen stehen in den jeweiligen UM-Kapiteln. Die alten Handovers und Aufgaben liegen unter [obsolete](obsolete/README.md). Beispielvalidierung ist in A6, A7 und A10 als Abnahme enthalten und benötigt keinen eigenen Implementierungsblock.
 
 Die Vorprüfung zum JSON-Layout ist erfolgt: Die aktuellen Serializer in `internal/id/manage.go` verwenden `json.Encoder.SetIndent` bzw. `json.MarshalIndent`; die Standardbibliothek bietet dafür keine Option „äußerer Eintrag auf eigener Zeile, inneres Objekt kompakt“. `json.Marshal` pro Eintrag plus eigenes Zusammensetzen der äußeren Datei wäre möglich, aber mehr als eine reine Standard-Converter-Einstellung. `json.Unmarshal` liest beide Layouts unabhängig von Leerraum und Feldreihenfolge. Für `Line` vor `File` wäre eine gezielte Ausgabeform nötig, da `TriceLI` derzeit `File` vor `Line` deklariert. Die heutigen `toFile`-Pfade schreiben vorhandene Dateien bei Aktualisierung neu; die gewünschte Erhaltung ihres Layouts benötigte daher zusätzliche Stilerkennung.
+
+### A4 – Ausgabeformat-Option und TREX-Geltungsbereich
+
+`-logFormat` akzeptiert die Werte `text`, `json` und `kv` unabhängig von Groß- und Kleinschreibung sowie `key-value` als Alias für `kv`. Der Wert `json` erzeugt NDJSON mit genau einem JSON-Objekt und abschließendem LF pro akzeptiertem Ereignis; einen separaten CLI-Wert `ndjson` gibt es nicht. Die CLI-Hilfe benennt NDJSON kurz, Kapitel 32 beschreibt TREX als Voraussetzung für maschinenlesbare Ereignisse und die CLI weist CHAR/DUMP weiterhin verständlich ab. Gültige Varianten, ungültige Werte und reale Ausgabe werden getestet.
+
+### A5 – Gemeinsames Build-Verzeichnis für das Feldregister
+
+`bind` und `insert` verwenden `-buildDir` mit dem Default `build/triceIDs`. Bei `bind` liegen dort Sidecar-Header und `trice-fields.txt`, bei `insert` das Feldregister. `generate -logC` und der interne Remigrate-Helfer lesen Bind-Sidecars ebenfalls über `-buildDir`. Der alte CLI-Schalter `-bindDir` wird abgewiesen und ist kein Alias; die Repository-Workflows und das CMake-Beispiel verwenden den neuen Schalter. Kapitel 32.7 beschreibt das Register als Datei mit Feldnamen und Häufigkeiten des letzten erfolgreichen Laufs. Die Tests decken benutzerdefinierte Pfade, Wiederholung, alte Schalter, `-dry-run` und die öffentlichen Bind-Workflows ab.
