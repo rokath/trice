@@ -6099,13 +6099,13 @@ Motor 3: 87.5 C
 `tlog -logFormat json`:
 
 ```json
-{"tag":"info","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}
+{"tag":"INFO","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}
 ```
 
 `tlog -logFormat kv`:
 
 ```text
-tag=info level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature_c=87.5
+tag=INFO level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature_c=87.5
 ```
 
 Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
@@ -6113,6 +6113,8 @@ Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
 Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
 
 Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Benannte Felder in Puffer-/Funktionsformaten wie `triceB` oder `triceF` werden mit einem Fehler abgewiesen. Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`, M20) ist eine separate, noch nicht implementierte Erweiterung.
+
+Beispielsweise ergibt `trice8B("msg:%02x ", bytes, 2)` für die Pufferwerte `0x01` und `0x02` in JSON `{"tag":"MESSAGE","message":"01 02 "}`. Ein `fields`-Objekt entsteht dabei nicht.
 
 ### 32.1. <a id="platzhalter-und-namen"></a>Platzhalter und Namen
 
@@ -6169,7 +6171,7 @@ Das ergibt `set={1,2}, value=7` bei `value = 7`. Ein Backslash vor einer Klammer
 | `%s` | String aus `triceS` oder `triceN`. |
 | `%p` | Adresse in der Form `0x...`. |
 
-Unterstützte C-Längenmodifikatoren wie `%lu` oder `%llX` ändern diese Semantik nicht; die Trice-Familie bestimmt die transportierte Bitbreite. Präzision, Feldbreite und Darstellungstext beeinflussen ausschließlich `message`. Beispielsweise erzeugt `{value:%.1f}` bei einem Wert von `1.25` die Textdarstellung `1.2`, während das Feld `1.25` enthält. Ebenso kürzt `{text:%.3s}` nur die Meldung, nicht den exportierten String. Laufzeitstrings werden nicht noch einmal als C-Escapes oder als Tags interpretiert.
+Unterstützte C-Längenmodifikatoren wie `%lu` oder `%llX` ändern diese Semantik nicht; die Trice-Familie bestimmt die transportierte Bitbreite. Präzision, Feldbreite und Darstellungstext beeinflussen ausschließlich `message`. Beispielsweise erzeugt `{value:%.1f}` bei einem Wert von `1.25` die Textdarstellung `1.2`, während das Feld `1.25` enthält. Ebenso kürzt `{text:%.3s}` nur die Meldung, nicht den exportierten String.
 
 Auch `-unsigned=false` ändert die Bedeutung strukturierter unsigned Felder nicht. Es steuert weiterhin die entsprechende klassische Textdarstellung.
 
@@ -6226,9 +6228,13 @@ Textpräfix, Suffix, Farben, Einrückung, Zeitdifferenzspalten und `-addNL` deko
 
 ### 32.5. <a id="json--und-kv-vertrag"></a>JSON- und KV-Vertrag
 
-Jeder Record enthält `tag` und `message`. Ein erkannter Formatstring-Tag wird in seiner verwendeten Schreibweise als `tag` gespeichert und vom Anfang der Meldung entfernt. Ohne registrierten Tag lautet `tag` stets `untagged`; ein unbekannter Präfix wie `mgs:` bleibt in `message` sichtbar. Ein Laufzeitstring wie `err:...` erzeugt keinen neuen Formatstring-Tag.
+Jeder Record enthält `tag` und `message`. `tag` ist der kanonische Name eines registrierten Formatstring-Tags; die Alias-Suche für dieses Metadatenfeld ist unabhängig von Groß- und Kleinschreibung. Beispielsweise liefern `inf:Hi` und `Inf:Hi` beide `tag=INFO`. Fehlt ein passender registrierter Tag, lautet der Wert `untagged`.
 
-Ein optionales `level` wird über eine feste, von Farben und Gewichten unabhängige Alias-Tabelle bestimmt. Der Vergleich ist case-neutral. Beispielsweise führen `err`, `ERR` und `Error` zu `ERROR`; `warn`, `wrn` und `Warning` zu `WARNING`. Unterstützte kanonische Werte sind `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` und `VERBOSE`. Ein reiner Ausgabe-Tag wie `msg` oder ein frei definiertes User-Label erhält kein erfundenes Level. Die Tag-Erkennung für `tag` und Filter folgt weiterhin dem tatsächlichen Tag-Register; die Level-Alias-Zuordnung ändert dieses Register nicht.
+`message` übernimmt den Meldungsinhalt der Textausgabe ohne ANSI-Farbe und ohne äußere Metadaten, Textpräfixe oder Suffixe. Bei `-color none` oder `default` wird nur ein exakt registrierter, vollständig kleingeschriebener Formatstring-Tag entfernt: `inf:Hi` ergibt `Hi`, `Inf:Hi` bleibt `Inf:Hi`. Auch ein unbekannter Präfix wie `mgs:Hi` bleibt sichtbar. Bei `-color off` bleiben die Tag-Präfixe wie im Textmodus stehen; für unbekannte Tags erscheint dort auch der synthetische Präfix `untagged:`. Führende und folgende Leerzeichen sowie leere und nur aus Leerzeichen bestehende Meldungen bleiben erhalten.
+
+Ein Laufzeitstring ändert die Tag-Zuordnung nicht: Bei `triceS("{text:%s}", value)` mit einem Wert, der mit `err:` beginnt, bleibt `tag=untagged`. Die bisherige Textausgabe wandelt Zeichenfolgen wie `\n` und `\t` auch innerhalb von Laufzeitstrings für die Anzeige um; `message` folgt dieser Darstellung. Das benannte Feld `fields.text` enthält weiterhin den übertragenen String, abgesehen von äußerem Leerraum.
+
+Ein optionales `level` wird über eine feste, von Farben und Gewichten unabhängige Alias-Tabelle bestimmt. Der Vergleich ist case-neutral. Beispielsweise führen `err`, `ERR` und `Error` zu `ERROR`; `warn`, `wrn` und `Warning` zu `WARNING`. Unterstützte kanonische Werte sind `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` und `VERBOSE`. Ein reiner Ausgabe-Tag wie `msg` oder ein frei definiertes User-Label erhält kein erfundenes Level. Die Alias-Suche für `tag` ändert das vorhandene Tag-Register und dessen Filterverhalten nicht; auch die Level-Zuordnung bleibt davon unabhängig.
 
 In JSON liegen User-Felder unter `fields`. Hostfelder und User-Felder können sich daher nicht überschreiben: Ein User-Feld `tag` erscheint unter `fields.tag`. User-Felder werden in ihrer Reihenfolge im Template ausgegeben. Ein Record ohne exportierbare User-Felder enthält kein leeres `fields`-Objekt.
 
@@ -6236,8 +6242,10 @@ Integer bleiben JSON-Zahlen, einschließlich der vollständigen 64-Bit-Grenzwert
 
 In KV heißen User-Felder `field.<name>` und folgen ebenfalls der Template-Reihenfolge. Zahlen, Boolean und Adressen sind unquoted; String-, Zeichen- und Meldungswerte stehen immer in doppelten Anführungszeichen. Quotes, Backslashes, LF, CR und Tab werden escaped. Nicht-endliche Floats erscheinen in KV als `NaN`, `+Inf` oder `-Inf`.
 
+Äußerer Leerraum wird bei anderen Stringwerten wie `hs`, `file` und benannten Stringfeldern entfernt. Ein nur aus Leerraum bestehendes benanntes Feld wird als leerer String ausgegeben. Für `message` gilt diese Kürzung nicht.
+
 ```text
-tag=info level=INFO message="Motor \"A\"\nready" field.message="Motor \"A\"\nready" field.address=0x20001234
+tag=INFO level=INFO message="Motor \"A\"\nready" field.message="Motor \"A\"\nready" field.address=0x20001234
 ```
 
 ### 32.6. <a id="optionale-metadaten"></a>Optionale Metadaten
