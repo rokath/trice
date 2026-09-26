@@ -798,7 +798,7 @@ Trice is usable also inside interrupts and [extended format specifier possibilit
 
 ### 4.8. <a id="tags-color-and-log-levels"></a>Tags, Color and Log Levels
 
-You can label each Trice with a tag specifier to [colorize](#trice-tags-and-color) the output. This is free of any runtime costs because the tags are part of the Trice log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each message its color.
+You can label each Trice with a tag specifier to [colorize](#trice-tags-color-and-weights) the output. This is free of any runtime costs because the tags are part of the Trice log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each message its color.
 
 Loggers use log levels and offer a setting like "log all above **INFO**" for example. The Trice tags can cover that but can do better: Inside package _emitter.ColorChannels_ in a single file [./internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) all common log levels defined as Trice tags alongside with user tags. The user can adjust this. The Trice tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as tag position inside ColorChannels.
 
@@ -2148,7 +2148,7 @@ Sometimes it is handy to stimulate the target during development. For that a 2nd
 
 #### 12.2.10. <a id="explore-and-modify-tags-and-their-colors"></a>Explore and modify tags and their colors
 
-See chapter [Trice Tags and Color](#trice-tags-and-color).
+See chapter [Trice Tags and Color](#trice-tags-color-and-weights).
 
 #### 12.2.11. <a id="location-information"></a>Location Information
 
@@ -6088,6 +6088,8 @@ trice("info:Motor {motor_id}: {temperature_c:%.1f C}", motor_id, aFloat(temperat
 
 Bei `motor_id = 3` und `temperature_c = 87.5` entstehen daraus je nach Ausgabeformat:
 
+Für diese drei Ausgaben sind `-li off -showID '' -hs off -ts off` gesetzt. Dadurch erscheinen hier keine optionalen Host- oder Target-Metadaten.
+
 `tlog -logFormat text` (default):
 
 ```text
@@ -6108,7 +6110,7 @@ tag=info level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature
 
 Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
 
-Das Textbeispiel zeigt den Meldungsinhalt ohne Metadaten. Die JSON und Key-Value Beispiele verwenden deaktivierte Host-Zeitstempel und keine weiteren Metadaten. Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
+Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
 
 Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Benannte Felder in Puffer-/Funktionsformaten wie `triceB` oder `triceF` werden mit einem Fehler abgewiesen. Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`, M20) ist eine separate, noch nicht implementierte Erweiterung.
 
@@ -6244,10 +6246,15 @@ tag=info level=INFO message="Motor \"A\"\nready" field.message="Motor \"A\"\nrea
 |---|---|
 | `id` | ID-basiertes Ereignis und aktiviertes `-showID`; numerische Trice-ID ohne Textpadding. |
 | `file`, `line` | Vorhandener LI-Eintrag, aktiviertes `-li` und `-liFmt`; jeweils nur vorhandene Dateiangabe bzw. von null verschiedene Zeilennummer. |
-| `ts` | Übertragener Target-Zeitstempel und aktivierte passende `-ts`/`-ts16`/`-ts32`-Ausgabe; roher unsigned Wert ohne Einheit, Skalierung oder Differenz. Auch ein vorhandener Wert null wird ausgegeben. |
+| `ts16`, `ts32` | Vorhandener 16- bzw. 32-Bit-Target-Stempel und aktivierte Ausgabe durch `-ts` oder die passende `-ts16`/`-ts32`-Option. Jeder Wert ist ein String in der eigenen CLI-Darstellung; auch ein vorhandener Wert null wird ausgegeben. |
+| `ts16Delta`, `ts32Delta` | Aktivierte `-ts16delta`- bzw. `-ts32delta`-Option und ein vorheriger Stempel derselben Bitbreite. Beim ersten Stempel fehlt das Delta-Feld vollständig. Die Darstellung folgt der jeweiligen Delta-Option. |
 | `hs` | Aktiviertes `-hs`; formatierter Host-Zeitstring ohne angehängtes Spaltenpadding. `-hs off` oder `none` lässt ihn weg. |
 
-Die feste Reihenfolge lautet `tag`, optional `level`, `message`, danach vorhandene `id`, `file`, `line`, `ts`, `hs`, anschließend die User-Felder. Fehlende Metadaten werden weggelassen und nicht durch null oder Ersatzwerte simuliert. Formatierte ID-lose `typeX0`-Ereignisse besitzen keine ID, TIL-Felder oder Target-Zeitstempel; sie erhalten dennoch `tag`, `message` und gegebenenfalls `level` und `hs`.
+Die Target-Stempelwerte enthalten keinen vorangestellten Stempel-Tag wie `time:` oder `dt:`, behalten aber konfigurierten Zusatztext und Einheiten. Äußerer Leerraum entfällt. Die vier Arten bleiben getrennt: Beispielsweise kann `ts16` eine Temperatur und `ts32` eine Zeit darstellen. `-ts0` und `-ts0delta` sind reine Textplatzhalter und erzeugen keine Metadatenfelder.
+
+Beispielsweise ergeben `-ts off -ts16 'temp:%d C' -ts16delta 'step:%d C'` für zwei aufeinanderfolgende 16-Bit-Stempel mit den Werten 8 und 11 zuerst `"ts16":"8 C"` und danach `"ts16":"11 C","ts16Delta":"3 C"`. Bei `-logFormat kv` werden diese Werte als `ts16="11 C" ts16Delta="3 C"` ausgegeben.
+
+Die feste Reihenfolge lautet `tag`, optional `level`, `message`, danach vorhandene `id`, `file`, `line`, Target-Stempel und Delta, `hs`, anschließend die User-Felder. Fehlende Metadaten werden weggelassen und nicht durch null oder Ersatzwerte simuliert. Formatierte ID-lose `typeX0`-Ereignisse besitzen keine ID, TIL-Felder oder Target-Zeitstempel; sie erhalten dennoch `tag`, `message` und gegebenenfalls `level` und `hs`.
 
 ### 32.7. <a id="feldregister"></a>Feldregister
 
@@ -9602,7 +9609,7 @@ Support for finding a color style:
 
 ![generateColors.PNG](./ref/generateColors.png)
 
-See [Check Alternatives](#check-alternatives) chapter.
+See [Check Alternatives](#check-color-alternatives) chapter.
 
 ### 41.2. <a id="c-code"></a>C-Code
 
