@@ -1,26 +1,14 @@
 # Arbeitsplan für Structured Logging und Context Enrichment
 
-Stand: 25. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bedienungsdokumentation für Structured Logging steht in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging); bis zur dortigen Übernahme fehlender Inhalte bleibt der [deutsche Entwurf](Strukturiertes_Logging_DE.md) erhalten. [Context Enrichment](Kontextanreicherung_DE.md) ist zurückgestellt. Die Reihenfolge unten ist verbindlich: erst Structured Logging abschließen, dann den CE-Machbarkeitsnachweis, danach CE implementieren. Die hier beschriebenen Arbeiten an Code, Tests und UM sind mit diesem reinen ScratchPad-Dokumentationsschritt noch nicht ausgeführt.
+Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bedienungsdokumentation für Structured Logging steht in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging); bis zur dortigen Übernahme fehlender Inhalte bleibt der [deutsche Entwurf](Strukturiertes_Logging_DE.md) erhalten. [Context Enrichment](Kontextanreicherung_DE.md) ist zurückgestellt. Die Reihenfolge unten ist verbindlich: erst Structured Logging abschließen, dann den CE-Machbarkeitsnachweis, danach CE implementieren.
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
-### A1 – Test-Ausgangsstand klären und Fehler beheben
-
-- Erfasse die aktuell fehlschlagenden relevanten Tests mit ihren konkreten Ursachen. Trenne überholte Erwartungen nach der geänderten ID- und Tag-Policy von tatsächlichen Produktfehlern; behaupte keinen grünen Gesamtlauf aufgrund einzelner erfolgreicher Tests. Insbesondere sind die Erwartungen zu ID 77 außerhalb 100..999 in `TestInsertExistingID_A/B` und die Bind-Tests für wiederholte Formate zu prüfen.
-- Passe Tests an die vereinbarte Policy an und behebe echte Fehler. Ergänze verständliche Verhaltenstests für korrigierte Erfolgs-, Ablehnungs- und Grenzfälle. Führe zuerst die betroffenen Pakete und die einschlägigen C-Integrationstests aus; das lange `testAll.sh` nur gezielt, wenn die restlichen Risiken es erfordern.
-- Abnahme: relevante Tests bestehen oder verbleibende, unabhängig bestätigte Fehler sind mit konkretem Testnamen und Ursache dokumentiert. Diese Klärung hat Vorrang vor weiteren Structured-Logging-Erweiterungen.
-
-### A2 – Metadatenvertrag für JSON und Key-Value festlegen und umsetzen
-
-- Erhalte die Kontrolle des Users durch die bestehenden CLI-Optionen: `id`, `file`, `line`, `hs` und Target-Zeitstempel nur ausgeben, wenn sie aktiviert und verfügbar sind. `hs` ist der nach CLI-Vorgabe formatierte Host-Zeitstring. Textpräfix und -suffix bleiben außerhalb der maschinenlesbaren Records. Entferne aus Kapitel 32 die Aussage, die Beispiele setzten pauschal deaktivierte Host-Stempel und sonst keine Metadaten voraus; zeige stattdessen die jeweilige Beispielkonfiguration ausdrücklich.
-- Verwende für die vier unabhängigen Zeitstempelarten exakt die JSON-/KV-Schlüssel `ts16`, `ts32`, `ts16Delta` und `ts32Delta`. Jeder vorhandene und aktivierte Wert ist ein String gemäß seiner eigenen CLI-Formatierung: ohne Stempel-Tag, mit konfiguriertem Zusatztext und ohne äußere Leerzeichen. Die Werte dürfen nicht in einem gemeinsamen `ts`- oder `tsDelta`-Feld zusammengefasst werden; zum Beispiel kann `ts32` eine Zeit und `ts16` eine Temperatur bedeuten. `ts0` und `ts0delta` erzeugen kein Metadatenfeld. Sichere Einzelstempel, Differenzen, Formatierung, gleichzeitig konfigurierte Optionen und deaktivierte Fälle mit Tests ab.
-- Beim ersten Ereignis ohne vorherigen Vergleichswert fehlt das jeweilige Delta-Feld vollständig. Sobald ein Vergleichswert vorliegt, wird nur das zur jeweiligen Stempelart gehörende Delta-Feld gemäß deren CLI-Formatierung ausgegeben. Teste das erste und das folgende Ereignis für 16- und 32-Bit-Stempel getrennt.
-
 ### A3 – Bedeutung von `tag`, `message` und Stringwerten korrigieren
 
-- Definiere `tag` in JSON/KV als kanonische Form des erkannten Formatstring-Tags, unabhängig von dessen Schreibweise oder Alias: `trice("inf:Hi")` und `trice("Inf:Hi")` sollen beide `tag=INFO` und `message=Hi` ergeben. `message` soll dem sichtbaren Text-Meldungsinhalt ohne Farbe entsprechen. Prüfe dabei die Behandlung bisheriger Textpräfixe und unbekannter Tags ausdrücklich. Ein unbekannter Präfix wie `mgs:` bleibt als Text sichtbar und erhält `untagged`.
+- Definiere `tag` in JSON/KV als kanonische Form des erkannten Formatstring-Tags, unabhängig von dessen Schreibweise oder Alias: `trice("inf:Hi")` und `trice("Inf:Hi")` ergeben beide `tag=INFO`. `message` übernimmt denselben Meldungsinhalt wie `-logFormat text`, ohne ANSI-Farbe und ohne äußere Metadaten, Textpräfixe oder Suffixe. Bei `-color none` oder `default` wird nur ein erkannter, vollständig kleingeschriebener Formatstring-Tag entfernt: `inf:Hi` ergibt `message=Hi`, `Inf:Hi` ergibt `message=Inf:Hi`. Bei `-color off` bleiben Tag-Präfixe wie im Textmodus erhalten. Prüfe diese Varianten sowie unbekannte Tags ausdrücklich; `mgs:Hi` bleibt sichtbar und erhält `tag=untagged`.
 - Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar; sie erzeugen keine strukturierten User-Werte. Ergänze ein konkretes Beispiel in Kapitel 32 und einen Verhaltenstest.
-- Entferne bei **allen Stringwerten** in JSON/KV führende und folgende Leerzeichen, also auch bei `message`, `hs` und benannten Stringfeldern. Decke leere Werte, Unicode und nur aus Leerzeichen bestehende Werte ab. Die Textausgabe muss gesondert gegen ihre bisherige Semantik geprüft werden.
+- Erhalte führende und folgende Leerzeichen in `message` unverändert; auch eine nur aus Leerzeichen bestehende Meldung bleibt erhalten. Das sichert die Gleichheit des Meldungsinhalts zwischen Text-, JSON- und KV-Ausgabe. Entferne äußere Leerzeichen bei den übrigen Stringwerten in JSON/KV, insbesondere `hs` und benannten Stringfeldern. Teste leere Werte, Unicode und nur aus Leerzeichen bestehende Werte sowie die bisherige Textsemantik.
 - Erläutere mit einem Beispiel, dass ein von `triceS`/`triceN` gelieferter Laufzeitstring wie `err:\n` oder `err:\t` weder erneut als C-Escape noch als Formatstring-Tag interpretiert wird; andernfalls streiche die derzeitige, ohne Kontext schwer verständliche Aussage aus dem UM. Teste diesen Unterschied zwischen Formatstring und Laufzeitwert.
 
 ### A4 – Ausgabeformat-Option und TREX-Geltungsbereich bereinigen
@@ -66,6 +54,14 @@ Stand: 25. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 - Framing und Integrität, Stempelzustand, Rohaufzeichnung, Statistik, Diagnosen und akzeptierte Records müssen sich durch eine Optimierung nicht ändern. Beziehe typisierte strukturierte Ausgabe und spätere CE-Records in den Vergleich ein.
 
 ## Erledigter Stand als Reviewhilfe
+
+### A1 – Test-Ausgangsstand und Policy-Anpassungen
+
+Die Erwartungen an ID-Bereich, Tag-Policy und wiederholte Bind-Formate wurden korrigiert. `TestInsertExistingID_A/B` verwenden nun ausdrücklich einen Bereich, der ihre ID 77 enthält. Eine ungültige auskommentierte Trice-Zeile in `examples/G0B1_inst/Core/Inc/triceConfig.h` wurde entfernt. Die betroffenen Go-Pakete und der Clang-Insert-Integrationstest bestanden bei der A1-Prüfung. Das ist keine Aussage über einen vollständigen `testAll.sh`-Lauf; dessen Ergebnis ist gesondert zu bewerten.
+
+### A2 – Metadatenvertrag für JSON und Key-Value
+
+JSON und KV übernehmen aktivierte, vorhandene ID-, Orts- und Host-Zeitinformationen. Target-Stempel und Differenzen verwenden getrennte, formatierte Stringfelder `ts16`, `ts32`, `ts16Delta` und `ts32Delta`. Der erste Stempel jeder Bitbreite hat kein Delta-Feld; `ts0` und `ts0delta` erzeugen keine Metadaten. Kapitel 32 beschreibt die CLI-Konfiguration und Ausgabe.
 
 Der gemeinsame Template-Parser, die Kanonisierung in `til.json`, `bind`/`insert`/`clean`, typisierte Decoder-Records, `-logFormat text|json|kv` und `trice-fields.txt` sind vorhanden. Skalare Werte sowie Strings über `triceS`/`triceN` gehören zum aktuellen Scope; benannte Pufferfelder werden abgewiesen. Die Bedienung ist in [UM-Kapitel 32](../TriceUserManual.md#strukturiertes-logging) beschrieben. Diese Bestandsaufnahme ist keine Behauptung, dass alle bestehenden Tests bestehen oder die oben genannten Details bereits dem gewünschten Vertrag entsprechen.
 
