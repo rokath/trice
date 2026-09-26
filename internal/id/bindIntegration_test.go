@@ -633,6 +633,13 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	require.NoError(t, err)
 	rebaseRegionCount := strings.Count(string(bound), bindRebaseIncludeMarker+"begin")
 	require.Len(t, entries, 2+2*rebaseRegionCount, "bind output includes the structured-field registry")
+	// The display-only PC test cannot reveal inferred field names; check the
+	// generator's registry for the two C member syntaxes used by the examples.
+	registry, err := os.ReadFile(filepath.Join(BindDir, "trice-fields.txt"))
+	require.NoError(t, err)
+	assert.Contains(t, string(registry), " motor.state\n")
+	assert.Contains(t, string(registry), " motorPtr.rpm\n")
+	assert.NotContains(t, string(registry), "motorPtr->rpm", "pointer member names are canonicalized")
 	var ownerName string
 	for _, include := range scanBindIncludes(string(bound)) {
 		if include.isSidecar {

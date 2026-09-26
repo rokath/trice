@@ -4,11 +4,6 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
-### A6 – Verständliche C-Beispiele und Integrationstests ergänzen
-
-- Ergänze in `_test/testdata/triceCheck.c` nach den `assert`-Zeilen einen repräsentativen, kompilierbaren Satz strukturierter Trices. Zeige 8/16/32/64 Bit, Stempelvarianten, `triceS` und `triceN`, gemischte `%d`- und `{}`-Platzhalter, `.` und `->` sowie `aFloat()` und `aDouble()`. Vermeide eine vollständige Kreuzprodukt-Testmatrix.
-- Verwende für die erwartete Textausgabe die CLI-Einstellungen der bestehenden Testläufe. Führe die betroffenen Generator-, C- und Decoder-Tests zusammen aus und prüfe die Beispiele außerdem als nachvollziehbare Anleitung für User.
-
 ### A7 – Structured Logging dokumentarisch abschließen
 
 - Gleiche Kapitel 32 mit dem aktuellen Verhalten und den Ergebnissen aus A1–A6 ab. Übernimm alle noch gültigen, fehlenden Inhalte des [deutschen Entwurfs](Strukturiertes_Logging_DE.md) in das UM, ohne widersprüchliche ältere Entwurfsangaben zu übernehmen. Prüfe besonders Tag-Kanonisierung, NDJSON, Metadaten, Pufferlogs, Strings und Feldregister.
@@ -62,3 +57,7 @@ Die Vorprüfung zum JSON-Layout ist erfolgt: Die aktuellen Serializer in `intern
 ### A5 – Gemeinsames Build-Verzeichnis für das Feldregister
 
 `bind` und `insert` verwenden `-buildDir` mit dem Default `build/triceIDs`. Bei `bind` liegen dort Sidecar-Header und `trice-fields.txt`, bei `insert` das Feldregister. `generate -logC` und der interne Remigrate-Helfer lesen Bind-Sidecars ebenfalls über `-buildDir`. Der alte CLI-Schalter `-bindDir` wird abgewiesen und ist kein Alias; die Repository-Workflows und das CMake-Beispiel verwenden den neuen Schalter. Kapitel 32.7 beschreibt das Register als Datei mit Feldnamen und Häufigkeiten des letzten erfolgreichen Laufs. Die Tests decken benutzerdefinierte Pfade, Wiederholung, alte Schalter, `-dry-run` und die öffentlichen Bind-Workflows ab.
+
+### A6 – Verständliche C-Beispiele und Integrationstests
+
+Nach den `assert`-Zeilen in `_test/testdata/triceCheck.c` stehen neun kompilierbare Beispiele für 8/16/32/64-Bit-Werte, Stempelvarianten, `triceS`/`triceN`, gemischte klassische und strukturierte Platzhalter, per `.` und `->` abgeleitete Feldnamen sowie `aFloat()` und `aDouble()`. Ein gezielter PC-Integrationstest prüft ihre vollständige Textausgabe mit den bestehenden CLI-Einstellungen durch C-Zielcode und Decoder, jeweils nach `bind` und `insert`. Generator- und strukturierte Decoder-Tests bestanden ebenfalls. Die vollständigen PC-Testläufe bleiben unabhängig davon an einer älteren Erwartung hängen: Bei `-color=off` erscheint für ungetaggte Meldungen heute `untagged:`, während die erste Bestandszeile noch ohne dieses Präfix erwartet wird. Diese Bestandsabweichung gehört nicht zu den neun A6-Beispielen.

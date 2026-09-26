@@ -86,6 +86,11 @@ void TriceCheck(int index) {
 #endif
     char* s = "AAAAAAAAAAAA";
     char * five = "five";
+#if !TRICE_OFF
+    // The two member forms below demonstrate canonical names inferred from C arguments.
+    struct StructuredMotor { int state; int rpm; } motor = {3, 1200};
+    struct StructuredMotor *motorPtr = &motor;
+#endif
 #if TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1
     // x0Payload uses ascending bytes so expected output exposes packet boundaries.
     static uint8_t x0Payload[24] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
@@ -266,6 +271,17 @@ void TriceCheck(int index) {
         break; case __LINE__: if(Test_triceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         break; case __LINE__: if(Test_TriceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         break; case __LINE__: if(Test_TRiceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
+
+        // Structured field names stay on the host; only the displayed values cross the wire.
+        break; case __LINE__: trice8("info:Small {counter:%u}\n", 7);                              //exp: "time:        default: info:Small 7\n"
+        break; case __LINE__: Trice16("info:Current {current_ma:%d} mA\n", -123);                  //exp: "time:    be16default: info:Current -123 mA\n"
+        break; case __LINE__: TRice32("info:Voltage {voltage_mv:%u} mV\n", 3300);                  //exp: "time:feed3322default: info:Voltage 3300 mV\n"
+        break; case __LINE__: trice64("info:Bytes {bytes:%llu}\n", 1234567890123ULL);              //exp: "time:        default: info:Bytes 1234567890123\n"
+        break; case __LINE__: trice("info:State {} rpm {} / %d\n", motor.state, motorPtr->rpm, 1); //exp: "time:        default: info:State 3 rpm 1200 / 1\n"
+        break; case __LINE__: trice32("info:Temp {temp_c:%.1f C}\n", aFloat(23.5f));               //exp: "time:        default: info:Temp 23.5 C\n"
+        break; case __LINE__: Trice64("info:Energy {energy_j:%.2f J}\n", aDouble(12.25));          //exp: "time:    be16default: info:Energy 12.25 J\n"
+        break; case __LINE__: triceS("info:Device {device:%s}\n", "pump");                         //exp: "time:        default: info:Device pump\n"
+        break; case __LINE__: triceN("info:Code {code:%s}\n", "READY!", 5);                        //exp: "time:        default: info:Code READY\n"
         
         break; case __LINE__: trice("sig:length modifier coverage for supported combinations\n" );
         break; case __LINE__: trice8 ("len:hh %hhd %hhi %hhu %hho %hhO %hhx %hhX %hhb\n", -128, -1, -1, -1, -1, -1, -1, 0xA5u );                                                                                           //exp: "time:        default: len:hh -128 -1 255 377 0o377 ff FF 10100101\n"
