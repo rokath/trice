@@ -4,13 +4,6 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Die Bed
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
-### A3 – Bedeutung von `tag`, `message` und Stringwerten korrigieren
-
-- Definiere `tag` in JSON/KV als kanonische Form des erkannten Formatstring-Tags, unabhängig von dessen Schreibweise oder Alias: `trice("inf:Hi")` und `trice("Inf:Hi")` ergeben beide `tag=INFO`. `message` übernimmt denselben Meldungsinhalt wie `-logFormat text`, ohne ANSI-Farbe und ohne äußere Metadaten, Textpräfixe oder Suffixe. Bei `-color none` oder `default` wird nur ein erkannter, vollständig kleingeschriebener Formatstring-Tag entfernt: `inf:Hi` ergibt `message=Hi`, `Inf:Hi` ergibt `message=Inf:Hi`. Bei `-color off` bleiben Tag-Präfixe wie im Textmodus erhalten. Prüfe diese Varianten sowie unbekannte Tags ausdrücklich; `mgs:Hi` bleibt sichtbar und erhält `tag=untagged`.
-- Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar; sie erzeugen keine strukturierten User-Werte. Ergänze ein konkretes Beispiel in Kapitel 32 und einen Verhaltenstest.
-- Erhalte führende und folgende Leerzeichen in `message` unverändert; auch eine nur aus Leerzeichen bestehende Meldung bleibt erhalten. Das sichert die Gleichheit des Meldungsinhalts zwischen Text-, JSON- und KV-Ausgabe. Entferne äußere Leerzeichen bei den übrigen Stringwerten in JSON/KV, insbesondere `hs` und benannten Stringfeldern. Teste leere Werte, Unicode und nur aus Leerzeichen bestehende Werte sowie die bisherige Textsemantik.
-- Erläutere mit einem Beispiel, dass ein von `triceS`/`triceN` gelieferter Laufzeitstring wie `err:\n` oder `err:\t` weder erneut als C-Escape noch als Formatstring-Tag interpretiert wird; andernfalls streiche die derzeitige, ohne Kontext schwer verständliche Aussage aus dem UM. Teste diesen Unterschied zwischen Formatstring und Laufzeitwert.
-
 ### A4 – Ausgabeformat-Option und TREX-Geltungsbereich bereinigen
 
 - Mache die Werte von `-logFormat` ohne Rücksicht auf Groß-/Kleinschreibung wählbar. Erlaube zusätzlich `key-value` als verständlichen Alias für `kv`; der bestehende Wert `kv` bleibt gültig. Teste gültige Varianten und ungültige Werte.
@@ -62,6 +55,10 @@ Die Erwartungen an ID-Bereich, Tag-Policy und wiederholte Bind-Formate wurden ko
 ### A2 – Metadatenvertrag für JSON und Key-Value
 
 JSON und KV übernehmen aktivierte, vorhandene ID-, Orts- und Host-Zeitinformationen. Target-Stempel und Differenzen verwenden getrennte, formatierte Stringfelder `ts16`, `ts32`, `ts16Delta` und `ts32Delta`. Der erste Stempel jeder Bitbreite hat kein Delta-Feld; `ts0` und `ts0delta` erzeugen keine Metadaten. Kapitel 32 beschreibt die CLI-Konfiguration und Ausgabe.
+
+### A3 – Tag, Meldungsinhalt und Stringwerte
+
+`tag` wird über registrierte Aliase case-neutral kanonisiert. `message` folgt der Textdarstellung ohne äußere Dekoration und behält ihre führenden und folgenden Leerzeichen. Nur exakt registrierte, vollständig kleingeschriebene Präfixe werden bei aktiver Farbbehandlung entfernt; `-color off` erhält die Textpräfixe einschließlich des synthetischen `untagged:` für unbekannte Tags. Andere Stringwerte verlieren äußeren Leerraum. Klassische Pufferlogs bleiben feldfreie Meldungen. Laufzeitstrings ändern den Formatstring-Tag nicht; die bestehende Textumwandlung von Escape-Folgen gilt für `message`, während benannte Stringfelder den übertragenen Wert mit gekürztem äußerem Leerraum behalten. Das Verhalten und Beispiele stehen in Kapitel 32.
 
 Der gemeinsame Template-Parser, die Kanonisierung in `til.json`, `bind`/`insert`/`clean`, typisierte Decoder-Records, `-logFormat text|json|kv` und `trice-fields.txt` sind vorhanden. Skalare Werte sowie Strings über `triceS`/`triceN` gehören zum aktuellen Scope; benannte Pufferfelder werden abgewiesen. Die Bedienung ist in [UM-Kapitel 32](../TriceUserManual.md#strukturiertes-logging) beschrieben. Diese Bestandsaufnahme ist keine Behauptung, dass alle bestehenden Tests bestehen oder die oben genannten Details bereits dem gewünschten Vertrag entsprechen.
 
