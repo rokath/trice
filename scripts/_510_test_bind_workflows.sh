@@ -146,7 +146,11 @@ test_cli_help() {
     fail_workflow "CLI help emitted 'flag: help requested'"
     return 1
   fi
-  grep -q -- '-bindDir' "$LOGFILE" || fail_workflow "Bind help omits -bindDir"
+  grep -q -- '-buildDir' "$LOGFILE" || fail_workflow "Bind help omits -buildDir"
+  if grep -q -- '-bindDir' "$LOGFILE"; then
+    fail_workflow "Bind help still advertises removed -bindDir"
+    return 1
+  fi
   grep -q -- '-defaultStampSize' "$LOGFILE" || fail_workflow "Bind help omits shared Insert options"
 }
 

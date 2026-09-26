@@ -31,7 +31,7 @@ add_custom_target(PoC_bind_generator_sidecars ALL
         -til til.json
         -li li.json
         -liRoot .
-        -bindDir ./build/triceIDs
+        -buildDir ./build/triceIDs
         -IDMin 1000
         -IDMax 1999
         -IDMethod upward
