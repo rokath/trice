@@ -61,9 +61,65 @@ func structuredHostStamp(now time.Time) string {
 	}
 }
 
+// structuredTargetStamp removes a display tag such as "time:" or "dt:" while
+// retaining the CLI-selected representation and any configured unit or suffix.
+func structuredTargetStamp(rendered string) string {
+	rendered = strings.TrimSpace(rendered)
+	tag, value, found := strings.Cut(rendered, ":")
+	if found && tag != "" {
+		validTag := true
+		for i, r := range tag {
+			letter := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
+			if i == 0 && !letter {
+				validTag = false
+				break
+			}
+			if !letter && (r < '0' || r > '9') && r != '-' && r != '_' {
+				validTag = false
+				break
+			}
+		}
+		if validTag {
+			rendered = value
+		}
+	}
+	return strings.TrimSpace(rendered)
+}
+
+// structuredTargetMembers keeps 16- and 32-bit stamp histories independent.
+// A first delta has no comparison value and is therefore omitted entirely.
+func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStampState) []recordMember {
+	if record.StampBits != 16 && record.StampBits != 32 {
+		return nil
+	}
+	size := record.StampBits / 8
+	absoluteFormat, deltaFormat := targetStampFormats(size)
+	var members []recordMember
+	if absoluteFormat != "" && absoluteFormat != "off" && absoluteFormat != "none" {
+		name := "ts16"
+		if size == 4 {
+			name = "ts32"
+		}
+		members = append(members, recordMember{name, structuredTargetStamp(renderTargetStamp(size, record.Stamp)), false})
+	}
+	if deltaFormat != "" && deltaFormat != "off" && deltaFormat != "none" {
+		hadPrevious := state.hasPrev16
+		name := "ts16Delta"
+		if size == 4 {
+			hadPrevious = state.hasPrev32
+			name = "ts32Delta"
+		}
+		delta := formatTargetDelta(size, deltaFormat, record.Stamp, state)
+		if hadPrevious {
+			members = append(members, recordMember{name, structuredTargetStamp(delta), false})
+		}
+	}
+	return members
+}
+
 // renderStructuredRecord serializes one event without the text line composer.
 // Newlines in messages are escaped data and never split or merge records.
-func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookUpLI, now time.Time) ([]byte, error) {
+func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookUpLI, now time.Time, state *targetStampState) ([]byte, error) {
 	tag := record.Tag
 	message := record.Message
 	level := canonicalLogLevel(tag)
@@ -90,10 +146,7 @@ func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookU
 			}
 		}
 	}
-	stampFormat, _ := targetStampFormats(record.StampBits / 8)
-	if record.StampBits != 0 && stampFormat != "" && stampFormat != "off" && stampFormat != "none" {
-		members = append(members, recordMember{"ts", record.Stamp, true})
-	}
+	members = append(members, structuredTargetMembers(record, state)...)
 	if stamp := structuredHostStamp(now); stamp != "" {
 		members = append(members, recordMember{"hs", stamp, false})
 	}

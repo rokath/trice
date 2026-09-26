@@ -527,7 +527,7 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 							}
 						}
 					}
-					encoded, err := renderStructuredRecord(record, li, time.Now())
+					encoded, err := renderStructuredRecord(record, li, time.Now(), &state)
 					if err != nil {
 						return err
 					}

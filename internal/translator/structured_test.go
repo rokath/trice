@@ -37,6 +37,23 @@ func structuredPacket(tid uint16, payload []byte) []byte {
 	return packet
 }
 
+// structuredStampedPacket supplies the actual TREX timestamp header without
+// depending on display formatting or serializer internals.
+func structuredStampedPacket(tid uint16, bits int, stamp uint64) []byte {
+	header := uint16(0x8000 | tid)
+	if bits == 32 {
+		header = 0xc000 | tid
+	}
+	packet := binary.LittleEndian.AppendUint16(nil, header)
+	if bits == 16 {
+		packet = binary.LittleEndian.AppendUint16(packet, uint16(stamp))
+	} else {
+		packet = binary.LittleEndian.AppendUint32(packet, uint32(stamp))
+	}
+	packet = binary.LittleEndian.AppendUint16(packet, 0x00c0)
+	return packet
+}
+
 // structuredWords preserves all 64 bits of test values during wire assembly.
 func structuredWords(bits int, values ...uint64) []byte {
 	var payload []byte
@@ -64,16 +81,25 @@ func configureStructuredTest(t *testing.T, format string) {
 	oldCycle, oldDisable := decoder.InitialCycle, trexDecoder.DisableCycleErrors
 	oldAddNL := trexDecoder.AddNewlineToEachTriceMessage
 	oldUnsigned := decoder.Unsigned
+	oldDoubledID := trexDecoder.Doubled16BitID
+	old32, old32Delta := decoder.TargetStamp32, decoder.TargetStamp32Delta
+	old32Passed, old32DeltaPassed := decoder.ShowTargetStamp32Passed, decoder.ShowTargetStamp32DeltaPassed
 	t.Cleanup(func() {
 		decoder.LogFormat, decoder.PackageFraming = oldFormat, oldFraming
 		decoder.InitialCycle, trexDecoder.DisableCycleErrors = oldCycle, oldDisable
 		trexDecoder.AddNewlineToEachTriceMessage = oldAddNL
 		decoder.Unsigned = oldUnsigned
+		trexDecoder.Doubled16BitID = oldDoubledID
+		decoder.TargetStamp32, decoder.TargetStamp32Delta = old32, old32Delta
+		decoder.ShowTargetStamp32Passed, decoder.ShowTargetStamp32DeltaPassed = old32Passed, old32DeltaPassed
 	})
 	decoder.LogFormat, decoder.PackageFraming = format, "none"
 	decoder.InitialCycle, trexDecoder.DisableCycleErrors = false, true
 	trexDecoder.AddNewlineToEachTriceMessage = false
 	decoder.Unsigned = false
+	trexDecoder.Doubled16BitID = false
+	decoder.TargetStamp32, decoder.TargetStamp32Delta = "", ""
+	decoder.ShowTargetStamp32Passed, decoder.ShowTargetStamp32DeltaPassed = false, false
 }
 
 // runStructuredWire returns independent application and diagnostic channels.
@@ -188,13 +214,148 @@ func TestStructuredMetadataAreOptionalFacts(t *testing.T) {
 	decoder.TargetStamp16 = "us"
 	emitter.HostStamp = "zero"
 	record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", ID: 7, HasID: true, Stamp: 0, StampBits: 16}
-	encoded, err := renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, time.Time{})
+	state := targetStampState{}
+	encoded, err := renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, time.Time{}, &state)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready","id":7,"file":"motor.c","line":42,"ts":0,"hs":"2006-01-02_1504-05"}`+"\n", string(encoded))
+	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready","id":7,"file":"motor.c","line":42,"ts16":"0_000","hs":"2006-01-02_1504-05"}`+"\n", string(encoded))
 	decoder.ShowID, decoder.LocationInformationFormatString, decoder.TargetStamp16, emitter.HostStamp = "", "off", "", "off"
-	encoded, err = renderStructuredRecord(record, nil, time.Time{})
+	encoded, err = renderStructuredRecord(record, nil, time.Time{}, &state)
 	assert.NoError(t, err)
 	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready"}`+"\n", string(encoded))
+}
+
+// TestStructuredKVMetadataUsesCLIOptions keeps location, ID, and host time
+// under their existing switches while excluding text-only decorations.
+func TestStructuredKVMetadataUsesCLIOptions(t *testing.T) {
+	configureStructuredTest(t, "kv")
+	decoder.ShowID = "debug:%7d "
+	decoder.LocationInformationFormatString = "info:%21s%6d "
+	id.LIFnJSON = "li.json"
+	decoder.TargetStamp16 = "temp:%d C "
+	emitter.HostStamp = "UTCmicro"
+	emitter.Prefix, emitter.Suffix = "prefix:", ":suffix"
+	now := time.Date(2024, time.January, 2, 3, 4, 5, 0, time.UTC)
+	record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", ID: 7, HasID: true, Stamp: 25, StampBits: 16}
+	state := targetStampState{}
+	encoded, err := renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, now, &state)
+	assert.NoError(t, err)
+	assert.Equal(t, `tag=info level=INFO message="ready" id=7 file="motor.c" line=42 ts16="25 C" hs="UTC Jan  2 03:04:05.000000"`+"\n", string(encoded))
+
+	decoder.ShowID, decoder.LocationInformationFormatString = "", "off"
+	decoder.TargetStamp16, emitter.HostStamp = "", "off"
+	encoded, err = renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, now, &state)
+	assert.NoError(t, err)
+	assert.Equal(t, `tag=info level=INFO message="ready"`+"\n", string(encoded))
+}
+
+// TestStructuredBuiltinStampFormatsKeepUnits verifies built-in CLI layouts are
+// exported as strings without their text-display tags or outer padding.
+func TestStructuredBuiltinStampFormatsKeepUnits(t *testing.T) {
+	configureStructuredTest(t, "json")
+	decoder.TargetStamp16, decoder.TargetStamp32 = "ms", "us"
+	state := targetStampState{}
+	for _, tt := range []struct {
+		bits  int
+		stamp uint64
+		want  string
+	}{
+		{16, 1234, `{"tag":"info","level":"INFO","message":"ready","ts16":"1,234"}` + "\n"},
+		{32, 1005000, `{"tag":"info","level":"INFO","message":"ready","ts32":"1,005_000"}` + "\n"},
+	} {
+		record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", StampBits: tt.bits, Stamp: tt.stamp}
+		encoded, err := renderStructuredRecord(record, nil, time.Time{}, &state)
+		assert.NoError(t, err)
+		assert.Equal(t, tt.want, string(encoded))
+	}
+	assert.Equal(t, "2026-09-26 12:34:56", structuredTargetStamp("  2026-09-26 12:34:56  "), "colons in formatted time are data")
+}
+
+// TestStructuredTargetStampsKeepIndependentHistories exercises both timestamp
+// widths in one stream. Each delta begins only after a same-width predecessor.
+func TestStructuredTargetStampsKeepIndependentHistories(t *testing.T) {
+	for _, tt := range []struct {
+		format string
+		want   []string
+	}{
+		{"json", []string{
+			`{"tag":"info","level":"INFO","message":"ready","ts16":"65530 C"}` + "\n",
+			`{"tag":"info","level":"INFO","message":"ready","ts32":"123456 us"}` + "\n",
+			`{"tag":"info","level":"INFO","message":"ready","ts16":"4 C","ts16Delta":"10 C"}` + "\n",
+			`{"tag":"info","level":"INFO","message":"ready","ts32":"123471 us","ts32Delta":"15 us"}` + "\n",
+		}},
+		{"kv", []string{
+			`tag=info level=INFO message="ready" ts16="65530 C"` + "\n",
+			`tag=info level=INFO message="ready" ts32="123456 us"` + "\n",
+			`tag=info level=INFO message="ready" ts16="4 C" ts16Delta="10 C"` + "\n",
+			`tag=info level=INFO message="ready" ts32="123471 us" ts32Delta="15 us"` + "\n",
+		}},
+	} {
+		t.Run(tt.format, func(t *testing.T) {
+			configureStructuredTest(t, tt.format)
+			decoder.TargetStamp16, decoder.TargetStamp16Delta = "temp:%d C ", "step:%d C "
+			decoder.TargetStamp32, decoder.TargetStamp32Delta = "time:%d us ", "dt:%d us "
+			state := targetStampState{}
+			for i, event := range []struct {
+				bits  int
+				stamp uint64
+			}{{16, 65530}, {32, 123456}, {16, 4}, {32, 123471}} {
+				record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", StampBits: event.bits, Stamp: event.stamp}
+				encoded, err := renderStructuredRecord(record, nil, time.Time{}, &state)
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want[i], string(encoded))
+			}
+		})
+	}
+}
+
+// TestStructuredStampedWireDeltaState ensures the decoder loop passes one
+// persistent state through real interleaved 16- and 32-bit TREX calls.
+func TestStructuredStampedWireDeltaState(t *testing.T) {
+	configureStructuredTest(t, "json")
+	decoder.TargetStamp16, decoder.TargetStamp16Delta = "time:%d", "dt:%d"
+	decoder.TargetStamp32, decoder.TargetStamp32Delta = "time:%d", "dt:%d"
+	decoder.ShowTargetStamp16Passed, decoder.ShowTargetStamp32Passed = true, true
+	decoder.ShowTargetStamp16DeltaPassed, decoder.ShowTargetStamp32DeltaPassed = true, true
+	lut := id.TriceIDLookUp{1: {Type: "TRICE0", Strg: "info:ready"}}
+	var input []byte
+	input = append(input, structuredStampedPacket(1, 16, 65530)...)
+	input = append(input, structuredStampedPacket(1, 32, 100)...)
+	input = append(input, structuredStampedPacket(1, 16, 4)...)
+	input = append(input, structuredStampedPacket(1, 32, 105)...)
+	output, diagnostics := runStructuredWire(t, lut, input)
+	assert.Empty(t, diagnostics)
+	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready","ts16":"65530"}`+"\n"+
+		`{"tag":"info","level":"INFO","message":"ready","ts32":"100"}`+"\n"+
+		`{"tag":"info","level":"INFO","message":"ready","ts16":"4","ts16Delta":"10"}`+"\n"+
+		`{"tag":"info","level":"INFO","message":"ready","ts32":"105","ts32Delta":"5"}`+"\n", output)
+}
+
+// TestStructuredTargetMetadataRequiresEnabledActualStamps rejects no-stamp
+// placeholders and checks that absolute and delta switches act independently.
+func TestStructuredTargetMetadataRequiresEnabledActualStamps(t *testing.T) {
+	configureStructuredTest(t, "json")
+	decoder.TargetStamp0, decoder.TargetStamp0Delta = "time:blank", "dt:blank"
+	decoder.TargetStamp16, decoder.TargetStamp16Delta = "", "step:%d ticks"
+	decoder.TargetStamp32, decoder.TargetStamp32Delta = "off", "none"
+	state := targetStampState{}
+	for _, tt := range []struct {
+		name  string
+		bits  int
+		stamp uint64
+		want  string
+	}{
+		{"unstamped", 0, 0, `{"tag":"info","level":"INFO","message":"ready"}` + "\n"},
+		{"16-bit first delta", 16, 8, `{"tag":"info","level":"INFO","message":"ready"}` + "\n"},
+		{"16-bit next delta without absolute", 16, 11, `{"tag":"info","level":"INFO","message":"ready","ts16Delta":"3 ticks"}` + "\n"},
+		{"32-bit disabled", 32, 100, `{"tag":"info","level":"INFO","message":"ready"}` + "\n"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", StampBits: tt.bits, Stamp: tt.stamp}
+			encoded, err := renderStructuredRecord(record, nil, time.Time{}, &state)
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, string(encoded))
+		})
+	}
 }
 
 // TestStructuredDiagnosticsAndSelectionRemainIndependent verifies a valid event
@@ -293,11 +454,11 @@ func TestStructuredTextPresentation(t *testing.T) {
 	assert.Equal(t, "Motor 7: 1.2 C, set={1,2}\n", output)
 }
 
-// TestStructuredBigEndianAndRawTimestamp uses an actual stamped wire packet.
-// Neither target byte order nor text timestamp scaling may change field values.
-func TestStructuredBigEndianAndRawTimestamp(t *testing.T) {
+// TestStructuredBigEndianAndFormattedTimestamp uses an actual stamped packet.
+// Target byte order does not change field values or the selected stamp format.
+func TestStructuredBigEndianAndFormattedTimestamp(t *testing.T) {
 	configureStructuredTest(t, "json")
-	decoder.TargetStamp32 = "ms"
+	decoder.TargetStamp32 = "time:%d ticks"
 	decoder.ShowTargetStamp32Passed = true
 	packet := binary.BigEndian.AppendUint16(nil, 0xc001)
 	packet = binary.BigEndian.AppendUint32(packet, math.MaxUint32)
@@ -308,7 +469,7 @@ func TestStructuredBigEndianAndRawTimestamp(t *testing.T) {
 	dec := trexDecoder.New(&diagnostics, lut, new(sync.RWMutex), nil, bytes.NewReader(packet), decoder.BigEndian)
 	assert.ErrorIs(t, decodeAndComposeLoopOutput(&output, &diagnostics, emitter.New(&output), dec, lut, nil, nil), io.EOF)
 	assert.Empty(t, diagnostics.String())
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"18446744073709551615","ts":4294967295,"fields":{"value":18446744073709551615}}`+"\n", output.String())
+	assert.Equal(t, `{"tag":"info","level":"INFO","message":"18446744073709551615","ts32":"4294967295 ticks","fields":{"value":18446744073709551615}}`+"\n", output.String())
 }
 
 // TestStructuredMalformedDictionaryNeverEmitsRecords checks that invalid
@@ -390,7 +551,7 @@ func TestStructuredLevelIsIndependentOfTagWeight(t *testing.T) {
 		{"WaRn", `{"tag":"untagged","level":"WARNING","message":"WaRn:ready"}`},
 	} {
 		t.Run(tt.tag, func(t *testing.T) {
-			encoded, err := renderStructuredRecord(decoder.ApplicationRecord{Tag: tt.tag, Message: tt.tag + ":ready"}, nil, time.Time{})
+			encoded, err := renderStructuredRecord(decoder.ApplicationRecord{Tag: tt.tag, Message: tt.tag + ":ready"}, nil, time.Time{}, &targetStampState{})
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want+"\n", string(encoded))
 		})
