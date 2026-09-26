@@ -411,8 +411,21 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
         The trice ID list file.
         The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
          (default "til.json")
+  -li string
+        Short for '-locationInformation'.
+         (default "li.json")
+  -locationInformation string
+        The trice location information file.
+        The specified JSON file is needed to display the location information for each ID during runtime.
+        It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
+        log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+        This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+        With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
+         (default "li.json")
   -logC
         Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.
+  -onelineJSON
+        Export the selected TIL and LI as <name>.oneline.json companions with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.
   -s value
         Short for src.
   -sa value

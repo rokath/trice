@@ -9619,6 +9619,8 @@ Receive signal 0. Exiting...
 
 ## 41. <a id="trice-generate"></a>Trice Generate
 
+For a compact, readable copy of the ID dictionaries, run `trice generate -onelineJSON -til til.json -li li.json`. This writes `til.oneline.json` and `li.oneline.json` as complete JSON objects with one ID entry per line. In the LI copy, each entry shows `Line` before `File`. The original files remain authoritative and unchanged; rerun the command after updating them. Use `-li off` to export only the TIL copy. Missing or invalid requested input files cause an error without replacing either copy. This option cannot be combined with `-logC` or `-abc`.
+
 ### 41.1. <a id="colors"></a>Colors
 
 Support for finding a color style:

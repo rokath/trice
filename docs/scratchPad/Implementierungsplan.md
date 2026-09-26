@@ -4,11 +4,6 @@ Stand: 26. September 2026. Dieser Plan ordnet die noch offenen Arbeiten. Structu
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
-### A8 – Einzeilige Einträge in `til.json` und `li.json` nur untersuchen
-
-- Entscheide anhand der Vorprüfung am Ende dieses Plans, ob eine kleine eigene Zusammensetzung aus per Standardbibliothek serialisierten Einträgen noch unter die gewünschte Bedingung „Standard-Lib-Konverter“ fällt. Wenn ausschließlich eine eingebaute Formatoption erlaubt ist, entfällt die Formatänderung.
-- Falls später beauftragt: Neue Dateien sollen einen Eintrag pro Zeile erhalten, vorhandene Legacy-Dateien ihre bisherige Darstellung behalten. Prüfe dafür Stilerkennung, stabile Reihenfolge, `Line` vor `File` und Roundtrips. **Jetzt keine Dateiformatänderung.**
-
 ### A9 – Context Enrichment mit PoC beginnen
 
 - Erst nach A1–A7: Führe den isolierten Nachweis für die in [Context Enrichment](Kontextanreicherung_DE.md) beschriebene Bind-Injektion aus. Zeige zusätzliche lokale Werte bei argumentlosen und bereits parametrisierten Trices, einfache Ausdrücke, genau einmalige Auswertung, korrekte Arity und TIL-Konsistenz, unveränderten User-Source sowie idempotente Bind-Läufe.
@@ -42,8 +37,6 @@ Der gemeinsame Template-Parser, die Kanonisierung in `til.json`, `bind`/`insert`
 
 Die früher abgeschlossenen Arbeiten an Tag-Aliasen, Gewichten, Auswahl, ID-Policy, Rohaufzeichnung, Statistik und Diagnosen stehen in den jeweiligen UM-Kapiteln. Die alten Handovers und Aufgaben liegen unter [obsolete](obsolete/README.md). Beispielvalidierung ist in A6, A7 und A10 als Abnahme enthalten und benötigt keinen eigenen Implementierungsblock.
 
-Die Vorprüfung zum JSON-Layout ist erfolgt: Die aktuellen Serializer in `internal/id/manage.go` verwenden `json.Encoder.SetIndent` bzw. `json.MarshalIndent`; die Standardbibliothek bietet dafür keine Option „äußerer Eintrag auf eigener Zeile, inneres Objekt kompakt“. `json.Marshal` pro Eintrag plus eigenes Zusammensetzen der äußeren Datei wäre möglich, aber mehr als eine reine Standard-Converter-Einstellung. `json.Unmarshal` liest beide Layouts unabhängig von Leerraum und Feldreihenfolge. Für `Line` vor `File` wäre eine gezielte Ausgabeform nötig, da `TriceLI` derzeit `File` vor `Line` deklariert. Die heutigen `toFile`-Pfade schreiben vorhandene Dateien bei Aktualisierung neu; die gewünschte Erhaltung ihres Layouts benötigte daher zusätzliche Stilerkennung.
-
 ### A4 – Ausgabeformat-Option und TREX-Geltungsbereich
 
 `-logFormat` akzeptiert die Werte `text`, `json` und `kv` unabhängig von Groß- und Kleinschreibung sowie `key-value` als Alias für `kv`. Der Wert `json` erzeugt NDJSON mit genau einem JSON-Objekt und abschließendem LF pro akzeptiertem Ereignis; einen separaten CLI-Wert `ndjson` gibt es nicht. Die CLI-Hilfe benennt NDJSON kurz, Kapitel 32 beschreibt TREX als Voraussetzung für maschinenlesbare Ereignisse und die CLI weist CHAR/DUMP weiterhin verständlich ab. Gültige Varianten, ungültige Werte und reale Ausgabe werden getestet.
@@ -59,3 +52,9 @@ Nach den `assert`-Zeilen in `_test/testdata/triceCheck.c` stehen neun kompilierb
 ### A7 – Structured Logging dokumentarisch abgeschlossen
 
 Kapitel 32 wurde mit dem aktuellen CLI-Verhalten, den strukturierten Generator- und Decoder-Tests sowie A1–A6 abgeglichen. Die weiterhin gültigen Hinweise zu Platzhaltern, Typen und C-Beispielen stehen nun im UM; ältere Entwurfsannahmen zu Tag-Schreibweise, Target-Zeitstempeln und Build-Verzeichnis wurden nicht übernommen. Die frühere Entwurfskopie ist entfernt und der UM-Link auf die nicht mehr vorhandene ScratchPad-README zeigt auf diesen Plan. Context Enrichment bleibt ein separater, noch nicht implementierter Auftrag.
+
+### A8 – Zusätzliche JSON-Ansichten über `generate`
+
+`trice generate -onelineJSON -til til.json -li li.json` erzeugt auf Abruf `til.oneline.json` und `li.oneline.json`. Beide bleiben vollständige JSON-Objekte, nicht NDJSON: Jede ID und ihr kompakter Eintrag stehen zusammen auf einer Zeile. In der LI-Ansicht steht `Line` vor `File`, beispielsweise `"13000": {"Line":163,"File":"src/main.c"}`. Der Name `oneline` bezieht sich auf den Eintrag, nicht auf die ganze Datei. Mit `-li off` wird nur die TIL-Ansicht erzeugt. Fehlende oder ungültige angeforderte Eingabedateien werden vor Ausgabeschreibzugriffen abgewiesen.
+
+Die Originaldateien bleiben maßgeblich und werden bei diesem Export nicht verändert. Der Export wird nach Änderungen an den Originalen erneut ausgeführt; `bind`, `insert`, `clean`, `add` und die Remigration erzeugen keine automatischen Kopien. Die bestehende JSON-Datenstruktur bleibt erhalten. `encoding/json` serialisiert Schlüssel und Werte; nur äußere Klammern, Kommata und Zeilenumbrüche werden für die Ansicht zusammengesetzt. Für TIL bleibt `SetEscapeHTML(false)` maßgeblich. Tests decken stabile ID-Reihenfolge, Escapes, Unicode, Roundtrips, unveränderte Wiederholungsläufe und das Zurückrollen bei einem Schreibfehler ab. Eine externe Abhängigkeit ist nicht erforderlich; der zusätzliche Aufwand entsteht nur beim angeforderten Export auf dem Host.
