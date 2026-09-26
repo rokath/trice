@@ -89,7 +89,7 @@ func logInit() {
 	emitter.Pick = nil
 	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
-	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format: text (classic presentation), json (one JSON object per application event), or kv (one key=value record per event). Structured formats require TREX; diagnostics go to stderr.")
+	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr.")
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.

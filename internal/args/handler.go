@@ -230,8 +230,14 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	// A later invocation in the same process starts with the documented default.
 	decoder.LogFormat = "text"
 	msg.OnErr(fsScLog.Parse(subArgs))
-	if decoder.LogFormat != "text" && decoder.LogFormat != "json" && decoder.LogFormat != "kv" {
-		return fmt.Errorf("invalid -logFormat %q: expected text, json, or kv", decoder.LogFormat)
+	// Downstream presentation uses canonical names for its format comparisons.
+	switch strings.ToLower(decoder.LogFormat) {
+	case "text", "json", "kv":
+		decoder.LogFormat = strings.ToLower(decoder.LogFormat)
+	case "key-value":
+		decoder.LogFormat = "kv"
+	default:
+		return fmt.Errorf("invalid -logFormat %q: expected text, json, kv, or key-value", decoder.LogFormat)
 	}
 	if decoder.LogFormat != "text" && !strings.EqualFold(translator.Encoding, "TREX") {
 		return fmt.Errorf("-logFormat %s requires -encoding TREX because CHAR/DUMP have no event boundaries", decoder.LogFormat)

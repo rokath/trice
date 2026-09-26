@@ -25,9 +25,10 @@ func TestStructuredCLIValidationPrecedesIO(t *testing.T) {
 		options   []string
 		errorText string
 	}{
-		{"unknown format", []string{"-logFormat", "yaml"}, "expected text, json, or kv"},
+		{"unknown format", []string{"-logFormat", "yaml"}, "expected text, json, kv, or key-value"},
+		{"NDJSON is not a separate CLI value", []string{"-logFormat", "ndjson"}, "expected text, json, kv, or key-value"},
 		{"CHAR has no events", []string{"-logFormat", "json", "-encoding", "CHAR"}, "requires -encoding TREX"},
-		{"DUMP has no events", []string{"-logFormat", "kv", "-encoding", "DUMP"}, "requires -encoding TREX"},
+		{"DUMP has no events", []string{"-logFormat", "KEY-VALUE", "-encoding", "DUMP"}, "requires -encoding TREX"},
 	} {
 		for _, entry := range []string{"trice", "tlog"} {
 			t.Run(entry+"/"+tt.name, func(t *testing.T) {
@@ -47,6 +48,48 @@ func TestStructuredCLIValidationPrecedesIO(t *testing.T) {
 				exists, statErr := fs.Exists("must-not-exist.log")
 				assert.NoError(t, statErr)
 				assert.False(t, exists)
+			})
+		}
+	}
+}
+
+// TestStructuredCLIFormatNames checks both command entry points and confirms
+// that aliases reach the renderer as its canonical, case-sensitive names.
+func TestStructuredCLIFormatNames(t *testing.T) {
+	oldStart := startLogLoop
+	t.Cleanup(func() { startLogLoop = oldStart; FlagsInit() })
+	for _, tt := range []struct {
+		name, input, want string
+	}{
+		{"default text", "", "text"},
+		{"mixed-case text", "TeXt", "text"},
+		{"uppercase JSON", "JSON", "json"},
+		{"mixed-case JSON", "JsOn", "json"},
+		{"uppercase KV", "KV", "kv"},
+		{"mixed-case key-value", "KeY-VaLuE", "kv"},
+		{"legacy kv", "kv", "kv"},
+	} {
+		for _, entry := range []string{"trice", "tlog"} {
+			t.Run(entry+"/"+tt.name, func(t *testing.T) {
+				FlagsInit()
+				fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+				var actual string
+				startLogLoop = func(io.Writer, *afero.Afero) error {
+					actual = decoder.LogFormat
+					return nil
+				}
+				options := []string{}
+				if tt.input != "" {
+					options = []string{"-logFormat", tt.input}
+				}
+				var err error
+				if entry == "trice" {
+					err = Handler(io.Discard, fs, append([]string{"trice", "log"}, options...))
+				} else {
+					err = LogHandler(io.Discard, fs, append([]string{"tlog"}, options...))
+				}
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, actual)
 			})
 		}
 	}
@@ -75,7 +118,9 @@ func TestStructuredCLIFormatResetsAndReturnsSinkFailures(t *testing.T) {
 func TestStructuredCLIReplayKeepsMachineSinksClean(t *testing.T) {
 	for _, tt := range []struct{ format, want string }{
 		{"json", `{"tag":"INFO","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}` + "\n"},
+		{"JSON", `{"tag":"INFO","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}` + "\n"},
 		{"kv", "tag=INFO level=INFO message=\"Motor 3: 87.5 C\" field.motor_id=3 field.temperature_c=87.5\n"},
+		{"key-value", "tag=INFO level=INFO message=\"Motor 3: 87.5 C\" field.motor_id=3 field.temperature_c=87.5\n"},
 	} {
 		t.Run(tt.format, func(t *testing.T) {
 			FlagsInit()
