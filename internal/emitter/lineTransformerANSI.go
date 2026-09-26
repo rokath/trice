@@ -345,6 +345,19 @@ func FindTagName(name string) (tagName string, err error) {
 	return "", fmt.Errorf("no tagName found for name %s", name)
 }
 
+// FindTagNameFold resolves a registered alias without regard to case for
+// structured metadata. The existing exact lookup still controls text output.
+func FindTagNameFold(name string) (string, error) {
+	for _, t := range Tags {
+		for _, alias := range t.Names {
+			if strings.EqualFold(alias, name) {
+				return t.Names[0], nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no tagName found for name %s", name)
+}
+
 // TagWeight returns the current command's weight for a canonical tag name or alias.
 func TagWeight(name string) (int, error) {
 	i := tagIndex(Tags, name)

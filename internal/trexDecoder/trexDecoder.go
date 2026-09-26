@@ -724,9 +724,6 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	}
 	p.template = template
 	p.Trice.Strg = template.Format
-	if decoder.LogFormat != "text" {
-		p.Trice.Strg = id.DecodeCStringEscapes(p.Trice.Strg)
-	}
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
 	// remove Assert* from triceAssert* name if found

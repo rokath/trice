@@ -149,13 +149,13 @@ func TestStructuredJSONFloatAndStringValues(t *testing.T) {
 		payload                   []byte
 		expected                  string
 	}{
-		{"float32", "TRICE32_1", "info:{temperature:%.1f C}", structuredWords(32, uint64(math.Float32bits(1.25))), `{"tag":"info","level":"INFO","message":"1.2 C","fields":{"temperature":1.25}}` + "\n"},
-		{"float64", "TRICE64_1", "warn:{value:%.2f}", structuredWords(64, math.Float64bits(1.234567890123)), `{"tag":"warn","level":"WARNING","message":"1.23","fields":{"value":1.234567890123}}` + "\n"},
-		{"NaN has message but no fields", "TRICE32_1", "info:{value:%f}", structuredWords(32, uint64(math.Float32bits(float32(math.NaN())))), `{"tag":"info","level":"INFO","message":"NaN"}` + "\n"},
-		{"positive infinity omitted", "TRICE64_1", "info:{value:%g}", structuredWords(64, math.Float64bits(math.Inf(1))), `{"tag":"info","level":"INFO","message":"+Inf"}` + "\n"},
-		{"negative infinity omitted", "TRICE64_1", "info:{value:%g}", structuredWords(64, math.Float64bits(math.Inf(-1))), `{"tag":"info","level":"INFO","message":"-Inf"}` + "\n"},
-		{"string clipping is presentation only", "triceS", "info:{message:%.3s}", []byte(`motor "A"`), `{"tag":"info","level":"INFO","message":"mot","fields":{"message":"motor \"A\""}}` + "\n"},
-		{"runtime tag cannot reclassify string", "triceN", "{text:%s}", []byte(`err:C:\tmp\new`), `{"tag":"untagged","message":"err:C:\\tmp\\new","fields":{"text":"err:C:\\tmp\\new"}}` + "\n"},
+		{"float32", "TRICE32_1", "info:{temperature:%.1f C}", structuredWords(32, uint64(math.Float32bits(1.25))), `{"tag":"INFO","level":"INFO","message":"1.2 C","fields":{"temperature":1.25}}` + "\n"},
+		{"float64", "TRICE64_1", "warn:{value:%.2f}", structuredWords(64, math.Float64bits(1.234567890123)), `{"tag":"WARNING","level":"WARNING","message":"1.23","fields":{"value":1.234567890123}}` + "\n"},
+		{"NaN has message but no fields", "TRICE32_1", "info:{value:%f}", structuredWords(32, uint64(math.Float32bits(float32(math.NaN())))), `{"tag":"INFO","level":"INFO","message":"NaN"}` + "\n"},
+		{"positive infinity omitted", "TRICE64_1", "info:{value:%g}", structuredWords(64, math.Float64bits(math.Inf(1))), `{"tag":"INFO","level":"INFO","message":"+Inf"}` + "\n"},
+		{"negative infinity omitted", "TRICE64_1", "info:{value:%g}", structuredWords(64, math.Float64bits(math.Inf(-1))), `{"tag":"INFO","level":"INFO","message":"-Inf"}` + "\n"},
+		{"string clipping is presentation only", "triceS", "info:{message:%.3s}", []byte(`motor "A"`), `{"tag":"INFO","level":"INFO","message":"mot","fields":{"message":"motor \"A\""}}` + "\n"},
+		{"runtime tag cannot reclassify string", "triceN", "{text:%s}", []byte(`err:C:\tmp\new`), `{"tag":"untagged","message":"err:C:\tmp\new","fields":{"text":"err:C:\\tmp\\new"}}` + "\n"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			configureStructuredTest(t, "json")
@@ -183,10 +183,153 @@ func TestStructuredRecordsPreserveEventBoundaries(t *testing.T) {
 	input = append(input, structuredPacket(4, structuredWords(32, 8))...)
 	output, diagnostics := runStructuredWire(t, lut, input)
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, "{\"tag\":\"info\",\"level\":\"INFO\",\"message\":\"A7\",\"fields\":{\"tag\":7}}\n"+
-		"{\"tag\":\"info\",\"level\":\"INFO\",\"message\":\"B\\nC\\n\"}\n"+
+	assert.Equal(t, "{\"tag\":\"INFO\",\"level\":\"INFO\",\"message\":\"A7\",\"fields\":{\"tag\":7}}\n"+
+		"{\"tag\":\"INFO\",\"level\":\"INFO\",\"message\":\"B\\nC\\n\"}\n"+
 		"{\"tag\":\"untagged\",\"message\":\"\"}\n"+
 		"{\"tag\":\"untagged\",\"message\":\"mgs:set={1,2} 8\",\"fields\":{\"value\":8}}\n", output)
+}
+
+// TestStructuredTagAndMessageFollowTextMode compares decoded TREX calls across
+// formats. The outer record is different, but its message content follows the
+// same case-sensitive tag rule and retains all message whitespace.
+func TestStructuredTagAndMessageFollowTextMode(t *testing.T) {
+	for _, tt := range []struct {
+		name, template, palette, tag, message string
+	}{
+		{"lowercase alias", "inf:  Hi  \n", "none", "INFO", "  Hi  \n"},
+		{"mixed-case alias", "Inf:Hi\n", "none", "INFO", "Inf:Hi\n"},
+		{"uppercase alias", "INFO:Hi\n", "none", "INFO", "INFO:Hi\n"},
+		{"unknown typo", "mgs:Hi\n", "none", "untagged", "mgs:Hi\n"},
+		{"explicit untagged", "untagged:Hi\n", "none", "untagged", "Hi\n"},
+		{"no tag with Unicode space", " \u2003Grüße \n", "none", "untagged", " \u2003Grüße \n"},
+		{"spaces only", "inf:   \n", "none", "INFO", "   \n"},
+		{"format backslash n", `inf:A\nB\n`, "none", "INFO", "A\nB\n"},
+		{"unsupported format escape", "inf:A\\vB\n", "none", "INFO", "A\\vB\n"},
+		{"known tag with color off", "inf:Hi\n", "off", "INFO", "inf:Hi\n"},
+		{"mixed-case alias with color off", "Inf:Hi\n", "off", "INFO", "untagged:Inf:Hi\n"},
+		{"unknown tag with color off", "mgs:Hi\n", "off", "untagged", "untagged:mgs:Hi\n"},
+		{"explicit untagged with color off", "untagged:Hi\n", "off", "untagged", "untagged:Hi\n"},
+		{"lowercase with default color", "inf:Hi\n", "default", "INFO", "Hi\n"},
+	} {
+		for _, format := range []string{"json", "kv"} {
+			t.Run(tt.name+"/"+format, func(t *testing.T) {
+				configureStructuredTest(t, format)
+				oldIndent := decoder.NewlineIndent
+				t.Cleanup(func() { decoder.NewlineIndent = oldIndent })
+				decoder.NewlineIndent = 0 // Disable text-only continuation indentation for content comparison.
+				emitter.ColorPalette = tt.palette
+				lut := id.TriceIDLookUp{1: {Type: "TRICE0", Strg: tt.template}}
+				packet := structuredPacket(1, nil)
+				output, diagnostics := runStructuredWire(t, lut, packet)
+				assert.Empty(t, diagnostics)
+				if format == "json" {
+					var record struct{ Tag, Message string }
+					if assert.NoError(t, json.Unmarshal([]byte(output), &record)) {
+						assert.Equal(t, tt.tag, record.Tag)
+						assert.Equal(t, tt.message, record.Message)
+					}
+				} else {
+					prefix, encoded, found := strings.Cut(output, " message=")
+					if assert.True(t, found) {
+						assert.Equal(t, "tag="+tt.tag, strings.Fields(prefix)[0])
+						message, err := strconv.Unquote(strings.TrimSuffix(encoded, "\n"))
+						assert.NoError(t, err)
+						assert.Equal(t, tt.message, message)
+					}
+				}
+				if tt.palette != "default" {
+					decoder.LogFormat = "text"
+					textOutput, textDiagnostics := runStructuredWire(t, lut, packet)
+					assert.Empty(t, textDiagnostics)
+					assert.Equal(t, tt.message, textOutput)
+				}
+			})
+		}
+	}
+}
+
+// TestStructuredStringFieldsTrimWithoutChangingMessages verifies that user
+// strings retain their raw meaning in text while exported fields drop only
+// their outer whitespace, including Unicode whitespace and empty values.
+func TestStructuredStringFieldsTrimWithoutChangingMessages(t *testing.T) {
+	for _, format := range []string{"json", "kv"} {
+		for _, triceType := range []string{"triceS", "triceN"} {
+			for _, tt := range []struct{ name, value, field string }{
+				{"Unicode", " \u2003Grüße \u00a0", "Grüße"},
+				{"whitespace only", " \t\u2003", ""},
+				{"empty", "", ""},
+			} {
+				t.Run(format+"/"+triceType+"/"+tt.name, func(t *testing.T) {
+					configureStructuredTest(t, format)
+					lut := id.TriceIDLookUp{1: {Type: triceType, Strg: "inf:{value:%s}\\n"}}
+					packet := structuredPacket(1, []byte(tt.value))
+					output, diagnostics := runStructuredWire(t, lut, packet)
+					assert.Empty(t, diagnostics)
+					if format == "json" {
+						var record struct {
+							Tag, Message string
+							Fields       map[string]string
+						}
+						if assert.NoError(t, json.Unmarshal([]byte(output), &record)) {
+							assert.Equal(t, "INFO", record.Tag)
+							assert.Equal(t, tt.value+"\n", record.Message)
+							assert.Equal(t, tt.field, record.Fields["value"])
+						}
+					} else {
+						_, values, found := strings.Cut(output, " message=")
+						if assert.True(t, found) {
+							messageValue, fieldValue, found := strings.Cut(strings.TrimSuffix(values, "\n"), " field.value=")
+							if assert.True(t, found) {
+								message, messageErr := strconv.Unquote(messageValue)
+								field, fieldErr := strconv.Unquote(fieldValue)
+								assert.NoError(t, messageErr)
+								assert.NoError(t, fieldErr)
+								assert.Equal(t, tt.value+"\n", message)
+								assert.Equal(t, tt.field, field)
+							}
+						}
+					}
+					decoder.LogFormat = "text"
+					textOutput, textDiagnostics := runStructuredWire(t, lut, packet)
+					assert.Empty(t, textDiagnostics)
+					assert.Equal(t, tt.value+"\n", textOutput)
+				})
+			}
+		}
+	}
+}
+
+// TestStructuredRuntimeEscapesFollowTextButDoNotRetag checks the difference
+// between display message conversion and the original typed string value.
+func TestStructuredRuntimeEscapesFollowTextButDoNotRetag(t *testing.T) {
+	for _, tt := range []struct{ name, value, message string }{
+		{"runtime backslash n", `err:\n`, "err:\n\n"},
+		{"runtime backslash t", `err:\t`, "err:\t\n"},
+		{"doubled runtime backslash follows text", `err:\\n`, "err:\n\n"},
+	} {
+		for _, triceType := range []string{"triceS", "triceN"} {
+			t.Run(triceType+"/"+tt.name, func(t *testing.T) {
+				configureStructuredTest(t, "json")
+				lut := id.TriceIDLookUp{1: {Type: triceType, Strg: "{value:%s}\\n"}}
+				packet := structuredPacket(1, []byte(tt.value))
+				output, diagnostics := runStructuredWire(t, lut, packet)
+				assert.Empty(t, diagnostics)
+				var record struct {
+					Tag, Message string
+					Fields       map[string]string
+				}
+				if assert.NoError(t, json.Unmarshal([]byte(output), &record)) {
+					assert.Equal(t, "untagged", record.Tag, "runtime text must not become a format tag")
+					assert.Equal(t, tt.message, record.Message)
+					assert.Equal(t, tt.value, record.Fields["value"], "field keeps the target string")
+				}
+				decoder.LogFormat = "text"
+				textOutput, textDiagnostics := runStructuredWire(t, lut, packet)
+				assert.Empty(t, textDiagnostics)
+				assert.Equal(t, tt.message, textOutput)
+			})
+		}
+	}
 }
 
 // TestStructuredKVQuotingAndFieldOrder exercises reserved names and all required
@@ -196,12 +339,12 @@ func TestStructuredKVQuotingAndFieldOrder(t *testing.T) {
 	lut := id.TriceIDLookUp{1: {Type: "TRICE32_3", Strg: "Warning:{tag:%c} {addr:%p} {enabled:%t}"}}
 	output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, structuredWords(32, 'A', 0x20001234, 0)))
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, "tag=Warning level=WARNING message=\"A 20001234 false\" field.tag=\"A\" field.addr=0x20001234 field.enabled=false\n", output)
+	assert.Equal(t, "tag=WARNING level=WARNING message=\"Warning:A 20001234 false\" field.tag=\"A\" field.addr=0x20001234 field.enabled=false\n", output)
 
 	text := "Motor \"A\"\\path\nline\r\ttab"
 	output, diagnostics = runStructuredWire(t, id.TriceIDLookUp{1: {Type: "triceS", Strg: "info:{message:%s}"}}, structuredPacket(1, []byte(text)))
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, "tag=info level=INFO message=\"Motor \\\"A\\\"\\\\path\\nline\\r\\ttab\" field.message=\"Motor \\\"A\\\"\\\\path\\nline\\r\\ttab\"\n", output)
+	assert.Equal(t, "tag=INFO level=INFO message=\"Motor \\\"A\\\"\\\\path\\nline\\r\\ttab\" field.message=\"Motor \\\"A\\\"\\\\path\\nline\\r\\ttab\"\n", output)
 }
 
 // TestStructuredMetadataAreOptionalFacts checks that formatting columns never
@@ -217,11 +360,11 @@ func TestStructuredMetadataAreOptionalFacts(t *testing.T) {
 	state := targetStampState{}
 	encoded, err := renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, time.Time{}, &state)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready","id":7,"file":"motor.c","line":42,"ts16":"0_000","hs":"2006-01-02_1504-05"}`+"\n", string(encoded))
+	assert.Equal(t, `{"tag":"INFO","level":"INFO","message":"ready","id":7,"file":"motor.c","line":42,"ts16":"0_000","hs":"2006-01-02_1504-05"}`+"\n", string(encoded))
 	decoder.ShowID, decoder.LocationInformationFormatString, decoder.TargetStamp16, emitter.HostStamp = "", "off", "", "off"
 	encoded, err = renderStructuredRecord(record, nil, time.Time{}, &state)
 	assert.NoError(t, err)
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready"}`+"\n", string(encoded))
+	assert.Equal(t, `{"tag":"INFO","level":"INFO","message":"ready"}`+"\n", string(encoded))
 }
 
 // TestStructuredKVMetadataUsesCLIOptions keeps location, ID, and host time
@@ -239,13 +382,37 @@ func TestStructuredKVMetadataUsesCLIOptions(t *testing.T) {
 	state := targetStampState{}
 	encoded, err := renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, now, &state)
 	assert.NoError(t, err)
-	assert.Equal(t, `tag=info level=INFO message="ready" id=7 file="motor.c" line=42 ts16="25 C" hs="UTC Jan  2 03:04:05.000000"`+"\n", string(encoded))
+	assert.Equal(t, `tag=INFO level=INFO message="ready" id=7 file="motor.c" line=42 ts16="25 C" hs="UTC Jan  2 03:04:05.000000"`+"\n", string(encoded))
 
 	decoder.ShowID, decoder.LocationInformationFormatString = "", "off"
 	decoder.TargetStamp16, emitter.HostStamp = "", "off"
 	encoded, err = renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "motor.c", Line: 42}}, now, &state)
 	assert.NoError(t, err)
-	assert.Equal(t, `tag=info level=INFO message="ready"`+"\n", string(encoded))
+	assert.Equal(t, `tag=INFO level=INFO message="ready"`+"\n", string(encoded))
+}
+
+// TestStructuredOtherStringsTrimOuterWhitespace keeps the application message
+// untouched while normalizing host metadata and exported user string values.
+func TestStructuredOtherStringsTrimOuterWhitespace(t *testing.T) {
+	for _, format := range []string{"json", "kv"} {
+		t.Run(format, func(t *testing.T) {
+			configureStructuredTest(t, format)
+			id.LIFnJSON = "li.json"
+			decoder.LocationInformationFormatString = "%s:%d"
+			emitter.HostStamp = "  Host \u2003"
+			record := decoder.ApplicationRecord{
+				Tag: "info", Message: "info:  hi  ", ID: 7, HasID: true,
+				Fields: []decoder.FieldValue{{Name: "value", Value: " \u2003text \t"}},
+			}
+			encoded, err := renderStructuredRecord(record, id.TriceIDLookUpLI{7: {File: "  motor.c  "}}, time.Time{}, &targetStampState{})
+			assert.NoError(t, err)
+			if format == "json" {
+				assert.Equal(t, `{"tag":"INFO","level":"INFO","message":"  hi  ","file":"motor.c","hs":"Host","fields":{"value":"text"}}`+"\n", string(encoded))
+			} else {
+				assert.Equal(t, `tag=INFO level=INFO message="  hi  " file="motor.c" hs="Host" field.value="text"`+"\n", string(encoded))
+			}
+		})
+	}
 }
 
 // TestStructuredBuiltinStampFormatsKeepUnits verifies built-in CLI layouts are
@@ -259,8 +426,8 @@ func TestStructuredBuiltinStampFormatsKeepUnits(t *testing.T) {
 		stamp uint64
 		want  string
 	}{
-		{16, 1234, `{"tag":"info","level":"INFO","message":"ready","ts16":"1,234"}` + "\n"},
-		{32, 1005000, `{"tag":"info","level":"INFO","message":"ready","ts32":"1,005_000"}` + "\n"},
+		{16, 1234, `{"tag":"INFO","level":"INFO","message":"ready","ts16":"1,234"}` + "\n"},
+		{32, 1005000, `{"tag":"INFO","level":"INFO","message":"ready","ts32":"1,005_000"}` + "\n"},
 	} {
 		record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", StampBits: tt.bits, Stamp: tt.stamp}
 		encoded, err := renderStructuredRecord(record, nil, time.Time{}, &state)
@@ -278,16 +445,16 @@ func TestStructuredTargetStampsKeepIndependentHistories(t *testing.T) {
 		want   []string
 	}{
 		{"json", []string{
-			`{"tag":"info","level":"INFO","message":"ready","ts16":"65530 C"}` + "\n",
-			`{"tag":"info","level":"INFO","message":"ready","ts32":"123456 us"}` + "\n",
-			`{"tag":"info","level":"INFO","message":"ready","ts16":"4 C","ts16Delta":"10 C"}` + "\n",
-			`{"tag":"info","level":"INFO","message":"ready","ts32":"123471 us","ts32Delta":"15 us"}` + "\n",
+			`{"tag":"INFO","level":"INFO","message":"ready","ts16":"65530 C"}` + "\n",
+			`{"tag":"INFO","level":"INFO","message":"ready","ts32":"123456 us"}` + "\n",
+			`{"tag":"INFO","level":"INFO","message":"ready","ts16":"4 C","ts16Delta":"10 C"}` + "\n",
+			`{"tag":"INFO","level":"INFO","message":"ready","ts32":"123471 us","ts32Delta":"15 us"}` + "\n",
 		}},
 		{"kv", []string{
-			`tag=info level=INFO message="ready" ts16="65530 C"` + "\n",
-			`tag=info level=INFO message="ready" ts32="123456 us"` + "\n",
-			`tag=info level=INFO message="ready" ts16="4 C" ts16Delta="10 C"` + "\n",
-			`tag=info level=INFO message="ready" ts32="123471 us" ts32Delta="15 us"` + "\n",
+			`tag=INFO level=INFO message="ready" ts16="65530 C"` + "\n",
+			`tag=INFO level=INFO message="ready" ts32="123456 us"` + "\n",
+			`tag=INFO level=INFO message="ready" ts16="4 C" ts16Delta="10 C"` + "\n",
+			`tag=INFO level=INFO message="ready" ts32="123471 us" ts32Delta="15 us"` + "\n",
 		}},
 	} {
 		t.Run(tt.format, func(t *testing.T) {
@@ -324,10 +491,10 @@ func TestStructuredStampedWireDeltaState(t *testing.T) {
 	input = append(input, structuredStampedPacket(1, 32, 105)...)
 	output, diagnostics := runStructuredWire(t, lut, input)
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"ready","ts16":"65530"}`+"\n"+
-		`{"tag":"info","level":"INFO","message":"ready","ts32":"100"}`+"\n"+
-		`{"tag":"info","level":"INFO","message":"ready","ts16":"4","ts16Delta":"10"}`+"\n"+
-		`{"tag":"info","level":"INFO","message":"ready","ts32":"105","ts32Delta":"5"}`+"\n", output)
+	assert.Equal(t, `{"tag":"INFO","level":"INFO","message":"ready","ts16":"65530"}`+"\n"+
+		`{"tag":"INFO","level":"INFO","message":"ready","ts32":"100"}`+"\n"+
+		`{"tag":"INFO","level":"INFO","message":"ready","ts16":"4","ts16Delta":"10"}`+"\n"+
+		`{"tag":"INFO","level":"INFO","message":"ready","ts32":"105","ts32Delta":"5"}`+"\n", output)
 }
 
 // TestStructuredTargetMetadataRequiresEnabledActualStamps rejects no-stamp
@@ -344,10 +511,10 @@ func TestStructuredTargetMetadataRequiresEnabledActualStamps(t *testing.T) {
 		stamp uint64
 		want  string
 	}{
-		{"unstamped", 0, 0, `{"tag":"info","level":"INFO","message":"ready"}` + "\n"},
-		{"16-bit first delta", 16, 8, `{"tag":"info","level":"INFO","message":"ready"}` + "\n"},
-		{"16-bit next delta without absolute", 16, 11, `{"tag":"info","level":"INFO","message":"ready","ts16Delta":"3 ticks"}` + "\n"},
-		{"32-bit disabled", 32, 100, `{"tag":"info","level":"INFO","message":"ready"}` + "\n"},
+		{"unstamped", 0, 0, `{"tag":"INFO","level":"INFO","message":"ready"}` + "\n"},
+		{"16-bit first delta", 16, 8, `{"tag":"INFO","level":"INFO","message":"ready"}` + "\n"},
+		{"16-bit next delta without absolute", 16, 11, `{"tag":"INFO","level":"INFO","message":"ready","ts16Delta":"3 ticks"}` + "\n"},
+		{"32-bit disabled", 32, 100, `{"tag":"INFO","level":"INFO","message":"ready"}` + "\n"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			record := decoder.ApplicationRecord{Tag: "info", Message: "info:ready", StampBits: tt.bits, Stamp: tt.stamp}
@@ -415,7 +582,11 @@ func TestStructuredBufferScope(t *testing.T) {
 	assert.Contains(t, diagnostics, "does not support named structured fields")
 	output, diagnostics = runStructuredWire(t, id.TriceIDLookUp{1: {Type: "trice8B", Strg: "msg:%02x "}}, structuredPacket(1, []byte{1, 2}))
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, `{"tag":"msg","message":"01 02 "}`+"\n", output)
+	assert.Equal(t, `{"tag":"MESSAGE","message":"01 02 "}`+"\n", output)
+	decoder.LogFormat = "kv"
+	output, diagnostics = runStructuredWire(t, id.TriceIDLookUp{1: {Type: "trice8B", Strg: "msg:%02x "}}, structuredPacket(1, []byte{1, 2}))
+	assert.Empty(t, diagnostics)
+	assert.Equal(t, `tag=MESSAGE message="01 02 "`+"\n", output, "classic buffers do not create named fields")
 }
 
 // TestStructuredMixedConversionsPreserveArgumentPositions checks that ordinary
@@ -424,7 +595,7 @@ func TestStructuredMixedConversionsPreserveArgumentPositions(t *testing.T) {
 	configureStructuredTest(t, "json")
 	output, diagnostics := runStructuredWire(t, id.TriceIDLookUp{1: {Type: "TRICE32_4", Strg: "info:%u {temperature:%.1f} %x {last}"}}, structuredPacket(1, structuredWords(32, 17, uint64(math.Float32bits(2.25)), 0xab, 42)))
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"17 2.2 ab 42","fields":{"temperature":2.25,"last":42}}`+"\n", output)
+	assert.Equal(t, `{"tag":"INFO","level":"INFO","message":"17 2.2 ab 42","fields":{"temperature":2.25,"last":42}}`+"\n", output)
 }
 
 // TestStructuredLongMessageIsNotTruncated checks a field width larger than the
@@ -469,7 +640,7 @@ func TestStructuredBigEndianAndFormattedTimestamp(t *testing.T) {
 	dec := trexDecoder.New(&diagnostics, lut, new(sync.RWMutex), nil, bytes.NewReader(packet), decoder.BigEndian)
 	assert.ErrorIs(t, decodeAndComposeLoopOutput(&output, &diagnostics, emitter.New(&output), dec, lut, nil, nil), io.EOF)
 	assert.Empty(t, diagnostics.String())
-	assert.Equal(t, `{"tag":"info","level":"INFO","message":"18446744073709551615","ts32":"4294967295 ticks","fields":{"value":18446744073709551615}}`+"\n", output.String())
+	assert.Equal(t, `{"tag":"INFO","level":"INFO","message":"18446744073709551615","ts32":"4294967295 ticks","fields":{"value":18446744073709551615}}`+"\n", output.String())
 }
 
 // TestStructuredMalformedDictionaryNeverEmitsRecords checks that invalid
@@ -499,7 +670,7 @@ func TestStructuredMalformedDictionaryNeverEmitsRecords(t *testing.T) {
 // filters precede visualization, and log=drop removes the complete machine event.
 func TestStructuredSelectionAndVisualization(t *testing.T) {
 	for _, tt := range []struct{ name, filter, ruleSuffix, wantLog, wantVis string }{
-		{"keep", "", "", `{"tag":"info","level":"INFO","message":"7\n","fields":{"value":7}}` + "\n", "7\n"},
+		{"keep", "", "", `{"tag":"INFO","level":"INFO","message":"7\n","fields":{"value":7}}` + "\n", "7\n"},
 		{"visualization consumes event", "", ";log=drop", "", "7\n"},
 		{"ban", "ban", "", "", ""},
 		{"pick excludes event", "pick", "", "", ""},
@@ -546,9 +717,10 @@ func TestStructuredLevelIsIndependentOfTagWeight(t *testing.T) {
 	emitter.UserLabel = []string{"info:50", "motor:999"}
 	assert.NoError(t, emitter.AddUserLabels())
 	for _, tt := range []struct{ tag, want string }{
-		{"Info", `{"tag":"Info","level":"INFO","message":"ready"}`},
+		{"Info", `{"tag":"INFO","level":"INFO","message":"Info:ready"}`},
 		{"motor", `{"tag":"motor","message":"ready"}`},
-		{"WaRn", `{"tag":"untagged","level":"WARNING","message":"WaRn:ready"}`},
+		{"MoToR", `{"tag":"motor","message":"MoToR:ready"}`},
+		{"WaRn", `{"tag":"WARNING","level":"WARNING","message":"WaRn:ready"}`},
 	} {
 		t.Run(tt.tag, func(t *testing.T) {
 			encoded, err := renderStructuredRecord(decoder.ApplicationRecord{Tag: tt.tag, Message: tt.tag + ":ready"}, nil, time.Time{}, &targetStampState{})

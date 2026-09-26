@@ -74,8 +74,8 @@ func TestStructuredCLIFormatResetsAndReturnsSinkFailures(t *testing.T) {
 // and formatted logfile output. All fixtures stay in an isolated filesystem.
 func TestStructuredCLIReplayKeepsMachineSinksClean(t *testing.T) {
 	for _, tt := range []struct{ format, want string }{
-		{"json", `{"tag":"info","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}` + "\n"},
-		{"kv", "tag=info level=INFO message=\"Motor 3: 87.5 C\" field.motor_id=3 field.temperature_c=87.5\n"},
+		{"json", `{"tag":"INFO","level":"INFO","message":"Motor 3: 87.5 C","fields":{"motor_id":3,"temperature_c":87.5}}` + "\n"},
+		{"kv", "tag=INFO level=INFO message=\"Motor 3: 87.5 C\" field.motor_id=3 field.temperature_c=87.5\n"},
 	} {
 		t.Run(tt.format, func(t *testing.T) {
 			FlagsInit()

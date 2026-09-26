@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
@@ -117,17 +118,42 @@ func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStam
 	return members
 }
 
+// structuredTagAndMessage matches the text emitter's prefix rule without
+// adding ANSI escapes or text-only columns. Unknown tags receive the same
+// synthetic prefix only when -color off makes it visible in text mode.
+func structuredTagAndMessage(record decoder.ApplicationRecord) (string, string) {
+	canonical, err := emitter.FindTagName(record.Tag)
+	if err != nil {
+		canonical, err = emitter.FindTagNameFold(record.Tag)
+		if err != nil {
+			canonical = "untagged"
+		}
+		if emitter.ColorPalette == "off" {
+			return canonical, emitter.DecodeDisplayEscapes("untagged:" + record.Message)
+		}
+		return canonical, emitter.DecodeDisplayEscapes(record.Message)
+	}
+	message := record.Message
+	if emitter.ColorPalette != "off" {
+		lowercase := true
+		for _, r := range record.Tag {
+			if unicode.IsLetter(r) && !unicode.IsLower(r) {
+				lowercase = false
+				break
+			}
+		}
+		if lowercase {
+			message = strings.TrimPrefix(message, record.Tag+":")
+		}
+	}
+	return canonical, emitter.DecodeDisplayEscapes(message)
+}
+
 // renderStructuredRecord serializes one event without the text line composer.
 // Newlines in messages are escaped data and never split or merge records.
 func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookUpLI, now time.Time, state *targetStampState) ([]byte, error) {
-	tag := record.Tag
-	message := record.Message
-	level := canonicalLogLevel(tag)
-	if _, err := emitter.FindTagName(tag); err == nil {
-		message = strings.TrimPrefix(message, tag+":")
-	} else {
-		tag = "untagged"
-	}
+	tag, message := structuredTagAndMessage(record)
+	level := canonicalLogLevel(record.Tag)
 	members := []recordMember{{"tag", tag, true}}
 	if level != "" {
 		members = append(members, recordMember{"level", level, true})
@@ -138,7 +164,7 @@ func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookU
 	}
 	if record.HasID && id.LIFnJSON != "off" && id.LIFnJSON != "none" && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" && decoder.LocationInformationFormatString != "" {
 		if location, ok := li[record.ID]; ok {
-			if file := id.LocationFile(location); file != "" {
+			if file := strings.TrimSpace(id.LocationFile(location)); file != "" {
 				members = append(members, recordMember{"file", file, false})
 			}
 			if location.Line != 0 {
@@ -147,7 +173,7 @@ func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookU
 		}
 	}
 	members = append(members, structuredTargetMembers(record, state)...)
-	if stamp := structuredHostStamp(now); stamp != "" {
+	if stamp := strings.TrimSpace(structuredHostStamp(now)); stamp != "" {
 		members = append(members, recordMember{"hs", stamp, false})
 	}
 	fields := make([]recordMember, 0, len(record.Fields))
@@ -155,8 +181,12 @@ func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookU
 		if value, ok := field.Value.(float64); ok && decoder.LogFormat == "json" && (math.IsNaN(value) || math.IsInf(value, 0)) {
 			continue
 		}
-		_, isString := field.Value.(string)
-		fields = append(fields, recordMember{field.Name, field.Value, field.Address || !isString})
+		value := field.Value
+		if text, ok := value.(string); ok && !field.Address {
+			value = strings.TrimSpace(text)
+		}
+		_, isString := value.(string)
+		fields = append(fields, recordMember{field.Name, value, field.Address || !isString})
 	}
 	var out bytes.Buffer
 	if decoder.LogFormat == "json" {
