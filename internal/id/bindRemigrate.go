@@ -55,7 +55,7 @@ func SubCmdIdRemigrateBindToClean(w io.Writer, fSys *afero.Afero) error {
 		return errors.New("trice bind remigration: nil filesystem")
 	}
 	if strings.TrimSpace(BindDir) == "" {
-		return errors.New("trice bind remigration: -bindDir must not be empty")
+		return errors.New("trice bind remigration: -buildDir must not be empty")
 	}
 
 	inputs, diagnostics := collectBindInputs(w, fSys)

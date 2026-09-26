@@ -504,9 +504,14 @@ func TestGenerationLocationRootFlags(t *testing.T) {
 	assert.Equal(t, "project", id.LIRoot)
 }
 
-// TestHandlerBindGeneratesSidecar exercises the public command and bind-specific directory flag.
-func TestHandlerBindGeneratesSidecar(t *testing.T) {
+// TestHandlerBindAndGenerateShareBuildDir checks that bind writes its sidecar
+// and field registry to the selected directory and generate reads it from there.
+func TestHandlerBindAndGenerateShareBuildDir(t *testing.T) {
 	FlagsInit()
+	t.Cleanup(FlagsInit)
+	oldSources := append(id.ArrayFlag(nil), id.Srcs...)
+	id.Srcs = nil
+	t.Cleanup(func() { id.Srcs = oldSources })
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	assert.NoError(t, fSys.MkdirAll("project", 0o755))
 	assert.NoError(t, fSys.WriteFile("til.json", []byte("{}\n"), 0o644))
@@ -520,7 +525,7 @@ func TestHandlerBindGeneratesSidecar(t *testing.T) {
 		"-src", "project/module.c",
 		"-til", "til.json",
 		"-li", "li.json",
-		"-bindDir", "generated/triceIDs",
+		"-buildDir", "generated/triceIDs",
 		"-IDMin", "100",
 		"-IDMax", "199",
 		"-IDMethod", "upward",
@@ -536,6 +541,77 @@ func TestHandlerBindGeneratesSidecar(t *testing.T) {
 	fields, readErr := fSys.ReadFile("generated/triceIDs/trice-fields.txt")
 	assert.NoError(t, readErr)
 	assert.Empty(t, fields, "classic printf logs introduce no user fields")
+
+	// Repeatable source selections live in package state, so model a fresh CLI call.
+	id.Srcs = nil
+	FlagsInit()
+	output.Reset()
+	err = Handler(&output, fSys, []string{"trice", "generate", "-src", "project/module.c", "-til", "til.json", "-buildDir", "generated/triceIDs", "-logC=generated/til.c"})
+	require.NoError(t, err)
+	generated, readErr := fSys.ReadFile("generated/til.c")
+	require.NoError(t, readErr)
+	assert.Contains(t, string(generated), "msg:handler=%d\\n", "generate resolves the bind sidecar in the selected build directory")
+}
+
+// TestHandlerBindRejectsBindDir confirms the removed flag fails during parsing,
+// before a source, dictionary, or build artifact can be changed.
+func TestHandlerBindRejectsBindDir(t *testing.T) {
+	FlagsInit()
+	t.Cleanup(FlagsInit)
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fSys.MkdirAll("project", 0o755))
+	const source = `trice("{motor_id}", motor_id);`
+	require.NoError(t, fSys.WriteFile("project/module.c", []byte(source), 0o644))
+	var output bytes.Buffer
+	err := Handler(&output, fSys, []string{"trice", "bind", "-src", "project/module.c", "-bindDir", "generated/triceIDs"})
+	assert.ErrorContains(t, err, "flag provided but not defined: -bindDir")
+	actual, readErr := fSys.ReadFile("project/module.c")
+	assert.NoError(t, readErr)
+	assert.Equal(t, source, string(actual))
+	for _, path := range []string{"generated/triceIDs", "til.json", "li.json"} {
+		exists, statErr := fSys.Exists(path)
+		assert.NoError(t, statErr)
+		assert.False(t, exists, "%s must not be created after an invalid flag", path)
+	}
+}
+
+// TestHandlerInsertBuildDirPreservesRegistryOnDryRun checks the public option
+// path and ensures a preview cannot replace the last published field counts.
+func TestHandlerInsertBuildDirPreservesRegistryOnDryRun(t *testing.T) {
+	FlagsInit()
+	t.Cleanup(FlagsInit)
+	oldSources := append(id.ArrayFlag(nil), id.Srcs...)
+	t.Cleanup(func() { id.Srcs = oldSources })
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fSys.MkdirAll("project", 0o755))
+	require.NoError(t, fSys.WriteFile("til.json", []byte("{}\n"), 0o644))
+	require.NoError(t, fSys.WriteFile("li.json", []byte("{}\n"), 0o644))
+	require.NoError(t, fSys.WriteFile("project/module.c", []byte(`trice("{old}", value);`), 0o644))
+	options := []string{"trice", "insert", "-src", "project/module.c", "-til", "til.json", "-li", "li.json", "-buildDir", "generated/triceIDs", "-IDMin", "100", "-IDMax", "199", "-IDMethod", "upward"}
+	run := func(dryRun bool) error {
+		// Repeated -src values are process-global; each run models a fresh CLI invocation.
+		id.Srcs = nil
+		FlagsInit()
+		args := append([]string{}, options...)
+		if dryRun {
+			args = append(args, "-dry-run")
+		}
+		return Handler(io.Discard, fSys, args)
+	}
+	require.NoError(t, run(false))
+	registryPath := "generated/triceIDs/trice-fields.txt"
+	registry, err := fSys.ReadFile(registryPath)
+	require.NoError(t, err)
+	assert.Equal(t, "       1 old\n", string(registry))
+	assert.NoError(t, fSys.WriteFile("project/module.c", []byte(`trice("{new}", value);`), 0o644))
+	require.NoError(t, run(true))
+	registry, err = fSys.ReadFile(registryPath)
+	require.NoError(t, err)
+	assert.Equal(t, "       1 old\n", string(registry))
+	require.NoError(t, run(false))
+	registry, err = fSys.ReadFile(registryPath)
+	require.NoError(t, err)
+	assert.Equal(t, "       1 new\n", string(registry))
 }
 
 // TestHandlerBindImplicitSourceHint verifies that a failed recursive default

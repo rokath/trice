@@ -214,7 +214,7 @@ func generateInit() {
 	flagTriceSAliases(fsScGenerate)
 	flagVerbosity(fsScGenerate)
 	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
-	fsScGenerate.StringVar(&id.BindDir, "bindDir", "./build/triceIDs", "Non-default directory containing Trice bind sidecars when selected sources use File Keys.")
+	fsScGenerate.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Directory containing Trice bind sidecars when selected sources use File Keys.")
 	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
 }
@@ -241,11 +241,11 @@ func insertIDsInit() {
 	flagUserLabel(fsScInsert)
 }
 
-// bindIDsInit registers the insert-compatible semantic options plus the sidecar output directory.
+// bindIDsInit registers the insert-compatible semantic options plus the shared build directory.
 func bindIDsInit() {
 	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
 	flagsInsertAndBind(fsScBind)
-	fsScBind.StringVar(&id.BindDir, "bindDir", "./build/triceIDs", "Output directory for generated Trice bind sidecar headers.")
+	fsScBind.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Build directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry.")
 	flagUserLabel(fsScBind)
 }
 

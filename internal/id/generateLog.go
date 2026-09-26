@@ -172,7 +172,7 @@ func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bin
 		return nil, []bindDiagnostic{{
 			path: plan.path,
 			message: fmt.Sprintf(
-				"Trice bind sidecar %s is missing; run trice bind or pass its directory with -bindDir before trice generate -logC",
+				"Trice bind sidecar %s is missing; run trice bind or pass its directory with -buildDir before trice generate -logC",
 				sidecarPath,
 			),
 		}}

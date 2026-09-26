@@ -117,7 +117,7 @@ func validateBindOptions() error {
 		return fmt.Errorf("trice bind: invalid -IDMethod %q; expected random, upward, or downward", SearchMethod)
 	}
 	if strings.TrimSpace(BindDir) == "" {
-		return errors.New("trice bind: -bindDir must not be empty")
+		return errors.New("trice bind: -buildDir must not be empty")
 	}
 	return nil
 }
