@@ -62,7 +62,7 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 			}
 		case bindFileBound:
 			if len(plan.sites) != 0 {
-				ids, sidecarDiagnostics := readCurrentBindIDs(fSys, plan)
+				ids, contextMetadata, sidecarDiagnostics := readCurrentBindIDs(fSys, plan)
 				diagnostics = append(diagnostics, sidecarDiagnostics...)
 				if len(sidecarDiagnostics) == 0 {
 					if len(ids) != len(plan.sites) {
@@ -75,6 +75,11 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 						})
 					} else {
 						for siteIndex, site := range plan.sites {
+							if metadata, enriched := contextMetadata[siteIndex]; enriched {
+								// Validate the authoritative ID against its final CE schema,
+								// retaining the original sites for comment classification below.
+								site.macro, site.format = metadata.Type, metadata.Format
+							}
 							diagnostics = append(diagnostics, addCurrentLogSite(selected, til, plan.path, site, ids[siteIndex])...)
 						}
 					}
@@ -158,9 +163,9 @@ func unresolvedCurrentLogSite(path string, site bindSite) bindDiagnostic {
 // readCurrentBindIDs validates the owner sidecar and returns its numeric site
 // descriptors in logical source order. Rebase helper files are build details;
 // the owner sidecar remains the sole numeric authority needed by -logC.
-func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bindDiagnostic) {
+func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, map[int]bindContextMetadata, []bindDiagnostic) {
 	if plan.key == "" || plan.sidecarName == "" {
-		return nil, []bindDiagnostic{{
+		return nil, nil, []bindDiagnostic{{
 			path:    plan.path,
 			message: "ID-free Trice sites have no File Key include; run trice bind before trice generate -logC",
 		}}
@@ -169,7 +174,7 @@ func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bin
 	sidecarPath := filepath.Join(BindDir, plan.sidecarName)
 	content, err := fSys.ReadFile(sidecarPath)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil, []bindDiagnostic{{
+		return nil, nil, []bindDiagnostic{{
 			path: plan.path,
 			message: fmt.Sprintf(
 				"Trice bind sidecar %s is missing; run trice bind or pass its directory with -buildDir before trice generate -logC",
@@ -178,10 +183,10 @@ func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bin
 		}}
 	}
 	if err != nil {
-		return nil, []bindDiagnostic{{path: sidecarPath, message: "cannot read Trice bind sidecar: " + err.Error()}}
+		return nil, nil, []bindDiagnostic{{path: sidecarPath, message: "cannot read Trice bind sidecar: " + err.Error()}}
 	}
 	if diagnostics := validateExistingSidecar(sidecarPath, plan.key, content); len(diagnostics) != 0 {
-		return nil, diagnostics
+		return nil, nil, diagnostics
 	}
 
 	historical := parseBindHistoricalSites(content, plan.key)
@@ -189,7 +194,11 @@ func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bin
 	for _, site := range historical {
 		ids = append(ids, site.id)
 	}
-	return ids, nil
+	metadata, err := readBindContextMetadata(content, plan, ids)
+	if err != nil {
+		return nil, nil, []bindDiagnostic{{path: sidecarPath, message: err.Error()}}
+	}
+	return ids, metadata, nil
 }
 
 // addCurrentLogSite verifies both parts of a source site's semantic identity

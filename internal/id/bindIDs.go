@@ -36,6 +36,10 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	if err := validateBindOptions(); err != nil {
 		return err
 	}
+	contextRules, err := parseContextRules(ContextEnrichment)
+	if err != nil {
+		return err
+	}
 	inputs, diagnostics := collectBindInputs(w, fSys)
 	plans := analyzeBindInputs(inputs)
 	for i := range plans {
@@ -72,6 +76,7 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 		plans[i].diagnostics = nil
 	}
 
+	diagnostics = append(diagnostics, prepareBindContext(w, plans, contextRules)...)
 	IDData.err = nil
 	IDData.PreProcessing(w, fSys)
 	metadataResolver := newBindMetadataResolver(w, fSys)
@@ -557,7 +562,7 @@ func printBindSummary(w io.Writer, plans []bindFilePlan, writes []bindWrite) {
 func reportBindDiagnostics(w io.Writer, diagnostics []bindDiagnostic) error {
 	diagnostics = sortedBindDiagnostics(diagnostics)
 	for _, diagnostic := range diagnostics {
-		fmt.Fprintln(w, formatBindDiagnostic(diagnostic))
+		fmt.Fprintln(w, formatBindDiagnostic(diagnostic), bindLimitsHint)
 	}
 	return fmt.Errorf("trice bind failed with %d error(s)", len(diagnostics))
 }

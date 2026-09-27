@@ -440,6 +440,7 @@ void normal(void) {
 	output, err := runBindFixtureCompiler(compiler, "c99", advancedPath, filepath.Join(project, "advanced_no_counter.o"), noCounterFlags, includes...)
 	require.Error(t, err)
 	assert.Contains(t, string(output), "this advanced source construct requires __COUNTER__")
+	assert.Contains(t, string(output), bindLimitsHint, "the compiler guard points to the same actionable UM section as bind")
 	output, err = runBindFixtureCompiler(compiler, "c99", normalPath, filepath.Join(project, "normal_no_counter.o"), noCounterFlags, includes...)
 	require.NoErrorf(t, err, "%s", output)
 

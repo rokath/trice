@@ -245,9 +245,12 @@ func insertIDsInit() {
 
 // bindIDsInit registers the insert-compatible semantic options plus the shared build directory.
 func bindIDsInit() {
+	id.ContextEnrichment = nil
 	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
 	flagsInsertAndBind(fsScBind)
 	fsScBind.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Build directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry.")
+	fsScBind.Var(&id.ContextEnrichment, "ce", `Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
+Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".`)
 	flagUserLabel(fsScBind)
 }
 

@@ -1080,6 +1080,10 @@ func applyBindPreferredIDs(source []byte, planIndex int, plan *bindFilePlan, pre
 	edits := make([]sourceEdit, 0, len(plan.sites))
 	for siteIndex := range plan.sites {
 		id, ok := preferred[bindSiteReference{plan: planIndex, site: siteIndex}]
+		if plan.sites[siteIndex].ce != nil {
+			edits = append(edits, contextInsertEdit(original, plan.sites[siteIndex], id))
+			continue
+		}
 		if !ok {
 			continue
 		}

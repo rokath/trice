@@ -620,6 +620,9 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	 (default none)
   -buildDir string
     	Build directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry. (default "./build/triceIDs")
+  -ce value
+    	Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
+    	Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".
   -defaultStampSize int
     	Default stamp size for uppercase TRICE macros without id(0), Id(0), or ID(0). Valid values are 0, 16, or 32.
   -dry-run

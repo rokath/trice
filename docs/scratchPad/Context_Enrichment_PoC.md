@@ -1,6 +1,6 @@
 # Context Enrichment – Machbarkeitsnachweis A9
 
-Stand: 26. September 2026. Der isolierte Nachweis für direkte Bind-Logstellen ist bestanden. Er liegt in [context_enrichment_poc_test.go](../../internal/id/context_enrichment_poc_test.go). Die produktive Option `trice bind -ce` bleibt Aufgabe A10.
+Stand: 27. September 2026. Der isolierte Nachweis für direkte Bind-Logstellen ist bestanden. Er liegt in [context_enrichment_poc_test.go](../../internal/id/context_enrichment_poc_test.go). Die darauf aufbauende produktive Option `trice bind -ce` ist inzwischen mit A10 implementiert; ihre Bedienung und Abnahme stehen im [User Manual](../TriceUserManual.md#trice-context-enrichment). Dieser Bericht beschreibt weiterhin den engeren A9-Nachweis und seine Rebase-Gegenprobe.
 
 ## Geprüfter Mechanismus
 
@@ -55,11 +55,11 @@ Erforderlich sind ein GCC-/Clang-kompatibler C- und C++-Compiler sowie `clangd` 
 
 ## Abgrenzung zu A10
 
-Der Nachweis erfüllt die Mindestfälle aus dem [CE-Entwurf](Kontextanreicherung_DE.md#71-verbindlicher-machbarkeitsnachweis-vor-m20). Er prüft direkte skalare 32-Bit-Logstellen mit einer Logstelle pro physischer Zeile und dem `iD`-Stempeltyp. Die PoC-Regeln sind feste Testdaten; ein CLI-Parser, vollständige Selektor-/Alias-Policy und produktive Fehlervalidierung sind noch nicht vorhanden.
+Der Nachweis erfüllt die Mindestfälle aus dem [CE-Vertrag](Kontextanreicherung_DE.md#71-verbindlicher-machbarkeitsnachweis-vor-m20). Er prüft direkte skalare 32-Bit-Logstellen mit einer Logstelle pro physischer Zeile und dem `iD`-Stempeltyp. Die PoC-Regeln sind feste Testdaten; der A9-Test enthält keinen CLI-Parser, keine vollständige Selektor-/Alias-Policy und keine produktive Fehlervalidierung.
 
-A10 muss die Transformation vor der produktiven Schema-/ID-Vergabe einbinden und die Sidecar-Erweiterung dauerhaft erzeugen. Die erste Ausbaustufe bleibt auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen begrenzt. Andere Bitbreiten/Stempeltypen, `TRICE_OFF`, Regelkonflikte, Konfigurationswechsel und der Betrieb ohne verfügbares `__COUNTER__` benötigen eigene Tests. Auch Verbraucher, die Source und TIL abgleichen, etwa `generate -logC`, müssen mit CE-Metadaten konsistent umgehen. Aus dem erfolgreichen direkten PoC folgt keine bereits bestandene Abnahme dieser weiteren Fälle. CE für Wrappermakros und Counter-Rebase wird als eigene Folgeaufgabe zurückgestellt.
+A10 bindet die Transformation vor der produktiven Schema-/ID-Vergabe ein und erzeugt die Sidecar-Erweiterung dauerhaft. Die erste Ausbaustufe bleibt auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen begrenzt. Die zusätzlichen [Bind-Verhaltenstests](../../internal/id/contextEnrichment_test.go) und [CLI-/Target-Tests](../../internal/args/context_enrichment_test.go) prüfen die breitere Abnahme getrennt vom A9-PoC: 8/16/32/64 Bit, verschiedene Stempeltypen, `TRICE_OFF`/`TRICE_CLEAN`, Regelkonflikte, Konfigurationswechsel, Mehrzeiler, Inline-Funktionen und echte Compiler-/Editorläufe ohne `__COUNTER__`. Vier Beispiele werden aus `triceCheck.c` übernommen; insgesamt vierzehn Records durchlaufen den öffentlichen `generate -logC`-Resolver und den Go-Decoder für Text, JSON und KV. CE für Wrappermakros und Counter-Rebase bleibt eine eigene Folgeaufgabe.
 
-Für den geprüften Mechanismus besteht kein technischer Blocker. A10 bleibt ein eigener Implementierungsauftrag.
+Damit ist der direkte Mechanismus nicht mehr nur ein PoC. Die weiterhin offenen Varianten bleiben im [Arbeitsplan](Implementierungsplan.md) abgegrenzt.
 
 ## Ergänzende Rebase-Gegenprobe vor A10
 
@@ -67,7 +67,7 @@ Am 27. September 2026 wurde die direkte Übertragung des Adapteransatzes auf Cou
 
 Der Grund ist die C-seitige Ordinalauswahl: Auch ein zur Laufzeit nicht gewählter `if`-Zweig wird vom Compiler auf gültige Bezeichner geprüft. Die betroffenen Ausdrücke sind an ihrer vorgesehenen Logstelle gültig. Der Fehler wäre deshalb eine unzulässige zusätzliche Scope-Anforderung der Instrumentierung. Der Test erwartet und belegt genau diese fehlgeschlagene Erweiterung; er ist keine bestandene CE-Rebase-Abnahme.
 
-Der direkte A9-Nachweis bleibt gültig. Das bloße Anhängen von CE-Argumenten an Rebase-Zweige genügt für eine allgemeine CE-Unterstützung jedoch nicht. Am 27. September wurde deshalb die erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Bind-Logstellen begrenzt. A10 soll ausgewählte Wrapper-/Rebase-Stellen vor Dateiänderungen abweisen und mit `Search UM for "bind-limits".` auf die verständliche Erklärung im User Manual verweisen. Ohne passende CE-Regel bleiben die bisherigen Bind-Fähigkeiten erhalten. Der zusätzliche Architektur-Nachweis für komplexe CE-Stellen ist eine zurückgestellte Folgeaufgabe; diese Gegenprobe allein belegt keine grundsätzliche Unmöglichkeit einer späteren Lösung.
+Der direkte A9-Nachweis bleibt gültig. Das bloße Anhängen von CE-Argumenten an Rebase-Zweige genügt für eine allgemeine CE-Unterstützung jedoch nicht. Am 27. September wurde deshalb die erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Bind-Logstellen begrenzt. A10 weist ausgewählte Wrapper-/Rebase-Stellen vor Dateiänderungen ab und verweist mit `Search UM for "bind-limits".` auf die verständliche Erklärung im User Manual. Ohne passende CE-Regel bleiben die bisherigen Bind-Fähigkeiten erhalten. Der zusätzliche Architektur-Nachweis für komplexe CE-Stellen ist eine zurückgestellte Folgeaufgabe; diese Gegenprobe allein belegt keine grundsätzliche Unmöglichkeit einer späteren Lösung.
 
 Die Gegenprobe ist separat reproduzierbar:
 

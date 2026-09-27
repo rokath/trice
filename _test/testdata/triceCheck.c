@@ -7,6 +7,14 @@
 #include "trice.h"
 #include "trice_triceCheck_c_KE43C28474024C67C.h" // trice-bind: keep as last include before this file's Trice calls
 
+// Context Enrichment globals used by the examples and isolated CLI tests.
+struct TriceCheckPosition {
+	int32_t x;
+	int32_t y;
+};
+struct TriceCheckPosition pos = {-444, 77};
+float velocity = 33.33f;
+
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 
 #ifndef TRICE_CHECK_MIN
@@ -282,6 +290,13 @@ void TriceCheck(int index) {
         break; case __LINE__: Trice64("info:Energy {energy_j:%.2f J}\n", aDouble(12.25));          //exp: "time:    be16default: info:Energy 12.25 J\n"
         break; case __LINE__: triceS("info:Device {device:%s}\n", "pump");                         //exp: "time:        default: info:Device pump\n"
         break; case __LINE__: triceN("info:Code {code:%s}\n", "READY!", 5);                        //exp: "time:        default: info:Code READY\n"
+
+        // Context Enrichment examples: bind -ce adds values without editing these calls.
+        break; case __LINE__: trice32("info:pos:Position sample\n");                             //exp: "time:        default: info:pos:Position sample\n"
+        break; case __LINE__: trice32("info:speed:Speed sample\n");                              //exp: "time:        default: info:speed:Speed sample\n"
+        break; case __LINE__: Trice32("info:pos:speed:Moving sample={sample}\n", 3);              //exp: "time:    be16default: info:pos:speed:Moving sample=3\n"
+        break; case __LINE__: TRice32_1("info:pos:Fixed sample={sample}\n", 4);                    //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        // End Context Enrichment examples; the expectations above apply without -ce.
         
         break; case __LINE__: trice("sig:length modifier coverage for supported combinations\n" );
         break; case __LINE__: trice8 ("len:hh %hhd %hhi %hhu %hho %hhO %hhx %hhX %hhb\n", -128, -1, -1, -1, -1, -1, -1, 0xA5u );                                                                                           //exp: "time:        default: len:hh -128 -1 255 377 0o377 ff FF 10100101\n"

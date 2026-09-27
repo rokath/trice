@@ -1,6 +1,6 @@
 # Context Enrichment
 
-**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht produktiv implementiert. Der isolierte [A9-Machbarkeitsnachweis](Context_Enrichment_PoC.md) für direkte Bind-Logstellen ist bestanden. A10 ist als erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit begrenzt. CE für Wrappermakros und Counter-Rebase ist eine zurückgestellte Folgeaufgabe. M20 unterstützt zunächst ausschließlich `trice bind -ce`. Der normale `insert/clean`-Workflow bleibt dauerhaft verfügbar; eine automatische CE-Erweiterung dafür benötigt einen eigenen reversiblen Vertrag und Auftrag, siehe Anhang.
+**Stand vom 27. September 2026:** Der vereinbarte Umfang ist mit A10 implementiert und im deutschen [UM-Kapitel Context Enrichment](../TriceUserManual.md#trice-context-enrichment) dokumentiert. Dieses Dokument hält den zugrunde liegenden Vertrag und die zurückgestellten Erweiterungen fest. `bind -ce` unterstützt direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit. CE für Wrappermakros und Counter-Rebase bleibt eine Folgeaufgabe. Der normale `insert/clean`-Workflow bleibt dauerhaft verfügbar; eine automatische CE-Erweiterung dafür benötigt einen eigenen reversiblen Vertrag und Auftrag, siehe Anhang.
 
 ## 1. Einordnung
 
@@ -99,8 +99,8 @@ Selektoren werden case-neutral verglichen. `ctx7`, `Ctx7` und `CTX7` treffen die
 Nur die vollständig kleingeschriebene Schreibweise wird bei aktiver Regel aus dem sichtbaren Meldungstext entfernt:
 
 ```c
-trice("MSG:ctx7: hi\n");  // ctx7 wird entfernt
-trice("MSG:Ctx7: hi\n");  // Ctx7 bleibt sichtbar, löst CE aber ebenfalls aus
+trice("MSG:ctx7: hi\n");  // The free lowercase selector is removed.
+trice("MSG:Ctx7: hi\n");  // Mixed case remains visible and still selects CE.
 ```
 
 Bekannte Trice-Tags behalten dagegen ihre bisherigen Darstellungsregeln, auch wenn sie zugleich CE-Selektoren sind. Ihr Präfix bleibt im endgültigen Template erhalten: Bei `-color off` ist etwa `info:` weiterhin sichtbar, bei aktiver Farbbehandlung wird es wie bisher behandelt. Ihre Tag-Metadaten bleiben erhalten. Die oben beschriebene CE-Entfernung betrifft freie Selektorpräfixe.
@@ -152,6 +152,8 @@ Doppelte kanonische Feldnamen innerhalb des finalen Records sind wie in M19 nich
 
 `trice-fields.txt` zählt CE-Felder genauso wie direkt geschriebene Structured-Logging-Felder.
 
+Zusätzliche Runtime-Werte sind auf skalare Trices mit insgesamt höchstens zwölf Werten derselben Bitbreite begrenzt. String-, Puffer- und andere besondere Trice-Familien können nur eine reine Texterweiterung erhalten, wenn das endgültige Format weiterhin gültig ist; CE mischt dort keine zusätzlichen skalaren Werte in den Record.
+
 ## 7. Bind-Mechanismus: Runtime-Ausdrücke am ursprünglichen Callsite
 
 `til.json` allein kann CE nicht implementieren. Der CE-erweiterte Template-String ist Host-/Wörterbuchinformation; die zusätzlich konfigurierten C-Ausdrücke müssen auf dem Target tatsächlich ausgewertet und übertragen werden.
@@ -199,17 +201,19 @@ Zusätzlich darf der Mechanismus keine CE-bedingten False-Positive-Warnungen in 
 
 Die erfolgreiche Abarbeitung dieses PoC ist eine Implementierungsvoraussetzung für M20. Schlägt der Nachweis fehl, ist die Bind/CE-Architektur vor weiterer M20-Arbeit neu zu bewerten.
 
-**A9-Ergebnis:** Der [isolierte PoC](Context_Enrichment_PoC.md) erfüllt diese Mindestfälle für direkte skalare Bind-Logstellen. Er verwendet den vorhandenen Bind-Dispatcher, prüft reale Binärrecords gegen die erweiterte TIL und besteht als C11 und C++17 einschließlich `clangd` mit realer Compile-Konfiguration. Die Source bleibt unverändert, Wiederholungsläufe sind bytegleich und fehlende Context-Bezeichner bleiben Compiler-/Language-Server-Fehler. Die produktive Integration und die weiteren Bitbreiten, Stempeltypen und Fehlerfälle des direkten Pfads bleiben A10; CE für Wrappermakros und Counter-Rebase wird gesondert zurückgestellt. Der Bericht benennt die geprüften Grenzen.
+**A9-Ergebnis:** Der [isolierte PoC](Context_Enrichment_PoC.md) erfüllt diese Mindestfälle für direkte skalare Bind-Logstellen. Er verwendet den vorhandenen Bind-Dispatcher, prüft reale Binärrecords gegen die erweiterte TIL und besteht als C11 und C++17 einschließlich `clangd` mit realer Compile-Konfiguration. Die Source bleibt unverändert, Wiederholungsläufe sind bytegleich und fehlende Context-Bezeichner bleiben Compiler-/Language-Server-Fehler. Diese Voraussetzung war vor der produktiven A10-Implementierung erfüllt.
+
+**A10-Ergebnis:** Die öffentliche CLI, finale Schema-/ID-Vergabe, Sidecar-Adapter, Feldregister und `generate -logC` sind integriert. Die produktiven Tests ergänzen 8/16/32/64-Bit-Werte, Stempelvarianten, Konfigurationswechsel und Ablehnungsfälle. Die C11-/C++17- und `clangd`-Prüfungen laufen ohne `__COUNTER__`; echte Target-Records werden als Text, JSON und KV dekodiert. Nicht ausgeführte Aufrufe sowie `TRICE_OFF` und `TRICE_CLEAN` werten weder ursprüngliche noch injizierte Ausdrücke aus. Einzelheiten und reproduzierbare Befehle stehen im UM. CE für Wrappermakros und Counter-Rebase bleibt gesondert zurückgestellt.
 
 ### Erste Ausbaustufe und spätere Erweiterung
 
-Für die erste Ausbaustufe muss `bind` jeden ausgewählten direkten Trice-Aufruf anhand seiner Datei und Quellzeile eindeutig erkennen können. Das umfasst auch direkte Aufrufe innerhalb normaler und `static inline` Funktionen. Ein Trice-Aufruf pro Zeile vermeidet dabei die Mehrdeutigkeit mehrerer Aufrufe auf derselben Zeile. Dieser Weg benötigt kein `__COUNTER__`; die übrigen Compileranforderungen von Trice bleiben bestehen.
+Für die erste Ausbaustufe muss `bind` jeden ausgewählten direkten Trice-Aufruf anhand seiner Datei und Quellzeile eindeutig erkennen können. Das umfasst auch direkte Aufrufe innerhalb normaler und `static inline` Funktionen. Ein Trice-Aufruf pro Zeile vermeidet dabei die Mehrdeutigkeit mehrerer Aufrufe auf derselben Zeile. Ein mehrzeiliger Aufruf ist zulässig, wenn auf keiner seiner belegten Zeilen eine andere Bind-Logstelle liegt. Dieser Weg benötigt kein `__COUNTER__`; die übrigen Compileranforderungen von Trice bleiben bestehen.
 
 Ein Wrappermakro ist eine Abkürzung, hinter der ein oder mehrere Trice-Aufrufe stehen. Wenn mehrere Aufrufe an derselben Stelle erscheinen, verwendet Bind bisher teilweise einen zusätzlichen Zähler des Compilers, `__COUNTER__`, um sie zu unterscheiden. Dieser Zähler arbeitet beim Übersetzen des Programms und ist kein Laufzeit- oder Cycle-Counter. Er steht nicht bei allen Compilern zur Verfügung.
 
 Bei CE kommt eine weitere Anforderung hinzu: Eine lokale Variable existiert für den Compiler nur innerhalb ihrer Funktion oder ihres Blocks. Die bisherigen erzeugten Rebase-Verzweigungen würden zusätzliche Ausdrücke verschiedener Logstellen gemeinsam zur Prüfung vorlegen. Dadurch kann der Compiler eine Variable an einer Stelle prüfen, an der sie gar nicht verfügbar sein muss. Auch ein später nicht ausgeführter Zweig wird geprüft. Vorhandenes `__COUNTER__` löst dieses Problem deshalb nicht.
 
-A10 lehnt eine durch CE ausgewählte Wrapper-/Rebase-Stelle vor Dateiänderungen klar ab. Eine nicht von CE ausgewählte Stelle behält das bisherige Bind-Verhalten; aus einer CE-Regel für eine direkte Stelle folgt kein pauschales Verbot von Wrappern im restlichen Projekt. Die produktive Abnahme muss die direkte Variante auch ohne verfügbares `__COUNTER__` prüfen.
+A10 lehnt eine durch CE ausgewählte Wrapper-/Rebase-Stelle vor Dateiänderungen klar ab. Eine nicht von CE ausgewählte Stelle behält das bisherige Bind-Verhalten; aus einer CE-Regel für eine direkte Stelle folgt kein pauschales Verbot von Wrappern im restlichen Projekt. Die produktive Abnahme prüft die direkte Variante auch ohne verfügbares `__COUNTER__`.
 
 Die CE-Regeln, finale Schema-/ID-Bestimmung und technische Einfügung der Argumente werden getrennt. So kann die spätere Unterstützung komplexer Stellen auf der ersten Ausbaustufe aufbauen. Ihre Makroerzeugung kann Änderungen benötigen; CE-Syntax, Datenformate und die Tests des sichtbaren Verhaltens sollen weiterverwendet werden. Der direkte Weg bleibt auch danach nutzbar. Die spätere Erweiterung benötigt einen eigenen Architektur-Nachweis und Auftrag.
 
@@ -245,6 +249,8 @@ Für die ID gilt das endgültige übertragene Schema aus Trice-Typ und kanonisch
 
 Gleicher Source plus gleiche CE-Konfiguration muss bei wiederholtem `bind` dasselbe kanonische Ergebnis und dieselbe ID-Zuordnung ergeben.
 
+Die gewünschte Regelliste wird bei jedem Bind-Lauf vollständig angegeben; ohne `-ce` werden vorherige Regeln nicht fortgeschrieben. Sidecar-Metadaten verknüpfen das finale Schema mit dem ursprünglichen Source-Aufruf und der vergebenen ID. `generate -logC` liest diese Daten ohne erneute `-ce`-Optionen und weist veraltete oder widersprüchliche CE-Fakten ab. Nach einer Source-Änderung ist deshalb zuerst erneut zu binden.
+
 ## 9. Fehlervertrag
 
 Folgende Fälle sind Fehler und müssen vor einem inkonsistenten Schreibzustand scheitern:
@@ -256,13 +262,13 @@ Folgende Fälle sind Fehler und müssen vor einem inkonsistenten Schreibzustand 
 - Die CE-Regel selbst ist syntaktisch ungültig.
 - Eine passende CE-Regel wählt eine Wrapper-/Rebase-Stelle außerhalb der ersten Ausbaustufe aus. Dieser Fall muss vor Schreibzugriffen auf Source, Sidecars, TIL, LI und Feldregister scheitern.
 
-Bei der Ablehnung eines nicht unterstützten Bind-Konstrukts nennt die Fehlermeldung Datei, Zeile und den konkreten Grund, ergänzt um `Search UM for "bind-limits".`. Dieser kurze Verweis gilt auch für bestehende Bind-Grenzen; die ausführliche Erklärung und mögliche Codeanpassungen stehen im UM. Ein geplantes CE-Beispiel lautet:
+Bei der Ablehnung eines nicht unterstützten Bind-Konstrukts nennt die Fehlermeldung Datei, Zeile und den konkreten Grund, ergänzt um `Search UM for "bind-limits".`. Dieser kurze Verweis gilt auch für bestehende Bind-Grenzen; die ausführliche Erklärung und mögliche Codeanpassungen stehen im UM. Ein CE-Beispiel lautet:
 
 ```text
-main.c:42: error: CE requires a direct bind site. Search UM for "bind-limits".
+main.c:42: error: CE requires a direct, line-addressable bind site. Search UM for "bind-limits".
 ```
 
-Auch der generierte Compilerfehler für einen benötigten, aber nicht verfügbaren `__COUNTER__` soll auf diesen UM-Abschnitt verweisen. Eine abgewiesene CE-Regel wird weder stillschweigend ignoriert noch automatisch durch `insert` umgesetzt.
+Auch der generierte Compilerfehler für einen benötigten, aber nicht verfügbaren `__COUNTER__` verweist auf diesen UM-Abschnitt. Eine abgewiesene CE-Regel wird weder stillschweigend ignoriert noch automatisch durch `insert` umgesetzt.
 
 Ein C-Ausdruck, der an der ausgewählten Logstelle semantisch ungültig oder nicht sichtbar ist, führt spätestens beim Compiler zu einem klaren Buildfehler.
 
