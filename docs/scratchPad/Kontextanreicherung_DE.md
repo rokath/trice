@@ -1,6 +1,6 @@
 # Context Enrichment
 
-**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht produktiv implementiert. Der isolierte [A9-Machbarkeitsnachweis](Context_Enrichment_PoC.md) für direkte Bind-Logstellen ist bestanden. Die für den aktuellen Scope nötigen Designentscheidungen sind abgeschlossen. M20 unterstützt zunächst ausschließlich `trice bind -ce`. Eine spätere Erweiterung auf `insert/clean` bleibt unter einem strikten reversiblen Vertrag möglich; siehe Anhang.
+**Planungsstand:** Aktueller deutscher Entwurf für M20, noch nicht produktiv implementiert. Der isolierte [A9-Machbarkeitsnachweis](Context_Enrichment_PoC.md) für direkte Bind-Logstellen ist bestanden. A10 ist als erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit begrenzt. CE für Wrappermakros und Counter-Rebase ist eine zurückgestellte Folgeaufgabe. M20 unterstützt zunächst ausschließlich `trice bind -ce`. Der normale `insert/clean`-Workflow bleibt dauerhaft verfügbar; eine automatische CE-Erweiterung dafür benötigt einen eigenen reversiblen Vertrag und Auftrag, siehe Anhang.
 
 ## 1. Einordnung
 
@@ -68,6 +68,8 @@ Bei Bedarf wird das Ergebnis vorher in eine lokale Variable gelegt und diese Var
 
 Die Ausdrücke müssen an jeder ausgewählten Logstelle sichtbar und kompilierbar sein.
 
+Für Floatwerte gelten die bestehenden Trice-Regeln auch bei CE: 32-Bit-Trices benötigen explizit `aFloat(...)`, 64-Bit-Trices `aDouble(...)`. CE fügt keine automatische Float-Konvertierung hinzu. Beispielsweise verwendet `float velocity = 33.33f` die Regel `-ce 'speed:", m/s=%f", aFloat(velocity)'`.
+
 ## 4. Selektoren
 
 ### 4.1 Nur konfigurierte Selektoren haben CE-Bedeutung
@@ -100,6 +102,8 @@ Nur die vollständig kleingeschriebene Schreibweise wird bei aktiver Regel aus d
 trice("MSG:ctx7: hi\n");  // ctx7 wird entfernt
 trice("MSG:Ctx7: hi\n");  // Ctx7 bleibt sichtbar, löst CE aber ebenfalls aus
 ```
+
+Bekannte Trice-Tags behalten dagegen ihre bisherigen Darstellungsregeln, auch wenn sie zugleich CE-Selektoren sind. Ihr Präfix bleibt im endgültigen Template erhalten: Bei `-color off` ist etwa `info:` weiterhin sichtbar, bei aktiver Farbbehandlung wird es wie bisher behandelt. Ihre Tag-Metadaten bleiben erhalten. Die oben beschriebene CE-Entfernung betrifft freie Selektorpräfixe.
 
 Bekannte Trice-Tags können ebenfalls als CE-Selektoren dienen. Bei eingebauten Tag-Aliasen wird die vorhandene Alias-Gruppe verwendet. Freie CE-Selektoren besitzen keine zusätzliche Alias-Liste und werden nur case-neutral verglichen.
 
@@ -195,7 +199,21 @@ Zusätzlich darf der Mechanismus keine CE-bedingten False-Positive-Warnungen in 
 
 Die erfolgreiche Abarbeitung dieses PoC ist eine Implementierungsvoraussetzung für M20. Schlägt der Nachweis fehl, ist die Bind/CE-Architektur vor weiterer M20-Arbeit neu zu bewerten.
 
-**A9-Ergebnis:** Der [isolierte PoC](Context_Enrichment_PoC.md) erfüllt diese Mindestfälle für direkte skalare Bind-Logstellen. Er verwendet den vorhandenen Bind-Dispatcher, prüft reale Binärrecords gegen die erweiterte TIL und besteht als C11 und C++17 einschließlich `clangd` mit realer Compile-Konfiguration. Die Source bleibt unverändert, Wiederholungsläufe sind bytegleich und fehlende Context-Bezeichner bleiben Compiler-/Language-Server-Fehler. Die produktive Integration und die weiteren Bind-/Makrovarianten bleiben A10; der Bericht benennt die geprüften Grenzen.
+**A9-Ergebnis:** Der [isolierte PoC](Context_Enrichment_PoC.md) erfüllt diese Mindestfälle für direkte skalare Bind-Logstellen. Er verwendet den vorhandenen Bind-Dispatcher, prüft reale Binärrecords gegen die erweiterte TIL und besteht als C11 und C++17 einschließlich `clangd` mit realer Compile-Konfiguration. Die Source bleibt unverändert, Wiederholungsläufe sind bytegleich und fehlende Context-Bezeichner bleiben Compiler-/Language-Server-Fehler. Die produktive Integration und die weiteren Bitbreiten, Stempeltypen und Fehlerfälle des direkten Pfads bleiben A10; CE für Wrappermakros und Counter-Rebase wird gesondert zurückgestellt. Der Bericht benennt die geprüften Grenzen.
+
+### Erste Ausbaustufe und spätere Erweiterung
+
+Für die erste Ausbaustufe muss `bind` jeden ausgewählten direkten Trice-Aufruf anhand seiner Datei und Quellzeile eindeutig erkennen können. Das umfasst auch direkte Aufrufe innerhalb normaler und `static inline` Funktionen. Ein Trice-Aufruf pro Zeile vermeidet dabei die Mehrdeutigkeit mehrerer Aufrufe auf derselben Zeile. Dieser Weg benötigt kein `__COUNTER__`; die übrigen Compileranforderungen von Trice bleiben bestehen.
+
+Ein Wrappermakro ist eine Abkürzung, hinter der ein oder mehrere Trice-Aufrufe stehen. Wenn mehrere Aufrufe an derselben Stelle erscheinen, verwendet Bind bisher teilweise einen zusätzlichen Zähler des Compilers, `__COUNTER__`, um sie zu unterscheiden. Dieser Zähler arbeitet beim Übersetzen des Programms und ist kein Laufzeit- oder Cycle-Counter. Er steht nicht bei allen Compilern zur Verfügung.
+
+Bei CE kommt eine weitere Anforderung hinzu: Eine lokale Variable existiert für den Compiler nur innerhalb ihrer Funktion oder ihres Blocks. Die bisherigen erzeugten Rebase-Verzweigungen würden zusätzliche Ausdrücke verschiedener Logstellen gemeinsam zur Prüfung vorlegen. Dadurch kann der Compiler eine Variable an einer Stelle prüfen, an der sie gar nicht verfügbar sein muss. Auch ein später nicht ausgeführter Zweig wird geprüft. Vorhandenes `__COUNTER__` löst dieses Problem deshalb nicht.
+
+A10 lehnt eine durch CE ausgewählte Wrapper-/Rebase-Stelle vor Dateiänderungen klar ab. Eine nicht von CE ausgewählte Stelle behält das bisherige Bind-Verhalten; aus einer CE-Regel für eine direkte Stelle folgt kein pauschales Verbot von Wrappern im restlichen Projekt. Die produktive Abnahme muss die direkte Variante auch ohne verfügbares `__COUNTER__` prüfen.
+
+Die CE-Regeln, finale Schema-/ID-Bestimmung und technische Einfügung der Argumente werden getrennt. So kann die spätere Unterstützung komplexer Stellen auf der ersten Ausbaustufe aufbauen. Ihre Makroerzeugung kann Änderungen benötigen; CE-Syntax, Datenformate und die Tests des sichtbaren Verhaltens sollen weiterverwendet werden. Der direkte Weg bleibt auch danach nutzbar. Die spätere Erweiterung benötigt einen eigenen Architektur-Nachweis und Auftrag.
+
+Das User Manual erklärt unter [bind-limits](../TriceUserManual.md#bind-limits) die konkreten Alternativen: Aufrufe auf getrennte Zeilen stellen, geeignete Wrapper durch Funktionen ersetzen oder beim dauerhaft verfügbaren `insert/clean`-Workflow bleiben. Benötigte Werte müssen beim Wechsel zu einer Funktion ausdrücklich als Parameter übergeben werden. Für `insert/clean` werden zusätzliche Logwerte weiterhin direkt im Formatstring und in den Argumenten angegeben; automatische `-ce`-Unterstützung wird damit nicht zugesagt.
 
 ## 8. Schema, `til.json` und IDs
 
@@ -223,7 +241,7 @@ trice("MSG:Speed={speed}, Pos={position}\n", speed, position);
 
 und entsprechend zu einem CE-erweiterten `Strg` in `til.json`.
 
-Ändert die aktive CE-Konfiguration den finalen Template-String, die Argumente oder die strukturierten Feldnamen, ergibt sich ein anderes Schema und damit eine andere ID. Ohne passende `-ce`-Regel entstehen weder zusätzliche Target-Werte noch eine CE-Transformation.
+Für die ID gilt das endgültige übertragene Schema aus Trice-Typ und kanonischem Template-String einschließlich der strukturierten Feldnamen. Der Wechsel eines C-Ausdrucks allein, beispielsweise von `pos.x` zu `pos.y` bei unverändertem explizitem Feldnamen und Typ, ändert das Sidecar, aber nicht die ID. Ein geändertes Schema erhält die dazu passende ID nach den bestehenden Vergaberegeln. Ohne passende `-ce`-Regel entstehen weder zusätzliche Target-Werte noch eine CE-Transformation.
 
 Gleicher Source plus gleiche CE-Konfiguration muss bei wiederholtem `bind` dasselbe kanonische Ergebnis und dieselbe ID-Zuordnung ergeben.
 
@@ -236,6 +254,15 @@ Folgende Fälle sind Fehler und müssen vor einem inkonsistenten Schreibzustand 
 - Die resultierende Trice-Arity oder Makrofamilie ist nicht unterstützt.
 - Eine nicht unterstützte Bitbreiten-/Wrapper-Kombination würde entstehen.
 - Die CE-Regel selbst ist syntaktisch ungültig.
+- Eine passende CE-Regel wählt eine Wrapper-/Rebase-Stelle außerhalb der ersten Ausbaustufe aus. Dieser Fall muss vor Schreibzugriffen auf Source, Sidecars, TIL, LI und Feldregister scheitern.
+
+Bei der Ablehnung eines nicht unterstützten Bind-Konstrukts nennt die Fehlermeldung Datei, Zeile und den konkreten Grund, ergänzt um `Search UM for "bind-limits".`. Dieser kurze Verweis gilt auch für bestehende Bind-Grenzen; die ausführliche Erklärung und mögliche Codeanpassungen stehen im UM. Ein geplantes CE-Beispiel lautet:
+
+```text
+main.c:42: error: CE requires a direct bind site. Search UM for "bind-limits".
+```
+
+Auch der generierte Compilerfehler für einen benötigten, aber nicht verfügbaren `__COUNTER__` soll auf diesen UM-Abschnitt verweisen. Eine abgewiesene CE-Regel wird weder stillschweigend ignoriert noch automatisch durch `insert` umgesetzt.
 
 Ein C-Ausdruck, der an der ausgewählten Logstelle semantisch ungültig oder nicht sichtbar ist, führt spätestens beim Compiler zu einem klaren Buildfehler.
 
@@ -243,11 +270,13 @@ Jeder CE-Ausdruck darf pro tatsächlichem Trice-Aufruf genau einmal ausgewertet 
 
 ## 10. Aktueller Scope: nur `bind -ce`
 
-M20 implementiert CE zunächst ausschließlich für `bind`.
+M20 implementiert CE zunächst ausschließlich für direkte, eindeutig über ihre Quellzeile adressierbare `bind`-Logstellen. CE für Wrappermakros und Counter-Rebase gehört nicht zu A10 und wird als eigene Folgeaufgabe behandelt.
 
 Der Grund ist nicht eine grundsätzliche Unmöglichkeit von `insert/clean`, sondern der derzeit nicht gerechtfertigte Zusatzaufwand für eine vollständig reversible Source-Transformation mit zusätzlichen Runtime-Ausdrücken.
 
 M19 Structured Logging selbst bleibt davon getrennt und soll weiterhin `bind` sowie `insert/clean` unterstützen.
+
+`insert/clean` bleibt dauerhaft eine Alternative für die ID-Zuweisung. Der Anwender kann zusätzliche Werte ausdrücklich im Trice-Aufruf angeben. Die fehlende automatische CE-Erweiterung schränkt diesen bestehenden Weg nicht ein; bei bereits gebundenem Code ist der im UM beschriebene Rückweg aus Bind zu beachten.
 
 ## 11. Anhang: mögliche spätere CE-Unterstützung für `insert/clean`
 

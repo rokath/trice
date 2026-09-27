@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -362,4 +363,57 @@ func TestContextEnrichmentPoC(t *testing.T) {
 	currentSource, err := os.ReadFile(sourcePath)
 	require.NoError(t, err)
 	assert.Equal(t, cePoCSource, string(currentSource))
+}
+
+// TestContextEnrichmentPoCRebaseScopeBoundary demonstrates why appending
+// branch-specific CE expressions to the current rebase dispatcher is unsafe:
+// C checks even the non-selected branches in each original lexical scope.
+func TestContextEnrichmentPoCRebaseScopeBoundary(t *testing.T) {
+	bindIntegrationEnabled(t)
+	compiler := firstAvailableCompiler("clang", "cc", "gcc")
+	require.NotEmpty(t, compiler)
+	project := t.TempDir()
+	fileSystem, teardown := prepareOSBindProject(t, project)
+	defer teardown()
+	writeBindIntegrationFile(t, project, "triceConfig.h", cePoCConfig)
+	source := writeBindIntegrationFile(t, project, "scope.c", `// SPDX-License-Identifier: MIT
+#include "trice.h"
+void checkScopes(void) {
+    { int leftContext = 11; trice("msg:left=%d", leftContext); } { int rightContext = 22; trice("msg:right=%d", rightContext); }
+}
+`)
+	Srcs = ArrayFlag{source}
+	require.NoError(t, SubCmdIdBind(io.Discard, fileSystem))
+	args := []string{"-std=c11", "-Wall", "-Wextra", "-Werror", "-fsyntax-only", "-I", project, "-I", BindDir, "-I", filepath.Join(bindRepositoryRoot(t), "src"), source}
+	output, err := exec.Command(compiler, args...).CombinedOutput()
+	require.NoError(t, err, "ordinary Bind accepts both independent scopes: %s", output)
+	boundSource, err := os.ReadFile(source)
+	require.NoError(t, err)
+	var sidecarPath string
+	for _, include := range scanBindIncludes(string(boundSource)) {
+		if include.isSidecar {
+			sidecarPath = filepath.Join(BindDir, include.name)
+			break
+		}
+	}
+	require.NotEmpty(t, sidecarPath)
+	sidecar, err := os.ReadFile(sidecarPath)
+	require.NoError(t, err)
+	pattern := regexp.MustCompile(`implementation\(constructor\(TRICE_BIND_ID_LOCATION_[A-Za-z0-9_]+\), __VA_ARGS__\)`)
+	calls := pattern.FindAll(sidecar, -1)
+	require.Len(t, calls, 2)
+	for index, expression := range []string{"leftContext", "rightContext"} {
+		replacement := strings.TrimSuffix(string(calls[index]), ")") + ", (" + expression + "))"
+		sidecar = bytes.Replace(sidecar, calls[index], []byte(replacement), 1)
+	}
+	require.NoError(t, os.WriteFile(sidecarPath, sidecar, 0o644))
+	output, err = exec.Command(compiler, args...).CombinedOutput()
+	require.Error(t, err, "runtime ordinal selection cannot hide invalid names in other branches")
+	assert.Contains(t, string(output), "rightContext")
+	assert.Contains(t, string(output), "leftContext")
+	assert.Regexp(t, `(?i)(undeclared|not declared)`, string(output))
+	unchangedSource, err := os.ReadFile(source)
+	require.NoError(t, err)
+	assert.Equal(t, boundSource, unchangedSource)
+	t.Log("confirmed: branch-specific CE injects foreign-scope names into otherwise valid Bind sites")
 }

@@ -278,6 +278,7 @@ details.toc[open] .toc-hide {
     * [24.18.7. Missing &#95;&#95;COUNTER&#95;&#95;](#missing-9595counter9595)
     * [24.18.8. Unchanged Interfaces](#unchanged-interfaces)
   * [24.19. Supported Boundaries and Remaining Limitations](#supported-boundaries-and-remaining-limitations)
+    * [24.19.1. bind-limits](#bind-limits)
   * [24.20. Diagnostics and Troubleshooting](#diagnostics-and-troubleshooting)
     * [24.20.1. Sidecar Not Found](#sidecar-not-found)
     * [24.20.2. File-Key Conflict](#file-key-conflict)
@@ -4410,6 +4411,38 @@ Within a counter-selected region, the following are still rejected with a precis
 Zero placeholders on ordinary bind sites that are unambiguous by line remain supported as in the MVP. Format strings must still be statically recognizable within the scope of the shared insert/bind parser.
 
 For an unsupported site, `trice bind` does not silently fall back to insert and does not write a numeric ID into the user Trice call.
+
+#### 24.19.1. <a id="bind-limits"></a>bind-limits
+
+Wenn `bind` eine Schreibweise im Quellcode ablehnt, kann es die darin enthaltenen Logstellen nicht sicher zuordnen oder unterstützen. Der kurze Hinweis `Search UM for "bind-limits".` ist als Verweis auf diesen Abschnitt vorgesehen. Datei, Zeile und konkrete Ursache bleiben Teil der Fehlermeldung. Der Hinweis wird mit A10 ergänzt; die CE-spezifischen Grenzen unten beschreiben die geplante erste Ausbaustufe.
+
+Für einen direkten Trice-Aufruf genügen normalerweise Datei und Quellzeile zur Zuordnung. Mehrere Aufrufe auf derselben Zeile oder ein Wrappermakro, hinter dem mehrere Aufrufe stehen, benötigen teilweise zusätzliche Unterstützung. Bind verwendet dafür den Compilerzähler `__COUNTER__`. Dieser zählt beim Übersetzen des Programms; er ist kein Laufzeit- oder Cycle-Counter. Nicht jeder Compiler stellt ihn bereit. Direkte, eindeutig zuordenbare Logstellen kommen ohne ihn aus.
+
+Bei der geplanten Context-Enrichment-Funktion (`bind -ce`) müssen zusätzliche Werte genau an der ausgewählten Logstelle verfügbar sein. Eine Variable, die nur innerhalb einer Funktion oder eines Blocks existiert, darf nicht zusätzlich an einer fremden Logstelle verlangt werden. Die bisherige technische Umsetzung komplexer Bind-Stellen würde solche fremden Ausdrücke mitprüfen lassen. Deshalb unterstützt die erste CE-Ausbaustufe zunächst nur direkte, eindeutig über ihre Quellzeile zuordenbare Logstellen. CE für Wrappermakros und Counter-Rebase folgt erst nach einem eigenen Nachweis; vorhandenes `__COUNTER__` allein genügt dafür nicht. Ohne passende CE-Regel gelten weiterhin die bisherigen Bind-Fähigkeiten.
+
+Mögliche Anpassungen sind:
+
+- **Direkte Aufrufe auf getrennte Zeilen stellen.** Aus `trice("msg:first"); trice("msg:second");` wird:
+
+  ```c
+  trice("msg:first");
+  trice("msg:second");
+  ```
+
+- **Geeignete Wrapper durch eine normale oder `static inline` Funktion ersetzen.** Jeder Trice-Aufruf steht darin auf einer eigenen Zeile. Benötigte lokale Werte werden als Parameter übergeben; eine Funktion sieht lokale Variablen ihres Aufrufers nicht automatisch. Beispiel:
+
+  ```c
+  static inline void logPosition(int x, int y)
+  {
+      trice("msg:x=%d, y=%d", x, y);
+  }
+  ```
+
+  Der Aufrufer übergibt seine Werte mit `logPosition(pos.x, pos.y);`. Das ist nur für Wrapper geeignet, die keine besonderen Makrofunktionen benötigen. Die [Hinweise zur Umstellung auf Funktionen](#preferred-form-normal-or-static-inline-function) erklären die Unterschiede.
+
+- **Den dauerhaft verfügbaren Workflow `insert/clean` verwenden.** `trice insert` schreibt die IDs direkt in die Logstellen; `trice clean` entfernt sie wieder. Damit entfällt die Bind-Zuordnung über Zeile oder Compilerzähler. Die Formatstrings und Aufrufe müssen weiterhin vom Trice-Parser erkannt werden können. Bei bereits gebundenen Projekten ist zuerst der [Rückweg zu `trice insert`](#re-migration-to-trice-insert) zu beachten; einzelne generierte Bind-Dateien oder Include-Zeilen dürfen nicht isoliert entfernt werden.
+
+Automatisches `-ce` für `insert/clean` gehört nicht zur ersten Ausbaustufe. Zusätzliche Werte können dort ausdrücklich im Formatstring und in den Argumenten stehen, beispielsweise `trice("msg:Wert=%d, x={x}", value, x);`. Structured Logging ist auch mit `insert/clean` verfügbar. Dieser dauerhafte alternative Workflow setzt keine spätere CE-Erweiterung voraus.
 
 ### 24.20. <a id="diagnostics-and-troubleshooting"></a>Diagnostics and Troubleshooting
 
@@ -11061,7 +11094,7 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 ### 46.1. <a id="trice-context-enrichment"></a>Trice Context Enrichment
 
-Planned; not implemented. The current [German Context Enrichment draft](./scratchPad/Kontextanreicherung_DE.md) specifies selective build-time enrichment through `bind -ce`. It uses the Structured Logging field model. See the [implementation plan](./scratchPad/Implementierungsplan.md) for the bind integration and unresolved boundaries. Implementation requires a separate instruction.
+Planned; not implemented. The current [German Context Enrichment draft](./scratchPad/Kontextanreicherung_DE.md) specifies selective build-time enrichment through `bind -ce`. It uses the Structured Logging field model. The first stage supports direct sites that can be identified unambiguously by source line, without an additional `__COUNTER__` requirement. CE for wrappers and counter-rebased sites is deferred. See [bind-limits](#bind-limits) for a plain-language explanation and alternatives, and the [implementation plan](./scratchPad/Implementierungsplan.md) for the agreed scope. Implementation requires a separate instruction.
 
 
 <!--

@@ -57,6 +57,20 @@ Erforderlich sind ein GCC-/Clang-kompatibler C- und C++-Compiler sowie `clangd` 
 
 Der Nachweis erfüllt die Mindestfälle aus dem [CE-Entwurf](Kontextanreicherung_DE.md#71-verbindlicher-machbarkeitsnachweis-vor-m20). Er prüft direkte skalare 32-Bit-Logstellen mit einer Logstelle pro physischer Zeile und dem `iD`-Stempeltyp. Die PoC-Regeln sind feste Testdaten; ein CLI-Parser, vollständige Selektor-/Alias-Policy und produktive Fehlervalidierung sind noch nicht vorhanden.
 
-A10 muss die Transformation vor der produktiven Schema-/ID-Vergabe einbinden und die Sidecar-Erweiterung dauerhaft erzeugen. Weitere Bind-Pfade wie Wrappermakros und Counter-Rebase, andere Bitbreiten/Stempeltypen, `TRICE_OFF`, Regelkonflikte und Konfigurationswechsel benötigen ihre eigenen Tests. Auch Verbraucher, die Source und TIL abgleichen, etwa `generate -logC`, müssen mit CE-Metadaten konsistent umgehen. Aus dem erfolgreichen direkten PoC folgt keine bereits bestandene Abnahme dieser weiteren Pfade.
+A10 muss die Transformation vor der produktiven Schema-/ID-Vergabe einbinden und die Sidecar-Erweiterung dauerhaft erzeugen. Die erste Ausbaustufe bleibt auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen begrenzt. Andere Bitbreiten/Stempeltypen, `TRICE_OFF`, Regelkonflikte, Konfigurationswechsel und der Betrieb ohne verfügbares `__COUNTER__` benötigen eigene Tests. Auch Verbraucher, die Source und TIL abgleichen, etwa `generate -logC`, müssen mit CE-Metadaten konsistent umgehen. Aus dem erfolgreichen direkten PoC folgt keine bereits bestandene Abnahme dieser weiteren Fälle. CE für Wrappermakros und Counter-Rebase wird als eigene Folgeaufgabe zurückgestellt.
 
 Für den geprüften Mechanismus besteht kein technischer Blocker. A10 bleibt ein eigener Implementierungsauftrag.
+
+## Ergänzende Rebase-Gegenprobe vor A10
+
+Am 27. September 2026 wurde die direkte Übertragung des Adapteransatzes auf Counter-Rebase geprüft. Der zusätzliche Test `TestContextEnrichmentPoCRebaseScopeBoundary` zeigt eine Grenze: Zwei von Bind unterstützte Logstellen auf derselben Sourcezeile liegen in getrennten Blöcken und verwenden jeweils eine nur dort sichtbare Variable. Der normale Bind-Build besteht. Werden die beiden CE-Ausdrücke in die jeweiligen Zweige des generierten Rebase-Dispatchers eingefügt, scheitert die Übersetzung an den Variablennamen des jeweils anderen Scopes.
+
+Der Grund ist die C-seitige Ordinalauswahl: Auch ein zur Laufzeit nicht gewählter `if`-Zweig wird vom Compiler auf gültige Bezeichner geprüft. Die betroffenen Ausdrücke sind an ihrer vorgesehenen Logstelle gültig. Der Fehler wäre deshalb eine unzulässige zusätzliche Scope-Anforderung der Instrumentierung. Der Test erwartet und belegt genau diese fehlgeschlagene Erweiterung; er ist keine bestandene CE-Rebase-Abnahme.
+
+Der direkte A9-Nachweis bleibt gültig. Das bloße Anhängen von CE-Argumenten an Rebase-Zweige genügt für eine allgemeine CE-Unterstützung jedoch nicht. Am 27. September wurde deshalb die erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Bind-Logstellen begrenzt. A10 soll ausgewählte Wrapper-/Rebase-Stellen vor Dateiänderungen abweisen und mit `Search UM for "bind-limits".` auf die verständliche Erklärung im User Manual verweisen. Ohne passende CE-Regel bleiben die bisherigen Bind-Fähigkeiten erhalten. Der zusätzliche Architektur-Nachweis für komplexe CE-Stellen ist eine zurückgestellte Folgeaufgabe; diese Gegenprobe allein belegt keine grundsätzliche Unmöglichkeit einer späteren Lösung.
+
+Die Gegenprobe ist separat reproduzierbar:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentPoCRebaseScopeBoundary$' -count=1 -v
+```
