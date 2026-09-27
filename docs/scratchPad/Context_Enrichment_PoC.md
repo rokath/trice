@@ -1,6 +1,6 @@
-# Context Enrichment – Machbarkeitsnachweis A9
+# Context Enrichment – Machbarkeitsnachweise
 
-Stand: 27. September 2026. Der isolierte Nachweis für direkte Bind-Logstellen ist bestanden. Er liegt in [context_enrichment_poc_test.go](../../internal/id/context_enrichment_poc_test.go). Die darauf aufbauende produktive Option `trice bind -ce` ist inzwischen mit A10 implementiert; ihre Bedienung und Abnahme stehen im [User Manual](../TriceUserManual.md#trice-context-enrichment). Dieser Bericht beschreibt weiterhin den engeren A9-Nachweis und seine Rebase-Gegenprobe.
+Stand: 27. September 2026. Der isolierte A9-Nachweis für direkte Bind-Logstellen ist bestanden. Er liegt in [context_enrichment_poc_test.go](../../internal/id/context_enrichment_poc_test.go). Die darauf aufbauende produktive Option `trice bind -ce` ist inzwischen mit A10 implementiert; ihre Bedienung und Abnahme stehen im [User Manual](../TriceUserManual.md#trice-context-enrichment). Dieser Bericht enthält außerdem die ursprüngliche Rebase-Gegenprobe und den neuen [PoC für Wrappermakros und Counter-Rebase](#erweiterter-poc-für-wrappermakros-und-counter-rebase). Letzterer ist eine Entscheidungsgrundlage und aktiviert keine zusätzliche produktive CE-Unterstützung.
 
 ## Geprüfter Mechanismus
 
@@ -74,3 +74,82 @@ Die Gegenprobe ist separat reproduzierbar:
 ```sh
 TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentPoCRebaseScopeBoundary$' -count=1 -v
 ```
+
+## Erweiterter PoC für Wrappermakros und Counter-Rebase
+
+**Ergebnis:** Eine Auswahl des CE-Adapters bereits im Präprozessor beseitigt das nachgewiesene Problem fremder lokaler Variablen. Der neue Test [context_enrichment_rebase_poc_test.go](../../internal/id/context_enrichment_rebase_poc_test.go) weist einen funktionierenden Ansatz mit einem zusätzlichen Compiler-Vorlauf nach. Er enthält außerdem einen einfacheren Sonderfall: Ein Wrapper mit genau einer Logstelle kann bei eindeutiger Zeilenzuordnung ohne diesen Vorlauf und ohne `__COUNTER__` angereichert werden. Beides bleibt Testcode; `bind -ce` weist die bisher ausgeschlossenen Konstrukte weiterhin ab.
+
+### Wie der untersuchte Ansatz arbeitet
+
+Bei der bisherigen C-Verzweigung gelangen die Ausdrücke aller möglichen Logstellen zum Compiler. Im neuen PoC wählt dagegen die Makroexpansion genau einen Adapter aus. Nur dessen Ausdrücke erscheinen im endgültigen C-/C++-Code. Dadurch kann etwa ein Wrapper in seinem linken Zweig eine Variable `branchLeft` und in seinem rechten Zweig eine andere Variable `branchRight` verwenden, ohne dass einer dieser Namen im jeweils anderen Block existieren muss.
+
+Die Zuordnung benötigt einen Wert, den der Präprozessor direkt als Teil eines Makronamens verwenden kann. Die bestehende relative Rechnung aus `__COUNTER__` und einer C-Enum-Konstante eignet sich dafür nicht. Der PoC ermittelt deshalb die tatsächlichen absoluten Counter-Werte mit dem jeweils verwendeten Compiler:
+
+1. Der bestehende Bind-Mechanismus richtet die temporären Testquellen regulär ein. Eine private Sourceansicht erhält die CE-Erweiterungen und durchläuft die vorhandene Schema-/ID-Vergabe. Der tatsächlich kompilierte User-Source behält seine ursprünglichen Trice-Aufrufe und Wrapperdefinitionen.
+2. Der Compiler verarbeitet diese Quellen mit den tatsächlichen Sprach-, Target- und Präprozessoroptionen vor. Eine nur für den Test eingebundene Datei lässt für jede Rebase-Expansion eine Markierung mit Region und Counter-Wert erscheinen.
+3. Der Test ordnet diese Markierungen den numerischen Definition-/Location-Deskriptoren und der Expansionsreihenfolge aus dem erzeugten Bind-Sidecar zu. Er errät keine IDs aus Formatstrings. Daraus entsteht ein Header mit genau einem Makro pro tatsächlich beobachteter Expansion.
+4. Beim normalen Übersetzen wählt `__COUNTER__` dieses Makro aus. Es übergibt die bestehenden Argumente und ergänzt nur die zugehörigen CE-Ausdrücke. Die bestehenden Rebase-Endprüfungen bleiben aktiv. Eine zusätzliche Prüfung des Basiswertes weist eine verschobene Zuordnung zurück, auch wenn zufällig noch ein anderer gültiger Eintrag getroffen würde.
+
+Dieser Vorlauf ist pro Übersetzungseinheit und konkreter Build-Konfiguration erforderlich. Eine Übersetzungseinheit ist hier beispielsweise eine `.c`- oder `.cpp`-Datei einschließlich ihrer eingebundenen Header. Derselbe gemeinsam verwendete Wrapper kann deshalb für verschiedene Übersetzungseinheiten unterschiedliche Counter-Zuordnungen benötigen, während seine logischen IDs gleich bleiben.
+
+### Nachgewiesene Fälle
+
+| Fall | Geprüftes Ergebnis |
+| --- | --- |
+| Einfacher Wrapper mit einer Logstelle | CE am Aufrufort funktioniert auch mit entferntem `__COUNTER__`; ein normaler Zeilendeskriptor genügt. |
+| Wrapper mit zwei Logstellen | Ursprüngliche Werte stehen vor den jeweiligen CE-Werten; generische und feste Arity funktionieren. |
+| Wiederholte Wrapper-Aufrufe | Dieselben logischen IDs übertragen unterschiedliche lokale Context-Werte ihrer Aufrufer. |
+| Wrapper mit getrennten Zweigen | `branchLeft` und `branchRight` bleiben jeweils auf ihren eigenen Block beschränkt. |
+| Zwei direkte Aufrufe auf derselben Zeile | Getrennte Blöcke mit `onlyLeft` und `onlyRight` funktionieren ohne fremde Scope-Anforderungen. |
+| Nicht ausgewählte Rebase-Stellen | Die bestehenden Records bleiben unverändert und ohne zusätzliche Werte. |
+| Seiteneffekte | Ursprünglicher Ausdruck und CE-Ausdruck werden je ausgeführtem Aufruf genau einmal ausgewertet. Ein nicht ausgeführter Wrapper-Aufruf bewirkt nichts. |
+| Tatsächliche Records | Elf ausgegebene Records werden durch die echte Target-Bibliothek erzeugt, gegen die finale C-TIL aufgelöst und auf IDs, Parameterzahl und sämtliche geordneten Werte geprüft. |
+| Wiederholung | Erneute private Bind-Generierung erhält Schema, IDs, Regionenzuordnung und Source. Derselbe Compiler-Vorlauf reproduziert denselben Zuordnungsheader. |
+| Fremde Counter-Verwendungen vor den Logstellen | Zusätzliche Verwendungen mit den Abständen 0, 1 und 7 ändern die Zuordnung, während IDs und erwartete Records gleich bleiben. |
+| Veralteter Zuordnungsheader | Ein normaler Build scheitert. Insbesondere wird auch eine Verschiebung um eins erkannt, die sonst auf einen benachbarten gültigen Adapter treffen könnte. |
+| Fehlender Context-Bezeichner | Compiler und die geprüften `clangd`-Varianten melden `cePocMissingLocal` als echten Fehler. |
+| Zusätzlicher Counter-Verbrauch im CE-Ausdruck | Wird abgewiesen; der untersuchte Vorlauf setzt einen Counter pro Rebase-Expansion voraus. |
+| `TRICE_OFF` und `TRICE_CLEAN` | Keine Records und keine Argument-/CE-Auswertung, auch ohne verfügbares `__COUNTER__`. |
+| Aktives Rebase ohne `__COUNTER__` | Klarer Buildfehler einschließlich `Search UM for "bind-limits".`. Der PoC behauptet für diesen Fall keine Lösung. |
+
+Der Laufzeitnachweis verwendet skalare 32-Bit-Records mit `iD`. Er ersetzt nicht die breitere Bitbreiten-/Stempel-Abnahme von A10 und ist noch keine vollständige Abnahme sämtlicher denkbaren Wrapper.
+
+### Compiler-Matrix und Aussagegrenzen
+
+Am 27. September 2026 wurden folgende installierte Werkzeugvarianten geprüft:
+
+| Werkzeug und Ziel | Sprachmodi | Nachweis |
+| --- | --- | --- |
+| Apple Clang/Clang++ 21.0.0, macOS ARM64 | C99, C11, C17, C++11, C++17 | Vorverarbeitung, Kompilierung mit `-Wall -Wextra -Werror`, Linken und tatsächliche Programmausführung bestanden. |
+| ARM GNU Toolchain 13.3.Rel1, GCC/G++ 13.3.1, Cortex-M0/Thumb | C99, C11, C17, C++11, C++17 | Vorverarbeitung und Erzeugung echter ARM-Objektdateien mit `-Wall -Wextra -Werror` bestanden; keine Ausführung auf MCU oder Emulator. |
+| Dieselbe ARM-GCC-Version, Cortex-M4/Thumb | C99, C11, C17, C++11, C++17 | Vorverarbeitung und Erzeugung echter ARM-Objektdateien bestanden; keine Target-Laufzeitaussage. |
+| Alle drei Konfigurationen | C++20 | Der bestehende Bind-Code scheitert bereits ohne experimentelles CE an einer mit `-Werror` eskalierten Enum-Warnung. Mit ausschließlich dieser Warnung auf Warnungsstatus zurückgesetzt besteht der CE-PoC; Clang einschließlich Laufzeit, ARM-GCC als Objekt-Build. |
+| Apple clangd 21.0.0 | Host-C11 und Host-C++17 | Reale `compile_commands.json` einschließlich des experimentellen Headers wird geladen. Gültige Quellen sind fehlerfrei; der absichtlich fehlende Bezeichner wird diagnostiziert. |
+
+Damit wurden 18 Kombinationen aus Toolchain/Target und Sprachmodus untersucht, jeweils mit drei Counter-Ausgangslagen sowie zusätzlichen Negativ- und Abschaltfällen. Die macOS-Kommandos `gcc`/`g++` sind in dieser Umgebung Clang-Aliase und werden ausdrücklich nicht als GCC-Nachweis gezählt. Der eigenständige GCC-Nachweis stammt vom ARM-Crosscompiler. Native GCC-Varianten werden bei Verfügbarkeit ebenfalls in die Testmatrix aufgenommen. MSVC, IAR, Arm Compiler/armclang und andere Language-Server wurden nicht geprüft; ihre Unterstützung ist daraus nicht ableitbar.
+
+Die C++20-Grenze stammt aus der bestehenden Rebase-Prüfung: Sie subtrahiert Werte verschiedener anonymer Enum-Typen. Der Test weist das zuerst mit gewöhnlichem Bind nach und verwendet danach nur `-Wno-error=deprecated-anon-enum-enum-conversion` bei Clang beziehungsweise `-Wno-error=deprecated-enum-enum-conversion` bei GCC. Das ist ausdrücklich kein erfolgreicher strenger C++20-Build. Der Produktcode wurde für den PoC nicht geändert. Bei der Simulation eines fehlenden `__COUNTER__` wird die Warnung über das Entfernen eines eingebauten Makros ebenfalls nicht als Fehler behandelt.
+
+### Konsequenzen für eine mögliche Umsetzung
+
+**Die technische Scope-Hürde ist für die geprüften Fälle gelöst; der Preis dieses Ansatzes ist ein zusätzlicher compilerabhängiger Build-Schritt.** Eine produktive Entscheidung muss diesen Aufwand bewusst einschließen. Der PoC liefert noch keinen solchen Workflow und keine neue CLI-Option.
+
+Vor einer Umsetzung wären insbesondere folgende Punkte festzulegen oder nachzuweisen:
+
+- Einbindung des Vorlaufs in die unterstützten Build-Systeme, einschließlich derselben Defines, Include-Pfade, Sprachmodi und Target-Optionen wie beim eigentlichen Übersetzen.
+- Getrennte Zuordnungsartefakte pro Übersetzungseinheit und Konfiguration sowie verlässliche Neuerzeugung nach relevanten Änderungen. Die Counter-Prüfungen erkennen Verschiebungen, ersetzen aber keine vollständige Build-Abhängigkeitsprüfung oder einen Schutz gegen beliebig beschädigte Artefakte.
+- Verhalten bei Precompiled Headers, Modulen, zusätzlichen Counter-Verwendungen in Argumentmakros und weiteren Compilerfamilien. Der PoC macht dafür keine Zusage.
+- Falls strenge C++20-Builds zum Ziel gehören, eine gesonderte Korrektur und Abnahme der bestehenden Enum-Rebase-Prüfung.
+- Entscheidung, ob die einfachere Erweiterung für eindeutig zuordenbare Wrapper mit einer Logstelle zunächst unabhängig von allgemeinem CE-Rebase umgesetzt werden soll. Der PoC belegt diesen Fall ohne Counter-Vorlauf; die produktive Freischaltung bleibt ein eigener Auftrag.
+
+Ein zweiter Compilerlauf ist damit eine nachgewiesene Möglichkeit, keine Behauptung, dass es keinen einfacheren Ansatz geben kann. Die erste direkte CE-Ausbaustufe bleibt unverändert. Automatisches CE für `insert/clean` wurde nicht untersucht und bleibt eine separate reversible Source-Transformation.
+
+### Den erweiterten PoC wiederholen
+
+Im Repository-Root ausführen:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentRebasePoC$' -count=1 -v
+```
+
+Der Test erkennt installierte Clang-/GCC-C/C++-Toolchains und ARM-GCC selbst, meldet fehlende Werkzeuge und Compiler-Aliase und installiert nichts. Mindestens eine passende C/C++-Toolchain ist erforderlich. Ohne `TRICE_BIND_INTEGRATION=1` wird der Compiler-Test übersprungen. `clangd` wird bei Verfügbarkeit geprüft; ein fehlendes Werkzeug wird ausdrücklich gemeldet. Alle Source-Kopien, experimentellen Header und Build-Artefakte entstehen in temporären Testverzeichnissen. Produktive CLI, Target-Header und Build-Skripte bleiben unverändert.

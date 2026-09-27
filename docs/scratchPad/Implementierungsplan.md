@@ -1,6 +1,6 @@
 # Arbeitsplan für Structured Logging und Context Enrichment
 
-Stand: 27. September 2026. A1 bis A10 sind erledigt. Structured Logging ist in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging), Context Enrichment in [Kapitel 33](../TriceUserManual.md#trice-context-enrichment) dokumentiert. `bind -ce` unterstützt direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit. Die [Rebase-Gegenprobe](Context_Enrichment_PoC.md#ergänzende-rebase-gegenprobe-vor-a10) begründet die weiterhin zurückgestellte Unterstützung komplexer CE-Stellen.
+Stand: 27. September 2026. A1 bis A10 sind erledigt. Structured Logging ist in [Kapitel 32 des User Manuals](../TriceUserManual.md#strukturiertes-logging), Context Enrichment in [Kapitel 33](../TriceUserManual.md#trice-context-enrichment) dokumentiert. `bind -ce` unterstützt direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit. Für Wrappermakros und Counter-Rebase liegt jetzt ein [erweiterter PoC](Context_Enrichment_PoC.md#erweiterter-poc-für-wrappermakros-und-counter-rebase) vor. Eine produktive Erweiterung bleibt bis zur Entscheidung über dessen Ergebnis zurückgestellt.
 
 ## Offene Aufgaben in Arbeitsreihenfolge
 
@@ -11,7 +11,11 @@ Stand: 27. September 2026. A1 bis A10 sind erledigt. Structured Logging ist in [
 
 ### Zurückgestellte CE-Folgeaufgaben
 
-CE für Wrappermakros und Counter-Rebase benötigt einen eigenen Architektur-Nachweis und Implementierungsauftrag. Er muss zeigen, dass jede Logstelle ausschließlich ihre dort gültigen zusätzlichen Ausdrücke erhält, und die unterstützten Compiler mit und ohne `__COUNTER__` ausdrücklich abgrenzen. Die direkte Ausbaustufe bleibt unabhängig davon nutzbar. Regelverarbeitung, finale Schema-/ID-Bestimmung und Argumenteinfügung sind getrennt, damit die spätere Makroerzeugung auf dem bestehenden Vertrag und seinen Verhaltenstests aufbauen kann.
+Der [erweiterte PoC](Context_Enrichment_PoC.md#erweiterter-poc-für-wrappermakros-und-counter-rebase) wählt je Expansion genau einen CE-Adapter im Präprozessor. Ein zusätzlicher Vorlauf mit dem konkreten Compiler liefert dafür die tatsächlichen Counter-Werte. Getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einmalige Auswertung, reale Records und die Ablehnung veralteter Zuordnungen sind nachgewiesen. Geprüft wurden Clang auf dem Host sowie ARM-GCC für Cortex-M0 und Cortex-M4 in C99/C11/C17 und C++11/C++17/C++20. Strenges C++20 scheitert schon am bisherigen Enum-Rebase-Code; die CE-Prüfung besteht nach einer gezielten Warnungsabstufung. ARM-Builds sind Compile-Nachweise, keine Target-Laufzeitabnahme.
+
+**Nächster Schritt ist eine Entscheidung, keine automatische Implementierung:** Soll ein compilerabhängiger Vorlauf pro Übersetzungseinheit und Build-Konfiguration Teil des produktiven Workflows werden? Die [offenen Integrationspunkte](Context_Enrichment_PoC.md#konsequenzen-für-eine-mögliche-umsetzung) betreffen Build-Abhängigkeiten, getrennte Artefakte, weitere Compiler sowie PCH/Module. Ohne `__COUNTER__` unterstützt dieser Rebase-Ansatz kein aktives komplexes Logging. Ein eindeutig zuordenbarer Wrapper mit nur einer Logstelle funktioniert im PoC dagegen ohne Counter und ohne Vorlauf; diese kleinere Erweiterung kann getrennt bewertet werden.
+
+Der PoC ändert keine produktive CE-Freigabe. Ein Implementierungsauftrag bleibt erforderlich; die direkte Ausbaustufe bleibt unabhängig davon nutzbar. Regelverarbeitung, finale Schema-/ID-Bestimmung und Argumenteinfügung sind getrennt, damit eine spätere Makroerzeugung auf dem bestehenden Vertrag und seinen Verhaltenstests aufbauen kann.
 
 Eine spätere automatische CE-Erweiterung für `insert/clean` bleibt ein separater Auftrag mit reversiblem Transformationsvertrag. Der bestehende ID-Workflow ist dauerhaft verfügbar; zusätzliche Werte können dort ausdrücklich im Formatstring und in den Argumenten stehen. Weder eine vorsorgliche Migration noch eine zusätzliche CLI-Variante wurden in A10 eingeführt.
 
