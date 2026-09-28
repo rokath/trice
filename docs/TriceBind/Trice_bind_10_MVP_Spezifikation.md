@@ -228,10 +228,10 @@ module.c
 
 Der Basisname einschließlich Source-Extension dient der Lesbarkeit. Zeichen außerhalb `[A-Za-z0-9_]` werden durch `_` ersetzt. Die Eindeutigkeit liefert der File Key.
 
-Alle Sidecars liegen standardmäßig flach unter dem vom User gewählten `-buildDir` mit Default:
+Alle Sidecars liegen standardmäßig flach unter dem vom User gewählten `-genDir` mit Default:
 
 ```text
-./build/triceIDs
+./generated
 ```
 
 Der Ordner wird bei Bedarf erzeugt und MUSS unabhängig von den User-Ausschlüssen automatisch vom Source-Scan ausgeschlossen werden. Der Build benötigt diesen Ordner als Include-Pfad.
@@ -352,9 +352,9 @@ Nicht übernommen werden nur Optionen, die ausschließlich die textuelle Darstel
 ### 8.3 Build-Verzeichnis
 
 ```text
--buildDir string
+-genDir string
     Ausgabeordner der Sidecar-Header und des Feldregisters trice-fields.txt.
-    Default: ./build/triceIDs
+    Default: ./generated
 ```
 
 `bind` und `insert` verwenden denselben Optionsnamen. Der frühere Schalter `-bindDir` wird abgewiesen.
@@ -730,7 +730,7 @@ Folgerung:
 2. `trice clean` ausführen, damit die zu migrierenden Dateien keine IDs größer null mehr enthalten.
 3. `trice bind` ausführen.
 4. Eingefügte Sidecar-Includes, `til.json` und `li.json` reviewen und versionieren.
-5. `build/triceIDs` als generierten Ordner behandeln.
+5. `generated` als generierten Ordner behandeln.
 6. `trice bind` als verpflichtenden Pre-Build-Schritt integrieren.
 
 Ist `TRICE_CLEAN` vorhanden, setzt `clean` den Wert zunächst auf `1`; `bind` setzt ihn anschließend auf `0`.

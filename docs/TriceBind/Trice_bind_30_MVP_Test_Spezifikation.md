@@ -71,7 +71,7 @@ Die verwalteten Trice-Aufrufe enthalten die durch `trice insert` eingesetzten ID
 Die Bind-owned Dateien enthalten ID-freie Trice-Aufrufe beziehungsweise Null-Platzhalter und ihre dateilokalen Sidecar-Includes. Die Sidecars liegen standardmäßig unter:
 
 ```text
-./build/triceIDs
+./generated
 ```
 
 `til.json` und `li.json` entsprechen demselben fachlichen ID-Bestand wie im Inserted-Zustand.
@@ -129,7 +129,7 @@ Die Listen der bearbeiteten `_test`- und `examples`-Quellen dürfen nicht unabh�
 `trice_bindIDs_in_examples_and_test_folder.sh` MUSS:
 
 1. `trice bind` mit denselben Source-, Alias-, Listen- und ID-Optionen wie das Insert-Skript aufrufen,
-2. `./build/triceIDs` bei Bedarf durch `trice bind` erzeugen lassen,
+2. `./generated` bei Bedarf durch `trice bind` erzeugen lassen,
 3. fehlende Sidecar-Includes erzeugen lassen,
 4. bei wiederholtem Aufruf idempotent sein,
 5. bei Fehlern mit einem Fehlerstatus enden.
@@ -272,7 +272,7 @@ Alternativ darf `_170_pc_target_tests_all_workflows.sh` beide Varianten orchestr
 Die Bind-Variante MUSS vor dem Test:
 
 - die relevanten `_test`- und Example-Datenquellen in einen konsistenten Bound-Zustand versetzen,
-- `./build/triceIDs` in den C/CGO-Include-Pfad aufnehmen,
+- `./generated` in den C/CGO-Include-Pfad aufnehmen,
 - danach denselben Go-Testworker wie die Insert-Variante aufrufen.
 
 ## 9. Example-Builds
@@ -329,7 +329,7 @@ Ist ein benötigter externer Compiler nicht installiert, gilt weiterhin die best
 Im Bound-Zustand MUSS jeder betroffene Example-Build den konfigurierten `bindDir`, standardmäßig:
 
 ```text
-./build/triceIDs
+./generated
 ```
 
 als Include-Pfad erhalten.

@@ -69,29 +69,30 @@ details.toc[open] .toc-hide {
 * [2. A brief history of Trice](#a-brief-history-of-trice)
 * [3. How it works - the main idea](#how-it-works---the-main-idea)
 * [4. Trice Features (Overview)](#trice-features-overview)
-  * [4.1. Open source](#open-source)
-  * [4.2. Easy-to-use](#easy-to-use)
-  * [4.3. Small size - using Trice frees FLASH memory](#small-size---using-trice-frees-flash-memory)
-  * [4.4. Execution speed](#execution-speed)
-  * [4.5. Robustness](#robustness)
-  * [4.6. Minimal Transfer Bytes Amount](#minimal-transfer-bytes-amount)
-  * [4.7. More comfort than printf-like functions but small differences](#more-comfort-than-printf-like-functions-but-small-differences)
-  * [4.8. Tags, Color and Log Levels](#tags-color-and-log-levels)
-  * [4.9. Compile Time Enable/Disable Trice Macros on File or Project Level](#compile-time-enabledisable-trice-macros-on-file-or-project-level)
-  * [4.10. Target and host timestamps](#target-and-host-timestamps)
-  * [4.11. Target source code location](#target-source-code-location)
-  * [4.12. Several target devices in one log output](#several-target-devices-in-one-log-output)
-  * [4.13. Any byte-capable 1-wire connection usable](#any-byte-capable-1-wire-connection-usable)
-  * [4.14. Scalability](#scalability)
-  * [4.15. Portability and Modularity](#portability-and-modularity)
-  * [4.16. Optional Trice messages encryption](#optional-trice-messages-encryption)
-  * [4.17. Trice Protection](#trice-protection)
-  * [4.18. Trice Diagnostics](#trice-diagnostics)
-  * [4.19. Trice Cache](#trice-cache)
-  * [4.20. Avoiding False-Positive Editor Warnings](#avoiding-false-positive-editor-warnings)
-  * [4.21. Trice Generator](#trice-generator)
-  * [4.22. Versions and Variants Trice Stability](#versions-and-variants-trice-stability)
-  * [4.23. Legacy Project Code Integration](#legacy-project-code-integration)
+  * [4.1. No Dynamic Memory Management needed](#no-dynamic-memory-management-needed)
+  * [4.2. Open source](#open-source)
+  * [4.3. Easy-to-use](#easy-to-use)
+  * [4.4. Small size - using Trice frees FLASH memory](#small-size---using-trice-frees-flash-memory)
+  * [4.5. Execution speed](#execution-speed)
+  * [4.6. Robustness](#robustness)
+  * [4.7. Minimal Transfer Bytes Amount](#minimal-transfer-bytes-amount)
+  * [4.8. More comfort than printf-like functions but small differences](#more-comfort-than-printf-like-functions-but-small-differences)
+  * [4.9. Tags, Color and Log Levels](#tags-color-and-log-levels)
+  * [4.10. Compile Time Enable/Disable Trice Macros on File or Project Level](#compile-time-enabledisable-trice-macros-on-file-or-project-level)
+  * [4.11. Target and host timestamps](#target-and-host-timestamps)
+  * [4.12. Target source code location](#target-source-code-location)
+  * [4.13. Several target devices in one log output](#several-target-devices-in-one-log-output)
+  * [4.14. Any byte-capable 1-wire connection usable](#any-byte-capable-1-wire-connection-usable)
+  * [4.15. Scalability](#scalability)
+  * [4.16. Portability and Modularity](#portability-and-modularity)
+  * [4.17. Optional Trice messages encryption](#optional-trice-messages-encryption)
+  * [4.18. Trice Protection](#trice-protection)
+  * [4.19. Trice Diagnostics](#trice-diagnostics)
+  * [4.20. Trice Cache](#trice-cache)
+  * [4.21. Avoiding False-Positive Editor Warnings](#avoiding-false-positive-editor-warnings)
+  * [4.22. Trice Generator](#trice-generator)
+  * [4.23. Versions and Variants Trice Stability](#versions-and-variants-trice-stability)
+  * [4.24. Legacy Project Code Integration](#legacy-project-code-integration)
 * [5. Start with Trice](#start-with-trice)
   * [5.1. Get it](#get-it)
   * [5.2. Install It](#install-it)
@@ -379,10 +380,21 @@ details.toc[open] .toc-hide {
 * [33. Trice Context Enrichment](#trice-context-enrichment)
   * [33.1. Einstieg mit Position und Geschwindigkeit](#einstieg-mit-position-und-geschwindigkeit)
   * [33.2. Regeln und Selektoren](#regeln-und-selektoren)
-  * [33.3. Ausdrücke, Felder und Auswertung](#ausdrücke-felder-und-auswertung)
-  * [33.4. Build, IDs und generierte Dateien](#build-ids-und-generierte-dateien)
-  * [33.5. Unterstützte Logstellen und Alternativen](#unterstützte-logstellen-und-alternativen)
-  * [33.6. Prüfumfang](#prüfumfang)
+  * [33.3. Reversibler Ablauf mit insert und clean](#reversibler-ablauf-mit-insert-und-clean)
+  * [33.4. Ausdrücke, Felder und Auswertung](#ausdrücke-felder-und-auswertung)
+  * [33.5. Globale und lokale Werte verständlich einsetzen](#globale-und-lokale-werte-verständlich-einsetzen)
+  * [33.6. Build, IDs und generierte Dateien](#build-ids-und-generierte-dateien)
+  * [33.7. Unterstützte Logstellen und Alternativen](#unterstützte-logstellen-und-alternativen)
+  * [33.8. Prüfumfang](#prüfumfang)
+  * [33.9. Anhang: CE-Machbarkeitsnachweise](#anhang-ce-machbarkeitsnachweise)
+    * [33.9.1. Geprüfter Mechanismus](#geprüfter-mechanismus)
+    * [33.9.2. Nachgewiesenes Verhalten](#nachgewiesenes-verhalten)
+    * [33.9.3. Compiler und Editor-Diagnosen](#compiler-und-editor-diagnosen)
+    * [33.9.4. Reproduzieren](#reproduzieren)
+    * [33.9.5. Abgrenzung zu A10](#abgrenzung-zu-a10)
+    * [33.9.6. Ergänzende Rebase-Gegenprobe vor A10](#ergänzende-rebase-gegenprobe-vor-a10)
+    * [33.9.7. Erweiterter PoC für Wrappermakros und Counter-Rebase](#erweiterter-poc-für-wrappermakros-und-counter-rebase)
+  * [33.10. Ansatz und Abgrenzung](#ansatz-und-abgrenzung)
 * [34. Trice without UART](#trice-without-uart)
 * [35. Trice over RTT](#trice-over-rtt)
   * [35.1. For the impatient (2 possibilities)](#for-the-impatient-2-possibilities)
@@ -704,11 +716,15 @@ Moreover, using `trice i -cache && make && trice c -cache` in a build script mak
 
 ## 4. <a id="trice-features-overview"></a>Trice Features (Overview)
 
-### 4.1. <a id="open-source"></a>Open source
+### 4.1. <a id="no-dynamic-memory-management-needed"></a>No Dynamic Memory Management needed
+
+All internal Buffers are static allocations and usually need only a few Hundred bytes size.
+
+### 4.2. <a id="open-source"></a>Open source
 
 Target code and PC tool are open source. The MIT license gives full usage freedom. Users are invited to support the further Trice development.
 
-### 4.2. <a id="easy-to-use"></a>Easy-to-use
+### 4.3. <a id="easy-to-use"></a>Easy-to-use
 
 Making it facile for a user to use Trice was the driving point just to have
 
@@ -727,19 +743,19 @@ Normal Trice tool usage is:
 
 In this example, the user code gets **not** polluted with Trice IDs - they exists only during the compilation step and the Trice cache makes this invisible for the user and the build system.
 
-### 4.3. <a id="small-size---using-trice-frees-flash-memory"></a>Small size - using Trice frees FLASH memory
+### 4.4. <a id="small-size---using-trice-frees-flash-memory"></a>Small size - using Trice frees FLASH memory
 
 Compared to a printf-library code which occupies [1](https://github.com/mludvig/mini-printf) to over [20](https://github.com/mpaland/printf#a-printf--sprintf-implementation-for-embedded-systems) KB FLASH memory, the Trice code is normally [smaller](#trice-memory-needs) but provides full support.
 
-### 4.4. <a id="execution-speed"></a>Execution speed
+### 4.5. <a id="execution-speed"></a>Execution speed
 
 Can it get faster than [6 clocks only](#trice-speed)? Only 3 runtime Assembler instructions per Trice needed in the minimum case! Optional target timestamp, critical sections, cycle counter, diagnostics and overflow protection can consume a few more processor clocks, if enabled, but a Trice is still incomparable fast.
 
-### 4.5. <a id="robustness"></a>Robustness
+### 4.6. <a id="robustness"></a>Robustness
 
 When a Trice data stream is interrupted, the optional [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) or [TCOBS](https://github.com/rokath/tcobs) encoding allows an immediate re-sync with the next COBS/TCOBS package delimiter byte and a default Trice **cycle counter** gives a high chance to detect lost Trice messages. <small>See also [Versions and Variants Trice Stability](#versions-and-variants-trice-stability).</small>
 
-### 4.6. <a id="minimal-transfer-bytes-amount"></a>Minimal Transfer Bytes Amount
+### 4.7. <a id="minimal-transfer-bytes-amount"></a>Minimal Transfer Bytes Amount
 
 A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional time stamps and/or values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as possible. Use the `-debug` switch to see the compressed and framed packages alongside the decompressed ones together with the decoded messages.
 
@@ -798,13 +814,13 @@ _test/testdata/triceCheck.c   831              value=-1, -2, -3, -4, -5, -6
 ...
 ```
 
-### 4.7. <a id="more-comfort-than-printf-like-functions-but-small-differences"></a>More comfort than printf-like functions but small differences
+### 4.8. <a id="more-comfort-than-printf-like-functions-but-small-differences"></a>More comfort than printf-like functions but small differences
 
 Trice is usable also inside interrupts and [extended format specifier possibilities](#extended-format-specifier-possibilities) give options like binary or bool output. Transmitting runtime generated strings could be a need, so a `triceS` macro exists supporting the `%s` format specifier for strings up to 32737 bytes long. It is possible to log float/double numbers using `%f` and its relatives, but the numbers need to be covered with the fast converter function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings are implicitly supported, if you use UTF-8 for the source code. See chapter [Trice Similarities and differences to printf usage](#trice-similarities-and-differences-to-printf-usage) for more details.
 
 ![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
 
-### 4.8. <a id="tags-color-and-log-levels"></a>Tags, Color and Log Levels
+### 4.9. <a id="tags-color-and-log-levels"></a>Tags, Color and Log Levels
 
 You can label each Trice with a tag specifier to [colorize](#trice-tags-color-and-weights) the output. This is free of any runtime costs because the tags are part of the Trice log format strings, which are not compiled into the target. The Trice tool will strip full lowercase tag descriptors from the format string after setting the appropriate color, making it possible to give each message its color.
 
@@ -814,7 +830,7 @@ If an inside-target log selection is needed (routing), the Trice tool can assign
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
-### 4.9. <a id="compile-time-enabledisable-trice-macros-on-file-or-project-level"></a>Compile Time Enable/Disable Trice Macros on File or Project Level
+### 4.10. <a id="compile-time-enabledisable-trice-macros-on-file-or-project-level"></a>Compile Time Enable/Disable Trice Macros on File or Project Level
 
 After debugging code in a file, there is [no need to remove or comment out Trice macros](#switching-trice-on-and-off). Write a `#define TRICE_OFF 1` just before the `#include "trice.h"` line and all Trice macros in this file are ignored completely by the compiler, but not by the Trice tool. In case of reconstructing the [**T**rice **ID** **L**ist](../demoTIL.json), these no code generating macros are regarded.
 
@@ -831,7 +847,7 @@ C_DEFS += -DTRICE_OFF=1 // Define TRICE_OFF=1 for the whole project.
 
 or similar to your Makefile.
 
-### 4.10. <a id="target-and-host-timestamps"></a>Target and host timestamps
+### 4.11. <a id="target-and-host-timestamps"></a>Target and host timestamps
 
 For each Trice you can have (time) stamps or not:
 
@@ -843,25 +859,25 @@ The optional 16- or 32-bit value then carries the system clock, a millisecond co
 
 Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the Trice tool precedes each Trice line with a PC timestamp, if not disabled. This is the Trice reception time on the PC, which can be some milliseconds later than the target Trice event.
 
-### 4.11. <a id="target-source-code-location"></a>Target source code location
+### 4.12. <a id="target-source-code-location"></a>Target source code location
 
 Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. During `trice i` a file `li.json` is generated containing the location information. If `trice log` finds this file, filename and line number are displayed in front of each log line, otherwise not.
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the Trice tool log option `-showID` exists to display the Trice ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that.
 
-### 4.12. <a id="several-target-devices-in-one-log-output"></a>Several target devices in one log output
+### 4.13. <a id="several-target-devices-in-one-log-output"></a>Several target devices in one log output
 
 Several Trice tool instances can run in parallel on one or different PCs. Each Trice tool instance receives *Trices* from one embedded device. Instead of displaying the log lines, the Trice tool instances can transmit them over TCP/IP (`trice l -p COMx -ds`) to a Trice tool instance acting as display server (`trice ds`). The display server can fold these log lines in one output. For each embedded device a separate Trice line prefix and suffix is definable. This allows comparable time measurements in distributed systems.
 
-### 4.13. <a id="any-byte-capable-1-wire-connection-usable"></a>Any byte-capable 1-wire connection usable
+### 4.14. <a id="any-byte-capable-1-wire-connection-usable"></a>Any byte-capable 1-wire connection usable
 
 The usual Trice output device is an UART but also [SEGGER-RTT](#trice-over-rtt) is supported over J-Link or ST-Link devices. Many microcontroller boards can act as Trice bridge to a serial port from any port ([Trice without UART](#trice-without-uart)).
 
-### 4.14. <a id="scalability"></a>Scalability
+### 4.15. <a id="scalability"></a>Scalability
 
 The various [Trice ID management](#trice-id-management) options allow the organization also of bigger software systems. 16383 possible different IDs should match also large projects. Just in case: 16-bit for the ID is a not too hard changeable value.
 
-### 4.15. <a id="portability-and-modularity"></a>Portability and Modularity
+### 4.16. <a id="portability-and-modularity"></a>Portability and Modularity
 
 The Trice tool is written in the open source language [*Go*](https://go.dev/) and is therefore usable on many platforms. That means the automatic code patching and ID handling side with `trice insert`.
 
@@ -877,26 +893,26 @@ When less RAM usage is more important the target double buffer is replaceable wi
 
 The Trice tool supports [many command line switches](ref/trice-help-all.txt).
 
-### 4.16. <a id="optional-trice-messages-encryption"></a>Optional Trice messages encryption
+### 4.17. <a id="optional-trice-messages-encryption"></a>Optional Trice messages encryption
 
 The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://en.wikipedia.org/wiki/XTEA) as option, what will be sufficient for many cases. It should be no big deal to add a different algorithm.
 
-### 4.17. <a id="trice-protection"></a>Trice Protection
+### 4.18. <a id="trice-protection"></a>Trice Protection
 
 When using Trice, data are written into buffers. A buffer overflow is impossible with the default configuration `#define TRICE_PROTECT 1` by simply ignoring possible overflow causing Trice statements. Those cases are not detectable by the cycle counter evaluation because non-existing Trice data on the embedded system cannot cause cycle errors. Therefore overflow error counters exists, which the user can watch. In [./examples/exampleData/triceLogDiagData.c](../examples/exampleData/triceLogDiagData.c) an option is shown. Of course this buffer overflow protection costs valuable execution time. If you prefer speed over protection, simply write into your project specific _triceConfig.h_ `#define TRICE_PROTECT 0`.
 
-### 4.18. <a id="trice-diagnostics"></a>Trice Diagnostics
+### 4.19. <a id="trice-diagnostics"></a>Trice Diagnostics
 
 A trice statement produces 4 bytes buffer data plus optional values data. When for example `TRice16("Voltage=%u\n", x);` is called inside the ms system-tick interrupt every 5th time, 10 bytes data are generated each 5 millisecond. This needs a transfer baudrate of at least 20.000 bit/s. A UART running at 115.200 baud can easily handle that.
 Anyway after 100 ms, a 200 Bytes buffer is filled and the question arises what is the optimal Trice buffer size. A calculation is error prone, so measuring is better. So configure the buffer sizes bigger than estimated and watch the max depth of their usage. In [./examples/exampleData/triceLogDiagData.c](../examples/exampleData/triceLogDiagData.c) an option is shown. After you optimized your buffer sizes, you can deactivate the Trice diagnostics in your project specific _triceConfig.h_ with `#define TRICE_DIAGNOSTICS 0`.
 
-### 4.19. <a id="trice-cache"></a>Trice Cache
+### 4.20. <a id="trice-cache"></a>Trice Cache
 
 One may think, automatically cleaning the IDs in the target code with `trice c` after building and re-inserting them just for the compilation needs file modifications all the time and a permanent rebuild of all files containing Trices will slow down the re-build process. That is true, but by using the Trice cache this is avoidable.
 Simply one-time create a `.trice/cache` folder in your home directory and use `trice insert -cache` and `trice clean -cache` in your [build.sh](../examples/L432_inst/build.sh) script.
 Find more details in chapter [Trice Cache for Compilation Speed](#trice-cache-for-compilation-speed).
 
-### 4.20. <a id="avoiding-false-positive-editor-warnings"></a>Avoiding False-Positive Editor Warnings
+### 4.21. <a id="avoiding-false-positive-editor-warnings"></a>Avoiding False-Positive Editor Warnings
 
 When the user writes
 
@@ -937,7 +953,7 @@ TRICE_CLEAN==1 changes all Trice macros into empty ones. It is used only to sile
 
 Do not use TRICE_CLEAN for disabling Trice macros. The *triceConfig.h* line `#define TRICE_CLEAN 0` changes to `1` with every `trice clean` and to `0` with every `trice insert`. This line is optional and must not be in a different file. If you want to disable Trice macros use TRICE_OFF.
 
-### 4.21. <a id="trice-generator"></a>Trice Generator
+### 4.22. <a id="trice-generator"></a>Trice Generator
 
 The Trice tool is able to generate colors or code to support various tasks. One interesting option is the **A**synchronous **B**roadcast **C**ommand support, allowing ABC usage in a network of embedded devices.
 
@@ -947,11 +963,11 @@ Read chapter [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchro
 trice help -generate
 ```
 
-### 4.22. <a id="versions-and-variants-trice-stability"></a>Versions and Variants Trice Stability
+### 4.23. <a id="versions-and-variants-trice-stability"></a>Versions and Variants Trice Stability
 
 When developing firmware, we get often different versions and variants in the developing process. When, for example, getting an older device back, it could be, we do not know the flashed firmware version at all. Because the Trice tool adds only IDs and their Trices to the project specific _til.json_ file, the complete development history remains in that file. So connecting an old device to the Trice tool will deliver correct output. Of course the location information will be outdated. But when reading the Trice logs the compiled version should get visible and it is no big deal to get the corresponding _li.json_ from the repository. If not, using the `-showID "%6d"` Trice log option displays the Trice IDs and you can easily grab the source code file and line.
 
-### 4.23. <a id="legacy-project-code-integration"></a>Legacy Project Code Integration
+### 4.24. <a id="legacy-project-code-integration"></a>Legacy Project Code Integration
 
 When it comes to instrument legacy project with Trice or to integrate legacy project files into a Trice instrumented project different approaches are possible:
 
@@ -3813,7 +3829,7 @@ A bind project requires:
 The default directory is:
 
 ```text
-./build/triceIDs
+./generated
 ```
 
 `trice bind` creates the directory when needed. It is normally not version-controlled.
@@ -3837,7 +3853,7 @@ The default directory is:
 3. Add the sidecar directory to the compiler include path:
 
    ```text
-   -I./build/triceIDs
+   -I./generated
    ```
 
 4. Build the project.
@@ -3872,7 +3888,7 @@ The following files and lines are persistent and normally version-controlled:
 
 The following are generated and normally not version-controlled:
 
-- owner sidecars under `./build/triceIDs`,
+- owner sidecars under `./generated`,
 - rebase helper headers in the same directory with the suffixes `_begin.h` and `_end.h`,
 - other normal build artifacts.
 
@@ -3880,11 +3896,11 @@ The owner include line stores the stable file key. The sidecar and rebase helper
 
 ### 24.5. <a id="hierarchical-metadata-reuse"></a>Hierarchical Metadata Reuse
 
-Each `trice bind` invocation has one writable primary TIL, LI, and build directory selected with `-buildDir`. Files selected by `-src` may be individual files or directories. Existing valid File Keys remain unchanged; a bind-owned file without a File Key receives one when needed.
+Each `trice bind` invocation has one writable primary TIL, LI, and generated-file directory selected with `-genDir`. Files selected by `-src` may be individual files or directories. Existing valid File Keys remain unchanged; a bind-owned file without a File Key receives one when needed.
 
 For each source, `bind` performs a bounded search from its directory up to its `-src` anchor, optionally one level higher, and around the configured TIL and LI paths. Hidden directories such as `.git` and `.trice` are ignored. Immediate `*.json` files are recognized as TIL or LI data by their contents, so custom names such as `demoIDs.json` work without another option.
 
-Discovered JSON and historical `build/triceIDs` sidecars are read-only evidence. Sidecars are parsed to recover earlier assignments but are never copied because their line descriptors may be stale. Current sidecars are always regenerated from the current source into the selected build directory.
+Discovered JSON and historical sidecars in `build/triceIDs` are read-only evidence. Sidecars are parsed to recover earlier assignments but are never copied because their line descriptors may be stale. Current sidecars are always regenerated from the current source into the selected generated-file directory.
 
 The primary TIL always wins a numeric-ID conflict. A conflicting subproject ID quietly yields to another matching or newly allocated primary ID; `-verbose` explains such decisions. A conflict-free historical ID is retained and only its actively used mapping is added to the primary TIL. Secondary TILs, LIs, and build artifacts are never modified.
 
@@ -4120,15 +4136,15 @@ trice b [options]
 
 In general, `bind` accepts the `insert` options relevant to source search, parsing, ID assignment, alias handling, `til.json`, and `li.json`.
 
-Both `bind` and `insert` accept `-buildDir`:
+`bind`, `insert`, and `generate` accept `-genDir`:
 
 ```text
--buildDir string
-    Output directory for bind sidecar headers and the current field registry.
-    Default: ./build/triceIDs
+-genDir string
+    Directory for generated Trice files, relative to the invocation directory.
+    Default: ./generated
 ```
 
-`-bindDir` is no longer accepted; use `-buildDir` with `bind`, `insert`, and `generate -logC` to select the same output or lookup directory.
+`bind` writes sidecar headers and `trice-fields.txt` there; `insert` writes `trice-fields.txt`. `generate -logC` reads bind sidecars there and writes `til.c` there when no output path is supplied. `generate -onelineJSON` writes `<name>.oneline.json` views there; `generate -abc target` writes `target.h` and `target.c` there. Explicit `-logC=path/file.c` and `-abc path/target` paths retain their own location. Add `./generated` to the compiler include path when building bound sources. `-buildDir` and `-bindDir` are no longer accepted.
 
 With:
 
@@ -4151,7 +4167,7 @@ Source change
 The build system should:
 
 - run `trice bind` before dependent compilations,
-- add `./build/triceIDs` to the include path,
+- add `./generated` to the include path,
 - track sidecars as normal header dependencies,
 - not replace the generator with a mere compiler failure.
 
@@ -4339,7 +4355,7 @@ trice("first"); trice("second");
 #include "trice_module_c_K73A915E9C4021B8_R0_end.h" // trice-bind: generated rebase end K73A915E9C4021B8_R0
 ```
 
-One affected user line therefore becomes three source lines. Scope definitions, phase macros, and cleanup directives that older generator versions exposed directly in the source are now located entirely in the two generated helper headers under `./build/triceIDs`. The begin file captures the local counter base and activates the appropriate selection descriptor. The end file checks the consumed counter count and restores the normal bind path.
+One affected user line therefore becomes three source lines. Scope definitions, phase macros, and cleanup directives that older generator versions exposed directly in the source are now located entirely in the two generated helper headers under `./generated`. The begin file captures the local counter base and activates the appropriate selection descriptor. The end file checks the consumed counter count and restores the normal bind path.
 
 Two independent lines remain two independent regions:
 
@@ -4449,7 +4465,7 @@ Mögliche Anpassungen sind:
 
 - **Den dauerhaft verfügbaren Workflow `insert/clean` verwenden.** `trice insert` schreibt die IDs direkt in die Logstellen; `trice clean` entfernt sie wieder. Damit entfällt die Bind-Zuordnung über Zeile oder Compilerzähler. Die Formatstrings und Aufrufe müssen weiterhin vom Trice-Parser erkannt werden können. Bei bereits gebundenen Projekten ist zuerst der [Rückweg zu `trice insert`](#re-migration-to-trice-insert) zu beachten; einzelne generierte Bind-Dateien oder Include-Zeilen dürfen nicht isoliert entfernt werden.
 
-Automatisches `-ce` für `insert/clean` gehört nicht zur ersten Ausbaustufe. Zusätzliche Werte können dort ausdrücklich im Formatstring und in den Argumenten stehen, beispielsweise `trice("msg:Wert=%d, x={x}", value, x);`. Structured Logging ist auch mit `insert/clean` verfügbar. Dieser dauerhafte alternative Workflow setzt keine spätere CE-Erweiterung voraus.
+Automatisches `insert/clean -ce` ist ebenfalls verfügbar: Insert erweitert erkannte Source-Aufrufe einschließlich statischer Wrapperdefinitionen, Clean nimmt die erzeugten Anteile mit denselben Regeln zurück. Dieser Weg benötigt weder Bind-Zeilenzuordnung noch `__COUNTER__`. Zusätzliche Werte können weiterhin ausdrücklich im Formatstring und in den Argumenten stehen, beispielsweise `trice("msg:Wert=%d, x={x}", value, x);`. Beispiele und Rücknahmebedingungen stehen im [CE-Kapitel](#reversibler-ablauf-mit-insert-und-clean).
 
 ### 24.20. <a id="diagnostics-and-troubleshooting"></a>Diagnostics and Troubleshooting
 
@@ -4458,7 +4474,7 @@ Automatisches `-ce` für `insert/clean` gehört nicht zur ersten Ausbaustufe. Zu
 Check:
 
 - whether `trice bind` was run after the last source change,
-- whether `./build/triceIDs` exists,
+- whether `./generated` exists,
 - whether the directory is on the compiler include path,
 - whether the sidecar name in the include line is correct.
 
@@ -4725,7 +4741,7 @@ Therefore, each file's sidecar sets the current `TRICE_FILE_KEY` immediately bef
 All sidecars can reside in a single build directory, for example:
 
 ```text
-build/triceIDs/
+generated/
 ```
 
 The build then needs only one additional include path. The base name in the sidecar name improves readability, while the file key provides uniqueness:
@@ -5953,7 +5969,7 @@ Please check the manuals and create a pull request or simply let me know.
 
 Tags label Trice messages on the host. They can control presentation, selection, ID assignment, and weight-based filtering without adding target runtime data because the tag is part of the format string stored in `til.json`.
 
-The planned [Context Enrichment](./scratchPad/Kontextanreicherung_DE.md) extension can also use tags as selectors.
+[Context Enrichment](#trice-context-enrichment) also uses tags as selectors: a matching `-ce` rule adds values to selected log messages.
 
 ### 31.1. <a id="how-to-use-tags"></a>How to use tags
 
@@ -6156,9 +6172,11 @@ Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
 
 Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
 
-Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Benannte Felder in Puffer-/Funktionsformaten wie `triceB` oder `triceF` werden mit einem Fehler abgewiesen. Klassische Pufferlogs ohne benannte Felder bleiben als `message` verfügbar. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`, M20) ist eine separate, noch nicht implementierte Erweiterung.
+Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`) kann die unterstützten strukturierten Felder ergänzen; die Details stehen in [Kapitel 33](#trice-context-enrichment).
 
-Beispielsweise ergibt `trice8B("msg:%02x ", bytes, 2)` für die Pufferwerte `0x01` und `0x02` in JSON `{"tag":"MESSAGE","message":"01 02 "}`. Ein `fields`-Objekt entsteht dabei nicht.
+Benannte Felder sind für Pufferformate wie `triceB` derzeit keine Option. Dort wird ein printf-Platzhalter für jedes Pufferelement wiederholt; ein strukturiertes Feld beschreibt dagegen einen einzelnen benannten Wert. Ob ein benannter Puffer als Zahlenliste, Bytefolge oder Text erscheinen sollte, ist im aktuellen Feldschema nicht festgelegt. `bind` und `insert` weisen deshalb `trice8B("msg:{bytes:%02x}", bytes, 2)` mit einem Fehler ab. Auch `triceF` unterstützt keine benannten Felder.
+
+Ein Pufferlog ohne benanntes Feld bleibt möglich: `trice8B("msg:%02x ", bytes, 2)` ergibt für `0x01` und `0x02` in JSON `{"tag":"MESSAGE","message":"01 02 "}`. Ein `fields`-Objekt entsteht dabei nicht. Für eine feste Anzahl einzelner benannter Werte können stattdessen skalare Trices verwendet werden; eine strukturierte Ausgabe ganzer Puffer erfordert eine eigene Format- und Schemafestlegung.
 
 ### 32.1. <a id="platzhalter-und-namen"></a>Platzhalter und Namen
 
@@ -6230,13 +6248,13 @@ Benannte Stringfelder verwenden `%s`; alternative klassische Stringdarstellungen
 Sowohl `bind` als auch `insert` unterstützen strukturierte Templates. `clean` entfernt wie bisher eingefügte IDs und erhält die ursprüngliche Schreibweise des Templates. Die Kurzformen in den Quelltexten werden nicht durch kanonische Feldnamen ersetzt.
 
 ```sh
-trice bind -src app -buildDir build/triceIDs -til til.json -li li.json
+trice bind -src app -genDir generated -til til.json -li li.json
 ```
 
 Alternativ für den Insert/Clean-Workflow:
 
 ```sh
-trice insert -src app -buildDir build/triceIDs -til til.json -li li.json
+trice insert -src app -genDir generated -til til.json -li li.json
 trice clean -src app -til til.json -li li.json
 ```
 
@@ -6314,7 +6332,7 @@ Die feste Reihenfolge lautet `tag`, optional `level`, `message`, danach vorhande
 
 ### 32.7. <a id="feldregister"></a>Feldregister
 
-Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt` als Register der Feldnamen und ihrer Häufigkeiten im letzten erfolgreichen Lauf. `-buildDir` wählt für beide Befehle das Verzeichnis; der Default ist `build/triceIDs`. Bei `bind` liegen dort auch die Sidecar-Header. `-bindDir` wird abgewiesen.
+Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt` als Register der Feldnamen und ihrer Häufigkeiten im letzten erfolgreichen Lauf. `-genDir` wählt für beide Befehle das Verzeichnis; der Default ist `./generated` relativ zum Aufrufverzeichnis. Bei `bind` liegen dort auch die Sidecar-Header. `-buildDir` und `-bindDir` werden abgewiesen.
 
 ```text
        1 motor_id
@@ -6324,17 +6342,33 @@ Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt` als Regi
 
 Gezählt werden die instrumentierten Stellen mit diesem User-Feld im aktuellen Aufruf. Die Datei wird vollständig neu erzeugt, nicht um historische TIL-Felder ergänzt. Ein Lauf über einen Teil der Quellen beschreibt nur diesen Teil; deshalb sollten projektweite Prüfungen alle relevanten Quellen einschließen. Cache-Treffer werden mitgezählt. Hostmetadaten erscheinen nicht, ein tatsächlich vom Benutzer benanntes Feld `tag` dagegen schon.
 
-Die Sortierung ist zuerst nach Anzahl aufsteigend, bei gleicher Anzahl alphabetisch nach Feldname. Das Zeilenformat ist `%8d %s\n`; Feldnamen haben keine künstliche Längenbegrenzung. Ein erfolgreicher Lauf ohne User-Felder erzeugt eine leere Datei. `-dry-run` veröffentlicht keine neue Datei und erhält ein vorhandenes Register.
+Die Sortierung ist zuerst nach Anzahl aufsteigend, bei gleicher Anzahl alphabetisch nach Feldname. Das Zeilenformat ist `%8d %s\n`; Feldnamen haben keine künstliche Längenbegrenzung. Ein erfolgreicher Lauf ohne User-Felder erzeugt eine leere Datei. `-dry-run` veröffentlicht keine neue Datei und erhält ein vorhandenes Register (`trice-fields.txt`).
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 33. <a id="trice-context-enrichment"></a>Trice Context Enrichment
 
-Context Enrichment (CE) ergänzt ausgewählte Trice-Meldungen beim Build um zusätzliche Werte. Mit `trice bind -ce` legt der Anwender fest, welche Präfixe eine Erweiterung auslösen, wie diese aussieht und welche C-Ausdrücke dafür ausgewertet werden. Die einzelnen Trice-Aufrufe im User-Source bleiben unverändert. Der Compiler erhält die zusätzlichen Argumente über die generierten Bind-Sidecars; das Wörterbuch enthält das dazu passende endgültige Format.
+Context Enrichment (CE) ergänzt ausgewählte Trice-Meldungen um zusätzliche Werte, etwa Task-Kontext, Position oder Betriebszustand. Eine CLI-Regel gilt für alle Logstellen mit dem passenden Selektorpräfix. So lässt sich zusätzliche Diagnoseinformation für einen Build einschalten, ohne jede Logstelle von Hand zu erweitern.
 
-CE benötigt keinen globalen Runtime-Context, keine Push/Pop-Aufrufe und keine dynamische Speicherverwaltung auf dem Target. Jeder ausgeführte Record überträgt seine eigenen zusätzlichen Werte. CE ist damit unabhängig von [Structured Logging](#strukturiertes-logging): Eine Erweiterung kann klassische printf-Platzhalter verwenden oder zusätzlich benannte Felder erzeugen.
+Die wiederholbare Option lautet bei `bind`, `insert` und `clean` gleich:
+
+```text
+-ce 'selector:"format-extension"[, comma-free C-expression]...'
+```
+
+Beispielsweise ergänzt `-ce 'ctx7:", clock={}", clock'` die Meldung `trice("msg:ctx7:hi\n");` um den an dieser Stelle gültigen Wert von `clock`. Bei `clock == 42` lautet der Meldungsteil mit `-color none`: `hi, clock=42`. Das freie kleingeschriebene `ctx7:` bleibt als Auswahlmerkmal im Source erhalten und verschwindet aus dem endgültigen Template. Das abschließende `\n` bleibt hinter dem angehängten Wert.
+
+| Befehl | Wirkung |
+| --- | --- |
+| `trice bind -ce …` | Ergänzt generierte Sidecars; die Trice-Aufrufe selbst bleiben unverändert. Unterstützt direkte, eindeutig über ihre Quellzeile zuordenbare Stellen. |
+| `trice insert -ce …` | Schreibt ID, Erweiterung und Argumente in die erkannten Source-Aufrufe. Wiederholung mit denselben Regeln ergänzt nichts ein zweites Mal. |
+| `trice clean -ce …` | Nimmt die erzeugte CE-Erweiterung mit denselben Regeln zurück und bereinigt die IDs nach den üblichen Regeln. Wiederholung ist unschädlich. |
+
+CE benötigt keinen globalen Runtime-Context oder Push/Pop-Aufrufe auf dem Target. Jeder ausgeführte Record überträgt seine eigenen zusätzlichen Werte. CE ist damit unabhängig von [Structured Logging](#strukturiertes-logging): Eine Erweiterung kann klassische printf-Platzhalter verwenden oder zusätzlich benannte Felder erzeugen.
 
 ### 33.1. <a id="einstieg-mit-position-und-geschwindigkeit"></a>Einstieg mit Position und Geschwindigkeit
 
-Ausgangspunkt ist ein regulär eingerichtetes [Bind-Projekt](#trice-bind). `build/triceIDs` muss wie bisher im Include-Pfad des Compilers stehen. Diese Werte sind an der Logstelle sichtbar:
+Ausgangspunkt ist ein regulär eingerichtetes [Bind-Projekt](#trice-bind). `./generated` (Default relativ zum Aufrufverzeichnis) muss im Include-Pfad des Compilers stehen. Diese Werte sind an der Logstelle sichtbar:
 
 ```c
 struct Position {
@@ -6375,7 +6409,7 @@ Die vier CE-Beispiele in [triceCheck.c](../_test/testdata/triceCheck.c) stehen u
 
 ### 33.2. <a id="regeln-und-selektoren"></a>Regeln und Selektoren
 
-Die wiederholbare Option gehört ausschließlich zu `bind`:
+Für die Erweiterung verwenden `bind` und `insert` dieselbe Syntax; `clean` erhält zur Rücknahme dieselben Optionen wie `insert`, in derselben Reihenfolge:
 
 ```text
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
@@ -6386,14 +6420,69 @@ Die Shell muss den gesamten Optionswert als ein Argument übergeben; die Beispie
 Selektoren werden in der zusammenhängenden Präfixfolge am Anfang des Formatstrings gesucht, beispielsweise `info:pos:speed:`. Der Vergleich ignoriert Groß-/Kleinschreibung; bekannte eingebaute Tag-Aliase gehören dabei zu derselben Gruppe, etwa `warn` und `WARNING`.
 
 - Nur konfigurierte Selektoren lösen CE aus. Ohne passende Regel bleibt ein Präfix unverändert.
-- Ein freier, vollständig kleingeschriebener Selektor wird bei Anwendung seiner Regel entfernt. `pos:` verschwindet, `PoS:` und `POS:` bleiben sichtbar und lösen dieselbe Regel aus.
+- Ein freier, vollständig kleingeschriebener Selektor wird bei Anwendung seiner Regel aus dem endgültigen Template entfernt, nicht aus dem Source. `pos:` verschwindet aus der Ausgabe; `PoS:` und `POS:` bleiben sichtbar und lösen dieselbe Regel aus.
 - Registrierte Trice-Tags und `-ulabel`-Namen behalten ihr Präfix im endgültigen Template. Für Tag-Metadaten und Darstellung gelten die normalen Regeln: `-color off` erhält beispielsweise `info:`; CE entfernt dieses bekannte Tag nicht.
 - Verschiedene Selektoren wirken in ihrer Reihenfolge im Source. Mehrere Regeln für denselben Selektor wirken in CLI-Reihenfolge.
-- Kommt derselbe Selektor, auch über einen Alias, mehrfach an einer Logstelle vor, wird seine Regelgruppe nur einmal angewendet. `bind` gibt eine Warnung für diese Logstelle aus.
+- Kommt derselbe Selektor, auch über einen Alias, mehrfach an einer Logstelle vor, wird seine Regelgruppe nur einmal angewendet. Beim Erweitern gibt das Tool eine Warnung für diese Logstelle aus.
 
 Damit ergänzt `info:pos:speed:` zuerst die Position und danach die Geschwindigkeit, auch wenn die CLI die `speed`-Regel zuerst nennt. Eine gleiche Bezeichnung darf sowohl User-Label als auch CE-Selektor sein; `-ulabel` und `-ce` haben getrennte Aufgaben.
 
-### 33.3. <a id="ausdrücke-felder-und-auswertung"></a>Ausdrücke, Felder und Auswertung
+### 33.3. <a id="reversibler-ablauf-mit-insert-und-clean"></a>Reversibler Ablauf mit insert und clean
+
+Ausgangspunkt in `main.c`:
+
+```c
+trice("msg:ctx7:hi\n");
+```
+
+Einfügen:
+
+```sh
+trice insert -src main.c -ce 'ctx7:", clock={}", clock'
+```
+
+Der Aufruf enthält danach beispielsweise Folgendes. Die ID ist nur ein Beispiel; der tatsächliche erzeugte Herkunftskommentar ist hier zur Lesbarkeit abgekürzt:
+
+```c
+trice(iD(1234), "msg:ctx7:hi, clock={}\n", clock) /* generated ownership data omitted */;
+```
+
+In `til.json` steht für diese ID das kanonische Template `msg:hi, clock={clock}\n`. Der Source behält `ctx7:` und die ursprüngliche Schreibweise seiner Felder. Der Compiler erhält den zusätzlichen Wert; der Decoder erhält das passende Schema. Ein zweiter identischer Insert-Aufruf erhält Erweiterung und ID.
+
+Rücknahme:
+
+```sh
+trice clean -src main.c -ce 'ctx7:", clock={}", clock'
+```
+
+Danach steht wieder `trice("msg:ctx7:hi\n");` im Source. Eine durch CE geänderte feste Argumentzahl wird ebenfalls zurückgenommen: Aus ursprünglich `TRICE16_1(Id(0), …)` kann während des Builds `TRICE16_2(Id(1234), …)` werden; danach steht wieder die ursprüngliche Makroform mit `Id(0)` dort. Bei schon vor CE vorhandenen IDs gelten weiterhin die üblichen Clean-Regeln: IDs kleingeschriebener Makrofamilien werden entfernt, IDs der entsprechenden Großschreibungsvarianten auf null gesetzt.
+
+Das Tool erzeugt hinter jedem angereicherten Aufruf einen Kommentar der Form `/* trice-ce: … */`. Er enthält den ursprünglichen Aufruf, die Regeln und die beim Einfügen gültige Tag-Einordnung in einer für C-Kommentare sicheren Kodierung. Er wird automatisch verwaltet und bei `clean -ce` entfernt. Dadurch braucht CE keine zusätzliche Metadatendatei und keinen Compiler-Vorlauf. Ein Aufruf kann mitsamt seinem Kommentar an eine andere Zeile oder in eine andere Datei verschoben werden; gelöschte Build-Dateien verhindern die Rücknahme nicht.
+
+**Den erzeugten Kommentar bis zur Rücknahme erhalten.** Den erweiterten Aufruf zuerst mit `clean -ce` zurücknehmen und anschließend bearbeiten oder seine Regeln ändern. Geänderte Argumente oder Meldungen, beschädigte oder vom Aufruf getrennte Herkunftskommentare sowie andere CE-Optionen werden abgewiesen, bevor Dateien verändert werden. Wird ein Kommentar vollständig von Hand gelöscht, fehlt der Nachweis der Erzeugung; das Tool kann den verbleibenden Code nicht sicher von handgeschriebenem Code unterscheiden.
+
+Für einen Regelwechsel ist die Reihenfolge daher:
+
+```sh
+trice clean -src main.c -ce 'ctx7:", clock={}", clock'
+trice insert -src main.c -ce 'ctx7:", clock={clock}", readClock()'
+```
+
+Ein `insert` oder `clean` **ohne** `-ce` führt nur seine normale ID-Aufgabe aus. Es nimmt eine vorhandene CE-Erweiterung nicht zurück. Für die vollständige Rücknahme müssen die bisherigen `-ce`-Optionen angegeben werden. Weitere Optionen, etwa `-src`, `-til`, `-li` und verwendete Trice-Aliase, müssen wie im normalen Workflow zum Projekt passen.
+
+Handgeschriebene Felder werden nicht als erzeugte CE-Felder geraten:
+
+```c
+trice("msg:ctx7:manual, clock={clock}\n", clock);
+```
+
+`clean -ce 'ctx7:", clock={clock}", clock'` lässt dieses unmarkierte Feld stehen. Ein entsprechendes `insert -ce` meldet den doppelten Feldnamen; es unterstellt nicht, dass ein gleichlautender Suffix von einem früheren Insert stammt.
+
+`insert -ce` beachtet `-src`, `-exclude` und `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. Trice-Aufrufe in gewöhnlichen C-Kommentaren erhalten keine CE-Herkunftskommentare; die bisherige ID-Verarbeitung solcher Beispiele bleibt bestehen. Bereits über Sidecar-Includes gebundene Dateien werden nicht automatisch auf Insert umgestellt. Für diese gilt der [Rückweg zu `trice insert`](#re-migration-to-trice-insert).
+
+Der CE-Pfad prüft alle ausgewählten Dateien vor dem Veröffentlichen und schreibt Source, TIL, LI sowie das Insert-Feldregister gemeinsam mit Rücknahme bei Schreibfehlern. `-dry-run` veröffentlicht nichts. Mit `-ce` wird der experimentelle, nur auf Zeitstempeln beruhende `-cache` umgangen, damit geänderte Regeln nicht mit alten Source-Kopien vermischt werden. `trice-fields.txt` beschreibt weiterhin den letzten erfolgreichen Insert-/Bind-Lauf; Clean erzeugt kein neues Feldregister.
+
+### 33.4. <a id="ausdrücke-felder-und-auswertung"></a>Ausdrücke, Felder und Auswertung
 
 Jeder CE-Ausdruck muss kommafrei sein und an jeder ausgewählten Logstelle gültig und sichtbar sein. Geeignet sind etwa `pos.x`, `motor->speed`, `array[i]`, `x + 1`, `aFloat(velocity)` oder `condition ? a : b`. `getValue(a, b)` und der Kommaoperator sind in der CLI-Liste nicht zulässig; solche Ergebnisse können vorher in einer lokalen Variable berechnet werden. Jeder Optionswert steht vollständig auf einer Zeile; `//`-Kommentare sind in den Ausdrücken nicht zulässig.
 
@@ -6405,7 +6494,60 @@ Skalare Trices übertragen weiterhin höchstens zwölf Werte derselben Bitbreite
 
 String-, Puffer- und andere besondere Trice-Familien erhalten keine zusätzlichen Runtime-Argumente durch CE. Eine reine Texterweiterung ohne zusätzliche Werte ist möglich, soweit das endgültige Format für die ursprüngliche Familie gültig bleibt, etwa `label:" online"` an einem `triceS`. Benannte Pufferfelder bleiben wie bei Structured Logging ausgeschlossen.
 
-### 33.4. <a id="build-ids-und-generierte-dateien"></a>Build, IDs und generierte Dateien
+### 33.5. <a id="globale-und-lokale-werte-verständlich-einsetzen"></a>Globale und lokale Werte verständlich einsetzen
+
+Globale Zustandswerte und überall verfügbare Funktionen sind häufig besonders praktisch:
+
+```sh
+trice insert -src src -ce 'ctx7:", clock={clock}", readClock()'
+```
+
+Jede ausgewählte Logstelle muss `readClock()` aufrufen dürfen; die passende Deklaration muss dort bekannt sein. Der Wert wird beim tatsächlichen Logaufruf gelesen, nicht beim Aufruf des Trice-Tools. Ohne ausgeführten Logaufruf entsteht auch kein CE-Aufruf der Funktion.
+
+Lokale Variablen sind ebenfalls sinnvoll, wenn alle ausgewählten Stellen denselben Ausdruck verwenden können. Beispielsweise passt die Regel `-ce 'job:", job={job}", jobId'` zu beiden Funktionen:
+
+```c
+void startJob(int jobId) {
+    trice("info:job:start\n");
+}
+
+void finishJob(int jobId) {
+    trice("info:job:finish\n");
+}
+```
+
+Die gemeinsame Regel liest jeweils den lokalen Parameter der ausgeführten Funktion. Es gibt keinen globalen `jobId`-Speicher und keine Vermischung verschiedener Aufrufe.
+
+Diese Variante funktioniert dagegen nicht mit derselben Regel:
+
+```c
+void startJob(int jobId) {
+    trice("info:job:start\n");
+}
+
+void finishJob(int finishedJobId) {
+    trice("info:job:finish\n");
+}
+```
+
+In `finishJob` existiert `jobId` nicht. Der Compiler meldet den fehlenden Namen automatisch; es ist keine zusätzliche CLI-Option erforderlich. Mögliche Lösungen sind ein einheitlicher Parametername, ein lokaler Hilfswert, getrennte Selektoren mit passenden Regeln oder das direkt angegebene Feld `trice("info:finish, job={job}\n", finishedJobId);`.
+
+Auch eine normale Hilfsfunktion kann nicht auf die lokalen Variablen ihres Aufrufers zugreifen. Das gilt ebenso für `static inline`: Inlining schafft keine zusätzliche Sichtbarkeit. Werte müssen als Parameter übergeben werden:
+
+```c
+static inline void logJob(int jobId) {
+    trice("info:job:progress\n");
+}
+
+void worker(void) {
+    int currentJob = 17;
+    logJob(currentJob);
+}
+```
+
+Diese Einschränkung bleibt bestehen, weil CE normalen C-/C++-Code erzeugt. Das Trice-Tool kennt weder alle Typen und Deklarationen noch die vom konkreten Compiler ausgewählten Präprozessorzweige. Es prüft Syntax, Schema und unterstützte Logformen selbst; die genaue Sichtbarkeit prüft der ohnehin erforderliche Compiler. Ein eigener vollständiger Compiler-Vorlauf nur für eine frühere Fehlermeldung würde die Bedienung und den Build unnötig verkomplizieren.
+
+### 33.6. <a id="build-ids-und-generierte-dateien"></a>Build, IDs und generierte Dateien
 
 CE wird vor der Schema- und ID-Bestimmung angewendet. Die ID richtet sich nach dem endgültigen Trice-Typ und dem kanonischen Template einschließlich Feldnamen. Ein anderer Ausdruck bei identischem Schema ändert die ID nicht: `ctx:", x={position}", pos.x` kann zu `ctx:", x={position}", pos.y` wechseln. Eine Änderung des Feldnamens, des Formats oder des endgültigen Typs folgt dagegen den bestehenden ID-Vergaberegeln. Historische TIL-Einträge bleiben für ältere Firmware erhalten.
 
@@ -6413,17 +6555,17 @@ Nach jeder Änderung an Source oder CE-Konfiguration wird `bind` mit der vollst�
 
 Die normalen Bind-Einrichtungsschritte, etwa das erstmalige Sidecar-Include, bleiben bestehen. CE selbst schreibt weder die Erweiterung noch zusätzliche Argumente in die User-Logstellen. Wiederholungsläufe mit gleicher Konfiguration erhalten Source, IDs und generierte Inhalte. `trice-fields.txt` zählt die endgültigen CE-Felder zusammen mit den direkt angegebenen Feldern für den aktuellen Lauf. `-dry-run` veröffentlicht keine Änderungen. Ungültige Regeln, Feldkonflikte und ausgewählte nicht unterstützte Bind-Stellen werden vor Schreibzugriffen abgewiesen; bei einem Veröffentlichungsfehler greift die bestehende Bind-Rücknahme.
 
-`generate -logC` verwendet die endgültigen CE-Schemas aus TIL und den zugehörigen Sidecar-Metadaten. Die Regeln müssen dafür nicht nochmals angegeben werden:
+`generate -logC` verwendet die endgültigen CE-Schemas aus TIL und den zugehörigen Sidecar-Metadaten bei Bind beziehungsweise den geprüften Herkunftskommentaren bei Insert. Die Regeln müssen dafür nicht nochmals angegeben werden:
 
 ```sh
-trice generate -src src -til til.json -buildDir build/triceIDs -logC triceLog.c
+trice generate -src src -til til.json -genDir generated -logC triceLog.c
 ```
 
-Veraltete oder widersprüchliche CE-Metadaten führen zu einem Fehler. Nach einem geänderten Trice-Aufruf muss deshalb zuerst erneut mit den gewünschten `-ce`-Regeln gebunden werden. Der gleiche Source-Umfang und das gleiche Build-Verzeichnis müssen den beteiligten Befehlen zugänglich sein.
+Veraltete oder widersprüchliche CE-Metadaten führen zu einem Fehler. Bei Bind muss nach einem geänderten Trice-Aufruf deshalb zuerst erneut mit den gewünschten Regeln gebunden werden. Bei Insert gilt der Ablauf `clean -ce`, bearbeiten, `insert -ce`. Derselbe Source-Umfang und dieselbe TIL müssen zugänglich sein; Bind benötigt zusätzlich seine Sidecars im passenden Build-Verzeichnis. Bei Insert reicht der Herkunftskommentar am Aufruf, einschließlich der damals gültigen Behandlung von User-Labels.
 
-### 33.5. <a id="unterstützte-logstellen-und-alternativen"></a>Unterstützte Logstellen und Alternativen
+### 33.7. <a id="unterstützte-logstellen-und-alternativen"></a>Unterstützte Logstellen und Alternativen
 
-CE unterstützt direkte, anhand von Datei und Quellzeile eindeutig zuordenbare Trice-Aufrufe, auch innerhalb normaler und `static inline` Funktionen. Dieser Weg benötigt kein `__COUNTER__`. Ein mehrzeiliger Aufruf ist ebenfalls möglich, wenn auf seinen belegten Zeilen keine andere Bind-Logstelle liegt.
+`bind -ce` unterstützt direkte, anhand von Datei und Quellzeile eindeutig zuordenbare Trice-Aufrufe, auch innerhalb normaler und `static inline` Funktionen. Dieser Weg benötigt kein `__COUNTER__`. Ein mehrzeiliger Aufruf ist ebenfalls möglich, wenn auf seinen belegten Zeilen keine andere Bind-Logstelle liegt.
 
 Ausgewählte Wrappermakros und Counter-Rebase-Stellen sind zurückgestellt. Ein typischer Fehler lautet:
 
@@ -6433,17 +6575,215 @@ main.c:42: error: CE requires a direct, line-addressable bind site. Search UM fo
 
 Der Abschnitt [bind-limits](#bind-limits) erklärt die Ursache und mögliche Codeanpassungen ohne Compiler-Spezialwissen. Geeignete Schritte sind getrennte Quellzeilen oder normale Funktionen mit ausdrücklich übergebenen lokalen Werten. Nicht von CE ausgewählte Wrapper-/Rebase-Stellen behalten das bisherige Bind-Verhalten einschließlich ihrer Compileranforderungen.
 
-`insert/clean` bleibt dauerhaft als alternativer ID-Workflow verfügbar. Automatisches `-ce` gibt es dafür derzeit nicht; zusätzliche Werte können wie bisher direkt in Formatstring und Argumentliste stehen. Für bestehende Bind-Projekte gilt der dokumentierte [Rückweg zu `trice insert`](#re-migration-to-trice-insert).
+`insert -ce` schreibt die endgültigen Argumente direkt an jede erkannte Logstelle. Dadurch entfällt die Bind-Auswahl über Quellzeile oder Compilerzähler. Insbesondere können diese Aufrufe mit `-ce 'ctx7:", clock={}", clock'` erweitert werden:
 
-### 33.6. <a id="prüfumfang"></a>Prüfumfang
+```c
+trice("msg:ctx7:first\n"); trice("msg:ctx7:second\n");
 
-Die [Regel- und Bind-Tests](../internal/id/contextEnrichment_test.go) prüfen Selektoren, Aliase, Reihenfolge, ungültige Regeln, Grenzen, stabile IDs, Konfigurationswechsel, das Feldregister sowie unveränderte Dateien bei Ablehnungen und Schreibfehlern. Die [CLI- und Target-Tests](../internal/args/context_enrichment_test.go) führen den öffentlichen Weg von `bind` über `generate -logC` und echte Target-Records bis zur Text-/JSON-/KV-Ausgabe aus.
+#define LOG_STATUS() trice("msg:ctx7:status\n")
+```
 
-Der Target-Nachweis umfasst Clang in C11 und C++17, `clangd` mit realer Compile-Konfiguration, 8/16/32/64-Bit-Werte, verschiedene Stempeltypen und Builds ohne `__COUNTER__`. Er prüft getrennte lokale Sichtbarkeitsbereiche, einmalige Auswertung, `TRICE_OFF`, `TRICE_CLEAN` und verständliche Compiler-/Editorfehler bei fehlenden Bezeichnern. Andere Compiler und Language-Server sind damit nicht als CE-geprüft ausgewiesen. Die gezielte Abnahme lässt sich im Repository-Root wiederholen:
+Bei einem Wrapper ergänzt Insert den Trice-Aufruf in der **Makrodefinition**. Jeder spätere Aufruf von `LOG_STATUS()` verwendet diese Erweiterung. `clock` muss an jeder Expansion sichtbar sein. Derselbe Wrapper wird dadurch nicht pro Aufrufort mit unterschiedlichen Regeln ausgestattet; Selektoren gehören zum erkannten Formatstring in der Definition.
+
+Auch Parameter eines solchen Wrappers können verwendet werden:
+
+```c
+#define LOG_JOB(jobId) trice("info:job:progress\n")
+
+void worker(void) {
+    LOG_JOB(17);
+}
+```
+
+Mit `insert -ce 'job:", job={job}", jobId'` wird `jobId` direkt in die Definition eingesetzt und bei der Makroexpansion durch `17` ersetzt. Die normalen Makroregeln gelten unverändert; insbesondere sind Argumente mit voneinander abhängigen Seiteneffekten zu vermeiden.
+
+Das setzt einen vom Trice-Parser erkennbaren Aufruf mit bekanntem Formatstring voraus. Aus einer Definition wie `#define LOG_ANY(format) trice(format)` lässt sich dagegen kein statischer Selektor und kein vollständiges Schema ablesen. CE ist kein allgemeiner C-Präprozessor und verspricht keine Unterstützung beliebiger per Makro zusammengesetzter Formate. Ein expliziter Trice-Aufruf oder eine Funktion mit festem Format und übergebenen Werten bleibt die einfache Alternative.
+
+| Logform | `bind -ce` | `insert/clean -ce` |
+| --- | --- | --- |
+| Direkter eindeutig zuordenbarer Aufruf, auch in einer Inline-Funktion | Unterstützt | Unterstützt |
+| Mehrere direkte Aufrufe auf derselben Zeile | Bei Auswahl durch CE abgewiesen | Erkennbare Aufrufe werden einzeln erweitert |
+| Wrapperdefinition mit statischem Trice-Format | Bei Auswahl durch CE weiterhin abgewiesen | Die erkannte Definition wird erweitert und wiederhergestellt |
+| Lokaler Name fehlt an der tatsächlichen Expansion | Compilerfehler | Compilerfehler |
+| String-/Pufferrecord mit zusätzlichen skalaren CE-Argumenten | Fehler vor Veröffentlichung | Fehler vor Veröffentlichung |
+
+**Warum die Bind-Grenze trotz erfolgreichem PoC bleibt:** Beim bestehenden Counter-Rebase gelangten Ausdrücke verschiedener Logstellen in mehrere C-Verzweigungen. Der Compiler prüft auch den nicht ausgeführten Zweig. Eine nur links gültige lokale Variable kann daher rechts einen künstlichen Fehler auslösen. Der erweiterte PoC wählt den Adapter bereits während der Makroexpansion und vermeidet diesen Fehler für die geprüften Fälle. Dafür benötigt er einen zusätzlichen Vorlauf mit dem konkreten Compiler pro Übersetzungseinheit und Build-Konfiguration sowie passende erzeugte Zuordnungsdateien.
+
+Dieser Build-Aufwand wurde nicht als produktiver Workflow eingeführt. Außerdem ist `__COUNTER__` keine überall verfügbare Compilereigenschaft und kein Laufzeit- oder Cycle-Counter. Selbst global sichtbare CE-Werte führen deshalb nicht zu einer gesonderten Freischaltung komplexer Bind-Stellen. Die einheitliche Grenze lässt sich einfach erklären und bereits bei Bind abweisen. `insert/clean -ce` benötigt diese Zuordnung und diesen Vorlauf nicht. Die genauen Nachweise, Kosten und offenen Punkte stehen im [kapitelinternen PoC-Anhang](#anhang-ce-machbarkeitsnachweise).
+
+### 33.8. <a id="prüfumfang"></a>Prüfumfang
+
+Die [Regel- und Bind-Tests](../internal/id/contextEnrichment_test.go) prüfen Selektoren, Aliase, Reihenfolge, ungültige Regeln, Grenzen, stabile IDs, Konfigurationswechsel, das Feldregister sowie unveränderte Dateien bei Ablehnungen und Schreibfehlern. Die [Insert-/Clean-Tests](../internal/id/contextSource_test.go) ergänzen vollständige Rücknahme, Wiederholungen, handgeschriebene Felder, Kommentare, verschobene Aufrufe, Ausschlüsse, beschädigte Herkunftsangaben und Rücknahme nach Schreibfehlern. Die [CLI- und Target-Tests](../internal/args/context_enrichment_test.go) führen beide öffentlichen Wege über `generate -logC` und echte Target-Records bis zur Text-/JSON-/KV-Ausgabe aus.
+
+Der produktive Target-Nachweis umfasst Clang in C11 und C++17, `clangd` mit realer Compile-Konfiguration, 8/16/32/64-Bit-Werte, verschiedene Stempeltypen und Builds ohne `__COUNTER__`. Er prüft getrennte lokale Sichtbarkeitsbereiche, einmalige Auswertung, `TRICE_OFF`, `TRICE_CLEAN` und verständliche Compiler-/Editorfehler bei fehlenden Bezeichnern. Insert prüft zusätzlich zwei Logstellen in getrennten lokalen Blöcken derselben Wrapperzeile und deren vollständige Rücknahme. Die Editorprüfung schließt lediglich clangds Refactoring-Aktion `SwapBinaryOperands` aus: Clangd 21 schlägt dafür innerhalb eines expliziten `Id(...)` überlappende Textänderungen vor. Compilerdiagnosen und Fehler bei fehlenden Bezeichnern bleiben geprüft. Weitere Compiler werden getrennt im PoC-Anhang eingeordnet.
+
+Die gezielte Abnahme lässt sich im Repository-Root wiederholen:
 
 ```sh
-TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment)' -count=1
+TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment|TestInsertCleanContext|TestSourceContext|TestContextInsertClean)' -count=1
 ```
+
+### 33.9. <a id="anhang-ce-machbarkeitsnachweise"></a>Anhang: CE-Machbarkeitsnachweise
+
+Stand: 27. September 2026. Der isolierte A9-Nachweis für direkte Bind-Logstellen ist bestanden. Er liegt in [context_enrichment_poc_test.go](../internal/id/context_enrichment_poc_test.go). Die darauf aufbauende produktive Option `trice bind -ce` ist inzwischen mit A10 implementiert; ihre Bedienung und Abnahme stehen im [User Manual](#trice-context-enrichment). Dieser Anhang enthält außerdem die ursprüngliche Rebase-Gegenprobe und den neuen [PoC für Wrappermakros und Counter-Rebase](#erweiterter-poc-für-wrappermakros-und-counter-rebase). Letzterer ist eine Entscheidungsgrundlage und aktiviert keine zusätzliche produktive CE-Unterstützung.
+
+#### 33.9.1. <a id="geprüfter-mechanismus"></a>Geprüfter Mechanismus
+
+Der bestehende Bind-Deskriptor enthält neben der ID ein anzuwendendes Makro. Der PoC verwendet an ausgewählten Logstellen ein generiertes Adaptermakro, das die ursprünglichen Argumente übernimmt und die Context-Ausdrücke anhängt. Diese Ausdrücke werden erst bei der Expansion des ursprünglichen Trice-Aufrufs ausgewertet und haben dort Zugriff auf lokale Variablen.
+
+Für eine ursprünglich argumentlose Logstelle entspricht der Adapter beispielsweise:
+
+```c
+#define TRICE_CE_POC_SITE(ignoredImplementation, tid, format) \
+    TRICE_INSERT_trice(tid, format, (x))
+```
+
+Bei vorhandenen Argumenten erhält das Adaptermakro passende zusätzliche Parameter. Jeder wird genau einmal in den endgültigen Aufruf übernommen. Generische Trice-Makros bestimmen ihre Arity aus der erweiterten Argumentliste. Bei festen Arity-Makros wählt der Adapter die passende Implementierung, beispielsweise `TRICE_INSERT_trice_1` für eine erweiterte `trice_0`-Logstelle.
+
+Der Test erzeugt den erweiterten Template-String und die zusätzlichen Argumente zunächst ausschließlich in einer privaten In-Memory-Sourceansicht. Auf dieser Ansicht läuft der vorhandene `SubCmdIdBind` mit dem normalen Structured-Logging-Parser und der normalen ID-Vergabe. Damit wird die ID aus dem endgültigen Schema bestimmt. Der Compiler sieht dagegen weiterhin den unveränderten User-Source und das erzeugte Sidecar mit den Adaptermakros. Das ist ein Testadapter für den Architekturbeweis, noch keine produktive CE-Integration.
+
+Die Fixture enthält bereits das reguläre Bind-Sidecar-Include und einen festen File-Key. Der Test prüft deshalb die durch CE geforderte Source-Unveränderlichkeit unabhängig von der erstmaligen Einrichtung eines Bind-Projekts.
+
+#### 33.9.2. <a id="nachgewiesenes-verhalten"></a>Nachgewiesenes Verhalten
+
+| Fall | Erwartetes Ergebnis | Nachweis |
+| --- | --- | --- |
+| Argumentloses `trice` | Lokales `x` wird als zusätzlicher Wert übertragen | Binärrecord enthält `7` |
+| Bereits parametrisiertes `trice` | Originalwert steht vor dem CE-Wert | Binärrecord enthält `1, 1` |
+| Einfacher Ausdruck | `x + 1` wird am Aufrufort ausgewertet | Binärrecord enthält `8` |
+| Feste Arity | `trice_0` und `trice_1` erhalten die passende endgültige Arity | Binärrecords enthalten `7` bzw. `22, 7` |
+| Innerer Block-Scope | Nur dort sichtbares `blockValue` wird verwendet | Binärrecord enthält `11` |
+| Unselektierte Logstelle | Keine zusätzlichen Werte | Binärrecord bleibt argumentlos |
+| Seiteneffekte | Originalausdruck und CE-Ausdruck werden jeweils genau einmal ausgewertet | Zwei getrennte Laufzeitzähler stehen auf `1` |
+| Nicht ausgeführter Aufruf | Kein Record und kein CE-Seiteneffekt | Sieben Records trotz acht instrumentierter Logstellen; CE-Zähler bleibt auf `1` |
+| TIL-Konsistenz | Finale Templates, Arity, IDs und Nutzdaten passen zusammen | Explizite Template-Erwartungen und echter Trice-Record-Parser/Resolver |
+| Wiederholung | Identische IDs und generierte Inhalte | Bytevergleich von Source, Konfiguration, TIL, LI, Sidecar und Feldregister nach zwei PoC-Bind-Läufen |
+| Ungültiger Context | Ein nicht sichtbarer Bezeichner wird diagnostiziert | Compiler und `clangd` weisen `ceMissingLocal` ab |
+
+Der Laufzeittest verwendet die tatsächlichen Target-Makros und die Trice-Bibliothek. Der Auxiliary-Ausgang liefert die erzeugten Binärrecords an `TriceParseRecord`; `TriceResolveLog` prüft sie gegen eine aus der endgültigen TIL erzeugte C-Metadatentabelle. Damit wird auch eine falsche Payload-Länge oder Parameterzahl erkannt. Die C-Tabelle wird im PoC direkt aus der TIL erzeugt; der öffentliche `generate -logC`-Workflow ist dabei nicht geprüft.
+
+#### 33.9.3. <a id="compiler-und-editor-diagnosen"></a>Compiler und Editor-Diagnosen
+
+Der Test kompiliert und startet dieselbe Fixture als C11 und C++17 mit `-Wall -Wextra -Werror`. Die Bibliotheksquellen werden als C übersetzt. Für beide Sprachmodi wird eine `compile_commands.json` mit den tatsächlichen Compilerargumenten erzeugt. `clangd --check` muss diese Datenbank laden und ohne Fehler abschließen. Der Negativtest zeigt zusätzlich, dass fehlende Context-Bezeichner weiterhin sichtbar diagnostiziert werden.
+
+Geprüfte Umgebung: macOS auf ARM64, Apple Clang/Clang++ 21.0.0 und Apple clangd 21.0.0. Beide Sprachmodi und die negativen Diagnoseprüfungen bestanden. Dies belegt den Language-Server-Pfad für clangd-basierte Editoren mit dem generierten Include-Verzeichnis und der realen Compile-Konfiguration. Andere Language-Server, IDE-eigene Parser, GCC und MSVC wurden in diesem A9-Lauf nicht geprüft.
+
+#### 33.9.4. <a id="reproduzieren"></a>Reproduzieren
+
+Im Repository-Root ausführen:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentPoC$' -count=1 -v
+```
+
+Erforderlich sind ein GCC-/Clang-kompatibler C- und C++-Compiler sowie `clangd` im `PATH`. Der gezielte Test verlangt diese Werkzeuge ausdrücklich. Ohne `TRICE_BIND_INTEGRATION=1` wird er übersprungen. Alle Fixtures und Build-Artefakte entstehen in einem temporären Testverzeichnis und werden anschließend entfernt. Die bestehenden Repository-Workflows werden nicht verändert.
+
+#### 33.9.5. <a id="abgrenzung-zu-a10"></a>Abgrenzung zu A10
+
+Der Nachweis erfüllt die Mindestfälle aus dem [CE-Kapitel](#trice-context-enrichment). Er prüft direkte skalare 32-Bit-Logstellen mit einer Logstelle pro physischer Zeile und dem `iD`-Stempeltyp. Die PoC-Regeln sind feste Testdaten; der A9-Test enthält keinen CLI-Parser, keine vollständige Selektor-/Alias-Policy und keine produktive Fehlervalidierung.
+
+A10 bindet die Transformation vor der produktiven Schema-/ID-Vergabe ein und erzeugt die Sidecar-Erweiterung dauerhaft. Die erste Ausbaustufe bleibt auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen begrenzt. Die zusätzlichen [Bind-Verhaltenstests](../internal/id/contextEnrichment_test.go) und [CLI-/Target-Tests](../internal/args/context_enrichment_test.go) prüfen die breitere Abnahme getrennt vom A9-PoC: 8/16/32/64 Bit, verschiedene Stempeltypen, `TRICE_OFF`/`TRICE_CLEAN`, Regelkonflikte, Konfigurationswechsel, Mehrzeiler, Inline-Funktionen und echte Compiler-/Editorläufe ohne `__COUNTER__`. Vier Beispiele werden aus `triceCheck.c` übernommen; insgesamt vierzehn Records durchlaufen den öffentlichen `generate -logC`-Resolver und den Go-Decoder für Text, JSON und KV. CE für Wrappermakros und Counter-Rebase bleibt eine eigene Folgeaufgabe.
+
+Damit ist der direkte Mechanismus nicht mehr nur ein PoC. Die weiterhin offenen Varianten bleiben im [Arbeitsplan](./scratchPad/Implementierungsplan.md) abgegrenzt.
+
+#### 33.9.6. <a id="ergänzende-rebase-gegenprobe-vor-a10"></a>Ergänzende Rebase-Gegenprobe vor A10
+
+Am 27. September 2026 wurde die direkte Übertragung des Adapteransatzes auf Counter-Rebase geprüft. Der zusätzliche Test `TestContextEnrichmentPoCRebaseScopeBoundary` zeigt eine Grenze: Zwei von Bind unterstützte Logstellen auf derselben Sourcezeile liegen in getrennten Blöcken und verwenden jeweils eine nur dort sichtbare Variable. Der normale Bind-Build besteht. Werden die beiden CE-Ausdrücke in die jeweiligen Zweige des generierten Rebase-Dispatchers eingefügt, scheitert die Übersetzung an den Variablennamen des jeweils anderen Scopes.
+
+Der Grund ist die C-seitige Ordinalauswahl: Auch ein zur Laufzeit nicht gewählter `if`-Zweig wird vom Compiler auf gültige Bezeichner geprüft. Die betroffenen Ausdrücke sind an ihrer vorgesehenen Logstelle gültig. Der Fehler wäre deshalb eine unzulässige zusätzliche Scope-Anforderung der Instrumentierung. Der Test erwartet und belegt genau diese fehlgeschlagene Erweiterung; er ist keine bestandene CE-Rebase-Abnahme.
+
+Der direkte A9-Nachweis bleibt gültig. Das bloße Anhängen von CE-Argumenten an Rebase-Zweige genügt für eine allgemeine CE-Unterstützung jedoch nicht. Am 27. September wurde deshalb die erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Bind-Logstellen begrenzt. A10 weist ausgewählte Wrapper-/Rebase-Stellen vor Dateiänderungen ab und verweist mit `Search UM for "bind-limits".` auf die verständliche Erklärung im User Manual. Ohne passende CE-Regel bleiben die bisherigen Bind-Fähigkeiten erhalten. Der zusätzliche Architektur-Nachweis für komplexe CE-Stellen ist eine zurückgestellte Folgeaufgabe; diese Gegenprobe allein belegt keine grundsätzliche Unmöglichkeit einer späteren Lösung.
+
+Die Gegenprobe ist separat reproduzierbar:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentPoCRebaseScopeBoundary$' -count=1 -v
+```
+
+#### 33.9.7. <a id="erweiterter-poc-für-wrappermakros-und-counter-rebase"></a>Erweiterter PoC für Wrappermakros und Counter-Rebase
+
+**Ergebnis:** Eine Auswahl des CE-Adapters bereits im Präprozessor beseitigt das nachgewiesene Problem fremder lokaler Variablen. Der neue Test [context_enrichment_rebase_poc_test.go](../internal/id/context_enrichment_rebase_poc_test.go) weist einen funktionierenden Ansatz mit einem zusätzlichen Compiler-Vorlauf nach. Er enthält außerdem einen einfacheren Sonderfall: Ein Wrapper mit genau einer Logstelle kann bei eindeutiger Zeilenzuordnung ohne diesen Vorlauf und ohne `__COUNTER__` angereichert werden. Beides bleibt Testcode; `bind -ce` weist die bisher ausgeschlossenen Konstrukte weiterhin ab.
+
+##### Wie der untersuchte Ansatz arbeitet
+
+Bei der bisherigen C-Verzweigung gelangen die Ausdrücke aller möglichen Logstellen zum Compiler. Im neuen PoC wählt dagegen die Makroexpansion genau einen Adapter aus. Nur dessen Ausdrücke erscheinen im endgültigen C-/C++-Code. Dadurch kann etwa ein Wrapper in seinem linken Zweig eine Variable `branchLeft` und in seinem rechten Zweig eine andere Variable `branchRight` verwenden, ohne dass einer dieser Namen im jeweils anderen Block existieren muss.
+
+Die Zuordnung benötigt einen Wert, den der Präprozessor direkt als Teil eines Makronamens verwenden kann. Die bestehende relative Rechnung aus `__COUNTER__` und einer C-Enum-Konstante eignet sich dafür nicht. Der PoC ermittelt deshalb die tatsächlichen absoluten Counter-Werte mit dem jeweils verwendeten Compiler:
+
+1. Der bestehende Bind-Mechanismus richtet die temporären Testquellen regulär ein. Eine private Sourceansicht erhält die CE-Erweiterungen und durchläuft die vorhandene Schema-/ID-Vergabe. Der tatsächlich kompilierte User-Source behält seine ursprünglichen Trice-Aufrufe und Wrapperdefinitionen.
+2. Der Compiler verarbeitet diese Quellen mit den tatsächlichen Sprach-, Target- und Präprozessoroptionen vor. Eine nur für den Test eingebundene Datei lässt für jede Rebase-Expansion eine Markierung mit Region und Counter-Wert erscheinen.
+3. Der Test ordnet diese Markierungen den numerischen Definition-/Location-Deskriptoren und der Expansionsreihenfolge aus dem erzeugten Bind-Sidecar zu. Er errät keine IDs aus Formatstrings. Daraus entsteht ein Header mit genau einem Makro pro tatsächlich beobachteter Expansion.
+4. Beim normalen Übersetzen wählt `__COUNTER__` dieses Makro aus. Es übergibt die bestehenden Argumente und ergänzt nur die zugehörigen CE-Ausdrücke. Die bestehenden Rebase-Endprüfungen bleiben aktiv. Eine zusätzliche Prüfung des Basiswertes weist eine verschobene Zuordnung zurück, auch wenn zufällig noch ein anderer gültiger Eintrag getroffen würde.
+
+Dieser Vorlauf ist pro Übersetzungseinheit und konkreter Build-Konfiguration erforderlich. Eine Übersetzungseinheit ist hier beispielsweise eine `.c`- oder `.cpp`-Datei einschließlich ihrer eingebundenen Header. Derselbe gemeinsam verwendete Wrapper kann deshalb für verschiedene Übersetzungseinheiten unterschiedliche Counter-Zuordnungen benötigen, während seine logischen IDs gleich bleiben.
+
+##### Nachgewiesene Fälle
+
+| Fall | Geprüftes Ergebnis |
+| --- | --- |
+| Einfacher Wrapper mit einer Logstelle | CE am Aufrufort funktioniert auch mit entferntem `__COUNTER__`; ein normaler Zeilendeskriptor genügt. |
+| Wrapper mit zwei Logstellen | Ursprüngliche Werte stehen vor den jeweiligen CE-Werten; generische und feste Arity funktionieren. |
+| Wiederholte Wrapper-Aufrufe | Dieselben logischen IDs übertragen unterschiedliche lokale Context-Werte ihrer Aufrufer. |
+| Wrapper mit getrennten Zweigen | `branchLeft` und `branchRight` bleiben jeweils auf ihren eigenen Block beschränkt. |
+| Zwei direkte Aufrufe auf derselben Zeile | Getrennte Blöcke mit `onlyLeft` und `onlyRight` funktionieren ohne fremde Scope-Anforderungen. |
+| Nicht ausgewählte Rebase-Stellen | Die bestehenden Records bleiben unverändert und ohne zusätzliche Werte. |
+| Seiteneffekte | Ursprünglicher Ausdruck und CE-Ausdruck werden je ausgeführtem Aufruf genau einmal ausgewertet. Ein nicht ausgeführter Wrapper-Aufruf bewirkt nichts. |
+| Tatsächliche Records | Elf ausgegebene Records werden durch die echte Target-Bibliothek erzeugt, gegen die finale C-TIL aufgelöst und auf IDs, Parameterzahl und sämtliche geordneten Werte geprüft. |
+| Wiederholung | Erneute private Bind-Generierung erhält Schema, IDs, Regionenzuordnung und Source. Derselbe Compiler-Vorlauf reproduziert denselben Zuordnungsheader. |
+| Fremde Counter-Verwendungen vor den Logstellen | Zusätzliche Verwendungen mit den Abständen 0, 1 und 7 ändern die Zuordnung, während IDs und erwartete Records gleich bleiben. |
+| Veralteter Zuordnungsheader | Ein normaler Build scheitert. Insbesondere wird auch eine Verschiebung um eins erkannt, die sonst auf einen benachbarten gültigen Adapter treffen könnte. |
+| Fehlender Context-Bezeichner | Compiler und die geprüften `clangd`-Varianten melden `cePocMissingLocal` als echten Fehler. |
+| Zusätzlicher Counter-Verbrauch im CE-Ausdruck | Wird abgewiesen; der untersuchte Vorlauf setzt einen Counter pro Rebase-Expansion voraus. |
+| `TRICE_OFF` und `TRICE_CLEAN` | Keine Records und keine Argument-/CE-Auswertung, auch ohne verfügbares `__COUNTER__`. |
+| Aktives Rebase ohne `__COUNTER__` | Klarer Buildfehler einschließlich `Search UM for "bind-limits".`. Der PoC behauptet für diesen Fall keine Lösung. |
+
+Der Laufzeitnachweis verwendet skalare 32-Bit-Records mit `iD`. Er ersetzt nicht die breitere Bitbreiten-/Stempel-Abnahme von A10 und ist noch keine vollständige Abnahme sämtlicher denkbaren Wrapper.
+
+##### Compiler-Matrix und Aussagegrenzen
+
+Am 27. September 2026 wurden folgende installierte Werkzeugvarianten geprüft:
+
+| Werkzeug und Ziel | Sprachmodi | Nachweis |
+| --- | --- | --- |
+| Apple Clang/Clang++ 21.0.0, macOS ARM64 | C99, C11, C17, C++11, C++17 | Vorverarbeitung, Kompilierung mit `-Wall -Wextra -Werror`, Linken und tatsächliche Programmausführung bestanden. |
+| ARM GNU Toolchain 13.3.Rel1, GCC/G++ 13.3.1, Cortex-M0/Thumb | C99, C11, C17, C++11, C++17 | Vorverarbeitung und Erzeugung echter ARM-Objektdateien mit `-Wall -Wextra -Werror` bestanden; keine Ausführung auf MCU oder Emulator. |
+| Dieselbe ARM-GCC-Version, Cortex-M4/Thumb | C99, C11, C17, C++11, C++17 | Vorverarbeitung und Erzeugung echter ARM-Objektdateien bestanden; keine Target-Laufzeitaussage. |
+| Alle drei Konfigurationen | C++20 | Der bestehende Bind-Code scheitert bereits ohne experimentelles CE an einer mit `-Werror` eskalierten Enum-Warnung. Mit ausschließlich dieser Warnung auf Warnungsstatus zurückgesetzt besteht der CE-PoC; Clang einschließlich Laufzeit, ARM-GCC als Objekt-Build. |
+| Apple clangd 21.0.0 | Host-C11 und Host-C++17 | Reale `compile_commands.json` einschließlich des experimentellen Headers wird geladen. Gültige Quellen sind fehlerfrei; der absichtlich fehlende Bezeichner wird diagnostiziert. |
+
+Damit wurden 18 Kombinationen aus Toolchain/Target und Sprachmodus untersucht, jeweils mit drei Counter-Ausgangslagen sowie zusätzlichen Negativ- und Abschaltfällen. Die macOS-Kommandos `gcc`/`g++` sind in dieser Umgebung Clang-Aliase und werden ausdrücklich nicht als GCC-Nachweis gezählt. Der eigenständige GCC-Nachweis stammt vom ARM-Crosscompiler. Native GCC-Varianten werden bei Verfügbarkeit ebenfalls in die Testmatrix aufgenommen. MSVC, IAR, Arm Compiler/armclang und andere Language-Server wurden nicht geprüft; ihre Unterstützung ist daraus nicht ableitbar.
+
+Die C++20-Grenze stammt aus der bestehenden Rebase-Prüfung: Sie subtrahiert Werte verschiedener anonymer Enum-Typen. Der Test weist das zuerst mit gewöhnlichem Bind nach und verwendet danach nur `-Wno-error=deprecated-anon-enum-enum-conversion` bei Clang beziehungsweise `-Wno-error=deprecated-enum-enum-conversion` bei GCC. Das ist ausdrücklich kein erfolgreicher strenger C++20-Build. Der Produktcode wurde für den PoC nicht geändert. Bei der Simulation eines fehlenden `__COUNTER__` wird die Warnung über das Entfernen eines eingebauten Makros ebenfalls nicht als Fehler behandelt.
+
+##### Konsequenzen für eine mögliche Umsetzung
+
+**Die technische Scope-Hürde ist für die geprüften Fälle gelöst; der Preis dieses Ansatzes ist ein zusätzlicher compilerabhängiger Build-Schritt.** Eine produktive Entscheidung muss diesen Aufwand bewusst einschließen. Der PoC liefert noch keinen solchen Workflow und keine neue CLI-Option.
+
+Vor einer Umsetzung wären insbesondere folgende Punkte festzulegen oder nachzuweisen:
+
+- Einbindung des Vorlaufs in die unterstützten Build-Systeme, einschließlich derselben Defines, Include-Pfade, Sprachmodi und Target-Optionen wie beim eigentlichen Übersetzen.
+- Getrennte Zuordnungsartefakte pro Übersetzungseinheit und Konfiguration sowie verlässliche Neuerzeugung nach relevanten Änderungen. Die Counter-Prüfungen erkennen Verschiebungen, ersetzen aber keine vollständige Build-Abhängigkeitsprüfung oder einen Schutz gegen beliebig beschädigte Artefakte.
+- Verhalten bei Precompiled Headers, Modulen, zusätzlichen Counter-Verwendungen in Argumentmakros und weiteren Compilerfamilien. Der PoC macht dafür keine Zusage.
+- Falls strenge C++20-Builds zum Ziel gehören, eine gesonderte Korrektur und Abnahme der bestehenden Enum-Rebase-Prüfung.
+- Entscheidung, ob die einfachere Erweiterung für eindeutig zuordenbare Wrapper mit einer Logstelle zunächst unabhängig von allgemeinem CE-Rebase umgesetzt werden soll. Der PoC belegt diesen Fall ohne Counter-Vorlauf; die produktive Freischaltung bleibt ein eigener Auftrag.
+
+Ein zweiter Compilerlauf ist damit eine nachgewiesene Möglichkeit, keine Behauptung, dass es keinen einfacheren Ansatz geben kann. Die erste direkte CE-Ausbaustufe bleibt unverändert. Dieser PoC untersucht keine Source-Transformation. Das inzwischen verfügbare `insert/clean -ce` ist separat implementiert und oben mit seinen eigenen Tests beschrieben.
+
+##### Den erweiterten PoC wiederholen
+
+Im Repository-Root ausführen:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentRebasePoC$' -count=1 -v
+```
+
+Der Test erkennt installierte Clang-/GCC-C/C++-Toolchains und ARM-GCC selbst, meldet fehlende Werkzeuge und Compiler-Aliase und installiert nichts. Mindestens eine passende C/C++-Toolchain ist erforderlich. Ohne `TRICE_BIND_INTEGRATION=1` wird der Compiler-Test übersprungen. `clangd` wird bei Verfügbarkeit geprüft; ein fehlendes Werkzeug wird ausdrücklich gemeldet. Alle Source-Kopien, experimentellen Header und Build-Artefakte entstehen in temporären Testverzeichnissen. Produktive CLI, Target-Header und Build-Skripte bleiben unverändert.
+
+### 33.10. <a id="ansatz-und-abgrenzung"></a>Ansatz und Abgrenzung
+
+CE ist eine optionale Build-Time-Instrumentierung: Regeln wählen Logstellen aus, deren Records zusätzliche Runtime-Werte enthalten. Es führt keinen allgemeinen, impliziten Context-Zustand ein. Es gibt daher weder Push/Pop-Aufrufe noch Task-lokalen Zustand oder Context-Handles, die bei Taskwechseln oder Interrupts gesondert verwaltet werden müssten.
+
+Andere Logging-Systeme bieten verwandte, aber anders aufgebaute Konzepte, etwa [Go `slog.Logger.With`](https://pkg.go.dev/log/slog), [Microsoft `ILogger.BeginScope`](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope), [Serilog `LogContext`](https://github.com/serilog/serilog/wiki/Enrichment) und [Rust `tracing` spans](https://docs.rs/tracing/latest/tracing/span/). Diese Referenzen beschreiben keine Trice-Abhängigkeiten oder Kompatibilitätszusagen.
 
 ## 34. <a id="trice-without-uart"></a>Trice without UART
 
@@ -7202,12 +7542,12 @@ then generate a table containing only the currently selected sources:
 trice bind -src <source> -til til.json
 # Alternatively: trice insert -src <source> -til til.json
 
-trice generate -src <source> -til til.json -logC=build/til.c
+trice generate -src <source> -til til.json -logC
 ```
 
 Repeat `-src` for additional files or directories. Bind sidecars are read from
-`build/triceIDs` by default; specify `-buildDir` only for a different sidecar
-directory. `-logC` and `-abc` are separate generator modes and cannot be used
+`./generated` by default; specify `-genDir` for a different sidecar
+directory. Bare `-logC` writes `./generated/til.c`; `-logC=build/til.c` chooses an explicit location. `-logC` and `-abc` are separate generator modes and cannot be used
 together.
 
 The generated C file includes compile-time guards derived from its Trice type,
@@ -8209,7 +8549,7 @@ The final command part must be a valid C identifier. Do not add a trailing newli
 
 ### 39.4. <a id="receiver-selection-and-generated-table"></a>Receiver selection and generated table
 
-`trice generate -abc` creates a user-owned selection header once. Afterwards the user edits this header to select the commands compiled into that target.
+`trice generate -abc target` creates `target.h` and `target.c` in `-genDir` (default `./generated`). The header is user-owned after its first creation: edit and version it to select the commands compiled into that target. The repository ignores generated C files but leaves this editable header visible to Git. An explicit target path such as `-abc path/target` keeps its existing location relative to the TIL directory.
 
 The generator regenerates the C table from the intersection of:
 
@@ -9778,7 +10118,7 @@ Receive signal 0. Exiting...
 
 ## 42. <a id="trice-generate"></a>Trice Generate
 
-For a compact, readable copy of the ID dictionaries, run `trice generate -onelineJSON -til til.json -li li.json`. This writes `til.oneline.json` and `li.oneline.json` as complete JSON objects with one ID entry per line. In the LI copy, each entry shows `Line` before `File`. The original files remain authoritative and unchanged; rerun the command after updating them. Use `-li off` to export only the TIL copy. Missing or invalid requested input files cause an error without replacing either copy. This option cannot be combined with `-logC` or `-abc`.
+For a compact, readable copy of the ID dictionaries, run `trice generate -onelineJSON -til til.json -li li.json`. This writes `til.oneline.json` and `li.oneline.json` in `-genDir` (default `./generated`) as complete JSON objects with one ID entry per line. In the LI copy, each entry shows `Line` before `File`. The original files remain authoritative and unchanged; rerun the command after updating them. Use `-li off` to export only the TIL copy. Missing or invalid requested input files cause an error without replacing either copy. This option cannot be combined with `-logC` or `-abc`.
 
 ### 42.1. <a id="colors"></a>Colors
 
@@ -9790,7 +10130,7 @@ See [Check Alternatives](#check-color-alternatives) chapter.
 
 ### 42.2. <a id="c-code"></a>C-Code
 
-To generate a compact C metadata table for current target-side Trice sites, first run `trice insert` or `trice bind` and then run `trice generate -src <source> -logC[=<output.c>]`. Multiple `-src` options are accepted. Explicit Insert IDs and numeric Bind sidecar descriptors are validated against the selected TIL; no ID is guessed from a matching format string. Historical TIL entries that are absent from the selected sources are omitted without changing the TIL itself. Bind sidecars are read from `build/triceIDs` by default; specify `-buildDir` only for a different sidecar directory. `-logC` and `-abc` are alternative generation modes and cannot be combined.
+To generate a compact C metadata table for current target-side Trice sites, first run `trice insert` or `trice bind` and then run `trice generate -src <source> -logC[=<output.c>]`. Multiple `-src` options are accepted. Explicit Insert IDs and numeric Bind sidecar descriptors are validated against the selected TIL; no ID is guessed from a matching format string. Historical TIL entries that are absent from the selected sources are omitted without changing the TIL itself. Bind sidecars are read from `./generated` by default; specify `-genDir` for a different directory. Bare `-logC` writes `./generated/til.c`; an explicit output path takes precedence. `-logC` and `-abc` are alternative generation modes and cannot be combined.
 
 Commented Trice calls with explicit Insert IDs remain selectable. An ID-free call that exists only in a C comment has no Bind preprocessor site and therefore no exact sidecar ID; `-logC` reports it instead of guessing or silently omitting it. Use `trice insert` for such retained commented calls, give the commented example an explicit authoritative ID, or exclude that source from this generated table.
 
@@ -11220,7 +11560,7 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 ### 47.1. <a id="weitere-context-enrichment-varianten"></a>Weitere Context-Enrichment-Varianten
 
-[Context Enrichment für direkte Bind-Logstellen](#trice-context-enrichment) ist implementiert. CE für Wrappermakros und Counter-Rebase benötigt einen gesonderten Architektur-Nachweis und Implementierungsauftrag. Eine automatische Erweiterung für `insert/clean` bleibt ebenfalls zurückgestellt. Die bestehenden Alternativen stehen unter [bind-limits](#bind-limits), die offenen Arbeiten im [Implementierungsplan](./scratchPad/Implementierungsplan.md).
+[Context Enrichment](#trice-context-enrichment) ist für direkte Bind-Logstellen und als reversible Source-Erweiterung für `insert/clean` implementiert. Für CE an Bind-Wrappermakros und Counter-Rebase liegt ein [erweiterter PoC](#erweiterter-poc-für-wrappermakros-und-counter-rebase) vor; dessen produktive Integration mit zusätzlichem Compiler-Vorlauf bleibt eine eigene Entscheidung und benötigt einen Implementierungsauftrag. Die verfügbaren Alternativen stehen unter [bind-limits](#bind-limits), die offenen Arbeiten im [Implementierungsplan](./scratchPad/Implementierungsplan.md).
 
 
 <!--

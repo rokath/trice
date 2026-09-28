@@ -23,7 +23,7 @@ cmake --build build
 
 Das CMake-Target führt `trice bind` vor jedem Build aus. Beim ersten Lauf fügt
 der Generator die stabilen Include-Zeilen in die fünf physischen Userdateien
-ein. Die Sidecars selbst entstehen unter `build/triceIDs` und sind ignorierte
+ein. Die Sidecars selbst entstehen unter `generated` und sind ignorierte
 Buildartefakte. Das Programm legt `log.bin` bei jedem Start neu an.
 
 Die lokale Binärdatei lässt sich mit den lokalen Listen decodieren:

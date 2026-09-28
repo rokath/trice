@@ -386,14 +386,12 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
   -a value
         Short for trice() aliases.
   -abc string
-        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.
+        Create or use <target>.h and regenerate <target>.c in -genDir; an explicit [path/]<target> keeps its path for Trice ABC receive handling.
   -alias value
         Additional macro names to treat like trice().
         This flag can be specified multiple times to add more aliases. Each provided name will be
         recognized as equivalent to a trice() call. (default none)
          (default none)
-  -buildDir string
-        Directory containing Trice bind sidecars when selected sources use File Keys. (default "./build/triceIDs")
   -colors
         Write all possible colors.
   -e value
@@ -404,6 +402,8 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
         Example: "trice generate -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
         source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
          (default none)
+  -genDir string
+        Directory for generated Trice files and existing bind sidecars, relative to the current working directory by default. (default "./generated")
   -i string
         Short for '-idlist'.
          (default "til.json")
@@ -423,9 +423,9 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
         With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
          (default "li.json")
   -logC
-        Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.
+        Create a target-side Trice log table in -genDir/til.c or at an explicit [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.
   -onelineJSON
-        Export the selected TIL and LI as <name>.oneline.json companions with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.
+        Export the selected TIL and LI to -genDir/<name>.oneline.json with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.
   -s value
         Short for src.
   -sa value
@@ -515,10 +515,11 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	This flag can be specified multiple times to add more aliases. Each provided name will be
     	recognized as equivalent to a trice() call. (default none)
     	 (default none)
-  -buildDir string
-    	Build directory for the current invocation's trice-fields.txt field registry. (default "./build/triceIDs")
   -cache
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
+  -ce value
+    	Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
+    	Example: -ce 'ctx7:", clock={}", clock'. Keep generated trice-ce comments; undo with clean and the same -ce options in the same order. Float values require aFloat()/aDouble().
   -defaultStampSize int
     	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.
   -dry-run
@@ -533,6 +534,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Example: "trice insert -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
     	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
     	 (default none)
+  -genDir string
+    	Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default. (default "./generated")
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -592,9 +595,9 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -w	Short for (white)spaceInsideParenthesis or "wide".
 sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
 #	"trice bind" scans C/C++ source and headers, updates til.json and li.json with insert-compatible semantics,
-#	adds a file-local sidecar include where it is safe, and writes generated headers below -buildDir.
+#	adds a file-local sidecar include where it is safe, and writes generated headers below -genDir.
 #	Insert-owned files remain unchanged; mixed explicit and bind-style sites in one file are rejected.
-#	Example: 'trice bind -src ./src -buildDir ./build/triceIDs'
+#	Example: 'trice bind -src ./src -genDir ./generated'
   -IDMax value
     	Upper end of ID range for normal trices. (default 7999)
   -IDMethod string
@@ -618,8 +621,6 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	This flag can be specified multiple times to add more aliases. Each provided name will be
     	recognized as equivalent to a trice() call. (default none)
     	 (default none)
-  -buildDir string
-    	Build directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry. (default "./build/triceIDs")
   -ce value
     	Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
     	Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".
@@ -637,6 +638,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	Example: "trice bind -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
     	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
     	 (default none)
+  -genDir string
+    	Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. (default "./generated")
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -709,6 +712,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
+  -ce value
+    	Undo only generated context extensions, using the same -ce options in the same order as insert.
+    	Repeat selector:"format-extension"[, comma-free C-expression]... Hand-written fields are retained. Keep generated trice-ce comments until clean.
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice clean -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -769,6 +775,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -til string
     	Short for '-idlist'.
     	 (default "til.json")
+  -ulabel value
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

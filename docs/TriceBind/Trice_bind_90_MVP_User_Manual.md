@@ -42,7 +42,7 @@ Ein Bind-Projekt benötigt:
 Der Standardordner ist:
 
 ```text
-./build/triceIDs
+./generated
 ```
 
 Der Ordner wird von `trice bind` bei Bedarf erzeugt und normalerweise nicht versioniert.
@@ -66,7 +66,7 @@ Der Ordner wird von `trice bind` bei Bedarf erzeugt und normalerweise nicht vers
 3. Den Sidecar-Ordner zum Compiler-Include-Pfad hinzufügen:
 
    ```text
-   -I./build/triceIDs
+   -I./generated
    ```
 
 4. Projekt bauen.
@@ -101,7 +101,7 @@ Dauerhaft und normalerweise versioniert sind:
 
 Generiert und normalerweise nicht versioniert sind:
 
-- die Besitzer-Sidecars unter `./build/triceIDs`,
+- die Besitzer-Sidecars unter `./generated`,
 - die dort liegenden Rebase-Hilfsheader mit den Suffixen `_begin.h` und `_end.h`,
 - sonstige normale Buildartefakte.
 
@@ -334,9 +334,9 @@ trice b [Optionen]
 Für `bind` und `insert` gilt derselbe Build-Verzeichnis-Schalter:
 
 ```text
--buildDir string
+-genDir string
     Ausgabeordner der Sidecar-Header und des Feldregisters trice-fields.txt.
-    Default: ./build/triceIDs
+    Default: ./generated
 ```
 
 Mit:
@@ -360,7 +360,7 @@ Sourceänderung
 Das Buildsystem sollte:
 
 - `trice bind` vor abhängigen Compiles ausführen,
-- `./build/triceIDs` als Include-Pfad eintragen,
+- `./generated` als Include-Pfad eintragen,
 - die Sidecars als normale Headerabhängigkeiten erfassen,
 - den Generator nicht durch einen bloßen Compilerfehler ersetzen.
 
@@ -548,7 +548,7 @@ trice("first"); trice("second");
 #include "trice_module_c_K73A915E9C4021B8_R0_end.h" // trice-bind: generated rebase end K73A915E9C4021B8_R0
 ```
 
-Aus einer betroffenen Userzeile werden damit drei Sourcezeilen. Die früher direkt in der Source sichtbaren Scope-Definitionen, Phasenmakros und Aufräumanweisungen liegen vollständig in den beiden generierten Hilfsheadern unter `./build/triceIDs`. Die Begin-Datei erfasst die lokale Counterbasis und aktiviert die passende Auswahlbeschreibung. Die End-Datei prüft die verbrauchte Counteranzahl und stellt den normalen Bind-Pfad wieder her.
+Aus einer betroffenen Userzeile werden damit drei Sourcezeilen. Die früher direkt in der Source sichtbaren Scope-Definitionen, Phasenmakros und Aufräumanweisungen liegen vollständig in den beiden generierten Hilfsheadern unter `./generated`. Die Begin-Datei erfasst die lokale Counterbasis und aktiviert die passende Auswahlbeschreibung. Die End-Datei prüft die verbrauchte Counteranzahl und stellt den normalen Bind-Pfad wieder her.
 
 Zwei unabhängige Zeilen bleiben zwei unabhängige Bereiche:
 
@@ -633,7 +633,7 @@ Null-Platzhalter auf gewöhnlichen, zeilenweise eindeutigen Bind-Stellen bleiben
 Prüfen:
 
 - wurde `trice bind` nach der letzten Sourceänderung ausgeführt,
-- existiert `./build/triceIDs`,
+- existiert `./generated`,
 - ist der Ordner im Compiler-Include-Pfad,
 - stimmt der Sidecar-Name in der Include-Zeile.
 
@@ -898,7 +898,7 @@ Deshalb setzt der Sidecar jeder Datei unmittelbar vor deren eigenen Trice-Logste
 Alle Sidecars können in einem einzigen Buildverzeichnis liegen, beispielsweise:
 
 ```text
-build/triceIDs/
+generated/
 ```
 
 Der Build benötigt dafür nur einen zusätzlichen Include-Pfad. Der Basisname im Sidecar-Namen verbessert die Lesbarkeit; die Eindeutigkeit liefert der Dateischlüssel:
