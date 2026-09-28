@@ -15,7 +15,7 @@
 // They help a parent build preserve IDs previously assigned by a nested or
 // differently rooted project, but they never become additional write targets.
 // This distinction allows one source file to retain its File Key while fresh
-// sidecars are generated in a different build/triceIDs directory.
+// sidecars are generated in a different generated directory.
 //
 // # Bounded Discovery
 //
@@ -51,8 +51,8 @@
 // remains fatal because the original owner cannot be inferred safely.
 //
 // For a source that already owns a File Key, discovery looks for its exact
-// sidecar filename in the current BindDir and in conventional build/triceIDs
-// directories along the bounded search corridor. Historical sidecars are
+// sidecar filename in the current BindDir, generated directories, and legacy
+// build/triceIDs directories along the bounded search corridor. Historical sidecars are
 // parsed only as ID evidence. They are never copied: their line descriptors may
 // be stale after source edits. Current Trice sites are analyzed again, old IDs
 // are validated through available TIL data, and equal TriceFmt values are

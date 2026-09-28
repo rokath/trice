@@ -21,7 +21,7 @@ trice_id_workflow() {
       # The option groups intentionally use shell word splitting because they
       # preserve the long-standing repository override interface.
       # shellcheck disable=SC2086
-      trice insert $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES $TRICE_ID_OPTIONS
+      trice insert $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES $TRICE_ID_OPTIONS -genDir "$TRICE_BIND_DIR"
       ;;
     clean)
       # shellcheck disable=SC2086
@@ -29,14 +29,14 @@ trice_id_workflow() {
       ;;
     bind)
       # shellcheck disable=SC2086
-      trice bind $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES $TRICE_ID_OPTIONS -buildDir "$TRICE_BIND_DIR"
+      trice bind $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES $TRICE_ID_OPTIONS -genDir "$TRICE_BIND_DIR"
       ;;
     remigrate)
       # Re-migration adjusts shared location lines together with the source
       # includes so the intermediate Clean state is internally consistent.
       # shellcheck disable=SC2086
       go run ./internal/id/remigratecmd $TRICE_PRJ_FILES $TRICE_EXCLUDES \
-        -buildDir "$TRICE_BIND_DIR" -li "$TRICE_LI_JSON" -liRoot "$TRICE_LI_ROOT"
+        -genDir "$TRICE_BIND_DIR" -li "$TRICE_LI_JSON" -liRoot "$TRICE_LI_ROOT"
       ;;
     *)
       printf 'Unsupported Trice ID workflow: %s\n' "$action" >&2

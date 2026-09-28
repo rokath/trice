@@ -146,7 +146,7 @@ test_cli_help() {
     fail_workflow "CLI help emitted 'flag: help requested'"
     return 1
   fi
-  grep -q -- '-buildDir' "$LOGFILE" || fail_workflow "Bind help omits -buildDir"
+  grep -q -- '-genDir' "$LOGFILE" || fail_workflow "Bind help omits -genDir"
   if grep -q -- '-bindDir' "$LOGFILE"; then
     fail_workflow "Bind help still advertises removed -bindDir"
     return 1

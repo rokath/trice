@@ -52,7 +52,7 @@ done
 echo "INFO: PC_log uses local output; SEGGER RTT sources, SEGGER_RTT_Conf.h and J-Link tools are not required."
 
 "$compiler" -std=c11 -Wall -Wextra -Werror \
-  -I. -Ibuild/triceIDs -I../../src \
+  -I. -Igenerated -I../../src \
   main.c ../../_test/testdata/triceCheck.c build/til.c "$@" \
   -o "build/pc_log${suffix}"
 

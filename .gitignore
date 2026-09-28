@@ -2,6 +2,10 @@
 # folders
 **/dist/
 **/build/
+**/generated/trice_*_K*.h
+**/generated/trice-fields.txt
+**/generated/*.oneline.json
+**/generated/*.c
 **/bin/
 **/out/
 **/out.gcc/

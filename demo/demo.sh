@@ -33,7 +33,7 @@ for mode in deferred direct; do
   app="demo_${mode}${suffix}"
   "$compiler" \
     -I"$mode" \
-    -Ibuild/triceIDs \
+    -Igenerated \
     -I../src \
     "$mode/main.c" \
     ../src/[a-z]*.c \

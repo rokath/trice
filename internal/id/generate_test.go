@@ -41,6 +41,7 @@ func TestToListTilCEscapesFormatStrings(t *testing.T) {
 // JSON shape, deterministic ID order, LI field order, and rerun behavior.
 func TestGenerateOneLineJSONPreservesOriginalsAndRoundTrips(t *testing.T) {
 	defer Setup(t)()
+	BindDir = Proj
 	GenerateOneLineJSON = true
 	Verbose = true
 	tilInput := []byte("{\n  \"2\": {\"Type\": \"triceS\", \"Strg\": \"msg:ä <x> \\\"quoted\\\"\\n\"},\n  \"10\": {\"Type\": \"trice\", \"Strg\": \"path=C:\\\\tmp\"}\n}\n")
@@ -84,10 +85,64 @@ func TestGenerateOneLineJSONPreservesOriginalsAndRoundTrips(t *testing.T) {
 	assert.NotContains(t, output.String(), "generated ")
 }
 
+// TestGenerateOneLineJSONUsesSelectedGenDir keeps the input dictionaries in
+// their original directory while placing both derived views in the shared output.
+func TestGenerateOneLineJSONUsesSelectedGenDir(t *testing.T) {
+	defer Setup(t)()
+	BindDir = filepath.Join(Proj, "generated")
+	GenerateOneLineJSON = true
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte(`{"1001":{"Type":"trice","Strg":"hello"}}`), 0o644))
+	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte(`{"1001":{"File":"main.c","Line":7}}`), 0o644))
+
+	require.NoError(t, SubCmdGenerate(&bytes.Buffer{}, FSys))
+	tilView := filepath.Join(BindDir, filepath.Base(oneLineJSONPath(FnJSON)))
+	liView := filepath.Join(BindDir, filepath.Base(oneLineJSONPath(LIFnJSON)))
+	view, err := FSys.ReadFile(tilView)
+	require.NoError(t, err)
+	assert.Contains(t, string(view), `"1001"`)
+	_, err = FSys.ReadFile(liView)
+	require.NoError(t, err)
+	assert.False(t, fileExists(FSys, filepath.Join(Proj, filepath.Base(tilView))))
+	assert.False(t, fileExists(FSys, filepath.Join(Proj, filepath.Base(liView))))
+	assert.True(t, fileExists(FSys, FnJSON))
+	assert.True(t, fileExists(FSys, LIFnJSON))
+}
+
+// TestGenerateOneLineJSONRejectsConflictingViewNames protects two dictionaries
+// with the same basename in separate input directories from sharing one output.
+func TestGenerateOneLineJSONRejectsConflictingViewNames(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	BindDir = filepath.Join(Proj, "generated")
+	FnJSON = filepath.Join(Proj, "first", "ids.json")
+	LIFnJSON = filepath.Join(Proj, "second", "ids.json")
+	require.NoError(t, FSys.MkdirAll(filepath.Dir(FnJSON), 0o755))
+	require.NoError(t, FSys.MkdirAll(filepath.Dir(LIFnJSON), 0o755))
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o644))
+	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte("{}"), 0o644))
+
+	err := SubCmdGenerate(&bytes.Buffer{}, FSys)
+	require.ErrorContains(t, err, "conflicts with an input or another output")
+	assert.False(t, fileExists(FSys, filepath.Join(BindDir, "ids.oneline.json")))
+}
+
+// TestGenerateRejectsEmptyGenDir keeps all generated files out of the current
+// directory when the caller accidentally supplies a blank shared directory.
+func TestGenerateRejectsEmptyGenDir(t *testing.T) {
+	defer Setup(t)()
+	GenerateOneLineJSON = true
+	BindDir = " "
+	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o644))
+	err := SubCmdGenerate(&bytes.Buffer{}, FSys)
+	require.ErrorContains(t, err, "-genDir must not be empty")
+	assert.False(t, fileExists(FSys, "til.oneline.json"))
+}
+
 // TestGenerateOneLineJSONOnlyTIL verifies that disabling LI does not require
 // a readable location file and never creates an LI companion.
 func TestGenerateOneLineJSONOnlyTIL(t *testing.T) {
 	defer Setup(t)()
+	BindDir = Proj
 	GenerateOneLineJSON = true
 	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o600))
 	require.NoError(t, FSys.Remove(LIFnJSON))
@@ -106,6 +161,7 @@ func TestGenerateOneLineJSONOnlyTIL(t *testing.T) {
 // requested inputs are validated before either existing view is replaced.
 func TestGenerateOneLineJSONRejectsInvalidInputsBeforeWriting(t *testing.T) {
 	defer Setup(t)()
+	BindDir = Proj
 	GenerateOneLineJSON = true
 	tilOutputPath := oneLineJSONPath(FnJSON)
 	liOutputPath := oneLineJSONPath(LIFnJSON)
@@ -139,6 +195,7 @@ func TestGenerateOneLineJSONRejectsInvalidInputsBeforeWriting(t *testing.T) {
 // exporter never replaces an original or old view when selection is unsafe.
 func TestGenerateOneLineJSONMissingInputAndConflictingPaths(t *testing.T) {
 	defer Setup(t)()
+	BindDir = Proj
 	GenerateOneLineJSON = true
 	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o600))
 	tilViewPath := oneLineJSONPath(FnJSON)
@@ -172,6 +229,7 @@ func TestGenerateOneLineJSONMissingInputAndConflictingPaths(t *testing.T) {
 // the two companion files are published together or left as they were.
 func TestGenerateOneLineJSONRollsBackFirstViewOnSecondWriteFailure(t *testing.T) {
 	defer Setup(t)()
+	BindDir = Proj
 	GenerateOneLineJSON = true
 	require.NoError(t, FSys.WriteFile(FnJSON, []byte("{}"), 0o600))
 	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte("{}"), 0o600))

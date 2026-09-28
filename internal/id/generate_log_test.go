@@ -264,7 +264,7 @@ func TestGenerateLogCRejectsStaleBindStateWithoutTouchingOutput(t *testing.T) {
 
 	err := SubCmdGenerate(&B, FSys)
 	require.Error(t, err)
-	assert.Contains(t, B.String(), "run trice bind or pass its directory with -buildDir")
+	assert.Contains(t, B.String(), "run trice bind or pass its directory with -genDir")
 	unchanged, readErr := FSys.ReadFile(output)
 	require.NoError(t, readErr)
 	assert.Equal(t, "keep me\n", string(unchanged))

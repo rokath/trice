@@ -22,7 +22,7 @@ func main() {
 	)
 	flag.Var(&sources, "src", "Source file or directory to remigrate; repeatable.")
 	flag.Var(&excludes, "exclude", "Source file or directory to exclude; repeatable.")
-	flag.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Directory containing generated Trice bind sidecars.")
+	flag.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory containing generated Trice bind sidecars.")
 	flag.StringVar(&id.LIFnJSON, "li", "off", "Optional location list whose Bound line numbers are remigrated to Clean lines.")
 	flag.StringVar(&id.LIRoot, "liRoot", ".", "Root used to normalize paths stored in the location list.")
 	flag.BoolVar(&id.Verbose, "v", false, "Print each planned re-migration.")

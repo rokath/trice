@@ -214,10 +214,10 @@ func generateInit() {
 	flagTriceAliases(fsScGenerate)
 	flagTriceSAliases(fsScGenerate)
 	flagVerbosity(fsScGenerate)
-	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
-	fsScGenerate.BoolVar(&id.GenerateOneLineJSON, "onelineJSON", false, `Export the selected TIL and LI as <name>.oneline.json companions with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.`)
-	fsScGenerate.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Directory containing Trice bind sidecars when selected sources use File Keys.")
-	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
+	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in -genDir/til.c or at an explicit [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
+	fsScGenerate.BoolVar(&id.GenerateOneLineJSON, "onelineJSON", false, `Export the selected TIL and LI to -genDir/<name>.oneline.json with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.`)
+	fsScGenerate.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice files and existing bind sidecars, relative to the current working directory by default.")
+	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use <target>.h and regenerate <target>.c in -genDir; an explicit [path/]<target> keeps its path for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
 }
 
@@ -235,7 +235,7 @@ If omitted, the current directory is inspected. Globs such as "-src *.c" are not
 func insertIDsInit() {
 	id.ContextEnrichment = nil
 	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
-	fsScInsert.StringVar(&id.FieldsDir, "buildDir", "./build/triceIDs", "Build directory for the current invocation's trice-fields.txt field registry.")
+	fsScInsert.StringVar(&id.FieldsDir, "genDir", id.DefaultGenDir, "Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
 	flagsInsertAndBind(fsScInsert)
 	fsScInsert.Var(&id.ContextEnrichment, "ce", `Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
 Example: -ce 'ctx7:", clock={}", clock'. Keep generated trice-ce comments; undo with clean and the same -ce options in the same order. Float values require aFloat()/aDouble().`)
@@ -250,7 +250,7 @@ Example: -ce 'ctx7:", clock={}", clock'. Keep generated trice-ce comments; undo 
 func bindIDsInit() {
 	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
 	flagsInsertAndBind(fsScBind)
-	fsScBind.StringVar(&id.BindDir, "buildDir", "./build/triceIDs", "Build directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry.")
+	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
 	fsScBind.Var(&id.ContextEnrichment, "ce", `Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
 Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".`)
 	flagUserLabel(fsScBind)

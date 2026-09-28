@@ -122,7 +122,7 @@ func validateBindOptions() error {
 		return fmt.Errorf("trice bind: invalid -IDMethod %q; expected random, upward, or downward", SearchMethod)
 	}
 	if strings.TrimSpace(BindDir) == "" {
-		return errors.New("trice bind: -buildDir must not be empty")
+		return errors.New("trice bind: -genDir must not be empty")
 	}
 	return nil
 }
@@ -471,7 +471,7 @@ func commitBindWrites(fSys *afero.Afero, writes []bindWrite) error {
 			}
 			continue
 		}
-		if write.kind == "sidecar" || write.kind == "rebase" || write.kind == "fields" {
+		if write.kind == "sidecar" || write.kind == "rebase" || write.kind == "fields" || write.kind == "til" || write.kind == "li" {
 			if err := fSys.MkdirAll(filepath.Dir(write.path), 0o755); err != nil {
 				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot create bind directory for %s: %w", write.path, err))
 			}

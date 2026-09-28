@@ -17,7 +17,7 @@ import (
 
 // FieldsDir is insert's build output directory for the current-run field list.
 // Bind uses its existing BindDir so each build keeps its generated facts together.
-var FieldsDir = "./build/triceIDs"
+var FieldsDir = DefaultGenDir
 
 // canonicalizeSourceTemplate resolves names without rewriting user-owned string
 // literals. Keeping the source spelling is what makes insert/clean reversible.
@@ -73,7 +73,7 @@ func ValidateStructuredFields(t TriceFmt, template fmtspec.Template) error {
 // including unchanged sites, rather than just cache misses or historical IDs.
 func collectInsertFields(w io.Writer, fSys *afero.Afero) (map[string]int, error) {
 	if strings.TrimSpace(FieldsDir) == "" {
-		return nil, fmt.Errorf("trice insert: -buildDir must not be empty")
+		return nil, fmt.Errorf("trice insert: -genDir must not be empty")
 	}
 	counts := make(map[string]int)
 	admin := &ant.Admin{Trees: Srcs, ExcludeTrees: ExcludeSrcs, MatchingFileName: isSourceFile}

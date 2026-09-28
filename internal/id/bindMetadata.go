@@ -547,6 +547,8 @@ func (resolver *bindMetadataResolver) sidecarsForPlan(plan *bindFilePlan, direct
 	}
 	candidates := []sidecarDirectory{{path: BindDir, primary: true}}
 	for _, directory := range directories {
+		candidates = append(candidates, sidecarDirectory{path: filepath.Join(directory, "generated")})
+		// Previous Trice releases used this directory for bind sidecars.
 		candidates = append(candidates, sidecarDirectory{path: filepath.Join(directory, "build", "triceIDs")})
 	}
 	seen := make(map[string]bool)

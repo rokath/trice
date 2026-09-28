@@ -35,7 +35,7 @@ prepare_trice_bind_build() {
     bash ./trice_bindIDs_in_examples_and_test_folder.sh
   ) || return $?
 
-  trice_bind_include_dir=$trice_bind_repo_root/build/triceIDs
+  trice_bind_include_dir=$trice_bind_repo_root/generated
   if [ ! -d "$trice_bind_include_dir" ]; then
     echo "trice bind did not create the expected header directory:" >&2
     echo "  $trice_bind_include_dir" >&2

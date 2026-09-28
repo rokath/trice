@@ -5,7 +5,7 @@
 TRICE_TIL_JSON=${TRICE_TIL_JSON:-./demoTIL.json}
 TRICE_LI_JSON=${TRICE_LI_JSON:-./demoLI.json}
 TRICE_LI_ROOT=${TRICE_LI_ROOT:-.}
-TRICE_BIND_DIR=${TRICE_BIND_DIR:-./build/triceIDs}
+TRICE_BIND_DIR=${TRICE_BIND_DIR:-./generated}
 TRICE_ID_OPTIONS=${TRICE_ID_OPTIONS:-"-IDMin 13000 -IDMax 16383"}
 
 # trice command line common part

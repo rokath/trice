@@ -446,7 +446,7 @@ func TestHandlerGenerateWithoutParameters(t *testing.T) {
 }
 
 // TestHandlerGenerateOneLineJSON verifies that the public generate command
-// accepts both dictionary paths and writes only their requested companions.
+// accepts both dictionary paths and writes their views under the shared default.
 func TestHandlerGenerateOneLineJSON(t *testing.T) {
 	FlagsInit()
 	t.Cleanup(FlagsInit)
@@ -458,10 +458,13 @@ func TestHandlerGenerateOneLineJSON(t *testing.T) {
 
 	var output bytes.Buffer
 	require.NoError(t, Handler(&output, fSys, []string{"trice", "generate", "-onelineJSON", "-til", "custom-til.json", "-li", "custom-li.json"}))
-	tilView, err := fSys.ReadFile("custom-til.oneline.json")
+	tilView, err := fSys.ReadFile("generated/custom-til.oneline.json")
 	require.NoError(t, err)
-	liView, err := fSys.ReadFile("custom-li.oneline.json")
+	liView, err := fSys.ReadFile("generated/custom-li.oneline.json")
 	require.NoError(t, err)
+	legacyViewExists, err := fSys.Exists("custom-til.oneline.json")
+	require.NoError(t, err)
+	assert.False(t, legacyViewExists)
 	assert.Contains(t, string(tilView), "\"123\": {\"Type\":\"trice\",\"Strg\":\"msg:hello\"}")
 	assert.Contains(t, string(liView), "\"123\": {\"Line\":17,\"File\":\"src/main.c\"}")
 	unchangedTIL, err := fSys.ReadFile("custom-til.json")
@@ -478,6 +481,28 @@ func TestNormalizeGenerateLogCPath(t *testing.T) {
 	assert.Equal(t, []string{"-logC=build/til.c", "-src", "src"}, normalizeGenerateArgs([]string{"-logC", "build/til.c", "-src", "src"}))
 	assert.Equal(t, []string{"-logC=build/til.c"}, normalizeGenerateArgs([]string{"-logC=build/til.c"}))
 	assert.Equal(t, []string{"-tilC", "old.c"}, normalizeGenerateArgs([]string{"-tilC", "old.c"}))
+}
+
+// TestGeneratedDirectoryFlagsUseOneDefault ensures every ID-producing command
+// exposes the same path and the superseded spelling is unavailable.
+func TestGeneratedDirectoryFlagsUseOneDefault(t *testing.T) {
+	FlagsInit()
+	t.Cleanup(FlagsInit)
+	for _, command := range []struct {
+		name string
+		set  *flag.FlagSet
+	}{
+		{"bind", fsScBind},
+		{"insert", fsScInsert},
+		{"generate", fsScGenerate},
+	} {
+		t.Run(command.name, func(t *testing.T) {
+			generated := command.set.Lookup("genDir")
+			require.NotNil(t, generated)
+			assert.Equal(t, id.DefaultGenDir, generated.DefValue)
+			assert.Nil(t, command.set.Lookup("buildDir"))
+		})
+	}
 }
 
 // TestHandlerAddInsertCleanOnMissingSource verifies the expected behavior.
@@ -531,9 +556,9 @@ func TestGenerationLocationRootFlags(t *testing.T) {
 	assert.Equal(t, "project", id.LIRoot)
 }
 
-// TestHandlerBindAndGenerateShareBuildDir checks that bind writes its sidecar
-// and field registry to the selected directory and generate reads it from there.
-func TestHandlerBindAndGenerateShareBuildDir(t *testing.T) {
+// TestHandlerBindAndGenerateShareGenDir checks that bind and generate use the
+// same selected directory for sidecars, the field registry, and the C table.
+func TestHandlerBindAndGenerateShareGenDir(t *testing.T) {
 	FlagsInit()
 	t.Cleanup(FlagsInit)
 	oldSources := append(id.ArrayFlag(nil), id.Srcs...)
@@ -552,7 +577,7 @@ func TestHandlerBindAndGenerateShareBuildDir(t *testing.T) {
 		"-src", "project/module.c",
 		"-til", "til.json",
 		"-li", "li.json",
-		"-buildDir", "generated/triceIDs",
+		"-genDir", "generated/triceIDs",
 		"-IDMin", "100",
 		"-IDMax", "199",
 		"-IDMethod", "upward",
@@ -573,25 +598,38 @@ func TestHandlerBindAndGenerateShareBuildDir(t *testing.T) {
 	id.Srcs = nil
 	FlagsInit()
 	output.Reset()
-	err = Handler(&output, fSys, []string{"trice", "generate", "-src", "project/module.c", "-til", "til.json", "-buildDir", "generated/triceIDs", "-logC=generated/til.c"})
+	err = Handler(&output, fSys, []string{"trice", "generate", "-src", "project/module.c", "-til", "til.json", "-genDir", "generated/triceIDs", "-logC"})
 	require.NoError(t, err)
-	generated, readErr := fSys.ReadFile("generated/til.c")
+	generated, readErr := fSys.ReadFile("generated/triceIDs/til.c")
 	require.NoError(t, readErr)
-	assert.Contains(t, string(generated), "msg:handler=%d\\n", "generate resolves the bind sidecar in the selected build directory")
+	assert.Contains(t, string(generated), "msg:handler=%d\\n", "generate resolves the bind sidecar in the selected generated directory")
+
+	// An explicit output path overrides -genDir without changing sidecar lookup.
+	id.Srcs = nil
+	FlagsInit()
+	output.Reset()
+	err = Handler(&output, fSys, []string{"trice", "generate", "-src", "project/module.c", "-til", "til.json", "-genDir", "generated/triceIDs", "-logC=custom/trace.c"})
+	require.NoError(t, err)
+	explicit, readErr := fSys.ReadFile("custom/trace.c")
+	require.NoError(t, readErr)
+	assert.Contains(t, string(explicit), "msg:handler=%d\\n")
+	assert.Contains(t, string(explicit), "File: custom/trace.c")
 }
 
-// TestHandlerBindRejectsBindDir confirms the removed flag fails during parsing,
-// before a source, dictionary, or build artifact can be changed.
-func TestHandlerBindRejectsBindDir(t *testing.T) {
+// TestHandlerBindRejectsOldDirectoryFlags confirms obsolete spellings fail
+// before a source, dictionary, or generated artifact can be changed.
+func TestHandlerBindRejectsOldDirectoryFlags(t *testing.T) {
 	FlagsInit()
 	t.Cleanup(FlagsInit)
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	require.NoError(t, fSys.MkdirAll("project", 0o755))
 	const source = `trice("{motor_id}", motor_id);`
 	require.NoError(t, fSys.WriteFile("project/module.c", []byte(source), 0o644))
-	var output bytes.Buffer
-	err := Handler(&output, fSys, []string{"trice", "bind", "-src", "project/module.c", "-bindDir", "generated/triceIDs"})
-	assert.ErrorContains(t, err, "flag provided but not defined: -bindDir")
+	for _, obsolete := range []string{"-bindDir", "-buildDir"} {
+		var output bytes.Buffer
+		err := Handler(&output, fSys, []string{"trice", "bind", "-src", "project/module.c", obsolete, "generated/triceIDs"})
+		assert.ErrorContains(t, err, "flag provided but not defined: "+obsolete)
+	}
 	actual, readErr := fSys.ReadFile("project/module.c")
 	assert.NoError(t, readErr)
 	assert.Equal(t, source, string(actual))
@@ -602,9 +640,9 @@ func TestHandlerBindRejectsBindDir(t *testing.T) {
 	}
 }
 
-// TestHandlerInsertBuildDirPreservesRegistryOnDryRun checks the public option
+// TestHandlerInsertGenDirPreservesRegistryOnDryRun checks the public option
 // path and ensures a preview cannot replace the last published field counts.
-func TestHandlerInsertBuildDirPreservesRegistryOnDryRun(t *testing.T) {
+func TestHandlerInsertGenDirPreservesRegistryOnDryRun(t *testing.T) {
 	FlagsInit()
 	t.Cleanup(FlagsInit)
 	oldSources := append(id.ArrayFlag(nil), id.Srcs...)
@@ -614,7 +652,7 @@ func TestHandlerInsertBuildDirPreservesRegistryOnDryRun(t *testing.T) {
 	require.NoError(t, fSys.WriteFile("til.json", []byte("{}\n"), 0o644))
 	require.NoError(t, fSys.WriteFile("li.json", []byte("{}\n"), 0o644))
 	require.NoError(t, fSys.WriteFile("project/module.c", []byte(`trice("{old}", value);`), 0o644))
-	options := []string{"trice", "insert", "-src", "project/module.c", "-til", "til.json", "-li", "li.json", "-buildDir", "generated/triceIDs", "-IDMin", "100", "-IDMax", "199", "-IDMethod", "upward"}
+	options := []string{"trice", "insert", "-src", "project/module.c", "-til", "til.json", "-li", "li.json", "-genDir", "generated/triceIDs", "-IDMin", "100", "-IDMax", "199", "-IDMethod", "upward"}
 	run := func(dryRun bool) error {
 		// Repeated -src values are process-global; each run models a fresh CLI invocation.
 		id.Srcs = nil

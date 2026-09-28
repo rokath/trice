@@ -76,12 +76,11 @@ func (f OptionalFilenameFlag) IsBoolFlag() bool {
 	return true
 }
 
-// LogCOutputPath returns the explicit C filename or the conventional til.c
-// default. Keeping the extension normalization here makes CLI and package tests
-// exercise the same path semantics.
+// LogCOutputPath returns the explicit C filename or til.c in the generated directory.
+// Explicit paths remain relative to the caller's working directory.
 func LogCOutputPath(target string) string {
 	if target == "" {
-		return "til.c"
+		return filepath.Join(BindDir, "til.c")
 	}
 	if strings.EqualFold(filepath.Ext(target), ".c") {
 		return target
@@ -100,6 +99,9 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	}
 	if GenerateOneLineJSON && (GenerateLogC || GenerateABC != "") {
 		return errors.New("trice generate: -onelineJSON cannot be combined with -logC or -abc")
+	}
+	if (GenerateLogC || GenerateOneLineJSON || GenerateABC != "") && strings.TrimSpace(BindDir) == "" {
+		return errors.New("trice generate: -genDir must not be empty")
 	}
 
 	if WriteAllColors {
@@ -161,12 +163,12 @@ func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
 	}
 
 	if GenerateABC != "" {
-		msg.FatalOnErr(ilu.ToFilesAbc(w, fSys, GenerateABC))
+		baseDir := filepath.Dir(FnJSON)
+		if filepath.Base(GenerateABC) == GenerateABC {
+			baseDir = BindDir
+		}
+		msg.FatalOnErr(ilu.toFilesAbcAt(w, fSys, GenerateABC, baseDir))
 		if Verbose {
-			baseDir := filepath.Dir(FnJSON)
-			if baseDir == "." {
-				baseDir = ""
-			}
 			_, _, _, _, headerPath, sourcePath, err := abcTargetPaths(baseDir, GenerateABC)
 			msg.FatalOnErr(err)
 			fmt.Fprintln(w, "generated", headerPath)
@@ -189,13 +191,14 @@ type oneLineLocation struct {
 	File string `json:"File"`
 }
 
-// oneLineJSONPath derives a companion name without overwriting its input.
+// oneLineJSONPath places a derived JSON view in the shared generated directory.
 func oneLineJSONPath(source string) string {
-	extension := filepath.Ext(source)
+	name := filepath.Base(source)
+	extension := filepath.Ext(name)
 	if strings.EqualFold(extension, ".json") {
-		return strings.TrimSuffix(source, extension) + ".oneline.json"
+		return filepath.Join(BindDir, strings.TrimSuffix(name, extension)+".oneline.json")
 	}
-	return source + ".oneline.json"
+	return filepath.Join(BindDir, name+".oneline.json")
 }
 
 // renderOneLineJSON keeps the outer lookup object valid JSON while placing one
@@ -244,9 +247,12 @@ func renderOneLineJSON(entries map[TriceID]any, escapeHTML bool) ([]byte, error)
 func generateOneLineJSONFiles(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) error {
 	includeLI := LIFnJSON != "off" && LIFnJSON != "none"
 	tilPath := oneLineJSONPath(FnJSON)
+	if filepath.Clean(tilPath) == filepath.Clean(FnJSON) {
+		return errors.New("trice generate: one-line output path conflicts with an input or another output")
+	}
 	if includeLI {
 		liPath := oneLineJSONPath(LIFnJSON)
-		if filepath.Clean(tilPath) == filepath.Clean(LIFnJSON) || filepath.Clean(liPath) == filepath.Clean(FnJSON) || filepath.Clean(tilPath) == filepath.Clean(liPath) {
+		if filepath.Clean(tilPath) == filepath.Clean(LIFnJSON) || filepath.Clean(liPath) == filepath.Clean(FnJSON) || filepath.Clean(liPath) == filepath.Clean(LIFnJSON) || filepath.Clean(tilPath) == filepath.Clean(liPath) {
 			return errors.New("trice generate: one-line output path conflicts with an input or another output")
 		}
 	}
