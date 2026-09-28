@@ -20,7 +20,9 @@ import (
 func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) (TriceIDLookUp, error) {
 	inputs, diagnostics := collectBindInputs(w, fSys)
 	plans := analyzeBindInputs(inputs)
+	insertOwned := make([]bool, len(plans))
 	for index := range plans {
+		insertOwned[index] = plans[index].class == bindFileInsert
 		diagnostics = append(diagnostics, plans[index].diagnostics...)
 		plans[index].diagnostics = nil
 	}
@@ -36,6 +38,11 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 	// diagnostics on legacy insert-owned files.
 	_, _ = analyzeBindProject(plans, false)
 	for index := range plans {
+		// Wrapper discovery must not turn already explicit insert IDs into
+		// hypothetical bind ownership. CE insert also instruments definitions.
+		if insertOwned[index] {
+			plans[index].class = bindFileInsert
+		}
 		diagnostics = append(diagnostics, plans[index].diagnostics...)
 		plans[index].diagnostics = nil
 	}

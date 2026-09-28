@@ -15,7 +15,7 @@ import (
 	"github.com/rokath/trice/internal/fmtspec"
 )
 
-// ContextEnrichment holds the repeatable, command-local bind -ce options.
+// ContextEnrichment holds the repeatable, command-local bind/insert/clean -ce options.
 var ContextEnrichment ArrayFlag
 
 // bindLimitsHint keeps unsupported-construct diagnostics short and searchable.
@@ -24,9 +24,11 @@ const bindLimitsHint = `Search UM for "bind-limits".`
 // contextRule retains CLI order within a canonical selector group. Formats
 // keep their C escapes, just like source templates and the serialized TIL.
 type contextRule struct {
-	selector    string
-	format      string
-	expressions []string
+	option       string // Retain the exact CLI spelling for source ownership.
+	selector     string
+	format       string
+	sourceFormat string // Preserve the user's spelling for reversible source enrichment.
+	expressions  []string
 }
 
 // bindEnrichment separates the original call signature from its final schema.
@@ -88,7 +90,8 @@ func parseContextRules(values []string) ([]contextRule, error) {
 		if end >= len(rest) {
 			return nil, fmt.Errorf("invalid -ce %q: unclosed format string", value)
 		}
-		rule := contextRule{selector: key, format: rest[1:end]}
+		rule := contextRule{option: value, selector: key, format: rest[1:end]}
+		rule.sourceFormat = rule.format
 		tail := strings.TrimSpace(rest[end+1:])
 		if tail != "" {
 			if tail[0] != ',' {
@@ -119,6 +122,13 @@ func parseContextRules(values []string) ([]contextRule, error) {
 // selectContextRules walks the prefix chain in source order. Only configured
 // lowercase free selectors disappear; known tags retain normal color behavior.
 func selectContextRules(format string, rules []contextRule) (string, []contextRule, []string) {
+	return selectContextRulesWithTags(format, rules, nil)
+}
+
+// selectContextRulesWithTags can replay insert's original tag classification
+// without requiring generate -logC to repeat instrumentation-time -ulabel flags.
+// A nil map uses the current command's registry; an empty map is authoritative.
+func selectContextRulesWithTags(format string, rules []contextRule, registered map[string]bool) (string, []contextRule, []string) {
 	var prefix strings.Builder
 	var selected []contextRule
 	var duplicates []string
@@ -126,6 +136,9 @@ func selectContextRules(format string, rules []contextRule) (string, []contextRu
 	for {
 		name, rest, found := strings.Cut(format, ":")
 		key, known := contextSelector(name)
+		if registered != nil {
+			known = registered[key]
+		}
 		if !found || key == "" {
 			break
 		}
@@ -186,35 +199,10 @@ func prepareBindContext(w io.Writer, plans []bindFilePlan, rules []contextRule) 
 	return diagnostics
 }
 
-// contextClosingParen respects both C string and character literals. Source
-// callers mask comments first; CLI expressions must fit one generated line.
+// contextClosingParen shares the established C-aware local scanner. It stops
+// at this call, without masking or allocating the remainder of the source file.
 func contextClosingParen(text string, start int) int {
-	depth, quote, escaped := 1, byte(0), false
-	for i := start; i < len(text); i++ {
-		c := text[i]
-		if quote != 0 {
-			if escaped {
-				escaped = false
-			} else if c == '\\' {
-				escaped = true
-			} else if c == quote {
-				quote = 0
-			}
-			continue
-		}
-		switch c {
-		case '\'', '"':
-			quote = c
-		case '(':
-			depth++
-		case ')':
-			depth--
-			if depth == 0 {
-				return i
-			}
-		}
-	}
-	return -1
+	return findBindClosingParen(text, start)
 }
 
 // directContextSite permits a multiline call only when every occupied line
@@ -256,16 +244,7 @@ func enrichBindSite(source, masked string, site *bindSite, format string, rules 
 	}
 	// Insert all extensions before the source's final newline, preserving C
 	// escape spelling. An escaped backslash followed by n is literal text.
-	suffix := ""
-	if strings.HasSuffix(format, `\n`) {
-		backslashes := 0
-		for i := len(format) - 2; i >= 0 && format[i] == '\\'; i-- {
-			backslashes++
-		}
-		if backslashes%2 == 1 {
-			format, suffix = format[:len(format)-2], `\n`
-		}
-	}
+	format, suffix := contextNewlineSuffix(format)
 	for _, rule := range rules {
 		format += rule.format
 		ce.expressions = append(ce.expressions, rule.expressions...)
@@ -302,6 +281,21 @@ func enrichBindSite(source, masked string, site *bindSite, format string, rules 
 	}
 	site.macro, site.format, site.ce = entry.Type, entry.Strg, ce
 	return nil
+}
+
+// contextNewlineSuffix keeps appended context on the original message line.
+// An escaped backslash followed by n is literal text, not a newline escape.
+func contextNewlineSuffix(format string) (string, string) {
+	if strings.HasSuffix(format, `\n`) {
+		backslashes := 0
+		for i := len(format) - 2; i >= 0 && format[i] == '\\'; i-- {
+			backslashes++
+		}
+		if backslashes%2 == 1 {
+			return format[:len(format)-2], `\n`
+		}
+	}
+	return format, ""
 }
 
 // contextArgumentTail supplies the existing parser's post-format input shape.

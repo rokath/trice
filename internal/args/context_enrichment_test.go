@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -32,13 +33,13 @@ func runContextCLI(t *testing.T, fs *afero.Afero, options ...string) (string, er
 }
 
 // TestContextEnrichmentCLI checks public parsing, late user-label registration,
-// repeated options, command-local reset, and bind-only flag ownership.
+// repeated options, command-local reset, and instrumentation-only flag ownership.
 func TestContextEnrichmentCLI(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	require.NoError(t, fs.WriteFile("main.c", []byte("#include \"trice.h\"\ntrice(\"motor:ready\");\n"), 0o644))
 	require.NoError(t, fs.WriteFile("til.json", []byte("{}"), 0o644))
 	require.NoError(t, fs.WriteFile("li.json", []byte("{}"), 0o644))
-	options := []string{"bind", "-src", "main.c", "-til", "til.json", "-li", "li.json", "-buildDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
+	options := []string{"bind", "-src", "main.c", "-til", "til.json", "-li", "li.json", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
 	_, err := runContextCLI(t, fs, append(append([]string{}, options...), "-ce", `MOTOR:", x={}", pos.x`, "-ce", `motor:", y={}", pos.y`, "-ulabel", "motor")...)
 	require.NoError(t, err)
 	content, err := fs.ReadFile("til.json")
@@ -46,8 +47,8 @@ func TestContextEnrichmentCLI(t *testing.T) {
 	var til id.TriceIDLookUp
 	require.NoError(t, json.Unmarshal(content, &til))
 	assert.Equal(t, "motor:ready, x={pos.x}, y={pos.y}", til[1000].Strg)
-	assert.Nil(t, fsScInsert.Lookup("ce"))
-	assert.Nil(t, fsScClean.Lookup("ce"))
+	assert.NotNil(t, fsScInsert.Lookup("ce"))
+	assert.NotNil(t, fsScClean.Lookup("ce"))
 	assert.Nil(t, fsScGenerate.Lookup("ce"))
 
 	_, err = runContextCLI(t, fs, options...)
@@ -60,6 +61,56 @@ func TestContextEnrichmentCLI(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, help, "-ce")
 	assert.Contains(t, help, `Search UM for "bind-limits".`)
+}
+
+// TestContextInsertCleanCLI proves repeatable public flags, label-independent
+// table generation, and command-local reset without a compiler prerequisite.
+func TestContextInsertCleanCLI(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	original := "trice(\"motor:ctx:ready\\n\");\n"
+	require.NoError(t, fs.WriteFile("main.c", []byte(original), 0o644))
+	require.NoError(t, fs.WriteFile("til.json", []byte("{}"), 0o644))
+	require.NoError(t, fs.WriteFile("li.json", []byte("{}"), 0o644))
+	rules := []string{"-ce", `motor:", x={}", pos.x`, "-ce", `ctx:", y={}", pos.y`}
+	insert := append([]string{"insert", "-src", "main.c", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-ulabel", "motor"}, rules...)
+	output, err := runContextCLI(t, fs, insert...)
+	require.NoError(t, err, output)
+	inserted, err := fs.ReadFile("main.c")
+	require.NoError(t, err)
+	content, err := fs.ReadFile("til.json")
+	require.NoError(t, err)
+	var til id.TriceIDLookUp
+	require.NoError(t, json.Unmarshal(content, &til))
+	assert.Equal(t, `motor:ready, x={pos.x}, y={pos.y}\n`, til[1000].Strg)
+	// Simulate a fresh process: the generator cannot inherit the prior registry.
+	emitter.UserLabel = nil
+	require.NoError(t, emitter.AddUserLabels())
+	output, err = runContextCLI(t, fs, "generate", "-src", "main.c", "-genDir", "build", "-logC", "triceLog.c")
+	require.NoError(t, err, output)
+	table, err := fs.ReadFile("triceLog.c")
+	require.NoError(t, err)
+	assert.Contains(t, string(table), "motor:ready")
+	assert.NotContains(t, string(table), "motor:ctx:ready")
+	assert.Empty(t, id.ContextEnrichment, "generate does not inherit the previous command's rules")
+	output, err = runContextCLI(t, fs, insert...)
+	require.NoError(t, err, output)
+	repeated, err := fs.ReadFile("main.c")
+	require.NoError(t, err)
+	assert.Equal(t, inserted, repeated)
+	clean := append([]string{"clean", "-src", "main.c", "-ulabel", "motor"}, rules...)
+	for repeat := 0; repeat < 2; repeat++ {
+		output, err = runContextCLI(t, fs, clean...)
+		require.NoError(t, err, output)
+		cleaned, err := fs.ReadFile("main.c")
+		require.NoError(t, err)
+		assert.Equal(t, original, string(cleaned))
+	}
+	for _, command := range []string{"-insert", "-clean"} {
+		help, err := RenderHelpText(command)
+		require.NoError(t, err)
+		assert.Contains(t, help, "-ce")
+		assert.Contains(t, help, "same order")
+	}
 }
 
 // contextTargetConfig enables actual unframed target records and the generated
@@ -180,6 +231,18 @@ int main(void) {
 // TestContextEnrichmentTargetToDecoder proves the complete public workflow:
 // bind, generated C metadata, compiler/clangd, actual payload, text/JSON/KV.
 func TestContextEnrichmentTargetToDecoder(t *testing.T) {
+	testContextTargetToDecoder(t, "bind")
+}
+
+// TestContextInsertCleanTargetToDecoder exercises the same bit widths, stamps,
+// floats and decoders through public insert/clean, additionally using wrappers.
+func TestContextInsertCleanTargetToDecoder(t *testing.T) {
+	testContextTargetToDecoder(t, "insert")
+}
+
+// testContextTargetToDecoder shares the expected wire behavior while retaining
+// the distinct source contracts of bind and reversible insert/clean.
+func testContextTargetToDecoder(t *testing.T, command string) {
 	if os.Getenv("TRICE_BIND_INTEGRATION") != "1" {
 		t.Skip("set TRICE_BIND_INTEGRATION=1 for the CE compiler and decoder integration")
 	}
@@ -209,6 +272,17 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 	require.Len(t, calls, 4, "all canonical CE examples must participate in the real target test")
 	source := strings.ReplaceAll(contextTargetSource, "// CE_GLOBALS", globals)
 	source = strings.ReplaceAll(source, "// CE_EXAMPLES", strings.Join(calls, "\n    "))
+	if command == "insert" {
+		// Insert writes each definition's final arguments directly. These two
+		// calls share one macro line but use disjoint local scopes; no compiler
+		// counter or speculative selection across their expressions is needed.
+		wrapper := "#define CE_PAIR() do { { int privateValue = 11; (void)privateValue; trice32(\"info:left:Left\\n\"); } { int otherValue = 22; (void)otherValue; trice32(\"info:right:Right\\n\"); } } while (0)\n"
+		start := strings.Index(source, "    {\n        int privateValue = 11;")
+		end := strings.Index(source, "    {\n        int tid = 1,")
+		require.True(t, start >= 0 && end > start)
+		source = source[:start] + "    CE_PAIR();\n" + source[end:]
+		source = strings.Replace(source, "int main(void)", wrapper+"\nint main(void)", 1)
+	}
 	project := t.TempDir()
 	sourcePath := filepath.Join(project, "main.c")
 	tilPath, liPath := filepath.Join(project, "til.json"), filepath.Join(project, "li.json")
@@ -218,7 +292,7 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 	require.NoError(t, fs.WriteFile(tilPath, []byte("{}"), 0o644))
 	require.NoError(t, fs.WriteFile(liPath, []byte("{}"), 0o644))
 	require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(contextTargetConfig), 0o644))
-	bind := []string{"bind", "-src", sourcePath, "-til", tilPath, "-li", liPath, "-buildDir", buildDir, "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
+	bind := []string{command, "-src", sourcePath, "-til", tilPath, "-li", liPath, "-genDir", buildDir, "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
 	rules := []string{
 		`pos:", x={}, y={}", pos.x, pos.y`,
 		`speed:", m/s=%f", aFloat(velocity)`,
@@ -239,8 +313,14 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 	require.NoError(t, err, output)
 	bound, err := os.ReadFile(sourcePath)
 	require.NoError(t, err)
+	if command == "insert" {
+		require.Contains(t, string(bound), "/* trice-ce:", output)
+		require.Contains(t, string(bound), "iD(", output)
+	}
 	for _, call := range calls {
-		assert.Contains(t, string(bound), call)
+		if command == "bind" {
+			assert.Contains(t, string(bound), call)
+		}
 	}
 	output, err = runContextCLI(t, fs, bind...)
 	require.NoError(t, err, output)
@@ -248,8 +328,8 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, bound, repeated)
 	tablePath := filepath.Join(project, "triceLog.c")
-	output, err = runContextCLI(t, fs, "generate", "-logC", tablePath, "-src", sourcePath, "-til", tilPath, "-li", liPath, "-buildDir", buildDir)
-	require.NoError(t, err, output)
+	output, err = runContextCLI(t, fs, "generate", "-logC", tablePath, "-src", sourcePath, "-til", tilPath, "-li", liPath, "-genDir", buildDir)
+	require.NoError(t, err, "%s\nsource:\n%s", output, repeated)
 
 	library, err := filepath.Glob(filepath.Join(root, "src", "[a-z]*.c"))
 	require.NoError(t, err)
@@ -274,7 +354,10 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 			database, err := json.Marshal(commands)
 			require.NoError(t, err)
 			require.NoError(t, os.WriteFile(filepath.Join(project, "compile_commands.json"), database, 0o644))
-			buildOutput, err = exec.Command(clangd, "--check="+sourcePath, "--compile-commands-dir="+project).CombinedOutput()
+			// clangd 21's SwapBinaryOperands action proposes overlapping edits
+			// inside an explicit Id(...) macro. Exclude that refactoring action;
+			// compiler/editor diagnostics and all other checks remain enabled.
+			buildOutput, err = exec.Command(clangd, "--check="+sourcePath, "--compile-commands-dir="+project, "--tweaks=*,-SwapBinaryOperands").CombinedOutput()
 			require.NoError(t, err, "%s", buildOutput)
 			assert.Contains(t, string(buildOutput), "Loaded compilation database")
 			assert.Contains(t, string(buildOutput), "0 errors")
@@ -310,6 +393,19 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 
 	// Invalid local context remains a real compiler and editor error. Bind does
 	// not invent a C symbol table or impose scope from any other log location.
+	if command == "insert" {
+		clean := []string{"clean", "-src", sourcePath, "-til", tilPath, "-li", liPath}
+		for _, rule := range rules {
+			clean = append(clean, "-ce", rule)
+		}
+		for repeat := 0; repeat < 2; repeat++ {
+			output, err = runContextCLI(t, fs, clean...)
+			require.NoError(t, err, output)
+			restored, err := os.ReadFile(sourcePath)
+			require.NoError(t, err)
+			assert.Equal(t, source, string(restored), "clean restores even wrapper definitions and multiline calls")
+		}
+	}
 	badRules := append([]string{}, bind...)
 	for i, option := range badRules {
 		if strings.HasPrefix(option, "left:") {
@@ -322,7 +418,7 @@ func TestContextEnrichmentTargetToDecoder(t *testing.T) {
 	buildOutput, err = exec.Command(cc, args...).CombinedOutput()
 	require.Error(t, err)
 	assert.Contains(t, string(buildOutput), "ceMissingLocal")
-	buildOutput, err = exec.Command(clangd, "--check="+sourcePath, "--compile-commands-dir="+project).CombinedOutput()
+	buildOutput, err = exec.Command(clangd, "--check="+sourcePath, "--compile-commands-dir="+project, "--tweaks=*,-SwapBinaryOperands").CombinedOutput()
 	require.Error(t, err)
 	assert.Contains(t, string(buildOutput), "ceMissingLocal")
 }

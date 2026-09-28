@@ -138,6 +138,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()
 		id.ProcessAliases()
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdClean(w, fSys)
 	case "sd", "shutdown":

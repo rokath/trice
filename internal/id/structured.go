@@ -23,7 +23,7 @@ var FieldsDir = "./build/triceIDs"
 // literals. Keeping the source spelling is what makes insert/clean reversible.
 func canonicalizeSourceTemplate(t *TriceFmt, rest string) error {
 	if t.isSAlias() || !strings.ContainsAny(t.Strg, "{}") {
-		return nil
+		return canonicalizeInsertContext(t, rest)
 	}
 	args, err := splitTriceParametersUntilClosingBracket(rest)
 	if err != nil {
@@ -44,7 +44,7 @@ func canonicalizeSourceTemplate(t *TriceFmt, rest string) error {
 		}
 	}
 	t.Strg = template.Canonical
-	return nil
+	return canonicalizeInsertContext(t, rest)
 }
 
 // ValidateStructuredFields enforces the same supported record families during

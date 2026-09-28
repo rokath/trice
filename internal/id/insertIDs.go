@@ -21,11 +21,20 @@ import (
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
+	if len(ContextEnrichment) != 0 {
+		return switchSourceContext(w, fSys, false)
+	}
+	return insertIDs(w, fSys, IDData.triceIDInsertion)
+}
+
+// insertIDs shares validation and allocation with CE's private filesystem view.
+// CE bypasses the timestamp-only legacy cache because rules affect the source.
+func insertIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) (e error) {
 	fields, e := collectInsertFields(w, fSys)
 	if e != nil {
 		return e
 	}
-	e = IDData.cmdSwitchTriceIDs(w, fSys, IDData.triceIDInsertion)
+	e = IDData.cmdSwitchTriceIDs(w, fSys, action)
 	if e != nil {
 		return e
 	}
