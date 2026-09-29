@@ -56,14 +56,14 @@ func TestInsertCleanContextRoundTrip(t *testing.T) {
 			inserted, err := FSys.ReadFile(Srcs[0])
 			require.NoError(t, err)
 			assert.Contains(t, string(inserted), tc.physical)
-			assert.Equal(t, 1, strings.Count(string(inserted), insertContextPrefix))
+			assert.NotContains(t, string(inserted), "/* trice-ce:", "CE must leave the source readable without provenance comments")
 			assert.Equal(t, TriceIDLookUp{100: tc.want}, contextTestTIL(t))
 			first := contextTestSnapshot(t)
 			require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
 			assert.Equal(t, first, contextTestSnapshot(t), "second insert must not append anything or change an ID")
 			selected, err := selectCurrentLogEntries(io.Discard, FSys, contextTestTIL(t))
 			require.NoError(t, err)
-			assert.Equal(t, contextTestTIL(t), selected, "generate uses the proven final schema")
+			assert.Equal(t, contextTestTIL(t), selected, "generate uses the explicit ID and final TIL schema without provenance")
 			require.NoError(t, SubCmdIdClean(io.Discard, FSys))
 			cleaned, err := FSys.ReadFile(Srcs[0])
 			require.NoError(t, err)
@@ -77,9 +77,9 @@ func TestInsertCleanContextRoundTrip(t *testing.T) {
 	}
 }
 
-// TestSourceContextSelectionAndOwnership distinguishes actual generated data
-// from identical hand-written suffixes, and checks source/CLI group ordering.
-func TestSourceContextSelectionAndOwnership(t *testing.T) {
+// TestSourceContextSelectionAndManualMatches checks source/CLI group ordering
+// and proves that hand-written and tool-inserted matching suffixes are equal.
+func TestSourceContextSelectionAndManualMatches(t *testing.T) {
 	source := "trice(\"msg:ctxb:ctxa:CTXA:ready\\n\");\ntrice(\"msg:manual, x={x}\", x);\n"
 	defer prepareSourceContextTest(t, map[string]string{"main.c": source}, `ctxa:", a={first}", a`, `ctxb:", b={second}", b`, `ctxa:", c={third}", c`)()
 	var output bytes.Buffer
@@ -90,17 +90,18 @@ func TestSourceContextSelectionAndOwnership(t *testing.T) {
 	cleaned, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
 	assert.Equal(t, source, string(cleaned))
-	// Even a matching selector and suffix do not prove that clean owns the text.
+	// The complete suffix, not its origin, controls both commands.
 	manual := `trice("msg:ctx:manual, x={x}", x);`
 	require.NoError(t, FSys.WriteFile(Srcs[0], []byte(manual), 0o644))
 	ContextEnrichment = ArrayFlag{`ctx:", x={x}", x`}
+	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
+	cleaned, err = FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, 1, strings.Count(string(cleaned), ", x={x}"), "insert recognizes a complete manual suffix")
 	require.NoError(t, SubCmdIdClean(io.Discard, FSys))
 	cleaned, err = FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
-	assert.Equal(t, manual, string(cleaned))
-	before := contextTestSnapshot(t)
-	assert.ErrorContains(t, SubCmdIdInsert(io.Discard, FSys), "duplicate structured field")
-	assert.Equal(t, before, contextTestSnapshot(t), "manual data is not guessed to be prior CE output")
+	assert.Equal(t, `trice("msg:ctx:manual");`, string(cleaned), "clean removes a complete suffix regardless of origin")
 }
 
 // TestSourceContextRejectsBeforePublishing covers complete-project preflight,
@@ -123,37 +124,179 @@ func TestSourceContextRejectsBeforePublishing(t *testing.T) {
 	}
 }
 
-// TestSourceContextRejectsRuleChangesAndEdits prevents accidental destruction of
-// a user's changes, even if the old generated marker is still next to the call.
-func TestSourceContextRejectsRuleChangesAndEdits(t *testing.T) {
-	for _, change := range []string{"different rule", "different argument", "different message", "broken marker", "detached marker", "reordered rules"} {
-		t.Run(change, func(t *testing.T) {
-			defer prepareSourceContextTest(t, map[string]string{"main.c": `trice("msg:ctx:ready");`}, `ctx:" {x}", x`, `unused:" text"`)()
-			require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
-			content, err := FSys.ReadFile(Srcs[0])
+// TestSourceContextCompleteSuffixContract checks the observable insert/clean
+// contract on fresh source, including manual and partial extensions. Every case
+// asserts exact source text and repeats insert to catch positional duplicates.
+func TestSourceContextCompleteSuffixContract(t *testing.T) {
+	for _, tc := range []struct {
+		name, source, inserted, cleaned string
+	}{
+		{"absent suffix is appended before newline", `trice("msg:ctx7:hi\n");`, `trice("msg:ctx7:hi, clock=%d\n", clock);`, `trice("msg:ctx7:hi\n");`},
+		{"manual complete suffix is already present", `trice("msg:ctx7:hi, clock=%d\n", clock);`, `trice("msg:ctx7:hi, clock=%d\n", clock);`, `trice("msg:ctx7:hi\n");`},
+		{"complete suffix without newline", `trice("msg:ctx7:hi, clock=%d", clock);`, `trice("msg:ctx7:hi, clock=%d", clock);`, `trice("msg:ctx7:hi");`},
+		{"format alone is a nonmatch", `trice("msg:ctx7:hi, clock=%d\n", other);`, `trice("msg:ctx7:hi, clock=%d, clock=%d\n", other, clock);`, `trice("msg:ctx7:hi, clock=%d\n", other);`},
+		{"argument alone is a nonmatch", `trice("msg:ctx7:value=%d\n", clock);`, `trice("msg:ctx7:value=%d, clock=%d\n", clock, clock);`, `trice("msg:ctx7:value=%d\n", clock);`},
+		{"matching text in middle is a nonmatch", `trice("msg:ctx7:hi, clock=%d then=%d\n", clock, other);`, `trice("msg:ctx7:hi, clock=%d then=%d, clock=%d\n", clock, other, clock);`, `trice("msg:ctx7:hi, clock=%d then=%d\n", clock, other);`},
+		{"arguments must match at the same suffix position", `trice("msg:ctx7:first=%d, clock=%d\n", clock, other);`, `trice("msg:ctx7:first=%d, clock=%d, clock=%d\n", clock, other, clock);`, `trice("msg:ctx7:first=%d, clock=%d\n", clock, other);`},
+		{"expression substring is a nonmatch", `trice("msg:ctx7:hi, clock=%d\n", my_clock);`, `trice("msg:ctx7:hi, clock=%d, clock=%d\n", my_clock, clock);`, `trice("msg:ctx7:hi, clock=%d\n", my_clock);`},
+		{"trailing message space prevents a suffix match", `trice("msg:ctx7:hi, clock=%d \n", clock);`, `trice("msg:ctx7:hi, clock=%d , clock=%d\n", clock, clock);`, `trice("msg:ctx7:hi, clock=%d \n", clock);`},
+		{"outer argument whitespace and comments are harmless", `trice("msg:ctx7:hi, clock=%d\n",  clock /* , ) */ );`, `trice("msg:ctx7:hi, clock=%d\n",  clock /* , ) */ );`, `trice("msg:ctx7:hi\n");`},
+		{"nested original commas do not move CE boundary", `trice("msg:ctx7:value=%d\n", choose(a, b));`, `trice("msg:ctx7:value=%d, clock=%d\n", choose(a, b), clock);`, `trice("msg:ctx7:value=%d\n", choose(a, b));`},
+		{"quoted comma is part of original argument", `trice("msg:ctx7:value=%d\n", ',');`, `trice("msg:ctx7:value=%d, clock=%d\n", ',', clock);`, `trice("msg:ctx7:value=%d\n", ',');`},
+		{"escaped backslash n is ordinary message text", `trice("msg:ctx7:hi\\n");`, `trice("msg:ctx7:hi\\n, clock=%d", clock);`, `trice("msg:ctx7:hi\\n");`},
+		{"selector must not be an identifier substring", `trice("msg:ctx7x:hi, clock=%d\n", clock);`, `trice("msg:ctx7x:hi, clock=%d\n", clock);`, `trice("msg:ctx7x:hi, clock=%d\n", clock);`},
+		{"selector in message body does not select", `trice("msg:hello ctx7:hi, clock=%d\n", clock);`, `trice("msg:hello ctx7:hi, clock=%d\n", clock);`, `trice("msg:hello ctx7:hi, clock=%d\n", clock);`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			defer prepareSourceContextTest(t, map[string]string{"main.c": tc.source}, `ctx7:", clock=%d", clock`)()
+			// Clean sees freshly hand-written source; no earlier insert or TIL
+			// entry may be required to recognize an existing full suffix.
+			wantFreshClean := tc.source
+			if tc.source == tc.inserted {
+				wantFreshClean = tc.cleaned
+			}
+			require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+			freshClean, err := FSys.ReadFile(Srcs[0])
 			require.NoError(t, err)
-			switch change {
-			case "different rule":
-				ContextEnrichment[0] = `ctx:" {x}", other`
-			case "different argument":
-				content = bytes.Replace(content, []byte(", x)"), []byte(", y)"), 1)
-			case "different message":
-				content = bytes.Replace(content, []byte("ready"), []byte("edited"), 1)
-			case "broken marker":
-				content = bytes.Replace(content, []byte(insertContextPrefix), []byte(insertContextPrefix+"?"), 1)
-			case "detached marker":
-				content = bytes.Replace(content, []byte(insertContextPrefix), []byte("; "+insertContextPrefix), 1)
-			case "reordered rules":
-				ContextEnrichment[0], ContextEnrichment[1] = ContextEnrichment[1], ContextEnrichment[0]
-			}
-			require.NoError(t, FSys.WriteFile(Srcs[0], content, 0o644))
-			before := contextTestSnapshot(t)
-			for _, command := range []func(io.Writer, *afero.Afero) error{SubCmdIdInsert, SubCmdIdClean} {
-				assert.Error(t, command(io.Discard, FSys))
-				assert.Equal(t, before, contextTestSnapshot(t), "rejection must preserve the user's edited state")
-			}
+			assert.Equal(t, wantFreshClean, string(freshClean), "clean ignores partial matches completely")
+			require.NoError(t, FSys.WriteFile(Srcs[0], []byte(tc.source), 0o644))
+			require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
+			inserted, err := FSys.ReadFile(Srcs[0])
+			require.NoError(t, err)
+			assert.Equal(t, strings.Replace(tc.inserted, "trice(", "trice(iD(100), ", 1), string(inserted))
+			first := contextTestSnapshot(t)
+			require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
+			assert.Equal(t, first, contextTestSnapshot(t), "insert is idempotent after complete or partial input")
+			require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+			cleaned, err := FSys.ReadFile(Srcs[0])
+			require.NoError(t, err)
+			assert.Equal(t, tc.cleaned, string(cleaned))
 		})
 	}
+}
+
+// TestSourceContextMatchesWholeRuleGroup prevents independently matched pieces
+// from being mistaken for the complete, correctly ordered extension.
+func TestSourceContextMatchesWholeRuleGroup(t *testing.T) {
+	for _, tc := range []struct{ name, source, inserted, cleaned string }{
+		{"complete group", `trice("ctx:ready a=%d b=%d", a, b);`, `trice("ctx:ready a=%d b=%d", a, b);`, `trice("ctx:ready");`},
+		{"first rule alone", `trice("ctx:ready a=%d", a);`, `trice("ctx:ready a=%d a=%d b=%d", a, a, b);`, `trice("ctx:ready a=%d", a);`},
+		{"last rule alone", `trice("ctx:ready b=%d", b);`, `trice("ctx:ready b=%d a=%d b=%d", b, a, b);`, `trice("ctx:ready b=%d", b);`},
+		{"reversed format group", `trice("ctx:ready b=%d a=%d", b, a);`, `trice("ctx:ready b=%d a=%d a=%d b=%d", b, a, a, b);`, `trice("ctx:ready b=%d a=%d", b, a);`},
+		{"reversed argument group", `trice("ctx:ready a=%d b=%d", b, a);`, `trice("ctx:ready a=%d b=%d a=%d b=%d", b, a, a, b);`, `trice("ctx:ready a=%d b=%d", b, a);`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			defer Setup(t)()
+			rules, err := parseContextRules([]string{`ctx:" a=%d", a`, `ctx:" b=%d", b`})
+			require.NoError(t, err)
+			inserted, err := transformSourceContext(io.Discard, "main.c", tc.source, rules, false, false)
+			require.NoError(t, err)
+			assert.Equal(t, tc.inserted, inserted)
+			repeated, err := transformSourceContext(io.Discard, "main.c", inserted, rules, false, false)
+			require.NoError(t, err)
+			assert.Equal(t, inserted, repeated)
+			cleaned, err := transformSourceContext(io.Discard, "main.c", inserted, rules, true, true)
+			require.NoError(t, err)
+			assert.Equal(t, tc.cleaned, cleaned)
+		})
+	}
+}
+
+// TestSourceContextLiteralBoundaries covers argument-free matching, including
+// rule-owned newlines and text that must not consume the selecting prefix.
+func TestSourceContextLiteralBoundaries(t *testing.T) {
+	for _, tc := range []struct{ name, source, rule, inserted, cleaned string }{
+		{"rule adds its own newline", `trice("ctx:hi");`, `ctx:" online\n"`, `trice("ctx:hi online\n");`, `trice("ctx:hi");`},
+		{"original newline and rule newline", `trice("ctx:hi\n");`, `ctx:" online\n"`, `trice("ctx:hi online\n\n");`, `trice("ctx:hi\n");`},
+		{"empty rule is already present", `trice("ctx:hi\n");`, `ctx:""`, `trice("ctx:hi\n");`, `trice("ctx:hi\n");`},
+		{"suffix must preserve its selector", `trice("ctx:");`, `ctx:"ctx:"`, `trice("ctx:ctx:");`, `trice("ctx:");`},
+		{"literal manual suffix is removable", `trice("ctx:hi online");`, `ctx:" online"`, `trice("ctx:hi online");`, `trice("ctx:hi");`},
+		{"literal suffix must not cut a printf conversion", `trice("ctx:value=%d", x);`, `ctx:"d"`, `trice("ctx:value=%dd", x);`, `trice("ctx:value=%d", x);`},
+		{"escaped percent does not own the last value", `trice("ctx:value=%d %%d", clock);`, `ctx:"%d", clock`, `trice("ctx:value=%d %%d%d", clock, clock);`, `trice("ctx:value=%d %%d", clock);`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			defer Setup(t)()
+			rules, err := parseContextRules([]string{tc.rule})
+			require.NoError(t, err)
+			freshClean, err := transformSourceContext(io.Discard, "main.c", tc.source, rules, true, true)
+			require.NoError(t, err)
+			wantFreshClean := tc.source
+			if tc.source == tc.inserted {
+				wantFreshClean = tc.cleaned
+			}
+			assert.Equal(t, wantFreshClean, freshClean, "literal text inside a conversion is not a complete CE format")
+			inserted, err := transformSourceContext(io.Discard, "main.c", tc.source, rules, false, false)
+			require.NoError(t, err)
+			assert.Equal(t, tc.inserted, inserted)
+			repeated, err := transformSourceContext(io.Discard, "main.c", inserted, rules, false, false)
+			require.NoError(t, err)
+			assert.Equal(t, inserted, repeated)
+			cleaned, err := transformSourceContext(io.Discard, "main.c", inserted, rules, true, true)
+			require.NoError(t, err)
+			assert.Equal(t, tc.cleaned, cleaned)
+		})
+	}
+}
+
+// TestSourceContextCurrentRulesAndEditedMessage makes provenance irrelevant:
+// editing ordinary text or replacing the CLI rule does not cause an ownership
+// error. Only a currently matching end group can be removed.
+func TestSourceContextCurrentRulesAndEditedMessage(t *testing.T) {
+	defer prepareSourceContextTest(t, map[string]string{"main.c": `trice("ctx:ready");`}, `ctx:" a=%d", a`)()
+	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
+	content, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	require.NoError(t, FSys.WriteFile(Srcs[0], bytes.Replace(content, []byte("ready"), []byte("edited"), 1), 0o644))
+	ContextEnrichment = ArrayFlag{`ctx:" b=%d", b`}
+	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
+	content, err = FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Contains(t, string(content), `"ctx:edited a=%d b=%d", a, b)`)
+	ContextEnrichment = ArrayFlag{`ctx:" a=%d", a`}
+	require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+	content, err = FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, `trice("ctx:edited a=%d b=%d", a, b);`, string(content), "a matching group in the middle is not removed")
+	ContextEnrichment = ArrayFlag{`ctx:" b=%d", b`}
+	require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+	content, err = FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, `trice("ctx:edited a=%d", a);`, string(content))
+	ContextEnrichment = ArrayFlag{`ctx:" a=%d", a`}
+	require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+	content, err = FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, `trice("ctx:edited");`, string(content))
+}
+
+// TestSourceContextCleanRemovesOneGroupPerInvocation documents the deliberate
+// absence of history: repeated manual suffixes can be removed one at a time.
+func TestSourceContextCleanRemovesOneGroupPerInvocation(t *testing.T) {
+	defer prepareSourceContextTest(t, map[string]string{"main.c": `trice("ctx:ready x=%d x=%d", x, x);`}, `ctx:" x=%d", x`)()
+	for _, want := range []string{`trice("ctx:ready x=%d", x);`, `trice("ctx:ready");`, `trice("ctx:ready");`} {
+		require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+		content, err := FSys.ReadFile(Srcs[0])
+		require.NoError(t, err)
+		assert.Equal(t, want, string(content))
+	}
+}
+
+// TestSourceContextAliasWithUnderscoreKeepsItsName ensures that user aliases
+// are not mistaken for the fixed-arity suffix of a built-in Trice macro.
+func TestSourceContextAliasWithUnderscoreKeepsItsName(t *testing.T) {
+	const source = `my_trace("ctx:ready");`
+	defer prepareSourceContextTest(t, map[string]string{"main.c": source}, `ctx:" x=%d", x`)()
+	TriceAliases = ArrayFlag{"my_trace"}
+	ProcessAliases()
+	t.Cleanup(ProcessAliases)
+	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
+	inserted, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Contains(t, string(inserted), `my_trace(iD(100), "ctx:ready x=%d", x)`)
+	require.NoError(t, SubCmdIdClean(io.Discard, FSys))
+	cleaned, err := FSys.ReadFile(Srcs[0])
+	require.NoError(t, err)
+	assert.Equal(t, source, string(cleaned))
 }
 
 // TestSourceContextMovesWithItsCall does not rely on source paths, line numbers,
@@ -175,7 +318,7 @@ func TestSourceContextMovesWithItsCall(t *testing.T) {
 	partiallyCleaned, err := FSys.ReadFile(moved)
 	require.NoError(t, err)
 	assert.NotContains(t, string(partiallyCleaned), "iD(")
-	assert.Contains(t, string(partiallyCleaned), insertContextPrefix, "ID-only clean must retain ownership")
+	assert.Contains(t, string(partiallyCleaned), `ready {x}\n", x)`, "ID-only clean must retain the CE suffix")
 	ContextEnrichment = rules
 	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
 	assert.Len(t, contextTestTIL(t), 1, "moving a call and deleting build output do not create a new schema")
@@ -199,7 +342,8 @@ func TestSourceContextRespectsSelection(t *testing.T) {
 	path := filepath.Join(Proj, t.Name(), "main.c")
 	inserted, err := FSys.ReadFile(path)
 	require.NoError(t, err)
-	assert.Equal(t, 3, strings.Count(string(inserted), insertContextPrefix))
+	assert.Equal(t, 3, strings.Count(string(inserted), "{x}"))
+	assert.NotContains(t, string(inserted), "/* trice-ce:")
 	assert.Contains(t, string(inserted), `trice("msg:ctx:excluded region");`)
 	registry, err := FSys.ReadFile(filepath.Join(FieldsDir, "trice-fields.txt"))
 	require.NoError(t, err)
@@ -210,7 +354,7 @@ func TestSourceContextRespectsSelection(t *testing.T) {
 	require.NoError(t, SubCmdIdClean(io.Discard, FSys))
 	cleaned, err := FSys.ReadFile(path)
 	require.NoError(t, err)
-	assert.Equal(t, source, string(cleaned), "commented calls retain ordinary ID behavior without nested ownership comments")
+	assert.Equal(t, source, string(cleaned), "commented calls retain ordinary ID behavior and are not enriched")
 }
 
 // TestSourceContextAtomicPublish exercises real rollback after one replacement

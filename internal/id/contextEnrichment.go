@@ -24,7 +24,6 @@ const bindLimitsHint = `Search UM for "bind-limits".`
 // contextRule retains CLI order within a canonical selector group. Formats
 // keep their C escapes, just like source templates and the serialized TIL.
 type contextRule struct {
-	option       string // Retain the exact CLI spelling for source ownership.
 	selector     string
 	format       string
 	sourceFormat string // Preserve the user's spelling for reversible source enrichment.
@@ -90,7 +89,7 @@ func parseContextRules(values []string) ([]contextRule, error) {
 		if end >= len(rest) {
 			return nil, fmt.Errorf("invalid -ce %q: unclosed format string", value)
 		}
-		rule := contextRule{option: value, selector: key, format: rest[1:end]}
+		rule := contextRule{selector: key, format: rest[1:end]}
 		rule.sourceFormat = rule.format
 		tail := strings.TrimSpace(rest[end+1:])
 		if tail != "" {
@@ -122,13 +121,6 @@ func parseContextRules(values []string) ([]contextRule, error) {
 // selectContextRules walks the prefix chain in source order. Only configured
 // lowercase free selectors disappear; known tags retain normal color behavior.
 func selectContextRules(format string, rules []contextRule) (string, []contextRule, []string) {
-	return selectContextRulesWithTags(format, rules, nil)
-}
-
-// selectContextRulesWithTags can replay insert's original tag classification
-// without requiring generate -logC to repeat instrumentation-time -ulabel flags.
-// A nil map uses the current command's registry; an empty map is authoritative.
-func selectContextRulesWithTags(format string, rules []contextRule, registered map[string]bool) (string, []contextRule, []string) {
 	var prefix strings.Builder
 	var selected []contextRule
 	var duplicates []string
@@ -136,9 +128,6 @@ func selectContextRulesWithTags(format string, rules []contextRule, registered m
 	for {
 		name, rest, found := strings.Cut(format, ":")
 		key, known := contextSelector(name)
-		if registered != nil {
-			known = registered[key]
-		}
 		if !found || key == "" {
 			break
 		}

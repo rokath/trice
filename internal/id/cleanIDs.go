@@ -80,6 +80,12 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 	if p.err != nil {
 		return
 	}
+	// Read enriched IDs with the same selector policy as insert, before the
+	// source transformation removes a fully matching CE suffix.
+	rules, err := parseContextRules(ContextEnrichment)
+	if err != nil {
+		return nil, false, err
+	}
 	for {
 		idn = 0                 // clear here
 		loc := matchTrice(rest) // loc is the position of the next trice type (statement name with opening parenthesis followed by a format string).
@@ -99,6 +105,7 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 			if err = canonicalizeSourceTemplate(&t, rest[loc[6]:]); err != nil {
 				return nil, false, fmt.Errorf("%s:%d: %w", sourcePath, line, err)
 			}
+			t.Strg, _, _ = selectContextRules(t.Strg, rules)
 			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
@@ -154,6 +161,11 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 				uu.Strg, _ = strings.CutSuffix(uu.Strg, SAliasStrgSuffix)
 				uu.Strg, _ = strings.CutPrefix(uu.Strg, `"`)
 				uu.Strg, _ = strings.CutSuffix(uu.Strg, `"`)
+			}
+			// ID-only clean retains the schema already selected by this ID,
+			// even though source still contains free lowercase CE selectors.
+			if len(rules) == 0 && u.Type == uu.Type && matchesInsertContextFormat(u.Strg, uu.Strg) {
+				u.Strg = uu.Strg
 			}
 			if uu != u { // idn references to a different t.
 				fmt.Fprintln(w, "ID", idn, "inside", path, "line", line, "refers to\t", u, "\tbut is used inside til.json for\t", uu, "\t- setting it to 0 and keeping ti.json info.")

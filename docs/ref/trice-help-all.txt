@@ -519,7 +519,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
   -ce value
     	Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
-    	Example: -ce 'ctx7:", clock={}", clock'. Keep generated trice-ce comments; undo with clean and the same -ce options in the same order. Float values require aFloat()/aDouble().
+    	Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format and argument suffix is absent; partial matches count as absent. No provenance comments. Float values require aFloat()/aDouble().
   -defaultStampSize int
     	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.
   -dry-run
@@ -713,8 +713,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -cache
     	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
   -ce value
-    	Undo only generated context extensions, using the same -ce options in the same order as insert.
-    	Repeat selector:"format-extension"[, comma-free C-expression]... Hand-written fields are retained. Keep generated trice-ce comments until clean.
+    	Remove one complete matching format and argument suffix at selected calls, regardless of origin. Partial matches are left unchanged.
+    	Repeat selector:"format-extension"[, comma-free C-expression]... Matching uses the complete ordered rule group; no provenance comments are needed.
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice clean -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.

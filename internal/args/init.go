@@ -238,7 +238,7 @@ func insertIDsInit() {
 	fsScInsert.StringVar(&id.FieldsDir, "genDir", id.DefaultGenDir, "Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
 	flagsInsertAndBind(fsScInsert)
 	fsScInsert.Var(&id.ContextEnrichment, "ce", `Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
-Example: -ce 'ctx7:", clock={}", clock'. Keep generated trice-ce comments; undo with clean and the same -ce options in the same order. Float values require aFloat()/aDouble().`)
+Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format and argument suffix is absent; partial matches count as absent. No provenance comments. Float values require aFloat()/aDouble().`)
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space inside Trice braces: `trice(<space>iD(<space>123<space>), \"...);`. Use this if your default code auto-formatting is with space inside braces.")
@@ -276,8 +276,8 @@ func flagsInsertAndBind(p *flag.FlagSet) {
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("clean", flag.ContinueOnError) // sub-command
 	flagsRefreshAndUpdate(fsScClean)
-	fsScClean.Var(&id.ContextEnrichment, "ce", `Undo only generated context extensions, using the same -ce options in the same order as insert.
-Repeat selector:"format-extension"[, comma-free C-expression]... Hand-written fields are retained. Keep generated trice-ce comments until clean.`)
+	fsScClean.Var(&id.ContextEnrichment, "ce", `Remove one complete matching format and argument suffix at selected calls, regardless of origin. Partial matches are left unchanged.
+Repeat selector:"format-extension"[, comma-free C-expression]... Matching uses the complete ordered rule group; no provenance comments are needed.`)
 	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
 	fsScClean.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space after Trice opening brace: `trice(<space>\"...)`. Use this if your default code auto-formatting is with space after opening brace.")
 	fsScClean.BoolVar(&id.SpaceInsideParenthesis, "w", false, "Short for (white)spaceInsideParenthesis or \"wide\".")

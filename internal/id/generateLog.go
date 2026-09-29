@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/afero"
 )
@@ -62,6 +63,12 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 		case bindFileInsert:
 			for _, site := range allSites {
 				if site.wasExplicit {
+					// Insert keeps selectors in source for clean. The explicit ID
+					// selects the TIL entry; only removable lowercase prefixes may
+					// differ, never the message body, fields or transport type.
+					if entry, exists := til[site.id]; exists && matchesInsertContextFormat(site.format, entry.Strg) {
+						site.format = entry.Strg
+					}
 					diagnostics = append(diagnostics, addCurrentLogSite(selected, til, plan.path, site, site.id)...)
 				} else {
 					diagnostics = append(diagnostics, unresolvedCurrentLogSite(plan.path, site))
@@ -126,6 +133,35 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 		}})
 	}
 	return selected, nil
+}
+
+// matchesInsertContextFormat reconciles source-retained free selectors with
+// the schema of an already explicit ID. It does not search for IDs or infer CE
+// rules. Keeping alternative prefix positions handles repeated token names;
+// registered and mixed-case tags, message text and field schemas must match.
+func matchesInsertContextFormat(source, target string) bool {
+	remaining := map[string]bool{target: true}
+	for len(remaining) != 0 {
+		if remaining[source] {
+			return true
+		}
+		name, rest, found := strings.Cut(source, ":")
+		key, known := contextSelector(name)
+		if !found || key == "" {
+			return false
+		}
+		next := make(map[string]bool)
+		for candidate := range remaining {
+			if tail, matches := strings.CutPrefix(candidate, name+":"); matches {
+				next[tail] = true
+			}
+			if !known && name == strings.ToLower(name) {
+				next[candidate] = true
+			}
+		}
+		source, remaining = rest, next
+	}
+	return false
 }
 
 // currentLogSiteIsInherentlyUnsupported permits an ID-free call in an ordinary

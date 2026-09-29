@@ -82,6 +82,13 @@ func TestContextInsertCleanCLI(t *testing.T) {
 	var til id.TriceIDLookUp
 	require.NoError(t, json.Unmarshal(content, &til))
 	assert.Equal(t, `motor:ready, x={pos.x}, y={pos.y}\n`, til[1000].Strg)
+	// Ordinary insert must not change the ID or reintroduce the source-only
+	// selector when the caller runs the normal workflow without CE options.
+	output, err = runContextCLI(t, fs, "insert", "-src", "main.c", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999")
+	require.NoError(t, err, output)
+	idOnly, err := fs.ReadFile("main.c")
+	require.NoError(t, err)
+	assert.Equal(t, inserted, idOnly)
 	// Simulate a fresh process: the generator cannot inherit the prior registry.
 	emitter.UserLabel = nil
 	require.NoError(t, emitter.AddUserLabels())
@@ -109,7 +116,7 @@ func TestContextInsertCleanCLI(t *testing.T) {
 		help, err := RenderHelpText(command)
 		require.NoError(t, err)
 		assert.Contains(t, help, "-ce")
-		assert.Contains(t, help, "same order")
+		assert.Contains(t, help, "complete")
 	}
 }
 
@@ -314,7 +321,7 @@ func testContextTargetToDecoder(t *testing.T, command string) {
 	bound, err := os.ReadFile(sourcePath)
 	require.NoError(t, err)
 	if command == "insert" {
-		require.Contains(t, string(bound), "/* trice-ce:", output)
+		require.NotContains(t, string(bound), "/* trice-ce:", "insert must not add provenance comments")
 		require.Contains(t, string(bound), "iD(", output)
 	}
 	for _, call := range calls {

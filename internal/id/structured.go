@@ -23,7 +23,7 @@ var FieldsDir = DefaultGenDir
 // literals. Keeping the source spelling is what makes insert/clean reversible.
 func canonicalizeSourceTemplate(t *TriceFmt, rest string) error {
 	if t.isSAlias() || !strings.ContainsAny(t.Strg, "{}") {
-		return canonicalizeInsertContext(t, rest)
+		return nil
 	}
 	args, err := splitTriceParametersUntilClosingBracket(rest)
 	if err != nil {
@@ -44,7 +44,7 @@ func canonicalizeSourceTemplate(t *TriceFmt, rest string) error {
 		}
 	}
 	t.Strg = template.Canonical
-	return canonicalizeInsertContext(t, rest)
+	return nil
 }
 
 // ValidateStructuredFields enforces the same supported record families during
