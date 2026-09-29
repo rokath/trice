@@ -6431,16 +6431,16 @@ Die Shell muss den gesamten Optionswert als ein Argument übergeben; die Beispie
 
 Selektoren werden in der zusammenhängenden Präfixfolge am Anfang des Formatstrings gesucht, beispielsweise `info:pos:speed:`. Der Vergleich ignoriert Groß-/Kleinschreibung; bekannte eingebaute Tag-Aliase gehören dabei zu derselben Gruppe, etwa `warn` und `WARNING`.
 
-So wählen `-ce 'wrn:", attempt={attempt}", 7'` und `-ce 'WARNING:", attempt={attempt}", 7'` dieselben Logstellen aus, auch wenn deren Tag-Aliase im Source gemischt geschrieben sind:
+So wählen `-ce 'Wrn:", attempt={attempt}", 7'` und `-ce 'WARNING:", attempt={attempt}", 7'` dieselben Logstellen aus, auch wenn deren Tag-Aliase im Source gemischt geschrieben sind:
 
 ```c
 trice("WARNING:Connection lost");
-trice("Wrn:Retrying");
+trice("wrn:Retrying");
 ```
 
-Beide Aufrufe erhalten die Erweiterung; `WARNING:` beziehungsweise `Wrn:` bleibt in seiner ursprünglichen Schreibweise im Source stehen. Diese Alias-Auflösung gilt bei `bind`, `insert` und `clean` für die Auswahl der Logstelle. Der vollständige Match der Format- und Argumenterweiterung bei `insert` und `clean` wird davon getrennt geprüft.
+Beide Aufrufe erhalten die Erweiterung; `WARNING:` beziehungsweise `wrn:` bleibt in seiner ursprünglichen Schreibweise im Source stehen. Diese Alias-Auflösung gilt bei `bind`, `insert` und `clean` für die Auswahl der Logstelle. Der vollständige Match der Format- und Argumenterweiterung bei `insert` und `clean` wird davon getrennt geprüft.
 
-- Nur konfigurierte Selektoren lösen CE aus. Ohne passende Regel bleibt ein Präfix unverändert.
+- Nur konfigurierte Selektoren lösen CE aus. Ohne passende Regel bleibt ein Präfix ohne CE Wirkung.
 - Ein freier, vollständig kleingeschriebener Selektor wird bei Anwendung seiner Regel aus dem endgültigen Template entfernt, nicht aus dem Source. `pos:` verschwindet aus der Ausgabe; `PoS:` und `POS:` bleiben sichtbar und lösen dieselbe Regel aus.
 - Registrierte Trice-Tags und `-ulabel`-Namen behalten ihr Präfix im endgültigen Template. Für Tag-Metadaten und Darstellung gelten die normalen Regeln: `-color off` erhält beispielsweise `info:`; CE entfernt dieses bekannte Tag nicht.
 - Verschiedene Selektoren wirken in ihrer Reihenfolge im Source. Mehrere Regeln für denselben Selektor wirken in CLI-Reihenfolge.
@@ -6462,7 +6462,7 @@ Einfügen:
 trice insert -src main.c -ce 'ctx7:", clock={}", clock'
 ```
 
-Der Aufruf sieht danach beispielsweise so aus (die ID `1234` ist nur ein Beispiel):
+Der Aufruf sieht danach so aus (die ID `1234` ist nur ein Beispiel):
 
 ```c
 trice(iD(1234), "msg:ctx7:hi, clock={}\n", clock);
@@ -6480,7 +6480,23 @@ trice clean -src main.c -ce 'ctx7:", clock={}", clock'
 
 Danach steht wieder `trice("msg:ctx7:hi\n");` im Source. Eine feste Argumentzahl wird entsprechend angepasst: Aus `TRICE16_2(Id(1234), …)` wird nach Entfernung eines CE-Arguments `TRICE16_1(Id(0), …)`. Eine generische feste Null-Argument-Form wird als `trice0` beziehungsweise `TRICE0` geschrieben; die historische Schreibweise `trice_0` lässt sich ohne Herkunftsdaten nicht unterscheiden. Für IDs gelten weiterhin die üblichen Clean-Regeln: IDs kleingeschriebener Makrofamilien werden entfernt, IDs der entsprechenden Großschreibungsvarianten auf null gesetzt.
 
-**Ein vollständiger Match muss positionsgenau sein.** Für die obige Regel müssen `, clock={}` am Ende des Formatstrings und `clock` am Ende der Argumentliste stehen. Ein abschließendes `\n` der Meldung bleibt hinter der Erweiterung erhalten. Enthält die Regel selbst ein abschließendes `\n`, gehört dieses zur Erweiterung und wird mit entfernt. Formattext, Leerzeichen im Format und Feldschreibweise müssen übereinstimmen: `{}` und `{clock}` sind für diesen Vergleich verschieden. Ein Textstück innerhalb einer Formatkonvertierung zählt nicht als vollständige Erweiterung: Das `d` in `%d` ist beispielsweise kein eigenständiger Text-Anhang, und `%%d` enthält keinen `%d`-Wertplatzhalter. Beim Argumentvergleich werden C-Kommentare wie beim normalen Einlesen durch Leerraum ersetzt und äußere Leerzeichen ignoriert; verschiedene Ausdrücke wie `clock`, `readClock()` oder `clock + 0` gelten nicht als gleich.
+**Ein vollständiger Match muss positionsgenau sein.** Für die obige Regel müssen `, clock={}` am Ende des Formatstrings und `clock` am Ende der Argumentliste stehen. Ein abschließendes `\n` der Meldung bleibt hinter der Erweiterung erhalten. Enthält die Regel selbst ein abschließendes `\n`, gehört dieses zur Erweiterung und wird mit entfernt. Formattext, Leerzeichen im Format und Feldschreibweise müssen übereinstimmen: `{}` und `{clock}` sind für diesen Vergleich verschieden. Beim Argumentvergleich werden C-Kommentare wie beim normalen Einlesen durch Leerraum ersetzt und äußere Leerzeichen ignoriert; verschiedene Ausdrücke wie `clock`, `readClock()` oder `clock + 0` gelten nicht als gleich.
+
+Auch ein scheinbar passendes Textende ist kein Match, wenn es zu einer vorhandenen Formatkonvertierung gehört. Bei `-ce 'ctx:"d"'` endet der folgende Formatstring zwar mit `d`, dieses Zeichen ist aber Teil von `%d`, dem Platzhalter für `x`:
+
+```c
+trice("ctx:value=%d", x);
+```
+
+`clean -ce` lässt den Aufruf unverändert: Das Entfernen des `d` würde aus `%d` ein einzelnes `%` machen. `insert -ce` hängt stattdessen ein eigenes `d` an und erzeugt `trice("ctx:value=%dd", x);`.
+
+Ebenso ist bei `-ce 'ctx:"%d", clock'` das sichtbare `%d` am Ende des nächsten Formatstrings kein Wertplatzhalter:
+
+```c
+trice("ctx:value=%d %%d", clock);
+```
+
+Das erste `%d` gibt `clock` aus; `%%d` gibt wörtlich `%d` aus und benötigt kein weiteres Argument. Obwohl die letzten Zeichen `%d` und das letzte Argument `clock` zur Regel zu passen scheinen, gehören sie hier nicht zusammen. `clean -ce` lässt den Aufruf unverändert. `insert -ce` ergänzt einen eigenen Platzhalter mit eigenem Argument und erzeugt `trice("ctx:value=%d %%d%d", clock, clock);`.
 
 | Zustand an der ausgewählten Logstelle | `insert -ce` | `clean -ce` |
 | --- | --- | --- |
@@ -6541,7 +6557,7 @@ String-, Puffer- und andere besondere Trice-Familien erhalten keine zusätzliche
 Globale Zustandswerte und überall verfügbare Funktionen sind häufig besonders praktisch:
 
 ```sh
-trice insert -src src -ce 'ctx7:", clock={clock}", readClock()'
+trice insert -ce 'ctx7:", clock={clock}", readClock()'
 ```
 
 Jede ausgewählte Logstelle muss `readClock()` aufrufen dürfen; die passende Deklaration muss dort bekannt sein. Der Wert wird beim tatsächlichen Logaufruf gelesen, nicht beim Aufruf des Trice-Tools. Ohne ausgeführten Logaufruf entsteht auch kein CE-Aufruf der Funktion.
@@ -6600,7 +6616,7 @@ Die normalen Bind-Einrichtungsschritte, etwa das erstmalige Sidecar-Include, ble
 `generate -logC` verwendet die endgültigen CE-Schemas aus TIL. Bei Bind liefern die Sidecars die Zuordnung, bei Insert die expliziten IDs im Source. Die Regeln müssen dafür nicht nochmals angegeben werden:
 
 ```sh
-trice generate -src src -til til.json -genDir generated -logC triceLog.c
+trice generate -til til.json -genDir generated -logC triceLog.c
 ```
 
 Bei Bind führen veraltete oder widersprüchliche CE-Metadaten zu einem Fehler; nach einem geänderten Trice-Aufruf muss zuerst erneut mit den gewünschten Regeln gebunden werden. Bei Insert darf der Source die freien kleingeschriebenen Selektoren zusätzlich zum TIL-Template enthalten. Meldung, Feldschema und Trice-Typ müssen zum Eintrag der expliziten ID passen. Für geänderte Meldungen wird zuerst erneut `insert` ausgeführt; für den Austausch einer CE-Erweiterung gilt der oben gezeigte Ablauf `clean -ce`, dann `insert -ce`. Derselbe Source-Umfang und dieselbe TIL müssen zugänglich sein; Bind benötigt zusätzlich seine Sidecars im passenden Build-Verzeichnis.
