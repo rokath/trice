@@ -6405,11 +6405,11 @@ Moving sample=3, x=-444, y=77, m/s=33.330002
 
 Die Nachkommastellen folgen der 32-Bit-Floatdarstellung und `%f`; `%.2f` würde `33.33` anzeigen. JSON und KV enthalten dieselbe Meldung einschließlich ihres abschließenden Newlines als escaped String. Zusätzlich entstehen die numerischen Felder `sample`, `pos.x` und `pos.y`. `%f` allein erzeugt kein benanntes Feld; dafür kann die Regel beispielsweise `speed:", m/s={speed:%.2f}", aFloat(velocity)` verwenden.
 
-Die vier CE-Beispiele in [triceCheck.c](../_test/testdata/triceCheck.c) stehen unmittelbar nach den Structured-Logging-Beispielen. Ihre `//exp:`-Erwartungen beschreiben den normalen Lauf ohne `-ce`. Die CE-Integrationstests verwenden dieselben Aufrufe und prüfen die tatsächlich übertragenen Werte mit den oben gezeigten Regeln.
+Die CE-Beispiele in [triceCheck.c](../_test/testdata/triceCheck.c) stehen unmittelbar nach den Structured-Logging-Beispielen. Ihre `//exp:`-Erwartungen beschreiben den normalen Lauf ohne `-ce`. Die CE-Integrationstests verwenden dieselben Aufrufe und prüfen die tatsächlich übertragenen Werte mit den oben gezeigten Regeln.
 
 ### 33.2. <a id="regeln-und-selektoren"></a>Regeln und Selektoren
 
-Für die Erweiterung verwenden `bind` und `insert` dieselbe Syntax; `clean` erhält zur Rücknahme dieselben Optionen wie `insert`, in derselben Reihenfolge:
+`bind`, `insert` für die Erweiterung und `clean` für die zu entfernende Erweiterung verwenden dieselbe Syntax. Die daraus an einer Logstelle entstehende Regelgruppe muss in Format und Argumentreihenfolge vollständig passen:
 
 ```text
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
@@ -6418,6 +6418,15 @@ Für die Erweiterung verwenden `bind` und `insert` dieselbe Syntax; `clean` erh�
 Die Shell muss den gesamten Optionswert als ein Argument übergeben; die Beispiele verwenden dafür einfache Anführungszeichen. Innerhalb der Erweiterung gelten dieselben C-Escapes und Platzhalter wie in einem Trice-Formatstring. Die Erweiterungen stehen vor einem abschließenden `\n` des ursprünglichen Templates, andernfalls an dessen Ende. Führende und folgende Leerzeichen bleiben erhalten.
 
 Selektoren werden in der zusammenhängenden Präfixfolge am Anfang des Formatstrings gesucht, beispielsweise `info:pos:speed:`. Der Vergleich ignoriert Groß-/Kleinschreibung; bekannte eingebaute Tag-Aliase gehören dabei zu derselben Gruppe, etwa `warn` und `WARNING`.
+
+So wählen `-ce 'wrn:", attempt={attempt}", 7'` und `-ce 'WARNING:", attempt={attempt}", 7'` dieselben Logstellen aus, auch wenn deren Tag-Aliase im Source gemischt geschrieben sind:
+
+```c
+trice("WARNING:Connection lost");
+trice("Wrn:Retrying");
+```
+
+Beide Aufrufe erhalten die Erweiterung; `WARNING:` beziehungsweise `Wrn:` bleibt in seiner ursprünglichen Schreibweise im Source stehen. Diese Alias-Auflösung gilt bei `bind`, `insert` und `clean` für die Auswahl der Logstelle. Der vollständige Match der Format- und Argumenterweiterung bei `insert` und `clean` wird davon getrennt geprüft.
 
 - Nur konfigurierte Selektoren lösen CE aus. Ohne passende Regel bleibt ein Präfix unverändert.
 - Ein freier, vollständig kleingeschriebener Selektor wird bei Anwendung seiner Regel aus dem endgültigen Template entfernt, nicht aus dem Source. `pos:` verschwindet aus der Ausgabe; `PoS:` und `POS:` bleiben sichtbar und lösen dieselbe Regel aus.
@@ -6441,11 +6450,13 @@ Einfügen:
 trice insert -src main.c -ce 'ctx7:", clock={}", clock'
 ```
 
-Der Aufruf enthält danach beispielsweise Folgendes. Die ID ist nur ein Beispiel; der tatsächliche erzeugte Herkunftskommentar ist hier zur Lesbarkeit abgekürzt:
+Der Aufruf sieht danach beispielsweise so aus (die ID `1234` ist nur ein Beispiel):
 
 ```c
-trice(iD(1234), "msg:ctx7:hi, clock={}\n", clock) /* generated ownership data omitted */;
+trice(iD(1234), "msg:ctx7:hi, clock={}\n", clock);
 ```
+
+Es entstehen keine Herkunftskommentare und keine zusätzlichen CE-Metadatendateien. Für die Erkennung zählen ausschließlich der passende Selektor sowie die vollständige Erweiterung am Ende von Formatstring und Argumentliste. Ob dieser Text von Hand oder durch einen früheren Insert-Aufruf geschrieben wurde, spielt keine Rolle.
 
 In `til.json` steht für diese ID das kanonische Template `msg:hi, clock={clock}\n`. Der Source behält `ctx7:` und die ursprüngliche Schreibweise seiner Felder. Der Compiler erhält den zusätzlichen Wert; der Decoder erhält das passende Schema. Ein zweiter identischer Insert-Aufruf erhält Erweiterung und ID.
 
@@ -6455,13 +6466,32 @@ Rücknahme:
 trice clean -src main.c -ce 'ctx7:", clock={}", clock'
 ```
 
-Danach steht wieder `trice("msg:ctx7:hi\n");` im Source. Eine durch CE geänderte feste Argumentzahl wird ebenfalls zurückgenommen: Aus ursprünglich `TRICE16_1(Id(0), …)` kann während des Builds `TRICE16_2(Id(1234), …)` werden; danach steht wieder die ursprüngliche Makroform mit `Id(0)` dort. Bei schon vor CE vorhandenen IDs gelten weiterhin die üblichen Clean-Regeln: IDs kleingeschriebener Makrofamilien werden entfernt, IDs der entsprechenden Großschreibungsvarianten auf null gesetzt.
+Danach steht wieder `trice("msg:ctx7:hi\n");` im Source. Eine feste Argumentzahl wird entsprechend angepasst: Aus `TRICE16_2(Id(1234), …)` wird nach Entfernung eines CE-Arguments `TRICE16_1(Id(0), …)`. Eine generische feste Null-Argument-Form wird als `trice0` beziehungsweise `TRICE0` geschrieben; die historische Schreibweise `trice_0` lässt sich ohne Herkunftsdaten nicht unterscheiden. Für IDs gelten weiterhin die üblichen Clean-Regeln: IDs kleingeschriebener Makrofamilien werden entfernt, IDs der entsprechenden Großschreibungsvarianten auf null gesetzt.
 
-Das Tool erzeugt hinter jedem angereicherten Aufruf einen Kommentar der Form `/* trice-ce: … */`. Er enthält den ursprünglichen Aufruf, die Regeln und die beim Einfügen gültige Tag-Einordnung in einer für C-Kommentare sicheren Kodierung. Er wird automatisch verwaltet und bei `clean -ce` entfernt. Dadurch braucht CE keine zusätzliche Metadatendatei und keinen Compiler-Vorlauf. Ein Aufruf kann mitsamt seinem Kommentar an eine andere Zeile oder in eine andere Datei verschoben werden; gelöschte Build-Dateien verhindern die Rücknahme nicht.
+**Ein vollständiger Match muss positionsgenau sein.** Für die obige Regel müssen `, clock={}` am Ende des Formatstrings und `clock` am Ende der Argumentliste stehen. Ein abschließendes `\n` der Meldung bleibt hinter der Erweiterung erhalten. Enthält die Regel selbst ein abschließendes `\n`, gehört dieses zur Erweiterung und wird mit entfernt. Formattext, Leerzeichen im Format und Feldschreibweise müssen übereinstimmen: `{}` und `{clock}` sind für diesen Vergleich verschieden. Ein Textstück innerhalb einer Formatkonvertierung zählt nicht als vollständige Erweiterung: Das `d` in `%d` ist beispielsweise kein eigenständiger Text-Anhang, und `%%d` enthält keinen `%d`-Wertplatzhalter. Beim Argumentvergleich werden C-Kommentare wie beim normalen Einlesen durch Leerraum ersetzt und äußere Leerzeichen ignoriert; verschiedene Ausdrücke wie `clock`, `readClock()` oder `clock + 0` gelten nicht als gleich.
 
-**Den erzeugten Kommentar bis zur Rücknahme erhalten.** Den erweiterten Aufruf zuerst mit `clean -ce` zurücknehmen und anschließend bearbeiten oder seine Regeln ändern. Geänderte Argumente oder Meldungen, beschädigte oder vom Aufruf getrennte Herkunftskommentare sowie andere CE-Optionen werden abgewiesen, bevor Dateien verändert werden. Wird ein Kommentar vollständig von Hand gelöscht, fehlt der Nachweis der Erzeugung; das Tool kann den verbleibenden Code nicht sicher von handgeschriebenem Code unterscheiden.
+| Zustand an der ausgewählten Logstelle | `insert -ce` | `clean -ce` |
+| --- | --- | --- |
+| Vollständige Format- und Argumenterweiterung vorhanden | Nichts ergänzen | Eine vollständige Erweiterung entfernen |
+| Kein vollständiger Match, einschließlich Teilmatch | Die gesamte Erweiterung anhängen | CE unverändert lassen |
 
-Für einen Regelwechsel ist die Reihenfolge daher:
+Die gewöhnliche ID-Verarbeitung findet in beiden Fällen statt. Bei mehreren passenden Regeln wird die gesamte Regelgruppe in ihrer Anwendungsreihenfolge verglichen. Einzelne bereits passende Bestandteile werden weder übersprungen noch separat entfernt. Wiederholtes `insert` ergänzt deshalb nichts doppelt. `clean` entfernt pro Aufruf höchstens eine vollständige Gruppe; liegen zwei identische Gruppen hintereinander, kann ein zweiter Clean-Aufruf auch die zweite entfernen.
+
+Ein Teilmatch ist beispielsweise dieser Aufruf zur Regel `ctx7:", clock=%d", clock`:
+
+```c
+trice("msg:ctx7:hi, clock=%d\n", other);
+```
+
+Der Format-Anhang passt, das letzte Argument `other` jedoch nicht. `clean -ce` lässt den CE-Anteil unverändert. `insert -ce` hängt die vollständige Erweiterung an:
+
+```c
+trice(iD(1234), "msg:ctx7:hi, clock=%d, clock=%d\n", other, clock);
+```
+
+Ein erneutes `insert` erkennt nun den vollständigen Match am Ende. `clean` mit derselben Regel entfernt genau das letzte `, clock=%d` und das letzte Argument `clock`; der vorher vorhandene Teilmatch mit `other` bleibt stehen. Normale Prüfungen auf gültige Trice-Aufrufe und eindeutige strukturierte Feldnamen gelten weiterhin auch beim Anhängen an einen Teilmatch.
+
+Soll eine vorhandene Erweiterung durch eine andere ersetzt werden, wird zuerst die alte passende Gruppe entfernt:
 
 ```sh
 trice clean -src main.c -ce 'ctx7:", clock={}", clock'
@@ -6470,15 +6500,15 @@ trice insert -src main.c -ce 'ctx7:", clock={clock}", readClock()'
 
 Ein `insert` oder `clean` **ohne** `-ce` führt nur seine normale ID-Aufgabe aus. Es nimmt eine vorhandene CE-Erweiterung nicht zurück. Für die vollständige Rücknahme müssen die bisherigen `-ce`-Optionen angegeben werden. Weitere Optionen, etwa `-src`, `-til`, `-li` und verwendete Trice-Aliase, müssen wie im normalen Workflow zum Projekt passen.
 
-Handgeschriebene Felder werden nicht als erzeugte CE-Felder geraten:
+Auch dieser von Hand geschriebene Aufruf enthält einen vollständigen Match:
 
 ```c
 trice("msg:ctx7:manual, clock={clock}\n", clock);
 ```
 
-`clean -ce 'ctx7:", clock={clock}", clock'` lässt dieses unmarkierte Feld stehen. Ein entsprechendes `insert -ce` meldet den doppelten Feldnamen; es unterstellt nicht, dass ein gleichlautender Suffix von einem früheren Insert stammt.
+`clean -ce 'ctx7:", clock={clock}", clock'` entfernt das Feld und das letzte Argument. Ein entsprechendes `insert -ce` ergänzt nichts. Der Aufruf kann an eine andere Zeile oder in eine andere Datei verschoben werden; die Erkennung hängt weder von seinem früheren Ort noch von Build-Dateien ab.
 
-`insert -ce` beachtet `-src`, `-exclude` und `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. Trice-Aufrufe in gewöhnlichen C-Kommentaren erhalten keine CE-Herkunftskommentare; die bisherige ID-Verarbeitung solcher Beispiele bleibt bestehen. Bereits über Sidecar-Includes gebundene Dateien werden nicht automatisch auf Insert umgestellt. Für diese gilt der [Rückweg zu `trice insert`](#re-migration-to-trice-insert).
+`insert -ce` und `clean -ce` beachten `-src`, `-exclude` und `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. Trice-Aufrufe in gewöhnlichen C-Kommentaren werden nicht durch CE verändert; die bisherige ID-Verarbeitung solcher Beispiele bleibt bestehen. Bereits über Sidecar-Includes gebundene Dateien werden nicht automatisch auf Insert umgestellt. Für diese gilt der [Rückweg zu `trice insert`](#re-migration-to-trice-insert).
 
 Der CE-Pfad prüft alle ausgewählten Dateien vor dem Veröffentlichen und schreibt Source, TIL, LI sowie das Insert-Feldregister gemeinsam mit Rücknahme bei Schreibfehlern. `-dry-run` veröffentlicht nichts. Mit `-ce` wird der experimentelle, nur auf Zeitstempeln beruhende `-cache` umgangen, damit geänderte Regeln nicht mit alten Source-Kopien vermischt werden. `trice-fields.txt` beschreibt weiterhin den letzten erfolgreichen Insert-/Bind-Lauf; Clean erzeugt kein neues Feldregister.
 
@@ -6555,13 +6585,13 @@ Nach jeder Änderung an Source oder CE-Konfiguration wird `bind` mit der vollst�
 
 Die normalen Bind-Einrichtungsschritte, etwa das erstmalige Sidecar-Include, bleiben bestehen. CE selbst schreibt weder die Erweiterung noch zusätzliche Argumente in die User-Logstellen. Wiederholungsläufe mit gleicher Konfiguration erhalten Source, IDs und generierte Inhalte. `trice-fields.txt` zählt die endgültigen CE-Felder zusammen mit den direkt angegebenen Feldern für den aktuellen Lauf. `-dry-run` veröffentlicht keine Änderungen. Ungültige Regeln, Feldkonflikte und ausgewählte nicht unterstützte Bind-Stellen werden vor Schreibzugriffen abgewiesen; bei einem Veröffentlichungsfehler greift die bestehende Bind-Rücknahme.
 
-`generate -logC` verwendet die endgültigen CE-Schemas aus TIL und den zugehörigen Sidecar-Metadaten bei Bind beziehungsweise den geprüften Herkunftskommentaren bei Insert. Die Regeln müssen dafür nicht nochmals angegeben werden:
+`generate -logC` verwendet die endgültigen CE-Schemas aus TIL. Bei Bind liefern die Sidecars die Zuordnung, bei Insert die expliziten IDs im Source. Die Regeln müssen dafür nicht nochmals angegeben werden:
 
 ```sh
 trice generate -src src -til til.json -genDir generated -logC triceLog.c
 ```
 
-Veraltete oder widersprüchliche CE-Metadaten führen zu einem Fehler. Bei Bind muss nach einem geänderten Trice-Aufruf deshalb zuerst erneut mit den gewünschten Regeln gebunden werden. Bei Insert gilt der Ablauf `clean -ce`, bearbeiten, `insert -ce`. Derselbe Source-Umfang und dieselbe TIL müssen zugänglich sein; Bind benötigt zusätzlich seine Sidecars im passenden Build-Verzeichnis. Bei Insert reicht der Herkunftskommentar am Aufruf, einschließlich der damals gültigen Behandlung von User-Labels.
+Bei Bind führen veraltete oder widersprüchliche CE-Metadaten zu einem Fehler; nach einem geänderten Trice-Aufruf muss zuerst erneut mit den gewünschten Regeln gebunden werden. Bei Insert darf der Source die freien kleingeschriebenen Selektoren zusätzlich zum TIL-Template enthalten. Meldung, Feldschema und Trice-Typ müssen zum Eintrag der expliziten ID passen. Für geänderte Meldungen wird zuerst erneut `insert` ausgeführt; für den Austausch einer CE-Erweiterung gilt der oben gezeigte Ablauf `clean -ce`, dann `insert -ce`. Derselbe Source-Umfang und dieselbe TIL müssen zugänglich sein; Bind benötigt zusätzlich seine Sidecars im passenden Build-Verzeichnis.
 
 ### 33.7. <a id="unterstützte-logstellen-und-alternativen"></a>Unterstützte Logstellen und Alternativen
 
@@ -6613,7 +6643,7 @@ Dieser Build-Aufwand wurde nicht als produktiver Workflow eingeführt. Außerdem
 
 ### 33.8. <a id="prüfumfang"></a>Prüfumfang
 
-Die [Regel- und Bind-Tests](../internal/id/contextEnrichment_test.go) prüfen Selektoren, Aliase, Reihenfolge, ungültige Regeln, Grenzen, stabile IDs, Konfigurationswechsel, das Feldregister sowie unveränderte Dateien bei Ablehnungen und Schreibfehlern. Die [Insert-/Clean-Tests](../internal/id/contextSource_test.go) ergänzen vollständige Rücknahme, Wiederholungen, handgeschriebene Felder, Kommentare, verschobene Aufrufe, Ausschlüsse, beschädigte Herkunftsangaben und Rücknahme nach Schreibfehlern. Die [CLI- und Target-Tests](../internal/args/context_enrichment_test.go) führen beide öffentlichen Wege über `generate -logC` und echte Target-Records bis zur Text-/JSON-/KV-Ausgabe aus.
+Die [Regel- und Bind-Tests](../internal/id/contextEnrichment_test.go) prüfen Selektoren, Aliase, Reihenfolge, ungültige Regeln, Grenzen, stabile IDs, Konfigurationswechsel, das Feldregister sowie unveränderte Dateien bei Ablehnungen und Schreibfehlern. Die [Insert-/Clean-Tests](../internal/id/contextSource_test.go) ergänzen vollständige und teilweise Matches, die Position von Format- und Argumentsuffix, mehrteilige Regelgruppen, Newlines, Wiederholungen, handgeschriebene Felder, Kommentare, verschobene Aufrufe, Ausschlüsse und Rücknahme nach Schreibfehlern. Die [CLI- und Target-Tests](../internal/args/context_enrichment_test.go) führen beide öffentlichen Wege über `generate -logC` und echte Target-Records bis zur Text-/JSON-/KV-Ausgabe aus.
 
 Der produktive Target-Nachweis umfasst Clang in C11 und C++17, `clangd` mit realer Compile-Konfiguration, 8/16/32/64-Bit-Werte, verschiedene Stempeltypen und Builds ohne `__COUNTER__`. Er prüft getrennte lokale Sichtbarkeitsbereiche, einmalige Auswertung, `TRICE_OFF`, `TRICE_CLEAN` und verständliche Compiler-/Editorfehler bei fehlenden Bezeichnern. Insert prüft zusätzlich zwei Logstellen in getrennten lokalen Blöcken derselben Wrapperzeile und deren vollständige Rücknahme. Die Editorprüfung schließt lediglich clangds Refactoring-Aktion `SwapBinaryOperands` aus: Clangd 21 schlägt dafür innerhalb eines expliziten `Id(...)` überlappende Textänderungen vor. Compilerdiagnosen und Fehler bei fehlenden Bezeichnern bleiben geprüft. Weitere Compiler werden getrennt im PoC-Anhang eingeordnet.
 
