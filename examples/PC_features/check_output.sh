@@ -1,6 +1,9 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
 
+# Expected records follow main.c and show_*.sh; see README.md before changing
+# or disabling a check after editing the example.
+
 set -eu
 cd "$(dirname "$0")"
 
@@ -16,8 +19,12 @@ case "$all_events" in
   *) echo 'FAIL: the runtime string field was not decoded' >&2; exit 1 ;;
 esac
 case "$all_events" in
-  *'"ts16":"7"'*'"fields":{"phase":7}'*) ;;
-  *) echo 'FAIL: the sample-phase stamp or field is missing' >&2; exit 1 ;;
+  *'"message":"Phase 7\n"'*'"ts32":"0:00:00,100"'*'"fields":{"phase":7}'*) ;;
+  *) echo 'FAIL: the Phase record lost its 32-bit stamp or field; see README.md' >&2; exit 1 ;;
+esac
+case "$all_events" in
+  *'"message":"Humidity 55 percent\n"'*'"ts16":"7"'*'"fields":{"humidity_pct":55}'*) ;;
+  *) echo 'FAIL: the sensor record lost its 16-bit stamp or field; see README.md' >&2; exit 1 ;;
 esac
 case "$all_events" in
   *'"ts32Delta":"0:00:00,025"'*'"fields":{"voltage_mv":3250,"cycle":11}'*) ;;

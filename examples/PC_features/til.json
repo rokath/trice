@@ -7,6 +7,10 @@
 		"Type": "trice",
 		"Strg": "A message without a tag\\n"
 	},
+	"1019": {
+		"Type": "TRice16",
+		"Strg": "info:Phase {phase:%u}\\n"
+	},
 	"1093": {
 		"Type": "trice8",
 		"Strg": "wrn:Retry {attempt:%u}\\n"
@@ -19,9 +23,17 @@
 		"Type": "triceS",
 		"Strg": "info:Device {device:%s}\\n"
 	},
+	"1107": {
+		"Type": "TriceS",
+		"Strg": "info:Device {device:%s}\\n"
+	},
 	"1110": {
 		"Type": "TRice32",
 		"Strg": "info:Supply {voltage_mv:%u} mV, cycle={cycle:%u}\\n"
+	},
+	"1112": {
+		"Type": "trice16",
+		"Strg": "info:Phase {phase:%u}\\n"
 	},
 	"1113": {
 		"Type": "trice",
@@ -33,6 +45,10 @@
 	},
 	"1161": {
 		"Type": "trice8",
+		"Strg": "sensor:Humidity {humidity_pct:%u} percent\\n"
+	},
+	"1172": {
+		"Type": "Trice8",
 		"Strg": "sensor:Humidity {humidity_pct:%u} percent\\n"
 	},
 	"1195": {

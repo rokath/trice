@@ -34,13 +34,13 @@ int main(void) {
 	}
 	TriceInit();
 	trice("info:PC feature tour starts\n");
-	triceS("info:Device {device:%s}\n", runtime_label);
+	TriceS("info:Device {device:%s}\n", runtime_label);
 	pc_sample_phase = 7u;
 	pc_sample_milliseconds = 100u;
-	Trice16("info:Phase {phase:%u}\n", pc_sample_phase);
+	TRice16("info:Phase {phase:%u}\n", pc_sample_phase);
 	emit_sample(3300u);
 	trice8("wrn:Retry {attempt:%u}\n", 2u);
-	trice8("sensor:Humidity {humidity_pct:%u} percent\n", 55u);
+	Trice8("sensor:Humidity {humidity_pct:%u} percent\n", 55u);
 	pc_sample_phase = 11u;
 	pc_sample_milliseconds = 125u;
 	emit_sample(3250u);
