@@ -1,0 +1,226 @@
+{
+	"13009": {
+		"Type": "trice16",
+		"Strg": "diag:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE)\\n"
+	},
+	"13082": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STACK_BUFFER, "
+	},
+	"13087": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales e  16-bit time stamp\\n"
+	},
+	"13212": {
+		"Type": "Trice",
+		"Strg": "msg:%f (default rounded float)\\n"
+	},
+	"13251": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales b  32-bit time stamp\\n"
+	},
+	"13510": {
+		"Type": "trice16",
+		"Strg": "diag:triceRingBufferDepthMax =%4u of%5d\\n"
+	},
+	"13547": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_DIRECT_OUTPUT == %d, TRICE_DEFERRED_OUTPUT == %d\\n"
+	},
+	"13567": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales d  32-bit time stamp\\n"
+	},
+	"13573": {
+		"Type": "trice16",
+		"Strg": "err:TriceDeferredOverflowCount = %u\\n"
+	},
+	"13637": {
+		"Type": "Trice8B",
+		"Strg": "msg:%02x \\n"
+	},
+	"13715": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_DOUBLE_BUFFER, "
+	},
+	"13760": {
+		"Type": "trice",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
+	"13786": {
+		"Type": "trice16",
+		"Strg": "err:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"13824": {
+		"Type": "TRICE8_B",
+		"Strg": "rx:%02x "
+	},
+	"13834": {
+		"Type": "trice16",
+		"Strg": "err:triceRingBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"13862": {
+		"Type": "triceS",
+		"Strg": "info:Worker {worker:%s}\\n"
+	},
+	"13873": {
+		"Type": "trice",
+		"Strg": "deb:_CYCLE == %d, _PROTECT == %d, _DIAG == %d, XTEA == %d\\n"
+	},
+	"13977": {
+		"Type": "trice",
+		"Strg": "Fun %x!\\n"
+	},
+	"14020": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales c  32-bit time stamp\\n"
+	},
+	"14151": {
+		"Type": "Trice16",
+		"Strg": "info:Task phase {phase:%u}\\n"
+	},
+	"14164": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
+	},
+	"14250": {
+		"Type": "trice16",
+		"Strg": "WARNING:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+	},
+	"14289": {
+		"Type": "trice",
+		"Strg": "A message without a tag\\n"
+	},
+	"14315": {
+		"Type": "triceS",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
+	},
+	"14459": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_SINGLE_PACK_MODE\\n"
+	},
+	"14474": {
+		"Type": "triceS",
+		"Strg": "w: Hello! 👋🙂 \\n\\n        ✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨        \\n        🎈🎈🎈🎈%s🎈🎈🎈🎈\\n        🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃        \\n\\n\\n"
+	},
+	"14516": {
+		"Type": "trice16",
+		"Strg": "err:TriceErrorCount = %u\\n"
+	},
+	"14727": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales f  16-bit time stamp\\n"
+	},
+	"14739": {
+		"Type": "trice",
+		"Strg": "info:%d times a 16 byte long Trice messages, which may not be written all if the buffer is too small:\\n"
+	},
+	"14753": {
+		"Type": "trice16",
+		"Strg": "diag:TriceDataOffsetDepthMax = %d of %d (TRICE_DATA_OFFSET)\\n"
+	},
+	"14809": {
+		"Type": "Trice",
+		"Strg": "i=%x %x\\n"
+	},
+	"14821": {
+		"Type": "trice16",
+		"Strg": "err:triceSingleDepthMax =%4u of %d (TRICE_BUFFER_SIZE overflow!)\\n"
+	},
+	"14834": {
+		"Type": "Trice",
+		"Strg": "info:A Buffer:\\n"
+	},
+	"14854": {
+		"Type": "trice8",
+		"Strg": "wrn:Retry {attempt:%u}\\n"
+	},
+	"14870": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_STATIC_BUFFER, "
+	},
+	"15185": {
+		"Type": "Trice64",
+		"Strg": "msg:%.20f (double with more ciphers than precision)\\n"
+	},
+	"15203": {
+		"Type": "trice16",
+		"Strg": "wrn:TriceDynStringBufTruncateCount = %u\\n"
+	},
+	"15205": {
+		"Type": "Trice32B",
+		"Strg": "msg:%08x  \\n"
+	},
+	"15551": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_MULTI_PACK_MODE\\n"
+	},
+	"15552": {
+		"Type": "trice16",
+		"Strg": "diag:RTT0_writeDepthMax=%u (BUFFER_SIZE_UP=%u)\\n"
+	},
+	"15577": {
+		"Type": "TRice",
+		"Strg": "msg:StartTask02:Diagnostics and TriceTransfer\\n"
+	},
+	"15641": {
+		"Type": "Trice",
+		"Strg": "msg:%.20f (float  with more ciphers than precision)\\n"
+	},
+	"15656": {
+		"Type": "trice",
+		"Strg": "d:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
+	},
+	"15674": {
+		"Type": "TRice32",
+		"Strg": "info:Task sample {sample:%u}, task={task:%p}\\n"
+	},
+	"15703": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales a  32-bit time stamp\\n"
+	},
+	"15706": {
+		"Type": "trice16",
+		"Strg": "err:TriceHalfBufferDepthMax =%4u of%5d (overflow!)\\n"
+	},
+	"15827": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales h  16-bit time stamp\\n"
+	},
+	"15971": {
+		"Type": "trice",
+		"Strg": "deb:TRICE_RING_BUFFER, "
+	},
+	"16060": {
+		"Type": "trice16",
+		"Strg": "diag:TriceHalfBufferDepthMax =%4u of%5d\\n"
+	},
+	"16127": {
+		"Type": "trice8",
+		"Strg": "sensor:Load {load_pct:%u} percent\\n"
+	},
+	"16135": {
+		"Type": "TRice",
+		"Strg": "msg:StartDefaultTask\\n"
+	},
+	"16136": {
+		"Type": "trice16",
+		"Strg": "err:TriceDirectOverflowCount = %u\\n"
+	},
+	"16179": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales g  16-bit time stamp\\n"
+	},
+	"16237": {
+		"Type": "trice",
+		"Strg": "isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\\n"
+	},
+	"16290": {
+		"Type": "TriceS",
+		"Strg": "rd:%s <- float number as string\\n"
+	},
+	"16373": {
+		"Type": "Trice16F",
+		"Strg": "att:ARemoteFunctionName"
+	}
+}

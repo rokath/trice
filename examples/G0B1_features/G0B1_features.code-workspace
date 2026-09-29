@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../exampleData"
+		},
+		{
+			"path": "../../src"
+		},
+		{
+			"path": "../../_test/testdata"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {}
+}
