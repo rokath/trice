@@ -1,10 +1,10 @@
 # Context Enrichment
 
-**Stand vom 27. September 2026:** Der vereinbarte Umfang ist mit A10 implementiert und im deutschen [UM-Kapitel Context Enrichment](../TriceUserManual.md#trice-context-enrichment) dokumentiert. Dieses Dokument hält den zugrunde liegenden Vertrag und die zurückgestellten Erweiterungen fest. `bind -ce` unterstützt direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit. CE für Wrappermakros und Counter-Rebase bleibt eine Folgeaufgabe. Der normale `insert/clean`-Workflow bleibt dauerhaft verfügbar; eine automatische CE-Erweiterung dafür benötigt einen eigenen reversiblen Vertrag und Auftrag, siehe Anhang.
+**Stand vom 27. September 2026:** A10 und der anschließend beauftragte reversible `insert/clean -ce`-Workflow sind implementiert und im deutschen [UM-Kapitel Context Enrichment](../TriceUserManual.md#trice-context-enrichment) dokumentiert. Dieses Dokument hält den zugrunde liegenden Vertrag und die zurückgestellten Erweiterungen fest. `bind -ce` unterstützt direkte, eindeutig über ihre Quellzeile adressierbare Logstellen ohne zusätzliche `__COUNTER__`-Abhängigkeit. CE für Bind-Wrappermakros und Counter-Rebase bleibt eine Folgeaufgabe; der vorhandene PoC ist jetzt [Anhang des UM-Kapitels](../TriceUserManual.md#anhang-ce-machbarkeitsnachweise). `insert -ce` erweitert dagegen erkannte Source-Aufrufe einschließlich statischer Wrapperdefinitionen direkt und `clean -ce` nimmt diese Erweiterung mit denselben Regeln zurück.
 
 ## 1. Einordnung
 
-Trice führt für M20 keinen allgemeinen Runtime-Context mit Push/Pop, Task-local State oder Context-Handles ein. Stattdessen kann `bind` ausgewählte Trice-Aufrufe beim Build gezielt um zusätzliche Runtime-Werte instrumentieren.
+Trice führt für M20 keinen allgemeinen Runtime-Context mit Push/Pop, Task-local State oder Context-Handles ein. Stattdessen können `bind` und `insert` ausgewählte Trice-Aufrufe beim Build gezielt um zusätzliche Runtime-Werte instrumentieren.
 
 Damit bleibt jeder Record vollständig und es entsteht kein impliziter Context-Zustand.
 
@@ -37,6 +37,8 @@ trice("MSG: hi, pos={x},{y}\n", x, y);
 ```
 
 ohne dass der User-Sourcecode durch `bind` geändert wird.
+
+`insert -ce` verwendet dieselbe Syntax, schreibt die Erweiterung aber in den Source. Freie kleingeschriebene Selektoren bleiben dort erhalten und fehlen im endgültigen TIL-Template. `clean -ce` erhält dieselben Optionen in derselben Reihenfolge und entfernt ausschließlich nachweislich erzeugte CE-Anteile.
 
 ## 3. C-Ausdrücke in `-ce`
 
@@ -126,7 +128,7 @@ Mehrere `-ce`-Regeln für denselben Selektor sind zulässig und werden in CLI-Re
 -ce 'ctx7:", y={y}", y'
 ```
 
-Ein Selektor, der an derselben Logstelle mehrfach vorkommt, wird nur einmal wirksam; `bind` warnt über das Duplikat.
+Ein Selektor, der an derselben Logstelle mehrfach vorkommt, wird nur einmal wirksam; `bind` beziehungsweise `insert` warnt beim Erweitern über das Duplikat.
 
 ## 6. Zusammenspiel mit Structured Logging
 
@@ -217,7 +219,7 @@ A10 lehnt eine durch CE ausgewählte Wrapper-/Rebase-Stelle vor Dateiänderungen
 
 Die CE-Regeln, finale Schema-/ID-Bestimmung und technische Einfügung der Argumente werden getrennt. So kann die spätere Unterstützung komplexer Stellen auf der ersten Ausbaustufe aufbauen. Ihre Makroerzeugung kann Änderungen benötigen; CE-Syntax, Datenformate und die Tests des sichtbaren Verhaltens sollen weiterverwendet werden. Der direkte Weg bleibt auch danach nutzbar. Die spätere Erweiterung benötigt einen eigenen Architektur-Nachweis und Auftrag.
 
-Das User Manual erklärt unter [bind-limits](../TriceUserManual.md#bind-limits) die konkreten Alternativen: Aufrufe auf getrennte Zeilen stellen, geeignete Wrapper durch Funktionen ersetzen oder beim dauerhaft verfügbaren `insert/clean`-Workflow bleiben. Benötigte Werte müssen beim Wechsel zu einer Funktion ausdrücklich als Parameter übergeben werden. Für `insert/clean` werden zusätzliche Logwerte weiterhin direkt im Formatstring und in den Argumenten angegeben; automatische `-ce`-Unterstützung wird damit nicht zugesagt.
+Das User Manual erklärt unter [bind-limits](../TriceUserManual.md#bind-limits) die konkreten Alternativen: Aufrufe auf getrennte Zeilen stellen, geeignete Wrapper durch Funktionen ersetzen oder den dauerhaft verfügbaren `insert/clean`-Workflow verwenden. Benötigte Werte müssen beim Wechsel zu einer Funktion ausdrücklich als Parameter übergeben werden. Für `insert/clean` ist inzwischen auch die automatische, reversible CE-Erweiterung umgesetzt; explizit geschriebene zusätzliche Logwerte bleiben ebenso möglich.
 
 ## 8. Schema, `til.json` und IDs
 
@@ -274,21 +276,21 @@ Ein C-Ausdruck, der an der ausgewählten Logstelle semantisch ungültig oder nic
 
 Jeder CE-Ausdruck darf pro tatsächlichem Trice-Aufruf genau einmal ausgewertet werden. Ausdrücke mit Seiteneffekten dürfen durch die Bind-Instrumentierung nicht dupliziert werden.
 
-## 10. Aktueller Scope: nur `bind -ce`
+## Aktueller Scope
 
 M20 implementiert CE zunächst ausschließlich für direkte, eindeutig über ihre Quellzeile adressierbare `bind`-Logstellen. CE für Wrappermakros und Counter-Rebase gehört nicht zu A10 und wird als eigene Folgeaufgabe behandelt.
 
-Der Grund ist nicht eine grundsätzliche Unmöglichkeit von `insert/clean`, sondern der derzeit nicht gerechtfertigte Zusatzaufwand für eine vollständig reversible Source-Transformation mit zusätzlichen Runtime-Ausdrücken.
+Der nachfolgend beauftragte `insert/clean -ce`-Workflow ist ebenfalls umgesetzt. Er benötigt keinen Compiler-Vorlauf und keinen Counter. Die Einschränkung auf direkte Bind-Logstellen wird dadurch nicht aufgehoben.
 
-M19 Structured Logging selbst bleibt davon getrennt und soll weiterhin `bind` sowie `insert/clean` unterstützen.
+M19 Structured Logging bleibt davon getrennt und unterstützt weiterhin `bind` sowie `insert/clean`.
 
-`insert/clean` bleibt dauerhaft eine Alternative für die ID-Zuweisung. Der Anwender kann zusätzliche Werte ausdrücklich im Trice-Aufruf angeben. Die fehlende automatische CE-Erweiterung schränkt diesen bestehenden Weg nicht ein; bei bereits gebundenem Code ist der im UM beschriebene Rückweg aus Bind zu beachten.
+`insert/clean` bleibt dauerhaft eine Alternative. Die CE-Erweiterung erfolgt dort an den vom Parser erkannten Aufrufen; bei Wrappern wird die statische Definition erweitert. Sichtbarkeit und gültige C-Ausdrücke bleiben Anforderungen an jeden tatsächlichen Aufruf. Bei bereits gebundenem Code ist der im UM beschriebene Rückweg aus Bind zu beachten.
 
-## 11. Anhang: mögliche spätere CE-Unterstützung für `insert/clean`
+## Reversibler Vertrag für insert und clean
 
-CE kann später auch für `insert/clean` ergänzt werden, wenn ein strikter Transformationsvertrag eingehalten wird.
+`insert/clean -ce` hält den folgenden Transformationsvertrag ein. Die ausführliche Bedienung und Beispiele stehen im [UM](../TriceUserManual.md#reversibler-ablauf-mit-insert-und-clean).
 
-Mindestens gelten dann:
+Es gelten:
 
 - `insert` und `clean` werden mit identischen `-ce`-Optionen in identischer Reihenfolge ausgeführt.
 - Die CE-Transformation ist vollständig deterministisch.
@@ -311,9 +313,11 @@ clean(clean(S, CE), CE) = clean(S, CE)
 clean(insert(S, CE), CE) = S
 ```
 
-Diese Garantie gilt nur, wenn Source, CE-Konfiguration und Transformationsregeln zwischen `insert` und `clean` nicht manuell verändert wurden.
+Die Rücknahmebedingung bezieht sich auf Source im normalen bereinigten ID-Zustand. Bereits vorhandene IDs werden nach den bestehenden Clean-Regeln entfernt oder genullt. Die Garantie gilt, wenn die erzeugten Aufrufe und Herkunftskommentare zwischen `insert` und `clean` nicht manuell verändert wurden und dieselben CE-Optionen verwendet werden. Änderungen außerhalb dieser Aufrufe bleiben erhalten.
 
-Diese spätere Erweiterung ist ausdrücklich nicht Teil des aktuellen M20-Implementierungsumfangs.
+Automatisch erzeugte `trice-ce`-Kommentare am Aufruf halten den ursprünglichen Aufruf, die relevanten Regeln, die Tag-Einordnung und einen Fingerabdruck der vollständigen geordneten Regelliste fest. Damit hängen Rücknahme und Idempotenz nicht von Zeilennummern oder externen Build-Dateien ab. Ein fehlender Kommentar ist kein Anlass, gleichlautende handgeschriebene Suffixe zu entfernen. Abweichende Regeln, geänderte erweiterte Aufrufe sowie beschädigte oder abgetrennte Kommentare werden vor Veröffentlichung abgewiesen.
+
+Ohne `-ce` führen Insert und Clean nur ihre bisherige ID-Aufgabe aus; vorhandene CE-Anteile bleiben erhalten. Der CE-Pfad umgeht den zeitstempelbasierten Legacy-Cache, prüft alle ausgewählten Quellen vorab und veröffentlicht Source, TIL, LI und das Insert-Feldregister mit Rücknahme bei Schreibfehlern. `generate -logC` liest das endgültige Schema ohne erneute CE-Regeln aus TIL und geprüften Herkunftsangaben. Die [Verhaltenstests](../../internal/id/contextSource_test.go) und [CLI-/Target-Tests](../../internal/args/context_enrichment_test.go) sichern diesen Vertrag ab.
 
 ## 12. Charakter des Ansatzes
 

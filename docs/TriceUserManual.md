@@ -6356,13 +6356,13 @@ Die wiederholbare Option lautet bei `bind`, `insert` und `clean` gleich:
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
 ```
 
-Beispielsweise ergänzt `-ce 'ctx7:", clock={}", clock'` die Meldung `trice("msg:ctx7:hi\n");` um den an dieser Stelle gültigen Wert von `clock`. Bei `clock == 42` lautet der Meldungsteil mit `-color none`: `hi, clock=42`. Das freie kleingeschriebene `ctx7:` bleibt als Auswahlmerkmal im Source erhalten und verschwindet aus dem endgültigen Template. Das abschließende `\n` bleibt hinter dem angehängten Wert.
+Beispielsweise ergänzt `-ce 'ctx7:", clock={}", clock'` die Meldung `trice("msg:ctx7:hi\n");` um den an dieser Stelle gültigen Wert von `clock`. Bei `clock == 42` lautet der Meldungsteil mit `-color none`: `hi, clock=42`. Das freie `ctx7:` bleibt als Auswahlmerkmal im Source Code erhalten. Es verschwindet aus dem endgültigen Log wenn es nur Kleinbuchstaben enthält. Das abschließende `\n` bleibt hinter dem angehängten Wert. (*Hinweis: `{}` kann in diesem Beispiel auch `%d` oder `%08x` sein. Die geschweifte Klammer zeigt lediglich, dass [Structured Logging](#strukturiertes-logging) und Kontext Enrichment orthogonal sind, also unabhängig voneinander und gemischt verwendet werden dürfen.*)
 
-| Befehl | Wirkung |
-| --- | --- |
-| `trice bind -ce …` | Ergänzt generierte Sidecars; die Trice-Aufrufe selbst bleiben unverändert. Unterstützt direkte, eindeutig über ihre Quellzeile zuordenbare Stellen. |
-| `trice insert -ce …` | Schreibt ID, Erweiterung und Argumente in die erkannten Source-Aufrufe. Wiederholung mit denselben Regeln ergänzt nichts ein zweites Mal. |
-| `trice clean -ce …` | Nimmt die erzeugte CE-Erweiterung mit denselben Regeln zurück und bereinigt die IDs nach den üblichen Regeln. Wiederholung ist unschädlich. |
+| Befehl               | Wirkung                                                                                                                                             |
+|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `trice bind -ce …`   | Ergänzt generierte Sidecars; die Trice-Aufrufe selbst bleiben unverändert. Unterstützt direkte, eindeutig über ihre Quellzeile zuordenbare Stellen. |
+| `trice insert -ce …` | Schreibt ID, Erweiterung und Argumente in die erkannten Source-Aufrufe. Wiederholung mit denselben Regeln ergänzt nichts ein zweites Mal.           |
+| `trice clean -ce …`  | Nimmt die erzeugte CE-Erweiterung mit denselben Regeln zurück und bereinigt die IDs nach den üblichen Regeln. Wiederholung ist unschädlich.         |
 
 CE benötigt keinen globalen Runtime-Context oder Push/Pop-Aufrufe auf dem Target. Jeder ausgeführte Record überträgt seine eigenen zusätzlichen Werte. CE ist damit unabhängig von [Structured Logging](#strukturiertes-logging): Eine Erweiterung kann klassische printf-Platzhalter verwenden oder zusätzlich benannte Felder erzeugen.
 
@@ -6388,7 +6388,7 @@ trice32("info:pos:speed:Moving sample={sample}\n", 3);
 Der Bind-Aufruf ergänzt Position und Geschwindigkeit:
 
 ```sh
-trice bind -src src -ce 'pos:", x={}, y={}", pos.x, pos.y' -ce 'speed:", m/s=%f", aFloat(velocity)'
+trice bind -ce 'pos:", x={}, y={}", pos.x, pos.y' -ce 'speed:", m/s=%f", aFloat(velocity)'
 ```
 
 Im endgültigen Template steht nun:
@@ -6401,6 +6401,18 @@ info:Moving sample={sample}, x={pos.x}, y={pos.y}, m/s=%f\n
 
 ```text
 Moving sample=3, x=-444, y=77, m/s=33.330002
+```
+
+Das gleiche Ergebnis ließe sich auch erreichen mit:
+
+```c
+trice32("info:Moving sample={sample}\n", 3);
+```
+
+und diesem Bind-Aufruf:
+
+```sh
+trice bind -ce 'info:", x={}, y={}, m/s=%f",, pos.x, pos.y, m/s=%f", aFloat(velocity)'
 ```
 
 Die Nachkommastellen folgen der 32-Bit-Floatdarstellung und `%f`; `%.2f` würde `33.33` anzeigen. JSON und KV enthalten dieselbe Meldung einschließlich ihres abschließenden Newlines als escaped String. Zusätzlich entstehen die numerischen Felder `sample`, `pos.x` und `pos.y`. `%f` allein erzeugt kein benanntes Feld; dafür kann die Regel beispielsweise `speed:", m/s={speed:%.2f}", aFloat(velocity)` verwenden.
