@@ -2755,6 +2755,8 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
+The [PC feature tour](../examples/PC_features/README.md) makes this distinction visible without hardware: its 16-bit stamp is a sample phase, while its 32-bit stamp counts milliseconds. The matching [G0B1 feature tour](../examples/G0B1_features/ReadMe.md) uses the board's own timers.
+
 ### 18.1. <a id="target-timestamps-formatting"></a>Target (Time)Stamps Formatting
 
 To get a short overview run `trice help -log` and read about the CLI switches `ts`, `ts0`, `ts16`, `ts32`, `ts0delta`, `ts16delta`, `ts32delta` in the generated [CLI help file](ref/trice-help-all.txt). The `ts32` switch supports also "epoch" now as format. That is useful for example, if the binary logs are stored internally in the device flash and read out later. Such usage assumes 1 second as ts32 unit in `uint32_t` format and the Trice tool displays the UTC time. It is also possible to adapt the displayed format like this for example: `trice log -ts32='epoch"06-01-02_15:04:05"'`. The additional passed string must match the Go time package capabilities. A few examples:
@@ -6046,6 +6048,8 @@ Use a threshold when the requirement is “Warning and everything more important
 
 These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](#id-routing); received raw bytes can still be kept in a [binary logfile](#binary-logfile).
 
+For a short capture to experiment with, run the [PC feature tour](../examples/PC_features/README.md) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](../examples/G0B1_features/ReadMe.md) applies the same output choices to a board capture.
+
 All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
 ```sh
@@ -6173,6 +6177,8 @@ Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
 Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
 
 Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`) kann die unterstützten strukturierten Felder ergänzen; die Details stehen in [Kapitel 33](#trice-context-enrichment).
+
+Zum Ausprobieren zeigen der [PC Feature Tour](../examples/PC_features/README.md) und der [G0B1 Feature Tour](../examples/G0B1_features/ReadMe.md) jeweils benannte Zahlen- und Stringfelder sowie Text-, NDJSON- und KV-Ausgabe. Der PC-Durchlauf benötigt keine Hardware und liefert sofort eine kurze Binäraufzeichnung.
 
 Benannte Felder sind für Pufferformate wie `triceB` derzeit keine Option. Dort wird ein printf-Platzhalter für jedes Pufferelement wiederholt; ein strukturiertes Feld beschreibt dagegen einen einzelnen benannten Wert. Ob ein benannter Puffer als Zahlenliste, Bytefolge oder Text erscheinen sollte, ist im aktuellen Feldschema nicht festgelegt. `bind` und `insert` weisen deshalb `trice8B("msg:{bytes:%02x}", bytes, 2)` mit einem Fehler ab. Auch `triceF` unterstützt keine benannten Felder.
 
@@ -6365,6 +6371,8 @@ Beispielsweise ergänzt `-ce 'ctx7:", clock={}", clock'` die Meldung `trice("msg
 | `trice clean -ce …`  | Nimmt die erzeugte CE-Erweiterung mit denselben Regeln zurück und bereinigt die IDs nach den üblichen Regeln. Wiederholung ist unschädlich.         |
 
 CE benötigt keinen globalen Runtime-Context oder Push/Pop-Aufrufe auf dem Target. Jeder ausgeführte Record überträgt seine eigenen zusätzlichen Werte. CE ist damit unabhängig von [Structured Logging](#strukturiertes-logging): Eine Erweiterung kann klassische printf-Platzhalter verwenden oder zusätzlich benannte Felder erzeugen.
+
+Zwei lauffähige Anwendungen zeigen denselben Grundgedanken: Im [PC-Beispiel](../examples/PC_features/README.md) ergänzt `bind -ce` an einer gemeinsamen Logstelle einen Zykluswert. Im direkt von `G0B1_inst` abgeleiteten [FreeRTOS-Beispiel](../examples/G0B1_features/ReadMe.md) ergänzt dieselbe Logstelle die Kennung des jeweils aufrufenden Tasks. Beide Beispiele verwenden daneben `triceS` für einen Laufzeitstring; CE hängt an String-Trices keine zusätzlichen Runtime-Argumente an.
 
 ### 33.1. <a id="einstieg-mit-position-und-geschwindigkeit"></a>Einstieg mit Position und Geschwindigkeit
 
@@ -9820,6 +9828,8 @@ The debugger path can be added independently, for example
 |                                    |                                                                                                                                                                                                                                                                                  |
 | [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
 | [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
+| [PC_features](../examples/PC_features/README.md) | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts. |
+| [G0B1_features](../examples/G0B1_features/ReadMe.md) | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts. |
 |                                    |                                                                                                                                                                                                                                                                                  |
 | [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
 | [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
