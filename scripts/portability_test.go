@@ -3,9 +3,11 @@
 package scripts_test
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -263,6 +265,127 @@ func TestRuntimePreparationIsTransactional(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestExampleCleanupPreservesFailureStatus executes each affected build script
+// in a disposable checkout. The fake build and ID helpers fail independently,
+// making it observable whether clean errors replace success or mask the
+// original build or signal status. No production sources are touched.
+func TestExampleCleanupPreservesFailureStatus(t *testing.T) {
+	scripts := []string{
+		"examples/L432_inst/build.sh",
+		"examples/F030_inst/build.sh",
+		"examples/G0B1_inst/build_with_clang.sh",
+		"examples/G0B1_features/build_with_clang.sh",
+	}
+	cases := []struct {
+		name, buildStatus, cleanStatus, signal, wantStatus string
+		wantWarning                                        bool
+	}{
+		{"successful_build_and_clean", "0", "0", "", "0", false},
+		{"clean_failure_after_successful_build", "0", "23", "", "23", true},
+		{"build_failure_before_failed_clean", "17", "23", "", "17", true},
+		{"interrupt_before_failed_clean", "0", "23", "INT", "130", true},
+		{"terminate_before_failed_clean", "0", "23", "TERM", "143", true},
+	}
+	for _, script := range scripts {
+		t.Run(strings.ReplaceAll(script, "/", "_"), func(t *testing.T) {
+			for _, tc := range cases {
+				t.Run(tc.name, func(t *testing.T) {
+					root := scriptFixture(t, script)
+					writeFixture(t, root, "examples/prepareTriceBind.sh", "prepare_trice_bind_build() { :; }\n")
+					writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "MAKE_JOBS=-j1\n")
+					writeFixture(t, root, "scripts/_230_legacy_insert_ids.sh", "#!/bin/sh\nexit 0\n")
+					writeFixture(t, root, "scripts/_240_legacy_clean_ids.sh", "#!/bin/sh\ncount_file=\"$FIXTURE_ROOT/clean-count\"\ncount=0\nif [ -f \"$count_file\" ]; then read -r count < \"$count_file\"; fi\ncount=$((count + 1))\nprintf '%s\\n' \"$count\" > \"$count_file\"\nif [ \"$count\" -eq 2 ]; then exit \"$CLEAN_STATUS\"; fi\nexit 0\n")
+					writeFixture(t, root, "bin/make", "#!/bin/sh\nif [ \"${1:-}\" = clean ]; then exit 0; fi\nif [ -n \"$BUILD_SIGNAL\" ]; then kill -s \"$BUILD_SIGNAL\" \"$PPID\"; exit 0; fi\nexit \"$BUILD_STATUS\"\n")
+					env := map[string]string{
+						"FIXTURE_ROOT": root, "BUILD_STATUS": tc.buildStatus,
+						"CLEAN_STATUS": tc.cleanStatus, "BUILD_SIGNAL": tc.signal,
+						"TRICE_ID_WORKFLOW_OWNER": "0",
+					}
+					command := "bash " + script
+					out, err := runFixture(t, root, command, env)
+					if tc.wantStatus == "0" {
+						assert.NoError(t, err, out)
+					} else if assert.Error(t, err, out) {
+						assert.Equal(t, "exit status "+tc.wantStatus, err.Error(), out)
+					}
+					if tc.wantWarning {
+						assert.Contains(t, out, "trice clean failed with exit code 23")
+					} else {
+						assert.NotContains(t, out, "trice clean failed")
+					}
+					count, readErr := os.ReadFile(filepath.Join(root, "clean-count"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "2\n", string(count), "pre-clean and final clean must each run once")
+				})
+			}
+		})
+	}
+}
+
+// TestManualGenerateExamplesUseCurrentCLI validates the copyable CE and ABC
+// examples against a freshly built host tool in an isolated project directory.
+// It also verifies that the obsolete C# generator flag is unavailable.
+func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
+	root := t.TempDir()
+	suffix := ""
+	if runtime.GOOS == "windows" {
+		suffix = ".exe"
+	}
+	tool := filepath.Join(root, "trice"+suffix)
+	build := exec.Command("go", "build", "-o", tool, "./cmd/trice")
+	build.Dir = ".."
+	output, err := build.CombinedOutput()
+	if !assert.NoError(t, err, string(output)) {
+		t.FailNow()
+	}
+	writeFixture(t, root, "sample.c", "void f(void) {\n  trice32(\"info:Moving sample={sample}\\n\", 3);\n  trice16C(\"cmd:set_pwm\", payload, 1);\n}\n")
+	writeFixture(t, root, "til.json", "{}\n")
+	writeFixture(t, root, "li.json", "{}\n")
+	runCLI := func(directory string, args ...string) (string, error) {
+		command := exec.Command(tool, args...)
+		command.Dir = directory
+		result, runErr := command.CombinedOutput()
+		return string(result), runErr
+	}
+
+	ceRule := `info:", x={}, y={}, m/s=%f", pos.x, pos.y, aFloat(velocity)`
+	outputText, bindErr := runCLI(root, "bind", "-src", "sample.c", "-i", "til.json", "-li", "li.json", "-ce", ceRule)
+	if !assert.NoError(t, bindErr, outputText) {
+		t.FailNow()
+	}
+	tilBytes, readErr := os.ReadFile(filepath.Join(root, "til.json"))
+	if !assert.NoError(t, readErr) {
+		t.FailNow()
+	}
+	var til map[string]struct{ Strg string }
+	if !assert.NoError(t, json.Unmarshal(tilBytes, &til)) {
+		t.FailNow()
+	}
+	var foundCE, foundABC bool
+	for _, entry := range til {
+		foundCE = foundCE || entry.Strg == `info:Moving sample={sample}, x={pos.x}, y={pos.y}, m/s=%f\n`
+		foundABC = foundABC || entry.Strg == "cmd:set_pwm"
+	}
+	assert.True(t, foundCE, "the documented CE rule must produce the named position fields and speed")
+	assert.True(t, foundABC, "the command record must be available to ABC generation")
+
+	outputText, generateErr := runCLI(root, "generate", "-i", "til.json", "-li", "off", "-abc=deviceX")
+	assert.NoError(t, generateErr, outputText)
+	for _, path := range []string{"generated/deviceX.h", "generated/deviceX.c"} {
+		_, statErr := os.Stat(filepath.Join(root, path))
+		assert.NoError(t, statErr, path)
+	}
+	outputText, generateErr = runCLI(root, "generate", "-i", "til.json", "-li", "off", "-abc=custom/deviceY")
+	assert.NoError(t, generateErr, outputText)
+	for _, path := range []string{"custom/deviceY.h", "custom/deviceY.c"} {
+		_, statErr := os.Stat(filepath.Join(root, path))
+		assert.NoError(t, statErr, path)
+	}
+	outputText, generateErr = runCLI(root, "generate", "-tilCS")
+	assert.Error(t, generateErr)
+	assert.Contains(t, outputText, "flag provided but not defined: -tilCS")
 }
 
 // TestClangFormatCompatibility ensures only the canonical version can report a
