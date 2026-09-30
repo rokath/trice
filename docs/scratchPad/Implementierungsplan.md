@@ -30,6 +30,19 @@ Vorhanden sind insbesondere:
 - `generate -logC`, zusätzliche `*.oneline.json`-Ansichten und die PC-/G0B1-Feature-Beispiele.
 - Erhaltene CE-PoCs einschließlich Wrapper-/Counter-Rebase-Untersuchung. Deren allgemeine produktive Integration ist weiterhin zurückgestellt.
 
+## Ziel für Dokumentation und Orientierung
+
+README und User Manual sollen zum Ausprobieren einladen: Nutzen schnell erkennen, einen überschaubaren Einstieg finden und erst bei Bedarf Details nachschlagen. Das bisherige ausführliche UM bleibt inhaltlich erhalten und wird zu `docs/TriceReferenceManual.md`. Ein neues, deutlich kürzeres `docs/TriceUserManual.md` übernimmt den geführten Einstieg.
+
+| Dokument | Aufgabe im künftigen Aufbau |
+| --- | --- |
+| `README.md` | Kurze Vorstellung, Nutzen, kleines Beispiel mit Ausgabe, verlässlicher Startpunkt und kompakte Repo-Orientierung. |
+| `docs/TriceUserManual.md` | Schrittweise Anleitung vom ersten PC-Log bis zur eigenen Target-Anbindung; kurze Feature-Beispiele und gezielte Verweise auf Details. |
+| `docs/TriceReferenceManual.md` | Vollständige Verträge, Optionen, Konfiguration, Grenzen, Hintergrund und CE-PoC-Anhang; fachlich maßgebliches Nachschlagewerk. |
+| `docs/README.md` | Kurzer Dokumentationswegweiser mit Zielgruppe und Zweck der verbleibenden aktiven Dokumente; keine bloße Weiterleitungsdatei. |
+
+Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehenden Verweise angepasst sind. Für das gesamte Repo wird der Zweck jedes Verzeichnisses und jeder Datei geprüft. Die öffentliche Übersicht bleibt kompakt; die vollständige Bestandsprüfung wird dadurch nicht ersetzt. R17–R21 ergänzen dafür die bestehenden R10–R12, ohne Übersetzung und Einstieg doppelt zu beauftragen. Jetzt wird ausschließlich geplant.
+
 ## Gewichtung und Arbeitsreihenfolge
 
 **Gewicht:** 5 = vor Release zu klären oder abzustellen; 4 = hoher Nutzen für Zuverlässigkeit, Dokumentation oder Testdauer; 3 = sinnvolle Wartung nach den dringenden Punkten; 2 = optionaler Ausbau; 1 = bewusst zurückgestellt.
@@ -44,12 +57,17 @@ Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten.
 | R07 | Vorhandene CE-/SL- und Beispielprüfungen verbindlich ausführen | 5 | M | R01, R13; erforderliche Compiler |
 | R08 | Loglauf sauber beenden: Signale, Timer und Ressourcen | 4 | M | Gezielte Reproduktion |
 | R09 | Endliche Puffer ohne pauschale Wartezeit abschließen | 4 | M | R01, R06; mit R08 abstimmen |
-| R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04 |
+| R17 | Repo-Bestand und Dokumentationsziele je Datei prüfen | 4 | S–M | Lesende Bestandsprüfung; vor Löschungen/Verschiebungen |
+| R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04, R17 |
 | R11 | SL- und CE-Kapitel vollständig ins Englische übertragen | 5 | M–L | R02, R10 |
-| R12 | Einstieg, Beispiele und unterstützte Grenzen vervollständigen | 4 | S–M | R05, R10, R11 |
+| R18 | Bisheriges UM in TriceReferenceManual.md umbenennen und Pfade nachziehen | 4 | M | R10, R11, R17 |
+| R19 | Kurzes, einladendes User Manual erstellen | 4 | M | R18; Installationsentscheidung aus R05/R14 |
+| R12 | README und Repo-Orientierung einladend überarbeiten; Zusagen präzisieren | 4 | M | R05, R17, R18, R19 |
+| R20 | Link-Forwarding-Dateien entfernen und aktive docs konsolidieren | 4 | S–M | R12, R17, R18, R19 |
+| R21 | Repo anhand der Bestandsprüfung in kleinen Schritten aufräumen | 3 | M–L | R17, R20; bekannte Datei-/Buildabhängigkeiten |
 | R14 | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | R05 abgeschlossen; kein `/v2` beschlossen |
-| R15 | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | R05, R07, R11, R12, R14 |
-| R16 | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | R01–R05, R07, R11, R13, R15; alle aufgenommenen Korrekturen |
+| R15 | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | R05, R07, R11, R12, R14, R18–R20 |
+| R16 | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | R01–R05, R07, R11, R13, R15; alle aufgenommenen Korrekturen einschließlich Repo-Aufräumen |
 
 Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten abgenommenes Release um neue Features zu vergrößern.
 
@@ -57,7 +75,9 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 R01–R05 und R13 sind abgeschlossen; v2.0.0 ist das bestätigte Release-Ziel. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
 
-Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, R14 für den beschlossenen v2-Distributionsweg, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
+Die Dokumentationsarbeit kann parallel zu langen Tests beginnen: **R17 Bestandsprüfung → R10 Bereinigung → R11 Übersetzung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt zuerst, damit beim Verkürzen und Entfernen keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
+
+R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
 
 ## Konkrete Aufgaben vor dem Release
 
@@ -115,13 +135,23 @@ Aufgabe: Endliche Buffer-/Dateiquellen anhand ihres tatsächlichen Endes abschli
 
 **Abnahme:** Identische Records, Diagnosen, Zeitstempel, Auswahl und Abschlussfragmente in beiden ID-Workflows. Fälle für leere Eingabe, letzten Record mit gleichzeitigem EOF, mehrere intern gepufferte Records, fragmentierte Eingabe, verkürztes Paket, Schreibfehler und Live-Pausen. Zeitgewinn mit unveränderter Fallzahl nachweisen; keine künstliche Kürzung von `testLines`.
 
+### Daseinsberechtigung und Zielort des Repo-Bestands prüfen
+
+**R17 · Gewicht 4 · Aufwand S–M · Lesende Bestandsprüfung vor der Bereinigung**
+
+Alle versionierten Dateien einschließlich versteckter Konfiguration und alle Repo-Verzeichnisse erfassen. Für jede Datei muss ein begründeter Zweck erkennbar sein: Produktcode, Build/Test, Beispiel, Anwenderdokumentation, Entwicklungsnachweis, benötigte Fremdquelle/Lizenz oder bewusst erhaltene Historie. Gleichartige Bestände dürfen nachvollziehbar als Gruppe beschrieben werden; kein Pfad darf ungeprüft außerhalb der Zuordnung bleiben. Lokale Buildausgaben und generierte Dateien getrennt betrachten, ohne Benutzerdateien oder die vereinbartermaßen ignorierten `demo*.json`-Änderungen einzusammeln.
+
+Für jeden fraglichen Bestand festhalten: heutiger Zweck und Nutzer, aktive Referenzen beziehungsweise Build-/Test-/Release-Verwendung, vorgesehener Zielort und Empfehlung „behalten“, „zusammenführen“, „verschieben“, „entfernen“ oder „noch klären“. Fehlende Textreferenzen allein beweisen keine Nutzlosigkeit; Skripte, Tool-Konventionen, Globs und manuell benutzte Beispiele mitprüfen. Für Dokumente insbesondere reine Weiterleitung von eigenständiger Erklärung unterscheiden und ein eindeutiges fachliches Zieldokument zuordnen.
+
+**Abnahme:** Vollständige, überprüfbare Zuordnung des Bestands und kleine umsetzbare Aufräumgruppen mit Abhängigkeiten. Unklare Zwecke sind ausdrücklich offen, nicht stillschweigend Löschkandidaten. Vorhandene Archive bleiben als Historie unverändert; die Prüfung ersetzt keinen Auftrag, sie zu bearbeiten. Daraus eine knappe Orientierung nach Nutzeraufgaben für R12 ableiten, keine riesige Dateiliste im README.
+
 ### Anwenderdokumentation von Entwicklungsständen befreien
 
 **R10 · Gewicht 4 · Aufwand M · Befunde bestätigt**
 
 Im aktiven UM stehen MVP-Bezeichnungen sowohl im `-vis)-Kapitel als auch ausführlich im Bind-Kapitel. Der CE-Anhang enthält A9/A10 im Fließtext und in Überschriften. Das [separate deutsche Bind-Manual](../TriceBind/Trice_bind_90_MVP_User_Manual.md) und die dortige README präsentieren parallel eine weitere normative Anwendersicht.
 
-Aufgabe: Das UM zur eindeutigen Anwenderreferenz machen. Aktuelle Grenzen konkret benennen; „MVP“ nicht blind durch „vollständig unterstützt“ ersetzen. Historische Architekturvergleiche müssen als solche erkennbar bleiben und dürfen aktuelle Wrapper-Unterstützung nicht widersprechen. Implementierungsaufträge/Entwurfsberichte nach Prüfung aus dem aktiven Einstieg nehmen; wertvolle Begründungen erhalten.
+Aufgabe: Das bisherige UM als künftiges Reference Manual zur eindeutigen fachlichen Referenz machen. Das neue kurze User Manual führt später durch die Nutzung und verweist für vollständige Verträge dorthin. Aktuelle Grenzen konkret benennen; „MVP“ nicht blind durch „vollständig unterstützt“ ersetzen. Historische Architekturvergleiche müssen als solche erkennbar bleiben und dürfen aktueller Wrapper-Unterstützung nicht widersprechen. Implementierungsaufträge/Entwurfsberichte nach Prüfung aus dem aktiven Einstieg nehmen; wertvolle Begründungen erhalten. Die tatsächliche Dateibereinigung folgt R20/R21.
 
 Die CE-PoC-Ergebnisse bleiben wie beauftragt im kapitelinternen Anhang, einschließlich reproduzierbarer Testreferenzen und ihrer Aussagegrenzen. A9/A10 werden dort durch verständliche Bezeichnungen wie „Nachweis für direkte Logstellen“ und „Produktive Unterstützung“ ersetzt. Testnamen und Experimentpfade werden nicht nur wegen eines historischen Namens umbenannt.
 
@@ -131,7 +161,7 @@ Die CE-PoC-Ergebnisse bleiben wie beauftragt im kapitelinternen Anhang, einschli
 
 **R11 · Gewicht 5 · Aufwand M–L · Beauftragung der späteren Umsetzung erforderlich**
 
-Die derzeitigen Kapitel „Strukturiertes Logging“ und „Trice Context Enrichment“ vollständig übersetzen, einschließlich Tabellen, Einschränkungen, Beispiele, Fehlererklärungen und CE-PoC-Anhang. Auch den verbleibenden deutschen CE-Absatz unter „Future Development“ angleichen.
+Die derzeitigen Kapitel „Strukturiertes Logging“ und „Trice Context Enrichment“ vollständig übersetzen, einschließlich Tabellen, Einschränkungen, Beispiele, Fehlererklärungen und CE-PoC-Anhang. Auch den verbleibenden deutschen CE-Absatz unter „Future Development“ angleichen. Diese vollständigen Kapitel gehören nach R18 ins Reference Manual; das neue kurze UM erhält unter R19 ausgewählte Einstiegsbeispiele mit Verweisen dorthin.
 
 Vorher die deutschen Originale als datierte, vollständige Kapitelkopien unter `docs/scratchPad/obsolete/` sichern. Sie werden anschließend historische Referenzen, keine parallel gepflegten Manuals. Bereits dort liegende alte Drafts nicht überschreiben. Originale vor der englischen Bearbeitung sichern; spätere fachliche Korrekturen müssen im Diff zur Archivfassung nachvollziehbar sein.
 
@@ -139,13 +169,39 @@ Bei der Übersetzung besonders erhalten: Bedeutung von `message` und Leerraum, f
 
 **Abnahme:** Vollständiger fachlicher Vergleich mit den deutschen Originalen und dem getesteten Verhalten. Source-/CLI-/JSON-Beispiele bleiben ausführbar und inhaltlich gleich, soweit nicht R02 einen Fehler korrigiert. Überschriften zunächst nur mit `#`; ToC, Nummern und Anker erzeugt später mdtoc. Alle aktiven internen Verweise auf übersetzte Überschriften anpassen. Der in Fehlermeldungen genannte Suchbegriff `bind-limits` bleibt erhalten.
 
-### Einstieg, Beispielübersicht und Zusagen vervollständigen
+### Bisheriges User Manual als Reference Manual weiterführen
 
-**R12 · Gewicht 4 · Aufwand S–M**
+**R18 · Gewicht 4 · Aufwand M · Nach R10/R11; vollständige Inhalte erhalten**
+
+`docs/TriceUserManual.md` in `docs/TriceReferenceManual.md` umbenennen und Titel, Selbstverweise sowie aktive eingehende Verweise entsprechend anpassen. Die Umbenennung selbst ist keine Kürzung: Verträge, Beispiele, Einschränkungen, Hintergrund und Anhänge bleiben vollständig. Der bisherige Pfad wird unter R19 für das neue kurze UM verwendet; alte Kapitelverweise müssen gezielt zum Reference Manual führen, statt unbemerkt im neuen UM zu landen.
+
+Die Pfadänderung durchgängig berücksichtigen: Dokumentationspflege und mdtoc, Markdown-/Linkprüfungen, PDF-Erzeugung mit Dateiname und Kopfzeile, GitHub Pages, Release-Paketierung und Artefaktprüfungen sowie aktive Anleitungstexte und Agentenregeln. Konkrete vorhandene Verbraucher sind unter anderem `scripts/_310_refresh_trice_user_manual.sh`, `scripts/_320_generate_trice_user_manual_pdf.sh`, `scripts/_610_test_goreleaser_snapshot.sh`, `.goreleaser.yaml` und die Pages-/Installations-/Release-Workflows. Nur tatsächlich nötige Pfadanpassungen vornehmen, keine allgemeine Skriptumbenennung.
+
+**Abnahme:** Vollständiger Inhaltsvergleich vor/nach der Umbenennung; Reference Manual als Markdown/PDF erzeugbar, Links und veröffentlichte Ziele stimmen. Suchhinweise wie `bind-limits` bleiben auffindbar. Archive bleiben unverändert; dadurch veraltete Archivverweise als verbleibende Folge dokumentieren, ohne neue Weiterleitungsdateien anzulegen. R19 ergänzt danach das neue UM samt derselben erforderlichen Dokumentationsprüfungen.
+
+### Ein kurzes User Manual zum Ausprobieren erstellen
+
+**R19 · Gewicht 4 · Aufwand M · Geführter Einstieg statt zweiter Vollreferenz**
+
+Ein neues englisches `docs/TriceUserManual.md` erstellen, das deutlich kürzer als die bisherige Vollreferenz ist. Einstieg mit wenigen Sätzen zu Nutzen und Funktionsweise, anschließend Voraussetzungen, Installation gemäß R14 und ein ausführbares PC-Beispiel mit erwarteter Ausgabe. Danach die Schritte zur eigenen Target-Anbindung zeigen, mit einem klaren Standardweg und passenden Verweisen für alternative ID-Workflows und Transportwege.
+
+Tags/Filter, Stempel, Structured Logging und Context Enrichment anhand kleiner Änderungen und sofort sichtbarer Ausgaben vorstellen. Vorhandene PC-/G0B1-Feature-Touren und ihre `show_*.sh`-Skripte verwenden; keine neuen Features oder Beispielprojekte allein für das neue Handbuch. Kurz erklären, welche Dateien dauerhaft zum Projekt gehören und welche generiert werden. Eine knappe Fehlerhilfe soll den nächsten sinnvollen Prüfschritt nennen.
+
+Vollständige Optionslisten, Compiler-Matrizen, Protokolldetails und PoC-Begründungen bleiben im Reference Manual. Erforderliche Einschränkungen stehen dort im Einstieg, wo sie die konkrete Wahl beeinflussen, ohne den Beginn mit allen Sonderfällen zu überladen. Begriffe beim ersten Auftreten erklären; keine Vorkenntnis von internen Auftragsnummern oder Architekturentwürfen verlangen.
+
+**Abnahme:** Vom sauberen Checkout bis zum ersten PC-Log ist der beschriebene Weg reproduzierbar; Voraussetzungen und erwartete Ausgabe sind sichtbar. Der Umfang ist deutlich reduziert, die zentralen Nutzeraufgaben sind auffindbar und Detailverweise funktionieren. Keine fachlichen Abweichungen zur Referenz. Beide Handbücher sind als Markdown/PDF prüfbar und für die Veröffentlichung unter ihren eindeutigen Namen vorbereitet.
+
+### README, Repo-Orientierung, Beispiele und Zusagen verbessern
+
+**R12 · Gewicht 4 · Aufwand M · Mit R17–R19 abgestimmt**
 
 Die Root-[README](../../README.md) nennt Bind noch experimentell und unveröffentlicht; das muss zum gewählten Release-Status passen. Sie verweist bei Structured Logging noch auf einen auskommentierten Future-Draft. SL und CE gehören mit kurzen funktionierenden Beispielen und Links zu den beiden Feature-Touren in den Einstieg und die Feature-Übersicht.
 
-Weitere konkrete Ergänzungen:
+Das README einladend und übersichtlich überarbeiten: ein kurzer Nutzenabschnitt, ein verständliches Code-/Ausgabebeispiel, ein klarer Einstieg über das neue User Manual und gezielte Links zur Vollreferenz. Lange Detaildiskussionen in das fachlich zuständige Handbuch überführen; weder Vollreferenz noch neues UM im README wiederholen. Installation aus Checkout beziehungsweise Binaries entsprechend der bestätigten Entscheidung erklären.
+
+Eine kompakte Repo-Karte nach Nutzeraufgaben aufnehmen: Wo anfangen, Beispiele ausprobieren, Target-Code einbinden, Hosttool bauen, Tests ausführen und Details nachschlagen? Die wichtigsten Verzeichnisse erhalten je eine kurze Zweckbeschreibung und einen sinnvollen Einstiegspunkt. Basis ist die vollständige Bestandsprüfung aus R17; die öffentliche Karte zählt nicht jede Einzeldatei auf. `docs/README.md` erklärt die Rollen der beiden Handbücher und der übrigen relevanten Dokumente. Keine zusätzliche README pro Ordner allein aus formalen Gründen anlegen.
+
+Weitere konkrete Ergänzungen im passenden Handbuch oder Beispiel erläutern und aus dem Einstieg gezielt verlinken:
 
 - Ein kleines Verzeichnisbeispiel für `-genDir`: relativ zum Aufrufverzeichnis, Sidecars im Include-Pfad, persistente TIL/LI gegenüber generierten Dateien, `-logC` und ABC-Ausgaben.
 - Erklären, warum beim G0B1-Beispiel auch gemeinsame Quellen Sidecars erzeugen können, obwohl ihre Demo-Funktion nicht aufgerufen wird: Scan-/Buildumfang und tatsächliche Laufzeitaufrufe sind verschiedene Dinge.
@@ -154,7 +210,27 @@ Weitere konkrete Ergänzungen:
 - Das Feature „keine dynamische Speicherverwaltung“ auf den Trice-Target-Loggingpfad beziehen. Stack-Puffer sind keine statischen Objekte; Hosttool, RTOS und benutzereigene CE-Funktionen sind nicht von derselben Zusage umfasst.
 - ABC-Einstieg mit einer kurzen Karte von `NodeLib`, Auswahl-Header, generierter C-Tabelle und Buildausgabe erklären. Die heutige Dokumentation weiterverwenden; keine allgemeine Skript-Neuorganisation erforderlich.
 
-**Abnahme:** Ein neuer Anwender findet einen PC-Einstieg, versteht die Ablage und kann CE/SL sowie ihre Grenzen ohne Kenntnis von A-/M-Aufträgen ausprobieren. Release-Zusagen decken sich mit nachgewiesenen Plattformen und Funktionen.
+**Abnahme:** Ein neuer Anwender erkennt Nutzen und ersten Schritt, findet seine Aufgabe in der Repo-Karte, versteht die Ablage und kann CE/SL ohne Kenntnis von A-/M-Aufträgen ausprobieren. README und kurzes UM laden ein, statt mit der vollständigen Options- und Sonderfallliste zu beginnen. Grenzen sind erreichbar und korrekt; Release-Zusagen decken sich mit nachgewiesenen Plattformen und Funktionen.
+
+### Link-Forwarding-Dateien entfernen und docs konsolidieren
+
+**R20 · Gewicht 4 · Aufwand S–M · Nach Festlegung und Befüllung der Zieldokumente**
+
+Reine Weiterleitungsdateien aus dem aktiven `docs`-Bestand entfernen. Konkrete Beispiele sind `docs/TriceUserGuide.md`, `docs/TriceColor.md` und `docs/TriceIDManagement.md`; die vollständige Auswahl liefert R17. Nicht allein nach Dateinamen löschen: Eigenständige Informationen gegebenenfalls zuvor ins passende Handbuch oder andere begründete Zieldokument übernehmen. Der neue Dokumentationswegweiser `docs/README.md` bleibt wegen seines eigenen Orientierungszwecks erhalten.
+
+Vor dem Entfernen alle aktiven eingehenden Links auf das fachlich passende Kapitel im kurzen UM oder im Reference Manual umstellen. Pfade, Anker, Bilder und Downloads im Repo, auf GitHub Pages und in PDFs prüfen. Keine neuen Markdown-Weiterleitungsstubs als Ersatz erzeugen. Nicht kontrollierbare externe Altlinks und unveränderte Archivverweise als verbleibende Folgen benennen; bestehende Archive dafür nicht bearbeiten. Doppelte aktive Dokumente zusammenführen, sobald ihre einzigartigen Inhalte und etwaige historischen Nachweise zugeordnet sind.
+
+**Abnahme:** Keine reinen Link-Forwarding-Dateien mehr im aktiven `docs`-Bestand, keine aktiven Verweise auf entfernte Dateien und kein Verlust eigenständiger Informationen. Jeder verbleibende aktive Dokumentationsbestand hat eine nachvollziehbare Aufgabe; lokale Link-/Ankerprüfungen und die betroffenen Veröffentlichungswege bestehen.
+
+### Übriges Repo anhand belegter Zwecke aufräumen
+
+**R21 · Gewicht 3 · Aufwand M–L · Kleine zusammenhängende Gruppen nach R17/R20**
+
+Die geprüften Aufräumgruppen aus R17 umsetzen. Überflüssige Dateien entfernen, unnötige Doppelbestände zusammenführen und nachweislich unpassend abgelegte Dateien nur dann verschieben, wenn dies die Orientierung verbessert. Root-Dateien, Beispiele, Experimente, Skripte, Konfiguration, Testdaten und Fremdquellen gehören zur Prüfung. Benötigte Lizenzen, reproduzierbare PoCs, Regressionstest-Fixtures und bewusst archivierte Historie besitzen eine Daseinsberechtigung, auch wenn Anwender sie nicht täglich öffnen.
+
+Mit jeder Gruppe ihre aktiven Pfadabhängigkeiten, Build-/Test-/Release-Verwendung, Ignore-Regeln und die Repo-Karte nachziehen. Keine funktionalen Umbauten unter dem Etikett Aufräumen. Benutzerbearbeitete Dateien unter `generated` nicht pauschal löschen; lokale Artefakte und versionierte Produktdateien unterscheiden. Vorhandene `obsolete`- und andere ausdrücklich archivierte Bestände bleiben ohne gesonderten Auftrag unverändert. Bei ungeklärtem Zweck zunächst die konkrete Frage klären, statt versuchsweise zu löschen.
+
+**Abnahme:** Jede verbleibende versionierte Datei und jedes verbleibende Repo-Verzeichnis hat einen dokumentierten Zweck in der Bestandszuordnung; entfernte oder verschobene Gruppen sind nachvollziehbar begründet. Die öffentliche Übersicht entspricht dem Ergebnis. Betroffene Beispiele, Builds, Tests und Paketierung bestehen; Testumfang, Lizenznachweise und reproduzierbare Entwicklungsnachweise sind erhalten. Die vollständige Abnahme des ausgewählten Aufräumumfangs folgt R16.
 
 ### Checkout-/Binary-Installationswege für v2 absichern
 
@@ -178,7 +254,9 @@ Die [Installationsprüfungen](../../.github/workflows/install-checks.yml) und [R
 
 Die Toolchain-Angaben angleichen: `go.mod` verlangt Go 1.25.0; der separat manuell gestartete Workflow `go.yml` nennt noch 1.24.0. Das muss keinen unmittelbaren Buildfehler verursachen, weil Go einen Toolchain-Wechsel auslösen kann, macht die geprüfte Umgebung aber unnötig unklar.
 
-**Abnahme:** Verständliche englische Release Notes und Anpassungshinweise; finale englische UM-Fassung als Markdown/PDF; passende Target-Quellen; nachvollziehbare Artefaktprüfungen auf den zugesagten Betriebssystemen. Kein Publish oder Tag ohne ausdrücklichen Auftrag.
+Die unter R18/R19 getrennten Handbücher unter eindeutigen Namen ausliefern: `TriceUserManual` für den Einstieg und `TriceReferenceManual` für Details. Downloadlinks und Artefaktprüfungen müssen beide Dokumente dem richtigen Zweck zuordnen; die bisherige PDF-Prüfung nur umzubenennen reicht nicht.
+
+**Abnahme:** Verständliche englische Release Notes und Anpassungshinweise; finales englisches User Manual und Reference Manual als Markdown/PDF; passende Target-Quellen; nachvollziehbare Artefaktprüfungen auf den zugesagten Betriebssystemen. Kein Publish oder Tag ohne ausdrücklichen Auftrag.
 
 ### Release-Abnahme auf einem feststehenden Stand
 
@@ -192,7 +270,7 @@ Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließe
 - CE-/SL-End-to-End-Abnahme gemäß R07 und installierte Release-Artefakte gemäß R15.
 - Keine zurückgebliebenen unbeabsichtigten Source-/Metadatenänderungen.
 - Go-Coverage mit der Paket- und `-coverpkg`-Auswahl des [Coverage-Workflows](../../.github/workflows/coverage.yml) gegen die Zielbranch-Baseline vergleichen; Coveralls-Zeilenabdeckung und Go-Statement-Coverage unterscheiden. C-Abnahme separat.
-- Finales UM: mdtoc, Markdown, relative Links mit korrekter Groß-/Kleinschreibung, PDF; danach keine ungeprüften inhaltlichen Änderungen mehr.
+- Finale Dokumentation: kurzes UM und Reference Manual mit mdtoc, Markdown, relativen Links mit korrekter Groß-/Kleinschreibung und PDF prüfen; README, Dokumentationswegweiser und GitHub Pages einbeziehen. Keine aktiven Links auf entfernte Weiterleitungsdateien; Repo-Karte und Bestandszuordnung stimmen mit den tatsächlich vorgenommenen Aufräumarbeiten überein. Danach keine ungeprüften inhaltlichen Änderungen mehr.
 - Ein kurzer echter G0B1-Boardlauf für zwei Task-Kontexte, Stempel und lesbare/strukturierte Ausgabe, sofern diese Hardware-Zusage im Release gemacht wird. Fehlender Hardwarezugang wird als fehlender Nachweis benannt.
 - Versionsentscheidung, bekannte Grenzen und eventuelle bewusst akzeptierte Abweichungen sind dokumentiert.
 
