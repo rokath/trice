@@ -34,11 +34,10 @@ Vorhanden sind insbesondere:
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R03 und R13 sind gezielt korrigiert; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R04 und R13 sind gezielt korrigiert; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R04 | Aussage zum automatischen TIL-/LI-Nachladen klären | 5 | S; bei Wiederherstellung M | Produktentscheidung |
 | R05 | Kompatibilitätsvertrag und Release-Version festlegen | 5 | S–M | Vergleich mit v1.3.0 |
 | R06 | Testlaufzeit und tatsächlich ausgeführte Fälle erfassen | 4 | S | Erste Full-Messung liegt vor; dauerhaft erfassen |
 | R07 | Vorhandene CE-/SL- und Beispielprüfungen verbindlich ausführen | 5 | M | R01, R13; erforderliche Compiler |
@@ -55,23 +54,11 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 ## Vorschlag für die nächsten Aufträge
 
-R01–R03 und R13 sind gezielt korrigiert. Als Nächstes R04 und R05 klären beziehungsweise korrigieren. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
+R01–R04 und R13 sind gezielt korrigiert. Als Nächstes R05 klären. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
 
 Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, gegebenenfalls R14 für v2, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
 
 ## Konkrete Aufgaben vor dem Release
-
-### Automatisches Nachladen zutreffend beschreiben
-
-**R04 · Gewicht 5 · Aufwand S für Dokumentation · Befund bestätigt, Produktentscheidung offen**
-
-Das UM verspricht unter „Easy-to-use“, dass ein laufender Logger aktualisierte `til.json` automatisch nachlädt und nicht neu gestartet werden muss. In [handler.go](../../internal/args/handler.go) sind jedoch sowohl `go ilu.FileWatcher(...)` als auch `go li.FileWatcher(...)` auskommentiert. Die Tabellen werden vor der Eingabeschleife geladen.
-
-Zunächst entscheiden: Ist ein Neustart derzeit die unterstützte Bedienung, oder gehört funktionierendes Live-Nachladen zum Release-Vertrag? Die kleine Korrektur ist eine ehrliche Anleitung zum Neustart. Eine Wiederherstellung ist ein eigener, größerer Fehlerbehebungsauftrag; vorhandenen Watcher-Code nicht ungeprüft aktivieren.
-
-Bei Wiederherstellung sind atomarer Dateiersatz durch Bind, mehrere rasche Aktualisierungen, vorübergehend ungültiges JSON, unverändert weiter gültige Tabellen, Synchronisierung von TIL/LI, strukturierte Schemas, Visualisierung und sauberes Beenden zu prüfen. Die vorhandenen Fake-Write-Event-Tests in [fileWatcher_test.go](../../internal/id/fileWatcher_test.go) ersetzen diese Integration nicht.
-
-**Abnahme:** Dokumentation und beobachtetes Verhalten stimmen überein. Wiederholtes reales Speichern/Ersetzen wird getestet, falls Nachladen zugesagt wird.
 
 ### Kompatibilitätsvertrag und Versionsnummer entscheiden
 
@@ -385,3 +372,13 @@ Im [UM](../TriceUserManual.md) ist die alternative CE-Regel für Position und Ge
 Die vier betroffenen Buildskripte speichern den echten Status von `trice clean`, bevor sie ihn auswerten. Ein allein fehlgeschlagenes Clean führt zum Fehlerstatus und meldet dessen Exitcode; ein bereits fehlgeschlagener Build oder eine Unterbrechung behalten ihren ursprünglichen Status. Das vereinfachte Cleanup-Beispiel im UM reicht Clean-Fehler ebenfalls weiter, ohne im normalen Abschluss erneut zu bereinigen.
 
 **Gezielte Abnahme:** Isolierte Verhaltenstests führen alle vier Skripte mit erfolgreichem Build und Clean, Clean-Fehlercode 23, vorigem Build-Fehlercode 17 sowie SIGINT und SIGTERM aus. Pro Lauf werden Vor- und Nach-Clean genau einmal aufgerufen; Status und Warnung stimmen in allen Fällen. Shell-Formatprüfung, ShellCheck und die vollständige `scripts`-Testsuite bestehen.
+
+### Automatisches Nachladen wiederhergestellt
+
+**R04 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+Entscheidung: Automatisches Nachladen bleibt ein wichtiges zugesagtes Feature. Der Logger überwacht die Verzeichnisse der geladenen TIL-/LI-Dateien und verarbeitet damit auch atomaren Dateiersatz durch Bind/Insert. Rasche Folgespeicherungen gehen nicht mehr in einer fünfsekündigen Sperre verloren. Vollständig eingelesene Tabellen werden unter gemeinsamem Schreib-/Leseschutz ersetzt; Decoder, Positionsausgabe und Statistik verwenden denselben Schutz. Fehlerhafte, leere oder vorübergehend fehlende Dateien lassen den letzten gültigen Stand unverändert und werden erneut eingelesen. Diagnoseausgaben gehen auf stderr; gleiche wiederholte Lesefehler erzeugen keinen Warnungsstrom. Beim Verlassen des Loglaufs werden Watcher und Timer beendet und ihr Abschluss abgewartet.
+
+Das [UM unter Easy-to-use](../TriceUserManual.md#easy-to-use) erklärt Bedienung und Grenzen: TIL und LI sind keine dateiübergreifende Transaktion, `{}` leert die jeweilige Tabelle absichtlich, eine beim Start fehlende LI-Datei bleibt für diesen Loglauf deaktiviert, und bereits deaktivierte Visualisierungsregeln werden nicht automatisch wieder aktiviert. Allgemeine Signal-/Receiver-Lebenszyklen bleiben Gegenstand von R08.
+
+**Gezielte Abnahme:** [Watcher-Tests](../../internal/id/fileWatcher_test.go) prüfen reale Schreib-/Ersetzungsereignisse, Wiederanlage, ungültiges JSON ohne Teilübernahme, Wiederholung ohne Folgeereignis, stille Fehlerwiederholungen, abgeschaltete Pfade, Backendfehler und Ressourcenfreigabe. [CLI-Integrationstests](../../internal/args/fileWatcher_test.go) betreiben jeweils einen laufenden Logger für Text, JSON und KV mit echter Dateieingabe: geänderte Feldschemata und Positionen, mehrfacher Dateiersatz, Weiterloggen bei defektem JSON, Erholung und fortlaufende Visualisierung. Diese Tests bestehen auch mit Race Detector; die betroffenen Go-Paketsuites bestehen. Die lange Full-Matrix wurde nicht erneut gestartet.

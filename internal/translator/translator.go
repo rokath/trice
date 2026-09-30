@@ -75,7 +75,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	} else {
 		go handleSIGTERM(diagnostics, rwc, visRouter)
 	}
-	return decodeAndComposeLoopOutput(w, diagnostics, sw, dec, lut, li, visRouter)
+	return decodeAndComposeLoopOutput(w, diagnostics, sw, dec, lut, li, visRouter, m)
 }
 
 // handleSIGTERM is called on CTRL-C shutdown.
@@ -498,7 +498,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 
 // decodeAndComposeLoopOutput keeps human diagnostics off machine-readable sinks.
 // Tests can supply separate buffers without replacing process-global stderr.
-func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router) error {
+func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router, tableMutex ...*sync.RWMutex) error {
+	// Production passes the same lock as the decoder and watcher. Standalone
+	// presentation tests have immutable dictionaries and need no shared lock.
+	mutex := new(sync.RWMutex)
+	if len(tableMutex) != 0 {
+		mutex = tableMutex[0]
+	}
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
@@ -528,7 +534,9 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 							}
 						}
 					}
+					mutex.RLock()
 					encoded, err := renderStructuredRecord(record, li, time.Now(), &state)
+					mutex.RUnlock()
 					if err != nil {
 						return err
 					}
@@ -600,7 +608,9 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 			}
 
 			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
+				mutex.RLock()
 				s := locationInformation(decoder.LastTriceID, li)
+				mutex.RUnlock()
 				if decoder.BlankMetadata {
 					s = blankMetadataField(s)
 				}

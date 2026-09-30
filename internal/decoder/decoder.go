@@ -399,11 +399,17 @@ func RecordForStatistics(tid id.TriceID) {
 var (
 	IDLUT id.TriceIDLookUp
 	LILUT id.TriceIDLookUpLI
+	// LUTMutex protects the logging dictionaries while the watcher replaces entries.
+	LUTMutex *sync.RWMutex
 )
 
 func PrintTriceStatistics(w io.Writer) {
 	if !TriceStatistics && !emitter.AllStatistics {
 		return
+	}
+	if LUTMutex != nil {
+		LUTMutex.RLock()
+		defer LUTMutex.RUnlock()
 	}
 	var sum int
 	fmt.Fprintf(w, "\nTrice Statistics:                  (n: Trice ends with no newline, if 0 ↴)\n\n")

@@ -335,10 +335,6 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 	if visRouter != nil {
 		defer func() { msg.OnErr(visRouter.Close()) }()
 	}
-	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
-	// This way trice needs NOT to be restarted during development process.
-	//go ilu.FileWatcher(w, fSys, m)
-
 	var li id.TriceIDLookUpLI // nil
 
 	if id.LIFnJSON == "emptyFile" { // reserved name for tests only
@@ -352,11 +348,16 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 			}
 		} else {
 			li = id.NewLutLI(w, fSys, id.LIFnJSON) // lut is a map, that means a pointer
-			decoder.LILUT = li
-			// Just in case the id location information file LIFnJSON gets updated, the file watcher updates li.
-			// This way trice needs NOT to be restarted during development process.
-			//go li.FileWatcher(w, fSys)
 		}
+	}
+	// Decoder, presentation, and statistics share one lock for live table reads.
+	decoder.IDLUT, decoder.LILUT, decoder.LUTMutex = ilu, li, m
+	// Watcher diagnostics always use stderr, including text mode, so asynchronous
+	// warnings cannot corrupt application records or write into an unsafe sink.
+	stopWatching, watchErr := id.WatchLookUpTables(os.Stderr, fSys, ilu, li, m)
+	defer stopWatching()
+	if watchErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: automatic table reload unavailable: %v; restart trice log to load affected tables\n", watchErr)
 	}
 
 	sw := emitter.New(applicationOutput)

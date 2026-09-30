@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -186,6 +187,43 @@ func TestRecordAndPrintTriceStatistics(t *testing.T) {
 	assert.Contains(t, s, "c.c")
 	assert.Contains(t, s, "hello")
 	assert.Contains(t, s, "2 Trice messsges")
+}
+
+// TestStatisticsWaitsForDictionaryReload checks that a report cannot inspect
+// maps while a reload is replacing them. Once released, it uses the new entry
+// and location together; the per-ID event count is independent of the reload.
+func TestStatisticsWaitsForDictionaryReload(t *testing.T) {
+	oldEnabled, oldCounts := TriceStatistics, IDStat
+	oldTIL, oldLI, oldMutex := IDLUT, LILUT, LUTMutex
+	t.Cleanup(func() {
+		TriceStatistics, IDStat = oldEnabled, oldCounts
+		IDLUT, LILUT, LUTMutex = oldTIL, oldLI, oldMutex
+	})
+	TriceStatistics = true
+	IDStat = map[id.TriceID]int{7: 3}
+	IDLUT, LILUT = id.TriceIDLookUp{}, id.TriceIDLookUpLI{}
+	LUTMutex = new(sync.RWMutex)
+	LUTMutex.Lock()
+	var out bytes.Buffer
+	started, finished := make(chan struct{}), make(chan struct{})
+	go func() {
+		close(started)
+		PrintTriceStatistics(&out)
+		close(finished)
+	}()
+	<-started
+	select {
+	case <-finished:
+		t.Error("statistics accessed dictionaries while their writer still held the lock")
+	case <-time.After(20 * time.Millisecond):
+	}
+	IDLUT[7] = id.TriceFmt{Type: "TRICE", Strg: "reloaded message"}
+	LILUT[7] = id.TriceLI{File: "reloaded.c", Line: 42}
+	LUTMutex.Unlock()
+	<-finished
+	assert.Contains(t, out.String(), "reloaded message")
+	assert.Contains(t, out.String(), "reloaded.c")
+	assert.Contains(t, out.String(), "3 Trice messsges")
 }
 
 // TestHandleTypeX0 verifies the initial selector-0 handling modes and shorthand rules.
