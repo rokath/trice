@@ -4,6 +4,8 @@ Stand: 30. September 2026. Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des
 
 Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
 
+**Beschlossenes Release-Ziel: v2.0.0.** Der Go-Modulpfad bleibt vorerst ohne `/v2`. Angeboten werden fertige Binaries und der lokale Build aus einem Repo-Checkout über `./scripts/buildTriceTool.sh`; versionierte Go-Modulinstallation von v2 wird vorerst nicht angeboten. R14 sichert diese Installationswege ab. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
+
 ## Stand und Aussagegrenzen
 
 Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind und Insert/Clean einschließlich CE, Template-Parser, Decoder, strukturierte Ausgabe, Tags und Filter, Visualisierung, Transport- und Ausgabeabschluss, Target-Konfiguration und Testaufbau, Beispiele, aktives UM, README sowie Test- und Release-Workflows. Code und vorhandene Verhaltenstests wurden mit den dokumentierten Verträgen verglichen. Das ist eine breite statische Bestandsaufnahme mit konkreten Belegen, keine vollständige Fehlerfreiheitserklärung oder neue Hardware-Abnahme.
@@ -34,11 +36,10 @@ Vorhanden sind insbesondere:
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R04 und R13 sind gezielt korrigiert; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R05 und R13 sind abgeschlossen; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R05 | Kompatibilitätsvertrag und Release-Version festlegen | 5 | S–M | Vergleich mit v1.3.0 |
 | R06 | Testlaufzeit und tatsächlich ausgeführte Fälle erfassen | 4 | S | Erste Full-Messung liegt vor; dauerhaft erfassen |
 | R07 | Vorhandene CE-/SL- und Beispielprüfungen verbindlich ausführen | 5 | M | R01, R13; erforderliche Compiler |
 | R08 | Loglauf sauber beenden: Signale, Timer und Ressourcen | 4 | M | Gezielte Reproduktion |
@@ -46,44 +47,19 @@ Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten.
 | R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04 |
 | R11 | SL- und CE-Kapitel vollständig ins Englische übertragen | 5 | M–L | R02, R10 |
 | R12 | Einstieg, Beispiele und unterstützte Grenzen vervollständigen | 4 | S–M | R05, R10, R11 |
-| R14 | Falls v2 beschlossen: Go-Modul und Installationswege vorbereiten | 5, bedingt | M–L | R05 |
-| R15 | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | R05, R07, R11, R12; ggf. R14 |
+| R14 | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | R05 abgeschlossen; kein `/v2` beschlossen |
+| R15 | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | R05, R07, R11, R12, R14 |
 | R16 | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | R01–R05, R07, R11, R13, R15; alle aufgenommenen Korrekturen |
 
 Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten abgenommenes Release um neue Features zu vergrößern.
 
 ## Vorschlag für die nächsten Aufträge
 
-R01–R04 und R13 sind gezielt korrigiert. Als Nächstes R05 klären. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
+R01–R05 und R13 sind abgeschlossen; v2.0.0 ist das bestätigte Release-Ziel. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
 
-Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, gegebenenfalls R14 für v2, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
+Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, R14 für den beschlossenen v2-Distributionsweg, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
 
 ## Konkrete Aufgaben vor dem Release
-
-### Kompatibilitätsvertrag und Versionsnummer entscheiden
-
-**R05 · Gewicht 5 · Aufwand S–M · Entscheidung vor Tag und Veröffentlichung**
-
-Empfehlung: **v2.0.0 ist beim aktuellen Stand sachlich gut begründbar**, nicht nur als Werbesignal. Auch wenige absichtliche inkompatible Änderungen an veröffentlichten Schnittstellen können einen Major-Schritt rechtfertigen. Neue Features allein würden nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html) für eine Minor-Version genügen.
-
-Der lokale Vergleich mit `v1.3.0` zeigt bereits folgende relevante Änderungen:
-
-| Vertrag | Beobachtete Änderung / zu dokumentierende Folge |
-| --- | --- |
-| CLI für C-Generierung | `-tilC` entfällt; `-logC` hat einen auf aktuelle Source-Stellen bezogenen Vertrag. |
-| CLI für Location-Daten | `-liPath` entfällt; `-liRoot` und `-liMaxDirs` trennen Speicherung und Darstellung. Das alte `Path`-Feld entfällt. |
-| User-Tags | `-ulabel a:b` registriert nicht mehr zwei Tags. Je Tag eine Option; Doppelpunkt für Gewicht/Farbe. |
-| Formatstrings | Literale `{` und `}` müssen als `{{` und `}}` geschrieben werden. Der Decoder interpretiert auch geladene historische TIL-Strings mit dem neuen Template-Parser. |
-| Tag-Auswahl und Darstellung | Eindeutige Aliase, gewichtete Schwellen und strengere Validierung können bestehende Aufrufe verändern. `untagged` klassifiziert fehlende/unbekannte Tags; das derzeit automatisch im Meldungstext sichtbare Präfix ist gemäß R01 zu korrigieren und kein beabsichtigter Release-Vertrag. |
-| Generierte Ablage | `./generated` relativ zum Aufrufverzeichnis und `-genDir` werden einheitlich verwendet; einfache ABC-Zielnamen landen dort. |
-
-Wichtig: `-buildDir`/`-bindDir` waren Zwischenstände der neuen Arbeit und sind nicht automatisch Brüche gegenüber einem veröffentlichten Release. Release Notes müssen veröffentlichte Änderungen von unveröffentlichten Umbenennungen unterscheiden.
-
-Die pauschale Aussage „die neueste TIL dekodiert alle älteren Firmwares“ ist deshalb auf die unterstützten Template-/Tool-Versionen zu präzisieren. Ein altes wörtliches `"{x}"` wird heute als Feld gelesen; `"{1,2}"` wird abgewiesen. Das unveränderte binäre Drahtformat allein garantiert keine vollständige Host-/Wörterbuchkompatibilität. Alte Firmware, ihre Wörterbücher und passende Decoder-Versionen müssen reproduzierbar zuordenbar bleiben.
-
-**Kein Migrationsprogramm und kein erneutes `-migrationBraces`.** Die früher verworfene Migration bleibt ausgeschlossen. Es geht um eine ehrliche Kompatibilitätsbeschreibung und gezielte Vergleichstests, nicht um still eingeführte Kompatibilitätsmechanismen.
-
-**Abnahme:** Versionsentscheidung und unterstützte Kombinationen aus Target, TIL, Hosttool und CLI sind schriftlich festgehalten. Bei v2 folgt R14. v1.4.0 ist nur plausibel, wenn der vereinbarte öffentliche Vertrag tatsächlich rückwärtskompatibel bleibt; die kleine Zahl der Brüche allein ist kein Argument dafür.
 
 ### Tatsächliche Testarbeit und Laufzeit erfassen
 
@@ -180,15 +156,17 @@ Weitere konkrete Ergänzungen:
 
 **Abnahme:** Ein neuer Anwender findet einen PC-Einstieg, versteht die Ablage und kann CE/SL sowie ihre Grenzen ohne Kenntnis von A-/M-Aufträgen ausprobieren. Release-Zusagen decken sich mit nachgewiesenen Plattformen und Funktionen.
 
-### Go-Modulfolgen eines Major-Releases erledigen
+### Checkout-/Binary-Installationswege für v2 absichern
 
-**R14 · Gewicht 5 nur bei beschlossener v2 · Aufwand M–L**
+**R14 · Gewicht 5 · Aufwand S–M · Distributionsentscheidung getroffen; verbleibender Abgleich vor Release**
 
-`go.mod` lautet derzeit `module github.com/rokath/trice`. Ein reguläres Go-Modul ab Major 2 benötigt einen passenden `/v2`-Modulpfad. Das betrifft interne Imports, veröffentlichte Pakete, `go install`-Anleitungen, mögliche Modulpfad-Annahmen in Tests und Build-/Releaseprüfungen. Ein bloßes `v2.0.0`-Tag erledigt das nicht. Siehe [Go: Developing a major version update](https://go.dev/doc/modules/major-version).
+Entscheidung des Anwenders: **`/v2` vorerst weglassen.** `go.mod` bleibt bei `module github.com/rokath/trice`, Imports bleiben unverändert. Die Produktversion v2.0.0 wird über fertige Binaries und lokale Builds aus einem Repo-Checkout angeboten. Das [README](../../README.md#project-information) nennt dafür jetzt `./scripts/buildTriceTool.sh` statt `go install github.com/rokath/trice/cmd/trice@latest`, mit Aufrufort und Hinweis auf die ausgegebenen Installationspfade.
 
-Empfehlung bei v2: den regulären Go-Modulweg bewusst wählen. Vorher klären, ob und wie Nutzer die öffentlichen Go-Pakete importieren. Die fertigen Host-Binaries dürfen weiterhin `trice` und `tlog` heißen; daraus folgt kein neuer Name für die C-Bibliothek.
+Lokales Bauen und Installieren aus dem Checkout benötigt allein wegen der Produktversion keinen Major-Modulpfad. Das vom Skript intern verwendete lokale `go install ./cmd/trice ./cmd/tlog` bleibt zulässig. Versionierte Go-Auflösung über `@v2.0.0` wäre dagegen an einen passenden Major-Modulpfad gebunden und gehört vorerst nicht zum zugesagten Installationsumfang. Siehe [Go: Major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
 
-**Abnahme:** Modulauflösung und Installation beider Tools mit dem beschlossenen Major-Pfad funktionieren in einer sauberen Umgebung; Importe, Tests, Dokumentation und Release-Artefakte passen zusammen. Keine pauschale Umstellung auf eigene Versionssysteme für einzelne Komponenten.
+Verbleibende Aufgabe: Aktive Installationsanleitungen und Release-Prüfungen auf den beschlossenen Umfang abstimmen. Weitere entfernte Go-Installationsanweisungen dürfen v2 nicht versprechen. Lokalen Build beider Tools und ausgelieferte Binaries prüfen; eine spätere Modulpfadumstellung benötigt eine neue Entscheidung.
+
+**Abnahme:** Der lokale Build mit `./scripts/buildTriceTool.sh` und die angebotenen Binary-Installationswege funktionieren in einer sauberen Umgebung. Dokumentation und Prüfungen passen dazu; keine `/v2`-Umstellung und keine v2-Modulinstallationszusage. Kein Tag oder Publish im Rahmen dieses Auftrags.
 
 ### Release Notes und ausgelieferte Dateien prüfen
 
@@ -382,3 +360,31 @@ Entscheidung: Automatisches Nachladen bleibt ein wichtiges zugesagtes Feature. D
 Das [UM unter Easy-to-use](../TriceUserManual.md#easy-to-use) erklärt Bedienung und Grenzen: TIL und LI sind keine dateiübergreifende Transaktion, `{}` leert die jeweilige Tabelle absichtlich, eine beim Start fehlende LI-Datei bleibt für diesen Loglauf deaktiviert, und bereits deaktivierte Visualisierungsregeln werden nicht automatisch wieder aktiviert. Allgemeine Signal-/Receiver-Lebenszyklen bleiben Gegenstand von R08.
 
 **Gezielte Abnahme:** [Watcher-Tests](../../internal/id/fileWatcher_test.go) prüfen reale Schreib-/Ersetzungsereignisse, Wiederanlage, ungültiges JSON ohne Teilübernahme, Wiederholung ohne Folgeereignis, stille Fehlerwiederholungen, abgeschaltete Pfade, Backendfehler und Ressourcenfreigabe. [CLI-Integrationstests](../../internal/args/fileWatcher_test.go) betreiben jeweils einen laufenden Logger für Text, JSON und KV mit echter Dateieingabe: geänderte Feldschemata und Positionen, mehrfacher Dateiersatz, Weiterloggen bei defektem JSON, Erholung und fortlaufende Visualisierung. Diese Tests bestehen auch mit Race Detector; die betroffenen Go-Paketsuites bestehen. Die lange Full-Matrix wurde nicht erneut gestartet.
+
+### Kompatibilitätsvertrag und Release-Ziel festgelegt
+
+**R05 · Gewicht 5 · Aufwand S–M · Abgeschlossen; Release-Ziel v2.0.0 bestätigt**
+
+Entscheidung des Anwenders: **v2.0.0 ist das verbindliche Release-Ziel**. Die nachgewiesenen absichtlichen Änderungen an veröffentlichten CLI- und Template-Schnittstellen sind inkompatibel; nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ist dafür ein Major-Schritt vorgesehen. Die Zahl der Brüche ist unerheblich. Ein v1.4.0 mit unveränderter Rückwärtskompatibilitätszusage beschreibt diesen Stand nicht zutreffend. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
+
+Nachweis: Der lokale Release-Tag `v1.3.0` zeigt auf `54ce845b069f989bfc762f28f6dd364954e6050f`. Sein unveränderter Quellstand wurde mit `git archive` in ein temporäres Verzeichnis extrahiert und dort mit lokal vorhandenen Abhängigkeiten gebaut. Das aktuelle Tool wurde aus Stand `768844f1` separat in die temporäre Ablage gebaut. Beide CLI-Binaries wurden mit identischen TIL-/TREX-Fixtures ausgeführt. Es wurden weder historische Dateien im Repo geändert noch alte Quellstände in den Worktree zurückgesetzt.
+
+| Vertrag | Beobachtete Änderung / zu dokumentierende Folge |
+| --- | --- |
+| CLI für C-Generierung | v1.3.0 erzeugt mit `generate -tilC` eine `til.c`; der aktuelle Host weist den Schalter mit Exitcode 2 ab. `-logC` hat einen auf aktuelle Source-Stellen bezogenen Vertrag. |
+| CLI für Location-Daten | v1.3.0 akzeptiert `-liPath base`; der aktuelle Host weist es mit Exitcode 2 ab. `-liRoot` und `-liMaxDirs` trennen jetzt Speicherung und Darstellung. **Beide veröffentlichten Vergleichsschemata verwenden `File` und `Line`; `Path` war ein unveröffentlichter Zwischenstand.** |
+| User-Tags | v1.3.0 akzeptiert `-ulabel alpha:beta` als zwei Tags. Der aktuelle Host weist `beta` als unbekannte Farbe ab. Je Tag eine Option verwenden; Doppelpunkt für Gewicht/Farbe. |
+| Formatstrings | Der alte Host gibt `literal={x}` und `set={1,2}` wörtlich aus. Der aktuelle Host erwartet bei `{x}` einen Wert beziehungsweise weist `{1,2}` als ungültigen Feldnamen ab. `{{x}}` erscheint im alten Host doppelt geklammert und im aktuellen Host als `{x}`. Ein neues `{x}` mit einem 32-Bit-Wert wird nur vom aktuellen Host als strukturiertes Feld dekodiert. |
+| Klassische Meldungen | Derselbe 32-Bit-Record mit `msg:count=%d` ergibt in beiden Hosts `count=7`; `hi` bleibt `hi`. R01 ist umgesetzt: Automatische Klassifizierung als `untagged` fügt kein Präfix in den Meldungstext ein. |
+| Tag-Auswahl und Darstellung | Eindeutige Aliase und gewichtete Schwellen gelten pro Anwendungsereignis; Metadaten werden separat behandelt. Unbekanntes `-logLevel` oder `-pick` wird jetzt vor dem Öffnen der Eingabe abgewiesen; v1.3.0 akzeptiert dieselben geprüften Werte. |
+| Generierte Ablage | `generate -abc deviceX` erzeugt unter v1.3.0 `deviceX.h/.c` im Aufrufverzeichnis, aktuell unter `generated/`. `-genDir` ist der gemeinsame Verzeichnisschalter. |
+
+Wichtig: `-buildDir`/`-bindDir` und das zeitweilige LI-Feld `Path` waren Zwischenstände der neuen Arbeit, keine zusätzlichen Brüche gegenüber v1.3.0. Release Notes müssen veröffentlichte Änderungen von unveröffentlichten Umbenennungen unterscheiden.
+
+Der unterstützte Vertrag steht jetzt im [UM-Kapitel zur Firmware-/Host-Kompatibilität](../TriceUserManual.md#compatibility-with-firmware-and-host-tool-versions), mit einer Kombinationstabelle und konkreten Vorher-/Nachher-Ausgaben. README und CLI-Hilfe verweisen auf beziehungsweise nennen die Template-Grenze. Historische Firmware, zugehörige TIL/LI, Host-Version und Decodieroptionen zusammen archivieren. Alte Firmware mit literalen Klammern bleibt mit ihrem passenden alten Host reproduzierbar; neue Quellen nutzen doppelte literale Klammern und werden neu instrumentiert und gebaut. Ein kompatibles Recordlayout allein ist keine pauschale Zusage für beliebig gemischte Target-Quellen, Wörterbücher und Hosts. Ein Decoderdiagnose-Record führt zudem nicht zwingend zu einem fehlerhaften Prozess-Exitcode; Abnahme muss Meldungen und Diagnosen prüfen.
+
+**Kein Migrationsprogramm und kein erneutes `-migrationBraces`.** Die früher verworfene Migration bleibt ausgeschlossen. Es geht um eine ehrliche Kompatibilitätsbeschreibung und gezielte Vergleichstests, nicht um still eingeführte Kompatibilitätsmechanismen.
+
+**Gezielte Abnahme:** Der neue Test `TestReleaseCompatibilityWithV130Dictionaries` in [structured_test.go](../../internal/args/structured_test.go) sichert klassische Meldungen, ungetaggten Text, historische Klammerfehler, aktuelle Escape-Schreibweise und benannte Felder mit echten TREX-Bytes ab; die TIL bleibt dabei bytegleich. Vorhandene CLI-, Generator-, Tag- und Template-Tests decken die übrigen aktuellen Verträge ab. Der direkte Zwei-Binary-Vergleich bestätigt die dokumentierten alten Ausgaben und CLI-Unterschiede; die Standardtests benötigen weder Git-Historie noch eine installierte alte Trice-Version.
+
+**Folgearbeiten:** Die Distributionsentscheidung ist getroffen: vorerst kein `/v2`, Installation über Binaries oder Repo-Checkout mit `./scripts/buildTriceTool.sh`. R14 sichert die dazugehörigen Anleitungen und Prüfungen ab. Go-Tests für `cmd`, `internal` und `pkg`, UM-Format, Markdownlint und lokale Linkprüfung bestanden. Die ausführlichen Release Notes bleiben R15, die vollständige Plattform-/Target-Abnahme R16.

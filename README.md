@@ -16,7 +16,7 @@ _Hi, I am Trice._
 
 **Trice** is a compact ID-based logging framework for embedded C/C++.
 Firmware code uses `printf`-like calls, but the target sends only small binary records: an ID plus optional runtime values.
-The PC-side `trice` tool reconstructs the readable text using the project-specific `til.json` which is intentionally cumulative: old IDs and format strings remain available so logs from older firmware can still be decoded.
+The PC-side `trice` tool reconstructs the readable text using the project-specific `til.json` which is intentionally cumulative: old IDs and format strings remain available. Decoding older firmware also requires a host tool that supports those format strings; see [firmware and host-tool compatibility](./docs/TriceUserManual.md#compatibility-with-firmware-and-host-tool-versions).
 
 
 Use Trice when normal `printf` logging is too slow, too large, too intrusive in interrupt contexts, or too inefficient for field diagnostics.
@@ -524,11 +524,13 @@ brew install rokath/tap/trice
 
 Or download a release binary from [the latest release](https://github.com/rokath/trice/releases/latest) and put `trice` into your `PATH`.
 
-Developers with Go installed can also build/install from source:
+With Go and Bash installed, build and install `trice` and `tlog` from the repository root of your checkout:
 
 ```bash
-go install github.com/rokath/trice/cmd/trice@latest
+./scripts/buildTriceTool.sh
 ```
+
+The script prints the installation paths. Ensure that the installation directory is in your `PATH`.
 
 Check the installation:
 
