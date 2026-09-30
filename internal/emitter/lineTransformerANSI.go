@@ -51,6 +51,7 @@ func AddUserLabels() error {
 			}
 			if parsed.hasColor {
 				tags[i].colorize = ansi.ColorFunc(parsed.color)
+				tags[i].colorOverridden = true
 			}
 			continue
 		}
@@ -60,6 +61,7 @@ func AddUserLabels() error {
 		}
 		if parsed.hasColor {
 			newTag.colorize = ansi.ColorFunc(parsed.color)
+			newTag.colorOverridden = true
 		}
 		if parsed.hasWeight {
 			newTag.weight = parsed.weight
@@ -249,10 +251,11 @@ func isLower(s string) bool {
 }
 
 type tag struct {
-	count    int                 // count records successfully decoded application events in this tag group.
-	weight   int                 // weight is the group priority and is independent of table order and color.
-	Names    []string            // Names contains all aliases for one tag.
-	colorize func(string) string // colorize is the function called for each tag.
+	count           int                 // count records successfully decoded application events in this tag group.
+	weight          int                 // weight is the group priority and is independent of table order and color.
+	Names           []string            // Names contains all aliases for one tag.
+	colorize        func(string) string // colorize is the function called for each tag.
+	colorOverridden bool                // colorOverridden marks an explicit -ulabel color for presentation without a visible tag.
 }
 
 // defaultTags contains the immutable built-in tag definitions used to start
@@ -343,6 +346,13 @@ func FindTagName(name string) (tagName string, err error) {
 		}
 	}
 	return "", fmt.Errorf("no tagName found for name %s", name)
+}
+
+// UntaggedColorOverridden reports whether an explicit user color must still be
+// applied when an untagged event has no visible tag prefix in its message.
+func UntaggedColorOverridden() bool {
+	index := tagIndex(Tags, untaggedTag)
+	return index >= 0 && Tags[index].colorOverridden
 }
 
 // FindTagNameFold resolves a registered alias without regard to case for
@@ -451,27 +461,6 @@ func tagVariants(ch string) []string {
 func isTag(tag string) bool {
 	cv := tagVariants(tag)
 	return cv != nil
-}
-
-// NormalizeApplicationTag prepends the reserved untagged group when candidate
-// is absent or unknown. The original text remains unchanged after the synthetic
-// prefix. Existing spare buffer capacity avoids allocation in the normal path.
-func NormalizeApplicationTag(text []byte, candidate string) []byte {
-	if isTag(candidate) {
-		return text
-	}
-	prefix := untaggedTag + ":"
-	oldLength := len(text)
-	if cap(text)-oldLength < len(prefix) {
-		tagged := make([]byte, len(prefix)+oldLength)
-		copy(tagged, prefix)
-		copy(tagged[len(prefix):], text)
-		return tagged
-	}
-	text = text[:oldLength+len(prefix)]
-	copy(text[len(prefix):], text[:oldLength])
-	copy(text, prefix)
-	return text
 }
 
 // colorize transforms s according to tag and palette configuration:

@@ -3,6 +3,7 @@
 package translator
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -572,7 +573,6 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 		start := time.Now()
 		application, tagCandidate, classifiedEvent := separateDecoderDiagnostics(diagnostics, dec, b[:n])
 		if classifiedEvent {
-			application = emitter.NormalizeApplicationTag(application, tagCandidate)
 			if !emitter.ApplicationEventAllowed(tagCandidate) {
 				continue
 			}
@@ -642,8 +642,17 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 				_, err = sw.Write([]byte("default: ")) // add space as separator
 				msg.OnErr(err)
 			}
-			_, err := sw.Write(application[:n])
-			msg.OnErr(err)
+			if classifiedEvent {
+				if _, err := emitter.FindTagName(tagCandidate); err != nil {
+					writeUntaggedApplication(sw, application[:n])
+				} else {
+					_, err := sw.Write(application[:n])
+					msg.OnErr(err)
+				}
+			} else {
+				_, err := sw.Write(application[:n])
+				msg.OnErr(err)
+			}
 		}
 
 		duration := time.Since(start).Milliseconds()
@@ -651,6 +660,39 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
+}
+
+// writeUntaggedApplication keeps user text intact while preventing the line
+// presenter from interpreting a colon in an untagged event as a format tag.
+// Splitting before every colon also protects text after embedded newlines;
+// an optional color override is applied separately to each fragment.
+func writeUntaggedApplication(sw *emitter.TriceLineComposer, application []byte) {
+	// Only an explicit color override needs a presenter tag; plain untagged
+	// fragments remain prefix-free and cannot gain an ANSI reset by accident.
+	styled := (emitter.ColorPalette == "default" || emitter.ColorPalette == "color") && emitter.UntaggedColorOverridden()
+	for len(application) > 0 {
+		colon := bytes.IndexByte(application, ':')
+		if colon < 0 {
+			writeUntaggedFragment(sw, application, styled)
+			return
+		}
+		if colon > 0 {
+			writeUntaggedFragment(sw, application[:colon], styled)
+		}
+		writeUntaggedFragment(sw, application[colon:colon+1], styled)
+		application = application[colon+1:]
+	}
+}
+
+// writeUntaggedFragment routes an explicit color through the existing tag
+// palette. The presenter removes the temporary lowercase tag before output;
+// palettes that expose literal tags always receive the untouched fragment.
+func writeUntaggedFragment(sw *emitter.TriceLineComposer, fragment []byte, styled bool) {
+	if styled {
+		fragment = append([]byte("untagged:"), fragment...)
+	}
+	_, err := sw.Write(fragment)
+	msg.OnErr(err)
 }
 
 // separateDecoderDiagnostics writes typed tool diagnostics to the local command

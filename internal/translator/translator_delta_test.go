@@ -771,9 +771,9 @@ func runTREXApplicationText(t *testing.T, triceType, format string, payload []by
 	return output.String()
 }
 
-// TestTREXApplicationTagNormalization verifies host-only untagged assignment,
-// presentation modes, and ordinary Pick/Ban behavior.
-func TestTREXApplicationTagNormalization(t *testing.T) {
+// TestTREXUntaggedClassificationPreservesUserText verifies host-only untagged
+// assignment, presentation modes, and ordinary Pick/Ban behavior.
+func TestTREXUntaggedClassificationPreservesUserText(t *testing.T) {
 	tests := []struct {
 		name      string
 		format    string
@@ -782,20 +782,23 @@ func TestTREXApplicationTagNormalization(t *testing.T) {
 		want      string
 	}{
 		{name: "missing tag", format: `Hello\n`, palette: "none", want: "Hello\n"},
+		{name: "missing tag with color off", format: `Hello\n`, palette: "off", want: "Hello\n"},
 		{name: "unknown tag", format: `mgs:blah\n`, palette: "none", want: "mgs:blah\n"},
+		{name: "unknown tag followed by known-looking text", format: `mgs:err:still user text\n`, palette: "none", want: "mgs:err:still user text\n"},
 		{name: "empty prefix", format: `:blah\n`, palette: "none", want: ":blah\n"},
 		{name: "normal text colon", format: `12:34\n`, palette: "none", want: "12:34\n"},
 		{name: "explicit untagged", format: `untagged:Hello\n`, palette: "none", want: "Hello\n"},
 		{name: "known tag", format: `msg:Hello\n`, palette: "none", want: "Hello\n"},
-		{name: "off shows synthetic prefix", format: `mgs:blah\n`, palette: "off", want: "untagged:mgs:blah\n"},
+		{name: "unknown tag with color off stays visible", format: `mgs:blah\n`, palette: "off", want: "mgs:blah\n"},
+		{name: "literal untagged in message remains visible", format: `note untagged: from user\n`, palette: "off", want: "note untagged: from user\n"},
 		{name: "off shows explicit prefix once", format: `untagged:Hello\n`, palette: "off", want: "untagged:Hello\n"},
 		{name: "prefix and suffix stay metadata", format: `Hello\n`, palette: "off", configure: func() {
 			emitter.Prefix = "host:"
 			emitter.Suffix = ":tail"
-		}, want: "host:untagged:Hello:tail\n"},
+		}, want: "host:Hello:tail\n"},
 		{name: "pick untagged", format: `mgs:blah\n`, palette: "off", configure: func() {
 			emitter.Pick = []string{"untagged"}
-		}, want: "untagged:mgs:blah\n"},
+		}, want: "mgs:blah\n"},
 		{name: "ban untagged", format: `mgs:blah\n`, palette: "off", configure: func() {
 			emitter.Ban = []string{"untagged"}
 		}, want: ""},
@@ -817,11 +820,54 @@ func TestTREXApplicationTagNormalization(t *testing.T) {
 // TestTREXUsesTemplateInsteadOfRuntimeValueForTag verifies that a dynamic
 // string beginning with a known tag cannot change an untagged template's group.
 func TestTREXUsesTemplateInsteadOfRuntimeValueForTag(t *testing.T) {
-	got := runTREXApplicationText(t, "TRICE_S", `%s\n`, []byte("err:runtime"), func() {
-		emitter.ColorPalette = "off"
-		emitter.Pick = []string{"untagged"}
+	for _, palette := range []string{"off", "none", "default"} {
+		t.Run(palette, func(t *testing.T) {
+			got := runTREXApplicationText(t, "TRICE_S", `%s\n`, []byte("err:runtime"), func() {
+				emitter.ColorPalette = palette
+				emitter.Pick = []string{"untagged"}
+			})
+			assert.Equal(t, "err:runtime\n", got, "a runtime value cannot introduce a format tag or lose its text")
+		})
+	}
+}
+
+// TestUntaggedCallsComposeWithoutInsertedText checks that event classification
+// does not leak into a line assembled from separate application calls.
+func TestUntaggedCallsComposeWithoutInsertedText(t *testing.T) {
+	for _, palette := range []string{"off", "none", "default"} {
+		t.Run(palette, func(t *testing.T) {
+			got := runTREXPartialCalls(t, []string{`Hello `, `World!\n`}, false, func() {
+				emitter.ColorPalette = palette
+			})
+			assert.Equal(t, "Hello World!\n", got)
+		})
+	}
+}
+
+// TestUntaggedColorOverrideStylesOnlyTheUserMessage ensures that an optional
+// host color remains usable without turning the reserved group into text.
+func TestUntaggedColorOverrideStylesOnlyTheUserMessage(t *testing.T) {
+	savedTags, savedLabels := emitter.Tags, emitter.UserLabel
+	t.Cleanup(func() {
+		emitter.Tags, emitter.UserLabel = savedTags, savedLabels
 	})
-	assert.Equal(t, "untagged:err:runtime\n", got)
+	for _, palette := range []string{"default", "none", "off"} {
+		t.Run(palette, func(t *testing.T) {
+			got := runTREXApplicationText(t, "TRICE_0", `Hello\n`, nil, func() {
+				emitter.ColorPalette = palette
+				emitter.UserLabel = emitter.ArrayFlag{"untagged:red:default"}
+				require.NoError(t, emitter.AddUserLabels())
+			})
+			assert.NotContains(t, got, "untagged:")
+			assert.Contains(t, got, "Hello")
+			if palette == "default" {
+				assert.Contains(t, got, "\x1b[", "the explicit untagged color should style the event")
+			} else {
+				assert.NotContains(t, got, "\x1b[", "the palette disables ANSI styling")
+				assert.Equal(t, "Hello\n", got)
+			}
+		})
+	}
 }
 
 // runTREXPartialCalls sends one ID-only record per format template. Each record

@@ -502,41 +502,6 @@ func TestUntaggedIsAnIndependentBuiltInGroup(t *testing.T) {
 	assert.Equal(t, 400, weight)
 }
 
-// TestNormalizeApplicationTag preserves the complete original text and adds
-// exactly one reserved prefix only for absent or unknown template tags.
-func TestNormalizeApplicationTag(t *testing.T) {
-	s := snapshotEmitterState()
-	t.Cleanup(func() { restoreEmitterState(s) })
-	UserLabel = ArrayFlag{"motor"}
-	require.NoError(t, AddUserLabels())
-
-	tests := []struct {
-		name      string
-		candidate string
-		text      string
-		want      string
-	}{
-		{name: "missing", text: "Hello", want: "untagged:Hello"},
-		{name: "empty prefix", text: ":Hello", want: "untagged::Hello"},
-		{name: "unknown typo", candidate: "mgs", text: "mgs:blah", want: "untagged:mgs:blah"},
-		{name: "normal text colon", candidate: "12", text: "12:34", want: "untagged:12:34"},
-		{name: "explicit untagged", candidate: "untagged", text: "untagged:Hello", want: "untagged:Hello"},
-		{name: "built in", candidate: "msg", text: "msg:Hello", want: "msg:Hello"},
-		{name: "user tag", candidate: "motor", text: "motor:running", want: "motor:running"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			buffer := make([]byte, len(tt.text), len(tt.text)+len("untagged:"))
-			copy(buffer, tt.text)
-			assert.Equal(t, tt.want, string(NormalizeApplicationTag(buffer, tt.candidate)))
-		})
-	}
-
-	// A full buffer exercises the safe fallback without changing semantics.
-	full := []byte("plain")
-	assert.Equal(t, "untagged:plain", string(NormalizeApplicationTag(full, "")))
-}
-
 // TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups verifies aliases,
 // repeated options, the final INFO default, and isolation between commands.
 func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {

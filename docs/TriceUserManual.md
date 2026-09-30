@@ -6103,16 +6103,16 @@ Command-specific user tags, weight overrides, and color overrides are discarded 
 
 The host assigns the built-in `untagged` group once to an application event whose stored format string has no recognized tag. This also applies to an empty prefix, an unknown prefix caused by a typo, or ordinary text containing a colon. For ID-based messages, classification uses the format string from the Trice ID lookup table rather than text supplied as a runtime value.
 
-| Stored format string | Internal application text |
+| Stored format string | Visible text with `-color off` |
 | --- | --- |
-| `Hello` | `untagged:Hello` |
+| `Hello` | `Hello` |
 | `untagged:Hello` | `untagged:Hello` |
-| `mgs:blah` | `untagged:mgs:blah` |
+| `mgs:blah` | `mgs:blah` |
 | `msg:Hello` | `msg:Hello` |
 
-With `-color default` or `-color none`, the synthetic outer prefix is removed and the original text remains visible. For example, `mgs:blah` stays visible. With `-color off`, the synthetic prefix remains visible as `untagged:mgs:blah`. An explicit `untagged:` prefix is never added a second time.
+The host never adds `untagged:` to visible application text. It appears only if the application supplied those characters. For example, `trice("Hello")` displays `Hello` with every palette, while an unknown prefix such as `mgs:blah` remains visible so a typo can be spotted. An explicitly written `untagged:` follows the usual presentation rules for lowercase tags: `-color off` keeps it, while `-color none` and `default` remove the tag from the visible text.
 
-`-pick untagged`, `-ban untagged`, `-logLevel`, and statistics handle this group like other application tags. Its weight is independent of INFO and can be changed for one command with `-ulabel untagged:150`.
+`-pick untagged`, `-ban untagged`, `-logLevel`, and statistics handle this group like other application tags. Its weight is independent of INFO and can be changed for one command with `-ulabel untagged:150`. An optional color such as `-ulabel untagged:red:default` still styles text output with `-color default`, without printing the group name. `-color none` and `-color off` leave it uncolored.
 
 Decoder and transport diagnostics are not untagged application events. Byte-oriented CHAR and DUMP decoder chunks also receive no synthetic event tag because they do not identify individual application events. Classification changes neither source format strings, lookup-table entries, IDs, nor recorded raw bytes.
 
@@ -6302,7 +6302,7 @@ Textpräfix, Suffix, Farben, Einrückung, Zeitdifferenzspalten und `-addNL` deko
 
 Jeder Record enthält `tag` und `message`. `tag` ist der kanonische Name eines registrierten Formatstring-Tags; die Alias-Suche für dieses Metadatenfeld ist unabhängig von Groß- und Kleinschreibung. Beispielsweise liefern `inf:Hi` und `Inf:Hi` beide `tag=INFO`. Fehlt ein passender registrierter Tag, lautet der Wert `untagged`.
 
-`message` übernimmt den Meldungsinhalt der Textausgabe ohne ANSI-Farbe und ohne äußere Metadaten, Textpräfixe oder Suffixe. Bei `-color none` oder `default` wird nur ein exakt registrierter, vollständig kleingeschriebener Formatstring-Tag entfernt: `inf:Hi` ergibt `Hi`, `Inf:Hi` bleibt `Inf:Hi`. Auch ein unbekannter Präfix wie `mgs:Hi` bleibt sichtbar. Bei `-color off` bleiben die Tag-Präfixe wie im Textmodus stehen; für unbekannte Tags erscheint dort auch der synthetische Präfix `untagged:`. Führende und folgende Leerzeichen sowie leere und nur aus Leerzeichen bestehende Meldungen bleiben erhalten.
+`message` übernimmt den Meldungsinhalt der Textausgabe ohne ANSI-Farbe und ohne äußere Metadaten, Textpräfixe oder Suffixe. Bei `-color none` oder `default` wird nur ein exakt registrierter, vollständig kleingeschriebener Formatstring-Tag entfernt: `inf:Hi` ergibt `Hi`, `Inf:Hi` bleibt `Inf:Hi`. Auch ein unbekannter Präfix wie `mgs:Hi` bleibt sichtbar. Bei `-color off` bleiben ausdrücklich geschriebene Tag-Präfixe wie im Textmodus stehen. Trice ergänzt niemals selbst `untagged:` zum Meldungstext: `trice("Hi")` liefert `message="Hi"` und `tag="untagged"`; `trice("mgs:Hi")` liefert `message="mgs:Hi"` und `tag="untagged"`. Führende und folgende Leerzeichen sowie leere und nur aus Leerzeichen bestehende Meldungen bleiben erhalten.
 
 Ein Laufzeitstring ändert die Tag-Zuordnung nicht: Bei `triceS("{text:%s}", value)` mit einem Wert, der mit `err:` beginnt, bleibt `tag=untagged`. Die bisherige Textausgabe wandelt Zeichenfolgen wie `\n` und `\t` auch innerhalb von Laufzeitstrings für die Anzeige um; `message` folgt dieser Darstellung. Das benannte Feld `fields.text` enthält weiterhin den übertragenen String, abgesehen von äußerem Leerraum.
 

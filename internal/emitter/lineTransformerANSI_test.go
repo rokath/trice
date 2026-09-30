@@ -90,15 +90,14 @@ func TestColorizeOnlyPresentsAcceptedFragments(t *testing.T) {
 	}
 }
 
-// TestUntaggedColorAndWeightHandling verifies that presentation removes only
-// the synthetic outer tag unless colors are fully disabled, and that the group
-// participates in ordinary weight filtering.
+// TestUntaggedColorAndWeightHandling verifies that an unknown application tag
+// keeps its original text under every palette while retaining its own weight.
 func TestUntaggedColorAndWeightHandling(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 	UserLabel = nil
 	require.NoError(t, AddUserLabels())
-	text := string(NormalizeApplicationTag([]byte("mgs:blah"), "mgs"))
+	text := "mgs:blah"
 
 	for _, palette := range []string{"default", "none"} {
 		LogLevel = "all"
@@ -114,7 +113,7 @@ func TestUntaggedColorAndWeightHandling(t *testing.T) {
 	p := newLineTransformerANSI(newCheckDisplay(), "off")
 	got, show := p.colorize(text)
 	assert.True(t, show)
-	assert.Equal(t, "untagged:mgs:blah", got)
+	assert.Equal(t, "mgs:blah", got)
 	assert.Equal(t, 1, TagEvents("untagged"))
 
 	LogLevel = "notice"

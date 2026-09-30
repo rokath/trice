@@ -43,7 +43,6 @@ import "C"
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"path"
 	"runtime"
 	"strings"
@@ -63,10 +62,6 @@ const testTypeX0 = `counted:sig:% x\n`
 
 // cgoTransferAttempts is high enough for test lines that intentionally emit several Trices.
 const cgoTransferAttempts = 8
-
-// pcTestNoStopEnvironment is set by the aggregate runner when it should collect
-// further mismatches instead of returning after the first precisely located one.
-const pcTestNoStopEnvironment = "TRICE_TEST_NO_STOP"
 
 var (
 	testLines       = -1   // testLines is the common number of tested lines in triceCheck. The value -1 is for all lines, what takes time.
@@ -182,13 +177,6 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
-// keepCheckingAfterFailure reports whether diagnostic loops should collect all
-// remaining mismatches. The default is fail-fast to avoid long follow-up work
-// after the first source line has already identified the defect.
-func keepCheckingAfterFailure() bool {
-	return os.Getenv(pcTestNoStopEnvironment) == "1"
-}
-
 // triceLogLineByLine executes each triceCheck.c test line, gets its binary output and
 // restarts the whole Trice log functionality for this, resulting in a long test duration.
 // This test is avoidable for only-deferred modes which allow doTestTriceLogBulk=true,
@@ -215,8 +203,9 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 		buffer := buf[1 : len(buf)-1]
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-		if !assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act))) && !keepCheckingAfterFailure() {
-			return
+		if !assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act))) {
+			// Abort this configuration; the shell runner owns continuation to the next one.
+			t.FailNow()
 		}
 	}
 }
@@ -276,17 +265,16 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	for i, v := range result {
 		if len(act) >= len(v.exps) {
 			a := act[:len(v.exps)] // get next part of actual data (usually a line).
-			if !assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a))) && !keepCheckingAfterFailure() {
-				return
+			if !assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a))) {
+				// Later fixed-length slices would be shifted after this first mismatch.
+				t.FailNow()
 			}
 			act = act[len(v.exps):]
 		} else {
 			fmt.Println(i, "of", len(result), "v.exps:", v.exps)
 			fmt.Println(len(act), "act:", act)
 			assert.Fail(t, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)), "actual data too short")
-			if !keepCheckingAfterFailure() {
-				return
-			}
+			t.FailNow()
 		}
 	}
 	assert.Empty(t, act, "bulk output contains data after the final expected Trice line")
@@ -313,8 +301,8 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			g.setGlobalVarsDefaults() // restore changed defaults
 			act := triceLog0(t, osFSys, buffer)
 			triceClearOutBuffer()
-			if !assert.Equal(t, v.exps, act, fmt.Sprint(i, v)) && !keepCheckingAfterFailure() {
-				return
+			if !assert.Equal(t, v.exps, act, fmt.Sprint(i, v)) {
+				t.FailNow()
 			}
 		}
 		{ // Check deferred output.
@@ -329,8 +317,8 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 				g.setGlobalVarsDefaults() // restore changed defaults
 				act := triceLog1(t, osFSys, buffer)
 				triceClearOutBuffer()
-				if !assert.Equal(t, v.exps, act, fmt.Sprint(i, v)) && !keepCheckingAfterFailure() {
-					return
+				if !assert.Equal(t, v.exps, act, fmt.Sprint(i, v)) {
+					t.FailNow()
 				}
 			}
 		}

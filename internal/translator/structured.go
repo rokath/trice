@@ -118,18 +118,15 @@ func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStam
 	return members
 }
 
-// structuredTagAndMessage matches the text emitter's prefix rule without
-// adding ANSI escapes or text-only columns. Unknown tags receive the same
-// synthetic prefix only when -color off makes it visible in text mode.
+// structuredTagAndMessage classifies the original application message without
+// adding a visible tag. Only an explicit lowercase format tag is removed under
+// palettes that strip such tags in text mode.
 func structuredTagAndMessage(record decoder.ApplicationRecord) (string, string) {
 	canonical, err := emitter.FindTagName(record.Tag)
 	if err != nil {
 		canonical, err = emitter.FindTagNameFold(record.Tag)
 		if err != nil {
 			canonical = "untagged"
-		}
-		if emitter.ColorPalette == "off" {
-			return canonical, emitter.DecodeDisplayEscapes("untagged:" + record.Message)
 		}
 		return canonical, emitter.DecodeDisplayEscapes(record.Message)
 	}

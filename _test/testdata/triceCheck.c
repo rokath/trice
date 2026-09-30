@@ -630,7 +630,7 @@ void TriceCheck(int index) {
 
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
 
-        break; case __LINE__: exampleOfManualJSONencoding(); //exp: "time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000})\n"
+        break; case __LINE__: exampleOfManualJSONencoding(); //exp: "time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fish:2.781000})\n"
         break; case __LINE__: TRICE(Id(0), "MSG:1/11 = %g\n", aFloat( 1.0f/11 ) ); //exp: "time:    be16default: MSG:1/11 = 0.09090909\n"
         break; case __LINE__: { //exp: "time:feed3322default: msg:x = 5.934 = 5.934, 5.934\n"
 #if !TRICE_OFF

@@ -6,12 +6,16 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
+	"os/exec"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func init() {
@@ -56,6 +60,7 @@ func TestStructuredTriceExamples(t *testing.T) {
 		{"double wrapper", "time:    be16default: info:Energy 12.25 J\n"},
 		{"string", "time:        default: info:Device pump\n"},
 		{"bounded string", "time:        default: info:Code READY\n"},
+		{"manual JSON field name", "time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fish:2.781000})\n"},
 	}
 	for _, example := range examples {
 		t.Run(example.name, func(t *testing.T) {
@@ -81,6 +86,59 @@ func TestStructuredTriceExamples(t *testing.T) {
 			actual := triceLog(t, fileSystem, encoded[1:len(encoded)-1])
 			triceClearOutBuffer()
 			assert.Equal(t, example.expected, actual, "C example at line %d", sourceLine)
+		})
+	}
+}
+
+// TestPCStopsAtFirstMismatch runs the real C-backed comparison loops in a
+// subprocess so their deliberate failure cannot fail this regression test.
+// TRICE_TEST_NO_STOP must continue to govern packages, not comparisons within
+// one package; otherwise one bad prefix can create thousands of follow-on errors.
+func TestPCStopsAtFirstMismatch(t *testing.T) {
+	const probeEnvironment = "TRICE_PC_FIRST_MISMATCH_PROBE"
+	if mode := os.Getenv(probeEnvironment); mode != "" {
+		defer setup(t)()
+		wrongOutput := func(_ *testing.T, _ *afero.Afero, _ string) string {
+			fmt.Println("UNEXPECTED_SECOND_LOG_CALL")
+			return strings.Repeat("wrong", 20)
+		}
+		firstWrongOutput := func(_ *testing.T, _ *afero.Afero, _ string) string {
+			return strings.Repeat("wrong", 20)
+		}
+		switch mode {
+		case "line":
+			calls := 0
+			triceLogLineByLine(t, func(t *testing.T, fs *afero.Afero, data string) string {
+				calls++
+				if calls > 1 {
+					return wrongOutput(t, fs, data)
+				}
+				return firstWrongOutput(t, fs, data)
+			}, 2, targetActivityC)
+		case "bulk":
+			triceLogBulk(t, firstWrongOutput, 2, targetActivityC)
+		case "combined":
+			triceLogDirectAndDeferred(t, firstWrongOutput, wrongOutput, 2, targetActivityC)
+		default:
+			t.Fatalf("unknown mismatch probe %q", mode)
+		}
+		return
+	}
+
+	for _, mode := range []string{"line", "bulk", "combined"} {
+		t.Run(mode, func(t *testing.T) {
+			firstSourceLine := getExpectedResults(&afero.Afero{Fs: afero.NewOsFs()}, targetActivityC, 1)[0].line
+			sourceReference := fmt.Sprintf("line %d", firstSourceLine)
+			if mode == "combined" {
+				sourceReference = fmt.Sprintf("0 {%d ", firstSourceLine)
+			}
+			command := exec.Command(os.Args[0], "-test.run=^TestPCStopsAtFirstMismatch$")
+			command.Env = append(os.Environ(), probeEnvironment+"="+mode, "TRICE_TEST_NO_STOP=1")
+			output, err := command.CombinedOutput()
+			require.Error(t, err, "the deliberately wrong first record must fail")
+			assert.Equal(t, 1, strings.Count(string(output), "Error Trace:"), "one mismatch should produce one diagnostic: %s", output)
+			assert.NotContains(t, string(output), "UNEXPECTED_SECOND_LOG_CALL", "the next record or deferred branch must not run")
+			assert.Contains(t, string(output), sourceReference, "the first source line should identify the failure")
 		})
 	}
 }
