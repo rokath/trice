@@ -795,6 +795,58 @@
 		"Type": "Trice",
 		"Strg": "att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\\n"
 	},
+	"1199": {
+		"Type": "trice8",
+		"Strg": "info:Small {counter:%u}\\n"
+	},
+	"1200": {
+		"Type": "Trice16",
+		"Strg": "info:Current {current_ma} mA\\n"
+	},
+	"1201": {
+		"Type": "TRice32",
+		"Strg": "info:Voltage {voltage_mv:%u} mV\\n"
+	},
+	"1202": {
+		"Type": "trice64",
+		"Strg": "info:Bytes {bytes:%llu}\\n"
+	},
+	"1203": {
+		"Type": "trice",
+		"Strg": "info:State {motor.state} rpm {motorPtr.rpm} / %d\\n"
+	},
+	"1204": {
+		"Type": "trice32",
+		"Strg": "info:Temp {temp_c:%.1f C}\\n"
+	},
+	"1205": {
+		"Type": "Trice64",
+		"Strg": "info:Energy {energy_j:%.2f J}\\n"
+	},
+	"1206": {
+		"Type": "triceS",
+		"Strg": "info:Device {device:%s}\\n"
+	},
+	"1207": {
+		"Type": "triceN",
+		"Strg": "info:Code {code:%s}\\n"
+	},
+	"1208": {
+		"Type": "trice32",
+		"Strg": "info:pos:Position sample\\n"
+	},
+	"1209": {
+		"Type": "trice32",
+		"Strg": "info:speed:Speed sample\\n"
+	},
+	"1210": {
+		"Type": "Trice32",
+		"Strg": "info:pos:speed:Moving sample={sample}\\n"
+	},
+	"1211": {
+		"Type": "TRice32_1",
+		"Strg": "info:pos:Fixed sample={sample}\\n"
+	},
 	"13028": {
 		"Type": "TRice",
 		"Strg": "\\rTriceCheck %4d"

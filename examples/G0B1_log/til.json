@@ -807,6 +807,10 @@
 		"Type": "Trice",
 		"Strg": "att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\\n"
 	},
+	"1302": {
+		"Type": "trice8",
+		"Strg": "info:Small {counter:%u}\\n"
+	},
 	"13028": {
 		"Type": "TRice",
 		"Strg": "\\rTriceCheck %4d"
@@ -814,6 +818,10 @@
 	"13029": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
+	},
+	"1303": {
+		"Type": "Trice16",
+		"Strg": "info:Current {current_ma} mA\\n"
 	},
 	"13030": {
 		"Type": "TRice",
@@ -855,6 +863,10 @@
 		"Type": "TRiceAssertFalse",
 		"Strg": "ASSERT:flag not false!\\n"
 	},
+	"1304": {
+		"Type": "TRice32",
+		"Strg": "info:Voltage {voltage_mv:%u} mV\\n"
+	},
 	"13040": {
 		"Type": "triceAssertTrue",
 		"Strg": "ASSERT:flag not true!\\n"
@@ -895,6 +907,10 @@
 		"Type": "TRice",
 		"Strg": "ok\\n"
 	},
+	"1305": {
+		"Type": "trice64",
+		"Strg": "info:Bytes {bytes:%llu}\\n"
+	},
 	"13050": {
 		"Type": "TRiceAssertFalse",
 		"Strg": "ASSERT:flag not false!\\n"
@@ -915,6 +931,10 @@
 		"Type": "trice",
 		"Strg": "rd:trice %d\\n"
 	},
+	"1306": {
+		"Type": "trice",
+		"Strg": "info:State {motor.state} rpm {motorPtr.rpm} / %d\\n"
+	},
 	"13066": {
 		"Type": "Trice",
 		"Strg": "sig:Trice with 16-bit stamp and with 0 to 12 values (common use cases)\\n"
@@ -930,6 +950,10 @@
 	"13069": {
 		"Type": "Trice",
 		"Strg": "rd:Trice %d, %d\\n"
+	},
+	"1307": {
+		"Type": "trice32",
+		"Strg": "info:Temp {temp_c:%.1f C}\\n"
 	},
 	"13070": {
 		"Type": "Trice",
@@ -971,6 +995,10 @@
 		"Type": "Trice",
 		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1308": {
+		"Type": "Trice64",
+		"Strg": "info:Energy {energy_j:%.2f J}\\n"
+	},
 	"13080": {
 		"Type": "TRice",
 		"Strg": "sig:TRice with 32-bit stamp and with 0 to 12 values (common use cases)\\n"
@@ -1010,6 +1038,10 @@
 	"13089": {
 		"Type": "TRice",
 		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"1309": {
+		"Type": "triceS",
+		"Strg": "info:Device {device:%s}\\n"
 	},
 	"13090": {
 		"Type": "TRice",
@@ -1051,6 +1083,10 @@
 		"Type": "trice16",
 		"Strg": "rd:trice16 %p, %p, %p, %p, %p\\n"
 	},
+	"1310": {
+		"Type": "triceN",
+		"Strg": "info:Code {code:%s}\\n"
+	},
 	"13100": {
 		"Type": "trice16",
 		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p\\n"
@@ -1091,9 +1127,17 @@
 		"Type": "trice",
 		"Strg": "sig:trice16 with 1 to 12 hex\\n"
 	},
+	"1311": {
+		"Type": "trice32",
+		"Strg": "info:pos:Position sample\\n"
+	},
 	"13110": {
 		"Type": "trice16",
 		"Strg": "rd:trice16 %X\\n"
+	},
+	"1312": {
+		"Type": "trice32",
+		"Strg": "info:speed:Speed sample\\n"
 	},
 	"13124": {
 		"Type": "trice16",
@@ -1118,6 +1162,10 @@
 	"13129": {
 		"Type": "trice32",
 		"Strg": "att: TriceEncrypted =  %08x %08x %08x %08x %08x %08x\\n"
+	},
+	"1313": {
+		"Type": "Trice32",
+		"Strg": "info:pos:speed:Moving sample={sample}\\n"
 	},
 	"13130": {
 		"Type": "trice16_1",
@@ -1150,6 +1198,10 @@
 	"13137": {
 		"Type": "trice",
 		"Strg": "sig:Some time measurements\\n"
+	},
+	"1314": {
+		"Type": "TRice32_1",
+		"Strg": "info:pos:Fixed sample={sample}\\n"
 	},
 	"13141": {
 		"Type": "trice",
