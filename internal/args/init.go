@@ -444,7 +444,8 @@ func flagLIFile(p *flag.FlagSet) {
 The specified JSON file is needed to display the location information for each ID during runtime.
 It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
 log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
 With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.

@@ -195,7 +195,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -logFormat string
@@ -348,7 +349,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -419,7 +421,8 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
         The specified JSON file is needed to display the location information for each ID during runtime.
         It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
         log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-        This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+        Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+        Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
         With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
          (default "li.json")
   -logC
@@ -553,7 +556,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -657,7 +661,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -744,7 +749,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value

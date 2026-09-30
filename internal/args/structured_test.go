@@ -5,15 +5,66 @@ package args
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"math"
 	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
+
+// TestReleaseCompatibilityWithV130Dictionaries uses unchanged TREX bytes and
+// dictionary shapes from v1.3.0. Classic printf text stays compatible, whereas
+// braces now belong to the template language. These are decoding tests, not a
+// conversion of historical dictionaries; the original JSON must stay untouched.
+func TestReleaseCompatibilityWithV130Dictionaries(t *testing.T) {
+	for _, tc := range []struct {
+		name, triceType, format, text, diagnostic string
+		withValue                                 bool
+	}{
+		{"classic_printf_still_decodes", "TRICE32_1", `msg:count=%d\n`, "count=7\n", "", true},
+		{"untagged_text_stays_literal", "TRICE0", `hi\n`, "hi\n", "", false},
+		{"historical_field_shaped_literal_requires_its_old_decoder", "TRICE0", `msg:literal={x}\n`, "", "ignoring package", false},
+		{"historical_set_literal_is_not_a_valid_field", "TRICE0", `msg:set={1,2}\n`, "", "invalid structured field name", false},
+		{"current_escaped_braces_render_as_one_pair", "TRICE0", `msg:literal={{x}}\n`, "literal={x}\n", "", false},
+		{"current_named_field_uses_the_same_scalar_wire_value", "TRICE32_1", `msg:value={x}\n`, "value=7\n", "", true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			FlagsInit()
+			t.Cleanup(FlagsInit)
+			fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+			dictionary, err := json.Marshal(id.TriceIDLookUp{100: {Type: tc.triceType, Strg: tc.format}})
+			if !assert.NoError(t, err) {
+				return
+			}
+			assert.NoError(t, fs.WriteFile("til.json", dictionary, 0o600))
+			packet := binary.LittleEndian.AppendUint16(nil, 0x4064)
+			if tc.withValue {
+				packet = binary.LittleEndian.AppendUint16(packet, 0x04c0)
+				packet = binary.LittleEndian.AppendUint32(packet, 7)
+			} else {
+				packet = binary.LittleEndian.AppendUint16(packet, 0x00c0)
+			}
+			assert.NoError(t, fs.WriteFile("capture.bin", packet, 0o600))
+			var out bytes.Buffer
+			err = Handler(&out, fs, []string{"trice", "log", "-p", "FILEBUFFER", "-args", "capture.bin", "-pf", "none", "-i", "til.json", "-li", "off", "-hs", "off", "-ts", "off", "-prefix", "", "-suffix", "", "-color", "none"})
+			assert.NoError(t, err, "a diagnostic record is not a fatal CLI failure")
+			if tc.diagnostic != "" {
+				assert.Contains(t, out.String(), tc.diagnostic)
+				assert.NotContains(t, out.String(), "literal={x}\n", "the current host must not silently claim legacy literal-brace support")
+			} else {
+				assert.Equal(t, tc.text, out.String())
+			}
+			unchanged, err := fs.ReadFile("til.json")
+			assert.NoError(t, err)
+			assert.Equal(t, dictionary, unchanged, "logging never migrates a supplied dictionary")
+		})
+	}
+}
 
 // TestStructuredCLIValidationPrecedesIO checks both public logging entry points.
 // Rejected options must not open the input channel or create the requested file.
