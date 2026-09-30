@@ -79,6 +79,19 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 	return string(output), err
 }
 
+// initGitFixture gives runner tests a real index while keeping every Git write
+// inside their disposable repository. The tracked file may then start dirty.
+func initGitFixture(t *testing.T, root string) {
+	t.Helper()
+	writeFixture(t, root, "tracked.txt", "committed state\n")
+	for _, args := range [][]string{{"init", "-q", root}, {"-C", root, "add", "tracked.txt"}} {
+		out, err := exec.Command("git", args...).CombinedOutput()
+		if !assert.NoError(t, err, string(out)) {
+			t.FailNow()
+		}
+	}
+}
+
 // TestRunnerLogsAndCancellation checks cleanup boundaries, quiet skip reporting,
 // fail-fast/no-stop behavior and cancellation without launching the real suite.
 func TestRunnerLogsAndCancellation(t *testing.T) {
@@ -94,6 +107,7 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			initGitFixture(t, root)
 			for _, name := range []string{"_testAll_07_GoCoverage.log", "_640_test_pc_targets_bind.log", "_600_test_gcc_bind.log.standalone.PC_log", "coverage.out"} {
 				writeFixture(t, root, "temp/log/"+name, "stale failure")
 			}
@@ -121,6 +135,131 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				data, err := os.ReadFile(filepath.Join(root, "temp/log", name))
 				assert.NoError(t, err)
 				assert.Equal(t, "retain", string(data))
+			}
+		})
+	}
+}
+
+// TestRunnerComparesActualTrackedBytes demonstrates why comparing only Git
+// status is insufficient: both runs start with a dirty tracked file, but only
+// the case that changes its bytes again must fail and name the affected path.
+func TestRunnerComparesActualTrackedBytes(t *testing.T) {
+	for _, tc := range []struct {
+		name, stepBody, wantResult string
+	}{
+		{"unchanged_dirty_file", "true", "PASS"},
+		{"changed_dirty_file", "printf 'changed by test\\n' > tracked.txt", "FAIL"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			initGitFixture(t, root)
+			writeFixture(t, root, "tracked.txt", "dirty before test\n")
+			writeFixture(t, root, "scripts/_410_test_change.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\n"+tc.stepBody+"\n")
+			out, err := runFixture(t, root, "source scripts/_110_test_runner.sh; build_test_plan() { add_plan_step _410_test_change.sh; }; main quick", nil)
+			if tc.wantResult == "PASS" {
+				assert.NoError(t, err, out)
+				assert.NotContains(t, out, "tracked.txt")
+			} else {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "tracked.txt")
+				assert.Contains(t, out, "initial state was not restored")
+			}
+			assert.Contains(t, out, "Result: "+tc.wantResult)
+		})
+	}
+}
+
+// TestManagedExampleStateRestoration checks that the same snapshot protects
+// pre-existing local data and initially absent paths after success, a worker
+// error, and interruption. A fake Bind preparation and worker mutate distinct
+// central and example paths so each part of the restore contract is observable.
+func TestManagedExampleStateRestoration(t *testing.T) {
+	for _, tc := range []struct {
+		name, workerEnd, wantStatus string
+	}{
+		{"success", "exit 0", "end status: 0"},
+		{"worker_failure", "exit 7", "end status: 7"},
+		{"signal", "kill -TERM \"$PPID\"; exit 0", "end status: 143"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_120_setup_trice_environment.sh", "scripts/_130_trice_id_workflow.sh", "scripts/_140_trice_test_state.sh")
+			initial := map[string]string{
+				"sample.c":                                 "dirty source\n",
+				"demoTIL.json":                             "dirty central TIL\n",
+				"demoLI.json":                              "dirty central LI\n",
+				"generated/user-selection.h":               "user selection\n",
+				"examples/PC_log/til.json":                 "old PC TIL\n",
+				"examples/PC_log/li.json":                  "old PC LI\n",
+				"examples/PC_log/generated/user-choice.h":  "PC user choice\n",
+				"examples/PC_log/build/user-object.o":      "PC build bytes\n",
+				"examples/G0B1_log/li.json":                "old MCU LI\n",
+				"examples/G0B1_log/out.gcc/user-object.o":  "MCU build bytes\n",
+				"examples/G0B1_inst/out.gcc/user-object.o": "other target bytes\n",
+			}
+			for path, contents := range initial {
+				writeFixture(t, root, path, contents)
+			}
+			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/bash\nprintf 'bound source\\n' > sample.c\nprintf 'bound central TIL\\n' > demoTIL.json\nprintf 'bound central LI\\n' > demoLI.json\nprintf 'new selection\\n' > generated/user-selection.h\n")
+			writeFixture(t, root, "worker.sh", "#!/bin/bash\nprintf 'updated PC TIL\\n' > examples/PC_log/til.json\nprintf 'updated PC LI\\n' > examples/PC_log/li.json\nprintf 'updated MCU LI\\n' > examples/G0B1_log/li.json\nprintf 'new MCU TIL\\n' > examples/G0B1_log/til.json\nmkdir -p examples/G0B1_log/generated\nprintf 'new header\\n' > examples/G0B1_log/generated/sidecar.h\nprintf 'overwrite\\n' > examples/PC_log/generated/user-choice.h\nprintf 'overwrite\\n' > examples/PC_log/build/user-object.o\nprintf 'overwrite\\n' > examples/G0B1_log/out.gcc/user-object.o\nprintf 'overwrite\\n' > examples/G0B1_inst/out.gcc/user-object.o\n"+tc.workerEnd+"\n")
+			out, err := runFixture(t, root, "source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
+			if tc.name == "success" {
+				assert.NoError(t, err, out)
+			} else {
+				assert.Error(t, err, out)
+			}
+			assert.Contains(t, out, tc.wantStatus)
+			assert.Contains(t, out, "exact initial files restored")
+			for path, contents := range initial {
+				data, readErr := os.ReadFile(filepath.Join(root, path))
+				assert.NoError(t, readErr, path)
+				assert.Equal(t, contents, string(data), path)
+			}
+			for _, path := range []string{"examples/G0B1_log/til.json", "examples/G0B1_log/generated"} {
+				_, statErr := os.Lstat(filepath.Join(root, path))
+				assert.True(t, os.IsNotExist(statErr), path)
+			}
+		})
+	}
+}
+
+// TestRuntimePreparationIsTransactional ensures step 490 does not leave its
+// canonical Bind setup in the checkout, even if the preparatory bind fails.
+func TestRuntimePreparationIsTransactional(t *testing.T) {
+	for _, tc := range []struct {
+		name, bindExit string
+	}{
+		{"success", "0"},
+		{"bind_failure", "9"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t,
+				"scripts/_100_test_common.sh", "scripts/_120_setup_trice_environment.sh",
+				"scripts/_130_trice_id_workflow.sh", "scripts/_140_trice_test_state.sh",
+				"scripts/_490_test_runtime_prepare.sh")
+			initial := map[string]string{
+				"sample.c":              "initial source\n",
+				"demoTIL.json":          "initial TIL\n",
+				"demoLI.json":           "initial LI\n",
+				"generated/selection.h": "initial selection\n",
+			}
+			for path, contents := range initial {
+				writeFixture(t, root, path, contents)
+			}
+			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/sh\nprintf 'changed source\\n' > sample.c\nprintf 'changed TIL\\n' > demoTIL.json\nprintf 'changed LI\\n' > demoLI.json\nprintf 'changed selection\\n' > generated/selection.h\nexit "+tc.bindExit+"\n")
+			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
+			if tc.bindExit == "0" {
+				assert.NoError(t, err, out)
+			} else {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "preparing canonical Bind state failed")
+			}
+			assert.Contains(t, out, "exact initial files restored")
+			for path, contents := range initial {
+				data, readErr := os.ReadFile(filepath.Join(root, path))
+				assert.NoError(t, readErr, path)
+				assert.Equal(t, contents, string(data), path)
 			}
 		})
 	}

@@ -34,10 +34,79 @@ fi
 TEST_ALL_SPINNER_PID=""
 TEST_ALL_PLAN_SCRIPTS=()
 TEST_ALL_PLAN_ARGUMENTS=()
+TEST_ALL_STATE_DIR=""
+TEST_ALL_STATE_VERIFIED=0
 
 summary_line() {
   printf '%s\n' "$1" >>"$SUMMARY_LOG"
   printf '%s\n' "$1"
+}
+
+# capture_tracked_bytes records actual worktree bytes, including files that
+# were already dirty before testAll. Git status alone cannot detect a second
+# edit to such a file when its short status stays the same.
+capture_tracked_bytes() {
+  local manifest="$1"
+  local path_list="$TEST_ALL_STATE_DIR/paths"
+  local path
+  local digest
+
+  if ! git ls-files -z >"$path_list"; then
+    summary_line "FAIL: cannot list tracked paths for the test-state check"
+    return 1
+  fi
+  : >"$manifest" || return 1
+  while IFS= read -r -d '' path; do
+    if [ -f "$path" ] || [ -L "$path" ]; then
+      digest="$(git hash-object --no-filters -- "$path")" || {
+        summary_line "FAIL: cannot hash tracked path: $path"
+        return 1
+      }
+    elif [ -e "$path" ]; then
+      digest="<not-a-file>"
+    else
+      digest="<absent>"
+    fi
+    printf '%q\t%s\n' "$path" "$digest" >>"$manifest" || return 1
+  done <"$path_list"
+}
+
+# verify_tracked_bytes reports every changed tracked path and retains its
+# manifests on failure. Managed workflows restore their own generated trees;
+# this final guard catches any remaining change without a blanket git reset.
+verify_tracked_bytes() {
+  local before="$TEST_ALL_STATE_DIR/before"
+  local after="$TEST_ALL_STATE_DIR/after"
+  local path
+
+  TEST_ALL_STATE_VERIFIED=1
+  if ! capture_tracked_bytes "$after"; then
+    return 1
+  fi
+  if cmp -s "$before" "$after"; then
+    rm -rf -- "$TEST_ALL_STATE_DIR"
+    TEST_ALL_STATE_DIR=""
+    return 0
+  fi
+  summary_line "FAIL: tracked worktree bytes changed during testAll; initial state was not restored:"
+  while IFS= read -r path; do
+    [ -n "$path" ] && summary_line "  $path"
+  done < <(awk -F '\t' 'NR == FNR { before[$1] = $2; next } { seen[$1] = 1; if (!($1 in before) || before[$1] != $2) print $1 } END { for (path in before) if (!(path in seen)) print path }' "$before" "$after" | LC_ALL=C sort)
+  summary_line "State evidence retained in $TEST_ALL_STATE_DIR"
+  return 1
+}
+
+# finish_test_runner also checks state when a signal exits the runner before
+# its normal summary. A detected mutation changes an otherwise successful exit.
+finish_test_runner() {
+  local status=$?
+
+  trap - EXIT
+  stop_progress_spinner
+  if [ -n "$TEST_ALL_STATE_DIR" ] && [ "$TEST_ALL_STATE_VERIFIED" -eq 0 ]; then
+    verify_tracked_bytes || status=1
+  fi
+  exit "$status"
 }
 
 # clear_previous_test_logs removes only flat, runner-owned outputs. Recovery
@@ -327,8 +396,6 @@ main() {
   local started_at
   local finished_at
   local duration
-  # local initial_tracked_status
-  # local final_tracked_status
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
   TEST_ALL_FAILED=0
@@ -338,10 +405,11 @@ main() {
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   build_test_plan
   started_at=$(date +%s)
-  # initial_tracked_status="$(tracked_worktree_status)"
-
   clear_previous_test_logs || exit 1
   : >"$SUMMARY_LOG"
+
+  TEST_ALL_STATE_DIR="$(mktemp -d "$LOG_DIR/testAll-state.XXXXXX")" || exit 1
+  capture_tracked_bytes "$TEST_ALL_STATE_DIR/before" || exit 1
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
   if [ "$selected" = "quick" ]; then
@@ -358,20 +426,7 @@ main() {
 
   run_selected_steps || true
 
-  # Temporarily disabled until the remaining testAll steps are fully read-only again.
-  # final_tracked_status="$(tracked_worktree_status)"
-  # if [ "$final_tracked_status" != "$initial_tracked_status" ]; then
-  #   failed=1
-  #   summary_line "Result detail: tracked worktree changed during testAll"
-  #   if [ -n "$final_tracked_status" ]; then
-  #     summary_line "Tracked status after run:"
-  #     while IFS= read -r line; do
-  #       [ -n "$line" ] && summary_line "  $line"
-  #     done <<EOF
-  # $final_tracked_status
-  # EOF
-  #   fi
-  # fi
+  verify_tracked_bytes || TEST_ALL_FAILED=1
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
@@ -391,7 +446,7 @@ main() {
   exit "$TEST_ALL_FAILED"
 }
 
-trap 'stop_progress_spinner' EXIT
+trap 'finish_test_runner' EXIT
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   main "$@"
 fi
