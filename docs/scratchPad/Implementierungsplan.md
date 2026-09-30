@@ -38,7 +38,7 @@ Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R01 | untagged-Klassifizierung von der Message trennen; Fish-Erwartung korrigieren | 5 | M | Ausgabevertrag präzisiert; beide Fehlerprotokolle ausgewertet |
+| R01 | Automatisch erzeugtes `untagged:` aus der Ausgabe entfernen; Tests je Konfiguration früh abbrechen; Fish-Erwartung korrigieren | 5 | M | Ausgabevertrag präzisiert; beide Fehlerprotokolle ausgewertet |
 | R13 | Bleibende Beispiel-JSON-Änderungen nach Tests verhindern | 5 | M | Verursachender Buildpfad und Snapshot-Lücke bekannt |
 | R02 | Falsche UM-Kommandos, Dateinamen und Links berichtigen | 5 | S | Keine |
 | R03 | Fehlerstatus bei fehlgeschlagenem Clean erhalten | 5 | S | Keine |
@@ -59,11 +59,11 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 ## Konkrete Aufgaben vor dem Release
 
-### untagged-Klassifizierung von der Message trennen
+### Kein automatisch erzeugtes untagged-Präfix ausgeben
 
 **R01 · Gewicht 5 · Aufwand M · Ausgabevertrag präzisiert, Umsetzung noch offen**
 
-**Festgelegtes Ergebnis:** Bei `trice("hi")` ist die Message `hi`. Die Klassifizierung bleibt `untagged` und steht in JSON/KV als separates Tag-Metadatum zur Verfügung. Auch bei `-color off` darf kein automatisch ergänztes `untagged:` im Meldungstext erscheinen. Filterung, Gewicht, Farbe und Ereignisstatistik verwenden weiterhin die Klassifizierung.
+**Verbindliche Ausgaberegel: Trice darf die Zeichenfolge `untagged:` niemals selbst zu einer Logmeldung hinzufügen.** Sie darf in der sichtbaren Meldung nur vorkommen, wenn die Anwendung sie selbst als Text geliefert hat. Das gilt für Text, JSON und KV und ausdrücklich auch bei `-color off`. Bei `trice("hi")` lautet die sichtbare Message deshalb `hi`, ohne `untagged:` vor oder innerhalb des Textes. Die interne Klassifizierung heißt trotzdem `untagged`; JSON/KV dürfen dafür ein separates Tag-Metadatum mit dem Wert `untagged` ausgeben. Filterung, Gewicht, Farbe und Ereignisstatistik verwenden weiterhin diese Klassifizierung. Ein vom Anwender tatsächlich gelieferter Text `untagged:` darf nicht pauschal entfernt werden.
 
 | Format | Ausgabe für `trice("hi")`, ohne weitere Metadaten |
 | --- | --- |
@@ -73,7 +73,7 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 Bei einem unbekannten Präfix wie `trice("mgs:blah")` bleibt die Message `mgs:blah`, während das Tag-Metadatum `untagged` lautet. Dadurch bleibt auch ein möglicher Tippfehler sichtbar. Die bestehenden Darstellungsregeln für ausdrücklich geschriebene bekannte Tags bleiben erhalten; ebenso die Regeln für Leerraum und Zeilenabschluss. Anwendertext darf nicht durch pauschales Entfernen gleichlautender Textstücke verändert werden.
 
-Die Protokolle `temp/log/_630_test_pc_targets_insert.log` und `temp/log/_640_test_pc_targets_bind.log` enthalten pro Workflow 14.655 fehlgeschlagene Einzelzeilen-/Spezialvergleiche. Der Abgleich aller erwarteten und tatsächlichen Strings ergibt in beiden Workflows dieselben Abweichungen:
+Die Protokolle `temp/log/_630_test_pc_targets_insert.log` und `temp/log/_640_test_pc_targets_bind.log` enthalten pro Workflow 14.655 fehlgeschlagene Einzelzeilen-/Spezialvergleiche. Der Abgleich aller erwarteten und tatsächlichen Strings ergibt in beiden Workflows dieselben Abweichungen. Die folgende Tabelle beschreibt ausschließlich den **beobachteten Fehler**: `tatsächlich` ist keine gewünschte neue Testerwartung. Insbesondere bleibt `Hello World!` der richtige Erwartungswert; `untagged:Hello World!` ist der zu behebende Ist-Wert.
 
 | Ursache | Konkreter Unterschied | Häufigkeit je Workflow |
 | --- | --- | ---: |
@@ -86,9 +86,13 @@ Je gewöhnlicher Einzelzeilenkonfiguration sind es 197 Präfixabweichungen und e
 
 [Der Bulk-Vergleich](../../_test/testdata/cgoPackage.go) schneidet nach der erwarteten Textlänge weiter. Bereits das erste zusätzliche `untagged:` verschiebt daher die folgenden Ausschnitte; jeder der acht Bulk-Läufe meldet 1.743 Textunterschiede und Restdaten. Diese Folgefehler sind kein unabhängiger Nachweis eines Framing- oder Übertragungsdefekts. Ein vollständig erfolgreicher Bulk-Lauf nach Korrektur des Ausgabepfads und der `Fish`-Erwartung bleibt dennoch erforderlich.
 
-Aufgabe: Den produktiven Ausgabepfad so korrigieren, dass die automatisch zugewiesene Klassifizierung den Message-Text in Text, JSON und KV nicht verändert. Die vorhandenen Präfix-freien Erwartungen erhalten und den separaten `Fisch`-Fehler auf `Fish` berichtigen. Keine Ausgabe im Test vor dem Vergleich pauschal um `untagged:` bereinigen und keine Erwartungen um das unerwünschte Präfix erweitern. Selbstbeschreibende Verhaltenstests für den präzisierten Vertrag ergänzen und die betreffenden UM-Aussagen bei der späteren Umsetzung angleichen. Die Bulk-Diagnose soll den ersten ursächlichen Unterschied und den folgenden Versatz verständlich ausweisen, ohne unbemerkt weitere Prüfungen zu entfernen.
+Aufgabe: Den produktiven Ausgabepfad so korrigieren, dass die automatisch zugewiesene Klassifizierung den Message-Text in Text, JSON und KV nicht verändert. Die vorhandenen Präfix-freien Erwartungen erhalten und den separaten `Fisch`-Fehler auf `Fish` berichtigen. Keine Ausgabe im Test vor dem Vergleich pauschal um `untagged:` bereinigen und keine Erwartungen um das unerwünschte Präfix erweitern. Selbstbeschreibende Verhaltenstests für den präzisierten Vertrag ergänzen und die betreffenden UM-Aussagen bei der späteren Umsetzung angleichen.
 
-**Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
+**Eigenständige Aufgabe in R01: Frühen Testabbruch implementieren.** Derzeit koppelt [`keepCheckingAfterFailure()`](../../_test/testdata/cgoPackage.go) das Weiterprüfen innerhalb eines Pakets an `TRICE_TEST_NO_STOP=1`. Dadurch meldet der Bulk-Vergleich nach dem ersten Längenfehler Tausende Folgeunterschiede; die Einzelzeilenprüfung führt noch alle übrigen Logaufrufe aus. Die Bulk-, Einzelzeilen- und kombinierten Direct-/Deferred-Tests sollen innerhalb **jeder Konfiguration beim ersten fehlgeschlagenen Vergleich abbrechen**, dessen Index, Source-Zeile, erwarteten und tatsächlichen Wert melden und die Konfiguration als fehlgeschlagen markieren. Das ist mit den bereits vorhandenen Rückgabepfaden der Testfunktionen möglich. Der äußere [PC-Test-Worker](../../scripts/_160_pc_target_test_worker.sh) soll bei `--no-stop` weiterhin die fehlgeschlagenen Bulk-Konfigurationen einzeln diagnostizieren und danach die **nächste Konfiguration** prüfen; ohne `--no-stop` bleibt der bisherige Abbruch des Workflows nach Fehler und Gegenprobe. `-failfast` allein ersetzt den Rücksprung aus einer bereits laufenden Vergleichsschleife nicht.
+
+Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Den `Fish`-Fall und die `untagged`-Ausgabe auch in gezielten, voneinander unabhängigen Verhaltenstests absichern. Im erfolgreichen Durchlauf bleiben sämtliche bisherigen Testfälle und Assertions aktiv; nur die Fehlerdiagnose endet pro Konfiguration früher. Der Bulk-Vergleich darf nach einem Längenunterschied keine verschobenen Ausschnitte als eigenständige Fehler weiterzählen.
+
+**Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum: Ohne wörtliches `untagged:` im Anwendungstext enthält keine ausgegebene Meldung diese Zeichenfolge; ein vom Anwender gelieferter gleichlautender Text bleibt erhalten. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Einen absichtlich ausgelösten frühen Fehler in Bulk, Einzelzeile und Direct/Deferred prüfen: jeweils genau ein aussagekräftiger Vergleichsfehler pro Konfiguration, aber unter `--no-stop` läuft die nächste Konfiguration weiter und der Gesamtschritt bleibt FAIL. Den unabhängigen `Fish`-Fall separat prüfen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
 
 ### Kopierbare Dokumentationsbeispiele berichtigen
 
