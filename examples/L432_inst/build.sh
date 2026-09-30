@@ -91,8 +91,8 @@ run_trice_clean_if_needed() {
   if [ "${ids_inserted}" -eq 1 ]; then
     echo "cleanup: running trice clean"
 
-    if ! bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"; then
-      clean_status=$?
+    bash "${ROOT}/scripts/_240_legacy_clean_ids.sh" || clean_status=$?
+    if [ "${clean_status}" -ne 0 ]; then
       echo "warning: cleanup: trice clean failed with exit code ${clean_status}" >&2
       return "${clean_status}"
     fi
@@ -112,6 +112,7 @@ cleanup_and_exit() {
   # - 130 Ctrl-C / SIGINT
   # - 143 SIGTERM
   local status="${1:-$?}"
+  local clean_status=0
 
   # Disable traps immediately.
   #
@@ -121,12 +122,13 @@ cleanup_and_exit() {
   # - the clean helper exits with an error.
   trap - INT TERM EXIT
 
-  if ! run_trice_clean_if_needed; then
+  run_trice_clean_if_needed || clean_status=$?
+  if [ "${clean_status}" -ne 0 ]; then
     # If the script was otherwise successful, a cleanup failure should make the
     # whole script fail. If the script was already failing, keep the original
     # status so the root cause is not hidden by the cleanup failure.
     if [ "${status}" -eq 0 ]; then
-      status=1
+      status="${clean_status}"
     fi
   fi
 
@@ -231,9 +233,11 @@ set -e
 #
 # If cleanup fails after an otherwise successful build, fail the script.
 # If make already failed, keep make's exit code.
-if ! run_trice_clean_if_needed; then
+clean_status=0
+run_trice_clean_if_needed || clean_status=$?
+if [ "${clean_status}" -ne 0 ]; then
   if [ "${make_status}" -eq 0 ]; then
-    make_status=1
+    make_status="${clean_status}"
   fi
 fi
 

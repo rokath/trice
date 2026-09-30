@@ -87,8 +87,8 @@ cleanup() {
   if [ "${ids_inserted}" -eq 1 ]; then
     echo "cleanup: running trice clean"
 
-    if ! bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"; then
-      clean_status=$?
+    bash "${ROOT}/scripts/_240_legacy_clean_ids.sh" || clean_status=$?
+    if [ "${clean_status}" -ne 0 ]; then
       echo "warning: cleanup: trice clean failed with exit code ${clean_status}" >&2
 
       # If the script was otherwise successful, a cleanup failure should make
