@@ -68,4 +68,4 @@ The 16-bit stamp represents a sample phase; the 32-bit stamp is milliseconds,
 so the second supply reading also shows a 25 ms delta. Options passed to the
 show scripts are appended to their `trice log` command.
 
-The G0B1 companion is [G0B1_features](../G0B1_features/README.md).
+The G0B1 companion is [G0B1_features](../G0B1_features/ReadMe.md).

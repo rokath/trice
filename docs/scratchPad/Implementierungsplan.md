@@ -34,12 +34,10 @@ Vorhanden sind insbesondere:
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01 und R13 sind gezielt korrigiert; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R03 und R13 sind gezielt korrigiert; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R02 | Falsche UM-Kommandos, Dateinamen und Links berichtigen | 5 | S | Keine |
-| R03 | Fehlerstatus bei fehlgeschlagenem Clean erhalten | 5 | S | Keine |
 | R04 | Aussage zum automatischen TIL-/LI-Nachladen klären | 5 | S; bei Wiederherstellung M | Produktentscheidung |
 | R05 | Kompatibilitätsvertrag und Release-Version festlegen | 5 | S–M | Vergleich mit v1.3.0 |
 | R06 | Testlaufzeit und tatsächlich ausgeführte Fälle erfassen | 4 | S | Erste Full-Messung liegt vor; dauerhaft erfassen |
@@ -57,43 +55,11 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 ## Vorschlag für die nächsten Aufträge
 
-R01 und R13 sind gezielt korrigiert. Als Nächstes R02–R05 klären beziehungsweise korrigieren. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
+R01–R03 und R13 sind gezielt korrigiert. Als Nächstes R04 und R05 klären beziehungsweise korrigieren. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
 
 Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, gegebenenfalls R14 für v2, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
 
 ## Konkrete Aufgaben vor dem Release
-
-### Kopierbare Dokumentationsbeispiele berichtigen
-
-**R02 · Gewicht 5 · Aufwand S · Befunde bestätigt**
-
-Konkrete Fundstellen im [UM](../TriceUserManual.md):
-
-- CE-Einstieg „Position und Geschwindigkeit“: Der alternative `info:`-Aufruf enthält `...%f",, pos.x, pos.y, m/s=%f"...` und ist syntaktisch ungültig. Gewollt ist etwa `-ce 'info:", x={}, y={}, m/s=%f", pos.x, pos.y, aFloat(velocity)'`.
-- „Trice Generate / Generating a Trice ABC Function Pointer List“ nennt `deviceX_abc.h/.c`. [Generator und CLI](../../internal/id/generateAbc.go) verwenden bei `-abc deviceX` tatsächlich `generated/deviceX.h` und `generated/deviceX.c`; explizite Zielpfade behalten ihren Ort.
-- „C#-Code“ empfiehlt `-tilCS`, obwohl [die aktuelle CLI](../../internal/args/init.go) keinen solchen Schalter registriert. Veraltetes Beispiel aus der aktiven Anleitung entfernen oder ausdrücklich historisch einordnen; keinen neuen Generator allein zur Rettung des Textes implementieren.
-- Das Testkapitel nennt unter anderem die nicht vorhandenen `examples/buildAllTargets.sh` und `renewIDs_in_examples_and_test_folder.sh`, außerdem `_trice` statt `_test`. Durch die heutigen Einstiegspunkte ersetzen.
-- Das Releasekapitel fasst mehrere Git-Kommandos in eine einzelne Befehlszeile ohne Trennzeichen zusammen, etwa `git checkout main git pull origin main`. Einzelne kopierbare Schritte daraus machen.
-- [PC_features/README.md](../../examples/PC_features/README.md) verlinkt `G0B1_features/README.md`; versioniert ist `ReadMe.md`. Das funktioniert auf einem Dateisystem mit beachteter Groß-/Kleinschreibung nicht.
-
-**Abnahme:** Die betroffenen Beispielwerte werden mit der aktuellen CLI in einer isolierten Fixture geprüft. Dateinamen, relativer Aufrufort und erzeugte Dateien passen zusammen. Links werden mit der tatsächlich versionierten Schreibweise geprüft. Kein pauschales Ausführen aller Shell-Blöcke des UM, insbesondere keiner Release-/Git-Kommandos.
-
-### Fehlgeschlagenes Clean darf keinen Erfolg melden
-
-**R03 · Gewicht 5 · Aufwand S · Befund bestätigt**
-
-In [L432_inst/build.sh](../../examples/L432_inst/build.sh), [F030_inst/build.sh](../../examples/F030_inst/build.sh), [G0B1_inst/build_with_clang.sh](../../examples/G0B1_inst/build_with_clang.sh) und [G0B1_features/build_with_clang.sh](../../examples/G0B1_features/build_with_clang.sh) steht sinngemäß:
-
-~~~sh
-if ! cleanup_command; then
-  clean_status=$?
-  return "$clean_status"
-fi
-~~~
-
-`$?` ist dort das Ergebnis der Negation und daher 0. Eine isolierte Shellprobe mit Fehlercode 23 bestätigt das. Dadurch kann ein fehlgeschlagenes Clean als Erfolg enden. Auch das vereinfachte Cleanup-Muster im UM muss einen Fehler ausdrücklich weiterreichen; `set -e` allein genügt im Aufruf unter `if ! ...` nicht.
-
-**Abnahme:** Verständliche Shell-Verhaltenstests mit erfolgreichem Build plus fehlgeschlagenem Clean, bereits fehlgeschlagenem Build, SIGINT und SIGTERM. Der ursprüngliche Build-/Signalfehler bleibt erhalten; ein alleiniger Cleanup-Fehler erzeugt einen Fehlerstatus und eine zutreffende Meldung.
 
 ### Automatisches Nachladen zutreffend beschreiben
 
@@ -403,3 +369,19 @@ Umgesetzt: Die automatisch zugewiesene Klassifizierung verändert den Message-Te
 Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Der `Fish`-Fall und die `untagged`-Ausgabe sind auch in gezielten, voneinander unabhängigen Verhaltenstests abgesichert. Im erfolgreichen Durchlauf bleiben sämtliche bisherigen Testfälle und Assertions aktiv; nur die Fehlerdiagnose endet pro Konfiguration früher. Der Bulk-Vergleich zählt nach einem Längenunterschied keine verschobenen Ausschnitte als eigenständige Fehler weiter.
 
 **Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum: Ohne wörtliches `untagged:` im Anwendungstext enthält keine ausgegebene Meldung diese Zeichenfolge; ein vom Anwender gelieferter gleichlautender Text bleibt erhalten. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Einen absichtlich ausgelösten frühen Fehler in Bulk, Einzelzeile und Direct/Deferred prüfen: jeweils genau ein aussagekräftiger Vergleichsfehler pro Konfiguration, aber unter `--no-stop` läuft die nächste Konfiguration weiter und der Gesamtschritt bleibt FAIL. Den unabhängigen `Fish`-Fall separat prüfen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
+
+### Kopierbare Dokumentationsbeispiele berichtigt
+
+**R02 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
+
+Im [UM](../TriceUserManual.md) ist die alternative CE-Regel für Position und Geschwindigkeit syntaktisch gültig. Die ABC-Dateinamen und ihr Standardort `generated/` entsprechen der CLI; ein expliziter Zielpfad bleibt möglich. Das nicht vorhandene `-tilCS`-Beispiel wurde durch eine zutreffende C#-Integrationsnotiz ersetzt. Das Testkapitel nennt die heutigen Skripte und `_test`; die Release-Kommandos sind einzeln kopierbar. Der Link im [PC-Feature-Beispiel](../../examples/PC_features/README.md) verwendet die versionierte Schreibweise `ReadMe.md`.
+
+**Gezielte Abnahme:** Isolierte Bind- und ABC-Tests prüfen die CE-Regel sowie generierte Namen und Pfade. Die CLI weist `-tilCS` als unbekannten Schalter ab. UM-Format und Markdownlint bestehen; die lokale Linkprüfung für UM und PC-README findet keine Fehler. Die netzabhängige vollständige Linkprüfung war in dieser Umgebung wegen blockierter Verbindungen zu externen Websites nicht abschließbar. Release-/Git-Kommandos wurden nicht ausgeführt.
+
+### Fehlerstatus bei fehlgeschlagenem Clean erhalten
+
+**R03 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
+
+Die vier betroffenen Buildskripte speichern den echten Status von `trice clean`, bevor sie ihn auswerten. Ein allein fehlgeschlagenes Clean führt zum Fehlerstatus und meldet dessen Exitcode; ein bereits fehlgeschlagener Build oder eine Unterbrechung behalten ihren ursprünglichen Status. Das vereinfachte Cleanup-Beispiel im UM reicht Clean-Fehler ebenfalls weiter, ohne im normalen Abschluss erneut zu bereinigen.
+
+**Gezielte Abnahme:** Isolierte Verhaltenstests führen alle vier Skripte mit erfolgreichem Build und Clean, Clean-Fehlercode 23, vorigem Build-Fehlercode 17 sowie SIGINT und SIGTERM aus. Pro Lauf werden Vor- und Nach-Clean genau einmal aufgerufen; Status und Warnung stimmen in allen Fällen. Shell-Formatprüfung, ShellCheck und die vollständige `scripts`-Testsuite bestehen.

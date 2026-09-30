@@ -6420,7 +6420,7 @@ trice32("info:Moving sample={sample}\n", 3);
 und diesem Bind-Aufruf:
 
 ```sh
-trice bind -ce 'info:", x={}, y={}, m/s=%f",, pos.x, pos.y, m/s=%f", aFloat(velocity)'
+trice bind -ce 'info:", x={}, y={}, m/s=%f", pos.x, pos.y, aFloat(velocity)'
 ```
 
 Die Nachkommastellen folgen der 32-Bit-Floatdarstellung und `%f`; `%.2f` würde `33.33` anzeigen. JSON und KV enthalten dieselbe Meldung einschließlich ihres abschließenden Newlines als escaped String. Zusätzlich entstehen die numerischen Felder `sample`, `pos.x` und `pos.y`. `%f` allein erzeugt kein benanntes Feld; dafür kann die Regel beispielsweise `speed:", m/s={speed:%.2f}", aFloat(velocity)` verwenden.
@@ -10218,50 +10218,7 @@ const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 
 ### 42.3. <a id="c-code-1"></a>C#-Code
 
-With `trice generate -tilCS` a starting point for a C-Sharp application is generated:
-
-```cs
-//! \file til.cs 
-
-// Trice generated code - do not edit!
-
-// There is still a need to exchange the format specifier from C to C# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// See https://stackoverflow.com/questions/33432341/how-to-use-c-language-format-specifiers-in-c-sharp
-// and https://www.codeproject.com/Articles/19274/A-printf-implementation-in-C for possible help.
-
-namespace TriceIDList;
-
-	public class TilItem
-	{
-		public TilItem(int bitWidth, int paramCount, string strg)
-		{
-			BitWidth = bitWidth;
-			ParamCount = paramCount;
-			Strg = strg;
-		}
-
-		public int BitWidth { get; init; }
-		public int ParamCount { get; init; }
-		public string Strg { get; init; }
-	}
-
-	//! Til contains all trice format strings together with id and parameter information.
-	//!
-	//! The bitWidth value is not transmitted in the binary data stream and needed for its decoding.
-	//! The paramCount is de-facto not needed. It is derivable from the received data, see docs/TriceUserManual.md#binary-encoding.
-	//! It is recommended to check if both values are matching. A negative paramCount indicates, that its value is unknown at compile time.
-	public static class Til
-	{
-		public static readonly Dictionary<int, TilItem> TilList= new Dictionary<int, TilItem>
-		{ /* triceType ( extended ) */ //   id,     TilItem( bitWidth, paramCount, Strg )
-		/*   TRICE_12 ( TRICE32_12 )*/ { 14991, new TilItem( 32, 12, "rd:TRICE_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n" ) },
-		/*      TRICE (  TRICE32_1 )*/ { 15636, new TilItem( 32,  1, "WR:write        message, SysTick is %6u\n" ) },
-		/*    TRICE_S (    TRICE_S )*/ { 14178, new TilItem( 32, -1, "msg:With TRICE_S:%s\n" ) },
-...
-		/*    TRICE16 (  TRICE16_2 )*/ { 16056, new TilItem( 16,  2, "rd:TRICE16 %p, %p\n" ) },
-    };
-}
-```
+The current `trice generate` command does not provide a C# source generator. C# applications can read the generated `til.json` as input to their own decoder or use the Trice host tool to produce text, JSON, or KV output.
 
 ### 42.4. <a id="generating-a-trice-abc-function-pointer-list"></a>Generating a Trice ABC Function Pointer List
 
@@ -10271,7 +10228,7 @@ Use `-abc=<target>` to generate the target-specific ABC receive selection and ta
 trice generate -i til.json -abc=deviceX
 ```
 
-This creates `deviceX_abc.h` if it does not exist, otherwise uses it as the user-edited selection input. It always regenerates `deviceX_abc.c` from `til.json` and the active declarations in `deviceX_abc.h`. For the workflow and examples see [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
+Run from the project directory. This creates `generated/deviceX.h` if it does not exist, otherwise uses it as the user-edited selection input. It always regenerates `generated/deviceX.c` from `til.json` and the active declarations in `generated/deviceX.h`. `-genDir` changes the generated directory; an explicit target path such as `-abc=custom/deviceX` keeps that path. For the workflow and examples see [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
 
 <!--
 ### Generating an RPC Function Pointer List (deprecated)
@@ -10403,7 +10360,7 @@ The main aim of these tests is to automatic compile and run the target code in d
 `scripts/testAll.sh quick` performs the standard Bind-only selection. `scripts/testAll.sh full` also runs the legacy Insert/Clean and extended compiler matrices and can take many hours, depending strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
 
 * Partial tests:
-  * In `./examples` you can translate all examples with `./buildAllTargets.sh`.
+  * In `./examples` you can build the target examples with `./buildAllTargets_TRICE_ON.sh` or `./buildAllTargets_TRICE_OFF.sh`.
   * In `./examples/L432_inst` the script `all_configs_build.sh` translates many different configurations.
 
 For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go` if no close match in the `examples` folder was found.
@@ -10415,8 +10372,8 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
   * On Windows, TDM-GCC or another matching MinGW-w64 GCC installation can provide the host compiler and C runtime.
   * Some Go regression tests execute every supported compiler found in `PATH`, including `clang`. If Clang is visible, verify it first with `printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -`.
   * Keep `C_INCLUDE_PATH` unset globally so ARM cross-compiler headers do not leak into host and CGO builds.
-* In `_trice` folder first execute `go clean -cache` after editing C-files. Cleaning the **Go** cache is recommended, because the CGO tests keep pre-compiled files and when editing C-files, this can lead to confusing results.
-* Execute `./scripts/_330_renew_ids_and_refresh_tests.sh` after you edited files in the `./examples` or `_test` folder.
+* From the repository root, execute `go clean -cache` after editing C files if CGO tests appear to reuse precompiled files.
+* Normal tests use an overlay for the shared CGO test files. If you deliberately need to renew IDs and generated test files after editing `./examples` or `_test`, review the wider effects of `./scripts/_330_renew_ids_and_refresh_tests.sh` and use `keepHistory` to preserve the existing ID tables.
 * To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
 * To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` from there. It is more convenient to run `scripts/_230_legacy_insert_ids.sh` from the Trice root folder.
 * It is convenient to run `scripts/testAll.sh` from the Trice root folder to perform this.
@@ -10449,15 +10406,15 @@ The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which lim
 ### 43.4. <a id="how-to-add-new-test-cases"></a>How to add new test cases
 
 - Choose a test folder similar to the intended test and copy it under a new descriptive name like `newTest`.
-- Extend file `./renewIDs_in_examples_and_test_folder.sh` accordingly.
+- Add the new package to the test-folder list in `scripts/_330_renew_ids_and_refresh_tests.sh` if it should receive refreshed generated test files.
 - Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
-- Run command `go test test/newTest/...`
+- Run `go test ./_test/newTest` from the repository root.
 
 ### 43.5. <a id="test-internals"></a>Test Internals
 
 The `./trice/_test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one single Trice test binary, resulting in as many test binaries as there are test folders. Calling its TeCEFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted usually in real life over a (serial) port or RTT. In the tests here, this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string is then compared to the expected string for the activated line.
 
-Each `tf` is a **Go** package, which is not part of any **Go** application. They all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `testdata/cgoPackage.go`. After editing the master, running the command `./renewIDs_in_examples_and_test_folder.sh` copies the master to all `tf` and renames it to `generated_cgoPackage.go`.
+Each `tf` is a **Go** package, which is not part of any **Go** application. They are all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `_test/testdata/cgoPackage.go`. The test worker overlays the master during normal test runs. The maintenance script `./scripts/_330_renew_ids_and_refresh_tests.sh` copies the master into the listed packages, but also renews IDs and clears ID history by default; use `keepHistory` only when you deliberately run that wider maintenance workflow.
 
 The test specific target code configuration is inside `tf/trice.Config.h` and the appropriate Trice tool CLI switches are in `tf/cgo_test.go`.
 
@@ -13029,18 +12986,21 @@ In [.github/workflows/goreleaser.yml](../.github/workflows/goreleaser.yml), you 
 
 Commit & push this change (if you haven’t already):
 
-`git add .github/workflows/goreleaser.yml git commit -m "Configure GoReleaser workflow to run on tags" git push origin main`
+```sh
+git add .github/workflows/goreleaser.yml
+git commit -m "Configure GoReleaser workflow to run on tags"
+git push origin main
+```
 
 #### 50.3.2. <a id="final-checks-before-tagging"></a>Final checks before tagging
 
 In your local `trice` repo:
 
 * Update to latest main:
-  * `git checkout main git pull origin main`
-  * Run your tests:
-  * `go test ./...` or better `./scripts/testAll.sh full`
-  * Optional but recommended: **run the snapshot dry run** again, just to be safe:
-* `goreleaser release --clean --snapshot --skip=publish`
+  * `git checkout main`
+  * `git pull origin main`
+* Run your tests: `go test ./...` or, for the full compiler matrix, `./scripts/testAll.sh full`.
+* Optionally run the snapshot dry run again: `goreleaser release --clean --snapshot --skip=publish`.
     
 If all of that is green, you’re ready to “bless” a version.
 
@@ -13241,24 +13201,32 @@ run_trice_clean_if_needed() {
   if [ "${ids_inserted}" -eq 1 ]; then
     echo "cleanup: running trice clean"
 
+    local clean_status=0
     (
       cd "${ROOT}" || exit 1
       bash "${ROOT}/scripts/_240_legacy_clean_ids.sh"
-    )
+    ) || clean_status=$?
+
+    if [ "${clean_status}" -ne 0 ]; then
+      echo "warning: cleanup: trice clean failed with exit code ${clean_status}" >&2
+      return "${clean_status}"
+    fi
 
     ids_inserted=0
   fi
+
+  return 0
 }
 
 cleanup_and_exit() {
   local status="${1:-$?}"
+  local clean_status=0
 
   trap - INT TERM EXIT
 
-  if ! run_trice_clean_if_needed; then
-    if [ "${status}" -eq 0 ]; then
-      status=1
-    fi
+  run_trice_clean_if_needed || clean_status=$?
+  if [ "${status}" -eq 0 ] && [ "${clean_status}" -ne 0 ]; then
+    status="${clean_status}"
   fi
 
   exit "${status}"
@@ -13279,10 +13247,11 @@ ids_inserted=1
 cd "${SCRIPT_DIR}"
 make
 
-run_trice_clean_if_needed
+clean_status=0
+run_trice_clean_if_needed || clean_status=$?
 
 trap - INT TERM EXIT
-exit 0
+exit "${clean_status}"
 ```
 
 Important points in this pattern:
@@ -13308,12 +13277,13 @@ make ${MAKE_JOBS} TRICE_FLAGS="${flags}" gcc
 make_status=$?
 set -e
 
-if ! run_trice_clean_if_needed; then
-  if [ "${make_status}" -eq 0 ]; then
-    make_status=1
-  fi
+clean_status=0
+run_trice_clean_if_needed || clean_status=$?
+if [ "${make_status}" -eq 0 ] && [ "${clean_status}" -ne 0 ]; then
+  make_status="${clean_status}"
 fi
 
+trap - INT TERM EXIT
 exit "${make_status}"
 ```
 
