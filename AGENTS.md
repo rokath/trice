@@ -41,6 +41,8 @@
 * Task-relevant edits to version-controlled files are pre-approved, including source files in `./src`; do not request a special file or directory permission.
 * Pause only for a genuinely important ambiguous decision, an unrecoverable or destructive action outside the clearly requested scope, or a technically enforced platform approval that cannot be avoided.
 * Only `git commit` and `git push` require an explicit user instruction. Never infer either operation from a request to implement, fix, test, or format changes.
+* Once the user has authorized a task or confirmed an action, continue through its routine implementation steps without asking for the same permission again. Technical details such as staging related files, splitting requested commits, choosing temporary paths, or running focused checks do not require another conversational approval.
+* Use existing platform approvals and approved command prefixes directly. Do not turn optional tooling choices into additional approval gates; prefer an already-authorized equivalent. If a platform prompt is unavoidable, keep independent work moving and do not request the same pending approval repeatedly.
 
 ---
 
@@ -177,7 +179,7 @@
 
 ## Commits
 
-* If asked to "commit first", create only the requested safety commit and stop for confirmation before further edits.
+* If asked only to "commit first", create the requested commits without inferring further implementation work. If the user explicitly says "commit, then implement ...", complete both steps in that order without another confirmation between them.
 * For a commit request, the primary deliverable is a meaningful, accurate commit message for each cohesive change group. Creating the Git commit itself is preferred when the environment permits it, but is not required when `.git` writes are blocked by the sandbox.
 * If `.git` writes are blocked, do not repeatedly request permissions or wait on approval dialogs. Make at most one normal commit attempt, then stage the relevant files when permitted and show the user the exact ready-to-run `git commit -m "..."` command.
 * When handing off a staged commit, state clearly which files or change topic are staged and which worktree changes were intentionally excluded. Do not claim that a commit was created unless `git commit` actually succeeded.
