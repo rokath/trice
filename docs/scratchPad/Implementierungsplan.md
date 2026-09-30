@@ -8,12 +8,12 @@ Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere 
 
 Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind und Insert/Clean einschließlich CE, Template-Parser, Decoder, strukturierte Ausgabe, Tags und Filter, Visualisierung, Transport- und Ausgabeabschluss, Target-Konfiguration und Testaufbau, Beispiele, aktives UM, README sowie Test- und Release-Workflows. Code und vorhandene Verhaltenstests wurden mit den dokumentierten Verträgen verglichen. Das ist eine breite statische Bestandsaufnahme mit konkreten Belegen, keine vollständige Fehlerfreiheitserklärung oder neue Hardware-Abnahme.
 
-Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der vollständigen Protokolle ausgewertet. Es wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier verbliebenen Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und unverändert gelassen.
+Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der damaligen vollständigen Protokolle ausgewertet. Bei jener Bestandsaufnahme wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier damals abweichenden Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und zunächst unverändert gelassen. Ein späterer `testAll quick` für R13 hat die flachen Logdateien des Full-Laufs ersetzt; dessen hier festgehaltene Messwerte und Fehleranalyse bleiben historische Befunde.
 
-- Ergebnis laut `temp/log/testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheitern. Die L432-Matrix mit 101 Konfigurationen besteht und braucht etwa **20 Minuten 14 Sekunden**.
+- Ergebnis laut der damaligen `testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheiterten. Die L432-Matrix mit 101 Konfigurationen bestand und brauchte etwa **20 Minuten 14 Sekunden**.
 - Beide PC-Workflows führen jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheitern, sechs Spezialläufe bestehen. Die fehlgeschlagenen Tests heißen jeweils `TestTriceLog`; es sind keine fehlgeschlagenen Compileraufrufe.
 - Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
-- Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Deren lokale TIL/LI-Dateien wurden aktualisiert, aber vom äußeren Snapshot nicht erfasst. Die vier verbliebenen JSON-Diffs sprechen für einmaligen Nachholbedarf nach Source-Erweiterungen, nicht für neue Inhaltsänderungen bei jedem unveränderten Wiederholungslauf. R13 trennt die bewusste Aktualisierung der Beispieltabellen vom Schutz des Test-Ausgangszustands.
+- Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
 - Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
 - Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die normale Testauswahl aktiviert diese Tests nicht vollständig; Einzelheiten stehen bei R07.
 - Aktuelle GitHub-Issues und Live-CI-Ergebnisse wurden nicht vollständig abgeglichen. Vor einer späteren Issue-Erstellung sind vorhandene Issues auf Dopplungen zu prüfen. Dieser Auftrag erstellt keine Issues.
@@ -34,11 +34,10 @@ Vorhanden sind insbesondere:
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. Nach der R01-Korrektur rückt R13 wegen der nachgewiesenen bleibenden JSON-Änderungen an die erste Stelle. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01 und R13 sind gezielt korrigiert; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R13 | Bleibende Beispiel-JSON-Änderungen nach Tests verhindern | 5 | M | Verursachender Buildpfad und Snapshot-Lücke bekannt |
 | R02 | Falsche UM-Kommandos, Dateinamen und Links berichtigen | 5 | S | Keine |
 | R03 | Fehlerstatus bei fehlgeschlagenem Clean erhalten | 5 | S | Keine |
 | R04 | Aussage zum automatischen TIL-/LI-Nachladen klären | 5 | S; bei Wiederherstellung M | Produktentscheidung |
@@ -56,46 +55,11 @@ Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten.
 
 Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten abgenommenes Release um neue Features zu vergrößern.
 
-## Erledigte Korrekturen
+## Vorschlag für die nächsten Aufträge
 
-### Kein automatisch erzeugtes untagged-Präfix ausgeben
+R01 und R13 sind gezielt korrigiert. Als Nächstes R02–R05 klären beziehungsweise korrigieren. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
 
-**R01 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
-
-Die sichtbare Ausgabe enthält kein synthetisches `untagged:` mehr. Für ungetaggte oder unbekannt getaggte Ereignisse verhindert die Textausgabe zugleich, dass ein Doppelpunkt im Benutzertext nachträglich als Format-Tag interpretiert wird. JSON/KV verwenden weiter `tag=untagged` als Metadatum, ohne die Message zu verändern. Die `Fish`-Erwartung ist korrigiert. Die C-gestützten Vergleichsschleifen brechen bei der ersten Abweichung pro Konfiguration ab; `--no-stop` steuert weiterhin die Fortsetzung im äußeren Test-Worker. Gezielte Regressionstests decken die unabhängigen Fälle ab. Die vollständige Release-Matrix bleibt ausdrücklich Aufgabe R16.
-
-**Gezielte Abnahme am 30. September:** Translator-Paket und die einschlägigen Emitter-Tests bestehen. Die Fehlerprobe erzwingt je einen falschen Bulk-, Einzelzeilen- und Direct-/Deferred-Vergleich und bestätigt jeweils nur eine Diagnose trotz `TRICE_TEST_NO_STOP=1`. Die kurzen PC-Workflows bestehen mit Insert und Bind. Eine komplette Ringpuffer-Einzelzeilenkonfiguration sowie die kombinierte Direct-/Deferred-Konfiguration und alle drei zuvor betroffenen Spezialfälle bestehen unter Insert; die kombinierte Konfiguration und Spezialfälle bestehen auch unter Bind. Der unabhängige `Fish`-Fall ist Teil der Ringpuffer-Einzelzeilenprüfung. Ein ad hoc Bind-Mehrpaketlauf ohne den vorgesehenen Go-Cache-Reset lieferte zunächst einen leeren Direct-Wert; der kontrollierte Bind-Einzellauf nach `go clean -cache -testcache` bestand. Für die abschließende Matrix den regulären PC-Test-Worker mit seinem Cache-Reset verwenden. Markdownlint für das geänderte UM besteht. Die vollständige Full-Matrix bleibt bei R16.
-
-**Verbindliche Ausgaberegel: Trice darf die Zeichenfolge `untagged:` niemals selbst zu einer Logmeldung hinzufügen.** Sie darf in der sichtbaren Meldung nur vorkommen, wenn die Anwendung sie selbst als Text geliefert hat. Das gilt für Text, JSON und KV und ausdrücklich auch bei `-color off`. Bei `trice("hi")` lautet die sichtbare Message deshalb `hi`, ohne `untagged:` vor oder innerhalb des Textes. Die interne Klassifizierung heißt trotzdem `untagged`; JSON/KV dürfen dafür ein separates Tag-Metadatum mit dem Wert `untagged` ausgeben. Filterung, Gewicht, Farbe und Ereignisstatistik verwenden weiterhin diese Klassifizierung. Ein vom Anwender tatsächlich gelieferter Text `untagged:` darf nicht pauschal entfernt werden.
-
-| Format | Ausgabe für `trice("hi")`, ohne weitere Metadaten |
-| --- | --- |
-| Text | `hi` |
-| JSON | `{"tag":"untagged","message":"hi"}` |
-| KV | `tag=untagged message="hi"` |
-
-Bei einem unbekannten Präfix wie `trice("mgs:blah")` bleibt die Message `mgs:blah`, während das Tag-Metadatum `untagged` lautet. Dadurch bleibt auch ein möglicher Tippfehler sichtbar. Die bestehenden Darstellungsregeln für ausdrücklich geschriebene bekannte Tags bleiben erhalten; ebenso die Regeln für Leerraum und Zeilenabschluss. Anwendertext darf nicht durch pauschales Entfernen gleichlautender Textstücke verändert werden.
-
-Die Protokolle `temp/log/_630_test_pc_targets_insert.log` und `temp/log/_640_test_pc_targets_bind.log` enthalten pro Workflow 14.655 fehlgeschlagene Einzelzeilen-/Spezialvergleiche. Der Abgleich aller erwarteten und tatsächlichen Strings ergibt in beiden Workflows dieselben Abweichungen. Die folgende Tabelle beschreibt ausschließlich den **beobachteten Fehler**: `tatsächlich` ist keine gewünschte neue Testerwartung. Insbesondere bleibt `Hello World!` der richtige Erwartungswert; `untagged:Hello World!` ist der zu behebende Ist-Wert.
-
-| Ursache | Konkreter Unterschied | Häufigkeit je Workflow |
-| --- | --- | ---: |
-| Unerwünschtes automatisch ergänztes Präfix bei `-color off` | Erwartet `Hello World!`, tatsächlich `untagged:Hello World!`; entsprechend bei anderen ungetaggten Meldungen | 14.581 |
-| Veralteter Feldname im manuellen JSON-Beispiel | Erwartet `... Birn:2, Fisch:2.781000}`, tatsächlich `... Birn:2, Fish:2.781000}` | 74 |
-
-Das unerwünschte Präfix betrifft die Vergleiche mit den `//exp:`-Erwartungen in [triceCheck.c](../../_test/testdata/triceCheck.c), außerdem die Spezialfälle `dblB_de_protect_tcobs_ua`, `ringB_de_protect_tcobs_ua` und `modify_for_debug`. Bei zwei getrennten ungetaggten Aufrufen mit `Hello ` und `World!` muss die zusammengesetzte Textausgabe `Hello World!` bleiben. Das derzeit beobachtete `untagged:Hello untagged:World!` verletzt diesen Vertrag; die Klassifizierung beider Ereignisse bleibt trotzdem jeweils `untagged`. Der unabhängige `Fish`-Unterschied stammt aus `exampleOfManualJSONencoding()`: Der Formatstring verwendet bereits `Fish`, nur die Erwartung an der aufrufenden Teststelle enthält noch `Fisch`.
-
-Je gewöhnlicher Einzelzeilenkonfiguration sind es 197 Präfixabweichungen und eine `Fish`-Abweichung. Die kombinierten Direct-/Deferred-Konfigurationen prüfen beides zweimal. Die drei genannten Spezialtests haben jeweils eine Präfixabweichung. Die hohen Summen entstehen durch Wiederholung über die Konfigurationen, nicht durch ebenso viele verschiedene Ursachen.
-
-[Der Bulk-Vergleich](../../_test/testdata/cgoPackage.go) schneidet nach der erwarteten Textlänge weiter. Bereits das erste zusätzliche `untagged:` verschob in den früheren Protokollen die folgenden Ausschnitte; jeder der acht Bulk-Läufe meldete deshalb 1.743 Textunterschiede und Restdaten. Diese Folgefehler waren kein unabhängiger Nachweis eines Framing- oder Übertragungsdefekts. Nach der Korrektur besteht der gezielt ausgeführte Ringpuffer-Bulk-Lauf unter Insert und Bind; alle Bulk-Konfigurationen bleiben Teil der Full-Matrix bei R16.
-
-Umgesetzt: Die automatisch zugewiesene Klassifizierung verändert den Message-Text in Text, JSON und KV nicht mehr. Die vorhandenen präfixfreien Erwartungen blieben erhalten; die separate `Fisch`-Erwartung lautet jetzt `Fish`. Weder Testausgaben noch Erwartungen wurden pauschal um `untagged:` bereinigt beziehungsweise erweitert. Verhaltenstests und die betreffenden UM-Aussagen folgen dem präzisierten Vertrag.
-
-**Früher Testabbruch:** Vor der Korrektur koppelte `keepCheckingAfterFailure()` das Weiterprüfen innerhalb eines Pakets an `TRICE_TEST_NO_STOP=1`. Dadurch meldete der Bulk-Vergleich nach dem ersten Längenfehler Tausende Folgeunterschiede; die Einzelzeilenprüfung führte noch alle übrigen Logaufrufe aus. Die Bulk-, Einzelzeilen- und kombinierten Direct-/Deferred-Tests brechen jetzt innerhalb **jeder Konfiguration beim ersten fehlgeschlagenen Vergleich ab**. Die Diagnose nennt Index, Source-Zeile sowie erwarteten und tatsächlichen Wert und markiert die Konfiguration als fehlgeschlagen. Der äußere [PC-Test-Worker](../../scripts/_160_pc_target_test_worker.sh) diagnostiziert bei `--no-stop` fehlgeschlagene Bulk-Konfigurationen weiterhin einzeln und prüft danach die **nächste Konfiguration**; ohne `--no-stop` bleibt der bisherige Abbruch des Workflows nach Fehler und Gegenprobe. `-failfast` allein ersetzt den Rücksprung aus einer bereits laufenden Vergleichsschleife nicht.
-
-Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Der `Fish`-Fall und die `untagged`-Ausgabe sind auch in gezielten, voneinander unabhängigen Verhaltenstests abgesichert. Im erfolgreichen Durchlauf bleiben sämtliche bisherigen Testfälle und Assertions aktiv; nur die Fehlerdiagnose endet pro Konfiguration früher. Der Bulk-Vergleich zählt nach einem Längenunterschied keine verschobenen Ausschnitte als eigenständige Fehler weiter.
-
-**Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum: Ohne wörtliches `untagged:` im Anwendungstext enthält keine ausgegebene Meldung diese Zeichenfolge; ein vom Anwender gelieferter gleichlautender Text bleibt erhalten. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Einen absichtlich ausgelösten frühen Fehler in Bulk, Einzelzeile und Direct/Deferred prüfen: jeweils genau ein aussagekräftiger Vergleichsfehler pro Konfiguration, aber unter `--no-stop` läuft die nächste Konfiguration weiter und der Gesamtschritt bleibt FAIL. Den unabhängigen `Fish`-Fall separat prüfen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
+Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, gegebenenfalls R14 für v2, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
 
 ## Konkrete Aufgaben vor dem Release
 
@@ -263,38 +227,6 @@ Weitere konkrete Ergänzungen:
 
 **Abnahme:** Ein neuer Anwender findet einen PC-Einstieg, versteht die Ablage und kann CE/SL sowie ihre Grenzen ohne Kenntnis von A-/M-Aufträgen ausprobieren. Release-Zusagen decken sich mit nachgewiesenen Plattformen und Funktionen.
 
-### Testläufe dürfen keine fremden Arbeitsstände hinterlassen
-
-**R13 · Gewicht 5 · Aufwand M · Dauerhafte Änderungen und fehlender Snapshot-Umfang bestätigt**
-
-Die verbliebenen Änderungen betreffen `til.json` und `li.json` in [PC_log](../../examples/PC_log) und [G0B1_log](../../examples/G0B1_log). Der semantische Vergleich mit HEAD ergibt:
-
-| Beispiel | TIL-Einträge vorher → nachher | Änderung vorhandener TIL-Einträge | Änderung vorhandener LI-Einträge |
-| --- | --- | --- | --- |
-| PC_log | 2.293 → 2.306 | Keine | 2.283 geänderte Zeilennummern |
-| G0B1_log | 2.296 → 2.309 | Keine | 2.283 geänderte Zeilennummern |
-
-Pro Beispiel kommen 13 SL-/CE-Beispiele aus `triceCheck.c` in beiden Tabellen hinzu. Es werden keine vorhandenen TIL-Einträge entfernt oder neu zugewiesen. Bei den bestehenden LI-Einträgen ändern sich ausschließlich Zeilennummern, um 8, 13 oder 31 Zeilen; die Dateipfade bleiben gleich. Die großen Textdiffs sind somit eine inhaltliche Aktualisierung nach Source-Erweiterungen, keine bloße JSON-Umsortierung und kein Nachweis instabiler IDs.
-
-**Bei unveränderten Eingaben ist keine erneute inhaltliche Änderung erforderlich.** Sind Quellen, Einstellungen und der relevante ID-/Artefaktzustand gleich geblieben und die Tabellen bereits aktuell, soll ein weiterer Bind-Lauf sie unverändert lassen. [Bind](../../internal/id/bindIDs.go) vergleicht vor einem vorgesehenen Schreibzugriff die erzeugten Bytes mit dem vorhandenen Inhalt und überspringt identische Dateien. Der vorhandene Test `TestBindDoesNotReplaceUnchangedFiles` in [bindIDs_test.go](../../internal/id/bindIDs_test.go) prüft, dass ein zweiter erfolgreicher Lauf keine Dateiersetzung ausführt. Diese Eigenschaft ist bereits implementiert; sie muss für R13 nicht neu erfunden werden.
-
-Eine weiterhin sichtbare Git-Änderung bedeutet nur, dass die Datei noch vom Commit-Stand abweicht. Sie beweist keine weitere Änderung beim nächsten Testlauf. Für die vier Beispieltabellen ist bislang kein fortlaufender Inhaltswechsel bei identischen Wiederholungen nachgewiesen. Der Befund passt zu einmaligem Nachholbedarf nach den Source-Erweiterungen.
-
-Falls ein Test nach seiner Ausführung die alten, noch nicht aktualisierten Tabellen wiederherstellt, kann der nächste Lauf dieselbe Aktualisierung vorübergehend erneut benötigen. Das ist durch den wiederhergestellten Ausgangszustand bedingt. Nach jedem Lauf müssen dann wieder dessen Anfangsbytes vorliegen. Tests, die Quellen oder ID-Zustände absichtlich vorübergehend verändern, können ebenfalls zeitweise andere Tabellen benötigen; daraus folgt keine allgemeine Pflicht, aktuelle Beispieltabellen bei jedem Build zu ändern.
-
-Der Schreibpfad ist konkret: Im erfolgreichen Schritt 600 ruft [run_standalone_bind_examples](../../scripts/_200_gcc_example_build_worker.sh) unter anderem [PC_log/build_and_run.sh](../../examples/PC_log/build_and_run.sh) und [G0B1_log/build.sh](../../examples/G0B1_log/build.sh) direkt im Checkout auf. Beide führen `trice bind` im Beispielverzeichnis aus und aktualisieren dort die Standarddateien `til.json`/`li.json`. Die Änderungszeiten der LI-Dateien liegen am 29. September bei 23:18:45/46, innerhalb dieses Schritts. Der äußere [Snapshot](../../scripts/_140_trice_test_state.sh) umfasst die gemeinsamen Source-Pfade, die zentral konfigurierten TIL/LI und das zentrale generierte Verzeichnis, aber nicht diese vier lokalen Tabellen und die lokalen generierten Verzeichnisse. Deshalb kann er „exact initial files restored“ melden, obwohl diese Dateien verändert bleiben.
-
-Aufgabe in zwei getrennten Schritten:
-
-- Die versionierten Beispieltabellen nach Prüfung einmal bewusst auf den aktuellen Source-Stand bringen. Damit entfällt dieser konkrete Nachholbedarf bei unveränderten Wiederholungen. Dies ist ein eigener nachvollziehbarer Arbeitsschritt, keine stillschweigende Test-Nebenwirkung und kein automatischer Commit-Auftrag.
-- Unabhängig davon den Test-Ausgangszustand schützen: Beispielprüfungen bevorzugt mit ihren erforderlichen Abhängigkeiten in temporären Kopien ausführen. Alternativ den Snapshot-Vertrag um sämtliche tatsächlich beschriebenen lokalen Tabellen und generierten Verzeichnisse erweitern. Dabei auch ursprünglich fehlende Dateien und bereits vorhandene Benutzerauswahl erhalten. Nicht das Scannen von `triceCheck.c` oder Testfälle entfernen, nur um Diffs zu vermeiden.
-
-Ein vollständiger Snapshot vom Beginn des Gesamtlaufs liegt für diese vier Dateien nicht vor; der Vergleich mit HEAD ist kein Beweis für ihren exakten Zustand vor Testbeginn. Schon beim Einstieg in die vorherige Analyse waren sie verändert. Deshalb bleiben die aktuellen Dateien unverändert, statt sie pauschal zurückzusetzen.
-
-Zusätzlich ist am Ende von [testAll](../../scripts/_110_test_runner.sh) die Worktree-Schutzprüfung auskommentiert; Schritt 490 führt die kanonische Bind-Vorbereitung außerhalb eines solchen Snapshots aus. Diese Pfade im selben Zustandsvertrag prüfen. Eine reine `git status --short`-Gleichheit erkennt keine Inhaltsänderung in einer bereits vorher geänderten Datei; die relevante Garantie muss auf den tatsächlichen Anfangsbytes beruhen.
-
-**Abnahme:** Den verursachenden Standalone-Buildpfad aus Schritt 600 gezielt prüfen. Zwei aufeinanderfolgende Builds mit identischen Eingaben und bereits aktuellen Beispieltabellen ergeben identische JSON-Bytes; der zweite Bind-Lauf ersetzt diese Dateien nicht. Getrennt davon die Wiederherstellung mit anfangs veralteten Tabellen sowie vorübergehend veränderten Testeingaben prüfen. Erfolgs-, Fehler- und Signalpfade erhalten einen vorher bereits schmutzigen Arbeitsstand einschließlich Quellen, zentraler und lokaler TIL/LI, generierter Artefakte und Benutzerauswahl bytegenau. Bereits fehlende Dateien bleiben anschließend fehlend. Eine Verletzung meldet die konkret betroffenen Pfade und einen Fehlerstatus. Keine pauschale Git-Rücksetzung. Erst danach weitere zustandsverändernde Workflows parallelisieren und die Beispielabnahme nach R07 erweitern.
-
 ### Go-Modulfolgen eines Major-Releases erledigen
 
 **R14 · Gewicht 5 nur bei beschlossener v2 · Aufwand M–L**
@@ -321,7 +253,7 @@ Die Toolchain-Angaben angleichen: `go.mod` verlangt Go 1.25.0; der separat manue
 
 **R16 · Gewicht 5 · Aufwand M plus Full-Testlauf**
 
-Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13. Dessen Fehlerprotokolle und Zeitbasis vor dem nächsten Gesamtlauf sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
+Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
 
 **Abnahme:**
 
@@ -420,8 +352,54 @@ Erhaltene Nachweise: getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einma
 
 **Empfehlung:** Für das nächste Release nicht aufnehmen. Ein einfaches, merkbares Userinterface hat Vorrang. Der bereits verfügbare Insert/Clean-Weg und ausdrücklich geschriebene Werte decken die praktische Alternative ab. Kein Compiler-Vorlauf und keine neue Kontextverwaltung werden implizit eingeführt.
 
-## Vorschlag für die nächsten Aufträge
 
-R01 ist korrigiert; als Nächstes die nun bestätigte Snapshot-Lücke R13 in einem getrennten Schritt schließen und danach R02–R05 klären beziehungsweise korrigieren. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
+## Erledigte Korrekturen
 
-Anschließend R10–R12 für ein sauberes englisches UM und einen zutreffenden Einstieg, gegebenenfalls R14 für v2, dann R15/R16 für Release Notes und Abnahme. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb des englischen Anwender-UM.
+### Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten
+
+**R13 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+Die vier lokalen Tabellen in `examples/PC_log` und `examples/G0B1_log` waren nach zusätzlichen SL-/CE-Quellen einmalig aktualisiert worden. Vorhandene TIL-Einträge behielten ihre IDs; in den LI-Tabellen verschoben sich Zeilennummern. Diese inhaltliche Aktualisierung ist bereits im aktuellen Commit-Stand enthalten. Bei unveränderten Eingaben überspringt Bind identische Schreibvorgänge; der vorhandene `TestBindDoesNotReplaceUnchangedFiles` prüft das ausdrücklich.
+
+Die Standalone-Builds aus Schritt 600 laufen weiterhin im Checkout. Der verwaltete Snapshot umfasst jetzt auch die lokalen Beispielquellen, TIL/LI-Dateien, generierten Verzeichnisse und Buildausgaben einschließlich ursprünglich fehlender Pfade und vorhandener Benutzerauswahl. Schritt 490 bereitet Bind innerhalb desselben Zustandsvertrags vor. Am Ende von `testAll` vergleicht eine zusätzliche Prüfung die wirklichen Bytes aller versionierten Dateien mit dem Ausgangszustand und nennt veränderte Pfade; ein bereits zuvor schmutziger Git-Status gilt nicht als Gleichheitsnachweis. Es gibt keine pauschale Git-Rücksetzung.
+
+**Gezielte Abnahme am 30. September:** Die zwei Standalone-Builds pro `PC_log` und `G0B1_log` ließen alle vier Tabellen bytegleich und behielten beim zweiten Lauf deren Inodes; der äußere Snapshot stellte den Checkout anschließend wieder her. Isolierte Verhaltenstests prüfen schmutzige und ursprünglich fehlende lokale Dateien, generierte Benutzerauswahl und Buildausgaben nach Erfolg, Worker-Fehler und Signal, außerdem die transaktionale Vorbereitung in Schritt 490 bei Erfolg und Fehler. Ein Runner-Test beweist, dass eine erneute Änderung einer schon vorher schmutzigen Datei trotz unverändertem Git-Kurzstatus erkannt und mit Pfad gemeldet wird. `testAll quick` besteht mit 19/19 Schritten einschließlich der realen Schritte 490, 600 und der Byte-Prüfung. Die vollständige Release-Matrix bleibt bei R16.
+
+### Kein automatisch erzeugtes untagged-Präfix ausgeben
+
+**R01 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+Die sichtbare Ausgabe enthält kein synthetisches `untagged:` mehr. Für ungetaggte oder unbekannt getaggte Ereignisse verhindert die Textausgabe zugleich, dass ein Doppelpunkt im Benutzertext nachträglich als Format-Tag interpretiert wird. JSON/KV verwenden weiter `tag=untagged` als Metadatum, ohne die Message zu verändern. Die `Fish`-Erwartung ist korrigiert. Die C-gestützten Vergleichsschleifen brechen bei der ersten Abweichung pro Konfiguration ab; `--no-stop` steuert weiterhin die Fortsetzung im äußeren Test-Worker. Gezielte Regressionstests decken die unabhängigen Fälle ab. Die vollständige Release-Matrix bleibt ausdrücklich Aufgabe R16.
+
+**Gezielte Abnahme am 30. September:** Translator-Paket und die einschlägigen Emitter-Tests bestehen. Die Fehlerprobe erzwingt je einen falschen Bulk-, Einzelzeilen- und Direct-/Deferred-Vergleich und bestätigt jeweils nur eine Diagnose trotz `TRICE_TEST_NO_STOP=1`. Die kurzen PC-Workflows bestehen mit Insert und Bind. Eine komplette Ringpuffer-Einzelzeilenkonfiguration sowie die kombinierte Direct-/Deferred-Konfiguration und alle drei zuvor betroffenen Spezialfälle bestehen unter Insert; die kombinierte Konfiguration und Spezialfälle bestehen auch unter Bind. Der unabhängige `Fish`-Fall ist Teil der Ringpuffer-Einzelzeilenprüfung. Ein ad hoc Bind-Mehrpaketlauf ohne den vorgesehenen Go-Cache-Reset lieferte zunächst einen leeren Direct-Wert; der kontrollierte Bind-Einzellauf nach `go clean -cache -testcache` bestand. Für die abschließende Matrix den regulären PC-Test-Worker mit seinem Cache-Reset verwenden. Markdownlint für das geänderte UM besteht. Die vollständige Full-Matrix bleibt bei R16.
+
+**Verbindliche Ausgaberegel: Trice darf die Zeichenfolge `untagged:` niemals selbst zu einer Logmeldung hinzufügen.** Sie darf in der sichtbaren Meldung nur vorkommen, wenn die Anwendung sie selbst als Text geliefert hat. Das gilt für Text, JSON und KV und ausdrücklich auch bei `-color off`. Bei `trice("hi")` lautet die sichtbare Message deshalb `hi`, ohne `untagged:` vor oder innerhalb des Textes. Die interne Klassifizierung heißt trotzdem `untagged`; JSON/KV dürfen dafür ein separates Tag-Metadatum mit dem Wert `untagged` ausgeben. Filterung, Gewicht, Farbe und Ereignisstatistik verwenden weiterhin diese Klassifizierung. Ein vom Anwender tatsächlich gelieferter Text `untagged:` darf nicht pauschal entfernt werden.
+
+| Format | Ausgabe für `trice("hi")`, ohne weitere Metadaten |
+| --- | --- |
+| Text | `hi` |
+| JSON | `{"tag":"untagged","message":"hi"}` |
+| KV | `tag=untagged message="hi"` |
+
+Bei einem unbekannten Präfix wie `trice("mgs:blah")` bleibt die Message `mgs:blah`, während das Tag-Metadatum `untagged` lautet. Dadurch bleibt auch ein möglicher Tippfehler sichtbar. Die bestehenden Darstellungsregeln für ausdrücklich geschriebene bekannte Tags bleiben erhalten; ebenso die Regeln für Leerraum und Zeilenabschluss. Anwendertext darf nicht durch pauschales Entfernen gleichlautender Textstücke verändert werden.
+
+Die damaligen Protokolle `_630_test_pc_targets_insert.log` und `_640_test_pc_targets_bind.log` enthielten pro Workflow 14.655 fehlgeschlagene Einzelzeilen-/Spezialvergleiche. Der Abgleich aller erwarteten und tatsächlichen Strings ergab in beiden Workflows dieselben Abweichungen. Die folgende Tabelle beschreibt ausschließlich den **damals beobachteten Fehler**: `tatsächlich` ist keine gewünschte neue Testerwartung. Insbesondere bleibt `Hello World!` der richtige Erwartungswert; `untagged:Hello World!` war der zu behebende Ist-Wert.
+
+| Ursache | Konkreter Unterschied | Häufigkeit je Workflow |
+| --- | --- | ---: |
+| Unerwünschtes automatisch ergänztes Präfix bei `-color off` | Erwartet `Hello World!`, tatsächlich `untagged:Hello World!`; entsprechend bei anderen ungetaggten Meldungen | 14.581 |
+| Veralteter Feldname im manuellen JSON-Beispiel | Erwartet `... Birn:2, Fisch:2.781000}`, tatsächlich `... Birn:2, Fish:2.781000}` | 74 |
+
+Das unerwünschte Präfix betrifft die Vergleiche mit den `//exp:`-Erwartungen in [triceCheck.c](../../_test/testdata/triceCheck.c), außerdem die Spezialfälle `dblB_de_protect_tcobs_ua`, `ringB_de_protect_tcobs_ua` und `modify_for_debug`. Bei zwei getrennten ungetaggten Aufrufen mit `Hello ` und `World!` muss die zusammengesetzte Textausgabe `Hello World!` bleiben. Das derzeit beobachtete `untagged:Hello untagged:World!` verletzt diesen Vertrag; die Klassifizierung beider Ereignisse bleibt trotzdem jeweils `untagged`. Der unabhängige `Fish`-Unterschied stammt aus `exampleOfManualJSONencoding()`: Der Formatstring verwendet bereits `Fish`, nur die Erwartung an der aufrufenden Teststelle enthält noch `Fisch`.
+
+Je gewöhnlicher Einzelzeilenkonfiguration sind es 197 Präfixabweichungen und eine `Fish`-Abweichung. Die kombinierten Direct-/Deferred-Konfigurationen prüfen beides zweimal. Die drei genannten Spezialtests haben jeweils eine Präfixabweichung. Die hohen Summen entstehen durch Wiederholung über die Konfigurationen, nicht durch ebenso viele verschiedene Ursachen.
+
+[Der Bulk-Vergleich](../../_test/testdata/cgoPackage.go) schneidet nach der erwarteten Textlänge weiter. Bereits das erste zusätzliche `untagged:` verschob in den früheren Protokollen die folgenden Ausschnitte; jeder der acht Bulk-Läufe meldete deshalb 1.743 Textunterschiede und Restdaten. Diese Folgefehler waren kein unabhängiger Nachweis eines Framing- oder Übertragungsdefekts. Nach der Korrektur besteht der gezielt ausgeführte Ringpuffer-Bulk-Lauf unter Insert und Bind; alle Bulk-Konfigurationen bleiben Teil der Full-Matrix bei R16.
+
+Umgesetzt: Die automatisch zugewiesene Klassifizierung verändert den Message-Text in Text, JSON und KV nicht mehr. Die vorhandenen präfixfreien Erwartungen blieben erhalten; die separate `Fisch`-Erwartung lautet jetzt `Fish`. Weder Testausgaben noch Erwartungen wurden pauschal um `untagged:` bereinigt beziehungsweise erweitert. Verhaltenstests und die betreffenden UM-Aussagen folgen dem präzisierten Vertrag.
+
+**Früher Testabbruch:** Vor der Korrektur koppelte `keepCheckingAfterFailure()` das Weiterprüfen innerhalb eines Pakets an `TRICE_TEST_NO_STOP=1`. Dadurch meldete der Bulk-Vergleich nach dem ersten Längenfehler Tausende Folgeunterschiede; die Einzelzeilenprüfung führte noch alle übrigen Logaufrufe aus. Die Bulk-, Einzelzeilen- und kombinierten Direct-/Deferred-Tests brechen jetzt innerhalb **jeder Konfiguration beim ersten fehlgeschlagenen Vergleich ab**. Die Diagnose nennt Index, Source-Zeile sowie erwarteten und tatsächlichen Wert und markiert die Konfiguration als fehlgeschlagen. Der äußere [PC-Test-Worker](../../scripts/_160_pc_target_test_worker.sh) diagnostiziert bei `--no-stop` fehlgeschlagene Bulk-Konfigurationen weiterhin einzeln und prüft danach die **nächste Konfiguration**; ohne `--no-stop` bleibt der bisherige Abbruch des Workflows nach Fehler und Gegenprobe. `-failfast` allein ersetzt den Rücksprung aus einer bereits laufenden Vergleichsschleife nicht.
+
+Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Der `Fish`-Fall und die `untagged`-Ausgabe sind auch in gezielten, voneinander unabhängigen Verhaltenstests abgesichert. Im erfolgreichen Durchlauf bleiben sämtliche bisherigen Testfälle und Assertions aktiv; nur die Fehlerdiagnose endet pro Konfiguration früher. Der Bulk-Vergleich zählt nach einem Längenunterschied keine verschobenen Ausschnitte als eigenständige Fehler weiter.
+
+**Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum: Ohne wörtliches `untagged:` im Anwendungstext enthält keine ausgegebene Meldung diese Zeichenfolge; ein vom Anwender gelieferter gleichlautender Text bleibt erhalten. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Einen absichtlich ausgelösten frühen Fehler in Bulk, Einzelzeile und Direct/Deferred prüfen: jeweils genau ein aussagekräftiger Vergleichsfehler pro Konfiguration, aber unter `--no-stop` läuft die nächste Konfiguration weiter und der Gesamtschritt bleibt FAIL. Den unabhängigen `Fish`-Fall separat prüfen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
