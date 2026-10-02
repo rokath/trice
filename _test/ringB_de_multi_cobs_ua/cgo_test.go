@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -129,16 +130,30 @@ func TestPCStopsAtFirstMismatch(t *testing.T) {
 		t.Run(mode, func(t *testing.T) {
 			firstSourceLine := getExpectedResults(&afero.Afero{Fs: afero.NewOsFs()}, targetActivityC, 1)[0].line
 			sourceReference := fmt.Sprintf("line %d", firstSourceLine)
+			diagnosticMarker := "Error Trace:"
+			if mode == "bulk" {
+				sourceReference = fmt.Sprintf("triceCheck.c:%d", firstSourceLine)
+				diagnosticMarker = "EXPECTATION FAILURE"
+			}
 			if mode == "combined" {
 				sourceReference = fmt.Sprintf("0 {%d ", firstSourceLine)
 			}
 			command := exec.Command(os.Args[0], "-test.run=^TestPCStopsAtFirstMismatch$")
-			command.Env = append(os.Environ(), probeEnvironment+"="+mode, "TRICE_TEST_NO_STOP=1")
+			artifacts := t.TempDir()
+			command.Env = append(os.Environ(), probeEnvironment+"="+mode, "TRICE_TEST_NO_STOP=1", "TRICE_PC_TEST_ARTIFACT_DIR="+artifacts)
 			output, err := command.CombinedOutput()
 			require.Error(t, err, "the deliberately wrong first record must fail")
-			assert.Equal(t, 1, strings.Count(string(output), "Error Trace:"), "one mismatch should produce one diagnostic: %s", output)
+			assert.Equal(t, 1, strings.Count(string(output), diagnosticMarker), "one mismatch should produce one diagnostic: %s", output)
 			assert.NotContains(t, string(output), "UNEXPECTED_SECOND_LOG_CALL", "the next record or deferred branch must not run")
 			assert.Contains(t, string(output), sourceReference, "the first source line should identify the failure")
+			if mode == "bulk" {
+				wire, err := os.ReadFile(filepath.Join(artifacts, "deferred.bin"))
+				require.NoError(t, err)
+				assert.NotEmpty(t, wire, "keep the original C output for replay")
+				text, err := os.ReadFile(filepath.Join(artifacts, "deferred.txt"))
+				require.NoError(t, err)
+				assert.Equal(t, strings.Repeat("wrong", 20), string(text), "keep the complete failed comparison text")
+			}
 		})
 	}
 }

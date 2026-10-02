@@ -11,6 +11,16 @@ uint8_t* cgoTriceBuffer;
 // cgoTriceBufferDepth holds the number of valid raw trice bytes inside cgoTriceBuffer after TRICE macro execution.
 unsigned cgoTriceBufferDepth = 0;
 
+// Bulk concatenation requires wire framing; unframed word padding and packet
+// boundaries remain covered by the single-record path.
+int CgoDirectBulkSupported(void) {
+	return TRICE_DIRECT_OUT_FRAMING != TRICE_FRAMING_NONE;
+}
+
+int CgoDeferredBulkSupported(void) {
+	return TRICE_DEFERRED_OUT_FRAMING != TRICE_FRAMING_NONE;
+}
+
 // TriceOutDepthCGO provides access to the output buffer depth
 unsigned TriceOutDepthCGO(void) {
 	return cgoTriceBufferDepth;
