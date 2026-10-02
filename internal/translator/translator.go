@@ -73,21 +73,45 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)
 	} else {
-		go handleSIGTERM(diagnostics, rwc, visRouter)
+		stopSignals := startSignalHandler(diagnostics, rwc, visRouter)
+		defer stopSignals()
 	}
 	return decodeAndComposeLoopOutput(w, diagnostics, sw, dec, lut, li, visRouter, m)
 }
 
-// handleSIGTERM is called on CTRL-C shutdown.
-func handleSIGTERM(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) {
-	// prepare CTRL-C shutdown reaction
+// startSignalHandler owns one registration for this log run. Its stop function
+// unregisters and joins the goroutine before the caller releases its resources.
+func startSignalHandler(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) func() {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	ticker := time.NewTicker(50 * time.Millisecond)
+	stop := make(chan struct{})
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		handleSignals(w, rc, visRouter, sigs, stop)
+	}()
+	return func() {
+		signal.Stop(sigs)
+		close(stop)
+		<-done
+	}
+}
+
+// handleSignals preserves shutdown statistics and exit status. Normal EOF/error
+// cancels even the signal grace period; no ticker survives a completed log run.
+func handleSignals(w io.Writer, rc io.ReadCloser, visRouter *vis.Router, sigs <-chan os.Signal, stop <-chan struct{}) {
 	for {
 		select {
+		case <-stop:
+			return
 		case sig := <-sigs: // wait for a signal
-			time.Sleep(250 * time.Millisecond)
+			timer := time.NewTimer(250 * time.Millisecond)
+			select {
+			case <-stop:
+				timer.Stop()
+				return
+			case <-timer.C:
+			}
 			if Verbose {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
 			} else {
@@ -98,7 +122,6 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) {
 			msg.FatalOnErr(rc.Close())
 			msg.OnErr(visRouter.Close())
 			os.Exit(0) // end
-		case <-ticker.C:
 		}
 	}
 }
@@ -506,7 +529,6 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 		mutex = tableMutex[0]
 	}
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
-	bufferReadStartTime := time.Now()
 	sleepCounter := 0
 	if err := prepareTargetStampFormats(); err != nil {
 		return err
@@ -556,16 +578,12 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 		}
 
 		if n == 0 {
-			if (receiver.Port == "FILEBUFFER" ||
-				receiver.Port == "TCP4BUFFER" ||
-				receiver.Port == "HEX" ||
-				receiver.Port == "DUMP" ||
-				receiver.Port == "DEC" ||
-				receiver.Port == "BUFFER") /*&& err == io.EOF*/ && time.Since(bufferReadStartTime) > 100*time.Millisecond { // do not wait if a predefined buffer
+			if receiver.IsFiniteInput(receiver.Port) && err == io.EOF {
 				if len(sw.Line) > 0 {
-					_, _ = sw.Write([]byte(`\n`)) // add newline as line end to display any started line
+					if _, writeErr := sw.Write([]byte(`\n`)); writeErr != nil {
+						return writeErr
+					}
 				}
-				msg.OnErr(err)
 				return io.EOF
 			}
 

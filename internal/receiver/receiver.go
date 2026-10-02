@@ -42,6 +42,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 	"unicode"
 
@@ -368,6 +369,17 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 	return
 }
 
+// IsFiniteInput distinguishes replay sources from live streams. TCP4BUFFER
+// finishes on peer EOF, never on a temporary empty read; FILE keeps tailing.
+func IsFiniteInput(port string) bool {
+	switch strings.ToUpper(port) {
+	case "FILEBUFFER", "TCP4BUFFER", "HEX", "DUMP", "DEC", "BUFFER":
+		return true
+	default:
+		return false
+	}
+}
+
 // buffer is just here to make bytes.Buffer an io.ReadWriteCloser.
 // Read about embedding to see how this works.
 type buffer struct {
@@ -385,8 +397,10 @@ func (b *buffer) Close() error {
 //
 //	//
 type binaryLogger struct {
-	w io.Writer
-	r io.ReadCloser
+	w         io.Writer
+	r         io.ReadCloser
+	closeOnce sync.Once // Closing a wrapper owns both source and logfile, once.
+	closeErr  error
 }
 
 // NewBinaryLogger returns a ReadWriteCloser `in` which is internally using reader `from`.
@@ -429,8 +443,18 @@ func (p *binaryLogger) Read(buf []byte) (count int, err error) {
 	return
 }
 
-// Close is needed to satisfy the ReadCloser interface.
-func (p *binaryLogger) Close() error { return nil }
+// Close releases both owned resources even if closing the first one fails.
+func (p *binaryLogger) Close() error {
+	p.closeOnce.Do(func() {
+		if p.r != nil {
+			p.closeErr = p.r.Close()
+		}
+		if closer, ok := p.w.(io.Closer); ok {
+			p.closeErr = errors.Join(p.closeErr, closer.Close())
+		}
+	})
+	return p.closeErr
+}
 
 func (p *binaryLogger) Write(buf []byte) (count int, err error) { return 0, nil }
 
@@ -442,15 +466,17 @@ func (p *binaryLogger) Write(buf []byte) (count int, err error) { return 0, nil 
 //
 //	//
 type bytesViewer struct {
-	w io.Writer
-	r io.ReadWriteCloser
+	w         io.Writer
+	r         io.ReadWriteCloser
+	closeOnce sync.Once // The diagnostic writer is borrowed; only the source is owned.
+	closeErr  error
 }
 
 // NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional action like logging
 func NewBytesViewer(w io.Writer, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
-	p := &bytesViewer{w, from}
+	p := &bytesViewer{w: w, r: from}
 	return p
 }
 
@@ -470,8 +496,15 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	return
 }
 
-// Close is needed to satisfy the ReadCloser interface.
-func (p *bytesViewer) Close() error { return nil }
+// Close delegates to the source once and leaves the borrowed writer open.
+func (p *bytesViewer) Close() error {
+	p.closeOnce.Do(func() {
+		if p.r != nil {
+			p.closeErr = p.r.Close()
+		}
+	})
+	return p.closeErr
+}
 
 // Close is needed to satisfy the ReadCloser interface.
 func (p *bytesViewer) Write(_ []byte) (int, error) { return 0, nil }

@@ -201,6 +201,46 @@ func (s *stubReadWriteCloser) Write(buf []byte) (int, error) {
 
 func (s *stubReadWriteCloser) Close() error { return nil }
 
+// countedResource records ownership, including close failures. Separate
+// instances represent the input, owned binary file, and borrowed debug sink.
+type countedResource struct {
+	stubReadWriteCloser
+	closes   int
+	closeErr error
+}
+
+func (r *countedResource) Close() error { r.closes++; return r.closeErr }
+
+// TestWrapperChainClosesOwnedResourcesOnce ensures cleanup reaches the real
+// source and logfile through both wrappers, including failure and repeat paths.
+func TestWrapperChainClosesOwnedResourcesOnce(t *testing.T) {
+	inputErr := errors.New("input close failed")
+	fileErr := errors.New("binary file close failed")
+	for _, fail := range []bool{false, true} {
+		t.Run(fmt.Sprintf("close_errors=%t", fail), func(t *testing.T) {
+			input, file, diagnostics := &countedResource{}, &countedResource{}, &countedResource{}
+			if fail {
+				input.closeErr, file.closeErr = inputErr, fileErr
+			}
+			viewer := NewBytesViewer(diagnostics, input)
+			logger := &binaryLogger{r: viewer, w: file}
+			for range 2 {
+				err := logger.Close()
+				if fail {
+					assert.ErrorIs(t, err, inputErr)
+					assert.ErrorIs(t, err, fileErr)
+				} else {
+					assert.NoError(t, err)
+				}
+			}
+			_ = viewer.Close()
+			assert.Equal(t, 1, input.closes)
+			assert.Equal(t, 1, file.closes)
+			assert.Zero(t, diagnostics.closes, "stderr/stdout is borrowed")
+		})
+	}
+}
+
 // failingWriter returns the configured error for every binary log write.
 type failingWriter struct {
 	err error
