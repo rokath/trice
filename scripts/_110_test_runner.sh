@@ -35,6 +35,7 @@ TEST_ALL_SPINNER_PID=""
 TEST_ALL_PLAN_SCRIPTS=()
 TEST_ALL_PLAN_ARGUMENTS=()
 TEST_ALL_STATE_DIR=""
+TEST_ALL_STATE_CAPTURED=0
 TEST_ALL_STATE_VERIFIED=0
 
 summary_line() {
@@ -45,32 +46,97 @@ summary_line() {
 # capture_tracked_bytes records actual worktree bytes, including files that
 # were already dirty before testAll. Git status alone cannot detect a second
 # edit to such a file when its short status stays the same.
+#
+# Hash regular tracked paths in one Git process. The former per-file
+# git hash-object invocation was especially expensive under Git for Windows.
+# Newline-containing paths cannot be passed to --stdin-paths and therefore use
+# the old per-file path as a rare fallback.
 capture_tracked_bytes() {
   local manifest="$1"
   local path_list="$TEST_ALL_STATE_DIR/paths"
+  local entries="$TEST_ALL_STATE_DIR/entries"
+  local hash_paths="$TEST_ALL_STATE_DIR/hash-paths"
+  local hashes="$TEST_ALL_STATE_DIR/hashes"
   local path
+  local quoted_path
+  local kind
   local digest
+  local batch_failed=0
 
   if ! git ls-files -z >"$path_list"; then
     summary_line "FAIL: cannot list tracked paths for the test-state check"
     return 1
   fi
+
   : >"$manifest" || return 1
+  : >"$entries" || return 1
+  : >"$hash_paths" || return 1
+
   while IFS= read -r -d '' path; do
+    printf -v quoted_path '%q' "$path"
     if [ -f "$path" ] || [ -L "$path" ]; then
-      digest="$(git hash-object --no-filters -- "$path")" || {
+      case "$path" in
+        *$'\n'*)
+          digest="$(git hash-object --no-filters -- "$path")" || {
+            summary_line "FAIL: cannot hash tracked path: $path"
+            return 1
+          }
+          printf 'D\t%s\t%s\n' "$quoted_path" "$digest" >>"$entries" || return 1
+          ;;
+        *)
+          printf 'H\t%s\n' "$quoted_path" >>"$entries" || return 1
+          printf '%s\n' "$path" >>"$hash_paths" || return 1
+          ;;
+      esac
+    elif [ -e "$path" ]; then
+      printf 'D\t%s\t%s\n' "$quoted_path" '<not-a-file>' >>"$entries" || return 1
+    else
+      printf 'D\t%s\t%s\n' "$quoted_path" '<absent>' >>"$entries" || return 1
+    fi
+  done <"$path_list"
+
+  if [ -s "$hash_paths" ]; then
+    if ! git hash-object --stdin-paths --no-filters <"$hash_paths" >"$hashes"; then
+      batch_failed=1
+    fi
+  else
+    : >"$hashes" || return 1
+  fi
+
+  if [ "$batch_failed" -ne 0 ]; then
+    # Batch errors do not identify the failed input reliably. Diagnose only on
+    # the exceptional path; normal runs keep the one-process fast path above.
+    while IFS= read -r path; do
+      git hash-object --no-filters -- "$path" >/dev/null 2>&1 || {
         summary_line "FAIL: cannot hash tracked path: $path"
         return 1
       }
-    elif [ -e "$path" ]; then
-      digest="<not-a-file>"
-    else
-      digest="<absent>"
-    fi
-    printf '%q\t%s\n' "$path" "$digest" >>"$manifest" || return 1
-  done <"$path_list"
-}
+    done <"$hash_paths"
+    summary_line "FAIL: cannot batch-hash tracked paths for the test-state check"
+    return 1
+  fi
 
+  exec 3<"$hashes"
+  while IFS=$'\t' read -r kind quoted_path digest; do
+    if [ "$kind" = "H" ]; then
+      if ! IFS= read -r digest <&3; then
+        exec 3<&-
+        summary_line "FAIL: missing hash result for tracked path: $quoted_path"
+        return 1
+      fi
+    fi
+    printf '%s\t%s\n' "$quoted_path" "$digest" >>"$manifest" || {
+      exec 3<&-
+      return 1
+    }
+  done <"$entries"
+  if IFS= read -r digest <&3; then
+    exec 3<&-
+    summary_line "FAIL: unexpected extra hash result in the test-state check"
+    return 1
+  fi
+  exec 3<&-
+}
 # verify_tracked_bytes reports every changed tracked path and retains its
 # manifests on failure. Managed workflows restore their own generated trees;
 # this final guard catches any remaining change without a blanket git reset.
@@ -78,8 +144,8 @@ verify_tracked_bytes() {
   local before="$TEST_ALL_STATE_DIR/before"
   local after="$TEST_ALL_STATE_DIR/after"
   local path
-
   TEST_ALL_STATE_VERIFIED=1
+  summary_line "Verifying tracked worktree state..."
   if ! capture_tracked_bytes "$after"; then
     return 1
   fi
@@ -103,8 +169,13 @@ finish_test_runner() {
 
   trap - EXIT
   stop_progress_spinner
-  if [ -n "$TEST_ALL_STATE_DIR" ] && [ "$TEST_ALL_STATE_VERIFIED" -eq 0 ]; then
-    verify_tracked_bytes || status=1
+  if [ -n "$TEST_ALL_STATE_DIR" ]; then
+    if [ "$TEST_ALL_STATE_CAPTURED" -eq 1 ] && [ "$TEST_ALL_STATE_VERIFIED" -eq 0 ]; then
+      verify_tracked_bytes || status=1
+    elif [ "$TEST_ALL_STATE_CAPTURED" -eq 0 ]; then
+      rm -rf -- "$TEST_ALL_STATE_DIR"
+      TEST_ALL_STATE_DIR=""
+    fi
   fi
   exit "$status"
 }
@@ -134,7 +205,6 @@ progress_spinner() {
   local step="$1"
   local frame=0
   local mark
-
   while :; do
     case $((frame % 4)) in
       0) mark='|' ;;
@@ -155,7 +225,6 @@ progress_spinner() {
 # clears its terminal line before the stable result is printed.
 stop_progress_spinner() {
   local was_running=0
-
   if [ -n "$TEST_ALL_SPINNER_PID" ]; then
     was_running=1
     kill "$TEST_ALL_SPINNER_PID" 2>/dev/null || true
@@ -251,7 +320,6 @@ add_plan_step() {
 build_test_plan() {
   TEST_ALL_PLAN_SCRIPTS=()
   TEST_ALL_PLAN_ARGUMENTS=()
-
   add_plan_step "_400_test_shell_format.sh"
   add_plan_step "_410_test_shellcheck.sh"
   add_plan_step "_420_test_dsstore.sh"
@@ -317,7 +385,6 @@ expected_step_weight() {
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
-
   TEST_ALL_SELECTED="quick"
   TEST_ALL_NO_STOP=0
   for argument in "$@"; do
@@ -389,7 +456,6 @@ run_selected_steps() {
     if [ "$TEST_ALL_STEP_NUMBER" -eq "$TEST_ALL_STEP_COUNT" ]; then
       TEST_ALL_STEP_END_TENTHS=1000
     fi
-
     if [ -n "$argument" ]; then
       run_step_with_policy "$step" "$argument" || return 1
     else
@@ -415,9 +481,10 @@ main() {
   started_at=$(date +%s)
   clear_previous_test_logs || exit 1
   : >"$SUMMARY_LOG"
-
   TEST_ALL_STATE_DIR="$(mktemp -d "$LOG_DIR/testAll-state.XXXXXX")" || exit 1
+  summary_line "Preparing testAll: capturing tracked worktree state..."
   capture_tracked_bytes "$TEST_ALL_STATE_DIR/before" || exit 1
+  TEST_ALL_STATE_CAPTURED=1
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
   if [ "$selected" = "quick" ]; then
@@ -431,7 +498,6 @@ main() {
     summary_line "Failure policy: stop after the first failure"
   fi
   summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
-
   run_selected_steps || true
 
   verify_tracked_bytes || TEST_ALL_FAILED=1
@@ -447,7 +513,6 @@ main() {
   fi
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"
-
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
     exit "$TEST_ALL_ABORTED"
   fi

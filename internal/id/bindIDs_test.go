@@ -103,7 +103,7 @@ func TestBindReassignsHistoricalIDOutsideCurrentPolicy(t *testing.T) {
 	Min, Max = 1000, 1999
 	require.NoError(t, EvaluateIDRangeStrings())
 	require.NoError(t, FSys.WriteFile(FnJSON, []byte(`{"250":{"Type":"trice","Strg":"err:reassigned"}}`), 0o644))
-	require.NoError(t, FSys.WriteFile(LIFnJSON, []byte(`{"250":{"File":"`+Srcs[0]+`","Line":4}}`), 0o644))
+	writeBindTestLI(t, LIFnJSON, TriceIDLookUpLI{250: {File: Srcs[0], Line: 4}})
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_module_c_K1111111111111111.h"))
