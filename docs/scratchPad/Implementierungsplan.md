@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: 30. September 2026. Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
+Stand: 1. Oktober 2026. Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
 
 Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
 
@@ -13,7 +13,7 @@ Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind un
 Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der damaligen vollständigen Protokolle ausgewertet. Bei jener Bestandsaufnahme wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier damals abweichenden Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und zunächst unverändert gelassen. Ein späterer `testAll quick` für R13 hat die flachen Logdateien des Full-Laufs ersetzt; dessen hier festgehaltene Messwerte und Fehleranalyse bleiben historische Befunde.
 
 - Ergebnis laut der damaligen `testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheiterten. Die L432-Matrix mit 101 Konfigurationen bestand und brauchte etwa **20 Minuten 14 Sekunden**.
-- Beide PC-Workflows führen jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheitern, sechs Spezialläufe bestehen. Die fehlgeschlagenen Tests heißen jeweils `TestTriceLog`; es sind keine fehlgeschlagenen Compileraufrufe.
+- Im damaligen Lauf führten beide PC-Workflows jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheiterten, sechs Spezialläufe bestanden. Die fehlgeschlagenen Tests hießen jeweils `TestTriceLog`; es waren keine fehlgeschlagenen Compileraufrufe. Die spätere Beschleunigung und erfolgreiche PC-Abnahme stehen bei R06/R08/R09/P01/P04.
 - Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
 - Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
 - Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
@@ -49,14 +49,11 @@ Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehen
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R05 und R13 sind abgeschlossen; ihre vollständige Matrix-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R06, R08/R09, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R06 | Testlaufzeit und tatsächlich ausgeführte Fälle erfassen | 4 | S | Erste Full-Messung liegt vor; dauerhaft erfassen |
 | R07 | Vorhandene CE-/SL- und Beispielprüfungen verbindlich ausführen | 5 | M | R01, R13; erforderliche Compiler |
-| R08 | Loglauf sauber beenden: Signale, Timer und Ressourcen | 4 | M | Gezielte Reproduktion |
-| R09 | Endliche Puffer ohne pauschale Wartezeit abschließen | 4 | M | R01, R06; mit R08 abstimmen |
 | R17 | Repo-Bestand und Dokumentationsziele je Datei prüfen | 4 | S–M | Lesende Bestandsprüfung; vor Löschungen/Verschiebungen |
 | R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04, R17 |
 | R11 | SL- und CE-Kapitel vollständig ins Englische übertragen | 5 | M–L | R02, R10 |
@@ -73,33 +70,13 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 ## Vorschlag für die nächsten Aufträge
 
-R01–R05 und R13 sind abgeschlossen; v2.0.0 ist das bestätigte Release-Ziel. R06 hat jetzt eine konkrete Zeitbasis und soll diese Erfassung verstetigen. R08/R09 sind vor einem weiteren achtstündigen Gesamtlauf der erste Optimierungsansatz. Die fehlende produktive Testabnahme R07 anschließend mit gesichertem Ausgangszustand verbindlich machen.
+Die Gesamtaufgabe **Testzeit verkürzen** umfasst R06, R08/R09 und P01/P04; Umsetzung und Nachweise stehen unten. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die fehlende produktive CE-/SL-Testauswahl **R07** bleibt ein eigener nächster Auftrag. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
 
 Die Dokumentationsarbeit kann parallel zu langen Tests beginnen: **R17 Bestandsprüfung → R10 Bereinigung → R11 Übersetzung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt zuerst, damit beim Verkürzen und Entfernen keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
 
-R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P- und F-Aufgaben werden nur nach eigener Auswahl umgesetzt. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
+R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02/P03 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
 
 ## Konkrete Aufgaben vor dem Release
-
-### Tatsächliche Testarbeit und Laufzeit erfassen
-
-**R06 · Gewicht 4 · Aufwand S · Erste Messung vorhanden, dauerhafte Erfassung noch offen**
-
-[Der Runner](../../scripts/_110_test_runner.sh) zeigt grobe Arbeitsgewichte und die Gesamtdauer, aber keine vollständige gemessene Dauerübersicht je Schritt. Der abgeschlossene Lauf vom 29./30. September liefert folgende erste Messgrundlage. Die Abschnitte wurden aus den Startzeitpunkten der Schritte und dem Ende des Gesamtlaufs berechnet; sie enthalten Vorbereitung und Wiederherstellung und sind auf Sekunden aufgelöst.
-
-| Abschnitt | Dauer | Ergebnis |
-| --- | --- | --- |
-| Schritte 400–610 zusammen | 00:07:13 | PASS |
-| Schritt 620, L432 mit 101 Konfigurationen | 00:20:14 | PASS |
-| Schritt 630, PC/Insert | 03:52:08 | FAIL |
-| Schritt 640, PC/Bind | 03:52:29 | FAIL |
-| Gesamtlauf | 08:12:04 | FAIL |
-
-Die beiden PC-Schritte belegen damit rund **94,4 Prozent** der Gesamtdauer. Pro ID-Workflow wurden 63 verschiedene Pakete in 71 Paketaufrufen geprüft: acht Bulk-Läufe und 63 Einzelzeilen-/Spezialläufe. Die acht Einzelzeilen-Gegenproben nach Bulk-Fehlern wurden in der anschließenden regulären Phase nicht nochmals ausgeführt. Das ergibt über beide Workflows 142 Paketaufrufe, davon 130 fehlgeschlagen und zwölf bestanden. Die Fehlerdiagnose auszulassen wäre daher im Full-Lauf kein Ersatz für die Optimierung des eigentlichen Logpfads.
-
-Aufgabe: Zeiten, ausgeführte Konfigurationen, Testmodi, Compiler und Cachezustand künftig direkt und kompakt im Abschlussbericht erfassen. Die grobe Prozentanzeige ist keine Zeitmessung. Diese Werte stammen aus einem Fehlerlauf auf einem konkreten Rechner, nicht aus einer plattformunabhängigen Benchmark.
-
-**Abnahme:** Für denselben Stand liegen nachvollziehbare Zeiten und Falllisten vor: Bind/Insert, Bulk/Einzelzeile, Target-Konfigurationen, Go- und Compilerprüfungen. Fehlerläufe und erfolgreiche Läufe werden getrennt betrachtet. Kein belastbares Beschleunigungsversprechen vor dem Vergleich.
 
 ### Vorhandene neue Integrationstests in die Standardabnahme aufnehmen
 
@@ -112,28 +89,6 @@ Die neuen [PC-Ausgabeprüfungen](../../examples/PC_features/check_output.sh) und
 Aufgabe: Bestehende Prüfungen einer klaren, dokumentierten Auswahl zuordnen. Erforderliche Compiler/clangd erkennen; im Release-Lauf darf ein fehlendes Pflichtwerkzeug nicht als bestandene Abnahme erscheinen. Den großen experimentellen Rebase-PoC getrennt von produktiver CE-Unterstützung ausweisen. Neue Beispielprüfungen müssen isoliert laufen oder ihren Ausgangszustand exakt wiederherstellen.
 
 **Abnahme:** Protokolle nennen die tatsächlich ausgeführten produktiven CE-/SL-End-to-End-Tests und Beispielprüfungen. C/C++-Records, Text/JSON/KV, Insert/Clean-Rücknahme, Bind, Abschaltung und einmalige Argumentauswertung sind enthalten. Fehlende Plattformnachweise werden offen benannt.
-
-### Ressourcen und Signalbehandlung pro Loglauf abschließen
-
-**R08 · Gewicht 4 · Aufwand M · Konkrete Codepfade, Auswirkung gezielt messen**
-
-[Translate](../../internal/translator/translator.go) startet pro Aufruf einen Signal-Handler mit Ticker. Bei normalem EOF ist kein Abbruchpfad für diese Goroutine, kein `signal.Stop` und kein explizites `ticker.Stop` vorhanden. Die Einzelzeilentests starten den Logger sehr häufig im selben Prozess.
-
-Zusätzlich sind `binaryLogger.Close` und `bytesViewer.Close` in [receiver.go](../../internal/receiver/receiver.go) wirkungslose Methoden. Mit vorgeschalteten Wrappers muss die tatsächliche Schließung von Eingabe und Binärdatei geprüft werden; ein `defer` auf der danach veränderten Reader-Variable garantiert das nicht.
-
-**Abnahme:** Wiederholte endliche Logläufe hinterlassen keine wachsende Zahl von Signalregistrierungen, Goroutinen oder Dateihandles. EOF, Lesefehler, Schreibfehler und SIGINT/SIGTERM schließen die jeweils besessenen Ressourcen genau einmal. Die bisherigen Statistiken, Diagnosen und Exitcodes bleiben fachlich erhalten. Tests verwenden beobachtbare Abschlussbedingungen statt bloßer Sleeps.
-
-### Wartezeit bei endlichen Eingaben entfernen
-
-**R09 · Gewicht 4 · Aufwand M · Laufzeitbefund bestätigt, Speedup einer Korrektur noch nicht gemessen**
-
-In [decodeAndComposeLoopOutput](../../internal/translator/translator.go) endet ein vordefinierter Buffer erst, wenn seit Beginn mehr als 100 ms vergangen sind; zusätzlich existiert eine 100-ms-Pause nach wiederholten leeren Reads. [Die Einzelzeilenprüfung](../../_test/testdata/cgoPackage.go) startet den vollständigen Logpfad für jede Erwartung neu. Der abgeschlossene Testlauf erfasst 1.745 Erwartungen pro gewöhnlichem Durchlauf. Allein 100 ms je Aufruf entsprechen rechnerisch rund 175 Sekunden pro solcher Konfiguration, noch ohne übrige Arbeit.
-
-Gemessen wurden pro ID-Workflow 34 gewöhnliche Konfigurationen mit jeweils etwa 183–185 Sekunden und 20 kombinierte Direct-/Deferred-Konfigurationen mit jeweils etwa 365 Sekunden; hinzu kommen neun kurze Spezialläufe. Die acht zusätzlichen Bulk-Prüfungen brauchten rund eine halbe Sekunde pro Paket. Über beide Workflows entsprechen schon die 100 ms für `2 × (34 + 2 × 20) × 1.745` Logaufrufe rechnerisch **7 Stunden 10 Minuten 26 Sekunden**. Die gemessene PC-Gesamtdauer beträgt 7 Stunden 44 Minuten 37 Sekunden einschließlich Builds und Verwaltung. Damit ist R09 der erste Optimierungsansatz vor Parallelisierung oder Cacheumbau. Das ist noch kein gemessener Speedup einer Korrektur; beide Testarten und ihre unterschiedlichen Prüfziele bleiben erhalten.
-
-Aufgabe: Endliche Buffer-/Dateiquellen anhand ihres tatsächlichen Endes abschließen. Vorher prüfen, wie Decoder gepufferte Records nach einem Eingabe-EOF noch ausgeben. Live-Quellen und `TCP4BUFFER` nicht allein wegen eines kurzzeitig leeren Reads beenden.
-
-**Abnahme:** Identische Records, Diagnosen, Zeitstempel, Auswahl und Abschlussfragmente in beiden ID-Workflows. Fälle für leere Eingabe, letzten Record mit gleichzeitigem EOF, mehrere intern gepufferte Records, fragmentierte Eingabe, verkürztes Paket, Schreibfehler und Live-Pausen. Zeitgewinn mit unveränderter Fallzahl nachweisen; keine künstliche Kürzung von `testLines`.
 
 ### Daseinsberechtigung und Zielort des Repo-Bestands prüfen
 
@@ -276,21 +231,12 @@ Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließe
 
 ## Weitere Beschleunigung ohne geringere Abdeckung
 
-Die aussichtsreichste Reihenfolge lautet: **R06 messen → R08/R09 Abschlusskosten beseitigen → erst dann P01–P03 bewerten**. Vollständige Bulk- und Einzelzeilenabdeckung sowie beide ID-Workflows bleiben erhalten. `quick` anstelle von `full`, weniger Konfigurationen oder verkürzte Testdaten wären keine gleichwertige Beschleunigung.
+R08/R09, P04 und P01 sind umgesetzt. Alle Erwartungen, Konfigurationen und beide ID-Workflows bleiben erhalten. Die Einzelzeilenausführung bleibt für Diagnose und ungeframte beziehungsweise besondere Konfigurationen verfügbar. `quick` anstelle von `full`, weniger Konfigurationen oder verkürzte Testdaten wären keine gleichwertige Beschleunigung. P02/P03 sind weiterhin Vorschläge und nicht Teil des abgeschlossenen Umfangs.
 
 | ID | Vorschlag | Gewicht | Aufwand | Abhängigkeiten |
 | --- | --- | ---: | --- | --- |
-| P01 | PC-Konfigurationen begrenzt parallel in getrennten Prozessen testen | 3 | M | R01, R06, R09, R13 |
 | P02 | Go-/CGO-Buildcache gezielt und nachweisbar invalidieren | 3 | M–L | R06, R13 |
 | P03 | L432-Konfigurationen mit getrennten Buildverzeichnissen planen | 3 | L | R06, R13 |
-
-### PC-Matrix parallel ausführen
-
-[Paketweises serielles `go test`](../../scripts/_160_pc_target_test_worker.sh) verhindert derzeit Parallelität zwischen Konfigurationen. Unterschiedliche Testprozesse können voneinander unabhängig sein, sobald ihr ID-Zustand feststeht. Globale Go-/C-Zustände innerhalb eines einzelnen Testprozesses dürfen dagegen nicht durch beliebiges `t.Parallel` konkurrieren.
-
-Zuerst die vollständige Bulk-Phase erhalten, danach deren Fehlerdiagnosen und die Einzelzeilenphase wie bisher. Eine begrenzte Zahl paralleler Pakete, getrennte Logs und deterministische Zusammenführung prüfen. Bei `--no-stop` bleibt jeder Fehler sichtbar; Fail-fast und Signalweitergabe brauchen einen definierten Ablauf. Keine gleichzeitigen Insert-/Bind-Umschreibungen derselben Quellen.
-
-**Nachweis:** Gleiche Konfigurationen, Modi, Assertions und Fehlercodes wie seriell; keine Ressourcenspitzen durch unbegrenzte Parallelität. Auch absichtlich eingebaute Fehler und Abbruchfälle vergleichen.
 
 ### Cache nutzen, ohne veralteten C-Code zu testen
 
@@ -361,6 +307,7 @@ Erhaltene Nachweise: getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einma
 
 **Empfehlung:** Für das nächste Release nicht aufnehmen. Ein einfaches, merkbares Userinterface hat Vorrang. Der bereits verfügbare Insert/Clean-Weg und ausdrücklich geschriebene Werte decken die praktische Alternative ab. Kein Compiler-Vorlauf und keine neue Kontextverwaltung werden implizit eingeführt.
 
+---
 
 ## Erledigte Korrekturen
 
@@ -466,3 +413,73 @@ Der unterstützte Vertrag steht jetzt im [UM-Kapitel zur Firmware-/Host-Kompatib
 **Gezielte Abnahme:** Der neue Test `TestReleaseCompatibilityWithV130Dictionaries` in [structured_test.go](../../internal/args/structured_test.go) sichert klassische Meldungen, ungetaggten Text, historische Klammerfehler, aktuelle Escape-Schreibweise und benannte Felder mit echten TREX-Bytes ab; die TIL bleibt dabei bytegleich. Vorhandene CLI-, Generator-, Tag- und Template-Tests decken die übrigen aktuellen Verträge ab. Der direkte Zwei-Binary-Vergleich bestätigt die dokumentierten alten Ausgaben und CLI-Unterschiede; die Standardtests benötigen weder Git-Historie noch eine installierte alte Trice-Version.
 
 **Folgearbeiten:** Die Distributionsentscheidung ist getroffen: vorerst kein `/v2`, Installation über Binaries oder Repo-Checkout mit `./scripts/buildTriceTool.sh`. R14 sichert die dazugehörigen Anleitungen und Prüfungen ab. Go-Tests für `cmd`, `internal` und `pkg`, UM-Format, Markdownlint und lokale Linkprüfung bestanden. Die ausführlichen Release Notes bleiben R15, die vollständige Plattform-/Target-Abnahme R16.
+
+### Testbeschleunigung mit vollständigen PC-Matrizen geprüft
+
+**R06 · Gewicht 4 · Aufwand M · Umsetzung und vollständige PC-Gegenproben abgeschlossen**
+
+Der Auftrag umfasst R08/R09 und P01/P04. Die wiederholte 100-ms-Wartezeit bei endlichen Eingaben entfällt, Logaufrufe geben ihre Ressourcen frei, geeignete Konfigurationen decodieren gesammelt und der PC-Worker führt höchstens vier Konfigurationen gleichzeitig aus. Die ursprünglichen Erwartungen und die zusätzlichen Tests jedes Pakets bleiben enthalten. Eine Infrastruktur zur Zeitmessung jedes Einzeltests wurde nicht eingeführt.
+
+**Wiederherstellung nach Rechnerwechsel:** Der neue Checkout und der Server standen auf `c4bf94267d74e6e2dc07d03085a35c1425ee4ddb`; die Implementierungsänderungen waren darin noch nicht enthalten. Aus dem übertragenen Codex-Verlauf wurden 25 erfolgreiche Patch-Vorgänge für 19 Dateien einschließlich drei neuer Testdateien chronologisch rekonstruiert. Drei protokollierte fehlgeschlagene Patch-Versuche wurden ausgelassen. Die anschließende Formatierung und Prüfung erfolgten auf dem neuen Mac. Nicht protokollierte manuelle Änderungen und alte vollständige Logdateien lassen sich damit nicht beweisen oder wiederherstellen. Der [Leitfaden zum Rechnerwechsel](../Codex_Rechnerwechsel_DE.md) beschreibt die künftig nötige Sicherung.
+
+Die neue Abnahme erfolgte auf macOS/arm64 mit Go 1.25.3 und Apple Clang 21.0.0. Gemessen wurde die verstrichene Zeit des jeweiligen vollständigen verwalteten Workflows, einschließlich ID-Vorbereitung, Cache-Leerung, Kompilierung und Wiederherstellung. Alle Läufe verwendeten vier Worker. Die Werte sind Einzelmessungen und keine Hardware-unabhängige Laufzeitzusage.
+
+| PC-Workflow | Ausführungsmodus | Ergebnis auf dem neuen Mac | Gesamtdauer |
+| --- | --- | --- | --- |
+| Bind, vollständige Matrix | `auto` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 6 min 17,37 s |
+| Insert/Clean, vollständige Matrix | `auto` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 6 min 1,31 s |
+| Bind, vollständige Gegenprobe | `line-by-line` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 7 min 16,92 s |
+
+Die bestandenen Bind- und Insert-Läufe prüfen im Automatikmodus jeweils 30 Bulk-, 24 Einzelzeilen- und neun Spezialkonfigurationen. Die 54 gewöhnlichen Konfigurationen prüfen zusammen **129.130 erwartete Ausgaben pro Workflow**: 34 mit einem Kanal und 20 mit zwei Kanälen, jeweils 1.745 Erwartungen pro Kanal. Spezialtests und zusätzliche Verhaltenstests kommen hinzu. Die Gegenprobe bestand mit denselben 129.130 erwarteten Ausgaben, allen 54 gewöhnlichen Konfigurationen im Einzelzeilenweg und denselben neun Spezialkonfigurationen. Die Protokolle liegen lokal unter `temp/testtime-recovered-bind/`, `temp/testtime-recovered-insert/` und `temp/testtime-recovered-line/`; sie gehören nicht zum versionierten Stand.
+
+**Historischer Vergleich:** Im Full-Lauf vom 29./30. September benötigte PC/Insert 3 h 52 min 8 s und PC/Bind 3 h 52 min 29 s. Diese Läufe scheiterten an den bei R01 beschriebenen Ausgaben; sie sind keine erfolgreiche Ausgangsabnahme. Der Rechner und die Werkzeugversionen unterscheiden sich zudem vom neuen Lauf. Daher keinen belastbaren Beschleunigungsfaktor aus diesen Einzelwerten ableiten. Der separat protokollierte erfolgreiche neue Bind-Lauf auf dem alten Mac benötigte rund 4 min 17 s. Für den dort zuletzt gestarteten Insert-Lauf fehlt nach dem Rechnerwechsel ein verlässlich übertragener Abschluss.
+
+**Weitere Abnahme auf dem neuen Mac:** Die Go-Suites für `cmd`, `internal`, `pkg` und `scripts` bestehen. Gezielte Replay-/Lifecycle-Tests bestehen zusätzlich mit Race Detector. ShellCheck, Formatprüfung der geänderten Shell-/C-Dateien, UM-Format und Markdownlint bestehen. Ein erster eingeschränkter Go-Lauf scheiterte ausschließlich an den gesperrten lokalen TCP-/UDP-Testports; der anschließende Lauf mit erlaubtem Portzugriff bestand. Die gesamte `testAll full`-Suite einschließlich L432 und eine reale Windows-Matrix wurden hier nicht erneut ausgeführt; das bleibt R16. P02 und P03 bleiben getrennte optionale Folgearbeiten.
+
+**Verbleibender Plattformhinweis für R16:** Im bestandenen Einzelzeilenlauf meldete Bash einmal `child setpgid ...: Operation not permitted`. Sämtliche Pakete, der Workflow-Exit und die exakte Dateiwiederherstellung waren erfolgreich. Der gezielte Test `TestPCWorkerCancellationReachesDescendants` bestand anschließend dreimal, jeweils für normale Jobs und einen Diagnose-Nachlauf einschließlich verzögert beendeter Kindprozesse. Die einmalige Meldung ist damit nicht reproduziert oder ursächlich erklärt; bei der Release-Abnahme auf die Prozessgruppenbildung und auf einen realen Matrixabbruch achten. Die Meldung wurde nicht unterdrückt.
+
+### Ressourcen und Signalbehandlung pro Loglauf abgeschlossen
+
+**R08 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+[Translate](../../internal/translator/translator.go) meldet seine Signalbehandlung beim normalen Abschluss wieder ab und wartet auf das Ende der zuständigen Goroutine. Der nutzlose periodische Ticker entfällt; die bestehende kurze Schonfrist nach SIGINT/SIGTERM bleibt erhalten und lässt sich beim normalen Abschluss abbrechen. Statistik, Diagnosen und Signal-Exitcode bleiben erhalten.
+
+`binaryLogger.Close` und `bytesViewer.Close` reichen das Schließen an ihre besessenen Ressourcen weiter. Eingabe und Binärlogdatei werden genau einmal geschlossen, auch wenn eine Schließoperation fehlschlägt; der geliehene Diagnose-Writer bleibt offen. Der CLI-Loglauf schließt die vollständige Wrapperkette sofort nach `Translate`, bevor ein weiterer Loglauf beginnen könnte. Schließfehler gehen an den Aufrufer zurück.
+
+**Abnahme:** [Lifecycle-Tests des Translators](../../internal/translator/lifecycle_test.go) starten und beenden die Signalbehandlung wiederholt und prüfen den Abschluss während der Schonfrist. Die Signal-Prozessprüfung in [translator_delta_test.go](../../internal/translator/translator_delta_test.go) prüft SIGINT und SIGTERM mit Bereitschaftssignal statt Warteannahme, genau einen Input-Close und erfolgreichen Exit. [CLI-Lifecycle-Tests](../../internal/args/lifecycle_test.go) prüfen echte Eingabe-/Binärdateien unter beiden Wrappers bei EOF, Lesefehler, Schreibfehler und Schließfehler; [Receiver-Tests](../../internal/receiver/receiver_test.go) prüfen Besitz und wiederholtes Close. Die gezielten Lifecycle-Tests bestehen auch mit Race Detector.
+
+### Endliche Eingaben ohne pauschale Wartezeit abgeschlossen
+
+**R09 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+Die bisherige 100-ms-Mindestlaufzeit pro endlichem Logaufruf ist entfernt. Der TREX-Decoder gibt EOF erst zurück, wenn nach dem tatsächlichen Eingabeende keine gepufferten vollständigen Records mehr verarbeitet werden können. Ein leerer Record ist Fortschritt und beendet die Ausgabe nicht vorzeitig. Endliche Quellen schließen dann sofort ab; ein begonnenes letztes Textfragment wird weiterhin ausgegeben. Normales EOF erzeugt keine zusätzliche Diagnose im Text-/JSON-/KV-Ausgabekanal.
+
+Ungeframte, fragmentiert gelesene Header und Nutzdaten bleiben bis zur Vervollständigung erhalten. Ein unmöglicher Längenwert eines bekannten festen Recordtyps beziehungsweise eine unbekannte ID geht weiterhin durch die Resynchronisierung. `FILE` bleibt eine Live-Quelle; `TCP4BUFFER` endet erst bei echtem Peer-EOF, nicht bei einem kurzzeitig leeren Read. Die bestehende Pause gegen beschäftigtes Warten bei inaktiven Live-Quellen bleibt erhalten.
+
+Der historische Befund erklärt den großen Gewinn: Je Workflow liefen 34 gewöhnliche Konfigurationen mit etwa 183–185 Sekunden und 20 Direct-/Deferred-Kombinationen mit etwa 365 Sekunden, jeweils mit 1.745 Erwartungen pro Kanal. Allein 100 ms für `2 × (34 + 2 × 20) × 1.745` Logaufrufe ergeben rechnerisch **7 Stunden 10 Minuten 26 Sekunden**. Go/C-Übergänge waren damit nicht als Hauptursache nachgewiesen; auch der neue Bulk-Weg führt weiterhin jede C-Teststelle aus.
+
+**Abnahme:** [Replay-Tests](../../internal/translator/lifecycle_test.go) verwenden echte TREX-Bytes: Daten und EOF im selben Read, mehrere gepufferte Records einschließlich leerer Meldung, Byte-für-Byte-Eingabe, verkürztes Endpaket, 16-/32-Bit-Stempel, doppelte 16-Bit-ID, langen Laufzeitstring, Abschlussfragment und Live-Pausen. Begrenzte Read-Zahlen weisen nach, dass endliche Eingaben nicht weiter gepollt werden. Die bestehenden Decoder-, Translator- und CLI-Suites prüfen zusätzlich Filter, Stempel, strukturierte Ausgabe und Ausgabefehler. Der Zeitvergleich steht bei R06.
+
+### Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose
+
+**P04 · Gewicht 4 · Aufwand M–L · Umsetzung abgeschlossen**
+
+`TRICE_PC_TEST_MODE=auto` wählt im [gemeinsamen Harness](../../_test/testdata/cgoPackage.go) den nachgewiesenen Weg je Konfiguration. Von 63 Paketen verwenden 30 Bulk, 24 weiterhin den Einzelweg und neun ihre speziellen Tests. Framed Direct und Deferred werden getrennt gesammelt und decodiert. Der bisherige Transfer nach jeder C-Teststelle bleibt dort erhalten, wo kleine Puffer ihn benötigen; die ursprünglichen acht Deferred-Bulk-Fälle behalten ihre Mehrstellen-Transfers zur Prüfung des Pufferns. Ungeframte Kanäle bleiben einzeln, damit Padding und Paketgrenzen nicht durch Verkettung verändert werden.
+
+Alle 1.745 Erwartungen pro gewöhnlichem Kanal und sämtliche weiteren Tests in jedem Paket bleiben aktiv. Erfolgreiche Bulk-Konfigurationen werden nicht nochmals vollständig einzeln ausgeführt. `TRICE_PC_TEST_MODE=line-by-line` bleibt als explizite Gegenprobe verfügbar. Ein Overlay verwendet die zentralen Harness-Vorlagen, ohne 61 generierte Kopien umzuschreiben.
+
+Der erste Bulk-Unterschied nennt `triceCheck.c:<Zeile>`, Erwartungsindex, Kanal, Byteposition, Soll/Ist mit sichtbaren Steuerzeichen und begrenzten Kontext. Mehrzeilige und leere Erwartungen behalten ihre Grenzen. Die genannte Zeile ist die erste abweichende Erwartung, nicht zwingend die Ursache einer früheren Datenstrombeschädigung. Original-Binärstrom und kompletter Text bleiben im konfigurationsbezogenen Logverzeichnis erhalten. Eine automatische Einzelgegenprobe nach einem Bulk-Fehler kann dessen Gesamtexit nicht wieder auf PASS setzen.
+
+**Abnahme:** Deskriptive Harness-Tests prüfen richtigen, veränderten, fehlenden und zusätzlichen Text sowie leere und mehrzeilige Erwartungen. Der [C-gestützte Fehlerproben-Test](../../_test/ringB_de_multi_cobs_ua/cgo_test.go) beweist den ersten Abbruch für Einzel-, Bulk- und kombinierten Weg und prüft erhaltene Binär-/Textartefakte. Die vollständigen Matrixvergleiche stehen bei R06.
+
+### PC-Konfigurationen begrenzt parallel geprüft
+
+**P01 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+Der [PC-Worker](../../scripts/_160_pc_target_test_worker.sh) startet standardmäßig höchstens vier Konfigurationen als getrennte Prozesse. `TRICE_PC_TEST_JOBS` erlaubt eine andere positive Grenze, einschließlich `1` für seriellen Betrieb. Globale Go-/C-Zustände werden nicht mit `t.Parallel` geteilt. Jede Konfiguration besitzt ein eigenes `output.log`; pro Lauf entsteht ein neues Verzeichnis unter `temp/log/pc-<workflow>.<Lauf>/`.
+
+ID-Vorbereitung und Wiederherstellung bleiben außerhalb der parallelen Phase. Ohne `--no-stop` wird nach dem ersten erkannten Fehler nur die bereits gestartete Gruppe beendet und keine weitere Gruppe begonnen. Mit `--no-stop` laufen die übrigen Konfigurationen weiter, der Gesamtexit bleibt fehlerhaft. Ein Abbruch erreicht auch Compiler-/Test-Kindprozesse und automatische Diagnose-Nachläufe; der Worker wartet vor der Source-Wiederherstellung auf deren Ende.
+
+Fehlerberichte nennen Workflow, Konfiguration, Logpfad, relevante Diagnose und einen Reproduktionsaufruf. Auch der stille äußere `testAll`-Runner zeigt konkrete Fehlerausschnitte statt nur FAIL. Der Reproduktionsaufruf setzt denselben vorbereiteten ID-Zustand und die passenden Compiler-Include-Pfade voraus; der verwaltete Workflow stellt diese weiterhin bereit. Die groben Fortschrittsgewichte berücksichtigen den verkleinerten Anteil der PC-Matrizen.
+
+**Abnahme:** [Isolierte Worker-Verhaltenstests](../../scripts/pc_target_worker_test.go) prüfen seriellen Erfolg, tatsächliche parallele Überlappung, Jobgrenze, getrennte Logs, Fail-fast, `--no-stop`, Fehlererhalt trotz erfolgreicher Gegenprobe, ungültige Steuerwerte und Abbruch einschließlich verzögert beendeter Kindprozesse im normalen und diagnostischen Lauf. [Runner-Tests](../../scripts/portability_test.go) prüfen die konkreten Fehlerdetails auch bei stiller Ausführung. Die vollständige `scripts`-Suite besteht. Die beschriebenen Signal-Prozessprüfungen laufen unter POSIX; eine reale Windows-Matrix bleibt Teil von R16.
