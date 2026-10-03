@@ -4,7 +4,107 @@ Vor dem Wechsel müssen **Arbeitsdateien, Git-Stand und Übergabeinformationen**
 
 Ein Codex-Verlauf und ein Git-Repository sichern unterschiedliche Dinge. Codex setzt eine gespeicherte Unterhaltung fort, liest die Dateien aber aus dem aktuellen Arbeitsverzeichnis. Eine kopierte Rollout-Datei stellt uncommittierte Quelldateien nicht automatisch wieder her. Die offizielle Dokumentation beschreibt diese Trennung unter [Projects and chats](https://learn.chatgpt.com/docs/projects#work-in-a-project-directory).
 
-## Der empfohlene Ablauf
+## Die Skripte für den regelmäßigen Wechsel
+
+Für den Wechsel derselben Session zwischen Mac, Windows mit Git Bash und Debian gibt es zwei Skripte:
+
+| Skript | Aufgabe |
+| --- | --- |
+| [codex_handover_export.py](scratchPad/codex_handover_export.py) | Prüft den Ausgangsrechner, erstellt eine ZIP unter `docs/scratchPad` und markiert die Session lokal als abgegeben. |
+| [codex_handover_start.py](scratchPad/codex_handover_start.py) | Prüft den Zielrechner, übernimmt die ZIP und startet die darin enthaltene Session im aktuellen Checkout. Ohne neue ZIP setzt es die bekannte lokale Session fort. |
+
+Beide melden ihre einzelnen Schritte und brechen mit einer Begründung ab, sobald eine Voraussetzung fehlt. Sie benötigen Python ab 3.11, Git und eine lokal installierte und angemeldete Codex CLI. Zusätzliche Python-Pakete sind nicht erforderlich. Auf Ausgangs- und Zielrechner muss dieselbe Codex-CLI-Version installiert sein; bei unterschiedlichen Versionen wird der Import abgewiesen.
+
+**Vor der ersten Benutzung müssen auch diese Skripte und ihre `.gitignore`-Regel committed und auf den anderen Rechner übertragen sein.** Beide Skripte verlangen einen sauberen Checkout, einschließlich bisher unversionierter Dateien. Ein sauberer Checkout beweist jedoch keinen Push. Den Git-Stand wie im folgenden manuellen Ablauf beschrieben sichern und auf dem Ziel denselben Commit bereitstellen. Die Skripte führen selbst weder Commit noch Push, Pull oder Reset aus.
+
+### Auf dem Ausgangsrechner
+
+Die Arbeit sichern und Codex vollständig beenden. Das betrifft auch andere lokale Codex-Sessions, die Codex-/ChatGPT-App, Codex in einer IDE und den Hintergrunddienst. Auch ein scheinbar untätiger Dienst wird vorsichtshalber als möglicher Schreiber behandelt. Das Skript nennt gefundene Prozess-IDs, beendet aber keinen Prozess. Wenn alle Arbeiten beendet sind und nur noch der Codex-Dienst läuft, kann er ausdrücklich beendet werden:
+
+```sh
+codex app-server daemon stop
+```
+
+Danach im Repository unter macOS oder Debian:
+
+```sh
+python3 docs/scratchPad/codex_handover_export.py
+```
+
+Unter Windows in Git Bash mit installiertem Python-Launcher:
+
+```sh
+py -3 docs/scratchPad/codex_handover_export.py
+```
+
+Ist Python dort als `python` statt über `py` verfügbar, entsprechend `python` verwenden. Gemeint ist unter Git Bash die native Windows-Installation; WSL hat ein eigenes Linux-Profil. Ohne abweichendes `CODEX_HOME` verwendet das Skript das `.codex`-Verzeichnis im Benutzerprofil des verwendeten Python. Ein gesetztes `CODEX_HOME` muss zu diesem Interpreter und zur verwendeten Codex-Installation passen. Siehe [Codex unter Windows](https://learn.chatgpt.com/docs/windows/windows-app) und [Umgebungsvariablen](https://learn.chatgpt.com/docs/config-file/environment-variables).
+
+Beim ersten Export werden passende Projekt-Sessions mit Titel, Änderungszeit und UUID zur Auswahl angezeigt, wenn mehrere infrage kommen. Danach merken sich die Skripte die ausgewählte Session. Bei Bedarf lässt sie sich ausdrücklich wählen:
+
+```sh
+python3 docs/scratchPad/codex_handover_export.py --session SESSION-UUID
+```
+
+`SESSION-UUID` durch die tatsächliche UUID ersetzen. Das Skript zeigt den vollständigen Namen und die Größe der fertigen `codex-handover-….zip`. Genau diese ZIP übertragen, beispielsweise per E-Mail. Das Archiv wird durch eine enge `.gitignore`-Regel ignoriert und verhindert deshalb den nächsten sauberen Git-Status nicht. Die Quelldatei der Unterhaltung bleibt unverändert.
+
+### Auf dem Zielrechner
+
+Denselben Repository-Commit bereitstellen, alle lokalen Codex-Prozesse beenden und die erhaltene ZIP mit unverändertem Namen unter `docs/scratchPad` ablegen. Dann unter macOS oder Debian:
+
+```sh
+python3 docs/scratchPad/codex_handover_start.py
+```
+
+Unter Windows in Git Bash:
+
+```sh
+py -3 docs/scratchPad/codex_handover_start.py
+```
+
+Das Skript prüft Projekt, Commit, Codex-Version, Session-Zuordnung und Prüfsummen. Es sichert betroffene lokale Dateien, ergänzt die Eingabe-History und übernimmt ausschließlich die ausgewählte Session. Andere Sessions bleiben erhalten. Anschließend startet es `codex --no-daemon resume SESSION-UUID --cd CHECKOUT`; das Arbeitsverzeichnis stammt vom Zielrechner, historische Pfade im Gespräch werden nicht umgeschrieben. Es sendet keinen alten Prompt erneut. Zum Resume-Aufruf siehe [CLI-Befehle](https://learn.chatgpt.com/docs/developer-commands).
+
+Mehrere neue ZIPs erfordern eine Auswahl. Eine ZIP lässt sich auch ausdrücklich mit `--archive docs/scratchPad/DATEINAME.zip` angeben. Bei einem weiteren Start auf demselben Rechner genügt wieder das Startskript: Bereits übernommene ZIPs werden nicht erneut automatisch importiert. `--local` verlangt ausdrücklich die lokale Fortsetzung und überspringt die ZIP-Auswahl; die Abgabe-Sperre bleibt dabei wirksam.
+
+### Wiederholt zwischen den Rechnern wechseln
+
+Der Ablauf bleibt immer gleich: **Arbeit sichern → Codex beenden → exportieren → ZIP übertragen → auf dem Ziel starten.** Das funktioniert auch als Mac → Windows → Debian → Mac, ohne eine neue Session-ID anzulegen.
+
+- Nach dem Export verweigert das Startskript auf dem Ausgangsrechner die lokale Fortsetzung, bis eine passende Rückgabe-ZIP übernommen wurde. Der eigene Export oder eine bereits vor der Abgabe importierte ZIP hebt diese Sperre nicht auf.
+- Die Fortsetzung muss den bereits bekannten Gesprächsinhalt unverändert als Anfang enthalten. Ältere oder unabhängig weitergeführte Fassungen werden abgewiesen; Dateidatum und Rechneruhr entscheiden darüber nicht.
+- Ein erneuter Import desselben unveränderten Standes erzeugt keine zusätzlichen History-Einträge. Bewusst mehrfach eingegebenes „weiter“ bleibt dagegen mehrfach erhalten.
+- Fehlende Eingaben in `history.jsonl`, etwa nach einer früheren Übertragung nur der Rollout-Datei, werden aus den gespeicherten Benutzer-Nachrichten ergänzt. Das hilft auch bei der Pfeil-hoch-History im Codex-Eingabefeld.
+
+**Auf allen beteiligten Rechnern das Startskript verwenden.** Ein direktes `codex resume` kennt die zusätzliche Abgabe-Sperre nicht. Ohne gemeinsamen Online-Dienst können die Skripte außerdem nicht erkennen, ob eine noch nie gesehene neuere ZIP auf einem anderen Rechner liegt oder jemand die Session dort parallel fortführt. Besonders bei der ersten Übernahme auf einem Rechner deshalb immer die zuletzt exportierte ZIP verwenden. Die Sperren sichern den vorgesehenen Ablauf ab; sie sind keine globale Zugriffskontrolle.
+
+### Sicherungen, Abbrüche und Grenzen
+
+Im jeweiligen Codex-Profil liegt der Übergabestatus unter `trice-handover`. Vor Änderungen entstehen dort Sicherungen unter `backups`. Ein Betriebssystem-Lock verhindert gleichzeitig laufende Übergabeskripte und wird bei einem Prozessabbruch automatisch freigegeben. Zusätzlich prüfen die Skripte wiederholt auf Codex-Prozesse und inzwischen veränderte Dateien.
+
+Bleibt nach einem Abbruch `pending.json` zurück, versucht der nächste Aufruf nach den Git- und Prozessprüfungen, die unvollständige Übergabe zurückzunehmen. Dabei werden nur Dateien zurückgesetzt, deren Inhalt noch zur begonnenen Übergabe passt. Bei zwischenzeitlichen fremden Änderungen bricht die Wiederherstellung ab und behält Journal und Sicherungen zur Klärung. Diese Dateien nicht einfach löschen, um die Prüfung zu umgehen. Kein Skript-Lock kann ein direkt gestartetes Codex am Schreiben hindern; während einer Übergabe deshalb keinen Codex-Prozess starten.
+
+Übertragen werden der vollständige JSONL-Verlauf der ausgewählten Session, ihre Eingabe-History, ihr Sessiontitel und ein Manifest mit Prüfsummen. **Anmeldung, `auth.json`, lokale Konfiguration, Skills, Caches und SQLite-Datenbanken werden nicht kopiert.** Benötigte lokale Einstellungen und Werkzeuge auf jedem Rechner separat einrichten. Die ZIP kann trotzdem sensible Inhalte aus dem Gespräch und Quellcode enthalten. Sie ist nicht verschlüsselt; beim Versand auch das Größenlimit des gewählten Transportwegs beachten.
+
+Die Skripte unterstützen Sessions, deren vollständige Unterhaltung in einer JSONL-Rollout-Datei liegt. Zeigt der lokale Codex-Index stattdessen eine datenbankbasierte History, brechen sie ab, um keinen veralteten oder unvollständigen Verlauf zu übertragen. Ebenso werden erkannte lokale beziehungsweise nicht eingebettete Bildanhänge abgewiesen. Beliebige Dateien, auf die im Gespräch nur verwiesen wird, werden nicht eingesammelt: benötigte Projektdateien gehören in Git oder in eine separate Übergabe. Die Größenbegrenzung beträgt 512 MiB pro gelesener Datei und insgesamt für den entpackten ZIP-Inhalt.
+
+Das Lesen eines so importierten JSONL-Verlaufs ohne kopierte Codex-Datenbank wurde mit der installierten Codex CLI 0.159.3 geprüft. Die automatischen Tests simulieren die drei Rechner mit getrennten Profilen und prüfen auch Windows-Prozesserkennung, Konflikte und Wiederherstellung. Ein tatsächlicher Lauf auf Windows und Debian ist damit noch nicht nachgewiesen.
+
+### Die Skripte gezielt testen
+
+Die [beschreibenden Tests](../scripts/test_codex_handover.py) arbeiten ausschließlich mit temporären Git-Repositories und künstlichen Codex-Profilen:
+
+```sh
+python3 -B -m unittest discover -s scripts -p test_codex_handover.py -v
+```
+
+Optional lässt sich zusätzlich der echte Codex-Leser in einem isolierten Profil ohne Zugangsdaten prüfen. Dieser Test ruft `thread/read` über den [App-Server](https://learn.chatgpt.com/docs/app-server) auf, startet keine Modellanfrage und verändert kein persönliches Codex-Profil:
+
+```sh
+TRICE_CODEX_HANDOVER_INTEGRATION=1 python3 -B -m unittest discover -s scripts -p test_codex_handover.py -k installed_codex -v
+```
+
+Unter Windows in Git Bash `python3` in diesen Befehlen durch `py -3` ersetzen.
+
+## Git-Sicherung und manuelle Übergabe im Detail
 
 ### Auf dem alten Rechner einen sicheren Haltepunkt herstellen
 

@@ -27,3 +27,8 @@ coverage.out
 docs/TriceUserManual.pdf
 
 examples/**/*.bus
+
+# Local Codex handover archives and Python bytecode are not project sources.
+/docs/scratchPad/codex-handover-*.zip
+/docs/scratchPad/__pycache__/
+/scripts/__pycache__/
