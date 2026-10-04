@@ -6,7 +6,6 @@
 
 | ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | --- | ---: | --- | --- |
-| [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Offen | Kleine IDE-Zustandsreste und ungenutzte Workflow-Begleitdateien bereinigen | 3 | S | [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) abgeschlossen; klar abgegrenzter erster Aufräumschritt |
 | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Offen | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | [R02](#kopierbare-dokumentationsbeispiele-berichtigt), [R04](#automatisches-nachladen-wiederhergestellt), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
 | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen) | Offen | Bisheriges UM in TriceReferenceManual.md umbenennen und Pfade nachziehen | 4 | M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
 | [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) | Offen | Kurzes, einladendes User Manual erstellen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen); Installationsentscheidung aus [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt)/[R14](#checkout-binary-installationswege-für-v2-absichern) |
@@ -120,15 +119,17 @@ Mit jeder Gruppe ihre aktiven Pfadabhängigkeiten, Build-/Test-/Release-Verwendu
 
 #### Kleine Zustandsreste und Workflow-Begleitdateien
 
-**R21a · Gewicht 3 · Aufwand S · Nach R17 unabhängig vorziehbar**
+**R21a · Gewicht 3 · Aufwand S · Erledigt**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
-Die zwölf versionierten Dateien `.vscode/.cortex-debug.peripherals.state.json` und `.vscode/.cortex-debug.registers.state.json` in den sechs G0B1-/L432-Beispielen enthalten jeweils nur `[]`. Das sind gespeicherte Debugger-Ansichten, keine Startkonfigurationen. Aus der Versionierung nehmen und ihre erneute Aufnahme gezielt verhindern; `launch.json`, `tasks.json`, Compiler- und Boardkonfigurationen erhalten.
+Die zwölf leeren Dateien `.vscode/.cortex-debug.peripherals.state.json` und `.vscode/.cortex-debug.registers.state.json` in den sechs G0B1-/L432-Beispielen sind entfernt. Zwölf genaue Root-bezogene Ignore-Regeln verhindern ihre erneute Aufnahme. Gemeinsame Start-, Task-, Compiler- und Boardkonfigurationen bleiben erhalten.
 
-Getrennt davon die vier Dateien `.github/workflows/properties/*.properties.json` und `icons/go.svg` prüfen: Sie beschreiben Workflow-Vorlagen; die tatsächlichen 17 YAML-Workflows lesen sie nicht. Wenn kein externer Vorlagen-Verbraucher besteht, diese fünf Begleitdateien entfernen. Die allgemeine Code-Scanning-Erklärung in `.github/workflows/README.md` durch eine knappe tatsächliche CI-Orientierung ersetzen oder in die Entwickleranleitung übernehmen. Keine Actions-Versionen, Trigger oder Testauswahl nebenbei ändern.
+Der Benutzer hat GitHub als einzigen möglichen externen Verbraucher bestätigt. GitHub beschreibt Organisationsvorlagen unter `workflow-templates` in einem Organisations-Repo namens `.github`, nicht als `workflows/properties` in diesem Projekt. Die vier ungenutzten Vorlagen-Metadaten und `icons/go.svg` sind entfernt; die 17 Workflow-YAML bleiben bytegleich. Siehe [GitHub: Workflow templates](https://docs.github.com/en/actions/how-tos/reuse-automations/create-workflow-templates).
 
-**Abnahme:** Ausschließlich die benannten Zustands-/Begleitdateien betroffen; aktive Debugkonfigurationen und Workflow-YAML unverändert. Ignore-Regeln an genau den zwölf Pfaden prüfen; Markdown-/Linkprüfung für angepasste Erläuterungen. Ein vollständiger Compilerlauf ist dafür nicht erforderlich. Eine ungeklärte externe Nutzung der Workflow-Vorlagen hält nur diese Teilgruppe offen.
+Die Workflow-README erklärt jetzt die tatsächlichen Prüfgruppen und lokalen Einstiege mit relativen Links. Die aktiven UM-Verweise auf die entfernten Ordner sind bereinigt; Trigger und Berechtigungen werden zutreffend den YAML-Dateien zugeordnet. Der auskommentierte historische Übersichtsblock bleibt für die spätere Dokumentationsbereinigung erhalten.
+
+**Abnahme:** Genau 17 benannte Dateien entfernt. Ignore-Prüfung für alle zwölf Zustandsdateien und Gegenprobe für die erhaltenen `launch.json`/`tasks.json`; bytegleiche Workflow-YAML und aktive Debugkonfigurationen; Markdownlint, lokale Linkziele und UM-Format geprüft. Keine Änderung der Actions-Versionen, Trigger oder Testauswahl. Die gezählten R17-Tabellen bleiben der historische Bestand ihres ausdrücklich genannten Commits; nach R21a verbleiben 2.222 Dateien, davon 25 unter `.github` und 1.104 unter `examples`.
 
 #### IDE-Einstiege portabel und tatsächlich benutzbar machen
 
@@ -360,6 +361,7 @@ Erhaltene Nachweise: getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einma
 
 | ID | Status | Ergebnis / Nachweis |
 | --- | --- | --- |
+| [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Erledigt | Leere Debugger-Zustände und ungenutzte Vorlagenbegleiter entfernt; CI-Orientierung aktualisiert. |
 | [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) | Erledigt | Kein automatisch erzeugtes untagged-Präfix ausgeben |
 | [R02](#kopierbare-dokumentationsbeispiele-berichtigt) | Erledigt | Kopierbare Dokumentationsbeispiele berichtigt |
 | [R03](#fehlerstatus-bei-fehlgeschlagenem-clean-erhalten) | Erledigt | Fehlerstatus bei fehlgeschlagenem Clean erhalten |
@@ -794,7 +796,7 @@ Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten.
 
 ## Vorschlag für die nächsten Aufträge
 
-Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. R17 ist abgeschlossen. Als kleiner nächster Auftrag bietet sich R21a an; danach folgt R10 als Beginn der zusammenhängenden Handbucharbeit. P02 kann anhand neuer Plattformmessungen priorisiert werden. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
+Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. R17 und R21a sind abgeschlossen. Als nächster Auftrag folgt R10 als Beginn der zusammenhängenden Handbucharbeit. P02 kann anhand neuer Plattformmessungen priorisiert werden. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
 
 R11 wurde auf Benutzerwunsch für den zeitnahen Merge von `wip` nach `main` vorgezogen und ist abgeschlossen, einschließlich der eng begrenzten Bereinigung von Aufgabenbezeichnungen innerhalb der beiden Kapitel. Den Merge führt der Benutzer auf GitHub aus. Nach der abgeschlossenen Bestandsprüfung folgt die Dokumentationsarbeit weiterhin **R10 Bereinigung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen → R22 Pages-Abnahme**. R21a ist davon unabhängig; R21b–f haben unten eigene Voraussetzungen. Die Dateiablage allein rechtfertigt weder neue Features noch einen Umbau der STM32-Beispiele oder der Testmatrix.
 

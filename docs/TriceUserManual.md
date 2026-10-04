@@ -12636,16 +12636,7 @@ Every *yml* file in this directory defines an automated process. These processes
 
 * [README.md](../.github/workflows/README.md): Documentation specifically for the /workflows folder.
   * Can be useful for contributors who want to understand or modify CI behaviors.
-* **Additional Subdirectories**
-  * [icons/](../.github/workflows/icons/): Stores custom icons used inside workflows (e.g., for badges or reporting).
-    * Example: go.svg — used in the Go workflow or README badges.
-  * [properties/](../.github/workflows/properties/): Contains metadata files used by GitHub for configuration purposes such as:
-    * enabling/disabling features
-    * controlling workflow permissions
-    * defining workflow categories for the Actions UI
-
-These workflows run automatically on pushes and pull requests to main, and can also be triggered manually via the GitHub Actions UI.
-These files are not executed; they simply inform GitHub how certain workflows behave or should be displayed.
+Each workflow defines its own triggers and permissions in its YAML file. Depending on the workflow, it runs on pushes, pull requests, a schedule, a manual request, or a call from another workflow. The directory contains no separate icon or properties metadata for configuring these workflows.
  
 | GitHub Action                                             | About                                                                                                                                                            |
 |-----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
