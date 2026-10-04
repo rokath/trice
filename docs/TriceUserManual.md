@@ -497,6 +497,7 @@ details.toc[open] .toc-hide {
   * [40.11. Run & Debug](#run--debug)
   * [40.12. Logging](#logging)
   * [40.13. Setting up a new project](#setting-up-a-new-project)
+  * [40.14. Third-party packages and retained versions](#third-party-packages-and-retained-versions)
 * [41. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
   * [41.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
     * [41.1.1. F030bare](#f030bare)
@@ -7098,7 +7099,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
-* Extract `../third_party/segger.com/SEGGER_RTT_V760g.zip` to `../third_party/segger.com/SEGGER_RTT`. Check for an update @ SEGGER.
+* The stored RTT source package is [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip). See [Third-party packages and retained versions](#third-party-packages-and-retained-versions) before changing target sources.
 * Add `SEGGER_RTTI.c` to target project
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -9652,6 +9653,53 @@ The debugger path can be added independently, for example
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+### 40.14. <a id="third-party-packages-and-retained-versions"></a>Third-party packages and retained versions
+
+The [third_party directory](../third_party) stores optional transport tools,
+terminal software, vendor documentation, and reference source snapshots.
+It is not a list of mandatory installations. The example projects contain
+their required target sources, including configured RTT sources where used;
+building them does not require extracting these ZIPs. Select additional host
+tools only for the transport you intend to use. The packages below are stored
+versions, not a statement that they are current or compatible with every host.
+
+| Stored archive | Contents and retained role |
+| --- | --- |
+| [cobs-c-0.5.0.zip](../third_party/cobs-c-0.5.0.zip) and [cobs-c-version_1.0.zip](../third_party/cobs-c-version_1.0.zip) | Craig McQueen's COBS/COBS-R source snapshots, both with `LICENSE.txt` and `README.rst`. They are comparison/reference sources, not the COBS files compiled from `src`. No active build extracts either version; the reason a manual user may still need both is unconfirmed, so both are retained. |
+| [cJSON-1.7.15.zip](../third_party/cJSON-1.7.15.zip) | cJSON source snapshot with its MIT `LICENSE` and README. No active Trice build or structured-log output depends on this ZIP. Its original/manual use is unconfirmed; retaining it does not introduce a JSON dependency. |
+| [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) | RTT target sources, configuration, examples, README, and `LICENSE.md`. It is a source reference for the 8.12a RTT files stored in `src`; the archive is not extracted by normal builds. |
+| [JLinkRTTLogger.zip](../third_party/segger.com/JLinkRTTLogger.zip) | Windows `JLinkRTTLogger.exe` and `JLinkARM.dll`, retained for the optional J-Link transport. No version manifest or license file is bundled in this ZIP; its exact version and redistribution provenance are unconfirmed. |
+| [STRTTLogger.zip](../third_party/goST/STRTTLogger.zip) | Windows `stRttLogger.exe` and `libusb-1.0.dll`, retained for optional ST-Link RTT logging. The earlier repository notes identify [phryniszak/strtt](https://github.com/phryniszak/strtt) and [gostlink](https://github.com/search?q=gostlink) as related sources. The ZIP has no license or version manifest; that relationship does not verify the exact binary build. |
+| [STLinkReflash_190812.zip](../third_party/segger.com/STLinkReflash_190812.zip) | Windows `STLinkReflash.exe` and `JLinkARM.dll` for the documented onboard ST-Link/J-Link conversion. Retained as a dated vendor utility; the ZIP has no license or version manifest. |
+| [en.stsw-link007_V2-37-26.zip](../third_party/st.com/en.stsw-link007_V2-37-26.zip) | ST-Link firmware upgrade package with Windows and Java/native platform tools. Its README lists V2J37S7/V2J37M26 and STLINK-V3 V3J7M2 firmware. Retained for the documented upgrade/conversion setup. |
+| [stsw-link007.zip](../third_party/st.com/stsw-link007.zip) | Earlier upgrade package whose README lists V2J24S4/V2J24M11 firmware and older host prerequisites. It is a distinct legacy snapshot, not a duplicate of the V2-37-26 package. The continuing need for that old version is unconfirmed, so it is retained without recommending it as the default. |
+| [en.stsw-link009_v2.0.2.zip](../third_party/st.com/en.stsw-link009_v2.0.2.zip) | Stored Windows USB driver package. Its README identifies Windows 7/8/10 and 32/64-bit support. It is an optional driver reference, not a verified claim of support for newer Windows versions. |
+| [Alacritty.zip](../third_party/alacritty/Alacritty.zip) | A single Windows `Alacritty.exe`. Earlier repository notes identify it as the renamed `Alacritty-v0.7.2-portable.exe` from [Alacritty](https://github.com/alacritty/alacritty). No version/license manifest is bundled; the exact binary provenance is unconfirmed. It is an optional ANSI-capable terminal, not a Trice build dependency. |
+
+For automatic RTT capture, the host tool resolves `JLinkRTTLogger` or
+`stRttLogger` through `PATH`; it does not automatically unpack or locate these
+ZIPs under `third_party`. For example, on Windows, extract a selected logger
+and its accompanying DLL into the same directory and add that directory to
+`PATH`. Installing the appropriate vendor package is another way to provide
+the logger. See [Trice over RTT](#trice-over-rtt) for the capture workflow and
+[onboard probe conversion](#convert-evaluation-board-onboard-st-link-to-j-link)
+for the device-specific setup. No probe firmware is changed by a Trice build.
+
+The stored [J-Link manual](../third_party/segger.com/UM08001_JLink.pdf) and
+[online-manual snapshot](../third_party/segger.com/UM08001_JLink_Online.pdf)
+are offline vendor references. Their chapter numbers and platform details
+belong to those copies. The [J-Link download page](https://www.segger.com/downloads/jlink/),
+[RTT page](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/),
+and [ST website](https://www.st.com) provide the original vendor context.
+
+Preserve the copyright and license notices supplied with source snapshots;
+the Trice MIT license does not replace third-party terms. Replacing RTT
+sources in `src` or an example is a separate, reviewed vendor update, including
+its configuration and target validation. An archive's age or lack of an active
+build reference alone does not authorize its removal. No archive contents,
+vendor sources, or `Drivers`/`Middlewares` directories are changed by this
+inventory.
+
 ## 41. <a id="example-projects-without-and-with-trice-instrumentation"></a>Example Projects without and with Trice Instrumentation
 
 | Project Name                       | Description                                                                                                                                                                                                                                                                      |
@@ -9773,7 +9821,7 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030_bare/](../examples/F030_bare/).
 - Add *build.sh* and *clean.sh*.
-- Copy file *SEGGER_RTT_Conf.h* from *trice/third_party/segger.com/SEGGER_RTT_V760g.zip* to [./Core/Inc/](../examples/F030_inst/Core/Inc/). Yu could also look for a newer version.
+- Copy and adapt `Config/SEGGER_RTT_Conf.h` from the stored [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) to [./Core/Inc/](../examples/F030_inst/Core/Inc/) if creating a new project. Existing examples already contain their configuration; see [Third-party packages and retained versions](#third-party-packages-and-retained-versions).
 - Copy and adapt a file [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) to [./Core/Inc/](../examples/F030_inst/Core/Inc/). You can choose from another example project or one of the test folders.
 - Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
@@ -12075,7 +12123,6 @@ Generated commit message:
 | [.goreleaser.yaml](../.goreleaser.yaml)                                                                                 | goreleaser configuration                                                                                                          |
 | [.idea/](../.idea/)                                                                                                     | GoLand settings                                                                                                                   |
 | [lychee.toml](../lychee.toml)                                                                                           | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-checkyml---broken-links-check)                            |
-| [.markdownlinkcheck.json](../.markdownlinkcheck.json)                                                                   | [GitHub Action link-check.yml - Broken Links Check](#github-action-link-checkyml---broken-links-check)                            |
 | [.markdownlint.yaml](../.markdownlint.yaml)                                                                             | [Cleaning the Sources](#cleaning-the-sources)                                                                                     |
 | [.markdownlintignore](../.markdownlintignore)                                                                           | [Cleaning the Sources](#cleaning-the-sources)                                                                                     |
 | [.vscode/](../.vscode/)                                                                                                 | VS Code settings                                                                                                                  |
@@ -12603,15 +12650,12 @@ See also [Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-r
 
 #### 49.2.9. <a id="github-action-link-checkyml---broken-links-check"></a>GitHub Action link-check.yml - Broken Links Check
 
-* **Local Action (developer machine):** (deprechiated) `markdown-link-check ./docs/TriceUserManual.md`
-  * Ignore patterns: [.markdownlinkcheck.json](../.markdownlinkcheck.json)
-  * Info: `[/] #%F0%9F%93%82-%60.github/workflows%60-%E2%80%94-github-actions-workflows` = skipped check
-* **Local Action (developer machine):** `lychee .`
-  * Uses [.lychee.toml](../lychee.toml) as configuration
+* **Local Action (developer machine):** `./scripts/_530_test_links.sh` from the repository root, also included in `./scripts/testAll.sh`.
+  * Uses [lychee.toml](../lychee.toml) as configuration; the direct checker command is `lychee --config lychee.toml .`.
+  * The script additionally maps the CLI-help source URL to the local checkout and records results in `temp/log/_530_test_links.log`. If Lychee is missing, it reports a skip.
   * For GitHub URLs, set `GITHUB_TOKEN` or `GH_TOKEN` locally as well to reduce API throttling and timeouts during checks
 * **GitHub Action (Continuous Integration):** [.github/workflows/link-check.yml](../.github/workflows/link-check.yml)
   * The workflow already provides `GITHUB_TOKEN` to the Lychee action for GitHub-hosted links
-<!--  * Exclude files: [.lycheeignore](../.lycheeignore) -->
 
 #### 49.2.10. <a id="github-action-manualym---to-be-triggered-manually"></a>GitHub Action manual.ym - To Be Triggered Manually
 

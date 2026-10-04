@@ -1,7 +1,0 @@
-{
-  "ignorePatterns": [
-    { "pattern": "#%F0" },
-    { "pattern": "#%E2" }
-  ],
-  "timeout": "15s"
-}
