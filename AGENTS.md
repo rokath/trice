@@ -179,6 +179,8 @@
 
 ## Commits
 
+* An explicit commit request, including a follow-up message such as "commit", authorizes the complete task-related commit workflow: inspect with `git status`/`git diff`, stage with `git add`, verify the staged diff, and create the requested `git commit` or cohesive commits. Do not request additional approval for any of these steps or ask the user to reconfirm the commit request. This authorization does not include `git push` or later, unrequested commits.
+* Reuse approved command prefixes for each Git step. Run read-only checks separately from Git writes so that a combined command does not trigger an unnecessary platform approval for `git diff` or `git status`. Repository instructions do not override enforced sandbox restrictions; request a platform approval only when the required write has no already-approved execution path.
 * If asked only to "commit first", create the requested commits without inferring further implementation work. If the user explicitly says "commit, then implement ...", complete both steps in that order without another confirmation between them.
 * For a commit request, the primary deliverable is a meaningful, accurate commit message for each cohesive change group. Creating the Git commit itself is preferred when the environment permits it, but is not required when `.git` writes are blocked by the sandbox.
 * If `.git` writes are blocked, do not repeatedly request permissions or wait on approval dialogs. Make at most one normal commit attempt, then stage the relevant files when permitted and show the user the exact ready-to-run `git commit -m "..."` command.
