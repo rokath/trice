@@ -219,6 +219,9 @@ NodeLib/til.c       shared generated compact log metadata table
 `-logC` validates IDs already established by the preceding `trice insert` and
 emits only entries found below the selected `-src` roots. `build.sh` supplies an
 explicit output path so the demo keeps a small and predictable local layout.
+`NodeLib/til.c` is a build output, not a checked-in source file: `build.sh`
+creates it before compiling the nodes, so a clean checkout needs no generated
+table in advance.
 
 Why one shared ABC pair is enough:
 

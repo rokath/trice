@@ -17,6 +17,11 @@
 **/gccLinksClangWarning.txt
 **/.mxproject
 **/.DS_Store
+# Generated only when a root-level log capture or C table is explicitly requested.
+/trice.bin
+/til.c
+# The TriceAbc build regenerates this table before compiling the receiver nodes.
+/examples/TriceAbc/NodeLib/til.c
 internal/receiver/trices.raw
 coverage.out
 *.log
