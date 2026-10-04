@@ -587,7 +587,7 @@ Contributions are welcome: examples, platform recipes, transport backends, docum
 Potential future work includes:
 
 - a small `tlog` tool in C, Python, Rust, TinyGo, Wasm, or another runtime for environments where Go is not the best fit,
-- more structured logging support; see the [structured logging specification draft](./docs/TriceUserManual.md#trice-structured-logging),
+- more structured logging support; see the [structured logging specification draft](./docs/TriceUserManual.md#structured-logging),
 - additional transport recipes,
 - adaptation for a visual RTOS/event timeline tool.
 
@@ -638,11 +638,6 @@ Trice overlaps with several logging, tracing, and tokenization approaches, but i
 - [uLog (RD Poor)](https://github.com/rdpoor/ulog)
 - [Zephyr Dictionary Based Logging](https://docs.zephyrproject.org/latest/services/logging/#dictionary-based-logging)
 - project-specific binary loggers.
-
-Additional generated comparison material:
-
-- [Trice Compare (generated 2025-05-26)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/ChatGPTo4-mini-high_TriceCompare.html) - compact generated comparison with related tools
-- [Logging & Tracing Solutions for Embedded Systems (generated 2026-02-16)](https://htmlpreview.github.io/?https://github.com/rokath/trice/blob/main/docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html) - longer generated overview of the broader tool landscape
 
 </details>
 
