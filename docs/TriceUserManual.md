@@ -10401,7 +10401,7 @@ The main aim of these tests is to automatic compile and run the target code in d
 
 `scripts/testAll.sh quick` performs the standard Bind-only selection. `scripts/testAll.sh full` also runs the legacy Insert/Clean and extended compiler matrices; its duration depends strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
 
-The PC matrix uses four independent configuration processes by default. Set `TRICE_PC_TEST_JOBS=1` for serial execution or choose another positive limit. ID preparation and source restoration remain sequential. A failing configuration stops at its first mismatch; `--no-stop` lets the other configurations continue. Failure summaries include source references, expected/actual output and the detailed log path.
+The PC matrix uses four independent configuration processes by default. Set `TRICE_PC_TEST_JOBS=1` for serial execution or choose another positive limit. ID preparation and source restoration remain sequential. A failing configuration stops at its first mismatch. `testAll.sh` continues with the remaining configurations and test steps by default (`--no-stop`), but the final result remains `FAIL` if any check failed. Use `--stop` to stop after the first failure; cancellation always stops the run. Failure summaries include source references, expected/actual output and the detailed log path.
 
 For example, from the repository root:
 
@@ -10411,6 +10411,16 @@ TRICE_PC_TEST_JOBS=1 TRICE_PC_TEST_MODE=line-by-line ./scripts/_630_test_pc_targ
 ```
 
 The second command explicitly selects the diagnostic single-expectation path. Normal runs use `TRICE_PC_TEST_MODE=auto`: bulk where packet boundaries are preserved, single-expectation decoding for unframed or special configurations. All expectations remain enabled.
+
+The L432 matrix builds all 101 configurations (`CONFIGURATION=0` through `100`). It prepares the shared Bind state once and builds configurations concurrently, each with `make -j1`. The default concurrency follows the online CPU count; on Windows it uses the bounded budget from the shared build setup, which prefers physical cores. If detection fails, the matrix uses four jobs. Set `TRICE_L432_TEST_JOBS=1` for serial execution or choose another positive limit; this limits the total number of simultaneous compiler/linker commands, even when `MAKE_JOBS` normally requests unlimited parallelism. For example, to limit a run to four jobs from the repository root:
+
+```bash
+TRICE_L432_TEST_JOBS=4 ./scripts/_620_test_l432_configs.sh
+```
+
+Every invocation uses fresh, separate object directories for every configuration. All code-generation options, source files and ELF/HEX/BIN targets remain enabled; there is no reuse of potentially stale objects after a header, configuration, workflow or compiler change. The matrix skips the expensive assembler `.lst` text listings (`GCC_LISTINGS=0`); compiler warnings and errors remain enabled. Ordinary `build.sh CONFIGURATION=N` builds still generate listings for manual inspection. Existing `examples/L432_inst/out.gcc` builds remain untouched by the matrix. Full compiler logs stay in `temp/log/l432.*/config-N.log`. Successful temporary build outputs are removed to save disk space; failed or interrupted outputs are retained beside their logs.
+
+The matrix reports each configuration's result, prints compiler error excerpts and gives the command to reproduce a failure. Under `testAll.sh`, the selected `--no-stop` or `--stop` policy applies. A directly invoked L432 matrix stops after a failed batch by default; use `TRICE_TEST_NO_STOP=1` to finish the remaining configurations. Already started jobs finish before source restoration. Cancellation terminates the compiler processes too and prevents further configurations from starting. The managed wrapper above restores the initial source and metadata state on success, failure and cancellation; a direct `examples/L432_inst/all_configs_build.sh` invocation performs the same Bind preparation as `build.sh` and leaves sources in Bind state.
 
 * Partial tests:
   * In `./examples` you can build the target examples with `./buildAllTargets_TRICE_ON.sh` or `./buildAllTargets_TRICE_OFF.sh`.

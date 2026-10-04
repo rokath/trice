@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: 1. Oktober 2026. Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
+Stand: 4. Oktober 2026. Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung und die Full-Läufe vom 3. und 4. Oktober. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
 
 Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
 
@@ -49,7 +49,7 @@ Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehen
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R06, R08/R09, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R06, R08/R09, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
@@ -70,11 +70,11 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 ## Vorschlag für die nächsten Aufträge
 
-Die Gesamtaufgabe **Testzeit verkürzen** umfasst R06, R08/R09 und P01/P04; Umsetzung und Nachweise stehen unten. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die fehlende produktive CE-/SL-Testauswahl **R07** bleibt ein eigener nächster Auftrag. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
+Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und jetzt die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die fehlende produktive CE-/SL-Testauswahl **R07** bleibt ein eigener nächster Auftrag. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
 
 Die Dokumentationsarbeit kann parallel zu langen Tests beginnen: **R17 Bestandsprüfung → R10 Bereinigung → R11 Übersetzung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt zuerst, damit beim Verkürzen und Entfernen keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
 
-R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02/P03 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
+R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
 
 ## Konkrete Aufgaben vor dem Release
 
@@ -231,12 +231,12 @@ Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließe
 
 ## Weitere Beschleunigung ohne geringere Abdeckung
 
-R08/R09, P04 und P01 sind umgesetzt. Alle Erwartungen, Konfigurationen und beide ID-Workflows bleiben erhalten. Die Einzelzeilenausführung bleibt für Diagnose und ungeframte beziehungsweise besondere Konfigurationen verfügbar. `quick` anstelle von `full`, weniger Konfigurationen oder verkürzte Testdaten wären keine gleichwertige Beschleunigung. P02/P03 sind weiterhin Vorschläge und nicht Teil des abgeschlossenen Umfangs.
+R08/R09, P04, P01 und P03 sind umgesetzt. Alle Erwartungen, Konfigurationen und beide ID-Workflows bleiben erhalten. Die Einzelzeilenausführung bleibt für Diagnose und ungeframte beziehungsweise besondere Konfigurationen verfügbar. `quick` anstelle von `full`, weniger Konfigurationen oder verkürzte Testdaten wären keine gleichwertige Beschleunigung. P02 bleibt die getrennte Folgearbeit.
 
-| ID | Vorschlag | Gewicht | Aufwand | Abhängigkeiten |
+| ID | Aufgabe und Status | Gewicht | Aufwand | Abhängigkeiten |
 | --- | --- | ---: | --- | --- |
 | P02 | Go-/CGO-Buildcache gezielt und nachweisbar invalidieren | 3 | M–L | R06, R13 |
-| P03 | L432-Konfigurationen mit getrennten Buildverzeichnissen planen | 3 | L | R06, R13 |
+| P03 | Erledigt: L432-Matrix von 27:06 auf 4:55 verkürzt, alle 101 Konfigurationen bestanden | 4 | L | R06, R13 |
 
 ### Cache nutzen, ohne veralteten C-Code zu testen
 
@@ -248,11 +248,25 @@ Prüfen, ob vollständig erfasste Inhalts-/Konfigurationssignaturen oder vorbere
 
 ### L432-Builds isolieren und begrenzen
 
-[all_configs_build.sh](../../examples/L432_inst/all_configs_build.sh) durchläuft 0 bis 100 mit `make clean` und vollständigem `build.sh` je Konfiguration. Das gemeinsame `out.gcc` verhindert sichere Parallelität. Die Umgebung setzt auf Linux/macOS `MAKE_JOBS=-j`; zusätzlich parallele Konfigurationen könnten daher ungebremst sehr viele Compiler starten.
+**P03 · Umsetzung und gezielte Abnahme abgeschlossen**
 
-Getrennte Objekt-/Ausgabeverzeichnisse je vollständiger Konfiguration und ein gemeinsames begrenztes Jobbudget prüfen. Gemeinsame Vorbereitung und Umgebungsprüfung nur dann wiederverwenden, wenn deren Voraussetzungen unverändert sind. Das Weglassen von `clean` allein ist keine korrekte Optimierung: geänderte Defines müssen alle betroffenen Objekte erneuern.
+[all_configs_build.sh](../../examples/L432_inst/all_configs_build.sh) baute bisher 0 bis 100 nacheinander mit `make clean` und vollständigem `build.sh` je Konfiguration. Der abgeschlossene Full-Lauf am 3. Oktober dauerte **48 Minuten 45 Sekunden**, davon die L432-Matrix **27 Minuten 6,416 Sekunden**. Alle Compiler-Matrizen bestanden. Die zwei Fehler in Go/Go-Coverage hatten dieselbe Umgebungsursache: Ein unpräfixiertes ARM-`nm` stand vor dem macOS-`nm` im PATH. Nach der lokalen PATH-Korrektur bestanden beide betroffenen Tests gezielt; der Full-Lauf vom 4. Oktober zeigte jedoch erneut die falsche Werkzeugauswahl. Die dauerhafte Korrektur der Tests steht unten. Die alten Testprotokolle bleiben unter `temp/before-l432-parallel-*` erhalten.
 
-**Nachweis:** Alle 101 Konfigurationen mit gleichen Flags und erfolgreichem Link; korrekte Abhängigkeiten bei Änderungen und Fehlern; Vergleich kalter und warmer Läufe. Keine neue Cache-Abhängigkeit ohne gesonderte Entscheidung.
+**Umsetzung:** Einmalige Bind-Vorbereitung und Umgebungsprüfung, danach parallele Konfigurationen mit jeweils `make -j1`. Das Standardbudget folgt der verfügbaren CPU-Anzahl beziehungsweise unter Windows dem begrenzten Budget der gemeinsamen Buildumgebung mit bevorzugter Erkennung physischer Kerne. Bei gescheiterter Erkennung gelten vier Jobs. `TRICE_L432_TEST_JOBS` erlaubt eine ausdrückliche Begrenzung. Jede Konfiguration erhält bei jedem Aufruf ein frisches, eigenes Buildverzeichnis unter `temp/log/l432.*`; alle bisherigen Quellen, Defines und Linkziele bleiben erhalten. Bestehende `out.gcc`-Artefakte bleiben unberührt. Erfolgreiche temporäre Objekte werden entfernt, vollständige Compilerprotokolle und fehlgeschlagene Teil-Builds bleiben zur Diagnose erhalten. Es gibt bewusst keinen neuen Objektcache und keine zusätzliche Abhängigkeit; auch Folgeaufrufe übersetzen vollständig neu.
+
+**Fehlerverhalten:** Die Matrix respektiert die Stop-Policy des Test-Runners, zeigt Konfiguration, Fehlerauszug, Protokoll und Wiederholungsbefehl. Bereits gestartete Jobs werden abgeschlossen; bei Abbruch werden auch Compiler-Kindprozesse beendet, bevor die verwaltete Wiederherstellung beginnt. Abgeschlossene Konfigurationen erscheinen sofort im Schrittprotokoll.
+
+**Zusätzlicher Engpass:** Parallelität allein reicht hier nicht: Die Assembler-Listings (`.lst`) verursachten unter paralleler Last erhebliche zusätzliche Laufzeit. Die Matrix schaltet deshalb ausschließlich diese Textausgabe mit `GCC_LISTINGS=0` ab. Normale Einzelbuilds behalten Listings als Standard; alle Optionen für Zielcode, Konfigurationsdefines, Warnungen und Linkziele bleiben erhalten. Konfiguration 0 benötigte im direkten Vergleich **13 Sekunden mit Listings und 6 Sekunden ohne**; ELF, HEX und BIN waren jeweils **bytegleich**.
+
+**Verhaltenstests:** Die beschreibenden Tests in [l432_matrix_test.go](../../scripts/l432_matrix_test.go) prüfen alle 101 Konfigurationen, unveränderte Konfigurationsdefines und Buildziele, serielle und parallele Ausführung, automatische Budgeterkennung und ausdrückliche Limits, einmalige Vorbereitung, Warnungen, Fehlerfortsetzung, Abbruch nach dem gestarteten Batch, fehlende Binärdateien, ungültige Einstellungen, neue Buildpfade nach Headeränderung und das Beenden von Kindprozessen. Der echte Makefile-Auszug wird zusätzlich mit und ohne Listings ausgewertet: Andere Compileroptionen bleiben erhalten, Einzelbuilds erzeugen standardmäßig weiterhin Listings. `go test ./scripts -count=1`, ShellCheck, Shellformat, UM-Format und Markdownlint bestehen.
+
+**Vollständige ARM-Abnahme am 3. Oktober:** Alle **101/101 Konfigurationen bestanden** mit ARM GCC 15.3.1, automatisch erkanntem Budget von zwölf Jobs und frischen Buildverzeichnissen. Laufzeit der Matrix **295 Sekunden (4:55)** gegenüber **1626,416 Sekunden (27:06)** im vorherigen Full-Lauf auf demselben Mac: rund **82 % weniger Zeit**, Faktor **5,5**. Das ist ein Vergleich dieser lokalen Läufe, keine plattformübergreifende Laufzeitzusage. Code-, Daten- und BSS-Größen stimmen für sämtliche Konfigurationen mit dem vorherigen Lauf überein. Erfolgreiche temporäre Buildverzeichnisse wurden entfernt; vollständige Protokolle liegen unter `temp/log/l432.hqSVXw`, die Firmware-Gegenprobe unter `temp/log/l432-listing-probe.o2ty4t` und `temp/log/l432_listing_probe.log`. Die verwaltete Wiederherstellung bestätigte den exakten Ausgangszustand nach Erfolg und nach den zuvor kontrolliert abgebrochenen Probeläufen. Folgeaufrufe nutzen ebenfalls frische Objekte; es gibt keinen warmen Objektcache, dessen Ergebnis die Testausführung ersetzen könnte. Reale Windows-/Linux-Abnahmen wurden für diese Änderung nicht ausgeführt; die abschließende plattformübergreifende Release-Abnahme bleibt R16.
+
+**Full-Nachprüfung am 4. Oktober:** Der Benutzerlauf `./scripts/testAll.sh full` benötigte **1580 Sekunden (26:20)**, rund **46 % weniger** als der zuvor dokumentierte Full-Lauf. **23 Schritte bestanden**, nur Go und Go-Coverage scheiterten erneut an den beiden `nm`-Prüfungen. Die L432-Matrix bestand mit **101/101 Konfigurationen in 270 Sekunden (4:30)**; auch die übrigen Compiler-Matrizen, der Release-Snapshot und beide PC-Workflows bestanden. Die vorhandenen Fehlerprotokolle bleiben als Diagnosebeleg erhalten.
+
+**Dauerhafte Korrektur der Symbolprüfung:** Die Tests in [local_log_integration_test.go](../../internal/id/local_log_integration_test.go) lesen ELF-, Mach-O- und COFF-Objekte jetzt mit der Go-Standardbibliothek. Compiler und Symbolleser werden nicht mehr unabhängig voneinander aus dem PATH ausgewählt. Gegenproben prüfen vorhandene Funktions-, globale, lokale und undefinierte Symbole, gültige leere Objekte, fehlende beziehungsweise beschädigte Dateien und ein absichtlich unbrauchbares `nm` an erster Stelle im PATH. Auch mit dem tatsächlich problematischen ARM-`nm` vorne im PATH bestehen beide ursprünglichen Compile-out-Tests. Die Objektformat-Gegenproben liefen auf macOS mit Clang-Cross-Compilation; sie ersetzen keine echte Windows-/Linux-Abnahme.
+
+**Abnahme der Korrektur:** `go test ./... -count=1` und der vollständige Go-Coverage-Lauf mit `-count=1 -covermode=atomic -coverpkg=./...` bestehen. Das separate Profil `temp/log/coverage-nm-fix.out` bewahrt die bisherigen Full-Protokolle. Nach dieser reinen Testkorrektur wurde kein weiterer `testAll full` gestartet; die erfolgreichen übrigen Schritte des Benutzerlaufs wurden nicht wiederholt.
 
 ## Sinnvolle Erweiterungen zur späteren Diskussion
 
