@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -146,6 +147,19 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				}
 			}
 			assert.Contains(t, out, "Result: "+tc.result)
+			// Every completed step, including WARN/FAIL/ABORTED, retains the
+			// same time-prefixed line in stdout and the persistent summary.
+			summary, readErr := os.ReadFile(filepath.Join(root, "temp/log/testAll_summary.log"))
+			assert.NoError(t, readErr)
+			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|WARN|FAIL|ABORTED)$`)
+			consoleLines := resultLines.FindAllString(out, -1)
+			wantLines := 1
+			if tc.later {
+				wantLines = 2
+			}
+			assert.Len(t, consoleLines, wantLines, out)
+			assert.Equal(t, consoleLines, resultLines.FindAllString(string(summary), -1))
+			assert.NotContains(t, string(summary), ": running")
 			if tc.policy == "1" {
 				assert.Contains(t, out, "Failure policy: continue after failures (--no-stop, default)")
 			} else {
@@ -173,6 +187,84 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestRunnerDurationAlignment checks the exact public layout without waiting
+// for minutes or hours. Large minute counts grow rather than wrap or truncate.
+func TestRunnerDurationAlignment(t *testing.T) {
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+	for _, tc := range []struct {
+		name, seconds, display string
+	}{
+		{"instant_step", "0", "(  0m  0s)"},
+		{"single_digit_seconds", "9", "(  0m  9s)"},
+		{"last_second_before_minute", "59", "(  0m 59s)"},
+		{"whole_minute", "60", "(  1m  0s)"},
+		{"minute_and_one_second", "61", "(  1m  1s)"},
+		{"last_second_before_hour", "3599", "( 59m 59s)"},
+		{"whole_hour_remains_minutes", "3600", "( 60m  0s)"},
+		{"four_hour_windows_step", "14400", "(240m  0s)"},
+		{"three_digit_minute_limit", "59999", "(999m 59s)"},
+		{"longer_runs_are_not_truncated", "60000", "(1000m  0s)"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+TEST_ALL_STEP_NUMBER=3 TEST_ALL_STEP_COUNT=25 TEST_ALL_STEP_END_TENTHS=14
+step_progress_prefix _420_test_dsstore.sh `+tc.seconds, nil)
+			assert.NoError(t, err, out)
+			assert.Equal(t, "[ 3/25 | ~  1.4%] "+tc.display+" _420_test_dsstore.sh: ", out)
+		})
+	}
+}
+
+// TestRunnerTimesEachStepIndependently exercises real child execution. Starting
+// the shell counter far above zero exposes accidental reporting of runner
+// uptime instead of the elapsed time for each script. Advancing it between
+// steps also catches reuse of the first start time. Only one second is spent
+// sleeping; the format boundaries above use fixed inputs instead.
+func TestRunnerTimesEachStepIndependently(t *testing.T) {
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+	writeFixture(t, root, "scripts/_410_test_delayed.sh", "#!/usr/bin/env bash\nsleep 1\n")
+	writeFixture(t, root, "scripts/_430_test_immediate.sh", "#!/usr/bin/env bash\nexit 0\n")
+	out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+mkdir -p "$LOG_DIR"
+SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
+TEST_ALL_STEP_COUNT=2 TEST_ALL_STEP_NUMBER=1 TEST_ALL_STEP_END_TENTHS=500
+SECONDS=500000
+run_step _410_test_delayed.sh
+SECONDS=900000
+TEST_ALL_STEP_NUMBER=2 TEST_ALL_STEP_END_TENTHS=1000
+run_step _430_test_immediate.sh`, nil)
+	assert.NoError(t, err, out)
+	results := regexp.MustCompile(`\( *(\d+)m *(\d+)s\) (_\w+\.sh): PASS`).FindAllStringSubmatch(out, -1)
+	if !assert.Len(t, results, 2, out) {
+		return
+	}
+	for i, result := range results {
+		minutes, err := strconv.Atoi(result[1])
+		assert.NoError(t, err)
+		seconds, err := strconv.Atoi(result[2])
+		assert.NoError(t, err)
+		assert.Less(t, seconds, 60)
+		assert.Less(t, minutes*60+seconds, 400000, "must subtract this step's own starting counter")
+		if i == 0 {
+			assert.GreaterOrEqual(t, minutes*60+seconds, 1, "must include the real child wait")
+		}
+	}
+}
+
+// TestRunnerSpinnerUsesTheSameTimeColumn renders one frame without a terminal
+// or a two-second delay. Freezing the shell counter makes the frame deterministic.
+func TestRunnerSpinnerUsesTheSameTimeColumn(t *testing.T) {
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+	out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+TEST_ALL_STEP_NUMBER=23 TEST_ALL_STEP_COUNT=25 TEST_ALL_STEP_END_TENTHS=765
+unset SECONDS
+SECONDS=1270
+sleep() { exit 0; }
+progress_spinner _620_test_l432_configs.sh 1000`, nil)
+	assert.NoError(t, err, out)
+	assert.Equal(t, "\r[23/25 | ~ 76.5%] (  4m 30s) _620_test_l432_configs.sh: |", out)
 }
 
 // TestRunnerComparesActualTrackedBytes demonstrates why comparing only Git

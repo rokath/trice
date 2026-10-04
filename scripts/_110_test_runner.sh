@@ -198,11 +198,23 @@ clear_previous_test_logs() {
   printf 'INFO: removed %d previous test log files from %s; recovery directories retained.\n' "$removed" "$LOG_DIR"
 }
 
+# step_progress_prefix keeps live output and recorded results aligned. Minutes
+# stay unbounded so multi-hour Windows runs do not wrap at an hour boundary.
+step_progress_prefix() {
+  local step="$1" elapsed="$2"
+  printf '[%2d/%2d | ~%3d.%d%%] (%3dm%3ds) %s: ' \
+    "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
+    "$((TEST_ALL_STEP_END_TENTHS / 10))" \
+    "$((TEST_ALL_STEP_END_TENTHS % 10))" \
+    "$((elapsed / 60))" "$((elapsed % 60))" "$step"
+}
+
 # progress_spinner provides a quiet life sign for long-running steps. It only
 # runs on an interactive terminal and rewrites one line, so redirected output
 # and CI logs never receive repeated spinner frames.
 progress_spinner() {
   local step="$1"
+  local started="$2"
   local frame=0
   local mark
   while :; do
@@ -212,10 +224,9 @@ progress_spinner() {
       2) mark='-' ;;
       3) mark='\' ;;
     esac
-    printf '\r[%2d/%2d | ~%3d.%d%%] %s %s' \
-      "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-      "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-      "$((TEST_ALL_STEP_END_TENTHS % 10))" "$mark" "$step"
+    printf '\r'
+    step_progress_prefix "$step" "$((SECONDS - started))"
+    printf '%s' "$mark"
     frame=$((frame + 1))
     sleep 2
   done
@@ -245,27 +256,24 @@ run_step() {
   local step_log
   local detail
   local warning
+  # Bash's elapsed-seconds counter avoids spawning a clock process per frame.
+  # Record the child duration before spinner cleanup or diagnostic rendering.
+  local step_started=$SECONDS
+  local step_elapsed
 
   if [ "$TEST_ALL_INTERACTIVE" -eq 1 ]; then
-    progress_spinner "$step" &
+    progress_spinner "$step" "$step_started" &
     TEST_ALL_SPINNER_PID=$!
   else
-    printf '[%2d/%2d | ~%3d.%d%%] %s: running\n' \
-      "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-      "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-      "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step"
+    step_progress_prefix "$step" 0
+    printf 'running\n'
   fi
 
   "$SCRIPT_DIR/$step" --quiet "$@" || rc=$?
+  step_elapsed=$((SECONDS - step_started))
   stop_progress_spinner
-  printf '[%2d/%2d | ~%3d.%d%%] %s: ' \
-    "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-    "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-    "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step" >>"$SUMMARY_LOG"
-  printf '[%2d/%2d | ~%3d.%d%%] %s: ' \
-    "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-    "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-    "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step"
+  step_progress_prefix "$step" "$step_elapsed" >>"$SUMMARY_LOG"
+  step_progress_prefix "$step" "$step_elapsed"
   if [ "$rc" -eq 0 ]; then
     step_log="$LOG_DIR/$(basename "$step" .sh).log"
     if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
