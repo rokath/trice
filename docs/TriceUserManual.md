@@ -298,16 +298,18 @@ details.toc[open] .toc-hide {
     * [24.23.3. Why the Source Scan Remains Authoritative](#why-the-source-scan-remains-authoritative)
     * [24.23.4. Requirements Met by the Sidecar Approach](#requirements-met-by-the-sidecar-approach)
   * [24.24. Appendix: TRICE_CLEAN States at a Glance](#appendix-trice_clean-states-at-a-glance)
-  * [24.25. Appendix: Retained Architecture Decision Against ELF Patching](#appendix-retained-architecture-decision-against-elf-patching)
-  * [24.26. Architecture Decision: trice bind Instead of an ELF-Patching Solution](#architecture-decision-trice-bind-instead-of-an-elf-patching-solution)
-    * [24.26.1. Purpose of This Document](#purpose-of-this-document)
-    * [24.26.2. Requirements](#requirements-1)
-    * [24.26.3. MVP of trice bind](#mvp-of-trice-bind)
-    * [24.26.4. Investigated ELF-Patching Solution](#investigated-elf-patching-solution)
-    * [24.26.5. Comparison of the Two Approaches](#comparison-of-the-two-approaches)
-    * [24.26.6. Examination of the Apparent ELF Advantages](#examination-of-the-apparent-elf-advantages)
-    * [24.26.7. Future Additive Extensions](#future-additive-extensions)
-    * [24.26.8. Decision](#decision)
+  * [24.25. Appendix: Why Bind Uses Local Counter Rebasing](#appendix-why-bind-uses-local-counter-rebasing)
+  * [24.26. Appendix: Bind and Insert Test Evidence](#appendix-bind-and-insert-test-evidence)
+  * [24.27. Appendix: Retained Architecture Decision Against ELF Patching](#appendix-retained-architecture-decision-against-elf-patching)
+  * [24.28. Architecture Decision: trice bind Instead of an ELF-Patching Solution](#architecture-decision-trice-bind-instead-of-an-elf-patching-solution)
+    * [24.28.1. Purpose of This Document](#purpose-of-this-document)
+    * [24.28.2. Requirements](#requirements-1)
+    * [24.28.3. MVP of trice bind](#mvp-of-trice-bind)
+    * [24.28.4. Investigated ELF-Patching Solution](#investigated-elf-patching-solution)
+    * [24.28.5. Comparison of the Two Approaches](#comparison-of-the-two-approaches)
+    * [24.28.6. Examination of the Apparent ELF Advantages](#examination-of-the-apparent-elf-advantages)
+    * [24.28.7. Future Additive Extensions](#future-additive-extensions)
+    * [24.28.8. Decision](#decision)
 * [25. Trice version 1.0 Log-level Control](#trice-version-10-log-level-control)
   * [25.1. Trice version 1.0 Compile-time Log-level Control](#trice-version-10-compile-time-log-level-control)
   * [25.2. Trice version 1.0 Run-time Log-level Control](#trice-version-10-run-time-log-level-control)
@@ -2208,7 +2210,7 @@ Location information must match the exact firmware version. In field deployments
 
 `tlog` and `trice log` support the same repeatable `-vis` option for sending selected numeric measurements to external visualization tools. Consumers can, for example, be LabPlot, Serial Studio, PlotJuggler, uPlot, Grafana, or a custom program; these names do not imply a tool-specific protocol. Trice itself does not draw a graph. It transforms one typed Trice message into one user-defined text record and writes that record to a file or UDP destination.
 
-The MVP syntax is:
+The syntax is:
 
 ```text
 -vis='<tag>:printf("<go-fmt>",<expression-list>)@<file-path-or-udp-sink>[;log=keep|drop]'
@@ -2246,7 +2248,7 @@ ts32              raw 32-bit Target-Stamp
 v0 ... v11        typed positional Trice values
 ```
 
-The value fields are positional and can be reordered in the expression list. The MVP does not extract names such as `ax` or `rpm` from the human-readable target format and does not accept those names as identifiers. For example, `printf("%g,%g\n",v2,v0)` deliberately emits the third value before the first.
+The value fields are positional and can be reordered in the expression list. `-vis` does not extract names such as `ax` or `rpm` from the human-readable target format and does not accept those names as identifiers. For example, `printf("%g,%g\n",v2,v0)` deliberately emits the third value before the first. Structured Logging field names are not visualization expression identifiers; use `v0` through `v11` for this interface.
 
 A Target-Stamp is an unscaled number. `-vis` does not assume that it represents time and does not perform unit conversion, wrap extension, or mixed-width reconstruction. Scaling is explicit in an expression, for example `ts32*0.001`. A rule may use `ts16` or `ts32`, but not both. A generic `ts` rule is disabled with a warning if an otherwise eligible message later changes between 16 and 32 bits.
 
@@ -3794,10 +3796,9 @@ int main(void){
 
 ## 24. <a id="trice-bind"></a>Trice Bind
 
-**Status:** User manual for MVP and MVP2 with local counter rebasing<br>
-**Authoritative technical specification:** [`Trice_bind_10_MVP_Spezifikation.md`](./TriceBind/Trice_bind_10_MVP_Spezifikation.md)<br>
-**MVP test requirements:** [`Trice_bind_30_MVP_Test_Spezifikation.md`](./TriceBind/Trice_bind_30_MVP_Test_Spezifikation.md)<br>
-**Technical background for MVP2:** [`Trice_bind_60_MVP2_Implementation_Strategies.md`](./TriceBind/Trice_bind_60_MVP2_Implementation_Strategies.md) and [`60_MVP2_Local_Counter_Rebase`](../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md)
+This chapter is the reference for the current `trice bind` workflow, supported source constructs and limitations. Ordinary sites use file-and-line binding; supported ambiguous sites use automatic local counter rebasing. The restrictions for Context Enrichment are narrower and are explained under [Bind Limits](#bind-limits).
+
+Earlier specifications, implementation prompts and test reports are retained as [archived development records](./scratchPad/obsolete/TriceBind/README.md), not as a second current product specification. Their historical stage names and filenames do not define the supported feature set. The current behavior, architecture rationale and test entry points are documented together in this chapter.
 
 ### 24.1. <a id="overview"></a>Overview
 
@@ -3901,6 +3902,8 @@ The following are generated and normally not version-controlled:
 
 The owner include line stores the stable file key. The sidecar and rebase helper headers can be regenerated by `trice bind` at any time. Rebase include pairs are validated and logically removed during every bind run, then regenerated from the current source analysis. Formatter-owned horizontal whitespace is retained when the regenerated boundary has the same identity. The lines must not be moved, renamed, or partially edited manually.
 
+If the last managed Trice call is removed from a previously bound file, its owner include and file key remain. Bind generates an owner sidecar without site descriptors, preserving the file identity for later calls. This does not allocate an ID for an absent log site.
+
 ### 24.5. <a id="hierarchical-metadata-reuse"></a>Hierarchical Metadata Reuse
 
 Each `trice bind` invocation has one writable primary TIL, LI, and generated-file directory selected with `-genDir`. Files selected by `-src` may be individual files or directories. Existing valid File Keys remain unchanged; a bind-owned file without a File Key receives one when needed.
@@ -3936,6 +3939,8 @@ module.c
 
 The base name improves readability. The key also distinguishes files with identical names in different directories.
 
+The key has a `K` prefix followed by 16 uppercase hexadecimal digits. It is generated once with `crypto/rand` and retained when the file contents, path or name change. The readable sidecar name normalizes characters outside `[A-Za-z0-9_]` to `_`; the key supplies its identity. The key itself is not a transmitted Trice ID and adds no target runtime data.
+
 If a source is copied together with its sidecar include line, both files initially have the same key. `trice bind` detects this as a conflict; one of the files must receive a new key.
 
 Including the same header in multiple translation units is expected and supported.
@@ -3967,6 +3972,8 @@ Meaning:
 - Each site definition occupies one physical line.
 
 During preprocessing, the ID becomes a normal compile-time constant. The target needs neither a string lookup nor an additional runtime mapping table.
+
+Owner sidecars intentionally have no conventional include guard: including an owner sidecar again must reactivate that physical file's bind context. Do not add a guard or maintain generated descriptors manually.
 
 ### 24.8. <a id="why-the-sidecar-include-is-file-local"></a>Why the Sidecar Include Is File-Local
 
@@ -4065,7 +4072,7 @@ trice(iD(123), "msg:legacy\n");
 trice("msg:new\n");
 ```
 
-This state is not allowed in the MVP. The file must be managed entirely by either `insert` or `bind`.
+This state is not allowed. The file must be managed entirely by either `insert` or `bind`. Regions excluded with `TRICE_INSERT_OFF` and `TRICE_INSERT_ON` are not managed and do not contribute to this classification.
 
 #### 24.11.4. <a id="insert-owned-file-after-a-bind-header"></a>Insert-Owned File After a Bind Header
 
@@ -4083,7 +4090,7 @@ This hybrid case is possible but is not the preferred normal workflow.
 
 ### 24.12. <a id="supported-trice-calls"></a>Supported Trice Calls
 
-The MVP and MVP2 use the same parser and user-level macro detection as `trice insert`.
+`trice bind` uses the same parser, ID assignment and user-level macro detection as `trice insert`.
 
 In particular, the following are supported:
 
@@ -4125,7 +4132,7 @@ TRICE8_3(Id(0), "msg:%d %d %d\n", a, b, c);
 TRICE8_3(ID(0), "msg:%d %d %d\n", a, b, c);
 ```
 
-The wrapper form is retained; semantically, the sidecar replaces only the zero with the stable ID.
+The wrapper form is retained; semantically, the sidecar replaces only the zero with the stable ID. An explicit zero placeholder therefore takes precedence over `-defaultStampSize`. Zero placeholders are supported on ordinary line-addressable sites, not in counter-selected regions.
 
 ### 24.14. <a id="command-line"></a>Command Line
 
@@ -4152,6 +4159,8 @@ In general, `bind` accepts the `insert` options relevant to source search, parsi
 ```
 
 `bind` writes sidecar headers and `trice-fields.txt` there; `insert` writes `trice-fields.txt`. `generate -logC` reads bind sidecars there and writes `til.c` there when no output path is supplied. `generate -onelineJSON` writes `<name>.oneline.json` views there; `generate -abc target` writes `target.h` and `target.c` there. Explicit `-logC=path/file.c` and `-abc path/target` paths retain their own location. Add `./generated` to the compiler include path when building bound sources. `-buildDir` and `-bindDir` are no longer accepted.
+
+Bind automatically excludes its selected generated-file directory from the source scan. This prevents generated descriptors from being treated as new user log sites, including when `-src` names a parent directory.
 
 With:
 
@@ -4217,6 +4226,8 @@ Without `TRICE_CLEAN`, running `trice clean` after a bind run has practically no
 
 Running `trice bind` again resets an existing definition to `0` and updates the sidecars.
 
+`TRICE_CLEAN=1` disables logging; it does not make an included header optional. If an owner sidecar or rebase helper is physically missing, the compiler may still report a missing include even in a disabled build. Regenerate the files with `trice bind` before compiling; do not delete isolated include lines to silence the error.
+
 ### 24.17. <a id="re-migration-to-trice-insert"></a>Re-Migration to `trice insert`
 
 A public re-migration subcommand is still not part of the normal user workflow. However, the repository helper script for returning to the clean state uses the same validated bind re-migration as the tests. It removes complete rebase include pairs, their helper headers, sidecar includes, and owner sidecars together, and corrects the affected lines in `li.json`.
@@ -4230,7 +4241,7 @@ Build
 
 ### 24.18. <a id="automatic-local-counter-rebase"></a>Automatic Local Counter Rebase
 
-MVP2 does not add another command to the normal workflow:
+Automatic local counter rebasing does not add another command to the normal workflow:
 
 ```text
 trice bind
@@ -4438,7 +4449,7 @@ Within a counter-selected region, the following are still rejected with a precis
 - expression contexts and control-flow continuations across physical line boundaries that cannot be enclosed safely,
 - conflicting wrapper definitions for which no unambiguous common semantics can be determined.
 
-Zero placeholders on ordinary bind sites that are unambiguous by line remain supported as in the MVP. Format strings must still be statically recognizable within the scope of the shared insert/bind parser.
+Zero placeholders on ordinary bind sites that are unambiguous by line remain supported. Format strings must still be statically recognizable within the scope of the shared insert/bind parser.
 
 For an unsupported site, `trice bind` does not silently fall back to insert and does not write a numeric ID into the user Trice call.
 
@@ -4652,7 +4663,7 @@ The chosen approach combines:
 - direct compilation of the original sources,
 - no build-specific ELF requirement for later decoding.
 
-The former standalone architecture paper “Trice IDs Without Source-Code Patching” has been superseded by the generator specification and this user manual. Its conclusions that remain valid are summarized in this appendix.
+The former standalone architecture paper “Trice IDs Without Source-Code Patching” has been superseded by the current Bind description in this manual. Its conclusions that remain valid are summarized in this appendix.
 
 ---
 
@@ -4676,21 +4687,87 @@ If the definition is absent, `trice bind` does not add it.
 
 ---
 
-### 24.25. <a id="appendix-retained-architecture-decision-against-elf-patching"></a>Appendix: Retained Architecture Decision Against ELF Patching
+### 24.25. <a id="appendix-why-bind-uses-local-counter-rebasing"></a>Appendix: Why Bind Uses Local Counter Rebasing
 
-The following text is an English translation of the content retained unchanged from `Trice_bind_vs_ELF_Patch.md`. It documents the architecture decision. Some example names reflect the design stage at the time; the main body of this user manual and [`Trice_bind_10_MVP_Spezifikation.md`](./TriceBind/Trice_bind_10_MVP_Spezifikation.md) define the current normative behavior.
+The original design comparison considered three ways to distinguish log sites that share a source line or occur inside a wrapper macro. These were alternatives for transferring an already assigned stable ID into the target code, not alternative ID databases. The existing TIL/LI assignment remains authoritative in all three designs.
+
+A translation unit is one C or C++ source file together with the headers processed for that compilation. `__LINE__` cannot distinguish two calls on the same physical line. `__COUNTER__` can distinguish expansions, but its absolute value also depends on unrelated macros and headers in that translation unit. Binding a stable ID directly to that absolute value would make unrelated source edits affect the mapping.
+
+| Approach | How it distinguishes sites | Benefit | Cost and limitation | Current status |
+| --- | --- | --- | --- | --- |
+| Local counter rebase | Record a counter base immediately before a small source region and select IDs by the difference from that base. | Compile the original source; no target-compiler invocation or compilation database is required by `bind`. Earlier unrelated counter use does not affect the region. | Generated begin/end includes are necessary. Counter use inside the region must match exactly; only safely bounded source constructs are accepted. | Implemented for the ordinary Bind constructs described in this chapter. |
+| Exact target-preprocessor pass | Observe expansions using the actual target compiler and the build's options. | Can observe macros and active branches in a particular build configuration. | Requires the real compiler, defines, include paths, forced includes and any precompiled headers. Bind and the later build must agree; multiple configurations may require distinct mappings. Preprocessed text alone does not portably recover every wrapper's definition identity. | Considered as an alternative; not a normal Bind build step. The separate CE PoC investigates a related approach without providing production CE wrapper support. |
+| Generated compiler input | Give sites explicit ordinals in generated copies of sources and headers. | Site selection need not depend on a compiler counter. | The compiler processes generated copies. Build integration must preserve relative includes, dependencies, diagnostics, debugging paths and IDE navigation. | Considered as an alternative; no supported shadow-source mode is provided. |
+
+For example, a local base of 87 followed by three Trice counter expansions at 88, 89 and 90 gives local ordinals 0, 1 and 2. If an earlier header consumes another ten counter values, the base and those three values all increase by ten; the ordinals remain unchanged. If an unrelated macro consumes a counter value *inside* the region, that property no longer holds. Generated range and final-count checks turn the discrepancy into a compile error instead of accepting a silently shifted ID.
+
+The implemented rebase selects stable IDs with generated constant expressions. An early design sketch used an ID array, but that sketch is not the current target interface and does not introduce a runtime lookup table. The user maintains neither counters nor ordinals. A wrapper's inner definition sites retain their IDs across invocations; runtime `if` or `switch` decisions do not change the preprocessor expansion order.
+
+Compiler capability is checked in the generated region that needs it. Finding a host compiler on the developer's machine would not prove what an embedded target compiler supports, so `bind` does not use host-compiler discovery as an ID-binding guarantee. Ordinary file-and-line sites require no counter. For affected sites on a compiler without the necessary capability, use separate source lines, a suitable ordinary function, or the explicitly selected `insert/clean` workflow. See [Bind Limits](#bind-limits).
+
+Checking whether a compiler defines `__COUNTER__` and checking whether a region consumes the expected sequence are different tasks; the generated code addresses both. A successful historical PoC run is evidence for that experiment's compiler and language modes, not a promise for every compiler, precompiled-header setup or build configuration. The [CE wrapper/rebase appendix](#extended-poc-for-wrapper-macros-and-counter-rebasing) describes its separate evidence and remaining integration limits.
+
+### 24.26. <a id="appendix-bind-and-insert-test-evidence"></a>Appendix: Bind and Insert Test Evidence
+
+Bind and Insert tests share canonical sources, ID configuration and build/test workers. The workflow wrapper prepares the source state and include paths; the shared worker performs the actual compiler or decoder checks. This avoids maintaining independent copies of `triceCheck.c` or weakening one workflow's expected output. The relevant states are ID-free without active Bind artifacts, Inserted with explicit IDs, and Bound with owner includes and generated headers.
+
+| Check or component | What it establishes | Repository entry point |
+| --- | --- | --- |
+| Shared ID settings and transitions | The repository helpers use the same source scope, aliases, TIL, LI, ID policy and generated directory. | [_120_setup_trice_environment.sh](../scripts/_120_setup_trice_environment.sh), [_130_trice_id_workflow.sh](../scripts/_130_trice_id_workflow.sh) |
+| Managed state restoration | Snapshot affected source/metadata bytes and generated artifacts; restore the initial state after success, failure, `SIGINT` or `SIGTERM`. Failed restoration makes the wrapper fail. | [_140_trice_test_state.sh](../scripts/_140_trice_test_state.sh), [portability tests](../scripts/portability_test.go) |
+| Generator behavior | File ownership, stable IDs, stamps, include placement, idempotence, ordered diagnostics and rollback on rejected input or write failure. | [bindIDs_test.go](../internal/id/bindIDs_test.go), [bindMVP2_test.go](../internal/id/bindMVP2_test.go) |
+| Generated target behavior | Compile real generated headers as C/C++; check counter guards, expansion invariants, emitted IDs and canonical Trice macro coverage. | [bindIntegration_test.go](../internal/id/bindIntegration_test.go), [_500_test_bind.sh](../scripts/_500_test_bind.sh) |
+| Return from Bound to Inserted | Remove only validated owner and rebase artifacts, correct LI positions and reject ambiguous or modified artifacts without partial changes. | [bindRemigrate_test.go](../internal/id/bindRemigrate_test.go), [_250_legacy_remigrate_bind_to_clean.sh](../scripts/_250_legacy_remigrate_bind_to_clean.sh) |
+| Shared PC target matrix | Run the same selected configurations and expectations in Insert and Bind state, with separate logs and restored inputs. | [_160_pc_target_test_worker.sh](../scripts/_160_pc_target_test_worker.sh), [_630_test_pc_targets_insert.sh](../scripts/_630_test_pc_targets_insert.sh), [_640_test_pc_targets_bind.sh](../scripts/_640_test_pc_targets_bind.sh) |
+
+The compiler-build matrices also use shared workers for Insert and Bind. `TRICE_OFF` is checked separately because disabling logging does not depend on ID binding. See [Testing the Trice Library C-Code for the Target](#testing-the-trice-library-c-code-for-the-target) for current selections, required tools, parallelism, logs and failure handling. Standalone build/ID maintenance helpers can intentionally leave a new source state; the restoration contract belongs to the managed test wrappers. An uncatchable process kill or machine failure cannot execute a shell restoration trap, so retained recovery data must be reviewed in that case.
+
+The following independent experiments remain executable evidence; their historical folder names are not another support contract:
+
+| Experiment | Purpose |
+| --- | --- |
+| [Minimal line binding](../experiments/TriceBind/10_Minimal_Line_Binding/README.md) | Bind a known ID through a source line and sidecar. |
+| [Target-library integration](../experiments/TriceBind/20_Target_Library_Integration/README.md) | Compile ID-free calls with the real target library. |
+| [Preprocessor verification](../experiments/TriceBind/30_Preprocessor_Verification/README.md) | Verify local route selection and single-line site descriptors. |
+| [Generator integration](../experiments/TriceBind/40_MVP_Generator/README.md) | Generate real artifacts, execute target code and decode its data. |
+| [Counter and macro definitions](../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions/README.md) | Demonstrate multiple expansions and the dependency on a counter's global history. |
+| [Local counter rebase](../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md) | Demonstrate stable definition IDs, independence from earlier counter use and rejection of invalid counter sequences. |
+
+To run the existing Bind compiler and PoC checks from the repository root:
+
+```sh
+./scripts/_500_test_bind.sh
+```
+
+To run both PC target workflows with the same quick selection:
+
+```sh
+./scripts/_170_pc_target_tests_all_workflows.sh quick
+```
+
+These focused checks do not replace the repository's final full regression run. Historical PASS reports in the archive record earlier invocations; only a current run with its actual tool availability establishes the current result.
+
+---
+
+### 24.27. <a id="appendix-retained-architecture-decision-against-elf-patching"></a>Appendix: Retained Architecture Decision Against ELF Patching
+
+The following retained English translation of `Trice_bind_vs_ELF_Patch.md` records the original architecture decision against ELF patching. It is a historical design comparison, not the current feature or compiler support contract. Here, “MVP” means the original file-and-line-only design; its example file keys begin with `F` and its macro names reflect that earlier proposal. Current generated owner keys begin with `K`, as shown in [File Key and Sidecar Name](#file-key-and-sidecar-name).
+
+The original exclusions of multiple calls per line and ordinary logging wrappers below have since been superseded by [Automatic Local Counter Rebase](#automatic-local-counter-rebase). These constructs are supported within the current restrictions; [Bind Limits](#bind-limits) separately explains why selected CE wrapper/rebase sites remain excluded. Descriptions of extensions as “future” record the decision at that time and are not new implementation commitments. The preceding sections of this chapter define current behavior.
+
+The retained [archived development records](./scratchPad/obsolete/TriceBind/README.md) include the original generator specification, test design, implementation reports and the comparison of three counter-binding strategies. The [architecture comparison](#appendix-why-bind-uses-local-counter-rebasing) and [test evidence](#appendix-bind-and-insert-test-evidence) above summarize their continuing relevance in English. The implemented strategy is local counter rebasing; a compiler preprocessing pass and generated replacement compiler input were examined as alternatives, not adopted as additional normal build steps. The [local counter-rebase experiment](../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md) and [preprocessor verification](../experiments/TriceBind/30_Preprocessor_Verification/README.md) remain reproducible development evidence. Their results do not establish support for every compiler or the deferred general CE integration.
 
 <!-- BEGIN translated unchanged adoption: Trice_bind_vs_ELF_Patch.md -->
 
-### 24.26. <a id="architecture-decision-trice-bind-instead-of-an-elf-patching-solution"></a>Architecture Decision: `trice bind` Instead of an ELF-Patching Solution
+### 24.28. <a id="architecture-decision-trice-bind-instead-of-an-elf-patching-solution"></a>Architecture Decision: `trice bind` Instead of an ELF-Patching Solution
 
-#### 24.26.1. <a id="purpose-of-this-document"></a>Purpose of This Document
+#### 24.28.1. <a id="purpose-of-this-document"></a>Purpose of This Document
 
 This document explains the decision to use `trice bind` and generated sidecar headers to bring stable Trice IDs into the target code. An ELF-based patching or linking solution was investigated as an alternative.
 
 The decision concerns only the mechanism by which an already determined Trice ID reaches the compiler or final target code. The existing persistent ID management with `til.json` and `li.json` remains unchanged.
 
-#### 24.26.2. <a id="requirements-1"></a>Requirements
+#### 24.28.2. <a id="requirements-1"></a>Requirements
 
 The binding mechanism should:
 
@@ -4704,7 +4781,7 @@ The binding mechanism should:
 - avoid unnecessarily expanding incremental builds,
 - generate understandable and reproducible build artifacts.
 
-#### 24.26.3. <a id="mvp-of-trice-bind"></a>MVP of `trice bind`
+#### 24.28.3. <a id="mvp-of-trice-bind"></a>MVP of `trice bind`
 
 ##### Basic Principle
 
@@ -4824,7 +4901,7 @@ For a Trice call in a macro definition, `__LINE__` and the current file key are 
 
 `trice bind` reports such constructs as an error in the MVP. Existing projects that depend on them continue to use `trice insert`.
 
-#### 24.26.4. <a id="investigated-elf-patching-solution"></a>Investigated ELF-Patching Solution
+#### 24.28.4. <a id="investigated-elf-patching-solution"></a>Investigated ELF-Patching Solution
 
 With an ELF-based solution, Trice macros would generate additional metadata and bindable ID placeholders in object files during compilation. A later tool would have to evaluate this information and insert the final IDs through relocations, additional link objects, or direct patching of the object or image code.
 
@@ -4840,7 +4917,7 @@ Such a solution requires at least:
 
 An ELF solution also requires prepared Trice macros or prepared libraries. Neither complete Trice metadata nor safely patchable ID sites can be reconstructed from an arbitrary, already compiled `.a` file.
 
-#### 24.26.5. <a id="comparison-of-the-two-approaches"></a>Comparison of the Two Approaches
+#### 24.28.5. <a id="comparison-of-the-two-approaches"></a>Comparison of the Two Approaches
 
 | Criterion                                    | `trice bind` MVP                                        | ELF-patching solution                                |
 |----------------------------------------------|---------------------------------------------------------|------------------------------------------------------|
@@ -4860,7 +4937,7 @@ An ELF solution also requires prepared Trice macros or prepared libraries. Neith
 
 For a normal source project, the remaining general advantage of the ELF solution is therefore essentially that it would avoid the file-local sidecar include. This convenience comes at the cost of substantially greater toolchain and implementation complexity.
 
-#### 24.26.6. <a id="examination-of-the-apparent-elf-advantages"></a>Examination of the Apparent ELF Advantages
+#### 24.28.6. <a id="examination-of-the-apparent-elf-advantages"></a>Examination of the Apparent ELF Advantages
 
 ##### Precompiled Static Libraries
 
@@ -4917,7 +4994,7 @@ Trice requires static, directly recognizable format strings. Generating differen
 
 Consequently, individual expanded format-string variants do not have to be distinguished in object code. This does not create a relevant ELF advantage either.
 
-#### 24.26.7. <a id="future-additive-extensions"></a>Future Additive Extensions
+#### 24.28.7. <a id="future-additive-extensions"></a>Future Additive Extensions
 
 The following functions are explicitly not part of the MVP. They can be added later without changing the basic sidecar model.
 
@@ -4953,7 +5030,7 @@ The following functions are explicitly not part of the MVP. They can be added la
 
 These extensions supplement the MVP. None of them requires switching normal user sources to a general ELF-patching solution.
 
-#### 24.26.8. <a id="decision"></a>Decision
+#### 24.28.8. <a id="decision"></a>Decision
 
 For normal C and C++ sources, `trice bind` with file-local sidecar headers will be pursued. A general ELF-patching solution will not be pursued further.
 
