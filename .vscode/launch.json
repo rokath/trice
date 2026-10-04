@@ -7,10 +7,14 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["generate",
-                    "-c",
-                     "-idlist", "${workspaceFolder}/examples/G0B1_inst/til.json",
+                     "-logC",
+                     "-src", "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c",
+                     "-idlist", "${workspaceFolder}/demoTIL.json",
+                     "-li", "${workspaceFolder}/demoLI.json",
+                     "-genDir", "${workspaceFolder}/generated",
                      "-verbose"
             ]
         },
@@ -20,11 +24,15 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["log",
                      "-p", "TCP4",
-//                  "-args", "localhost:19021",
-                     "-idlist", "${workspaceFolder}/examples/G0B1_inst/til.json",
+                     "-args", "${input:rttEndpoint}",
+                     "-pf", "none",
+                     "-d16",
+                     "-idlist", "${workspaceFolder}/demoTIL.json",
+                     "-li", "${workspaceFolder}/demoLI.json",
                      "-verbose"
             ]
         },
@@ -34,22 +42,21 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["ver",
-                     "-logfile",
-                     "auto",
+                     "-logfile", "auto",
                      "-verbose"
             ]
         },
-       {
+        {
             "name": "Launch test function",
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceFolder}/pkg/id",
+            "program": "${workspaceFolder}/internal/id",
             "args": [
-                "-test.run",
-                "TestUpdateSameId"
+                "-test.run", "^TestBindGeneratesStableSidecarAndKeepsCallsIDFree$"
             ]
         },
         {
@@ -58,9 +65,9 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
-            "args": ["ds"
-            ]
+            "args": ["ds"]
         },
         {
             "name": "Launch trice shutdownRemoteDisplayServer",
@@ -68,113 +75,27 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
-            "args": ["sd"
-            ]
+            "args": ["sd"]
         },
         {
-            "name": "TestRNDChaosX",
+            "name": "G0B1_inst: encrypted UART",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["log",
-                "-idlist", "${workspaceFolder}/_test/til.json",
-                "-source", "RND",
-                "-rndLimit", "10", 
-                "-rndMode", "ChaosMode",
-                "-color", "off", 
-                "-ts", "none",
-                "-key", "none"
-            ]
-        },              
-        {
-            "name": "-p FILEBUFFER",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-port",
-                    "FILEBUFFER",
-                     "-args",
-                     "${workspaceFolder}/internal/decoder/testdata/trice.bin",
-                     "-idlist",
-                     "${workspaceFolder}/demoTIL.json"
-            ]
-        },
-        { 
-            "name": "G0B1 -p com6",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-port",
-                    "com6",
-                    "-pf=cobs",
-                     "-i",
-                     "${workspaceFolder}/examples/G0B1_inst/til.json",
-                     "-li",
-                     "${workspaceFolder}/examples/G0B1_inst/li.json"
-            ]
-        },
-        {
-            "name": "-s wrapTriceMsgs.bin",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-s",
-                     "C:\\repos\\trice\\internal\\receiver\\rttfile\\testdata\\wrapTriceMsgs.bin",
-                     "-idlist",
-                     "${workspaceFolder}/til.json",
-                     "-key",
-                     "none"
-            ]
-        },        
-        {
-            "name": "-password MySecret",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-p",
-                     "COM16",
-                     "-debug",
-                     "-password",
-                     "MySecret",
-                     "-idlist",
-                     "${workspaceFolder}/til.json"
-            ]
-        },
-        {
-            "name": "RTT -pw MySecret ",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-p",
-                     "JLINK",
-                     "-args",
-                     "-Device STM32F030R8 -If SWD -Speed 4000 -RTTChannel 0",
-                     "-pw",
-                     "MySecret",
-                     "-pf",
-                     "COBS",
-                     "-idlist",
-                     "${workspaceFolder}/_test/testdata/til.json",
-                     "-li",
-                     "${workspaceFolder}/_test/testdata/li.json"
+                     "-port", "${input:serialPort}",
+                     "-baud", "115200",
+                     "-pf", "COBS",
+                     "-pw", "MySecret",
+                     "-ts16", "us",
+                     "-ts32", "ms",
+                     "-i", "${workspaceFolder}/demoTIL.json",
+                     "-li", "${workspaceFolder}/demoLI.json"
             ]
         },
         {
@@ -183,194 +104,52 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["log",
-                     "-p",
-                     "JLINK",
-                     "-args",
-                     "-Device STM32G0B1RE", //  -If SWD -Speed 4000 -RTTChannel 0",
-                     "-pf",
-                     "none",
+                     "-p", "JLINK",
+                     "-args", "-Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0",
+                     "-pf", "none",
                      "-d16",
                      "-s",
-                     "-idlist",
-                     "${workspaceFolder}/examples/G0B1_inst/til.json",
-                     "-li",
-                     "${workspaceFolder}/examples/G0B1_inst/li.json"
+                     "-idlist", "${workspaceFolder}/demoTIL.json",
+                     "-li", "${workspaceFolder}/demoLI.json"
             ]
         },
         {
-            "name": "JLINK -args ", // -Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0" -pf none -d16 -til ../testdata/til.json",
+            "name": "JLINK -args STM32L432KC",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["log",
-                     "-p",
-                     "JLINK",
-                     "-args",
-                     "-Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0",
-                     "-pf",
-                     "none",
+                     "-p", "JLINK",
+                     "-args", "-Device STM32L432KC -If SWD -Speed 4000 -RTTChannel 0",
+                     "-pf", "none",
                      "-d16",
                      "-s",
-                     "-idlist",
-                     "${workspaceFolder}/_test/testdata/til.json",
-                     "-li",
-                     "${workspaceFolder}/_test/testdata/li.json"
+                     "-idlist", "${workspaceFolder}/demoTIL.json",
+                     "-li", "${workspaceFolder}/demoLI.json"
             ]
         },
         {
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // commenst inside json generally not possible, but VScode tolerates this here
-            //
-            //  expected: "time:       5_654default: att: 0x8888 == 8888h"
-            //  actual  : "TCOBSv1: 55 9b 16 16 c0 02 88 88 a8 00 \n->TRICE: 55 9b 16 16 c0 02 88 88 \ntime:       5_654default: att: 0x8888 == 8888h"
-            //
-            //  Diff:
-            //  --- Expected
-            //  +++ Actual
-            //  @@ -1 +1,3 @@
-            //  +TCOBSv1: 55 9b 16 16 c0 02 88 88 a8 00
-            //  +->TRICE: 55 9b 16 16 c0 02 88 88
-            //   time:       5_654default: att: 0x8888 == 8888h
-            //       "name": "trice l -p DUMP",
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             "name": "trice l -p DUMP",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["log",
                      "-v",
-                     "-port",
-                     "DUMP",
-                     "-args",
-                     "f1 bf f1 bf 00 00 c0 12 20 20 4e 55 43 4c 45 4f 2d 47 30 42 31 52 45 20 20 20 00 00 ce 7f c1 08 01 00 00 00 01 00 00 00 ca 7f c3 00 c8 7f c4 00 c7 7f c5 10 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 c6 7f c6 0c b4 00 00 00 f8 00 00 00 70 17 00 00",
+                     "-port", "DUMP",
+                     "-args", "f1 bf f1 bf 00 00 c0 12 20 20 4e 55 43 4c 45 4f 2d 47 30 42 31 52 45 20 20 20 00 00 ce 7f c1 08 01 00 00 00 01 00 00 00 ca 7f c3 00 c8 7f c4 00 c7 7f c5 10 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 c6 7f c6 0c b4 00 00 00 f8 00 00 00 70 17 00 00",
                      "-pf=none",
                      "-d16",
-                     "-idlist",
-                     "${workspaceFolder}/_test/testdata/testTIL.json",
-                     "-li",
-                     "${workspaceFolder}/_test/testdata/testLI.json"
-            ]
-        },
-        {
-            "name": "trice l -p DUMP -pf none",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-idlist",
-                    "${workspaceFolder}/_test/testdata/til.json",
-                    "-li",
-                    "${workspaceFolder}/_test/testdata/li.json",
-                    "-port",
-                     "DUMP",
-                     "-args",
-                     "59 dc 00 00 00 00 c0 00 42 5e c1 00 65 4a c2 00 1d 59 c3 04 88 00 00 00 1b 59 c4 00 b0 8c b0 8c 00 00 c5 00 99 57 c6 08 14 00 00 00 90 01 00 00",
-                     "-packageFraming",
-                     "none"
-            ]
-        },
-        {
-            "name": "trice l -p BUFFER",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-v",
-                     "-encoding",
-                     "flexL",
-                     "-port",
-                     "BUFFER",
-                     "-args",
-                     "2, 124, 227, 255, 0, 0, 4, 0",
-                     "-idlist",
-                     "${workspaceFolder}/til.json",
-                     "-password",
-                     ""
-            ]
-        },
-        {
-            "name": "trice l -p COM6 -baud 921600",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-idlist",
-                    "${workspaceFolder}/_test/testdata/til.json",
-                    "-li",
-                    "${workspaceFolder}/_test/testdata/li.json",
-                    "-port",
-                     "COM6",
-                     "-baud",
-                     "921600"
-            ]
-        },        
-        {
-            "name": "trice l -p JLINK",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-idlist",
-                    "${workspaceFolder}/_test/testdata/til.json",
-                    "-li",
-                    "${workspaceFolder}/_test/testdata/li.json",
-                    "-port",
-                     "JLINK",
-                     "-args",
-                     "-device STM32F030R8 -if SWD -speed 4000 -RTTChannel 0",
-                     "-packageFraming",
-                     "none"
-            ]
-        },
-        {
-            "name": "displayServer",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["l",
-                     "-ds",
-                     "-a",
-                     "-port",
-                     "COM4",
-                     "-baud",
-                     "115200",
-                     "-idlist",
-                     "${workspaceFolder}/til.json",
-                     "-password",
-                     "none"
-            ]
-        },
-        {
-            "name": "check",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["check",
-                     "-idlist",
-                     "${workspaceFolder}/til.json",
-                     "-color",
-                     "xxxxxxxxxxalternate",
-                     "-v",
-                     "-dataset",
-                     "xxx"
+                     "-idlist", "${workspaceFolder}/_test/testdata/testTIL.json",
+                     "-li", "${workspaceFolder}/_test/testdata/testLI.json"
             ]
         },
         {
@@ -379,83 +158,22 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
-            "args": ["help",
-                    "-i"
-            ]
+            "args": ["help", "-i"]
         },
-        {
-            "name": "l -e DUMP",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-til",
-                    "${workspaceFolder}/til.json",
-                     "-p",
-                     "COM5",
-                     "-baud",
-                     "57600",
-                     "-e",
-                     "DUMP"
-            ]
-        },
-        {
-            "name": "l -p COM6 -testTable",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                    "-til",
-                    "${workspaceFolder}/til.json",
-                     "-p",
-                     "COM6",
-                     "-ts",
-                     "",
-                     "-testTable"
-            ]
-        },        
-        {
-            "name": "l -p comX",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-idlist",
-                     "${workspaceFolder}/_test/testdata/til.json",
-                     "-locationInformation",
-                     "${workspaceFolder}/_test/testdata/li.json",
-                     "-p",
-                     "com4",
-                     "-baud",
-                     "115200",
-                     "-pw",
-                     "MySecret",
-                     "-pf",
-                     "cobs"
-            ]
-        },        
         {
             "name": "trice i -src ./Core/Src/main.c",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["insert",
-                    "-idlist",
-                    "${workspaceFolder}/examples/G0B1_inst/til.json",
-                    "-locationInformation",
-                    "${workspaceFolder}/examples/G0B1_inst/li.json",
-                    "-cache",
-                    "-src",
-                    "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
+                     "-idlist", "${workspaceFolder}/demoTIL.json",
+                     "-locationInformation", "${workspaceFolder}/demoLI.json",
+                     "-src", "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
             ]
         },
         {
@@ -464,39 +182,26 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "args": ["clean",
-                    "-idlist",
-                    "${workspaceFolder}/examples/G0B1_inst/til.json",
-                    "-locationInformation",
-                    "${workspaceFolder}/examples/G0B1_inst/li.json",
-                    "-cache",
-                    "-src",
-                    "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
+                     "-idlist", "${workspaceFolder}/demoTIL.json",
+                     "-locationInformation", "${workspaceFolder}/demoLI.json",
+                     "-src", "${workspaceFolder}/examples/G0B1_inst/Core/Src/main.c"
             ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "serialPort",
+            "type": "promptString",
+            "description": "Serial port for G0B1_inst, for example COM3 or /dev/ttyACM0"
         },
         {
-            "name": "insert -src ../try",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["insert",
-                    "-IDMin",
-                    "10", 
-                    "-IDMax",
-                    "20",
-                    "-IDMethod",
-                    "upward",
-                    "-idlist",
-                    "${workspaceFolder}/try/til.json",
-                    "-locationInformation",
-                    "${workspaceFolder}/try/li.json",
-                    "-src",
-                    "${workspaceFolder}/try",
-                    "-v"
-            ]
+            "id": "rttEndpoint",
+            "type": "promptString",
+            "description": "TCP endpoint carrying G0B1_inst unframed direct RTT output",
+            "default": "localhost:17001"
         }
     ]
 }
