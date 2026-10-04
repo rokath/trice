@@ -17,7 +17,7 @@ Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nac
 - Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
 - Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
 - Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
-- Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die normale Testauswahl aktiviert diese Tests nicht vollständig; Einzelheiten stehen bei R07.
+- Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die ursprüngliche Auswahl ließ sie aus; R07 aktiviert sie jetzt gezielt in Schritt 515 für `quick`, `full` und die Library CI. Normale Go-Unit-/Coverage-Läufe bleiben davon getrennt.
 - Aktuelle GitHub-Issues und Live-CI-Ergebnisse wurden nicht vollständig abgeglichen. Vor einer späteren Issue-Erstellung sind vorhandene Issues auf Dopplungen zu prüfen. Dieser Auftrag erstellt keine Issues.
 
 Die erledigten A1–A10 und der CE-Folgeauftrag für Insert/Clean sind aus der offenen Liste entfernt. Ihre Details bleiben im [historischen Abschlussbericht](obsolete/Implementierungsplan_bis_A10.md). Die früheren M01–M16 und Handovers bleiben im vorhandenen Archiv. Ein historisch erledigter Implementierungsauftrag ersetzt keine heutige Regressionstest-Abnahme; die frühere A6-Notiz zur `untagged:`-Erwartung wird durch den bei R01 präzisierten Ausgabevertrag neu bewertet.
@@ -49,11 +49,10 @@ Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehen
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R06, R08/R09, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R09, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
-| R07 | Vorhandene CE-/SL- und Beispielprüfungen verbindlich ausführen | 5 | M | R01, R13; erforderliche Compiler |
 | R17 | Repo-Bestand und Dokumentationsziele je Datei prüfen | 4 | S–M | Lesende Bestandsprüfung; vor Löschungen/Verschiebungen |
 | R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04, R17 |
 | R11 | SL- und CE-Kapitel vollständig ins Englische übertragen | 5 | M–L | R02, R10 |
@@ -70,25 +69,13 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 ## Vorschlag für die nächsten Aufträge
 
-Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und jetzt die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die fehlende produktive CE-/SL-Testauswahl **R07** bleibt ein eigener nächster Auftrag. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
+Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. Als nächster Dokumentationsschritt folgt R17; P02 kann anhand neuer Plattformmessungen priorisiert werden. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
 
 Die Dokumentationsarbeit kann parallel zu langen Tests beginnen: **R17 Bestandsprüfung → R10 Bereinigung → R11 Übersetzung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt zuerst, damit beim Verkürzen und Entfernen keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
 
 R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
 
 ## Konkrete Aufgaben vor dem Release
-
-### Vorhandene neue Integrationstests in die Standardabnahme aufnehmen
-
-**R07 · Gewicht 5 · Aufwand M · Lücke in der Testauswahl bestätigt**
-
-[Schritt 500](../../scripts/_500_test_bind.sh) setzt `TRICE_BIND_INTEGRATION=1`, wählt aber nur fünf ältere Bind-Tests in `internal/id` aus. Die normalen Go-/Coverage-Läufe setzen diese Variable nicht. Damit fehlen in der regulären Auswahl insbesondere die vorhandenen [CE-Target-/Decoder-Tests](../../internal/args/context_enrichment_test.go) `TestContextEnrichmentTargetToDecoder` und `TestContextInsertCleanTargetToDecoder`. Auch die CE-PoCs werden dadurch nicht vollständig ausgeführt.
-
-Die neuen [PC-Ausgabeprüfungen](../../examples/PC_features/check_output.sh) und [G0B1-Buildprüfungen](../../examples/G0B1_features/check_build.sh) werden von den untersuchten Test-/CI-Einstiegspunkten ebenfalls nicht aufgerufen. Normale SL-Unit-Tests und Teile der C-Matrix sind bereits vorhanden; diese müssen nicht neu erfunden werden.
-
-Aufgabe: Bestehende Prüfungen einer klaren, dokumentierten Auswahl zuordnen. Erforderliche Compiler/clangd erkennen; im Release-Lauf darf ein fehlendes Pflichtwerkzeug nicht als bestandene Abnahme erscheinen. Den großen experimentellen Rebase-PoC getrennt von produktiver CE-Unterstützung ausweisen. Neue Beispielprüfungen müssen isoliert laufen oder ihren Ausgangszustand exakt wiederherstellen.
-
-**Abnahme:** Protokolle nennen die tatsächlich ausgeführten produktiven CE-/SL-End-to-End-Tests und Beispielprüfungen. C/C++-Records, Text/JSON/KV, Insert/Clean-Rücknahme, Bind, Abschaltung und einmalige Argumentauswertung sind enthalten. Fehlende Plattformnachweise werden offen benannt.
 
 ### Daseinsberechtigung und Zielort des Repo-Bestands prüfen
 
@@ -453,6 +440,22 @@ Die bestandenen Bind- und Insert-Läufe prüfen im Automatikmodus jeweils 30 Bul
 **Weitere Abnahme auf dem neuen Mac:** Die Go-Suites für `cmd`, `internal`, `pkg` und `scripts` bestehen. Gezielte Replay-/Lifecycle-Tests bestehen zusätzlich mit Race Detector. ShellCheck, Formatprüfung der geänderten Shell-/C-Dateien, UM-Format und Markdownlint bestehen. Ein erster eingeschränkter Go-Lauf scheiterte ausschließlich an den gesperrten lokalen TCP-/UDP-Testports; der anschließende Lauf mit erlaubtem Portzugriff bestand. Die gesamte `testAll full`-Suite einschließlich L432 und eine reale Windows-Matrix wurden hier nicht erneut ausgeführt; das bleibt R16. P02 und P03 bleiben getrennte optionale Folgearbeiten.
 
 **Verbleibender Plattformhinweis für R16:** Im bestandenen Einzelzeilenlauf meldete Bash einmal `child setpgid ...: Operation not permitted`. Sämtliche Pakete, der Workflow-Exit und die exakte Dateiwiederherstellung waren erfolgreich. Der gezielte Test `TestPCWorkerCancellationReachesDescendants` bestand anschließend dreimal, jeweils für normale Jobs und einen Diagnose-Nachlauf einschließlich verzögert beendeter Kindprozesse. Die einmalige Meldung ist damit nicht reproduziert oder ursächlich erklärt; bei der Release-Abnahme auf die Prozessgruppenbildung und auf einen realen Matrixabbruch achten. Die Meldung wurde nicht unterdrückt.
+
+### CE-/SL-Integration und Feature-Beispiele verbindlich ausgewählt
+
+**R07 · Gewicht 5 · Aufwand M · Umsetzung und gezielte lokale Abnahme abgeschlossen**
+
+[Schritt 515](../../scripts/_515_test_logging_features.sh) läuft einmal in `quick` und `full`. Er aktiviert gezielt `TestContextEnrichmentTargetToDecoder` und `TestContextInsertCleanTargetToDecoder`: C/C++-Records, Text/JSON/KV, Feldtypen und Stempel, Bind, Insert/Clean-Rücknahme, abgeschaltetes Logging und einmalige Auswertung. Die bestehenden SL-Unit-Tests und bisherigen Bind-Prüfungen bleiben erhalten und werden nicht zusätzlich im neuen Schritt wiederholt.
+
+Die kleinen Nachweise `TestContextEnrichmentPoC` und `TestContextEnrichmentPoCRebaseScopeBoundary` laufen als separat bezeichnete Gruppe mit. Der große experimentelle `TestContextEnrichmentRebasePoC` bleibt gezielt aufrufbar; sein Aufruf und die begrenzte Aussagekraft der jeweils verfügbaren Compiler stehen im UM. Daraus folgt weiterhin keine produktive CE-Unterstützung für Wrapper/Rebase.
+
+Die unveränderten [PC-Ausgabeprüfungen](../../examples/PC_features/check_output.sh) und [G0B1-Buildprüfungen](../../examples/G0B1_features/check_build.sh) laufen in einer frischen Kopie der benötigten versionierten Dateien. Dabei werden aktuelle Worktree-Bytes einschließlich lokaler Source-Änderungen kopiert, keine früheren Objekte oder Captures. Originalquellen, gemeinsame `exampleData`-Dateien, TIL/LI und benutzereigene generierte Dateien bleiben unberührt. Erfolgreiche Kopien werden entfernt, fehlgeschlagene bleiben neben den Logs erhalten. Nichtleere ELF/HEX/BIN-Dateien sind zusätzliche Pflichtnachweise für G0B1.
+
+Fehlende Werkzeuge führen bei `quick` zu einem ausdrücklich sichtbaren `WARN`, bei `full` zum Fehler. Ausgewählte Go-Tests müssen namentlich `PASS` melden; leere Auswahl oder übersprungene Untertests zählen als Fehler. Ein Fehler beendet den Schritt ohne Folgeprüfungen; Abbruch-Exitcodes bleiben erhalten. Die [Library CI](../../.github/workflows/trice_lib_reusable.yml) installiert zusätzlich das bereits von den Tests benötigte clangd und ruft denselben Schritt mit `full` auf.
+
+**Gezielte Abnahme:** Die vier ausgewählten Go-Tests, die PC-Ausgabeprüfung und der G0B1-Firmwarebuild bestanden lokal auf macOS mit Clang/clangd und ARM GCC. [Verhaltenstests](../../scripts/logging_features_test.go) prüfen Auswahl und Einmaligkeit, fehlende Werkzeuge, leere/übersprungene Go-Auswahl, Fehlerabbruch, Signal-Exitcodes, fehlende/leere Firmware und unveränderte Originaldateien bei Erfolg und Fehler. Ein echter Windows-/Linux-Lauf, die Ausführung auf einem G0B1-Board und der GitHub-CI-Lauf wurden hier nicht durchgeführt; diese Plattformnachweise bleiben R16. Der vorherige Full-Lauf mit 25 Schritten bleibt historische Abnahme; die neue Auswahl umfasst 26 Schritte.
+
+Die zusätzliche Abnahme durch den tatsächlichen Runner, mit ausschließlich Schritt 515 und strenger `full`-Werkzeugprüfung, bestand in **37 Sekunden für den Schritt**, einschließlich der abschließenden Dateizustandsprüfung **39 Sekunden insgesamt**. Das sind lokale Messwerte auf diesem Mac mit vorhandenem Go-Buildcache. Die Protokolle liegen unter `temp/log/r07-validation/`; der vorhandene Standardbericht wurde nicht überschrieben und zeigt inzwischen den späteren grünen Quick-Lauf mit 19 Schritten und 312 Sekunden. `go test ./scripts -count=1`, ShellCheck, Shellformat, Actionlint, UM-Format und Markdownlint bestehen. Für R07 wurde die gesamte Full-Matrix nicht erneut gestartet.
 
 ### Ressourcen und Signalbehandlung pro Loglauf abgeschlossen
 
