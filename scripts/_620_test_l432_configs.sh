@@ -18,25 +18,17 @@ source "$SCRIPT_DIR/_140_trice_test_state.sh"
 # This lets the workflow helper restore source files, metadata, and
 # include paths even when one of the 101 configurations fails.
 run_l432_matrix() {
-  local output
   local rc=0
 
-  # Capture this one matrix as a unit so diagnostics can be inspected before
-  # run_cmd mirrors the output into LOGFILE. This avoids a race with tee during
-  # direct, non-quiet invocation of the step.
-  output="$(
+  # The matrix retains full per-configuration logs and reports warnings itself.
+  # Stream completed configurations immediately, including in quiet testAll logs.
+  (
     cd "$ROOT/examples/L432_inst" || exit 1
     ./all_configs_build.sh 2>&1
-  )" || rc=$?
-  printf '%s\n' "$output"
+  ) || rc=$?
   if [ "$rc" -ne 0 ]; then
     printf 'FAIL: L432 configuration builds failed\n' >&2
     return "$rc"
-  fi
-  # Added warnings in another compiler release do not turn a successful build
-  # into a failure; errors still propagate through the exit status above.
-  if grep -Eiq 'warning:' <<<"$output"; then
-    printf 'Hint: L432 configuration builds completed with compiler warnings; see the diagnostics above.\n'
   fi
 }
 
