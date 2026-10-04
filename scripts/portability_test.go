@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -95,17 +96,24 @@ func initGitFixture(t *testing.T, root string) {
 }
 
 // TestRunnerLogsAndCancellation checks cleanup boundaries, quiet skip reporting,
-// fail-fast/no-stop behavior and cancellation without launching the real suite.
+// default continuation, explicit stopping and cancellation without launching the
+// real suite. Later successful checks must never hide an earlier failure.
 func TestRunnerLogsAndCancellation(t *testing.T) {
 	for _, tc := range []struct {
-		name, args, status, result string
-		later                      bool
+		name, args, status, result, policy string
+		later                              bool
 	}{
-		{"pass", "quick", "0", "PASS", true},
-		{"fail_fast", "quick", "1", "FAIL", false},
-		{"no_stop", "quick --no-stop", "1", "FAIL", true},
-		{"interrupt", "quick --no-stop", "130", "ABORTED", false},
-		{"terminate", "quick --no-stop", "143", "ABORTED", false},
+		{"no_arguments_success", "", "0", "PASS", "1", true},
+		{"no_arguments_continue_after_failure", "", "1", "FAIL", "1", true},
+		{"quick_continues_after_failure_by_default", "quick", "1", "FAIL", "1", true},
+		{"full_continues_after_failure_by_default", "full", "1", "FAIL", "1", true},
+		{"explicit_stop_after_selection", "quick --stop", "1", "FAIL", "0", false},
+		{"explicit_stop_before_selection", "--stop full", "1", "FAIL", "0", false},
+		{"explicit_no_stop_remains_supported", "quick --no-stop", "1", "FAIL", "1", true},
+		{"last_policy_option_enables_stopping", "--no-stop --stop", "1", "FAIL", "0", false},
+		{"last_policy_option_restores_continuation", "--stop --no-stop", "1", "FAIL", "1", true},
+		{"interrupt_stops_even_with_default_continuation", "quick", "130", "ABORTED", "1", false},
+		{"terminate_stops_even_with_explicit_continuation", "quick --no-stop", "143", "ABORTED", "1", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
@@ -116,10 +124,15 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			for _, name := range []string{"notes.txt", "application.log", "trice-state.saved/recovery.tar"} {
 				writeFixture(t, root, "temp/log/"+name, "retain")
 			}
-			writeFixture(t, root, "scripts/_410_test_first.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog 'SKIP: unsupported tool version'\nexit "+tc.status+"\n")
+			// A real child script observes the exported policy, just as PC workers
+			// do. This guards against changing only the top-level progress output.
+			firstStep := "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog \"child continuation policy: $TRICE_TEST_NO_STOP\"\n"
 			if tc.status == "1" {
-				writeFixture(t, root, "scripts/_410_test_first.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog 'EXPECTATION FAILURE triceCheck.c:123 channel=direct'\nlog 'want: hello; got: wrong'\nexit 1\n")
+				firstStep += "log 'EXPECTATION FAILURE triceCheck.c:123 channel=direct'\nlog 'want: hello; got: wrong'\n"
+			} else {
+				firstStep += "log 'SKIP: unsupported tool version'\n"
 			}
+			writeFixture(t, root, "scripts/_410_test_first.sh", firstStep+"exit "+tc.status+"\n")
 			writeFixture(t, root, "scripts/_430_test_later.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog executed\n")
 			out, err := runFixture(t, root, "source scripts/_110_test_runner.sh; build_test_plan() { add_plan_step _410_test_first.sh; add_plan_step _430_test_later.sh; }; main "+tc.args, nil)
 			if tc.status == "0" {
@@ -128,8 +141,19 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				assert.Contains(t, out, "SKIP: unsupported tool version")
 			} else {
 				assert.Error(t, err, out)
+				if exitErr, ok := err.(*exec.ExitError); assert.True(t, ok, out) {
+					assert.Equal(t, tc.status, strconv.Itoa(exitErr.ExitCode()), out)
+				}
 			}
 			assert.Contains(t, out, "Result: "+tc.result)
+			if tc.policy == "1" {
+				assert.Contains(t, out, "Failure policy: continue after failures (--no-stop, default)")
+			} else {
+				assert.Contains(t, out, "Failure policy: stop after the first failure (--stop)")
+			}
+			firstLog, readErr := os.ReadFile(filepath.Join(root, "temp/log/_410_test_first.log"))
+			assert.NoError(t, readErr)
+			assert.Contains(t, string(firstLog), "child continuation policy: "+tc.policy)
 			if tc.status == "1" {
 				assert.Contains(t, out, "Details:")
 				assert.Contains(t, out, "_410_test_first.log")

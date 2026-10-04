@@ -381,12 +381,12 @@ expected_step_weight() {
 }
 
 # parse_test_all_arguments accepts the historical selection plus the optional
-# failure policy in either order. The default is deliberately fail-fast.
+# failure policy in either order. Continue after failures unless --stop is set.
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
   TEST_ALL_SELECTED="quick"
-  TEST_ALL_NO_STOP=0
+  TEST_ALL_NO_STOP=1
   for argument in "$@"; do
     case "$argument" in
       quick | full)
@@ -398,18 +398,20 @@ parse_test_all_arguments() {
         selection_seen=1
         ;;
       --no-stop) TEST_ALL_NO_STOP=1 ;;
+      --stop) TEST_ALL_NO_STOP=0 ;;
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
-        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop]\n' >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop]\n' >&2
+        printf 'Default: quick, continue after failures (--no-stop).\n' >&2
         return 2
         ;;
     esac
   done
 }
 
-# run_step_with_policy records every failure. In the default mode it returns a
-# failure immediately; --no-stop converts that control result to success so the
-# caller can continue while retaining the failed final status.
+# run_step_with_policy records every failure. By default it returns control to
+# the caller so later steps run while the final status remains failed. --stop
+# instead returns a failure immediately so the caller ends the selected plan.
 run_step_with_policy() {
   local rc=0
   run_step "$@" || rc=$?
@@ -430,7 +432,7 @@ run_step_with_policy() {
 
 # run_selected_steps walks the previously built plan and calculates percentages
 # from relative work units. Transactional wrappers finish restoration before a
-# failure reaches the fail-fast policy here.
+# failure reaches the selected continuation policy here.
 run_selected_steps() {
   local completed_weight=0
   local index
@@ -493,9 +495,9 @@ main() {
     summary_line "ID workflows: bind plus legacy insert/clean"
   fi
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
-    summary_line "Failure policy: continue after failures (--no-stop)"
+    summary_line "Failure policy: continue after failures (--no-stop, default)"
   else
-    summary_line "Failure policy: stop after the first failure"
+    summary_line "Failure policy: stop after the first failure (--stop)"
   fi
   summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
   run_selected_steps || true
