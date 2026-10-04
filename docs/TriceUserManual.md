@@ -370,32 +370,32 @@ details.toc[open] .toc-hide {
   * [31.8. Output options](#output-options)
   * [31.9. Check color alternatives](#check-color-alternatives)
   * [31.10. Color issues under Windows](#color-issues-under-windows)
-* [32. Strukturiertes Logging](#strukturiertes-logging)
-  * [32.1. Platzhalter und Namen](#platzhalter-und-namen)
-  * [32.2. Feldtypen und Darstellung](#feldtypen-und-darstellung)
-  * [32.3. Instrumentierung und Wörterbuch](#instrumentierung-und-wörterbuch)
-  * [32.4. Ausgabeformate und Ereignisgrenzen](#ausgabeformate-und-ereignisgrenzen)
-  * [32.5. JSON- und KV-Vertrag](#json--und-kv-vertrag)
-  * [32.6. Optionale Metadaten](#optionale-metadaten)
-  * [32.7. Feldregister](#feldregister)
+* [32. Structured Logging](#structured-logging)
+  * [32.1. Placeholders and Names](#placeholders-and-names)
+  * [32.2. Field Types and Display](#field-types-and-display)
+  * [32.3. Instrumentation and Dictionary](#instrumentation-and-dictionary)
+  * [32.4. Output Formats and Event Boundaries](#output-formats-and-event-boundaries)
+  * [32.5. JSON and KV Contract](#json-and-kv-contract)
+  * [32.6. Optional Metadata](#optional-metadata)
+  * [32.7. Field Registry](#field-registry)
 * [33. Trice Context Enrichment](#trice-context-enrichment)
-  * [33.1. Einstieg mit Position und Geschwindigkeit](#einstieg-mit-position-und-geschwindigkeit)
-  * [33.2. Regeln und Selektoren](#regeln-und-selektoren)
-  * [33.3. Reversibler Ablauf mit insert und clean](#reversibler-ablauf-mit-insert-und-clean)
-  * [33.4. Ausdrücke, Felder und Auswertung](#ausdrücke-felder-und-auswertung)
-  * [33.5. Globale und lokale Werte verständlich einsetzen](#globale-und-lokale-werte-verständlich-einsetzen)
-  * [33.6. Build, IDs und generierte Dateien](#build-ids-und-generierte-dateien)
-  * [33.7. Unterstützte Logstellen und Alternativen](#unterstützte-logstellen-und-alternativen)
-  * [33.8. Prüfumfang](#prüfumfang)
-  * [33.9. Anhang: CE-Machbarkeitsnachweise](#anhang-ce-machbarkeitsnachweise)
-    * [33.9.1. Geprüfter Mechanismus](#geprüfter-mechanismus)
-    * [33.9.2. Nachgewiesenes Verhalten](#nachgewiesenes-verhalten)
-    * [33.9.3. Compiler und Editor-Diagnosen](#compiler-und-editor-diagnosen)
-    * [33.9.4. Reproduzieren](#reproduzieren)
-    * [33.9.5. Abgrenzung zu A10](#abgrenzung-zu-a10)
-    * [33.9.6. Ergänzende Rebase-Gegenprobe vor A10](#ergänzende-rebase-gegenprobe-vor-a10)
-    * [33.9.7. Erweiterter PoC für Wrappermakros und Counter-Rebase](#erweiterter-poc-für-wrappermakros-und-counter-rebase)
-  * [33.10. Ansatz und Abgrenzung](#ansatz-und-abgrenzung)
+  * [33.1. Getting Started with Position and Speed](#getting-started-with-position-and-speed)
+  * [33.2. Rules and Selectors](#rules-and-selectors)
+  * [33.3. Reversible Workflow with insert and clean](#reversible-workflow-with-insert-and-clean)
+  * [33.4. Expressions, Fields and Evaluation](#expressions-fields-and-evaluation)
+  * [33.5. Using Global and Local Values](#using-global-and-local-values)
+  * [33.6. Build, IDs and Generated Files](#build-ids-and-generated-files)
+  * [33.7. Supported Log Sites and Alternatives](#supported-log-sites-and-alternatives)
+  * [33.8. Test Coverage](#test-coverage)
+  * [33.9. Appendix: CE Feasibility Proofs](#appendix-ce-feasibility-proofs)
+    * [33.9.1. Mechanism Under Test](#mechanism-under-test)
+    * [33.9.2. Verified Behavior](#verified-behavior)
+    * [33.9.3. Compiler and Editor Diagnostics](#compiler-and-editor-diagnostics)
+    * [33.9.4. Reproducing the Direct-Site Proof](#reproducing-the-direct-site-proof)
+    * [33.9.5. Relationship to Production Support](#relationship-to-production-support)
+    * [33.9.6. Counterexample for the Original Rebase Approach](#counterexample-for-the-original-rebase-approach)
+    * [33.9.7. Extended PoC for Wrapper Macros and Counter Rebasing](#extended-poc-for-wrapper-macros-and-counter-rebasing)
+  * [33.10. Approach and Boundaries](#approach-and-boundaries)
 * [34. Trice without UART](#trice-without-uart)
 * [35. Trice over RTT](#trice-over-rtt)
   * [35.1. For the impatient (2 possibilities)](#for-the-impatient-2-possibilities)
@@ -555,7 +555,7 @@ details.toc[open] .toc-hide {
     * [46.4.6. PR536 Doc](#pr536-doc)
     * [46.4.7. Alias Example Project](#alias-example-project)
 * [47. Future Development](#future-development)
-  * [47.1. Weitere Context-Enrichment-Varianten](#weitere-context-enrichment-varianten)
+  * [47.1. Further Context Enrichment Variants](#further-context-enrichment-variants)
   * [47.2. Improving the Trice Tool Internal Parser (not planned right now)](#improving-the-trice-tool-internal-parser-not-planned-right-now)
     * [47.2.1. Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
   * [47.3. Using Trice on Servers](#using-trice-on-servers)
@@ -1328,7 +1328,7 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
     trice64( "%d, %3.2f EUR, %g rate\n", i, aFloat(price), aDouble(change) );
     ```
 
-  * Because double needs 8 bytes the trice macro in this case needs to be trice64 (see <a href="#Trice Parameter Bit Widths">Trice Parameter Bit Widths</a>).
+  * Because double needs 8 bytes the trice macro in this case needs to be trice64 (see <a href="#trice-parameter-bit-widths">Trice Parameter Bit Widths</a>).
 
 * Check for string format specifiers in the format strings. Put each in a separate trice message. Example:
 
@@ -1428,8 +1428,6 @@ The Trice source code parser has very limited capabilities, so it cannot handle 
       TRICE( Id(0), "hello %u\n", year); // 16-bit (time) stamp
       TRICE( ID(0), "hello %u\n", year); // 32-bit (time) stamp
       ```
-
-<div id="Trice Parameter Bit Widths"></div>
 
 #### 5.9.9. <a id="trice-parameter-bit-widths"></a>Trice Parameter Bit Widths
 
@@ -4446,22 +4444,22 @@ For an unsupported site, `trice bind` does not silently fall back to insert and 
 
 #### 24.19.1. <a id="bind-limits"></a>bind-limits
 
-Wenn `bind` eine Schreibweise im Quellcode ablehnt, kann es die darin enthaltenen Logstellen nicht sicher zuordnen oder unterstützen. Der kurze Hinweis `Search UM for "bind-limits".` verweist auf diesen Abschnitt. Datei, Zeile und konkrete Ursache bleiben Teil der Fehlermeldung. Auch der Compilerfehler für einen benötigten, aber nicht verfügbaren `__COUNTER__` enthält diesen Verweis.
+When `bind` rejects a source construct, it cannot safely map or support the log sites it contains. The short hint `Search UM for "bind-limits".` points to this section. The error message still includes the file, line and specific cause. A compiler error for a required but unavailable `__COUNTER__` also includes this reference.
 
-Für einen direkten Trice-Aufruf genügen normalerweise Datei und Quellzeile zur Zuordnung. Mehrere Aufrufe auf derselben Zeile oder ein Wrappermakro, hinter dem mehrere Aufrufe stehen, benötigen teilweise zusätzliche Unterstützung. Bind verwendet dafür den Compilerzähler `__COUNTER__`. Dieser zählt beim Übersetzen des Programms; er ist kein Laufzeit- oder Cycle-Counter. Nicht jeder Compiler stellt ihn bereit. Direkte, eindeutig zuordenbare Logstellen kommen ohne ihn aus.
+For a direct Trice call, the file and source line normally suffice for mapping. Multiple calls on the same line, or a wrapper macro containing multiple calls, may need additional support. Bind uses the compiler counter `__COUNTER__` for this. It counts during compilation; it is neither a runtime counter nor a cycle counter. Not every compiler provides it. Direct, uniquely addressable log sites work without it.
 
-Bei [Context Enrichment](#trice-context-enrichment) (`bind -ce`) müssen zusätzliche Werte genau an der ausgewählten Logstelle verfügbar sein. Eine Variable, die nur innerhalb einer Funktion oder eines Blocks existiert, darf nicht zusätzlich an einer fremden Logstelle verlangt werden. Die bisherige technische Umsetzung komplexer Bind-Stellen würde solche fremden Ausdrücke mitprüfen lassen. Deshalb unterstützt CE zunächst nur direkte, eindeutig über ihre Quellzeile zuordenbare Logstellen. Auch ein über mehrere Zeilen verteilter direkter Aufruf ist möglich, solange keine seiner Zeilen zugleich eine andere Bind-Logstelle enthält. Eine ausgewählte Wrapper-/Rebase-Stelle wird vor Dateiänderungen abgewiesen. CE für solche Stellen benötigt einen eigenen Architektur-Nachweis; vorhandenes `__COUNTER__` allein genügt dafür nicht. Ohne passende CE-Regel gelten weiterhin die bisherigen Bind-Fähigkeiten.
+With [Context Enrichment](#trice-context-enrichment) (`bind -ce`), additional values must be available precisely at the selected log site. A variable that exists only inside one function or block must not also be required at an unrelated site. The existing implementation of complex Bind sites would make the compiler check expressions from other scopes as well. Therefore, CE currently supports only direct sites uniquely addressable by source line. A direct call spanning multiple lines is also possible if none of its lines contains another Bind log site. A selected wrapper/rebase site is rejected before files are changed. The separate architecture proof is documented in the [CE PoC appendix](#extended-poc-for-wrapper-macros-and-counter-rebasing); integrating that approach into production remains deferred. Available `__COUNTER__` alone is insufficient. Without a matching CE rule, existing Bind capabilities still apply.
 
-Mögliche Anpassungen sind:
+Possible adjustments are:
 
-- **Direkte Aufrufe auf getrennte Zeilen stellen.** Aus `trice("msg:first"); trice("msg:second");` wird:
+- **Put direct calls on separate lines.** Change `trice("msg:first"); trice("msg:second");` to:
 
   ```c
   trice("msg:first");
   trice("msg:second");
   ```
 
-- **Geeignete Wrapper durch eine normale oder `static inline` Funktion ersetzen.** Jeder Trice-Aufruf steht darin auf einer eigenen Zeile. Benötigte lokale Werte werden als Parameter übergeben; eine Funktion sieht lokale Variablen ihres Aufrufers nicht automatisch. Beispiel:
+- **Replace suitable wrappers with an ordinary or `static inline` function.** Put each Trice call on its own line within the function. Pass required local values as parameters; a function cannot automatically see its caller's local variables. For example:
 
   ```c
   static inline void logPosition(int x, int y)
@@ -4470,11 +4468,11 @@ Mögliche Anpassungen sind:
   }
   ```
 
-  Der Aufrufer übergibt seine Werte mit `logPosition(pos.x, pos.y);`. Das ist nur für Wrapper geeignet, die keine besonderen Makrofunktionen benötigen. Die [Hinweise zur Umstellung auf Funktionen](#preferred-form-normal-or-static-inline-function) erklären die Unterschiede.
+  The caller passes its values with `logPosition(pos.x, pos.y);`. This is suitable only for wrappers that need no special macro capabilities. The [guidance on replacing wrappers with functions](#preferred-form-normal-or-static-inline-function) explains the differences.
 
-- **Den dauerhaft verfügbaren Workflow `insert/clean` verwenden.** `trice insert` schreibt die IDs direkt in die Logstellen; `trice clean` entfernt sie wieder. Damit entfällt die Bind-Zuordnung über Zeile oder Compilerzähler. Die Formatstrings und Aufrufe müssen weiterhin vom Trice-Parser erkannt werden können. Bei bereits gebundenen Projekten ist zuerst der [Rückweg zu `trice insert`](#re-migration-to-trice-insert) zu beachten; einzelne generierte Bind-Dateien oder Include-Zeilen dürfen nicht isoliert entfernt werden.
+- **Use the permanently available `insert/clean` workflow.** `trice insert` writes IDs directly into log sites; `trice clean` removes them again. This avoids Bind mapping through source lines or compiler counters. Format strings and calls must still be recognizable by the Trice parser. For already bound projects, first follow [re-migration to `trice insert`](#re-migration-to-trice-insert); do not remove individual generated Bind files or include lines in isolation.
 
-Automatisches `insert/clean -ce` ist ebenfalls verfügbar: Insert erweitert erkannte Source-Aufrufe einschließlich statischer Wrapperdefinitionen, Clean nimmt die erzeugten Anteile mit denselben Regeln zurück. Dieser Weg benötigt weder Bind-Zeilenzuordnung noch `__COUNTER__`. Zusätzliche Werte können weiterhin ausdrücklich im Formatstring und in den Argumenten stehen, beispielsweise `trice("msg:Wert=%d, x={x}", value, x);`. Beispiele und Rücknahmebedingungen stehen im [CE-Kapitel](#reversibler-ablauf-mit-insert-und-clean).
+Automatic `insert/clean -ce` is also available: Insert extends recognized source calls, including static wrapper definitions, and Clean removes matching extensions using the same rules. This path needs neither Bind line mapping nor `__COUNTER__`. Additional values can still be specified explicitly in the format string and arguments, for example `trice("msg:Value=%d, x={x}", value, x);`. Examples and removal conditions are described in the [CE chapter](#reversible-workflow-with-insert-and-clean).
 
 ### 24.20. <a id="diagnostics-and-troubleshooting"></a>Diagnostics and Troubleshooting
 
@@ -6182,19 +6180,19 @@ If a Windows console displays ANSI escape sequences instead of colors, use a ter
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## 32. <a id="strukturiertes-logging"></a>Strukturiertes Logging
+## 32. <a id="structured-logging"></a>Structured Logging
 
-Maschinenlesbare Ausgabe setzt das standardmäßige TREX-Drahtformat voraus. CHAR und DUMP haben keine passenden Ereignisgrenzen und werden mit `-logFormat json` oder `-logFormat kv` abgewiesen.
+Machine-readable output requires the standard TREX wire format. CHAR and DUMP do not provide suitable event boundaries and are rejected with `-logFormat json` or `-logFormat kv`.
 
-Strukturiertes Logging ergänzt eine lesbare Meldung um benannte, typisierte Werte. Ein normaler Trice-Aufruf genügt:
+Structured Logging adds named, typed values to a readable message. A regular Trice call is enough:
 
 ```c
 trice("info:Motor {motor_id}: {temperature_c:%.1f C}", motor_id, aFloat(temperature_c));
 ```
 
-Bei `motor_id = 3` und `temperature_c = 87.5` entstehen daraus je nach Ausgabeformat:
+With `motor_id = 3` and `temperature_c = 87.5`, the output depends on the selected format:
 
-Für diese drei Ausgaben sind `-li off -showID '' -hs off -ts off` gesetzt. Dadurch erscheinen hier keine optionalen Host- oder Target-Metadaten.
+These three outputs use `-li off -showID '' -hs off -ts off`, so no optional host or target metadata appears.
 
 `tlog -logFormat text` (default):
 
@@ -6214,34 +6212,34 @@ Motor 3: 87.5 C
 tag=INFO level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature_c=87.5
 ```
 
-Weitere Ausgabeformate, etwa CSV, sind bei Bedarf nachrüstbar.
+Further output formats, such as CSV, could be added when needed.
 
-Das Target überträgt weiterhin ID und Werte im bestehenden Drahtformat. Feldnamen werden weder als zusätzliche Runtime-Argumente noch als zusätzliche Nutzdaten übertragen; sie stehen im Wörterbuch auf dem Host.
+The target continues to transmit the ID and values using the existing wire format. Field names are not transmitted as additional runtime arguments or payload; they reside in the dictionary on the host.
 
-Unterstützt werden skalare Trices mit 8, 16, 32 oder 64 Bit sowie Strings über `triceS` und `triceN`. Die Target-Makros und ihre Bitbreitenregeln bleiben maßgeblich. Context Enrichment (`bind -ce`) kann die unterstützten strukturierten Felder ergänzen; die Details stehen in [Kapitel 33](#trice-context-enrichment).
+Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN` are supported. The target macros and their bit-width rules remain authoritative. Context Enrichment (`bind -ce`) can add supported structured fields; see [Context Enrichment](#trice-context-enrichment).
 
-Zum Ausprobieren zeigen der [PC Feature Tour](../examples/PC_features/README.md) und der [G0B1 Feature Tour](../examples/G0B1_features/ReadMe.md) jeweils benannte Zahlen- und Stringfelder sowie Text-, NDJSON- und KV-Ausgabe. Der PC-Durchlauf benötigt keine Hardware und liefert sofort eine kurze Binäraufzeichnung.
+Try the [PC Feature Tour](../examples/PC_features/README.md) or the [G0B1 Feature Tour](../examples/G0B1_features/ReadMe.md): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
 
-Benannte Felder sind für Pufferformate wie `triceB` derzeit keine Option. Dort wird ein printf-Platzhalter für jedes Pufferelement wiederholt; ein strukturiertes Feld beschreibt dagegen einen einzelnen benannten Wert. Ob ein benannter Puffer als Zahlenliste, Bytefolge oder Text erscheinen sollte, ist im aktuellen Feldschema nicht festgelegt. `bind` und `insert` weisen deshalb `trice8B("msg:{bytes:%02x}", bytes, 2)` mit einem Fehler ab. Auch `triceF` unterstützt keine benannten Felder.
+Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
 
-Ein Pufferlog ohne benanntes Feld bleibt möglich: `trice8B("msg:%02x ", bytes, 2)` ergibt für `0x01` und `0x02` in JSON `{"tag":"MESSAGE","message":"01 02 "}`. Ein `fields`-Objekt entsteht dabei nicht. Für eine feste Anzahl einzelner benannter Werte können stattdessen skalare Trices verwendet werden; eine strukturierte Ausgabe ganzer Puffer erfordert eine eigene Format- und Schemafestlegung.
+Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
 
-### 32.1. <a id="platzhalter-und-namen"></a>Platzhalter und Namen
+### 32.1. <a id="placeholders-and-names"></a>Placeholders and Names
 
-| Schreibweise im Formatstring | Bedeutung                                     |
-|------------------------------|-----------------------------------------------|
-| `{motor_id}`                 | Expliziter Feldname, Standarddarstellung.     |
-| `{}`                         | Name aus dem zugehörigen C-Argument ableiten. |
-| `{plant.}`                   | Abgeleiteten Namen mit `plant.` ergänzen.     |
-| `{:%.1f}`                    | Abgeleiteter Name und explizite Darstellung.  |
-| `{temperature:%.1f C}`       | Expliziter Name und Darstellung.              |
-| `{: = %.1f C}`               | Abgeleiteter Name und Darstellung.            |
-| `{motor_id:: %d, }`          | Name `motor_id`, Darstellung `: %d, `.        |
-| `{{` und `}}`                | Literale öffnende und schließende Klammer.    |
+| Format string syntax | Meaning |
+|---|---|
+| `{motor_id}` | Explicit field name, default display. |
+| `{}` | Derive the name from the corresponding C argument. |
+| `{plant.}` | Prefix the derived name with `plant.`. |
+| `{:%.1f}` | Derived name and explicit display. |
+| `{temperature:%.1f C}` | Explicit name and display. |
+| `{: = %.1f C}` | Derived name and display. |
+| `{motor_id:: %d, }` | Name `motor_id`, display `: %d, `. |
+| `{{` and `}}` | Literal opening and closing braces. |
 
-Der erste Doppelpunkt trennt Name und Darstellung. Der Darstellungsteil darf freien Text und weitere Doppelpunkte enthalten, muss aber genau einen unterstützten Formatspezifizierer enthalten. `%%` ist kein zusätzlicher Wert. Dynamische Breiten wie `%*d` sind in einem strukturierten Feld nicht erlaubt.
+The first colon separates the name from its display. The display may contain free text and further colons, but must contain exactly one supported format specifier. `%%` is not an additional value. Dynamic widths such as `%*d` are not allowed in a structured field.
 
-Ohne Darstellung wird `%d` verwendet. Ist das vollständige Argument in `aFloat(...)` oder `aDouble(...)` eingeschlossen, ist der Default `%f`. Es gibt keine allgemeine C-Typinferenz: Ein unsigned Wert benötigt beispielsweise `{counter:%u}`, eine Adresse `{address:%p}` und ein String `{text:%s}`.
+Without an explicit display, `%d` is used. If the entire argument is wrapped in `aFloat(...)` or `aDouble(...)`, the default is `%f`. There is no general C type inference: an unsigned value needs, for example, `{counter:%u}`, an address `{address:%p}`, and a string `{text:%s}`.
 
 ```c
 trice("info:{} {}", motor_id, aFloat(temperature_c));
@@ -6251,136 +6249,136 @@ triceS("info:{message:%s}", "motor ready");
 triceN("info:{message:%s}", buffer, length);
 ```
 
-Namen lassen sich aus einzelnen Bezeichnern und reinen Memberketten ableiten. `motor.temperature` und `motor->temperature` ergeben beide `motor.temperature`. Die Wrapper `aFloat` und `aDouble` werden für die Namensableitung entfernt. Ausdrücke wie `values[0]`, `a+b` oder `read_temperature()` brauchen einen expliziten Namen. Namen bestehen aus Bezeichnern mit optionalen Punktsegmenten; Leerzeichen innerhalb eines Bezeichners, leere Segmente und führende Ziffern sind ungültig.
+Names can be derived from individual identifiers and simple member chains. Both `motor.temperature` and `motor->temperature` yield `motor.temperature`. The `aFloat` and `aDouble` wrappers are removed when deriving names. Expressions such as `values[0]`, `a+b` or `read_temperature()` need an explicit name. Names consist of identifiers with optional dot-separated segments; whitespace within an identifier, empty segments and leading digits are invalid.
 
-Kanonische Namen müssen innerhalb eines Aufrufs eindeutig sein. `{motor->id}` und `{motor.id}` kollidieren. `motor` und `motor.id` sind dagegen zwei verschiedene, flache Schlüssel; Punktnamen erzeugen keine verschachtelten JSON-Objekte.
+Canonical names must be unique within a call. `{motor->id}` and `{motor.id}` collide. However, `motor` and `motor.id` are two distinct, flat keys; dotted names do not create nested JSON objects.
 
-Gewöhnliche `%...`-Konvertierungen und strukturierte Platzhalter verbrauchen Argumente gemeinsam von links nach rechts:
+Ordinary `%...` conversions and structured placeholders consume arguments together, from left to right:
 
 ```c
 trice("info:%u {temperature:%.1f} %x {last}", sequence, aFloat(temperature), flags, last);
 ```
 
-Nur `temperature` und `last` werden hier als Felder exportiert. `sequence` und `flags` erscheinen ausschließlich in der Meldung. Fehlende oder zusätzliche Argumente sowie doppelte oder fehlerhafte Felder werden beim Instrumentieren geprüft. Bei Schemafehlern werden keine Teiländerungen des Instrumentierungslaufs veröffentlicht.
+Only `temperature` and `last` are exported as fields here. `sequence` and `flags` appear only in the message. Instrumentation checks missing or extra arguments and duplicate or malformed fields. Schema errors prevent publication of partial changes from the instrumentation run.
 
-Für literale Klammern gilt die neue Schreibweise auch im Textmodus:
+The new syntax for literal braces also applies in text mode:
 
 ```c
 trice("info:set={{1,2}}, value={value}", value);
 ```
 
-Das ergibt `set={1,2}, value=7` bei `value = 7`. Ein Backslash vor einer Klammer ersetzt das Verdoppeln nicht.
+This produces `set={1,2}, value=7` when `value = 7`. A backslash before a brace does not replace doubling it.
 
-### 32.2. <a id="feldtypen-und-darstellung"></a>Feldtypen und Darstellung
+### 32.2. <a id="field-types-and-display"></a>Field Types and Display
 
-| Formatspezifizierer | Strukturierter Wert |
+| Format specifier | Structured value |
 |---|---|
-| `%d`, `%i` | Vorzeichenbehafteter Integer der Trice-Bitbreite. |
-| `%u`, `%o`, `%O`, `%x`, `%X`, `%b` | Vorzeichenloser Integer. Die gewählte Zahlenbasis betrifft nur die Meldung. |
-| `%f`, `%F`, `%e`, `%E`, `%g`, `%G` | Gleitkommazahl; 32 Bit mit `aFloat`, 64 Bit mit `aDouble`. |
-| `%c`, `%q`, `%U` | Zeichen als String; ungültige Unicode-Codepoints werden durch das Ersatzzeichen ersetzt. |
-| `%t` | Boolean: null ist `false`, andere Werte sind `true`. |
-| `%s` | String aus `triceS` oder `triceN`. |
-| `%p` | Adresse in der Form `0x...`; kein Rückschluss auf den Typ des referenzierten Objekts. |
+| `%d`, `%i` | Signed integer of the Trice bit width. |
+| `%u`, `%o`, `%O`, `%x`, `%X`, `%b` | Unsigned integer. The selected numeric base affects only the message. |
+| `%f`, `%F`, `%e`, `%E`, `%g`, `%G` | Floating-point number; 32 bits with `aFloat`, 64 bits with `aDouble`. |
+| `%c`, `%q`, `%U` | Character as a string; invalid Unicode code points become the replacement character. |
+| `%t` | Boolean: zero is `false`, other values are `true`. |
+| `%s` | String from `triceS` or `triceN`. |
+| `%p` | Address in the form `0x...`; does not imply the type of the referenced object. |
 
-`%%` ist ein literales Prozentzeichen und erzeugt weder ein Feld noch ein zusätzliches Argument.
+`%%` is a literal percent sign and creates neither a field nor an additional argument.
 
-Unterstützte C-Längenmodifikatoren wie `%lu` oder `%llX` ändern diese Semantik nicht; die Trice-Familie bestimmt die transportierte Bitbreite. Präzision, Feldbreite und Darstellungstext beeinflussen ausschließlich `message`. Beispielsweise erzeugt `{value:%.1f}` bei einem Wert von `1.25` die Textdarstellung `1.2`, während das Feld `1.25` enthält. Ebenso kürzt `{text:%.3s}` nur die Meldung, nicht den exportierten String.
+Supported C length modifiers such as `%lu` or `%llX` do not change these semantics; the Trice family determines the transmitted bit width. Precision, field width and display text affect only `message`. For example, `{value:%.1f}` displays `1.2` for a value of `1.25`, while the field contains `1.25`. Similarly, `{text:%.3s}` truncates only the message, not the exported string.
 
-Auch `-unsigned=false` ändert die Bedeutung strukturierter unsigned Felder nicht. Es steuert weiterhin die entsprechende klassische Textdarstellung.
+`-unsigned=false` does not change the meaning of structured unsigned fields either. It continues to control the corresponding classical text display.
 
-Benannte Stringfelder verwenden `%s`; alternative klassische Stringdarstellungen wie `%x` bleiben Meldungstext ohne benanntes Feld. Ein strukturiertes Floatfeld einer 64-Bit-Trice benötigt `aDouble(...)`; `aFloat(...)` wird dort abgewiesen, damit die übertragenen Bits nicht als Double fehlinterpretiert werden.
+Named string fields use `%s`; alternative classical string displays such as `%x` remain message text without a named field. A structured floating-point field in a 64-bit Trice requires `aDouble(...)`; `aFloat(...)` is rejected there to prevent interpreting the transmitted bits as a double.
 
-### 32.3. <a id="instrumentierung-und-wörterbuch"></a>Instrumentierung und Wörterbuch
+### 32.3. <a id="instrumentation-and-dictionary"></a>Instrumentation and Dictionary
 
-Sowohl `bind` als auch `insert` unterstützen strukturierte Templates. `clean` entfernt wie bisher eingefügte IDs und erhält die ursprüngliche Schreibweise des Templates. Die Kurzformen in den Quelltexten werden nicht durch kanonische Feldnamen ersetzt.
+Both `bind` and `insert` support structured templates. As before, `clean` removes inserted IDs and preserves the original template spelling. Source shorthand is not replaced with canonical field names.
 
 ```sh
 trice bind -src app -genDir generated -til til.json -li li.json
 ```
 
-Alternativ für den Insert/Clean-Workflow:
+Alternatively, for the Insert/Clean workflow:
 
 ```sh
 trice insert -src app -genDir generated -til til.json -li li.json
 trice clean -src app -til til.json -li li.json
 ```
 
-Diese Beispiele setzen wie die vorhandenen Workflows ein initialisiertes TIL voraus. Die übliche Build-Einbindung der Bind-Sidecars bleibt erforderlich.
+Like the existing workflows, these examples require an initialized TIL. The usual build integration of Bind sidecars is still required.
 
-Die [C-Testbeispiele](../_test/testdata/triceCheck.c) zeigen zusätzlich 8-, 16-, 32- und 64-Bit-Werte, verschiedene Stempel, `triceS`/`triceN`, gemischte Platzhalter und die Wrapper `aFloat()`/`aDouble()`. Die zugehörigen Integrationstests prüfen ihre Textausgabe nach `bind` und `insert` mit denselben CLI-Einstellungen wie die PC-Target-Tests. Namen aus `motor.state` und `motorPtr->rpm` erscheinen im Feldregister kanonisch als `motor.state` und `motorPtr.rpm`.
+The [C test examples](../_test/testdata/triceCheck.c) also demonstrate 8-, 16-, 32- and 64-bit values, different stamps, `triceS`/`triceN`, mixed placeholders and the `aFloat()`/`aDouble()` wrappers. Their integration tests verify text output after `bind` and `insert`, using the same CLI settings as the PC target tests. Names from `motor.state` and `motorPtr->rpm` appear canonically in the field registry as `motor.state` and `motorPtr.rpm`.
 
-In `til.json` bleiben die einzigen Schemafelder `Type` und `Strg`. `Strg` enthält alle zur Dekodierung nötigen Informationen, einschließlich abgeleiteter Namen und Float-Defaults. Zum Beispiel wird
+In `til.json`, the only schema fields remain `Type` and `Strg`. `Strg` contains all information needed for decoding, including derived names and floating-point defaults. For example,
 
 ```c
 trice("info:Motor {}: {} C", motor_id, aFloat(temperature_c));
 ```
 
-mit einem kanonischen `Strg` wie diesem gespeichert:
+is stored with a canonical `Strg` such as:
 
 ```json
 {"Type":"trice","Strg":"info:Motor {motor_id}: {temperature_c:%f} C"}
 ```
 
-Die konkrete Schreibweise von `Type` folgt weiterhin dem jeweiligen Instrumentierungspfad. Die Schemaidentität bleibt `Type + Strg`. Eine Feldumbenennung ergibt eine neue Schemaidentität und damit eine andere ID; historische TIL-Einträge bleiben für alte Firmware erhalten. Äquivalente Namensschreibweisen wie `motor->temperature` und `motor.temperature` behalten dieselbe kanonische Identität. Wiederholte unveränderte Läufe erzeugen keine zusätzlichen Schemas. Generierte lokale C-Formatdaten enthalten den daraus abgeleiteten printf-Formatstring.
+The actual spelling of `Type` still follows the respective instrumentation path. Schema identity remains `Type + Strg`. Renaming a field creates a new schema identity and therefore a different ID; historical TIL entries remain available for older firmware. Equivalent name spellings such as `motor->temperature` and `motor.temperature` retain the same canonical identity. Repeating unchanged runs creates no additional schemas. Generated local C format data contains the derived printf format string.
 
-### 32.4. <a id="ausgabeformate-und-ereignisgrenzen"></a>Ausgabeformate und Ereignisgrenzen
+### 32.4. <a id="output-formats-and-event-boundaries"></a>Output Formats and Event Boundaries
 
-`trice log` und `tlog` unterstützen `-logFormat text`, `-logFormat json` und `-logFormat kv` sowie `-logFormat key-value` als Alias für `kv`. Die Werte sind unabhängig von Groß- und Kleinschreibung; Standard bleibt `text`. Der textbasierte Remote-Display-Modus und Testtabellenausgabe sind mit maschinenlesbaren Formaten nicht kombinierbar.
+`trice log` and `tlog` support `-logFormat text`, `-logFormat json` and `-logFormat kv`, with `-logFormat key-value` as an alias for `kv`. Values are case-insensitive; the default remains `text`. The text-based remote display mode and test table output cannot be combined with machine-readable formats.
 
 ```sh
 trice log -p FILEBUFFER -args capture.bin -pf TCOBSv1 -til til.json -li off -hs off -ts off -logFormat json
 ```
 
-Framing und Wörterbuch müssen zur Aufzeichnung passen. Mit `-logFormat kv` wird dieselbe Aufnahme als Schlüssel/Wert-Ausgabe gelesen; mit `text` bleibt die bisherige Textausgabe verfügbar.
+Framing and dictionary must match the capture. `-logFormat kv` reads the same capture as key/value output; `text` retains the existing text output.
 
-`-logFormat json` erzeugt NDJSON (JSON Lines): ein JSON-Objekt und ein abschließendes LF pro akzeptiertem Trice-Ereignis. Es gibt keinen separaten CLI-Wert `ndjson`. KV erzeugt ebenfalls genau eine Zeile pro Ereignis. Mehrere Teilaufrufe werden nicht zusammengefügt, mehrzeilige Meldungen nicht in mehrere Ereignisse aufgeteilt. Auch eine leere Meldung ist ein Ereignis. Newlines innerhalb der Meldung werden escaped.
+`-logFormat json` produces NDJSON (JSON Lines): one JSON object followed by LF per accepted Trice event. There is no separate CLI value `ndjson`. KV also produces exactly one line per event. Partial calls are not combined, and multiline messages are not split into multiple events. An empty message is also an event. Newlines within the message are escaped.
 
-Textpräfix, Suffix, Farben, Einrückung, Zeitdifferenzspalten und `-addNL` dekorieren keine JSON/KV-Records. Die tatsächlichen Metadaten werden stattdessen durch eigene Felder dargestellt. Diagnosen und Statusmeldungen gehen bei JSON/KV nach stderr; stdout, `-logfile` und TCP-Logausgabe enthalten die Anwendungsrecords. Fehler beim Schreiben werden an den Aufrufer zurückgegeben.
+Text prefixes, suffixes, colors, indentation, time-difference columns and `-addNL` do not decorate JSON/KV records. Actual metadata appears in separate fields instead. In JSON/KV mode, diagnostics and status messages go to stderr; stdout, `-logfile` and TCP log output contain application records. Write errors are returned to the caller.
 
-`-pick`, `-ban` und `-logLevel` wählen weiterhin ganze Anwendungsereignisse aus. Statistiken zählen erfolgreich dekodierte Ereignisse vor dieser Auswahl. Auch die Visualisierung liegt nach der Auswahl; ihre bestehenden Einschränkungen, etwa auf unterstützte numerische Einzeilenmeldungen, bleiben bestehen. `log=drop` unterdrückt nach erfolgreicher Visualisierung den gesamten normalen Record. Eine Binäraufzeichnung bleibt ungefiltert und wird durch das gewählte Ausgabeformat nicht verändert.
+`-pick`, `-ban` and `-logLevel` continue to select whole application events. Statistics count successfully decoded events before this selection. Visualization also follows selection; its existing restrictions, such as supported numeric single-line messages, still apply. After successful visualization, `log=drop` suppresses the entire normal record. Binary captures remain unfiltered and unaffected by the selected output format.
 
-### 32.5. <a id="json--und-kv-vertrag"></a>JSON- und KV-Vertrag
+### 32.5. <a id="json-and-kv-contract"></a>JSON and KV Contract
 
-Jeder Record enthält `tag` und `message`. `tag` ist der kanonische Name eines registrierten Formatstring-Tags; die Alias-Suche für dieses Metadatenfeld ist unabhängig von Groß- und Kleinschreibung. Beispielsweise liefern `inf:Hi` und `Inf:Hi` beide `tag=INFO`. Fehlt ein passender registrierter Tag, lautet der Wert `untagged`.
+Every record contains `tag` and `message`. `tag` is the canonical name of a registered format string tag; alias lookup for this metadata field is case-insensitive. For example, `inf:Hi` and `Inf:Hi` both yield `tag=INFO`. If no registered tag matches, the value is `untagged`.
 
-`message` übernimmt den Meldungsinhalt der Textausgabe ohne ANSI-Farbe und ohne äußere Metadaten, Textpräfixe oder Suffixe. Bei `-color none` oder `default` wird nur ein exakt registrierter, vollständig kleingeschriebener Formatstring-Tag entfernt: `inf:Hi` ergibt `Hi`, `Inf:Hi` bleibt `Inf:Hi`. Auch ein unbekannter Präfix wie `mgs:Hi` bleibt sichtbar. Bei `-color off` bleiben ausdrücklich geschriebene Tag-Präfixe wie im Textmodus stehen. Trice ergänzt niemals selbst `untagged:` zum Meldungstext: `trice("Hi")` liefert `message="Hi"` und `tag="untagged"`; `trice("mgs:Hi")` liefert `message="mgs:Hi"` und `tag="untagged"`. Führende und folgende Leerzeichen sowie leere und nur aus Leerzeichen bestehende Meldungen bleiben erhalten.
+`message` takes the message content of text output without ANSI colors, outer metadata, text prefixes or suffixes. With `-color none` or `default`, only an exactly registered, entirely lowercase format string tag is removed: `inf:Hi` becomes `Hi`, whereas `Inf:Hi` remains `Inf:Hi`. An unknown prefix such as `mgs:Hi` also remains visible. With `-color off`, explicitly written tag prefixes remain, as in text mode. Trice never adds `untagged:` to message text: `trice("Hi")` yields `message="Hi"` and `tag="untagged"`; `trice("mgs:Hi")` yields `message="mgs:Hi"` and `tag="untagged"`. Leading and trailing whitespace, empty messages and messages consisting only of whitespace are preserved.
 
-Ein Laufzeitstring ändert die Tag-Zuordnung nicht: Bei `triceS("{text:%s}", value)` mit einem Wert, der mit `err:` beginnt, bleibt `tag=untagged`. Die bisherige Textausgabe wandelt Zeichenfolgen wie `\n` und `\t` auch innerhalb von Laufzeitstrings für die Anzeige um; `message` folgt dieser Darstellung. Das benannte Feld `fields.text` enthält weiterhin den übertragenen String, abgesehen von äußerem Leerraum.
+A runtime string does not change tag classification: with `triceS("{text:%s}", value)` and a value starting with `err:`, `tag` remains `untagged`. Existing text output converts sequences such as `\n` and `\t` for display, including within runtime strings; `message` follows that display. The named field `fields.text` retains the transmitted string, except for outer whitespace.
 
-Ein optionales `level` wird über eine feste, von Farben und Gewichten unabhängige Alias-Tabelle bestimmt. Der Vergleich ist case-neutral. Beispielsweise führen `err`, `ERR` und `Error` zu `ERROR`; `warn`, `wrn` und `Warning` zu `WARNING`. Unterstützte kanonische Werte sind `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` und `VERBOSE`. Ein reiner Ausgabe-Tag wie `msg` oder ein frei definiertes User-Label erhält kein erfundenes Level. Die Alias-Suche für `tag` ändert das vorhandene Tag-Register und dessen Filterverhalten nicht; auch die Level-Zuordnung bleibt davon unabhängig.
+An optional `level` is determined through a fixed alias table independent of colors and weights. Comparison is case-insensitive. For example, `err`, `ERR` and `Error` map to `ERROR`; `warn`, `wrn` and `Warning` map to `WARNING`. Supported canonical values are `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` and `VERBOSE`. A display-only tag such as `msg` or a freely defined user label receives no invented level. Alias lookup for `tag` does not change the existing tag registry or its filtering behavior; level classification remains independent of it as well.
 
-In JSON liegen User-Felder unter `fields`. Hostfelder und User-Felder können sich daher nicht überschreiben: Ein User-Feld `tag` erscheint unter `fields.tag`. User-Felder werden in ihrer Reihenfolge im Template ausgegeben. Ein Record ohne exportierbare User-Felder enthält kein leeres `fields`-Objekt.
+In JSON, user fields reside under `fields`. Host and user fields therefore cannot overwrite each other: a user field named `tag` appears under `fields.tag`. User fields are emitted in template order. A record without exportable user fields has no empty `fields` object.
 
-Integer bleiben JSON-Zahlen, einschließlich der vollständigen 64-Bit-Grenzwerte. Lesende Programme müssen einen ausreichend genauen Zahlentyp verwenden; eine Umwandlung aller Zahlen in IEEE-754-Double kann große Integer runden. Adressen sind JSON-Strings wie `"0x20001234"`. Nicht-endliche Gleitkommawerte (`NaN`, `+Inf`, `-Inf`) werden als JSON-Felder weggelassen; ihre Textdarstellung bleibt in `message`. Andere Felder desselben Ereignisses bleiben erhalten.
+Integers remain JSON numbers, including the full 64-bit boundary values. Readers must use a sufficiently precise numeric type; converting every number to an IEEE-754 double may round large integers. Addresses are JSON strings such as `"0x20001234"`. Non-finite floating-point values (`NaN`, `+Inf`, `-Inf`) are omitted as JSON fields; their text display remains in `message`. Other fields of the same event are preserved.
 
-In KV heißen User-Felder `field.<name>` und folgen ebenfalls der Template-Reihenfolge. Zahlen, Boolean und Adressen sind unquoted; String-, Zeichen- und Meldungswerte stehen immer in doppelten Anführungszeichen. Quotes, Backslashes, LF, CR und Tab werden escaped. Nicht-endliche Floats erscheinen in KV als `NaN`, `+Inf` oder `-Inf`.
+In KV, user fields are named `field.<name>` and also follow template order. Numbers, Booleans and addresses are unquoted; strings, characters and messages are always double-quoted. Quotes, backslashes, LF, CR and tabs are escaped. Non-finite floats appear in KV as `NaN`, `+Inf` or `-Inf`.
 
-Äußerer Leerraum wird bei anderen Stringwerten wie `hs`, `file` und benannten Stringfeldern entfernt. Ein nur aus Leerraum bestehendes benanntes Feld wird als leerer String ausgegeben. Für `message` gilt diese Kürzung nicht.
+Outer whitespace is removed from other string values such as `hs`, `file` and named string fields. A named field containing only whitespace is emitted as an empty string. This trimming does not apply to `message`.
 
 ```text
 tag=INFO level=INFO message="Motor \"A\"\nready" field.message="Motor \"A\"\nready" field.address=0x20001234
 ```
 
-### 32.6. <a id="optionale-metadaten"></a>Optionale Metadaten
+### 32.6. <a id="optional-metadata"></a>Optional Metadata
 
-| Feld | Voraussetzung und Inhalt |
+| Field | Prerequisite and content |
 |---|---|
-| `id` | ID-basiertes Ereignis und aktiviertes `-showID`; numerische Trice-ID ohne Textpadding. |
-| `file`, `line` | Vorhandener LI-Eintrag, aktiviertes `-li` und `-liFmt`; jeweils nur vorhandene Dateiangabe bzw. von null verschiedene Zeilennummer. |
-| `ts16`, `ts32` | Vorhandener 16- bzw. 32-Bit-Target-Stempel und aktivierte Ausgabe durch `-ts` oder die passende `-ts16`/`-ts32`-Option. Jeder Wert ist ein String in der eigenen CLI-Darstellung; auch ein vorhandener Wert null wird ausgegeben. |
-| `ts16Delta`, `ts32Delta` | Aktivierte `-ts16delta`- bzw. `-ts32delta`-Option und ein vorheriger Stempel derselben Bitbreite. Beim ersten Stempel fehlt das Delta-Feld vollständig. Die Darstellung folgt der jeweiligen Delta-Option. |
-| `hs` | Aktiviertes `-hs`; formatierter Host-Zeitstring ohne angehängtes Spaltenpadding. `-hs off` oder `none` lässt ihn weg. |
+| `id` | ID-based event and enabled `-showID`; numeric Trice ID without text padding. |
+| `file`, `line` | Existing LI entry, enabled `-li` and `-liFmt`; only an available filename or a nonzero line number is emitted. |
+| `ts16`, `ts32` | Existing 16- or 32-bit target stamp and output enabled through `-ts` or the corresponding `-ts16`/`-ts32` option. Each value is a string in its own CLI display format; an existing zero value is also emitted. |
+| `ts16Delta`, `ts32Delta` | Enabled `-ts16delta` or `-ts32delta` option and a previous stamp of the same bit width. The first stamp has no delta field at all. Display follows the respective delta option. |
+| `hs` | Enabled `-hs`; formatted host time string without trailing column padding. `-hs off` or `none` omits it. |
 
-Die Target-Stempelwerte enthalten keinen vorangestellten Stempel-Tag wie `time:` oder `dt:`, behalten aber konfigurierten Zusatztext und Einheiten. Äußerer Leerraum entfällt. Die vier Arten bleiben getrennt: Beispielsweise kann `ts16` eine Temperatur und `ts32` eine Zeit darstellen. `-ts0` und `-ts0delta` sind reine Textplatzhalter und erzeugen keine Metadatenfelder.
+Target stamp values have no leading stamp tag such as `time:` or `dt:`, but retain configured additional text and units. Outer whitespace is removed. The four kinds remain separate: for example, `ts16` may represent a temperature and `ts32` a time. `-ts0` and `-ts0delta` are text placeholders only and create no metadata fields.
 
-Beispielsweise ergeben `-ts off -ts16 'temp:%d C' -ts16delta 'step:%d C'` für zwei aufeinanderfolgende 16-Bit-Stempel mit den Werten 8 und 11 zuerst `"ts16":"8 C"` und danach `"ts16":"11 C","ts16Delta":"3 C"`. Bei `-logFormat kv` werden diese Werte als `ts16="11 C" ts16Delta="3 C"` ausgegeben.
+For example, `-ts off -ts16 'temp:%d C' -ts16delta 'step:%d C'` with two successive 16-bit stamps of 8 and 11 first yields `"ts16":"8 C"` and then `"ts16":"11 C","ts16Delta":"3 C"`. With `-logFormat kv`, these values appear as `ts16="11 C" ts16Delta="3 C"`.
 
-Die feste Reihenfolge lautet `tag`, optional `level`, `message`, danach vorhandene `id`, `file`, `line`, Target-Stempel und Delta, `hs`, anschließend die User-Felder. Fehlende Metadaten werden weggelassen und nicht durch null oder Ersatzwerte simuliert. Formatierte ID-lose `typeX0`-Ereignisse besitzen keine ID, TIL-Felder oder Target-Zeitstempel; sie erhalten dennoch `tag`, `message` und gegebenenfalls `level` und `hs`.
+The fixed order is `tag`, optional `level`, `message`, then any available `id`, `file`, `line`, target stamp and delta, `hs`, and finally user fields. Missing metadata is omitted rather than simulated with null or substitute values. Formatted ID-less `typeX0` events have no ID, TIL fields or target timestamps; they still receive `tag`, `message` and, where applicable, `level` and `hs`.
 
-### 32.7. <a id="feldregister"></a>Feldregister
+### 32.7. <a id="field-registry"></a>Field Registry
 
-Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt` als Register der Feldnamen und ihrer Häufigkeiten im letzten erfolgreichen Lauf. `-genDir` wählt für beide Befehle das Verzeichnis; der Default ist `./generated` relativ zum Aufrufverzeichnis. Bei `bind` liegen dort auch die Sidecar-Header. `-buildDir` und `-bindDir` werden abgewiesen.
+A successful `bind` or `insert` run produces `trice-fields.txt`, listing field names and their frequencies in the last successful run. `-genDir` selects the directory for both commands; the default is `./generated`, relative to the invocation directory. For `bind`, the sidecar headers are stored there too. `-buildDir` and `-bindDir` are rejected.
 
 ```text
        1 motor_id
@@ -6388,37 +6386,37 @@ Ein erfolgreicher `bind`- oder `insert`-Lauf erzeugt `trice-fields.txt` als Regi
        4 motor.state
 ```
 
-Gezählt werden die instrumentierten Stellen mit diesem User-Feld im aktuellen Aufruf. Die Datei wird vollständig neu erzeugt, nicht um historische TIL-Felder ergänzt. Ein Lauf über einen Teil der Quellen beschreibt nur diesen Teil; deshalb sollten projektweite Prüfungen alle relevanten Quellen einschließen. Cache-Treffer werden mitgezählt. Hostmetadaten erscheinen nicht, ein tatsächlich vom Benutzer benanntes Feld `tag` dagegen schon.
+The count covers instrumented sites with that user field in the current invocation. The file is regenerated completely, without adding historical TIL fields. A run over part of the sources describes only that part; project-wide checks should therefore include all relevant sources. Cache hits are counted. Host metadata is excluded, but a field actually named `tag` by the user is included.
 
-Die Sortierung ist zuerst nach Anzahl aufsteigend, bei gleicher Anzahl alphabetisch nach Feldname. Das Zeilenformat ist `%8d %s\n`; Feldnamen haben keine künstliche Längenbegrenzung. Ein erfolgreicher Lauf ohne User-Felder erzeugt eine leere Datei. `-dry-run` veröffentlicht keine neue Datei und erhält ein vorhandenes Register (`trice-fields.txt`).
+Sorting is by ascending count, then alphabetically by field name for equal counts. The line format is `%8d %s\n`; field names have no artificial length limit. A successful run without user fields creates an empty file. `-dry-run` publishes no new file and preserves an existing registry (`trice-fields.txt`).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## 33. <a id="trice-context-enrichment"></a>Trice Context Enrichment
 
-Context Enrichment (CE) ergänzt ausgewählte Trice-Meldungen um zusätzliche Werte, etwa Task-Kontext, Position oder Betriebszustand. Eine CLI-Regel gilt für alle Logstellen mit dem passenden Selektorpräfix. So lässt sich zusätzliche Diagnoseinformation für einen Build einschalten, ohne jede Logstelle von Hand zu erweitern.
+Context Enrichment (CE) adds extra values to selected Trice messages, such as task context, position or operating state. A CLI rule applies to all log sites with the matching selector prefix. This enables additional diagnostics for a build without extending every log site by hand.
 
-Die wiederholbare Option lautet bei `bind`, `insert` und `clean` gleich:
+The repeatable option has the same syntax for `bind`, `insert` and `clean`:
 
 ```text
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
 ```
 
-Beispielsweise ergänzt `-ce 'ctx7:", clock={}", clock'` die Meldung `trice("msg:ctx7:hi\n");` um den an dieser Stelle gültigen Wert von `clock`. Bei `clock == 42` lautet der Meldungsteil mit `-color none`: `hi, clock=42`. Das freie `ctx7:` bleibt als Auswahlmerkmal im Source Code erhalten. Es verschwindet aus dem endgültigen Log wenn es nur Kleinbuchstaben enthält. Das abschließende `\n` bleibt hinter dem angehängten Wert. (*Hinweis: `{}` kann in diesem Beispiel auch `%d` oder `%08x` sein. Die geschweifte Klammer zeigt lediglich, dass [Structured Logging](#strukturiertes-logging) und Kontext Enrichment orthogonal sind, also unabhängig voneinander und gemischt verwendet werden dürfen.*)
+For example, `-ce 'ctx7:", clock={}", clock' adds the value of `clock`, valid at that site, to `trice("msg:ctx7:hi\n");`. With `clock == 42` and `-color none`, the message is `hi, clock=42`. The custom `ctx7:` remains in the source as a selection marker. It disappears from the final log when it is entirely lowercase. The trailing `\n` remains after the appended value. (*Note: `{}` could also be `%d` or `%08x` in this example. The braces simply demonstrate that [Structured Logging](#structured-logging) and Context Enrichment are orthogonal: they can be used independently or together.*)
 
-| Befehl               | Wirkung                                                                                                                                             |
-|----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `trice bind -ce …`   | Ergänzt generierte Sidecars; die Trice-Aufrufe selbst bleiben unverändert. Unterstützt direkte, eindeutig über ihre Quellzeile zuordenbare Stellen. |
-| `trice insert -ce …` | Schreibt ID, Erweiterung und Argumente in die erkannten Source-Aufrufe. Wiederholung mit denselben Regeln ergänzt nichts ein zweites Mal.           |
-| `trice clean -ce …`  | Nimmt die erzeugte CE-Erweiterung mit denselben Regeln zurück und bereinigt die IDs nach den üblichen Regeln. Wiederholung ist unschädlich.         |
+| Command | Effect |
+|---|---|
+| `trice bind -ce …` | Extends generated sidecars; the Trice calls themselves remain unchanged. Supports direct sites uniquely addressable by source line. |
+| `trice insert -ce …` | Writes the ID, extension and arguments into recognized source calls. Repeating the same rules does not add the extension again. |
+| `trice clean -ce …` | Removes the matching CE extension using the same rules and cleans IDs according to the usual rules. Repetition is harmless. |
 
-CE benötigt keinen globalen Runtime-Context oder Push/Pop-Aufrufe auf dem Target. Jeder ausgeführte Record überträgt seine eigenen zusätzlichen Werte. CE ist damit unabhängig von [Structured Logging](#strukturiertes-logging): Eine Erweiterung kann klassische printf-Platzhalter verwenden oder zusätzlich benannte Felder erzeugen.
+CE requires no global runtime context or push/pop calls on the target. Every executed record transmits its own additional values. CE is therefore independent of [Structured Logging](#structured-logging): an extension may use classical printf placeholders or also create named fields.
 
-Zwei lauffähige Anwendungen zeigen denselben Grundgedanken: Im [PC-Beispiel](../examples/PC_features/README.md) ergänzt `bind -ce` an einer gemeinsamen Logstelle einen Zykluswert. Im direkt von `G0B1_inst` abgeleiteten [FreeRTOS-Beispiel](../examples/G0B1_features/ReadMe.md) ergänzt dieselbe Logstelle die Kennung des jeweils aufrufenden Tasks. Beide Beispiele verwenden daneben `triceS` für einen Laufzeitstring; CE hängt an String-Trices keine zusätzlichen Runtime-Argumente an.
+Two runnable applications demonstrate the same idea: in the [PC example](../examples/PC_features/README.md), `bind -ce` adds a cycle value at a shared log site. In the [FreeRTOS example](../examples/G0B1_features/ReadMe.md), derived directly from `G0B1_inst`, the same log site adds the identity of its calling task. Both examples also use `triceS` for a runtime string; CE does not append additional runtime arguments to string Trices.
 
-### 33.1. <a id="einstieg-mit-position-und-geschwindigkeit"></a>Einstieg mit Position und Geschwindigkeit
+### 33.1. <a id="getting-started-with-position-and-speed"></a>Getting Started with Position and Speed
 
-Ausgangspunkt ist ein regulär eingerichtetes [Bind-Projekt](#trice-bind). `./generated` (Default relativ zum Aufrufverzeichnis) muss im Include-Pfad des Compilers stehen. Diese Werte sind an der Logstelle sichtbar:
+Start with a normally configured [Bind project](#trice-bind). `./generated` (the default, relative to the invocation directory) must be on the compiler include path. These values are visible at the log site:
 
 ```c
 struct Position {
@@ -6429,190 +6427,190 @@ struct Position pos = {-444, 77};
 float velocity = 33.33f;
 ```
 
-Die Logstelle enthält zwei frei gewählte Selektorpräfixe:
+The log site contains two freely chosen selector prefixes:
 
 ```c
 trice32("info:pos:speed:Moving sample={sample}\n", 3);
 ```
 
-Der Bind-Aufruf ergänzt Position und Geschwindigkeit:
+The Bind invocation adds position and speed:
 
 ```sh
 trice bind -ce 'pos:", x={}, y={}", pos.x, pos.y' -ce 'speed:", m/s=%f", aFloat(velocity)'
 ```
 
-Im endgültigen Template steht nun:
+The final template now contains:
 
 ```text
 info:Moving sample={sample}, x={pos.x}, y={pos.y}, m/s=%f\n
 ```
 
-Übertragen werden der ursprüngliche Wert `3`, danach `pos.x`, `pos.y` und die Float-Bitdarstellung von `velocity`. Mit `-color none` ergibt der Meldungsteil der Textausgabe:
+The transmitted values are the original `3`, followed by `pos.x`, `pos.y` and the floating-point bit representation of `velocity`. With `-color none`, the message portion of text output is:
 
 ```text
 Moving sample=3, x=-444, y=77, m/s=33.330002
 ```
 
-Das gleiche Ergebnis ließe sich auch erreichen mit:
+The same result could also be obtained with:
 
 ```c
 trice32("info:Moving sample={sample}\n", 3);
 ```
 
-und diesem Bind-Aufruf:
+and this Bind invocation:
 
 ```sh
 trice bind -ce 'info:", x={}, y={}, m/s=%f", pos.x, pos.y, aFloat(velocity)'
 ```
 
-Die Nachkommastellen folgen der 32-Bit-Floatdarstellung und `%f`; `%.2f` würde `33.33` anzeigen. JSON und KV enthalten dieselbe Meldung einschließlich ihres abschließenden Newlines als escaped String. Zusätzlich entstehen die numerischen Felder `sample`, `pos.x` und `pos.y`. `%f` allein erzeugt kein benanntes Feld; dafür kann die Regel beispielsweise `speed:", m/s={speed:%.2f}", aFloat(velocity)` verwenden.
+The decimal digits follow the 32-bit floating-point representation and `%f`; `%.2f` would display `33.33`. JSON and KV contain the same message, including its trailing newline, as an escaped string. They also include the numeric fields `sample`, `pos.x` and `pos.y`. `%f` alone creates no named field; a rule such as `speed:", m/s={speed:%.2f}", aFloat(velocity)` can create one.
 
-Die CE-Beispiele in [triceCheck.c](../_test/testdata/triceCheck.c) stehen unmittelbar nach den Structured-Logging-Beispielen. Ihre `//exp:`-Erwartungen beschreiben den normalen Lauf ohne `-ce`. Die CE-Integrationstests verwenden dieselben Aufrufe und prüfen die tatsächlich übertragenen Werte mit den oben gezeigten Regeln.
+The CE examples in [triceCheck.c](../_test/testdata/triceCheck.c) immediately follow the Structured Logging examples. Their `//exp:` expectations describe the normal run without `-ce`. CE integration tests use the same calls and verify the actually transmitted values with the rules shown above.
 
-### 33.2. <a id="regeln-und-selektoren"></a>Regeln und Selektoren
+### 33.2. <a id="rules-and-selectors"></a>Rules and Selectors
 
-`bind`, `insert` für die Erweiterung und `clean` für die zu entfernende Erweiterung verwenden dieselbe Syntax. Die daraus an einer Logstelle entstehende Regelgruppe muss in Format und Argumentreihenfolge vollständig passen:
+`bind`, `insert` for adding an extension, and `clean` for removing it use the same syntax. The resulting rule group at a log site must match completely in format and argument order:
 
 ```text
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
 ```
 
-Die Shell muss den gesamten Optionswert als ein Argument übergeben; die Beispiele verwenden dafür einfache Anführungszeichen. Innerhalb der Erweiterung gelten dieselben C-Escapes und Platzhalter wie in einem Trice-Formatstring. Die Erweiterungen stehen vor einem abschließenden `\n` des ursprünglichen Templates, andernfalls an dessen Ende. Führende und folgende Leerzeichen bleiben erhalten.
+The shell must pass the entire option value as one argument; the examples use single quotes for this. Extensions use the same C escapes and placeholders as a Trice format string. They are placed before a trailing `\n` in the original template, or at its end otherwise. Leading and trailing whitespace is preserved.
 
-Selektoren werden in der zusammenhängenden Präfixfolge am Anfang des Formatstrings gesucht, beispielsweise `info:pos:speed:`. Der Vergleich ignoriert Groß-/Kleinschreibung; bekannte eingebaute Tag-Aliase gehören dabei zu derselben Gruppe, etwa `warn` und `WARNING`.
+Selectors are looked up in the contiguous prefix sequence at the beginning of the format string, for example `info:pos:speed:`. Comparison is case-insensitive; known built-in tag aliases belong to the same group, such as `warn` and `WARNING`.
 
-So wählen `-ce 'Wrn:", attempt={attempt}", 7'` und `-ce 'WARNING:", attempt={attempt}", 7'` dieselben Logstellen aus, auch wenn deren Tag-Aliase im Source gemischt geschrieben sind:
+Thus `-ce 'Wrn:", attempt={attempt}", 7'` and `-ce 'WARNING:", attempt={attempt}", 7'` select the same log sites, even when their tag aliases use mixed spellings in the source:
 
 ```c
 trice("WARNING:Connection lost");
 trice("wrn:Retrying");
 ```
 
-Beide Aufrufe erhalten die Erweiterung; `WARNING:` beziehungsweise `wrn:` bleibt in seiner ursprünglichen Schreibweise im Source stehen. Diese Alias-Auflösung gilt bei `bind`, `insert` und `clean` für die Auswahl der Logstelle. Der vollständige Match der Format- und Argumenterweiterung bei `insert` und `clean` wird davon getrennt geprüft.
+Both calls receive the extension; `WARNING:` or `wrn:` retains its original spelling in the source. This alias resolution applies to log site selection with `bind`, `insert` and `clean`. The complete match of format and argument extensions for `insert` and `clean` is checked separately.
 
-- Nur konfigurierte Selektoren lösen CE aus. Ohne passende Regel bleibt ein Präfix ohne CE Wirkung.
-- Ein freier, vollständig kleingeschriebener Selektor wird bei Anwendung seiner Regel aus dem endgültigen Template entfernt, nicht aus dem Source. `pos:` verschwindet aus der Ausgabe; `PoS:` und `POS:` bleiben sichtbar und lösen dieselbe Regel aus.
-- Registrierte Trice-Tags und `-ulabel`-Namen behalten ihr Präfix im endgültigen Template. Für Tag-Metadaten und Darstellung gelten die normalen Regeln: `-color off` erhält beispielsweise `info:`; CE entfernt dieses bekannte Tag nicht.
-- Verschiedene Selektoren wirken in ihrer Reihenfolge im Source. Mehrere Regeln für denselben Selektor wirken in CLI-Reihenfolge.
-- Kommt derselbe Selektor, auch über einen Alias, mehrfach an einer Logstelle vor, wird seine Regelgruppe nur einmal angewendet. Beim Erweitern gibt das Tool eine Warnung für diese Logstelle aus.
+- Only configured selectors trigger CE. Without a matching rule, a prefix has no CE effect.
+- A custom, entirely lowercase selector is removed from the final template when its rule is applied, but retained in the source. `pos:` disappears from output; `PoS:` and `POS:` remain visible and trigger the same rule.
+- Registered Trice tags and `-ulabel` names retain their prefixes in the final template. Normal rules apply to tag metadata and display: for example, `-color off` preserves `info:`; CE does not remove this known tag.
+- Different selectors act in source order. Multiple rules for the same selector act in CLI order.
+- If a selector occurs more than once at a site, including through an alias, its rule group is applied only once. During extension, the tool emits a warning for that site.
 
-Damit ergänzt `info:pos:speed:` zuerst die Position und danach die Geschwindigkeit, auch wenn die CLI die `speed`-Regel zuerst nennt. Eine gleiche Bezeichnung darf sowohl User-Label als auch CE-Selektor sein; `-ulabel` und `-ce` haben getrennte Aufgaben.
+Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-ulabel` and `-ce` have separate purposes.
 
-### 33.3. <a id="reversibler-ablauf-mit-insert-und-clean"></a>Reversibler Ablauf mit insert und clean
+### 33.3. <a id="reversible-workflow-with-insert-and-clean"></a>Reversible Workflow with insert and clean
 
-Ausgangspunkt in `main.c`:
+Starting point in `main.c`:
 
 ```c
 trice("msg:ctx7:hi\n");
 ```
 
-Einfügen:
+Insert:
 
 ```sh
 trice insert -src main.c -ce 'ctx7:", clock={}", clock'
 ```
 
-Der Aufruf sieht danach so aus (die ID `1234` ist nur ein Beispiel):
+The call then looks like this (ID `1234` is only an example):
 
 ```c
 trice(iD(1234), "msg:ctx7:hi, clock={}\n", clock);
 ```
 
-Es entstehen keine Herkunftskommentare und keine zusätzlichen CE-Metadatendateien. Für die Erkennung zählen ausschließlich der passende Selektor sowie die vollständige Erweiterung am Ende von Formatstring und Argumentliste. Ob dieser Text von Hand oder durch einen früheren Insert-Aufruf geschrieben wurde, spielt keine Rolle.
+No ownership comments or additional CE metadata files are created. Recognition depends solely on the matching selector and the complete extension at the end of the format string and argument list. Whether that text was written by hand or by an earlier Insert invocation does not matter.
 
-In `til.json` steht für diese ID das kanonische Template `msg:hi, clock={clock}\n`. Der Source behält `ctx7:` und die ursprüngliche Schreibweise seiner Felder. Der Compiler erhält den zusätzlichen Wert; der Decoder erhält das passende Schema. Ein zweiter identischer Insert-Aufruf erhält Erweiterung und ID.
+For this ID, `til.json` contains the canonical template `msg:hi, clock={clock}\n`. The source retains `ctx7:` and the original field spelling. The compiler receives the additional value; the decoder receives the matching schema. A second identical Insert invocation preserves the extension and ID.
 
-Rücknahme:
+Remove:
 
 ```sh
 trice clean -src main.c -ce 'ctx7:", clock={}", clock'
 ```
 
-Danach steht wieder `trice("msg:ctx7:hi\n");` im Source. Eine feste Argumentzahl wird entsprechend angepasst: Aus `TRICE16_2(Id(1234), …)` wird nach Entfernung eines CE-Arguments `TRICE16_1(Id(0), …)`. Eine generische feste Null-Argument-Form wird als `trice0` beziehungsweise `TRICE0` geschrieben; die historische Schreibweise `trice_0` lässt sich ohne Herkunftsdaten nicht unterscheiden. Für IDs gelten weiterhin die üblichen Clean-Regeln: IDs kleingeschriebener Makrofamilien werden entfernt, IDs der entsprechenden Großschreibungsvarianten auf null gesetzt.
+The source then contains `trice("msg:ctx7:hi\n");` again. Fixed argument counts are adjusted accordingly: removing one CE argument turns `TRICE16_2(Id(1234), …)` into `TRICE16_1(Id(0), …)`. A generic fixed zero-argument form is written as `trice0` or `TRICE0`; without ownership data, the historical spelling `trice_0` cannot be distinguished. Usual Clean rules still apply to IDs: IDs of lowercase macro families are removed, while IDs of the corresponding uppercase variants are set to zero.
 
-**Ein vollständiger Match muss positionsgenau sein.** Für die obige Regel müssen `, clock={}` am Ende des Formatstrings und `clock` am Ende der Argumentliste stehen. Ein abschließendes `\n` der Meldung bleibt hinter der Erweiterung erhalten. Enthält die Regel selbst ein abschließendes `\n`, gehört dieses zur Erweiterung und wird mit entfernt. Formattext, Leerzeichen im Format und Feldschreibweise müssen übereinstimmen: `{}` und `{clock}` sind für diesen Vergleich verschieden. Beim Argumentvergleich werden C-Kommentare wie beim normalen Einlesen durch Leerraum ersetzt und äußere Leerzeichen ignoriert; verschiedene Ausdrücke wie `clock`, `readClock()` oder `clock + 0` gelten nicht als gleich.
+**A complete match must occur at exactly the right position.** For the rule above, `, clock={}` must end the format string, and `clock` must end the argument list. A trailing message `\n` remains after the extension. If the rule itself contains a trailing `\n`, that newline belongs to the extension and is removed with it. Format text, whitespace in the format and field spelling must match: `{}` and `{clock}` differ for this comparison. When comparing arguments, C comments are replaced with whitespace as during normal parsing, and outer whitespace is ignored; different expressions such as `clock`, `readClock()` or `clock + 0` are not considered equal.
 
-Auch ein scheinbar passendes Textende ist kein Match, wenn es zu einer vorhandenen Formatkonvertierung gehört. Bei `-ce 'ctx:"d"'` endet der folgende Formatstring zwar mit `d`, dieses Zeichen ist aber Teil von `%d`, dem Platzhalter für `x`:
+Even an apparently matching text ending is not a match if it belongs to an existing format conversion. With `-ce 'ctx:"d"'`, the following format string ends in `d`, but that character is part of `%d`, the placeholder for `x`:
 
 ```c
 trice("ctx:value=%d", x);
 ```
 
-`clean -ce` lässt den Aufruf unverändert: Das Entfernen des `d` würde aus `%d` ein einzelnes `%` machen. `insert -ce` hängt stattdessen ein eigenes `d` an und erzeugt `trice("ctx:value=%dd", x);`.
+`clean -ce` leaves the call unchanged: removing `d` would turn `%d` into a lone `%`. Instead, `insert -ce` appends a separate `d`, producing `trice("ctx:value=%dd", x);`.
 
-Ebenso ist bei `-ce 'ctx:"%d", clock'` das sichtbare `%d` am Ende des nächsten Formatstrings kein Wertplatzhalter:
+Similarly, with `-ce 'ctx:"%d", clock'`, the visible `%d` at the end of the next format string is not a value placeholder:
 
 ```c
 trice("ctx:value=%d %%d", clock);
 ```
 
-Das erste `%d` gibt `clock` aus; `%%d` gibt wörtlich `%d` aus und benötigt kein weiteres Argument. Obwohl die letzten Zeichen `%d` und das letzte Argument `clock` zur Regel zu passen scheinen, gehören sie hier nicht zusammen. `clean -ce` lässt den Aufruf unverändert. `insert -ce` ergänzt einen eigenen Platzhalter mit eigenem Argument und erzeugt `trice("ctx:value=%d %%d%d", clock, clock);`.
+The first `%d` prints `clock`; `%%d` prints the literal text `%d` and needs no additional argument. Although the last characters `%d` and the last argument `clock` seem to match the rule, they do not belong together here. `clean -ce` leaves the call unchanged. `insert -ce` adds its own placeholder and argument, producing `trice("ctx:value=%d %%d%d", clock, clock);`.
 
-| Zustand an der ausgewählten Logstelle | `insert -ce` | `clean -ce` |
-| --- | --- | --- |
-| Vollständige Format- und Argumenterweiterung vorhanden | Nichts ergänzen | Eine vollständige Erweiterung entfernen |
-| Kein vollständiger Match, einschließlich Teilmatch | Die gesamte Erweiterung anhängen | CE unverändert lassen |
+| State at the selected log site | `insert -ce` | `clean -ce` |
+|---|---|---|
+| Complete format and argument extension present | Add nothing | Remove one complete extension |
+| No complete match, including a partial match | Append the entire extension | Leave CE unchanged |
 
-Die gewöhnliche ID-Verarbeitung findet in beiden Fällen statt. Bei mehreren passenden Regeln wird die gesamte Regelgruppe in ihrer Anwendungsreihenfolge verglichen. Einzelne bereits passende Bestandteile werden weder übersprungen noch separat entfernt. Wiederholtes `insert` ergänzt deshalb nichts doppelt. `clean` entfernt pro Aufruf höchstens eine vollständige Gruppe; liegen zwei identische Gruppen hintereinander, kann ein zweiter Clean-Aufruf auch die zweite entfernen.
+Normal ID processing occurs in both cases. When several rules match, the entire rule group is compared in application order. Individual matching parts are neither skipped nor removed separately. Repeated `insert` therefore adds nothing twice. `clean` removes at most one complete group per invocation; if two identical groups occur consecutively, a second Clean invocation can remove the second group too.
 
-Ein Teilmatch ist beispielsweise dieser Aufruf zur Regel `ctx7:", clock=%d", clock`:
+For example, this call is a partial match for the rule `ctx7:", clock=%d", clock`:
 
 ```c
 trice("msg:ctx7:hi, clock=%d\n", other);
 ```
 
-Der Format-Anhang passt, das letzte Argument `other` jedoch nicht. `clean -ce` lässt den CE-Anteil unverändert. `insert -ce` hängt die vollständige Erweiterung an:
+The format suffix matches, but the last argument `other` does not. `clean -ce` leaves the CE part unchanged. `insert -ce` appends the complete extension:
 
 ```c
 trice(iD(1234), "msg:ctx7:hi, clock=%d, clock=%d\n", other, clock);
 ```
 
-Ein erneutes `insert` erkennt nun den vollständigen Match am Ende. `clean` mit derselben Regel entfernt genau das letzte `, clock=%d` und das letzte Argument `clock`; der vorher vorhandene Teilmatch mit `other` bleibt stehen. Normale Prüfungen auf gültige Trice-Aufrufe und eindeutige strukturierte Feldnamen gelten weiterhin auch beim Anhängen an einen Teilmatch.
+A subsequent `insert` now recognizes the complete match at the end. With the same rule, `clean` removes exactly the final `, clock=%d` and final argument `clock`; the previous partial match using `other` remains. Normal checks for valid Trice calls and unique structured field names still apply when appending to a partial match.
 
-Soll eine vorhandene Erweiterung durch eine andere ersetzt werden, wird zuerst die alte passende Gruppe entfernt:
+To replace an existing extension with another one, first remove the old matching group:
 
 ```sh
 trice clean -src main.c -ce 'ctx7:", clock={}", clock'
 trice insert -src main.c -ce 'ctx7:", clock={clock}", readClock()'
 ```
 
-Ein `insert` oder `clean` **ohne** `-ce` führt nur seine normale ID-Aufgabe aus. Es nimmt eine vorhandene CE-Erweiterung nicht zurück. Für die vollständige Rücknahme müssen die bisherigen `-ce`-Optionen angegeben werden. Weitere Optionen, etwa `-src`, `-til`, `-li` und verwendete Trice-Aliase, müssen wie im normalen Workflow zum Projekt passen.
+An `insert` or `clean` invocation **without** `-ce` performs only its normal ID task. It does not undo an existing CE extension. For full removal, supply the previous `-ce` options. Other options, such as `-src`, `-til`, `-li` and any Trice aliases, must match the project as in the normal workflow.
 
-Auch dieser von Hand geschriebene Aufruf enthält einen vollständigen Match:
+This handwritten call also contains a complete match:
 
 ```c
 trice("msg:ctx7:manual, clock={clock}\n", clock);
 ```
 
-`clean -ce 'ctx7:", clock={clock}", clock'` entfernt das Feld und das letzte Argument. Ein entsprechendes `insert -ce` ergänzt nichts. Der Aufruf kann an eine andere Zeile oder in eine andere Datei verschoben werden; die Erkennung hängt weder von seinem früheren Ort noch von Build-Dateien ab.
+`clean -ce 'ctx7:", clock={clock}", clock'` removes the field and last argument. A corresponding `insert -ce` adds nothing. The call may be moved to another line or file; recognition depends neither on its previous location nor on build files.
 
-`insert -ce` und `clean -ce` beachten `-src`, `-exclude` und `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. Trice-Aufrufe in gewöhnlichen C-Kommentaren werden nicht durch CE verändert; die bisherige ID-Verarbeitung solcher Beispiele bleibt bestehen. Bereits über Sidecar-Includes gebundene Dateien werden nicht automatisch auf Insert umgestellt. Für diese gilt der [Rückweg zu `trice insert`](#re-migration-to-trice-insert).
+`insert -ce` and `clean -ce` respect `-src`, `-exclude` and `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. CE does not modify Trice calls in ordinary C comments; existing ID processing of those examples remains in place. Files already bound through sidecar includes are not automatically converted to Insert. Use [re-migration to `trice insert`](#re-migration-to-trice-insert) for these files.
 
-Der CE-Pfad prüft alle ausgewählten Dateien vor dem Veröffentlichen und schreibt Source, TIL, LI sowie das Insert-Feldregister gemeinsam mit Rücknahme bei Schreibfehlern. `-dry-run` veröffentlicht nichts. Mit `-ce` wird der experimentelle, nur auf Zeitstempeln beruhende `-cache` umgangen, damit geänderte Regeln nicht mit alten Source-Kopien vermischt werden. `trice-fields.txt` beschreibt weiterhin den letzten erfolgreichen Insert-/Bind-Lauf; Clean erzeugt kein neues Feldregister.
+The CE path validates all selected files before publication and writes source, TIL, LI and the Insert field registry together, rolling back on write errors. `-dry-run` publishes nothing. With `-ce`, the experimental timestamp-only `-cache` is bypassed to prevent changed rules from mixing with old source copies. `trice-fields.txt` still describes the last successful Insert/Bind run; Clean creates no new field registry.
 
-### 33.4. <a id="ausdrücke-felder-und-auswertung"></a>Ausdrücke, Felder und Auswertung
+### 33.4. <a id="expressions-fields-and-evaluation"></a>Expressions, Fields and Evaluation
 
-Jeder CE-Ausdruck muss kommafrei sein und an jeder ausgewählten Logstelle gültig und sichtbar sein. Geeignet sind etwa `pos.x`, `motor->speed`, `array[i]`, `x + 1`, `aFloat(velocity)` oder `condition ? a : b`. `getValue(a, b)` und der Kommaoperator sind in der CLI-Liste nicht zulässig; solche Ergebnisse können vorher in einer lokalen Variable berechnet werden. Jeder Optionswert steht vollständig auf einer Zeile; `//`-Kommentare sind in den Ausdrücken nicht zulässig.
+Every CE expression must be comma-free, valid and visible at every selected log site. Suitable examples include `pos.x`, `motor->speed`, `array[i]`, `x + 1`, `aFloat(velocity)` and `condition ? a : b`. `getValue(a, b)` and the comma operator are not allowed in the CLI list; calculate such results in a local variable beforehand. Each option value occupies one complete line; `//` comments are not allowed in expressions.
 
-`{}` leitet einen Feldnamen aus einem einfachen Ausdruck ab: `pos.x` wird `pos.x`, `motor->speed` wird `motor.speed`. Für komplexere Ausdrücke ist ein Name anzugeben, beispielsweise `ctx:", next={next}", x + 1`. Klassische printf-Platzhalter und benannte Felder dürfen gemischt werden. Literale geschweifte Klammern werden als `{{` und `}}` geschrieben. Doppelte Feldnamen im endgültigen Record sind ein Fehler, auch wenn einer im Source und einer in einer CE-Regel steht.
+`{}` derives a field name from a simple expression: `pos.x` becomes `pos.x`, and `motor->speed` becomes `motor.speed`. More complex expressions require a name, for example `ctx:", next={next}", x + 1`. Classical printf placeholders and named fields can be mixed. Literal braces are written as `{{` and `}}`. Duplicate field names in the final record are an error, including when one occurs in the source and another in a CE rule.
 
-Ursprüngliche Argumente stehen vor den zusätzlichen CE-Argumenten. Jeder zusätzliche Ausdruck wird pro tatsächlich ausgeführtem Aufruf genau einmal ausgewertet. Ein nicht ausgeführter Aufruf sowie `TRICE_OFF` oder `TRICE_CLEAN` werten ihn nicht aus. CE führt keine zusätzliche Reihenfolgegarantie zwischen verschiedenen C-Ausdrücken ein; abhängige Seiteneffekte gehören in separate Anweisungen vor dem Aufruf.
+Original arguments precede additional CE arguments. Each additional expression is evaluated exactly once per actually executed call. A call that is not executed, or a build with `TRICE_OFF` or `TRICE_CLEAN`, does not evaluate it. CE adds no ordering guarantee between different C expressions; dependent side effects belong in separate statements before the call.
 
-Skalare Trices übertragen weiterhin höchstens zwölf Werte derselben Bitbreite. CE behält Bitbreite und Stempeltyp bei und passt eine feste Arity an, beispielsweise `TRice32_1` zu `TRice32_3`. Ein Floatwert benötigt bei 32 Bit ausdrücklich `aFloat(...)`, bei 64 Bit `aDouble(...)`; eine automatische Konvertierung findet nicht statt. 8-/16-Bit-Trices können keine Floatwerte übertragen. Der Compiler prüft die tatsächlichen C-Typen und die Sichtbarkeit der Bezeichner.
+Scalar Trices still transmit at most twelve values of the same bit width. CE preserves bit width and stamp type and adjusts fixed arity, for example from `TRice32_1` to `TRice32_3`. Floating-point values explicitly require `aFloat(...)` at 32 bits and `aDouble(...)` at 64 bits; there is no automatic conversion. 8-/16-bit Trices cannot transmit floating-point values. The compiler checks actual C types and identifier visibility.
 
-String-, Puffer- und andere besondere Trice-Familien erhalten keine zusätzlichen Runtime-Argumente durch CE. Eine reine Texterweiterung ohne zusätzliche Werte ist möglich, soweit das endgültige Format für die ursprüngliche Familie gültig bleibt, etwa `label:" online"` an einem `triceS`. Benannte Pufferfelder bleiben wie bei Structured Logging ausgeschlossen.
+String, buffer and other special Trice families receive no additional runtime arguments through CE. A text-only extension without additional values is possible if the final format remains valid for the original family, for example `label:" online"` on a `triceS`. Named buffer fields remain excluded, as in Structured Logging.
 
-### 33.5. <a id="globale-und-lokale-werte-verständlich-einsetzen"></a>Globale und lokale Werte verständlich einsetzen
+### 33.5. <a id="using-global-and-local-values"></a>Using Global and Local Values
 
-Globale Zustandswerte und überall verfügbare Funktionen sind häufig besonders praktisch:
+Global state values and functions available everywhere are often especially convenient:
 
 ```sh
 trice insert -ce 'ctx7:", clock={clock}", readClock()'
 ```
 
-Jede ausgewählte Logstelle muss `readClock()` aufrufen dürfen; die passende Deklaration muss dort bekannt sein. Der Wert wird beim tatsächlichen Logaufruf gelesen, nicht beim Aufruf des Trice-Tools. Ohne ausgeführten Logaufruf entsteht auch kein CE-Aufruf der Funktion.
+Every selected log site must be able to call `readClock()`; its declaration must be known there. The value is read when the log call actually executes, not when the Trice tool runs. Without an executed log call, CE does not call the function either.
 
-Lokale Variablen sind ebenfalls sinnvoll, wenn alle ausgewählten Stellen denselben Ausdruck verwenden können. Beispielsweise passt die Regel `-ce 'job:", job={job}", jobId'` zu beiden Funktionen:
+Local variables are also useful when all selected sites can use the same expression. For example, the rule `-ce 'job:", job={job}", jobId'` fits both functions:
 
 ```c
 void startJob(int jobId) {
@@ -6624,9 +6622,9 @@ void finishJob(int jobId) {
 }
 ```
 
-Die gemeinsame Regel liest jeweils den lokalen Parameter der ausgeführten Funktion. Es gibt keinen globalen `jobId`-Speicher und keine Vermischung verschiedener Aufrufe.
+The shared rule reads the local parameter of whichever function executes. There is no global `jobId` storage or mixing of different calls.
 
-Diese Variante funktioniert dagegen nicht mit derselben Regel:
+The following variant cannot use that same rule:
 
 ```c
 void startJob(int jobId) {
@@ -6638,9 +6636,9 @@ void finishJob(int finishedJobId) {
 }
 ```
 
-In `finishJob` existiert `jobId` nicht. Der Compiler meldet den fehlenden Namen automatisch; es ist keine zusätzliche CLI-Option erforderlich. Mögliche Lösungen sind ein einheitlicher Parametername, ein lokaler Hilfswert, getrennte Selektoren mit passenden Regeln oder das direkt angegebene Feld `trice("info:finish, job={job}\n", finishedJobId);`.
+`jobId` does not exist in `finishJob`. The compiler reports the missing name automatically; no additional CLI option is needed. Solutions include a consistent parameter name, a local helper value, separate selectors with appropriate rules, or a directly specified field: `trice("info:finish, job={job}\n", finishedJobId);`.
 
-Auch eine normale Hilfsfunktion kann nicht auf die lokalen Variablen ihres Aufrufers zugreifen. Das gilt ebenso für `static inline`: Inlining schafft keine zusätzliche Sichtbarkeit. Werte müssen als Parameter übergeben werden:
+An ordinary helper function cannot access its caller's local variables either. This also applies to `static inline`: inlining adds no visibility. Values must be passed as parameters:
 
 ```c
 static inline void logJob(int jobId) {
@@ -6653,37 +6651,37 @@ void worker(void) {
 }
 ```
 
-Diese Einschränkung bleibt bestehen, weil CE normalen C-/C++-Code erzeugt. Das Trice-Tool kennt weder alle Typen und Deklarationen noch die vom konkreten Compiler ausgewählten Präprozessorzweige. Es prüft Syntax, Schema und unterstützte Logformen selbst; die genaue Sichtbarkeit prüft der ohnehin erforderliche Compiler. Ein eigener vollständiger Compiler-Vorlauf nur für eine frühere Fehlermeldung würde die Bedienung und den Build unnötig verkomplizieren.
+This limitation remains because CE produces ordinary C/C++ code. The Trice tool knows neither all types and declarations nor the preprocessor branches selected by the actual compiler. It checks syntax, schema and supported log forms itself; the compiler, already required for the build, checks exact visibility. A separate full compiler preprocessing pass solely to report errors earlier would unnecessarily complicate usage and builds.
 
-### 33.6. <a id="build-ids-und-generierte-dateien"></a>Build, IDs und generierte Dateien
+### 33.6. <a id="build-ids-and-generated-files"></a>Build, IDs and Generated Files
 
-CE wird vor der Schema- und ID-Bestimmung angewendet. Die ID richtet sich nach dem endgültigen Trice-Typ und dem kanonischen Template einschließlich Feldnamen. Ein anderer Ausdruck bei identischem Schema ändert die ID nicht: `ctx:", x={position}", pos.x` kann zu `ctx:", x={position}", pos.y` wechseln. Eine Änderung des Feldnamens, des Formats oder des endgültigen Typs folgt dagegen den bestehenden ID-Vergaberegeln. Historische TIL-Einträge bleiben für ältere Firmware erhalten.
+CE is applied before schema and ID determination. The ID follows the final Trice type and canonical template, including field names. A different expression with the same schema does not change the ID: `ctx:", x={position}", pos.x` may change to `ctx:", x={position}", pos.y`. Changes to the field name, format or final type follow the existing ID assignment rules instead. Historical TIL entries remain available for older firmware.
 
-Nach jeder Änderung an Source oder CE-Konfiguration wird `bind` mit der vollständigen gewünschten Regelliste erneut ausgeführt und die Firmware neu gebaut. Ohne `-ce` entstehen beim nächsten Bind-Lauf wieder die normalen Schemas ohne CE. Die Regeln werden nicht aus einem früheren Lauf fortgeschrieben. Wörterbuch und erzeugte Firmware müssen zusammengehören; eine Änderung nur an `til.json` kann keine zusätzlichen Target-Werte erzeugen.
+After every source or CE configuration change, rerun `bind` with the complete desired rule list and rebuild the firmware. Without `-ce`, the next Bind run produces normal schemas without CE again. Rules are not carried forward from earlier runs. The dictionary and generated firmware must belong together; changing only `til.json` cannot create additional target values.
 
-Die normalen Bind-Einrichtungsschritte, etwa das erstmalige Sidecar-Include, bleiben bestehen. CE selbst schreibt weder die Erweiterung noch zusätzliche Argumente in die User-Logstellen. Wiederholungsläufe mit gleicher Konfiguration erhalten Source, IDs und generierte Inhalte. `trice-fields.txt` zählt die endgültigen CE-Felder zusammen mit den direkt angegebenen Feldern für den aktuellen Lauf. `-dry-run` veröffentlicht keine Änderungen. Ungültige Regeln, Feldkonflikte und ausgewählte nicht unterstützte Bind-Stellen werden vor Schreibzugriffen abgewiesen; bei einem Veröffentlichungsfehler greift die bestehende Bind-Rücknahme.
+Normal Bind setup steps, such as the initial sidecar include, still apply. CE itself writes neither the extension nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
 
-`generate -logC` verwendet die endgültigen CE-Schemas aus TIL. Bei Bind liefern die Sidecars die Zuordnung, bei Insert die expliziten IDs im Source. Die Regeln müssen dafür nicht nochmals angegeben werden:
+`generate -logC` uses the final CE schemas from TIL. Bind sidecars provide the mapping; Insert uses explicit IDs in the source. Rules need not be supplied again:
 
 ```sh
 trice generate -til til.json -genDir generated -logC triceLog.c
 ```
 
-Bei Bind führen veraltete oder widersprüchliche CE-Metadaten zu einem Fehler; nach einem geänderten Trice-Aufruf muss zuerst erneut mit den gewünschten Regeln gebunden werden. Bei Insert darf der Source die freien kleingeschriebenen Selektoren zusätzlich zum TIL-Template enthalten. Meldung, Feldschema und Trice-Typ müssen zum Eintrag der expliziten ID passen. Für geänderte Meldungen wird zuerst erneut `insert` ausgeführt; für den Austausch einer CE-Erweiterung gilt der oben gezeigte Ablauf `clean -ce`, dann `insert -ce`. Derselbe Source-Umfang und dieselbe TIL müssen zugänglich sein; Bind benötigt zusätzlich seine Sidecars im passenden Build-Verzeichnis.
+With Bind, stale or contradictory CE metadata causes an error; after changing a Trice call, first bind again with the desired rules. With Insert, the source may contain custom lowercase selectors in addition to the TIL template. Message, field schema and Trice type must match the explicit ID's entry. For changed messages, rerun `insert` first; to replace a CE extension, use the workflow above: `clean -ce`, then `insert -ce`. The same source scope and TIL must be accessible; Bind also requires its sidecars in the corresponding build directory.
 
-### 33.7. <a id="unterstützte-logstellen-und-alternativen"></a>Unterstützte Logstellen und Alternativen
+### 33.7. <a id="supported-log-sites-and-alternatives"></a>Supported Log Sites and Alternatives
 
-`bind -ce` unterstützt direkte, anhand von Datei und Quellzeile eindeutig zuordenbare Trice-Aufrufe, auch innerhalb normaler und `static inline` Funktionen. Dieser Weg benötigt kein `__COUNTER__`. Ein mehrzeiliger Aufruf ist ebenfalls möglich, wenn auf seinen belegten Zeilen keine andere Bind-Logstelle liegt.
+`bind -ce` supports direct Trice calls uniquely addressable by file and source line, including within ordinary and `static inline` functions. This path requires no `__COUNTER__`. Multiline calls are also possible if no other Bind log site occupies their lines.
 
-Ausgewählte Wrappermakros und Counter-Rebase-Stellen sind zurückgestellt. Ein typischer Fehler lautet:
+Selected wrapper macros and counter-rebase sites remain deferred. A typical error is:
 
 ```text
 main.c:42: error: CE requires a direct, line-addressable bind site. Search UM for "bind-limits".
 ```
 
-Der Abschnitt [bind-limits](#bind-limits) erklärt die Ursache und mögliche Codeanpassungen ohne Compiler-Spezialwissen. Geeignete Schritte sind getrennte Quellzeilen oder normale Funktionen mit ausdrücklich übergebenen lokalen Werten. Nicht von CE ausgewählte Wrapper-/Rebase-Stellen behalten das bisherige Bind-Verhalten einschließlich ihrer Compileranforderungen.
+The [bind-limits](#bind-limits) section explains the cause and possible code adjustments without requiring compiler expertise. Suitable changes include separate source lines or ordinary functions with explicitly passed local values. Wrapper/rebase sites not selected by CE retain existing Bind behavior, including its compiler requirements.
 
-`insert -ce` schreibt die endgültigen Argumente direkt an jede erkannte Logstelle. Dadurch entfällt die Bind-Auswahl über Quellzeile oder Compilerzähler. Insbesondere können diese Aufrufe mit `-ce 'ctx7:", clock={}", clock'` erweitert werden:
+`insert -ce` writes final arguments directly into each recognized log site. This avoids Bind selection through source lines or compiler counters. In particular, these calls can be extended with `-ce 'ctx7:", clock={}", clock'`:
 
 ```c
 trice("msg:ctx7:first\n"); trice("msg:ctx7:second\n");
@@ -6691,9 +6689,9 @@ trice("msg:ctx7:first\n"); trice("msg:ctx7:second\n");
 #define LOG_STATUS() trice("msg:ctx7:status\n")
 ```
 
-Bei einem Wrapper ergänzt Insert den Trice-Aufruf in der **Makrodefinition**. Jeder spätere Aufruf von `LOG_STATUS()` verwendet diese Erweiterung. `clock` muss an jeder Expansion sichtbar sein. Derselbe Wrapper wird dadurch nicht pro Aufrufort mit unterschiedlichen Regeln ausgestattet; Selektoren gehören zum erkannten Formatstring in der Definition.
+For a wrapper, Insert extends the Trice call in the **macro definition**. Every later call to `LOG_STATUS()` uses this extension. `clock` must be visible at every expansion. This does not configure different rules per call site for the same wrapper; selectors belong to the recognized format string in its definition.
 
-Auch Parameter eines solchen Wrappers können verwendet werden:
+Parameters of such a wrapper can also be used:
 
 ```c
 #define LOG_JOB(jobId) trice("info:job:progress\n")
@@ -6703,195 +6701,195 @@ void worker(void) {
 }
 ```
 
-Mit `insert -ce 'job:", job={job}", jobId'` wird `jobId` direkt in die Definition eingesetzt und bei der Makroexpansion durch `17` ersetzt. Die normalen Makroregeln gelten unverändert; insbesondere sind Argumente mit voneinander abhängigen Seiteneffekten zu vermeiden.
+With `insert -ce 'job:", job={job}", jobId'`, `jobId` is inserted directly into the definition and replaced with `17` during macro expansion. Normal macro rules remain unchanged; in particular, avoid arguments with mutually dependent side effects.
 
-Das setzt einen vom Trice-Parser erkennbaren Aufruf mit bekanntem Formatstring voraus. Aus einer Definition wie `#define LOG_ANY(format) trice(format)` lässt sich dagegen kein statischer Selektor und kein vollständiges Schema ablesen. CE ist kein allgemeiner C-Präprozessor und verspricht keine Unterstützung beliebiger per Makro zusammengesetzter Formate. Ein expliziter Trice-Aufruf oder eine Funktion mit festem Format und übergebenen Werten bleibt die einfache Alternative.
+This requires a call with a known format string that the Trice parser can recognize. A definition such as `#define LOG_ANY(format) trice(format)` provides neither a static selector nor a complete schema. CE is not a general C preprocessor and does not promise support for arbitrary macro-assembled formats. An explicit Trice call or a function with a fixed format and passed values remains a simple alternative.
 
-| Logform | `bind -ce` | `insert/clean -ce` |
-| --- | --- | --- |
-| Direkter eindeutig zuordenbarer Aufruf, auch in einer Inline-Funktion | Unterstützt | Unterstützt |
-| Mehrere direkte Aufrufe auf derselben Zeile | Bei Auswahl durch CE abgewiesen | Erkennbare Aufrufe werden einzeln erweitert |
-| Wrapperdefinition mit statischem Trice-Format | Bei Auswahl durch CE weiterhin abgewiesen | Die erkannte Definition wird erweitert und wiederhergestellt |
-| Lokaler Name fehlt an der tatsächlichen Expansion | Compilerfehler | Compilerfehler |
-| String-/Pufferrecord mit zusätzlichen skalaren CE-Argumenten | Fehler vor Veröffentlichung | Fehler vor Veröffentlichung |
+| Log form | `bind -ce` | `insert/clean -ce` |
+|---|---|---|
+| Direct, uniquely addressable call, including in an inline function | Supported | Supported |
+| Multiple direct calls on the same line | Rejected when selected by CE | Recognizable calls are extended individually |
+| Wrapper definition with a static Trice format | Still rejected when selected by CE | The recognized definition is extended and restored |
+| Local name missing at the actual expansion | Compiler error | Compiler error |
+| String/buffer record with additional scalar CE arguments | Error before publication | Error before publication |
 
-**Warum die Bind-Grenze trotz erfolgreichem PoC bleibt:** Beim bestehenden Counter-Rebase gelangten Ausdrücke verschiedener Logstellen in mehrere C-Verzweigungen. Der Compiler prüft auch den nicht ausgeführten Zweig. Eine nur links gültige lokale Variable kann daher rechts einen künstlichen Fehler auslösen. Der erweiterte PoC wählt den Adapter bereits während der Makroexpansion und vermeidet diesen Fehler für die geprüften Fälle. Dafür benötigt er einen zusätzlichen Vorlauf mit dem konkreten Compiler pro Übersetzungseinheit und Build-Konfiguration sowie passende erzeugte Zuordnungsdateien.
+**Why the Bind limitation remains despite a successful PoC:** Existing counter rebasing placed expressions from different log sites into multiple C branches. The compiler checks even branches that are not executed. A local variable valid only on the left can therefore cause an artificial error on the right. The extended PoC selects the adapter during macro expansion and avoids this error for the tested cases. It requires an additional preprocessing pass with the actual compiler per translation unit and build configuration, plus matching generated mapping files.
 
-Dieser Build-Aufwand wurde nicht als produktiver Workflow eingeführt. Außerdem ist `__COUNTER__` keine überall verfügbare Compilereigenschaft und kein Laufzeit- oder Cycle-Counter. Selbst global sichtbare CE-Werte führen deshalb nicht zu einer gesonderten Freischaltung komplexer Bind-Stellen. Die einheitliche Grenze lässt sich einfach erklären und bereits bei Bind abweisen. `insert/clean -ce` benötigt diese Zuordnung und diesen Vorlauf nicht. Die genauen Nachweise, Kosten und offenen Punkte stehen im [kapitelinternen PoC-Anhang](#anhang-ce-machbarkeitsnachweise).
+This build effort has not been introduced as a production workflow. Also, `__COUNTER__` is not available in every compiler and is neither a runtime counter nor a cycle counter. Even globally visible CE values therefore do not separately enable complex Bind sites. The uniform limitation is easy to explain and reject during Bind. `insert/clean -ce` requires neither this mapping nor this preliminary pass. Exact evidence, costs and open questions appear in the [PoC appendix within this chapter](#appendix-ce-feasibility-proofs).
 
-### 33.8. <a id="prüfumfang"></a>Prüfumfang
+### 33.8. <a id="test-coverage"></a>Test Coverage
 
-Die [Regel- und Bind-Tests](../internal/id/contextEnrichment_test.go) prüfen Selektoren, Aliase, Reihenfolge, ungültige Regeln, Grenzen, stabile IDs, Konfigurationswechsel, das Feldregister sowie unveränderte Dateien bei Ablehnungen und Schreibfehlern. Die [Insert-/Clean-Tests](../internal/id/contextSource_test.go) ergänzen vollständige und teilweise Matches, die Position von Format- und Argumentsuffix, mehrteilige Regelgruppen, Newlines, Wiederholungen, handgeschriebene Felder, Kommentare, verschobene Aufrufe, Ausschlüsse und Rücknahme nach Schreibfehlern. Die [CLI- und Target-Tests](../internal/args/context_enrichment_test.go) führen beide öffentlichen Wege über `generate -logC` und echte Target-Records bis zur Text-/JSON-/KV-Ausgabe aus.
+The [rule and Bind tests](../internal/id/contextEnrichment_test.go) check selectors, aliases, order, invalid rules, limits, stable IDs, configuration changes, the field registry and unchanged files after rejection or write errors. The [Insert/Clean tests](../internal/id/contextSource_test.go) additionally cover complete and partial matches, format and argument suffix positions, multi-part rule groups, newlines, repetition, handwritten fields, comments, moved calls, exclusions and rollback after write errors. The [CLI and target tests](../internal/args/context_enrichment_test.go) exercise both public workflows through `generate -logC` and actual target records to text/JSON/KV output.
 
-Der produktive Target-Nachweis umfasst Clang in C11 und C++17, `clangd` mit realer Compile-Konfiguration, 8/16/32/64-Bit-Werte, verschiedene Stempeltypen und Builds ohne `__COUNTER__`. Er prüft getrennte lokale Sichtbarkeitsbereiche, einmalige Auswertung, `TRICE_OFF`, `TRICE_CLEAN` und verständliche Compiler-/Editorfehler bei fehlenden Bezeichnern. Insert prüft zusätzlich zwei Logstellen in getrennten lokalen Blöcken derselben Wrapperzeile und deren vollständige Rücknahme. Die Editorprüfung schließt lediglich clangds Refactoring-Aktion `SwapBinaryOperands` aus: Clangd 21 schlägt dafür innerhalb eines expliziten `Id(...)` überlappende Textänderungen vor. Compilerdiagnosen und Fehler bei fehlenden Bezeichnern bleiben geprüft. Weitere Compiler werden getrennt im PoC-Anhang eingeordnet.
+Evidence for the production implementation covers Clang in C11 and C++17, `clangd` with a real compile configuration, 8/16/32/64-bit values, different stamp types and builds without `__COUNTER__`. It checks separate local scopes, once-only evaluation, `TRICE_OFF`, `TRICE_CLEAN` and understandable compiler/editor errors for missing identifiers. Insert additionally tests two log sites in separate local blocks on the same wrapper line and their complete removal. The editor check excludes only clangd's `SwapBinaryOperands` refactoring action: Clangd 21 proposes overlapping edits within an explicit `Id(...)` for this action. Compiler diagnostics and missing-identifier errors remain checked. Other compilers are assessed separately in the PoC appendix.
 
-Die gezielte Abnahme lässt sich im Repository-Root wiederholen:
+Repeat the focused acceptance tests from the repository root:
 
 ```sh
 TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment|TestInsertCleanContext|TestSourceContext|TestContextInsertClean)' -count=1
 ```
 
-### 33.9. <a id="anhang-ce-machbarkeitsnachweise"></a>Anhang: CE-Machbarkeitsnachweise
+### 33.9. <a id="appendix-ce-feasibility-proofs"></a>Appendix: CE Feasibility Proofs
 
-Stand: 27. September 2026. Der isolierte A9-Nachweis für direkte Bind-Logstellen ist bestanden. Er liegt in [context_enrichment_poc_test.go](../internal/id/context_enrichment_poc_test.go). Die darauf aufbauende produktive Option `trice bind -ce` ist inzwischen mit A10 implementiert; ihre Bedienung und Abnahme stehen im [User Manual](#trice-context-enrichment). Dieser Anhang enthält außerdem die ursprüngliche Rebase-Gegenprobe und den neuen [PoC für Wrappermakros und Counter-Rebase](#erweiterter-poc-für-wrappermakros-und-counter-rebase). Letzterer ist eine Entscheidungsgrundlage und aktiviert keine zusätzliche produktive CE-Unterstützung.
+As of 27 September 2026, the isolated proof for direct Bind log sites passes. It is in [context_enrichment_poc_test.go](../internal/id/context_enrichment_poc_test.go). The production option `trice bind -ce` has since been implemented on this foundation; usage and acceptance are described in [this chapter](#trice-context-enrichment). This appendix also contains the original rebase counterexample and the [extended PoC for wrapper macros and counter rebasing](#extended-poc-for-wrapper-macros-and-counter-rebasing). The latter informs a future decision and enables no additional production CE support.
 
-#### 33.9.1. <a id="geprüfter-mechanismus"></a>Geprüfter Mechanismus
+#### 33.9.1. <a id="mechanism-under-test"></a>Mechanism Under Test
 
-Der bestehende Bind-Deskriptor enthält neben der ID ein anzuwendendes Makro. Der PoC verwendet an ausgewählten Logstellen ein generiertes Adaptermakro, das die ursprünglichen Argumente übernimmt und die Context-Ausdrücke anhängt. Diese Ausdrücke werden erst bei der Expansion des ursprünglichen Trice-Aufrufs ausgewertet und haben dort Zugriff auf lokale Variablen.
+The existing Bind descriptor contains both the ID and a macro to apply. At selected log sites, the PoC uses a generated adapter macro that accepts the original arguments and appends the context expressions. These expressions are evaluated only during expansion of the original Trice call, where they can access local variables.
 
-Für eine ursprünglich argumentlose Logstelle entspricht der Adapter beispielsweise:
+For an originally argument-free log site, the adapter is equivalent to:
 
 ```c
 #define TRICE_CE_POC_SITE(ignoredImplementation, tid, format) \
     TRICE_INSERT_trice(tid, format, (x))
 ```
 
-Bei vorhandenen Argumenten erhält das Adaptermakro passende zusätzliche Parameter. Jeder wird genau einmal in den endgültigen Aufruf übernommen. Generische Trice-Makros bestimmen ihre Arity aus der erweiterten Argumentliste. Bei festen Arity-Makros wählt der Adapter die passende Implementierung, beispielsweise `TRICE_INSERT_trice_1` für eine erweiterte `trice_0`-Logstelle.
+For calls with existing arguments, the adapter macro receives appropriate additional parameters. Each appears exactly once in the final call. Generic Trice macros determine arity from the extended argument list. For fixed-arity macros, the adapter selects the appropriate implementation, for example `TRICE_INSERT_trice_1` for an extended `trice_0` site.
 
-Der Test erzeugt den erweiterten Template-String und die zusätzlichen Argumente zunächst ausschließlich in einer privaten In-Memory-Sourceansicht. Auf dieser Ansicht läuft der vorhandene `SubCmdIdBind` mit dem normalen Structured-Logging-Parser und der normalen ID-Vergabe. Damit wird die ID aus dem endgültigen Schema bestimmt. Der Compiler sieht dagegen weiterhin den unveränderten User-Source und das erzeugte Sidecar mit den Adaptermakros. Das ist ein Testadapter für den Architekturbeweis, noch keine produktive CE-Integration.
+The test first creates the extended template string and additional arguments solely in a private in-memory source view. Existing `SubCmdIdBind` runs on that view with the normal Structured Logging parser and ID assignment. The ID is therefore determined from the final schema. The compiler still sees unchanged user source and the generated sidecar with adapter macros. This is a test adapter for proving the architecture, not the production CE integration.
 
-Die Fixture enthält bereits das reguläre Bind-Sidecar-Include und einen festen File-Key. Der Test prüft deshalb die durch CE geforderte Source-Unveränderlichkeit unabhängig von der erstmaligen Einrichtung eines Bind-Projekts.
+The fixture already contains the regular Bind sidecar include and a fixed file key. The test therefore checks the source preservation required by CE independently of initial Bind project setup.
 
-#### 33.9.2. <a id="nachgewiesenes-verhalten"></a>Nachgewiesenes Verhalten
+#### 33.9.2. <a id="verified-behavior"></a>Verified Behavior
 
-| Fall | Erwartetes Ergebnis | Nachweis |
-| --- | --- | --- |
-| Argumentloses `trice` | Lokales `x` wird als zusätzlicher Wert übertragen | Binärrecord enthält `7` |
-| Bereits parametrisiertes `trice` | Originalwert steht vor dem CE-Wert | Binärrecord enthält `1, 1` |
-| Einfacher Ausdruck | `x + 1` wird am Aufrufort ausgewertet | Binärrecord enthält `8` |
-| Feste Arity | `trice_0` und `trice_1` erhalten die passende endgültige Arity | Binärrecords enthalten `7` bzw. `22, 7` |
-| Innerer Block-Scope | Nur dort sichtbares `blockValue` wird verwendet | Binärrecord enthält `11` |
-| Unselektierte Logstelle | Keine zusätzlichen Werte | Binärrecord bleibt argumentlos |
-| Seiteneffekte | Originalausdruck und CE-Ausdruck werden jeweils genau einmal ausgewertet | Zwei getrennte Laufzeitzähler stehen auf `1` |
-| Nicht ausgeführter Aufruf | Kein Record und kein CE-Seiteneffekt | Sieben Records trotz acht instrumentierter Logstellen; CE-Zähler bleibt auf `1` |
-| TIL-Konsistenz | Finale Templates, Arity, IDs und Nutzdaten passen zusammen | Explizite Template-Erwartungen und echter Trice-Record-Parser/Resolver |
-| Wiederholung | Identische IDs und generierte Inhalte | Bytevergleich von Source, Konfiguration, TIL, LI, Sidecar und Feldregister nach zwei PoC-Bind-Läufen |
-| Ungültiger Context | Ein nicht sichtbarer Bezeichner wird diagnostiziert | Compiler und `clangd` weisen `ceMissingLocal` ab |
+| Case | Expected result | Evidence |
+|---|---|---|
+| Argument-free `trice` | Local `x` is transmitted as an additional value | Binary record contains `7` |
+| Already parameterized `trice` | Original value precedes CE value | Binary record contains `1, 1` |
+| Simple expression | `x + 1` is evaluated at the call site | Binary record contains `8` |
+| Fixed arity | `trice_0` and `trice_1` receive the appropriate final arity | Binary records contain `7` and `22, 7` respectively |
+| Inner block scope | Uses `blockValue`, visible only there | Binary record contains `11` |
+| Unselected log site | No additional values | Binary record remains argument-free |
+| Side effects | Original and CE expressions are each evaluated exactly once | Two separate runtime counters equal `1` |
+| Unexecuted call | No record or CE side effect | Seven records despite eight instrumented sites; CE counter remains `1` |
+| TIL consistency | Final templates, arity, IDs and payload agree | Explicit template expectations and the actual Trice record parser/resolver |
+| Repetition | Identical IDs and generated contents | Byte comparison of source, configuration, TIL, LI, sidecar and field registry after two PoC Bind runs |
+| Invalid context | An invisible identifier is diagnosed | Compiler and `clangd` reject `ceMissingLocal` |
 
-Der Laufzeittest verwendet die tatsächlichen Target-Makros und die Trice-Bibliothek. Der Auxiliary-Ausgang liefert die erzeugten Binärrecords an `TriceParseRecord`; `TriceResolveLog` prüft sie gegen eine aus der endgültigen TIL erzeugte C-Metadatentabelle. Damit wird auch eine falsche Payload-Länge oder Parameterzahl erkannt. Die C-Tabelle wird im PoC direkt aus der TIL erzeugt; der öffentliche `generate -logC`-Workflow ist dabei nicht geprüft.
+The runtime test uses the actual target macros and Trice library. Auxiliary output delivers the generated binary records to `TriceParseRecord`; `TriceResolveLog` checks them against a C metadata table generated from the final TIL. This also detects incorrect payload lengths or parameter counts. The PoC generates that C table directly from TIL; it does not test the public `generate -logC` workflow.
 
-#### 33.9.3. <a id="compiler-und-editor-diagnosen"></a>Compiler und Editor-Diagnosen
+#### 33.9.3. <a id="compiler-and-editor-diagnostics"></a>Compiler and Editor Diagnostics
 
-Der Test kompiliert und startet dieselbe Fixture als C11 und C++17 mit `-Wall -Wextra -Werror`. Die Bibliotheksquellen werden als C übersetzt. Für beide Sprachmodi wird eine `compile_commands.json` mit den tatsächlichen Compilerargumenten erzeugt. `clangd --check` muss diese Datenbank laden und ohne Fehler abschließen. Der Negativtest zeigt zusätzlich, dass fehlende Context-Bezeichner weiterhin sichtbar diagnostiziert werden.
+The test compiles and runs the same fixture as C11 and C++17 with `-Wall -Wextra -Werror`. Library sources are compiled as C. For both language modes, it creates a `compile_commands.json` with the actual compiler arguments. `clangd --check` must load this database and complete without errors. The negative test additionally demonstrates that missing context identifiers remain visibly diagnosed.
 
-Geprüfte Umgebung: macOS auf ARM64, Apple Clang/Clang++ 21.0.0 und Apple clangd 21.0.0. Beide Sprachmodi und die negativen Diagnoseprüfungen bestanden. Dies belegt den Language-Server-Pfad für clangd-basierte Editoren mit dem generierten Include-Verzeichnis und der realen Compile-Konfiguration. Andere Language-Server, IDE-eigene Parser, GCC und MSVC wurden in diesem A9-Lauf nicht geprüft.
+Tested environment: macOS on ARM64, Apple Clang/Clang++ 21.0.0 and Apple clangd 21.0.0. Both language modes and negative diagnostic checks passed. This demonstrates the language-server path for clangd-based editors with the generated include directory and real compile configuration. Other language servers, IDE-specific parsers, GCC and MSVC were not tested in this direct-site proof.
 
-#### 33.9.4. <a id="reproduzieren"></a>Reproduzieren
+#### 33.9.4. <a id="reproducing-the-direct-site-proof"></a>Reproducing the Direct-Site Proof
 
-Im Repository-Root ausführen:
+Run from the repository root:
 
 ```sh
 TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentPoC$' -count=1 -v
 ```
 
-Erforderlich sind ein GCC-/Clang-kompatibler C- und C++-Compiler sowie `clangd` im `PATH`. Der gezielte Test verlangt diese Werkzeuge ausdrücklich. Ohne `TRICE_BIND_INTEGRATION=1` wird er übersprungen. Alle Fixtures und Build-Artefakte entstehen in einem temporären Testverzeichnis und werden anschließend entfernt. Die bestehenden Repository-Workflows werden nicht verändert.
+A GCC-/Clang-compatible C and C++ compiler and `clangd` must be in `PATH`. The focused test explicitly requires these tools. Without `TRICE_BIND_INTEGRATION=1`, it is skipped. All fixtures and build artifacts are created in a temporary test directory and removed afterwards. Existing repository workflows are not modified.
 
-#### 33.9.5. <a id="abgrenzung-zu-a10"></a>Abgrenzung zu A10
+#### 33.9.5. <a id="relationship-to-production-support"></a>Relationship to Production Support
 
-Der Nachweis erfüllt die Mindestfälle aus dem [CE-Kapitel](#trice-context-enrichment). Er prüft direkte skalare 32-Bit-Logstellen mit einer Logstelle pro physischer Zeile und dem `iD`-Stempeltyp. Die PoC-Regeln sind feste Testdaten; der A9-Test enthält keinen CLI-Parser, keine vollständige Selektor-/Alias-Policy und keine produktive Fehlervalidierung.
+The proof covers the minimum cases from the [CE chapter](#trice-context-enrichment). It checks direct scalar 32-bit log sites with one site per physical line and the `iD` stamp type. PoC rules are fixed test data; the direct-site proof contains no CLI parser, complete selector/alias policy or production error validation.
 
-A10 bindet die Transformation vor der produktiven Schema-/ID-Vergabe ein und erzeugt die Sidecar-Erweiterung dauerhaft. Die erste Ausbaustufe bleibt auf direkte, eindeutig über ihre Quellzeile adressierbare Logstellen begrenzt. Die zusätzlichen [Bind-Verhaltenstests](../internal/id/contextEnrichment_test.go) und [CLI-/Target-Tests](../internal/args/context_enrichment_test.go) prüfen die breitere Abnahme getrennt vom A9-PoC: 8/16/32/64 Bit, verschiedene Stempeltypen, `TRICE_OFF`/`TRICE_CLEAN`, Regelkonflikte, Konfigurationswechsel, Mehrzeiler, Inline-Funktionen und echte Compiler-/Editorläufe ohne `__COUNTER__`. Vier Beispiele werden aus `triceCheck.c` übernommen; insgesamt vierzehn Records durchlaufen den öffentlichen `generate -logC`-Resolver und den Go-Decoder für Text, JSON und KV. CE für Wrappermakros und Counter-Rebase bleibt eine eigene Folgeaufgabe.
+The production implementation applies the transformation before schema/ID assignment and generates the sidecar extension persistently. Its first stage remains limited to direct sites uniquely addressable by source line. Additional [Bind behavior tests](../internal/id/contextEnrichment_test.go) and [CLI/target tests](../internal/args/context_enrichment_test.go) check broader acceptance separately from the direct-site PoC: 8/16/32/64 bits, different stamp types, `TRICE_OFF`/`TRICE_CLEAN`, rule conflicts, configuration changes, multiline calls, inline functions and real compiler/editor runs without `__COUNTER__`. Four examples come from `triceCheck.c`; fourteen records in total pass through the public `generate -logC` resolver and Go decoder for text, JSON and KV. CE for wrapper macros and counter rebasing remains a separate follow-up task.
 
-Damit ist der direkte Mechanismus nicht mehr nur ein PoC. Die weiterhin offenen Varianten bleiben im [Arbeitsplan](./scratchPad/Implementierungsplan.md) abgegrenzt.
+The direct mechanism is therefore no longer merely a PoC. The variants still open remain separated in the [work plan](./scratchPad/Implementierungsplan.md).
 
-#### 33.9.6. <a id="ergänzende-rebase-gegenprobe-vor-a10"></a>Ergänzende Rebase-Gegenprobe vor A10
+#### 33.9.6. <a id="counterexample-for-the-original-rebase-approach"></a>Counterexample for the Original Rebase Approach
 
-Am 27. September 2026 wurde die direkte Übertragung des Adapteransatzes auf Counter-Rebase geprüft. Der zusätzliche Test `TestContextEnrichmentPoCRebaseScopeBoundary` zeigt eine Grenze: Zwei von Bind unterstützte Logstellen auf derselben Sourcezeile liegen in getrennten Blöcken und verwenden jeweils eine nur dort sichtbare Variable. Der normale Bind-Build besteht. Werden die beiden CE-Ausdrücke in die jeweiligen Zweige des generierten Rebase-Dispatchers eingefügt, scheitert die Übersetzung an den Variablennamen des jeweils anderen Scopes.
+On 27 September 2026, direct transfer of the adapter approach to counter rebasing was tested. The additional `TestContextEnrichmentPoCRebaseScopeBoundary` test shows a limitation: two log sites supported by Bind, on the same source line, occupy separate blocks and each use a variable visible only in that block. The normal Bind build passes. Inserting both CE expressions into their respective branches of the generated rebase dispatcher makes compilation fail on names belonging to the other scope.
 
-Der Grund ist die C-seitige Ordinalauswahl: Auch ein zur Laufzeit nicht gewählter `if`-Zweig wird vom Compiler auf gültige Bezeichner geprüft. Die betroffenen Ausdrücke sind an ihrer vorgesehenen Logstelle gültig. Der Fehler wäre deshalb eine unzulässige zusätzliche Scope-Anforderung der Instrumentierung. Der Test erwartet und belegt genau diese fehlgeschlagene Erweiterung; er ist keine bestandene CE-Rebase-Abnahme.
+The reason is ordinal selection in C: even an `if` branch not selected at runtime is checked by the compiler for valid identifiers. The affected expressions are valid at their intended log sites. The error would therefore be an invalid additional scope requirement imposed by instrumentation. The test expects and demonstrates precisely this failed extension; it is not a successful CE rebase acceptance test.
 
-Der direkte A9-Nachweis bleibt gültig. Das bloße Anhängen von CE-Argumenten an Rebase-Zweige genügt für eine allgemeine CE-Unterstützung jedoch nicht. Am 27. September wurde deshalb die erste Ausbaustufe auf direkte, eindeutig über ihre Quellzeile adressierbare Bind-Logstellen begrenzt. A10 weist ausgewählte Wrapper-/Rebase-Stellen vor Dateiänderungen ab und verweist mit `Search UM for "bind-limits".` auf die verständliche Erklärung im User Manual. Ohne passende CE-Regel bleiben die bisherigen Bind-Fähigkeiten erhalten. Der zusätzliche Architektur-Nachweis für komplexe CE-Stellen ist eine zurückgestellte Folgeaufgabe; diese Gegenprobe allein belegt keine grundsätzliche Unmöglichkeit einer späteren Lösung.
+The direct-site proof remains valid. Simply appending CE arguments to rebase branches is insufficient for general CE support, however. On 27 September, the first implementation stage was therefore limited to direct Bind sites uniquely addressable by source line. Production CE rejects selected wrapper/rebase sites before modifying files and points to the explanation in the User Manual with `Search UM for "bind-limits".` Without a matching CE rule, existing Bind capabilities remain available. The additional architecture proof for complex CE sites was deferred; this counterexample alone does not establish that a later solution is impossible.
 
-Die Gegenprobe ist separat reproduzierbar:
+The counterexample can be reproduced separately:
 
 ```sh
 TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentPoCRebaseScopeBoundary$' -count=1 -v
 ```
 
-#### 33.9.7. <a id="erweiterter-poc-für-wrappermakros-und-counter-rebase"></a>Erweiterter PoC für Wrappermakros und Counter-Rebase
+#### 33.9.7. <a id="extended-poc-for-wrapper-macros-and-counter-rebasing"></a>Extended PoC for Wrapper Macros and Counter Rebasing
 
-**Ergebnis:** Eine Auswahl des CE-Adapters bereits im Präprozessor beseitigt das nachgewiesene Problem fremder lokaler Variablen. Der neue Test [context_enrichment_rebase_poc_test.go](../internal/id/context_enrichment_rebase_poc_test.go) weist einen funktionierenden Ansatz mit einem zusätzlichen Compiler-Vorlauf nach. Er enthält außerdem einen einfacheren Sonderfall: Ein Wrapper mit genau einer Logstelle kann bei eindeutiger Zeilenzuordnung ohne diesen Vorlauf und ohne `__COUNTER__` angereichert werden. Beides bleibt Testcode; `bind -ce` weist die bisher ausgeschlossenen Konstrukte weiterhin ab.
+**Result:** Selecting the CE adapter in the preprocessor eliminates the demonstrated problem with local variables from other scopes. The new [context_enrichment_rebase_poc_test.go](../internal/id/context_enrichment_rebase_poc_test.go) test demonstrates a working approach with an additional compiler preprocessing pass. It also contains a simpler special case: a wrapper with exactly one log site can be enriched without this pass and without `__COUNTER__` if its line mapping is unambiguous. Both remain test code; `bind -ce` still rejects the previously excluded constructs.
 
-##### Wie der untersuchte Ansatz arbeitet
+##### How the Investigated Approach Works
 
-Bei der bisherigen C-Verzweigung gelangen die Ausdrücke aller möglichen Logstellen zum Compiler. Im neuen PoC wählt dagegen die Makroexpansion genau einen Adapter aus. Nur dessen Ausdrücke erscheinen im endgültigen C-/C++-Code. Dadurch kann etwa ein Wrapper in seinem linken Zweig eine Variable `branchLeft` und in seinem rechten Zweig eine andere Variable `branchRight` verwenden, ohne dass einer dieser Namen im jeweils anderen Block existieren muss.
+With the existing C branching, expressions from all possible log sites reach the compiler. In the new PoC, macro expansion selects exactly one adapter. Only that adapter's expressions appear in the final C/C++ code. A wrapper can therefore use `branchLeft` in its left branch and `branchRight` in its right branch without either name needing to exist in the other block.
 
-Die Zuordnung benötigt einen Wert, den der Präprozessor direkt als Teil eines Makronamens verwenden kann. Die bestehende relative Rechnung aus `__COUNTER__` und einer C-Enum-Konstante eignet sich dafür nicht. Der PoC ermittelt deshalb die tatsächlichen absoluten Counter-Werte mit dem jeweils verwendeten Compiler:
+The mapping requires a value that the preprocessor can use directly as part of a macro name. The existing relative calculation from `__COUNTER__` and a C enum constant is unsuitable. The PoC therefore determines actual absolute counter values with the compiler being used:
 
-1. Der bestehende Bind-Mechanismus richtet die temporären Testquellen regulär ein. Eine private Sourceansicht erhält die CE-Erweiterungen und durchläuft die vorhandene Schema-/ID-Vergabe. Der tatsächlich kompilierte User-Source behält seine ursprünglichen Trice-Aufrufe und Wrapperdefinitionen.
-2. Der Compiler verarbeitet diese Quellen mit den tatsächlichen Sprach-, Target- und Präprozessoroptionen vor. Eine nur für den Test eingebundene Datei lässt für jede Rebase-Expansion eine Markierung mit Region und Counter-Wert erscheinen.
-3. Der Test ordnet diese Markierungen den numerischen Definition-/Location-Deskriptoren und der Expansionsreihenfolge aus dem erzeugten Bind-Sidecar zu. Er errät keine IDs aus Formatstrings. Daraus entsteht ein Header mit genau einem Makro pro tatsächlich beobachteter Expansion.
-4. Beim normalen Übersetzen wählt `__COUNTER__` dieses Makro aus. Es übergibt die bestehenden Argumente und ergänzt nur die zugehörigen CE-Ausdrücke. Die bestehenden Rebase-Endprüfungen bleiben aktiv. Eine zusätzliche Prüfung des Basiswertes weist eine verschobene Zuordnung zurück, auch wenn zufällig noch ein anderer gültiger Eintrag getroffen würde.
+1. Existing Bind sets up the temporary test sources normally. A private source view receives CE extensions and goes through existing schema/ID assignment. The user source actually compiled retains its original Trice calls and wrapper definitions.
+2. The compiler preprocesses these sources with the actual language, target and preprocessor options. A file included only for the test emits a marker with the region and counter value for each rebase expansion.
+3. The test maps these markers to numeric definition/location descriptors and expansion order from the generated Bind sidecar. It does not guess IDs from format strings. This produces a header with exactly one macro per observed expansion.
+4. During normal compilation, `__COUNTER__` selects this macro. It passes existing arguments and adds only the associated CE expressions. Existing rebase end checks remain active. An additional base-value check rejects a shifted mapping even if it would happen to hit another valid entry.
 
-Dieser Vorlauf ist pro Übersetzungseinheit und konkreter Build-Konfiguration erforderlich. Eine Übersetzungseinheit ist hier beispielsweise eine `.c`- oder `.cpp`-Datei einschließlich ihrer eingebundenen Header. Derselbe gemeinsam verwendete Wrapper kann deshalb für verschiedene Übersetzungseinheiten unterschiedliche Counter-Zuordnungen benötigen, während seine logischen IDs gleich bleiben.
+This preliminary pass is required per translation unit and concrete build configuration. Here, a translation unit is, for example, a `.c` or `.cpp` file together with its included headers. The same shared wrapper may therefore need different counter mappings for different translation units while retaining the same logical IDs.
 
-##### Nachgewiesene Fälle
+##### Verified Cases
 
-| Fall | Geprüftes Ergebnis |
-| --- | --- |
-| Einfacher Wrapper mit einer Logstelle | CE am Aufrufort funktioniert auch mit entferntem `__COUNTER__`; ein normaler Zeilendeskriptor genügt. |
-| Wrapper mit zwei Logstellen | Ursprüngliche Werte stehen vor den jeweiligen CE-Werten; generische und feste Arity funktionieren. |
-| Wiederholte Wrapper-Aufrufe | Dieselben logischen IDs übertragen unterschiedliche lokale Context-Werte ihrer Aufrufer. |
-| Wrapper mit getrennten Zweigen | `branchLeft` und `branchRight` bleiben jeweils auf ihren eigenen Block beschränkt. |
-| Zwei direkte Aufrufe auf derselben Zeile | Getrennte Blöcke mit `onlyLeft` und `onlyRight` funktionieren ohne fremde Scope-Anforderungen. |
-| Nicht ausgewählte Rebase-Stellen | Die bestehenden Records bleiben unverändert und ohne zusätzliche Werte. |
-| Seiteneffekte | Ursprünglicher Ausdruck und CE-Ausdruck werden je ausgeführtem Aufruf genau einmal ausgewertet. Ein nicht ausgeführter Wrapper-Aufruf bewirkt nichts. |
-| Tatsächliche Records | Elf ausgegebene Records werden durch die echte Target-Bibliothek erzeugt, gegen die finale C-TIL aufgelöst und auf IDs, Parameterzahl und sämtliche geordneten Werte geprüft. |
-| Wiederholung | Erneute private Bind-Generierung erhält Schema, IDs, Regionenzuordnung und Source. Derselbe Compiler-Vorlauf reproduziert denselben Zuordnungsheader. |
-| Fremde Counter-Verwendungen vor den Logstellen | Zusätzliche Verwendungen mit den Abständen 0, 1 und 7 ändern die Zuordnung, während IDs und erwartete Records gleich bleiben. |
-| Veralteter Zuordnungsheader | Ein normaler Build scheitert. Insbesondere wird auch eine Verschiebung um eins erkannt, die sonst auf einen benachbarten gültigen Adapter treffen könnte. |
-| Fehlender Context-Bezeichner | Compiler und die geprüften `clangd`-Varianten melden `cePocMissingLocal` als echten Fehler. |
-| Zusätzlicher Counter-Verbrauch im CE-Ausdruck | Wird abgewiesen; der untersuchte Vorlauf setzt einen Counter pro Rebase-Expansion voraus. |
-| `TRICE_OFF` und `TRICE_CLEAN` | Keine Records und keine Argument-/CE-Auswertung, auch ohne verfügbares `__COUNTER__`. |
-| Aktives Rebase ohne `__COUNTER__` | Klarer Buildfehler einschließlich `Search UM for "bind-limits".`. Der PoC behauptet für diesen Fall keine Lösung. |
+| Case | Verified result |
+|---|---|
+| Simple wrapper with one log site | CE at the call site works even with `__COUNTER__` removed; an ordinary line descriptor suffices. |
+| Wrapper with two log sites | Original values precede their CE values; generic and fixed arity work. |
+| Repeated wrapper calls | The same logical IDs transmit different local context values from their callers. |
+| Wrapper with separate branches | `branchLeft` and `branchRight` remain confined to their own blocks. |
+| Two direct calls on the same line | Separate blocks with `onlyLeft` and `onlyRight` work without imposing visibility requirements from other scopes. |
+| Unselected rebase sites | Existing records remain unchanged and have no additional values. |
+| Side effects | Original and CE expressions are each evaluated exactly once per executed call. An unexecuted wrapper call has no effect. |
+| Actual records | Eleven records are produced by the real target library, resolved against the final C TIL, and checked for IDs, parameter counts and all ordered values. |
+| Repetition | Repeated private Bind generation preserves schema, IDs, region mapping and source. The same compiler pass reproduces the same mapping header. |
+| Other counter uses before log sites | Additional uses at offsets 0, 1 and 7 change the mapping while IDs and expected records remain the same. |
+| Stale mapping header | A normal build fails. In particular, a shift by one is detected even when it could otherwise hit an adjacent valid adapter. |
+| Missing context identifier | The compiler and tested `clangd` variants report `cePocMissingLocal` as a real error. |
+| Additional counter consumption in a CE expression | Rejected; the investigated preliminary pass assumes one counter per rebase expansion. |
+| `TRICE_OFF` and `TRICE_CLEAN` | No records and no argument/CE evaluation, even without available `__COUNTER__`. |
+| Active rebase without `__COUNTER__` | Clear build error including `Search UM for "bind-limits".` The PoC claims no solution for this case. |
 
-Der Laufzeitnachweis verwendet skalare 32-Bit-Records mit `iD`. Er ersetzt nicht die breitere Bitbreiten-/Stempel-Abnahme von A10 und ist noch keine vollständige Abnahme sämtlicher denkbaren Wrapper.
+The runtime proof uses scalar 32-bit records with `iD`. It does not replace the broader bit-width/stamp acceptance of production CE and is not complete acceptance of every conceivable wrapper.
 
-##### Compiler-Matrix und Aussagegrenzen
+##### Compiler Matrix and Evidence Limits
 
-Am 27. September 2026 wurden folgende installierte Werkzeugvarianten geprüft:
+On 27 September 2026, the following installed tool variants were tested:
 
-| Werkzeug und Ziel | Sprachmodi | Nachweis |
-| --- | --- | --- |
-| Apple Clang/Clang++ 21.0.0, macOS ARM64 | C99, C11, C17, C++11, C++17 | Vorverarbeitung, Kompilierung mit `-Wall -Wextra -Werror`, Linken und tatsächliche Programmausführung bestanden. |
-| ARM GNU Toolchain 13.3.Rel1, GCC/G++ 13.3.1, Cortex-M0/Thumb | C99, C11, C17, C++11, C++17 | Vorverarbeitung und Erzeugung echter ARM-Objektdateien mit `-Wall -Wextra -Werror` bestanden; keine Ausführung auf MCU oder Emulator. |
-| Dieselbe ARM-GCC-Version, Cortex-M4/Thumb | C99, C11, C17, C++11, C++17 | Vorverarbeitung und Erzeugung echter ARM-Objektdateien bestanden; keine Target-Laufzeitaussage. |
-| Alle drei Konfigurationen | C++20 | Der bestehende Bind-Code scheitert bereits ohne experimentelles CE an einer mit `-Werror` eskalierten Enum-Warnung. Mit ausschließlich dieser Warnung auf Warnungsstatus zurückgesetzt besteht der CE-PoC; Clang einschließlich Laufzeit, ARM-GCC als Objekt-Build. |
-| Apple clangd 21.0.0 | Host-C11 und Host-C++17 | Reale `compile_commands.json` einschließlich des experimentellen Headers wird geladen. Gültige Quellen sind fehlerfrei; der absichtlich fehlende Bezeichner wird diagnostiziert. |
+| Tool and target | Language modes | Evidence |
+|---|---|---|
+| Apple Clang/Clang++ 21.0.0, macOS ARM64 | C99, C11, C17, C++11, C++17 | Preprocessing, compilation with `-Wall -Wextra -Werror`, linking and actual program execution passed. |
+| ARM GNU Toolchain 13.3.Rel1, GCC/G++ 13.3.1, Cortex-M0/Thumb | C99, C11, C17, C++11, C++17 | Preprocessing and generation of real ARM object files with `-Wall -Wextra -Werror` passed; no execution on an MCU or emulator. |
+| Same ARM GCC version, Cortex-M4/Thumb | C99, C11, C17, C++11, C++17 | Preprocessing and generation of real ARM object files passed; no target runtime claim. |
+| All three configurations | C++20 | Existing Bind code fails even without experimental CE on an enum warning promoted by `-Werror`. With only that warning downgraded to warning status, the CE PoC passes; Clang includes runtime execution, ARM GCC produces object files. |
+| Apple clangd 21.0.0 | Host C11 and host C++17 | Loads a real `compile_commands.json` including the experimental header. Valid sources are error-free; the deliberately missing identifier is diagnosed. |
 
-Damit wurden 18 Kombinationen aus Toolchain/Target und Sprachmodus untersucht, jeweils mit drei Counter-Ausgangslagen sowie zusätzlichen Negativ- und Abschaltfällen. Die macOS-Kommandos `gcc`/`g++` sind in dieser Umgebung Clang-Aliase und werden ausdrücklich nicht als GCC-Nachweis gezählt. Der eigenständige GCC-Nachweis stammt vom ARM-Crosscompiler. Native GCC-Varianten werden bei Verfügbarkeit ebenfalls in die Testmatrix aufgenommen. MSVC, IAR, Arm Compiler/armclang und andere Language-Server wurden nicht geprüft; ihre Unterstützung ist daraus nicht ableitbar.
+This covers 18 combinations of toolchain/target and language mode, each with three initial counter states and additional negative and disabled-build cases. In this environment, the macOS `gcc`/`g++` commands are Clang aliases and explicitly do not count as GCC evidence. Independent GCC evidence comes from the ARM cross-compiler. Native GCC variants are also included in the test matrix when available. MSVC, IAR, Arm Compiler/armclang and other language servers were not tested; their support cannot be inferred from these results.
 
-Die C++20-Grenze stammt aus der bestehenden Rebase-Prüfung: Sie subtrahiert Werte verschiedener anonymer Enum-Typen. Der Test weist das zuerst mit gewöhnlichem Bind nach und verwendet danach nur `-Wno-error=deprecated-anon-enum-enum-conversion` bei Clang beziehungsweise `-Wno-error=deprecated-enum-enum-conversion` bei GCC. Das ist ausdrücklich kein erfolgreicher strenger C++20-Build. Der Produktcode wurde für den PoC nicht geändert. Bei der Simulation eines fehlenden `__COUNTER__` wird die Warnung über das Entfernen eines eingebauten Makros ebenfalls nicht als Fehler behandelt.
+The C++20 limitation comes from the existing rebase check: it subtracts values of different anonymous enum types. The test first demonstrates this with ordinary Bind, then uses only `-Wno-error=deprecated-anon-enum-enum-conversion` for Clang or `-Wno-error=deprecated-enum-enum-conversion` for GCC. This is explicitly not a successful strict C++20 build. Product code was not changed for the PoC. When simulating an unavailable `__COUNTER__`, the warning about undefining a built-in macro is also not treated as an error.
 
-##### Konsequenzen für eine mögliche Umsetzung
+##### Implications for a Possible Implementation
 
-**Die technische Scope-Hürde ist für die geprüften Fälle gelöst; der Preis dieses Ansatzes ist ein zusätzlicher compilerabhängiger Build-Schritt.** Eine produktive Entscheidung muss diesen Aufwand bewusst einschließen. Der PoC liefert noch keinen solchen Workflow und keine neue CLI-Option.
+**The scope obstacle is solved for the tested cases; the cost of this approach is an additional compiler-dependent build step.** A production decision must explicitly include this effort. The PoC provides neither such a workflow nor a new CLI option.
 
-Vor einer Umsetzung wären insbesondere folgende Punkte festzulegen oder nachzuweisen:
+Before implementation, the following points in particular would need decisions or evidence:
 
-- Einbindung des Vorlaufs in die unterstützten Build-Systeme, einschließlich derselben Defines, Include-Pfade, Sprachmodi und Target-Optionen wie beim eigentlichen Übersetzen.
-- Getrennte Zuordnungsartefakte pro Übersetzungseinheit und Konfiguration sowie verlässliche Neuerzeugung nach relevanten Änderungen. Die Counter-Prüfungen erkennen Verschiebungen, ersetzen aber keine vollständige Build-Abhängigkeitsprüfung oder einen Schutz gegen beliebig beschädigte Artefakte.
-- Verhalten bei Precompiled Headers, Modulen, zusätzlichen Counter-Verwendungen in Argumentmakros und weiteren Compilerfamilien. Der PoC macht dafür keine Zusage.
-- Falls strenge C++20-Builds zum Ziel gehören, eine gesonderte Korrektur und Abnahme der bestehenden Enum-Rebase-Prüfung.
-- Entscheidung, ob die einfachere Erweiterung für eindeutig zuordenbare Wrapper mit einer Logstelle zunächst unabhängig von allgemeinem CE-Rebase umgesetzt werden soll. Der PoC belegt diesen Fall ohne Counter-Vorlauf; die produktive Freischaltung bleibt ein eigener Auftrag.
+- Integrating the preliminary pass into supported build systems, with the same defines, include paths, language modes and target options as the actual compilation.
+- Separate mapping artifacts per translation unit and configuration, and reliable regeneration after relevant changes. Counter checks detect shifts but do not replace complete build dependency checking or protection against arbitrarily damaged artifacts.
+- Behavior with precompiled headers, modules, additional counter uses in argument macros and other compiler families. The PoC makes no guarantees for these.
+- If strict C++20 builds are a goal, a separate correction and acceptance of the existing enum rebase check.
+- Deciding whether the simpler extension for uniquely addressable wrappers with one log site should be implemented independently of general CE rebasing first. The PoC proves this case without a counter preprocessing pass; enabling it in production remains a separate task.
 
-Ein zweiter Compilerlauf ist damit eine nachgewiesene Möglichkeit, keine Behauptung, dass es keinen einfacheren Ansatz geben kann. Die erste direkte CE-Ausbaustufe bleibt unverändert. Dieser PoC untersucht keine Source-Transformation. Das inzwischen verfügbare `insert/clean -ce` ist separat implementiert und oben mit seinen eigenen Tests beschrieben.
+A second compiler pass is therefore a demonstrated possibility, not a claim that no simpler approach could exist. The initial direct-site CE stage remains unchanged. This PoC does not investigate source transformation. The now available `insert/clean -ce` is implemented separately and described above with its own tests.
 
-##### Den erweiterten PoC wiederholen
+##### Repeating the Extended PoC
 
-Im Repository-Root ausführen:
+Run from the repository root:
 
 ```sh
 TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentRebasePoC$' -count=1 -v
 ```
 
-Der Test erkennt installierte Clang-/GCC-C/C++-Toolchains und ARM-GCC selbst, meldet fehlende Werkzeuge und Compiler-Aliase und installiert nichts. Mindestens eine passende C/C++-Toolchain ist erforderlich. Ohne `TRICE_BIND_INTEGRATION=1` wird der Compiler-Test übersprungen. `clangd` wird bei Verfügbarkeit geprüft; ein fehlendes Werkzeug wird ausdrücklich gemeldet. Alle Source-Kopien, experimentellen Header und Build-Artefakte entstehen in temporären Testverzeichnissen. Produktive CLI, Target-Header und Build-Skripte bleiben unverändert.
+The test detects installed Clang/GCC C/C++ toolchains and ARM GCC itself, reports missing tools and compiler aliases, and installs nothing. At least one suitable C/C++ toolchain is required. Without `TRICE_BIND_INTEGRATION=1`, the compiler test is skipped. `clangd` is checked when available; a missing tool is explicitly reported. All source copies, experimental headers and build artifacts are created in temporary test directories. The production CLI, target headers and build scripts remain unchanged.
 
-### 33.10. <a id="ansatz-und-abgrenzung"></a>Ansatz und Abgrenzung
+### 33.10. <a id="approach-and-boundaries"></a>Approach and Boundaries
 
-CE ist eine optionale Build-Time-Instrumentierung: Regeln wählen Logstellen aus, deren Records zusätzliche Runtime-Werte enthalten. Es führt keinen allgemeinen, impliziten Context-Zustand ein. Es gibt daher weder Push/Pop-Aufrufe noch Task-lokalen Zustand oder Context-Handles, die bei Taskwechseln oder Interrupts gesondert verwaltet werden müssten.
+CE is optional build-time instrumentation: rules select log sites whose records contain additional runtime values. It introduces no general implicit context state. There are therefore no push/pop calls, task-local state or context handles requiring special management during task switches or interrupts.
 
-Andere Logging-Systeme bieten verwandte, aber anders aufgebaute Konzepte, etwa [Go `slog.Logger.With`](https://pkg.go.dev/log/slog), [Microsoft `ILogger.BeginScope`](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope), [Serilog `LogContext`](https://github.com/serilog/serilog/wiki/Enrichment) und [Rust `tracing` spans](https://docs.rs/tracing/latest/tracing/span/). Diese Referenzen beschreiben keine Trice-Abhängigkeiten oder Kompatibilitätszusagen.
+Other logging systems offer related but differently structured concepts, such as [Go `slog.Logger.With`](https://pkg.go.dev/log/slog), [Microsoft `ILogger.BeginScope`](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope), [Serilog `LogContext`](https://github.com/serilog/serilog/wiki/Enrichment) and [Rust `tracing` spans](https://docs.rs/tracing/latest/tracing/span/). These references imply no Trice dependencies or compatibility guarantees.
 
 ## 34. <a id="trice-without-uart"></a>Trice without UART
 
@@ -11678,9 +11676,9 @@ That implies a small Trice library extension, which gets active only with a `LOG
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 47.1. <a id="weitere-context-enrichment-varianten"></a>Weitere Context-Enrichment-Varianten
+### 47.1. <a id="further-context-enrichment-variants"></a>Further Context Enrichment Variants
 
-[Context Enrichment](#trice-context-enrichment) ist für direkte Bind-Logstellen und als reversible Source-Erweiterung für `insert/clean` implementiert. Für CE an Bind-Wrappermakros und Counter-Rebase liegt ein [erweiterter PoC](#erweiterter-poc-für-wrappermakros-und-counter-rebase) vor; dessen produktive Integration mit zusätzlichem Compiler-Vorlauf bleibt eine eigene Entscheidung und benötigt einen Implementierungsauftrag. Die verfügbaren Alternativen stehen unter [bind-limits](#bind-limits), die offenen Arbeiten im [Implementierungsplan](./scratchPad/Implementierungsplan.md).
+[Context Enrichment](#trice-context-enrichment) is implemented for direct Bind log sites and as a reversible source extension for `insert/clean`. An [extended PoC](#extended-poc-for-wrapper-macros-and-counter-rebasing) exists for CE in Bind wrapper macros and counter rebasing; integrating it into production with an additional compiler preprocessing pass remains a separate decision and requires an implementation task. Available alternatives are described under [bind-limits](#bind-limits); open work is recorded in the [implementation plan](./scratchPad/Implementierungsplan.md).
 
 
 <!--
@@ -13523,7 +13521,7 @@ The remaining draft, deferred tasks, and documentation status are recorded in th
 *) The TriceABC examples uses COBS framing and acts without encryption and it is not simple configurable because its main aim is to show just the TriceABC technique in action.
 
 
-*) Noch nicht machen - nur mit mir diskutieren.
+*) Do not implement yet; discuss with me first.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

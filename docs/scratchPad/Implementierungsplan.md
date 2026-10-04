@@ -49,13 +49,12 @@ Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehen
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R09, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 | Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | ---: | --- | --- |
 | R17 | Repo-Bestand und Dokumentationsziele je Datei prüfen | 4 | S–M | Lesende Bestandsprüfung; vor Löschungen/Verschiebungen |
 | R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04, R17 |
-| R11 | SL- und CE-Kapitel vollständig ins Englische übertragen | 5 | M–L | R02, R10 |
 | R18 | Bisheriges UM in TriceReferenceManual.md umbenennen und Pfade nachziehen | 4 | M | R10, R11, R17 |
 | R19 | Kurzes, einladendes User Manual erstellen | 4 | M | R18; Installationsentscheidung aus R05/R14 |
 | R12 | README und Repo-Orientierung einladend überarbeiten; Zusagen präzisieren | 4 | M | R05, R17, R18, R19 |
@@ -71,7 +70,7 @@ Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten 
 
 Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. Als nächster Dokumentationsschritt folgt R17; P02 kann anhand neuer Plattformmessungen priorisiert werden. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
 
-Die Dokumentationsarbeit kann parallel zu langen Tests beginnen: **R17 Bestandsprüfung → R10 Bereinigung → R11 Übersetzung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt zuerst, damit beim Verkürzen und Entfernen keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
+R11 wurde auf Benutzerwunsch für den zeitnahen Merge von `wip` nach `main` vorgezogen und ist abgeschlossen, einschließlich der eng begrenzten Bereinigung von Aufgabenbezeichnungen innerhalb der beiden Kapitel. Die übrige Dokumentationsarbeit folgt weiterhin **R17 Bestandsprüfung → R10 Bereinigung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt vor Löschungen und Verschiebungen, damit keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
 
 R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
 
@@ -91,25 +90,14 @@ Für jeden fraglichen Bestand festhalten: heutiger Zweck und Nutzer, aktive Refe
 
 **R10 · Gewicht 4 · Aufwand M · Befunde bestätigt**
 
-Im aktiven UM stehen MVP-Bezeichnungen sowohl im `-vis)-Kapitel als auch ausführlich im Bind-Kapitel. Der CE-Anhang enthält A9/A10 im Fließtext und in Überschriften. Das [separate deutsche Bind-Manual](../TriceBind/Trice_bind_90_MVP_User_Manual.md) und die dortige README präsentieren parallel eine weitere normative Anwendersicht.
+Im aktiven UM stehen MVP-Bezeichnungen sowohl im `-vis)-Kapitel als auch ausführlich im Bind-Kapitel. Die Aufgabenreste im CE-Anhang sind mit R11 bereinigt. Das [separate deutsche Bind-Manual](../TriceBind/Trice_bind_90_MVP_User_Manual.md) und die dortige README präsentieren parallel eine weitere normative Anwendersicht. Die lokale Fragmentprüfung findet außerdem im Target-Code-Überblick den bereits zuvor vorhandenen ungültigen Link `#Trice Parameter Bit Widths`; dessen Ziel ist `#trice-parameter-bit-widths`.
 
 Aufgabe: Das bisherige UM als künftiges Reference Manual zur eindeutigen fachlichen Referenz machen. Das neue kurze User Manual führt später durch die Nutzung und verweist für vollständige Verträge dorthin. Aktuelle Grenzen konkret benennen; „MVP“ nicht blind durch „vollständig unterstützt“ ersetzen. Historische Architekturvergleiche müssen als solche erkennbar bleiben und dürfen aktueller Wrapper-Unterstützung nicht widersprechen. Implementierungsaufträge/Entwurfsberichte nach Prüfung aus dem aktiven Einstieg nehmen; wertvolle Begründungen erhalten. Die tatsächliche Dateibereinigung folgt R20/R21.
 
-Die CE-PoC-Ergebnisse bleiben wie beauftragt im kapitelinternen Anhang, einschließlich reproduzierbarer Testreferenzen und ihrer Aussagegrenzen. A9/A10 werden dort durch verständliche Bezeichnungen wie „Nachweis für direkte Logstellen“ und „Produktive Unterstützung“ ersetzt. Testnamen und Experimentpfade werden nicht nur wegen eines historischen Namens umbenannt.
+Die CE-PoC-Ergebnisse bleiben wie beauftragt im kapitelinternen Anhang, einschließlich reproduzierbarer Testreferenzen und ihrer Aussagegrenzen. A9/A10 sind dort im vorgezogenen R11 bereits durch verständliche Bezeichnungen für den direkten Nachweis und die produktive Unterstützung ersetzt. Testnamen und Experimentpfade werden nicht nur wegen eines historischen Namens umbenannt.
 
 **Abnahme:** Aktive Anwendertexte enthalten keine unerklärten Arbeitsauftragsnummern oder überholten MVP-Status. Vorhandene Archive bleiben unangetastet. Kommentarblöcke und historische Changelogs werden nicht als neue Produktanforderungen behandelt.
 
-### Die beiden neuen UM-Kapitel ins Englische übertragen
-
-**R11 · Gewicht 5 · Aufwand M–L · Beauftragung der späteren Umsetzung erforderlich**
-
-Die derzeitigen Kapitel „Strukturiertes Logging“ und „Trice Context Enrichment“ vollständig übersetzen, einschließlich Tabellen, Einschränkungen, Beispiele, Fehlererklärungen und CE-PoC-Anhang. Auch den verbleibenden deutschen CE-Absatz unter „Future Development“ angleichen. Diese vollständigen Kapitel gehören nach R18 ins Reference Manual; das neue kurze UM erhält unter R19 ausgewählte Einstiegsbeispiele mit Verweisen dorthin.
-
-Vorher die deutschen Originale als datierte, vollständige Kapitelkopien unter `docs/scratchPad/obsolete/` sichern. Sie werden anschließend historische Referenzen, keine parallel gepflegten Manuals. Bereits dort liegende alte Drafts nicht überschreiben. Originale vor der englischen Bearbeitung sichern; spätere fachliche Korrekturen müssen im Diff zur Archivfassung nachvollziehbar sein.
-
-Bei der Übersetzung besonders erhalten: Bedeutung von `message` und Leerraum, flache Punktnamen, Typen/NaN/64-Bit-Zahlen, getrennte `ts16`/`ts32`-Metadaten, CE-Regelreihenfolge, exakter Suffix-Match, lokale Sichtbarkeit, einmalige Auswertung, Ausschluss benannter Pufferfelder sowie die unterschiedlichen Bind-/Insert-Grenzen.
-
-**Abnahme:** Vollständiger fachlicher Vergleich mit den deutschen Originalen und dem getesteten Verhalten. Source-/CLI-/JSON-Beispiele bleiben ausführbar und inhaltlich gleich, soweit nicht R02 einen Fehler korrigiert. Überschriften zunächst nur mit `#`; ToC, Nummern und Anker erzeugt später mdtoc. Alle aktiven internen Verweise auf übersetzte Überschriften anpassen. Der in Fehlermeldungen genannte Suchbegriff `bind-limits` bleibt erhalten.
 
 ### Bisheriges User Manual als Reference Manual weiterführen
 
@@ -478,6 +466,18 @@ Ungeframte, fragmentiert gelesene Header und Nutzdaten bleiben bis zur Vervollst
 Der historische Befund erklärt den großen Gewinn: Je Workflow liefen 34 gewöhnliche Konfigurationen mit etwa 183–185 Sekunden und 20 Direct-/Deferred-Kombinationen mit etwa 365 Sekunden, jeweils mit 1.745 Erwartungen pro Kanal. Allein 100 ms für `2 × (34 + 2 × 20) × 1.745` Logaufrufe ergeben rechnerisch **7 Stunden 10 Minuten 26 Sekunden**. Go/C-Übergänge waren damit nicht als Hauptursache nachgewiesen; auch der neue Bulk-Weg führt weiterhin jede C-Teststelle aus.
 
 **Abnahme:** [Replay-Tests](../../internal/translator/lifecycle_test.go) verwenden echte TREX-Bytes: Daten und EOF im selben Read, mehrere gepufferte Records einschließlich leerer Meldung, Byte-für-Byte-Eingabe, verkürztes Endpaket, 16-/32-Bit-Stempel, doppelte 16-Bit-ID, langen Laufzeitstring, Abschlussfragment und Live-Pausen. Begrenzte Read-Zahlen weisen nach, dass endliche Eingaben nicht weiter gepollt werden. Die bestehenden Decoder-, Translator- und CLI-Suites prüfen zusätzlich Filter, Stempel, strukturierte Ausgabe und Ausgabefehler. Der Zeitvergleich steht bei R06.
+
+### SL- und CE-Kapitel vollständig ins Englische übertragen
+
+**R11 · Gewicht 5 · Aufwand M–L · Umsetzung abgeschlossen; für den Merge vorgezogen**
+
+Die Kapitel „Structured Logging“ und „Trice Context Enrichment“ im [UM](../TriceUserManual.md#structured-logging) sind vollständig englisch, einschließlich aller Tabellen, Beispiele, Einschränkungen, Fehlererklärungen und des kapitelinternen CE-PoC-Anhangs. Auch der aktive CE-Absatz unter „Future Development“ ist übersetzt. Arbeitsauftragsnummern A9/A10 sind innerhalb dieser Kapitel durch fachliche Beschreibungen ersetzt; die experimentelle Wrapper-/Rebase-Unterstützung bleibt ausdrücklich von der produktiven Unterstützung getrennt. Testnamen, Testpfade und Funktionsumfang bleiben unverändert. Die weitere Bereinigung des Bind-/Visualisierungs-Kapitels und paralleler Dokumente bleibt R10.
+
+Die vollständigen deutschen Originale vor der Übersetzung liegen als datierte Kapitelkopien unter [Structured_Logging_DE_2026-10-04.md](obsolete/Structured_Logging_DE_2026-10-04.md) und [Context_Enrichment_DE_2026-10-04.md](obsolete/Context_Enrichment_DE_2026-10-04.md). Auf weiteren Benutzerauftrag sind auch die verbliebenen deutschen Texte unter `bind-limits` und die deutsche Scratch-Pad-Notiz übersetzt; ihre Originale liegen unter [Remaining_Manual_Texts_DE_2026-10-04.md](obsolete/Remaining_Manual_Texts_DE_2026-10-04.md). `bind-limits` verweist nun ausdrücklich auf den vorhandenen Architektur-PoC und unterscheidet dessen Nachweis von der weiterhin zurückgestellten produktiven Integration. Bereits vorhandene Archive wurden nicht geändert. Die Kopien behalten die damaligen Überschriften und Verweise als historische Referenz; sie werden nicht als eigenständige Manuals gepflegt.
+
+**Gezielte Abnahme am 4. Oktober:** Die Archivkopien stimmen bis auf den abschließenden Leerraum bytegenau mit den ursprünglichen vollständigen Kapiteln überein. Alle 47 Code-/Ausgabeblöcke sind unverändert und in gleicher Reihenfolge vorhanden. Der fachliche Absatzvergleich erhält insbesondere `message` und Leerraum, flache Punktnamen, Typen/NaN/64-Bit-Werte, getrennte Stempel-/Delta-Metadaten, CE-Regelreihenfolge, exakten Suffix-Match, lokale Sichtbarkeit, einmalige Auswertung und die unterschiedlichen Bind-/Insert-Grenzen. mdtoc erzeugt ToC, Nummerierung und Anker neu; Markdownlint und mdtoc-Check bestehen. Aktive eingehende Links zu den übersetzten Kapitelankern sind angepasst; `bind-limits` bleibt erhalten.
+
+Die strengere lokale Lychee-Prüfung mit Fragmenten findet außerhalb des Auftrags noch den bereits zuvor vorhandenen ungültigen Link `#Trice Parameter Bit Widths` im Target-Code-Überblick. Dieser Rest gehört in die Dokumentationsbereinigung R10. Der parallel gestartete Full-Test ist keine Abnahme eines unveränderten Endstands: Neben möglichen Markdown-/Linkfehlern kann seine abschließende Byte-Prüfung die beauftragten Dokumentationsänderungen melden. Produktcode und Testauswahl wurden für R11 nicht verändert.
 
 ### Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose
 
