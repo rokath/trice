@@ -1111,10 +1111,10 @@ Eine allgemeine ELF-Patch-Lösung wird für normale Userquellen nicht verfolgt. 
 
 ## Anhang H: Repositoryreferenzen
 
-- [`internal/id`](../../internal/id): gemeinsame Parser-, Alias- und ID-Verwaltung
-- [`internal/id/insertIDs.go`](../../internal/id/insertIDs.go): bestehende Insert-Zuordnung und Parallelverarbeitung
-- [`src/trice.h`](../../src/trice.h), [`src/triceOn.h`](../../src/triceOn.h) und [`src/triceOff.h`](../../src/triceOff.h): Target-Makroschicht
-- [`_test/testdata/triceCheck.c`](../../_test/testdata/triceCheck.c): breite Makroabdeckung
-- [`scripts/testAll.sh`](../../scripts/testAll.sh): Repositoryregression
-- [`experiments/TriceBind/20_Target_Library_Integration`](../../experiments/TriceBind/20_Target_Library_Integration): bisheriger Target-Bind-PoC
-- [`experiments/TriceBind/30_Preprocessor_Verification`](../../experiments/TriceBind/30_Preprocessor_Verification): verifizierter lokaler Dispatch und einzeiliger Site-Deskriptor
+- [`internal/id`](../../../../internal/id): gemeinsame Parser-, Alias- und ID-Verwaltung
+- [`internal/id/insertIDs.go`](../../../../internal/id/insertIDs.go): bestehende Insert-Zuordnung und Parallelverarbeitung
+- [`src/trice.h`](../../../../src/trice.h), [`src/triceOn.h`](../../../../src/triceOn.h) und [`src/triceOff.h`](../../../../src/triceOff.h): Target-Makroschicht
+- [`_test/testdata/triceCheck.c`](../../../../_test/testdata/triceCheck.c): breite Makroabdeckung
+- [`scripts/testAll.sh`](../../../../scripts/testAll.sh): Repositoryregression
+- [`experiments/TriceBind/20_Target_Library_Integration`](../../../../experiments/TriceBind/20_Target_Library_Integration): bisheriger Target-Bind-PoC
+- [`experiments/TriceBind/30_Preprocessor_Verification`](../../../../experiments/TriceBind/30_Preprocessor_Verification): verifizierter lokaler Dispatch und einzeiliger Site-Deskriptor

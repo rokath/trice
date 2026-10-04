@@ -15,7 +15,7 @@ klar begrenzten Regeln implementierbar:
    Makros mit mehreren Trice-Stellen wie einem `switch`-Logger.
 
 Das vorhandene PoC unter
-[`../../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions`](../../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions/README.md)
+[`../../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions`](../../../../experiments/TriceBind/50_MVP2_Counter_and_Macro_Definitions/README.md)
 belegt die grundsätzliche Target-Machbarkeit. Es zeigt außerdem zwei wichtige
 Grenzen:
 

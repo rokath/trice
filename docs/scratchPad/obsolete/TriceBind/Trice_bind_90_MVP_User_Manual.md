@@ -1,9 +1,10 @@
 # Trice Bind
 
-**Status:** User Manual für MVP und MVP2 mit lokalem Counter-Rebase
-**Verbindliche technische Spezifikation:** [`Trice_bind_10_MVP_Spezifikation.md`](./Trice_bind_10_MVP_Spezifikation.md)<br>
-**MVP-Testanforderungen:** [`Trice_bind_30_MVP_Test_Spezifikation.md`](./Trice_bind_30_MVP_Test_Spezifikation.md)<br>
-**Technischer Hintergrund zu MVP2:** [`Trice_bind_60_MVP2_Implementation_Strategies.md`](./Trice_bind_60_MVP2_Implementation_Strategies.md) und [`60_MVP2_Local_Counter_Rebase`](../../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md)
+**Status:** Historical German development-stage manual; retained for comparison.
+
+The current user reference is the [Trice Bind chapter](../../../TriceUserManual.md#trice-bind) in the main manual, including [Bind Limits](../../../TriceUserManual.md#bind-limits) and [Context Enrichment](../../../TriceUserManual.md#trice-context-enrichment). This document is not maintained as a parallel product specification. Its original text below preserves the development stage, terminology and assumptions; later changes are described in the main manual.
+
+The earlier [generator design](./Trice_bind_10_MVP_Spezifikation.md), [test design](./Trice_bind_30_MVP_Test_Spezifikation.md) and [counter-binding strategy comparison](./Trice_bind_60_MVP2_Implementation_Strategies.md) are historical background. The [local counter-rebase experiment](../../../../experiments/TriceBind/60_MVP2_Local_Counter_Rebase/README.md) remains a reproducible proof.
 
 ## 1. Überblick
 
