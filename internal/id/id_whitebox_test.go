@@ -4,12 +4,108 @@
 package id_test
 
 import (
+	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
 	. "github.com/rokath/trice/internal/id"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// TestInsertReassignsHistoricalIDOutsideCurrentPolicy keeps the old TIL entry
+// for compatibility while assigning the active source site from its tag range.
+func TestInsertReassignsHistoricalIDOutsideCurrentPolicy(t *testing.T) {
+	defer Setup(t)()
+	source := []byte(`TRice(iD(250), "err:reassigned");`)
+	til := []byte(`{"250":{"Type":"TRice","Strg":"err:reassigned"}}`)
+	li := []byte(`{"250":{"File":"` + SFName + `","Line":1}}`)
+	require.NoError(t, FSys.WriteFile(SFName, source, 0o600))
+	require.NoError(t, FSys.WriteFile(FnJSON, til, 0o600))
+	require.NoError(t, FSys.WriteFile(LIFnJSON, li, 0o600))
+
+	var out bytes.Buffer
+	err := args.Handler(&out, FSys, []string{"trice", "insert", "-src", SFName, "-til", FnJSON, "-li", LIFnJSON, "-IDRange", "err:10,99", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"})
+	require.NoError(t, err)
+	updated, readErr := FSys.ReadFile(SFName)
+	require.NoError(t, readErr)
+	assert.Contains(t, string(updated), "iD(10)")
+	assert.NotContains(t, string(updated), "iD(250)")
+	historical, readErr := FSys.ReadFile(FnJSON)
+	require.NoError(t, readErr)
+	assert.Contains(t, string(historical), `"250"`)
+	assert.Contains(t, string(historical), `"10"`)
+}
+
+// TestInsertReportsHistoricalPolicyViolationsOnlyInVerboseMode verifies that
+// the compatibility entry is summarized once without changing command success.
+func TestInsertReportsHistoricalPolicyViolationsOnlyInVerboseMode(t *testing.T) {
+	for _, verbose := range []bool{false, true} {
+		t.Run(fmt.Sprintf("verbose_%t", verbose), func(t *testing.T) {
+			defer Setup(t)()
+			args.Verbose = verbose
+			Verbose = verbose
+			source := []byte(`TRice(iD(250), "err:warning");`)
+			til := []byte(`{"250":{"Type":"TRice","Strg":"err:warning"}}`)
+			li := []byte(`{"250":{"File":"` + SFName + `","Line":1}}`)
+			require.NoError(t, FSys.WriteFile(SFName, source, 0o600))
+			require.NoError(t, FSys.WriteFile(FnJSON, til, 0o600))
+			require.NoError(t, FSys.WriteFile(LIFnJSON, li, 0o600))
+
+			var out bytes.Buffer
+			argsList := []string{"trice", "insert", "-src", SFName, "-til", FnJSON, "-li", LIFnJSON, "-IDRange", "err:10,99", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
+			if verbose {
+				argsList = append(argsList, "-v")
+			}
+			require.NoError(t, args.Handler(&out, FSys, argsList))
+			if verbose {
+				assert.Contains(t, out.String(), "WARNING: 1 historical ID(s)")
+				assert.Contains(t, out.String(), "example ID 250")
+			} else {
+				assert.NotContains(t, out.String(), "historical ID(s)")
+			}
+		})
+	}
+}
+
+// TestMalformedIDRangeLeavesCommandFilesUnchanged verifies that insert and
+// bind reject all range rules before they can modify sources or sidecars.
+func TestMalformedIDRangeLeavesCommandFilesUnchanged(t *testing.T) {
+	for _, command := range []string{"insert", "bind"} {
+		t.Run(command, func(t *testing.T) {
+			defer Setup(t)()
+
+			source := []byte(`TRice("info:unchanged");`)
+			til := []byte(`{"7":{"Type":"TRICE","Strg":"info:unchanged"}}`)
+			li := []byte(`{"7":{"File":"unchanged.c","Line":1}}`)
+			require.NoError(t, FSys.WriteFile(SFName, source, 0o600))
+			require.NoError(t, FSys.WriteFile(FnJSON, til, 0o600))
+			require.NoError(t, FSys.WriteFile(LIFnJSON, li, 0o600))
+
+			err := args.Handler(W, FSys, []string{
+				"trice", command,
+				"-src", SFName,
+				"-til", FnJSON,
+				"-li", LIFnJSON,
+				"-IDRange", "e:100,101",
+				"-IDRange", "missing-separator",
+			})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "missing-separator")
+
+			gotSource, readErr := FSys.ReadFile(SFName)
+			require.NoError(t, readErr)
+			gotTIL, readErr := FSys.ReadFile(FnJSON)
+			require.NoError(t, readErr)
+			gotLI, readErr := FSys.ReadFile(LIFnJSON)
+			require.NoError(t, readErr)
+			assert.Equal(t, source, gotSource)
+			assert.Equal(t, til, gotTIL)
+			assert.Equal(t, li, gotLI)
+		})
+	}
+}
 
 // TestInsertIDsAndJSONDownward verifies the expected behavior.
 func TestInsertIDsAndJSONDownward(t *testing.T) {
@@ -445,7 +541,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 	// create src file
 	fn0 := t.Name() + "file0.c"
 	src0 := `
-	TRice(iD(88), "Hi!" );
+	TRice(iD(18), "Hi!" );
 	`
 	assert.Nil(t, FSys.WriteFile(fn0, []byte(src0), 0777))
 	// check src
@@ -484,7 +580,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 
 	// check source files
 	expSrc0 := `
-	TRice(iD(88), "Hi!" );
+	TRice(iD(18), "Hi!" );
 	`
 	actSrc0, e = FSys.ReadFile(fn0)
 	assert.Nil(t, e)
@@ -496,7 +592,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 		"Type": "TRice",
 		"Strg": "Hi!"
 	},
-	"88": {
+	"18": {
 		"Type": "TRice",
 		"Strg": "Hi!"
 	}
@@ -511,7 +607,7 @@ func TestAddIDToTilJSON(t *testing.T) {
 		"File": "` + fn0 + `",
 		"Line": 2
 	},
-	"88": {
+	"18": {
 		"File": "` + fn0 + `",
 		"Line": 2
 	}

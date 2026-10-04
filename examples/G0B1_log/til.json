@@ -803,6 +803,14 @@
 		"Type": "TRICE16_B",
 		"Strg": "buffer:%04x \\n"
 	},
+	"1301": {
+		"Type": "Trice",
+		"Strg": "att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\\n"
+	},
+	"1302": {
+		"Type": "trice8",
+		"Strg": "info:Small {counter:%u}\\n"
+	},
 	"13028": {
 		"Type": "TRice",
 		"Strg": "\\rTriceCheck %4d"
@@ -810,6 +818,10 @@
 	"13029": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
+	},
+	"1303": {
+		"Type": "Trice16",
+		"Strg": "info:Current {current_ma} mA\\n"
 	},
 	"13030": {
 		"Type": "TRice",
@@ -851,6 +863,10 @@
 		"Type": "TRiceAssertFalse",
 		"Strg": "ASSERT:flag not false!\\n"
 	},
+	"1304": {
+		"Type": "TRice32",
+		"Strg": "info:Voltage {voltage_mv:%u} mV\\n"
+	},
 	"13040": {
 		"Type": "triceAssertTrue",
 		"Strg": "ASSERT:flag not true!\\n"
@@ -891,6 +907,10 @@
 		"Type": "TRice",
 		"Strg": "ok\\n"
 	},
+	"1305": {
+		"Type": "trice64",
+		"Strg": "info:Bytes {bytes:%llu}\\n"
+	},
 	"13050": {
 		"Type": "TRiceAssertFalse",
 		"Strg": "ASSERT:flag not false!\\n"
@@ -911,6 +931,10 @@
 		"Type": "trice",
 		"Strg": "rd:trice %d\\n"
 	},
+	"1306": {
+		"Type": "trice",
+		"Strg": "info:State {motor.state} rpm {motorPtr.rpm} / %d\\n"
+	},
 	"13066": {
 		"Type": "Trice",
 		"Strg": "sig:Trice with 16-bit stamp and with 0 to 12 values (common use cases)\\n"
@@ -926,6 +950,10 @@
 	"13069": {
 		"Type": "Trice",
 		"Strg": "rd:Trice %d, %d\\n"
+	},
+	"1307": {
+		"Type": "trice32",
+		"Strg": "info:Temp {temp_c:%.1f C}\\n"
 	},
 	"13070": {
 		"Type": "Trice",
@@ -967,6 +995,10 @@
 		"Type": "Trice",
 		"Strg": "rd:Trice %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1308": {
+		"Type": "Trice64",
+		"Strg": "info:Energy {energy_j:%.2f J}\\n"
+	},
 	"13080": {
 		"Type": "TRice",
 		"Strg": "sig:TRice with 32-bit stamp and with 0 to 12 values (common use cases)\\n"
@@ -1006,6 +1038,10 @@
 	"13089": {
 		"Type": "TRice",
 		"Strg": "rd:TRice %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"1309": {
+		"Type": "triceS",
+		"Strg": "info:Device {device:%s}\\n"
 	},
 	"13090": {
 		"Type": "TRice",
@@ -1047,6 +1083,10 @@
 		"Type": "trice16",
 		"Strg": "rd:trice16 %p, %p, %p, %p, %p\\n"
 	},
+	"1310": {
+		"Type": "triceN",
+		"Strg": "info:Code {code:%s}\\n"
+	},
 	"13100": {
 		"Type": "trice16",
 		"Strg": "rd:trice16 %p, %p, %p, %p, %p, %p\\n"
@@ -1087,9 +1127,17 @@
 		"Type": "trice",
 		"Strg": "sig:trice16 with 1 to 12 hex\\n"
 	},
+	"1311": {
+		"Type": "trice32",
+		"Strg": "info:pos:Position sample\\n"
+	},
 	"13110": {
 		"Type": "trice16",
 		"Strg": "rd:trice16 %X\\n"
+	},
+	"1312": {
+		"Type": "trice32",
+		"Strg": "info:speed:Speed sample\\n"
 	},
 	"13124": {
 		"Type": "trice16",
@@ -1114,6 +1162,10 @@
 	"13129": {
 		"Type": "trice32",
 		"Strg": "att: TriceEncrypted =  %08x %08x %08x %08x %08x %08x\\n"
+	},
+	"1313": {
+		"Type": "Trice32",
+		"Strg": "info:pos:speed:Moving sample={sample}\\n"
 	},
 	"13130": {
 		"Type": "trice16_1",
@@ -1146,6 +1198,10 @@
 	"13137": {
 		"Type": "trice",
 		"Strg": "sig:Some time measurements\\n"
+	},
+	"1314": {
+		"Type": "TRice32_1",
+		"Strg": "info:pos:Fixed sample={sample}\\n"
 	},
 	"13141": {
 		"Type": "trice",
@@ -1389,7 +1445,7 @@
 	},
 	"13201": {
 		"Type": "trice",
-		"Strg": "att:mixed int \u0026 float \u0026 double \u0026 bits\\n"
+		"Strg": "att:mixed int & float & double & bits\\n"
 	},
 	"13202": {
 		"Type": "TRice32",
@@ -7033,59 +7089,59 @@
 	},
 	"14688": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8  %%03x -\u003e %03x  %03x  %03x  %03x\\n"
+		"Strg": "tst:TRICE8  %%03x -> %03x  %03x  %03x  %03x\\n"
 	},
 	"14689": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n"
+		"Strg": "tst:TRICE8   %%4d -> %4d %4d %4d %4d\\n"
 	},
 	"14690": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4u -\u003e %4u %4u %4u %4u\\n"
+		"Strg": "tst:TRICE8   %%4u -> %4u %4u %4u %4u\\n"
 	},
 	"14691": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n"
+		"Strg": "tst:TRICE8   %%4o -> %4o %4o %4o %4o\\n"
 	},
 	"14692": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4O -\u003e %4O %4O %4O %4O\\n"
+		"Strg": "tst:TRICE8   %%4O -> %4O %4O %4O %4O\\n"
 	},
 	"14693": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4X -\u003e %4X %4X %4X %4X\\n"
+		"Strg": "tst:TRICE8   %%4X -> %4X %4X %4X %4X\\n"
 	},
 	"14694": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
+		"Strg": "tst:TRICE8   %%4x -> %4x %4x %4x %4x\\n"
 	},
 	"14695": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8   %%8b -\u003e %8b %8b %8b %8b\\n"
+		"Strg": "tst:TRICE8   %%8b -> %8b %8b %8b %8b\\n"
 	},
 	"14696": {
 		"Type": "TRICE8",
-		"Strg": "tst:TRICE8  %%08b -\u003e %08b %08b %08b %08b\\n"
+		"Strg": "tst:TRICE8  %%08b -> %08b %08b %08b %08b\\n"
 	},
 	"14697": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+		"Strg": "tst:TRICE16  %%05x ->   %05x   %05x   %05x   %05x\\n"
 	},
 	"14698": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+		"Strg": "tst:TRICE16   %%6d ->  %6d  %6d  %6d  %6d\\n"
 	},
 	"14699": {
 		"Type": "TRICE16",
-		"Strg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n"
+		"Strg": "tst:TRICE16   %%7o -> %7o %7o %7o %7o\\n"
 	},
 	"14700": {
 		"Type": "TRICE32",
-		"Strg": "tst:TRICE32 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+		"Strg": "tst:TRICE32 %%09x ->      %09x      %09x       %09x     %09x\\n"
 	},
 	"14701": {
 		"Type": "TRICE32",
-		"Strg": "tst:TRICE32 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+		"Strg": "tst:TRICE32 %%10d ->     %10d     %10d     %10d    %10x\\n"
 	},
 	"14702": {
 		"Type": "TRICE32",
@@ -7093,11 +7149,11 @@
 	},
 	"14703": {
 		"Type": "TRICE64",
-		"Strg": "tst:TRICE64 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+		"Strg": "tst:TRICE64 %%09x ->      %09x      %09x       %09x     %09x\\n"
 	},
 	"14704": {
 		"Type": "TRICE64",
-		"Strg": "tst:TRICE64 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+		"Strg": "tst:TRICE64 %%10d ->     %10d     %10d     %10d    %10x\\n"
 	},
 	"14705": {
 		"Type": "TRICE64",
@@ -8013,7 +8069,7 @@
 	},
 	"14933": {
 		"Type": "trice",
-		"Strg": "att:positive float \u0026 double in variants\\n"
+		"Strg": "att:positive float & double in variants\\n"
 	},
 	"14934": {
 		"Type": "TRICE32_1",
@@ -8137,7 +8193,7 @@
 	},
 	"14964": {
 		"Type": "trice",
-		"Strg": "att:negative float \u0026 double\\n"
+		"Strg": "att:negative float & double\\n"
 	},
 	"14965": {
 		"Type": "trice",

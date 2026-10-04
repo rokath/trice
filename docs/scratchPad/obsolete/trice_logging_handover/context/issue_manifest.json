@@ -1,0 +1,345 @@
+[
+  {
+    "id": "L01",
+    "file": "L01_unique_tag_aliases.md",
+    "title": "Make tag aliases unambiguous and validate the complete tag registry",
+    "kind": "Bug / regression coverage",
+    "priority": "P1 - correctness",
+    "related": [
+      5,
+      7,
+      11,
+      16
+    ]
+  },
+  {
+    "id": "L02",
+    "file": "L02_inclusive_routing_bounds.md",
+    "title": "Use inclusive ID-routing bounds consistently with ID allocation",
+    "kind": "Bug",
+    "priority": "P1 - possible missing routed events",
+    "related": [
+      3,
+      9,
+      10
+    ]
+  },
+  {
+    "id": "L03",
+    "file": "L03_validate_active_id_policy.md",
+    "title": "Validate active ID assignments against changed ID-range policies",
+    "kind": "Enhancement / correctness safeguard",
+    "priority": "P1 when target routing depends on ranges; otherwise P2",
+    "related": [
+      1,
+      2,
+      4,
+      27
+    ]
+  },
+  {
+    "id": "L04",
+    "file": "L04_safe_id_policy_migration.md",
+    "title": "Provide an explicit, non-destructive migration for active ID-range violations",
+    "kind": "Optional enhancement",
+    "priority": "P2 - after validation; implement only if migration is needed",
+    "related": [
+      3,
+      27
+    ]
+  },
+  {
+    "id": "L05",
+    "file": "L05_ulabel_registration_order.md",
+    "title": "Register all user labels before resolving pick and ban selectors",
+    "kind": "Bug",
+    "priority": "P1 - unreliable CLI selection",
+    "related": [
+      1,
+      6,
+      7
+    ]
+  },
+  {
+    "id": "L06",
+    "file": "L06_ulabel_colon_lists.md",
+    "title": "Parse colon-separated user-label lists as documented",
+    "kind": "Bug",
+    "priority": "P2 - CLI correctness",
+    "related": [
+      1,
+      5,
+      7
+    ]
+  },
+  {
+    "id": "L07",
+    "file": "L07_reject_unknown_selectors.md",
+    "title": "Reject unknown or malformed filter selectors before starting logging",
+    "kind": "Bug / validation",
+    "priority": "P1 - prevent silent selection changes",
+    "related": [
+      5,
+      6,
+      8,
+      11
+    ]
+  },
+  {
+    "id": "L08",
+    "file": "L08_reject_conflicting_filters_early.md",
+    "title": "Reject simultaneous pick and ban options during startup validation",
+    "kind": "Bug / error handling",
+    "priority": "P2",
+    "related": [
+      7,
+      17
+    ]
+  },
+  {
+    "id": "L09",
+    "file": "L09_consistent_routing_configuration.md",
+    "title": "Make ID-routing activation and partial-bound handling consistent across outputs",
+    "kind": "Bug / configuration validation",
+    "priority": "P1 - potentially unfiltered or missing output",
+    "related": [
+      2,
+      10
+    ]
+  },
+  {
+    "id": "L10",
+    "file": "L10_single_pack_guard_tests.md",
+    "title": "Regression-test the existing single-pack requirement for deferred ID routing",
+    "kind": "Test hardening / documentation",
+    "priority": "P2",
+    "related": [
+      2,
+      9,
+      18
+    ]
+  },
+  {
+    "id": "L11",
+    "file": "L11_loglevel_semantics.md",
+    "title": "Decouple logLevel semantics from tag-table position and color formatting",
+    "kind": "Behavioral correction / compatibility design",
+    "priority": "P2 - define policy before implementation",
+    "related": [
+      1,
+      7,
+      12,
+      13,
+      16,
+      18
+    ]
+  },
+  {
+    "id": "L12",
+    "file": "L12_event_metadata_filtering.md",
+    "title": "Keep an accepted event and its display metadata under one filter decision",
+    "kind": "Bug / output consistency",
+    "priority": "P2",
+    "related": [
+      11,
+      13,
+      14
+    ]
+  },
+  {
+    "id": "L13",
+    "file": "L13_fragment_and_multiline_policy.md",
+    "title": "Define and test filtering for partial lines and multi-line events",
+    "kind": "Compatibility clarification / regression coverage",
+    "priority": "P2",
+    "related": [
+      11,
+      12,
+      17
+    ]
+  },
+  {
+    "id": "L14",
+    "file": "L14_diagnostic_filter_isolation.md",
+    "title": "Prevent event filters from silently hiding decoder and tool diagnostics",
+    "kind": "Reliability hardening",
+    "priority": "P1 - diagnosis must remain possible",
+    "related": [
+      7,
+      12,
+      15,
+      17
+    ]
+  },
+  {
+    "id": "L15",
+    "file": "L15_raw_capture_replay_guarantee.md",
+    "title": "Protect unfiltered binary capture and replay with integration tests",
+    "kind": "Regression protection / documentation",
+    "priority": "P2",
+    "related": [
+      14,
+      17,
+      18
+    ]
+  },
+  {
+    "id": "L16",
+    "file": "L16_statistics_semantics.md",
+    "title": "Define counting semantics independently of coloring and filtering",
+    "kind": "Correctness clarification / regression coverage",
+    "priority": "P2",
+    "related": [
+      1,
+      11,
+      13,
+      17
+    ]
+  },
+  {
+    "id": "L17",
+    "file": "L17_early_host_filtering.md",
+    "title": "Evaluate host selection before expensive message rendering where safe",
+    "kind": "Optimization",
+    "priority": "P3 - after semantic fixes and measurement",
+    "related": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      24
+    ]
+  },
+  {
+    "id": "L18",
+    "file": "L18_central_manual_chapter.md",
+    "title": "Add a central manual chapter for log levels, tags, filtering, and ID routing",
+    "kind": "Documentation",
+    "priority": "P2 - after behavior is checked",
+    "related": [
+      11,
+      19,
+      20,
+      21,
+      24,
+      25
+    ]
+  },
+  {
+    "id": "L19",
+    "file": "L19_deferred_compile_time_levels.md",
+    "title": "Record the deferred proposal for level-specific compile-time selection",
+    "kind": "Deferred design proposal - not a bug",
+    "priority": "Deferred - reopen only for a concrete requirement",
+    "related": [
+      18,
+      20,
+      21
+    ]
+  },
+  {
+    "id": "L20",
+    "file": "L20_deferred_runtime_levels.md",
+    "title": "Record the deferred proposal for dynamic target-side log-level control",
+    "kind": "Deferred design proposal - not a bug",
+    "priority": "Deferred - reopen only for a concrete requirement",
+    "related": [
+      3,
+      10,
+      18,
+      19
+    ]
+  },
+  {
+    "id": "L21",
+    "file": "L21_clarify_logging_terminology.md",
+    "title": "Rename the enrichment draft and separate levels, enrichment, and structured logging",
+    "kind": "Documentation / conceptual correction",
+    "priority": "P2",
+    "related": [
+      18,
+      22,
+      23,
+      26
+    ]
+  },
+  {
+    "id": "L22",
+    "file": "L22_reversible_enrichment_instrumentation.md",
+    "title": "Remove unchanged-configuration heuristics from the future enrichment transformation contract",
+    "kind": "Draft architecture risk",
+    "priority": "Deferred design work before implementing enrichment",
+    "related": [
+      21,
+      23,
+      24,
+      26
+    ]
+  },
+  {
+    "id": "L23",
+    "file": "L23_validate_draft_examples.md",
+    "title": "Validate the draft C, shell, JSON, and macro-stringization examples before publication",
+    "kind": "Documentation correctness",
+    "priority": "P2 for publication; does not block current logging",
+    "related": [
+      21,
+      22,
+      26
+    ]
+  },
+  {
+    "id": "L24",
+    "file": "L24_separate_parser_chapter.md",
+    "title": "Move internal parser development into a separate chapter and track it independently",
+    "kind": "Documentation organization / scope control",
+    "priority": "P2",
+    "related": [
+      17,
+      18,
+      26
+    ]
+  },
+  {
+    "id": "L25",
+    "file": "L25_server_use_evidence.md",
+    "title": "Separate device-log ingestion from native server logging and qualify performance claims",
+    "kind": "Documentation / feasibility evidence",
+    "priority": "P3 - before expanding server scope",
+    "related": [
+      18,
+      21,
+      26
+    ]
+  },
+  {
+    "id": "L26",
+    "file": "L26_structured_logging_feasibility.md",
+    "title": "Validate a useful structured-event workflow before specifying a strice extension",
+    "kind": "Exploratory feasibility - not an implementation specification",
+    "priority": "P3 - evidence first",
+    "related": [
+      17,
+      19,
+      20,
+      21,
+      22,
+      24,
+      25
+    ]
+  },
+  {
+    "id": "L27",
+    "file": "L27_reject_malformed_idrange.md",
+    "title": "Reject malformed IDRange arguments instead of silently skipping them",
+    "kind": "Bug / validation - additional finding during handover review",
+    "priority": "P1 when allocation policy drives routing",
+    "related": [
+      1,
+      3,
+      4
+    ]
+  }
+]

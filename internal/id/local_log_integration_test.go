@@ -3,6 +3,11 @@
 package id
 
 import (
+	"debug/elf"
+	"debug/macho"
+	"debug/pe"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -796,10 +801,6 @@ func TestLocalLogMinimalFormatterCompilesOut(t *testing.T) {
 	if compiler == "" {
 		t.Skip("no C compiler available")
 	}
-	nm, err := exec.LookPath("nm")
-	if err != nil {
-		t.Skip("no object-file symbol reader named nm available")
-	}
 	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	require.NoError(t, err)
 	project := t.TempDir()
@@ -827,9 +828,9 @@ func TestLocalLogMinimalFormatterCompilesOut(t *testing.T) {
 	).CombinedOutput()
 	require.NoError(t, compileErr, "%s", output)
 
-	symbols, symbolErr := exec.Command(nm, object).CombinedOutput()
-	require.NoError(t, symbolErr, "%s", symbols)
-	assert.NotContains(t, string(symbols), "triceLogMinimal")
+	symbols, symbolErr := localLogObjectSymbols(object)
+	require.NoError(t, symbolErr)
+	assert.NotContains(t, strings.Join(symbols, "\n"), "triceLogMinimal")
 }
 
 // TestLocalLogPresentationCompilesOut checks that the separately compiled
@@ -840,10 +841,6 @@ func TestLocalLogPresentationCompilesOut(t *testing.T) {
 	compiler := firstAvailableCompiler("cc", "gcc", "clang")
 	if compiler == "" {
 		t.Skip("no C compiler available")
-	}
-	nm, err := exec.LookPath("nm")
-	if err != nil {
-		t.Skip("no object-file symbol reader named nm available")
 	}
 	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	require.NoError(t, err)
@@ -870,8 +867,167 @@ func TestLocalLogPresentationCompilesOut(t *testing.T) {
 	).CombinedOutput()
 	require.NoError(t, compileErr, "%s", output)
 
-	symbols, symbolErr := exec.Command(nm, object).CombinedOutput()
-	require.NoError(t, symbolErr, "%s", symbols)
-	assert.NotContains(t, string(symbols), "triceLogApplyAnsiAndTagPolicy")
-	assert.NotContains(t, string(symbols), "triceLogTagStyles")
+	symbols, symbolErr := localLogObjectSymbols(object)
+	require.NoError(t, symbolErr)
+	assert.NotContains(t, strings.Join(symbols, "\n"), "triceLogApplyAnsiAndTagPolicy")
+	assert.NotContains(t, strings.Join(symbols, "\n"), "triceLogTagStyles")
+}
+
+// localLogObjectSymbols reads native and cross-compiled objects without a PATH
+// dependency on nm. ARM toolchains can ship an unprefixed nm that cannot read a
+// macOS host object. Keep local and undefined symbols, but omit file/debug names:
+// the source filename itself is not evidence of retained formatter code.
+func localLogObjectSymbols(path string) ([]string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	var names []string
+	elfFile, elfErr := elf.NewFile(file)
+	if elfErr == nil {
+		symbols, err := elfFile.Symbols()
+		if errors.Is(err, elf.ErrNoSymbols) {
+			return nil, nil // A valid empty translation unit may have no symbol table.
+		}
+		if err != nil {
+			return nil, fmt.Errorf("read ELF symbols from %q: %w", path, err)
+		}
+		for _, symbol := range symbols {
+			kind := elf.ST_TYPE(symbol.Info)
+			if symbol.Name != "" && kind != elf.STT_FILE && kind != elf.STT_SECTION {
+				names = append(names, symbol.Name)
+			}
+		}
+		return names, nil
+	}
+	machoFile, machoErr := macho.NewFile(file)
+	if machoErr == nil {
+		if machoFile.Symtab != nil {
+			for _, symbol := range machoFile.Symtab.Syms {
+				const stabMask = 0xe0 // Mach-O debugging records, not code/data symbols.
+				if symbol.Name != "" && symbol.Type&stabMask == 0 {
+					names = append(names, symbol.Name)
+				}
+			}
+		}
+		return names, nil
+	}
+	peFile, peErr := pe.NewFile(file)
+	if peErr == nil {
+		for _, symbol := range peFile.Symbols {
+			const fileStorageClass = 103 // COFF source-file debug record.
+			if symbol.Name != "" && symbol.StorageClass != fileStorageClass && symbol.SectionNumber != -2 {
+				names = append(names, symbol.Name)
+			}
+		}
+		return names, nil
+	}
+	return nil, fmt.Errorf("unsupported or damaged object %q (ELF: %v; Mach-O: %v; PE/COFF: %v)", path, elfErr, machoErr, peErr)
+}
+
+// TestLocalLogObjectSymbols verifies the reader with real compiler output,
+// including a positive control: an always-empty reader must never make a
+// compiled-out assertion pass. Clang can emit all three formats without target
+// SDKs because these tiny fixtures use no system headers and are not linked.
+func TestLocalLogObjectSymbols(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	clang := firstAvailableCompiler("clang")
+	for _, format := range []struct {
+		name, compiler, target string
+	}{
+		{"host", compiler, ""},
+		{"ELF", clang, "x86_64-unknown-linux-gnu"},
+		{"Mach-O", clang, "arm64-apple-darwin"},
+		{"COFF", clang, "x86_64-w64-windows-gnu"},
+	} {
+		t.Run(format.name, func(t *testing.T) {
+			if format.compiler == "" {
+				t.Skip("Clang not installed; the native object reader is still tested")
+			}
+			for _, fixture := range []struct {
+				name, source string
+				present      bool
+			}{
+				{"function_global_local_and_undefined_symbols", "int globalProbe = 42;\nstatic int localProbe = 7;\nextern int undefinedProbe;\nint symbolProbe(void) { return globalProbe + localProbe + undefinedProbe; }\n", true},
+				{"valid_empty_translation_unit", "/* Intentionally no code or data. */\n", false},
+			} {
+				t.Run(fixture.name, func(t *testing.T) {
+					project := t.TempDir()
+					// This name must not be misread as a retained formatter symbol.
+					source := filepath.Join(project, "triceLogMinimal.c")
+					object := filepath.Join(project, "fixture.o")
+					require.NoError(t, os.WriteFile(source, []byte(fixture.source), 0o644))
+					args := []string{"-std=c11", "-O0", "-c", source, "-o", object}
+					if format.target != "" {
+						args = append([]string{"--target=" + format.target}, args...)
+					}
+					output, err := exec.Command(format.compiler, args...).CombinedOutput()
+					require.NoError(t, err, "%s", output)
+					// Parsing must also work when no executable can be found at all.
+					t.Setenv("PATH", t.TempDir())
+					names, err := localLogObjectSymbols(object)
+					require.NoError(t, err)
+					text := strings.Join(names, "\n")
+					assert.NotContains(t, text, "triceLogMinimal.c")
+					for _, symbol := range []string{"symbolProbe", "globalProbe", "localProbe", "undefinedProbe"} {
+						assert.Equal(t, fixture.present, strings.Contains(text, symbol), "symbol %s in %s", symbol, text)
+					}
+				})
+			}
+		})
+	}
+}
+
+// TestLocalLogObjectSymbolsRejectsUnreadableFiles ensures broken input cannot
+// masquerade as a successful compile-out with zero symbols.
+func TestLocalLogObjectSymbolsRejectsUnreadableFiles(t *testing.T) {
+	project := t.TempDir()
+	for _, fixture := range []struct {
+		name string
+		data []byte
+	}{
+		{"zero_bytes", nil},
+		{"text_instead_of_object", []byte("not an object file")},
+		{"truncated_ELF", []byte{0x7f, 'E', 'L', 'F'}},
+		{"truncated_MachO", []byte{0xcf, 0xfa, 0xed, 0xfe}},
+		{"truncated_COFF", []byte{0x64, 0x86}},
+	} {
+		t.Run(fixture.name, func(t *testing.T) {
+			path := filepath.Join(project, fixture.name+".o")
+			require.NoError(t, os.WriteFile(path, fixture.data, 0o644))
+			_, err := localLogObjectSymbols(path)
+			assert.ErrorContains(t, err, "unsupported or damaged object")
+		})
+	}
+	_, err := localLogObjectSymbols(filepath.Join(project, "missing.o"))
+	assert.ErrorIs(t, err, os.ErrNotExist)
+}
+
+// TestLocalLogCompileOutIgnoresIncompatibleNM repeats the actual size-contract
+// tests with a deliberately unusable nm first on PATH. The previous tests used
+// it even though their C compiler emitted an unrelated host object format.
+func TestLocalLogCompileOutIgnoresIncompatibleNM(t *testing.T) {
+	if firstAvailableCompiler("cc", "gcc", "clang") == "" {
+		t.Skip("no C compiler available")
+	}
+	tools := t.TempDir()
+	marker := filepath.Join(tools, "nm-was-called")
+	name, script := "nm", "#!/bin/sh\necho called > \"$TRICE_TEST_NM_MARKER\"\necho 'wrong target: file format not recognized' >&2\nexit 91\n"
+	if runtime.GOOS == "windows" {
+		name, script = "nm.cmd", "@echo off\r\necho called > \"%TRICE_TEST_NM_MARKER%\"\r\necho wrong target: file format not recognized 1>&2\r\nexit /b 91\r\n"
+	}
+	require.NoError(t, os.WriteFile(filepath.Join(tools, name), []byte(script), 0o755))
+	t.Setenv("PATH", tools+string(os.PathListSeparator)+os.Getenv("PATH"))
+	t.Setenv("TRICE_TEST_NM_MARKER", marker)
+	selected, err := exec.LookPath("nm")
+	require.NoError(t, err)
+	require.Equal(t, filepath.Join(tools, name), selected, "fixture must shadow a real nm")
+	t.Run("minimal_formatter_still_compiles_out", TestLocalLogMinimalFormatterCompilesOut)
+	t.Run("presentation_still_compiles_out", TestLocalLogPresentationCompilesOut)
+	_, err = os.Stat(marker)
+	assert.ErrorIs(t, err, os.ErrNotExist, "the incompatible tool must never be invoked")
 }

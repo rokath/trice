@@ -49,12 +49,10 @@ _test/*/SEGGER_RTT_Conf.h
 # auto-generated code, or STM32 HAL code that must not be edited.
 examples/*_bare/**
 
-# 2) Ignore EVERYTHING inside STM32 ./examples/*_inst/Drivers/ and
-#    ./examples/*_log/Drivers/ trees.
+# 2) Ignore EVERYTHING inside every ./examples/**/Drivers/ tree.
 #
 # STM32 HAL driver code is machine-generated and should not be modified.
-examples/*_inst/Drivers/**
-examples/*_log/Drivers/**
+examples/**/Drivers/**
 
 # 3) Ignore every vendor middleware tree below ./examples/.
 #

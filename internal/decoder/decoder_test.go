@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -188,34 +189,73 @@ func TestRecordAndPrintTriceStatistics(t *testing.T) {
 	assert.Contains(t, s, "2 Trice messsges")
 }
 
+// TestStatisticsWaitsForDictionaryReload checks that a report cannot inspect
+// maps while a reload is replacing them. Once released, it uses the new entry
+// and location together; the per-ID event count is independent of the reload.
+func TestStatisticsWaitsForDictionaryReload(t *testing.T) {
+	oldEnabled, oldCounts := TriceStatistics, IDStat
+	oldTIL, oldLI, oldMutex := IDLUT, LILUT, LUTMutex
+	t.Cleanup(func() {
+		TriceStatistics, IDStat = oldEnabled, oldCounts
+		IDLUT, LILUT, LUTMutex = oldTIL, oldLI, oldMutex
+	})
+	TriceStatistics = true
+	IDStat = map[id.TriceID]int{7: 3}
+	IDLUT, LILUT = id.TriceIDLookUp{}, id.TriceIDLookUpLI{}
+	LUTMutex = new(sync.RWMutex)
+	LUTMutex.Lock()
+	var out bytes.Buffer
+	started, finished := make(chan struct{}), make(chan struct{})
+	go func() {
+		close(started)
+		PrintTriceStatistics(&out)
+		close(finished)
+	}()
+	<-started
+	select {
+	case <-finished:
+		t.Error("statistics accessed dictionaries while their writer still held the lock")
+	case <-time.After(20 * time.Millisecond):
+	}
+	IDLUT[7] = id.TriceFmt{Type: "TRICE", Strg: "reloaded message"}
+	LILUT[7] = id.TriceLI{File: "reloaded.c", Line: 42}
+	LUTMutex.Unlock()
+	<-finished
+	assert.Contains(t, out.String(), "reloaded message")
+	assert.Contains(t, out.String(), "reloaded.c")
+	assert.Contains(t, out.String(), "3 Trice messsges")
+}
+
 // TestHandleTypeX0 verifies the initial selector-0 handling modes and shorthand rules.
 func TestHandleTypeX0(t *testing.T) {
 	oldTypeX0 := TypeX0
 	t.Cleanup(func() { TypeX0 = oldTypeX0 })
 
 	tests := []struct {
-		name          string
-		option        string
-		record        []byte
-		endian        bool
-		noneFraming   bool
-		wantText      string
-		wantContains  string
-		wantConsumed  int
-		wantBlankMeta bool
+		name           string
+		option         string
+		record         []byte
+		endian         bool
+		noneFraming    bool
+		wantText       string
+		wantContains   string
+		wantConsumed   int
+		wantBlankMeta  bool
+		wantDiagnostic bool
+		wantTag        string
 	}{
-		{name: "default error", option: "error", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: "typeX0 packet ignored", wantConsumed: 4, wantBlankMeta: true},
+		{name: "default error", option: "error", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: "typeX0 packet ignored", wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
 		{name: "counted string shorthand", option: "%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
-		{name: "counted explicit with colon format", option: "counted:sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "sig:OK", wantConsumed: 4, wantBlankMeta: true},
-		{name: "colon shorthand rejected", option: "sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: `unsupported typeX0 mode "sig"`, wantConsumed: 4, wantBlankMeta: true},
+		{name: "counted explicit with colon format", option: "counted:sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantText: "sig:OK", wantConsumed: 4, wantBlankMeta: true, wantTag: "sig"},
+		{name: "colon shorthand rejected", option: "sig:%s", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantContains: `unsupported typeX0 mode "sig"`, wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
 		{name: "counted ignore", option: "ignore", record: []byte{0x02, 0x00, 'O', 'K'}, endian: LittleEndian, wantConsumed: 4},
 		{name: "all ignore consumes package", option: "all:ignore", record: []byte{0x02, 0x00, 'O', 'K', 0x01, 0x40}, endian: LittleEndian, wantConsumed: 6},
 		{name: "big endian counted", option: "%s", record: []byte{0x00, 0x02, 'O', 'K'}, endian: BigEndian, wantText: "OK", wantConsumed: 4, wantBlankMeta: true},
 		{name: "none framing skips alignment", option: "%s", record: []byte{0x01, 0x00, 'A', 0x00}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 4, wantBlankMeta: true},
 		{name: "none framing allows compact empty payload", option: "%s", record: []byte{0x00, 0x00}, endian: LittleEndian, noneFraming: true, wantText: "", wantConsumed: 2, wantBlankMeta: true},
 		{name: "none framing keeps compact next record", option: "%s", record: []byte{0x01, 0x00, 'A', 0x01, 0x40}, endian: LittleEndian, noneFraming: true, wantText: "A", wantConsumed: 3, wantBlankMeta: true},
-		{name: "framed rejects non-zero alignment padding", option: "%s", record: []byte{0x01, 0x00, 'A', 'B'}, endian: LittleEndian, wantContains: "non-zero alignment padding", wantConsumed: 4, wantBlankMeta: true},
-		{name: "malformed ignore still errors", option: "ignore", record: []byte{0x04, 0x00, 'A'}, endian: LittleEndian, wantContains: "malformed counted typeX0 packet", wantConsumed: 3, wantBlankMeta: true},
+		{name: "framed rejects non-zero alignment padding", option: "%s", record: []byte{0x01, 0x00, 'A', 'B'}, endian: LittleEndian, wantContains: "non-zero alignment padding", wantConsumed: 4, wantBlankMeta: true, wantDiagnostic: true},
+		{name: "malformed ignore still errors", option: "ignore", record: []byte{0x04, 0x00, 'A'}, endian: LittleEndian, wantContains: "malformed counted typeX0 packet", wantConsumed: 3, wantBlankMeta: true, wantDiagnostic: true},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -223,6 +263,8 @@ func TestHandleTypeX0(t *testing.T) {
 			got := HandleTypeX0(tc.record, tc.endian, tc.noneFraming)
 			assert.Equal(t, tc.wantConsumed, got.Consumed)
 			assert.Equal(t, tc.wantBlankMeta, got.BlankMetadata)
+			assert.Equal(t, tc.wantDiagnostic, got.Diagnostic)
+			assert.Equal(t, tc.wantTag, got.Tag)
 			if tc.wantContains != "" {
 				assert.Contains(t, got.Text, tc.wantContains)
 				return

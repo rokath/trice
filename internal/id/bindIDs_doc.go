@@ -15,7 +15,7 @@
 // They help a parent build preserve IDs previously assigned by a nested or
 // differently rooted project, but they never become additional write targets.
 // This distinction allows one source file to retain its File Key while fresh
-// sidecars are generated in a different build/triceIDs directory.
+// sidecars are generated in a different generated directory.
 //
 // # Bounded Discovery
 //
@@ -51,8 +51,8 @@
 // remains fatal because the original owner cannot be inferred safely.
 //
 // For a source that already owns a File Key, discovery looks for its exact
-// sidecar filename in the current BindDir and in conventional build/triceIDs
-// directories along the bounded search corridor. Historical sidecars are
+// sidecar filename in the current BindDir, generated directories, and legacy
+// build/triceIDs directories along the bounded search corridor. Historical sidecars are
 // parsed only as ID evidence. They are never copied: their line descriptors may
 // be stale after source edits. Current Trice sites are analyzed again, old IDs
 // are validated through available TIL data, and equal TriceFmt values are
@@ -79,12 +79,25 @@
 //   - a newly allocated ID from the primary ID range.
 //
 // Candidate ordering is deterministic by evidence strength, search proximity,
-// line distance, numeric ID, and metadata path. Each numeric ID is claimed by
+// positional evidence, numeric ID, and metadata path. Each numeric ID is claimed by
 // at most one active site in a bind plan. Repeated equal TriceFmt values use
 // sidecar and LI evidence when available and otherwise receive sorted IDs in
 // sorted source order. Without any persistent location evidence, the exact old
 // per-site association of identical formats is unknowable, but decoding remains
 // correct and the fallback remains reproducible.
+//
+// For repeated equal TriceFmt values in one source file, LI candidates use
+// stored line order instead of distance to each current call. Source-order
+// traversal consumes the earliest available candidate first, preserving the ID
+// sequence across line shifts. Equal stored lines use numeric ID order. Single
+// current occurrences retain nearest-line matching. This uses the existing
+// parsed sites and format indexes without an additional source scan.
+//
+// Valid sidecar assignments take precedence over conflicting LI positions;
+// the current BindDir sidecar outranks discovered sidecars. File modification
+// times are irrelevant. LI stores only one position per ID, not version history,
+// and receives the current assigned positions after bind. Adding, removing, or
+// reordering identical calls can leave their former identities ambiguous.
 //
 // Preferred historical IDs are inserted only into an in-memory copy of the
 // source and then processed by insertTriceIDs. Bind therefore does not maintain

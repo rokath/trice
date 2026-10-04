@@ -15,6 +15,7 @@ import (
 	"sync"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 )
@@ -466,7 +467,11 @@ func fixedNumericShape(triceFormat id.TriceFmt) (candidateShape, error) {
 		return candidateShape{}, fmt.Errorf("type %q is not a Trice type", triceFormat.Type)
 	}
 
-	_, formatKinds := decoder.UReplaceN(triceFormat.Strg)
+	template, err := fmtspec.ParseTemplate(triceFormat.Strg, nil)
+	if err != nil {
+		return candidateShape{}, err
+	}
+	_, formatKinds := decoder.UReplaceN(template.Format)
 	fullType, err := id.ConstructFullTriceInfo(typeName, len(formatKinds))
 	if err != nil {
 		return candidateShape{}, fmt.Errorf("cannot reconstruct type %q: %w", triceFormat.Type, err)

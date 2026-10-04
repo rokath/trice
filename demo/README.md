@@ -38,7 +38,7 @@ Each demo has its own `build` directory. These directories contain generated
 files only:
 
 ```text
-demo/build/triceIDs/       shared generated bind headers
+demo/generated/            shared generated bind headers and field registry
 demo/deferred/build/       demo_deferred and log.bin
 demo/direct/build/         demo_direct and log.bin
 ```
@@ -47,14 +47,14 @@ On Windows, the application name additionally has the `.exe` suffix. The script
 automatically starts it under the correct name.
 
 `trice bind` runs without options from the demo directory and therefore uses
-`til.json`, `li.json`, and `build/triceIDs` directly. `trice log` also runs from
+`til.json`, `li.json`, and `generated` directly. `trice log` also runs from
 this directory and needs only `FILEBUFFER` and the path to the respective
 `log.bin`. These demos do not require `tlog`.
 
 On the first run, `trice bind` automatically adds the initially unfamiliar line
 `#include "trice_main_c_K...h"` to each `main.c`. The file name is generated; the
 user neither writes nor maintains it. The included header is then located under
-`build/triceIDs`.
+`generated`.
 
 ## Shared and Local Files
 

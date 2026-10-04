@@ -228,10 +228,10 @@ module.c
 
 Der Basisname einschließlich Source-Extension dient der Lesbarkeit. Zeichen außerhalb `[A-Za-z0-9_]` werden durch `_` ersetzt. Die Eindeutigkeit liefert der File Key.
 
-Alle Sidecars liegen standardmäßig flach unter dem vom User gewählten `-bindDir` mit Default:
+Alle Sidecars liegen standardmäßig flach unter dem vom User gewählten `-genDir` mit Default:
 
 ```text
-./build/triceIDs
+./generated
 ```
 
 Der Ordner wird bei Bedarf erzeugt und MUSS unabhängig von den User-Ausschlüssen automatisch vom Source-Scan ausgeschlossen werden. Der Build benötigt diesen Ordner als Include-Pfad.
@@ -349,15 +349,15 @@ In der `bind`-Hilfe dürfen diese Optionen vollständig angezeigt werden. Die Im
 
 Nicht übernommen werden nur Optionen, die ausschließlich die textuelle Darstellung dauerhaft instrumentierter Userquellen steuern und im Bind-Ablauf keine definierte Wirkung besitzen.
 
-### 8.3 Bind-spezifische Option
+### 8.3 Build-Verzeichnis
 
 ```text
--bindDir string
-    Ausgabeordner der Sidecar-Header.
-    Default: ./build/triceIDs
+-genDir string
+    Ausgabeordner der Sidecar-Header und des Feldregisters trice-fields.txt.
+    Default: ./generated
 ```
 
-Der endgültige Optionsname darf an bestehende Projektkonventionen angepasst werden; die Semantik ist verbindlich.
+`bind` und `insert` verwenden denselben Optionsnamen. Der frühere Schalter `-bindDir` wird abgewiesen.
 
 ### 8.4 Dry Run
 
@@ -730,7 +730,7 @@ Folgerung:
 2. `trice clean` ausführen, damit die zu migrierenden Dateien keine IDs größer null mehr enthalten.
 3. `trice bind` ausführen.
 4. Eingefügte Sidecar-Includes, `til.json` und `li.json` reviewen und versionieren.
-5. `build/triceIDs` als generierten Ordner behandeln.
+5. `generated` als generierten Ordner behandeln.
 6. `trice bind` als verpflichtenden Pre-Build-Schritt integrieren.
 
 Ist `TRICE_CLEAN` vorhanden, setzt `clean` den Wert zunächst auf `1`; `bind` setzt ihn anschließend auf `0`.
@@ -783,7 +783,7 @@ Gemeinsame Insert-/Bind-Funktionalität wird extrahiert oder parametrisiert, nic
 
 1. Optionen und Pfade validieren.
 2. `til.json` und `li.json` mit der bestehenden Logik laden.
-3. Kandidatendateien mit derselben Walk- und Ausschlusslogik wie `trice insert` bestimmen; `bindDir` zusätzlich ausschließen.
+3. Kandidatendateien mit derselben Walk- und Ausschlusslogik wie `trice insert` bestimmen; das Build-Verzeichnis zusätzlich ausschließen.
 4. Dateien parallel einlesen und `TRICE_INSERT_OFF`-/`ON`-Bereiche maskieren.
 5. Vorhandene Sidecar-Includes und File Keys erfassen.
 6. Dateien als Insert-owned, Bind-owned oder mixed klassifizieren.

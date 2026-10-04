@@ -36,8 +36,8 @@ interpretation is:
 Project-level documentation:
 
 - Repository: [github.com/rokath/trice](https://github.com/rokath/trice)
-- Main README: [github.com/rokath/trice/blob/main/README.md](https://github.com/rokath/trice/blob/main/README.md)
-- User Manual: [github.com/rokath/trice/blob/main/docs/TriceUserManual.md](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md)
+- Main README: [README.md](../README.md)
+- User Manual: [TriceUserManual.md](../docs/TriceUserManual.md)
   - Generated release asset: `TriceUserManual.pdf`
 
 ## Configuration Model

@@ -15,13 +15,23 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_100_test_common.sh"
 
 main() {
+  local repository_root_uri
+  local repository_source_remap
+
   init_logfile
   if ! has_command lychee; then
     log "MISSING TOOL: lychee"
     log "SKIP: lychee not installed"
     exit 0
   fi
-  run_cmd lychee --config "$ROOT/lychee.toml" . || {
+  # Git Bash exposes a Windows drive as /c/... while file URIs require /c:/....
+  case "$ROOT" in
+    /[[:alpha:]]/*) repository_root_uri="file:///${ROOT:1:1}:${ROOT:2}" ;;
+    *) repository_root_uri="file://$ROOT" ;;
+  esac
+  # Keep the absolute URL in CLI help while validating its repository target locally.
+  repository_source_remap="https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c $repository_root_uri/_test/testdata/triceCheck.c"
+  run_cmd lychee --config "$ROOT/lychee.toml" --remap "$repository_source_remap" . || {
     log "FAIL: lychee failed"
     exit 1
   }

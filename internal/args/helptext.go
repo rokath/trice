@@ -71,7 +71,8 @@ func resetHelpGenerationDefaults() {
 	id.LIFnJSON = "li.json"
 	id.LIRoot = ""
 	id.LIMaxDirs = 0
-	id.BindDir = "./build/triceIDs"
+	id.BindDir = id.DefaultGenDir
+	id.FieldsDir = id.DefaultGenDir
 	id.Min = id.TriceID(1000)
 	id.Max = id.TriceID(7999)
 	id.SearchMethod = "random"

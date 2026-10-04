@@ -13,11 +13,19 @@
 * Do not refactor, rename, or reorganize unrelated code.
 * Avoid "drive-by" improvements outside the requested scope.
 * If additional improvements seem beneficial, propose them separately instead of applying them automatically.
+* Treat directories named `obsolete` and other explicitly archived material as read-only history, even when the user allows edits to their parent directory. Do not edit, move, delete, reindex, or repair links in archived files unless the user explicitly names the archived material as a target.
+* When an active-document change leaves a stale reference inside an archive, leave the archive unchanged. Update active references within scope and report any remaining link limitation when relevant.
 * Changes to `demo*.json` at the repository root are usually generated or local-test artifacts. Unless the user explicitly asks for them, ignore such worktree changes silently and do not treat them as part of the task.
 
 ## Change scope and confirmation
 
 - Make only the changes needed for the task the user explicitly requested.
+- Treat explicit user decisions, exclusions, and clarifications from earlier conversation turns as binding until the user changes them. They take precedence over repository drafts, issues, plans, and inferred implementation requirements.
+- Use documentation to interpret the requested work, but never use it to revive rejected or deferred work or to expand the agreed scope.
+- Do not add migration, compatibility, data-conversion, or cleanup work as an implementation detail unless the user explicitly included or approved that effort.
+- Before implementation, establish the intended observable result and its scope. If any material part is not completely clear, or multiple plausible results remain, ask the user before starting the dependent implementation; do not choose an interpretation and proceed silently.
+- When the user refers to a numbered item in a plan or issue list, distinguish editing that item's specification from implementing it. Requests such as "adjust A4" or "update A4" mean revise the plan text for review; change code, tests, CLI help, or user documentation only when the user explicitly asks to implement the item or names those changes.
+- A decision made while discussing a planned item authorizes recording that decision in the plan when requested; it is not a start command for implementation. If the wording could reasonably mean either plan revision or implementation, ask which one the user intends before touching implementation files.
 - Do not perform opportunistic refactors, broad cleanups, renames, rewrites, or diagnostic-output removals unless the user explicitly asks for them.
 - Preserve existing comments, usage/help text, workflow steps, log output, and diagnostics unless changing them is required for the requested task.
 - If you see a useful improvement outside the requested scope, describe it and ask before implementing it.
@@ -33,6 +41,8 @@
 * Task-relevant edits to version-controlled files are pre-approved, including source files in `./src`; do not request a special file or directory permission.
 * Pause only for a genuinely important ambiguous decision, an unrecoverable or destructive action outside the clearly requested scope, or a technically enforced platform approval that cannot be avoided.
 * Only `git commit` and `git push` require an explicit user instruction. Never infer either operation from a request to implement, fix, test, or format changes.
+* Once the user has authorized a task or confirmed an action, continue through its routine implementation steps without asking for the same permission again. Technical details such as staging related files, splitting requested commits, choosing temporary paths, or running focused checks do not require another conversational approval.
+* Use existing platform approvals and approved command prefixes directly. Do not turn optional tooling choices into additional approval gates; prefer an already-authorized equivalent. If a platform prompt is unavoidable, keep independent work moving and do not request the same pending approval repeatedly.
 
 ---
 
@@ -46,8 +56,10 @@
 * Prefer minimal, reviewable diffs over large transformations.
 * Keep formatting changes separate from functional changes.
 * Do not reformat entire files unless explicitly requested.
+* Preserve existing blank lines and paragraph spacing in documentation and other text files unless the requested change explicitly requires altering them; do not collapse or normalize blank-line structure as incidental formatting.
 * Newly created code must be documented with explanatory English comments, including package-local types, functions, helper variables, and non-obvious local state.
 * Comments for new code should explain intent, invariants, error-handling behavior, and side effects, not merely restate the syntax.
+* Insert Headlines with several # only, according to the intended level. Add no link anchors and no numbers to headlines. 
 
 ---
 
@@ -167,7 +179,7 @@
 
 ## Commits
 
-* If asked to "commit first", create only the requested safety commit and stop for confirmation before further edits.
+* If asked only to "commit first", create the requested commits without inferring further implementation work. If the user explicitly says "commit, then implement ...", complete both steps in that order without another confirmation between them.
 * For a commit request, the primary deliverable is a meaningful, accurate commit message for each cohesive change group. Creating the Git commit itself is preferred when the environment permits it, but is not required when `.git` writes are blocked by the sandbox.
 * If `.git` writes are blocked, do not repeatedly request permissions or wait on approval dialogs. Make at most one normal commit attempt, then stage the relevant files when permitted and show the user the exact ready-to-run `git commit -m "..."` command.
 * When handing off a staged commit, state clearly which files or change topic are staged and which worktree changes were intentionally excluded. Do not claim that a commit was created unless `git commit` actually succeeded.
@@ -186,6 +198,7 @@
 
 ## Tests
 
+* Write thorough, easy-to-understand behavioral tests by default for nontrivial changes; the user need not request them separately. Use descriptive case names, readable inputs and expected outputs, and cover relevant success, rejection, and boundary cases.
 * Prefer `github.com/stretchr/testify/assert` for new assertion-style Go tests.
 * For thorough routine validation, prefer `./scripts/testAll.sh` without arguments.
 * Use `./scripts/testAll.sh full` only as a final validation step or when C-code-relevant changes need broad compiler-switch coverage.

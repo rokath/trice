@@ -46,6 +46,7 @@ func renderBindSidecar(plans []bindFilePlan, planIndex int) []byte {
 	}
 	fmt.Fprintf(&builder, "#define TRICE_BIND_ROUTE_%s BIND\n\n", plan.key)
 	fmt.Fprintf(&builder, "// -defaultStampSize %d\n", DefaultStampSize)
+	renderBindContext(&builder, plan)
 
 	for _, site := range definitions {
 		fmt.Fprintf(
@@ -92,8 +93,8 @@ func renderBindSidecar(plans []bindFilePlan, planIndex int) []byte {
 		if len(name) > nameWidth {
 			nameWidth = len(name)
 		}
-		if len(site.mode) > modeWidth {
-			modeWidth = len(site.mode)
+		if width := len(bindContextMode(plan.key, site)); width > modeWidth {
+			modeWidth = width
 		}
 		if len(tid) > tidWidth {
 			tidWidth = len(tid)
@@ -107,7 +108,7 @@ func renderBindSidecar(plans []bindFilePlan, planIndex int) []byte {
 			nameWidth,
 			bindSiteMacroName(plan.key, descriptor.line),
 			modeWidth+1,
-			string(site.mode)+",",
+			bindContextMode(plan.key, site)+",",
 			tidWidth,
 			bindReferenceTID(plans, descriptor.ref),
 			descriptor.comment,
@@ -300,7 +301,7 @@ func renderBindRebaseModes(builder *strings.Builder, plan *bindFilePlan) {
 	builder.WriteString("#if !defined(TRICE_BIND_TARGET_ACTIVE)\n")
 	builder.WriteString("// Trice target dispatch is disabled by TRICE_CLEAN or TRICE_OFF.\n")
 	builder.WriteString("#elif !defined(__COUNTER__)\n")
-	builder.WriteString("#error \"trice bind: this advanced source construct requires __COUNTER__; normal bind sites are unaffected; use trice insert/clean, split Trice calls onto separate lines, or replace the wrapper with a normal/static inline function\"\n")
+	fmt.Fprintf(builder, "#error trice bind: this advanced source construct requires __COUNTER__; normal bind sites are unaffected. %s\n", bindLimitsHint)
 	builder.WriteString("#elif !defined(TRICE_BIND_REBASE_SCOPE)\n")
 	builder.WriteString("#error \"trice bind: generated rebase BEGIN has no scope descriptor\"\n")
 	builder.WriteString("#elif defined(TRICE_BIND_REBASE_ACTIVE)\n")

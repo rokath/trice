@@ -69,13 +69,67 @@ func init() {
 // trexDec is the decoder instance for TREX-encoded Trices.
 type trexDec struct {
 	decoder.DecoderData
-	cycle          uint8  // cycle date: c0...bf
-	pFmt           string // modified trice format string: %u -> %d
-	u              []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
-	packageFraming int
-	visEnabled     bool              // avoids record-capture work unless the translator has an active -vis router
-	visRecord      decoder.VisRecord // typed data for the most recently decoded supported numeric Trice
-	visValid       bool              // true only when visRecord belongs to the most recent successful Read
+	inputErr           error  // Latest input result; EOF is returned only after buffered work stops progressing.
+	inputBytes         uint64 // Counts received bytes so consuming a frame and refilling it still counts as progress.
+	cycle              uint8  // cycle date: c0...bf
+	pFmt               string // modified trice format string: %u -> %d
+	u                  []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
+	packageFraming     int
+	visEnabled         bool                      // avoids record-capture work unless the translator has an active -vis router
+	visRecord          decoder.VisRecord         // typed data for the most recently decoded supported numeric Trice
+	visValid           bool                      // true only when visRecord belongs to the most recent successful Read
+	outputSpans        [4]decoder.OutputSpan     // fixed storage separates diagnostics without per-read allocation
+	outputSpanCount    int                       // number of valid entries in outputSpans for the most recent Read
+	sprintDiagnostic   bool                      // classifies text emitted by the current sprintTrice call
+	template           fmtspec.Template          // shared schema derived from the current canonical TIL entry
+	record             decoder.ApplicationRecord // typed facts of the most recent successful event
+	recordValid        bool                      // also represents successful events whose message is empty
+	recordMessageReady bool                      // a complete machine message was retained before the bounded text copy
+	recordParts        strings.Builder           // unbounded message assembly for classic buffer/function logs
+}
+
+// ApplicationRecord returns an event independently of the legacy text spans.
+func (p *trexDec) ApplicationRecord() (decoder.ApplicationRecord, bool) {
+	return p.record, p.recordValid
+}
+
+// DecodedOutputSpans returns the typed output ranges produced by the most recent Read.
+func (p *trexDec) DecodedOutputSpans() []decoder.OutputSpan {
+	return p.outputSpans[:p.outputSpanCount]
+}
+
+// markOutput records one non-empty decoded range and coalesces adjacent ranges
+// of the same kind. Four slots cover diagnostic/application/diagnostic output.
+func (p *trexDec) markOutput(start, end int, kind decoder.OutputKind) {
+	if start >= end {
+		return
+	}
+	if p.outputSpanCount > 0 {
+		last := &p.outputSpans[p.outputSpanCount-1]
+		if last.End == start && last.Kind == kind {
+			last.End = end
+			return
+		}
+	}
+	if p.outputSpanCount == len(p.outputSpans) {
+		// Overflow is not expected; treating the remaining text as diagnostic
+		// prevents tool output from entering application-only consumers.
+		last := &p.outputSpans[p.outputSpanCount-1]
+		last.End = end
+		last.Kind = decoder.OutputDiagnostic
+		return
+	}
+	p.outputSpans[p.outputSpanCount] = decoder.OutputSpan{Start: start, End: end, Kind: kind}
+	p.outputSpanCount++
+}
+
+// markApplication records one application range together with the tag
+// candidate derived from its format template.
+func (p *trexDec) markApplication(start, end int, tag string) {
+	p.markOutput(start, end, decoder.OutputApplication)
+	if start < end && p.outputSpanCount > 0 {
+		p.outputSpans[p.outputSpanCount-1].Tag = tag
+	}
 }
 
 // SetVisRecordEnabled controls optional typed-record capture without changing normal decoding.
@@ -139,9 +193,8 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 func (p *trexDec) nextData() {
 	m, err := p.In.Read(p.InnerBuffer)      // use p.InnerBuffer as destination read buffer
 	p.B = append(p.B, p.InnerBuffer[:m]...) // merge with leftovers
-	if err != nil && err != io.EOF {        // some serious error
-		log.Fatal("ERROR:internal reader error\a", err) // exit
-	}
+	p.inputErr = err
+	p.inputBytes += uint64(m)
 }
 
 // nextPackage reads with an inner reader a TCOBSv1 encoded byte stream.
@@ -152,7 +205,8 @@ func (p *trexDec) nextData() {
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *trexDec) nextPackage() {
+func (p *trexDec) nextPackage() string {
+	var diagnostic strings.Builder
 	// Here p.IBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.IBuf.
 	var index int
@@ -161,14 +215,13 @@ func (p *trexDec) nextPackage() {
 		if index == -1 {                   // p.IBuf has no complete COBS data, so try to read more input
 			m, err := p.In.Read(p.InnerBuffer)            // use p.InnerBuffer as bytes read buffer
 			p.IBuf = append(p.IBuf, p.InnerBuffer[:m]...) // merge with leftovers
-			if err != nil && err != io.EOF {              // some serious error
-				log.Fatal("ERROR:internal reader error\a", err) // exit
-			}
+			p.inputErr = err
+			p.inputBytes += uint64(m)
 			index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
 			if index == -1 {                   // p.IBuf has no complete COBS data, so leave
 				// Even err could be io.EOF, some valid data possibly in p.iBUf.
 				// In case of file input (J-LINK usage) a plug off is not detectable here.
-				return // no terminating 0, nothing to do
+				return diagnostic.String() // no terminating 0, nothing to do
 			}
 		}
 		if index != 0 {
@@ -194,11 +247,12 @@ func (p *trexDec) nextPackage() {
 		n, e := cobs.Decode(p.B, frame) // if index is 0, an empty buffer is decoded
 		p.IBuf = p.IBuf[index+1:]       // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
-			if decoder.Verbose {
-				fmt.Println("\ainconsistent COBS buffer!") // show also terminating 0
-			}
+			fmt.Fprintln(&diagnostic, "ERROR:\ainconsistent COBS buffer:", e)
+			fmt.Fprintln(&diagnostic, hex.Dump(frame))
+			p.B = p.B[:0] // a partial decoder result is not an application record
+		} else {
+			p.B = p.B[:n]
 		}
-		p.B = p.B[:n]
 
 	case packageFramingTCOBS:
 	repeat:
@@ -211,9 +265,9 @@ func (p *trexDec) nextPackage() {
 			var bytesCount int
 			if len(s) >= 3 {
 				var newLines int
-				fmt.Println(s[0])
-				fmt.Println(s[1])
-				fmt.Println(s[2])
+				fmt.Fprintln(&diagnostic, s[0])
+				fmt.Fprintln(&diagnostic, s[1])
+				fmt.Fprintln(&diagnostic, s[2])
 				for _, b := range frame {
 					frame = frame[1:]
 					bytesCount++
@@ -228,10 +282,8 @@ func (p *trexDec) nextPackage() {
 				index -= bytesCount
 				goto repeat
 			}
-			if decoder.Verbose {
-				fmt.Println(e, "\ainconsistent TCOBSv1 buffer:")
-				fmt.Println(e, hex.Dump(frame)) // show also terminating 0
-			}
+			fmt.Fprintln(&diagnostic, "ERROR:\ainconsistent TCOBSv1 buffer:", e)
+			fmt.Fprintln(&diagnostic, hex.Dump(frame))
 			e = nil
 			p.B = p.B[:0]
 			p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any) // from merging:
@@ -255,6 +307,7 @@ func (p *trexDec) nextPackage() {
 			decoder.Dump(p.W, p.B)
 		}
 	}
+	return diagnostic.String()
 }
 
 // isZero reports whether all bytes in the slice are zero.
@@ -276,7 +329,7 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 	case decoder.BigEndian:
 		// Big endian case: 00 00 AA AA C0 00 -> 00 AA AA C0 00 -> still typeX0 -> AA AA C0 00 -> ok next package
 		if s[0] != 0 {
-			fmt.Println("unexpected case in line 273", string(s))
+			fmt.Fprintln(p.W, "unexpected case in line 273", string(s))
 		}
 		r = s[1:]
 	case decoder.LittleEndian:
@@ -288,12 +341,13 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 		}
 		r = append(s[:1], s[2:]...)
 	default:
-		fmt.Println("unexpected case 927346193377", string(s))
+		fmt.Fprintln(p.W, "unexpected case 927346193377", string(s))
 	}
 	return
 }
 
-// Read returns a single Trice conversion result or a single error message in b[:n].
+// Read returns application text and tool diagnostics in b[:n] and classifies
+// their ranges through DecodedOutputSpans.
 // Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
@@ -303,13 +357,30 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 // trice strings, each ending with a newline despite the last one, when messages added.
 // Read does not process all internally read complete trice packages to be able later to
 // separate Trices within one line to keep them separated for color processing.
-// Therefore, Read needs to be called cyclically even after returning io.EOF to process internal data.
-// When Read returns n=0, all processable complete trice packages are done,
-// but the start of a following trice package can be already inside the internal buffer.
-// In case of a not matching cycle, a warning message in trice format is prefixed.
-// In case of invalid package data, error messages in trice format are returned and the package is dropped.
+// An empty read can still represent progress through a filtered or empty record.
+// EOF is returned only when input is exhausted and no buffered progress remains.
+// A partial final packet is retained, allowing live file readers to resume later.
+// In case of a non-matching cycle, a diagnostic is prefixed to valid application text.
+// Invalid package data produces only diagnostics and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
+	// Buffer lengths alone are insufficient: a read can refill exactly what the
+	// decoder consumes. Include received bytes and empty application records.
+	beforeB, beforeIBuf, beforeBytes := len(p.B), len(p.IBuf), p.inputBytes
+	defer func() {
+		if p.inputErr != nil && p.inputErr != io.EOF {
+			err = p.inputErr
+		} else if n == 0 && !p.recordValid && p.inputErr == io.EOF &&
+			beforeB == len(p.B) && beforeIBuf == len(p.IBuf) && beforeBytes == p.inputBytes {
+			err = io.EOF
+		}
+	}()
+	p.record = decoder.ApplicationRecord{}
+	p.recordValid = false
+	p.recordMessageReady = false
+	p.recordParts.Reset()
 	decoder.BlankMetadata = false
+	p.outputSpanCount = 0
+	p.sprintDiagnostic = false
 	if p.visEnabled {
 		// A failed, incomplete, or unsupported read must never expose the previous record again.
 		p.visRecord = decoder.VisRecord{}
@@ -325,17 +396,22 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if len(p.B) == 1 { // one leftover byte cannot form a supported framed record
 			n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short packet size 1 - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+			p.markOutput(0, n, decoder.OutputDiagnostic)
 			p.B = p.B[:0]
 			return n, nil
 		}
 		if len(p.B) == 0 { // last decoded package exhausted
-			p.nextPackage() // returns one decoded package inside p.B
+			diagnostic := p.nextPackage() // returns one decoded package inside p.B
+			diagnosticStart := n
+			n += copy(b[n:], diagnostic)
+			p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		}
 	}
 	packageSize := len(p.B)
 	if packageSize == 1 && p.packageFraming != packageFramingNone {
 		n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short packet size 1 - ignoring package:"))
 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
+		p.markOutput(0, n, decoder.OutputDiagnostic)
 		p.B = p.B[:0]
 		return n, nil
 	}
@@ -344,6 +420,32 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	packed := p.B
 	tyId := p.ReadU16(p.B)
+	// Unframed reads can stop in the header or payload. Keep the complete
+	// prefix until another read supplies the missing bytes, instead of treating
+	// a transport fragment as a malformed record and losing synchronization.
+	if p.packageFraming == packageFramingNone && tyId>>decoder.IDBits != typeX0 {
+		headerSize := tyIdSize + ncSize
+		switch int(tyId >> decoder.IDBits) {
+		case typeS2:
+			headerSize += 2
+			if Doubled16BitID {
+				headerSize += tyIdSize
+			}
+		case typeS4:
+			headerSize += 4
+		}
+		if len(p.B) < headerSize {
+			return
+		}
+		nc := p.ReadU16(p.B[headerSize-ncSize:])
+		payloadSize := int(nc >> 8)
+		if nc&0x8000 != 0 {
+			payloadSize = int(nc & 0x7fff)
+		}
+		if len(p.B) < headerSize+payloadSize && p.plausibleIncompletePayload(id.TriceID(tyId&0x3fff), payloadSize) {
+			return
+		}
+	}
 	p.B = p.B[tyIdSize:]
 
 	triceType := int(tyId >> decoder.IDBits) // most significant bit are the triceType
@@ -357,16 +459,23 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestamp = 0
 		decoder.TargetTimestampSize = 0
 		decoder.BlankMetadata = x0.BlankMetadata
-		if x0.Text == "" {
+		if x0.Text == "" && !x0.BlankMetadata {
 			return
 		}
 		n += copy(b[n:], x0.Text)
+		if x0.Diagnostic {
+			p.markOutput(0, n, decoder.OutputDiagnostic)
+		} else {
+			emitter.RecordTagEvent(x0.Tag)
+			p.markApplication(0, n, x0.Tag)
+			p.record = decoder.ApplicationRecord{Tag: x0.Tag, Message: x0.Text}
+			p.recordValid = true
+		}
 		return n, nil
 	}
 
 	triceID := id.TriceID(0x3FFF & tyId) // 14 least significant bits are the ID
 	decoder.LastTriceID = triceID        // used for showID
-	decoder.RecordForStatistics(triceID) // This is for the "trice log -stat" flag
 
 	switch triceType {
 	case typeS0: // no timestamp
@@ -386,6 +495,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 4
 	default:
 		n += copy(b[n:], fmt.Sprintln("ERROR:\aunknown trice type", triceType, "(hint: IDBits value?)"))
+		p.markOutput(0, n, decoder.OutputDiagnostic)
 		p.B = p.B[:0]
 		return n, nil
 	}
@@ -394,6 +504,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		if p.packageFraming != packageFramingNone {
 			n += copy(b[n:], fmt.Sprintln("ERROR:\aunsupported short non-X0 packet size", packageSize, "- ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(packed)))
+			p.markOutput(0, n, decoder.OutputDiagnostic)
 			p.B = p.B[:0]
 			return n, nil
 		}
@@ -432,35 +543,45 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize > packageSize { //  '>' for multiple trices in one package (case TriceOutMultiPackMode), todo: discuss all possible variants
 		if p.packageFraming == packageFramingNone {
+			diagnosticStart := n
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
 				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B0)))
 			}
+			p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 			p.B0 = p.B0[1:] // discard first byte and try again
 			p.B = p.B0
 			return
 		}
+		diagnosticStart := n
 		if decoder.Verbose {
 			n += copy(b[n:], fmt.Sprintln("ERROR:\apackage size", packageSize, "is <", p.TriceSize, " - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		p.B = p.B[len(p.B):] // discard buffer
+		return
 	}
 	if SingleFraming && p.TriceSize != packageSize {
+		diagnosticStart := n
 		if decoder.Verbose {
 			n += copy(b[n:], fmt.Sprintln("ERROR:\asingle framed package size", packageSize, "is !=", p.TriceSize, " - ignoring package:"))
 			n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B)))
 			n += copy(b[n:], fmt.Sprintln("tyIdSize=", tyIdSize, "tsSize=", decoder.TargetTimestampSize, "ncSize=", ncSize, "ParamSpae=", p.ParamSpace))
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		p.B = p.B[len(p.B):] // discard buffer
+		return
 	}
 
 	// cycle counter automatic & check
 	if cycle == 0xc0 && p.cycle != 0xc0 && decoder.InitialCycle { // with cycle counter and seems to be a target reset
+		diagnosticStart := n
 		n += copy(b[n:], fmt.Sprintln("warning:\a   Target Reset?   "))
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		p.cycle = cycle + 1 // adjust cycle
 		decoder.InitialCycle = false
 	}
@@ -478,9 +599,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	if cycle != 0xc0 && !DisableCycleErrors { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
+			diagnosticStart := n
 			n += copy(b[n:], fmt.Sprintln("CYCLE_ERROR:\a", cycle, "!=", p.cycle, " (count=", emitter.TagEvents("CYCLE_ERROR")+1, ")"))
 			n += copy(b[n:], "                                         ") // len of location information plus stamp: 41 spaces - see NewlineIndent below - todo: make it generic
-			p.cycle = cycle                                               // adjust cycle
+			p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
+			p.cycle = cycle // adjust cycle
 		}
 		decoder.InitialCycle = false
 		p.cycle++
@@ -491,11 +614,12 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.Trice, ok = p.Lut[triceID]
 	// Keep the LUT representation separate from the optional display-only newline mutation.
 	originalTrice := p.Trice
-	if AddNewlineToEachTriceMessage {
+	if AddNewlineToEachTriceMessage && decoder.LogFormat == "text" {
 		p.Trice.Strg += `\n` // this adds a newline to each single Trice message
 	}
 	p.LutMutex.RUnlock()
 	if !ok {
+		diagnosticStart := n
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:\adiscarding first byte", p.B0[0], "from:"))
@@ -509,6 +633,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 		return
 	}
 
@@ -524,12 +649,31 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	// Decoder diagnostics prefixed to a valid message make this Read unsuitable
 	// for record-oriented visualization, even if the numeric payload decodes.
-	hadPrefixedDiagnostic := n != 0
+	hadPrefixedDiagnostic := p.outputSpanCount != 0
+	applicationStart := n
 	n += p.sprintTrice(b[n:]) // use param info
-	if p.visEnabled && hadPrefixedDiagnostic {
+	if p.sprintDiagnostic {
+		p.markOutput(applicationStart, n, decoder.OutputDiagnostic)
+	} else {
+		// Only a successful application decode contributes to ID and tag
+		// statistics. The host may later hide it without changing totals.
+		decoder.RecordForStatistics(triceID)
+		tagCandidate := decoder.FormatTagCandidate(originalTrice.Strg)
+		emitter.RecordTagEvent(tagCandidate)
+		p.markApplication(applicationStart, n, tagCandidate)
+		p.record.Tag = tagCandidate
+		p.record.ID, p.record.HasID = triceID, true
+		p.record.Stamp, p.record.StampBits = decoder.TargetTimestamp, decoder.TargetTimestampSize*8
+		if !p.recordMessageReady {
+			p.record.Message = string(b[applicationStart:n])
+		}
+		p.recordValid = true
+	}
+	if p.visEnabled && (hadPrefixedDiagnostic || p.sprintDiagnostic) {
 		p.visValid = false
 	}
 	if len(p.B) < p.ParamSpace {
+		diagnosticStart := n
 		if p.packageFraming == packageFramingNone {
 			if decoder.Verbose {
 				n += copy(b[n:], fmt.Sprintln("wrn:discarding first byte", p.B0[0], "from:"))
@@ -543,6 +687,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
+		p.markOutput(diagnosticStart, n, decoder.OutputDiagnostic)
 	} else {
 		if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
 			p.B = p.B[p.ParamSpace:] // drop param info
@@ -561,6 +706,26 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 	}
 	return
+}
+
+// plausibleIncompletePayload distinguishes a split record from a corrupt
+// unframed length. Unknown IDs and impossible fixed-size payloads must continue
+// through the established byte-wise resynchronization path. Variable-length
+// records and types without an exact table entry retain their partial bytes.
+func (p *trexDec) plausibleIncompletePayload(tid id.TriceID, payloadSize int) bool {
+	p.LutMutex.RLock()
+	tf, known := p.Lut[tid]
+	p.LutMutex.RUnlock()
+	if !known {
+		return false
+	}
+	kind := strings.ToUpper(tf.Type)
+	for _, entry := range cobsFunctionPtrList {
+		if entry.triceType == kind && !isSpecialCaseTriceType(kind) {
+			return payloadSize == (entry.bitWidth>>3)*entry.paramCount
+		}
+	}
+	return true
 }
 
 // isSingleVisLine mirrors the line composer's escaped-newline interpretation.
@@ -598,12 +763,24 @@ func isSingleVisLine(format string) bool {
 //
 // p.Trice.Type is the received trice, in fact the name from til.json.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
+	p.sprintDiagnostic = false
 
 	isSAlias := strings.HasPrefix(p.Trice.Strg, id.SAliasStrgPrefix) && strings.HasSuffix(p.Trice.Strg, id.SAliasStrgSuffix)
 	if isSAlias { // A SAlias Strg is covered with id.SAliasStrgPrefix and id.SAliasStrgSuffix in til.json and it needs to be replaced with "%s" here.
 		p.Trice.Strg = "%s" // See appropriate comment inside insertTriceIDs().
 	}
 
+	template, templateErr := fmtspec.ParseTemplate(p.Trice.Strg, nil)
+	if templateErr != nil {
+		p.sprintDiagnostic = true
+		return copy(b, fmt.Sprintln("ERROR: invalid structured template:", templateErr))
+	}
+	if err := id.ValidateStructuredFields(p.Trice, template); err != nil {
+		p.sprintDiagnostic = true
+		return copy(b, fmt.Sprintln("ERROR:", err))
+	}
+	p.template = template
+	p.Trice.Strg = template.Format
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
 	// remove Assert* from triceAssert* name if found
@@ -615,6 +792,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	triceType, err := id.ConstructFullTriceInfo(p.Trice.Type, len(p.u))
 
 	if err != nil {
+		p.sprintDiagnostic = true
 		n += copy(b[n:], fmt.Sprintln("err:ConstructFullTriceInfo failed with:", p.Trice.Type, len(p.B), "- ignoring package:"))
 		return
 	}
@@ -623,6 +801,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	for _, s := range cobsFunctionPtrList {                // walk through the list and try to find a match for execution
 		if s.triceType == ucTriceTypeReconstructed || s.triceType == ucTriceTypeReceived { // match list entry "TRICE..."
 			if len(p.B) < p.ParamSpace {
+				p.sprintDiagnostic = true
 				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
 				n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
@@ -630,18 +809,22 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 			}
 			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
 				if !isSpecialCaseTriceType(s.triceType) {
+					p.sprintDiagnostic = true
 					n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package:"))
 					n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 					n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 					return
 				}
 			}
-			p.pFmt = applyMultilineIndent(p.pFmt)
+			if decoder.LogFormat == "text" {
+				p.pFmt = applyMultilineIndent(p.pFmt)
+			}
 
 			n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
 			return
 		}
 	}
+	p.sprintDiagnostic = true
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data:"))
 	n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:p.ParamSpace])))
 	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
@@ -834,12 +1017,14 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 
 func (p *trexDec) alignedParamBytes(b []byte, width int) (s []byte, n int, ok bool) {
 	if p.ParamSpace > len(p.B) {
+		p.sprintDiagnostic = true
 		n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package:"))
 		n += copy(b[n:], fmt.Sprintln(hex.Dump(p.B[:len(p.B)])))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		return nil, n, false
 	}
 	if p.ParamSpace%width != 0 {
+		p.sprintDiagnostic = true
 		dumpLen := p.ParamSpace
 		if dumpLen > len(p.B) {
 			dumpLen = len(p.B)
@@ -855,14 +1040,47 @@ func (p *trexDec) alignedParamBytes(b []byte, width int) (s []byte, n int, ok bo
 // triceN converts dynamic strings.
 func (p *trexDec) triceN(b []byte, _ int, _ int) int {
 	s := string(p.B[:p.ParamSpace])
+	p.captureStringFields(s)
 	// todo: evaluate p.Trice.Strg, use p.SLen and do whatever should be done
-	return copy(b, fmt.Sprintf(p.Trice.Strg, s))
+	return p.copyApplicationText(b, fmt.Sprintf(p.Trice.Strg, s))
 }
 
 // triceS converts dynamic strings.
 func (p *trexDec) triceS(b []byte, _ int, _ int) int {
 	s := string(p.B[:p.ParamSpace])
-	return copy(b, fmt.Sprintf(p.Trice.Strg, s))
+	p.captureStringFields(s)
+	return p.copyApplicationText(b, fmt.Sprintf(p.Trice.Strg, s))
+}
+
+// captureStringFields keeps the complete target string even when its display
+// precision clips text. triceS/triceN each transmit one string value.
+func (p *trexDec) captureStringFields(value string) {
+	for _, field := range p.template.Fields {
+		p.record.Fields = append(p.record.Fields, decoder.FieldValue{Name: field.Name, Value: value})
+	}
+}
+
+// copyApplicationText retains the entire machine message even when a printf
+// width exceeds the legacy decoder Read buffer. Structured fields never depend
+// on that text buffer, and the text mode keeps its established Read contract.
+func (p *trexDec) copyApplicationText(b []byte, text string) int {
+	if decoder.LogFormat != "text" {
+		p.record.Message = text
+		p.recordMessageReady = true
+	}
+	return copy(b, text)
+}
+
+// appendApplicationText retains every part of a classic buffer/function event.
+// Its bounded return preserves the text Read contract while machine records
+// keep the full message without quadratic string concatenation.
+func (p *trexDec) appendApplicationText(b []byte, text string) int {
+	if decoder.LogFormat != "text" {
+		p.recordParts.WriteString(text)
+		p.record.Message = p.recordParts.String()
+		p.recordMessageReady = true
+	}
+	return copy(b, text)
 }
 
 // triceB converts dynamic buffers.
@@ -874,14 +1092,14 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
-		n += copy(b[n:], prefix)
+		n += p.appendApplicationText(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue8(s[i], itemKind)))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf(itemFormat, bufferValue8(s[i], itemKind)))
 	}
 	if addLineBreak {
-		n += copy(b[n:], fmt.Sprintln())
+		n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -898,15 +1116,15 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
-		n += copy(b[n:], prefix)
+		n += p.appendApplicationText(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i += 2 {
 		nn := binary.LittleEndian.Uint16(s[i:])
-		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue16(nn, itemKind)))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf(itemFormat, bufferValue16(nn, itemKind)))
 	}
 	if addLineBreak {
-		n += copy(b[n:], fmt.Sprintln())
+		n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	}
 
 	return
@@ -924,15 +1142,15 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
-		n += copy(b[n:], prefix)
+		n += p.appendApplicationText(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i += 4 {
 		nn := binary.LittleEndian.Uint32(s[i:])
-		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue32(nn, itemKind)))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf(itemFormat, bufferValue32(nn, itemKind)))
 	}
 	if addLineBreak {
-		n += copy(b[n:], fmt.Sprintln())
+		n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -949,15 +1167,15 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	prefix, itemFormat, addLineBreak := splitChannelFormat(p.Trice.Strg)
 	itemFormat, itemKind := normalizeBufferItemFormat(itemFormat)
 	if prefix != "" {
-		n += copy(b[n:], prefix)
+		n += p.appendApplicationText(b[n:], prefix)
 	}
 
 	for i := 0; i < len(s); i += 8 {
 		nn := binary.LittleEndian.Uint64(s[i:])
-		n += copy(b[n:], fmt.Sprintf(itemFormat, bufferValue64(nn, itemKind)))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf(itemFormat, bufferValue64(nn, itemKind)))
 	}
 	if addLineBreak {
-		n += copy(b[n:], fmt.Sprintln())
+		n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	}
 	return
 }
@@ -968,11 +1186,11 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 		fmt.Fprintln(p.W, string(p.B))
 	}
 	s := p.B[:p.ParamSpace]
-	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
+	n += p.appendApplicationText(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i++ {
-		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf("(%02x)", s[i]))
 	}
-	n += copy(b[n:], fmt.Sprintln())
+	n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -985,11 +1203,11 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	if !ok {
 		return n
 	}
-	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
+	n += p.appendApplicationText(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 2 {
-		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintln())
+	n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -1002,11 +1220,11 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	if !ok {
 		return n
 	}
-	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
+	n += p.appendApplicationText(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 4 {
-		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintln())
+	n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -1019,11 +1237,11 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	if !ok {
 		return n
 	}
-	n += copy(b[n:], fmt.Sprint(p.Trice.Strg))
+	n += p.appendApplicationText(b[n:], fmt.Sprint(p.Trice.Strg))
 	for i := 0; i < len(s); i += 8 {
-		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
+		n += p.appendApplicationText(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
 	}
-	n += copy(b[n:], fmt.Sprintln())
+	n += p.appendApplicationText(b[n:], fmt.Sprintln())
 	return
 }
 
@@ -1033,18 +1251,43 @@ func (p *trexDec) trice0(b []byte, _ int, _ int) int {
 		p.visRecord.ValueCount = 0
 		p.visValid = true
 	}
-	return copy(b, fmt.Sprint(p.pFmt))
+	return p.copyApplicationText(b, fmt.Sprint(p.pFmt))
 }
 
 // triceC prints a no-payload ABC command as one complete output line.
 func (p *trexDec) triceC(b []byte, _ int, _ int) int {
-	return copy(b, fmt.Sprintln(p.pFmt))
+	return p.copyApplicationText(b, fmt.Sprintln(p.pFmt))
 }
 
 // unSignedOrSignedOut prints p.B according to the format string.
 func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
+		p.sprintDiagnostic = true
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.Trice.Type, p.Trice.Strg))
+	}
+	for _, field := range p.template.Fields {
+		if field.Argument >= count {
+			p.sprintDiagnostic = true
+			return copy(b, fmt.Sprintln("ERROR: structured field argument exceeds payload"))
+		}
+		data := p.B[field.Argument*(bitwidth/8):]
+		var raw uint64
+		switch bitwidth {
+		case 8:
+			raw = uint64(data[0])
+		case 16:
+			raw = uint64(p.ReadU16(data))
+		case 32:
+			raw = uint64(p.ReadU32(data))
+		case 64:
+			raw = p.ReadU64(data)
+		}
+		value, err := decoder.ScalarField(field, bitwidth, raw)
+		if err != nil {
+			p.sprintDiagnostic = true
+			return copy(b, fmt.Sprintln("ERROR:", err))
+		}
+		p.record.Fields = append(p.record.Fields, value)
 	}
 	// Keep normal decoding compatible with larger fixed-width Trices. The MVP
 	// visualization record deliberately captures only v0 through v11.
@@ -1076,6 +1319,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 					p.setVisBool(i, bitwidth, p.B[i] != 0)
 				}
 			default:
+				p.sprintDiagnostic = true
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
 		}
@@ -1099,6 +1343,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 					p.setVisBool(i, bitwidth, n != 0)
 				}
 			default:
+				p.sprintDiagnostic = true
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
 		}
@@ -1127,6 +1372,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 					p.setVisBool(i, bitwidth, n != 0)
 				}
 			default:
+				p.sprintDiagnostic = true
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.Trice.Type, p.Trice.Strg))
 			}
 		}
@@ -1155,6 +1401,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 					p.setVisBool(i, bitwidth, n != 0)
 				}
 			default:
+				p.sprintDiagnostic = true
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.Trice.Type, p.Trice.Strg))
 			}
 		}
@@ -1163,7 +1410,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		p.visRecord.ValueCount = min(count, decoder.VisValueCapacity)
 		p.visValid = true
 	}
-	return copy(b, fmt.Sprintf(p.pFmt, values...))
+	return p.copyApplicationText(b, fmt.Sprintf(p.pFmt, values...))
 }
 
 // setVisSigned stores an exact signed TREX parameter in the pending typed record.

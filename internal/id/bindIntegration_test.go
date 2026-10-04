@@ -440,6 +440,7 @@ void normal(void) {
 	output, err := runBindFixtureCompiler(compiler, "c99", advancedPath, filepath.Join(project, "advanced_no_counter.o"), noCounterFlags, includes...)
 	require.Error(t, err)
 	assert.Contains(t, string(output), "this advanced source construct requires __COUNTER__")
+	assert.Contains(t, string(output), bindLimitsHint, "the compiler guard points to the same actionable UM section as bind")
 	output, err = runBindFixtureCompiler(compiler, "c99", normalPath, filepath.Join(project, "normal_no_counter.o"), noCounterFlags, includes...)
 	require.NoErrorf(t, err, "%s", output)
 
@@ -632,7 +633,14 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	entries, err := os.ReadDir(BindDir)
 	require.NoError(t, err)
 	rebaseRegionCount := strings.Count(string(bound), bindRebaseIncludeMarker+"begin")
-	require.Len(t, entries, 1+2*rebaseRegionCount)
+	require.Len(t, entries, 2+2*rebaseRegionCount, "bind output includes the structured-field registry")
+	// The display-only PC test cannot reveal inferred field names; check the
+	// generator's registry for the two C member syntaxes used by the examples.
+	registry, err := os.ReadFile(filepath.Join(BindDir, "trice-fields.txt"))
+	require.NoError(t, err)
+	assert.Contains(t, string(registry), " motor.state\n")
+	assert.Contains(t, string(registry), " motorPtr.rpm\n")
+	assert.NotContains(t, string(registry), "motorPtr->rpm", "pointer member names are canonicalized")
 	var ownerName string
 	for _, include := range scanBindIncludes(string(bound)) {
 		if include.isSidecar {

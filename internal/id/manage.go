@@ -6,11 +6,13 @@ package id
 // List management
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 
@@ -24,7 +26,7 @@ func NewLut(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUp {
 	if fn == "emptyFile" { // reserved name for tests only
 		return lu
 	}
-	msg.FatalInfoOnErr(lu.fromFile(fSys, fn), fmt.Sprintf("Error in file %s?", fn))
+	msg.FatalInfoOnErr(lu.fromFile(fSys, fn, w), fmt.Sprintf("Error in file %s?", fn))
 	if Verbose {
 		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	}
@@ -37,7 +39,7 @@ func NewLutLI(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUpLI {
 	if fn == "emptyFile" { // reserved name for tests only
 		return li
 	}
-	msg.FatalOnErr(li.fromFile(fSys, fn))
+	msg.FatalOnErr(li.fromFile(fSys, fn, w))
 	if Verbose {
 		fmt.Fprintln(w, "Read ID location information file", fn, "with", len(li), "items.")
 	}
@@ -136,10 +138,10 @@ func (ilu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 }
 
 // FromJSON converts JSON byte slice to ilu.
-func (ilu TriceIDLookUp) FromJSON(b []byte) (err error) {
+func (ilu TriceIDLookUp) FromJSON(b []byte, diagnostics ...io.Writer) (err error) {
 	if 0 < len(b) {
 		if Verbose {
-			fmt.Println("Updating ilu.")
+			fmt.Fprintln(idDiagnosticWriter(diagnostics), "Updating ilu.")
 		}
 		err = json.Unmarshal(b, &ilu)
 	}
@@ -147,10 +149,10 @@ func (ilu TriceIDLookUp) FromJSON(b []byte) (err error) {
 }
 
 // FromJSON converts JSON byte slice to li.
-func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
+func (li TriceIDLookUpLI) FromJSON(b []byte, diagnostics ...io.Writer) (err error) {
 	if 0 < len(b) {
 		if Verbose {
-			fmt.Println("Updating li.")
+			fmt.Fprintln(idDiagnosticWriter(diagnostics), "Updating li.")
 		}
 		err = json.Unmarshal(b, &li)
 	}
@@ -158,37 +160,46 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 }
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
-func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
+func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string, diagnostics ...io.Writer) error {
 	b, e := fSys.ReadFile(fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(e, s)
 	if Verbose {
-		fmt.Println("ilu.fromFile", fn, "- file size is", len(b))
+		fmt.Fprintln(idDiagnosticWriter(diagnostics), "ilu.fromFile", fn, "- file size is", len(b))
 	}
-	return ilu.FromJSON(b)
+	return ilu.FromJSON(b, diagnostics...)
 }
 
 var Logging bool // Logging is true, when sub command log is active.
 
 // fromFile reads fSys file fn into lut.
-func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
+func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string, diagnostics ...io.Writer) error {
 	b, err := fSys.ReadFile(fn)
 	if err == nil { // file found
 		if Verbose {
-			fmt.Println("li.fromFile", fn, "- file size is", len(b))
+			fmt.Fprintln(idDiagnosticWriter(diagnostics), "li.fromFile", fn, "- file size is", len(b))
 		}
-		return li.FromJSON(b)
+		return li.FromJSON(b, diagnostics...)
 	}
 	// no li.json
 	if Logging {
 		if Verbose {
-			fmt.Println("File ", fn, "not found, not showing location information")
+			fmt.Fprintln(idDiagnosticWriter(diagnostics), "File ", fn, "not found, not showing location information")
 		}
 		return nil // silently ignore non existing file
 	}
 	s := fmt.Sprintf("%s not found, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(err, s)
 	return err // not reached
+}
+
+// idDiagnosticWriter preserves the legacy default while allowing machine log
+// commands to route every dictionary-loading diagnostic to their human channel.
+func idDiagnosticWriter(writers []io.Writer) io.Writer {
+	if len(writers) != 0 && writers[0] != nil {
+		return writers[0]
+	}
+	return os.Stdout
 }
 
 // AddFmtCount adds inside ilu to all trice type names without format specifier count the appropriate count.
@@ -274,7 +285,14 @@ func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 
 // toJSON converts lut into JSON byte slice in human-readable form.
 func (lu TriceIDLookUp) toJSON() ([]byte, error) {
-	return json.MarshalIndent(lu, "", "\t")
+	var out bytes.Buffer
+	encoder := json.NewEncoder(&out)
+	encoder.SetEscapeHTML(false)
+	encoder.SetIndent("", "\t")
+	if err := encoder.Encode(lu); err != nil {
+		return nil, err
+	}
+	return bytes.TrimSuffix(out.Bytes(), []byte("\n")), nil
 }
 
 // toFile atomically writes the ID lookup table to fn as indented JSON.

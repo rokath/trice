@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -290,6 +291,11 @@ func TestLookupToFileKeepsOriginalOnRenameError(t *testing.T) {
 // TestEvaluateIDRangeStringsAdditionalBranches covers the remaining validation
 // exits so range handling is protected before future id refactors.
 func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
+	errorTag, err := emitter.FindTagName("e")
+	require.NoError(t, err)
+	debugTag, err := emitter.FindTagName("dbg")
+	require.NoError(t, err)
+
 	tests := []struct {
 		name       string
 		idRange    ArrayFlag
@@ -300,11 +306,11 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 		wantCount  int
 	}{
 		{
-			name:      "entry without colon is ignored",
-			idRange:   ArrayFlag{"missing-separator"},
-			min:       10,
-			max:       20,
-			wantCount: 0,
+			name:       "entry without colon is rejected",
+			idRange:    ArrayFlag{"missing-separator"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid syntax in missing-separator - expecting "TagName:number,number"`,
 		},
 		{
 			name:       "missing max separator is rejected",
@@ -321,11 +327,53 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 			wantErrSub: `invalid syntax in e:x,100 - expecting "TagName:number,number"`,
 		},
 		{
+			name:       "invalid maximum is rejected",
+			idRange:    ArrayFlag{"e:100,x"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid syntax in e:100,x - expecting "TagName:number,number"`,
+		},
+		{
+			name:       "empty tag is rejected",
+			idRange:    ArrayFlag{":100,101"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid syntax in :100,101`,
+		},
+		{
+			name:       "empty minimum is rejected",
+			idRange:    ArrayFlag{"e:,101"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid syntax in e:,101`,
+		},
+		{
+			name:       "empty maximum is rejected",
+			idRange:    ArrayFlag{"e:100,"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid syntax in e:100,`,
+		},
+		{
+			name:       "zero is rejected",
+			idRange:    ArrayFlag{"e:0,1"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid -IDRange "e:0,1": IDs must satisfy 1 <= Min <= Max <= 16383`,
+		},
+		{
+			name:       "value above encoding limit is rejected",
+			idRange:    ArrayFlag{"e:16383,16384"},
+			min:        10,
+			max:        20,
+			wantErrSub: `invalid -IDRange "e:16383,16384": IDs must satisfy 1 <= Min <= Max <= 16383`,
+		},
+		{
 			name:       "minimum above maximum is rejected",
 			idRange:    ArrayFlag{"e:200,100"},
 			min:        10,
 			max:        20,
-			wantErrSub: "ID range is inval Min(200) > Max(100)",
+			wantErrSub: `invalid -IDRange "e:200,100": Min(200) > Max(100)`,
 		},
 		{
 			name:       "unknown tag is rejected",
@@ -339,14 +387,21 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 			idRange:    ArrayFlag{"e:100,102", "err:200,202"},
 			min:        10,
 			max:        20,
-			wantErrSub: "tagName e has already an assigned ID range",
+			wantErrSub: "tagName " + errorTag + " has already an assigned ID range",
 		},
 		{
 			name:       "range overlapping default interval is rejected",
 			idRange:    ArrayFlag{"e:15,25"},
 			min:        10,
 			max:        20,
-			wantErrSub: "overlapping ID ranges for e (Min 15, Max 25) and default (Min 10, Max 20)",
+			wantErrSub: "overlapping ID ranges for " + errorTag + " (Min 15, Max 25) and default (Min 10, Max 20)",
+		},
+		{
+			name:       "range sharing endpoint with default interval is rejected",
+			idRange:    ArrayFlag{"e:20,25"},
+			min:        10,
+			max:        20,
+			wantErrSub: "overlapping ID ranges for " + errorTag + " (Min 20, Max 25) and default (Min 10, Max 20)",
 		},
 		{
 			name:    "range overlapping configured tag interval is rejected",
@@ -354,9 +409,44 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 			min:     10,
 			max:     20,
 			initial: []TagEntry{
-				{tagName: "e", min: 200, max: 202},
+				{tagName: errorTag, min: 200, max: 202},
 			},
-			wantErrSub: "overlapping ID ranges for d (Min 201, Max 204) and e (Min 200, Max 202)",
+			wantErrSub: "overlapping ID ranges for " + debugTag + " (Min 201, Max 204) and " + errorTag + " (Min 200, Max 202)",
+		},
+		{
+			name:    "range sharing endpoint with configured tag interval is rejected",
+			idRange: ArrayFlag{"dbg:202,204"},
+			min:     10,
+			max:     20,
+			initial: []TagEntry{
+				{tagName: errorTag, min: 200, max: 202},
+			},
+			wantErrSub: "overlapping ID ranges for " + debugTag + " (Min 202, Max 204) and " + errorTag + " (Min 200, Max 202)",
+		},
+		{
+			name:       "valid rule before invalid rule leaves no partial state",
+			idRange:    ArrayFlag{"e:100,102", "missing-separator"},
+			min:        10,
+			max:        20,
+			wantErrSub: "missing-separator",
+			wantCount:  0,
+		},
+		{
+			name:      "single ID at lower encoding limit is accepted",
+			idRange:   ArrayFlag{"e:1,1"},
+			min:       10,
+			max:       20,
+			wantCount: 1,
+		},
+		{
+			name:    "adjacent ranges do not overlap",
+			idRange: ArrayFlag{"dbg:103,105"},
+			min:     10,
+			max:     20,
+			initial: []TagEntry{
+				{tagName: errorTag, min: 100, max: 102},
+			},
+			wantCount: 2,
 		},
 		{
 			name:    "distinct tag range is appended",
@@ -364,7 +454,7 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 			min:     10,
 			max:     20,
 			initial: []TagEntry{
-				{tagName: "e", min: 100, max: 102},
+				{tagName: errorTag, min: 100, max: 102},
 			},
 			wantCount: 2,
 		},
@@ -383,6 +473,7 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 			if tt.wantErrSub != "" {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.wantErrSub)
+				assert.Equal(t, tt.initial, IDData.TagList)
 				return
 			}
 

@@ -60,7 +60,11 @@ func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose 
 	}
 
 	w = triceOutput(w, fSys, logfileName, verbose)
-	evaluateColorPalette(w)
+	if id.Logging && decoder.LogFormat != "text" {
+		evaluateColorPalette(os.Stderr)
+	} else {
+		evaluateColorPalette(w)
+	}
 	return w
 }
 
@@ -68,11 +72,16 @@ func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose 
 // If fileName is not "none" or "off", the returned writer appends to that log file.
 func triceOutput(w io.Writer, fSys *afero.Afero, fileName string, verbose bool) io.Writer {
 	ioWriter := tcpWriter()
+	// Machine sinks receive records only; setup messages remain human output.
+	var diagnostics io.Writer = os.Stdout
+	if id.Logging && decoder.LogFormat != "text" {
+		diagnostics = os.Stderr
+	}
 
 	// start logging only if fn not "none" or "off"
 	if fileName == "none" || fileName == "off" {
 		if verbose {
-			fmt.Println("No logfile writing...")
+			fmt.Fprintln(diagnostics, "No logfile writing...")
 		}
 		return io.MultiWriter(w, ioWriter)
 	}
@@ -82,13 +91,13 @@ func triceOutput(w io.Writer, fSys *afero.Afero, fileName string, verbose bool) 
 	}
 
 	if verbose {
-		fmt.Println("Logfile is:", fileName)
+		fmt.Fprintln(diagnostics, "Logfile is:", fileName)
 	}
 
 	lfHandle, err := fSys.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if verbose {
-		fmt.Printf("Writing to logfile %s...\n", fileName)
+		fmt.Fprintf(diagnostics, "Writing to logfile %s...\n", fileName)
 	}
 
 	return io.MultiWriter(w, ioWriter, lfHandle)
@@ -113,8 +122,14 @@ func tcpWriter() io.Writer {
 	if TCPOutAddr == "" {
 		return io.Discard
 	}
+	// A TCP machine sink follows the same records-only contract as stdout.
+	var diagnostics io.Writer = os.Stdout
+	machine := id.Logging && decoder.LogFormat != "text"
+	if machine {
+		diagnostics = os.Stderr
+	}
 	// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
-	fmt.Println("Listening on " + TCPOutAddr + "...")
+	fmt.Fprintln(diagnostics, "Listening on "+TCPOutAddr+"...")
 	listen, err := net.Listen("tcp", TCPOutAddr)
 	if err != nil {
 		log.Fatal(err)
@@ -123,7 +138,7 @@ func tcpWriter() io.Writer {
 
 	// t is only after a successful call to Accept() that the TCP server can begin to interact with TCP clients.
 	TCPConn, err := listen.Accept()
-	fmt.Println("Accepting connection:", TCPConn)
+	fmt.Fprintln(diagnostics, "Accepting connection:", TCPConn)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,10 +146,10 @@ func tcpWriter() io.Writer {
 	buf := make([]byte, 1024)
 	reqLen, err := TCPConn.Read(buf)
 	if err != nil {
-		fmt.Println("Error reading:", err.Error())
+		fmt.Fprintln(diagnostics, "Error reading:", err.Error())
 	}
-	fmt.Println(string(buf[:reqLen]))
-	if Verbose {
+	fmt.Fprintln(diagnostics, string(buf[:reqLen]))
+	if Verbose && !machine {
 		TCPConn.Write([]byte("Trice connected...\r\n"))
 	}
 

@@ -54,6 +54,8 @@ type bindSite struct {
 	id          TriceID
 	comment     string
 	wasExplicit bool
+	// ce is present only after direct-site enrichment has passed validation.
+	ce *bindEnrichment
 
 	// definitionName is non-empty only for a Trice site owned by a supported
 	// statement-macro definition. The ordinal is local to that definition.

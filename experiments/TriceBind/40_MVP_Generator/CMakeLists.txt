@@ -31,7 +31,7 @@ add_custom_target(PoC_bind_generator_sidecars ALL
         -til til.json
         -li li.json
         -liRoot .
-        -bindDir ./build/triceIDs
+        -genDir ./generated
         -IDMin 1000
         -IDMax 1999
         -IDMethod upward
@@ -61,7 +61,7 @@ target_compile_features(PoC_bind_generator PRIVATE c_std_11)
 # The local config and generated sidecars precede the library include directory.
 target_include_directories(PoC_bind_generator PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/build/triceIDs"
+    "${CMAKE_CURRENT_SOURCE_DIR}/generated"
     "${TRICE_SOURCE_DIR}"
 )
 

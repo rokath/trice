@@ -147,30 +147,10 @@ func isCIdentifierByte(b byte) bool {
 
 // findClosingParentis returns the index of the closing parenthesis ')' that matches
 // an assumed opening parenthesis before the given startAt index in the string s.
-// It skips parentheses that appear inside double-quoted strings and correctly handles
-// escaped quotes (e.g., \" within a string literal).
+// C strings, character literals and comments can contain parentheses that must
+// not terminate an inserted CE call or change its apparent argument nesting.
 func findClosingParentis(s string, startAt int) int {
-	// Assumes an opening parenthesis exists somewhere before s[startAt],
-	inStr, esc, count := false, false, 1
-
-	for i := startAt; i < len(s); i++ {
-		switch c := s[i]; {
-		case esc:
-			esc = false
-		case c == '\\':
-			esc = true
-		case c == '"':
-			inStr = !inStr
-		case !inStr && c == '(':
-			count++
-		case !inStr && c == ')':
-			count--
-			if count == 0 {
-				return i
-			}
-		}
-	}
-	return -1
+	return contextClosingParen(s, startAt)
 }
 
 func resolveTriceAlias(t *TriceFmt) {
@@ -673,6 +653,12 @@ func countColonsUntilClosingBracket(rest string) (count int, e error) {
 }
 
 func splitTriceParametersUntilClosingBracket(rest string) (args []string, err error) {
+	// Inserted CE expressions and preserved original arguments may contain C
+	// comments. Mask only this call so comment commas/parentheses are inert and
+	// repeated scans do not allocate copies of the remaining source file.
+	if close := contextClosingParen(rest, 0); close >= 0 && strings.Contains(rest[:close+1], "/") {
+		rest = stripCComments(rest[:close+1])
+	}
 	start := -1
 	depth := 0
 	inString := false

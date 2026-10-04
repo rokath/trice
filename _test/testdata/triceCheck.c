@@ -7,6 +7,14 @@
 #include "trice.h"
 #include "trice_triceCheck_c_KE43C28474024C67C.h" // trice-bind: keep as last include before this file's Trice calls
 
+// Context Enrichment globals used by the examples and isolated CLI tests.
+struct TriceCheckPosition {
+	int32_t x;
+	int32_t y;
+};
+struct TriceCheckPosition pos = {-444, 77};
+float velocity = 33.33f;
+
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 
 #ifndef TRICE_CHECK_MIN
@@ -86,6 +94,11 @@ void TriceCheck(int index) {
 #endif
     char* s = "AAAAAAAAAAAA";
     char * five = "five";
+#if !TRICE_OFF
+    // The two member forms below demonstrate canonical names inferred from C arguments.
+    struct StructuredMotor { int state; int rpm; } motor = {3, 1200};
+    struct StructuredMotor *motorPtr = &motor;
+#endif
 #if TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1
     // x0Payload uses ascending bytes so expected output exposes packet boundaries.
     static uint8_t x0Payload[24] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23 };
@@ -266,6 +279,24 @@ void TriceCheck(int index) {
         break; case __LINE__: if(Test_triceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         break; case __LINE__: if(Test_TriceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
         break; case __LINE__: if(Test_TRiceAssertOrReturnValue(1) == 1) { TRice("ok\n"); } //exp: "time:feed3322default: ok\n"
+
+        // Structured field names stay on the host; only the displayed values cross the wire.
+        break; case __LINE__: trice8("info:Small {counter:%u}\n", 7);                              //exp: "time:        default: info:Small 7\n"
+        break; case __LINE__: Trice16("info:Current {current_ma:%d} mA\n", -123);                  //exp: "time:    be16default: info:Current -123 mA\n"
+        break; case __LINE__: TRice32("info:Voltage {voltage_mv:%u} mV\n", 3300);                  //exp: "time:feed3322default: info:Voltage 3300 mV\n"
+        break; case __LINE__: trice64("info:Bytes {bytes:%llu}\n", 1234567890123ULL);              //exp: "time:        default: info:Bytes 1234567890123\n"
+        break; case __LINE__: trice("info:State {} rpm {} / %d\n", motor.state, motorPtr->rpm, 1); //exp: "time:        default: info:State 3 rpm 1200 / 1\n"
+        break; case __LINE__: trice32("info:Temp {temp_c:%.1f C}\n", aFloat(23.5f));               //exp: "time:        default: info:Temp 23.5 C\n"
+        break; case __LINE__: Trice64("info:Energy {energy_j:%.2f J}\n", aDouble(12.25));          //exp: "time:    be16default: info:Energy 12.25 J\n"
+        break; case __LINE__: triceS("info:Device {device:%s}\n", "pump");                         //exp: "time:        default: info:Device pump\n"
+        break; case __LINE__: triceN("info:Code {code:%s}\n", "READY!", 5);                        //exp: "time:        default: info:Code READY\n"
+
+        // Context Enrichment examples: bind -ce adds values without editing these calls.
+        break; case __LINE__: trice32("info:pos:Position sample\n");                             //exp: "time:        default: info:pos:Position sample\n"
+        break; case __LINE__: trice32("info:speed:Speed sample\n");                              //exp: "time:        default: info:speed:Speed sample\n"
+        break; case __LINE__: Trice32("info:pos:speed:Moving sample={sample}\n", 3);              //exp: "time:    be16default: info:pos:speed:Moving sample=3\n"
+        break; case __LINE__: TRice32_1("info:pos:Fixed sample={sample}\n", 4);                    //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        // End Context Enrichment examples; the expectations above apply without -ce.
         
         break; case __LINE__: trice("sig:length modifier coverage for supported combinations\n" );
         break; case __LINE__: trice8 ("len:hh %hhd %hhi %hhu %hho %hhO %hhx %hhX %hhb\n", -128, -1, -1, -1, -1, -1, -1, 0xA5u );                                                                                           //exp: "time:        default: len:hh -128 -1 255 377 0o377 ff FF 10100101\n"
@@ -599,7 +630,7 @@ void TriceCheck(int index) {
 
         break; case __LINE__: trice16("att: line %u\n", __LINE__ );
 
-        break; case __LINE__: exampleOfManualJSONencoding(); //exp: "time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fisch:2.781000})\n"
+        break; case __LINE__: exampleOfManualJSONencoding(); //exp: "time:    be16default: att:MyStructEvaluationFunction(json:ExA{Apple:-1, Birn:2, Fish:2.781000})\n"
         break; case __LINE__: TRICE(Id(0), "MSG:1/11 = %g\n", aFloat( 1.0f/11 ) ); //exp: "time:    be16default: MSG:1/11 = 0.09090909\n"
         break; case __LINE__: { //exp: "time:feed3322default: msg:x = 5.934 = 5.934, 5.934\n"
 #if !TRICE_OFF
@@ -3016,7 +3047,7 @@ static void exampleOfManualJSONencoding(void) {
 	} Ex_t;
 	Ex_t Ex = {-1, 2, (float)2.781};
 #endif
-	Trice("att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f})\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
+	Trice("att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple:%d}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish));
 }
 
 static void dynString(int n) {

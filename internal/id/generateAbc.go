@@ -268,14 +268,19 @@ func abcTargetPaths(baseDir, targetSpec string) (dir, target, headerName, source
 
 // ToFilesAbc creates or reads [path/]<target>.h and regenerates [path/]<target>.c from the TIL.
 func (ilu TriceIDLookUp) ToFilesAbc(w io.Writer, fSys *afero.Afero, targetSpec string) error {
+	return ilu.toFilesAbcAt(w, fSys, targetSpec, filepath.Dir(FnJSON))
+}
+
+// toFilesAbcAt uses the shared generated directory for a bare target name.
+// Explicit target paths continue to use the caller-selected path convention.
+func (ilu TriceIDLookUp) toFilesAbcAt(w io.Writer, fSys *afero.Afero, targetSpec, baseDir string) error {
 	if targetSpec == "" {
 		return fmt.Errorf("missing ABC target name")
 	}
-	baseDir := filepath.Dir(FnJSON)
 	if baseDir == "." {
 		baseDir = ""
 	}
-	dir, target, headerName, sourceName, headerPath, sourcePath, err := abcTargetPaths(baseDir, targetSpec)
+	_, target, headerName, sourceName, headerPath, sourcePath, err := abcTargetPaths(baseDir, targetSpec)
 	if err != nil {
 		return err
 	}
@@ -283,7 +288,7 @@ func (ilu TriceIDLookUp) ToFilesAbc(w io.Writer, fSys *afero.Afero, targetSpec s
 	if err != nil {
 		return err
 	}
-	if dir != "" {
+	if dir := filepath.Dir(headerPath); dir != "." && dir != "" {
 		if err := fSys.MkdirAll(dir, 0o755); err != nil {
 			return err
 		}

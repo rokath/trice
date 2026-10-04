@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Test 490: Writes environment information and prepares the canonical Bind state.
+# Test 490: Writes environment information and validates canonical Bind preparation.
 #
 # Direct invocation:
 # - ./scripts/_490_test_runtime_prepare.sh
@@ -11,6 +11,8 @@
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_100_test_common.sh"
+# shellcheck source=./_140_trice_test_state.sh
+source "$SCRIPT_DIR/_140_trice_test_state.sh"
 
 log_runtime_context() {
   # Write the most relevant environment settings into this step log to make
@@ -45,10 +47,10 @@ main() {
     return 0
   fi
 
-  # Both selections start from the checked-in Bind state. Full-mode Legacy
-  # checks run later in isolated or transactionally restored test workflows.
-  # Keeping ID renewal out of this shared preparation preserves stable file keys.
-  run_cmd "$ROOT/trice_bindIDs_in_examples_and_test_folder.sh" || {
+  # Verify canonical Bind preparation inside the same snapshot used by later
+  # workflow steps. Restoring here preserves the caller's original tables and
+  # generated files; later steps prepare their own required ID state.
+  trice_test_run_managed_workflow bind none true || {
     log "FAIL: preparing canonical Bind state failed"
     exit 1
   }

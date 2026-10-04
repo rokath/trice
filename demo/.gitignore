@@ -1,2 +1,3 @@
-# All generated files stay in build directories.
+# Compiled demo outputs stay outside version control; generated Trice files
+# follow the repository rules so an editable ABC selection header remains visible.
 build/

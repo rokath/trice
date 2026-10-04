@@ -21,11 +21,24 @@ import (
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
-	e = IDData.cmdSwitchTriceIDs(w, fSys, IDData.triceIDInsertion)
+	if len(ContextEnrichment) != 0 {
+		return switchSourceContext(w, fSys, false)
+	}
+	return insertIDs(w, fSys, IDData.triceIDInsertion)
+}
+
+// insertIDs shares validation and allocation with CE's private filesystem view.
+// CE bypasses the timestamp-only legacy cache because rules affect the source.
+func insertIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) (e error) {
+	fields, e := collectInsertFields(w, fSys)
 	if e != nil {
 		return e
 	}
-	return
+	e = IDData.cmdSwitchTriceIDs(w, fSys, action)
+	if e != nil {
+		return e
+	}
+	return writeInsertFields(fSys, fields)
 }
 
 // processTriceIDInsertion reads file, processes it and writes it back, if needed.
@@ -129,6 +142,12 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 	if p.err != nil {
 		return
 	}
+	// CE selectors stay in source so later clean can select the same call.
+	// Only dictionary entries follow the current command's selector policy.
+	rules, err := parseContextRules(ContextEnrichment)
+	if err != nil {
+		return nil, false, err
+	}
 	var fileIds TriceIDs // Here we collect all Trice IDs of a Trice in the current file.
 	for {                // file loop
 		idn = 0                 // clear here, idn gets a != 0 value, if the actual Trice has already an ID != 0.
@@ -156,6 +175,11 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 			// - on logging replace t.Strg with "%s" then and
 			// - on ID management t.Strg with t.Strg content SAliasFrame prefix and suffix removed.
 		}
+
+		if err = canonicalizeSourceTemplate(&t, rest[loc[6]:]); err != nil {
+			return nil, false, fmt.Errorf("%s:%d: %w", sourcePath, triceStartLine, err)
+		}
+		t.Strg, _, _ = selectContextRules(t.Strg, rules)
 
 		// Only check format specifiers(param count) when the tool has a real format string.
 		// triceS aliases can wrap custom argument lists and store those verbatim in t.Strg.
@@ -205,6 +229,11 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 		a.Mutex.Lock() // several files could contain the same t
 
 		// process t
+		// Without new CE rules, retain an explicit ID's already resolved
+		// selector policy while still checking its full message and type.
+		if previous, ok := p.idToTrice[idn]; len(rules) == 0 && ok && previous.Type == t.Type && matchesInsertContextFormat(t.Strg, previous.Strg) {
+			t.Strg = previous.Strg
+		}
 		t.Alias = ""          // Remove potentially existing alias.
 		ids := p.triceToId[t] // ids contains all ID´s of a Trice.
 		if Verbose {
@@ -229,6 +258,9 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 					// But we could assign one of the existing id inside ids to idn. For that we use goto idsLoopEntry later.
 					fmt.Fprintln(w, "ID", idn, "!=", id, "continue to check", ids, "...")
 				}
+				continue
+			}
+			if !p.idAllowedForTrice(id, t) {
 				continue
 			}
 			// id == idn or idn == 0 here
@@ -338,6 +370,10 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 					}
 				}
 			}
+		}
+		if idN != 0 && !p.idAllowedForTrice(idN, t) {
+			idN = 0
+			idn = 0
 		}
 		if idN == 0 { // newID
 			idN = p.newID(t) // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.colorChannels.

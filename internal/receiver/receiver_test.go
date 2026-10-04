@@ -4,6 +4,7 @@ package receiver
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -200,6 +201,54 @@ func (s *stubReadWriteCloser) Write(buf []byte) (int, error) {
 
 func (s *stubReadWriteCloser) Close() error { return nil }
 
+// countedResource records ownership, including close failures. Separate
+// instances represent the input, owned binary file, and borrowed debug sink.
+type countedResource struct {
+	stubReadWriteCloser
+	closes   int
+	closeErr error
+}
+
+func (r *countedResource) Close() error { r.closes++; return r.closeErr }
+
+// TestWrapperChainClosesOwnedResourcesOnce ensures cleanup reaches the real
+// source and logfile through both wrappers, including failure and repeat paths.
+func TestWrapperChainClosesOwnedResourcesOnce(t *testing.T) {
+	inputErr := errors.New("input close failed")
+	fileErr := errors.New("binary file close failed")
+	for _, fail := range []bool{false, true} {
+		t.Run(fmt.Sprintf("close_errors=%t", fail), func(t *testing.T) {
+			input, file, diagnostics := &countedResource{}, &countedResource{}, &countedResource{}
+			if fail {
+				input.closeErr, file.closeErr = inputErr, fileErr
+			}
+			viewer := NewBytesViewer(diagnostics, input)
+			logger := &binaryLogger{r: viewer, w: file}
+			for range 2 {
+				err := logger.Close()
+				if fail {
+					assert.ErrorIs(t, err, inputErr)
+					assert.ErrorIs(t, err, fileErr)
+				} else {
+					assert.NoError(t, err)
+				}
+			}
+			_ = viewer.Close()
+			assert.Equal(t, 1, input.closes)
+			assert.Equal(t, 1, file.closes)
+			assert.Zero(t, diagnostics.closes, "stderr/stdout is borrowed")
+		})
+	}
+}
+
+// failingWriter returns the configured error for every binary log write.
+type failingWriter struct {
+	err error
+}
+
+// Write implements io.Writer for binary logger error propagation tests.
+func (w failingWriter) Write([]byte) (int, error) { return 0, w.err }
+
 // TestNewBinaryLoggerAutoFileNameAndRead verifies auto log naming and binary mirroring.
 func TestNewBinaryLoggerAutoFileNameAndRead(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -289,6 +338,59 @@ func TestBinaryLoggerReadSkipsPureEOF(t *testing.T) {
 	data, readErr := fs.ReadFile("trace.bin")
 	require.NoError(t, readErr)
 	assert.Empty(t, data)
+}
+
+// TestBinaryLoggerPreservesPartialInputAndReportsWriteErrors verifies that
+// received bytes are retained even when the source reports truncation, while
+// storage failures are returned to the caller.
+func TestBinaryLoggerPreservesPartialInputAndReportsWriteErrors(t *testing.T) {
+	t.Run("partial input", func(t *testing.T) {
+		fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+		source := &stubReadWriteCloser{readData: []byte{0xde, 0xad}, readErr: io.ErrUnexpectedEOF}
+		savedLogfileName := BinaryLogfileName
+		BinaryLogfileName = "partial.bin"
+		t.Cleanup(func() { BinaryLogfileName = savedLogfileName })
+
+		logger := NewBinaryLogger(io.Discard, fs, source)
+		buf := make([]byte, 8)
+		n, err := logger.Read(buf)
+		assert.Equal(t, 2, n)
+		assert.ErrorIs(t, err, io.ErrUnexpectedEOF)
+
+		logged, readErr := fs.ReadFile("partial.bin")
+		require.NoError(t, readErr)
+		assert.Equal(t, []byte{0xde, 0xad}, logged)
+	})
+
+	t.Run("write failure", func(t *testing.T) {
+		writeErr := errors.New("storage unavailable")
+		logger := &binaryLogger{
+			r: &stubReadWriteCloser{readData: []byte{0x01}},
+			w: failingWriter{err: writeErr},
+		}
+
+		n, err := logger.Read(make([]byte, 8))
+		assert.Equal(t, 1, n)
+		assert.ErrorIs(t, err, writeErr)
+		assert.ErrorContains(t, err, "write binary logfile")
+	})
+}
+
+// TestBinaryLoggerAppendsToExistingFile protects the documented append mode.
+func TestBinaryLoggerAppendsToExistingFile(t *testing.T) {
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.WriteFile("append.bin", []byte{0x01, 0x02}, 0o600))
+	savedLogfileName := BinaryLogfileName
+	BinaryLogfileName = "append.bin"
+	t.Cleanup(func() { BinaryLogfileName = savedLogfileName })
+
+	logger := NewBinaryLogger(io.Discard, fs, &stubReadWriteCloser{readData: []byte{0x03, 0x04}})
+	_, err := logger.Read(make([]byte, 8))
+	require.NoError(t, err)
+
+	logged, err := fs.ReadFile("append.bin")
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x01, 0x02, 0x03, 0x04}, logged)
 }
 
 // TestUDP4ConnectionReceivesPackets verifies the expected behavior.

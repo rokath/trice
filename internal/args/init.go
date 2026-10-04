@@ -85,7 +85,11 @@ func logInit() {
 	const defaultEncoding = "TREX"
 	// Reinitializing flag sets in tests must not retain repeatable rules from an earlier parse.
 	visRules = nil
+	emitter.Ban = nil
+	emitter.Pick = nil
+	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
+	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr.")
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.
@@ -100,9 +104,9 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
-	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Level based log filtering. "off" suppresses everything. If equal to a channel specifier, all with a bigger index inside emitter.Tags logs are not not shown.
-A typical use case is "-logLevel wrn". Attention this switch influences also location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix and suffix information. Set these channel information appropriate.
-Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -ulabel, -pick and -ban.`)
+	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
+A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
+Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban.`)
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
@@ -179,17 +183,17 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagLogLIList(fsScLog)
 	flagIPAddress(fsScLog)
-	fsScLog.Var(&emitter.Ban, "ban", `Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".`) // multi flag
-	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Ban, "ban", `Tag group(s) to suppress. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" suppresses every message and "off" suppresses none.
+Example: "-ban dbg:wrn -ban diag" suppresses Debug, Warning, and Diag messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Pick, "pick", `Tag group(s) to display exclusively. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" selects every message and "off" selects none.
+Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".`) // multi flag
 	flagUserLabel(fsScLog)
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 	fsScLog.BoolVar(&trexDecoder.AddNewlineToEachTriceMessage, "addNL", false, `Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.`)
-	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print Trices occurrences count on exit.`)
-	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print Trices occurrences count on exit.`)
-	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print complete statistics on exit.`)
+	fsScLog.BoolVar(&emitter.TagStatistics, "tagStat", false, `Print successfully decoded application-event counts by tag on exit, before -pick, -ban, and -logLevel selection. Diagnostics do not count.`)
+	fsScLog.BoolVar(&decoder.TriceStatistics, "triceStat", false, `Print successfully decoded ID-based application-event counts on exit, before host selection. ID-less typeX0 records do not count.`)
+	fsScLog.BoolVar(&emitter.AllStatistics, "stat", false, `Print both tag and Trice ID statistics on exit. Counts include successfully decoded application events hidden by host filters.`)
 	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
 	fsScLog.Var(&visRules, "vis", `Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
 <tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop][;header="<go-string>"]
@@ -204,14 +208,16 @@ func addInit() {
 func generateInit() {
 	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
 	flagIDList(fsScGenerate)
+	flagLIFile(fsScGenerate)
 	flagGenerateSrcs(fsScGenerate)
 	flagExcludeSrcs(fsScGenerate)
 	flagTriceAliases(fsScGenerate)
 	flagTriceSAliases(fsScGenerate)
 	flagVerbosity(fsScGenerate)
-	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
-	fsScGenerate.StringVar(&id.BindDir, "bindDir", "./build/triceIDs", "Non-default directory containing Trice bind sidecars when selected sources use File Keys.")
-	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.`)
+	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in -genDir/til.c or at an explicit [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
+	fsScGenerate.BoolVar(&id.GenerateOneLineJSON, "onelineJSON", false, `Export the selected TIL and LI to -genDir/<name>.oneline.json with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.`)
+	fsScGenerate.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice files and existing bind sidecars, relative to the current working directory by default.")
+	fsScGenerate.StringVar(&id.GenerateABC, "abc", "", `Create or use <target>.h and regenerate <target>.c in -genDir; an explicit [path/]<target> keeps its path for Trice ABC receive handling.`)
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
 }
 
@@ -227,8 +233,12 @@ If omitted, the current directory is inspected. Globs such as "-src *.c" are not
 }
 
 func insertIDsInit() {
+	id.ContextEnrichment = nil
 	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
+	fsScInsert.StringVar(&id.FieldsDir, "genDir", id.DefaultGenDir, "Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
 	flagsInsertAndBind(fsScInsert)
+	fsScInsert.Var(&id.ContextEnrichment, "ce", `Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
+Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format and argument suffix is absent; partial matches count as absent. No provenance comments. Float values require aFloat()/aDouble().`)
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space inside Trice braces: `trice(<space>iD(<space>123<space>), \"...);`. Use this if your default code auto-formatting is with space inside braces.")
@@ -236,11 +246,13 @@ func insertIDsInit() {
 	flagUserLabel(fsScInsert)
 }
 
-// bindIDsInit registers the insert-compatible semantic options plus the sidecar output directory.
+// bindIDsInit registers the insert-compatible semantic options plus the shared build directory.
 func bindIDsInit() {
 	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
 	flagsInsertAndBind(fsScBind)
-	fsScBind.StringVar(&id.BindDir, "bindDir", "./build/triceIDs", "Output directory for generated Trice bind sidecar headers.")
+	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
+	fsScBind.Var(&id.ContextEnrichment, "ce", `Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
+Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".`)
 	flagUserLabel(fsScBind)
 }
 
@@ -264,9 +276,12 @@ func flagsInsertAndBind(p *flag.FlagSet) {
 func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("clean", flag.ContinueOnError) // sub-command
 	flagsRefreshAndUpdate(fsScClean)
+	fsScClean.Var(&id.ContextEnrichment, "ce", `Remove one complete matching format and argument suffix at selected calls, regardless of origin. Partial matches are left unchanged.
+Repeat selector:"format-extension"[, comma-free C-expression]... Matching uses the complete ordered rule group; no provenance comments are needed.`)
 	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
 	fsScClean.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space after Trice opening brace: `trice(<space>\"...)`. Use this if your default code auto-formatting is with space after opening brace.")
 	fsScClean.BoolVar(&id.SpaceInsideParenthesis, "w", false, "Short for (white)spaceInsideParenthesis or \"wide\".")
+	flagUserLabel(fsScClean)
 }
 
 func versionInit() {
@@ -306,8 +321,8 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 }
 
 func flagUserLabel(p *flag.FlagSet) {
-	p.Var(&emitter.UserLabel, "ulabel", `Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
-Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".`) // multi flag
+	p.Var(&emitter.UserLabel, "ulabel", `Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".`) // multi flag
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {
@@ -429,7 +444,8 @@ func flagLIFile(p *flag.FlagSet) {
 The specified JSON file is needed to display the location information for each ID during runtime.
 It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
 log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
 With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.

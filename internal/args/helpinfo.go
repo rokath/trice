@@ -120,9 +120,9 @@ func insertIDsInfo(w io.Writer) error {
 func bindIDsInfo(w io.Writer) error {
 	_, e := fmt.Fprintln(w, `sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
 #	"trice bind" scans C/C++ source and headers, updates til.json and li.json with insert-compatible semantics,
-#	adds a file-local sidecar include where it is safe, and writes generated headers below -bindDir.
+#	adds a file-local sidecar include where it is safe, and writes generated headers below -genDir.
 #	Insert-owned files remain unchanged; mixed explicit and bind-style sites in one file are rejected.
-#	Example: 'trice bind -src ./src -bindDir ./build/triceIDs'`)
+#	Example: 'trice bind -src ./src -genDir ./generated'`)
 	fsScBind.SetOutput(w)
 	fsScBind.PrintDefaults()
 	return e

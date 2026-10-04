@@ -118,7 +118,7 @@ C_INCLUDES =  \
 
 C_INCLUDES += \
 -I../../src \
--Ibuild/triceIDs
+-Igenerated
 
 include flags.mak
 

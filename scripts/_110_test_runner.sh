@@ -34,10 +34,150 @@ fi
 TEST_ALL_SPINNER_PID=""
 TEST_ALL_PLAN_SCRIPTS=()
 TEST_ALL_PLAN_ARGUMENTS=()
+TEST_ALL_STATE_DIR=""
+TEST_ALL_STATE_CAPTURED=0
+TEST_ALL_STATE_VERIFIED=0
 
 summary_line() {
   printf '%s\n' "$1" >>"$SUMMARY_LOG"
   printf '%s\n' "$1"
+}
+
+# capture_tracked_bytes records actual worktree bytes, including files that
+# were already dirty before testAll. Git status alone cannot detect a second
+# edit to such a file when its short status stays the same.
+#
+# Hash regular tracked paths in one Git process. The former per-file
+# git hash-object invocation was especially expensive under Git for Windows.
+# Newline-containing paths cannot be passed to --stdin-paths and therefore use
+# the old per-file path as a rare fallback.
+capture_tracked_bytes() {
+  local manifest="$1"
+  local path_list="$TEST_ALL_STATE_DIR/paths"
+  local entries="$TEST_ALL_STATE_DIR/entries"
+  local hash_paths="$TEST_ALL_STATE_DIR/hash-paths"
+  local hashes="$TEST_ALL_STATE_DIR/hashes"
+  local path
+  local quoted_path
+  local kind
+  local digest
+  local batch_failed=0
+
+  if ! git ls-files -z >"$path_list"; then
+    summary_line "FAIL: cannot list tracked paths for the test-state check"
+    return 1
+  fi
+
+  : >"$manifest" || return 1
+  : >"$entries" || return 1
+  : >"$hash_paths" || return 1
+
+  while IFS= read -r -d '' path; do
+    printf -v quoted_path '%q' "$path"
+    if [ -f "$path" ] || [ -L "$path" ]; then
+      case "$path" in
+        *$'\n'*)
+          digest="$(git hash-object --no-filters -- "$path")" || {
+            summary_line "FAIL: cannot hash tracked path: $path"
+            return 1
+          }
+          printf 'D\t%s\t%s\n' "$quoted_path" "$digest" >>"$entries" || return 1
+          ;;
+        *)
+          printf 'H\t%s\n' "$quoted_path" >>"$entries" || return 1
+          printf '%s\n' "$path" >>"$hash_paths" || return 1
+          ;;
+      esac
+    elif [ -e "$path" ]; then
+      printf 'D\t%s\t%s\n' "$quoted_path" '<not-a-file>' >>"$entries" || return 1
+    else
+      printf 'D\t%s\t%s\n' "$quoted_path" '<absent>' >>"$entries" || return 1
+    fi
+  done <"$path_list"
+
+  if [ -s "$hash_paths" ]; then
+    if ! git hash-object --stdin-paths --no-filters <"$hash_paths" >"$hashes"; then
+      batch_failed=1
+    fi
+  else
+    : >"$hashes" || return 1
+  fi
+
+  if [ "$batch_failed" -ne 0 ]; then
+    # Batch errors do not identify the failed input reliably. Diagnose only on
+    # the exceptional path; normal runs keep the one-process fast path above.
+    while IFS= read -r path; do
+      git hash-object --no-filters -- "$path" >/dev/null 2>&1 || {
+        summary_line "FAIL: cannot hash tracked path: $path"
+        return 1
+      }
+    done <"$hash_paths"
+    summary_line "FAIL: cannot batch-hash tracked paths for the test-state check"
+    return 1
+  fi
+
+  exec 3<"$hashes"
+  while IFS=$'\t' read -r kind quoted_path digest; do
+    if [ "$kind" = "H" ]; then
+      if ! IFS= read -r digest <&3; then
+        exec 3<&-
+        summary_line "FAIL: missing hash result for tracked path: $quoted_path"
+        return 1
+      fi
+    fi
+    printf '%s\t%s\n' "$quoted_path" "$digest" >>"$manifest" || {
+      exec 3<&-
+      return 1
+    }
+  done <"$entries"
+  if IFS= read -r digest <&3; then
+    exec 3<&-
+    summary_line "FAIL: unexpected extra hash result in the test-state check"
+    return 1
+  fi
+  exec 3<&-
+}
+# verify_tracked_bytes reports every changed tracked path and retains its
+# manifests on failure. Managed workflows restore their own generated trees;
+# this final guard catches any remaining change without a blanket git reset.
+verify_tracked_bytes() {
+  local before="$TEST_ALL_STATE_DIR/before"
+  local after="$TEST_ALL_STATE_DIR/after"
+  local path
+  TEST_ALL_STATE_VERIFIED=1
+  summary_line "Verifying tracked worktree state..."
+  if ! capture_tracked_bytes "$after"; then
+    return 1
+  fi
+  if cmp -s "$before" "$after"; then
+    rm -rf -- "$TEST_ALL_STATE_DIR"
+    TEST_ALL_STATE_DIR=""
+    return 0
+  fi
+  summary_line "FAIL: tracked worktree bytes changed during testAll; initial state was not restored:"
+  while IFS= read -r path; do
+    [ -n "$path" ] && summary_line "  $path"
+  done < <(awk -F '\t' 'NR == FNR { before[$1] = $2; next } { seen[$1] = 1; if (!($1 in before) || before[$1] != $2) print $1 } END { for (path in before) if (!(path in seen)) print path }' "$before" "$after" | LC_ALL=C sort)
+  summary_line "State evidence retained in $TEST_ALL_STATE_DIR"
+  return 1
+}
+
+# finish_test_runner also checks state when a signal exits the runner before
+# its normal summary. A detected mutation changes an otherwise successful exit.
+finish_test_runner() {
+  local status=$?
+
+  trap - EXIT
+  stop_progress_spinner
+  if [ -n "$TEST_ALL_STATE_DIR" ]; then
+    if [ "$TEST_ALL_STATE_CAPTURED" -eq 1 ] && [ "$TEST_ALL_STATE_VERIFIED" -eq 0 ]; then
+      verify_tracked_bytes || status=1
+    elif [ "$TEST_ALL_STATE_CAPTURED" -eq 0 ]; then
+      rm -rf -- "$TEST_ALL_STATE_DIR"
+      TEST_ALL_STATE_DIR=""
+    fi
+  fi
+  exit "$status"
 }
 
 # clear_previous_test_logs removes only flat, runner-owned outputs. Recovery
@@ -58,14 +198,25 @@ clear_previous_test_logs() {
   printf 'INFO: removed %d previous test log files from %s; recovery directories retained.\n' "$removed" "$LOG_DIR"
 }
 
+# step_progress_prefix keeps live output and recorded results aligned. Minutes
+# stay unbounded so multi-hour Windows runs do not wrap at an hour boundary.
+step_progress_prefix() {
+  local step="$1" elapsed="$2"
+  printf '[%2d/%2d | ~%3d.%d%%] (%3dm%3ds) %s: ' \
+    "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
+    "$((TEST_ALL_STEP_END_TENTHS / 10))" \
+    "$((TEST_ALL_STEP_END_TENTHS % 10))" \
+    "$((elapsed / 60))" "$((elapsed % 60))" "$step"
+}
+
 # progress_spinner provides a quiet life sign for long-running steps. It only
 # runs on an interactive terminal and rewrites one line, so redirected output
 # and CI logs never receive repeated spinner frames.
 progress_spinner() {
   local step="$1"
+  local started="$2"
   local frame=0
   local mark
-
   while :; do
     case $((frame % 4)) in
       0) mark='|' ;;
@@ -73,10 +224,9 @@ progress_spinner() {
       2) mark='-' ;;
       3) mark='\' ;;
     esac
-    printf '\r[%2d/%2d | ~%3d.%d%%] %s %s' \
-      "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-      "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-      "$((TEST_ALL_STEP_END_TENTHS % 10))" "$mark" "$step"
+    printf '\r'
+    step_progress_prefix "$step" "$((SECONDS - started))"
+    printf '%s' "$mark"
     frame=$((frame + 1))
     sleep 2
   done
@@ -86,7 +236,6 @@ progress_spinner() {
 # clears its terminal line before the stable result is printed.
 stop_progress_spinner() {
   local was_running=0
-
   if [ -n "$TEST_ALL_SPINNER_PID" ]; then
     was_running=1
     kill "$TEST_ALL_SPINNER_PID" 2>/dev/null || true
@@ -107,27 +256,24 @@ run_step() {
   local step_log
   local detail
   local warning
+  # Bash's elapsed-seconds counter avoids spawning a clock process per frame.
+  # Record the child duration before spinner cleanup or diagnostic rendering.
+  local step_started=$SECONDS
+  local step_elapsed
 
   if [ "$TEST_ALL_INTERACTIVE" -eq 1 ]; then
-    progress_spinner "$step" &
+    progress_spinner "$step" "$step_started" &
     TEST_ALL_SPINNER_PID=$!
   else
-    printf '[%2d/%2d | ~%3d.%d%%] %s: running\n' \
-      "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-      "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-      "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step"
+    step_progress_prefix "$step" 0
+    printf 'running\n'
   fi
 
   "$SCRIPT_DIR/$step" --quiet "$@" || rc=$?
+  step_elapsed=$((SECONDS - step_started))
   stop_progress_spinner
-  printf '[%2d/%2d | ~%3d.%d%%] %s: ' \
-    "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-    "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-    "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step" >>"$SUMMARY_LOG"
-  printf '[%2d/%2d | ~%3d.%d%%] %s: ' \
-    "$TEST_ALL_STEP_NUMBER" "$TEST_ALL_STEP_COUNT" \
-    "$((TEST_ALL_STEP_END_TENTHS / 10))" \
-    "$((TEST_ALL_STEP_END_TENTHS % 10))" "$step"
+  step_progress_prefix "$step" "$step_elapsed" >>"$SUMMARY_LOG"
+  step_progress_prefix "$step" "$step_elapsed"
   if [ "$rc" -eq 0 ]; then
     step_log="$LOG_DIR/$(basename "$step" .sh).log"
     if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
@@ -155,6 +301,15 @@ run_step() {
   else
     printf 'FAIL\n' >>"$SUMMARY_LOG"
     printf '%sFAIL%s\n' "$FAIL_COLOR" "$RESET_COLOR"
+    step_log="$LOG_DIR/$(basename "$step" .sh).log"
+    summary_line "  Details: $step_log"
+    if [ -f "$step_log" ]; then
+      # Show actionable failure evidence even when the actual step ran quietly.
+      # Complete logs remain available; cap the summary rather than hiding it.
+      while IFS= read -r detail; do
+        summary_line "  $detail"
+      done < <(awk '/PC FAIL|EXPECTATION FAILURE|Error Trace:|error:|panic:|fatal error:|FAIL:/ { if (!shown) remaining=28; shown=1 } remaining>0 { print; remaining-- }' "$step_log")
+    fi
   fi
   return "$rc"
 }
@@ -173,7 +328,6 @@ add_plan_step() {
 build_test_plan() {
   TEST_ALL_PLAN_SCRIPTS=()
   TEST_ALL_PLAN_ARGUMENTS=()
-
   add_plan_step "_400_test_shell_format.sh"
   add_plan_step "_410_test_shellcheck.sh"
   add_plan_step "_420_test_dsstore.sh"
@@ -188,6 +342,7 @@ build_test_plan() {
   if [ "$TEST_ALL_SELECTED" = "full" ]; then
     add_plan_step "_510_test_bind_workflows.sh"
   fi
+  add_plan_step "_515_test_logging_features.sh" "$TEST_ALL_SELECTED"
   add_plan_step "_520_test_target_code_lint.sh"
   add_plan_step "_530_test_links.sh"
   add_plan_step "_540_test_go.sh"
@@ -211,17 +366,17 @@ build_test_plan() {
 
 # expected_step_weight assigns deliberately coarse, hardware-independent work
 # units. They only make progress through very uneven test steps visible; they
-# are not durations or an ETA. The full-mode weights reflect the observed fact
-# that the two PC matrices and the L432 matrix dominate that selection.
+# are not durations or an ETA. L432 now dominates after removing per-record
+# replay delays and batching/parallelizing the PC matrices.
 expected_step_weight() {
   case "$TEST_ALL_SELECTED:$1" in
-    full:_630_test_pc_targets_insert.sh) printf '390\n' ;;
-    full:_640_test_pc_targets_bind.sh) printf '400\n' ;;
+    full:_630_test_pc_targets_insert.sh | full:_640_test_pc_targets_bind.sh) printf '35\n' ;;
     full:_620_test_l432_configs.sh) printf '170\n' ;;
     full:_610_test_goreleaser_snapshot.sh) printf '15\n' ;;
     full:_580_test_gcc_off.sh | full:_590_test_gcc_insert.sh | full:_600_test_gcc_bind.sh) printf '4\n' ;;
     full:_560_test_clang_insert.sh | full:_570_test_clang_bind.sh) printf '2\n' ;;
     full:_480_test_build_trice_tool.sh | full:_540_test_go.sh | full:_550_test_go_coverage.sh) printf '3\n' ;;
+    full:_515_test_logging_features.sh) printf '3\n' ;;
     full:_500_test_bind.sh | full:_510_test_bind_workflows.sh | full:_520_test_target_code_lint.sh | full:_530_test_links.sh) printf '2\n' ;;
     quick:_610_test_goreleaser_snapshot.sh) printf '55\n' ;;
     quick:_640_test_pc_targets_bind.sh) printf '12\n' ;;
@@ -229,20 +384,19 @@ expected_step_weight() {
     quick:_540_test_go.sh) printf '8\n' ;;
     quick:_530_test_links.sh | quick:_600_test_gcc_bind.sh) printf '5\n' ;;
     quick:_520_test_target_code_lint.sh) printf '4\n' ;;
-    quick:_480_test_build_trice_tool.sh | quick:_500_test_bind.sh) printf '3\n' ;;
+    quick:_480_test_build_trice_tool.sh | quick:_500_test_bind.sh | quick:_515_test_logging_features.sh) printf '3\n' ;;
     quick:_570_test_clang_bind.sh) printf '2\n' ;;
     *) printf '1\n' ;;
   esac
 }
 
 # parse_test_all_arguments accepts the historical selection plus the optional
-# failure policy in either order. The default is deliberately fail-fast.
+# failure policy in either order. Continue after failures unless --stop is set.
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
-
   TEST_ALL_SELECTED="quick"
-  TEST_ALL_NO_STOP=0
+  TEST_ALL_NO_STOP=1
   for argument in "$@"; do
     case "$argument" in
       quick | full)
@@ -254,18 +408,20 @@ parse_test_all_arguments() {
         selection_seen=1
         ;;
       --no-stop) TEST_ALL_NO_STOP=1 ;;
+      --stop) TEST_ALL_NO_STOP=0 ;;
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
-        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop]\n' >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop]\n' >&2
+        printf 'Default: quick, continue after failures (--no-stop).\n' >&2
         return 2
         ;;
     esac
   done
 }
 
-# run_step_with_policy records every failure. In the default mode it returns a
-# failure immediately; --no-stop converts that control result to success so the
-# caller can continue while retaining the failed final status.
+# run_step_with_policy records every failure. By default it returns control to
+# the caller so later steps run while the final status remains failed. --stop
+# instead returns a failure immediately so the caller ends the selected plan.
 run_step_with_policy() {
   local rc=0
   run_step "$@" || rc=$?
@@ -286,7 +442,7 @@ run_step_with_policy() {
 
 # run_selected_steps walks the previously built plan and calculates percentages
 # from relative work units. Transactional wrappers finish restoration before a
-# failure reaches the fail-fast policy here.
+# failure reaches the selected continuation policy here.
 run_selected_steps() {
   local completed_weight=0
   local index
@@ -312,7 +468,6 @@ run_selected_steps() {
     if [ "$TEST_ALL_STEP_NUMBER" -eq "$TEST_ALL_STEP_COUNT" ]; then
       TEST_ALL_STEP_END_TENTHS=1000
     fi
-
     if [ -n "$argument" ]; then
       run_step_with_policy "$step" "$argument" || return 1
     else
@@ -327,8 +482,6 @@ main() {
   local started_at
   local finished_at
   local duration
-  # local initial_tracked_status
-  # local final_tracked_status
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
   TEST_ALL_FAILED=0
@@ -338,40 +491,28 @@ main() {
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   build_test_plan
   started_at=$(date +%s)
-  # initial_tracked_status="$(tracked_worktree_status)"
-
   clear_previous_test_logs || exit 1
   : >"$SUMMARY_LOG"
+  TEST_ALL_STATE_DIR="$(mktemp -d "$LOG_DIR/testAll-state.XXXXXX")" || exit 1
+  summary_line "Preparing testAll: capturing tracked worktree state..."
+  capture_tracked_bytes "$TEST_ALL_STATE_DIR/before" || exit 1
+  TEST_ALL_STATE_CAPTURED=1
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
   if [ "$selected" = "quick" ]; then
-    summary_line "ID workflows: bind"
+    summary_line "ID workflows: bind (CE/SL fixtures also cover insert/clean)"
   else
     summary_line "ID workflows: bind plus legacy insert/clean"
   fi
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
-    summary_line "Failure policy: continue after failures (--no-stop)"
+    summary_line "Failure policy: continue after failures (--no-stop, default)"
   else
-    summary_line "Failure policy: stop after the first failure"
+    summary_line "Failure policy: stop after the first failure (--stop)"
   fi
   summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
-
   run_selected_steps || true
 
-  # Temporarily disabled until the remaining testAll steps are fully read-only again.
-  # final_tracked_status="$(tracked_worktree_status)"
-  # if [ "$final_tracked_status" != "$initial_tracked_status" ]; then
-  #   failed=1
-  #   summary_line "Result detail: tracked worktree changed during testAll"
-  #   if [ -n "$final_tracked_status" ]; then
-  #     summary_line "Tracked status after run:"
-  #     while IFS= read -r line; do
-  #       [ -n "$line" ] && summary_line "  $line"
-  #     done <<EOF
-  # $final_tracked_status
-  # EOF
-  #   fi
-  # fi
+  verify_tracked_bytes || TEST_ALL_FAILED=1
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
@@ -384,14 +525,13 @@ main() {
   fi
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"
-
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
     exit "$TEST_ALL_ABORTED"
   fi
   exit "$TEST_ALL_FAILED"
 }
 
-trap 'stop_progress_spinner' EXIT
+trap 'finish_test_runner' EXIT
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   main "$@"
 fi

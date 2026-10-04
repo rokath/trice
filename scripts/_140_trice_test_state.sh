@@ -120,12 +120,81 @@ trice_state_append_optional_file() {
   fi
 }
 
+# trice_state_append_owned_directory archives one generated tree or remembers
+# its initial absence. Only validated relative directories are removed during
+# restoration, so pre-existing user artifacts return byte-for-byte.
+trice_state_append_owned_directory() {
+  local path="$1"
+  local raw_manifest="$2"
+  local absent_manifest="$3"
+  local relative
+  local parent
+
+  relative="$(trice_state_relative_path "$path" "generated directory")" || return 1
+  if [ "$relative" = "." ]; then
+    trice_state_log "FAIL: generated directory must not be the repository root"
+    return 1
+  fi
+  parent="${relative%/*}"
+  if [ "$parent" != "$relative" ] && [ -L "$TRICE_STATE_ROOT/$parent" ]; then
+    trice_state_log "FAIL: generated directory parent must not be a symbolic link: $parent"
+    return 1
+  fi
+  if [ -L "$TRICE_STATE_ROOT/$relative" ]; then
+    trice_state_log "FAIL: generated directory must not be a symbolic link: $relative"
+    return 1
+  fi
+  if [ -e "$TRICE_STATE_ROOT/$relative" ]; then
+    if [ ! -d "$TRICE_STATE_ROOT/$relative" ]; then
+      trice_state_log "FAIL: generated directory path is not a directory: $relative"
+      return 1
+    fi
+    printf '%s\n' "$relative" >>"$raw_manifest"
+  else
+    printf '%s\n' "$relative" >>"$absent_manifest"
+  fi
+  TRICE_TEST_STATE_OWNED_DIRS+=("$relative")
+}
+
+# trice_state_append_example_outputs covers files written by standalone Bind
+# examples and the build trees removed by cleanAllTargets during example tests.
+# PC-target workflows never pay to archive these potentially large trees.
+trice_state_append_example_outputs() {
+  local raw_manifest="$1"
+  local absent_manifest="$2"
+  local path
+
+  for path in \
+    examples/PC_log/main.c \
+    examples/G0B1_log/Core/Src/main.c \
+    examples/G0B1_log/Core/Src/stm32g0xx_it.c \
+    examples/PC_log/til.json examples/PC_log/li.json \
+    examples/G0B1_log/til.json examples/G0B1_log/li.json; do
+    trice_state_append_optional_file "$path" "example file" "$raw_manifest" "$absent_manifest" || return 1
+  done
+
+  for path in \
+    examples/PC_log/generated examples/PC_log/build \
+    examples/G0B1_log/generated examples/G0B1_log/build examples/G0B1_log/out.gcc \
+    examples/DemoData_CSV/build examples/DemoData_Trice/build \
+    examples/F030_bare/out examples/F030_inst/out \
+    examples/G0B1_bare/out.gcc examples/G0B1_bare/out.clang \
+    examples/G0B1_inst/out.gcc examples/G0B1_inst/out.clang \
+    examples/L432_bare/out.gcc examples/L432_bare/out.clang \
+    examples/L432_inst/out.gcc examples/L432_inst/out.clang; do
+    trice_state_append_owned_directory "$path" "$raw_manifest" "$absent_manifest" || return 1
+  done
+}
+
 # trice_test_state_snapshot captures every file that Insert, Clean, Bind, or
 # re-migration may alter. It also claims sole ownership of the ID lifecycle.
 trice_test_state_snapshot() {
+  local include_mode="${1:-none}"
   local state_parent
   local raw_manifest
   local relative_bind_dir
+
+  TRICE_TEST_STATE_OWNED_DIRS=()
 
   if [ "${TRICE_TEST_STATE_ACTIVE:-0}" -eq 1 ]; then
     trice_state_log "FAIL: a Trice test-state owner is already active"
@@ -152,6 +221,10 @@ trice_test_state_snapshot() {
   trice_state_append_optional_file "$TRICE_TIL_JSON" "TIL path" "$raw_manifest" "$TRICE_TEST_STATE_ABSENT" || return 1
   trice_state_append_optional_file "$TRICE_LI_JSON" "LI path" "$raw_manifest" "$TRICE_TEST_STATE_ABSENT" || return 1
 
+  if [ "$include_mode" = "example" ]; then
+    trice_state_append_example_outputs "$raw_manifest" "$TRICE_TEST_STATE_ABSENT" || return 1
+  fi
+
   relative_bind_dir="$(trice_state_relative_path "$TRICE_BIND_DIR" "bind directory")" || return 1
   if [ "$relative_bind_dir" = "." ]; then
     trice_state_log "FAIL: bind directory must not be the repository root"
@@ -172,6 +245,8 @@ trice_test_state_snapshot() {
     printf '%s\n' "$relative_bind_dir" >>"$TRICE_TEST_STATE_ABSENT"
   fi
 
+  TRICE_TEST_STATE_OWNED_DIRS+=("$relative_bind_dir")
+
   sort -u "$raw_manifest" >"$TRICE_TEST_STATE_MANIFEST"
   (
     cd "$TRICE_STATE_ROOT" || exit 1
@@ -187,38 +262,38 @@ trice_test_state_snapshot() {
   trice_state_log "State snapshot files: $(wc -l <"$TRICE_TEST_STATE_MANIFEST" | tr -d ' ')"
 }
 
-# trice_test_state_restore restores archived bytes and removes only paths that
-# were proven absent initially. The validated bind directory is the sole
-# recursive deletion target.
+# trice_test_state_restore restores archived bytes and removes only the
+# validated generated/build trees and paths recorded as absent initially.
 trice_test_state_restore() {
   local relative
-  local bind_absolute
+  local owned_absolute
 
   if [ "${TRICE_TEST_STATE_ACTIVE:-0}" -ne 1 ]; then
     return 0
   fi
-  bind_absolute="$TRICE_STATE_ROOT/$TRICE_TEST_STATE_BIND_DIR"
-  case "$bind_absolute" in
-    "$TRICE_STATE_ROOT"/*) ;;
-    *)
-      trice_state_log "FAIL: refusing to restore an unvalidated bind directory: $bind_absolute"
+  for relative in "${TRICE_TEST_STATE_OWNED_DIRS[@]}"; do
+    owned_absolute="$TRICE_STATE_ROOT/$relative"
+    case "$owned_absolute" in
+      "$TRICE_STATE_ROOT"/*) ;;
+      *)
+        trice_state_log "FAIL: refusing to restore an unvalidated generated directory: $relative"
+        return 1
+        ;;
+    esac
+    if [ "$relative" = "." ]; then
+      trice_state_log "FAIL: refusing to remove the repository root"
       return 1
-      ;;
-  esac
-  if [ "$bind_absolute" = "$TRICE_STATE_ROOT" ]; then
-    trice_state_log "FAIL: refusing to remove the repository root"
-    return 1
-  fi
-
-  rm -rf -- "$bind_absolute" || {
-    trice_state_log "FAIL: could not remove generated bind directory: $TRICE_TEST_STATE_BIND_DIR"
-    return 1
-  }
+    fi
+    rm -rf -- "$owned_absolute" || {
+      trice_state_log "FAIL: could not remove generated directory: $relative"
+      return 1
+    }
+  done
   while IFS= read -r relative; do
     [ -n "$relative" ] || continue
-    if [ "$relative" = "$TRICE_TEST_STATE_BIND_DIR" ]; then
-      continue
-    fi
+    case " ${TRICE_TEST_STATE_OWNED_DIRS[*]} " in
+      *" $relative "*) continue ;;
+    esac
     rm -f -- "$TRICE_STATE_ROOT/$relative" || {
       trice_state_log "FAIL: could not remove initially absent generated file: $relative"
       return 1
@@ -450,7 +525,7 @@ trice_test_run_managed_workflow() {
   trap 'trice_test_finish 130' INT
   trap 'trice_test_finish 143' TERM
 
-  trice_test_state_snapshot || return 1
+  trice_test_state_snapshot "$include_mode" || return 1
   trice_test_prepare_workflow "$workflow" || return 1
   trice_test_configure_include_path "$workflow" "$include_mode" || return 1
   trice_state_log "Build/test worker: $worker $*"

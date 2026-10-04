@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
@@ -67,6 +68,16 @@ const triceLog_t triceLog[] = {
 	for _, n := range ids {
 		id := TriceID(n)
 		t := ilu[id]
+		if !isSAliasEncodedString(t.Strg) {
+			template, err := fmtspec.ParseTemplate(t.Strg, nil)
+			if err != nil {
+				return nil, fmt.Errorf("ID %d: %w", id, err)
+			}
+			if err := ValidateStructuredFields(t, template); err != nil {
+				return nil, fmt.Errorf("ID %d: %w", id, err)
+			}
+			t.Strg = template.Format
+		}
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
 		quotedFormat := tilCFormatLiteral(t.Strg)
 		row := fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat)
@@ -208,6 +219,13 @@ func tilCFormatLiteral(format string) string {
 // strings. Unknown escape pairs are kept byte-for-byte to avoid silently losing
 // literal backslashes from existing TIL files.
 func decodeCStringEscapes(s string) string {
+	return DecodeCStringEscapes(s)
+}
+
+// DecodeCStringEscapes interprets source escapes exactly once before runtime
+// arguments are substituted into a structured record's message. Runtime strings
+// are never passed here, so literal backslashes in user data remain untouched.
+func DecodeCStringEscapes(s string) string {
 	var b strings.Builder
 	b.Grow(len(s))
 

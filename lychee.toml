@@ -77,6 +77,9 @@ accept = [
 # Exclude URLs from checking (regex-based).
 # Use this only if you have known flaky domains or intentionally unreachable links.
 exclude = [
+  # Links to working drafts are intentionally outside maintained-documentation checks.
+  "^file:///.*[/\\\\]docs[/\\\\]scratchPad([/\\\\]|$)",
+
   # Local development links in documentation
   "^https?://localhost(:[0-9]+)?",
   "^https://www\\.st\\.com/.*",
@@ -158,6 +161,9 @@ exclude = [
 #   - "(^|[\\/])" matches either the start of the path or a directory separator
 #   - "([\\/]|$)" ensures we match a directory boundary (or end of path)
 exclude_path = [
+  # Working drafts are not part of the maintained documentation link check.
+  "(^|[\\\\/])docs[\\\\/]scratchPad([\\\\/]|$)",
+
   # Unreviewed working copy of the user manual. It duplicates the checked
   # links from the reviewed manual and adds noise to CI without protecting
   # shipped documentation.

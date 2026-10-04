@@ -111,8 +111,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	port "HEX" or "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	 (default "default")
   -ban value
-    	Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-    	Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick". See also "-logLevel".
+    	Tag group(s) to suppress. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" suppresses every message and "off" suppresses none.
+    	Example: "-ban dbg:wrn -ban diag" suppresses Debug, Warning, and Diag messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".
   -baud int
     	Set the serial port baudrate.
     	It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
@@ -195,13 +195,16 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
+  -logFormat string
+    	Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr. (default "text")
   -logLevel string
-    	Level based log filtering. "off" suppresses everything. If equal to a channel specifier, all with a bigger index inside emitter.Tags logs are not not shown.
-    	A typical use case is "-logLevel wrn". Attention this switch influences also location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix and suffix information. Set these channel information appropriate.
-    	Logs without channel specifier are not suppressed. Using an invalid value like "x" suppresses all logs with a channel specifier. See also CLI switches -ulabel, -pick and -ban. (default "all")
+    	Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
+    	A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
+    	Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban. (default "all")
   -logfile string
     	Append all output to logfile. Options are: 'off|none|filename|auto':
     	"off": no logfile (same as "none")
@@ -227,8 +230,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -pf string
     	Short for '-packageFraming'. (default "TCOBSv1")
   -pick value
-    	Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-    	Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban". See also "-logLevel".
+    	Tag group(s) to display exclusively. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" selects every message and "off" selects none.
+    	Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".
   -port string
     	Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP.
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.
@@ -252,13 +255,13 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -singleFraming
     	singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.
   -stat
-    	Print complete statistics on exit.
+    	Print both tag and Trice ID statistics on exit. Counts include successfully decoded application events hidden by host filters.
   -stopbits string
     	Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string
     	Append suffix to all lines, options: any string.
   -tagStat
-    	Print Trices occurrences count on exit.
+    	Print successfully decoded application-event counts by tag on exit, before -pick, -ban, and -logLevel selection. Diagnostics do not count.
   -tcp string
     	TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".
   -testTable
@@ -269,7 +272,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -triceEndianness string
     	Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
   -triceStat
-    	Print Trices occurrences count on exit.
+    	Print successfully decoded ID-based application-event counts on exit, before host selection. ID-less typeX0 records do not count.
   -ts string
     	Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" or 'off' or 'none' to suppress existing target timestamps. Sets ts0, ts16, ts32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
   -ts0 string
@@ -288,8 +291,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Selector-0/typeX0 handling for TREX logs. "error" reports X0 packets and is the default. "ignore" and "counted:ignore" silently discard valid counted X0 packets but still report malformed ones. "all:ignore" discards the complete selector-0 package without length checks and must only be used for non-mixed X0 packages. "counted:<format>" prints the counted payload with Go fmt. A value without ':' is shorthand for "counted:<format>". (default "error")
   -u	Short for '-unsigned'. (default true)
   -ulabel value
-    	Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
-    	Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -unsigned
     	Hex, Octal and Bin values are printed as unsigned values. For signed output use -unsigned=false (default true)
   -v	short for verbose
@@ -346,7 +349,8 @@ sub-command 'a|add': Use for adding library source files containing already tric
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -384,14 +388,12 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
   -a value
         Short for trice() aliases.
   -abc string
-        Create or use [path/]<target>.h and regenerate [path/]<target>.c for Trice ABC receive handling.
+        Create or use <target>.h and regenerate <target>.c in -genDir; an explicit [path/]<target> keeps its path for Trice ABC receive handling.
   -alias value
         Additional macro names to treat like trice().
         This flag can be specified multiple times to add more aliases. Each provided name will be
         recognized as equivalent to a trice() call. (default none)
          (default none)
-  -bindDir string
-        Non-default directory containing Trice bind sidecars when selected sources use File Keys. (default "./build/triceIDs")
   -colors
         Write all possible colors.
   -e value
@@ -402,6 +404,8 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
         Example: "trice generate -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
         source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
          (default none)
+  -genDir string
+        Directory for generated Trice files and existing bind sidecars, relative to the current working directory by default. (default "./generated")
   -i string
         Short for '-idlist'.
          (default "til.json")
@@ -409,8 +413,22 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
         The trice ID list file.
         The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
          (default "til.json")
+  -li string
+        Short for '-locationInformation'.
+         (default "li.json")
+  -locationInformation string
+        The trice location information file.
+        The specified JSON file is needed to display the location information for each ID during runtime.
+        It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
+        log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+        Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+        Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
+        With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
+         (default "li.json")
   -logC
-        Create a target-side Trice log table in til.c or [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.
+        Create a target-side Trice log table in -genDir/til.c or at an explicit [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.
+  -onelineJSON
+        Export the selected TIL and LI to -genDir/<name>.oneline.json with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.
   -s value
         Short for src.
   -sa value
@@ -502,6 +520,9 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
+  -ce value
+    	Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
+    	Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format and argument suffix is absent; partial matches count as absent. No provenance comments. Float values require aFloat()/aDouble().
   -defaultStampSize int
     	Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.
   -dry-run
@@ -516,6 +537,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Example: "trice insert -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
     	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
     	 (default none)
+  -genDir string
+    	Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default. (default "./generated")
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -533,7 +556,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -565,8 +589,8 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
-    	Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
@@ -575,9 +599,9 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -w	Short for (white)spaceInsideParenthesis or "wide".
 sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.
 #	"trice bind" scans C/C++ source and headers, updates til.json and li.json with insert-compatible semantics,
-#	adds a file-local sidecar include where it is safe, and writes generated headers below -bindDir.
+#	adds a file-local sidecar include where it is safe, and writes generated headers below -genDir.
 #	Insert-owned files remain unchanged; mixed explicit and bind-style sites in one file are rejected.
-#	Example: 'trice bind -src ./src -bindDir ./build/triceIDs'
+#	Example: 'trice bind -src ./src -genDir ./generated'
   -IDMax value
     	Upper end of ID range for normal trices. (default 7999)
   -IDMethod string
@@ -601,8 +625,9 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	This flag can be specified multiple times to add more aliases. Each provided name will be
     	recognized as equivalent to a trice() call. (default none)
     	 (default none)
-  -bindDir string
-    	Output directory for generated Trice bind sidecar headers. (default "./build/triceIDs")
+  -ce value
+    	Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
+    	Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".
   -defaultStampSize int
     	Default stamp size for uppercase TRICE macros without id(0), Id(0), or ID(0). Valid values are 0, 16, or 32.
   -dry-run
@@ -617,6 +642,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	Example: "trice bind -v -src ./_test/ -exclude _test/src/trice.h" will scan all C|C++ header and
     	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
     	 (default none)
+  -genDir string
+    	Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. (default "./generated")
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
@@ -634,7 +661,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -664,8 +692,8 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Additional user channel/tag(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors.
-    	Example: "-ulabel this:that -ulabel also" results in adding "also", "this" and "that" as message tags. These user labels are added at the end of emitter.Tags. See also "-logLevel".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.
@@ -689,6 +717,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
+  -ce value
+    	Remove one complete matching format and argument suffix at selected calls, regardless of origin. Partial matches are left unchanged.
+    	Repeat selector:"format-extension"[, comma-free C-expression]... Matching uses the complete ordered rule group; no provenance comments are needed.
   -dry-run
     	No changes applied but output shows what would happen.
     	"trice clean -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -718,7 +749,8 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	The specified JSON file is needed to display the location information for each ID during runtime.
     	It is regenerated on each add, clean, or insert trice run. When trice log finds a location information file, it is used for
     	log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-    	This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+    	Retained IDs support older firmware only when its stored format strings are compatible with this host's template syntax.
+    	Archive firmware, matching til.json/li.json, and host-tool version together; li.json must match the running firmware.
     	With "off" or "none" suppress the display or generation of the location information. See -tLocFmt for formatting.
     	 (default "li.json")
   -s value
@@ -749,6 +781,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -til string
     	Short for '-idlist'.
     	 (default "til.json")
+  -ulabel value
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
     	Gives more informal output if used. Can be helpful during setup.

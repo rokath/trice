@@ -45,6 +45,11 @@ func formatSpecifierCount(s string) (count int) {
 }
 
 func formatSpecifierSpecs(s string) []fmtspec.Spec {
+	if strings.ContainsAny(s, "{}") && !isSAliasEncodedString(s) {
+		if template, err := fmtspec.ParseTemplate(s, nil); err == nil {
+			return template.Specs
+		}
+	}
 	_, specs := fmtspec.Normalize(s)
 	return specs
 }

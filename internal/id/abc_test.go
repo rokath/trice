@@ -4,6 +4,7 @@ package id
 
 import (
 	"bytes"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -142,6 +143,30 @@ void unknown_local_handler(const triceRx_t* rx);
 	rereadHeader, err := FSys.ReadFile(Proj + "abc/deviceA.h")
 	require.NoError(t, err)
 	assert.Equal(t, editedHeader, string(rereadHeader))
+}
+
+// TestGenerateABCUsesGenDirForBareTarget keeps an explicit directory intact
+// while routing an unqualified target name to the selected generated directory.
+func TestGenerateABCUsesGenDirForBareTarget(t *testing.T) {
+	defer Setup(t)()
+	BindDir = filepath.Join(Proj, "generated")
+	til := TriceIDLookUp{1001: {Type: "trice16C", Strg: "cmd:set_pwm"}}
+	require.NoError(t, til.toFile(FSys.Fs, FnJSON))
+	GenerateABC = "board"
+	require.NoError(t, SubCmdGenerate(&bytes.Buffer{}, FSys))
+	assert.True(t, fileExists(FSys, filepath.Join(BindDir, "board.h")))
+	assert.True(t, fileExists(FSys, filepath.Join(BindDir, "board.c")))
+	assert.False(t, fileExists(FSys, filepath.Join(Proj, "board.h")))
+
+	GenerateABC = "custom/board"
+	require.NoError(t, SubCmdGenerate(&bytes.Buffer{}, FSys))
+	assert.True(t, fileExists(FSys, filepath.Join(Proj, "custom", "board.h")))
+	assert.True(t, fileExists(FSys, filepath.Join(Proj, "custom", "board.c")))
+
+	GenerateABC = "./local"
+	require.NoError(t, SubCmdGenerate(&bytes.Buffer{}, FSys))
+	assert.True(t, fileExists(FSys, filepath.Join(Proj, "local.h")))
+	assert.False(t, fileExists(FSys, filepath.Join(BindDir, "local.h")))
 }
 
 func TestAbcGenerateConflicts(t *testing.T) {

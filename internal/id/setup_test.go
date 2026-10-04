@@ -121,6 +121,7 @@ type globalDefaults struct {
 	defaultLIRoot                     string
 	defaultLIMaxDirs                  int
 	defaultBindDir                    string
+	defaultContextEnrichment          ArrayFlag
 	defaultSrcs                       ArrayFlag
 	defaultExcludeSrcs                ArrayFlag
 	defaultTriceAliases               ArrayFlag
@@ -136,6 +137,7 @@ type globalDefaults struct {
 	defaultLogging                    bool
 	defaultGenerateLogC               bool
 	defaultGenerateLogCPath           string
+	defaultGenerateOneLineJSON        bool
 	defaultGenerateABC                string
 	defaultWriteAllColors             bool
 }
@@ -150,6 +152,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultLIRoot = LIRoot
 	p.defaultLIMaxDirs = LIMaxDirs
 	p.defaultBindDir = BindDir
+	p.defaultContextEnrichment = ContextEnrichment
 	p.defaultSrcs = Srcs
 	p.defaultExcludeSrcs = ExcludeSrcs
 	p.defaultTriceAliases = TriceAliases
@@ -165,6 +168,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultLogging = Logging
 	p.defaultGenerateLogC = GenerateLogC
 	p.defaultGenerateLogCPath = GenerateLogCPath
+	p.defaultGenerateOneLineJSON = GenerateOneLineJSON
 	p.defaultGenerateABC = GenerateABC
 	p.defaultWriteAllColors = WriteAllColors
 }
@@ -182,6 +186,7 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	LIRoot = p.defaultLIRoot
 	LIMaxDirs = p.defaultLIMaxDirs
 	BindDir = p.defaultBindDir
+	ContextEnrichment = p.defaultContextEnrichment
 	Srcs = p.defaultSrcs
 	ExcludeSrcs = p.defaultExcludeSrcs
 	TriceAliases = p.defaultTriceAliases
@@ -197,6 +202,7 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	Logging = p.defaultLogging
 	GenerateLogC = p.defaultGenerateLogC
 	GenerateLogCPath = p.defaultGenerateLogCPath
+	GenerateOneLineJSON = p.defaultGenerateOneLineJSON
 	GenerateABC = p.defaultGenerateABC
 	WriteAllColors = p.defaultWriteAllColors
 }

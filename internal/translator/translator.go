@@ -3,6 +3,7 @@
 package translator
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -44,9 +45,13 @@ var (
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, rwc io.ReadWriteCloser, visRouter *vis.Router) error {
+	diagnostics := w
+	if decoder.LogFormat != "text" {
+		diagnostics = os.Stderr
+	}
 	//var dec Decoder //io.Reader
 	if Verbose {
-		fmt.Fprintln(w, "Encoding is", Encoding)
+		fmt.Fprintln(diagnostics, "Encoding is", Encoding)
 	}
 	var endian bool
 	var dec decoder.Decoder
@@ -58,7 +63,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	default:
 		log.Fatal(fmt.Sprintln("unknown endianness", TriceEndianness, "- accepting litteEndian or bigEndian."))
 	}
-	dec, err := decoder.NewForEncoding(Encoding, w, lut, m, li, rwc, endian)
+	dec, err := decoder.NewForEncoding(Encoding, diagnostics, lut, m, li, rwc, endian)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,21 +73,45 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	if emitter.DisplayRemote {
 		keybcmd.ReadInput(rwc)
 	} else {
-		go handleSIGTERM(w, rwc, visRouter)
+		stopSignals := startSignalHandler(diagnostics, rwc, visRouter)
+		defer stopSignals()
 	}
-	return decodeAndComposeLoop(w, sw, dec, lut, li, visRouter)
+	return decodeAndComposeLoopOutput(w, diagnostics, sw, dec, lut, li, visRouter, m)
 }
 
-// handleSIGTERM is called on CTRL-C shutdown.
-func handleSIGTERM(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) {
-	// prepare CTRL-C shutdown reaction
+// startSignalHandler owns one registration for this log run. Its stop function
+// unregisters and joins the goroutine before the caller releases its resources.
+func startSignalHandler(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) func() {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	ticker := time.NewTicker(50 * time.Millisecond)
+	stop := make(chan struct{})
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		handleSignals(w, rc, visRouter, sigs, stop)
+	}()
+	return func() {
+		signal.Stop(sigs)
+		close(stop)
+		<-done
+	}
+}
+
+// handleSignals preserves shutdown statistics and exit status. Normal EOF/error
+// cancels even the signal grace period; no ticker survives a completed log run.
+func handleSignals(w io.Writer, rc io.ReadCloser, visRouter *vis.Router, sigs <-chan os.Signal, stop <-chan struct{}) {
 	for {
 		select {
+		case <-stop:
+			return
 		case sig := <-sigs: // wait for a signal
-			time.Sleep(250 * time.Millisecond)
+			timer := time.NewTimer(250 * time.Millisecond)
+			select {
+			case <-stop:
+				timer.Stop()
+				return
+			case <-timer.C:
+			}
 			if Verbose {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
 			} else {
@@ -93,7 +122,6 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser, visRouter *vis.Router) {
 			msg.FatalOnErr(rc.Close())
 			msg.OnErr(visRouter.Close())
 			os.Exit(0) // end
-		case <-ticker.C:
 		}
 	}
 }
@@ -488,8 +516,19 @@ func splitSingleFormatDirective(format string) (prefix string, width int, leftAl
 
 // decodeAndComposeLoop does not return.
 func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router) error {
+	return decodeAndComposeLoopOutput(w, w, sw, dec, lut, li, visRouter)
+}
+
+// decodeAndComposeLoopOutput keeps human diagnostics off machine-readable sinks.
+// Tests can supply separate buffers without replacing process-global stderr.
+func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router, tableMutex ...*sync.RWMutex) error {
+	// Production passes the same lock as the decoder and watcher. Standalone
+	// presentation tests have immutable dictionaries and need no shared lock.
+	mutex := new(sync.RWMutex)
+	if len(tableMutex) != 0 {
+		mutex = tableMutex[0]
+	}
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
-	bufferReadStartTime := time.Now()
 	sleepCounter := 0
 	if err := prepareTargetStampFormats(); err != nil {
 		return err
@@ -499,20 +538,52 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 
 		if err != io.EOF && err != nil {
-			log.Fatal(err)
+			return err
+		}
+		if decoder.LogFormat != "text" {
+			if n > 0 {
+				separateDecoderDiagnostics(diagnostics, dec, b[:n])
+			}
+			if provider, ok := dec.(decoder.RecordProvider); ok {
+				if record, available := provider.ApplicationRecord(); available {
+					if !emitter.ApplicationEventAllowed(record.Tag) {
+						continue
+					}
+					if visRouter != nil {
+						if numeric, ok := dec.(decoder.VisRecordProvider); ok {
+							if value, available := numeric.VisRecord(); available && visRouter.Process(value, false) {
+								continue
+							}
+						}
+					}
+					mutex.RLock()
+					encoded, err := renderStructuredRecord(record, li, time.Now(), &state)
+					mutex.RUnlock()
+					if err != nil {
+						return err
+					}
+					written, err := w.Write(encoded)
+					if err != nil {
+						return err
+					}
+					if written != len(encoded) {
+						return io.ErrShortWrite
+					}
+					continue
+				}
+			}
+			if n > 0 {
+				continue
+			}
 		}
 
 		if n == 0 {
-			if (receiver.Port == "FILEBUFFER" ||
-				receiver.Port == "TCP4BUFFER" ||
-				receiver.Port == "HEX" ||
-				receiver.Port == "DUMP" ||
-				receiver.Port == "DEC" ||
-				receiver.Port == "BUFFER") /*&& err == io.EOF*/ && time.Since(bufferReadStartTime) > 100*time.Millisecond { // do not wait if a predefined buffer
+			if receiver.IsFiniteInput(receiver.Port) && err == io.EOF {
 				if len(sw.Line) > 0 {
-					_, _ = sw.Write([]byte(`\n`)) // add newline as line end to display any started line
+					if _, writeErr := sw.Write([]byte(`\n`)); writeErr != nil {
+						return writeErr
+					}
 				}
-				msg.OnErr(err)
 				return io.EOF
 			}
 
@@ -524,11 +595,17 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			continue // read again
 		}
 
-		// b contains here a single trice message with printed values or a single error message.
+		// b contains decoded application text, tool diagnostics, or both.
 		start := time.Now()
-
-		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n])
+		application, tagCandidate, classifiedEvent := separateDecoderDiagnostics(diagnostics, dec, b[:n])
+		if classifiedEvent {
+			if !emitter.ApplicationEventAllowed(tagCandidate) {
+				continue
+			}
+		} else if !emitter.UnclassifiedFragmentAllowed(application) {
+			continue
+		}
+		n = len(application)
 
 		dropNormalOutput := false
 		if n > 0 && visRouter != nil {
@@ -549,7 +626,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			}
 
 			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
+				mutex.RLock()
 				s := locationInformation(decoder.LastTriceID, li)
+				mutex.RUnlock()
 				if decoder.BlankMetadata {
 					s = blankMetadataField(s)
 				}
@@ -591,8 +670,17 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				_, err = sw.Write([]byte("default: ")) // add space as separator
 				msg.OnErr(err)
 			}
-			_, err := sw.Write(b[:n])
-			msg.OnErr(err)
+			if classifiedEvent {
+				if _, err := emitter.FindTagName(tagCandidate); err != nil {
+					writeUntaggedApplication(sw, application[:n])
+				} else {
+					_, err := sw.Write(application[:n])
+					msg.OnErr(err)
+				}
+			} else {
+				_, err := sw.Write(application[:n])
+				msg.OnErr(err)
+			}
 		}
 
 		duration := time.Since(start).Milliseconds()
@@ -600,6 +688,93 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 	}
+}
+
+// writeUntaggedApplication keeps user text intact while preventing the line
+// presenter from interpreting a colon in an untagged event as a format tag.
+// Splitting before every colon also protects text after embedded newlines;
+// an optional color override is applied separately to each fragment.
+func writeUntaggedApplication(sw *emitter.TriceLineComposer, application []byte) {
+	// Only an explicit color override needs a presenter tag; plain untagged
+	// fragments remain prefix-free and cannot gain an ANSI reset by accident.
+	styled := (emitter.ColorPalette == "default" || emitter.ColorPalette == "color") && emitter.UntaggedColorOverridden()
+	for len(application) > 0 {
+		colon := bytes.IndexByte(application, ':')
+		if colon < 0 {
+			writeUntaggedFragment(sw, application, styled)
+			return
+		}
+		if colon > 0 {
+			writeUntaggedFragment(sw, application[:colon], styled)
+		}
+		writeUntaggedFragment(sw, application[colon:colon+1], styled)
+		application = application[colon+1:]
+	}
+}
+
+// writeUntaggedFragment routes an explicit color through the existing tag
+// palette. The presenter removes the temporary lowercase tag before output;
+// palettes that expose literal tags always receive the untouched fragment.
+func writeUntaggedFragment(sw *emitter.TriceLineComposer, fragment []byte, styled bool) {
+	if styled {
+		fragment = append([]byte("untagged:"), fragment...)
+	}
+	_, err := sw.Write(fragment)
+	msg.OnErr(err)
+}
+
+// separateDecoderDiagnostics writes typed tool diagnostics to the local command
+// output and returns the single application range and its format tag candidate,
+// if present. classifiedEvent is false for byte-oriented decoders without event
+// boundaries. Diagnostics skip application filters, metadata, visualization, and
+// the line transformer.
+func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte) (application []byte, tag string, classifiedEvent bool) {
+	classifier, ok := dec.(decoder.OutputClassifier)
+	if !ok {
+		return decoded, "", false
+	}
+	spans := classifier.DecodedOutputSpans()
+	applicationIndex := -1
+	expectedStart := 0
+	valid := len(decoded) == 0 || len(spans) > 0
+	for i, span := range spans {
+		if span.Start != expectedStart || span.Start < 0 || span.End <= span.Start || span.End > len(decoded) {
+			valid = false
+			break
+		}
+		expectedStart = span.End
+		switch span.Kind {
+		case decoder.OutputApplication:
+			if applicationIndex != -1 {
+				valid = false
+			}
+			applicationIndex = i
+		case decoder.OutputDiagnostic:
+		default:
+			valid = false
+		}
+	}
+	if expectedStart != len(decoded) {
+		valid = false
+	}
+	if !valid {
+		// A malformed classifier result must never route uncertain tool text
+		// through application filters or machine-oriented consumers.
+		_, err := w.Write(decoded)
+		msg.OnErr(err)
+		return nil, "", false
+	}
+	for _, span := range spans {
+		if span.Kind == decoder.OutputDiagnostic {
+			_, err := w.Write(decoded[span.Start:span.End])
+			msg.OnErr(err)
+		}
+	}
+	if applicationIndex == -1 {
+		return nil, "", false
+	}
+	span := spans[applicationIndex]
+	return decoded[span.Start:span.End], span.Tag, true
 }
 
 // blankMetadataField preserves the occupied metadata width while hiding its value.

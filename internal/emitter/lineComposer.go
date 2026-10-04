@@ -57,6 +57,20 @@ func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
 	return p.WriteString(s)
 }
 
+// DecodeDisplayEscapes applies the text line composer's established escape
+// rules. Structured message values use the same conversion without adding
+// host timestamps, prefixes, suffixes, or output line boundaries.
+func DecodeDisplayEscapes(s string) string {
+	bs := "~bs___________________bs~" // escaped backslash
+	sa := strings.ReplaceAll(s, `\\`, bs)
+	sb := strings.ReplaceAll(sa, `\a`, "\u0007") // Alert or Bell
+	sc := strings.ReplaceAll(sb, `\t`, "\u0009") // horizontal tab
+	sd := strings.ReplaceAll(sc, bs, "\\")
+	s0 := strings.ReplaceAll(sd, "\\r\\n", "\n")
+	s1 := strings.ReplaceAll(s0, "\\n", "\n")
+	return strings.ReplaceAll(s1, "\r\n", "\n")
+}
+
 // WriteString implements the io.StringWriter interface. The triceLineComposer can use it.
 // WriteString uses the internal line writer p.lw for writing out full lines.
 // If s is empty, WriteString returns 0, nil.
@@ -72,14 +86,7 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	}
 	var emptyLine bool
 	// https://www.geeksforgeeks.org/rune-in-golang/
-	bs := "~bs___________________bs~" // escaped backslash
-	sa := strings.ReplaceAll(s, `\\`, bs)
-	sb := strings.ReplaceAll(sa, `\a`, "\u0007") // Alert or Bell
-	sc := strings.ReplaceAll(sb, `\t`, "\u0009") // horizontal tab
-	sd := strings.ReplaceAll(sc, bs, "\\")
-	s0 := strings.ReplaceAll(sd, "\\r\\n", "\n")
-	s1 := strings.ReplaceAll(s0, "\\n", "\n")
-	sn := strings.ReplaceAll(s1, "\r\n", "\n")
+	sn := DecodeDisplayEscapes(s)
 	ss := strings.Split(sn, "\n")
 
 	// play ground results:

@@ -35,6 +35,15 @@ func TestHelpAll(t *testing.T) {
 	if strings.Contains(got, "-tilC") {
 		t.Fatalf("help -all still advertises the removed -tilC spelling\n%s", got)
 	}
+	if strings.Contains(got, "-bindDir") {
+		t.Fatalf("help -all still advertises the removed -bindDir flag\n%s", got)
+	}
+	if strings.Contains(got, "-buildDir") {
+		t.Fatalf("help -all still advertises the removed -buildDir flag\n%s", got)
+	}
+	if !strings.Contains(got, "-genDir") {
+		t.Fatalf("help -all omits the shared generated-file directory\n%s", got)
+	}
 }
 
 // TestGeneratedHelpAllDocIsUpToDate verifies the expected behavior.

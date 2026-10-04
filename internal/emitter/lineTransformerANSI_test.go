@@ -9,7 +9,36 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// duplicateTagAliases reports every alias that belongs to more than one tag group.
+func duplicateTagAliases(tags []tag) map[string][]string {
+	owners := make(map[string][]string)
+	for _, group := range tags {
+		canonical := group.Names[0]
+		for _, alias := range group.Names {
+			owners[alias] = append(owners[alias], canonical)
+		}
+	}
+	for alias, groups := range owners {
+		if len(groups) == 1 {
+			delete(owners, alias)
+		}
+	}
+	return owners
+}
+
+// TestTagAliasesAreUnique protects the complete registry, including future additions.
+func TestTagAliasesAreUnique(t *testing.T) {
+	assert.Empty(t, duplicateTagAliases(Tags))
+
+	duplicate := []tag{
+		{Names: []string{"first", "shared"}},
+		{Names: []string{"second", "shared"}},
+	}
+	assert.Equal(t, map[string][]string{"shared": {"first", "second"}}, duplicateTagAliases(duplicate))
+}
 
 // Test1colorize verifies the expected behavior.
 func Test1colorize(t *testing.T) {
@@ -38,6 +67,67 @@ func Test3colorize(t *testing.T) {
 	s := "msg:de"
 	act, _ := p.colorize(s)
 	assert.Equal(t, s, act)
+}
+
+// TestColorizeOnlyPresentsAcceptedFragments verifies that a metadata-looking
+// prefix cannot cause presentation to discard a line after event selection.
+func TestColorizeOnlyPresentsAcceptedFragments(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	p := newLineTransformerANSI(newCheckDisplay(), "off")
+
+	for _, threshold := range []string{"INFO", "info", "500"} {
+		LogLevel = threshold
+		require.NoError(t, ResolveFilterSelectors())
+
+		for _, fragment := range []string{"wrn:shown", "msg:boundary", "dbg:metadata", "misspelled:unchanged"} {
+			got, show := p.colorize(fragment)
+			assert.True(t, show, "%s: %s", threshold, fragment)
+			assert.Equal(t, fragment, got)
+		}
+	}
+}
+
+// TestUntaggedColorAndWeightHandling verifies that an unknown application tag
+// keeps its original text under every palette while retaining its own weight.
+func TestUntaggedColorAndWeightHandling(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	text := "mgs:blah"
+
+	for _, palette := range []string{"default", "none"} {
+		LogLevel = "all"
+		p := newLineTransformerANSI(newCheckDisplay(), palette)
+		got, show := p.colorize(text)
+		assert.True(t, show)
+		assert.Equal(t, "mgs:blah", got, palette)
+	}
+
+	LogLevel = "all"
+	TagStatistics = true
+	RecordTagEvent("mgs")
+	p := newLineTransformerANSI(newCheckDisplay(), "off")
+	got, show := p.colorize(text)
+	assert.True(t, show)
+	assert.Equal(t, "mgs:blah", got)
+	assert.Equal(t, 1, TagEvents("untagged"))
+
+	LogLevel = "notice"
+	require.NoError(t, ResolveFilterSelectors())
+	assert.False(t, ApplicationEventAllowed("mgs"))
+	LogLevel = "400"
+	require.NoError(t, ResolveFilterSelectors())
+	assert.True(t, ApplicationEventAllowed("mgs"))
+
+	UserLabel = ArrayFlag{"untagged:150"}
+	require.NoError(t, AddUserLabels())
+	LogLevel = "200"
+	require.NoError(t, ResolveFilterSelectors())
+	assert.False(t, ApplicationEventAllowed("mgs"))
 }
 
 func _Test4colorize(t *testing.T) {

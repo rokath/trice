@@ -15,6 +15,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/pkg/ant"
 	"github.com/spf13/afero"
 )
@@ -35,7 +36,10 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	if err := validateBindOptions(); err != nil {
 		return err
 	}
-
+	contextRules, err := parseContextRules(ContextEnrichment)
+	if err != nil {
+		return err
+	}
 	inputs, diagnostics := collectBindInputs(w, fSys)
 	plans := analyzeBindInputs(inputs)
 	for i := range plans {
@@ -72,6 +76,7 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 		plans[i].diagnostics = nil
 	}
 
+	diagnostics = append(diagnostics, prepareBindContext(w, plans, contextRules)...)
 	IDData.err = nil
 	IDData.PreProcessing(w, fSys)
 	metadataResolver := newBindMetadataResolver(w, fSys)
@@ -117,7 +122,7 @@ func validateBindOptions() error {
 		return fmt.Errorf("trice bind: invalid -IDMethod %q; expected random, upward, or downward", SearchMethod)
 	}
 	if strings.TrimSpace(BindDir) == "" {
-		return errors.New("trice bind: -bindDir must not be empty")
+		return errors.New("trice bind: -genDir must not be empty")
 	}
 	return nil
 }
@@ -311,8 +316,21 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 // buildBindWrites renders JSON in memory and omits every destination whose bytes are unchanged.
 func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, error) {
 	writes := make([]bindWrite, 0, len(plans)*4+2)
+	fieldCounts := make(map[string]int)
 	for i := range plans {
 		plan := &plans[i]
+		for _, site := range plan.sites {
+			if isSAliasEncodedString(site.format) {
+				continue
+			}
+			template, err := fmtspec.ParseTemplate(site.format, nil)
+			if err != nil {
+				return nil, fmt.Errorf("%s:%d: %w", plan.path, site.line, err)
+			}
+			for _, field := range template.Fields {
+				fieldCounts[field.Name]++
+			}
+		}
 		if !bytes.Equal(plan.original, plan.final) {
 			writes = append(writes, bindWrite{path: plan.path, data: plan.final, perm: plan.info.Mode(), kind: "source"})
 		}
@@ -379,7 +397,16 @@ func buildBindWrites(fSys *afero.Afero, plans []bindFilePlan) ([]bindWrite, erro
 		}
 	}
 
-	order := map[string]int{"sidecar": 0, "rebase": 0, "til": 1, "li": 2, "source": 3, "rebase-delete": 4}
+	registryPath := filepath.Join(BindDir, "trice-fields.txt")
+	registry := renderFieldRegistry(fieldCounts)
+	unchanged, err := bindFileHasContent(fSys, registryPath, registry)
+	if err != nil {
+		return nil, err
+	}
+	if !unchanged {
+		writes = append(writes, bindWrite{path: registryPath, data: registry, perm: fileWritePerm(fSys, registryPath, 0o644), kind: "fields"})
+	}
+	order := map[string]int{"sidecar": 0, "rebase": 0, "fields": 0, "til": 1, "li": 2, "source": 3, "rebase-delete": 4}
 	sort.SliceStable(writes, func(i, j int) bool {
 		if order[writes[i].kind] != order[writes[j].kind] {
 			return order[writes[i].kind] < order[writes[j].kind]
@@ -444,7 +471,7 @@ func commitBindWrites(fSys *afero.Afero, writes []bindWrite) error {
 			}
 			continue
 		}
-		if write.kind == "sidecar" || write.kind == "rebase" {
+		if write.kind == "sidecar" || write.kind == "rebase" || write.kind == "fields" || write.kind == "til" || write.kind == "li" {
 			if err := fSys.MkdirAll(filepath.Dir(write.path), 0o755); err != nil {
 				return rollbackBindWrites(fSys, writes[:index], originals[:index], fmt.Errorf("cannot create bind directory for %s: %w", write.path, err))
 			}
@@ -535,7 +562,7 @@ func printBindSummary(w io.Writer, plans []bindFilePlan, writes []bindWrite) {
 func reportBindDiagnostics(w io.Writer, diagnostics []bindDiagnostic) error {
 	diagnostics = sortedBindDiagnostics(diagnostics)
 	for _, diagnostic := range diagnostics {
-		fmt.Fprintln(w, formatBindDiagnostic(diagnostic))
+		fmt.Fprintln(w, formatBindDiagnostic(diagnostic), bindLimitsHint)
 	}
 	return fmt.Errorf("trice bind failed with %d error(s)", len(diagnostics))
 }

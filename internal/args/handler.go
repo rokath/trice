@@ -79,21 +79,26 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return versionHandler(w, fSys, subArgs)
 	case "a", "add":
 		msg.OnErr(fsScAdd.Parse(subArgs))
+		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
 		msg.OnErr(fsScGenerate.Parse(normalizeGenerateArgs(subArgs)))
+		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdGenerate(w, fSys)
 	case "i", "insert":
 		msg.OnErr(fsScInsert.Parse(subArgs))
+		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
-		emitter.AddUserLabels()
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
 			return err
@@ -111,12 +116,15 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 			}
 			return err
 		}
+		id.Verbose = Verbose
 		// Remember why CompactSrcs adds "./". Once expanded, the default is
 		// indistinguishable from a deliberate `-src ./` selection.
 		implicitSourceSelection := len(id.Srcs) == 0
 		id.CompactSrcs()
 		id.ProcessAliases()
-		emitter.AddUserLabels()
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		if err := id.EvaluateIDRangeStrings(); err != nil {
 			return err
 		}
@@ -130,6 +138,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		msg.OnErr(fsScClean.Parse(subArgs))
 		id.CompactSrcs()
 		id.ProcessAliases()
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdClean(w, fSys)
 	case "sd", "shutdown":
@@ -219,10 +230,35 @@ func ensureDate(fSys *afero.Afero) {
 }
 
 func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
-	id.Logging = true
+	// A later invocation in the same process starts with the documented default.
+	decoder.LogFormat = "text"
 	msg.OnErr(fsScLog.Parse(subArgs))
+	// Downstream presentation uses canonical names for its format comparisons.
+	switch strings.ToLower(decoder.LogFormat) {
+	case "text", "json", "kv":
+		decoder.LogFormat = strings.ToLower(decoder.LogFormat)
+	case "key-value":
+		decoder.LogFormat = "kv"
+	default:
+		return fmt.Errorf("invalid -logFormat %q: expected text, json, kv, or key-value", decoder.LogFormat)
+	}
+	if decoder.LogFormat != "text" && !strings.EqualFold(translator.Encoding, "TREX") {
+		return fmt.Errorf("-logFormat %s requires -encoding TREX because CHAR/DUMP have no event boundaries", decoder.LogFormat)
+	}
+	if decoder.LogFormat != "text" && (emitter.DisplayRemote || decoder.TestTableMode) {
+		return fmt.Errorf("-logFormat %s cannot use the text-only remote display or test-table output", decoder.LogFormat)
+	}
+	if isLogFlagPassed("pick") && isLogFlagPassed("ban") {
+		return errors.New("switches -pick and -ban cannot be used together")
+	}
+	id.Logging = true
 	id.ProcessAliases()
-	emitter.AddUserLabels()
+	if err := emitter.AddUserLabels(); err != nil {
+		return err
+	}
+	if err := emitter.ResolveFilterSelectors(); err != nil {
+		return err
+	}
 	decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 	decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
 	decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
@@ -231,9 +267,12 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
 	decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
 	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
-	logLoop(w, fSys) // endless loop
-	return nil
+	return startLogLoop(w, fSys) // endless loop until EOF or a returned failure
 }
+
+// startLogLoop starts the input/output path after all command-line validation.
+// Tests replace it to prove invalid options cannot open an input channel.
+var startLogLoop = logLoop
 
 // https://stackoverflow.com/questions/35809252/check-if-flag-was-provided-in-go
 func isLogFlagPassed(name string) bool {
@@ -252,7 +291,11 @@ type selector struct {
 }
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
-func logLoop(w io.Writer, fSys *afero.Afero) {
+func logLoop(w io.Writer, fSys *afero.Afero) error {
+	applicationOutput := w
+	if decoder.LogFormat != "text" {
+		w = os.Stderr
+	}
 	msg.FatalOnErr(cipher.SetUp(w)) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
@@ -292,10 +335,6 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	if visRouter != nil {
 		defer func() { msg.OnErr(visRouter.Close()) }()
 	}
-	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
-	// This way trice needs NOT to be restarted during development process.
-	//go ilu.FileWatcher(w, fSys, m)
-
 	var li id.TriceIDLookUpLI // nil
 
 	if id.LIFnJSON == "emptyFile" { // reserved name for tests only
@@ -309,30 +348,37 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 			}
 		} else {
 			li = id.NewLutLI(w, fSys, id.LIFnJSON) // lut is a map, that means a pointer
-			decoder.LILUT = li
-			// Just in case the id location information file LIFnJSON gets updated, the file watcher updates li.
-			// This way trice needs NOT to be restarted during development process.
-			//go li.FileWatcher(w, fSys)
 		}
 	}
+	// Decoder, presentation, and statistics share one lock for live table reads.
+	decoder.IDLUT, decoder.LILUT, decoder.LUTMutex = ilu, li, m
+	// Watcher diagnostics always use stderr, including text mode, so asynchronous
+	// warnings cannot corrupt application records or write into an unsafe sink.
+	stopWatching, watchErr := id.WatchLookUpTables(os.Stderr, fSys, ilu, li, m)
+	defer stopWatching()
+	if watchErr != nil {
+		fmt.Fprintf(os.Stderr, "warning: automatic table reload unavailable: %v; restart trice log to load affected tables\n", watchErr)
+	}
 
-	sw := emitter.New(w)
+	sw := emitter.New(applicationOutput)
 	var interrupted bool
 	var counter int
 
 	for {
 		rwc, e := receiver.NewReadWriteCloser(w, fSys, Verbose, receiver.Port, receiver.PortArguments)
 		if e != nil {
+			if !interrupted && decoder.LogFormat != "text" {
+				return e // Machine commands report a failed input setup to their caller.
+			}
 			fmt.Fprintln(w, e)
 			if !interrupted {
-				return // hopeless
+				return nil // preserve the existing text command's diagnostic-only result
 			}
 			time.Sleep(1000 * time.Millisecond) // retry interval
 			fmt.Fprintf(w, "\rsig:(re-)setup input port...%d", counter)
 			counter++
 			continue
 		}
-		defer func() { msg.OnErr(rwc.Close()) }()
 		interrupted = true
 		if receiver.ShowInputBytes {
 			rwc = receiver.NewBytesViewer(w, rwc)
@@ -340,9 +386,21 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
-		e = translator.Translate(w, sw, ilu, m, li, rwc, visRouter)
+		e = translator.Translate(applicationOutput, sw, ilu, m, li, rwc, visRouter)
+		// Close the final wrapper chain before retrying or returning; a defer in
+		// this loop retained every previous input and never closed wrapper files.
+		closeErr := rwc.Close()
+		if closeErr != nil {
+			if e == io.EOF {
+				e = nil
+			}
+			return errors.Join(e, closeErr)
+		}
 		if io.EOF == e {
-			return // end of predefined buffer
+			return nil // end of predefined buffer
+		}
+		if e != nil {
+			return e
 		}
 	}
 }

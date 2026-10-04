@@ -137,7 +137,7 @@ func TestTREXVisRecordCapture(t *testing.T) {
 
 	dec.SetInput(bytes.NewReader(nil))
 	count, err = dec.Read(buffer)
-	require.NoError(t, err)
+	require.ErrorIs(t, err, io.EOF)
 	assert.Zero(t, count)
 	_, available = dec.VisRecord()
 	assert.False(t, available)
@@ -1040,6 +1040,13 @@ func TestReadCOBSFramingUnknownID(t *testing.T) {
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Contains(t, string(buf[:n]), "unknown ID")
+	classifier, ok := dec.(decoder.OutputClassifier)
+	require.True(t, ok)
+	spans := classifier.DecodedOutputSpans()
+	require.Len(t, spans, 1)
+	assert.Equal(t, decoder.OutputDiagnostic, spans[0].Kind)
+	assert.Equal(t, 0, spans[0].Start)
+	assert.Equal(t, n, spans[0].End)
 }
 
 // TestReadFramedUnsupportedShortPackets verifies errors for non-X0 packets that are too short.
@@ -1172,7 +1179,7 @@ func TestReadNoneFramingConsumesCompactPayload(t *testing.T) {
 	assert.Empty(t, dec.B)
 
 	n, err = dec.Read(buf)
-	assert.NoError(t, err)
+	assert.ErrorIs(t, err, io.EOF)
 	assert.Equal(t, 0, n)
 }
 
@@ -1242,6 +1249,119 @@ func TestReadTypeX0DefaultErrorForFramedData(t *testing.T) {
 	assert.Equal(t, id.TriceID(0), decoder.LastTriceID)
 	assert.Equal(t, 0, decoder.TargetTimestampSize)
 	assert.True(t, decoder.BlankMetadata)
+	assert.Empty(t, decoder.IDStat)
+}
+
+// TestReadStatisticsRequireSuccessfulApplicationDecode proves that a known ID
+// is insufficient for either counter: a failed format/type decode is a tool
+// diagnostic, while following valid records count even with empty display text.
+func TestReadStatisticsRequireSuccessfulApplicationDecode(t *testing.T) {
+	savedTriceStatistics := decoder.TriceStatistics
+	savedIDStat := decoder.IDStat
+	savedTagStatistics := emitter.TagStatistics
+	savedAllStatistics := emitter.AllStatistics
+	savedTags := emitter.Tags
+	savedUserLabel := emitter.UserLabel
+	savedInitialCycle := decoder.InitialCycle
+	savedDisableCycleErrors := DisableCycleErrors
+	t.Cleanup(func() {
+		decoder.TriceStatistics = savedTriceStatistics
+		decoder.IDStat = savedIDStat
+		emitter.TagStatistics = savedTagStatistics
+		emitter.AllStatistics = savedAllStatistics
+		emitter.Tags = savedTags
+		emitter.UserLabel = savedUserLabel
+		decoder.InitialCycle = savedInitialCycle
+		DisableCycleErrors = savedDisableCycleErrors
+	})
+	decoder.TriceStatistics = true
+	decoder.IDStat = make(map[id.TriceID]int)
+	emitter.TagStatistics = true
+	emitter.AllStatistics = false
+	emitter.UserLabel = nil
+	require.NoError(t, emitter.AddUserLabels())
+	decoder.InitialCycle = true
+	DisableCycleErrors = true
+
+	p := &trexDec{
+		DecoderData: decoder.NewDecoderData(decoder.Config{
+			Endian: decoder.LittleEndian,
+			LUT: id.TriceIDLookUp{
+				1: {Type: "BADTYPE", Strg: "wrn:bad=%d"},
+				2: {Type: "TRICE8_1", Strg: "wrn:good=%d"},
+				3: {Type: "TRICE_0", Strg: ""},
+			},
+		}),
+		packageFraming: packageFramingCOBS,
+		cycle:          0xc0,
+	}
+	p.B = []byte{0x01, 0x40, 0xc0, 0x01, 0x2a, 0x02, 0x40, 0xc1, 0x01, 0x2b, 0x03, 0x40, 0xc2, 0x00}
+	buf := make([]byte, 512)
+	n, err := p.Read(buf)
+	require.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "ConstructFullTriceInfo failed")
+	assert.Empty(t, decoder.IDStat)
+	assert.Zero(t, emitter.TagEvents("wrn"))
+
+	n, err = p.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "wrn:good=43", string(buf[:n]))
+	assert.Equal(t, map[id.TriceID]int{2: 1}, decoder.IDStat)
+	assert.Equal(t, 1, emitter.TagEvents("wrn"))
+
+	n, err = p.Read(buf)
+	require.NoError(t, err)
+	assert.Zero(t, n, "a valid empty format contributes no display text")
+	assert.Equal(t, map[id.TriceID]int{2: 1, 3: 1}, decoder.IDStat)
+	assert.Equal(t, 1, emitter.TagEvents("untagged"), "an empty but valid event still counts")
+}
+
+// TestTypeX0TagStatisticsExcludeDiagnostics verifies that a formatted selector-0
+// record has an application tag count but no ID count, while the same bytes in
+// error mode produce only a diagnostic and cannot increment either total.
+func TestTypeX0TagStatisticsExcludeDiagnostics(t *testing.T) {
+	savedTypeX0 := decoder.TypeX0
+	savedIDStat := decoder.IDStat
+	savedTriceStatistics := decoder.TriceStatistics
+	savedTagStatistics := emitter.TagStatistics
+	savedAllStatistics := emitter.AllStatistics
+	savedTags := emitter.Tags
+	savedUserLabel := emitter.UserLabel
+	t.Cleanup(func() {
+		decoder.TypeX0 = savedTypeX0
+		decoder.IDStat = savedIDStat
+		decoder.TriceStatistics = savedTriceStatistics
+		emitter.TagStatistics = savedTagStatistics
+		emitter.AllStatistics = savedAllStatistics
+		emitter.Tags = savedTags
+		emitter.UserLabel = savedUserLabel
+	})
+	decoder.IDStat = make(map[id.TriceID]int)
+	decoder.TriceStatistics = true
+	emitter.TagStatistics = true
+	emitter.AllStatistics = false
+	emitter.UserLabel = nil
+	require.NoError(t, emitter.AddUserLabels())
+
+	p := &trexDec{
+		DecoderData:    decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian}),
+		packageFraming: packageFramingCOBS,
+	}
+	buf := make([]byte, 128)
+	decoder.TypeX0 = "counted:msg:%s"
+	p.B = []byte{0x02, 0x00, 'O', 'K'}
+	n, err := p.Read(buf)
+	require.NoError(t, err)
+	assert.Equal(t, "msg:OK", string(buf[:n]))
+	assert.Equal(t, 1, emitter.TagEvents("msg"))
+	assert.Empty(t, decoder.IDStat, "selector-0 has no Trice ID")
+
+	decoder.TypeX0 = "error"
+	p.B = []byte{0x02, 0x00, 'O', 'K'}
+	n, err = p.Read(buf)
+	require.NoError(t, err)
+	assert.Contains(t, string(buf[:n]), "typeX0 packet ignored")
+	assert.Equal(t, 1, emitter.TagEvents("msg"))
 	assert.Empty(t, decoder.IDStat)
 }
 
@@ -1358,7 +1478,15 @@ func TestReadCycleErrorMessage(t *testing.T) {
 	buf := make([]byte, 1024)
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
-	assert.Contains(t, string(buf[:n]), "CYCLE_ERROR")
+	output := string(buf[:n])
+	assert.Contains(t, output, "CYCLE_ERROR")
+	spans := dec.DecodedOutputSpans()
+	require.Len(t, spans, 2)
+	assert.Equal(t, decoder.OutputDiagnostic, spans[0].Kind)
+	assert.Contains(t, output[spans[0].Start:spans[0].End], "CYCLE_ERROR")
+	assert.Equal(t, decoder.OutputApplication, spans[1].Kind)
+	assert.Empty(t, spans[1].Tag)
+	assert.Equal(t, "v=42", output[spans[1].Start:spans[1].End])
 }
 
 // TestReadFramedDiscardTrailingEncryptedZeroes verifies the expected behavior.
@@ -1484,7 +1612,8 @@ func TestReadNoneFramingTooShortForHeader(t *testing.T) {
 	assert.Equal(t, 1, len(dec.B))
 }
 
-// TestReadNoneFramingResyncWhenTriceSizeExceedsPackage verifies the expected behavior.
+// TestReadNoneFramingResyncWhenTriceSizeExceedsPackage preserves byte-wise
+// recovery when a one-byte scalar claims an impossible 127-byte payload.
 func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldVerbose := decoder.Verbose
@@ -1511,8 +1640,7 @@ func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Equal(t, 0, n)
-	// none-mode resync drops first byte from the preserved buffer.
-	assert.Equal(t, 3, len(dec.B))
+	assert.Equal(t, []byte{0x40, 0xff, 0x7f}, dec.B, "corruption must not be mistaken for an incomplete valid record")
 }
 
 // TestReadFramedPackageTooSmallVerboseError verifies the framed-package error

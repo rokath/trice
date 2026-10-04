@@ -30,6 +30,42 @@ func TestSelectCurrentLogEntriesFromInsertedSource(t *testing.T) {
 	assert.Equal(t, TriceIDLookUp{1000: til[1000], 1001: til[1001]}, selected)
 }
 
+// TestGenerateInsertedContextUsesExplicitIdentityWithoutComments proves that
+// retained selectors need no provenance or repeated CE flags. The source ID
+// still controls selection, and message, field and type changes remain errors.
+func TestGenerateInsertedContextUsesExplicitIdentityWithoutComments(t *testing.T) {
+	for _, tc := range []struct {
+		name, source string
+		entry        TriceFmt
+		valid        bool
+	}{
+		{"lowercase selector remains only in source", `trice(iD(100), "info:ctx:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "info:ready x={x}"}, true},
+		{"interleaved selectors preserve the known tag", `trice(iD(100), "ctxa:info:ctxb:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "info:ready x={x}"}, true},
+		{"repeated free prefix keeps the TIL-selected occurrence", `trice(iD(100), "ctx:ctx:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "ctx:ready x={x}"}, true},
+		{"visible mixed-case selector is preserved", `trice(iD(100), "info:Ctx:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "info:Ctx:ready x={x}"}, true},
+		{"missing known tag is rejected", `trice(iD(100), "info:ctx:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "ready x={x}"}, false},
+		{"missing mixed-case selector is rejected", `trice(iD(100), "info:Ctx:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "info:ready x={x}"}, false},
+		{"changed message is rejected", `trice(iD(100), "info:ctx:edited x={x}", x);`, TriceFmt{Type: "trice", Strg: "info:ready x={x}"}, false},
+		{"changed field is rejected", `trice(iD(100), "info:ctx:ready x={other}", x);`, TriceFmt{Type: "trice", Strg: "info:ready x={x}"}, false},
+		{"changed transport type is rejected", `trice16(iD(100), "info:ctx:ready x={x}", x);`, TriceFmt{Type: "trice32", Strg: "info:ready x={x}"}, false},
+		{"same schema at another ID is not guessed", `trice(iD(101), "info:ctx:ready x={x}", x);`, TriceFmt{Type: "trice", Strg: "info:ready x={x}"}, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			defer prepareBindTest(t, map[string]string{"main.c": tc.source})()
+			ContextEnrichment = nil
+			til := TriceIDLookUp{100: tc.entry}
+			selected, err := selectCurrentLogEntries(&B, FSys, til)
+			if tc.valid {
+				require.NoError(t, err, B.String())
+				assert.Equal(t, til, selected)
+			} else {
+				require.Error(t, err, "stale or missing identity must not produce a table")
+				assert.Nil(t, selected)
+			}
+		})
+	}
+}
+
 // TestSelectCurrentLogEntriesFromBoundSource covers multiple sites on one
 // physical line. Numeric location descriptors are ordered by their generated
 // source ordinals and no format-based ID guess is needed.
@@ -264,7 +300,7 @@ func TestGenerateLogCRejectsStaleBindStateWithoutTouchingOutput(t *testing.T) {
 
 	err := SubCmdGenerate(&B, FSys)
 	require.Error(t, err)
-	assert.Contains(t, B.String(), "run trice bind or pass its directory with -bindDir")
+	assert.Contains(t, B.String(), "run trice bind or pass its directory with -genDir")
 	unchanged, readErr := FSys.ReadFile(output)
 	require.NoError(t, readErr)
 	assert.Equal(t, "keep me\n", string(unchanged))

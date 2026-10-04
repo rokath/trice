@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/afero"
 )
@@ -20,7 +21,9 @@ import (
 func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) (TriceIDLookUp, error) {
 	inputs, diagnostics := collectBindInputs(w, fSys)
 	plans := analyzeBindInputs(inputs)
+	insertOwned := make([]bool, len(plans))
 	for index := range plans {
+		insertOwned[index] = plans[index].class == bindFileInsert
 		diagnostics = append(diagnostics, plans[index].diagnostics...)
 		plans[index].diagnostics = nil
 	}
@@ -36,6 +39,11 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 	// diagnostics on legacy insert-owned files.
 	_, _ = analyzeBindProject(plans, false)
 	for index := range plans {
+		// Wrapper discovery must not turn already explicit insert IDs into
+		// hypothetical bind ownership. CE insert also instruments definitions.
+		if insertOwned[index] {
+			plans[index].class = bindFileInsert
+		}
 		diagnostics = append(diagnostics, plans[index].diagnostics...)
 		plans[index].diagnostics = nil
 	}
@@ -55,6 +63,12 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 		case bindFileInsert:
 			for _, site := range allSites {
 				if site.wasExplicit {
+					// Insert keeps selectors in source for clean. The explicit ID
+					// selects the TIL entry; only removable lowercase prefixes may
+					// differ, never the message body, fields or transport type.
+					if entry, exists := til[site.id]; exists && matchesInsertContextFormat(site.format, entry.Strg) {
+						site.format = entry.Strg
+					}
 					diagnostics = append(diagnostics, addCurrentLogSite(selected, til, plan.path, site, site.id)...)
 				} else {
 					diagnostics = append(diagnostics, unresolvedCurrentLogSite(plan.path, site))
@@ -62,7 +76,7 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 			}
 		case bindFileBound:
 			if len(plan.sites) != 0 {
-				ids, sidecarDiagnostics := readCurrentBindIDs(fSys, plan)
+				ids, contextMetadata, sidecarDiagnostics := readCurrentBindIDs(fSys, plan)
 				diagnostics = append(diagnostics, sidecarDiagnostics...)
 				if len(sidecarDiagnostics) == 0 {
 					if len(ids) != len(plan.sites) {
@@ -75,6 +89,11 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 						})
 					} else {
 						for siteIndex, site := range plan.sites {
+							if metadata, enriched := contextMetadata[siteIndex]; enriched {
+								// Validate the authoritative ID against its final CE schema,
+								// retaining the original sites for comment classification below.
+								site.macro, site.format = metadata.Type, metadata.Format
+							}
 							diagnostics = append(diagnostics, addCurrentLogSite(selected, til, plan.path, site, ids[siteIndex])...)
 						}
 					}
@@ -114,6 +133,35 @@ func selectCurrentLogEntries(w io.Writer, fSys *afero.Afero, til TriceIDLookUp) 
 		}})
 	}
 	return selected, nil
+}
+
+// matchesInsertContextFormat reconciles source-retained free selectors with
+// the schema of an already explicit ID. It does not search for IDs or infer CE
+// rules. Keeping alternative prefix positions handles repeated token names;
+// registered and mixed-case tags, message text and field schemas must match.
+func matchesInsertContextFormat(source, target string) bool {
+	remaining := map[string]bool{target: true}
+	for len(remaining) != 0 {
+		if remaining[source] {
+			return true
+		}
+		name, rest, found := strings.Cut(source, ":")
+		key, known := contextSelector(name)
+		if !found || key == "" {
+			return false
+		}
+		next := make(map[string]bool)
+		for candidate := range remaining {
+			if tail, matches := strings.CutPrefix(candidate, name+":"); matches {
+				next[tail] = true
+			}
+			if !known && name == strings.ToLower(name) {
+				next[candidate] = true
+			}
+		}
+		source, remaining = rest, next
+	}
+	return false
 }
 
 // currentLogSiteIsInherentlyUnsupported permits an ID-free call in an ordinary
@@ -158,9 +206,9 @@ func unresolvedCurrentLogSite(path string, site bindSite) bindDiagnostic {
 // readCurrentBindIDs validates the owner sidecar and returns its numeric site
 // descriptors in logical source order. Rebase helper files are build details;
 // the owner sidecar remains the sole numeric authority needed by -logC.
-func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bindDiagnostic) {
+func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, map[int]bindContextMetadata, []bindDiagnostic) {
 	if plan.key == "" || plan.sidecarName == "" {
-		return nil, []bindDiagnostic{{
+		return nil, nil, []bindDiagnostic{{
 			path:    plan.path,
 			message: "ID-free Trice sites have no File Key include; run trice bind before trice generate -logC",
 		}}
@@ -169,19 +217,19 @@ func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bin
 	sidecarPath := filepath.Join(BindDir, plan.sidecarName)
 	content, err := fSys.ReadFile(sidecarPath)
 	if errors.Is(err, os.ErrNotExist) {
-		return nil, []bindDiagnostic{{
+		return nil, nil, []bindDiagnostic{{
 			path: plan.path,
 			message: fmt.Sprintf(
-				"Trice bind sidecar %s is missing; run trice bind or pass its directory with -bindDir before trice generate -logC",
+				"Trice bind sidecar %s is missing; run trice bind or pass its directory with -genDir before trice generate -logC",
 				sidecarPath,
 			),
 		}}
 	}
 	if err != nil {
-		return nil, []bindDiagnostic{{path: sidecarPath, message: "cannot read Trice bind sidecar: " + err.Error()}}
+		return nil, nil, []bindDiagnostic{{path: sidecarPath, message: "cannot read Trice bind sidecar: " + err.Error()}}
 	}
 	if diagnostics := validateExistingSidecar(sidecarPath, plan.key, content); len(diagnostics) != 0 {
-		return nil, diagnostics
+		return nil, nil, diagnostics
 	}
 
 	historical := parseBindHistoricalSites(content, plan.key)
@@ -189,7 +237,11 @@ func readCurrentBindIDs(fSys *afero.Afero, plan *bindFilePlan) ([]TriceID, []bin
 	for _, site := range historical {
 		ids = append(ids, site.id)
 	}
-	return ids, nil
+	metadata, err := readBindContextMetadata(content, plan, ids)
+	if err != nil {
+		return nil, nil, []bindDiagnostic{{path: sidecarPath, message: err.Error()}}
+	}
+	return ids, metadata, nil
 }
 
 // addCurrentLogSite verifies both parts of a source site's semantic identity

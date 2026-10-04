@@ -64,7 +64,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithNoIDinsideLi(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "80", "-IDMethod", "upward"}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "2000", "-IDMethod", "upward"}))
 
 	// check source files
 	for _, k := range testSet {
@@ -182,7 +182,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithSingleIDinsideLi(t *testing.
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "80", "-IDMethod", "upward"}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "2000", "-IDMethod", "upward"}))
 
 	// check source files
 	for _, k := range testSet {
@@ -300,7 +300,7 @@ func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi(t *testing
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "80", "-IDMethod", "upward"}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "2000", "-IDMethod", "upward"}))
 
 	// check source files
 	for _, k := range testSet {
@@ -420,7 +420,7 @@ func TestInsertIDsFromFilesIntoNonEmptyJSON(t *testing.T) {
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(liJSON), 0777))
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "80", "-IDMethod", "upward"}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "2000", "-IDMethod", "upward"}))
 
 	// check source files
 	for _, k := range testSet {
@@ -525,7 +525,7 @@ func TestInsertIDsFromFilesInEmptyJSON(t *testing.T) {
 	}
 
 	// action
-	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "80", "-IDMethod", "upward"}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "70", "-IDMax", "2000", "-IDMethod", "upward"}))
 
 	// check source files
 	for _, k := range testSet {

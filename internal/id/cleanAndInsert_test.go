@@ -54,7 +54,7 @@ func TestCleanAndInsert(t *testing.T) {
 
 	fmt.Println(string(li))
 
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-til", FnJSON, "-li", LIFnJSON, "-IDMin", "1", "-IDMax", "999"}))
 
 	// check modified src file1
 	expSrc1 := `			// line 1
@@ -111,7 +111,7 @@ TRice("");`
 
 	fmt.Println(string(li))
 
-	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-til", FnJSON, "-li", LIFnJSON}))
+	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-til", FnJSON, "-li", LIFnJSON, "-IDMin", "1", "-IDMax", "999"}))
 
 	// check modified src file1
 	expSrc1 := `TRice(iD(2), "");
