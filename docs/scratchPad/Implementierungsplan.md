@@ -1,100 +1,46 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: 4. Oktober 2026. Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung und die Full-Läufe vom 3. und 4. Oktober. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
+[Hintergrund, Beschlüsse und Vorbemerkungen](#hintergrund-und-vorbemerkungen)
 
-Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
+## Aufgabenübersicht
 
-**Beschlossenes Release-Ziel: v2.0.0.** Der Go-Modulpfad bleibt vorerst ohne `/v2`. Angeboten werden fertige Binaries und der lokale Build aus einem Repo-Checkout über `./scripts/buildTriceTool.sh`; versionierte Go-Modulinstallation von v2 wird vorerst nicht angeboten. R14 sichert diese Installationswege ab. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
-
-## Stand und Aussagegrenzen
-
-Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind und Insert/Clean einschließlich CE, Template-Parser, Decoder, strukturierte Ausgabe, Tags und Filter, Visualisierung, Transport- und Ausgabeabschluss, Target-Konfiguration und Testaufbau, Beispiele, aktives UM, README sowie Test- und Release-Workflows. Code und vorhandene Verhaltenstests wurden mit den dokumentierten Verträgen verglichen. Das ist eine breite statische Bestandsaufnahme mit konkreten Belegen, keine vollständige Fehlerfreiheitserklärung oder neue Hardware-Abnahme.
-
-Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der damaligen vollständigen Protokolle ausgewertet. Bei jener Bestandsaufnahme wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier damals abweichenden Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und zunächst unverändert gelassen. Ein späterer `testAll quick` für R13 hat die flachen Logdateien des Full-Laufs ersetzt; dessen hier festgehaltene Messwerte und Fehleranalyse bleiben historische Befunde.
-
-- Ergebnis laut der damaligen `testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheiterten. Die L432-Matrix mit 101 Konfigurationen bestand und brauchte etwa **20 Minuten 14 Sekunden**.
-- Im damaligen Lauf führten beide PC-Workflows jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheiterten, sechs Spezialläufe bestanden. Die fehlgeschlagenen Tests hießen jeweils `TestTriceLog`; es waren keine fehlgeschlagenen Compileraufrufe. Die spätere Beschleunigung und erfolgreiche PC-Abnahme stehen bei R06/R08/R09/P01/P04.
-- Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
-- Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
-- Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
-- Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die ursprüngliche Auswahl ließ sie aus; R07 aktiviert sie jetzt gezielt in Schritt 515 für `quick`, `full` und die Library CI. Normale Go-Unit-/Coverage-Läufe bleiben davon getrennt.
-- Aktuelle GitHub-Issues und Live-CI-Ergebnisse wurden nicht vollständig abgeglichen. Vor einer späteren Issue-Erstellung sind vorhandene Issues auf Dopplungen zu prüfen. Dieser Auftrag erstellt keine Issues.
-
-Die erledigten A1–A10 und der CE-Folgeauftrag für Insert/Clean sind aus der offenen Liste entfernt. Ihre Details bleiben im [historischen Abschlussbericht](obsolete/Implementierungsplan_bis_A10.md). Die früheren M01–M16 und Handovers bleiben im vorhandenen Archiv. Ein historisch erledigter Implementierungsauftrag ersetzt keine heutige Regressionstest-Abnahme; die frühere A6-Notiz zur `untagged:`-Erwartung wird durch den bei R01 präzisierten Ausgabevertrag neu bewertet.
-
-Vorhanden sind insbesondere:
-
-- Structured Logging mit skalaren 8/16/32/64-Bit-Werten, `triceS`/`triceN`, Text, NDJSON und KV; benannte Pufferfelder bleiben ausdrücklich ausgeschlossen.
-- CE für direkte, zeileneindeutige Bind-Stellen und für erkannte Insert/Clean-Aufrufe einschließlich statischer Wrapperdefinitionen. Insert/Clean verwendet den vollständigen Format-/Argumentsuffix, ohne Herkunftskommentare.
-- Tag-Aliase, Gewichte, Auswahl, `untagged`, Ereignisstatistik, getrennte Diagnosen, Zeitstempel und Deltas, Visualisierung sowie gemeinsame generierte Ablage über `-genDir`.
-- `generate -logC`, zusätzliche `*.oneline.json`-Ansichten und die PC-/G0B1-Feature-Beispiele.
-- Erhaltene CE-PoCs einschließlich Wrapper-/Counter-Rebase-Untersuchung. Deren allgemeine produktive Integration ist weiterhin zurückgestellt.
-
-## Ziel für Dokumentation und Orientierung
-
-README und User Manual sollen zum Ausprobieren einladen: Nutzen schnell erkennen, einen überschaubaren Einstieg finden und erst bei Bedarf Details nachschlagen. Das bisherige ausführliche UM bleibt inhaltlich erhalten und wird zu `docs/TriceReferenceManual.md`. Ein neues, deutlich kürzeres `docs/TriceUserManual.md` übernimmt den geführten Einstieg.
-
-| Dokument | Aufgabe im künftigen Aufbau |
-| --- | --- |
-| `README.md` | Kurze Vorstellung, Nutzen, kleines Beispiel mit Ausgabe, verlässlicher Startpunkt und kompakte Repo-Orientierung. |
-| `docs/TriceUserManual.md` | Schrittweise Anleitung vom ersten PC-Log bis zur eigenen Target-Anbindung; kurze Feature-Beispiele und gezielte Verweise auf Details. |
-| `docs/TriceReferenceManual.md` | Vollständige Verträge, Optionen, Konfiguration, Grenzen, Hintergrund und CE-PoC-Anhang; fachlich maßgebliches Nachschlagewerk. |
-| `docs/README.md` | Kurzer Dokumentationswegweiser mit Zielgruppe und Zweck der verbleibenden aktiven Dokumente; keine bloße Weiterleitungsdatei. |
-
-Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehenden Verweise angepasst sind. Für das gesamte Repo wird der Zweck jedes Verzeichnisses und jeder Datei geprüft. Die öffentliche Übersicht bleibt kompakt; die vollständige Bestandsprüfung wird dadurch nicht ersetzt. R17–R21 ergänzen dafür die bestehenden R10–R12, ohne Übersetzung und Einstieg doppelt zu beauftragen. Jetzt wird ausschließlich geplant.
-
-## Gewichtung und Arbeitsreihenfolge
-
-**Gewicht:** 5 = vor Release zu klären oder abzustellen; 4 = hoher Nutzen für Zuverlässigkeit, Dokumentation oder Testdauer; 3 = sinnvolle Wartung nach den dringenden Punkten; 2 = optionaler Ausbau; 1 = bewusst zurückgestellt.
-
-**Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
-
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
-
-| Reihenfolge / ID | Aufgabe | Gewicht | Aufwand | Voraussetzung |
-| --- | --- | ---: | --- | --- |
-| R17 | Repo-Bestand und Dokumentationsziele je Datei prüfen | 4 | S–M | Lesende Bestandsprüfung; vor Löschungen/Verschiebungen |
-| R10 | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | R02, R04, R17 |
-| R18 | Bisheriges UM in TriceReferenceManual.md umbenennen und Pfade nachziehen | 4 | M | R10, R11, R17 |
-| R19 | Kurzes, einladendes User Manual erstellen | 4 | M | R18; Installationsentscheidung aus R05/R14 |
-| R12 | README und Repo-Orientierung einladend überarbeiten; Zusagen präzisieren | 4 | M | R05, R17, R18, R19 |
-| R20 | Link-Forwarding-Dateien entfernen und aktive docs konsolidieren | 4 | S–M | R12, R17, R18, R19 |
-| R21 | Repo anhand der Bestandsprüfung in kleinen Schritten aufräumen | 3 | M–L | R17, R20; bekannte Datei-/Buildabhängigkeiten |
-| R14 | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | R05 abgeschlossen; kein `/v2` beschlossen |
-| R15 | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | R05, R07, R11, R12, R14, R18–R20 |
-| R16 | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | R01–R05, R07, R11, R13, R15; alle aufgenommenen Korrekturen einschließlich Repo-Aufräumen |
+| ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
+| --- | --- | --- | ---: | --- | --- |
+| [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Offen | Kleine IDE-Zustandsreste und ungenutzte Workflow-Begleitdateien bereinigen | 3 | S | [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) abgeschlossen; klar abgegrenzter erster Aufräumschritt |
+| [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Offen | MVP-/Aufgabenreste und doppelte Anwenderdokumentation bereinigen | 4 | M | [R02](#kopierbare-dokumentationsbeispiele-berichtigt), [R04](#automatisches-nachladen-wiederhergestellt), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
+| [R18](#bisheriges-user-manual-als-reference-manual-weiterführen) | Offen | Bisheriges UM in TriceReferenceManual.md umbenennen und Pfade nachziehen | 4 | M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
+| [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) | Offen | Kurzes, einladendes User Manual erstellen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen); Installationsentscheidung aus [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt)/[R14](#checkout-binary-installationswege-für-v2-absichern) |
+| [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern) | Offen | README und Repo-Orientierung einladend überarbeiten; Zusagen präzisieren | 4 | M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) |
+| [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) | Offen | Link-Forwarding-Dateien entfernen und aktive docs konsolidieren | 4 | S–M | [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) |
+| [R21b](#ide-einstiege-portabel-und-tatsächlich-benutzbar-machen) | Offen | IDE-Einstiege portabel und benutzbar machen | 3 | M | [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) |
+| [R21c](#root-ausgaben-und-generierte-beispieldaten-unterscheiden) | Offen | Root-Ausgaben und generierte Beispieldaten unterscheiden | 3 | S–M | [R17](#bestandszuordnung-und-befunde-der-repo-prüfung); manuellen Einsatzzweck klären |
+| [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen) | Offen | Unfertige Tools, ruhende Tests und Entwicklernotizen einordnen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) |
+| [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren) | Offen | Dokumentationsbilder und Vergleichsberichte konsolidieren | 3 | M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
+| [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Offen | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
+| [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und Veröffentlichungsumfang eindeutig machen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren); Bestandsbefund aus [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
+| [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) abgeschlossen; kein `/v2` beschlossen |
+| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R14](#checkout-binary-installationswege-für-v2-absichern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren), [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) |
+| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben)–[R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten), [R15](#release-notes-und-ausgelieferte-dateien-prüfen); alle aufgenommenen Korrekturen einschließlich Repo-Aufräumen |
 
 Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten abgenommenes Release um neue Features zu vergrößern.
 
-## Vorschlag für die nächsten Aufträge
-
-Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. Als nächster Dokumentationsschritt folgt R17; P02 kann anhand neuer Plattformmessungen priorisiert werden. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
-
-R11 wurde auf Benutzerwunsch für den zeitnahen Merge von `wip` nach `main` vorgezogen und ist abgeschlossen, einschließlich der eng begrenzten Bereinigung von Aufgabenbezeichnungen innerhalb der beiden Kapitel. Die übrige Dokumentationsarbeit folgt weiterhin **R17 Bestandsprüfung → R10 Bereinigung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen**. Die Bestandsprüfung kommt vor Löschungen und Verschiebungen, damit keine eigenständigen Informationen verloren gehen. R21 räumt anschließend das übrige Repo in belegbaren Einzelgruppen auf; kleine unabhängige Gruppen können nach R17 vorgezogen werden, sofern sie keine offenen Dokumentationspfade betreffen.
-
-R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
+[Beschleunigung](#weitere-beschleunigung-ohne-geringere-abdeckung) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Erledigte Aufgaben](#erledigte-korrekturen) · [Repo-Bestandsprüfung](#bestandszuordnung-und-befunde-der-repo-prüfung)
 
 ## Konkrete Aufgaben vor dem Release
-
-### Daseinsberechtigung und Zielort des Repo-Bestands prüfen
-
-**R17 · Gewicht 4 · Aufwand S–M · Lesende Bestandsprüfung vor der Bereinigung**
-
-Alle versionierten Dateien einschließlich versteckter Konfiguration und alle Repo-Verzeichnisse erfassen. Für jede Datei muss ein begründeter Zweck erkennbar sein: Produktcode, Build/Test, Beispiel, Anwenderdokumentation, Entwicklungsnachweis, benötigte Fremdquelle/Lizenz oder bewusst erhaltene Historie. Gleichartige Bestände dürfen nachvollziehbar als Gruppe beschrieben werden; kein Pfad darf ungeprüft außerhalb der Zuordnung bleiben. Lokale Buildausgaben und generierte Dateien getrennt betrachten, ohne Benutzerdateien oder die vereinbartermaßen ignorierten `demo*.json`-Änderungen einzusammeln.
-
-Für jeden fraglichen Bestand festhalten: heutiger Zweck und Nutzer, aktive Referenzen beziehungsweise Build-/Test-/Release-Verwendung, vorgesehener Zielort und Empfehlung „behalten“, „zusammenführen“, „verschieben“, „entfernen“ oder „noch klären“. Fehlende Textreferenzen allein beweisen keine Nutzlosigkeit; Skripte, Tool-Konventionen, Globs und manuell benutzte Beispiele mitprüfen. Für Dokumente insbesondere reine Weiterleitung von eigenständiger Erklärung unterscheiden und ein eindeutiges fachliches Zieldokument zuordnen.
-
-**Abnahme:** Vollständige, überprüfbare Zuordnung des Bestands und kleine umsetzbare Aufräumgruppen mit Abhängigkeiten. Unklare Zwecke sind ausdrücklich offen, nicht stillschweigend Löschkandidaten. Vorhandene Archive bleiben als Historie unverändert; die Prüfung ersetzt keinen Auftrag, sie zu bearbeiten. Daraus eine knappe Orientierung nach Nutzeraufgaben für R12 ableiten, keine riesige Dateiliste im README.
 
 ### Anwenderdokumentation von Entwicklungsständen befreien
 
 **R10 · Gewicht 4 · Aufwand M · Befunde bestätigt**
 
-Im aktiven UM stehen MVP-Bezeichnungen sowohl im `-vis)-Kapitel als auch ausführlich im Bind-Kapitel. Die Aufgabenreste im CE-Anhang sind mit R11 bereinigt. Das [separate deutsche Bind-Manual](../TriceBind/Trice_bind_90_MVP_User_Manual.md) und die dortige README präsentieren parallel eine weitere normative Anwendersicht. Die lokale Fragmentprüfung findet außerdem im Target-Code-Überblick den bereits zuvor vorhandenen ungültigen Link `#Trice Parameter Bit Widths`; dessen Ziel ist `#trice-parameter-bit-widths`.
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Im aktiven UM stehen MVP-Bezeichnungen sowohl im `-vis`-Kapitel als auch ausführlich im Bind-Kapitel. Die Aufgabenreste im CE-Anhang sind mit R11 bereinigt. Das [separate deutsche Bind-Manual](../TriceBind/Trice_bind_90_MVP_User_Manual.md) und die dortige README präsentieren parallel eine weitere normative Anwendersicht. Der früher beanstandete Bitbreiten-Link ist inzwischen vom Benutzer auf `#trice-parameter-bit-widths` korrigiert und kein offener Auftrag mehr.
 
 Aufgabe: Das bisherige UM als künftiges Reference Manual zur eindeutigen fachlichen Referenz machen. Das neue kurze User Manual führt später durch die Nutzung und verweist für vollständige Verträge dorthin. Aktuelle Grenzen konkret benennen; „MVP“ nicht blind durch „vollständig unterstützt“ ersetzen. Historische Architekturvergleiche müssen als solche erkennbar bleiben und dürfen aktueller Wrapper-Unterstützung nicht widersprechen. Implementierungsaufträge/Entwurfsberichte nach Prüfung aus dem aktiven Einstieg nehmen; wertvolle Begründungen erhalten. Die tatsächliche Dateibereinigung folgt R20/R21.
 
 Die CE-PoC-Ergebnisse bleiben wie beauftragt im kapitelinternen Anhang, einschließlich reproduzierbarer Testreferenzen und ihrer Aussagegrenzen. A9/A10 sind dort im vorgezogenen R11 bereits durch verständliche Bezeichnungen für den direkten Nachweis und die produktive Unterstützung ersetzt. Testnamen und Experimentpfade werden nicht nur wegen eines historischen Namens umbenannt.
+
+R17 konkretisiert den Abgleich: Die neun Dateien unter `docs/TriceBind` enthalten neben dem parallelen User Manual auch Spezifikationen, Testanforderungen, Implementierungsprompts, einen Bericht und Architekturbegründungen. Zuerst die noch gültigen, nur dort vorhandenen Aussagen der Vollreferenz zuordnen. Danach die eigenständigen Entwicklungsnachweise als historische Dokumentation einordnen und aktive normative Verweise umstellen. Die Ablageentscheidung darf die in Schritt 500 verwendeten Experimente nicht entwerten. Die beiden aus dem README verlinkten KI-Vergleichsberichte in `docs` sind datierte Fremdeinschätzungen, keine zweite Produktspezifikation; ihre Rolle im Einstieg gehört zu R12, ihre Ablage zu R21e.
 
 **Abnahme:** Aktive Anwendertexte enthalten keine unerklärten Arbeitsauftragsnummern oder überholten MVP-Status. Vorhandene Archive bleiben unangetastet. Kommentarblöcke und historische Changelogs werden nicht als neue Produktanforderungen behandelt.
 
@@ -102,6 +48,8 @@ Die CE-PoC-Ergebnisse bleiben wie beauftragt im kapitelinternen Anhang, einschli
 ### Bisheriges User Manual als Reference Manual weiterführen
 
 **R18 · Gewicht 4 · Aufwand M · Nach R10/R11; vollständige Inhalte erhalten**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 `docs/TriceUserManual.md` in `docs/TriceReferenceManual.md` umbenennen und Titel, Selbstverweise sowie aktive eingehende Verweise entsprechend anpassen. Die Umbenennung selbst ist keine Kürzung: Verträge, Beispiele, Einschränkungen, Hintergrund und Anhänge bleiben vollständig. Der bisherige Pfad wird unter R19 für das neue kurze UM verwendet; alte Kapitelverweise müssen gezielt zum Reference Manual führen, statt unbemerkt im neuen UM zu landen.
 
@@ -112,6 +60,8 @@ Die Pfadänderung durchgängig berücksichtigen: Dokumentationspflege und mdtoc,
 ### Ein kurzes User Manual zum Ausprobieren erstellen
 
 **R19 · Gewicht 4 · Aufwand M · Geführter Einstieg statt zweiter Vollreferenz**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Ein neues englisches `docs/TriceUserManual.md` erstellen, das deutlich kürzer als die bisherige Vollreferenz ist. Einstieg mit wenigen Sätzen zu Nutzen und Funktionsweise, anschließend Voraussetzungen, Installation gemäß R14 und ein ausführbares PC-Beispiel mit erwarteter Ausgabe. Danach die Schritte zur eigenen Target-Anbindung zeigen, mit einem klaren Standardweg und passenden Verweisen für alternative ID-Workflows und Transportwege.
 
@@ -124,6 +74,8 @@ Vollständige Optionslisten, Compiler-Matrizen, Protokolldetails und PoC-Begrün
 ### README, Repo-Orientierung, Beispiele und Zusagen verbessern
 
 **R12 · Gewicht 4 · Aufwand M · Mit R17–R19 abgestimmt**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Die Root-[README](../../README.md) nennt Bind noch experimentell und unveröffentlicht; das muss zum gewählten Release-Status passen. Sie verweist bei Structured Logging noch auf einen auskommentierten Future-Draft. SL und CE gehören mit kurzen funktionierenden Beispielen und Links zu den beiden Feature-Touren in den Einstieg und die Feature-Übersicht.
 
@@ -146,6 +98,8 @@ Weitere konkrete Ergänzungen im passenden Handbuch oder Beispiel erläutern und
 
 **R20 · Gewicht 4 · Aufwand S–M · Nach Festlegung und Befüllung der Zieldokumente**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Reine Weiterleitungsdateien aus dem aktiven `docs`-Bestand entfernen. Konkrete Beispiele sind `docs/TriceUserGuide.md`, `docs/TriceColor.md` und `docs/TriceIDManagement.md`; die vollständige Auswahl liefert R17. Nicht allein nach Dateinamen löschen: Eigenständige Informationen gegebenenfalls zuvor ins passende Handbuch oder andere begründete Zieldokument übernehmen. Der neue Dokumentationswegweiser `docs/README.md` bleibt wegen seines eigenen Orientierungszwecks erhalten.
 
 Vor dem Entfernen alle aktiven eingehenden Links auf das fachlich passende Kapitel im kurzen UM oder im Reference Manual umstellen. Pfade, Anker, Bilder und Downloads im Repo, auf GitHub Pages und in PDFs prüfen. Keine neuen Markdown-Weiterleitungsstubs als Ersatz erzeugen. Nicht kontrollierbare externe Altlinks und unveränderte Archivverweise als verbleibende Folgen benennen; bestehende Archive dafür nicht bearbeiten. Doppelte aktive Dokumente zusammenführen, sobald ihre einzigartigen Inhalte und etwaige historischen Nachweise zugeordnet sind.
@@ -156,15 +110,105 @@ Vor dem Entfernen alle aktiven eingehenden Links auf das fachlich passende Kapit
 
 **R21 · Gewicht 3 · Aufwand M–L · Kleine zusammenhängende Gruppen nach R17/R20**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Die geprüften Aufräumgruppen aus R17 umsetzen. Überflüssige Dateien entfernen, unnötige Doppelbestände zusammenführen und nachweislich unpassend abgelegte Dateien nur dann verschieben, wenn dies die Orientierung verbessert. Root-Dateien, Beispiele, Experimente, Skripte, Konfiguration, Testdaten und Fremdquellen gehören zur Prüfung. Benötigte Lizenzen, reproduzierbare PoCs, Regressionstest-Fixtures und bewusst archivierte Historie besitzen eine Daseinsberechtigung, auch wenn Anwender sie nicht täglich öffnen.
 
 Mit jeder Gruppe ihre aktiven Pfadabhängigkeiten, Build-/Test-/Release-Verwendung, Ignore-Regeln und die Repo-Karte nachziehen. Keine funktionalen Umbauten unter dem Etikett Aufräumen. Benutzerbearbeitete Dateien unter `generated` nicht pauschal löschen; lokale Artefakte und versionierte Produktdateien unterscheiden. Vorhandene `obsolete`- und andere ausdrücklich archivierte Bestände bleiben ohne gesonderten Auftrag unverändert. Bei ungeklärtem Zweck zunächst die konkrete Frage klären, statt versuchsweise zu löschen.
 
 **Abnahme:** Jede verbleibende versionierte Datei und jedes verbleibende Repo-Verzeichnis hat einen dokumentierten Zweck in der Bestandszuordnung; entfernte oder verschobene Gruppen sind nachvollziehbar begründet. Die öffentliche Übersicht entspricht dem Ergebnis. Betroffene Beispiele, Builds, Tests und Paketierung bestehen; Testumfang, Lizenznachweise und reproduzierbare Entwicklungsnachweise sind erhalten. Die vollständige Abnahme des ausgewählten Aufräumumfangs folgt R16.
 
+#### Kleine Zustandsreste und Workflow-Begleitdateien
+
+**R21a · Gewicht 3 · Aufwand S · Nach R17 unabhängig vorziehbar**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die zwölf versionierten Dateien `.vscode/.cortex-debug.peripherals.state.json` und `.vscode/.cortex-debug.registers.state.json` in den sechs G0B1-/L432-Beispielen enthalten jeweils nur `[]`. Das sind gespeicherte Debugger-Ansichten, keine Startkonfigurationen. Aus der Versionierung nehmen und ihre erneute Aufnahme gezielt verhindern; `launch.json`, `tasks.json`, Compiler- und Boardkonfigurationen erhalten.
+
+Getrennt davon die vier Dateien `.github/workflows/properties/*.properties.json` und `icons/go.svg` prüfen: Sie beschreiben Workflow-Vorlagen; die tatsächlichen 17 YAML-Workflows lesen sie nicht. Wenn kein externer Vorlagen-Verbraucher besteht, diese fünf Begleitdateien entfernen. Die allgemeine Code-Scanning-Erklärung in `.github/workflows/README.md` durch eine knappe tatsächliche CI-Orientierung ersetzen oder in die Entwickleranleitung übernehmen. Keine Actions-Versionen, Trigger oder Testauswahl nebenbei ändern.
+
+**Abnahme:** Ausschließlich die benannten Zustands-/Begleitdateien betroffen; aktive Debugkonfigurationen und Workflow-YAML unverändert. Ignore-Regeln an genau den zwölf Pfaden prüfen; Markdown-/Linkprüfung für angepasste Erläuterungen. Ein vollständiger Compilerlauf ist dafür nicht erforderlich. Eine ungeklärte externe Nutzung der Workflow-Vorlagen hält nur diese Teilgruppe offen.
+
+#### IDE-Einstiege portabel und tatsächlich benutzbar machen
+
+**R21b · Gewicht 3 · Aufwand M · Nach R21a; unabhängig von der Handbuchumbenennung**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+In den vier G0B1-Varianten steht ein festes Windows-Compilerverzeichnis in `.vscode/c_cpp_properties.json`. Die Root-`launch.json` verweist unter anderem auf fehlende Dateien unter `internal/decoder/testdata`, `internal/receiver/rttfile/testdata` und `_test/testdata/til.json`; mindestens ein Pfad ist zusätzlich rechnergebunden. Konfigurationen nach Zweck prüfen: gültige Debug-Einstiege auf existierende Daten und portable Toolwahl umstellen, nachweislich entfallene Aufrufvarianten entfernen. Keine beliebigen Ersatzdaten einsetzen, nur damit ein Pfad existiert.
+
+Bei `.idea` die beabsichtigte CLion-Unterstützung für `_test/clion-review` erhalten. `trice.iml` und `trice.rokath.iml` sind inhaltsgleich, `modules.xml` verwendet nur `trice.iml`. README, Ignore-Kommentare und tatsächliche Wörterbuchablage widersprechen einander (`trice.dict`, `trice.dic`, `dictionaries/project.xml`). Gemeinsame Projekteinstellungen von lokalem Zustand unterscheiden und diese kleinen Inkonsistenzen bereinigen; nicht pauschal `.idea` löschen. Eine weitergehende Änderung persönlicher Inspektionspräferenzen braucht eine eigene Entscheidung.
+
+**Abnahme:** Keine fest eingebauten Benutzer-/Installationspfade in den bearbeiteten Vorlagen; referenzierte Repo-Dateien existieren; jeweiliger Debug-Aufruf passt zur aktuellen CLI. CMake-Einstieg für CLion bleibt konfigurierbar. Nicht verfügbare IDE-/Hardware-Abnahmen explizit benennen, statt Portabilität allein aus JSON-Syntax abzuleiten.
+
+#### Root-Ausgaben und generierte Beispieldaten unterscheiden
+
+**R21c · Gewicht 3 · Aufwand S–M · Nach R17; Verbraucher vor Entfernung abschließend klären**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Root-`trice.bin` ist eine leere versionierte Datei. Die dortige `til.c` ist eine generierte Tabelle mit 226.455 Bytes. In den untersuchten Builds ist kein Verbraucher dieser beiden konkreten Root-Dateien erkennbar. Gleichnamige Dateien in CLI-Beispielen, temporären Tests und anderen Projekten sind kein solcher Beleg. Den beabsichtigten manuellen Einsatzzweck klären; ohne verbleibenden Zweck beide aus dem Repo entfernen und unbeabsichtigte neue Root-Ausgaben gezielt vermeiden. Keine generelle Ignore-Regel für alle `*.c` oder `*.bin` einführen.
+
+Anders liegt `examples/TriceAbc/NodeLib/til.c`: `build.sh` erzeugt sie neu und kompiliert sie. Entscheiden, ob sie eine bewusst mitgelieferte Erststart-Datei bleiben soll oder ausschließlich Buildausgabe wird; dabei den benutzerbearbeitbaren ABC-Auswahl-Header und die dokumentierten Dateipfade erhalten. Die fünf eingecheckten Descriptor-Header in `experiments/TriceBind/20_Target_Library_Integration/triceIDs` sind dagegen Test-/PoC-Eingaben und bleiben. `demoTIL.json`, `demoLI.json` und projektbezogene TIL/LI bleiben persistente ID-Daten, keine pauschalen Löschkandidaten.
+
+**Abnahme:** Für jede entfernte Datei ist der bisherige Erzeuger/Verbraucher oder das Fehlen eines bestätigten Einsatzzwecks dokumentiert. Betroffene Beispiele funktionieren aus sauberem Checkout; Wiederholung erzeugt keine unerwarteten versionierten Änderungen. Keine Löschung lokaler Nutzerdaten oder alter Sidecars als versteckter Teil dieser Aufgabe.
+
+#### Unfertige Tools, ruhende Tests und Entwicklernotizen einordnen
+
+**R21d · Gewicht 3 · Aufwand S–M · Nach R10; Ablage nur bei geklärtem Nutzen ändern**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+`cmd/_cui` und `cmd/_stim` sind laut eigener README unfertige Werkzeuge. Sie gehören nicht zu den ausgelieferten Binaries `trice`/`tlog`; die Unterstrich-Verzeichnisse sind auch kein Nachweis regulärer Go-Testabdeckung. Ebenso werden `cmd/trice/_main_update0_test.go` und `_main_update1_test.go` wegen ihres Namens nicht als normale Go-Tests ausgeführt. Prüfen, ob darin einzigartige noch relevante Szenarien liegen: gegebenenfalls in bestehende Verhaltenstests übernehmen, andernfalls als Entwicklungsnachweis einordnen. Nicht einfach umbenennen und damit ungeprüften alten Code aktivieren.
+
+`docs/GoInfos.txt` enthält kurze alte Go-Testwerkzeug-Links ohne gefundenen aktiven Verbraucher. Noch zutreffende Test-/Coverage-Hinweise in `CONTRIBUTING.md` zusammenführen, den Rest anschließend entfernen. `cmd/clang-filter/README.md` nennt ein nicht mehr so vorhandenes `clang-format.sh`; die tatsächliche Anbindung über `_280_format_c_code.sh` und den CI-Formatter erklären. Der Filter selbst ist aktiv und bleibt.
+
+Die von Hand nutzbaren Git-Helfer unter `scripts` und die bewusst beauftragten Codex-Umzugsskripte bleiben Entwicklerwerkzeuge. Im Entwickler-Einstieg knapp auffindbar machen, nicht in den ersten Anwender-Logweg aufnehmen. `docs/scratchPad/scratchPad.md` enthält derzeit nur auskommentierte Notizen und einen Trenner: keine offene Spezifikation daraus ableiten. Eine spätere Archivierung dieses aktiven Notizzettels ist eine eigene Ablageänderung, kein Anlass, vorhandene Archive anzufassen.
+
+**Abnahme:** Kein Verlust einzigartiger Testfälle; keine unbemerkte Erweiterung der ausgelieferten CLI. Entwicklerhinweise nennen die tatsächlich vorhandenen Werkzeuge und Tests. Ruhende Experimente sind als solche erkennbar. Die Handoverskripte und `scripts/test_codex_handover.py` behalten ihre aufeinander abgestimmten Pfade, sofern keine ausdrücklich beauftragte gemeinsame Verschiebung erfolgt.
+
+#### Dokumentationsbilder und Vergleichsberichte konsolidieren
+
+**R21e · Gewicht 3 · Aufwand M · Nach R10/R12/R18–R20; Referenzen dann erneut prüfen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die 94 Dateien unter `docs/ref` umfassen Bildbelege, Diagrammquellen/-exporte, Logos, CLI-Hilfe und ein altes Backup. Gleichartige Bildnamen oder fehlende direkte Markdown-Links rechtfertigen keine Löschung: Editierbare `.drawio`-Quellen, höher aufgelöste Originale sowie in HTML/PDF genutzte Exporte haben andere Aufgaben. Pro fraglicher Familie Quelle, benötigte Exporte und aktive Einbindungen festhalten; nur bestätigte überflüssige Ableitungen entfernen. Das ausdrücklich historische `Backup.7z` bleibt ohne gesonderten Auftrag unverändert.
+
+Die beiden HTML-Vergleichsberichte im Root von `docs` sind aus dem README verlinkt. Soll der Einstieg kürzer werden, ihre Referenzen bewusst auf eine weiterführende Stelle reduzieren und die Berichte als datierte Einschätzungen einordnen; nicht als aktuelle, verifizierte Release-Zusagen wiedergeben. Ein möglicher historischer Zielort ist erst nach dieser Einordnung festzulegen. Alte Messbilder ohne passende heutige Messbedingungen sind weiterhin historische Belege, keine neu bestätigten Leistungswerte.
+
+**Abnahme:** Bild-/Diagrammfamilien haben eine nachvollziehbare Quelle und Exportrolle. GitHub-Darstellung, beide PDFs und Pages zeigen weiterhin die benötigten Grafiken. CLI-Hilfe bleibt regenerierbar. Kein automatisches Entfernen vermeintlich unbenutzter Dateien aufgrund einer reinen Textsuche.
+
+#### Fremdsoftware-Ablage erklären und Alt-Konfiguration abgleichen
+
+**R21f · Gewicht 3 · Aufwand S–M · Nach R10/R18/R20; kein Vendor-Update**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die 23 Dateien unter `third_party` liefern optionale Werkzeuge, Quellarchive, Anleitungen und RTT-/Debugger-Unterlagen. Zu den elf ZIP-Dateien die beabsichtigte Rolle festhalten: Offline-Hilfe, ursprüngliche Quelle oder bewusst erhaltene Version. Besonders die mehrfachen COBS-/ST-Link-Versionen benötigen diese Einordnung. Herkunft und Lizenzhinweise erhalten; kein Zip-Inhalt wird allein wegen seines Alters gelöscht oder ausgeführt. Wenn heutiger Bezug und Aufbewahrungszweck unklar bleiben, diese Gruppe ausdrücklich zurückstellen.
+
+`.markdownlinkcheck.json` wird noch im UM für einen als veraltet bezeichneten lokalen Aufruf erwähnt; die aktive Linkprüfung verwendet Lychee mit `lychee.toml`. Nach Abgleich des tatsächlichen lokalen Unterstützungsumfangs entweder den alten Weg gezielt dokumentieren oder Konfiguration und veraltete Anleitung gemeinsam entfernen. Die zentrale Vendor-Ausnahme `.clang-format-ignore` ist dagegen aktiv und bleibt.
+
+**Abnahme:** Kein neuer Pflichtdownload für zuvor direkt baubare Beispiele; Lizenz-/Herkunftsnachweise bleiben erhalten. Die ausgewählte Linkprüfung und ihre dokumentierte Konfiguration stimmen überein. `Drivers`/`Middlewares` werden weder umformatiert noch zwischen Beispielen zusammengelegt. Ungeklärte manuelle Nutzung ist vor einer Entfernung zu entscheiden.
+
+### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
+
+**R22 · Gewicht 4 · Aufwand M · Neuer Folgeauftrag aus R17; nach R18/R19/R12/R20**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Es gibt zwei Implementierungen des Website-Einstiegs: Die versionierte `index.md` bindet die README per Liquid ein; `pages.yml` überschreibt sie beim Build mit einer zweiten, per `sed` erzeugten Variante und behauptet im Kommentar, die Datei sei nicht versioniert. Einen einzigen nachvollziehbaren Erzeugungsweg wählen und lokale Vorschau sowie CI darauf ausrichten. Beide Handbücher und ihre gegenseitigen Links müssen auf Pages richtig dargestellt werden; Quellcode-Links dürfen weiterhin zur passenden Repo-Ansicht führen.
+
+Der Workflow baut vom Repo-Root; `_config.yml` enthält bislang nur Theme und Markdown-Engine. Ein ausdrücklicher fachlicher Veröffentlichungsumfang ist nicht erkennbar. Das ist noch kein Nachweis, welche Dateien Jekyll tatsächlich ausliefert. Den erzeugten Site-Baum prüfen und dann gezielt auf Einstieg, Handbücher, benötigte Bilder und bewusst verlinkte Inhalte begrenzen. Scratchpad, Entwicklerzustand und Fremdsoftware-Archive sollen nicht versehentlich Teil des Anwender-Einstiegs werden. Bestehende Archive dafür nicht verändern; die Auswahl gehört in den Veröffentlichungsweg.
+
+**Abnahme:** Site-Build ohne Deployment prüfen; erzeugter Einstieg, beide Handbücher, Bilder und Querverweise funktionieren. Liste der ausgelieferten Dateigruppen passt zur beabsichtigten Website. Keine widersprüchliche zweite `index.md`-Erzeugung, kein unbeabsichtigter Verlust bewusst angebotener Downloads. Deployment und Publish bleiben gesonderte Aufträge.
+
 ### Checkout-/Binary-Installationswege für v2 absichern
 
 **R14 · Gewicht 5 · Aufwand S–M · Distributionsentscheidung getroffen; verbleibender Abgleich vor Release**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Entscheidung des Anwenders: **`/v2` vorerst weglassen.** `go.mod` bleibt bei `module github.com/rokath/trice`, Imports bleiben unverändert. Die Produktversion v2.0.0 wird über fertige Binaries und lokale Builds aus einem Repo-Checkout angeboten. Das [README](../../README.md#project-information) nennt dafür jetzt `./scripts/buildTriceTool.sh` statt `go install github.com/rokath/trice/cmd/trice@latest`, mit Aufrufort und Hinweis auf die ausgegebenen Installationspfade.
 
@@ -178,6 +222,8 @@ Verbleibende Aufgabe: Aktive Installationsanleitungen und Release-Prüfungen auf
 
 **R15 · Gewicht 5 · Aufwand M**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Der aktuelle [Changelog](../../CHANGELOG.md) endet bei v1.3.0. Einen verständlichen neuen Release-Abschnitt erstellen: Bind, SL, CE, Tags/Gewichte, Visualisierung, Generatoren, Ablage, Plattform-/Compilergrenzen und konkret nötige Anpassungen bestehender Projekte. Ein vollständiger Git-Log ersetzt diese Anwendersicht nicht.
 
 Die [Installationsprüfungen](../../.github/workflows/install-checks.yml) und [Release-Prüfungen](../../.github/workflows/release-audit.yml) testen bereits Archive, Pakete, PDF und klassisches Decoding. Eine kleine neue Feature-Abnahme soll mit den **ausgepackten** Tools und Target-Quellen erfolgen: Bind bzw. Insert mit SL/CE, tatsächlich erzeugter Record, Text/JSON/KV und ausschließlich Anwendungsrecords auf dem maschinenlesbaren Kanal. Passende plattformunabhängige Fixture verwenden.
@@ -186,11 +232,15 @@ Die Toolchain-Angaben angleichen: `go.mod` verlangt Go 1.25.0; der separat manue
 
 Die unter R18/R19 getrennten Handbücher unter eindeutigen Namen ausliefern: `TriceUserManual` für den Einstieg und `TriceReferenceManual` für Details. Downloadlinks und Artefaktprüfungen müssen beide Dokumente dem richtigen Zweck zuordnen; die bisherige PDF-Prüfung nur umzubenennen reicht nicht.
 
+Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` und `src/*.md` zusammengestellt. Beim ausgepackten Archiv ausdrücklich prüfen, ob die benötigten Lizenzinformationen vorhanden sind und die mitgelieferte `src/ReadMe.md` auch ohne Repo-Elternverzeichnis verständlich ist. Ihre relativen Verweise auf Root-Dokumente dürfen nicht ungeprüft als funktionierende Archivnavigation gelten. Fremdquellenhinweise erhalten; keine Vendor-Aktualisierung in diesen Auftrag aufnehmen.
+
 **Abnahme:** Verständliche englische Release Notes und Anpassungshinweise; finales englisches User Manual und Reference Manual als Markdown/PDF; passende Target-Quellen; nachvollziehbare Artefaktprüfungen auf den zugesagten Betriebssystemen. Kein Publish oder Tag ohne ausdrücklichen Auftrag.
 
 ### Release-Abnahme auf einem feststehenden Stand
 
 **R16 · Gewicht 5 · Aufwand M plus Full-Testlauf**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
 
@@ -210,10 +260,14 @@ R08/R09, P04, P01 und P03 sind umgesetzt. Alle Erwartungen, Konfigurationen und 
 
 | ID | Aufgabe und Status | Gewicht | Aufwand | Abhängigkeiten |
 | --- | --- | ---: | --- | --- |
-| P02 | Go-/CGO-Buildcache gezielt und nachweisbar invalidieren | 3 | M–L | R06, R13 |
-| P03 | Erledigt: L432-Matrix von 27:06 auf 4:55 verkürzt, alle 101 Konfigurationen bestanden | 4 | L | R06, R13 |
+| [P02](#cache-nutzen-ohne-veralteten-c-code-zu-testen) | Go-/CGO-Buildcache gezielt und nachweisbar invalidieren | 3 | M–L | [R06](#testbeschleunigung-mit-vollständigen-pc-matrizen-geprüft), [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten) |
+| [P03](#l432-builds-isolieren-und-begrenzen) | Erledigt: L432-Matrix von 27:06 auf 4:55 verkürzt, alle 101 Konfigurationen bestanden | 4 | L | [R06](#testbeschleunigung-mit-vollständigen-pc-matrizen-geprüft), [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten) |
 
 ### Cache nutzen, ohne veralteten C-Code zu testen
+
+**P02 · Offen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Der PC-Worker löscht vor jedem Workflow `go clean -cache -testcache`. Das ist wegen außerhalb der Go-Paketverzeichnisse eingebundener C-Quellen begründet. Die [Go-Dokumentation zum Buildcache](https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching) weist auf Grenzen bei C-Abhängigkeiten hin; schlichtes Entfernen der Bereinigung wäre nicht ausreichend.
 
@@ -224,6 +278,8 @@ Prüfen, ob vollständig erfasste Inhalts-/Konfigurationssignaturen oder vorbere
 ### L432-Builds isolieren und begrenzen
 
 **P03 · Umsetzung und gezielte Abnahme abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 [all_configs_build.sh](../../examples/L432_inst/all_configs_build.sh) baute bisher 0 bis 100 nacheinander mit `make clean` und vollständigem `build.sh` je Konfiguration. Der abgeschlossene Full-Lauf am 3. Oktober dauerte **48 Minuten 45 Sekunden**, davon die L432-Matrix **27 Minuten 6,416 Sekunden**. Alle Compiler-Matrizen bestanden. Die zwei Fehler in Go/Go-Coverage hatten dieselbe Umgebungsursache: Ein unpräfixiertes ARM-`nm` stand vor dem macOS-`nm` im PATH. Nach der lokalen PATH-Korrektur bestanden beide betroffenen Tests gezielt; der Full-Lauf vom 4. Oktober zeigte jedoch erneut die falsche Werkzeugauswahl. Die dauerhafte Korrektur der Tests steht unten. Die alten Testprotokolle bleiben unter `temp/before-l432-parallel-*` erhalten.
 
@@ -251,12 +307,12 @@ Diese Punkte sind Vorschläge, keine offenen Versprechen für das nächste Relea
 
 | ID | Idee | Gewicht | Aufwand | Empfehlung |
 | --- | --- | ---: | --- | --- |
-| F01 | Verständliche Bestandsprüfung generierter Artefakte | 3 | M | Zuerst rein lesende Diagnose diskutieren |
-| F02 | Fuzz- und Race-Prüfungen für neue Parser und Recordpfade | 3 | M | Robustheit vor weiteren Ausgabeformaten |
-| F03 | Frühe Hostfilterung / Template-Caching | 2 | M–L | Alte A11/M17-Aufgabe; zuerst messen |
-| F04 | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Mit einem konkreten Anwenderfall beginnen |
-| F05 | CE für eindeutig zuordenbare Ein-Logstellen-Wrapper | 2 | M | Kleiner separater Ausbau auf Basis des PoC |
-| F06 | Allgemeines CE für Bind-Wrapper und Counter-Rebase | 1 | L | Weiter zurückstellen |
+| [F01](#generierte-dateien-verständlich-zuordnen) | Verständliche Bestandsprüfung generierter Artefakte | 3 | M | Zuerst rein lesende Diagnose diskutieren |
+| [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Fuzz- und Race-Prüfungen für neue Parser und Recordpfade | 3 | M | Robustheit vor weiteren Ausgabeformaten |
+| [F03](#frühe-hostfilterung-messen) | Frühe Hostfilterung / Template-Caching | 2 | M–L | Alte A11/M17-Aufgabe; zuerst messen |
+| [F04](#benannte-felder-besser-weiterverwenden) | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Mit einem konkreten Anwenderfall beginnen |
+| [F05](#kleine-wrapper-erweiterung-getrennt-bewerten) | CE für eindeutig zuordenbare Ein-Logstellen-Wrapper | 2 | M | Kleiner separater Ausbau auf Basis des PoC |
+| [F06](#allgemeines-ce-rebase-bleibt-eine-architekturentscheidung) | Allgemeines CE für Bind-Wrapper und Counter-Rebase | 1 | L | Weiter zurückstellen |
 
 ### Generierte Dateien verständlich zuordnen
 
@@ -302,9 +358,29 @@ Erhaltene Nachweise: getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einma
 
 ## Erledigte Korrekturen
 
+| ID | Status | Ergebnis / Nachweis |
+| --- | --- | --- |
+| [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) | Erledigt | Kein automatisch erzeugtes untagged-Präfix ausgeben |
+| [R02](#kopierbare-dokumentationsbeispiele-berichtigt) | Erledigt | Kopierbare Dokumentationsbeispiele berichtigt |
+| [R03](#fehlerstatus-bei-fehlgeschlagenem-clean-erhalten) | Erledigt | Fehlerstatus bei fehlgeschlagenem Clean erhalten |
+| [R04](#automatisches-nachladen-wiederhergestellt) | Erledigt | Automatisches Nachladen wiederhergestellt |
+| [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) | Erledigt | Kompatibilitätsvertrag und Release-Ziel festgelegt |
+| [R06](#testbeschleunigung-mit-vollständigen-pc-matrizen-geprüft) | Erledigt | Testbeschleunigung mit vollständigen PC-Matrizen geprüft |
+| [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt) | Erledigt | CE-/SL-Integration und Feature-Beispiele verbindlich ausgewählt |
+| [R08](#ressourcen-und-signalbehandlung-pro-loglauf-abgeschlossen) | Erledigt | Ressourcen und Signalbehandlung pro Loglauf abgeschlossen |
+| [R09](#endliche-eingaben-ohne-pauschale-wartezeit-abgeschlossen) | Erledigt | Endliche Eingaben ohne pauschale Wartezeit abgeschlossen |
+| [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen) | Erledigt | SL- und CE-Kapitel vollständig ins Englische übertragen |
+| [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten) | Erledigt | Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten |
+| [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) | Erledigt | Bestandszuordnung und Befunde der Repo-Prüfung |
+| [P01](#pc-konfigurationen-begrenzt-parallel-geprüft) | Erledigt | PC-Konfigurationen begrenzt parallel geprüft |
+| [P03](#l432-builds-isolieren-und-begrenzen) | Erledigt | L432-Builds isolieren und begrenzen |
+| [P04](#bulk-als-regulärer-pc-testweg-mit-verwertbarer-fehlerdiagnose) | Erledigt | Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose |
+
 ### Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten
 
 **R13 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Die vier lokalen Tabellen in `examples/PC_log` und `examples/G0B1_log` waren nach zusätzlichen SL-/CE-Quellen einmalig aktualisiert worden. Vorhandene TIL-Einträge behielten ihre IDs; in den LI-Tabellen verschoben sich Zeilennummern. Diese inhaltliche Aktualisierung ist bereits im aktuellen Commit-Stand enthalten. Bei unveränderten Eingaben überspringt Bind identische Schreibvorgänge; der vorhandene `TestBindDoesNotReplaceUnchangedFiles` prüft das ausdrücklich.
 
@@ -315,6 +391,8 @@ Die Standalone-Builds aus Schritt 600 laufen weiterhin im Checkout. Der verwalte
 ### Kein automatisch erzeugtes untagged-Präfix ausgeben
 
 **R01 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Die sichtbare Ausgabe enthält kein synthetisches `untagged:` mehr. Für ungetaggte oder unbekannt getaggte Ereignisse verhindert die Textausgabe zugleich, dass ein Doppelpunkt im Benutzertext nachträglich als Format-Tag interpretiert wird. JSON/KV verwenden weiter `tag=untagged` als Metadatum, ohne die Message zu verändern. Die `Fish`-Erwartung ist korrigiert. Die C-gestützten Vergleichsschleifen brechen bei der ersten Abweichung pro Konfiguration ab; `--no-stop` steuert weiterhin die Fortsetzung im äußeren Test-Worker. Gezielte Regressionstests decken die unabhängigen Fälle ab. Die vollständige Release-Matrix bleibt ausdrücklich Aufgabe R16.
 
@@ -355,6 +433,8 @@ Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Der `Fish`
 
 **R02 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Im [UM](../TriceUserManual.md) ist die alternative CE-Regel für Position und Geschwindigkeit syntaktisch gültig. Die ABC-Dateinamen und ihr Standardort `generated/` entsprechen der CLI; ein expliziter Zielpfad bleibt möglich. Das nicht vorhandene `-tilCS`-Beispiel wurde durch eine zutreffende C#-Integrationsnotiz ersetzt. Das Testkapitel nennt die heutigen Skripte und `_test`; die Release-Kommandos sind einzeln kopierbar. Der Link im [PC-Feature-Beispiel](../../examples/PC_features/README.md) verwendet die versionierte Schreibweise `ReadMe.md`.
 
 **Gezielte Abnahme:** Isolierte Bind- und ABC-Tests prüfen die CE-Regel sowie generierte Namen und Pfade. Die CLI weist `-tilCS` als unbekannten Schalter ab. UM-Format und Markdownlint bestehen; die lokale Linkprüfung für UM und PC-README findet keine Fehler. Die netzabhängige vollständige Linkprüfung war in dieser Umgebung wegen blockierter Verbindungen zu externen Websites nicht abschließbar. Release-/Git-Kommandos wurden nicht ausgeführt.
@@ -363,6 +443,8 @@ Im [UM](../TriceUserManual.md) ist die alternative CE-Regel für Position und Ge
 
 **R03 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Die vier betroffenen Buildskripte speichern den echten Status von `trice clean`, bevor sie ihn auswerten. Ein allein fehlgeschlagenes Clean führt zum Fehlerstatus und meldet dessen Exitcode; ein bereits fehlgeschlagener Build oder eine Unterbrechung behalten ihren ursprünglichen Status. Das vereinfachte Cleanup-Beispiel im UM reicht Clean-Fehler ebenfalls weiter, ohne im normalen Abschluss erneut zu bereinigen.
 
 **Gezielte Abnahme:** Isolierte Verhaltenstests führen alle vier Skripte mit erfolgreichem Build und Clean, Clean-Fehlercode 23, vorigem Build-Fehlercode 17 sowie SIGINT und SIGTERM aus. Pro Lauf werden Vor- und Nach-Clean genau einmal aufgerufen; Status und Warnung stimmen in allen Fällen. Shell-Formatprüfung, ShellCheck und die vollständige `scripts`-Testsuite bestehen.
@@ -370,6 +452,8 @@ Die vier betroffenen Buildskripte speichern den echten Status von `trice clean`,
 ### Automatisches Nachladen wiederhergestellt
 
 **R04 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Entscheidung: Automatisches Nachladen bleibt ein wichtiges zugesagtes Feature. Der Logger überwacht die Verzeichnisse der geladenen TIL-/LI-Dateien und verarbeitet damit auch atomaren Dateiersatz durch Bind/Insert. Rasche Folgespeicherungen gehen nicht mehr in einer fünfsekündigen Sperre verloren. Vollständig eingelesene Tabellen werden unter gemeinsamem Schreib-/Leseschutz ersetzt; Decoder, Positionsausgabe und Statistik verwenden denselben Schutz. Fehlerhafte, leere oder vorübergehend fehlende Dateien lassen den letzten gültigen Stand unverändert und werden erneut eingelesen. Diagnoseausgaben gehen auf stderr; gleiche wiederholte Lesefehler erzeugen keinen Warnungsstrom. Beim Verlassen des Loglaufs werden Watcher und Timer beendet und ihr Abschluss abgewartet.
 
@@ -381,6 +465,8 @@ Das [UM unter Easy-to-use](../TriceUserManual.md#easy-to-use) erklärt Bedienung
 
 **R05 · Gewicht 5 · Aufwand S–M · Abgeschlossen; Release-Ziel v2.0.0 bestätigt**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Entscheidung des Anwenders: **v2.0.0 ist das verbindliche Release-Ziel**. Die nachgewiesenen absichtlichen Änderungen an veröffentlichten CLI- und Template-Schnittstellen sind inkompatibel; nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ist dafür ein Major-Schritt vorgesehen. Die Zahl der Brüche ist unerheblich. Ein v1.4.0 mit unveränderter Rückwärtskompatibilitätszusage beschreibt diesen Stand nicht zutreffend. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
 
 Nachweis: Der lokale Release-Tag `v1.3.0` zeigt auf `54ce845b069f989bfc762f28f6dd364954e6050f`. Sein unveränderter Quellstand wurde mit `git archive` in ein temporäres Verzeichnis extrahiert und dort mit lokal vorhandenen Abhängigkeiten gebaut. Das aktuelle Tool wurde aus Stand `768844f1` separat in die temporäre Ablage gebaut. Beide CLI-Binaries wurden mit identischen TIL-/TREX-Fixtures ausgeführt. Es wurden weder historische Dateien im Repo geändert noch alte Quellstände in den Worktree zurückgesetzt.
@@ -391,7 +477,7 @@ Nachweis: Der lokale Release-Tag `v1.3.0` zeigt auf `54ce845b069f989bfc762f28f6d
 | CLI für Location-Daten | v1.3.0 akzeptiert `-liPath base`; der aktuelle Host weist es mit Exitcode 2 ab. `-liRoot` und `-liMaxDirs` trennen jetzt Speicherung und Darstellung. **Beide veröffentlichten Vergleichsschemata verwenden `File` und `Line`; `Path` war ein unveröffentlichter Zwischenstand.** |
 | User-Tags | v1.3.0 akzeptiert `-ulabel alpha:beta` als zwei Tags. Der aktuelle Host weist `beta` als unbekannte Farbe ab. Je Tag eine Option verwenden; Doppelpunkt für Gewicht/Farbe. |
 | Formatstrings | Der alte Host gibt `literal={x}` und `set={1,2}` wörtlich aus. Der aktuelle Host erwartet bei `{x}` einen Wert beziehungsweise weist `{1,2}` als ungültigen Feldnamen ab. `{{x}}` erscheint im alten Host doppelt geklammert und im aktuellen Host als `{x}`. Ein neues `{x}` mit einem 32-Bit-Wert wird nur vom aktuellen Host als strukturiertes Feld dekodiert. |
-| Klassische Meldungen | Derselbe 32-Bit-Record mit `msg:count=%d` ergibt in beiden Hosts `count=7`; `hi` bleibt `hi`. R01 ist umgesetzt: Automatische Klassifizierung als `untagged` fügt kein Präfix in den Meldungstext ein. |
+| Klassische Meldungen | Derselbe 32-Bit-Record mit `msg:count=%d` ergibt in beiden Hosts `count=7`; `hi` bleibt `hi`. [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) ist umgesetzt: Automatische Klassifizierung als `untagged` fügt kein Präfix in den Meldungstext ein. |
 | Tag-Auswahl und Darstellung | Eindeutige Aliase und gewichtete Schwellen gelten pro Anwendungsereignis; Metadaten werden separat behandelt. Unbekanntes `-logLevel` oder `-pick` wird jetzt vor dem Öffnen der Eingabe abgewiesen; v1.3.0 akzeptiert dieselben geprüften Werte. |
 | Generierte Ablage | `generate -abc deviceX` erzeugt unter v1.3.0 `deviceX.h/.c` im Aufrufverzeichnis, aktuell unter `generated/`. `-genDir` ist der gemeinsame Verzeichnisschalter. |
 
@@ -408,6 +494,8 @@ Der unterstützte Vertrag steht jetzt im [UM-Kapitel zur Firmware-/Host-Kompatib
 ### Testbeschleunigung mit vollständigen PC-Matrizen geprüft
 
 **R06 · Gewicht 4 · Aufwand M · Umsetzung und vollständige PC-Gegenproben abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Der Auftrag umfasst R08/R09 und P01/P04. Die wiederholte 100-ms-Wartezeit bei endlichen Eingaben entfällt, Logaufrufe geben ihre Ressourcen frei, geeignete Konfigurationen decodieren gesammelt und der PC-Worker führt höchstens vier Konfigurationen gleichzeitig aus. Die ursprünglichen Erwartungen und die zusätzlichen Tests jedes Pakets bleiben enthalten. Eine Infrastruktur zur Zeitmessung jedes Einzeltests wurde nicht eingeführt.
 
@@ -433,6 +521,8 @@ Die bestandenen Bind- und Insert-Läufe prüfen im Automatikmodus jeweils 30 Bul
 
 **R07 · Gewicht 5 · Aufwand M · Umsetzung und gezielte lokale Abnahme abgeschlossen**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 [Schritt 515](../../scripts/_515_test_logging_features.sh) läuft einmal in `quick` und `full`. Er aktiviert gezielt `TestContextEnrichmentTargetToDecoder` und `TestContextInsertCleanTargetToDecoder`: C/C++-Records, Text/JSON/KV, Feldtypen und Stempel, Bind, Insert/Clean-Rücknahme, abgeschaltetes Logging und einmalige Auswertung. Die bestehenden SL-Unit-Tests und bisherigen Bind-Prüfungen bleiben erhalten und werden nicht zusätzlich im neuen Schritt wiederholt.
 
 Die kleinen Nachweise `TestContextEnrichmentPoC` und `TestContextEnrichmentPoCRebaseScopeBoundary` laufen als separat bezeichnete Gruppe mit. Der große experimentelle `TestContextEnrichmentRebasePoC` bleibt gezielt aufrufbar; sein Aufruf und die begrenzte Aussagekraft der jeweils verfügbaren Compiler stehen im UM. Daraus folgt weiterhin keine produktive CE-Unterstützung für Wrapper/Rebase.
@@ -449,6 +539,8 @@ Die zusätzliche Abnahme durch den tatsächlichen Runner, mit ausschließlich Sc
 
 **R08 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 [Translate](../../internal/translator/translator.go) meldet seine Signalbehandlung beim normalen Abschluss wieder ab und wartet auf das Ende der zuständigen Goroutine. Der nutzlose periodische Ticker entfällt; die bestehende kurze Schonfrist nach SIGINT/SIGTERM bleibt erhalten und lässt sich beim normalen Abschluss abbrechen. Statistik, Diagnosen und Signal-Exitcode bleiben erhalten.
 
 `binaryLogger.Close` und `bytesViewer.Close` reichen das Schließen an ihre besessenen Ressourcen weiter. Eingabe und Binärlogdatei werden genau einmal geschlossen, auch wenn eine Schließoperation fehlschlägt; der geliehene Diagnose-Writer bleibt offen. Der CLI-Loglauf schließt die vollständige Wrapperkette sofort nach `Translate`, bevor ein weiterer Loglauf beginnen könnte. Schließfehler gehen an den Aufrufer zurück.
@@ -458,6 +550,8 @@ Die zusätzliche Abnahme durch den tatsächlichen Runner, mit ausschließlich Sc
 ### Endliche Eingaben ohne pauschale Wartezeit abgeschlossen
 
 **R09 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Die bisherige 100-ms-Mindestlaufzeit pro endlichem Logaufruf ist entfernt. Der TREX-Decoder gibt EOF erst zurück, wenn nach dem tatsächlichen Eingabeende keine gepufferten vollständigen Records mehr verarbeitet werden können. Ein leerer Record ist Fortschritt und beendet die Ausgabe nicht vorzeitig. Endliche Quellen schließen dann sofort ab; ein begonnenes letztes Textfragment wird weiterhin ausgegeben. Normales EOF erzeugt keine zusätzliche Diagnose im Text-/JSON-/KV-Ausgabekanal.
 
@@ -471,17 +565,21 @@ Der historische Befund erklärt den großen Gewinn: Je Workflow liefen 34 gewöh
 
 **R11 · Gewicht 5 · Aufwand M–L · Umsetzung abgeschlossen; für den Merge vorgezogen**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Die Kapitel „Structured Logging“ und „Trice Context Enrichment“ im [UM](../TriceUserManual.md#structured-logging) sind vollständig englisch, einschließlich aller Tabellen, Beispiele, Einschränkungen, Fehlererklärungen und des kapitelinternen CE-PoC-Anhangs. Auch der aktive CE-Absatz unter „Future Development“ ist übersetzt. Arbeitsauftragsnummern A9/A10 sind innerhalb dieser Kapitel durch fachliche Beschreibungen ersetzt; die experimentelle Wrapper-/Rebase-Unterstützung bleibt ausdrücklich von der produktiven Unterstützung getrennt. Testnamen, Testpfade und Funktionsumfang bleiben unverändert. Die weitere Bereinigung des Bind-/Visualisierungs-Kapitels und paralleler Dokumente bleibt R10.
 
 Die vollständigen deutschen Originale vor der Übersetzung liegen als datierte Kapitelkopien unter [Structured_Logging_DE_2026-10-04.md](obsolete/Structured_Logging_DE_2026-10-04.md) und [Context_Enrichment_DE_2026-10-04.md](obsolete/Context_Enrichment_DE_2026-10-04.md). Auf weiteren Benutzerauftrag sind auch die verbliebenen deutschen Texte unter `bind-limits` und die deutsche Scratch-Pad-Notiz übersetzt; ihre Originale liegen unter [Remaining_Manual_Texts_DE_2026-10-04.md](obsolete/Remaining_Manual_Texts_DE_2026-10-04.md). `bind-limits` verweist nun ausdrücklich auf den vorhandenen Architektur-PoC und unterscheidet dessen Nachweis von der weiterhin zurückgestellten produktiven Integration. Bereits vorhandene Archive wurden nicht geändert. Die Kopien behalten die damaligen Überschriften und Verweise als historische Referenz; sie werden nicht als eigenständige Manuals gepflegt.
 
 **Gezielte Abnahme am 4. Oktober:** Die Archivkopien stimmen bis auf den abschließenden Leerraum bytegenau mit den ursprünglichen vollständigen Kapiteln überein. Alle 47 Code-/Ausgabeblöcke sind unverändert und in gleicher Reihenfolge vorhanden. Der fachliche Absatzvergleich erhält insbesondere `message` und Leerraum, flache Punktnamen, Typen/NaN/64-Bit-Werte, getrennte Stempel-/Delta-Metadaten, CE-Regelreihenfolge, exakten Suffix-Match, lokale Sichtbarkeit, einmalige Auswertung und die unterschiedlichen Bind-/Insert-Grenzen. mdtoc erzeugt ToC, Nummerierung und Anker neu; Markdownlint und mdtoc-Check bestehen. Aktive eingehende Links zu den übersetzten Kapitelankern sind angepasst; `bind-limits` bleibt erhalten.
 
-Die strengere lokale Lychee-Prüfung mit Fragmenten findet außerhalb des Auftrags noch den bereits zuvor vorhandenen ungültigen Link `#Trice Parameter Bit Widths` im Target-Code-Überblick. Dieser Rest gehört in die Dokumentationsbereinigung R10. Der parallel gestartete Full-Test ist keine Abnahme eines unveränderten Endstands: Neben möglichen Markdown-/Linkfehlern kann seine abschließende Byte-Prüfung die beauftragten Dokumentationsänderungen melden. Produktcode und Testauswahl wurden für R11 nicht verändert.
+Die strengere lokale Lychee-Prüfung mit Fragmenten hatte außerhalb des Auftrags den Link `#Trice Parameter Bit Widths` im Target-Code-Überblick beanstandet. Der Benutzer hat ihn anschließend auf `#trice-parameter-bit-widths` korrigiert. Der parallel gestartete Full-Test bestand alle 26 Einzelschritte; seine abschließende Byte-Prüfung meldete die parallel beauftragten Dokumentationsänderungen. Der anschließende Quick-Lauf bestand einschließlich Zustandsprüfung (20 Schritte, 380 Sekunden). Produktcode und Testauswahl wurden für R11 nicht verändert. Das ist weiterhin kein vollständiger Release-Nachweis nach R16.
 
 ### Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose
 
 **P04 · Gewicht 4 · Aufwand M–L · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
 
 `TRICE_PC_TEST_MODE=auto` wählt im [gemeinsamen Harness](../../_test/testdata/cgoPackage.go) den nachgewiesenen Weg je Konfiguration. Von 63 Paketen verwenden 30 Bulk, 24 weiterhin den Einzelweg und neun ihre speziellen Tests. Framed Direct und Deferred werden getrennt gesammelt und decodiert. Der bisherige Transfer nach jeder C-Teststelle bleibt dort erhalten, wo kleine Puffer ihn benötigen; die ursprünglichen acht Deferred-Bulk-Fälle behalten ihre Mehrstellen-Transfers zur Prüfung des Pufferns. Ungeframte Kanäle bleiben einzeln, damit Padding und Paketgrenzen nicht durch Verkettung verändert werden.
 
@@ -495,6 +593,8 @@ Der erste Bulk-Unterschied nennt `triceCheck.c:<Zeile>`, Erwartungsindex, Kanal,
 
 **P01 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
 
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
 Der [PC-Worker](../../scripts/_160_pc_target_test_worker.sh) startet standardmäßig höchstens vier Konfigurationen als getrennte Prozesse. `TRICE_PC_TEST_JOBS` erlaubt eine andere positive Grenze, einschließlich `1` für seriellen Betrieb. Globale Go-/C-Zustände werden nicht mit `t.Parallel` geteilt. Jede Konfiguration besitzt ein eigenes `output.log`; pro Lauf entsteht ein neues Verzeichnis unter `temp/log/pc-<workflow>.<Lauf>/`.
 
 ID-Vorbereitung und Wiederherstellung bleiben außerhalb der parallelen Phase. Ohne `--no-stop` wird nach dem ersten erkannten Fehler nur die bereits gestartete Gruppe beendet und keine weitere Gruppe begonnen. Mit `--no-stop` laufen die übrigen Konfigurationen weiter, der Gesamtexit bleibt fehlerhaft. Ein Abbruch erreicht auch Compiler-/Test-Kindprozesse und automatische Diagnose-Nachläufe; der Worker wartet vor der Source-Wiederherstellung auf deren Ende.
@@ -502,3 +602,200 @@ ID-Vorbereitung und Wiederherstellung bleiben außerhalb der parallelen Phase. O
 Fehlerberichte nennen Workflow, Konfiguration, Logpfad, relevante Diagnose und einen Reproduktionsaufruf. Auch der stille äußere `testAll`-Runner zeigt konkrete Fehlerausschnitte statt nur FAIL. Der Reproduktionsaufruf setzt denselben vorbereiteten ID-Zustand und die passenden Compiler-Include-Pfade voraus; der verwaltete Workflow stellt diese weiterhin bereit. Die groben Fortschrittsgewichte berücksichtigen den verkleinerten Anteil der PC-Matrizen.
 
 **Abnahme:** [Isolierte Worker-Verhaltenstests](../../scripts/pc_target_worker_test.go) prüfen seriellen Erfolg, tatsächliche parallele Überlappung, Jobgrenze, getrennte Logs, Fail-fast, `--no-stop`, Fehlererhalt trotz erfolgreicher Gegenprobe, ungültige Steuerwerte und Abbruch einschließlich verzögert beendeter Kindprozesse im normalen und diagnostischen Lauf. [Runner-Tests](../../scripts/portability_test.go) prüfen die konkreten Fehlerdetails auch bei stiller Ausführung. Die vollständige `scripts`-Suite besteht. Die beschriebenen Signal-Prozessprüfungen laufen unter POSIX; eine reale Windows-Matrix bleibt Teil von R16.
+
+## Bestandszuordnung und Befunde der Repo-Prüfung
+
+**R17 · Gewicht 4 · Lesende Bestandsprüfung abgeschlossen am 4. Oktober 2026**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Grundlage ist `git ls-files -z` auf `cb4dda6495530ad33ed703301ee3df9625ecf3ce`: **2.239 versionierte Dateien**, davon **27 unmittelbar im Root**. Die folgenden disjunkten Hauptgruppen erfassen alle Pfade einschließlich versteckter Dateien. Ein Verzeichnisprefix umfasst seine Unterverzeichnisse; spezifische Ausnahmen stehen darunter. Damit ist auch jeder durch versionierte Dateien belegte Unterordner zugeordnet. Git führt keine eigenständigen leeren Verzeichnisse. Lokale Ausgaben werden separat betrachtet.
+
+Die Zuordnung beruht auf Dateiinventar, Einstiegstexten, aktiven Referenzen sowie Build-/Test-/Release-Verbrauchern und deren Globs. Sie ist keine erneute Einzelprüfung jeder C-Funktion, keine Ausführung sämtlicher Beispiele und keine Untersuchung des Inhalts aller Fremdsoftware-Archive. „Behalten“ bedeutet ein belegbarer Zweck, nicht garantierte Fehlerfreiheit. „Noch klären“ ist eine ausdrückliche offene Frage und keine verkappte Löschfreigabe. Bei R17 wurde nur dieser Plan geändert; keine Dateien wurden bereinigt und keine Produkttests oder Builds gestartet.
+
+### Vollständige Zuordnung der Hauptgruppen
+
+| Pfadgruppe | Dateien | Zweck und Verbraucher | Empfehlung und Ziel |
+| --- | ---: | --- | --- |
+| Root-Dateien ohne Unterverzeichnisse | 27 | Einstieg, Regeln/Lizenzen, Toolkonfiguration, Modul, gemeinsame ID-Daten; Einzelzuordnung unten. | Überwiegend **behalten**; fragliche Ausgaben getrennt unter [R21c](#root-ausgaben-und-generierte-beispieldaten-unterscheiden). |
+| `.code_snippets/` | 11 | Eine README und zehn `.7z`-Archive mit ausdrücklich als Backup/Legacy beschriebenen Codefragmenten. | **Behalten** als bestehende Historie; keine Entpack-/Aufräumaktion in [R21](#übriges-repo-anhand-belegter-zwecke-aufräumen). |
+| `.github/` | 30 | 17 ausführbare Workflow-YAML, sechs Repo-/Issue-/PR-Konfigurationen, eine Smoke-Fixture und sechs erklärende/Vorlagen-Dateien. | Aktive Automation/Fixture **behalten**; fünf Vorlagenbegleiter und allgemeine README unter [R21a](#kleine-zustandsreste-und-workflow-begleitdateien); Pages unter [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang). |
+| `.idea/` | 14 | Gemeinsamer IDE-/CLion-Einstieg, Format-/Inspektionsregeln und Projektmetadaten. | Zweck **behalten**, Doppelmodul/Wörterbuch-/Ignore-Widersprüche unter [R21b](#ide-einstiege-portabel-und-tatsächlich-benutzbar-machen) **zusammenführen**. |
+| `.vscode/` | 3 | Root-Editor-, C/C++- und Go-Debugkonfiguration. | **Behalten**, kaputte/persönliche Startpfade unter [R21b](#ide-einstiege-portabel-und-tatsächlich-benutzbar-machen) korrigieren. |
+| `_test/` | 427 | PC-/CGO-Matrix, ABC-Tests, kanonische C-/Harness-Eingaben und CLion-Reviewprojekt. | **Behalten**; Aufteilung unten. Keine Konfiguration wegen ähnlicher Dateien streichen. |
+| `cmd/` | 19 | Ausgelieferte Tools, Dokumentations-/Formatter-Helfer sowie unfertige Tools und ruhende Tests. | Aktive Programme **behalten**; fünf Experimentdateien und zwei Unterstrich-Tests unter [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen) **noch klären**. |
+| `demo/` | 9 | Kleiner PC-Einstieg für direkte/verzögerte Ausgabe mit gemeinsamem Skript und TIL/LI. | **Behalten**; Einstieg für [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen), kein Duplikat der umfangreicheren Feature-Tour. |
+| `docs/` | 215 | Vollreferenz, Bind-Dokumente, Bilder, Planung und historische Unterlagen. | Zuordnung unten; **zusammenführen/verschieben** unter [R10](#anwenderdokumentation-von-entwicklungsständen-befreien)/[R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren), Archive **behalten**. |
+| `examples/` | 1.116 | Ausführbare PC-/STM32-/ABC-/LabPlot-Beispiele, Vendorquellen, Projektdaten und Builds. | **Behalten**; 766 Dateien liegen in `Drivers`/`Middlewares`. Ausnahmen [R21a](#kleine-zustandsreste-und-workflow-begleitdateien)–c. |
+| `experiments/` | 63 | Sechs Bind-Architektur-/Integrationsnachweise mit eigenen Eingaben und erwarteten Resultaten. | **Behalten**; teilweise aktive Testabhängigkeit, Detailzuordnung unten. |
+| `internal/` | 145 | Hostimplementierung und Tests: args, charDecoder, com, decoder, do, dumpDecoder, emitter, fmtspec, id, keybcmd, link, receiver, translator, trexDecoder, vis. | **Behalten** am Ort; auch `id/remigratecmd` ist ein aktiver Helfer des Legacy-Testworkflows. |
+| `pkg/` | 20 | Gemeinsame Go-Pakete und Tests: ant (3), cipher (5), msg (5), tst (7). | **Behalten**; keine Paketneuorganisation aus der Bestandsprüfung ableiten. |
+| `scripts/` | 62 | 50 nummerierte Workflow-/Prüf-/Pflegeskripte, vier Einstiegsskripte, drei Git-Helfer und fünf Testdateien. | **Behalten**; vorhandene Funktionen statt neuer paralleler Abläufe dokumentieren. |
+| `src/` | 55 | 53 Target-C-/Headerdateien, `ReadMe.md` und eine lokale VS-Code-Konfiguration. | **Behalten**; Quellcode-/README-Auslieferung über GoReleaser, Archivabnahme [R15](#release-notes-und-ausgelieferte-dateien-prüfen). |
+| `third_party/` | 23 | Elf ZIP-Dateien, zwei PDFs, sechs Readmes und vier Ignore-Dateien für optionale Werkzeuge/Fremdquellen. | Benötigte Quellen/Hinweise **behalten**; konkrete Aufbewahrungsrolle je Archiv unter [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) **noch klären**. |
+| **Summe** | **2.239** | **Jeder versionierte Pfad gehört genau einer Hauptgruppe an.** | **Keine pauschale Löschliste.** |
+
+### Root-Dateien und operative Konfiguration
+
+| Dateien | Anzahl | Heutiger Zweck / Entscheidung |
+| --- | ---: | --- |
+| `README.md`, `AGENTS.md`, `AUTHORS.md`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `LICENSE.md`, `SECURITY.md` | 8 | Projekteinstieg, Mitarbeit, Urheberschaft, Historie und Regeln. **Behalten**; README [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), Release-Abschnitt [R15](#release-notes-und-ausgelieferte-dateien-prüfen), knappe Entwicklerorientierung [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen). Historische Changelog-Einträge nicht umschreiben. |
+| `.clang-format`, `.clang-format-ignore`, `.editorconfig`, `.gitattributes`, `.gitignore`, `.goreleaser.yaml`, `.markdownlint.yaml`, `.markdownlintignore`, `lychee.toml` | 9 | Aktive Format-/Git-/Release-/Lintkonfiguration. **Behalten**; gezielte Pfadänderungen bei [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang). Vendor-/Archiv-Ausnahmen nicht durch Aufräumen aufheben. |
+| `.markdownlinkcheck.json` | 1 | Veralteter lokaler Markdown-Linkchecker laut UM; aktive CI nutzt Lychee. **Noch klären**, dann [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen). |
+| `_config.yml`, `index.md` | 2 | Website-Konfiguration und Einstieg; konkurrierende Erzeugung im Pages-Workflow. Zweck **behalten**, Erzeugung unter [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) **zusammenführen**. |
+| `go.mod`, `go.sum` | 2 | Hostmodul und reproduzierbare Abhängigkeiten. **Behalten**, ausdrücklich keine `/v2`-Umstellung. |
+| `demoLI.json`, `demoTIL.json` | 2 | Gemeinsame Standort-/ID-Tabellen der Beispiele und ID-Workflows. **Behalten**; lokale Veränderungen weiterhin nicht als Aufräumauftrag behandeln. |
+| `trice_bindIDs_in_examples_and_test_folder.sh` | 1 | Gemeinsame Bind-Vorbereitung; wird von Formatter und verwalteten Testworkflows aufgerufen. **Behalten**, kein unbenutztes Root-Skript. |
+| `til.c`, `trice.bin` | 2 | Generierte Root-Tabelle und leere Binärdatei ohne erkennbaren konkreten Buildverbraucher. **Noch klären**, Entfernungsempfehlung bei fehlendem manuellem Zweck unter [R21c](#root-ausgaben-und-generierte-beispieldaten-unterscheiden). |
+
+Die vier nicht nummerierten Test-/Build-Einstiege sind `scripts/testAll.sh`, `format_repo.sh`, `buildTriceTool.sh` und `release_prep.sh`. Die drei `git*.sh`-Dateien dienen ausdrücklich manueller Entwicklungsarbeit und benötigen keinen CI-Aufrufer, um sinnvoll zu sein. Die fünf Testdateien prüfen PC-Worker, L432-Matrix, Logging-Auswahl, Skriptportabilität und Codex-Handover. Zusammen mit den 50 nummerierten Skripten sind damit alle 62 Dateien zugeordnet.
+
+`cmd/trice` enthält fünf aktive Dateien und zwei ruhende `_main_update*_test.go`; `cmd/tlog` zwei aktive Dateien. `cmd/clang-filter` (3) und `cmd/generate-helpall-doc` (2) sind Entwicklerwerkzeuge, keine unfertigen Produkt-CLIs. `cmd/_cui` (2) und `cmd/_stim` (3) bleiben bis R21d ausdrücklich als unfertige Experimente eingeordnet.
+
+### Beispiele und Tests sind keine beliebigen Doppelbestände
+
+| Beispielgruppe unter `examples/` | Dateien | Zweck, Verbraucher und Ziel |
+| --- | ---: | --- |
+| `F030_bare`, `F030_inst` | 61 + 71 | Basisprojekt und instrumentierte Variante; STM32Cube-/Compilerdateien, Vendorquellen und Trice-Anbindung **behalten**. |
+| `G0B1_bare`, `G0B1_inst` | 142 + 154 | Basisprojekt und RTOS-/Trice-Integration; Quelle der bewusst geklonten Feature-Tour. **Behalten**. |
+| `G0B1_features`, `G0B1_log` | 159 + 154 | SL-/CE-/Task-Beispiele beziehungsweise Target-seitige Logformatierung. **Behalten**, IDE-Zustand unter [R21a](#kleine-zustandsreste-und-workflow-begleitdateien)/b. |
+| `L432_bare`, `L432_inst` | 143 + 159 | Basis/Instrumentierung und Quelle der 101 Konfigurationsprüfungen in Schritt 620. **Behalten**. |
+| `PC_features`, `PC_log` | 11 + 6 | Schnell ausführbare Feature-Tour mit `show_*.sh`/Ausgabeprüfung und lokale Target-Formatierung. **Behalten**, wichtige Einstiegspunkte [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen)/[R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern). |
+| `DemoData_CSV`, `DemoData_Trice` | 4 + 5 | Zwei Datenproduzenten für denselben Visualisierungsweg, direktes CSV gegenüber Binärlogging. **Behalten**. |
+| `LabPlotDemo`, `LabPlotUser` | 4 + 1 | Fertiges Visualisierungsbeispiel und eigenständige Nachbauanleitung. Auch der Ordner mit nur einer README hat einen Zweck. **Behalten**. |
+| `TriceAbc` | 34 | Broadcast-/Empfangsbeispiel mit NodeLib, Auswahl-/Generatorworkflow und Laufskripten. **Behalten**; generierte Tabelle separat [R21c](#root-ausgaben-und-generierte-beispieldaten-unterscheiden). |
+| `exampleData` | 3 | Gemeinsam eingebundene Beispiel-/Diagnosequellen; erklärt Sidecars auch für nicht aufgerufene Demo-Funktionen. **Behalten**. |
+| Direkte Dateien: `ReadMe.md`, `buildAllTargets_TRICE_OFF.sh`, `buildAllTargets_TRICE_ON.sh`, `cleanAllTargets.sh`, `prepareTriceBind.sh` | 5 | Gemeinsame Beispiel-Workflows und derzeit nur weiterleitender Einstieg. Skripte **behalten**; README unter [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern) als echte Auswahlhilfe **zusammenführen**. |
+| **Summe** | **1.116** | **766 Vendor-Dateien sind darin enthalten, nicht zusätzlich gezählt.** |
+
+Die STM32-Projekte werden über ihre Buildskripte, Makefiles und IDE-/Cube-Konventionen benutzt. Eine Textsuche nach jeder Vendor-Headerdatei genügt deshalb nicht. Die vom Benutzer ausdrücklich gewünschten eigenständig kopierbaren Projekte werden nicht zur Platzersparnis in eine neue gemeinsame Vendor-Struktur umgebaut. Innerhalb der acht Boardprojekte bleiben Anwendungsquellen, Startup/Linker, Projektgenerator-/Debuggerkonfiguration, Build-/Logscripts und Drittanbieterhinweise beim jeweiligen Beispiel. Die zwölf leeren Debugger-Zustandsdateien bilden die eng begrenzte Ausnahme R21a.
+
+Für `_test` ist die vollständige Zuordnung: `dblB_*` 138 Dateien, `ringB_*` 138, `stackB_*` 38, `staticB_*` 42, `be_*` 12, `alias_*` 9, `aliasassert_*` 9, `userprint_*` 9, `abc_rx_host`/`abc_tx_host` zusammen 12, `modify_for_debug` 8, `clion-review` 5, `testdata` 6 und `ReadMe.md` 1; zusammen **427**. Die Buffer-/Framing-/Endian-/Ausgabevarianten sind Testeingaben, auch wenn Harness-Dateien ähnlich aussehen. `_160_pc_target_test_worker.sh` verwendet bereits gemeinsame Harness-Vorlagen per Go-Overlay. Eine weitere Zusammenlegung wäre Testarchitekturarbeit und gehört nicht zu R21. Das CLion-Projekt ist ein manueller Code-Review-/Build-Einstieg. `_test/ReadMe.md` kann R12 zu einem kurzen Wegweiser ergänzen; sein bisheriger Weiterleitungscharakter macht nicht den Ordner überflüssig.
+
+### Entwicklungsnachweise und Archive erhalten
+
+| Unter `experiments/TriceBind/` | Dateien | Zweck / nachgewiesene Verwendung |
+| --- | ---: | --- |
+| `10_Minimal_Line_Binding` | 13 | Historischer Minimalnachweis mit eigenem kleinem Go-Modul, C-Eingaben und Lizenz; eigenständig reproduzierbar. |
+| `20_Target_Library_Integration` | 17 | Integration mit der echten Target-Library; fünf eingecheckte `triceIDs`-Header sind absichtliche Eingaben. |
+| `30_Preprocessor_Verification` | 13 | Zwei Präprozessorvarianten mit Sollausgaben; `run_all.sh` wird von Schritt 500 verwendet. |
+| `40_MVP_Generator` | 11 | Generator-/CMake-Integration; Schritt 500 konfiguriert und baut dieses Projekt. |
+| `50_MVP2_Counter_and_Macro_Definitions` | 5 | Manuell reproduzierbarer Nachweis zu Counter und Makrodefinitionen mit Runskript. |
+| `60_MVP2_Local_Counter_Rebase` | 4 | Lokales Rebase mit Sollverhalten; Runskript ist Teil von Schritt 500. |
+| **Summe** | **63** | **Behalten am Ort; historische Namen allein rechtfertigen keine Umbenennung.** |
+
+Diese Bind-Nachweise sind von den CE-Compiler-/Wrapper-PoCs in den Go-Integrationstests zu unterscheiden. R10 darf die historischen Versuche im Handbuch verständlicher einordnen, ihre erhaltenen Tests und Referenzen aber nicht entfernen. Eine vorhandene C-Quellkopie im Minimalnachweis ist nicht automatisch eine zweite gepflegte Produktimplementierung.
+
+Bestehende Archive sind `docs/scratchPad/obsolete` (84 Dateien), `docs/_Legacy` (8), `.code_snippets` (11 einschließlich README) und `docs/ref/Backup.7z` (1). Diese Zahlen beschreiben nur die Bestandsgrenzen; vorhandene Archive werden weder neu geordnet noch nachbearbeitet. Neue Inhalte dürfen nur im Rahmen eines konkreten Folgeauftrags dorthin überführt werden. Aktive Dokumente dürfen auf historische Nachweise verweisen; daraus entsteht keine Pflicht, deren alte Pfade nachträglich zu reparieren.
+
+### Dokumentationsbestand und fachliche Ziele
+
+Die **215 Dokumentationsdateien** zerfallen in 16 direkte Dateien, 9 Bind-Dokumente, 94 Referenz-/Bilddateien, 8 `_Legacy`-Dateien sowie 88 Scratchpad-Dateien. Im Scratchpad sind vier aktiv: dieser Plan, `scratchPad.md` und die zwei `codex_handover_*.py`; die übrigen 84 liegen unter `obsolete`.
+
+| Aktiver Bestand | Zweck heute | Ziel und Empfehlung |
+| --- | --- | --- |
+| `docs/TriceUserManual.md` | Vollständige Referenz einschließlich übersetzter SL-/CE-Kapitel. | **Verschieben** nach `TriceReferenceManual.md` gemäß [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), Inhalt erhalten; [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) belegt den alten Namen mit dem kurzen Einstieg. |
+| `docs/README.md` | Derzeit pauschaler Verweis auf das UM; behauptet unzutreffend, die anderen Dateien seien nur Links. | Als eigenständigen Dokumentationswegweiser **behalten** und unter [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern) neu füllen. |
+| Zehn Weiterleitungsdateien, unten einzeln aufgeführt | Keine eigene fachliche Erklärung. | Unter [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) **entfernen**, nachdem aktive Verweise und Zielkapitel stimmen. |
+| `docs/Codex_Rechnerwechsel_DE.md` | Eigenständige, ausdrücklich beauftragte Anleitung für Entwickler; verweist auf Handover-Skripte und Tests. | **Behalten**; aus Entwicklerorientierung auffindbar machen, nicht ins englische Anwenderhandbuch mischen. |
+| `docs/GoInfos.txt` | Acht Zeilen ältere Testwerkzeug-/Coverage-Notizen. | Verwertbare Hinweise in `CONTRIBUTING.md` **zusammenführen**, danach unter [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen) **entfernen**. |
+| `docs/ChatGPTo4-mini-high_TriceCompare.html`, `docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html` | Zwei aus dem Root-README verlinkte Vergleichsberichte. | Datierte Fremdeinschätzungen; Einbindung unter [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), mögliche historische Ablage unter [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren) **noch klären**. |
+| `docs/TriceBind/` | README; Dateien 10/30: Spezifikation und Testanforderungen; 20/40/70: Implementierungsaufträge; 50: Bericht; 60: Strategien; 90: paralleles User Manual. | Gültige Einzelinformationen unter [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) in Referenz **zusammenführen**; historische Begründungen erhalten und erst unter [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) passend **verschieben**. |
+| `docs/ref/` ohne `Backup.7z` | 67 PNG, 8 GIF, 8 SVG, 7 JPG, 2 Drawio-Quellen und eine generierte CLI-Hilfe. | Benötigte Quellen/Exporte **behalten**; fragliche Varianten [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren). Bilder nicht als aktuelle Messungen neu ausgeben. |
+| Aktive vier Dateien unter `docs/scratchPad/` | Deutsche Planung, auskommentierte Notizen und beauftragte Umzugswerkzeuge. | Plan/Werkzeuge **behalten**; Notizzettel unter [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen) **noch klären**. Keine daraus abgeleiteten neuen Features. |
+
+#### Vollständige Auswahl der Weiterleitungsdateien
+
+| Zu entfernende Datei unter `docs/` | Fachlicher Zielinhalt nach [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)/[R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) |
+| --- | --- |
+| `TriceColor.md` | Reference Manual: Tags, Farben und Log-Level; der Stub verwendet noch den alten Anker `trice-tags-and-color`. |
+| `TriceIDManagement.md` | Reference Manual: ID-Verwaltung. |
+| `TriceMessagesEncoding.md` | Reference Manual: aktuelle binäre Kodierung. |
+| `TriceObsoleteEncodings.md` | Bestehende historische Texte unter `_Legacy`, sofern ein historischer Verweis benötigt wird; keine Gleichsetzung mit aktueller Kodierung. |
+| `TriceOverOneWire.md` | Reference Manual: Betrieb ohne UART. |
+| `TriceOverRTT.md` | Reference Manual: RTT. |
+| `TriceSpace.md` | Reference Manual: Speicherbedarf und Messbedingungen. |
+| `TriceSpeed.md` | Reference Manual: Geschwindigkeit und Messbedingungen. |
+| `TriceUserGuide.md` | Neues kurzes User Manual als Einstieg. |
+| `TriceVsPrintfSimilaritiesAndDifferences.md` | Reference Manual: Vergleich mit printf. |
+
+Bei der aktiven Textsuche wurden überwiegend Dateinamen in historischen Changelog-Einträgen gefunden, keine notwendige neue Nutzung der Stubs. Der historische Kodierungsverweis des UM führt bereits direkt nach `_Legacy`. Vor Entfernung dennoch die tatsächlichen Linkziele einschließlich HTML und veröffentlichtem Site-Baum prüfen; eine Namenssuche unterscheidet gleichnamige Archivziele nicht sicher. Changelog und Archive bleiben unverändert. Externe Altlinks können nach Entfernung brechen; R20 dokumentiert diese Folge, ohne neue Weiterleitungsstubs zu erfinden.
+
+Der Referenzbestand enthält 23 nicht archivierte Dateien ohne gefundenen Dateinamenverweis in den untersuchten aktiven Texten außerhalb von `docs/ref`. Darunter sind die beiden `.drawio`-Quellen, mehrere Logoauflösungen und ältere Mess-/Boardbilder. Das ist lediglich eine Prüfauswahl für R21e: Quell-/Exportbeziehungen innerhalb der Bildfamilien und andere Renderwege können ihre Aufbewahrung begründen. Insbesondere `trice_abc_*`-Diagramme mit `.png`, `.svg`, `*2.svg` und `.drawio` nicht anhand der Endung oder eines Suffixes als überflüssig erklären.
+
+### Lokale Ausgaben und Aussagegrenzen
+
+Zusätzlich zum versionierten Bestand sind im aktuellen Repo-Root `.git`, `.gocache`, `build`, `dist`, `generated`, `temp` und `coverage.out` vorhanden. `.git` ist lokale Repository-Verwaltung und kein aufzuräumender Produktbestand. Cache, Build-/Releaseausgaben und Coverage sind lokale Ergebnisse; `temp` enthält auch Testlogs und Wiederherstellungsdaten. Die vorhandenen Ignore-Regeln unterscheiden diese Gruppen bereits. Auch entsprechende Unterverzeichnisse in Beispielen werden nicht zur versionierten Dateizahl addiert.
+
+`generated` enthält unter anderem Sidecars und die Feldregistrierung. Die Rolle eines Ordners ist nicht gleichbedeutend mit der Erlaubnis, alle seine Dateien zu löschen: ABC-Auswahl-Header können Benutzereingaben sein, alte Sidecars können ID-Evidenz liefern. Handover-ZIPs enthalten persönliche Sitzungsdaten und gehören gemäß vorhandener Ignore-Regel nicht ins Repo oder in die Website. Dieser Auftrag liest ihre Inhalte nicht und räumt sie nicht auf.
+
+Die Dateigröße des Repos allein ist kein Grund zur Konsolidierung der 766 Vendor-Dateien oder der Testkonfigurationen. Die Bestandsprüfung bestätigt überwiegend begründete Gruppen und isoliert kleinere Unsicherheiten. Bei unklaren manuellen Verwendungen werden R21c/d/f zunächst mit einer Zweckentscheidung abgeschlossen oder ausdrücklich zurückgestellt; ein Release muss dafür keine beliebige Universalbereinigung abwarten.
+
+### Aus der Bestandsprüfung abgeleitete Orientierung
+
+Für R12 reicht im öffentlichen Einstieg diese Karte: **Ausprobieren:** `demo` und `examples/PC_features`; **Target integrieren:** `src` und die passenden `*_inst`-/Feature-Beispiele; **lokal formatieren/ABC/visualisieren:** `PC_log`, `TriceAbc`, `LabPlotDemo`; **Hosttool bauen:** `scripts/buildTriceTool.sh`; **Tests ausführen:** `scripts/testAll.sh`; **nachschlagen:** kurzes UM und Reference Manual; **beitragen:** `CONTRIBUTING.md`, danach bei Bedarf `cmd`, `internal`, `pkg`, `_test` und `scripts`. Experimente, Planung und Archive sind weiterführende Entwicklungsunterlagen, keine Voraussetzungen für das erste Log.
+
+**Abnahme R17:** Alle 2.239 Pfade sind den gezählten Hauptgruppen zugeordnet; Root-Dateien, Beispiele, Testfamilien, Experimente und aktive Dokumentationsgruppen sind zusätzlich aufgeschlüsselt. Referenzprüfung und Build-/Test-/Release-Verwendung begründen die Empfehlungen. Offene manuelle Nutzungen sind sichtbar. Sechs kleine Folgegruppen R21a–f und der Veröffentlichungsauftrag R22 ergänzen R10/R12/R15/R18–R20, ohne deren Arbeit doppelt zu beauftragen. Es wurde keine der empfohlenen Bereinigungen ausgeführt.
+
+**Prüfung des Ergebnisses:** Die Tabellenzählung wurde maschinell mit `git ls-files -z` verglichen: alle Hauptgruppen, alle 27 Root-Dateien und alle 1.116 Beispieldateien sind vollständig und ohne Doppelzuordnung erfasst; die sechs Experimentzahlen stimmen ebenfalls. Markdownlint wurde für diese normalerweise ausgeschlossene Plan-Datei ausdrücklich ausgeführt und besteht. Lokale Dateiziele ihrer Markdown-Links existieren; `git diff --check` ist sauber. Externe Webseiten wurden für diese Repo-Bestandsprüfung nicht erneut geprüft.
+
+## Hintergrund und Vorbemerkungen
+
+Stand: 4. Oktober 2026. Ursprüngliche Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung und die Full-Läufe vom 3. und 4. Oktober. Die Repo-Bestandsprüfung R17 bezieht sich auf `cb4dda6495530ad33ed703301ee3df9625ecf3ce`; ihre Zuordnung und Folgeaufgaben stehen am Ende dieses Plans. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
+
+Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
+
+**Beschlossenes Release-Ziel: v2.0.0.** Der Go-Modulpfad bleibt vorerst ohne `/v2`. Angeboten werden fertige Binaries und der lokale Build aus einem Repo-Checkout über `./scripts/buildTriceTool.sh`; versionierte Go-Modulinstallation von v2 wird vorerst nicht angeboten. R14 sichert diese Installationswege ab. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
+
+## Stand und Aussagegrenzen
+
+Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind und Insert/Clean einschließlich CE, Template-Parser, Decoder, strukturierte Ausgabe, Tags und Filter, Visualisierung, Transport- und Ausgabeabschluss, Target-Konfiguration und Testaufbau, Beispiele, aktives UM, README sowie Test- und Release-Workflows. Code und vorhandene Verhaltenstests wurden mit den dokumentierten Verträgen verglichen. Das ist eine breite statische Bestandsaufnahme mit konkreten Belegen, keine vollständige Fehlerfreiheitserklärung oder neue Hardware-Abnahme.
+
+Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der damaligen vollständigen Protokolle ausgewertet. Bei jener Bestandsaufnahme wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier damals abweichenden Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und zunächst unverändert gelassen. Ein späterer `testAll quick` für R13 hat die flachen Logdateien des Full-Laufs ersetzt; dessen hier festgehaltene Messwerte und Fehleranalyse bleiben historische Befunde.
+
+- Ergebnis laut der damaligen `testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheiterten. Die L432-Matrix mit 101 Konfigurationen bestand und brauchte etwa **20 Minuten 14 Sekunden**.
+- Im damaligen Lauf führten beide PC-Workflows jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheiterten, sechs Spezialläufe bestanden. Die fehlgeschlagenen Tests hießen jeweils `TestTriceLog`; es waren keine fehlgeschlagenen Compileraufrufe. Die spätere Beschleunigung und erfolgreiche PC-Abnahme stehen bei R06/R08/R09/P01/P04.
+- Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
+- Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
+- Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
+- Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die ursprüngliche Auswahl ließ sie aus; R07 aktiviert sie jetzt gezielt in Schritt 515 für `quick`, `full` und die Library CI. Normale Go-Unit-/Coverage-Läufe bleiben davon getrennt.
+- Aktuelle GitHub-Issues und Live-CI-Ergebnisse wurden nicht vollständig abgeglichen. Vor einer späteren Issue-Erstellung sind vorhandene Issues auf Dopplungen zu prüfen. Dieser Auftrag erstellt keine Issues.
+
+Die erledigten A1–A10 und der CE-Folgeauftrag für Insert/Clean sind aus der offenen Liste entfernt. Ihre Details bleiben im [historischen Abschlussbericht](obsolete/Implementierungsplan_bis_A10.md). Die früheren M01–M16 und Handovers bleiben im vorhandenen Archiv. Ein historisch erledigter Implementierungsauftrag ersetzt keine heutige Regressionstest-Abnahme; die frühere A6-Notiz zur `untagged:`-Erwartung wird durch den bei R01 präzisierten Ausgabevertrag neu bewertet.
+
+Vorhanden sind insbesondere:
+
+- Structured Logging mit skalaren 8/16/32/64-Bit-Werten, `triceS`/`triceN`, Text, NDJSON und KV; benannte Pufferfelder bleiben ausdrücklich ausgeschlossen.
+- CE für direkte, zeileneindeutige Bind-Stellen und für erkannte Insert/Clean-Aufrufe einschließlich statischer Wrapperdefinitionen. Insert/Clean verwendet den vollständigen Format-/Argumentsuffix, ohne Herkunftskommentare.
+- Tag-Aliase, Gewichte, Auswahl, `untagged`, Ereignisstatistik, getrennte Diagnosen, Zeitstempel und Deltas, Visualisierung sowie gemeinsame generierte Ablage über `-genDir`.
+- `generate -logC`, zusätzliche `*.oneline.json`-Ansichten und die PC-/G0B1-Feature-Beispiele.
+- Erhaltene CE-PoCs einschließlich Wrapper-/Counter-Rebase-Untersuchung. Deren allgemeine produktive Integration ist weiterhin zurückgestellt.
+
+## Ziel für Dokumentation und Orientierung
+
+README und User Manual sollen zum Ausprobieren einladen: Nutzen schnell erkennen, einen überschaubaren Einstieg finden und erst bei Bedarf Details nachschlagen. Das bisherige ausführliche UM bleibt inhaltlich erhalten und wird zu `docs/TriceReferenceManual.md`. Ein neues, deutlich kürzeres `docs/TriceUserManual.md` übernimmt den geführten Einstieg.
+
+| Dokument | Aufgabe im künftigen Aufbau |
+| --- | --- |
+| `README.md` | Kurze Vorstellung, Nutzen, kleines Beispiel mit Ausgabe, verlässlicher Startpunkt und kompakte Repo-Orientierung. |
+| `docs/TriceUserManual.md` | Schrittweise Anleitung vom ersten PC-Log bis zur eigenen Target-Anbindung; kurze Feature-Beispiele und gezielte Verweise auf Details. |
+| `docs/TriceReferenceManual.md` | Vollständige Verträge, Optionen, Konfiguration, Grenzen, Hintergrund und CE-PoC-Anhang; fachlich maßgebliches Nachschlagewerk. |
+| `docs/README.md` | Kurzer Dokumentationswegweiser mit Zielgruppe und Zweck der verbleibenden aktiven Dokumente; keine bloße Weiterleitungsdatei. |
+
+Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehenden Verweise angepasst sind. Für das gesamte Repo wird der Zweck jedes Verzeichnisses und jeder Datei geprüft. Die öffentliche Übersicht bleibt kompakt; die vollständige Bestandsprüfung wird dadurch nicht ersetzt. R17–R21 ergänzen dafür die bestehenden R10–R12, ohne Übersetzung und Einstieg doppelt zu beauftragen. Jetzt wird ausschließlich geplant.
+
+## Gewichtung und Planungshinweise
+
+**Gewicht:** 5 = vor Release zu klären oder abzustellen; 4 = hoher Nutzen für Zuverlässigkeit, Dokumentation oder Testdauer; 3 = sinnvolle Wartung nach den dringenden Punkten; 2 = optionaler Ausbau; 1 = bewusst zurückgestellt.
+
+**Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
+
+Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. R17 ist als lesende Bestandsprüfung abgeschlossen, nicht als Repo-Bereinigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+
+## Vorschlag für die nächsten Aufträge
+
+Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04 und die L432-Beschleunigung P03. Umsetzung und Nachweise stehen unten. P02 zur gezielten Go-/CGO-Cache-Invalidierung bleibt ein möglicher nächster Beschleunigungsschritt; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. R17 ist abgeschlossen. Als kleiner nächster Auftrag bietet sich R21a an; danach folgt R10 als Beginn der zusammenhängenden Handbucharbeit. P02 kann anhand neuer Plattformmessungen priorisiert werden. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
+
+R11 wurde auf Benutzerwunsch für den zeitnahen Merge von `wip` nach `main` vorgezogen und ist abgeschlossen, einschließlich der eng begrenzten Bereinigung von Aufgabenbezeichnungen innerhalb der beiden Kapitel. Den Merge führt der Benutzer auf GitHub aus. Nach der abgeschlossenen Bestandsprüfung folgt die Dokumentationsarbeit weiterhin **R10 Bereinigung → R18 Reference Manual → R19 kurzes User Manual → R12 README und Orientierung → R20 Weiterleitungsdateien entfernen → R22 Pages-Abnahme**. R21a ist davon unabhängig; R21b–f haben unten eigene Voraussetzungen. Die Dateiablage allein rechtfertigt weder neue Features noch einen Umbau der STM32-Beispiele oder der Testmatrix.
+
+R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02 und F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
