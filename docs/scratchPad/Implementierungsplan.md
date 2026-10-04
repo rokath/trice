@@ -207,19 +207,19 @@ Die leere Root-Datei `trice.bin` und die 226.455 Byte große Root-`til.c` hatten
 
 #### Unfertige Tools, ruhende Tests und Entwicklernotizen einordnen
 
-**R21d · Gewicht 3 · Aufwand S–M · Nach R10; Ablage nur bei geklärtem Nutzen ändern**
+**R21d · Gewicht 3 · Aufwand S–M · Erledigt**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
 Die unfertigen Werkzeuge `cmd/_cui` und `cmd/_stim` sind auf ausdrücklichen Benutzerauftrag mit allen fünf Dateien nach `docs/scratchPad/obsolete/cmd/` verschoben. Inhalte einschließlich Lizenzhinweisen sind unverändert; aktive Builds, Releases und Tests verwendeten diese Verzeichnisse nicht. Die Einträge für diese unfertigen Werkzeuge sind aus der aktiven UM-Dateiübersicht entfernt; Anwender brauchen keinen Verweis auf das Archiv. Dieser Teil ist erledigt.
 
-Offen bleiben die ruhenden Tests `cmd/trice/_main_update0_test.go` und `_main_update1_test.go`, die wegen ihres Namens nicht als normale Go-Tests ausgeführt werden. Prüfen, ob darin einzigartige noch relevante Szenarien liegen: gegebenenfalls in bestehende Verhaltenstests übernehmen, andernfalls als Entwicklungsnachweis einordnen. Nicht einfach umbenennen und damit ungeprüften alten Code aktivieren.
+Die ruhenden Tests prüften ausschließlich den 2025 entfernten Befehl `trice update`/`trice u` und dessen alte Stamp-/Makroformen. Parser-, ID-, Insert-, Makroalias- und Stamp-Verhalten liegen heute in aktiven Tests unter `internal/id` und `internal/args`. Die beiden nicht ausführbaren Dateien sind deshalb als Entwicklungsnachweis nach `docs/scratchPad/obsolete/cmd/trice/` verschoben, nicht als ungeprüfte Tests reaktiviert.
 
-`docs/GoInfos.txt` enthält kurze alte Go-Testwerkzeug-Links ohne gefundenen aktiven Verbraucher. Noch zutreffende Test-/Coverage-Hinweise in `CONTRIBUTING.md` zusammenführen, den Rest anschließend entfernen. `cmd/clang-filter/README.md` nennt ein nicht mehr so vorhandenes `clang-format.sh`; die tatsächliche Anbindung über `_280_format_c_code.sh` und den CI-Formatter erklären. Der Filter selbst ist aktiv und bleibt.
+`GoInfos.txt` wurde bereits zusammen mit anderen alten Entwicklernotizen nach `docs/scratchPad/` verschoben; der aktive `docs/`-Bestand enthält diese Datei nicht mehr. `CONTRIBUTING.md` nennt jetzt die tatsächlichen TestAll-/Coverage-Wege ohne die veralteten Zusatzframeworks. `cmd/clang-filter/ReadMe.md` beschreibt den aktuellen Aufruf über `scripts/_280_format_c_code.sh` und dessen gemeinsame CI-Anbindung. Der Filter selbst bleibt aktiv.
 
 Die von Hand nutzbaren Git-Helfer unter `scripts` und die bewusst beauftragten Codex-Umzugsskripte bleiben Entwicklerwerkzeuge. Im Entwickler-Einstieg knapp auffindbar machen, nicht in den ersten Anwender-Logweg aufnehmen. `docs/scratchPad/scratchPad.md` enthält derzeit nur auskommentierte Notizen und einen Trenner: keine offene Spezifikation daraus ableiten. Eine spätere Archivierung dieses aktiven Notizzettels ist eine eigene Ablageänderung, kein Anlass, vorhandene Archive anzufassen.
 
-**Abnahme:** Kein Verlust einzigartiger Testfälle; keine unbemerkte Erweiterung der ausgelieferten CLI. Entwicklerhinweise nennen die tatsächlich vorhandenen Werkzeuge und Tests. Ruhende Experimente sind als solche erkennbar. Die gemeinsame Neuablage der Handoverskripte, ihrer Tests und Anleitung ist als R24 erfasst; keine isolierte Verschiebung mit defekten Imports.
+**Abnahme:** Kein Verlust einzigartiger Testfälle und keine unbemerkte Erweiterung der ausgelieferten CLI. Die aktiven Insert-/Parser-Tests decken die relevanten alten Fälle ab. Entwicklerhinweise nennen die tatsächlich vorhandenen Werkzeuge und Tests. Ruhende Entwicklungsnachweise sind als solche erkennbar. Die gemeinsame Neuablage der Handoverskripte, ihrer Tests und Anleitung bleibt als R24 erfasst; keine isolierte Verschiebung mit defekten Imports.
 
 #### Dokumentationsbilder und Vergleichsberichte konsolidieren
 
@@ -718,7 +718,7 @@ Die Zuordnung beruht auf Dateiinventar, Einstiegstexten, aktiven Referenzen sowi
 
 Die vier nicht nummerierten Test-/Build-Einstiege sind `scripts/testAll.sh`, `format_repo.sh`, `buildTriceTool.sh` und `release_prep.sh`. Die drei `git*.sh`-Dateien dienen ausdrücklich manueller Entwicklungsarbeit und benötigen keinen CI-Aufrufer, um sinnvoll zu sein. Die fünf Testdateien prüfen PC-Worker, L432-Matrix, Logging-Auswahl, Skriptportabilität und Codex-Handover. Zusammen mit den 50 nummerierten Skripten sind damit alle 62 Dateien zugeordnet.
 
-`cmd/trice` enthält fünf aktive Dateien und zwei ruhende `_main_update*_test.go`; `cmd/tlog` zwei aktive Dateien. `cmd/clang-filter` (3) und `cmd/generate-helpall-doc` (2) sind Entwicklerwerkzeuge, keine unfertigen Produkt-CLIs. Die früheren `cmd/_cui` (2) und `cmd/_stim` (3) liegen inzwischen unverändert unter `docs/scratchPad/obsolete/cmd/`. Die Zahlen der Bestandsaufnahme bleiben historische Vergleichswerte.
+`cmd/trice` enthält fünf aktive Dateien; die zwei alten `main_update*_test.go` liegen als Entwicklungsnachweis unter `docs/scratchPad/obsolete/cmd/trice/`. `cmd/tlog` enthält zwei aktive Dateien. `cmd/clang-filter` (3) und `cmd/generate-helpall-doc` (2) sind Entwicklerwerkzeuge, keine unfertigen Produkt-CLIs. Die früheren `cmd/_cui` (2) und `cmd/_stim` (3) liegen inzwischen unverändert unter `docs/scratchPad/obsolete/cmd/`. Die Zahlen der Bestandsaufnahme bleiben historische Vergleichswerte.
 
 ### Beispiele und Tests sind keine beliebigen Doppelbestände
 
@@ -762,7 +762,7 @@ Die **215 Dokumentationsdateien** zerfallen in 16 direkte Dateien, 9 Bind-Dokume
 | `docs/README.md` | Derzeit pauschaler Verweis auf das UM; behauptet unzutreffend, die anderen Dateien seien nur Links. | Als eigenständigen Dokumentationswegweiser **behalten** und unter [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern) neu füllen. |
 | Zehn Weiterleitungsdateien, unten einzeln aufgeführt | Keine eigene fachliche Erklärung. | Unter [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) **entfernen**, nachdem aktive Verweise und Zielkapitel stimmen. |
 | `docs/scratchPad/Codex_Rechnerwechsel_DE.md` | Eigenständige, ausdrücklich beauftragte Anleitung für Entwickler; derzeit zusammen mit den Handover-Werkzeugen im Scratchpad. | Entwicklerablauf **erhalten**, Ablage und Aufrufbeispiele gemeinsam unter [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) bereinigen; nicht ins englische Anwenderhandbuch mischen. |
-| `docs/GoInfos.txt` | Acht Zeilen ältere Testwerkzeug-/Coverage-Notizen. | Verwertbare Hinweise in `CONTRIBUTING.md` **zusammenführen**, danach unter [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen) **entfernen**. |
+| `docs/scratchPad/GoInfos.txt` | Acht Zeilen ältere Testwerkzeug-/Coverage-Notizen. | Bereits außerhalb aktiver Dokumentation; die gültigen Testwege stehen nach [R21d](#unfertige-tools-ruhende-tests-und-entwicklernotizen-einordnen) in `CONTRIBUTING.md`. |
 | `docs/ChatGPTo4-mini-high_TriceCompare.html`, `docs/2026-02-16_ChatGPT5.2ProExtThinking_embedded_logging_tracing_comparison_trice_focus.html` | Zwei aus dem Root-README verlinkte Vergleichsberichte. | Datierte Fremdeinschätzungen; Einbindung unter [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), mögliche historische Ablage unter [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren) **noch klären**. |
 | `docs/TriceBind/` (damaliger Pfad) | README; Dateien 10/30: Spezifikation und Testanforderungen; 20/40/70: Implementierungsaufträge; 50: Bericht; 60: Strategien; 90: paralleles User Manual. | Nach [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) auf Benutzerauftrag inhaltlich abgeglichen und nach `docs/scratchPad/obsolete/TriceBind/` **verschoben**. Gültige Anwenderinformationen, Architekturvergleich und Testeinstiege stehen englisch im Handbuch. |
 | `docs/ref/` ohne `Backup.7z` | 67 PNG, 8 GIF, 8 SVG, 7 JPG, 2 Drawio-Quellen und eine generierte CLI-Hilfe. | Benötigte Quellen/Exporte **behalten**; fragliche Varianten [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren). Bilder nicht als aktuelle Messungen neu ausgeben. |

@@ -18,6 +18,18 @@ Contributions are welcome, especially:
 
 Use `github.com/stretchr/testify/assert` for new assertion-style Go tests to keep the test style consistent across the repository.
 
+Run the regular repository checks with:
+
+```sh
+./scripts/testAll.sh
+```
+
+Use `./scripts/testAll.sh full` before a final release-level change that
+affects target C code or compiler configurations. The regular suite already
+includes Go tests and coverage. Its logs and coverage profile are written below
+`temp/log/`; no browser-based test viewer or additional Go test framework is
+required.
+
 ## License of contributions
 
 By submitting a pull request to this repository, you agree that your contribution is provided under the project's MIT License (`LICENSE.md`).

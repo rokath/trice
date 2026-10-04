@@ -76,7 +76,7 @@ done
 #
 # But users may override this via CLANG_FILTER_CMD if they prefer
 # a pre-built binary, e.g.:
-#       CLANG_FILTER_CMD=./clang-filter ./clang-format.sh check
+#       CLANG_FILTER_CMD=./clang-filter ./scripts/_280_format_c_code.sh check
 ###############################################################################
 CLANG_FILTER_CMD="${CLANG_FILTER_CMD:-go run ./cmd/clang-filter}"
 
@@ -259,6 +259,8 @@ FORMAT_TMP_DIR="$(mktemp -d)" || {
 FORMAT_TMP_FILE="$FORMAT_TMP_DIR/output"
 
 # cleanup_format_tmp removes only artifacts created by this script invocation.
+# Invoked indirectly by the EXIT trap installed by the formatting workflow.
+# shellcheck disable=SC2329
 cleanup_format_tmp() {
   rm -f "$FORMAT_TMP_FILE"
   rmdir "$FORMAT_TMP_DIR" 2>/dev/null || true
