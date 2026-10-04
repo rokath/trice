@@ -342,6 +342,7 @@ build_test_plan() {
   if [ "$TEST_ALL_SELECTED" = "full" ]; then
     add_plan_step "_510_test_bind_workflows.sh"
   fi
+  add_plan_step "_515_test_logging_features.sh" "$TEST_ALL_SELECTED"
   add_plan_step "_520_test_target_code_lint.sh"
   add_plan_step "_530_test_links.sh"
   add_plan_step "_540_test_go.sh"
@@ -375,6 +376,7 @@ expected_step_weight() {
     full:_580_test_gcc_off.sh | full:_590_test_gcc_insert.sh | full:_600_test_gcc_bind.sh) printf '4\n' ;;
     full:_560_test_clang_insert.sh | full:_570_test_clang_bind.sh) printf '2\n' ;;
     full:_480_test_build_trice_tool.sh | full:_540_test_go.sh | full:_550_test_go_coverage.sh) printf '3\n' ;;
+    full:_515_test_logging_features.sh) printf '3\n' ;;
     full:_500_test_bind.sh | full:_510_test_bind_workflows.sh | full:_520_test_target_code_lint.sh | full:_530_test_links.sh) printf '2\n' ;;
     quick:_610_test_goreleaser_snapshot.sh) printf '55\n' ;;
     quick:_640_test_pc_targets_bind.sh) printf '12\n' ;;
@@ -382,7 +384,7 @@ expected_step_weight() {
     quick:_540_test_go.sh) printf '8\n' ;;
     quick:_530_test_links.sh | quick:_600_test_gcc_bind.sh) printf '5\n' ;;
     quick:_520_test_target_code_lint.sh) printf '4\n' ;;
-    quick:_480_test_build_trice_tool.sh | quick:_500_test_bind.sh) printf '3\n' ;;
+    quick:_480_test_build_trice_tool.sh | quick:_500_test_bind.sh | quick:_515_test_logging_features.sh) printf '3\n' ;;
     quick:_570_test_clang_bind.sh) printf '2\n' ;;
     *) printf '1\n' ;;
   esac
@@ -498,7 +500,7 @@ main() {
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
   if [ "$selected" = "quick" ]; then
-    summary_line "ID workflows: bind"
+    summary_line "ID workflows: bind (CE/SL fixtures also cover insert/clean)"
   else
     summary_line "ID workflows: bind plus legacy insert/clean"
   fi

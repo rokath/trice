@@ -79,6 +79,7 @@ jobs:
             libnewlib-dev \
             libnewlib-arm-none-eabi \
             clang \
+            clangd \
             llvm \
             lld
 
@@ -118,6 +119,10 @@ jobs:
           clang --version || true
           llvm-objcopy --version || true
           make --version
+
+      - name: Verify productive CE/SL and feature examples
+        shell: bash
+        run: ./scripts/_515_test_logging_features.sh full
 
       - name: Run build orchestrator (scripts/_220_ci_build.sh)
         shell: bash
