@@ -46,6 +46,17 @@
 
 ---
 
+## Switching Computers with Codex
+
+* Treat "Rechnerwechsel vorbereiten" ("prepare a computer switch") as a request to reach a recoverable stopping point. Start no new implementation or long test; let necessary cleanup and test-state restoration finish. Do not kill unrelated sessions or leave temporarily rewritten sources behind.
+* For unfinished work, update one concise handover at `docs/scratchPad/Codex_Handover.md`: goal, binding decisions and exclusions, current results, unfinished work, exact test commands and outcomes, required local-only files, and the next concrete step. Clearly distinguish passed, failed, skipped and interrupted tests. Do not put credentials into the handover.
+* Inspect tracked and untracked changes and existing local commits. Commit and push only when the user explicitly requests them, for example "Rechnerwechsel vorbereiten, committen und pushen". After a requested push, verify the actual remote branch commit; local tracking refs alone do not prove that the transfer succeeded. Otherwise report the remaining Git step concisely.
+* Finish with branch, commit, any remaining local-only material, and the next shell command from [the computer-switch guide](docs/Codex_Rechnerwechsel_DE.md). Delegate routine checks to the scripts; do not require users to choose a Python invocation or repeat a long manual checklist.
+* The user runs `./scripts/codex_handover_export.sh` after closing Codex, then `./scripts/codex_handover_start.sh` on the destination. Never export/import a personal profile while this session is still active, silently stop other Codex processes, or copy credentials/configuration to make a transfer work.
+* On "Rechnerwechsel fortsetzen" ("continue after a computer switch"), read the handover if present, check the actual checkout and needed tools, preserve prior decisions, and resume the recorded next step. Report a missing prerequisite without inventing lost work or treating earlier tests as tests of the new machine.
+
+---
+
 ## Editing Rules
 
 * Use `apply_patch` for manual text edits.
@@ -179,6 +190,7 @@
 
 ## Commits
 
+* Always write Git commit messages entirely in English, including the subject and body, regardless of the conversation language. When reporting created commits, quote their actual English subjects rather than substituting translated summaries.
 * An explicit commit request, including a follow-up message such as "commit", authorizes the complete task-related commit workflow: inspect with `git status`/`git diff`, stage with `git add`, verify the staged diff, and create the requested `git commit` or cohesive commits. Do not request additional approval for any of these steps or ask the user to reconfirm the commit request. This authorization does not include `git push` or later, unrequested commits.
 * Reuse approved command prefixes for each Git step. Run read-only checks separately from Git writes so that a combined command does not trigger an unnecessary platform approval for `git diff` or `git status`. Repository instructions do not override enforced sandbox restrictions; request a platform approval only when the required write has no already-approved execution path.
 * If asked only to "commit first", create the requested commits without inferring further implementation work. If the user explicitly says "commit, then implement ...", complete both steps in that order without another confirmation between them.

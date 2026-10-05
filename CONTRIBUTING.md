@@ -30,6 +30,15 @@ includes Go tests and coverage. Its logs and coverage profile are written below
 `temp/log/`; no browser-based test viewer or additional Go test framework is
 required.
 
+## Continuing a Codex task on another computer
+
+Use the shell entry points `./scripts/codex_handover_export.sh` and
+`./scripts/codex_handover_start.sh` on macOS, Linux, or Windows with Git Bash.
+The [computer-switch guide (German)](docs/Codex_Rechnerwechsel_DE.md) starts
+with the short workflow and explains automatic checks and recovery afterwards.
+Run their isolated behavioral tests with `./scripts/test_codex_handover.sh -v`.
+These developer tools are independent of the Trice runtime and regular TestAll suite.
+
 ## License of contributions
 
 By submitting a pull request to this repository, you agree that your contribution is provided under the project's MIT License (`LICENSE.md`).
