@@ -16,6 +16,7 @@
 | [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren) | Erledigt | Dokumentationsbilder und Vergleichsberichte konsolidieren | 3 | M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Erledigt | Codex-Umzugswerkzeuge unter scripts mit Shell-Einstiegen und kurzer Anleitung | 3 | M | Eigenständiger Entwicklerablauf; ZIP-/Resume-Verhalten erhalten |
+| [R25](#ids-identischer-trices-deterministisch-zuordnen) | Entwurf | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Bestehende ID-Regeln berücksichtigen; Umsetzung und Release-Zuordnung noch nicht beauftragt |
 | [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und Veröffentlichungsumfang eindeutig machen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren); Bestandsbefund aus [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
 | [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) abgeschlossen; kein `/v2` beschlossen |
 | [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R14](#checkout-binary-installationswege-für-v2-absichern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren), [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang), [R23](#beispielanleitungen-zentralisieren-und-readmes-auf-links-reduzieren) |
@@ -272,6 +273,38 @@ Die Skripte zeigen Branch, Commit, Codex-Version und Profil an. Die bisherigen P
 **Abnahme:** Beschreibende Tests sichern Plattformauswahl, Pfade mit Leerzeichen, unveränderte Argumente, Fehlercodes, fehlende Anmeldung/CLI und den bisherigen vollständigen ZIP-/Resume-Ablauf ab. Die Windows-/Linux-Fälle sind simuliert; ein tatsächlicher Umzug auf diesen Systemen ist damit nicht behauptet. TestAll startet diese eigenständigen Entwicklerwerkzeug-Tests weiterhin nicht.
 
 **Prüfung:** Alle 51 Tests bestehen auf macOS, einschließlich der produktiven Versions-Leseprobe und des bisherigen echten `thread/read`-Nachweises mit Codex CLI 0.160.0 in isolierten Profilen ohne Modellanfrage. Die Versionspaare 0.151.0 → 0.152.0 und 0.151.0 → 0.150.0 sind simuliert, nicht mit diesen historischen Binärdateien ausgeführt. ShellCheck und Shell-Format waren bei Einführung der unveränderten Shell-Einstiege erfolgreich; Markdownlint und lokale Links der angepassten Anleitung werden mitgeprüft. Persönliche Codex-Daten wurden nicht exportiert oder importiert.
+
+### IDs identischer Trices deterministisch zuordnen
+
+**R25 · Gewicht 3 · Aufwand M · Aufgabenentwurf; noch kein Implementierungsauftrag**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Ziel:** Bei unverändertem Quellbestand und gleichem verfügbaren ID-Bestand erhalten identische Trices reproduzierbar dieselben Zuordnungen. Dateisuchreihenfolge, parallele Verarbeitung und zufällige Abschlussreihenfolge einzelner Worker dürfen keinen Einfluss haben. Ein neuer CLI-Schalter oder ein zusätzlicher manueller Sortieraufruf soll dafür nicht nötig sein.
+
+**Bestätigte Entscheidung:** Ändert sich die Gruppe identischer Trices, dürfen die IDs ihrer bisherigen Logstellen wechseln. Insbesondere darf ein dritter identischer Trice die Zuordnung der ersten beiden verändern. Dauerhafte Identität einer einzelnen Logstelle über solche Änderungen hinweg ist ausdrücklich kein Ziel dieser Aufgabe.
+
+**Vorgeschlagene einfache Regel:** Innerhalb jeder Gruppe identischer, bezüglich Typ und ID-Regeln austauschbarer Trices werden die Logstellen zuerst nach normalisiertem relativem Dateipfad, dann nach numerischer Zeilennummer sortiert. Mehrere Logstellen derselben Zeile werden nach ihrer Quellposition von links nach rechts geordnet. Die zugehörigen zulässigen IDs werden numerisch aufsteigend sortiert und in dieser Reihenfolge zugewiesen. Der Pfadvergleich muss unabhängig von Betriebssystem und Locale definiert sein, etwa mit `/` als Trenner und einem ordinalen, groß-/kleinschreibungssensitiven Vergleich. Absolute Checkout-Pfade dürfen nicht entscheiden.
+
+Beispiel mit drei zulässigen IDs derselben Gruppe:
+
+| Bestand | Sortierte Logstelle | Zugeordnete ID |
+| --- | --- | ---: |
+| Vorher | `b.c:10` | 100 |
+| Vorher | `d.c:20` | 200 |
+| Nach Hinzufügen von `a.c:5` und Bereitstellen von ID 300 | `a.c:5` | 100 |
+| Nachher | `b.c:10` | 200 |
+| Nachher | `d.c:20` | 300 |
+
+Dass hier **beide bisherigen Logstellen eine andere ID erhalten**, ist gewollt und zulässig. Ein weiterer Lauf mit demselben Bestand muss genau diese Zuordnung beibehalten. Auch Entfernen oder Verschieben einer identischen Logstelle darf zu einer neuen, wiederum deterministischen Zuordnung führen.
+
+**Umsetzungsansatz zur Prüfung:** Dateien weiterhin parallel analysieren, danach die vollständigen Gruppenergebnisse sammeln und die Zuordnung in einem deterministischen Schritt festlegen. Erst anschließend Quellen beziehungsweise Bind-Artefakte sowie TIL/LI konsistent schreiben. Ein nachgelagerter interner Sortierschritt ist möglich; nur `li.json` nachträglich umzuschreiben wäre falsch, weil die tatsächlich verwendeten IDs dazu passen müssen. Die Regel soll für Bind und Insert sowie nach einem Clean/Insert-Zyklus nachvollziehbar gelten; Clean selbst erhält dadurch keine neue ID-Vergabe.
+
+**Abgrenzung vor Umsetzung:** „Identisch“ anhand der vorhandenen Trice-Identitätsregeln bestimmen, nicht allein anhand gleich aussehender Logausgabe. Vorhandene Typ-/Bereichsregeln und etwaige gemeinsame ID-Nutzung bleiben maßgeblich. Keine globale Neunummerierung unterschiedlicher Trices, keine Löschung historischer TIL-Einträge und keine neue Vergabestrategie für den ID-Vorrat als Nebenwirkung. Den Umgang mit ausdrücklich festgelegten IDs und unvollständigen beziehungsweise überlappenden Scanbereichen vor Implementierungsbeginn klären: Eine Teilmenge darf nicht unbemerkt Zuordnungen außerhalb ihres Zuständigkeitsbereichs verändern.
+
+**Abnahme mit beschreibenden Tests:** Wiederholte Läufe sowie umgekehrte Dateireihenfolge und unterschiedliche Worker-Abschlussreihenfolgen ergeben identische Zuordnungen. Das Beispiel mit dem dritten Trice, Entfernen/Verschieben, mehrere Logstellen derselben Zeile und unterschiedliche relative Pfade sind ausdrücklich abgedeckt. Nicht identische oder nicht austauschbare Trices bleiben getrennt. Quellen/Sidecars, TIL und LI stimmen nach jedem Lauf überein; die erzeugten Records werden weiterhin richtig dekodiert. Die Anwenderdokumentation erklärt die Sortierregel und die bewusst erlaubten ID-Wechsel bei Bestandsänderungen mit einem kurzen Beispiel.
+
+Diese Aufgabe ist noch nicht als Voraussetzung für das nächste Release festgelegt.
 
 ### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
 
