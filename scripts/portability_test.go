@@ -589,23 +589,35 @@ func TestClangFormatCompatibility(t *testing.T) {
 		version, replacements string
 		failure               bool
 	}{
-		{"19.1.3", "1", false}, {"19.1.70", "1", false}, {"20.1.0", "1", false}, {"unknown", "1", false},
-		{"19.1.7", "0", false}, {"19.1.7", "1", true}, {"missing", "0", false},
+		{"19.1.7", "1", false}, {"23.1.20", "1", false}, {"24.1.0", "1", false}, {"unknown", "1", false},
+		{"23.1.2", "0", false}, {"23.1.2", "1", true}, {"missing", "0", false},
 	} {
 		t.Run(tc.version+"_"+tc.replacements, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_430_test_clang_format.sh", "scripts/_280_format_c_code.sh")
 			writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf 'sample.c\\n'\n")
-			writeFixture(t, root, "bin/go", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "bin/formatter", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo \"clang-format version $VERSION\"; elif [ \"$REPLACEMENTS\" = 1 ]; then echo '<replacement offset=\"0\" length=\"1\"> </replacement>'; fi\n")
+			writeFixture(t, root, "bin/go", "#!/bin/sh\necho unexpected-go; exit 99\n")
+			writeFixture(t, root, "bin/formatter", `#!/bin/sh
+if [ "$1" = --version ]; then
+  echo "clang-format version $VERSION"
+elif [ "$1" = --dry-run ] && [ "$REPLACEMENTS" = 1 ]; then
+  echo 'sample.c:1:10: error: code should be clang-formatted'
+  exit 1
+fi
+`)
 			writeFixture(t, root, "sample.c", "int main(void){return 0;}\n")
 			formatter := "./bin/formatter"
 			if tc.version == "missing" {
 				formatter = "./bin/not-installed"
 			}
-			out, err := runFixture(t, root, "bash scripts/_430_test_clang_format.sh", map[string]string{"CLANG_FORMAT_BIN": formatter, "VERSION": tc.version, "REPLACEMENTS": tc.replacements, "CLANG_FILTER_CMD": "cat"})
+			out, err := runFixture(t, root, "bash scripts/_430_test_clang_format.sh", map[string]string{"CLANG_FORMAT_BIN": formatter, "VERSION": tc.version, "REPLACEMENTS": tc.replacements})
 			assert.Equal(t, tc.failure, err != nil, out)
-			if tc.version != "19.1.7" {
+			assert.NotContains(t, out, "unexpected-go")
+			if tc.version != "23.1.2" {
 				assert.Contains(t, out, "SKIP:")
+			}
+			if tc.failure {
+				assert.Contains(t, out, "sample.c:1:10: error:")
+				assert.Contains(t, out, "::error::")
 			}
 			data, err := os.ReadFile(filepath.Join(root, "sample.c"))
 			assert.NoError(t, err)
@@ -621,19 +633,15 @@ func clangBootstrapFixture(t *testing.T, platform string) (string, map[string]st
 	t.Helper()
 	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_430_test_clang_format.sh", "scripts/_280_format_c_code.sh")
 	writeFixture(t, root, "bin/git", "#!/bin/sh\necho sample.c\n")
-	writeFixture(t, root, "bin/go", "#!/bin/sh\nexit 0\n")
+	writeFixture(t, root, "bin/go", "#!/bin/sh\necho unexpected-go; exit 99\n")
 	writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo \"$PLATFORM\"; else echo x86_64; fi\n")
 	writeFixture(t, root, "bin/clang-format", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo 'clang-format version 19.1.3'; else echo wrong-system-formatter; exit 29; fi\n")
 	writeFixture(t, root, "sample.c", "int value=1;\n")
 	writeFixture(t, root, "seed/formatter", `#!/bin/sh
 if [ "$1" = --version ]; then
-  echo "clang-format version ${INSTALLED_VERSION:-19.1.7}"
+  echo "clang-format version ${INSTALLED_VERSION:-23.1.2}"
 else
-  case "$*" in
-    *-dump-config*) exit 0 ;;
-    *-output-replacements-xml*) echo '<replacements/>' ;;
-    *) echo 'int value = 1;' ;;
-  esac
+  if [ "$1" = -i ]; then echo 'int value = 1;' > sample.c; fi
 fi
 `)
 	writeFixture(t, root, "seed/venv-python", `#!/bin/sh
@@ -655,12 +663,12 @@ cp "$SEED_PYTHON" "$3/$VENV_BIN/$VENV_PYTHON"
 `)
 	}
 	env := map[string]string{
-		"PLATFORM": platform, "CLANG_FORMAT_BIN": "", "CLANG_FILTER_CMD": "cat",
+		"PLATFORM": platform, "CLANG_FORMAT_BIN": "",
 		"VENV_BIN": "bin", "VENV_PYTHON": "python", "FORMATTER_NAME": "clang-format",
 		"SETUP_LOG": filepath.Join(root, "setup.log"), "SEED_PYTHON": filepath.Join(root, "seed/venv-python"),
 		"SEED_FORMATTER": filepath.Join(root, "seed/formatter"),
 	}
-	if strings.HasPrefix(platform, "MINGW") {
+	if strings.HasPrefix(platform, "MINGW") || strings.HasPrefix(platform, "MSYS") || strings.HasPrefix(platform, "CYGWIN") {
 		env["VENV_BIN"], env["VENV_PYTHON"], env["FORMATTER_NAME"] = "Scripts", "python.exe", "clang-format.exe"
 	}
 	return root, env
@@ -669,21 +677,26 @@ cp "$SEED_PYTHON" "$3/$VENV_BIN/$VENV_PYTHON"
 // TestClangFormatAutomaticSetup checks first-run installation, native Windows
 // layout, offline cache reuse and honoring an explicit user tool selection.
 func TestClangFormatAutomaticSetup(t *testing.T) {
-	for _, platform := range []string{"Darwin", "Linux", "MINGW64_NT"} {
+	for _, platform := range []string{"Darwin", "Linux", "MINGW64_NT-10.0-26300", "MSYS_NT-10.0", "CYGWIN_NT-10.0"} {
 		t.Run(platform, func(t *testing.T) {
 			root, env := clangBootstrapFixture(t, platform)
 			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh format", env)
 			assert.NoError(t, err, out)
-			assert.Contains(t, out, "Using clang-format version 19.1.7")
+			assert.Contains(t, out, "Using clang-format version 23.1.2")
 			data, err := os.ReadFile(filepath.Join(root, "sample.c"))
 			assert.NoError(t, err)
 			assert.Equal(t, "int value = 1;\n", string(data))
 			setup, err := os.ReadFile(filepath.Join(root, "setup.log"))
 			assert.NoError(t, err)
 			assert.Equal(t, 1, strings.Count(string(setup), "pip -m pip install "))
-			assert.Contains(t, string(setup), "clang-format==19.1.7")
+			assert.Contains(t, string(setup), "clang-format==23.1.2")
 			assert.Contains(t, string(setup), "--only-binary=:all:")
 			assert.Contains(t, string(setup), "--no-input")
+			if env["VENV_BIN"] == "Scripts" {
+				assert.Contains(t, string(setup), "windows-x86_64")
+				// A Windows update must reuse the cache despite a new uname suffix.
+				env["PLATFORM"] = "MINGW64_NT-10.0-99999"
+			}
 
 			// A cached formatter must work even when bootstrap Python is absent.
 			env["FAIL_STAGE"] = "python"
@@ -700,6 +713,110 @@ func TestClangFormatAutomaticSetup(t *testing.T) {
 			out, err = runFixture(t, root, "bash scripts/_280_format_c_code.sh format", env)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, "Explicit CLANG_FORMAT_BIN")
+		})
+	}
+}
+
+// TestClangFormatSetupOnly ensures CI can bootstrap without normalizing sources
+// before the check, which would otherwise hide a formatting regression.
+func TestClangFormatSetupOnly(t *testing.T) {
+	root, env := clangBootstrapFixture(t, "Linux")
+	out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh setup", env)
+	assert.NoError(t, err, out)
+	assert.Contains(t, out, "Ready: clang-format version 23.1.2")
+	data, err := os.ReadFile(filepath.Join(root, "sample.c"))
+	assert.NoError(t, err)
+	assert.Equal(t, "int value=1;\n", string(data))
+}
+
+// TestClangFormatNativeCache verifies that broken launchers and unavailable
+// Python cannot prevent reusing the real binary inside a relocated wheel.
+func TestClangFormatNativeCache(t *testing.T) {
+	for _, layout := range []struct{ platform, native, launcher string }{
+		{"Linux", "Linux-x86_64/lib/python3.13/site-packages/clang_format/data/bin/clang-format", "Linux-x86_64/bin/clang-format"},
+		{"Darwin", "Darwin-x86_64/clang_format/data/bin/clang-format", "Darwin-x86_64/bin/clang-format"},
+		{"MINGW64_NT-10.0", "windows-x86_64/Lib/site-packages/clang_format/data/bin/clang-format.exe", "windows-x86_64/Scripts/clang-format.exe"},
+		{"MSYS_NT-10.0", "windows-x86_64/clang_format/data/bin/clang-format.exe", "windows-x86_64/Scripts/clang-format.exe"},
+	} {
+		t.Run(layout.platform, func(t *testing.T) {
+			root, env := clangBootstrapFixture(t, layout.platform)
+			data, err := os.ReadFile(filepath.Join(root, "seed/formatter"))
+			assert.NoError(t, err)
+			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.native, string(data))
+			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.launcher, "#!/bin/sh\necho broken-launcher; exit 99\n")
+			env["FAIL_STAGE"] = "python"
+			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh setup", env)
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, layout.native)
+			assert.NotContains(t, out, "broken-launcher")
+			_, err = os.Stat(filepath.Join(root, "setup.log"))
+			assert.True(t, os.IsNotExist(err))
+		})
+	}
+}
+
+// TestClangFormatBatch checks the one-process contract, unchanged check inputs,
+// list cleanup, empty repositories, and failures before or during the batch.
+func TestClangFormatBatch(t *testing.T) {
+	for _, scenario := range []string{"check", "format", "empty", "git-failure", "config-failure", "batch-failure"} {
+		t.Run(scenario, func(t *testing.T) {
+			root, env := clangBootstrapFixture(t, "Linux")
+			env["CLANG_FORMAT_BIN"] = "./bin/formatter"
+			env["SCENARIO"] = scenario
+			writeFixture(t, root, "bin/git", `#!/bin/sh
+case "$SCENARIO" in
+  empty) exit 0 ;;
+  git-failure) echo 'cannot read index' >&2; exit 1 ;;
+esac
+printf 'sample.c\npath with spaces/ü.hpp\n'
+`)
+			writeFixture(t, root, "bin/formatter", `#!/bin/sh
+if [ "$1" = --version ]; then echo 'clang-format version 23.1.2'; exit 0; fi
+case "$*" in
+  *-dump-config*) [ "$SCENARIO" != config-failure ]; exit $? ;;
+esac
+printf '%s\n' "$*" >> calls.log
+for arg in "$@"; do
+  case "$arg" in
+    --files=*) list=${arg#--files=}; cat "$list" > received.txt; printf '%s' "$list" > list-path.txt ;;
+  esac
+done
+[ "$SCENARIO" != batch-failure ] || exit 1
+if [ "$1" = -i ]; then echo 'int value = 1;' > sample.c; fi
+`)
+			mode := "check"
+			if scenario == "format" {
+				mode = "format"
+			}
+			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh "+mode+" --verbose", env)
+			assert.Equal(t, strings.HasSuffix(scenario, "failure"), err != nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "calls.log"))
+			if scenario == "empty" || scenario == "git-failure" || scenario == "config-failure" {
+				assert.True(t, os.IsNotExist(readErr), out)
+			} else {
+				assert.NoError(t, readErr)
+				assert.Equal(t, 1, strings.Count(string(calls), "\n"))
+				assert.Contains(t, string(calls), "--verbose")
+				if mode == "check" {
+					assert.Contains(t, string(calls), "--dry-run --Werror")
+				} else {
+					assert.Contains(t, string(calls), "-i ")
+				}
+				list, err := os.ReadFile(filepath.Join(root, "received.txt"))
+				assert.NoError(t, err)
+				assert.Equal(t, "sample.c\npath with spaces/ü.hpp\n", string(list))
+				path, err := os.ReadFile(filepath.Join(root, "list-path.txt"))
+				assert.NoError(t, err)
+				_, err = os.Stat(string(path))
+				assert.True(t, os.IsNotExist(err), "temporary file list must be removed even after failure")
+			}
+			data, err := os.ReadFile(filepath.Join(root, "sample.c"))
+			assert.NoError(t, err)
+			want := "int value=1;\n"
+			if mode == "format" {
+				want = "int value = 1;\n"
+			}
+			assert.Equal(t, want, string(data))
 		})
 	}
 }

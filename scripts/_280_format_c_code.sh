@@ -6,8 +6,8 @@
 #
 # This script:
 #   - Enumerates *all* tracked C/C++ source/header files via `git ls-files`
-#   - Filters them using `.clang-format-ignore` by calling a Go-based helper
-#     (`cmd/clang-filter`), executed via `go run`
+#   - Lets clang-format apply `.clang-format-ignore` natively
+#   - Processes the file list in one clang-format batch
 #   - Runs clang-format either in:
 #       * FORMAT MODE (in-place changes)
 #       * CHECK MODE (no changes, CI-friendly, prints GitHub annotations)
@@ -21,18 +21,15 @@
 #   ./scripts/_280_format_c_code.sh                 # defaults to FORMAT mode
 #   ./scripts/_280_format_c_code.sh check           # explicit CHECK mode
 #   ./scripts/_280_format_c_code.sh format          # FORMAT mode (modify files)
+#   ./scripts/_280_format_c_code.sh setup           # install/validate tool only
 #   ./scripts/_280_format_c_code.sh check --verbose
 #   ./scripts/_280_format_c_code.sh format --verbose
 #
 # Environment:
-#   CLANG_FILTER_CMD can override how clang-filter is invoked.
-#   By default we use:
-#       go run ./cmd/clang-filter
-#   which means no binary needs to be checked in or built manually.
 #   CLANG_FORMAT_BIN can select the required clang-format executable when it is
 #   not named `clang-format` on the current platform. An explicit selection is
 #   respected; unset it to enable automatic setup.
-#   FORMAT mode installs a missing canonical formatter into ./temp/tools using
+#   FORMAT and SETUP install a missing canonical formatter into ./temp/tools using
 #   Python 3's venv and pip, just like CI. CHECK mode only reuses available tools
 #   and never downloads them. The system Python/clang-format are not modified.
 #
@@ -44,14 +41,14 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
 
 ###############################################################################
-# 1. Decide which mode we run in — FORMAT or CHECK
+# Decide which mode to run: FORMAT, CHECK, or tool-only SETUP.
 ###############################################################################
 MODE="format"
 VERBOSE=0
 
 for arg in "$@"; do
   case "$arg" in
-    format | check)
+    format | check | setup)
       MODE="$arg"
       ;;
     -v | --verbose)
@@ -59,26 +56,15 @@ for arg in "$@"; do
       ;;
     *)
       echo "Unknown argument: '$arg'"
-      echo "Usage: $0 [format|check] [--verbose]"
+      echo "Usage: $0 [format|check|setup] [--verbose]"
       exit 2
       ;;
   esac
 done
 
 ###############################################################################
-# 2. Define how clang-filter should be invoked.
-#
-# clang-filter is a small Go program that implements gitignore-style
-# path filtering, using `.clang-format-ignore`.
-#
-# By default we call:
-#       go run ./cmd/clang-filter
-#
-# But users may override this via CLANG_FILTER_CMD if they prefer
-# a pre-built binary, e.g.:
-#       CLANG_FILTER_CMD=./clang-filter ./scripts/_280_format_c_code.sh check
+# Select the canonical formatter, independent of the host's default version.
 ###############################################################################
-CLANG_FILTER_CMD="${CLANG_FILTER_CMD:-go run ./cmd/clang-filter}"
 
 # clang-format output is not guaranteed to be stable across releases. Keep the
 # repository and CI on the exact release that produced the checked-in files so
@@ -101,8 +87,28 @@ clang_format_has_required_version() {
   esac
 }
 
+# find_cached_clang_format prefers native wheel binaries over Python launchers,
+# so moving a checkout or losing its bootstrap interpreter does not break reuse.
+find_cached_clang_format() {
+  local tool_dir="$1"
+  local candidate
+  for candidate in \
+    "$tool_dir/clang_format/data/bin/clang-format" \
+    "$tool_dir/clang_format/data/bin/clang-format.exe" \
+    "$tool_dir"/lib/python*/site-packages/clang_format/data/bin/clang-format \
+    "$tool_dir/Lib/site-packages/clang_format/data/bin/clang-format.exe" \
+    "$tool_dir/bin/clang-format" \
+    "$tool_dir/Scripts/clang-format.exe"; do
+    if clang_format_has_required_version "$candidate"; then
+      CLANG_FORMAT_BIN="$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
 # ensure_clang_format prefers a compatible selected/system binary, then a local
-# cache. Only explicit formatting may bootstrap that cache; failed setup stops
+# cache. Only format/setup may bootstrap that cache; failed setup stops
 # before any source is formatted. Separate platform/architecture directories
 # avoid reusing native binaries across dual-boot systems or shared checkouts.
 ensure_clang_format() {
@@ -116,7 +122,7 @@ ensure_clang_format() {
 
   platform="$(uname -s)"
   case "$platform" in
-    MINGW*|MSYS*|CYGWIN*) platform="windows" ;;
+    MINGW* | MSYS* | CYGWIN*) platform="windows" ;;
   esac
   tool_dir="./temp/tools/clang-format-$CLANG_FORMAT_REQUIRED_VERSION/$platform-$(uname -m)"
 
@@ -125,18 +131,8 @@ ensure_clang_format() {
     return 0
   fi
   detected="$CLANG_FORMAT_VERSION_OUTPUT"
-  if [ -z "${CLANG_FORMAT_BIN:-}" ]; then
-    for candidate in \
-      "$tool_dir/bin/clang-format" \
-      "$tool_dir/clang_format/data/bin/clang-format.exe" \
-      "$tool_dir/Lib/site-packages/clang_format/data/bin/clang-format.exe" \
-      "$tool_dir/Scripts/clang-format.exe"
-    do
-      if clang_format_has_required_version "$candidate"; then
-        CLANG_FORMAT_BIN="$candidate"
-        return 0
-      fi
-    done
+  if [ -z "${CLANG_FORMAT_BIN:-}" ] && find_cached_clang_format "$tool_dir"; then
+    return 0
   fi
 
   if [ "$MODE" = "check" ]; then
@@ -145,7 +141,7 @@ ensure_clang_format() {
       echo "MISSING TOOL: $requested"
     fi
     echo "SKIP: clang-format check requires $CLANG_FORMAT_REQUIRED_VERSION for reproducible output; detected $detected."
-    echo "Hint: run ./scripts/_280_format_c_code.sh format for automatic setup, or set CLANG_FORMAT_BIN."
+    echo "Hint: run ./scripts/_280_format_c_code.sh setup for automatic setup, or set CLANG_FORMAT_BIN."
     exit 0
   fi
   if [ -n "${CLANG_FORMAT_BIN:-}" ]; then
@@ -193,74 +189,24 @@ ensure_clang_format() {
     echo "clang-format: Installation into $tool_dir failed; check network/wheel availability and rerun. No C/C++ sources were formatted." >&2
     return 1
   fi
-  for candidate in \
-      "$tool_dir/bin/clang-format" \
-      "$tool_dir/clang_format/data/bin/clang-format.exe" \
-      "$tool_dir/Lib/site-packages/clang_format/data/bin/clang-format.exe" \
-      "$tool_dir/Scripts/clang-format.exe"
-  do
-    if clang_format_has_required_version "$candidate"; then
-      CLANG_FORMAT_BIN="$candidate"
-      echo "clang-format: Using $CLANG_FORMAT_VERSION_OUTPUT from $CLANG_FORMAT_BIN."
-      return 0
-    fi
-  done
+  if find_cached_clang_format "$tool_dir"; then
+    echo "clang-format: Using $CLANG_FORMAT_VERSION_OUTPUT from $CLANG_FORMAT_BIN."
+    return 0
+  fi
   echo "clang-format: Setup did not produce a working version $CLANG_FORMAT_REQUIRED_VERSION in $tool_dir; detected $CLANG_FORMAT_VERSION_OUTPUT." >&2
   return 1
 }
 
 ensure_clang_format
 
-###############################################################################
-# 3. Collect *all* tracked C/C++ source/header files from git.
-#
-# We include all common extensions:
-#   .c .h .cpp .hpp .cc .hh .cxx .hxx
-#
-# Using `git ls-files` ensures:
-#   - Only tracked files are formatted (vendor directories may be ignored)
-#   - Works identically in CI and locally
-###############################################################################
-ALL_FILES="$(
-  git ls-files \
-    '*.c' '*.h' \
-    '*.cpp' '*.hpp' \
-    '*.cc' '*.hh' \
-    '*.cxx' '*.hxx'
-)"
-
-if [ -z "$ALL_FILES" ]; then
+if [ "$MODE" = "setup" ]; then
+  echo "clang-format: Ready: $CLANG_FORMAT_VERSION_OUTPUT from $CLANG_FORMAT_BIN."
   exit 0
 fi
 
 ###############################################################################
-# 4. Filter files using `.clang-format-ignore` via clang-filter
-#
-# clang-filter receives file paths on STDIN and prints only those that
-# *should NOT be ignored*, according to Gitignore rules.
-#
-# The result becomes the final list of files used for formatting/checking.
-###############################################################################
-FILTERED_FILES=()
-
-while IFS= read -r f; do
-  # Skip empty lines (just in case)
-  [ -n "$f" ] && [ -e "$f" ] && FILTERED_FILES+=("$f")
-done < <(printf '%s\n' "$ALL_FILES" | $CLANG_FILTER_CMD)
-
-if [ "${#FILTERED_FILES[@]}" -eq 0 ]; then
-  exit 0
-fi
-
-###############################################################################
-# 5. Validate the configuration and prepare isolated stdin processing.
-#
-# clang-format also reads .clang-format-ignore itself when a real file name is
-# passed. Releases with the old negation implementation can incorrectly ignore
-# unrelated files when the ignore file contains re-inclusion patterns. The Go
-# filter above already made the authoritative selection, so process each file
-# via stdin with a guaranteed-nonexistent assumed path. This preserves language
-# detection without triggering clang-format's second ignore-file evaluation.
+# Validate configuration before any in-place edit, then collect tracked paths.
+# Native ignore handling keeps vendor and scratch-pad files out of the batch.
 ###############################################################################
 if ! "$CLANG_FORMAT_BIN" -style=file:.clang-format -dump-config >/dev/null; then
   echo "clang-format: Failed to parse .clang-format." >&2
@@ -272,92 +218,43 @@ FORMAT_TMP_DIR="$(mktemp -d)" || {
   echo "clang-format: Failed to create a temporary directory." >&2
   exit 1
 }
-FORMAT_TMP_FILE="$FORMAT_TMP_DIR/output"
+# A private list avoids collisions between concurrent checks and command-line
+# length limits on Windows. Git leaves spaces and UTF-8 path bytes intact.
+FILES_LIST="$FORMAT_TMP_DIR/files"
 
 # cleanup_format_tmp removes only artifacts created by this script invocation.
 # Invoked indirectly by the EXIT trap installed by the formatting workflow.
 # shellcheck disable=SC2329
 cleanup_format_tmp() {
-  rm -f "$FORMAT_TMP_FILE"
+  rm -f "$FILES_LIST"
   rmdir "$FORMAT_TMP_DIR" 2>/dev/null || true
 }
 trap cleanup_format_tmp EXIT
 
-# clang_format_file writes formatted output or replacement XML for one source
-# file to stdout. The nonexistent assumed path retains the source extension but
-# cannot match clang-format's native ignore processing.
-clang_format_file() {
-  local source_file="$1"
-  shift
-  local extension="${source_file##*.}"
-  local assumed_file="$FORMAT_TMP_DIR/input.$extension"
-  "$CLANG_FORMAT_BIN" -style=file:.clang-format --assume-filename="$assumed_file" "$@" <"$source_file"
-}
-
-###############################################################################
-# 6. FORMAT MODE — apply clang-format output to changed files only.
-#
-# Direct -i processing would invoke clang-format's native ignore handling. A
-# temporary output also ensures a formatter failure cannot partially overwrite
-# the source file.
-###############################################################################
-if [ "$MODE" = "format" ]; then
-  if [ "$VERBOSE" -eq 1 ]; then
-    echo "clang-format: The following files will be processed:"
-    printf "  %s\n" "${FILTERED_FILES[@]}"
-    echo
-    echo "clang-format: Running in FORMAT mode (in-place changes)."
-  fi
-  for f in "${FILTERED_FILES[@]}"; do
-    if ! clang_format_file "$f" >"$FORMAT_TMP_FILE"; then
-      echo "clang-format: Failed to format '$f'." >&2
-      exit 1
-    fi
-    if ! cmp -s "$f" "$FORMAT_TMP_FILE"; then
-      cp "$FORMAT_TMP_FILE" "$f"
-    fi
-  done
-  if [ "$VERBOSE" -eq 1 ]; then
-    echo "clang-format: Formatting completed."
-  fi
+if ! git -c core.quotePath=false ls-files \
+  '*.c' '*.h' '*.cpp' '*.hpp' '*.cc' '*.hh' '*.cxx' '*.hxx' >"$FILES_LIST"; then
+  echo "clang-format: Failed to list tracked C/C++ files in the repository." >&2
+  exit 1
+fi
+if [ ! -s "$FILES_LIST" ]; then
   exit 0
 fi
 
-###############################################################################
-# 7. CHECK MODE — do NOT modify files, but detect formatting problems.
-#
-# This mode is CI-friendly:
-#   - For each file, run clang-format with -output-replacements-xml
-#   - If the XML contains <replacement ...> tags, the file needs reformatting
-#   - Print GitHub Actions annotations via "::error file=..."
-#   - Exit with code 1 if any file fails (so CI fails properly)
-###############################################################################
-FORMAT_ERRORS=0
-NEEDS_FORMAT=()
-
-for f in "${FILTERED_FILES[@]}"; do
-  # clang-format outputs an XML diff where <replacement> tags represent
-  # formatting operations that *would* be applied. If any are found,
-  # the file is not correctly formatted.
-  if ! clang_format_file "$f" -output-replacements-xml >"$FORMAT_TMP_FILE"; then
-    echo "clang-format: Failed to check '$f'." >&2
+# One native process handles the entire batch; --verbose reports processed paths
+# after ignore rules have been applied, rather than claiming ignored files ran.
+FORMAT_ARGS=(--style=file:.clang-format --files="$FILES_LIST")
+if [ "$VERBOSE" -eq 1 ]; then
+  echo "clang-format: Running in $MODE mode with $CLANG_FORMAT_VERSION_OUTPUT."
+  FORMAT_ARGS+=(--verbose)
+fi
+if [ "$MODE" = "format" ]; then
+  if ! "$CLANG_FORMAT_BIN" -i "${FORMAT_ARGS[@]}"; then
+    echo "clang-format: Formatting failed; inspect the file diagnostics above." >&2
     exit 1
   fi
-  if grep -q "<replacement " "$FORMAT_TMP_FILE"; then
-    # GitHub Actions annotation: makes clickable errors in PR UI
-    echo "::error file=$f::File is not formatted according to .clang-format"
-    NEEDS_FORMAT+=("$f")
-    FORMAT_ERRORS=1
-  fi
-done
-
-if [ "$FORMAT_ERRORS" -ne 0 ]; then
-  echo "not ok - C/C++ files require formatting"
-  printf "  %s\n" "${NEEDS_FORMAT[@]}"
-  if [ "$VERBOSE" -eq 1 ]; then
-    echo
-  fi
-  echo "To fix them locally, run: ./scripts/_280_format_c_code.sh format"
+elif ! "$CLANG_FORMAT_BIN" --dry-run --Werror "${FORMAT_ARGS[@]}"; then
+  echo "::error::C/C++ formatting check failed; inspect the file diagnostics above."
+  echo "To fix formatting locally, run: ./scripts/_280_format_c_code.sh format"
   exit 1
 fi
 

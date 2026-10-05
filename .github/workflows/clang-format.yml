@@ -4,8 +4,8 @@ name: Clang-Format Check
 # are formatted according to the .clang-format rules.
 #
 # It uses:
-#   - clang-format 19.1.7 (installed in an isolated Python environment)
-#   - a Go-based helper (cmd/clang-filter) via `go run`
+#   - the exact clang-format release pinned by the shell script
+#   - native .clang-format-ignore handling and one batch invocation
 #   - the shell script `./scripts/_280_format_c_code.sh` to orchestrate everything
 #
 # The workflow runs:
@@ -28,7 +28,6 @@ jobs:
       #    - source files
       #    - .clang-format
       #    - .clang-format-ignore
-      #    - cmd/clang-filter
       #    - scripts/_280_format_c_code.sh
       #########################################################################
       - name: Check out repository
@@ -48,40 +47,16 @@ jobs:
       #########################################################################
       - name: Install clang-format
         run: |
-          python3 -m venv "$RUNNER_TEMP/clang-format"
-          "$RUNNER_TEMP/clang-format/bin/python" -m pip install \
-            --disable-pip-version-check \
-            "clang-format==19.1.7"
-          echo "$RUNNER_TEMP/clang-format/bin" >> "$GITHUB_PATH"
-
-      - name: Show clang-format version
-        run: clang-format --version
+          ./scripts/_280_format_c_code.sh setup
 
       #########################################################################
-      # 3) Set up Go toolchain for `go run ./cmd/clang-filter`
-      #
-      # The Go helper uses github.com/sabhiram/go-gitignore to implement
-      # gitignore-style rules for .clang-format-ignore.
-      #########################################################################
-      - name: Set up Go
-        uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-          cache: false
-
-      # Optional but recommended: download all Go module dependencies up front.
-      # This avoids doing network fetches during `go run` and can speed up CI.
-      - name: Download Go modules
-        run: go mod download
-
-      #########################################################################
-      # 4) Run clang-format in CHECK mode via the shell script.
+      # 3) Run clang-format in CHECK mode via the shell script.
       #
       # The script:
       #   - collects tracked C/C++ files (git ls-files)
-      #   - filters them via `go run ./cmd/clang-filter` using .clang-format-ignore
+      #   - lets clang-format apply .clang-format-ignore natively
       #   - runs clang-format in CHECK mode (no in-place changes)
-      #   - prints per-file errors using GitHub Actions "::error" annotations
+      #   - prints native file/line diagnostics and a GitHub Actions error
       #   - fails the job (exit 1) if any file is misformatted
       #########################################################################
       - name: Run clang-format in check mode

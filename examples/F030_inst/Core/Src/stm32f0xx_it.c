@@ -165,8 +165,11 @@ void USART2_IRQHandler(void) {
 		}
 		return;
 	}
+	// Keep this directive/comment boundary stable across repeated clang-format runs.
+	// clang-format off
 #endif // #if !TRICE_OFF && defined( TRICE_UARTA ) // only needed. if backchannel is used
-	   // If both flags active and only one was served, the IRQHandler gets activated again.
+	// If both flags active and only one was served, the IRQHandler gets activated again.
+	// clang-format on
 
 #if !TRICE_OFF && defined(TRICE_UARTA) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)) // buffered out to UARTA
 	if (LL_USART_IsActiveFlag_TXE(TRICE_UARTA)) {                                                                        // Transmit Data Register Empty Flag

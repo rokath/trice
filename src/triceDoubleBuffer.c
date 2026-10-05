@@ -431,8 +431,9 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	TRICE_ENTER_CRITICAL_SECTION
 	TriceNonBlockingDeferredWrite8(triceID, enc, encLen); // lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
 	TRICE_LEAVE_CRITICAL_SECTION
-#endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
+	// Keep this directive/comment boundary stable across repeated clang-format runs.
 	// clang-format off
+#endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
 //
 // TRICE_MULTI_PACK_MODE
 //////////////////////////////////////////////////////////////////////////////
