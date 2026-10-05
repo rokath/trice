@@ -6,13 +6,118 @@ import argparse
 import json
 import os
 from pathlib import Path
+import queue
 import re
 import subprocess
 import sys
+import tempfile
+import threading
+import time
 import zipfile
 
 sys.dont_write_bytecode = True
 import codex_handover_export as handover
+
+
+def read_probe(profile, sid, timeout=30):
+    """Ask the installed reader for stored turns, never resume or start a model.
+
+    A pipe-reader thread makes bounded waits portable to Windows. The child uses
+    only a temporary profile and working directory; credentials and SQLite-home
+    overrides from the caller must not reach it. Protocol output stays private.
+    """
+    env = dict(os.environ, CODEX_HOME=str(profile))
+    for name in ("CODEX_SQLITE_HOME", "OPENAI_API_KEY", "CODEX_API_KEY", "OPENAI_ADMIN_KEY"):
+        env.pop(name, None)
+    process = subprocess.Popen([shutil_codex(), "app-server", "--listen", "stdio://"], cwd=profile,
+                               env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                               stderr=subprocess.DEVNULL, text=True, encoding="utf-8")
+    replies = queue.Queue()
+
+    def receive():
+        """Signal malformed output and EOF so neither can masquerade as success."""
+        try:
+            for line in process.stdout:
+                replies.put(json.loads(line))
+        except (ValueError, OSError):
+            pass
+        finally:
+            replies.put(None)
+
+    reader = threading.Thread(target=receive, daemon=True)
+    reader.start()
+
+    def request(method, params, request_id):
+        """Ignore notifications while bounding the entire response wait."""
+        process.stdin.write(json.dumps({"id": request_id, "method": method, "params": params}) + "\n")
+        process.stdin.flush()
+        deadline = time.monotonic() + timeout
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise handover.HandoverError("Zeitlimit der Codex-Leseprobe überschritten.")
+            try:
+                reply = replies.get(timeout=remaining)
+            except queue.Empty as exc:
+                raise handover.HandoverError("Zeitlimit der Codex-Leseprobe überschritten.") from exc
+            if not isinstance(reply, dict):
+                raise handover.HandoverError("Codex-Leseprobe liefert keine gültige Protokollantwort.")
+            if reply.get("id") == request_id:
+                if "error" in reply or not isinstance(reply.get("result"), dict):
+                    raise handover.HandoverError("Codex lehnt die Leseprobe ab: " + method)
+                return reply["result"]
+
+    try:
+        request("initialize", {"clientInfo": {"name": "trice_handover_check", "version": "1.0"}}, 1)
+        process.stdin.write('{"method":"initialized"}\n')
+        process.stdin.flush()
+        return request("thread/read", {"threadId": sid, "includeTurns": True}, 2)
+    finally:
+        # Only this isolated child is stopped; the user's daemon is never touched.
+        try:
+            process.stdin.close()
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            process.terminate()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=3)
+        reader.join(timeout=3)
+        process.stdout.close()
+
+
+def require_readable_rollout(data, sid):
+    """Validate different CLI versions by reading an isolated copy of the rollout.
+
+    This proves readability, not universal compatibility of future Codex formats.
+    Original bytes are imported later; no migration result is copied back.
+    """
+    meta, prompts = handover.validate_rollout(data, sid)
+    date = meta["timestamp"][:10]
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        raise handover.HandoverError("Unbekanntes Session-Datumsformat.")
+    try:
+        with tempfile.TemporaryDirectory(prefix="trice-codex-reader-") as folder:
+            profile = Path(folder)
+            rollout = profile / "sessions" / date.replace("-", "/") / f"rollout-{date}T00-00-00-{sid}.jsonl"
+            rollout.parent.mkdir(parents=True)
+            rollout.write_bytes(data)
+            result = read_probe(profile, sid)
+            thread = result.get("thread")
+            if not isinstance(thread, dict) or thread.get("id") != sid or not isinstance(thread.get("turns"), list):
+                raise handover.HandoverError("Codex bestätigt den angeforderten Verlauf nicht.")
+            if prompts and not thread["turns"]:
+                raise handover.HandoverError("Codex liefert trotz vorhandener Nachrichten einen leeren Verlauf.")
+    except (handover.HandoverError, OSError, ValueError, subprocess.SubprocessError) as exc:
+        raise handover.HandoverError("Codex-Kompatibilität nicht bestätigt. Noch nichts importiert. "
+                                    "ZIP behalten; Ziel-Codex aktualisieren oder die Quellversion verwenden. "
+                                    "Leseprobe: " + str(exc)) from exc
+    handover.say("[Kompatibilität] Ziel-Codex kann die Session lesen; Import mit unverändertem Verlauf.")
 
 
 def import_session(root, home, repo, state, archive, requested=None):
@@ -33,9 +138,6 @@ def import_session(root, home, repo, state, archive, requested=None):
                                     "; Quellbranch: " + (manifest["repository"].get("branch") or "(detached HEAD)") +
                                     ". Passenden Stand zuerst über Git holen.")
     version = handover.codex_version()
-    if version != manifest["codex_version"]:
-        raise handover.HandoverError(f"Codex-Versionen unterscheiden sich: ZIP {manifest['codex_version']}, lokal {version}. "
-                                    "Vor dem Import dieselbe Version installieren.")
     handover.require_legacy(home, sid)
     previous = state["sessions"].get(sid)
     if previous and previous.get("repo") != repo["identity"]:
@@ -65,6 +167,10 @@ def import_session(root, home, repo, state, archive, requested=None):
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
             raise handover.HandoverError("Unbekanntes Session-Datumsformat.")
         target = handover.safe_target(home, "sessions/" + date.replace("-", "/") + "/" + filename)
+    if version != manifest["codex_version"]:
+        handover.say(f"[Kompatibilität] ZIP: Codex {manifest['codex_version']}; lokal: {version}. "
+                     "Verlauf in einem temporären Profil probeweise lesen.")
+        require_readable_rollout(incoming, sid)
     handover.say("[4/6] History und Sessiontitel zusammenführen; andere Sessions erhalten.")
     history_path, index_path = home / "history.jsonl", home / "session_index.jsonl"
     old_history, old_index = handover.read_optional(history_path), handover.read_optional(index_path)

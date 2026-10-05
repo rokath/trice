@@ -34,7 +34,7 @@ Auch beim nächsten Wechsel bleibt dieser Ablauf gleich. Auf demselben Rechner k
 | --- | --- |
 | Python auswählen | macOS/Linux: `python3`, ersatzweise `python`; Git Bash: zuerst `py -3`, dann `python` oder `python3`. Zu alte Interpreter werden übersprungen. Unter Git Bash wird natives Windows-Python verlangt. |
 | Git prüfen | Änderungen einschließlich unversionierter Dateien verhindern die Übergabe. Repository, Branch und vollständige Commit-ID werden angezeigt. Beim Import muss der Commit genau zur ZIP passen. |
-| Codex prüfen | Laufende lokale Codex-Prozesse einschließlich Hintergrunddienst verhindern den Zugriff. CLI-Version und verwendetes Codex-Profil werden angezeigt. Quelle und Ziel müssen dieselbe CLI-Version verwenden. |
+| Codex prüfen | Laufende lokale Codex-Prozesse einschließlich Hintergrunddienst verhindern den Zugriff. CLI-Version und verwendetes Codex-Profil werden angezeigt. Unterschiedliche CLI-Versionen sind nach einer automatischen Leseprobe erlaubt. |
 | Anmeldung prüfen | Vor Import oder lokalem Start prüft `codex login status` die Anmeldung im Zielprofil. Kontodetails werden nicht ausgegeben. Es wird keine Modellanfrage ausgeführt. |
 | Session auswählen | Die bekannte Projekt-Session wird wiederverwendet; bei mehreren Möglichkeiten wird gefragt. Neue ZIPs werden erkannt, bereits übernommene nicht ständig neu importiert. |
 | Inhalt sichern und übernehmen | Prüfsummen, Session-Zuordnung und bisheriger Verlauf werden geprüft. Betroffene Dateien werden gesichert, Eingabe-History und Titel übernommen. Andere Sessions bleiben erhalten. |
@@ -52,13 +52,23 @@ Ein sauberer Checkout allein beweist keinen Push. Nach einem beauftragten Push s
 | Git-Commit passt nicht zur ZIP | Den angegebenen Branch und Commit auf dem Ziel über Git bereitstellen; dann dasselbe Startskript aufrufen. |
 | Codex läuft noch lokal | Die genannten Sessions, Apps oder IDE-Anbindungen schließen. Nur wenn alle Arbeiten beendet sind und noch der Dienst läuft: `codex app-server daemon stop`. Danach erneut starten. |
 | Python fehlt oder ist zu alt | Python ab 3.11 installieren und das Terminal neu öffnen. Derselbe Shell-Befehl bleibt gültig. |
-| Codex-Versionen unterscheiden sich | Die in der Meldung genannte Quellversion auch auf dem Ziel installieren. Kein automatisches Update während des Transfers. |
+| Codex-Kompatibilität nicht bestätigt | ZIP behalten. Ziel-Codex aktualisieren oder die Quellversion verwenden, dann dasselbe Startskript erneut aufrufen. Bei Zeitlimit oder Prozessfehler zunächst die gemeldete Ursache klären. |
 | Codex-Anmeldung nicht bestätigt | Auf dem Ziel `codex login` ausführen, danach das Startskript wiederholen. Bei einem technischen Statusfehler hilft `codex login status`. |
 | Session bereits abgegeben | Die vorhandene Export-ZIP übertragen; auf diesem Rechner erst mit der neuesten Rückgabe-ZIP weiterarbeiten. |
 | ZIP ist älter oder Verlauf unabhängig verändert | Die neueste ZIP verwenden. Bei zwei tatsächlich auseinanderentwickelten Verläufen beide aufbewahren und klären lassen. |
 | Unvollständige oder nicht unterstützte Session | Die Erläuterung unten beachten; das Skript kopiert keinen nachweislich unvollständigen Verlauf. |
 
 Ein Fehler wird mit einem Fehler-Exitcode gemeldet. Fehlende Voraussetzungen werden vor dem Import geprüft. Laufende Sessions werden nicht automatisch beendet: Die Prozessliste verrät nicht zuverlässig, ob noch Arbeit ungesichert ist.
+
+## Codex-Updates zwischen Export und Import
+
+Ein Export mit beispielsweise **0.151.0** darf drei Tage später mit **0.152.0** importiert werden. Die Versionsnummer muss nicht mehr identisch sein. Auch eine ältere Zielversion darf die Übergabe übernehmen, wenn sie den Verlauf lesen kann.
+
+Bei unterschiedlichen Versionen legt das Startskript eine Kopie des Verlaufs in einem temporären Codex-Profil ab und lässt sie von der installierten Zielversion lesen. Dafür nutzt es [`thread/read` mit `includeTurns`](https://learn.chatgpt.com/docs/app-server#read-a-stored-thread-without-resuming). Die Session wird dabei nicht fortgesetzt und es gibt keine Modellanfrage. Persönliche Konfiguration und Anmeldedateien werden nicht in das Prüfprofil kopiert. Der Prüfprozess wird beendet und sein temporäres Profil entfernt, bevor der eigentliche Import erfolgt. Importiert werden die ursprünglichen Bytes, keine von Codex umgeschriebene Fassung.
+
+Scheitert die Leseprobe, bleiben der bisherige Zielverlauf und die ZIP unverändert. Ein Update und erneuter Aufruf reichen für einen weiteren Versuch; ein neuer Export auf dem alten Rechner ist nicht erforderlich. Bei identischen Versionen bleibt es bei den bisherigen Format-, Integritäts- und Konfliktprüfungen ohne zusätzlichen Leserprozess.
+
+Die Leseprobe bestätigt, dass die Zielversion den Verlauf mit der erwarteten Session-ID und Gesprächszügen zurückliefert. Sie ist keine Garantie für sämtliche zukünftigen Codex-Formatänderungen oder das spätere Modellverhalten. Eine fehlende Prüfschnittstelle, ein Protokollfehler oder ein leerer Verlauf trotz gespeicherter Nachrichten führt deshalb zum Abbruch statt zu einem ungeprüften Import. Die bestehenden Grenzen für datenbankbasierte History und lokale Bildanhänge bleiben bestehen.
 
 ## Wiederholt zwischen mehreren Rechnern wechseln
 
@@ -110,7 +120,7 @@ Wenn ein Push nicht möglich ist, können ausdrücklich erstellte lokale Commits
 
 ## Die Skripte testen
 
-Die [Verhaltenstests](../scripts/test_codex_handover.py) verwenden temporäre Repositories und künstliche Profile. Sie prüfen drei aufeinanderfolgende Rechner, Versionskonflikte, aktive Prozesse, Anmeldung, Wiederherstellung und die Shell-Aufrufe einschließlich Git-Bash-Auswahl:
+Die [Verhaltenstests](../scripts/test_codex_handover.py) verwenden temporäre Repositories und künstliche Profile. Sie prüfen drei aufeinanderfolgende Rechner, neuere und ältere Zielversionen, abgewiesene und wiederholte Leseproben, aktive Prozesse, Anmeldung, Wiederherstellung und die Shell-Aufrufe einschließlich Git-Bash-Auswahl:
 
 ```sh
 ./scripts/test_codex_handover.sh -v

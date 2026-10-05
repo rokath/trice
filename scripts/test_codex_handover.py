@@ -224,12 +224,51 @@ class HandoverBehavior(unittest.TestCase):
         with self.assertRaisesRegex(export.HandoverError, "anderen Git-Repository"):
             self.start(self.windows, archive)
 
-    def test_missing_or_changed_codex_version_cannot_partially_import(self):
+    def test_newer_and_older_destination_versions_import_when_the_reader_accepts_the_rollout(self):
+        with mock.patch.object(export, "codex_version", return_value="0.151.0"):
+            archive = self.export()
+        original = archive.read_bytes()
+        for version, home in (("0.152.0", self.windows), ("0.150.0", self.debian)):
+            with self.subTest(version=version), mock.patch.object(export, "codex_version", return_value=version), \
+                    mock.patch.object(start, "require_readable_rollout") as probe:
+                self.start(home, archive)
+                probe.assert_called_once_with(self.initial, SESSION)
+                self.assertEqual(self.initial, export.locate_session(home, SESSION).read_bytes())
+                self.assertEqual("local", self.state(home)["status"])
+        self.assertEqual(original, archive.read_bytes(), "an update must not rewrite the only transport copy")
+        self.assertEqual(2, len(self.launches))
+
+    def test_identical_cli_versions_keep_the_existing_import_without_an_extra_process(self):
         archive = self.export()
-        with mock.patch.object(export, "codex_version", return_value="0.160.0"):
-            with self.assertRaisesRegex(export.HandoverError, "Versionen unterscheiden"):
+        with mock.patch.object(start, "require_readable_rollout") as probe:
+            self.start(self.windows, archive)
+        probe.assert_not_called()
+
+    def test_rejected_reader_leaves_destination_intact_and_retry_after_update_succeeds(self):
+        archive = self.export()
+        history = export.encoded({"session_id": OTHER, "ts": 1, "text": "keep this"})
+        (self.windows / "history.jsonl").write_bytes(history)
+        with mock.patch.object(export, "codex_version", return_value="0.150.0"), \
+                mock.patch.object(start, "require_readable_rollout", side_effect=export.HandoverError("Leseprobe fehlgeschlagen")):
+            with self.assertRaisesRegex(export.HandoverError, "Leseprobe fehlgeschlagen"):
                 self.start(self.windows, archive)
-        self.assertFalse((self.windows / "history.jsonl").exists())
+        self.assertEqual(history, (self.windows / "history.jsonl").read_bytes())
+        self.assertIsNone(export.locate_session(self.windows, SESSION))
+        self.assertFalse(export.load_state(self.windows)["sessions"])
+        self.assertFalse(self.launches)
+        with mock.patch.object(export, "codex_version", return_value="0.152.0"), \
+                mock.patch.object(start, "require_readable_rollout"):
+            self.start(self.windows, archive)
+        self.assertEqual(1, len(self.launches))
+
+    def test_version_difference_does_not_bypass_wrong_commit_or_start_a_reader_for_it(self):
+        archive = self.export()
+        self.git("commit", "--allow-empty", "-qm", "wrong checkout")
+        with mock.patch.object(export, "codex_version", return_value="0.152.0"), \
+                mock.patch.object(start, "require_readable_rollout") as probe:
+            with self.assertRaisesRegex(export.HandoverError, "Git-Commit passt nicht"):
+                self.start(self.windows, archive)
+        probe.assert_not_called()
 
     def test_missing_codex_on_export_does_not_seal_the_session_or_create_a_zip(self):
         with mock.patch.object(export, "codex_version", side_effect=export.HandoverError("codex fehlt")):
@@ -481,6 +520,16 @@ class HandoverBehavior(unittest.TestCase):
         self.assertFalse(self.launches)
 
     @unittest.skipUnless(os.environ.get("TRICE_CODEX_HANDOVER_INTEGRATION") == "1", "opt-in: requires installed Codex; no model call")
+    def test_installed_codex_checks_different_version_then_imports_original_bytes(self):
+        """Exercise the production compatibility probe with the real local reader."""
+        archive = self.export()
+        with mock.patch.object(export, "codex_version", return_value="different-installed-version"):
+            self.start(self.windows, archive)
+        self.assertEqual(self.initial, export.locate_session(self.windows, SESSION).read_bytes())
+        self.assertFalse(list(self.windows.glob("*.sqlite")), "only the temporary probe may create a database")
+        self.assertIn("Ziel-Codex kann die Session lesen", self.output.getvalue())
+
+    @unittest.skipUnless(os.environ.get("TRICE_CODEX_HANDOVER_INTEGRATION") == "1", "opt-in: requires installed Codex; no model call")
     def test_installed_codex_reads_imported_rollout_without_copying_any_database(self):
         """Use Codex's real read-only thread API in an isolated, credential-free home."""
         archive = self.export()
@@ -532,6 +581,96 @@ class HandoverBehavior(unittest.TestCase):
                 process.wait(timeout=10)
             reader.join(timeout=5)
             process.stdout.close()
+
+
+class ReaderCompatibility(unittest.TestCase):
+    """Exercise real pipes and cleanup with a small, deterministic fake app server."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="codex reader test ")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.server = self.root / "reader.py"
+        self.record = self.root / "requests.jsonl"
+        # The fixture records only selected variables and requests, never real secrets.
+        self.server.write_text('''import json, os, sys, time
+from pathlib import Path
+record = Path(os.environ["READER_TEST_RECORD"])
+with record.open("w", encoding="utf-8") as log:
+    log.write(json.dumps({"home": os.environ["CODEX_HOME"], "cwd": os.getcwd(),
+                          "auth": any(k in os.environ for k in ("OPENAI_API_KEY", "CODEX_API_KEY", "CODEX_SQLITE_HOME"))}) + "\\n")
+    for line in sys.stdin:
+        request = json.loads(line)
+        log.write(json.dumps(request) + "\\n")
+        log.flush()
+        if "id" not in request:
+            continue
+        if request["method"] == "initialize":
+            print(json.dumps({"id": request["id"], "result": {}}), flush=True)
+            continue
+        mode = os.environ["READER_TEST_MODE"]
+        if mode == "eof":
+            break
+        if mode == "timeout":
+            time.sleep(1)
+            break
+        if mode == "malformed":
+            print("not JSON", flush=True)
+            break
+        if mode == "error":
+            print(json.dumps({"id": request["id"], "error": {"message": "unsupported format"}}), flush=True)
+            continue
+        sid = "wrong" if mode == "wrong" else request["params"]["threadId"]
+        turns = [] if mode == "empty" else [{"id": "turn", "items": []}]
+        print(json.dumps({"method": "notification", "params": {}}), flush=True)
+        print(json.dumps({"id": request["id"], "result": {"thread": {"id": sid, "turns": turns}}}), flush=True)
+''', encoding="utf-8")
+        self.env = mock.patch.dict(os.environ, READER_TEST_RECORD=str(self.record), READER_TEST_MODE="ok",
+                                   OPENAI_API_KEY="fixture-secret", CODEX_API_KEY="fixture-secret",
+                                   CODEX_SQLITE_HOME=str(self.root / "must not touch"))
+        self.env.start()
+        self.addCleanup(self.env.stop)
+        real_popen = subprocess.Popen
+        self.children = []
+
+        def launch(command, **kwargs):
+            """Replace just the executable, retaining the production environment and pipes."""
+            self.assertEqual(["fixture-codex", "app-server", "--listen", "stdio://"], command)
+            child = real_popen([sys.executable, "-u", str(self.server)], **kwargs)
+            self.children.append(child)
+            return child
+
+        self.addCleanup(mock.patch.stopall)
+        mock.patch.object(start, "shutil_codex", return_value="fixture-codex").start()
+        mock.patch.object(start.subprocess, "Popen", side_effect=launch).start()
+        self.data = export.encoded({"type": "session_meta", "payload": {
+            "id": SESSION, "timestamp": "2026-10-02T00:00:00Z", "source": "cli"}}) + event("hello", 1)
+
+    def test_reader_uses_isolated_profile_without_credentials_or_resume_and_cleans_up(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            start.require_readable_rollout(self.data, SESSION)
+        records = [json.loads(line) for line in self.record.read_text(encoding="utf-8").splitlines()]
+        self.assertFalse(records[0]["auth"])
+        self.assertEqual(Path(records[0]["home"]).resolve(), Path(records[0]["cwd"]).resolve())
+        self.assertFalse(Path(records[0]["home"]).exists(), "temporary profile must be removed")
+        self.assertEqual(["initialize", "initialized", "thread/read"], [entry["method"] for entry in records[1:]])
+        self.assertEqual({"threadId": SESSION, "includeTurns": True}, records[-1]["params"])
+        self.assertTrue(all(child.poll() is not None for child in self.children))
+
+    def test_incompatible_empty_wrong_and_malformed_replies_all_reject_before_import(self):
+        for mode in ("error", "empty", "wrong", "malformed", "eof"):
+            with self.subTest(mode=mode), mock.patch.dict(os.environ, READER_TEST_MODE=mode):
+                with self.assertRaisesRegex(export.HandoverError, "Noch nichts importiert"):
+                    start.require_readable_rollout(self.data, SESSION)
+                profile = json.loads(self.record.read_text(encoding="utf-8").splitlines()[0])["home"]
+                self.assertFalse(Path(profile).exists())
+                self.assertIsNotNone(self.children[-1].poll(), "failed readers must not block later exports")
+
+    def test_unresponsive_reader_times_out_and_child_is_reaped(self):
+        with mock.patch.dict(os.environ, READER_TEST_MODE="timeout"):
+            with self.assertRaisesRegex(export.HandoverError, "Zeitlimit"):
+                start.read_probe(self.root, SESSION, timeout=0.2)
+        self.assertIsNotNone(self.children[-1].poll())
 
 
 class ShellEntryPoints(unittest.TestCase):
