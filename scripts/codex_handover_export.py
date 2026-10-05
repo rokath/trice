@@ -145,6 +145,27 @@ def codex_version():
     return match.group()
 
 
+def require_login(home):
+    """Check local CLI authentication without printing potentially sensitive output.
+
+    This is only a local status probe, not a model request or token refresh. Use
+    the same resolved profile as the subsequent resume, including CODEX_HOME.
+    """
+    executable = shutil.which("codex")
+    if not executable:
+        raise HandoverError("codex fehlt im PATH. Codex zuerst lokal installieren.")
+    try:
+        result = subprocess.run([executable, "login", "status"],
+                                env=dict(os.environ, CODEX_HOME=str(home)),
+                                capture_output=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise HandoverError("Codex-Anmeldestatus nicht prüfbar. Lokal 'codex login status' aufrufen.") from exc
+    if result.returncode:
+        raise HandoverError("Codex-Anmeldung nicht bestätigt. Lokal 'codex login' ausführen, "
+                            "danach das Startskript erneut aufrufen. Es wurde noch nichts importiert.")
+    say("[Anmeldung] Lokale Codex-Anmeldung vorhanden; keine Zugangsdaten übertragen.")
+
+
 def is_codex_process(name, command=""):
     """Recognize native binaries, app helpers, and the npm launcher, not our scripts."""
     name = name.replace("\\", "/").lower()
@@ -593,8 +614,11 @@ def export_session(root, home, requested=None):
     """Snapshot one stopped session, then seal the source before publishing its ZIP."""
     say("[1/7] Sauberen Git-Stand prüfen.")
     repo = repository(root)
+    say(f"[Git] Branch {repo['branch'] or '(detached HEAD)'}; Commit {repo['commit']}")
     say("[2/7] Laufende Codex-Prozesse prüfen.")
     require_quiet()
+    version = codex_version()
+    say(f"[Codex] Version {version}; Profil {home}")
     with handover_lock(home):
         recover_transaction(home, root)
         state = load_state(home)
@@ -609,7 +633,6 @@ def export_session(root, home, requested=None):
         if previous and previous["status"] == "exported":
             raise HandoverError("Session bereits abgegeben. Vorhandene ZIP erneut übertragen: " + previous["archive"])
         verify_checkpoint(data, previous)
-        version = codex_version()
         say(f"[Session] {sid}; Codex {version}; Commit {repo['commit'][:12]}")
         say("[4/7] Eingabe-History vervollständigen; nur diese Session verpacken.")
         history_path, index_path = home / "history.jsonl", home / "session_index.jsonl"
@@ -652,20 +675,22 @@ def export_session(root, home, requested=None):
         say("[6/7] Ausgangsrechner als abgegeben markieren und ZIP veröffentlichen.")
         transaction(home, root, [(state_path(home), original_state, encoded(state)), (archive, None, package)], guard)
         say(f"[7/7] FERTIG: {archive}\n[Größe] {len(package) / 1024 / 1024:.1f} MiB")
-        say("[Weiter] Diese ZIP übertragen. Auf dem Ziel denselben Git-Commit holen und codex_handover_start.py starten.")
+        say("[Weiter] Diese ZIP auf dem Ziel in docs/scratchPad ablegen, denselben Git-Commit holen "
+            "und ./scripts/codex_handover_start.sh starten.")
         say("[Hinweis] ZIP enthält Gespräch/Code, aber keine separat kopierten Zugangsdaten. Mail-Größenlimit beachten.")
         return archive
 
 
 def main():
     """Keep the normal UI small; UUID selection is optional and never guessed."""
-    parser = argparse.ArgumentParser(description="Gestoppte Codex-Session für den Rechnerwechsel exportieren.")
+    parser = argparse.ArgumentParser(prog="codex_handover_export.sh",
+                                     description="Gestoppte Codex-Session für den Rechnerwechsel exportieren.")
     parser.add_argument("--session", help="Session-UUID; sonst bekannte Session oder Auswahl")
     args = parser.parse_args()
     try:
         if sys.version_info < (3, 11):
             raise HandoverError("Python 3.11 oder neuer erforderlich.")
-        root = Path(__file__).resolve().parents[2]
+        root = Path(__file__).resolve().parents[1]
         export_session(root, codex_home(), args.session)
         return 0
     except (HandoverError, OSError, ValueError, KeyboardInterrupt) as exc:

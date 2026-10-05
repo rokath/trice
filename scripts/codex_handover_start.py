@@ -4,6 +4,7 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -28,7 +29,9 @@ def import_session(root, home, repo, state, archive, requested=None):
         raise handover.HandoverError("ZIP gehört zu einem anderen Git-Repository.")
     if manifest["repository"]["commit"] != repo["commit"]:
         raise handover.HandoverError("Git-Commit passt nicht zur ZIP. Erwartet: " + manifest["repository"]["commit"] +
-                                    "; vorhanden: " + repo["commit"] + ". Passenden Stand zuerst über Git holen.")
+                                    "; vorhanden: " + repo["commit"] +
+                                    "; Quellbranch: " + (manifest["repository"].get("branch") or "(detached HEAD)") +
+                                    ". Passenden Stand zuerst über Git holen.")
     version = handover.codex_version()
     if version != manifest["codex_version"]:
         raise handover.HandoverError(f"Codex-Versionen unterscheiden sich: ZIP {manifest['codex_version']}, lokal {version}. "
@@ -159,7 +162,7 @@ def launch_session(root, home, sid):
     command = [shutil_codex(), "--no-daemon", "resume", sid, "--cd", str(root)]
     handover.say(f"[6/6] Codex starten: Session {sid}\n[Verzeichnis] {root}\n[Codex-Home] {home}")
     handover.say("[Hinweis] Erst Codex beenden, dann bei Bedarf committen/pushen und Exportskript starten.")
-    result = subprocess.run(command, cwd=root)
+    result = subprocess.run(command, cwd=root, env=dict(os.environ, CODEX_HOME=str(home)))
     handover.say(f"[Beendet] Codex-Exitcode: {result.returncode}; Session bleibt lokal aktiv.")
     return result.returncode
 
@@ -177,13 +180,16 @@ def start(root, home, archive=None, local=False, requested=None, launcher=launch
     """One user action checks/imports and starts, without bypass switches."""
     handover.say("[1/6] Sauberen Git-Stand prüfen.")
     repo = handover.repository(root)
+    handover.say(f"[Git] Branch {repo['branch'] or '(detached HEAD)'}; Commit {repo['commit']}")
     handover.say("[2/6] Laufende Codex-Prozesse prüfen.")
     handover.require_quiet()
+    version = handover.codex_version()
+    handover.say(f"[Codex] Version {version}; Profil {home}")
+    handover.require_login(home)
     with handover.handover_lock(home):
         handover.recover_transaction(home, root)
         state = handover.load_state(home)
         requested = requested or state["projects"].get(repo["identity"])
-        handover.codex_version()
         selected = archive
         if not selected and not local:
             selected = select_archive(root, state, repo, requested)
@@ -198,7 +204,8 @@ def start(root, home, archive=None, local=False, requested=None, launcher=launch
 
 def main():
     """An explicit archive or local start is optional; ambiguity requires selection."""
-    parser = argparse.ArgumentParser(description="Codex-Übergabe prüfen, gegebenenfalls importieren und Session starten.")
+    parser = argparse.ArgumentParser(prog="codex_handover_start.sh",
+                                     description="Codex-Übergabe prüfen, gegebenenfalls importieren und Session starten.")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--archive", type=Path, help="Bestimmte Übergabe-ZIP")
     group.add_argument("--local", action="store_true", help="Bekannte lokale Session fortsetzen; Abgabe-Sperre bleibt wirksam")
@@ -207,7 +214,7 @@ def main():
     try:
         if sys.version_info < (3, 11):
             raise handover.HandoverError("Python 3.11 oder neuer erforderlich.")
-        root = Path(__file__).resolve().parents[2]
+        root = Path(__file__).resolve().parents[1]
         return start(root, handover.codex_home(), args.archive.resolve() if args.archive else None, args.local, args.session)
     except (handover.HandoverError, OSError, ValueError, KeyboardInterrupt) as exc:
         handover.say(f"ABBRUCH: {exc}")
