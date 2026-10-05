@@ -96,6 +96,74 @@ func initGitFixture(t *testing.T, root string) {
 	}
 }
 
+// TestScratchpadModuleBoundary verifies real Go discovery and execution rather
+// than mocking package lists. Broken historical sources must stay untouched and
+// uncompiled while active packages still run, including under global coverage.
+func TestScratchpadModuleBoundary(t *testing.T) {
+	boundary, err := os.ReadFile(filepath.Join("..", "docs", "scratchPad", "go.mod"))
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+
+	t.Run("repository_discovery_keeps_active_packages_and_excludes_scratchpad", func(t *testing.T) {
+		cmd := exec.Command("go", "list", "./...")
+		cmd.Dir = ".."
+		output, err := cmd.CombinedOutput()
+		if !assert.NoError(t, err, string(output)) {
+			t.FailNow()
+		}
+		packages := strings.Fields(string(output))
+		for _, name := range []string{"cmd/trice", "internal/id", "pkg/tst", "scripts"} {
+			assert.Contains(t, packages, "github.com/rokath/trice/"+name,
+				"the archive exclusion must retain active tests")
+		}
+		for _, name := range packages {
+			assert.NotContains(t, name, "/docs/scratchPad",
+				"drafts and obsolete sources must not become root-module test targets")
+		}
+	})
+
+	for _, tc := range []struct {
+		name     string
+		args     []string
+		coverage bool
+	}{
+		{"normal_tests_ignore_uncompilable_archived_tests", []string{"test", "-v", "./..."}, false},
+		{"global_coverage_ignores_uncompilable_archived_tests", []string{"test", "-v", "./...", "-covermode=atomic", "-coverpkg=./...", "-coverprofile=coverage.out"}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			writeFixture(t, root, "go.mod", "module example.com/active\n\ngo 1.25.0\n")
+			writeFixture(t, root, "active.go", "package active\nfunc Value() int { return 7 }\n")
+			writeFixture(t, root, "active_test.go", "package active\nimport \"testing\"\nfunc TestActiveValue(t *testing.T) { if Value() != 7 { t.Fatal(\"active behavior changed\") } }\n")
+			writeFixture(t, root, "docs/scratchPad/go.mod", string(boundary))
+			// This reproduces the archived update tests' missing helper. If the
+			// boundary stops working, both invocations fail during compilation.
+			archived := "package historical\nimport \"testing\"\nfunc TestRetiredUpdate(t *testing.T) { setupTest() }\n"
+			writeFixture(t, root, "docs/scratchPad/obsolete/cmd/trice/main_update_test.go", archived)
+			cmd := exec.Command("go", tc.args...)
+			cmd.Dir = root
+			output, err := cmd.CombinedOutput()
+			if !assert.NoError(t, err, string(output)) {
+				t.FailNow()
+			}
+			assert.Contains(t, string(output), "--- PASS: TestActiveValue",
+				"success must include executing the active test, not an empty selection")
+			assert.NotContains(t, string(output), "TestRetiredUpdate")
+			preserved, err := os.ReadFile(filepath.Join(root, "docs/scratchPad/obsolete/cmd/trice/main_update_test.go"))
+			assert.NoError(t, err)
+			assert.Equal(t, archived, string(preserved), "historical sources remain unchanged")
+			if tc.coverage {
+				profile, err := os.ReadFile(filepath.Join(root, "coverage.out"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(profile), "example.com/active/active.go")
+				assert.NotContains(t, string(profile), "scratchPad",
+					"archived packages must also stay out of global coverage targets")
+			}
+		})
+	}
+}
+
 // TestRunnerLogsAndCancellation checks cleanup boundaries, quiet skip reporting,
 // default continuation, explicit stopping and cancellation without launching the
 // real suite. Later successful checks must never hide an earlier failure.

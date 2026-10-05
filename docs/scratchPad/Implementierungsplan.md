@@ -143,6 +143,8 @@ Die unter R23 ausdrücklich gewünschten Link-READMEs in `demo`/`examples` sind 
 
 **Abnahme:** Keine reinen Link-Forwarding-Dateien mehr im aktiven `docs`-Bestand, keine aktiven Verweise auf entfernte Dateien und kein Verlust eigenständiger Informationen. Jeder verbleibende aktive Dokumentationsbestand hat eine nachvollziehbare Aufgabe; lokale Link-/Ankerprüfungen und die betroffenen Veröffentlichungswege bestehen.
 
+**Vorgezogene Fehlerbehebung nach dem Full-Lauf vom 4./5. Oktober:** Der unbenutzte Stub `docs/TriceObsoleteEncodings.md` enthielt ausschließlich zwei Links auf den nicht mehr vorhandenen aktiven `_Legacy`-Pfad. Er ist entfernt; die historischen Originale im Archiv bleiben unverändert. R20 bleibt für die übrigen Weiterleitungsdateien offen.
+
 ### Übriges Repo anhand belegter Zwecke aufräumen
 
 **R21 · Gewicht 3 · Aufwand M–L · Kleine zusammenhängende Gruppen nach R17/R20**
@@ -214,6 +216,10 @@ Die leere Root-Datei `trice.bin` und die 226.455 Byte große Root-`til.c` hatten
 Die unfertigen Werkzeuge `cmd/_cui` und `cmd/_stim` sind auf ausdrücklichen Benutzerauftrag mit allen fünf Dateien nach `docs/scratchPad/obsolete/cmd/` verschoben. Inhalte einschließlich Lizenzhinweisen sind unverändert; aktive Builds, Releases und Tests verwendeten diese Verzeichnisse nicht. Die Einträge für diese unfertigen Werkzeuge sind aus der aktiven UM-Dateiübersicht entfernt; Anwender brauchen keinen Verweis auf das Archiv. Dieser Teil ist erledigt.
 
 Die ruhenden Tests prüften ausschließlich den 2025 entfernten Befehl `trice update`/`trice u` und dessen alte Stamp-/Makroformen. Parser-, ID-, Insert-, Makroalias- und Stamp-Verhalten liegen heute in aktiven Tests unter `internal/id` und `internal/args`. Die beiden nicht ausführbaren Dateien sind deshalb als Entwicklungsnachweis nach `docs/scratchPad/obsolete/cmd/trice/` verschoben, nicht als ungeprüfte Tests reaktiviert.
+
+**Korrektur nach dem Full-Lauf vom 4./5. Oktober:** Die Archivierung hatte die führenden Unterstriche der Dateinamen entfernt; dadurch erfasste `go list ./...` die alten Tests wieder, und die Schritte 540/550 scheiterten an ihrem fehlenden `setupTest`. Die Modulgrenze `docs/scratchPad/go.mod` schließt nun den gesamten Entwurfs-/Archivbereich aus der rekursiven Go-Paketsuche des Hauptmoduls aus, auch bei den unveränderten CI-Aufrufen. Archivdateien werden dafür nicht nachträglich geändert. `TestScratchpadModuleBoundary` prüft die echte Repo-Paketauswahl und in isolierten Fixtures normale Tests sowie globale Coverage bei gleichzeitig vorhandenen, nicht kompilierbaren Archivtests; aktive Tests müssen weiterhin tatsächlich laufen.
+
+**Nachprüfung:** Der Regressionstest, `go test ./... -count=1` und der CI-Coverage-Aufruf mit `-covermode=atomic -coverpkg=./...` bestehen vollständig. Go-Format, Markdownlint und der repo-weite lokale Lychee-Check bestehen ebenfalls. Die vier gemeldeten lokalen Finder-Metadateien sind entfernt; Schritt 420 besteht. Keine erneute Full-C-Matrix und keine neue Bestätigung externer Weblinks; die alten Linkfehler betrafen ausschließlich den oben bei R20 entfernten Stub.
 
 `GoInfos.txt` wurde bereits zusammen mit anderen alten Entwicklernotizen nach `docs/scratchPad/` verschoben; der aktive `docs/`-Bestand enthält diese Datei nicht mehr. `CONTRIBUTING.md` nennt jetzt die tatsächlichen TestAll-/Coverage-Wege ohne die veralteten Zusatzframeworks. `cmd/clang-filter/ReadMe.md` beschreibt den aktuellen Aufruf über `scripts/_280_format_c_code.sh` und dessen gemeinsame CI-Anbindung. Der Filter selbst bleibt aktiv.
 
@@ -779,7 +785,7 @@ Die **215 Dokumentationsdateien** zerfallen in 16 direkte Dateien, 9 Bind-Dokume
 | `TriceColor.md` | Reference Manual: Tags, Farben und Log-Level; der Stub verwendet noch den alten Anker `trice-tags-and-color`. |
 | `TriceIDManagement.md` | Reference Manual: ID-Verwaltung. |
 | `TriceMessagesEncoding.md` | Reference Manual: aktuelle binäre Kodierung. |
-| `TriceObsoleteEncodings.md` | Bestehende historische Texte unter `_Legacy`, sofern ein historischer Verweis benötigt wird; keine Gleichsetzung mit aktueller Kodierung. |
+| `TriceObsoleteEncodings.md` (bereits entfernt) | Unbenutzter Stub mit defekten `_Legacy`-Links; die historischen Originale bleiben im Archiv. |
 | `TriceOverOneWire.md` | Reference Manual: Betrieb ohne UART. |
 | `TriceOverRTT.md` | Reference Manual: RTT. |
 | `TriceSpace.md` | Reference Manual: Speicherbedarf und Messbedingungen. |
