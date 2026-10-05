@@ -99,7 +99,7 @@ exclude = [
   # The README intentionally points to the latest release PDF asset. That file
   # only exists after the next release is published, so PR-time link checks
   # cannot validate it remotely yet.
-  "^https://github\\.com/rokath/trice/releases/latest/download/TriceUserManual\\.pdf$",
+  "^https://github\\.com/rokath/trice/releases/latest/download/TriceReferenceManual\\.pdf$",
 
   # SourceForge project pages intermittently return Cloudflare HTTP 522 to
   # automated checks while remaining useful human-facing references.

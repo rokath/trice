@@ -68,7 +68,7 @@ jobs:
           # with contents:write on rokath/homebrew-tap.
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
           # Node.js is installed above because the GoReleaser "before" hook
-          # generates docs/TriceUserManual.pdf headlessly before publishing.
+          # generates docs/TriceReferenceManual.pdf headlessly before publishing.
           # You previously had DEFAULT_BRANCH here; GoReleaser does not
           # need it by default, so it is omitted for clarity.
 
@@ -83,7 +83,7 @@ jobs:
             echo "dist/:"
             find dist -maxdepth 3 -type f -printf '%s %p\n' 2>/dev/null | sort || true
             echo "docs/ manual files:"
-            find docs -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            find docs -maxdepth 2 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
             echo "tool versions:"
             go version || true
             node --version || true
@@ -117,7 +117,7 @@ jobs:
             printf '  %s\n' "${matches[@]}"
           }
 
-          require_file docs/TriceUserManual.pdf
+          require_file docs/TriceReferenceManual.pdf
           require_file dist/trice_tool_linux_amd64.tar.gz
           require_file dist/trice_tool_darwin_amd64.tar.gz
           require_file dist/trice_tool_windows_amd64.zip

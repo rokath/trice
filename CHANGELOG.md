@@ -1288,7 +1288,7 @@ Used git range: v0.72.5..v0.73.0
 
 ### <a id='v0.72.5-overview'></a>v0.72.5 Overview
 
-* All documents merged into [Trice User Manual](./docs/TriceUserManual.md)
+* All documents merged into [Trice User Manual](./docs/TriceReferenceManual.md)
 * The `trice generate` now checks format soecifier count in Trices against their values count.
 * Update TriceUserManual.md
 * typo corrected

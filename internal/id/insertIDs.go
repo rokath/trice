@@ -117,7 +117,7 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 //
 // - p.idToLocRef is only for reference and not changed. It is the "old" location information.
 // - p.idToLocNew is new generated during insertTriceIDs execution and finally written back to li.json as "new" location information.
-// For reference look into file TriceUserGuide.md part "The `trice insert` Algorithm".
+// For reference look into file docs/TriceReferenceManual.md part "The `trice insert` Algorithm".
 // insertTriceIDs parses the file content from the beginning for the next trice statement, deals with it and continues until the file content end.
 // When a trice statement was found, general cases are:
 // - idInSourceIsNonZero, id is inside p.idToTrice with matching trice and inside p.triceToId -> use ID (remove from p.triceToId)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Generate docs/TriceUserManual.pdf from docs/TriceUserManual.md.
+# Generate docs/TriceReferenceManual.pdf from docs/TriceReferenceManual.md.
 #
 # This is the single PDF generation entry point used by developers, CI, and
 # GoReleaser. It does not require VS Code and writes the PDF where the manual
@@ -11,8 +11,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
-MANUAL_FILE="docs/TriceUserManual.md"
-PDF_FILE="docs/TriceUserManual.pdf"
+MANUAL_FILE="docs/TriceReferenceManual.md"
+PDF_FILE="docs/TriceReferenceManual.pdf"
 REF_DIR="docs/ref"
 MD_TO_PDF_PACKAGE="md-to-pdf@5.2.4"
 PUPPETEER_PACKAGE="puppeteer@24.31.0"
@@ -56,7 +56,7 @@ show_context() {
   echo "  renderer: $MD_TO_PDF_PACKAGE with $PUPPETEER_PACKAGE" >&2
 
   echo "  related files:" >&2
-  find docs -maxdepth 3 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -print 2>/dev/null | sort >&2 || true
+  find docs -maxdepth 3 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -print 2>/dev/null | sort >&2 || true
 }
 
 if [[ ! -s "$MANUAL_FILE" ]]; then
@@ -95,7 +95,7 @@ pdf_options="$(
     "bottom": "18mm",
     "left": "15mm"
   },
-  "headerTemplate": "<div style=\"width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:space-between; align-items:center;\"><span>TriceUserManual.md</span><span>${generated_at}</span></div>",
+  "headerTemplate": "<div style=\"width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:space-between; align-items:center;\"><span>TriceReferenceManual.md</span><span>${generated_at}</span></div>",
   "footerTemplate": "<div style=\"width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:flex-end; align-items:center;\"><span><span class=\"pageNumber\"></span>/<span class=\"totalPages\"></span></span></div>"
 }
 EOF_JSON

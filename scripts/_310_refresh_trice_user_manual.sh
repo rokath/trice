@@ -4,7 +4,7 @@
 #
 # Purpose
 # -------
-# Maintenance wrapper for docs/TriceUserManual.md.
+# Maintenance wrapper for docs/TriceReferenceManual.md.
 #
 # This script only checks or regenerates the manual TOC, numbering, and anchors
 # with mdtoc. PDF generation is intentionally handled by the separate script
@@ -26,7 +26,7 @@ cd "$REPO_ROOT"
 
 MODE="format"
 VERBOSE=0
-MANUAL_FILE="docs/TriceUserManual.md"
+MANUAL_FILE="docs/TriceReferenceManual.md"
 
 usage() {
   sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'

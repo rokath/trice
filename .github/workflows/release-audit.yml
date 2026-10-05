@@ -62,7 +62,7 @@ jobs:
           download_required 'trice_*_amd64.deb'
           download_required 'trice_*_amd64.rpm'
           download_required 'trice_*_amd64.apk'
-          download_required 'TriceUserManual.pdf'
+          download_required 'TriceReferenceManual.pdf'
 
           require_glob 'trice_tool_linux_amd64.tar.gz'
           require_glob 'trice_tool_darwin_amd64.tar.gz'
@@ -71,7 +71,7 @@ jobs:
           require_glob 'trice_*_amd64.deb'
           require_glob 'trice_*_amd64.rpm'
           require_glob 'trice_*_amd64.apk'
-          require_glob 'TriceUserManual.pdf'
+          require_glob 'TriceReferenceManual.pdf'
 
           echo "::group::Downloaded release assets"
           find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort
@@ -579,14 +579,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -s artifacts/TriceUserManual.pdf ]; then
-            echo "::error::missing or empty TriceUserManual.pdf artifact"
+          if [ ! -s artifacts/TriceReferenceManual.pdf ]; then
+            echo "::error::missing or empty TriceReferenceManual.pdf artifact"
             find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
             exit 1
           fi
-          size="$(wc -c < artifacts/TriceUserManual.pdf)"
-          echo "TriceUserManual.pdf size: $size bytes"
+          size="$(wc -c < artifacts/TriceReferenceManual.pdf)"
+          echo "TriceReferenceManual.pdf size: $size bytes"
           if [ "$size" -le 100000 ]; then
-            echo "::error::TriceUserManual.pdf looks too small: $size bytes"
+            echo "::error::TriceReferenceManual.pdf looks too small: $size bytes"
             exit 1
           fi

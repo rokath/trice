@@ -84,7 +84,7 @@ typedef void (*triceNodeFn_t)(const void* node, const triceRx_t* rx);
 //! \details
 //! It returns the logical record length and never consumes alignment padding after the record.
 //! It does not parse multiple records, expects deframed/decrypted data and does not use an ID table.
-//! It expects a plain trice binary stream according to the [Trice Binary Encoding](./TriceUserManual.md#binary-encoding)
+//! It expects a plain trice binary stream according to the [Trice Binary Encoding](../docs/TriceReferenceManual.md#binary-encoding)
 //! \li It fills:
 //! \li   rx->id
 //! \li   rx->stampBits
