@@ -32,12 +32,12 @@ required.
 
 ## Continuing a Codex task on another computer
 
-Use the shell entry points `./scripts/codex_handover_export.sh` and
-`./scripts/codex_handover_start.sh` on macOS, Linux, or Windows with Git Bash.
-The [computer-switch guide (German)](docs/Codex_Rechnerwechsel_DE.md) starts
-with the short workflow and explains automatic checks and recovery afterwards.
-Run their isolated behavioral tests with `./scripts/test_codex_handover.sh -v`.
-These developer tools are independent of the Trice runtime and regular TestAll suite.
+Use `handsoff <tag>` to record a concise task handover, then commit and transfer
+the repository changes. On the destination, use `handson <tag>` to load and
+verify that handover before issuing the next task. See the
+[tagged handover rules](AGENTS.md#tagged-handovers) for the exact behavior.
+The former profile-transfer scripts are archived; they are not required for
+this Git-based workflow.
 
 ## License of contributions
 

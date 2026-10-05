@@ -49,6 +49,7 @@
 ## Switching Computers with Codex
 
 ### Tagged handovers
+
 * Treat an exact user prompt `handsoff <tag>` as a request to create or fully refresh `docs/scratchPad/handsoff_<tag>.md`. Replace existing contents instead of appending.
 * Treat an exact user prompt `handson <tag>` as a request to load `docs/scratchPad/handsoff_<tag>.md`, verify it against the current checkout, restore that handover as task context, and then wait for the user's next instruction. Do not resume implementation automatically.
 * `<tag>` is required. Accept only a short lowercase ASCII tag matching `[a-z0-9][a-z0-9_-]*`. If the tag is missing or invalid, report the expected syntax and do not create, read, or guess a file.
@@ -70,11 +71,12 @@
 * On `handson <tag>`, compare at least the recorded branch, HEAD commit, working tree, and relevant files with the actual checkout. Briefly report material discrepancies before waiting for further instructions.
 
 ### Full computer-switch workflow
+
 * Treat "Rechnerwechsel vorbereiten" ("prepare a computer switch") as a request to reach a recoverable stopping point. Start no new implementation or long test; let necessary cleanup and test-state restoration finish. Do not kill unrelated sessions or leave temporarily rewritten sources behind.
 * For unfinished work, update one concise handover at `docs/scratchPad/Codex_Handover.md`: goal, binding decisions and exclusions, current results, unfinished work, exact test commands and outcomes, required local-only files, and the next concrete step. Clearly distinguish passed, failed, skipped and interrupted tests. Do not put credentials into the handover.
 * Inspect tracked and untracked changes and existing local commits. Commit and push only when the user explicitly requests them, for example "Rechnerwechsel vorbereiten, committen und pushen". After a requested push, verify the actual remote branch commit; local tracking refs alone do not prove that the transfer succeeded. Otherwise report the remaining Git step concisely.
-* Finish with branch, commit, any remaining local-only material, and the next shell command from [the computer-switch guide](docs/Codex_Rechnerwechsel_DE.md). Delegate routine checks to the scripts; do not require users to choose a Python invocation or repeat a long manual checklist.
-* The user runs `./scripts/codex_handover_export.sh` after closing Codex, then `./scripts/codex_handover_start.sh` on the destination. Never export/import a personal profile while this session is still active, silently stop other Codex processes, or copy credentials/configuration to make a transfer work.
+* Finish with branch, commit, any remaining local-only material, and the next concrete transfer step. Use the tagged handover workflow above to transfer task context through Git; do not require users to choose a Python invocation or repeat a long manual checklist.
+* The former automated profile-transfer scripts are archived and are not an active computer-switch entry point. Never export/import a personal profile while this session is still active, silently stop other Codex processes, or copy credentials/configuration to make a transfer work.
 * On "Rechnerwechsel fortsetzen" ("continue after a computer switch"), read the handover if present, check the actual checkout and needed tools, preserve prior decisions, and resume the recorded next step. Report a missing prerequisite without inventing lost work or treating earlier tests as tests of the new machine.
 
 ---
@@ -157,7 +159,7 @@
 
 ## Documentation Usage
 
-- Use `README.md` and documentation files (especially `./docs/TriceUserManual.md`) to understand system design, architecture, constraints, and intended usage.
+- Use `README.md` and documentation files (especially `./docs/TriceReferenceManual.md`) to understand system design, architecture, constraints, and intended usage.
 - Consider `./src/TriceDefaultConfig.h` as an additional documentation source.
 
 - Documentation is for understanding only, not for initiating code changes.
