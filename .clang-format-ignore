@@ -15,8 +15,8 @@
 #   - Later rules override earlier rules → last match wins.
 #
 # Important:
-#   clang-format.sh uses:
-#       git ls-files | clang-filter
+#   ./scripts/_280_format_c_code.sh uses:
+#       git ls-files | go run ./cmd/clang-filter
 #   Therefore only *tracked* files are considered, and this ignore file acts
 #   as the single source of truth for excluding files from formatting.
 ###############################################################################

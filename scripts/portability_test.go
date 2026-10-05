@@ -96,6 +96,74 @@ func initGitFixture(t *testing.T, root string) {
 	}
 }
 
+// TestScratchpadModuleBoundary verifies real Go discovery and execution rather
+// than mocking package lists. Broken historical sources must stay untouched and
+// uncompiled while active packages still run, including under global coverage.
+func TestScratchpadModuleBoundary(t *testing.T) {
+	boundary, err := os.ReadFile(filepath.Join("..", "docs", "scratchPad", "go.mod"))
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+
+	t.Run("repository_discovery_keeps_active_packages_and_excludes_scratchpad", func(t *testing.T) {
+		cmd := exec.Command("go", "list", "./...")
+		cmd.Dir = ".."
+		output, err := cmd.CombinedOutput()
+		if !assert.NoError(t, err, string(output)) {
+			t.FailNow()
+		}
+		packages := strings.Fields(string(output))
+		for _, name := range []string{"cmd/trice", "internal/id", "pkg/tst", "scripts"} {
+			assert.Contains(t, packages, "github.com/rokath/trice/"+name,
+				"the archive exclusion must retain active tests")
+		}
+		for _, name := range packages {
+			assert.NotContains(t, name, "/docs/scratchPad",
+				"drafts and obsolete sources must not become root-module test targets")
+		}
+	})
+
+	for _, tc := range []struct {
+		name     string
+		args     []string
+		coverage bool
+	}{
+		{"normal_tests_ignore_uncompilable_archived_tests", []string{"test", "-v", "./..."}, false},
+		{"global_coverage_ignores_uncompilable_archived_tests", []string{"test", "-v", "./...", "-covermode=atomic", "-coverpkg=./...", "-coverprofile=coverage.out"}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			writeFixture(t, root, "go.mod", "module example.com/active\n\ngo 1.25.0\n")
+			writeFixture(t, root, "active.go", "package active\nfunc Value() int { return 7 }\n")
+			writeFixture(t, root, "active_test.go", "package active\nimport \"testing\"\nfunc TestActiveValue(t *testing.T) { if Value() != 7 { t.Fatal(\"active behavior changed\") } }\n")
+			writeFixture(t, root, "docs/scratchPad/go.mod", string(boundary))
+			// This reproduces the archived update tests' missing helper. If the
+			// boundary stops working, both invocations fail during compilation.
+			archived := "package historical\nimport \"testing\"\nfunc TestRetiredUpdate(t *testing.T) { setupTest() }\n"
+			writeFixture(t, root, "docs/scratchPad/obsolete/cmd/trice/main_update_test.go", archived)
+			cmd := exec.Command("go", tc.args...)
+			cmd.Dir = root
+			output, err := cmd.CombinedOutput()
+			if !assert.NoError(t, err, string(output)) {
+				t.FailNow()
+			}
+			assert.Contains(t, string(output), "--- PASS: TestActiveValue",
+				"success must include executing the active test, not an empty selection")
+			assert.NotContains(t, string(output), "TestRetiredUpdate")
+			preserved, err := os.ReadFile(filepath.Join(root, "docs/scratchPad/obsolete/cmd/trice/main_update_test.go"))
+			assert.NoError(t, err)
+			assert.Equal(t, archived, string(preserved), "historical sources remain unchanged")
+			if tc.coverage {
+				profile, err := os.ReadFile(filepath.Join(root, "coverage.out"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(profile), "example.com/active/active.go")
+				assert.NotContains(t, string(profile), "scratchPad",
+					"archived packages must also stay out of global coverage targets")
+			}
+		})
+	}
+}
+
 // TestRunnerLogsAndCancellation checks cleanup boundaries, quiet skip reporting,
 // default continuation, explicit stopping and cancellation without launching the
 // real suite. Later successful checks must never hide an earlier failure.
@@ -832,5 +900,101 @@ func TestPCLogSourcesAreLocaleIndependent(t *testing.T) {
 				assert.Contains(t, string(data), "../../src/triceLog.c")
 			})
 		}
+	}
+}
+
+// TestBindStepRunsCurrentProductChecks exercises step 500 in a repository that
+// contains only the active scripts. Tool doubles make compiler availability and
+// Go failures deterministic without compiling historical demonstration projects.
+func TestBindStepRunsCurrentProductChecks(t *testing.T) {
+	for _, tc := range []struct {
+		name, tools, status, diagnostic string
+		called                          bool
+		success                         bool
+	}{
+		{"current_C_and_CPP_integration_without_CMake_or_experiments", "native", "0", "PASS: Bind generation", true, true},
+		{"GCC_fallback_compilers_are_accepted", "gcc", "0", "PASS: Bind generation", true, true},
+		{"Go_failure_preserves_diagnostics_and_fails_the_step", "native", "7", "fixture: generated header compilation failed", true, false},
+		{"missing_Go_is_reported_without_running_tests", "no_go", "0", "SKIP: Trice bind tests require Go", false, true},
+		{"missing_C_frontend_is_reported_without_running_tests", "no_c", "0", "SKIP: Trice bind target integration requires", false, true},
+		{"missing_CPP_frontend_is_reported_without_running_tests", "no_cpp", "0", "SKIP: Trice bind target integration requires", false, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_500_test_bind.sh")
+			// Override discovery in the disposable common helper so installed
+			// host compilers cannot accidentally satisfy a missing-tool case.
+			commonPath := filepath.Join(root, "scripts/_100_test_common.sh")
+			common, err := os.ReadFile(commonPath)
+			if !assert.NoError(t, err) {
+				t.FailNow()
+			}
+			writeFixture(t, root, "scripts/_100_test_common.sh", string(common)+`
+has_command() {
+  case "$MOCK_TOOLS:$1" in
+    no_go:go | no_c:cc | no_c:gcc | no_c:clang | no_cpp:c++ | no_cpp:g++ | no_cpp:clang++)
+      return 1 ;;
+    gcc:cc | gcc:c++)
+      return 1 ;;
+    *:go | *:cc | *:gcc | *:clang | *:c++ | *:g++ | *:clang++)
+      return 0 ;;
+    *)
+      command -v "$1" >/dev/null 2>&1 ;;
+  esac
+}
+`)
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+set -eu
+printf '%s\n' "$@" > "$LOG_DIR/go-arguments"
+printf '%s\n' "${TRICE_BIND_INTEGRATION:-}" > "$LOG_DIR/integration-enabled"
+if [ "$MOCK_GO_STATUS" != 0 ]; then
+  echo 'fixture: generated header compilation failed'
+fi
+exit "$MOCK_GO_STATUS"
+`)
+			// CMake is deliberately available but must not be invoked: Bind's
+			// real compiler regressions belong to the selected Go integration tests.
+			writeFixture(t, root, "bin/cmake", "#!/bin/sh\necho unexpected-CMake-invocation\nexit 99\n")
+			output, err := runFixture(t, root, "bash scripts/_500_test_bind.sh", map[string]string{
+				"MOCK_TOOLS": tc.tools, "MOCK_GO_STATUS": tc.status,
+			})
+			if tc.success {
+				assert.NoError(t, err, output)
+			} else {
+				assert.Error(t, err, output)
+				assert.Contains(t, output, "FAIL: Trice bind integration failed")
+				assert.NotContains(t, output, "PASS: Bind generation")
+			}
+			assert.Contains(t, output, tc.diagnostic)
+			assert.NotContains(t, output, "unexpected-CMake-invocation")
+			argsPath := filepath.Join(root, "temp/log/go-arguments")
+			if !tc.called {
+				assert.NoFileExists(t, argsPath, "missing tools must stop before invoking Go")
+				return
+			}
+			args, err := os.ReadFile(argsPath)
+			if !assert.NoError(t, err) {
+				t.FailNow()
+			}
+			lines := strings.Split(strings.TrimSpace(string(args)), "\n")
+			if !assert.Len(t, lines, 5, "one focused Go invocation must run without cached results") {
+				t.FailNow()
+			}
+			assert.Equal(t, []string{"test", "./internal/id", "-run"}, lines[:3])
+			// Check the selected behavioral contracts individually so a missing
+			// compilation, rejection, canonical-source or runtime check is visible.
+			for _, name := range []string{
+				"TestBindGeneratedTargetCompilesCAndCPP",
+				"TestBindCanonicalTriceCheckGeneratesCompleteSidecar",
+				"TestBindMVP2RebaseCompilesCAndCPP",
+				"TestBindMVP2CounterGuardsAndGeneratedInvariants",
+				"TestBindMVP2RebaseEmitsStableRuntimeIDs",
+			} {
+				assert.Regexp(t, lines[3], name, "step 500 must include this production regression")
+			}
+			assert.Equal(t, "-count=1", lines[4])
+			enabled, err := os.ReadFile(filepath.Join(root, "temp/log/integration-enabled"))
+			assert.NoError(t, err)
+			assert.Equal(t, "1\n", string(enabled), "target integration must not silently skip")
+		})
 	}
 }

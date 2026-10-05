@@ -17,6 +17,11 @@
 **/gccLinksClangWarning.txt
 **/.mxproject
 **/.DS_Store
+# Generated only when a root-level log capture or C table is explicitly requested.
+/trice.bin
+/til.c
+# The TriceAbc build regenerates this table before compiling the receiver nodes.
+/examples/TriceAbc/NodeLib/til.c
 internal/receiver/trices.raw
 coverage.out
 *.log
@@ -27,6 +32,20 @@ coverage.out
 docs/TriceUserManual.pdf
 
 examples/**/*.bus
+
+# Cortex-Debug views are local state; keep shared launch and task configurations.
+/examples/G0B1_bare/.vscode/.cortex-debug.peripherals.state.json
+/examples/G0B1_bare/.vscode/.cortex-debug.registers.state.json
+/examples/G0B1_features/.vscode/.cortex-debug.peripherals.state.json
+/examples/G0B1_features/.vscode/.cortex-debug.registers.state.json
+/examples/G0B1_inst/.vscode/.cortex-debug.peripherals.state.json
+/examples/G0B1_inst/.vscode/.cortex-debug.registers.state.json
+/examples/G0B1_log/.vscode/.cortex-debug.peripherals.state.json
+/examples/G0B1_log/.vscode/.cortex-debug.registers.state.json
+/examples/L432_bare/.vscode/.cortex-debug.peripherals.state.json
+/examples/L432_bare/.vscode/.cortex-debug.registers.state.json
+/examples/L432_inst/.vscode/.cortex-debug.peripherals.state.json
+/examples/L432_inst/.vscode/.cortex-debug.registers.state.json
 
 # Local Codex handover archives and Python bytecode are not project sources.
 /docs/scratchPad/codex-handover-*.zip

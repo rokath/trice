@@ -1,6 +1,5 @@
-# SEGGER downloaded Software
+# SEGGER Software
 
-* See ./docs/TriceUserGuide.md -> segger.com
-
-To update, install latest J-Link Software and Documentation Pack from segger.com, extract "SEGGER\JLink\Samples\RTT\SEGGER_RTT_Vnnnf.zip" and copy `SEGGER_RTT.*` and `SEGGER_RTT_Conf.h` from there into the `./trice/src` folder.
-
+- [Stored packages, documentation, and license evidence](../../docs/TriceUserManual.md#third-party-packages-and-retained-versions)
+- [Trice over RTT](../../docs/TriceUserManual.md#trice-over-rtt)
+- [Convert evaluation board onboard ST-Link to J-Link](../../docs/TriceUserManual.md#convert-evaluation-board-onboard-st-link-to-j-link)

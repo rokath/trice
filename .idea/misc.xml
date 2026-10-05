@@ -8,7 +8,7 @@
   </component>
   <component name="CidrRootsConfiguration">
     <excludeRoots>
-      <file path="$PROJECT_DIR$/docs/_Legacy" />
+      <file path="$PROJECT_DIR$/docs/scratchPad/obsolete" />
       <file path="$PROJECT_DIR$/examples" />
       <file path="$PROJECT_DIR$/examples/F030_bare/Drivers" />
       <file path="$PROJECT_DIR$/examples/F030_inst/Drivers" />
