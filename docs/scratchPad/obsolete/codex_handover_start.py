@@ -3,6 +3,7 @@
 """Import a checked handover or continue locally, then launch the selected session."""
 
 import argparse
+import io
 import json
 import os
 from pathlib import Path
@@ -19,8 +20,8 @@ sys.dont_write_bytecode = True
 import codex_handover_export as handover
 
 
-def read_probe(profile, sid, timeout=30):
-    """Ask the installed reader for stored turns, never resume or start a model.
+def read_probe(profile, sid, timeout=30, paginated=False):
+    """Read stored turns, rebuilding paginated indexes only in the temporary home.
 
     A pipe-reader thread makes bounded waits portable to Windows. The child uses
     only a temporary profile and working directory; credentials and SQLite-home
@@ -71,7 +72,12 @@ def read_probe(profile, sid, timeout=30):
         request("initialize", {"clientInfo": {"name": "trice_handover_check", "version": "1.0"}}, 1)
         process.stdin.write('{"method":"initialized"}\n')
         process.stdin.flush()
-        return request("thread/read", {"threadId": sid, "includeTurns": True}, 2)
+        if paginated:
+            # Loading reconstructs SQLite projections; no turn/start is sent.
+            # Explicit cwd prevents loading project instructions from old paths.
+            request("thread/resume", {"threadId": sid, "cwd": str(profile),
+                                      "sandbox": "read-only", "approvalPolicy": "never"}, 2)
+        return request("thread/read", {"threadId": sid, "includeTurns": True}, 3 if paginated else 2)
     finally:
         # Only this isolated child is stopped; the user's daemon is never touched.
         try:
@@ -107,13 +113,33 @@ def require_readable_rollout(data, sid):
             rollout = profile / "sessions" / date.replace("-", "/") / f"rollout-{date}T00-00-00-{sid}.jsonl"
             rollout.parent.mkdir(parents=True)
             rollout.write_bytes(data)
-            result = read_probe(profile, sid)
+            paginated = meta.get("history_mode") == "paginated"
+            result = read_probe(profile, sid, paginated=paginated)
             thread = result.get("thread")
             if not isinstance(thread, dict) or thread.get("id") != sid or not isinstance(thread.get("turns"), list):
                 raise handover.HandoverError("Codex bestätigt den angeforderten Verlauf nicht.")
             if prompts and not thread["turns"]:
                 raise handover.HandoverError("Codex liefert trotz vorhandener Nachrichten einen leeren Verlauf.")
-    except (handover.HandoverError, OSError, ValueError, subprocess.SubprocessError) as exc:
+            if paginated:
+                # A successful RPC alone is insufficient: compare every persisted
+                # completed item, including tools and compactions, by stable keys.
+                expected = {}
+                for line in io.BytesIO(data):
+                    record = json.loads(line)
+                    payload = record.get("payload", {})
+                    if record.get("type") == "event_msg" and payload.get("type") == "item_completed":
+                        item = payload["item"]
+                        expected[(payload["turn_id"], item["id"])] = item
+                actual = {(turn["id"], item["id"]): item
+                          for turn in thread["turns"] for item in turn.get("items", [])}
+                if not expected.keys() <= actual.keys():
+                    raise handover.HandoverError("Codex liefert nicht alle gespeicherten Gesprächseinträge zurück.")
+                for key, item in expected.items():
+                    if item.get("type") == "UserMessage":
+                        texts = lambda content: [part["text"] for part in content if part.get("type") == "text"]
+                        if texts(item.get("content", [])) != texts(actual[key].get("content", [])):
+                            raise handover.HandoverError("Codex liefert veränderte Benutzernachrichten zurück.")
+    except (handover.HandoverError, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
         raise handover.HandoverError("Codex-Kompatibilität nicht bestätigt. Noch nichts importiert. "
                                     "ZIP behalten; Ziel-Codex aktualisieren oder die Quellversion verwenden. "
                                     "Leseprobe: " + str(exc)) from exc
@@ -138,7 +164,7 @@ def import_session(root, home, repo, state, archive, requested=None):
                                     "; Quellbranch: " + (manifest["repository"].get("branch") or "(detached HEAD)") +
                                     ". Passenden Stand zuerst über Git holen.")
     version = handover.codex_version()
-    handover.require_legacy(home, sid)
+    handover.require_portable_history(home, sid)
     previous = state["sessions"].get(sid)
     if previous and previous.get("repo") != repo["identity"]:
         raise handover.HandoverError("Session ist lokal einem anderen Projekt zugeordnet.")
@@ -167,7 +193,8 @@ def import_session(root, home, repo, state, archive, requested=None):
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
             raise handover.HandoverError("Unbekanntes Session-Datumsformat.")
         target = handover.safe_target(home, "sessions/" + date.replace("-", "/") + "/" + filename)
-    if version != manifest["codex_version"]:
+    incoming_meta = json.loads(io.BytesIO(incoming).readline())["payload"]
+    if version != manifest["codex_version"] or incoming_meta.get("history_mode") == "paginated":
         handover.say(f"[Kompatibilität] ZIP: Codex {manifest['codex_version']}; lokal: {version}. "
                      "Verlauf in einem temporären Profil probeweise lesen.")
         require_readable_rollout(incoming, sid)
@@ -245,7 +272,7 @@ def local_session(root, home, repo, state, requested):
     if previous and previous["status"] == "exported":
         raise handover.HandoverError("Diese Session ist abgegeben; erst Rückgabe-ZIP importieren.")
     handover.require_project(meta, root, repo, previous)
-    handover.require_legacy(home, sid)
+    handover.require_portable_history(home, sid, data)
     handover.verify_checkpoint(data, previous)
     old_state = handover.read_optional(handover.state_path(home))
     state["projects"][repo["identity"]] = sid

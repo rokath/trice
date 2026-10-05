@@ -399,11 +399,12 @@ def transaction(home, root, changes, guard):
 
 
 def validate_rollout(data, expected=None):
-    """Read legacy JSONL without rewriting platform-specific historical text."""
+    """Validate canonical legacy/paginated JSONL and collect actual user inputs."""
     if not data or not data.endswith(b"\n"):
         raise HandoverError("Sessiondatei leer oder unvollständig; Codex erst sauber beenden.")
     first = None
     messages = []
+    completed_users = set()
     for number, line in enumerate(io.BytesIO(data), 1):
         try:
             record = json.loads(line)
@@ -415,6 +416,25 @@ def validate_rollout(data, expected=None):
                 uuid.UUID(first["id"])
                 if expected and first["id"] != expected:
                     raise ValueError("session mismatch")
+                if first.get("history_mode", "legacy") not in {"legacy", "paginated"}:
+                    raise ValueError("unsupported history mode")
+            if first.get("history_mode") == "paginated" and record.get("ordinal") != number - 1:
+                raise HandoverError(f"Paginated-Verlauf hat eine Lücke oder falsche Reihenfolge in Zeile {number}.")
+            if record.get("type") == "event_msg" and payload.get("type") == "item_completed":
+                item = payload.get("item", {})
+                if item.get("type") == "UserMessage":
+                    key = (payload["turn_id"], item["id"])
+                    content = item.get("content", [])
+                    for part in content:
+                        if part.get("type") in {"localImage", "local_image"}:
+                            raise HandoverError("Session hat lokale Bildanhänge; vollständige Übertragung nicht belegt.")
+                        if part.get("type") in {"image", "input_image"} and not str(part.get("image_url", part.get("url", ""))).startswith("data:"):
+                            raise HandoverError("Nicht eingebetteter Bildanhang; vollständige Übertragung nicht belegt.")
+                    text = "\n".join(part["text"] for part in content if part.get("type") == "text")
+                    if key not in completed_users and text:
+                        timestamp = dt.datetime.fromisoformat(record["timestamp"].replace("Z", "+00:00"))
+                        messages.append({"session_id": first["id"], "ts": int(timestamp.timestamp()), "text": text})
+                        completed_users.add(key)
             if record.get("type") == "event_msg" and payload.get("type") == "user_message":
                 if payload.get("local_images"):
                     raise HandoverError("Session hat lokale Bildanhänge. Vollständigkeit ist mit diesem Format nicht belegt; Export abgebrochen.")
@@ -457,8 +477,18 @@ def merge_history(existing, incoming):
     return b"".join(line for _, line in combined)
 
 
-def require_legacy(home, sid):
-    """Never export an obsolete rollout when SQLite owns a newer thread history."""
+def require_portable_history(home, sid, data=None):
+    """Keep databases local; reject a cache newer than the canonical rollout.
+
+    Paginated histories retain ordered raw records. Their SQLite history is a
+    projection rebuilt by Codex when loading the raw file. Unknown modes or a
+    projection beyond the available raw bytes must still fail closed.
+    """
+    if data is None:
+        path = locate_session(home, sid)
+        data = read_optional(path) if path else None
+    meta = json.loads(io.BytesIO(data).readline()).get("payload", {}) if data else {}
+    raw_mode = meta.get("history_mode", "legacy")
     database_home = Path(os.environ.get("CODEX_SQLITE_HOME", str(home)))
     config = home / "config.toml"
     if config.exists():
@@ -474,10 +504,27 @@ def require_legacy(home, sid):
                 columns = {row[1] for row in conn.execute("PRAGMA table_info(threads)")}
                 if "history_mode" in columns:
                     entry = conn.execute("SELECT history_mode FROM threads WHERE id=?", (sid,)).fetchone()
-                    if entry and entry[0] != "legacy":
-                        raise HandoverError(f"Session verwendet Datenbank-History {entry[0]!r}; kein vollständiger JSONL-Export möglich.")
+                    if entry and entry[0] not in {"legacy", "paginated"}:
+                        raise HandoverError(f"Nicht unterstützte Datenbank-History {entry[0]!r}.")
+                    if entry and entry[0] == "paginated" and (not data or raw_mode != "paginated"):
+                        raise HandoverError("Paginated-History ohne passenden vollständigen JSONL-Verlauf; nichts übertragen.")
         except sqlite3.Error as exc:
             raise HandoverError(f"Codex-Index nicht zuverlässig lesbar: {database.name}: {exc}") from exc
+    if raw_mode == "paginated":
+        for database in database_home.glob("thread_history_*.sqlite"):
+            try:
+                with contextlib.closing(sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True)) as conn:
+                    entry = conn.execute("SELECT next_rollout_byte_offset, next_rollout_ordinal "
+                                         "FROM thread_history_projection_state WHERE thread_id=?", (sid,)).fetchone()
+                    if entry:
+                        offset, ordinal = entry
+                        if (not isinstance(offset, int) or not isinstance(ordinal, int) or
+                                offset < 0 or offset > len(data) or ordinal < 0 or
+                                (offset and data[offset - 1:offset] != b"\n") or
+                                data.count(b"\n", 0, offset) != ordinal):
+                            raise HandoverError("History-Index passt nicht zum vollständigen JSONL-Verlauf; nichts übertragen.")
+            except sqlite3.Error as exc:
+                raise HandoverError(f"Codex-History-Index nicht zuverlässig lesbar: {database.name}: {exc}") from exc
 
 
 def session_files(home, sid=None):
@@ -627,7 +674,7 @@ def export_session(root, home, requested=None):
         data = read_optional(path)
         meta, prompts = validate_rollout(data)
         sid = meta["id"]
-        require_legacy(home, sid)
+        require_portable_history(home, sid, data)
         previous = state["sessions"].get(sid)
         require_project(meta, root, repo, previous)
         if previous and previous["status"] == "exported":
