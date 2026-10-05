@@ -67,31 +67,27 @@ extern TIM_HandleTypeDef htim17;
 /**
   * @brief This function handles Non maskable interrupt.
   */
-void NMI_Handler(void)
-{
-  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
+void NMI_Handler(void) {
+	/* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
-  /* USER CODE END NonMaskableInt_IRQn 0 */
-  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-  while (1)
-  {
-  }
-  /* USER CODE END NonMaskableInt_IRQn 1 */
+	/* USER CODE END NonMaskableInt_IRQn 0 */
+	/* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+	while (1) {
+	}
+	/* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
 /**
   * @brief This function handles Hard fault interrupt.
   */
-void HardFault_Handler(void)
-{
-  /* USER CODE BEGIN HardFault_IRQn 0 */
+void HardFault_Handler(void) {
+	/* USER CODE BEGIN HardFault_IRQn 0 */
 
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
+	/* USER CODE END HardFault_IRQn 0 */
+	while (1) {
+		/* USER CODE BEGIN W1_HardFault_IRQn 0 */
+		/* USER CODE END W1_HardFault_IRQn 0 */
+	}
 }
 
 /******************************************************************************/
@@ -104,15 +100,14 @@ void HardFault_Handler(void)
 /**
   * @brief This function handles TIM17, FDCAN1_IT1 and FDCAN2_IT1 Interrupt.
   */
-void TIM17_FDCAN_IT1_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 0 */
+void TIM17_FDCAN_IT1_IRQHandler(void) {
+	/* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 0 */
 
-  /* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim17);
-  /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
+	/* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
+	HAL_TIM_IRQHandler(&htim17);
+	/* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
 
-  /* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
+	/* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

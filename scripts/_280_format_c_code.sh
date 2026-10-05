@@ -84,7 +84,7 @@ CLANG_FILTER_CMD="${CLANG_FILTER_CMD:-go run ./cmd/clang-filter}"
 # repository and CI on the exact release that produced the checked-in files so
 # `format` and `check` cannot disagree merely because they run on different
 # operating systems or rolling CI images.
-CLANG_FORMAT_REQUIRED_VERSION="19.1.7"
+CLANG_FORMAT_REQUIRED_VERSION="23.1.2"
 
 # clang_format_has_required_version validates actual executables, not just a
 # cache directory's existence. This also detects incomplete installs and venvs
@@ -112,15 +112,26 @@ ensure_clang_format() {
   local tool_dir
   local python_command=()
   local venv_python=""
+  local platform
 
-  tool_dir="./temp/tools/clang-format-$CLANG_FORMAT_REQUIRED_VERSION/$(uname -s)-$(uname -m)"
+  platform="$(uname -s)"
+  case "$platform" in
+    MINGW*|MSYS*|CYGWIN*) platform="windows" ;;
+  esac
+  tool_dir="./temp/tools/clang-format-$CLANG_FORMAT_REQUIRED_VERSION/$platform-$(uname -m)"
+
   if clang_format_has_required_version "$requested"; then
     CLANG_FORMAT_BIN="$requested"
     return 0
   fi
   detected="$CLANG_FORMAT_VERSION_OUTPUT"
   if [ -z "${CLANG_FORMAT_BIN:-}" ]; then
-    for candidate in "$tool_dir/bin/clang-format" "$tool_dir/Scripts/clang-format.exe"; do
+    for candidate in \
+      "$tool_dir/bin/clang-format" \
+      "$tool_dir/clang_format/data/bin/clang-format.exe" \
+      "$tool_dir/Lib/site-packages/clang_format/data/bin/clang-format.exe" \
+      "$tool_dir/Scripts/clang-format.exe"
+    do
       if clang_format_has_required_version "$candidate"; then
         CLANG_FORMAT_BIN="$candidate"
         return 0
@@ -182,7 +193,12 @@ ensure_clang_format() {
     echo "clang-format: Installation into $tool_dir failed; check network/wheel availability and rerun. No C/C++ sources were formatted." >&2
     return 1
   fi
-  for candidate in "$tool_dir/bin/clang-format" "$tool_dir/Scripts/clang-format.exe"; do
+  for candidate in \
+      "$tool_dir/bin/clang-format" \
+      "$tool_dir/clang_format/data/bin/clang-format.exe" \
+      "$tool_dir/Lib/site-packages/clang_format/data/bin/clang-format.exe" \
+      "$tool_dir/Scripts/clang-format.exe"
+  do
     if clang_format_has_required_version "$candidate"; then
       CLANG_FORMAT_BIN="$candidate"
       echo "clang-format: Using $CLANG_FORMAT_VERSION_OUTPUT from $CLANG_FORMAT_BIN."

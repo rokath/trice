@@ -355,10 +355,10 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 		TRICE_ENTER_CRITICAL_SECTION
 		TriceNonBlockingDeferredWrite8(triceID, dst, len); // Write each message separately to allow ID routing. See https://github.com/rokath/trice/issues/543.
 		TRICE_LEAVE_CRITICAL_SECTION
-#endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
-       //
-       // TRICE_SINGLE_PACK_MODE
-       //////////////////////////////////////////////////////////////////////////////
+#endif  // TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE
+		//
+		// TRICE_SINGLE_PACK_MODE
+		//////////////////////////////////////////////////////////////////////////////
 
 #if (TRICE_PROTECT == 1) || (TRICE_DIAGNOSTICS == 1)
 		dst = enc + encLen;                                        // When several Trices in the double buffer, with each encoding the new dst could drift a bit closer towards triceNettoStart.
@@ -432,9 +432,11 @@ static void TriceOut(uint32_t* tb, size_t tLen) {
 	TriceNonBlockingDeferredWrite8(triceID, enc, encLen); // lint !e771 Info 771: Symbol 'triceID' conceivably not initialized. Comment: tLen is always > 0.
 	TRICE_LEAVE_CRITICAL_SECTION
 #endif // TRICE_DEFERRED_TRANSFER_MODE == TRICE_MULTI_PACK_MODE
-       //
-       // TRICE_MULTI_PACK_MODE
-       //////////////////////////////////////////////////////////////////////////////
+	// clang-format off
+//
+// TRICE_MULTI_PACK_MODE
+//////////////////////////////////////////////////////////////////////////////
+	// clang-format on
 }
 
 #endif // #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE
