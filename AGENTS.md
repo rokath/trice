@@ -48,6 +48,28 @@
 
 ## Switching Computers with Codex
 
+### Tagged handovers
+* Treat an exact user prompt `handsoff <tag>` as a request to create or fully refresh `docs/scratchPad/handsoff_<tag>.md`. Replace existing contents instead of appending.
+* Treat an exact user prompt `handson <tag>` as a request to load `docs/scratchPad/handsoff_<tag>.md`, verify it against the current checkout, restore that handover as task context, and then wait for the user's next instruction. Do not resume implementation automatically.
+* `<tag>` is required. Accept only a short lowercase ASCII tag matching `[a-z0-9][a-z0-9_-]*`. If the tag is missing or invalid, report the expected syntax and do not create, read, or guess a file.
+* `handsoff_<tag>.md` files in `docs/scratchPad` are intentionally version-controlled handover files. Do not add them to `.gitignore`.
+* A `handsoff` file must be concise and contain only information useful for continuing the work on another computer:
+  - current goal and task
+  - current Git branch and HEAD commit
+  - relevant working-tree state
+  - work already completed
+  - binding decisions, rationale, exclusions, and important constraints
+  - relevant files
+  - tests/checks already performed and their exact outcomes
+  - unresolved issues
+  - concrete next steps
+* Clearly distinguish repository state already contained in Git from uncommitted local changes, assumptions, skipped work, interrupted work, and unfinished work.
+* Do not include conversational history, lengthy logs, credentials, dead-end discussions, or information that can be recovered trivially from Git.
+* `handsoff` must not run `git add`, `git commit`, or `git push`. After writing the file, report its path and remind the user to add and commit the handover manually. If the handover is intended for another computer, also remind the user that the commit must be transferred, normally by pushing it. Mention any other uncommitted changes that would also need to be committed or otherwise transferred.
+* On `handson <tag>`, if the requested handover file does not exist, report that briefly and stop; do not infer its contents from another handover file.
+* On `handson <tag>`, compare at least the recorded branch, HEAD commit, working tree, and relevant files with the actual checkout. Briefly report material discrepancies before waiting for further instructions.
+
+### Full computer-switch workflow
 * Treat "Rechnerwechsel vorbereiten" ("prepare a computer switch") as a request to reach a recoverable stopping point. Start no new implementation or long test; let necessary cleanup and test-state restoration finish. Do not kill unrelated sessions or leave temporarily rewritten sources behind.
 * For unfinished work, update one concise handover at `docs/scratchPad/Codex_Handover.md`: goal, binding decisions and exclusions, current results, unfinished work, exact test commands and outcomes, required local-only files, and the next concrete step. Clearly distinguish passed, failed, skipped and interrupted tests. Do not put credentials into the handover.
 * Inspect tracked and untracked changes and existing local commits. Commit and push only when the user explicitly requests them, for example "Rechnerwechsel vorbereiten, committen und pushen". After a requested push, verify the actual remote branch commit; local tracking refs alone do not prove that the transfer succeeded. Otherwise report the remaining Git step concisely.
