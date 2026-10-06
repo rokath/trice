@@ -97,7 +97,8 @@ main() {
   if logging_tools "CE/SL compiler and decoder integration" go clang clang++ clangd; then
     log "INFO: productive CE/SL: Bind and Insert/Clean, C/C++, text/JSON/KV, disabled logging and single evaluation"
     run_logging_go_checks ./internal/args \
-      TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder || return $?
+      TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder \
+      TestOrderedIDsTargetRecordsMatchSourceAndCatalog || return $?
     log "INFO: retained CE proofs: direct callsites and the unsupported Rebase scope boundary"
     run_logging_go_checks ./internal/id \
       TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary || return $?
