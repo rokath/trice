@@ -1,1 +1,1 @@
-# [../docs/TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation](../docs/TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation)
+- [Example projects: selection, setup, and instrumentation](../docs/TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation)

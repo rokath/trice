@@ -462,10 +462,12 @@ details.toc[open] .toc-hide {
   * [39.7. Responses](#responses)
   * [39.8. What ABC is not](#what-abc-is-not)
   * [39.9. Example: examples/TriceAbc](#example-examplestriceabc)
-  * [39.10. Host tests](#host-tests)
-  * [39.11. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
-  * [39.12. Security boundary](#security-boundary)
-  * [39.13. Summary](#summary-1)
+    * [39.9.1. ABC Demo Layout, Startup, and Runtime Policy](#abc-demo-layout-startup-and-runtime-policy)
+  * [39.10. BcSim Broadcast Byte-Stream Simulator](#bcsim-broadcast-byte-stream-simulator)
+  * [39.11. Host tests](#host-tests)
+  * [39.12. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
+  * [39.13. Security boundary](#security-boundary)
+  * [39.14. Summary](#summary-1)
 * [40. Development Environment Setup](#development-environment-setup)
   * [40.1. Common Information](#common-information-1)
   * [40.2. Important to know](#important-to-know)
@@ -499,15 +501,23 @@ details.toc[open] .toc-hide {
   * [40.13. Setting up a new project](#setting-up-a-new-project)
   * [40.14. Third-party packages and retained versions](#third-party-packages-and-retained-versions)
 * [41. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
-  * [41.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
-    * [41.1.1. F030bare](#f030bare)
-    * [41.1.2. F030inst](#f030inst)
-  * [41.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
-    * [41.2.1. G0B1bare](#g0b1bare)
-    * [41.2.2. G0B1inst](#g0b1inst)
-  * [41.3. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
-    * [41.3.1. L432bare](#l432bare)
-    * [41.3.2. L432inst](#l432inst)
+  * [41.1. Minimal PC Demos: Direct and Deferred](#minimal-pc-demos-direct-and-deferred)
+  * [41.2. PC Feature Tour](#pc-feature-tour)
+    * [41.2.1. Updating the PC Tour's Output Checks](#updating-the-pc-tours-output-checks)
+  * [41.3. G0B1 Feature Tour](#g0b1-feature-tour)
+  * [41.4. Local Logging Example Projects](#local-logging-example-projects)
+    * [41.4.1. PC Local Logging](#pc-local-logging)
+    * [41.4.2. G0B1 FreeRTOS Local Logging](#g0b1-freertos-local-logging)
+  * [41.5. Shared Example Producers](#shared-example-producers)
+  * [41.6. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
+    * [41.6.1. F030bare](#f030bare)
+    * [41.6.2. F030inst](#f030inst)
+  * [41.7. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
+    * [41.7.1. G0B1bare](#g0b1bare)
+    * [41.7.2. G0B1inst](#g0b1inst)
+  * [41.8. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
+    * [41.8.1. L432bare](#l432bare)
+    * [41.8.2. L432inst](#l432inst)
 * [42. Trice Generate](#trice-generate)
   * [42.1. Colors](#colors)
   * [42.2. C-Code](#c-code)
@@ -2331,6 +2341,62 @@ examples.
 
 #### 12.4.2. <a id="examplesdemodatacsv"></a>./examples/DemoData_CSV
 
+The [CSV producer](../examples/DemoData_CSV/src/main.c) is a small C11 program
+for Windows, macOS, and Linux. Each newline-terminated record contains
+`time_s,x,y,z`, all represented as `double`; time is in seconds. It writes to
+standard output by default, to a fresh file with `--output FILE`, or to UDP
+with one record per datagram. Use `--help` for all options.
+
+Both data producers require a C compiler and CMake 3.16 or newer. Run their
+`build.sh` in Git Bash on Windows or a POSIX shell on macOS/Linux; restore its
+executable permission with `chmod +x build.sh` if necessary. Executables are
+installed in each project's `bin/`, with intermediate files in `build/`.
+For the CSV producer, the equivalent explicit CMake commands are:
+
+```sh
+cd examples/DemoData_CSV
+cmake -S . -B build
+cmake --build build --config Release
+cmake --install build --config Release --prefix .
+```
+
+These commands also work in PowerShell. Its executable invocation is
+`.\bin\DemoData_CSV.exe`; in Git Bash use `./bin/DemoData_CSV`.
+
+From the CSV project directory, try:
+
+```sh
+./build.sh
+./bin/DemoData_CSV
+./bin/DemoData_CSV --rate 50 --samples 500 --no-delay --header --output DemoData_CSV.csv
+./bin/DemoData_CSV --udp 127.0.0.1 9000
+```
+
+Run these alternatives separately. The second command runs continuously at
+50 Hz; interrupt it with `Ctrl-C`. The third writes ten seconds of data
+without real-time waiting. On Windows PowerShell the UDP command is
+`.\bin\DemoData_CSV.exe --udp 127.0.0.1 9000`.
+
+For Serial Studio, choose **Quick Plot (Comma Separated Values)**, then
+**Network Socket > UDP**, set local port `9000`, connect, and start the UDP
+producer. Quick Plot treats all four columns as values. A custom project can
+instead name the columns and use the first column as a timestamp axis. Its
+input must be `seconds,x,y,z`; do not send `--header` on the live stream.
+There is currently no versioned `DemoData.ssproj` in this repository.
+
+Both producers use the following signal model for time `t` in seconds:
+
+```text
+phase = (pi/3) * sin(2*pi*0.04*t)
+x = sin(2*pi*0.70*t)
+y = sin(2*pi*0.91*t + pi/2 + phase)
+z = 0.6*sin(2*pi*0.13*t) + 0.2*x*y + pulse
+```
+
+The pulse has height `0.8` during the final 250 ms of every eight-second
+interval. The slow phase modulation keeps the Lissajous plot moving. The
+Trice producer calculates the signals as doubles and transmits float32 values.
+
 After running `build.sh` inside `./examples/DemoData_CSV/`, the executable is
 installed in the local `bin/` folder. You can run it there:
 
@@ -2352,6 +2418,36 @@ th@Thomass-MacBook-Pro-7 bin %
 ```
 
 #### 12.4.3. <a id="examplesdemodatatrice"></a>./examples/DemoData_Trice
+
+The [Trice producer](../examples/DemoData_Trice/src/main.c) transports the
+same signals as binary Trice records. Keep it inside the repository: its
+CMake project uses the unchanged target library from `../../src`.
+Its [build script](../examples/DemoData_Trice/build.sh) prepares Bind and the
+repository-root `demoTIL.json` before building; it requires the Trice host
+tool in addition to the CSV producer's prerequisites. Use this script rather
+than plain CMake commands that omit Bind preparation. There is no private
+`til.json` or fixed `iD(1000)` for this ID-free producer.
+
+The 32-bit target stamp uses units of **10 ms**: at 50 Hz the stamps are
+`0, 2, 4, ...`. Convert with `seconds = ts/100.0` or
+`milliseconds = ts*10`; `ts*100` does not give seconds.
+
+From `examples/DemoData_Trice`:
+
+```sh
+./build.sh
+./bin/DemoData_Trice --samples 500 --no-delay
+trice log -p FILEBUFFER -args DemoData_Trice.bin -pf TCOBS -til ../../demoTIL.json -li off
+```
+
+Without an output option, the producer recreates `DemoData_Trice.bin` in the
+current directory (`wb` truncates its previous contents). `--output FILE`
+selects another fresh file, `--stdout` writes binary data to standard output,
+and `--udp HOST PORT` sends one complete TCOBS-framed record per datagram.
+Without `--samples` it runs until interrupted. `--samples 500` counts signal
+samples, not all log records: startup and periodic diagnostic logs are extra.
+Use `--help` for all options. On Windows PowerShell, run
+`.\bin\DemoData_Trice.exe` with the same arguments.
 
 After running `build.sh` inside `./examples/DemoData_Trice/`, the executable is
 installed in the local `bin/` folder. You can run it there:
@@ -2383,7 +2479,7 @@ th@Thomass-MacBook-Pro-7 bin %
 - Get CSV log file:
 
 ```txt
-th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
+th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100.0,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
 th@Thomass-MacBook-Pro-7 bin % head log.csv
 time_s,X,Y,Z
 0.000,0.000,1.000,0.000
@@ -2397,6 +2493,30 @@ time_s,X,Y,Z
 0.160,0.647,0.576,0.153
 th@Thomass-MacBook-Pro-7 bin % 
 ```
+
+The preceding file visualization rule recreates `log.csv` when `tlog` starts.
+Its header is written once per sink; the quoted Go string supports `\n`.
+Keep a single backslash in the shell's single-quoted rule. `log=drop` suppresses
+the successfully visualized records, while unrelated diagnostic logs remain.
+
+For a live Serial Studio or other CSV viewer listening on UDP `9000`, start
+the decoder from the repository root before starting the binary producer:
+
+```sh
+trice log -p UDP4 -args 127.0.0.1:9001 -pf TCOBS -til demoTIL.json -ulabel vis_demo \
+  -vis='vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop'
+```
+
+In another terminal, also from the repository root:
+
+```sh
+examples/DemoData_Trice/bin/DemoData_Trice --udp 127.0.0.1 9001
+```
+
+On Windows the executable has an `.exe` suffix. The producer sends **binary
+Trice** to `9001`, not CSV; connecting it directly to the viewer on `9000`
+cannot work. The decoder converts its records to `seconds,x,y,z`. The LabPlot
+launchers below automate this pipeline and its receiver-readiness checks.
 
 #### 12.4.4. <a id="quick-labplot-demonstration"></a>Quick LabPlot demonstration
 
@@ -2440,7 +2560,8 @@ knowledge. Start `run_csv.sh` first and leave it running.
    ten-second window at the demo's 50 Hz rate.
 5. Add a worksheet with a Cartesian plot. Add three XY curves. For every
    curve choose `time_s` as the X column and choose `x`, `y`, or `z` as the Y
-   column. Enable the legend and automatic range scaling. In the plot's range
+   column. Enable the legend, label the axes `time [s]` and `value`, and enable
+   automatic range scaling. In the plot's range
    settings select **Last values** and enter `500`; otherwise the time axis
    keeps growing and the curves become increasingly compressed.
 6. Add a second Cartesian plot to the same worksheet and select a horizontal
@@ -2450,12 +2571,27 @@ knowledge. Start `run_csv.sh` first and leave it running.
    trace and the signal's slow phase drift make the movement visible.
 7. Save the project as `LabPlotUser.lml`.
 
-The finished project in `./examples/LabPlotDemo/LabPlotDemo.lml` contains
-exactly these settings. Open it to inspect the result, or use the detailed
-notes in `./examples/LabPlotUser/README.md` while building it manually.
+The finished [LabPlotDemo.lml](../examples/LabPlotDemo/LabPlotDemo.lml) contains
+these settings and no machine-specific paths. Open it manually if LabPlot is
+already running. The [LabPlotUser directory](../examples/LabPlotUser/) is the
+place for your recreated `LabPlotUser.lml`; this section is its complete
+rebuild guide. Both producers end at the same numeric UDP stream, for example
+`0.000000,0.000000,1.000000,0.000000`.
+
+Stop the producer and start the other launcher without changing the LabPlot
+project. Keep only one producer sending to UDP `9000` and keep the live source
+connected. The Trice launcher first waits for LabPlot on `9000`, then for its
+decoder on `9001`. The supplied project predeclares all four numeric columns
+and triggers an initial read when loaded so that LabPlot prepares its socket.
 
 #### 12.4.6. <a id="troubleshooting-and-adaptations"></a>Troubleshooting and adaptations
 
+* `labplot` must be discoverable or selected with `LABPLOT`. macOS also checks
+  its standard application bundle. Windows searches `ProgramFiles`,
+  `ProgramW6432`, and `LOCALAPPDATA` for `labplot.exe` or `labplot2.exe`;
+  an explicit `LABPLOT` override takes precedence. `TLOG` can select a decoder
+  outside `PATH`. Producer executables stay in each demo's `bin/`, with CMake
+  intermediates in `build/`.
 * If the plots remain empty, verify that the producer is running and that no
   other process owns UDP port `9000`.
 * If `tlog` reports that a `-vis` rule was disabled because writing to port
@@ -2752,7 +2888,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
-The [PC feature tour](../examples/PC_features/README.md) makes this distinction visible without hardware: its 16-bit stamp is a sample phase, while its 32-bit stamp counts milliseconds. The matching [G0B1 feature tour](../examples/G0B1_features/ReadMe.md) uses the board's own timers.
+The [PC feature tour](#pc-feature-tour) makes this distinction visible without hardware: its 16-bit stamp is a sample phase, while its 32-bit stamp counts milliseconds. The matching [G0B1 feature tour](#g0b1-feature-tour) uses the board's own timers.
 
 ### 18.1. <a id="target-timestamps-formatting"></a>Target (Time)Stamps Formatting
 
@@ -5765,7 +5901,7 @@ Use a threshold when the requirement is “Warning and everything more important
 
 These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](#id-routing); received raw bytes can still be kept in a [binary logfile](#binary-logfile).
 
-For a short capture to experiment with, run the [PC feature tour](../examples/PC_features/README.md) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](../examples/G0B1_features/ReadMe.md) applies the same output choices to a board capture.
+For a short capture to experiment with, run the [PC feature tour](#pc-feature-tour) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](#g0b1-feature-tour) applies the same output choices to a board capture.
 
 All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
@@ -5895,7 +6031,7 @@ The target continues to transmit the ID and values using the existing wire forma
 
 Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN` are supported. The target macros and their bit-width rules remain authoritative. Context Enrichment (`bind -ce`) can add supported structured fields; see [Context Enrichment](#trice-context-enrichment).
 
-Try the [PC Feature Tour](../examples/PC_features/README.md) or the [G0B1 Feature Tour](../examples/G0B1_features/ReadMe.md): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
+Try the [PC Feature Tour](#pc-feature-tour) or the [G0B1 Feature Tour](#g0b1-feature-tour): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
 
 Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
 
@@ -6089,7 +6225,7 @@ For example, `-ce 'ctx7:", clock={}", clock' adds the value of `clock`, valid at
 
 CE requires no global runtime context or push/pop calls on the target. Every executed record transmits its own additional values. CE is therefore independent of [Structured Logging](#structured-logging): an extension may use classical printf placeholders or also create named fields.
 
-Two runnable applications demonstrate the same idea: in the [PC example](../examples/PC_features/README.md), `bind -ce` adds a cycle value at a shared log site. In the [FreeRTOS example](../examples/G0B1_features/ReadMe.md), derived directly from `G0B1_inst`, the same log site adds the identity of its calling task. Both examples also use `triceS` for a runtime string; CE does not append additional runtime arguments to string Trices.
+Two runnable applications demonstrate the same idea: in the [PC example](#pc-feature-tour), `bind -ce` adds a cycle value at a shared log site. In the [FreeRTOS example](#g0b1-feature-tour), derived directly from `G0B1_inst`, the same log site adds the identity of its calling task. Both examples also use `triceS` for a runtime string; CE does not append additional runtime arguments to string Trices.
 
 ### 33.1. <a id="getting-started-with-position-and-speed"></a>Getting Started with Position and Speed
 
@@ -7609,13 +7745,13 @@ select only rows valid for the active `triceConfig.h`.
 
 ##### Examples
 
-[`examples/PC_log`](../examples/PC_log/README.md) is an immediately runnable
+[`examples/PC_log`](#pc-local-logging) is an immediately runnable
 host program using the system `snprintf` and standard output. After a short
 introductory sequence, it scans the complete shared
 `_test/testdata/triceCheck.c` producer corpus and fails with the exact selector
 and local-log error if an emitted record cannot be formatted.
 
-[`examples/G0B1_log`](../examples/G0B1_log/README.md) is an independent STM32G0B1
+[`examples/G0B1_log`](#g0b1-freertos-local-logging) is an independent STM32G0B1
 FreeRTOS project using nanoprintf in its background task and plain-text USART2
 output. Its existing default and diagnostics tasks retain their CubeMX names,
 priorities, and stack sizes; the default task scans the same shared producer
@@ -8542,7 +8678,80 @@ th@Thomass-MacBook-Pro-7 TriceAbc %
 
 ![Trice ABC host demo bus topology](./ref/trice_abc_demo_bus.png)
 
-### 39.10. <a id="host-tests"></a>Host tests
+#### 39.9.1. <a id="abc-demo-layout-startup-and-runtime-policy"></a>ABC Demo Layout, Startup, and Runtime Policy
+
+The [host-native example](../examples/TriceAbc/) requires Bash and a C compiler (`gcc`, `clang`, or `cc`); `CC` selects a compiler explicitly. Its build script uses `TRICE_BIN` if supplied, otherwise Go when available, or `trice` in `PATH`. It builds nine executables below `build` (`.exe` on Windows), inserts IDs before generating the tables, and runs `trice clean` on exit after a successful insert. `NodeLib/til.c` is regenerated for the selected source roots and is not a checked-in source. `NodeLib/nodeAbc.h` is the shared user-owned command selection, so preserve it when cleaning generated files.
+
+The layout separates [BcSim](../examples/TriceAbc/BcSim/) (reusable protocol-neutral transport), [BcSimChk](../examples/TriceAbc/BcSimChk/) (standalone random-byte check), [NodeLib](../examples/TriceAbc/NodeLib/) (shared Trice runtime and generated tables), and the nine node directories. `tx`, `rx`, and `bi` describe bus capability, not command vocabulary. `N1_tx`/`N2_tx` emit logs, counted typeX0 buffers, and commands; `N3_bi` also receives and replies; `N4_rx`/`N5_rx` execute commands only; `N6_rx` adds received log presentation; `N7_bi` combines replies and log presentation; `N8_bi`/`N9_bi` reply without the normal-log printer.
+
+`demo.sh` starts receive-capable nodes first, then pure transmitters. A BcSim participant joins at the current end of the bus and does not replay earlier traffic. Runtime files are `abc.bus` (binary framed stream), `abc.log` (human hex log), and `abc.bus.lock/` (writer lock). They are separate from BcSimChk's `bc.*` files. `abc.console.lock/` keeps each complete node or shell status line together; the console lock waits rather than falling back to interleaved writes. A killed lock owner may require manual cleanup after all participants stop.
+
+The command shapes and effects are intentionally small:
+
+| Command | Payload and effect |
+| --- | --- |
+| `cmd:setLeds` | One 8-bit mask; update the local simulated LED bar. |
+| `cmd:getLeds` | No payload; every other bidirectional node can answer `abc:LedsState` with an 8-bit mask. Receive-only nodes cannot reply. |
+| `cmd:setKey` | Counted 8-bit byte buffer; store a local key. |
+| `cmd:logState` | No payload; local printf side effect, without a Trice/ABC response. |
+| `cmd:divide` | Two 32-bit floats; bidirectional nodes answer `abc:DivideResult` with one float. |
+
+Unstamped requests broadcast, so several identical-looking replies are expected. For stamped `getLeds` and `divide`, the demo's application policy uses low bits `0x0001`, `0x0002`, and `0x0004` to select `N7_bi`, `N8_bi`, and `N9_bi`. `N3_bi` demonstrates one and multiple selected responders. Replies retain stamp width and value. This is demonstration routing above ABC, not a built-in addressing protocol.
+
+The node-local `triceConfig.h` files select TX, ABC RX, normal-log resolution, and direct output. Transmitting nodes select `TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS`, for example in [N3_bi/triceConfig.h](../examples/TriceAbc/N3_bi/triceConfig.h); the shared [NodeLib/node.c](../examples/TriceAbc/NodeLib/node.c) collects and decodes COBS frames. All participants must agree on framing. The former separate `triceRxConfig.h` is no longer present. NodeLib implements the real generated handlers once; runtime `canSend` decides whether a node replies, avoiding forwarding wrappers in each node.
+
+The host bridge preserves the normal send macros through `TriceWriteDevice()`. A persistent input buffer splits COBS frames at zero delimiters, keeps the incomplete tail, then iterates logical records inside each decoded frame. It skips record-alignment bytes only when the expected bytes are zero. Parsing happens once, followed by ABC, normal-log, typeX0, or unknown-record dispatch; `TriceAbcOnReceive()` is not the primary demo entry point. Selector-0 buffers have no ID or TIL lookup and are displayed as raw bytes. Nodes without normal-log resolution show ignored IDs; the small generated-`til.c` log printer is not a replacement for the Go host decoder and has no source-location column.
+
+Self-written bus ranges are filtered, so a node does not receive its own frames or display its own logs as received traffic. `nodeSleepMs()` handles shared pacing. Process-local `TRICE_ENTER_CRITICAL_SECTION` hooks cannot protect a multi-process console; NodeLib's separate console lock does that. Each node formats a full line before acquiring the lock. LED output uses `*` for on and space for off, for example:
+
+```text
+N4_rx: leds=[**  *   ]
+N6_rx: key=bravo7 leds=[***     ]
+N7_bi: abc:DivideResult=3.140000
+N6_rx: log:tick=4
+N7_bi: x0 5 bytes: 10 11 12 13 14
+```
+
+### 39.10. <a id="bcsim-broadcast-byte-stream-simulator"></a>BcSim Broadcast Byte-Stream Simulator
+
+[BcSim](../examples/TriceAbc/BcSim/) is a standalone C module: several PC processes append to a shared local file and poll bytes written by others. It knows nothing about IDs, framing, encryption, packet boundaries, source addresses, commands, or handlers. `bc.bus` contains exactly the supplied bytes, with no inserted name, timestamp, length, or metadata; optional `bc.log` is human-readable diagnostic output only.
+
+Each process owns one `BcSim_t`. `bcSimOpen()` opens a local view and starts reading at the current end of the bus. `bcSimWrite()` appends bytes and remembers its own written offset ranges; `bcSimRead()` filters those ranges from subsequent reads; `bcSimClose()` closes the view and resets state. Filtering by offsets rather than byte contents preserves identical data legitimately sent by different processes or repeated by one process.
+
+Writers serialize through an atomically created `bc.bus.lock/` directory: acquire lock, obtain file size, append, remember the `[start,end)` range, optionally append the TX log line, then remove the lock. Competing writers retry until the timeout. Reads normally take no writer lock and may see partial data, which the higher stream layer must buffer. Define `BCSIM_READ_USES_LOCK 1` for deterministic reads under the same writer lock.
+
+The [public API](../examples/TriceAbc/BcSim/BcSim.h) is:
+
+```c
+int bcSimOpen(BcSim_t* io, const char* busPath,
+              const char* logPath, const char* deviceName);
+int bcSimRead(BcSim_t* io, uint8_t* p, size_t max, const char* status);
+int bcSimWrite(BcSim_t* io, const uint8_t* p, size_t n, const char* status);
+void bcSimClose(BcSim_t* io);
+```
+
+The three integer-returning functions return a non-negative byte count or a negative `BCSIM_ERR_*` value. The log starts with a header, then one TX/RX line per event: right-aligned decimal offsets and lengths without leading zeros, device, direction, optional status, and space-separated two-digit lowercase hexadecimal bytes.
+
+```text
+# BcSim traffic log
+# bus file: bc.bus
+# Columns: offset, len, device, direction, status, bytes
+      0      12  A                 TX   tx-0                    35 6a 11 8e ...
+     12      12  B                 RX   poll-1                  35 6a 11 8e ...
+```
+
+Try the transport alone, without Trice tables:
+
+```sh
+cd examples/TriceAbc/BcSimChk
+./demo.sh
+```
+
+Its [build script](../examples/TriceAbc/BcSimChk/build.sh) compiles `main.c` and `../BcSim/BcSim.c`; `CC` and `CFLAGS` allow experiments, such as `CFLAGS='-DBCSIM_READ_USES_LOCK=1' ./build.sh`. The demo starts four participants with random byte blocks and shows `bc.log` and a bus hex dump. The reusable library files are `BcSim_config.h`, `BcSim.h`, and `BcSim.c`; BcSimChk is not needed by applications reusing the transport.
+
+This is a local demonstration medium, not high-performance IPC or a real embedded link. The bus grows until removed, only finitely many self-write ranges are remembered, and a restarted process cannot identify a previous instance's writes. A killed writer can leave a lock directory requiring cleanup. Network filesystems may not offer the same atomic directory and visibility behavior as local filesystems.
+
+### 39.11. <a id="host-tests"></a>Host tests
 
 `_test/abc_tx_host` checks the transmit side. It compiles a small C fixture with ABC TX support, emits selected `triceC`, `TriceC`, `TRiceC`, `trice8C`, `trice16C`, and `trice32C` calls, and compares the produced bytes with fixed fixtures. It verifies wire format generation only; it does not use a receiver table.
 
@@ -8550,7 +8759,7 @@ th@Thomass-MacBook-Pro-7 TriceAbc %
 
 Together, these tests document the current ABC boundary: transmit macros create normal Trice records, the generated table maps selected IDs to handlers, and the receive runtime parses/resolves/dispatches one decoded record at a time.
 
-### 39.11. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
+### 39.12. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
 
 Use ABC as the transport primitive and define the RPC policy in the application.
 
@@ -8566,7 +8775,7 @@ A minimal RPC-like pattern is:
 
 For addressed RPC over a broadcast bus, put the destination into the stamp or payload and let non-matching receivers ignore the command. ABC itself still broadcasts the record.
 
-### 39.12. <a id="security-boundary"></a>Security boundary
+### 39.13. <a id="security-boundary"></a>Security boundary
 
 ABC receiving allows incoming Trice records to trigger selected local application handlers. Do not enable ABC receive processing on untrusted inputs without an application-level trust model.
 
@@ -8578,7 +8787,7 @@ Typical protections are:
 - add authentication or encryption around the transport,
 - compile out `TRICE_RX_ABC_SUPPORT` where it is not needed.
 
-### 39.13. <a id="summary-1"></a>Summary
+### 39.14. <a id="summary-1"></a>Summary
 
 ABC turns selected Trice IDs into asynchronous broadcast commands.
 
@@ -9597,8 +9806,8 @@ inventory.
 |                                    |                                                                                                                                                                                                                                                                                  |
 | [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
 | [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
-| [PC_features](../examples/PC_features/README.md) | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts. |
-| [G0B1_features](../examples/G0B1_features/ReadMe.md) | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts. |
+| [PC_features](#pc-feature-tour) | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts. |
+| [G0B1_features](#g0b1-feature-tour) | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts. |
 |                                    |                                                                                                                                                                                                                                                                                  |
 | [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
 | [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
@@ -9606,11 +9815,170 @@ inventory.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 41.1. <a id="nucleo-f030r8-examples"></a>Nucleo-F030R8 Examples
+### 41.1. <a id="minimal-pc-demos-direct-and-deferred"></a>Minimal PC Demos: Direct and Deferred
+
+The two programs under [demo](../demo/) use the same binary output channel in two modes. `direct` writes each record immediately to `build/log.bin`; `deferred` first stores records in a ring buffer and drains it through `TriceTransfer()`. Both compile the repository's `src` directly, without copying a library or requiring a separate build system.
+
+Put `trice` and a C compiler named `cc` or `gcc` in `PATH`, then use a POSIX shell (Git Bash on Windows):
+
+```sh
+cd demo
+LC_ALL=C sh ./demo.sh
+```
+
+The [script](../demo/demo.sh) binds both programs once, builds and runs `deferred` followed by `direct`, and decodes both captures using `trice log -p FILEBUFFER`. Calling it through `sh` works even though its versioned file has no executable bit; alternatively, use `chmod +x demo.sh` before `./demo.sh`. `LC_ALL=C` makes the source glob's lowercase selection predictable. `tlog` is not required. The optional prerequisite checks near the start of the script can be enabled; the script installs nothing. On Windows the executables receive the `.exe` suffix automatically.
+
+Ignoring optional location/prefix columns, the messages are:
+
+```text
+Hello from deferred mode.
+Deferred value=42.
+Hello from direct mode.
+Direct value=42.
+```
+
+The layout separates project data from generated outputs:
+
+```text
+demo/til.json, demo/li.json   shared, persistent project ID/location tables
+demo/generated/              generated sidecars and field registry
+demo/deferred/main.c          deferred application
+demo/deferred/triceConfig.h   deferred configuration
+demo/deferred/build/          executable and log.bin
+demo/direct/main.c            direct application
+demo/direct/triceConfig.h     direct configuration
+demo/direct/build/            executable and log.bin
+```
+
+Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. The compiler's `../src/[a-z]*.c` glob is intended to exclude the uppercase vendor source `SEGGER_RTT.c`, so these demos need no RTT configuration. Inspect the selected source list if a locale causes that glob to include the vendor file.
+
+Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42`, rerun the script, and compare the two decoded logs. The shared workflow is maintained only in `demo.sh`.
+
+### 41.2. <a id="pc-feature-tour"></a>PC Feature Tour
+
+The [PC program](../examples/PC_features/main.c) emits a short `capture.bin` for the normal host decoder. It groups Structured Logging, a runtime string, Context Enrichment (CE), tags, an untagged message, a buffer record, and both target-stamp widths in one editable application.
+
+With `trice` and `cc` or `gcc` in `PATH`, run:
+
+```sh
+cd examples/PC_features
+./build_and_run.sh
+./show_text.sh
+./show_json.sh
+./show_kv.sh
+./check_output.sh
+```
+
+The [build script](../examples/PC_features/build_and_run.sh) binds local IDs and applies `-ce 'ctx:", cycle={cycle:%u}", pc_sample_phase'`. The shared `emit_sample` call therefore gains a `cycle` field without editing its `Supply {voltage_mv:%u}` format. The device name uses `TriceS` because CE does not append runtime arguments to string Trices. `til.json` and `li.json` are versioned project tables; the capture, executable, and generated headers are build outputs. Rebuild after changing the source or CE rule.
+
+| Feature | Source to edit | Observable result |
+| --- | --- | --- |
+| Numeric fields and runtime string | `emit_sample` and the device-name `TriceS` | JSON `fields.voltage_mv` and `fields.device`; the device is `pump A`. |
+| CE at one shared call site | `info:ctx:` and `pc_sample_phase` | Supply readings contain `cycle=7` and `cycle=11`. |
+| Built-in and custom tags | `wrn:`, `dbg:`, `sensor:` | Warning threshold filters events; `sensor` has weight 450 in the show scripts. |
+| Two stamp widths | `TRice16` for Phase, `Trice8` for Humidity, and `TRice32` for Supply | Phase has a 32-bit stamp; Humidity has a 16-bit stamp. |
+| Stamp delta | Two Supply calls | Second 32-bit stamp is 125 ms, with a 25 ms delta. |
+| Untagged message and buffer | Last calls in `main` | Message `A message without a tag`, metadata tag `untagged`, and bytes `41 00 ff `. |
+
+The [text](../examples/PC_features/show_text.sh), [JSON](../examples/PC_features/show_json.sh), and [KV](../examples/PC_features/show_kv.sh) scripts append your extra arguments to their `trice log` command:
+
+```sh
+./show_json.sh -logLevel wrn
+./show_text.sh -pick info
+./show_json.sh -ulabel sensor:650 -logLevel wrn
+./show_text.sh -tagStat
+```
+
+The first retains Warning and higher weights; the third raises `sensor` so it also passes that threshold. JSON produces one object per event (NDJSON). Tag statistics count decoded groups, including events hidden by filters. For a complete macro/format corpus see [triceCheck.c](../_test/testdata/triceCheck.c); for live plotting see [the data producers](#setting-up-the-labplot-demo), and for local formatting see [the local-log examples](#local-logging-example-projects).
+
+#### 41.2.1. <a id="updating-the-pc-tours-output-checks"></a>Updating the PC Tour's Output Checks
+
+[check_output.sh](../examples/PC_features/check_output.sh) checks concrete values from `main.c`, the CE rule, and the show-script options. After editing any of those, rebuild, inspect JSON and KV output, update the corresponding shell `case` pattern, and run the check again. Keep each check tied to an observable result. If a feature is removed, deliberately replace or remove its assertion rather than leaving a commented-out check and a misleading `PASS` message.
+
+Macro capitalization chooses stamp width: `trice...` has no target stamp, `Trice...` has 16 bits, and `TRice...` has 32 bits. Changing `Trice16(...)` to `TRice16(...)` changes the stamp, not the 16-bit payload value. The `-ts16` and `-ts32` options change display only. In this tour the 16-bit stamp represents a sample phase; the 32-bit stamp counts milliseconds. Adding stamped events can change subsequent `ts16Delta` or `ts32Delta` expectations. JSON displays a source newline as the two characters `\n`, which shell patterns must match literally.
+
+### 41.3. <a id="g0b1-feature-tour"></a>G0B1 Feature Tour
+
+[G0B1_features](../examples/G0B1_features/) is a direct copy of `G0B1_inst` with a short tour in its two existing FreeRTOS tasks. The original hardware configuration remains in place; the large `TriceCheck` loop is omitted to make task records easy to find. Its companion is the hardware-free [PC feature tour](#pc-feature-tour).
+
+With `trice`, GNU Make, and the Arm GNU toolchain in `PATH`:
+
+```sh
+cd examples/G0B1_features
+./demo_build.sh
+./check_build.sh
+```
+
+The [build script](../examples/G0B1_features/demo_build.sh) binds this copy and its shared `exampleData` producers into a private `til.json`, applying `-ce 'ctx:", task={task:%p}", osThreadGetId()'`. The call in `LogFeatureSample` executes from both tasks, so the records have different task handles at the same C call site. The neighboring `triceS` transports the worker name. Edit [Core/Src/main.c](../examples/G0B1_features/Core/Src/main.c) to experiment with the named `sample` and `load_pct` fields, 16-/32-bit stamps, Warning, untagged text, buffer output, and the custom `sensor:` tag.
+
+[check_build.sh](../examples/G0B1_features/check_build.sh) verifies the generated task adapter and the string, field, stamp, tag, and buffer entries; it needs no board. It is a compiler/build check, not evidence that firmware ran on an MCU.
+
+Flash `out.gcc/G0B1.elf` using the [original board setup](#g0b1inst). In a separate terminal capture RTT channel 0 with J-Link:
+
+```sh
+mkdir -p temp
+JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 temp/trice.bin
+```
+
+Stop the logger once startup records have arrived, then decode the saved capture:
+
+```sh
+./show_text.sh
+./show_json.sh
+./show_kv.sh
+./show_json.sh -pick info
+./show_kv.sh -logLevel wrn
+```
+
+The [text](../examples/G0B1_features/show_text.sh), [JSON](../examples/G0B1_features/show_json.sh), and [KV](../examples/G0B1_features/show_kv.sh) decoder scripts expect this project's `til.json` and accept extra `trice log` arguments. They use 16-bit stamps as microseconds and 32-bit stamps as milliseconds; JSON is NDJSON. The custom tag has weight 450. Rebuild and recapture after editing calls or CE rules. A board and J-Link are required for capture, but an existing `temp/trice.bin` can be decoded without hardware.
+
+### 41.4. <a id="local-logging-example-projects"></a>Local Logging Example Projects
+
+These applications demonstrate [local deferred text logging](#local-deferred-text-log): producers remain binary and short; one background consumer formats records on the target. `TriceLog()` and `TriceTransfer()` must never consume the same deferred buffer together.
+
+#### 41.4.1. <a id="pc-local-logging"></a>PC Local Logging
+
+The [PC application](../examples/PC_log/main.c) uses a ring buffer, system `snprintf`, and standard output. With `trice` and `cc` or `gcc` in `PATH`:
+
+```sh
+cd examples/PC_log
+./build_and_run.sh
+```
+
+The [script](../examples/PC_log/build_and_run.sh) binds the application and shared `triceCheck.c` corpus, generates `build/til.c` with `trice generate -logC`, compiles against `../../src`, and runs the result. Sidecars are in `generated`; the table and executable are in `build`. No serial connection, RTT/J-Link installation, or host decoder is needed. A startup sequence shows integers, a runtime `%s`, string width/precision, `aFloat()`, `aDouble()`, Trice-specific conversions, and a buffer; the shared corpus then runs line by line.
+
+The explicit switches in [triceConfig.h](../examples/PC_log/triceConfig.h) are a readable full-feature configuration. Command/RPC and selector-0 cases are disabled only for local logging; the two host-only dynamic-string byte-dump forms are likewise guarded only by `TRICE_LOCAL_LOG`, preserving ordinary corpus users.
+
+#### 41.4.2. <a id="g0b1-freertos-local-logging"></a>G0B1 FreeRTOS Local Logging
+
+The independent [G0B1_log](../examples/G0B1_log/) copy retains the original CubeMX setup, task names, priorities, and stack sizes. With `trice` and the Arm GNU toolchain in `PATH`:
+
+```sh
+cd examples/G0B1_log
+./build.sh
+```
+
+The [build script](../examples/G0B1_log/build.sh) binds the application and shared corpus, generates `build/til.c`, and builds `out.gcc/G0B1_log.elf`; Bind sidecars remain in `generated`. The default task executes the corpus. The idle diagnostics task `StartTask02` alone calls `TriceLog()` with nanoprintf and may block while transmitting already formatted text:
+
+```text
+tasks and interrupts -> binary Trice ring buffer
+                    -> idle StartTask02 -> TriceLog + nanoprintf
+                    -> USART2 text at 115200 baud
+```
+
+Producer contexts neither call printf nor wait for USART2. Connect the USART2 virtual COM port to a serial terminal at 115200 baud. At runtime no `trice log`, TIL file, or binary host decoder is needed. The startup feature set matches the PC local-log example, including runtime strings, bounded string formatting, float/double, special conversions, and a buffer.
+
+Both configurations enable ANSI colors and strip recognized all-lower-case tags independently. Set `TRICE_LOCAL_LOG_USE_ANSI_COLORS` to `0` for plain redirected text; an ANSI-capable terminal is required to display colors. `TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` separately controls retaining tags. Floating-point nanoprintf support increases target code size; integer/string-only applications can disable both the corresponding nanoprintf options and Trice local-log options. See [configuration switches and formatter hooks](#local-deferred-text-log) and the [local-log integration tests](../internal/id/local_log_integration_test.go) for their behavior and limits.
+
+### 41.5. <a id="shared-example-producers"></a>Shared Example Producers
+
+The C files under [examples/exampleData](../examples/exampleData/) are shared producer sources used by several installed examples; this is not a standalone application. A Bind scan can generate sidecars for included shared producers even when an application does not invoke their demo functions at runtime. The large [triceCheck.c](../_test/testdata/triceCheck.c) corpus is separate and supplies the PC target tests and installed local-log examples.
+
+### 41.6. <a id="nucleo-f030r8-examples"></a>Nucleo-F030R8 Examples
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
-#### 41.1.1. <a id="f030bare"></a>F030_bare
+#### 41.6.1. <a id="f030bare"></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
@@ -9698,7 +10066,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-#### 41.1.2. <a id="f030inst"></a>F030_inst
+#### 41.6.2. <a id="f030inst"></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
@@ -9724,11 +10092,11 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 41.2. <a id="nucleo-g0b1-examples"></a>Nucleo-G0B1 Examples
+### 41.7. <a id="nucleo-g0b1-examples"></a>Nucleo-G0B1 Examples
 
 <img src="https://docs.zephyrproject.org/latest/_images/nucleo_g0b1re.jpg">
 
-#### 41.2.1. <a id="g0b1bare"></a>G0B1_bare
+#### 41.7.1. <a id="g0b1bare"></a>G0B1_bare
 
 Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
@@ -9743,7 +10111,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 - See and adapt steps from [F030_bare](#f030bare).
 - Then add/modify the files to reach this folder layot.
 
-#### 41.2.2. <a id="g0b1inst"></a>G0B1_inst
+#### 41.7.2. <a id="g0b1inst"></a>G0B1_inst
 
 Folder: [../examples/G0B1_inst/](../examples/G0B1_inst/)
 
@@ -9762,11 +10130,11 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 41.3. <a id="nucleo-l432kc-examples"></a>Nucleo-L432KC Examples
+### 41.8. <a id="nucleo-l432kc-examples"></a>Nucleo-L432KC Examples
 
 <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/A300/NUCLEO_L432KC_01.png" width=400>
 
-#### 41.3.1. <a id="l432bare"></a>L432_bare
+#### 41.8.1. <a id="l432bare"></a>L432_bare
 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
@@ -9777,7 +10145,7 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
-#### 41.3.2. <a id="l432inst"></a>L432_inst
+#### 41.8.2. <a id="l432inst"></a>L432_inst
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
