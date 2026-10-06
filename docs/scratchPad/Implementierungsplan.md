@@ -467,7 +467,7 @@ Diese Punkte sind Vorschläge, keine offenen Versprechen für das nächste Relea
 
 | ID | Idee | Gewicht | Aufwand | Empfehlung |
 | --- | --- | ---: | --- | --- |
-| [F01](#generierte-dateien-verständlich-zuordnen) | Verständliche Bestandsprüfung generierter Artefakte | 3 | M | Zuerst rein lesende Diagnose diskutieren |
+| [F01](#generierte-dateien-verständlich-zuordnen) | Erledigt: lesende Bestandsprüfung generierter Artefakte | 3 | M | Explizit mit `generate -bindReport` aufrufen; kein Pruning |
 | [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Fuzz- und Race-Prüfungen für neue Parser und Recordpfade | 3 | M | Robustheit vor weiteren Ausgabeformaten |
 | [F03](#frühe-hostfilterung-messen) | Frühe Hostfilterung / Template-Caching | 2 | M–L | Alte A11/M17-Aufgabe; zuerst messen |
 | [F04](#benannte-felder-besser-weiterverwenden) | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Mit einem konkreten Anwenderfall beginnen |
@@ -476,11 +476,17 @@ Diese Punkte sind Vorschläge, keine offenen Versprechen für das nächste Relea
 
 ### Generierte Dateien verständlich zuordnen
 
-**F01:** Ein lesender Bericht könnte erklären, welche Source welchen Sidecar besitzt, welche Dateien für den gewählten Build gebraucht werden und welche nicht mehr im gewählten Scan vorkommen. Das beantwortet die Frage nach unerwarteten `triceCheck`-Artefakten besser als pauschales Löschen.
+**F01 · umgesetzt:** `trice generate -bindReport -genDir generated -src <Source>` zeigt bestehende Sidecars, deren File Keys, Rebase-Helfer und physische Include-Verweise innerhalb der gewählten Source-Auswahl. Mehrere `-src` und `-exclude` sind möglich. Nicht im Scan gefundene Referenzen sind ausdrücklich **kein Nachweis für unbenutzte oder löschbare Dateien**; tatsächlicher Compilergebrauch und Präprozessorbedingungen werden nicht bestimmt. Der früher vorgeschlagene Ausdruck „für den gewählten Build gebraucht“ ist deshalb kein Leistungsversprechen.
 
 [Bind](../../internal/id/bindIDs.go) entfernt bereits überzählige Rebase-Helfer eines aktuell bekannten Owners. Eine globale Bereinigung aller verwaisten Owner-Dateien ist ein anderer Vertrag. Nicht gescannte Sources können weiterhin legitime Besitzer sein; historische Sidecars werden zudem als ID-Evidenz genutzt. Benutzereigene ABC-Auswahlheader im selben Verzeichnis müssen geschützt sein.
 
-Ein optionales späteres Löschen braucht daher eindeutig nachgewiesenen Besitz und vollständigen Projektumfang. **Kein automatisches Pruning als unbemerkte Nebenwirkung eines partiellen Bind-Laufs.** Abnahme zunächst: nützlicher Bericht ohne Dateiänderungen; Löschverhalten erst nach eigener Entscheidung.
+Der eigenständige Bericht schreibt ausschließlich auf die Ausgabe, benötigt keine TIL/LI und ist nicht mit schreibenden Generate-Modi oder `-colors` kombinierbar. Fehlende referenzierte Artefakte, widersprüchliche File Keys sowie ungültige Besitzerdeklarationen und geänderte Helfer erscheinen ausdrücklich als fehlend, mehrdeutig oder unbestätigt. Fremde Dateien, insbesondere ABC-Auswahlheader, bleiben unklassifiziert. Unterverzeichnisse des Generierungsordners werden angezeigt, aber nicht rekursiv inventarisiert. Fehlende Scan-Wurzeln und Lesefehler brechen die Diagnose vor Veröffentlichung eines Teilberichts ab. Der bestehende kurze `bind -v`-Bericht bleibt unverändert.
+
+Die englische [RM-Erklärung](../TriceReferenceManual.md#bind-artifact-report) enthält Beispiele und Grenzen. [Beschreibende Verhaltenstests](../../internal/id/generateBindReport_test.go) prüfen Zuordnung, Wiederholbarkeit, Ausschlüsse, echte Bind-Artefakte und Fehlerfälle sowie unveränderte Dateiinhalte und **null versuchte Schreibzugriffe**. [CLI-Tests](../../internal/args/handler_additional_test.go) sichern zusätzlich Flag-Kombinationen und einen lesenden Aufruf ohne Dictionaries oder Ausgabe-Sinks ab.
+
+**Abnahme:** Der vollständige Go-Lauf `go test ./... -count=1 -covermode=atomic -coverprofile=./temp/log/coverage-f01.out -coverpkg=./...` bestand. Nach ergänzter Erkennung literaler Includes und zusätzlichen Gegenproben bestanden abschließend sämtliche Tests von `internal/id` und `internal/args` mit Coverage; die neue Berichtsfunktion erreicht dabei 100 % Statement-Coverage. Gegenproben umfassen verschobene Sources, überlappende Wurzeln, Kommentare, nicht aufgelöste Include-Makros, quoted/angle Includes und nicht verfolgte Artefakt-Symlinks. Ein echter CLI-Aufruf auf `examples/G0B1_features/Core` und `_test/testdata` ordnet die vorhandenen Sidecars und Rebase-Helfer richtig zu. Markdown, Handbuchformat, erzeugte CLI-Hilfe und lokale RM-/Hilfetext-Links bestehen. Kein erneuter vollständiger C-Konfigurationslauf, da Target-Code und Bind-Erzeugung unverändert sind.
+
+Ein optionales späteres Löschen braucht weiterhin eindeutig nachgewiesenen Besitz und vollständigen Projektumfang. **Kein automatisches Pruning als unbemerkte Nebenwirkung eines partiellen Bind-Laufs.** Löschverhalten bleibt eine eigene, nicht beauftragte Entscheidung.
 
 ### Parser und Recordpfade systematisch auf unerwartete Eingaben prüfen
 
