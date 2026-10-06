@@ -22,7 +22,16 @@ func pcWorkerFixture(t *testing.T) string {
 	writeFixture(t, root, "bin/go", `#!/usr/bin/env bash
 set -eu
 case "$1" in
-  clean) exit 0 ;;
+  run)
+    if [ "${FAIL_CACHE_OVERLAY:-0}" = 1 ]; then
+      echo 'FAIL: PC cache overlay: unreadable shared C input'
+      exit 1
+    fi
+    while [ "$#" -gt 0 ]; do
+      if [ "$1" = -out ]; then printf '{"Replace":{}}\n' > "$2"; exit 0; fi
+      shift
+    done
+    exit 2 ;;
   list) printf 'fixture/a\nfixture/b\nfixture/c\nfixture/d\n'; exit 0 ;;
   test) ;;
   *) echo "unexpected Go command: $*"; exit 2 ;;
@@ -70,6 +79,19 @@ fi
 echo "PASS $name $TRICE_PC_TEST_MODE"
 `)
 	return root
+}
+
+// TestPCWorkerOverlayFailureNeverRunsTests guards the freshness gate: a failed
+// signature preparation must not proceed with package listing or cached tests.
+func TestPCWorkerOverlayFailureNeverRunsTests(t *testing.T) {
+	root := pcWorkerFixture(t)
+	out, err := runFixture(t, root, "mkdir -p temp/log; bash scripts/_160_pc_target_test_worker.sh full", map[string]string{"FAIL_CACHE_OVERLAY": "1"})
+	assert.Error(t, err)
+	assert.Contains(t, out, "unreadable shared C input")
+	assert.NotContains(t, out, "+ go list")
+	assert.NotContains(t, out, "PC matrix:")
+	_, err = os.Stat(filepath.Join(root, "events"))
+	assert.True(t, os.IsNotExist(err), "not even one test may run with an incomplete cache signature")
 }
 
 // TestPCWorkerBatchingAndFailures covers serial/parallel success, fail-fast,
@@ -125,6 +147,48 @@ func TestPCWorkerBatchingAndFailures(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Contains(t, string(args), "-p 1 -count=1")
 			assert.NotContains(t, string(args), "-run", "other tests in the same package remain included")
+			assert.NotContains(t, out, "go clean", "warm builds must not discard unrelated cached dependencies")
+		})
+	}
+}
+
+// TestGoStepsPreserveBuildCacheAndExecuteTests guards the full-suite path:
+// earlier Go steps must not erase the PC cache or substitute cached test PASSes.
+func TestGoStepsPreserveBuildCacheAndExecuteTests(t *testing.T) {
+	for _, step := range []string{"scripts/_540_test_go.sh", "scripts/_550_test_go_coverage.sh"} {
+		t.Run(filepath.Base(step), func(t *testing.T) {
+			root := scriptFixture(t, step, "scripts/_100_test_common.sh")
+			writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/usr/bin/env bash\nexit 0\n")
+			writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/usr/bin/env bash\nexit 0\n")
+			writeFixture(t, root, "bin/gofmt", "#!/usr/bin/env bash\nexit 0\n")
+			writeFixture(t, root, "bin/go", `#!/usr/bin/env bash
+set -eu
+printf '%s\n' "$*" >> go-calls.txt
+case "$1" in
+  list) printf 'fixture/normal\nfixture/_test/pc\n' ;;
+  env) if [ "$2" = GOVERSION ]; then printf 'go1.25.0\n'; fi ;;
+  test)
+    for arg; do
+      case "$arg" in
+        -coverprofile=*) printf 'mode: atomic\nfixture/normal/normal.go:1.1,2.1 1 1\n' > "${arg#*=}" ;;
+      esac
+    done
+    echo 'PASS: fresh test execution' ;;
+  tool) echo 'total: (statements) 100.0%' ;;
+  *) echo "unexpected Go command: $*"; exit 1 ;;
+esac
+`)
+			out, err := runFixture(t, root, "bash "+step, nil)
+			assert.NoError(t, err, out)
+			data, err := os.ReadFile(filepath.Join(root, "go-calls.txt"))
+			assert.NoError(t, err)
+			calls := string(data)
+			assert.NotContains(t, calls, "clean", "normal Go steps must preserve the full-suite build cache")
+			assert.Contains(t, calls, "test -count=1 fixture/normal")
+			assert.NotContains(t, calls, "test -count=1 fixture/normal fixture/_test/pc", "PC tests remain owned by their managed workers")
+			if strings.Contains(step, "coverage") {
+				assert.Contains(t, calls, "-covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=fixture/normal")
+			}
 		})
 	}
 }

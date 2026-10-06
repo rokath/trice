@@ -153,7 +153,8 @@ main() {
     log "FAIL: go list returned no non-PC-test packages for coverage"
     exit 1
   fi
-  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test "${packages[@]}" -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
+  # Coverage must represent a fresh execution while retaining compiled inputs.
+  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test -count=1 "${packages[@]}" -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
     log "FAIL: go coverage test failed"
     exit 1
   }

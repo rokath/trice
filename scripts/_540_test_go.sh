@@ -32,11 +32,6 @@ main() {
     log "FAIL: _270_format_go_code.sh check failed"
     exit 1
   }
-  run_cmd go clean -cache -testcache || {
-    log "FAIL: go clean failed"
-    exit 1
-  }
-
   # The CGO target matrix under ./_test has its own transactional workflow in
   # step 10. Excluding it here prevents every configuration from being executed
   # once with its historical per-folder mode before the ordered Bulk/Line pass.
@@ -55,7 +50,9 @@ main() {
     log "FAIL: go list returned no non-PC-test packages"
     exit 1
   fi
-  run_cmd go test "${packages[@]}" || {
+  # Reuse compiled dependencies, but execute tests on every suite invocation.
+  # Clearing the global cache here would also discard the PC worker's builds.
+  run_cmd go test -count=1 "${packages[@]}" || {
     log "FAIL: normal Go package tests failed"
     exit 1
   }
