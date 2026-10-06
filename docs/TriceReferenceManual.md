@@ -11,6 +11,8 @@ title: Trice Reference Manual
 
 # Trice Reference Manual
 
+New to Trice? Follow the short [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. This Reference Manual contains the complete syntax, configuration and example instructions.
+
 <div id="top"></div>
 
 ```diff
@@ -722,7 +724,9 @@ Moreover, using `trice i -cache && make && trice c -cache` in a build script mak
 
 ### 4.1. <a id="no-dynamic-memory-management-needed"></a>No Dynamic Memory Management needed
 
-All internal Buffers are static allocations and usually need only a few Hundred bytes size.
+Trice's target logging path needs no heap allocator: it does not call `malloc`, `calloc`, `realloc` or `free`. Buffer sizes are selected in the target configuration. Depending on the chosen mode, storage includes static buffers and automatic local buffers on the stack; a stack buffer is not a static object. RAM requirements therefore depend on the configuration, record sizes and buffering strategy; see [Trice memory needs](#trice-memory-needs).
+
+This statement covers Trice's own target logging code, including its CE adapters. It does not cover the Go host tool, an RTOS, a transport callback, an application's local-formatting sink, or a function invoked by a CE expression. For example, a user-supplied `read_context()` that allocates memory still allocates when called through `-ce`. Choose non-allocating application functions when the complete log call must avoid the heap.
 
 ### 4.2. <a id="open-source"></a>Open source
 
@@ -4233,6 +4237,37 @@ In general, `bind` accepts the `insert` options relevant to source search, parsi
 
 Bind automatically excludes its selected generated-file directory from the source scan. This prevents generated descriptors from being treated as new user log sites, including when `-src` names a parent directory.
 
+For example, run Bind from your project root, then optionally generate a local-formatting table or an ABC dispatcher:
+
+```sh
+touch til.json li.json
+trice bind -src application -genDir generated -til til.json -li li.json
+trice generate -src application -genDir generated -til til.json -logC
+trice generate -genDir generated -til til.json -abc device_abc
+```
+
+The first line initializes missing dictionaries for a new project without emptying existing ones. Bind requires a TIL file so that a missing dictionary is not silently replaced with new IDs.
+
+The resulting layout separates application files, persistent dictionaries, generated files and compiler output:
+
+```text
+project/
+  application/                 application sources and triceConfig.h
+  til.json                     persistent ID-to-format dictionary
+  li.json                      source-location information
+  generated/                   -genDir, relative to the command's working directory
+    trice_main_c_K....h         Bind sidecar (representative filename)
+    trice-fields.txt            field registry
+    til.c                      optional local-formatting table from -logC
+    device_abc.h               ABC selection header; user-owned after creation
+    device_abc.c               generated ABC dispatch table
+  build/                       compiler output, chosen by your build system
+```
+
+The two `generate` calls serve different features; an ordinary host-decoded application does not need either one. Add `-Igenerated` when compiling from the project root, or `-I../generated` when compiling from `build`. A relative `-genDir` is resolved from the command's working directory, not from the Trice library's directory or automatically from `build`.
+
+Keep `til.json` and the corresponding `li.json` with the project, and preserve the dictionaries belonging to firmware whose logs you still need to decode. Include an edited ABC selection header in your version control even if it is stored under `generated`. Do not delete that directory wholesale: it may contain user-owned files, and old sidecars may still provide historical ID evidence. The read-only [Bind artifact report](#bind-artifact-report) helps inspect ownership and references without treating an unreferenced file as safe to delete.
+
 With:
 
 ```sh
@@ -4529,6 +4564,17 @@ For an unsupported site, `trice bind` does not silently fall back to insert and 
 #### 24.19.1. <a id="bind-limits"></a>bind-limits
 
 When `bind` rejects a source construct, it cannot safely map or support the log sites it contains. The short hint `Search UM for "bind-limits".` points to this section. The error message still includes the file, line and specific cause. A compiler error for a required but unavailable `__COUNTER__` also includes this reference.
+
+Compiler requirements depend on the selected use case:
+
+| Use case | Mapping and requirement |
+| --- | --- |
+| Ordinary Bind with direct calls on distinct source lines | File key and source line identify the call; no `__COUNTER__` is needed. |
+| Direct Context Enrichment | The same source-line mapping is sufficient. Each expression must be valid at its selected call site; selected wrapper/rebase sites are rejected. |
+| Bind wrappers or multiple calls requiring rebasing, without CE | Counter-based mapping and consistency checks require compiler support for `__COUNTER__`. |
+| Experimental CE for wrapper/rebase sites | The [extended PoC](#extended-poc-for-wrapper-macros-and-counter-rebasing) tests an additional preprocessing pass. It is not a production CLI feature. |
+
+The PoC's [compiler matrix](#compiler-matrix-and-evidence-limits) records actual evidence, not a promise for every compiler accepting C or C++. In particular, the existing enum-based rebase check fails strict C++20 builds with the tested warning settings, even without CE. This is a rebase limitation, not a general rejection of ordinary direct Bind calls. MSVC, IAR and Arm Compiler/armclang were not tested in that proof. ARM cross-compilation demonstrates that object files can be built; it does not demonstrate execution on an MCU. The `insert/clean` workflow remains available when Bind's mapping or compiler requirements do not fit the project.
 
 For a direct Trice call, the file and source line normally suffice for mapping. Multiple calls on the same line, or a wrapper macro containing multiple calls, may need additional support. Bind uses the compiler counter `__COUNTER__` for this. It counts during compilation; it is neither a runtime counter nor a cycle counter. Not every compiler provides it. Direct, uniquely addressable log sites work without it.
 
@@ -8711,6 +8757,19 @@ The layout separates [BcSim](../examples/TriceAbc/BcSim/) (reusable protocol-neu
 
 `demo.sh` starts receive-capable nodes first, then pure transmitters. A BcSim participant joins at the current end of the bus and does not replay earlier traffic. Runtime files are `abc.bus` (binary framed stream), `abc.log` (human hex log), and `abc.bus.lock/` (writer lock). They are separate from BcSimChk's `bc.*` files. `abc.console.lock/` keeps each complete node or shell status line together; the console lock waits rather than falling back to interleaved writes. A killed lock owner may require manual cleanup after all participants stop.
 
+Use this map when changing the ABC example:
+
+| Location | Purpose and ownership |
+| --- | --- |
+| [NodeLib/node.c](../examples/TriceAbc/NodeLib/node.c) and [node.h](../examples/TriceAbc/NodeLib/node.h) | Shared application handlers, receive integration and node runtime; edit as application code. |
+| [NodeLib/nodeAbc.h](../examples/TriceAbc/NodeLib/nodeAbc.h) | User-owned selection of commands and responses; keep your edits. |
+| [NodeLib/nodeAbc.c](../examples/TriceAbc/NodeLib/nodeAbc.c) | Generated dispatch table connecting selected IDs to the handlers. |
+| `NodeLib/til.c` | Generated table for normal log presentation; regenerated by the build script. |
+| Node directories, such as [N3_bi](../examples/TriceAbc/N3_bi/) | Each node's `main.c` and `triceConfig.h` select its behavior. |
+| `build/` | Compiled node executables; runtime bus files are separate as described above. |
+
+Regenerate the tables after changing IDs or the selection header. The handler implementations remain ordinary application code. This example explicitly places its tables under `NodeLib`; a simple `generate -abc device_abc` instead uses the selected `-genDir`, as shown in the [generated-file layout](#command-line).
+
 The command shapes and effects are intentionally small:
 
 | Command | Payload and effect |
@@ -9937,6 +9996,8 @@ cd examples/G0B1_features
 The [build script](../examples/G0B1_features/demo_build.sh) binds this copy and its shared `exampleData` producers into a private `til.json`, applying `-ce 'ctx:", task={task:%p}", osThreadGetId()'`. The call in `LogFeatureSample` executes from both tasks, so the records have different task handles at the same C call site. The neighboring `triceS` transports the worker name. Edit [Core/Src/main.c](../examples/G0B1_features/Core/Src/main.c) to experiment with the named `sample` and `load_pct` fields, 16-/32-bit stamps, Warning, untagged text, buffer output, and the custom `sensor:` tag.
 
 [check_build.sh](../examples/G0B1_features/check_build.sh) verifies the generated task adapter and the string, field, stamp, tag, and buffer entries; it needs no board. It is a compiler/build check, not evidence that firmware ran on an MCU.
+
+Three scopes matter here: the files selected by Bind, the files compiled by the Makefile, and the functions actually called at runtime. A shared producer can need a sidecar because it is scanned or compiled even when the feature tour never calls its demo function. The current `demo_build.sh` selects `Core/Src` and `../exampleData`; it does not select `_test/testdata/triceCheck.c`. A `trice_triceCheck_c_...` header in a generation directory may therefore come from another or earlier repository-wide Bind run. Its presence alone does not show that this tour runs `TriceCheck`. Use [`generate -bindReport`](#bind-artifact-report) with the relevant source selection to inspect references; an absent scan reference is not proof that another build no longer needs the file.
 
 Flash `out.gcc/G0B1.elf` using the [original board setup](#g0b1inst). In a separate terminal capture RTT channel 0 with J-Link:
 
