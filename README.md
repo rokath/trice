@@ -59,6 +59,6 @@ Preserve your project's `til.json`: it maps IDs to messages and is needed to dec
 
 ## Project information
 
-Trice is open source under the [MIT License](./LICENSE.md). The [documentation guide](./docs/README.md) helps you choose the right reference. [Release notes](./CHANGELOG.md) describe published changes; compiler and advanced Bind limitations are documented under [bind-limits](./docs/TriceReferenceManual.md#bind-limits).
+Trice is open source under the [MIT License](./LICENSE.md). The [documentation guide](./docs/TriceDocsGuide.md) helps you choose the right reference. [Release notes](./CHANGELOG.md) describe published changes; compiler and advanced Bind limitations are documented under [bind-limits](./docs/TriceReferenceManual.md#bind-limits).
 
 Questions and examples are welcome in [Discussions](https://github.com/rokath/trice/discussions). For a reproducible problem, open an [issue](https://github.com/rokath/trice/issues); for a change, start with [CONTRIBUTING](./CONTRIBUTING.md). You can also [sponsor the project](https://github.com/sponsors/rokath).
