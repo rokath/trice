@@ -3773,7 +3773,29 @@ The markers are case-sensitive, must be written as comments, and affect only the
 
 #### 23.1.3. <a id="different-ids-for-same-trices"></a>Different IDs for same Trices
 
-* When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. The other Trices get assigned new IDs. Otherwise the location information would not be correct everywhere.
+Every active textual Trice site needs its own ID so that location information remains unambiguous. Copying a call with its explicit ID does not create shared ownership: `trice insert` resolves the duplicate and allocates or reuses another eligible ID.
+
+Both `trice insert` and `trice bind` then order **identical, interchangeable Trices** by normalized relative file path, numeric line number, and position from left to right within the line. Paths use `/` separators and an ordinal, case-sensitive comparison (`A.c` precedes `a.c`), independent of locale. The root is `-liRoot`, or the directory containing the selected LI file by default; the absolute checkout directory does not determine the order. Overlapping `-src` roots visit each physical path only once.
+
+Within each group, the IDs already selected by normal allocation are sorted numerically ascending and assigned to the sites in that order. Identical means the same normalized transport type and exact canonical format, including any structured field schema and Context Enrichment. Equal visible messages with different types or field names are separate groups. Existing tag-specific ID ranges still apply. New ID selection through `-IDMethod random`, `upward`, or `downward` is unchanged: this rule orders the selected pool; it does not introduce a new global allocation strategy or renumber unrelated Trices.
+
+For example, assume these three IDs belong to one group:
+
+| Source state | Site in path order | Assigned ID |
+| --- | --- | ---: |
+| Before | `b.c:10` | 100 |
+| Before | `d.c:20` | 200 |
+| After adding `a.c:5`, with ID 300 also selected | `a.c:5` | 100 |
+| After | `b.c:10` | 200 |
+| After | `d.c:20` | 300 |
+
+Both existing sites may change IDs when an identical site is added, removed, or moved. This is intentional. An unchanged source selection with the same selected ID pool produces the same mapping on subsequent runs, regardless of scan-root order or worker completion. The same rule applies after Clean/Insert; Clean itself does not allocate IDs. An explicit ID in an Insert source is not a request to exempt that site from ordering. Bind changes its own generated descriptors and leaves Insert-owned source files and their IDs alone.
+
+A partial scan orders only its selected sites. IDs recorded in the primary LI as belonging to files outside that selection, including excluded files, are reserved and cannot be taken by the selected sites. Keep the shared LI available for partial scans: without location data, ownership of unscanned IDs cannot be inferred from TIL alone. For one order across the whole project, scan the complete intended source tree. A rename can leave the old path recorded in LI; its ID stays reserved while another eligible ID is selected for the new path.
+
+The final assignment is written consistently to Insert sources or Bind sidecars and to LI. Historical TIL mappings remain available for older recordings. Rebuild firmware after an assignment changes and retain the matching metadata for recordings whose exact old source positions matter.
+
+The [behavioral tests](../internal/id/orderedIDs_test.go) cover group changes, partial scans, path and column order, cache reuse, and ownership. The [target/decoder integration](../internal/args/ordered_ids_test.go) checks actual C/C++ records from both workflows against the generated mapping and decoded fields.
 
 #### 23.1.4. <a id="same-ids-for-different-trices"></a>Same IDs for different Trices
 
@@ -3962,11 +3984,11 @@ Discovered JSON and historical sidecars in `build/triceIDs` are read-only eviden
 
 The primary TIL always wins a numeric-ID conflict. A conflicting subproject ID quietly yields to another matching or newly allocated primary ID; `-verbose` explains such decisions. A conflict-free historical ID is retained and only its actively used mapping is added to the primary TIL. Secondary TILs, LIs, and build artifacts are never modified.
 
-For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions. A sidecar in the current build directory has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match.
+For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions when selecting ID candidates. A sidecar in the current build directory has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match. Candidate selection is followed by the [identical-Trice ordering rule](#different-ids-for-same-trices), which determines the final per-site assignment.
 
-Without a usable sidecar assignment, LI candidates for repeated calls are consumed in stored line order as the current calls are visited in source order. Metadata search priority is retained; equal stored lines are ordered by numeric ID. For example, IDs 15982 and 15849 previously stored at lines 2799 and 2807 remain in that order when their calls move to lines 2803 and 2811. Bind does not independently choose the closest old line for each repeated call. A single current call still uses line proximity to select among matching LI candidates.
+Without a usable sidecar assignment, LI candidates for repeated calls are consumed in stored line order as the current calls are visited in source order. Metadata search priority is retained; equal stored lines are ordered by numeric ID. Bind does not independently choose the closest old line for each repeated call. A single current call still uses line proximity to select among matching LI candidates. These rules choose the usable pool, not its final permutation: if IDs 15982 and 15849 are selected for two identical calls, the earlier site receives 15849 and the later site 15982.
 
-`li.json` stores one position per ID, not a sequence of past versions. Bind writes the newly assigned positions back to the primary LI. These rules use the already parsed source sites and metadata; they require no additional source scan. Inserting, deleting, or reordering identical calls can still make their former identities ambiguous. Without usable sidecar or LI evidence, existing matching IDs are assigned in deterministic numeric order; the original per-call association cannot be recovered from TIL alone.
+`li.json` stores one position per ID, not a sequence of past versions. Bind writes the newly assigned positions back to the primary LI. The final ordering uses the already parsed source sites; it requires no additional source scan. Adding, removing, or moving identical calls may deliberately change their earlier IDs. The original per-call association cannot be recovered from TIL alone and is not preserved across such changes.
 
 All discovery and conflict resolution completes before regular output is written. A fatal ambiguity therefore leaves sources, JSON files, and generated outputs unchanged. The complete normative implementation strategy and fallback order are documented in [`internal/id/bindIDs_doc.go`](../internal/id/bindIDs_doc.go).
 
@@ -4918,10 +4940,9 @@ trice clean # Remove the IDs from the source code with deactivated cache.
 * The `trice insert` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 * Also the changes should be minimal.
 * As a general rule lu is only extendable.
-* li is rebuild from scratch.
-* For faster operation files will be processed parallel.
-* To keep the [Trice ID management](#trice-id-management) simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to another file, new IDs are generated for the affectes trices.
-  * File name changes occur are not that often, so that should be acceptable.
+* LI is updated for selected sites while ownership outside the scan is retained.
+* Files are read in parallel. Allocation and the final assignment are planned in source order before source publication.
+* The final assignment follows the [identical-Trice ordering rule](#different-ids-for-same-trices) across the selected files. A rename may require a new ID when the old LI path lies outside that selection.
 
 ### 27.3. <a id="method"></a>Method
 
@@ -4955,7 +4976,7 @@ type insertIDsData struct {
     * If ID n already inside STM set ID = 0 (that is brutal but ok)
     * Otherwise extend STM with ID n and remove n from ID space
       * It is possible, f is used n times with different IDs, so that is no problem.
-      * It is possible, f is used n times with the same ID, so the first occurrence is the winner.
+      * If f occurs several times with the same ID, the first occurrence provisionally claims it. Final group ordering can assign that ID to another site.
   * If the next found f src ID == 0 (normal case after trice z):
     * Look in flu
       * If not there, create new id and extend STM.
@@ -4979,7 +5000,8 @@ Until here the algorithm seem to be ok.
 * STM is not needed but maybe helpful during debugging.
 * STM than is usable to regenerate li.json and to extend til.json
 
-* If after `trice i` a `trice c` and a `trice i` again is executed, all IDs are expected to be at the same place again. If in between `trice i`, an optional `trice c`and a `trice i` src was edited, most IDs are expected to be at the same place again.
+* After candidate selection, sort each identical group's selected eligible IDs numerically and its sites by relative path, line, and column; then publish matching sources and LI. The Insert cache must contain that final permutation too.
+* An unchanged Clean/Insert cycle with the same selected ID pool restores the same assignment. Editing the group of identical sites may change any of their IDs according to the ordering rule.
 
 ### 27.4. <a id="user-code-patching-trice-insert"></a>User Code Patching (trice insert)
 
