@@ -3,15 +3,147 @@
 """Import a checked handover or continue locally, then launch the selected session."""
 
 import argparse
+import io
 import json
+import os
 from pathlib import Path
+import queue
 import re
 import subprocess
 import sys
+import tempfile
+import threading
+import time
 import zipfile
 
 sys.dont_write_bytecode = True
 import codex_handover_export as handover
+
+
+def read_probe(profile, sid, timeout=30, paginated=False):
+    """Read stored turns, rebuilding paginated indexes only in the temporary home.
+
+    A pipe-reader thread makes bounded waits portable to Windows. The child uses
+    only a temporary profile and working directory; credentials and SQLite-home
+    overrides from the caller must not reach it. Protocol output stays private.
+    """
+    env = dict(os.environ, CODEX_HOME=str(profile))
+    for name in ("CODEX_SQLITE_HOME", "OPENAI_API_KEY", "CODEX_API_KEY", "OPENAI_ADMIN_KEY"):
+        env.pop(name, None)
+    process = subprocess.Popen([shutil_codex(), "app-server", "--listen", "stdio://"], cwd=profile,
+                               env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                               stderr=subprocess.DEVNULL, text=True, encoding="utf-8")
+    replies = queue.Queue()
+
+    def receive():
+        """Signal malformed output and EOF so neither can masquerade as success."""
+        try:
+            for line in process.stdout:
+                replies.put(json.loads(line))
+        except (ValueError, OSError):
+            pass
+        finally:
+            replies.put(None)
+
+    reader = threading.Thread(target=receive, daemon=True)
+    reader.start()
+
+    def request(method, params, request_id):
+        """Ignore notifications while bounding the entire response wait."""
+        process.stdin.write(json.dumps({"id": request_id, "method": method, "params": params}) + "\n")
+        process.stdin.flush()
+        deadline = time.monotonic() + timeout
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise handover.HandoverError("Zeitlimit der Codex-Leseprobe überschritten.")
+            try:
+                reply = replies.get(timeout=remaining)
+            except queue.Empty as exc:
+                raise handover.HandoverError("Zeitlimit der Codex-Leseprobe überschritten.") from exc
+            if not isinstance(reply, dict):
+                raise handover.HandoverError("Codex-Leseprobe liefert keine gültige Protokollantwort.")
+            if reply.get("id") == request_id:
+                if "error" in reply or not isinstance(reply.get("result"), dict):
+                    raise handover.HandoverError("Codex lehnt die Leseprobe ab: " + method)
+                return reply["result"]
+
+    try:
+        request("initialize", {"clientInfo": {"name": "trice_handover_check", "version": "1.0"}}, 1)
+        process.stdin.write('{"method":"initialized"}\n')
+        process.stdin.flush()
+        if paginated:
+            # Loading reconstructs SQLite projections; no turn/start is sent.
+            # Explicit cwd prevents loading project instructions from old paths.
+            request("thread/resume", {"threadId": sid, "cwd": str(profile),
+                                      "sandbox": "read-only", "approvalPolicy": "never"}, 2)
+        return request("thread/read", {"threadId": sid, "includeTurns": True}, 3 if paginated else 2)
+    finally:
+        # Only this isolated child is stopped; the user's daemon is never touched.
+        try:
+            process.stdin.close()
+        except OSError:
+            pass
+        try:
+            process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            process.terminate()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=3)
+        reader.join(timeout=3)
+        process.stdout.close()
+
+
+def require_readable_rollout(data, sid):
+    """Validate different CLI versions by reading an isolated copy of the rollout.
+
+    This proves readability, not universal compatibility of future Codex formats.
+    Original bytes are imported later; no migration result is copied back.
+    """
+    meta, prompts = handover.validate_rollout(data, sid)
+    date = meta["timestamp"][:10]
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        raise handover.HandoverError("Unbekanntes Session-Datumsformat.")
+    try:
+        with tempfile.TemporaryDirectory(prefix="trice-codex-reader-") as folder:
+            profile = Path(folder)
+            rollout = profile / "sessions" / date.replace("-", "/") / f"rollout-{date}T00-00-00-{sid}.jsonl"
+            rollout.parent.mkdir(parents=True)
+            rollout.write_bytes(data)
+            paginated = meta.get("history_mode") == "paginated"
+            result = read_probe(profile, sid, paginated=paginated)
+            thread = result.get("thread")
+            if not isinstance(thread, dict) or thread.get("id") != sid or not isinstance(thread.get("turns"), list):
+                raise handover.HandoverError("Codex bestätigt den angeforderten Verlauf nicht.")
+            if prompts and not thread["turns"]:
+                raise handover.HandoverError("Codex liefert trotz vorhandener Nachrichten einen leeren Verlauf.")
+            if paginated:
+                # A successful RPC alone is insufficient: compare every persisted
+                # completed item, including tools and compactions, by stable keys.
+                expected = {}
+                for line in io.BytesIO(data):
+                    record = json.loads(line)
+                    payload = record.get("payload", {})
+                    if record.get("type") == "event_msg" and payload.get("type") == "item_completed":
+                        item = payload["item"]
+                        expected[(payload["turn_id"], item["id"])] = item
+                actual = {(turn["id"], item["id"]): item
+                          for turn in thread["turns"] for item in turn.get("items", [])}
+                if not expected.keys() <= actual.keys():
+                    raise handover.HandoverError("Codex liefert nicht alle gespeicherten Gesprächseinträge zurück.")
+                for key, item in expected.items():
+                    if item.get("type") == "UserMessage":
+                        texts = lambda content: [part["text"] for part in content if part.get("type") == "text"]
+                        if texts(item.get("content", [])) != texts(actual[key].get("content", [])):
+                            raise handover.HandoverError("Codex liefert veränderte Benutzernachrichten zurück.")
+    except (handover.HandoverError, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as exc:
+        raise handover.HandoverError("Codex-Kompatibilität nicht bestätigt. Noch nichts importiert. "
+                                    "ZIP behalten; Ziel-Codex aktualisieren oder die Quellversion verwenden. "
+                                    "Leseprobe: " + str(exc)) from exc
+    handover.say("[Kompatibilität] Ziel-Codex kann die Session lesen; Import mit unverändertem Verlauf.")
 
 
 def import_session(root, home, repo, state, archive, requested=None):
@@ -28,12 +160,11 @@ def import_session(root, home, repo, state, archive, requested=None):
         raise handover.HandoverError("ZIP gehört zu einem anderen Git-Repository.")
     if manifest["repository"]["commit"] != repo["commit"]:
         raise handover.HandoverError("Git-Commit passt nicht zur ZIP. Erwartet: " + manifest["repository"]["commit"] +
-                                    "; vorhanden: " + repo["commit"] + ". Passenden Stand zuerst über Git holen.")
+                                    "; vorhanden: " + repo["commit"] +
+                                    "; Quellbranch: " + (manifest["repository"].get("branch") or "(detached HEAD)") +
+                                    ". Passenden Stand zuerst über Git holen.")
     version = handover.codex_version()
-    if version != manifest["codex_version"]:
-        raise handover.HandoverError(f"Codex-Versionen unterscheiden sich: ZIP {manifest['codex_version']}, lokal {version}. "
-                                    "Vor dem Import dieselbe Version installieren.")
-    handover.require_legacy(home, sid)
+    handover.require_portable_history(home, sid)
     previous = state["sessions"].get(sid)
     if previous and previous.get("repo") != repo["identity"]:
         raise handover.HandoverError("Session ist lokal einem anderen Projekt zugeordnet.")
@@ -62,6 +193,11 @@ def import_session(root, home, repo, state, archive, requested=None):
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
             raise handover.HandoverError("Unbekanntes Session-Datumsformat.")
         target = handover.safe_target(home, "sessions/" + date.replace("-", "/") + "/" + filename)
+    incoming_meta = json.loads(io.BytesIO(incoming).readline())["payload"]
+    if version != manifest["codex_version"] or incoming_meta.get("history_mode") == "paginated":
+        handover.say(f"[Kompatibilität] ZIP: Codex {manifest['codex_version']}; lokal: {version}. "
+                     "Verlauf in einem temporären Profil probeweise lesen.")
+        require_readable_rollout(incoming, sid)
     handover.say("[4/6] History und Sessiontitel zusammenführen; andere Sessions erhalten.")
     history_path, index_path = home / "history.jsonl", home / "session_index.jsonl"
     old_history, old_index = handover.read_optional(history_path), handover.read_optional(index_path)
@@ -136,7 +272,7 @@ def local_session(root, home, repo, state, requested):
     if previous and previous["status"] == "exported":
         raise handover.HandoverError("Diese Session ist abgegeben; erst Rückgabe-ZIP importieren.")
     handover.require_project(meta, root, repo, previous)
-    handover.require_legacy(home, sid)
+    handover.require_portable_history(home, sid, data)
     handover.verify_checkpoint(data, previous)
     old_state = handover.read_optional(handover.state_path(home))
     state["projects"][repo["identity"]] = sid
@@ -159,7 +295,7 @@ def launch_session(root, home, sid):
     command = [shutil_codex(), "--no-daemon", "resume", sid, "--cd", str(root)]
     handover.say(f"[6/6] Codex starten: Session {sid}\n[Verzeichnis] {root}\n[Codex-Home] {home}")
     handover.say("[Hinweis] Erst Codex beenden, dann bei Bedarf committen/pushen und Exportskript starten.")
-    result = subprocess.run(command, cwd=root)
+    result = subprocess.run(command, cwd=root, env=dict(os.environ, CODEX_HOME=str(home)))
     handover.say(f"[Beendet] Codex-Exitcode: {result.returncode}; Session bleibt lokal aktiv.")
     return result.returncode
 
@@ -177,13 +313,16 @@ def start(root, home, archive=None, local=False, requested=None, launcher=launch
     """One user action checks/imports and starts, without bypass switches."""
     handover.say("[1/6] Sauberen Git-Stand prüfen.")
     repo = handover.repository(root)
+    handover.say(f"[Git] Branch {repo['branch'] or '(detached HEAD)'}; Commit {repo['commit']}")
     handover.say("[2/6] Laufende Codex-Prozesse prüfen.")
     handover.require_quiet()
+    version = handover.codex_version()
+    handover.say(f"[Codex] Version {version}; Profil {home}")
+    handover.require_login(home)
     with handover.handover_lock(home):
         handover.recover_transaction(home, root)
         state = handover.load_state(home)
         requested = requested or state["projects"].get(repo["identity"])
-        handover.codex_version()
         selected = archive
         if not selected and not local:
             selected = select_archive(root, state, repo, requested)
@@ -198,7 +337,8 @@ def start(root, home, archive=None, local=False, requested=None, launcher=launch
 
 def main():
     """An explicit archive or local start is optional; ambiguity requires selection."""
-    parser = argparse.ArgumentParser(description="Codex-Übergabe prüfen, gegebenenfalls importieren und Session starten.")
+    parser = argparse.ArgumentParser(prog="codex_handover_start.sh",
+                                     description="Codex-Übergabe prüfen, gegebenenfalls importieren und Session starten.")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--archive", type=Path, help="Bestimmte Übergabe-ZIP")
     group.add_argument("--local", action="store_true", help="Bekannte lokale Session fortsetzen; Abgabe-Sperre bleibt wirksam")
@@ -207,7 +347,7 @@ def main():
     try:
         if sys.version_info < (3, 11):
             raise handover.HandoverError("Python 3.11 oder neuer erforderlich.")
-        root = Path(__file__).resolve().parents[2]
+        root = Path(__file__).resolve().parents[1]
         return start(root, handover.codex_home(), args.archive.resolve() if args.archive else None, args.local, args.session)
     except (handover.HandoverError, OSError, ValueError, KeyboardInterrupt) as exc:
         handover.say(f"ABBRUCH: {exc}")

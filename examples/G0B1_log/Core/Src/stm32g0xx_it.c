@@ -70,31 +70,27 @@ extern TIM_HandleTypeDef htim17;
 /**
   * @brief This function handles Non maskable interrupt.
   */
-void NMI_Handler(void)
-{
-  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
+void NMI_Handler(void) {
+	/* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
-  /* USER CODE END NonMaskableInt_IRQn 0 */
-  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-  while (1)
-  {
-  }
-  /* USER CODE END NonMaskableInt_IRQn 1 */
+	/* USER CODE END NonMaskableInt_IRQn 0 */
+	/* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+	while (1) {
+	}
+	/* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
 /**
   * @brief This function handles Hard fault interrupt.
   */
-void HardFault_Handler(void)
-{
-  /* USER CODE BEGIN HardFault_IRQn 0 */
+void HardFault_Handler(void) {
+	/* USER CODE BEGIN HardFault_IRQn 0 */
 
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
+	/* USER CODE END HardFault_IRQn 0 */
+	while (1) {
+		/* USER CODE BEGIN W1_HardFault_IRQn 0 */
+		/* USER CODE END W1_HardFault_IRQn 0 */
+	}
 }
 
 /******************************************************************************/
@@ -107,39 +103,37 @@ void HardFault_Handler(void)
 /**
   * @brief This function handles TIM17, FDCAN1_IT1 and FDCAN2_IT1 Interrupt.
   */
-void TIM17_FDCAN_IT1_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 0 */
+void TIM17_FDCAN_IT1_IRQHandler(void) {
+	/* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 0 */
 
-  /* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim17);
-  /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
+	/* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
+	HAL_TIM_IRQHandler(&htim17);
+	/* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
 #if !TRICE_OFF
-  static int i = 0;
-  if( i++>25000 ){
-    trice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i );
-    i = 0;
-  }
+	static int i = 0;
+	if (i++ > 25000) {
+		trice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i);
+		i = 0;
+	}
 #endif
-  /* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
+	/* USER CODE END TIM17_FDCAN_IT1_IRQn 1 */
 }
 
 /**
   * @brief This function handles USART2 + LPUART2 Interrupt.
   */
-void USART2_LPUART2_IRQHandler(void)
-{
-  /* USER CODE BEGIN USART2_LPUART2_IRQn 0 */
+void USART2_LPUART2_IRQHandler(void) {
+	/* USER CODE BEGIN USART2_LPUART2_IRQn 0 */
 
-  /* USER CODE END USART2_LPUART2_IRQn 0 */
+	/* USER CODE END USART2_LPUART2_IRQn 0 */
 
-  /* USER CODE BEGIN USART2_LPUART2_IRQn 1 */
-#if !TRICE_OFF && defined( TRICE_UARTA ) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER) ) // buffered out to UARTA
-    if( LL_USART_IsActiveFlag_TXE(TRICE_UARTA) ){ // Transmit Data Register Empty Flag
-        triceServeTransmitUartA();
-    }
+	/* USER CODE BEGIN USART2_LPUART2_IRQn 1 */
+#if !TRICE_OFF && defined(TRICE_UARTA) && ((TRICE_BUFFER == TRICE_DOUBLE_BUFFER) || (TRICE_BUFFER == TRICE_RING_BUFFER)) // buffered out to UARTA
+	if (LL_USART_IsActiveFlag_TXE(TRICE_UARTA)) {                                                                        // Transmit Data Register Empty Flag
+		triceServeTransmitUartA();
+	}
 #endif
-  /* USER CODE END USART2_LPUART2_IRQn 1 */
+	/* USER CODE END USART2_LPUART2_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

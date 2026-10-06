@@ -1,1 +1,1 @@
-# [./docs/TriceUserManual.md#f030_bare](../../docs/TriceUserManual.md#f030_bare)
+- [F030 bare project: setup and debugging](../../docs/TriceReferenceManual.md#f030bare)

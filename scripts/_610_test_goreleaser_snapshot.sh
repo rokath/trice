@@ -24,7 +24,7 @@ dump_release_artifact_context() {
     log "INFO: ./dist does not exist"
   fi
   if [ -d "$ROOT_DIR/docs" ]; then
-    find "$ROOT_DIR/docs" -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -print 2>/dev/null | sort | while IFS= read -r line; do
+    find "$ROOT_DIR/docs" -maxdepth 2 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -type f -print 2>/dev/null | sort | while IFS= read -r line; do
       log "INFO: $line"
     done
   else
@@ -67,7 +67,7 @@ verify_snapshot_layout() {
   verify_release_artifact "$DIST_DIR/trice_tool_linux_amd64.tar.gz"
   verify_release_artifact "$DIST_DIR/trice_tool_darwin_amd64.tar.gz"
   verify_release_artifact "$DIST_DIR/trice_tool_windows_amd64.zip"
-  verify_release_artifact "$DIST_DIR/TriceUserManual.pdf"
+  verify_release_artifact "$DIST_DIR/TriceReferenceManual.pdf"
 
   local source_zip
   source_zip="$(find "$DIST_DIR" -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
@@ -302,8 +302,8 @@ EOF
 verify_release_pdf() {
   local size
 
-  verify_release_artifact "$DIST_DIR/TriceUserManual.pdf"
-  size="$(wc -c <"$DIST_DIR/TriceUserManual.pdf")"
+  verify_release_artifact "$DIST_DIR/TriceReferenceManual.pdf"
+  size="$(wc -c <"$DIST_DIR/TriceReferenceManual.pdf")"
   if [ "$size" -le 100000 ]; then
     log "FAIL: release PDF looks too small ($size bytes)"
     exit 1
@@ -336,21 +336,21 @@ main() {
     exit 1
   }
 
-  if [ ! -s "$ROOT_DIR/docs/TriceUserManual.pdf" ]; then
-    log "FAIL: docs/TriceUserManual.pdf was not generated or is empty"
+  if [ ! -s "$ROOT_DIR/docs/TriceReferenceManual.pdf" ]; then
+    log "FAIL: docs/TriceReferenceManual.pdf was not generated or is empty"
     dump_release_artifact_context
     exit 1
   fi
 
-  # GoReleaser uploads docs/TriceUserManual.pdf as a release extra_file. The
+  # GoReleaser uploads docs/TriceReferenceManual.pdf as a release extra_file. The
   # local snapshot check also copies it to ./dist so the expected artifact set
   # is visible in one directory for smoke tests and CI artifact upload.
   run_cmd mkdir -p "$ROOT_DIR/dist" || {
     log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
     exit 1
   }
-  run_cmd cp -f "$ROOT_DIR/docs/TriceUserManual.pdf" "$ROOT_DIR/dist/TriceUserManual.pdf" || {
-    log "FAIL: could not copy docs/TriceUserManual.pdf into ./dist/"
+  run_cmd cp -f "$ROOT_DIR/docs/TriceReferenceManual.pdf" "$ROOT_DIR/dist/TriceReferenceManual.pdf" || {
+    log "FAIL: could not copy docs/TriceReferenceManual.pdf into ./dist/"
     exit 1
   }
 

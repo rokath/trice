@@ -59,8 +59,8 @@ run_logging_go_checks() {
   done
 }
 
-# create_feature_copy uses the index only as a file list, then archives the
-# worktree bytes. Do not use git archive HEAD: that would omit uncommitted fixes.
+# create_feature_copy uses the index only as a file list, then streams the
+# worktree bytes through tar. Do not use git archive HEAD: that would omit uncommitted fixes.
 # The copied directory layout keeps the examples' relative source paths valid.
 create_feature_copy() {
   if [ -n "$FEATURE_COPY_DIR" ]; then return 0; fi
@@ -72,8 +72,9 @@ create_feature_copy() {
     log "FAIL: cannot enumerate tracked feature-example sources"
     return 1
   }
-  run_cmd tar -cf "$FEATURE_COPY_DIR/sources.tar" --null -T "$FEATURE_COPY_DIR/paths" || return 1
-  run_cmd tar -xf "$FEATURE_COPY_DIR/sources.tar" -C "$FEATURE_COPY_DIR/project" || return 1
+  run_cmd bash -o pipefail -c \
+    'tar -cf - --null -T - < "$1" | (cd "$2" && tar -xf -)' \
+    _ "$FEATURE_COPY_DIR/paths" "$FEATURE_COPY_DIR/project" || return 1
 }
 
 # run_feature_example never instruments the original checkout. In particular,
@@ -96,7 +97,8 @@ main() {
   if logging_tools "CE/SL compiler and decoder integration" go clang clang++ clangd; then
     log "INFO: productive CE/SL: Bind and Insert/Clean, C/C++, text/JSON/KV, disabled logging and single evaluation"
     run_logging_go_checks ./internal/args \
-      TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder || return $?
+      TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder \
+      TestOrderedIDsTargetRecordsMatchSourceAndCatalog || return $?
     log "INFO: retained CE proofs: direct callsites and the unsupported Rebase scope boundary"
     run_logging_go_checks ./internal/id \
       TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary || return $?

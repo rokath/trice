@@ -1,3 +1,1 @@
-# <div id="top">Folder info
-
-The `*.c` files here are used by some example projects.
+- [Shared example producers and generated sidecars](../../docs/TriceReferenceManual.md#shared-example-producers)

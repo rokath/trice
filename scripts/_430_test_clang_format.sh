@@ -14,11 +14,6 @@ source "$SCRIPT_DIR/_100_test_common.sh"
 
 main() {
   init_logfile
-  if ! has_command go; then
-    log "MISSING TOOL: go"
-    log "SKIP: Go not installed (required by _280_format_c_code.sh)"
-    exit 0
-  fi
   # Let the formatter also find its repository-local cache when no system
   # executable is installed. Check mode neither downloads tools nor rewrites sources.
   run_cmd "$SCRIPTS_DIR/_280_format_c_code.sh" check || {

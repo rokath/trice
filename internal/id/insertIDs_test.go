@@ -521,17 +521,16 @@ func TestInsert99(t *testing.T) {
 	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
-	expSrc1 := `
-	TRice(iD(999), "x" ); 
-	TRice(iD(998), "x" );
-	TRice( iD(997), "x" );
-	TRice(iD(996), "x" );
-	TRice(iD(995), "x" );
+	// Spell the preserved trailing space explicitly in the first line.
+	expSrc1 := "\n\tTRice(iD(992), \"x\" ); \n" + `	TRice(iD(993), "x" );
 	TRice( iD(994), "x" );
-	TRice(iD(993), "x" );
-	TRice(  iD(992), "x" );
-	TRICE(ID(991), "%x", 1)
-	TRICE(  Id(990), "%x", 1)
+	TRice(iD(995), "x" );
+	TRice(iD(996), "x" );
+	TRice( iD(997), "x" );
+	TRice(iD(998), "x" );
+	TRice(  iD(999), "x" );
+	TRICE(ID(990), "%x", 1)
+	TRICE(  Id(991), "%x", 1)
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -562,17 +561,16 @@ func TestInsert99w(t *testing.T) {
 	assert.Nil(t, args.Handler(W, FSys, []string{"trice", "insert", "-w", "-src", "file1.c", "-IDMin", "100", "-IDMax", "999", "-IDMethod", "downward", "-til", FnJSON, "-li", LIFnJSON}))
 
 	// check modified src file1
-	expSrc1 := `
-	TRice( iD( 999 ), "x" ); 
-	TRice( iD( 998 ), "x" );
-	TRice( iD( 997 ), "x" );
-	TRice( iD( 996 ), "x" );
-	TRice( iD( 995 ), "x" );
+	// Spell the preserved trailing space explicitly in the first line.
+	expSrc1 := "\n\tTRice( iD( 992 ), \"x\" ); \n" + `	TRice( iD( 993 ), "x" );
 	TRice( iD( 994 ), "x" );
-	TRice( iD( 993 ), "x" );
-	TRice(  iD( 992 ), "x" );
-	TRICE( ID( 991 ), "%x", 1)
-	TRICE(  Id( 990 ), "%x", 1)
+	TRice( iD( 995 ), "x" );
+	TRice( iD( 996 ), "x" );
+	TRice( iD( 997 ), "x" );
+	TRice( iD( 998 ), "x" );
+	TRice(  iD( 999 ), "x" );
+	TRICE( ID( 990 ), "%x", 1)
+	TRICE(  Id( 991 ), "%x", 1)
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -595,7 +593,7 @@ func TestInsert11(t *testing.T) {
 
 	// check modified src file1
 	expSrc1 := `
-	TRice(   iD(999), "x" );TRice(iD(998), "x" );
+	TRice(   iD(998), "x" );TRice(iD(999), "x" );
 	`
 	actSrc1, e := FSys.ReadFile(sFn1)
 	assert.Nil(t, e)
@@ -620,8 +618,8 @@ func TestInsert2(t *testing.T) {
 
 	// check modified src file
 	expSrc := `
-	break; case __LINE__: TRice(  iD(999), "msg:value=%d\n", -1  );
-	break; case __LINE__: TRice(iD(998), "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice(  iD(998), "msg:value=%d\n", -1  );
+	break; case __LINE__: TRice(iD(999), "msg:value=%d\n", -1  );
 	`
 	actSrc, e := FSys.ReadFile(sFn)
 	assert.Nil(t, e)
@@ -631,11 +629,11 @@ func TestInsert2(t *testing.T) {
 	expLI := `{
 	"998": {
 		"File": "file.c",
-		"Line": 3
+		"Line": 2
 	},
 	"999": {
 		"File": "file.c",
-		"Line": 2
+		"Line": 3
 	}
 }`
 	actLI, e := FSys.ReadFile(LIFnJSON)
@@ -770,9 +768,9 @@ func TestInsertWithTickInComment(t *testing.T) {
 	expSrc1 := `
 	//""'
 	//"
-	TRice(iD(999), "x" );
-	//"
 	TRice(iD(998), "x" );
+	//"
+	TRice(iD(999), "x" );
 	triceAssertTrue(iD(997), "x", flag );
 	TriceAssertTrue(iD(996), "x", flag );
 	TRiceAssertTrue(iD(995), "x", flag );

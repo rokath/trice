@@ -1,1 +1,1 @@
-# [./docs/TriceUserManual.md#f030_inst](../../docs/TriceUserManual.md#f030_inst)
+- [F030 instrumented project: setup and instrumentation](../../docs/TriceReferenceManual.md#f030inst)

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Behavioral tests for portable handovers; all Git/Codex data lives in fixtures.
 
-Run: python3 -B -m unittest discover -s scripts -p test_codex_handover.py -v
+Run: ./scripts/test_codex_handover.sh -v
 Real Codex processes and personal profiles are never stopped, imported or edited.
 """
 
@@ -11,6 +11,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -23,7 +24,7 @@ import uuid
 import zipfile
 
 sys.dont_write_bytecode = True
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "docs" / "scratchPad"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import codex_handover_export as export
 import codex_handover_start as start
 
@@ -79,6 +80,9 @@ class HandoverBehavior(unittest.TestCase):
         self.version = mock.patch.object(export, "codex_version", return_value="0.159.3")
         self.version.start()
         self.addCleanup(self.version.stop)
+        self.login = mock.patch.object(export, "require_login")
+        self.login.start()
+        self.addCleanup(self.login.stop)
         self.launches = []
 
     def git(self, *args):
@@ -89,7 +93,7 @@ class HandoverBehavior(unittest.TestCase):
                               check=True, capture_output=True, text=True).stdout.strip()
 
     def export(self, home=None):
-        """Use the same public operation as the CLI, with only process/version probes mocked."""
+        """Use the public operation without probing personal Codex processes or credentials."""
         return export.export_session(self.root, home or self.source, SESSION)
 
     def start(self, home, archive=None, local=False):
@@ -220,12 +224,69 @@ class HandoverBehavior(unittest.TestCase):
         with self.assertRaisesRegex(export.HandoverError, "anderen Git-Repository"):
             self.start(self.windows, archive)
 
-    def test_missing_or_changed_codex_version_cannot_partially_import(self):
+    def test_newer_and_older_destination_versions_import_when_the_reader_accepts_the_rollout(self):
+        with mock.patch.object(export, "codex_version", return_value="0.151.0"):
+            archive = self.export()
+        original = archive.read_bytes()
+        for version, home in (("0.152.0", self.windows), ("0.150.0", self.debian)):
+            with self.subTest(version=version), mock.patch.object(export, "codex_version", return_value=version), \
+                    mock.patch.object(start, "require_readable_rollout") as probe:
+                self.start(home, archive)
+                probe.assert_called_once_with(self.initial, SESSION)
+                self.assertEqual(self.initial, export.locate_session(home, SESSION).read_bytes())
+                self.assertEqual("local", self.state(home)["status"])
+        self.assertEqual(original, archive.read_bytes(), "an update must not rewrite the only transport copy")
+        self.assertEqual(2, len(self.launches))
+
+    def test_identical_cli_versions_keep_the_existing_import_without_an_extra_process(self):
         archive = self.export()
-        with mock.patch.object(export, "codex_version", return_value="0.160.0"):
-            with self.assertRaisesRegex(export.HandoverError, "Versionen unterscheiden"):
+        with mock.patch.object(start, "require_readable_rollout") as probe:
+            self.start(self.windows, archive)
+        probe.assert_not_called()
+
+    def test_rejected_reader_leaves_destination_intact_and_retry_after_update_succeeds(self):
+        archive = self.export()
+        history = export.encoded({"session_id": OTHER, "ts": 1, "text": "keep this"})
+        (self.windows / "history.jsonl").write_bytes(history)
+        with mock.patch.object(export, "codex_version", return_value="0.150.0"), \
+                mock.patch.object(start, "require_readable_rollout", side_effect=export.HandoverError("Leseprobe fehlgeschlagen")):
+            with self.assertRaisesRegex(export.HandoverError, "Leseprobe fehlgeschlagen"):
                 self.start(self.windows, archive)
-        self.assertFalse((self.windows / "history.jsonl").exists())
+        self.assertEqual(history, (self.windows / "history.jsonl").read_bytes())
+        self.assertIsNone(export.locate_session(self.windows, SESSION))
+        self.assertFalse(export.load_state(self.windows)["sessions"])
+        self.assertFalse(self.launches)
+        with mock.patch.object(export, "codex_version", return_value="0.152.0"), \
+                mock.patch.object(start, "require_readable_rollout"):
+            self.start(self.windows, archive)
+        self.assertEqual(1, len(self.launches))
+
+    def test_version_difference_does_not_bypass_wrong_commit_or_start_a_reader_for_it(self):
+        archive = self.export()
+        self.git("commit", "--allow-empty", "-qm", "wrong checkout")
+        with mock.patch.object(export, "codex_version", return_value="0.152.0"), \
+                mock.patch.object(start, "require_readable_rollout") as probe:
+            with self.assertRaisesRegex(export.HandoverError, "Git-Commit passt nicht"):
+                self.start(self.windows, archive)
+        probe.assert_not_called()
+
+    def test_missing_codex_on_export_does_not_seal_the_session_or_create_a_zip(self):
+        with mock.patch.object(export, "codex_version", side_effect=export.HandoverError("codex fehlt")):
+            with self.assertRaisesRegex(export.HandoverError, "codex fehlt"):
+                self.export()
+        self.assertFalse((self.source / export.STATE_DIR).exists())
+        self.assertFalse(list((self.root / "docs/scratchPad").glob("*.zip")))
+
+    def test_missing_login_on_destination_leaves_profile_untouched_and_can_be_retried(self):
+        archive = self.export()
+        with mock.patch.object(export, "require_login", side_effect=export.HandoverError("codex login")):
+            with self.assertRaisesRegex(export.HandoverError, "codex login"):
+                self.start(self.windows, archive)
+        self.assertEqual([], list(self.windows.iterdir()), "login failure must precede even the import lock")
+        self.assertFalse(self.launches)
+        self.start(self.windows, archive)
+        self.assertEqual(self.initial, export.locate_session(self.windows, SESSION).read_bytes())
+        self.assertEqual(1, len(self.launches))
 
     def test_sqlite_backed_history_is_refused_instead_of_exporting_an_old_rollout(self):
         with sqlite3.connect(self.source / "state_5.sqlite") as connection:
@@ -362,6 +423,8 @@ class HandoverBehavior(unittest.TestCase):
             invoke.return_value.returncode = 0
             self.assertEqual(0, start.launch_session(self.root, self.windows, SESSION))
         self.assertEqual(["codex", "--no-daemon", "resume", SESSION, "--cd", str(self.root)], invoke.call_args.args[0])
+        self.assertEqual(str(self.windows), invoke.call_args.kwargs["env"]["CODEX_HOME"],
+                         "resume must use the profile that was checked and imported")
 
     def test_wrong_explicit_session_is_rejected_without_replacing_existing_history(self):
         archive = self.export()
@@ -457,6 +520,16 @@ class HandoverBehavior(unittest.TestCase):
         self.assertFalse(self.launches)
 
     @unittest.skipUnless(os.environ.get("TRICE_CODEX_HANDOVER_INTEGRATION") == "1", "opt-in: requires installed Codex; no model call")
+    def test_installed_codex_checks_different_version_then_imports_original_bytes(self):
+        """Exercise the production compatibility probe with the real local reader."""
+        archive = self.export()
+        with mock.patch.object(export, "codex_version", return_value="different-installed-version"):
+            self.start(self.windows, archive)
+        self.assertEqual(self.initial, export.locate_session(self.windows, SESSION).read_bytes())
+        self.assertFalse(list(self.windows.glob("*.sqlite")), "only the temporary probe may create a database")
+        self.assertIn("Ziel-Codex kann die Session lesen", self.output.getvalue())
+
+    @unittest.skipUnless(os.environ.get("TRICE_CODEX_HANDOVER_INTEGRATION") == "1", "opt-in: requires installed Codex; no model call")
     def test_installed_codex_reads_imported_rollout_without_copying_any_database(self):
         """Use Codex's real read-only thread API in an isolated, credential-free home."""
         archive = self.export()
@@ -508,6 +581,246 @@ class HandoverBehavior(unittest.TestCase):
                 process.wait(timeout=10)
             reader.join(timeout=5)
             process.stdout.close()
+
+
+class ReaderCompatibility(unittest.TestCase):
+    """Exercise real pipes and cleanup with a small, deterministic fake app server."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="codex reader test ")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.server = self.root / "reader.py"
+        self.record = self.root / "requests.jsonl"
+        # The fixture records only selected variables and requests, never real secrets.
+        self.server.write_text('''import json, os, sys, time
+from pathlib import Path
+record = Path(os.environ["READER_TEST_RECORD"])
+with record.open("w", encoding="utf-8") as log:
+    log.write(json.dumps({"home": os.environ["CODEX_HOME"], "cwd": os.getcwd(),
+                          "auth": any(k in os.environ for k in ("OPENAI_API_KEY", "CODEX_API_KEY", "CODEX_SQLITE_HOME"))}) + "\\n")
+    for line in sys.stdin:
+        request = json.loads(line)
+        log.write(json.dumps(request) + "\\n")
+        log.flush()
+        if "id" not in request:
+            continue
+        if request["method"] == "initialize":
+            print(json.dumps({"id": request["id"], "result": {}}), flush=True)
+            continue
+        mode = os.environ["READER_TEST_MODE"]
+        if mode == "eof":
+            break
+        if mode == "timeout":
+            time.sleep(1)
+            break
+        if mode == "malformed":
+            print("not JSON", flush=True)
+            break
+        if mode == "error":
+            print(json.dumps({"id": request["id"], "error": {"message": "unsupported format"}}), flush=True)
+            continue
+        sid = "wrong" if mode == "wrong" else request["params"]["threadId"]
+        turns = [] if mode == "empty" else [{"id": "turn", "items": []}]
+        print(json.dumps({"method": "notification", "params": {}}), flush=True)
+        print(json.dumps({"id": request["id"], "result": {"thread": {"id": sid, "turns": turns}}}), flush=True)
+''', encoding="utf-8")
+        self.env = mock.patch.dict(os.environ, READER_TEST_RECORD=str(self.record), READER_TEST_MODE="ok",
+                                   OPENAI_API_KEY="fixture-secret", CODEX_API_KEY="fixture-secret",
+                                   CODEX_SQLITE_HOME=str(self.root / "must not touch"))
+        self.env.start()
+        self.addCleanup(self.env.stop)
+        real_popen = subprocess.Popen
+        self.children = []
+
+        def launch(command, **kwargs):
+            """Replace just the executable, retaining the production environment and pipes."""
+            self.assertEqual(["fixture-codex", "app-server", "--listen", "stdio://"], command)
+            child = real_popen([sys.executable, "-u", str(self.server)], **kwargs)
+            self.children.append(child)
+            return child
+
+        self.addCleanup(mock.patch.stopall)
+        mock.patch.object(start, "shutil_codex", return_value="fixture-codex").start()
+        mock.patch.object(start.subprocess, "Popen", side_effect=launch).start()
+        self.data = export.encoded({"type": "session_meta", "payload": {
+            "id": SESSION, "timestamp": "2026-10-02T00:00:00Z", "source": "cli"}}) + event("hello", 1)
+
+    def test_reader_uses_isolated_profile_without_credentials_or_resume_and_cleans_up(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            start.require_readable_rollout(self.data, SESSION)
+        records = [json.loads(line) for line in self.record.read_text(encoding="utf-8").splitlines()]
+        self.assertFalse(records[0]["auth"])
+        self.assertEqual(Path(records[0]["home"]).resolve(), Path(records[0]["cwd"]).resolve())
+        self.assertFalse(Path(records[0]["home"]).exists(), "temporary profile must be removed")
+        self.assertEqual(["initialize", "initialized", "thread/read"], [entry["method"] for entry in records[1:]])
+        self.assertEqual({"threadId": SESSION, "includeTurns": True}, records[-1]["params"])
+        self.assertTrue(all(child.poll() is not None for child in self.children))
+
+    def test_incompatible_empty_wrong_and_malformed_replies_all_reject_before_import(self):
+        for mode in ("error", "empty", "wrong", "malformed", "eof"):
+            with self.subTest(mode=mode), mock.patch.dict(os.environ, READER_TEST_MODE=mode):
+                with self.assertRaisesRegex(export.HandoverError, "Noch nichts importiert"):
+                    start.require_readable_rollout(self.data, SESSION)
+                profile = json.loads(self.record.read_text(encoding="utf-8").splitlines()[0])["home"]
+                self.assertFalse(Path(profile).exists())
+                self.assertIsNotNone(self.children[-1].poll(), "failed readers must not block later exports")
+
+    def test_unresponsive_reader_times_out_and_child_is_reaped(self):
+        with mock.patch.dict(os.environ, READER_TEST_MODE="timeout"):
+            with self.assertRaisesRegex(export.HandoverError, "Zeitlimit"):
+                start.read_probe(self.root, SESSION, timeout=0.2)
+        self.assertIsNotNone(self.children[-1].poll())
+
+
+class ShellEntryPoints(unittest.TestCase):
+    """Run real POSIX launchers with controlled interpreter candidates on PATH.
+
+    The Windows cases simulate Git Bash discovery; they do not claim an actual
+    Windows execution. No fixture ever invokes an installed Codex or user profile.
+    """
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="handover shell Grüße ")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.scripts = self.root / "scripts with spaces"
+        self.scripts.mkdir()
+        self.bin = self.root / "bin"
+        self.bin.mkdir()
+        self.shell = shutil.which("sh")
+        if not self.shell:
+            self.skipTest("POSIX sh required (Windows: run from Git Bash)")
+        for source in Path(__file__).resolve().parent.glob("*codex_handover*.sh"):
+            shutil.copyfile(source, self.scripts / source.name)
+        self.env = dict(os.environ, PATH=str(self.bin) + os.pathsep + os.environ.get("PATH", ""))
+        self.platform("Linux")
+        for name in ("python3", "python", "py"):
+            self.interpreter(name, usable=False)
+
+    def platform(self, name):
+        """Select discovery behavior without changing the host OS or Python profile."""
+        path = self.bin / "uname"
+        path.write_text(f"#!/bin/sh\nprintf '%s\\n' '{name}'\n", encoding="utf-8")
+        path.chmod(0o755)
+
+    def interpreter(self, name, usable=True, exit_code=0):
+        """Reject an unsuitable candidate or record the exact script argument vector."""
+        path = self.bin / name
+        path.write_text(
+            "#!/bin/sh\nlauncher_flag=none\n"
+            'if [ "$1" = -3 ]; then launcher_flag=-3; shift; fi\n'
+            f'if [ "$1" = -c ]; then exit {0 if usable else 1}; fi\n'
+            f"printf 'INTERPRETER:%s\\n' '{name}'\n"
+            'printf "LAUNCHER:%s\\n" "$launcher_flag"\n'
+            'printf "ARG:%s\\n" "$@"\n'
+            'printf "CWD:%s\\n" "$PWD"\n'
+            f"exit {exit_code}\n", encoding="utf-8")
+        path.chmod(0o755)
+
+    def invoke(self, name, *args):
+        """Invoke from outside the checkout to catch accidental cwd-dependent paths."""
+        return subprocess.run([self.shell, str(self.scripts / name), *args], env=self.env,
+                              cwd=self.root, capture_output=True, text=True, encoding="utf-8", timeout=15)
+
+    def native_path(self, value):
+        """Compare locations across macOS symlinks and Git Bash's /c/... spelling."""
+        if sys.platform == "win32":
+            value = subprocess.run([self.shell, "-c", 'cygpath -w "$1"', "handover-test", value],
+                                   check=True, capture_output=True, text=True, timeout=15).stdout.strip()
+        return Path(value).resolve()
+
+    def test_export_and_start_find_their_modules_and_preserve_spaces_and_literal_arguments(self):
+        self.interpreter("python3")
+        for operation, args in (
+            ("export", ["--session", SESSION]),
+            ("start", ["--archive", "docs/scratchPad/ZIP Grüße ; $(not-a-command).zip"]),
+        ):
+            with self.subTest(operation=operation):
+                result = self.invoke(f"codex_handover_{operation}.sh", *args)
+                self.assertEqual(0, result.returncode, result.stderr)
+                forwarded = [line[4:] for line in result.stdout.splitlines() if line.startswith("ARG:")]
+                self.assertEqual(["-B", *args], [forwarded[0], *forwarded[2:]])
+                self.assertEqual((self.scripts / f"codex_handover_{operation}.py").resolve(), self.native_path(forwarded[1]))
+                working = next(line[4:] for line in result.stdout.splitlines() if line.startswith("CWD:"))
+                self.assertEqual(self.root.resolve(), self.native_path(working), "relative --archive paths belong to the caller")
+
+    def test_old_python3_falls_back_to_python_on_both_macos_and_linux(self):
+        self.interpreter("python", usable=True)
+        for platform in ("Darwin", "Linux"):
+            with self.subTest(platform=platform):
+                self.platform(platform)
+                result = self.invoke("codex_handover_export.sh", "--help")
+                self.assertEqual(0, result.returncode, result.stderr)
+                self.assertIn("INTERPRETER:python\n", result.stdout)
+
+    def test_git_bash_prefers_py_launcher_and_falls_back_when_it_is_unusable(self):
+        self.platform("MINGW64_NT-10.0")
+        self.interpreter("py")
+        self.interpreter("python")
+        result = self.invoke("codex_handover_start.sh", "--local")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("INTERPRETER:py\nLAUNCHER:-3", result.stdout)
+        self.interpreter("py", usable=False)
+        result = self.invoke("codex_handover_start.sh", "--local")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("INTERPRETER:python\nLAUNCHER:none", result.stdout)
+
+    @unittest.skipIf(sys.platform == "win32", "non-Windows interpreter required for rejection fixture")
+    def test_git_bash_rejects_an_actual_non_windows_python_before_any_handover(self):
+        self.platform("MSYS_NT-10.0")
+        self.env["HANDOVER_TEST_PYTHON"] = sys.executable
+        candidate = self.bin / "python"
+        candidate.write_text('#!/bin/sh\nexec "$HANDOVER_TEST_PYTHON" "$@"\n', encoding="utf-8")
+        result = self.invoke("codex_handover_start.sh", "--help")
+        self.assertEqual(1, result.returncode)
+        self.assertIn("natives Windows-Python", result.stderr)
+        self.assertNotIn("[Python] Verwende", result.stdout)
+
+    def test_no_usable_python_explains_the_fix_without_invoking_a_handover(self):
+        result = self.invoke("codex_handover_export.sh")
+        self.assertEqual(1, result.returncode)
+        self.assertIn("Python ab 3.11", result.stderr)
+        self.assertIn("dasselbe .sh-Skript", result.stderr)
+        self.assertNotIn("INTERPRETER:", result.stdout)
+
+    def test_test_wrapper_forwards_unittest_options_and_preserves_failure_exit_status(self):
+        self.interpreter("python3", exit_code=23)
+        result = self.invoke("test_codex_handover.sh", "-v", "-k", "missing_login")
+        self.assertEqual(23, result.returncode, "a failed underlying operation must stay failed")
+        forwarded = [line[4:] for line in result.stdout.splitlines() if line.startswith("ARG:")]
+        self.assertEqual(["-B", "-v", "-k", "missing_login"], [forwarded[0], *forwarded[2:]])
+        self.assertEqual((self.scripts / "test_codex_handover.py").resolve(), self.native_path(forwarded[1]))
+
+
+class LoginChecks(unittest.TestCase):
+    """Authentication probes must neither expose credentials nor start a session."""
+
+    def test_login_status_uses_the_selected_profile_without_echoing_account_details(self):
+        output = io.StringIO()
+        with mock.patch.object(export.shutil, "which", return_value="codex"), \
+                mock.patch.object(export.subprocess, "run") as invoke, contextlib.redirect_stdout(output):
+            invoke.return_value = subprocess.CompletedProcess([], 0, b"private account", b"API token")
+            export.require_login(Path("fixture profile"))
+        self.assertEqual(["codex", "login", "status"], invoke.call_args.args[0])
+        self.assertEqual("fixture profile", invoke.call_args.kwargs["env"]["CODEX_HOME"])
+        self.assertIn("Anmeldung vorhanden", output.getvalue())
+        self.assertNotIn("private account", output.getvalue())
+        self.assertNotIn("API token", output.getvalue())
+
+    def test_failed_or_unavailable_login_probe_provides_a_local_recovery_command(self):
+        for result in (subprocess.CompletedProcess([], 1, b"secret", b"secret"),
+                       subprocess.TimeoutExpired("codex", 30), OSError("cannot execute")):
+            with self.subTest(result=type(result).__name__), \
+                    mock.patch.object(export.shutil, "which", return_value="codex"), \
+                    mock.patch.object(export.subprocess, "run") as invoke:
+                if isinstance(result, Exception):
+                    invoke.side_effect = result
+                else:
+                    invoke.return_value = result
+                with self.assertRaisesRegex(export.HandoverError, "codex login") as failure:
+                    export.require_login(Path("fixture profile"))
+                self.assertNotIn("secret", str(failure.exception))
 
 
 class PortableProcessChecks(unittest.TestCase):

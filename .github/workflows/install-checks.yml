@@ -62,7 +62,7 @@ jobs:
             echo "dist/:"
             find dist -maxdepth 3 -type f -printf '%s %p\n' 2>/dev/null | sort || true
             echo "docs/ manual files:"
-            find docs -maxdepth 2 \( -name 'TriceUserManual.md' -o -name 'TriceUserManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            find docs -maxdepth 2 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
             echo "tool versions:"
             go version || true
             node --version || true
@@ -96,14 +96,14 @@ jobs:
             printf '  %s\n' "${matches[@]}"
           }
 
-          require_file docs/TriceUserManual.pdf
+          require_file docs/TriceReferenceManual.pdf
           mkdir -p dist
-          cp -f docs/TriceUserManual.pdf dist/TriceUserManual.pdf
+          cp -f docs/TriceReferenceManual.pdf dist/TriceReferenceManual.pdf
 
           require_file dist/trice_tool_linux_amd64.tar.gz
           require_file dist/trice_tool_darwin_amd64.tar.gz
           require_file dist/trice_tool_windows_amd64.zip
-          require_file dist/TriceUserManual.pdf
+          require_file dist/TriceReferenceManual.pdf
           require_glob 'dist/trice_target_sources_*.zip'
           require_glob 'dist/trice_*_amd64.deb'
           require_glob 'dist/trice_*_amd64.rpm'
@@ -121,7 +121,7 @@ jobs:
             dist/trice_*_amd64.deb
             dist/trice_*_amd64.rpm
             dist/trice_*_amd64.apk
-            dist/TriceUserManual.pdf
+            dist/TriceReferenceManual.pdf
           if-no-files-found: error
 
   install-check-linux:
@@ -474,15 +474,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -s artifacts/TriceUserManual.pdf ]; then
-            echo "::error::missing or empty release PDF artifact: artifacts/TriceUserManual.pdf"
+          if [ ! -s artifacts/TriceReferenceManual.pdf ]; then
+            echo "::error::missing or empty release PDF artifact: artifacts/TriceReferenceManual.pdf"
             find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
-          size="$(wc -c < artifacts/TriceUserManual.pdf)"
+          size="$(wc -c < artifacts/TriceReferenceManual.pdf)"
           if [ "$size" -le 100000 ]; then
             echo "::error::release PDF looks too small: $size bytes"
             find artifacts -maxdepth 1 -type f -print | sort || true
             exit 1
           fi
-          echo "OK release PDF: artifacts/TriceUserManual.pdf ($size bytes)"
+          echo "OK release PDF: artifacts/TriceReferenceManual.pdf ($size bytes)"

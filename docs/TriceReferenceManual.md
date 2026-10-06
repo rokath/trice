@@ -3,13 +3,13 @@
 ---
 
 layout: default
-title: Trice User Manual
+title: Trice Reference Manual
 
 ---
 
 -->
 
-# Trice User Manual
+# Trice Reference Manual
 
 <div id="top"></div>
 
@@ -462,10 +462,12 @@ details.toc[open] .toc-hide {
   * [39.7. Responses](#responses)
   * [39.8. What ABC is not](#what-abc-is-not)
   * [39.9. Example: examples/TriceAbc](#example-examplestriceabc)
-  * [39.10. Host tests](#host-tests)
-  * [39.11. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
-  * [39.12. Security boundary](#security-boundary)
-  * [39.13. Summary](#summary-1)
+    * [39.9.1. ABC Demo Layout, Startup, and Runtime Policy](#abc-demo-layout-startup-and-runtime-policy)
+  * [39.10. BcSim Broadcast Byte-Stream Simulator](#bcsim-broadcast-byte-stream-simulator)
+  * [39.11. Host tests](#host-tests)
+  * [39.12. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
+  * [39.13. Security boundary](#security-boundary)
+  * [39.14. Summary](#summary-1)
 * [40. Development Environment Setup](#development-environment-setup)
   * [40.1. Common Information](#common-information-1)
   * [40.2. Important to know](#important-to-know)
@@ -499,15 +501,23 @@ details.toc[open] .toc-hide {
   * [40.13. Setting up a new project](#setting-up-a-new-project)
   * [40.14. Third-party packages and retained versions](#third-party-packages-and-retained-versions)
 * [41. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
-  * [41.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
-    * [41.1.1. F030bare](#f030bare)
-    * [41.1.2. F030inst](#f030inst)
-  * [41.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
-    * [41.2.1. G0B1bare](#g0b1bare)
-    * [41.2.2. G0B1inst](#g0b1inst)
-  * [41.3. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
-    * [41.3.1. L432bare](#l432bare)
-    * [41.3.2. L432inst](#l432inst)
+  * [41.1. Minimal PC Demos: Direct and Deferred](#minimal-pc-demos-direct-and-deferred)
+  * [41.2. PC Feature Tour](#pc-feature-tour)
+    * [41.2.1. Updating the PC Tour's Output Checks](#updating-the-pc-tours-output-checks)
+  * [41.3. G0B1 Feature Tour](#g0b1-feature-tour)
+  * [41.4. Local Logging Example Projects](#local-logging-example-projects)
+    * [41.4.1. PC Local Logging](#pc-local-logging)
+    * [41.4.2. G0B1 FreeRTOS Local Logging](#g0b1-freertos-local-logging)
+  * [41.5. Shared Example Producers](#shared-example-producers)
+  * [41.6. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
+    * [41.6.1. F030bare](#f030bare)
+    * [41.6.2. F030inst](#f030inst)
+  * [41.7. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
+    * [41.7.1. G0B1bare](#g0b1bare)
+    * [41.7.2. G0B1inst](#g0b1inst)
+  * [41.8. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
+    * [41.8.1. L432bare](#l432bare)
+    * [41.8.2. L432inst](#l432inst)
 * [42. Trice Generate](#trice-generate)
   * [42.1. Colors](#colors)
   * [42.2. C-Code](#c-code)
@@ -573,7 +583,7 @@ details.toc[open] .toc-hide {
     * [49.2.13. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
     * [49.2.14. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
     * [49.2.15. GitHub Action pages.yml - Creates The Trice GitHub Pages](#github-action-pagesyml---creates-the-trice-github-pages)
-  * [49.3. Trice User Manual Maintenance (or any *.md file)](#trice-user-manual-maintenance-or-any-md-file)
+  * [49.3. Trice Reference Manual Maintenance (or any *.md file)](#trice-reference-manual-maintenance-or-any-md-file)
   * [49.4. Cleaning the Sources](#cleaning-the-sources)
 * [50. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
   * [50.1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
@@ -1511,7 +1521,7 @@ The stamp size 0, 16 or 32 is usually controlled by writing `trice`, `Trice` or 
 
 <!--
 Existing manual coverage:
-`TriceUserManual.md#writing-the-trice-logs-into-an-sd-card-or-a-user-specific-output` already documents `TRICE_DEFERRED_AUXILIARY8`, `TRICE_DEFERRED_AUXILIARY32`, and `UserNonBlockingDeferredWrite8AuxiliaryFn`.
+`TriceReferenceManual.md#writing-the-trice-logs-into-an-sd-card-or-a-user-specific-output` already documents `TRICE_DEFERRED_AUXILIARY8`, `TRICE_DEFERRED_AUXILIARY32`, and `UserNonBlockingDeferredWrite8AuxiliaryFn`.
 This section reframes that information as a first-use quickstart, not as an SD-card special case.
 
 README legacy placement:
@@ -1634,7 +1644,7 @@ The auxiliary writer path is more portable: many projects already have a byte-st
 
 <!--
 Existing manual coverage:
-See `TriceUserManual.md#trice-over-rtt`, especially the RTT/J-Link sections and the notes around `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE`.
+See `TriceReferenceManual.md#trice-over-rtt`, especially the RTT/J-Link sections and the notes around `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE`.
 
 README legacy placement:
 This was previously the dominant README quickstart. It should remain a strong quickstart, but no longer be the only obvious first path.
@@ -2331,6 +2341,62 @@ examples.
 
 #### 12.4.2. <a id="examplesdemodatacsv"></a>./examples/DemoData_CSV
 
+The [CSV producer](../examples/DemoData_CSV/src/main.c) is a small C11 program
+for Windows, macOS, and Linux. Each newline-terminated record contains
+`time_s,x,y,z`, all represented as `double`; time is in seconds. It writes to
+standard output by default, to a fresh file with `--output FILE`, or to UDP
+with one record per datagram. Use `--help` for all options.
+
+Both data producers require a C compiler and CMake 3.16 or newer. Run their
+`build.sh` in Git Bash on Windows or a POSIX shell on macOS/Linux; restore its
+executable permission with `chmod +x build.sh` if necessary. Executables are
+installed in each project's `bin/`, with intermediate files in `build/`.
+For the CSV producer, the equivalent explicit CMake commands are:
+
+```sh
+cd examples/DemoData_CSV
+cmake -S . -B build
+cmake --build build --config Release
+cmake --install build --config Release --prefix .
+```
+
+These commands also work in PowerShell. Its executable invocation is
+`.\bin\DemoData_CSV.exe`; in Git Bash use `./bin/DemoData_CSV`.
+
+From the CSV project directory, try:
+
+```sh
+./build.sh
+./bin/DemoData_CSV
+./bin/DemoData_CSV --rate 50 --samples 500 --no-delay --header --output DemoData_CSV.csv
+./bin/DemoData_CSV --udp 127.0.0.1 9000
+```
+
+Run these alternatives separately. The second command runs continuously at
+50 Hz; interrupt it with `Ctrl-C`. The third writes ten seconds of data
+without real-time waiting. On Windows PowerShell the UDP command is
+`.\bin\DemoData_CSV.exe --udp 127.0.0.1 9000`.
+
+For Serial Studio, choose **Quick Plot (Comma Separated Values)**, then
+**Network Socket > UDP**, set local port `9000`, connect, and start the UDP
+producer. Quick Plot treats all four columns as values. A custom project can
+instead name the columns and use the first column as a timestamp axis. Its
+input must be `seconds,x,y,z`; do not send `--header` on the live stream.
+There is currently no versioned `DemoData.ssproj` in this repository.
+
+Both producers use the following signal model for time `t` in seconds:
+
+```text
+phase = (pi/3) * sin(2*pi*0.04*t)
+x = sin(2*pi*0.70*t)
+y = sin(2*pi*0.91*t + pi/2 + phase)
+z = 0.6*sin(2*pi*0.13*t) + 0.2*x*y + pulse
+```
+
+The pulse has height `0.8` during the final 250 ms of every eight-second
+interval. The slow phase modulation keeps the Lissajous plot moving. The
+Trice producer calculates the signals as doubles and transmits float32 values.
+
 After running `build.sh` inside `./examples/DemoData_CSV/`, the executable is
 installed in the local `bin/` folder. You can run it there:
 
@@ -2352,6 +2418,36 @@ th@Thomass-MacBook-Pro-7 bin %
 ```
 
 #### 12.4.3. <a id="examplesdemodatatrice"></a>./examples/DemoData_Trice
+
+The [Trice producer](../examples/DemoData_Trice/src/main.c) transports the
+same signals as binary Trice records. Keep it inside the repository: its
+CMake project uses the unchanged target library from `../../src`.
+Its [build script](../examples/DemoData_Trice/build.sh) prepares Bind and the
+repository-root `demoTIL.json` before building; it requires the Trice host
+tool in addition to the CSV producer's prerequisites. Use this script rather
+than plain CMake commands that omit Bind preparation. There is no private
+`til.json` or fixed `iD(1000)` for this ID-free producer.
+
+The 32-bit target stamp uses units of **10 ms**: at 50 Hz the stamps are
+`0, 2, 4, ...`. Convert with `seconds = ts/100.0` or
+`milliseconds = ts*10`; `ts*100` does not give seconds.
+
+From `examples/DemoData_Trice`:
+
+```sh
+./build.sh
+./bin/DemoData_Trice --samples 500 --no-delay
+trice log -p FILEBUFFER -args DemoData_Trice.bin -pf TCOBS -til ../../demoTIL.json -li off
+```
+
+Without an output option, the producer recreates `DemoData_Trice.bin` in the
+current directory (`wb` truncates its previous contents). `--output FILE`
+selects another fresh file, `--stdout` writes binary data to standard output,
+and `--udp HOST PORT` sends one complete TCOBS-framed record per datagram.
+Without `--samples` it runs until interrupted. `--samples 500` counts signal
+samples, not all log records: startup and periodic diagnostic logs are extra.
+Use `--help` for all options. On Windows PowerShell, run
+`.\bin\DemoData_Trice.exe` with the same arguments.
 
 After running `build.sh` inside `./examples/DemoData_Trice/`, the executable is
 installed in the local `bin/` folder. You can run it there:
@@ -2383,7 +2479,7 @@ th@Thomass-MacBook-Pro-7 bin %
 - Get CSV log file:
 
 ```txt
-th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
+th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100.0,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
 th@Thomass-MacBook-Pro-7 bin % head log.csv
 time_s,X,Y,Z
 0.000,0.000,1.000,0.000
@@ -2397,6 +2493,30 @@ time_s,X,Y,Z
 0.160,0.647,0.576,0.153
 th@Thomass-MacBook-Pro-7 bin % 
 ```
+
+The preceding file visualization rule recreates `log.csv` when `tlog` starts.
+Its header is written once per sink; the quoted Go string supports `\n`.
+Keep a single backslash in the shell's single-quoted rule. `log=drop` suppresses
+the successfully visualized records, while unrelated diagnostic logs remain.
+
+For a live Serial Studio or other CSV viewer listening on UDP `9000`, start
+the decoder from the repository root before starting the binary producer:
+
+```sh
+trice log -p UDP4 -args 127.0.0.1:9001 -pf TCOBS -til demoTIL.json -ulabel vis_demo \
+  -vis='vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop'
+```
+
+In another terminal, also from the repository root:
+
+```sh
+examples/DemoData_Trice/bin/DemoData_Trice --udp 127.0.0.1 9001
+```
+
+On Windows the executable has an `.exe` suffix. The producer sends **binary
+Trice** to `9001`, not CSV; connecting it directly to the viewer on `9000`
+cannot work. The decoder converts its records to `seconds,x,y,z`. The LabPlot
+launchers below automate this pipeline and its receiver-readiness checks.
 
 #### 12.4.4. <a id="quick-labplot-demonstration"></a>Quick LabPlot demonstration
 
@@ -2440,7 +2560,8 @@ knowledge. Start `run_csv.sh` first and leave it running.
    ten-second window at the demo's 50 Hz rate.
 5. Add a worksheet with a Cartesian plot. Add three XY curves. For every
    curve choose `time_s` as the X column and choose `x`, `y`, or `z` as the Y
-   column. Enable the legend and automatic range scaling. In the plot's range
+   column. Enable the legend, label the axes `time [s]` and `value`, and enable
+   automatic range scaling. In the plot's range
    settings select **Last values** and enter `500`; otherwise the time axis
    keeps growing and the curves become increasingly compressed.
 6. Add a second Cartesian plot to the same worksheet and select a horizontal
@@ -2450,12 +2571,27 @@ knowledge. Start `run_csv.sh` first and leave it running.
    trace and the signal's slow phase drift make the movement visible.
 7. Save the project as `LabPlotUser.lml`.
 
-The finished project in `./examples/LabPlotDemo/LabPlotDemo.lml` contains
-exactly these settings. Open it to inspect the result, or use the detailed
-notes in `./examples/LabPlotUser/README.md` while building it manually.
+The finished [LabPlotDemo.lml](../examples/LabPlotDemo/LabPlotDemo.lml) contains
+these settings and no machine-specific paths. Open it manually if LabPlot is
+already running. The [LabPlotUser directory](../examples/LabPlotUser/) is the
+place for your recreated `LabPlotUser.lml`; this section is its complete
+rebuild guide. Both producers end at the same numeric UDP stream, for example
+`0.000000,0.000000,1.000000,0.000000`.
+
+Stop the producer and start the other launcher without changing the LabPlot
+project. Keep only one producer sending to UDP `9000` and keep the live source
+connected. The Trice launcher first waits for LabPlot on `9000`, then for its
+decoder on `9001`. The supplied project predeclares all four numeric columns
+and triggers an initial read when loaded so that LabPlot prepares its socket.
 
 #### 12.4.6. <a id="troubleshooting-and-adaptations"></a>Troubleshooting and adaptations
 
+* `labplot` must be discoverable or selected with `LABPLOT`. macOS also checks
+  its standard application bundle. Windows searches `ProgramFiles`,
+  `ProgramW6432`, and `LOCALAPPDATA` for `labplot.exe` or `labplot2.exe`;
+  an explicit `LABPLOT` override takes precedence. `TLOG` can select a decoder
+  outside `PATH`. Producer executables stay in each demo's `bin/`, with CMake
+  intermediates in `build/`.
 * If the plots remain empty, verify that the producer is running and that no
   other process owns UDP port `9000`.
 * If `tlog` reports that a `-vis` rule was disabled because writing to port
@@ -2752,7 +2888,7 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
-The [PC feature tour](../examples/PC_features/README.md) makes this distinction visible without hardware: its 16-bit stamp is a sample phase, while its 32-bit stamp counts milliseconds. The matching [G0B1 feature tour](../examples/G0B1_features/ReadMe.md) uses the board's own timers.
+The [PC feature tour](#pc-feature-tour) makes this distinction visible without hardware: its 16-bit stamp is a sample phase, while its 32-bit stamp counts milliseconds. The matching [G0B1 feature tour](#g0b1-feature-tour) uses the board's own timers.
 
 ### 18.1. <a id="target-timestamps-formatting"></a>Target (Time)Stamps Formatting
 
@@ -3139,76 +3275,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
 * wr: The internal write function bit width.
 * use: The possible user write function bit width (auxiliary write)
 
-<!--
 
-* The information, if the stream is aligned or not can be passed wit `-pf=none32` or `-pf=none8` but is also detectable.
-* In multi-pack mode only unaligned  
-
-* The Trice tool, when receiving the transfer buffers, knows the framing and also if encryption is active, but does not know if TRICE_SINGLE_PACK_MODE or TRICE_MULTI_PACK_MODE is active. Additionally the information direct or deferred is not used by the Trice tool. It has to deal with the option of 0-7 padding zeroes after a decoded Trice message:
-  * Encryption with framing NONE: forbidden - uninteresting case and resync is difficult
-  * Encryption with framing COBS: 0-7 padding zero bytes inside the decoded buffer only at its end possible.
-  * Encryption with framing TCOBS: 0-7 padding zero bytes inside the decoded buffer only at its end possible. This configuration is not recommended, because random data not compressble.
-  * No Encryption with framing NONE: 0-3 padding zero bytes after each Trice possible.
-  * No Encryption with framing COBS: 0-3 padding zero bytes inside the decoded buffer only at its end possible.
-  * No Encryption with framing TCOBS: 0-3 padding zero bytes inside the decoded buffer only at its end possible.
-  * *In short*:
-    * Only inside at package end: 0-7 padding zeroes with encryption and 0-3 without encryption are possible.
-    * When package framing NONE 0-3 padding zeroes possible and typeX0 records are mixed with normal Trices.
-  * Usually, when transmitting over UART unencrypted for example, there are no padding bytes at all.
-  * But with `TRICE_LEAVE` is called `TriceNonBlockingDirectWrite`, what could add padding bytes inside the (T)COBS buffers at their end.
-  * In deferred mode, padding bytes inside a (T)COBS package only possible together with encryption. After packing and when using a 32-bit write function, after (outside) the packages are 1-3 zero bytes possible. Those are treated as package delimiters.
-* The further transfer buffer interpretation after successfully decoding one Trice is:
-  * No encryption:
-    * If framing (T)COBS or NONE and at least 4 bytes left: Try to interpret next bytes.
-    * If framing (T)COBS and max 3 bytes left:
-      * If all 3 are zero: these are padding bytes to be removed before next package is read.
-      * If at least one of the 3 remaining bytes is != 0, this is an error.
-    * If framing (T)COBS and the 4 bytes are not a full Trice -> error
-    * If framing NONE and the 4 bytes are not a full Trice -> read more
-      * Even if we get more, we do not know, if there are 0-4 padding bytes before the next Trice starts. Cases:
-
-        ```C
-        d n n n n // case  1:                                start of next Trice is n n
-
-        d 0 n n n // case  2: 0 is         padding byte  and start of next Trice is n n
-        d 0 n n n // case  3: 0 is no      padding byte  and start of next Trice is 0 n
-
-        d 0 0 n n // case  4: 0 0 are      padding bytes and start of next Trice is n n
-        d 0 0 n n // case  5: first 0 is   padding byte  and start of next Trice is 0 n
-        d 0 0 n n // case  6: no           padding bytes and start of next Trice is 0 0 (error)
-
-        d 0 0 0 n // case  7: 0 0 0 are    padding bytes and start of next Trice is n
-        d 0 0 0 n // case  8: 0 0   are    padding bytes and start of next Trice is 0 n
-        d 0 0 0 n // case  9: 0     is     padding byte  and start of next Trice is 0 0 (error)
-        d 0 0 0 n // case 10: no           padding bytes and start of next Trice is 0 0 (error)
-        ```
-
-      * The padding bytes positions must fit the ByteCount. But even they fit, cases 2 & 3, 4 & 5, 7 & 8 are not distinguishable.
-      * Also the error cases could by interpreting one or two zeroes as padding byte get valid cases.
-      * For a consistent interpretation we need to know if padding is used. That is a use case especially when using RTT8 or RTT32.
-      * Is it possible to detect that automatically for `pf=none`? As soon we have case 2 or 3 and cannot distinguish, there is a high probalbility that one of them will fail. Then we silently know for the current Trice tool life time.
-      * We could invent additional CLI switches `-pf=none8` and `pf=none32` to tell explicitely if package framing none is with padding or not.
-    * We invent a global variable `NopfPadding` witch we set to 0 with `-pf=none`, to 8 with `pf=none8` and 32 with `pf=none32`.
-    * With NopfPadding != 0 we know exactly how to interpret framing NONE streams.
-    * With NopfPadding == 0 we check the ByteCount and if ByteCount mod 4 != 0 and there are no matching zeroes afterwards we set NopfPadding = 8.
-    * With NopfPadding == 0 we check the ByteCount and if ByteCount mod 4 != 0 and there are    matching zeroes afterwards we try to interpret the variants and set NopfPadding = 8||32 according to the success.
-
-    * If framing NONE and max 3 bytes left:
-        * If no more data within 100ms, try to interpret them as typeX0 message and report an error if no success.
-        * If more data arrive, the Trice tool has to determine the correct count of padding bytes.** That can be easily done with the already interpreted byte count **ByteCount**.
-          * BC mod 4 == 0 -> no padding bytes
-          * BC mod 4 == 1 -> 1 padding byte, which is expected to be 0.
-          * BC mod 4 == 2 -> 2 padding bytes, which are expected to be 0.
-          * BC mod 4 == 3 -> 3 padding bytes, which are expected to be 0.
-
-  * With encryption:
-    * If framing (T)COBS or NONE and at least 8 bytes left: Try to interpret next bytes.
-    * If framing (T)COBS and max 7 bytes left:
-      * If all 7 are zero: these are padding bytes to be removed before next package is read.
-      * If at least one of the 7 remaining bytes is != 0, this is an error.
-    * If framing NONE: forbidden situation
-
--->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -3573,16 +3640,7 @@ For maintenance, keep these parts aligned:
 5. `_test` CGO checks set `decoder.TypeX0` to `counted:sig:% x\n`.
 6. The full `_test/` matrix remains the final coverage check.
 
-<!---
-When introducing or changing X0 behavior, a useful implementation sequence is:
 
-1. Add or adjust the X0 test in one test configuration and verify that it fails for the missing behavior.
-2. Implement or update `-typeX0` in the Go decoder.
-3. Make the single X0 test pass.
-4. Enable `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` in all relevant `_test/.../triceConfig.h` files.
-5. Add or update the shared `decoder.TypeX0` option for all tests using `triceCheck.c`.
-6. Run the full `_test/` matrix.
--->
 
 Additional focused Go unit tests cover:
 
@@ -3715,7 +3773,29 @@ The markers are case-sensitive, must be written as comments, and affect only the
 
 #### 23.1.3. <a id="different-ids-for-same-trices"></a>Different IDs for same Trices
 
-* When the same Trice is used several times with identical IDs, after copying, and `trice insert` is called, only one ID survives in the source code. The other Trices get assigned new IDs. Otherwise the location information would not be correct everywhere.
+Every active textual Trice site needs its own ID so that location information remains unambiguous. Copying a call with its explicit ID does not create shared ownership: `trice insert` resolves the duplicate and allocates or reuses another eligible ID.
+
+Both `trice insert` and `trice bind` then order **identical, interchangeable Trices** by normalized relative file path, numeric line number, and position from left to right within the line. Paths use `/` separators and an ordinal, case-sensitive comparison (`A.c` precedes `a.c`), independent of locale. The root is `-liRoot`, or the directory containing the selected LI file by default; the absolute checkout directory does not determine the order. Overlapping `-src` roots visit each physical path only once.
+
+Within each group, the IDs already selected by normal allocation are sorted numerically ascending and assigned to the sites in that order. Identical means the same normalized transport type and exact canonical format, including any structured field schema and Context Enrichment. Equal visible messages with different types or field names are separate groups. Existing tag-specific ID ranges still apply. New ID selection through `-IDMethod random`, `upward`, or `downward` is unchanged: this rule orders the selected pool; it does not introduce a new global allocation strategy or renumber unrelated Trices.
+
+For example, assume these three IDs belong to one group:
+
+| Source state | Site in path order | Assigned ID |
+| --- | --- | ---: |
+| Before | `b.c:10` | 100 |
+| Before | `d.c:20` | 200 |
+| After adding `a.c:5`, with ID 300 also selected | `a.c:5` | 100 |
+| After | `b.c:10` | 200 |
+| After | `d.c:20` | 300 |
+
+Both existing sites may change IDs when an identical site is added, removed, or moved. This is intentional. An unchanged source selection with the same selected ID pool produces the same mapping on subsequent runs, regardless of scan-root order or worker completion. The same rule applies after Clean/Insert; Clean itself does not allocate IDs. An explicit ID in an Insert source is not a request to exempt that site from ordering. Bind changes its own generated descriptors and leaves Insert-owned source files and their IDs alone.
+
+A partial scan orders only its selected sites. IDs recorded in the primary LI as belonging to files outside that selection, including excluded files, are reserved and cannot be taken by the selected sites. Keep the shared LI available for partial scans: without location data, ownership of unscanned IDs cannot be inferred from TIL alone. For one order across the whole project, scan the complete intended source tree. A rename can leave the old path recorded in LI; its ID stays reserved while another eligible ID is selected for the new path.
+
+The final assignment is written consistently to Insert sources or Bind sidecars and to LI. Historical TIL mappings remain available for older recordings. Rebuild firmware after an assignment changes and retain the matching metadata for recordings whose exact old source positions matter.
+
+The [behavioral tests](../internal/id/orderedIDs_test.go) cover group changes, partial scans, path and column order, cache reuse, and ownership. The [target/decoder integration](../internal/args/ordered_ids_test.go) checks actual C/C++ records from both workflows against the generated mapping and decoded fields.
 
 #### 23.1.4. <a id="same-ids-for-different-trices"></a>Same IDs for different Trices
 
@@ -3904,11 +3984,11 @@ Discovered JSON and historical sidecars in `build/triceIDs` are read-only eviden
 
 The primary TIL always wins a numeric-ID conflict. A conflicting subproject ID quietly yields to another matching or newly allocated primary ID; `-verbose` explains such decisions. A conflict-free historical ID is retained and only its actively used mapping is added to the primary TIL. Secondary TILs, LIs, and build artifacts are never modified.
 
-For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions. A sidecar in the current build directory has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match.
+For repeated identical Trice calls (the same normalized type and exact format string) in one file, a valid sidecar assignment takes precedence over conflicting LI positions when selecting ID candidates. A sidecar in the current build directory has priority over discovered sidecars. File modification times do not decide ownership. TIL format compatibility and existing file ownership still have to match. Candidate selection is followed by the [identical-Trice ordering rule](#different-ids-for-same-trices), which determines the final per-site assignment.
 
-Without a usable sidecar assignment, LI candidates for repeated calls are consumed in stored line order as the current calls are visited in source order. Metadata search priority is retained; equal stored lines are ordered by numeric ID. For example, IDs 15982 and 15849 previously stored at lines 2799 and 2807 remain in that order when their calls move to lines 2803 and 2811. Bind does not independently choose the closest old line for each repeated call. A single current call still uses line proximity to select among matching LI candidates.
+Without a usable sidecar assignment, LI candidates for repeated calls are consumed in stored line order as the current calls are visited in source order. Metadata search priority is retained; equal stored lines are ordered by numeric ID. Bind does not independently choose the closest old line for each repeated call. A single current call still uses line proximity to select among matching LI candidates. These rules choose the usable pool, not its final permutation: if IDs 15982 and 15849 are selected for two identical calls, the earlier site receives 15849 and the later site 15982.
 
-`li.json` stores one position per ID, not a sequence of past versions. Bind writes the newly assigned positions back to the primary LI. These rules use the already parsed source sites and metadata; they require no additional source scan. Inserting, deleting, or reordering identical calls can still make their former identities ambiguous. Without usable sidecar or LI evidence, existing matching IDs are assigned in deterministic numeric order; the original per-call association cannot be recovered from TIL alone.
+`li.json` stores one position per ID, not a sequence of past versions. Bind writes the newly assigned positions back to the primary LI. The final ordering uses the already parsed source sites; it requires no additional source scan. Adding, removing, or moving identical calls may deliberately change their earlier IDs. The original per-call association cannot be recovered from TIL alone and is not preserved across such changes.
 
 All discovery and conflict resolution completes before regular output is written. A fatal ambiguity therefore leaves sources, JSON files, and generated outputs unchanged. The complete normative implementation strategy and fallback order are documented in [`internal/id/bindIDs_doc.go`](../internal/id/bindIDs_doc.go).
 
@@ -4860,10 +4940,9 @@ trice clean # Remove the IDs from the source code with deactivated cache.
 * The `trice insert` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 * Also the changes should be minimal.
 * As a general rule lu is only extendable.
-* li is rebuild from scratch.
-* For faster operation files will be processed parallel.
-* To keep the [Trice ID management](#trice-id-management) simple, the `insert` operation acts "per file". That means, that in case a file is renamed or code containing trice statements is copied to another file, new IDs are generated for the affectes trices.
-  * File name changes occur are not that often, so that should be acceptable.
+* LI is updated for selected sites while ownership outside the scan is retained.
+* Files are read in parallel. Allocation and the final assignment are planned in source order before source publication.
+* The final assignment follows the [identical-Trice ordering rule](#different-ids-for-same-trices) across the selected files. A rename may require a new ID when the old LI path lies outside that selection.
 
 ### 27.3. <a id="method"></a>Method
 
@@ -4897,7 +4976,7 @@ type insertIDsData struct {
     * If ID n already inside STM set ID = 0 (that is brutal but ok)
     * Otherwise extend STM with ID n and remove n from ID space
       * It is possible, f is used n times with different IDs, so that is no problem.
-      * It is possible, f is used n times with the same ID, so the first occurrence is the winner.
+      * If f occurs several times with the same ID, the first occurrence provisionally claims it. Final group ordering can assign that ID to another site.
   * If the next found f src ID == 0 (normal case after trice z):
     * Look in flu
       * If not there, create new id and extend STM.
@@ -4921,7 +5000,8 @@ Until here the algorithm seem to be ok.
 * STM is not needed but maybe helpful during debugging.
 * STM than is usable to regenerate li.json and to extend til.json
 
-* If after `trice i` a `trice c` and a `trice i` again is executed, all IDs are expected to be at the same place again. If in between `trice i`, an optional `trice c`and a `trice i` src was edited, most IDs are expected to be at the same place again.
+* After candidate selection, sort each identical group's selected eligible IDs numerically and its sites by relative path, line, and column; then publish matching sources and LI. The Insert cache must contain that final permutation too.
+* An unchanged Clean/Insert cycle with the same selected ID pool restores the same assignment. Editing the group of identical sites may change any of their IDs according to the ordering rule.
 
 ### 27.4. <a id="user-code-patching-trice-insert"></a>User Code Patching (trice insert)
 
@@ -5843,7 +5923,7 @@ Use a threshold when the requirement is “Warning and everything more important
 
 These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](#id-routing); received raw bytes can still be kept in a [binary logfile](#binary-logfile).
 
-For a short capture to experiment with, run the [PC feature tour](../examples/PC_features/README.md) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](../examples/G0B1_features/ReadMe.md) applies the same output choices to a board capture.
+For a short capture to experiment with, run the [PC feature tour](#pc-feature-tour) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](#g0b1-feature-tour) applies the same output choices to a board capture.
 
 All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
@@ -5973,7 +6053,7 @@ The target continues to transmit the ID and values using the existing wire forma
 
 Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN` are supported. The target macros and their bit-width rules remain authoritative. Context Enrichment (`bind -ce`) can add supported structured fields; see [Context Enrichment](#trice-context-enrichment).
 
-Try the [PC Feature Tour](../examples/PC_features/README.md) or the [G0B1 Feature Tour](../examples/G0B1_features/ReadMe.md): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
+Try the [PC Feature Tour](#pc-feature-tour) or the [G0B1 Feature Tour](#g0b1-feature-tour): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
 
 Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
 
@@ -6167,7 +6247,7 @@ For example, `-ce 'ctx7:", clock={}", clock' adds the value of `clock`, valid at
 
 CE requires no global runtime context or push/pop calls on the target. Every executed record transmits its own additional values. CE is therefore independent of [Structured Logging](#structured-logging): an extension may use classical printf placeholders or also create named fields.
 
-Two runnable applications demonstrate the same idea: in the [PC example](../examples/PC_features/README.md), `bind -ce` adds a cycle value at a shared log site. In the [FreeRTOS example](../examples/G0B1_features/ReadMe.md), derived directly from `G0B1_inst`, the same log site adds the identity of its calling task. Both examples also use `triceS` for a runtime string; CE does not append additional runtime arguments to string Trices.
+Two runnable applications demonstrate the same idea: in the [PC example](#pc-feature-tour), `bind -ce` adds a cycle value at a shared log site. In the [FreeRTOS example](#g0b1-feature-tour), derived directly from `G0B1_inst`, the same log site adds the identity of its calling task. Both examples also use `triceS` for a runtime string; CE does not append additional runtime arguments to string Trices.
 
 ### 33.1. <a id="getting-started-with-position-and-speed"></a>Getting Started with Position and Speed
 
@@ -6553,7 +6633,7 @@ On 27 September 2026, direct transfer of the adapter approach to counter rebasin
 
 The reason is ordinal selection in C: even an `if` branch not selected at runtime is checked by the compiler for valid identifiers. The affected expressions are valid at their intended log sites. The error would therefore be an invalid additional scope requirement imposed by instrumentation. The test expects and demonstrates precisely this failed extension; it is not a successful CE rebase acceptance test.
 
-The direct-site proof remains valid. Simply appending CE arguments to rebase branches is insufficient for general CE support, however. On 27 September, the first implementation stage was therefore limited to direct Bind sites uniquely addressable by source line. Production CE rejects selected wrapper/rebase sites before modifying files and points to the explanation in the User Manual with `Search UM for "bind-limits".` Without a matching CE rule, existing Bind capabilities remain available. The additional architecture proof for complex CE sites was deferred; this counterexample alone does not establish that a later solution is impossible.
+The direct-site proof remains valid. Simply appending CE arguments to rebase branches is insufficient for general CE support, however. On 27 September, the first implementation stage was therefore limited to direct Bind sites uniquely addressable by source line. Production CE rejects selected wrapper/rebase sites before modifying files and points to the explanation in the Reference Manual with `Search UM for "bind-limits".` Without a matching CE rule, existing Bind capabilities remain available. The additional architecture proof for complex CE sites was deferred; this counterexample alone does not establish that a later solution is impossible.
 
 The counterexample can be reproduced separately:
 
@@ -7687,13 +7767,13 @@ select only rows valid for the active `triceConfig.h`.
 
 ##### Examples
 
-[`examples/PC_log`](../examples/PC_log/README.md) is an immediately runnable
+[`examples/PC_log`](#pc-local-logging) is an immediately runnable
 host program using the system `snprintf` and standard output. After a short
 introductory sequence, it scans the complete shared
 `_test/testdata/triceCheck.c` producer corpus and fails with the exact selector
 and local-log error if an emitted record cannot be formatted.
 
-[`examples/G0B1_log`](../examples/G0B1_log/README.md) is an independent STM32G0B1
+[`examples/G0B1_log`](#g0b1-freertos-local-logging) is an independent STM32G0B1
 FreeRTOS project using nanoprintf in its background task and plain-text USART2
 output. Its existing default and diagnostics tasks retain their CubeMX names,
 priorities, and stack sizes; the default task scans the same shared producer
@@ -7907,42 +7987,7 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 
  If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-<!--
-### Remote function call syntax support with triceF (deprecated)
 
-```diff
--> Do not use `triceF` family macros for new projects! 
-```
-The `triceF` macros were an experimental remote-function-call syntax. They are deprecated and should not be used for new designs. New command-style communication between devices should use [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
-
-> The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Examples:
-> 
-> ```C
-> trice8F(   "call:FunctionNameW", b8,  sizeof(b8) /sizeof(int8_t) );   //exp: time:            default: call:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
-> TRICE16_F( "info:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: info:FunctionNameX(0000)(ffff)(fffe)(3344)
-> TRice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time: 842,150_450default: call:FunctionNameX(0000)(ffff)(fffe)(3344)
-> Trice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:       5_654default: call:FunctionNameX(0000)(ffff)(fffe)(3344)
-> trice16F(  "call:FunctionNameX", b16, sizeof(b16)/sizeof(int16_t) );  //exp: time:            default: call:FunctionNameX(0000)(ffff)(fffe)(3344)
-> TRICE32_F( "info:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: info:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-> TRice32F(  "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time: 842,150_450default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-> Trice32F(  "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:       5_654default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-> trice32F(  "call:FunctionNameY", b32, sizeof(b32)/sizeof(int32_t) );  //exp: time:            default: call:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
-> TRICE64_F( "info:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: info:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-> TRice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time: 842,150_450default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-> Trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:       5_654default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-> trice64F(  "call:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );  //exp: time:            default: call:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
-> ```
-> 
-> The Trice tool displays the parameter buffer in the shown manner. There is a [Generating an RPC Function Pointer List (deprecated)](#generating-a-rpc-function-pointer-list-deprecated), which generates mainly a function pointer list with associated IDs. This list can get part of the > source code of a remote device. Then, when receiving a Trice message, the remote device can execute the assigned function call using the transferred parameters. This way several devices can communicate in an easy and reliable way.
-> 
-> With `#define TRICE_F TRICE16_F` in the project specific _triceConfig.h_ file the user can specify which should be the bitwidth (16 in this example) for `triceF` macros. The default value is 8.
-> 
-> **Hint:** If you add for example `"rpc"` as [tag](#explpore-and-modify-tags-and-their-colors) and call `trice log -ban "rpc"`, the Trice tool will not display the RPC Trices, but all others. That could be helpful, if you have frequent RPCs and do not > wish to spoil your log output with them.
-> 
-> * Future extensions are possible:
->   * `triceD( "dump:32", addr, 160 );` -> The Trice tool dumps in 32 byte rows.
->   * An appropriate syntax is needed.
--->
 
 ### 38.9. <a id="extended-format-specifier-possibilities"></a>Extended format specifier possibilities
 
@@ -8655,7 +8700,80 @@ th@Thomass-MacBook-Pro-7 TriceAbc %
 
 ![Trice ABC host demo bus topology](./ref/trice_abc_demo_bus.png)
 
-### 39.10. <a id="host-tests"></a>Host tests
+#### 39.9.1. <a id="abc-demo-layout-startup-and-runtime-policy"></a>ABC Demo Layout, Startup, and Runtime Policy
+
+The [host-native example](../examples/TriceAbc/) requires Bash and a C compiler (`gcc`, `clang`, or `cc`); `CC` selects a compiler explicitly. Its build script uses `TRICE_BIN` if supplied, otherwise Go when available, or `trice` in `PATH`. It builds nine executables below `build` (`.exe` on Windows), inserts IDs before generating the tables, and runs `trice clean` on exit after a successful insert. `NodeLib/til.c` is regenerated for the selected source roots and is not a checked-in source. `NodeLib/nodeAbc.h` is the shared user-owned command selection, so preserve it when cleaning generated files.
+
+The layout separates [BcSim](../examples/TriceAbc/BcSim/) (reusable protocol-neutral transport), [BcSimChk](../examples/TriceAbc/BcSimChk/) (standalone random-byte check), [NodeLib](../examples/TriceAbc/NodeLib/) (shared Trice runtime and generated tables), and the nine node directories. `tx`, `rx`, and `bi` describe bus capability, not command vocabulary. `N1_tx`/`N2_tx` emit logs, counted typeX0 buffers, and commands; `N3_bi` also receives and replies; `N4_rx`/`N5_rx` execute commands only; `N6_rx` adds received log presentation; `N7_bi` combines replies and log presentation; `N8_bi`/`N9_bi` reply without the normal-log printer.
+
+`demo.sh` starts receive-capable nodes first, then pure transmitters. A BcSim participant joins at the current end of the bus and does not replay earlier traffic. Runtime files are `abc.bus` (binary framed stream), `abc.log` (human hex log), and `abc.bus.lock/` (writer lock). They are separate from BcSimChk's `bc.*` files. `abc.console.lock/` keeps each complete node or shell status line together; the console lock waits rather than falling back to interleaved writes. A killed lock owner may require manual cleanup after all participants stop.
+
+The command shapes and effects are intentionally small:
+
+| Command | Payload and effect |
+| --- | --- |
+| `cmd:setLeds` | One 8-bit mask; update the local simulated LED bar. |
+| `cmd:getLeds` | No payload; every other bidirectional node can answer `abc:LedsState` with an 8-bit mask. Receive-only nodes cannot reply. |
+| `cmd:setKey` | Counted 8-bit byte buffer; store a local key. |
+| `cmd:logState` | No payload; local printf side effect, without a Trice/ABC response. |
+| `cmd:divide` | Two 32-bit floats; bidirectional nodes answer `abc:DivideResult` with one float. |
+
+Unstamped requests broadcast, so several identical-looking replies are expected. For stamped `getLeds` and `divide`, the demo's application policy uses low bits `0x0001`, `0x0002`, and `0x0004` to select `N7_bi`, `N8_bi`, and `N9_bi`. `N3_bi` demonstrates one and multiple selected responders. Replies retain stamp width and value. This is demonstration routing above ABC, not a built-in addressing protocol.
+
+The node-local `triceConfig.h` files select TX, ABC RX, normal-log resolution, and direct output. Transmitting nodes select `TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS`, for example in [N3_bi/triceConfig.h](../examples/TriceAbc/N3_bi/triceConfig.h); the shared [NodeLib/node.c](../examples/TriceAbc/NodeLib/node.c) collects and decodes COBS frames. All participants must agree on framing. The former separate `triceRxConfig.h` is no longer present. NodeLib implements the real generated handlers once; runtime `canSend` decides whether a node replies, avoiding forwarding wrappers in each node.
+
+The host bridge preserves the normal send macros through `TriceWriteDevice()`. A persistent input buffer splits COBS frames at zero delimiters, keeps the incomplete tail, then iterates logical records inside each decoded frame. It skips record-alignment bytes only when the expected bytes are zero. Parsing happens once, followed by ABC, normal-log, typeX0, or unknown-record dispatch; `TriceAbcOnReceive()` is not the primary demo entry point. Selector-0 buffers have no ID or TIL lookup and are displayed as raw bytes. Nodes without normal-log resolution show ignored IDs; the small generated-`til.c` log printer is not a replacement for the Go host decoder and has no source-location column.
+
+Self-written bus ranges are filtered, so a node does not receive its own frames or display its own logs as received traffic. `nodeSleepMs()` handles shared pacing. Process-local `TRICE_ENTER_CRITICAL_SECTION` hooks cannot protect a multi-process console; NodeLib's separate console lock does that. Each node formats a full line before acquiring the lock. LED output uses `*` for on and space for off, for example:
+
+```text
+N4_rx: leds=[**  *   ]
+N6_rx: key=bravo7 leds=[***     ]
+N7_bi: abc:DivideResult=3.140000
+N6_rx: log:tick=4
+N7_bi: x0 5 bytes: 10 11 12 13 14
+```
+
+### 39.10. <a id="bcsim-broadcast-byte-stream-simulator"></a>BcSim Broadcast Byte-Stream Simulator
+
+[BcSim](../examples/TriceAbc/BcSim/) is a standalone C module: several PC processes append to a shared local file and poll bytes written by others. It knows nothing about IDs, framing, encryption, packet boundaries, source addresses, commands, or handlers. `bc.bus` contains exactly the supplied bytes, with no inserted name, timestamp, length, or metadata; optional `bc.log` is human-readable diagnostic output only.
+
+Each process owns one `BcSim_t`. `bcSimOpen()` opens a local view and starts reading at the current end of the bus. `bcSimWrite()` appends bytes and remembers its own written offset ranges; `bcSimRead()` filters those ranges from subsequent reads; `bcSimClose()` closes the view and resets state. Filtering by offsets rather than byte contents preserves identical data legitimately sent by different processes or repeated by one process.
+
+Writers serialize through an atomically created `bc.bus.lock/` directory: acquire lock, obtain file size, append, remember the `[start,end)` range, optionally append the TX log line, then remove the lock. Competing writers retry until the timeout. Reads normally take no writer lock and may see partial data, which the higher stream layer must buffer. Define `BCSIM_READ_USES_LOCK 1` for deterministic reads under the same writer lock.
+
+The [public API](../examples/TriceAbc/BcSim/BcSim.h) is:
+
+```c
+int bcSimOpen(BcSim_t* io, const char* busPath,
+              const char* logPath, const char* deviceName);
+int bcSimRead(BcSim_t* io, uint8_t* p, size_t max, const char* status);
+int bcSimWrite(BcSim_t* io, const uint8_t* p, size_t n, const char* status);
+void bcSimClose(BcSim_t* io);
+```
+
+The three integer-returning functions return a non-negative byte count or a negative `BCSIM_ERR_*` value. The log starts with a header, then one TX/RX line per event: right-aligned decimal offsets and lengths without leading zeros, device, direction, optional status, and space-separated two-digit lowercase hexadecimal bytes.
+
+```text
+# BcSim traffic log
+# bus file: bc.bus
+# Columns: offset, len, device, direction, status, bytes
+      0      12  A                 TX   tx-0                    35 6a 11 8e ...
+     12      12  B                 RX   poll-1                  35 6a 11 8e ...
+```
+
+Try the transport alone, without Trice tables:
+
+```sh
+cd examples/TriceAbc/BcSimChk
+./demo.sh
+```
+
+Its [build script](../examples/TriceAbc/BcSimChk/build.sh) compiles `main.c` and `../BcSim/BcSim.c`; `CC` and `CFLAGS` allow experiments, such as `CFLAGS='-DBCSIM_READ_USES_LOCK=1' ./build.sh`. The demo starts four participants with random byte blocks and shows `bc.log` and a bus hex dump. The reusable library files are `BcSim_config.h`, `BcSim.h`, and `BcSim.c`; BcSimChk is not needed by applications reusing the transport.
+
+This is a local demonstration medium, not high-performance IPC or a real embedded link. The bus grows until removed, only finitely many self-write ranges are remembered, and a restarted process cannot identify a previous instance's writes. A killed writer can leave a lock directory requiring cleanup. Network filesystems may not offer the same atomic directory and visibility behavior as local filesystems.
+
+### 39.11. <a id="host-tests"></a>Host tests
 
 `_test/abc_tx_host` checks the transmit side. It compiles a small C fixture with ABC TX support, emits selected `triceC`, `TriceC`, `TRiceC`, `trice8C`, `trice16C`, and `trice32C` calls, and compares the produced bytes with fixed fixtures. It verifies wire format generation only; it does not use a receiver table.
 
@@ -8663,7 +8781,7 @@ th@Thomass-MacBook-Pro-7 TriceAbc %
 
 Together, these tests document the current ABC boundary: transmit macros create normal Trice records, the generated table maps selected IDs to handlers, and the receive runtime parses/resolves/dispatches one decoded record at a time.
 
-### 39.11. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
+### 39.12. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
 
 Use ABC as the transport primitive and define the RPC policy in the application.
 
@@ -8679,7 +8797,7 @@ A minimal RPC-like pattern is:
 
 For addressed RPC over a broadcast bus, put the destination into the stamp or payload and let non-matching receivers ignore the command. ABC itself still broadcasts the record.
 
-### 39.12. <a id="security-boundary"></a>Security boundary
+### 39.13. <a id="security-boundary"></a>Security boundary
 
 ABC receiving allows incoming Trice records to trigger selected local application handlers. Do not enable ABC receive processing on untrusted inputs without an application-level trust model.
 
@@ -8691,7 +8809,7 @@ Typical protections are:
 - add authentication or encryption around the transport,
 - compile out `TRICE_RX_ABC_SUPPORT` where it is not needed.
 
-### 39.13. <a id="summary-1"></a>Summary
+### 39.14. <a id="summary-1"></a>Summary
 
 ABC turns selected Trice IDs into asynchronous broadcast commands.
 
@@ -9710,8 +9828,8 @@ inventory.
 |                                    |                                                                                                                                                                                                                                                                                  |
 | [G0B1_bare](../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
 | [G0B1_inst](../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
-| [PC_features](../examples/PC_features/README.md) | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts. |
-| [G0B1_features](../examples/G0B1_features/ReadMe.md) | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts. |
+| [PC_features](#pc-feature-tour) | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts. |
+| [G0B1_features](#g0b1-feature-tour) | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts. |
 |                                    |                                                                                                                                                                                                                                                                                  |
 | [L432_bare](../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../examples/L432_inst) project is then a next step performable. |
 | [L432_inst](../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
@@ -9719,11 +9837,170 @@ inventory.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 41.1. <a id="nucleo-f030r8-examples"></a>Nucleo-F030R8 Examples
+### 41.1. <a id="minimal-pc-demos-direct-and-deferred"></a>Minimal PC Demos: Direct and Deferred
+
+The two programs under [demo](../demo/) use the same binary output channel in two modes. `direct` writes each record immediately to `build/log.bin`; `deferred` first stores records in a ring buffer and drains it through `TriceTransfer()`. Both compile the repository's `src` directly, without copying a library or requiring a separate build system.
+
+Put `trice` and a C compiler named `cc` or `gcc` in `PATH`, then use a POSIX shell (Git Bash on Windows):
+
+```sh
+cd demo
+LC_ALL=C sh ./demo.sh
+```
+
+The [script](../demo/demo.sh) binds both programs once, builds and runs `deferred` followed by `direct`, and decodes both captures using `trice log -p FILEBUFFER`. Calling it through `sh` works even though its versioned file has no executable bit; alternatively, use `chmod +x demo.sh` before `./demo.sh`. `LC_ALL=C` makes the source glob's lowercase selection predictable. `tlog` is not required. The optional prerequisite checks near the start of the script can be enabled; the script installs nothing. On Windows the executables receive the `.exe` suffix automatically.
+
+Ignoring optional location/prefix columns, the messages are:
+
+```text
+Hello from deferred mode.
+Deferred value=42.
+Hello from direct mode.
+Direct value=42.
+```
+
+The layout separates project data from generated outputs:
+
+```text
+demo/til.json, demo/li.json   shared, persistent project ID/location tables
+demo/generated/              generated sidecars and field registry
+demo/deferred/main.c          deferred application
+demo/deferred/triceConfig.h   deferred configuration
+demo/deferred/build/          executable and log.bin
+demo/direct/main.c            direct application
+demo/direct/triceConfig.h     direct configuration
+demo/direct/build/            executable and log.bin
+```
+
+Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. The compiler's `../src/[a-z]*.c` glob is intended to exclude the uppercase vendor source `SEGGER_RTT.c`, so these demos need no RTT configuration. Inspect the selected source list if a locale causes that glob to include the vendor file.
+
+Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42`, rerun the script, and compare the two decoded logs. The shared workflow is maintained only in `demo.sh`.
+
+### 41.2. <a id="pc-feature-tour"></a>PC Feature Tour
+
+The [PC program](../examples/PC_features/main.c) emits a short `capture.bin` for the normal host decoder. It groups Structured Logging, a runtime string, Context Enrichment (CE), tags, an untagged message, a buffer record, and both target-stamp widths in one editable application.
+
+With `trice` and `cc` or `gcc` in `PATH`, run:
+
+```sh
+cd examples/PC_features
+./build_and_run.sh
+./show_text.sh
+./show_json.sh
+./show_kv.sh
+./check_output.sh
+```
+
+The [build script](../examples/PC_features/build_and_run.sh) binds local IDs and applies `-ce 'ctx:", cycle={cycle:%u}", pc_sample_phase'`. The shared `emit_sample` call therefore gains a `cycle` field without editing its `Supply {voltage_mv:%u}` format. The device name uses `TriceS` because CE does not append runtime arguments to string Trices. `til.json` and `li.json` are versioned project tables; the capture, executable, and generated headers are build outputs. Rebuild after changing the source or CE rule.
+
+| Feature | Source to edit | Observable result |
+| --- | --- | --- |
+| Numeric fields and runtime string | `emit_sample` and the device-name `TriceS` | JSON `fields.voltage_mv` and `fields.device`; the device is `pump A`. |
+| CE at one shared call site | `info:ctx:` and `pc_sample_phase` | Supply readings contain `cycle=7` and `cycle=11`. |
+| Built-in and custom tags | `wrn:`, `dbg:`, `sensor:` | Warning threshold filters events; `sensor` has weight 450 in the show scripts. |
+| Two stamp widths | `TRice16` for Phase, `Trice8` for Humidity, and `TRice32` for Supply | Phase has a 32-bit stamp; Humidity has a 16-bit stamp. |
+| Stamp delta | Two Supply calls | Second 32-bit stamp is 125 ms, with a 25 ms delta. |
+| Untagged message and buffer | Last calls in `main` | Message `A message without a tag`, metadata tag `untagged`, and bytes `41 00 ff `. |
+
+The [text](../examples/PC_features/show_text.sh), [JSON](../examples/PC_features/show_json.sh), and [KV](../examples/PC_features/show_kv.sh) scripts append your extra arguments to their `trice log` command:
+
+```sh
+./show_json.sh -logLevel wrn
+./show_text.sh -pick info
+./show_json.sh -ulabel sensor:650 -logLevel wrn
+./show_text.sh -tagStat
+```
+
+The first retains Warning and higher weights; the third raises `sensor` so it also passes that threshold. JSON produces one object per event (NDJSON). Tag statistics count decoded groups, including events hidden by filters. For a complete macro/format corpus see [triceCheck.c](../_test/testdata/triceCheck.c); for live plotting see [the data producers](#setting-up-the-labplot-demo), and for local formatting see [the local-log examples](#local-logging-example-projects).
+
+#### 41.2.1. <a id="updating-the-pc-tours-output-checks"></a>Updating the PC Tour's Output Checks
+
+[check_output.sh](../examples/PC_features/check_output.sh) checks concrete values from `main.c`, the CE rule, and the show-script options. After editing any of those, rebuild, inspect JSON and KV output, update the corresponding shell `case` pattern, and run the check again. Keep each check tied to an observable result. If a feature is removed, deliberately replace or remove its assertion rather than leaving a commented-out check and a misleading `PASS` message.
+
+Macro capitalization chooses stamp width: `trice...` has no target stamp, `Trice...` has 16 bits, and `TRice...` has 32 bits. Changing `Trice16(...)` to `TRice16(...)` changes the stamp, not the 16-bit payload value. The `-ts16` and `-ts32` options change display only. In this tour the 16-bit stamp represents a sample phase; the 32-bit stamp counts milliseconds. Adding stamped events can change subsequent `ts16Delta` or `ts32Delta` expectations. JSON displays a source newline as the two characters `\n`, which shell patterns must match literally.
+
+### 41.3. <a id="g0b1-feature-tour"></a>G0B1 Feature Tour
+
+[G0B1_features](../examples/G0B1_features/) is a direct copy of `G0B1_inst` with a short tour in its two existing FreeRTOS tasks. The original hardware configuration remains in place; the large `TriceCheck` loop is omitted to make task records easy to find. Its companion is the hardware-free [PC feature tour](#pc-feature-tour).
+
+With `trice`, GNU Make, and the Arm GNU toolchain in `PATH`:
+
+```sh
+cd examples/G0B1_features
+./demo_build.sh
+./check_build.sh
+```
+
+The [build script](../examples/G0B1_features/demo_build.sh) binds this copy and its shared `exampleData` producers into a private `til.json`, applying `-ce 'ctx:", task={task:%p}", osThreadGetId()'`. The call in `LogFeatureSample` executes from both tasks, so the records have different task handles at the same C call site. The neighboring `triceS` transports the worker name. Edit [Core/Src/main.c](../examples/G0B1_features/Core/Src/main.c) to experiment with the named `sample` and `load_pct` fields, 16-/32-bit stamps, Warning, untagged text, buffer output, and the custom `sensor:` tag.
+
+[check_build.sh](../examples/G0B1_features/check_build.sh) verifies the generated task adapter and the string, field, stamp, tag, and buffer entries; it needs no board. It is a compiler/build check, not evidence that firmware ran on an MCU.
+
+Flash `out.gcc/G0B1.elf` using the [original board setup](#g0b1inst). In a separate terminal capture RTT channel 0 with J-Link:
+
+```sh
+mkdir -p temp
+JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 temp/trice.bin
+```
+
+Stop the logger once startup records have arrived, then decode the saved capture:
+
+```sh
+./show_text.sh
+./show_json.sh
+./show_kv.sh
+./show_json.sh -pick info
+./show_kv.sh -logLevel wrn
+```
+
+The [text](../examples/G0B1_features/show_text.sh), [JSON](../examples/G0B1_features/show_json.sh), and [KV](../examples/G0B1_features/show_kv.sh) decoder scripts expect this project's `til.json` and accept extra `trice log` arguments. They use 16-bit stamps as microseconds and 32-bit stamps as milliseconds; JSON is NDJSON. The custom tag has weight 450. Rebuild and recapture after editing calls or CE rules. A board and J-Link are required for capture, but an existing `temp/trice.bin` can be decoded without hardware.
+
+### 41.4. <a id="local-logging-example-projects"></a>Local Logging Example Projects
+
+These applications demonstrate [local deferred text logging](#local-deferred-text-log): producers remain binary and short; one background consumer formats records on the target. `TriceLog()` and `TriceTransfer()` must never consume the same deferred buffer together.
+
+#### 41.4.1. <a id="pc-local-logging"></a>PC Local Logging
+
+The [PC application](../examples/PC_log/main.c) uses a ring buffer, system `snprintf`, and standard output. With `trice` and `cc` or `gcc` in `PATH`:
+
+```sh
+cd examples/PC_log
+./build_and_run.sh
+```
+
+The [script](../examples/PC_log/build_and_run.sh) binds the application and shared `triceCheck.c` corpus, generates `build/til.c` with `trice generate -logC`, compiles against `../../src`, and runs the result. Sidecars are in `generated`; the table and executable are in `build`. No serial connection, RTT/J-Link installation, or host decoder is needed. A startup sequence shows integers, a runtime `%s`, string width/precision, `aFloat()`, `aDouble()`, Trice-specific conversions, and a buffer; the shared corpus then runs line by line.
+
+The explicit switches in [triceConfig.h](../examples/PC_log/triceConfig.h) are a readable full-feature configuration. Command/RPC and selector-0 cases are disabled only for local logging; the two host-only dynamic-string byte-dump forms are likewise guarded only by `TRICE_LOCAL_LOG`, preserving ordinary corpus users.
+
+#### 41.4.2. <a id="g0b1-freertos-local-logging"></a>G0B1 FreeRTOS Local Logging
+
+The independent [G0B1_log](../examples/G0B1_log/) copy retains the original CubeMX setup, task names, priorities, and stack sizes. With `trice` and the Arm GNU toolchain in `PATH`:
+
+```sh
+cd examples/G0B1_log
+./build.sh
+```
+
+The [build script](../examples/G0B1_log/build.sh) binds the application and shared corpus, generates `build/til.c`, and builds `out.gcc/G0B1_log.elf`; Bind sidecars remain in `generated`. The default task executes the corpus. The idle diagnostics task `StartTask02` alone calls `TriceLog()` with nanoprintf and may block while transmitting already formatted text:
+
+```text
+tasks and interrupts -> binary Trice ring buffer
+                    -> idle StartTask02 -> TriceLog + nanoprintf
+                    -> USART2 text at 115200 baud
+```
+
+Producer contexts neither call printf nor wait for USART2. Connect the USART2 virtual COM port to a serial terminal at 115200 baud. At runtime no `trice log`, TIL file, or binary host decoder is needed. The startup feature set matches the PC local-log example, including runtime strings, bounded string formatting, float/double, special conversions, and a buffer.
+
+Both configurations enable ANSI colors and strip recognized all-lower-case tags independently. Set `TRICE_LOCAL_LOG_USE_ANSI_COLORS` to `0` for plain redirected text; an ANSI-capable terminal is required to display colors. `TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` separately controls retaining tags. Floating-point nanoprintf support increases target code size; integer/string-only applications can disable both the corresponding nanoprintf options and Trice local-log options. See [configuration switches and formatter hooks](#local-deferred-text-log) and the [local-log integration tests](../internal/id/local_log_integration_test.go) for their behavior and limits.
+
+### 41.5. <a id="shared-example-producers"></a>Shared Example Producers
+
+The C files under [examples/exampleData](../examples/exampleData/) are shared producer sources used by several installed examples; this is not a standalone application. A Bind scan can generate sidecars for included shared producers even when an application does not invoke their demo functions at runtime. The large [triceCheck.c](../_test/testdata/triceCheck.c) corpus is separate and supplies the PC target tests and installed local-log examples.
+
+### 41.6. <a id="nucleo-f030r8-examples"></a>Nucleo-F030R8 Examples
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
-#### 41.1.1. <a id="f030bare"></a>F030_bare
+#### 41.6.1. <a id="f030bare"></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
@@ -9811,7 +10088,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-#### 41.1.2. <a id="f030inst"></a>F030_inst
+#### 41.6.2. <a id="f030inst"></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
@@ -9837,11 +10114,11 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 41.2. <a id="nucleo-g0b1-examples"></a>Nucleo-G0B1 Examples
+### 41.7. <a id="nucleo-g0b1-examples"></a>Nucleo-G0B1 Examples
 
 <img src="https://docs.zephyrproject.org/latest/_images/nucleo_g0b1re.jpg">
 
-#### 41.2.1. <a id="g0b1bare"></a>G0B1_bare
+#### 41.7.1. <a id="g0b1bare"></a>G0B1_bare
 
 Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
@@ -9856,7 +10133,7 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 - See and adapt steps from [F030_bare](#f030bare).
 - Then add/modify the files to reach this folder layot.
 
-#### 41.2.2. <a id="g0b1inst"></a>G0B1_inst
+#### 41.7.2. <a id="g0b1inst"></a>G0B1_inst
 
 Folder: [../examples/G0B1_inst/](../examples/G0B1_inst/)
 
@@ -9875,11 +10152,11 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-### 41.3. <a id="nucleo-l432kc-examples"></a>Nucleo-L432KC Examples
+### 41.8. <a id="nucleo-l432kc-examples"></a>Nucleo-L432KC Examples
 
 <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/A300/NUCLEO_L432KC_01.png" width=400>
 
-#### 41.3.1. <a id="l432bare"></a>L432_bare
+#### 41.8.1. <a id="l432bare"></a>L432_bare
 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
@@ -9890,7 +10167,7 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
-#### 41.3.2. <a id="l432inst"></a>L432_inst
+#### 41.8.2. <a id="l432inst"></a>L432_inst
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
@@ -10112,122 +10389,7 @@ trice generate -i til.json -abc=deviceX
 
 Run from the project directory. This creates `generated/deviceX.h` if it does not exist, otherwise uses it as the user-edited selection input. It always regenerates `generated/deviceX.c` from `til.json` and the active declarations in `generated/deviceX.h`. `-genDir` changes the generated directory; an explicit target path such as `-abc=custom/deviceX` keeps that path. For the workflow and examples see [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
 
-<!--
-### Generating an RPC Function Pointer List (deprecated)
 
-```diff
--> Do not use for new projects!
-```
-
-This was an experimental implementation and will be removed in the future. Use `trice generate -abc=<device>` instead. See [Trice ABC - Asynchronous Broadcast Commands](#trice-abc---asynchronous-broadcast-commands).
-
-> When several embedded devices are going to communicate, `trice generate -rpcH -rpcC` could be helpful.
-> 
-> You will get 2 files similar to:
-> 
-> ```C
-> //! \file tilRpc.h
-> //! ///////////////////////////////////////////////////////////////////////////
-> 
-> //! Trice generated code - do not edit!
-> 
-> #include <stdint.h>
-> 
-> typedef void (*triceRpcHandler_t)(void* buffer, int count);
-> 
-> typedef struct{
->     int id;
->     triceRpcHandler_t fn;
-> } triceRpc_t;
-> 
-> extern triceRpc_t triceRpc[];
-> extern int triceRpcCount;
-> 
-> /*  TRICE16_F */ void FunctionNameXa( int16_t* p, int cnt );
-> /*  TRICE32_F */ void FunctionNameYa( int32_t* p, int cnt );
-> /*   TRICE8_F */ void TryoutBufferFunction( int8_t* p, int cnt );
-> /*   TRice16F */ void FunctionNameXb( int16_t* p, int cnt );
-> /*   trice32F */ void FunctionNameYd( int32_t* p, int cnt );
-> /*    TRice8F */ void FunctionNameWb( int8_t* p, int cnt );
-> /*   trice64F */ void FunctionNameZd( int64_t* p, int cnt );
-> /*   Trice16F */ void ARemoteFunctionName( int16_t* p, int cnt );
-> /*    Trice8F */ void FunctionNameWc( int8_t* p, int cnt );
-> /*   Trice16F */ void FunctionNameXc( int16_t* p, int cnt );
-> /*   TRICE8_F */ void TryoutStructFunction( int8_t* p, int cnt );
-> /*   Trice64F */ void FunctionNameZc( int64_t* p, int cnt );
-> /*    trice8F */ void FunctionNameWd( int8_t* p, int cnt );
-> /*   TRice64F */ void FunctionNameZb( int64_t* p, int cnt );
-> /*  TRICE64_F */ void FunctionNameZa( int64_t* p, int cnt );
-> /*   trice16F */ void FunctionNameXd( int16_t* p, int cnt );
-> /*   TRICE8_F */ void FunctionNameWa( int8_t* p, int cnt );
-> /*   TRice32F */ void FunctionNameYb( int32_t* p, int cnt );
-> /*   Trice32F */ void FunctionNameYc( int32_t* p, int cnt );
-> 
-> // End of file
-> 
-> ```
-> 
-> ```C
-> //! \file tilRpc.c
-> //! ///////////////////////////////////////////////////////////////////////////
-> 
-> //! Trice generated code - do not edit!
-> 
-> #include <stdio.h> // needed for __attribute__((weak)) 
-> #include "tilRpc.h"
-> 
-> //! triceRpc contains all rpc IDs together with their function pointer address.
-> const triceRpc_t triceRpc[] = {
-> 	/* Trice type */  //  id, function pointer
-> 	/*    TRice8F */ { 14227, FunctionNameWb },
-> 	/*  TRICE32_F */ { 14234, FunctionNameYa },
-> 	/*   TRICE8_F */ { 16179, TryoutBufferFunction },
-> 	/*   Trice16F */ { 14232, FunctionNameXc },
-> 	/*   Trice64F */ { 14240, FunctionNameZc },
-> 	/*   TRice64F */ { 14239, FunctionNameZb },
-> 	/*  TRICE16_F */ { 14230, FunctionNameXa },
-> 	/*   TRICE8_F */ { 16178, TryoutStructFunction },
-> 	/*    Trice8F */ { 14228, FunctionNameWc },
-> 	/*   trice16F */ { 14233, FunctionNameXd },
-> 	/*   trice64F */ { 14241, FunctionNameZd },
-> 	/*   trice32F */ { 14237, FunctionNameYd },
-> 	/*   TRICE8_F */ { 14226, FunctionNameWa },
-> 	/*   TRice16F */ { 14231, FunctionNameXb },
-> 	/*   TRice32F */ { 14235, FunctionNameYb },
-> 	/*   Trice16F */ { 16337, ARemoteFunctionName },
-> 	/*    trice8F */ { 14229, FunctionNameWd },
-> 	/*   Trice32F */ { 14236, FunctionNameYc },
-> 	/*  TRICE64_F */ { 14238, FunctionNameZa }
-> };
-> 
-> //! triceRpcListElements holds the compile time computed count of list elements.
-> const unsigned triceRpcElements = sizeof(triceRpc) / sizeof(triceRpc_t);
-> 
-> void TryoutBufferFunction( int8_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameXc( int16_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameZc( int64_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameZb( int64_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameXa( int16_t* p, int cnt) __attribute__((weak)) {}
-> void TryoutStructFunction( int8_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameWc( int8_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameXd( int16_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameZd( int64_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameYd( int32_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameWa( int8_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameXb( int16_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameYb( int32_t* p, int cnt) __attribute__((weak)) {}
-> void ARemoteFunctionName( int16_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameWd( int8_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameYc( int32_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameZa( int64_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameWb( int8_t* p, int cnt) __attribute__((weak)) {}
-> void FunctionNameYa( int32_t* p, int cnt) __attribute__((weak)) {}
-> 
-> // End of file
-> ```
-> 
-> Assume a project with several devices. You can add these 2 files to all targets and if a special target should execute any functions, simply implement them. These functions on their own can execute other Trice statements to transmit results. If a client > executes an RPC function this way, the request is transmitted with the Trice speed. Several target devices (servers) can receive and respond and the client can wait for the first or some of them. That server receiving and client waiting functionality is not > part of the Trice library. 
--->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -11347,174 +11509,7 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptations w
 
 ## 47. <a id="future-development"></a>Future Development
 
-<!--
-### 45.1. <a id="trice-log-level-control-specification-draft"></a>Trice Log-level Control Specification Draft
 
-> Specification Draft
-
-#### 45.1.1. <a id="what-log-levels-exist-in-general-including-exotic-ones-and-what-is-their-exact-weighting-relative-to-each-other"></a>What log levels exist in general, including exotic ones, and what is their exact weighting relative to each other?
-
-🧭 **Basic principle**
-
-* Lower level → more noise / diagnostic detail
-* Higher level → more severe / critical condition
-
-🔢 **Common standardized levels (by severity)**
-
-| Level | Name                      | Weight          | Meaning                                                                                              |
-|-------|---------------------------|-----------------|------------------------------------------------------------------------------------------------------|
-| 0     | TRACE                     | lowest          | Finest-grained details — e.g., every function call or variable change. Used for deep debugging only. |
-| 1     | DEBUG                     | low             | Developer-level details about execution flow. No failure.                                            |
-| 2     | INFO                      | medium          | Normal operational messages — startup, config loaded, connection established.                        |
-| 3     | NOTICE                    | slightly higher | Significant but expected events (e.g., user login). Exists in syslog.                                |
-| 4     | WARN / WARNING            | rather high     | Something unexpected but not yet a failure. System continues running.                                |
-| 5     | ERROR                     | high            | A problem occurred — operation failed, but program still runs.                                       |
-| 6     | CRITICAL                  | very high       | A subsystem failure. Urgent attention required.                                                      |
-| 7     | ALERT                     | extremely high  | Immediate human intervention needed.                                                                 |
-| 8     | EMERGENCY / FATAL / PANIC | highest         | System unusable. Shutdown or restart required.                                                       |
-
-🧩 **Rare or exotic variants**
-
-| Name                       | Origin / Context                | Severity                | Description                                    |
-|----------------------------|---------------------------------|-------------------------|------------------------------------------------|
-| VERBOSE                    | Windows, Android, C/C++ loggers | Between TRACE and DEBUG | Very detailed, but not quite as deep as TRACE. |
-| SUCCESS / OK / PASS        | Test frameworks                 | Between INFO and NOTICE | Indicates successful operations.               |
-| FAIL                       | Test frameworks                 | ERROR                   | Failed test but not system error.              |
-| SECURITY / AUDIT           | Compliance systems              | Variable                | Logs security or compliance events separately. |
-| CONFIG / INIT              | Embedded / frameworks           | INFO                    | Configuration or initialization messages.      |
-| DEPRECATION                | Compilers, frameworks           | WARN                    | Deprecated feature warnings.                   |
-| ASSERT                     | Debuggers, C/C++                | CRITICAL                | Assertion failure, usually aborts program.     |
-| NOTICE / IMPORTANT / EVENT | Various                         | Between INFO and WARN   | Events worth attention but not errors.         |
-| OFF                        | Logging frameworks              | none                    | Turns off all logging.                         |
-| ALL                        | Logging frameworks              | lowest                  | Enables every log level.                       |
-
-🧮 **Example comparison across systems**
-
-| Severity | Syslog  | Log4J / Java | Python   | .NET        | Meaning          |
-|----------|---------|--------------|----------|-------------|------------------|
-| 0        | debug   | TRACE        | NOTSET   | Trace       | Internal details |
-| 1        | info    | DEBUG        | DEBUG    | Debug       | Developer info   |
-| 2        | notice  | INFO         | INFO     | Information | Normal ops       |
-| 3        | warning | WARN         | WARNING  | Warning     | Unexpected       |
-| 4        | err     | ERROR        | ERROR    | Error       | Operation failed |
-| 5        | crit    | FATAL        | CRITICAL | Critical    | Severe           |
-| 6        | alert   | —            | —        | —           | Immediate action |
-| 7        | emerg   | —            | —        | —           | System crash     |
-
-🧠 **Suggested numeric scale**
-
-| Level                     | Weight | Meaning           |
-|---------------------------|--------|-------------------|
-| TRACE                     | 10     | Ultra-detailed    |
-| VERBOSE                   | 20     | Very detailed     |
-| DEBUG                     | 30     | Developer info    |
-| INFO                      | 40     | Normal operation  |
-| NOTICE                    | 50     | Significant event |
-| WARN                      | 60     | Warning           |
-| ERROR                     | 70     | Error             |
-| CRITICAL                  | 80     | Serious problem   |
-| ALERT                     | 90     | Urgent            |
-| EMERGENCY / FATAL / PANIC | 100    | Total failure     |
-
-For The Trice project (an embedded logging tool), logging must be:
-
-* lightweight,
-* memory-efficient (Flash/RAM),
-* but still expressive enough for both developers and customers.
-
-Here’s a 7-level scheme, embedded-friendly yet compatible with syslog/log4j conventions:
-
-🔧 Recommended Trice Log Level Scale
-
-| Macro/Level           | Name                | Weight | Meaning                            | Typical Use                                 |
-|-----------------------|---------------------|--------|------------------------------------|---------------------------------------------|
-| **0 – trice_SILENT**  | **OFF / NONE**      | 0      | No output at all.                  | Disable logging in release builds.          |
-| **1 – trice_FATAL**   | **FATAL / PANIC**   | 100    | System unusable, restart required. | Watchdog reset, hard fault, stack overflow. |
-| **2 – trice_ERROR**   | **ERROR**           | 80     | Recoverable error.                 | CRC failure, timeout, file missing.         |
-| **3 – trice_WARN**    | **WARN**            | 60     | Unexpected but tolerable.          | Retry, threshold exceeded.                  |
-| **4 – trice_INFO**    | **INFO**            | 40     | Regular operation messages.        | Init complete, connection established.      |
-| **5 – trice_DEBUG**   | **DEBUG**           | 30     | Developer-level diagnostics.       | Variable states, state transitions.         |
-| **6 – trice_VERBOSE** | **VERBOSE / TRACE** | 10     | Deepest trace level.               | Function calls, ISR entry, timings.         |
-
-🎯 Advantages
-
-* [x] Compatible with Syslog conventions
-* [x] Filtered by one threshold (if(level <= currentLevel))
-* [x] Backward-compatible (old log constants still valid)
-* [x] Easily extendable (e.g., add NOTICE or ASSERT later)
-
-#### 45.1.2. <a id="compile-time-log-level-control"></a>Compile-time Log-level Control
-
-In [Trice Structured Logging Compile-time Information](#trice-structured-logging-compile-time-information) we see, how `trice insert ...` could modify (temporarily) the source code. With an additional *insert* switch like `-loglevel` the shown example could get changed in this way:
-
-User may have written inside *val.c*:
-
-```C
-void doStuff( void ){
-    // ...
-    trice("info:The answer is %d.\n", 42);
-    // ...
-}
-```
-
-and a `trice insert -loglevel` command could change that into (revertable with `trice clean`):
-
-```C
-void doStuff( void ){
-    // ...
-    trice_INFO(iD(123), "info:The answer is %d.\n", 42);
-    // ...
-}
-```
-
-The idea here is to modify also the `trice` macro name into `trice_INFO`, when a Trice tag "info" or "inf" was found. We could define this way:
-
-```C
-#define TRICE_LOG_LEVEL TRICE_LEVEL_INFO
-
-#if TRICE_LOG_LEVEL >= TRICE_LEVEL_INFO
-#define trice_INFO(...) trice( __VA_ARGS__)
-#else
-#define trice_INFO(...) ((void)0)
-#endif
-
-#if TRICE_LOG_LEVEL >= TRICE_LEVEL_DEBUG
-#define trice_DEBUG(...) trice(__VA_ARGS__)
-#else
-#define trice_DEBUG(...) ((void)0)
-#endif
-```
-
-That results in no code generation for `trice("info:The answer is %d.\n", 42);` for TRICE_LOG_LEVEL < TRICE_LEVEL_INFO. What we get this way is:
-
-* A fine-granular compile-time log-level control.
-* The user is free to add its own log-levels.
-* No run-time costs at all.
-
-#### 45.1.3. <a id="run-time-log-level-control"></a>Run-time Log-level Control
-
-Trice logs are very light-weight and usually is no need for their run-time control. Nevertheless there could be a need for that. The very first we need, is a control channel to tell the target device about a changing log-level. See for example chapter [Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart).
-
-When we are able to set a value *LogLevel* in the target device, we can use this value as an ID threshold in combination with the `-IDRange` switch. More in detail as an example:
-
-```bash
-trice insert -loglevel -IDRange debug:1,999 -IDRange info:2000,2999 -IDMin 4000 -IDMax 9999 -IDRange err:10000,10999
-```
-
-It is important to understand, that all other Trice messages get IDs in the range `-IDMin` and `-IDMax` and that no range overlapping is allowed.
-
-| LogLevel | Result                                    |
-|---------:|-------------------------------------------|
-|    16384 | no output                                 |
-|    10000 | only error messages                       |
-|     4000 | normal messages and error messages        |
-|     2000 | all output except info and debug messages |
-|     1000 | all output except debug messages          |
-|        0 | all output                                |
-
-That implies a small Trice library extension, which gets active only with a `LOGLEVELS` switch. In that case we get a small additional run-time overhead. What we cannot achieve this way is a tag specific target-side selection, but that would be no big deal to add as well.
-
--->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -11523,300 +11518,7 @@ That implies a small Trice library extension, which gets active only with a `LOG
 [Context Enrichment](#trice-context-enrichment) supports direct Bind log sites and reversible source extensions with `insert/clean`. Bind rejects selected CE sites in wrapper macros or counter-rebase regions. Use an ordinary function, put direct calls on separate source lines, or use `insert/clean` as described under [bind-limits](#bind-limits).
 
 
-<!--
 
-> **Specification Draft**
-
-Context Enrichment automatically adds compile time and runtime data to logs. The user should be able to configure, which data get added and also should have control about the data formatting. The generic data insertion should also work with structured logging as option.
-
-Trice is considerable already a bit as a (very limited) context enrichment logger, if we look at the file and line insertion capability and the timestamp options. The following is about how Trice could get full Context Enrichment capability without making a breaking change.
-
-#### 45.2.1. <a id="trice-context-enrichment-compile-time-information"></a>Trice Context Enrichment Compile-time Information
-
-*file, line, function, compiler version, module, build time, firmware version, machine name, user name, locale, host OS version, log level, format string, compiler flags, (locally) defined values...*
-
-These data can be strings or numbers.
-
-#### 45.2.2. <a id="trice-context-enrichment-runtime-information"></a>Trice Context Enrichment Runtime Information
-
-*uptime, timestamp, hw serial, task ID, stack depth, event count, core ID, device position, variables values, parameter values ...*
-
-In an initial approach we assume, these data do not contain runtime generated strings. If really needed, a derived hash is usable instead for now. Despite of this, runtime generated strings are an important feature and therefore Trice supports `triceS`, capable to transmit a single string up to 32KB long, and `triceS` relatives like `triceB`. We could add compile-time data (as inserted fixed strings) but runtime information can only get as an additional part of the runtime generated string into the structured log. This should be acceptable and we will deal with this later.
-
-#### 45.2.3. <a id="trice-context-enrichment-limitations-and-special-cases"></a>Trice Context Enrichment Limitations and Special Cases
-
-For performance reasons, Trice was designed to only transmit 0-12 (straight forward extendable) numbers of equal bit-width **OR** a single runtime generated string. Firstly we look at only "normal" Trice macros `trice`, `Trice`, `TRice` and exclude the special cases `triceS`, `TriceS`, `TRiceS`. Also we consider just trices without specified bit-width, assume 32-bit and exlude cases like `trice32_4` firstly.
-
-#### 45.2.4. <a id="a-trice-context-enrichment-example"></a>A Trice Context Enrichment Example
-
-User may have written inside *val.c*:
-
-```C
-void doStuff( void ){
-    // ...
-    trice("info:The answer is %d.\n", 42);
-    // ...
-}
-```
-
-and (as we know) a `trice insert` command would change that into (revertable with `trice clean`):
-
-```C
-void doStuff( void ){
-    // ...
-    trice(iD(123), "info:The answer is %d.\n", 42);
-    // ...
-}
-```
-
-But a `trice insert` command with context option will, for example, change that line into (revertable with `trice clean`):
-
-```C
-void doStuff( void ){
-    // ...
-    trice(iD(456), "[level=info][file=\"val.c\"][line=321][func=doStuff][taskID=%x][fmt=\"The answer is %d.\"][uptime=%08us][temperature=%3.1f°C]\n", getTaskID(), 42, uptime(), aFloat(sensorValue));
-    // ...
-}
-```
-
-#### 45.2.5. <a id="trice-context-enrichment-cli-switches-and-variables"></a>Trice Context Enrichment CLI Switches and Variables
-
-To achieve that, 2 Context Enrichment CLI switches `-cef` and `-cev` on `trice insert` and `trice clean` are usable:
-
-| CLI switch | meaning                   |
-|------------|---------------------------|
-| `-cef`     | Context Enrichment format |
-| `-cev`     | Context Enrichment values |
-
-Additionally the Trice tool uses these internal variables (no bash variables!) as replacements during `trice insert` and `trice clean`:
-
-| Variable  | Example               | Comment                                                                                                                                          |
-|-----------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `$level`  | `info`                | The bare trice format string part until the first colon (`:`), if known as channel/tag value.                                                    |
-| `$file`   | `val.c`               | The file name, where the Trice log occures.                                                                                                      |
-| `$line`   | `321`                 | The file line, where the Trice log occures.                                                                                                      |
-| `$func`   | `doStuff`             | The function name, where the Trice log occures.                                                                                                  |
-| `$fmt`    | `The asnwer is %d.`   | The bare Trice format string stripped from the channel/tag specifier including the colon (`:`) according to the Trice rule (lowercase-only ones) |
-| `$values` | `42`                  | The bare Trice statement values.                                                                                                                 |
-| `$usr0`   | `abc` \| ` ` \| `xyz` | A predefined string value with location dependent values (see below).                                                                            |
-
-#### 45.2.6. <a id="trice-context-enrichment-user-defined-values"></a>Trice Context Enrichment User Defined Values
-
-This use case is not expected for most cases, but mentioned here to show the possibilities. Adding user specific values like `$usr0` can be done in this way:
-
-* File *main.c*:
-
-```C
- 88 | ...
- 89 | #define XSTR(x) STR(x)
- 90 | #define STR(x) #x
- 91 | 
- 92 | trice("info:hi");
- 93 |  
- 94 | #define TRICE_ETC "xyz"
- 95 | #pragma message "$usr0=" XSTR(TRICE_ETC)
- 96 | trice("info:hi");
- 97 | 
- 98 | #undef TRICE_ETC
- 99 | #pragma message "$usr0=" XSTR(TRICE_ETC)
-100 | trice("info:hi");
-101 | 
-102 | #define TRICE_ETC "abc"
-103 | #pragma message "$usr0=" XSTR(TRICE_ETC)
-104 | trice("info:hi");
-105 | ...
-```
-
-This is just a demonstration. The `#pragma message "$usr0=" XSTR(TRICE_ETC)` line probably is needed only on a few lines in the project. A pre-compile output 
-
-```bash
-$ ./build.sh 2>&1 | grep "pragma message:"
-Core/Src/main.c:95:9: note: '#pragma message: $usr0="xyz"'
-Core/Src/main.c:99:9: note: '#pragma message: $usr0=""'
-Core/Src/main.c:103:9: note: '#pragma message: $usr0="abc"'
-```
-
-could get transferred automatically to the Trice tool, with a user generator script to tell, that normally `$usr0=""`, but `$usr0="xyz"` for Trices in file *main.c* from line 95 to 99, that `$usr0="abc"` is valid for *main.c* after line 103.
-
-Those things are compiler and user specific and not part of the Trice tool design. But on demand a CLI multi switch `-stu` can get invented, to inject such information into the `trice insert` process automatically. With
-
-```bash
-
-CEF='{"level":"%s","loc":"%s:%d","fmt":"$fmt","etc":"%s"}'
-CEV='$level, $file, $line, $values, $usr0'
-
-# user script generated begin ################################################
-ST0='usr0="xyz":main.c:95'                        # user script generated line
-ST1='usr0="":main.c:99'                           # user script generated line
-ST2='usr0="abc":main.c:103'                       # user script generated line
-STU="-stu $ST0 -stu $ST1 -stu $ST2"               # user script generated line
-# user script generated end ##################################################
-
-trice insert $STU -cef $CEF -cev $CEV
-```
-
-The structured log output would be:
-
-```bash
-{...}
-{"level":"info","loc":"main.c:92","fmt":"hi","etc":""}
-{"level":"info","loc":"main.c:96","fmt":"hi","etc":"xyz"}
-{"level":"info","loc":"main.c:100","fmt":"hi","etc":""}
-{"level":"info","loc":"main.c:104","fmt":"hi","etc":"abc"}
-{...}
-```
-
-#### 45.2.7. <a id="trice-context-enrichment-cli-switches-usage-options"></a>Trice Context Enrichment CLI Switches Usage Options
-
-The in [A Trice Context Enrichment Example](#a-trice-structured-logging-example) shown `trice insert` result is possible with
- 
-```bash
-trice insert \
--cef='[level=$level][file=$file][line=$line][func=$func][taskID=%x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
--cev='getTaskID(), $values, uptime(), aFloat(sensorValue)'
-```
-
-The raw string syntax is mandatory here, to pass the internal Trice tool variables names. 
-
-Adding variable values like `$line` as strings has performance advantages, but on each such value change a new Trice ID is generated then. Those variables are better inserted as values, if the code is under development. A `$line` value insertion looks like this:
-
-```bash
-trice insert \
--cef='[level=$level][file=$file][line=%5d][func=$func][taskID=%04x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
--cev='$line, getTaskID(), $values, uptime(), aFloat(sensorValue)'
-```
-
-It is also possible to use string format specifiers to allow somehow aligned values. For example:
-
-```bash
-trice insert \
--cef='[level=%-6s][file=%24s][line=%5d][func=%-16s][taskID=%04x][fmt=$fmt][uptime=%08us][temperature=%3.1f°C]' \
--cev='$level, $file, $line, $func, getTaskID(), $values, uptime(), aFloat(sensorValue)'
-```
-
-Or, if you like alignment after the format string, even:
-
-```bash
-trice insert \
--cef='[level=%-6s][file=%24s][line=%5d][func=%-16s][taskID=%04x][fmt=%64s][uptime=%08us][temperature=%3.1f°C]' \
--cev='$level, $file, $line, $func, getTaskID(), $fmt, $values, uptime(), aFloat(sensorValue)'
-```
-
-The user has full control and could also use any other syntax like a JSON format. Only the format specifiers are requested to match the passed values after the Trice tool internal variables replacement during `trice insert`, so that the Trice tool can perform a printf during logging.
-
-To achieve a log output in compact JSON with line as string we can use:
-
-```bash
-trice insert \
--cef='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}' \
--cev='getTaskID(), $values, uptime()'
-```
-
-**To put things together:** Any structured format string design is possible and the user can insert the $line (example) value:
-
-* directly as string (fastest execution, straight forward)
-* indirectly as formatted string (fastest execution alignment option)
-* indirectly as formatted number (recommended when often changing)
-
-After `trice insert` we get this (compact JSON) log line according to `-cef` and `-cev`:
-
-```C
-void doStuff( void ){
-    // ...
-    trice(iD(789), "{\"level\":\"info\",\"file\":\"val.c\",\"line\":\"321\",\"taskID\":\"%04x\",\"fmt\":\"The answer is %d.\",\"uptime\":\"%08u us\"}\n', getTaskID(), 42, uptime());
-    // ...
-}
-```
-
-All compile time strings are part of the Trice format string now, which is registered inside the *til.json* file. The needed Trice byte count stays 4 bytes only plus the 3 times 4 bytes for the runtime parameter values taskID, 42, uptime. The default [TCOBS](https://github.com/rokath/tcobs) compression will afterwards reduce these 16 bytes to 12 or 13 or so.
-
-A `trice clean` command will remove the context information completely including the ID. Please keep in mind, that with `trice insert` as a pre-compile and `trice clean` as post-compile step, the user all the time sees only the original written code:
-
-```C
-void doStuff( void ){
-    // ...
-    trice("info:The answer is %d.\n", 42);
-    // ...
-}
-```
-
-The optional `-cache` switch makes things blazing fast.
-
-The appropriate Trice tool log line output would be similar to
-
-```bash
-{...}
-{"level":"info","file":"val.c","line":"321","taskID":"0123","fmt":"The answer is 42.","uptime":"12345678 us"}
-{...}
-```
-
-When *CEF* and *CEV* are empty strings (default), `trice insert` and `trice clean` commands will work the ususal way. If they are not empty, the `trice insert` command will on each Trice statement use a heuristic to check if the context information was inserted already and update it or otherwise insert it. **ATTENTION:** That will work only, if *CEF* and *CEV* where not changed by the user inbetween. In the same way `trice clean` would remove the context information only, if *CEF* and *CEV* kept unchanged. If the user wants to change *CEF* and *CEV* during development, first a `trice clean` is needed. Use a `build.sh` script like this:
-
-```bash
-#!/bin/bash
-
-# Run "rm -rf ~/.trice/cache/*" automatically after changing this file !!! 
-
-CEF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
-CEV='getTaskID(), $values, uptime()'
-
-trice insert -cache -cef="$CEF" -cev="$CEV"
-# make
-trice clean  -cache -cef="$CEF" -cev="$CEV"
-```
-
-The `-cache` switch is still experimental - to stay safe, use (here again with `$line` as string):
-
-```bash
-#!/bin/bash
-CEF='{"level":"$level","file":"$file","line:"$line","taskID":"%04x","fmt":$fmt,"uptime":%08u us"}'
-CEV='getTaskID(), $values, uptime()'
-
-trice insert -cef="$CEF" -cev="$CEV"
-# make
-trice clean  -cef="$CEF" -cev="$CEV"
-```
-
-#### 45.2.8. <a id="trice-context-enrichment-level-specific-configuration"></a>Trice Context Enrichment Level Specific Configuration
-
-Configure the Trice Context Enrichment selectively in a way, to provide as much helpful diagnostic info as possible on `ERROR` level for example. Example script:
-
-```bash
-#!/bin/bash
-
-# Specify `-cef` and `-cev` differently for different channels/tags.
-
-STL="" # Trice Context Enrichment configuration
-
-# Trices with an `ERROR:` tag `trice("err:...", ...);`:
-CEF_ERROR='ERROR:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","taskID":"%x","fmt":"$fmt","uptime":"%08u us"}'` # (with location)
-CEV_ERROR='ERROR:$level, $file, $line, $func, getTaskID(), $values, uptime()'`
-STL+=" -cef $CEF_ERROR -cev $CEV_ERROR "
-
-# Trices with an underscore tag, like `trice("_DEBUG:...", ...);` or `trice("_info:...", ...);`:
-CEF_underscoreTagStart='_*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt","uptime":"%08u us"}'` # (no task ID)
-CEV_underscoreTagStart='_*:$level, $file, $line, $func, $values, uptime()'`
-STL+=" -cef $CEF_underscoreTagStart -cev $CEV_underscoreTagStart "
-
-# Tices with any other tag:
-CEF_anyTag='*:{"log level":"%-6s","file":"%24s","line:"%5d","func":"%-16s","fmt":"$fmt"}'` # (no task ID, no uptime)
-CEV_anyTag='*:$level, $file, $line, $func, $values'`
-STL+=" -cef $CEF_anyTag -cev $CEV_anyTag "
-
-# Trices with no tag at all:
-CEF_noTag='{"file":"%24s","line:"%5d","fmt":"$fmt"}'` # (only location information)
-CEV_noTag='$file, $line, $values'`
-STL+=" -cef $CEF_noTag -cev $CEV_noTag "
-
-trice insert $STL ...
-source make.sh # build process
-trice clean  $STL ...
-```
-
-#### 45.2.9. <a id="trice-context-enrichment-assert-macros-todo"></a>Trice Context Enrichment Assert Macros (TODO)
-
-Configure `TriceAssert` like macros and this works also with the `-salias` switch.
--->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -12148,7 +11850,7 @@ Generated commit message:
 | `dist/`                                                                                                                 | local distribution files folder created by GoReleaser                                                                             |
 | [docs](../docs)                                                                                                         | documentation folder with link forwarding                                                                                         |
 | [examples/](../examples)                                                                                                | example target projects                                                                                                           |
-| [scripts/_310_refresh_trice_user_manual.sh](../scripts/_310_refresh_trice_user_manual.sh)                               | [Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-or-any-md-file)                               |
+| [scripts/_310_refresh_trice_user_manual.sh](../scripts/_310_refresh_trice_user_manual.sh)                               | [Trice Reference Manual Maintenance (or any `*.md` file)](#trice-reference-manual-maintenance-or-any-md-file)                               |
 | [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside                                    |
 | [scripts/gitAddWorktreesBetween.sh](../scripts/gitAddWorktreesBetween.sh)                                               | helper to get easy git worktree folders from any time range                                                                       |
 | [scripts/gitLogWithBranches.sh](../scripts/gitLogWithBranches.sh)                                                       | helper to get easy a history view                                                                                                 |
@@ -12189,286 +11891,7 @@ It contains issue templates, labels, workflow automation, code scanning, linting
     * .github/labeler.yml is not a workflow. It is a configuration file consumed by actions/labeler. It defines the labeling rules.
 * [.github/workflows/](../.github/workflows) Contains GitHub Actions automation
 
-<!--
 
-##### 🧩 Visual Architecture Diagram — Trice .github Automation System
-
-```pgsql
-                                       ┌───────────────────────────────────────┐
-                                       │               GitHub UI               │
-                                       │  (Issues, Pull Requests, Actions)     │
-                                       └───────────────────┬───────────────────┘
-                                                           │
-                                                           ▼
-                                       ┌───────────────────────────────────────┐
-                                       │               .github/                │
-                                       │  Project automation & CI/CD settings  │
-                                       └───────────────────┬───────────────────┘
-                                                           │
-     ┌─────────────────────────────────────────────────────┼──────────────────────────────────────────────────┐
-     │                                                     │                                                  │
-     ▼                                                     ▼                                                  ▼
-┌────────────────┐                                 ┌───────────────────┐                          ┌──────────────────────────┐
-│ ISSUE_TEMPLATE │                                 │   FUNDING.yml     │                          │        labeler.yml       │
-│  bug/feature   │                                 │ Sponsor settings  │                          │ Automatic PR labelling   │
-└───────┬────────┘                                 └───────────────────┘                          └───────────┬──────────────┘
-        │                                                                                                     │
-        ▼                                                                                                     ▼
-┌────────────────┐                                                                                ┌─────────────────────────┐
-│ New Issue form │   Contributors create issues → GitHub loads templates                          │ Labels added to PRs     │
-│ Guided inputs  │──────────────────────────────────────────────────────────────────────────────► │ based on files & title  │
-└────────────────┘                                                                                └─────────────────────────┘
-
-
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                   GITHUB ACTIONS WORKFLOWS (.github/workflows/)
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-                                           (Triggered by pushes, PRs, tags, or manually)
-        ┌─────────────────────────┬────────────────────────┬─────────────────────────┬──────────────────────────────┐
-        │                         │                        │                         │                              │
-        ▼                         ▼                        ▼                         ▼                              ▼
-┌────────────────────┐    ┌────────────────────┐   ┌──────────────────┐   ┌────────────────────────┐   ┌──────────────────────┐
-│     go.yml         │    │   codeql.yml       │   │ superlinter.yml  │   │    goreleaser.yml      │   │     stale.yml        │
-│ Build & test Go    │    │ Security scanning  │   │ Linting of code  │   │ Build+release pipeline │   │ Auto-close inactive  │
-│ on every push/PR   │    │ for vulnerabilities│   │ for consistency  │   │ for multi-platform     │   │ issues & PRs         │
-└─────────┬──────────┘    └──────────┬───────V─┘   └──────────┬───────┘   └────────────┬───────────┘   └───────────┬──────────┘
-          │                          │                        │                        │                           │
-          ▼                          ▼                        ▼                        ▼                           ▼
-┌────────────────┐     ┌───────────────────────┐   ┌────────────────────┐   ┌──────────────────────────┐   ┌─────────────────────┐
-│ CI test result │     │ Security report       │   │ Linter annotations │   │ Build artifacts (dist/)  │   │ Issues marked stale │
-│ pass/fail      │     │ shown in Security tab │   │ shown in PR checks │   │ GitHub Release published │   │ Closed after timeout│
-└────────────────┘     └───────────────────────┘   └────────────────────┘   └──────────────────────────┘   └─────────────────────┘
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                      COMMUNITY AUTOMATION (.github/workflows/)
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-                             ┌───────────────────────┬────────────────────────┐
-                             │                       │                        │
-                             ▼                       ▼                        ▼
-                    ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────────────┐
-                    │ greetings.yml   │     │ manual.yml       │     │ learn-github-actions.yml│
-                    │ Welcome message │     │ Run tasks manually│    │ Example workflow        │
-                    │ for new PR/issue│     │ on demand        │     │ for contributors        │
-                    └─────────────────┘     └──────────────────┘     └─────────────────────────┘
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                   SUPPORTING FILES (.github/properties/, icons/)
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-                       ┌──────────────────────────┐       ┌────────────────────────────┐
-                       │ properties/*.json        │       │ icons/* (e.g., go.svg)     │
-                       │ Metadata for workflows   │       │ Used in badges or UI       │
-                       │ (category, permissions)  │       │ decorations in README      │
-                       └──────────────────────────┘       └────────────────────────────┘
-
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-                                              GITHUB ACTIONS OUTPUT FLOW
-───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-
-                                               User pushes commit / PR / tag
-                                                       │
-                                                       ▼
-                                               GitHub triggers matching workflows
-                                                       │
-                                                       ▼
-                                               Workflows run in parallel:
-                                               - Build & test
-                                               - Security scan
-                                               - Linting
-                                               - Release packaging
-                                               - Labeling PRs
-                                               - Greetings
-                                               - Stale handling
-                                                       │
-                                                       ▼
-                                               Results appear in:
-                                               - Pull request checks
-                                               - Security dashboard
-                                               - GitHub Releases page
-                                               - Automated comments and labels
-```
-
--#### Automatic Pull Request Labeling in Trice
-
-Trice uses GitHub’s **Labeler** workflow to automatically assign labels to pull requests.  
-These labels help maintainers and contributors quickly understand what a PR affects, without having to inspect every file manually.
-
-The labeling is triggered by two factors:
-
-1.  **Which files were changed** (file-based labeling)
-    
-2.  **What is written in the PR title or description** (text-based labeling)
-    
-
-This system ensures consistent categorization and improves the review workflow.
-
-```sql
-                           ┌───────────────────────────┐
-                           │   Contributor opens a     │
-                           │      Pull Request         │
-                           └──────────────┬────────────┘
-                                          │
-                                          ▼
-                          ┌─────────────────────────────────┐
-                          │ GitHub Action: "Labeler" starts │
-                          │ (.github/labeler.yml)           │
-                          └─────────────────┬───────────────┘
-                                            │
-                      ┌─────────────────────┼─────────────────────┐
-                      │                     │                     │
-                      ▼                     ▼                     ▼
-        ┌────────────────────┐  ┌──────────────────────┐ ┌──────────────────────┐
-        │ File-based rules   │  │ Title-based rules    │ │ Body-based rules     │
-        │(changed-files)     │  │(contains keywords)   │ │(contains keywords)   │
-        └──────────┬─────────┘  └───────────┬──────────┘ └──────────┬───────────┘
-                   │                        │                       │
-                   ▼                        ▼                       ▼
-       ┌───────────────────┐     ┌───────────────────┐     ┌───────────────────┐
-       │ Example outputs:  │     │ Example outputs:  │     │ Example outputs:  │
-       │  go, c, docs, ci  │     │  fix, feature     │     │  fix, feature     │
-       └──────────┬────────┘     └──────────┬────────┘     └──────────┬────────┘
-                  │                         │                         │
-                  └──────────────┬──────────┴──────────────┬──────────┘
-                                 │                         │
-                                 ▼                         ▼
-                        ┌────────────────────────────────────────┐
-                        │ Labels are attached to the PR          │
-                        │ automatically within seconds           │
-                        └────────────────────────────────────────┘
-```
-
-* * *
-
-##### File-based labels
-
-GitHub automatically applies specific labels depending on which files a pull request changes.  
-Below is an overview of the most relevant label categories.
-
-###### **`AnyChange`**
-
-Applied to **every** pull request that modifies at least one file.  
-Useful as a catch-all label for triggers or filtering.
-
-* * *
-
-###### **`go`**
-
-Applied when the PR changes any Go source file:
-
-`**/*.go`
-
-This marks PRs that affect Go code, modules, or logic.
-
-* * *
-
-###### **`c`**
-
-Applied when the PR touches C or header files inside:
-
--   `src/`
-    
--   `examples/`
-    
--   `_test/`
-    
-
-Examples:
-
-`src/foo.c examples/demo.h _test/bar.c`
-
-This helps identify changes relevant to embedded/low-level components.
-
-* * *
-
-###### **`docs`**
-
-Applied when documentation is modified, including:
-
--   any file in `docs/`
-    
--   any Markdown file (`*.md`) anywhere in the repo
-    
-
-This is helpful for changes affecting documentation only.
-
-* * *
-
-###### **`tests`**
-
-Applied when the PR updates or adds tests:
-
--   Go test files (`*_test.go`)
-    
--   any files inside the `_test/` directory
-    
-
-* * *
-
-###### **`ci`**
-
-Applied when the PR modifies continuous integration or GitHub configuration files:
-
-`.github/**`
-
-This includes workflow files, templates, automation settings, and metadata.
-
-* * *
-
-##### Text-based labels
-
-Some labels are applied based on **keywords** in the pull request title or description.
-
-###### **`fix`**
-
-Applied when the PR title or body contains the keyword:
-
-`fix`
-
-This is useful when PRs follow conventional commit messages (e.g., `fix: prevent overflow`).
-
-* * *
-
-###### **`feature`**
-
-Applied when the title or description contains:
-
-`feat feature`
-
-This marks PRs that introduce new functionality.
-
-* * *
-
-##### Benefits of automatic labeling
-
--   **Faster reviews**: reviewers instantly see what areas of the project are affected.
-    
--   **Better filtering**: maintainers can filter for categories such as documentation, CI, features, etc.
-    
--   **Consistent classification**: no need for contributors to manually apply labels.
-    
--   **Supports larger workflows**: labels can trigger additional automations, such as notifications or CI behavior.
-    
-
-* * *
-
-##### How contributors can help
-
-Contributors can ensure correct labeling by:
-
--   writing clear PR titles (e.g., `fix: handle invalid input`)
-    
--   using structured commit messages
-    
--   modifying files within appropriate directories
-    
-
-Labels will be applied automatically within seconds after opening or updating a pull request.
-
--->
 
 #### 49.2.2. <a id="githubworkflows--github-actions-workflows"></a>📂 `.github/workflows` — GitHub Actions Workflows
 
@@ -12706,7 +12129,7 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
 
 * **GitHub Action (Continuous Integration):** [.github/workflows/pages.yml](../.github/workflows/pages.yml)
 
-### 49.3. <a id="trice-user-manual-maintenance-or-any-md-file"></a>Trice User Manual Maintenance (or any `*.md` file)
+### 49.3. <a id="trice-reference-manual-maintenance-or-any-md-file"></a>Trice Reference Manual Maintenance (or any `*.md` file)
 
 * Recommended Tool: VS Code with some extensions:
   * Markdown All in One (Yu Zhang)
@@ -12730,8 +12153,8 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
     -->
     <!-- /mdtoc -->
     ```
-    * Run `./scripts/_310_refresh_trice_user_manual.sh format docs/TriceUserManual.md` to regenerate the TOC, numbering, and anchors with `mdtoc`.
-    * Run `./scripts/_310_refresh_trice_user_manual.sh check docs/TriceUserManual.md` to verify that the checked-in manual matches the persisted `mdtoc` state.
+    * Run `./scripts/_310_refresh_trice_user_manual.sh format` to regenerate the reference manual's TOC, numbering, and anchors with `mdtoc`.
+    * Run `./scripts/_310_refresh_trice_user_manual.sh check` to verify that the checked-in reference manual matches the persisted `mdtoc` state.
     * The repository no longer uses a VS Code TOC extension for manual maintenance.
   * Markdown Paste (telesoho)
     * Helpful to get web site content preformatted as Markdown. Use mouse context menu.
@@ -12748,7 +12171,7 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
 In GitHub are some Actions defined. Some of them get triggered on a `git push` and perform some checks. To get no fail, some scripts should run before committing:
 
 * `npx markdownlint *.md` (or just `markdownlint`) - uses [.markdownlint.yaml](../.markdownlint.yaml) to allow exceptions.
-  * `npx markdownlint ./docs/TriceUserManual.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors. 
+  * `npx markdownlint ./docs/TriceReferenceManual.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors. 
 * [./scripts/_300_clean_dsstore.sh](../scripts/_300_clean_dsstore.sh) - remove macOS maintenance data.
 * [./scripts/_240_legacy_clean_ids.sh](../scripts/_240_legacy_clean_ids.sh) removes all IDs in the legacy workflow.
 
@@ -12781,7 +12204,7 @@ In GitHub are some Actions defined. Some of them get triggered on a `git push` a
     commit:     f7edcc51
     date:       2025-11-27T13:59:50+01:00
     git_state:  dirty
-    git_status:  M .vscode/launch.json  M docs/TriceUserManual.md  M internal/emitter/lineComposer.go
+    git_status:  M .vscode/launch.json  M docs/TriceReferenceManual.md  M internal/emitter/lineComposer.go
   ----------------------------------------
   Build complete.
   

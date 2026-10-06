@@ -56,6 +56,24 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 			insertedCachePath = filepath.Join(cache, insertedCacheFolderName, fullPath)
 			cleanedCachePath := filepath.Join(cache, cleanedCacheFolderName, fullPath)
 
+			// Source timestamps cannot reveal that another identical site changed
+			// the ordered ID mapping. Reuse a cached source only if it agrees with
+			// the complete current plan; otherwise refresh it through normal insert.
+			if desired, planned := p.preparedInsert[filepath.Clean(path)]; planned {
+				cached, readErr := fSys.ReadFile(insertedCachePath)
+				if readErr != nil || string(cached) != string(desired) {
+					// Preserve the old user-edit invalidation contract. A mapping
+					// change alone keeps the valid cleaned counterpart reusable.
+					inserted, iErr := fSys.Stat(insertedCachePath)
+					cleaned, cErr := fSys.Stat(cleanedCachePath)
+					if iErr == nil && !fileInfo.ModTime().Equal(inserted.ModTime()) && (cErr != nil || !fileInfo.ModTime().Equal(cleaned.ModTime())) {
+						fSys.Remove(insertedCachePath)
+						fSys.Remove(cleanedCachePath)
+					}
+					goto insert
+				}
+			}
+
 			// If no insertedCachePath, execute insert operation
 			iCache, err := fSys.Stat(insertedCachePath)
 			if err != nil {
@@ -65,6 +83,18 @@ func (p *idData) triceIDInsertion(w io.Writer, fSys *afero.Afero, path string, f
 
 			// If path content equals insertedCachePath content, we are nearly done.
 			if time.Time.Equal(fileInfo.ModTime(), iCache.ModTime()) {
+				// Timestamp-preserving edits must not leave source IDs different
+				// from the final LI assignment, even if the cached plan is valid.
+				if desired, planned := p.preparedInsert[filepath.Clean(path)]; planned {
+					current, readErr := fSys.ReadFile(path)
+					if readErr != nil {
+						p.join(readErr)
+						return p.err
+					}
+					if string(current) != string(desired) {
+						goto insert
+					}
+				}
 				msg.Tell(w, "trice i was executed before, nothing to do")
 				return msg.OnErrFv(w, p.err) // `trice i File`: File == iCache ? done
 			}

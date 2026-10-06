@@ -30,6 +30,15 @@ includes Go tests and coverage. Its logs and coverage profile are written below
 `temp/log/`; no browser-based test viewer or additional Go test framework is
 required.
 
+## Continuing a Codex task on another computer
+
+Use `handsoff <tag>` to record a concise task handover, then commit and transfer
+the repository changes. On the destination, use `handson <tag>` to load and
+verify that handover before issuing the next task. See the
+[tagged handover rules](AGENTS.md#tagged-handovers) for the exact behavior.
+The former profile-transfer scripts are archived; they are not required for
+this Git-based workflow.
+
 ## License of contributions
 
 By submitting a pull request to this repository, you agree that your contribution is provided under the project's MIT License (`LICENSE.md`).

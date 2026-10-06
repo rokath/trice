@@ -80,20 +80,22 @@
 //
 // Candidate ordering is deterministic by evidence strength, search proximity,
 // positional evidence, numeric ID, and metadata path. Each numeric ID is claimed by
-// at most one active site in a bind plan. Repeated equal TriceFmt values use
-// sidecar and LI evidence when available and otherwise receive sorted IDs in
-// sorted source order. Without any persistent location evidence, the exact old
-// per-site association of identical formats is unknowable, but decoding remains
-// correct and the fallback remains reproducible.
+// at most one active site in a bind plan. Sidecar and LI evidence select the
+// candidate pool; they do not override its final permutation. After allocation,
+// equal TriceFmt groups receive ascending IDs in normalized relative path, line,
+// and column order. Paths use slash separators and ordinal case-sensitive
+// comparison. Changing a group may intentionally change its existing site IDs.
+// Insert-owned files never enter a Bind group's interchangeable pool, and IDs
+// owned by unselected primary LI files are reserved during partial scans.
 //
 // For repeated equal TriceFmt values in one source file, LI candidates use
 // stored line order instead of distance to each current call. Source-order
-// traversal consumes the earliest available candidate first, preserving the ID
-// sequence across line shifts. Equal stored lines use numeric ID order. Single
+// traversal consumes the earliest available candidate first to select the pool.
+// Equal stored lines use numeric ID order. Single
 // current occurrences retain nearest-line matching. This uses the existing
 // parsed sites and format indexes without an additional source scan.
 //
-// Valid sidecar assignments take precedence over conflicting LI positions;
+// Valid sidecar candidates take precedence over conflicting LI positions;
 // the current BindDir sidecar outranks discovered sidecars. File modification
 // times are irrelevant. LI stores only one position per ID, not version history,
 // and receives the current assigned positions after bind. Adding, removing, or

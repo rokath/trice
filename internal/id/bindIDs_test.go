@@ -529,7 +529,9 @@ func TestBindRepeatedFormatsKeepLIOrder(t *testing.T) {
 			{name: "closer_to_later", old: []int{2799, 2807}, current: []int{2804, 2812}, want: []TriceID{198, 199}},
 			{name: "shift_up", old: []int{2799, 2807}, current: []int{2794, 2802}, want: []TriceID{198, 199}},
 			{name: "same_stored_line", old: []int{2799, 2799}, current: []int{2803, 2811}, want: []TriceID{198, 199}},
-			{name: "extra_site", old: []int{2799, 2807}, current: []int{2803, 2811, 2819}, want: []TriceID{198, 199, 100}},
+			// The new lower ID joins the interchangeable pool, so the complete
+			// group is ordered again rather than appended to the historical order.
+			{name: "extra_site", old: []int{2799, 2807}, current: []int{2803, 2811, 2819}, want: []TriceID{100, 198, 199}},
 			{name: "single_site_keeps_distance", old: []int{2799, 2807}, current: []int{2807}, want: []TriceID{199}},
 		} {
 			t.Run(fmt.Sprintf("secondary_%t/%s", secondary, test.name), func(t *testing.T) {
@@ -587,9 +589,9 @@ func TestBindRepeatedFormatsKeepLIOrder(t *testing.T) {
 	}
 }
 
-// TestBindSidecarWinsConflictingLI keeps existing compiler assignments when LI
-// suggests the opposite order, in both the fast and verbose metadata paths.
-func TestBindSidecarWinsConflictingLI(t *testing.T) {
+// TestBindOrdersSidecarPoolDespiteConflictingLI preserves the selected sidecar
+// ID pool, then orders identical sites in both fast and verbose metadata paths.
+func TestBindOrdersSidecarPoolDespiteConflictingLI(t *testing.T) {
 	for _, verbose := range []bool{false, true} {
 		t.Run(fmt.Sprintf("verbose_%t", verbose), func(t *testing.T) {
 			const key = "K1111111111111111"
@@ -610,11 +612,11 @@ func TestBindSidecarWinsConflictingLI(t *testing.T) {
 			require.NoError(t, FSys.WriteFile(filepath.Join(BindDir, name), []byte(oldSidecar), 0o644))
 			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 			_, first := readOwnedBindSidecar(t, Srcs[0])
-			assert.Regexp(t, `(?m)^#define TRICE_BIND_SITE_`+key+`_L2\s+TRICE_BIND_AUTO,\s+iD\(160u\)`, string(first))
-			assert.Regexp(t, `(?m)^#define TRICE_BIND_SITE_`+key+`_L3\s+TRICE_BIND_AUTO,\s+iD\(150u\)`, string(first))
+			assert.Regexp(t, `(?m)^#define TRICE_BIND_SITE_`+key+`_L2\s+TRICE_BIND_AUTO,\s+iD\(150u\)`, string(first))
+			assert.Regexp(t, `(?m)^#define TRICE_BIND_SITE_`+key+`_L3\s+TRICE_BIND_AUTO,\s+iD\(160u\)`, string(first))
 			locations := NewLutLI(io.Discard, FSys, LIFnJSON)
-			assert.Equal(t, 2, locations[160].Line)
-			assert.Equal(t, 3, locations[150].Line)
+			assert.Equal(t, 2, locations[150].Line)
+			assert.Equal(t, 3, locations[160].Line)
 			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 			_, second := readOwnedBindSidecar(t, Srcs[0])
 			assert.Equal(t, first, second)
