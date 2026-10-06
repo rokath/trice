@@ -138,6 +138,7 @@ type globalDefaults struct {
 	defaultGenerateLogC               bool
 	defaultGenerateLogCPath           string
 	defaultGenerateOneLineJSON        bool
+	defaultGenerateBindReport         bool
 	defaultGenerateABC                string
 	defaultWriteAllColors             bool
 }
@@ -169,6 +170,7 @@ func (p *globalDefaults) GetGlobalVars() {
 	p.defaultGenerateLogC = GenerateLogC
 	p.defaultGenerateLogCPath = GenerateLogCPath
 	p.defaultGenerateOneLineJSON = GenerateOneLineJSON
+	p.defaultGenerateBindReport = GenerateBindReport
 	p.defaultGenerateABC = GenerateABC
 	p.defaultWriteAllColors = WriteAllColors
 }
@@ -203,6 +205,7 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	GenerateLogC = p.defaultGenerateLogC
 	GenerateLogCPath = p.defaultGenerateLogCPath
 	GenerateOneLineJSON = p.defaultGenerateOneLineJSON
+	GenerateBindReport = p.defaultGenerateBindReport
 	GenerateABC = p.defaultGenerateABC
 	WriteAllColors = p.defaultWriteAllColors
 }

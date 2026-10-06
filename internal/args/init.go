@@ -214,6 +214,7 @@ func generateInit() {
 	flagTriceAliases(fsScGenerate)
 	flagTriceSAliases(fsScGenerate)
 	flagVerbosity(fsScGenerate)
+	fsScGenerate.BoolVar(&id.GenerateBindReport, "bindReport", false, `Report existing Bind sidecars, rebase helpers and their references in the selected -src scan without changing files. Uses -genDir and -exclude; needs no TIL/LI. A missing scan owner does not prove an unused file. Cannot be combined with other generate modes.`)
 	fsScGenerate.Var(id.OptionalFilenameFlag{Enabled: &id.GenerateLogC, Path: &id.GenerateLogCPath}, "logC", `Create a target-side Trice log table in -genDir/til.c or at an explicit [path/filename].c. Only current sites already resolved by trice insert or trice bind are emitted. The optional path can be passed as -logC=path/filename or -logC path/filename.`)
 	fsScGenerate.BoolVar(&id.GenerateOneLineJSON, "onelineJSON", false, `Export the selected TIL and LI to -genDir/<name>.oneline.json with one compact ID entry per line. Original files stay unchanged. Use -li off to export only TIL. Run again after the originals change. Cannot be combined with -logC or -abc.`)
 	fsScGenerate.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice files and existing bind sidecars, relative to the current working directory by default.")
@@ -221,13 +222,14 @@ func generateInit() {
 	fsScGenerate.BoolVar(&id.WriteAllColors, "colors", false, `Write all possible colors.`)
 }
 
-// flagGenerateSrcs documents the read-only source selection used by -logC.
+// flagGenerateSrcs documents the read-only source selection used by generate.
 // The shared insert/clean wording mentions mutation switches that do not exist
 // for generate, so keeping this focused text avoids advertising invalid CLI.
 func flagGenerateSrcs(p *flag.FlagSet) {
-	p.Var(&id.Srcs, "src", `Source directory or file to inspect for current Trice sites.
+	p.Var(&id.Srcs, "src", `Source directory or file to inspect for current Trice sites or Bind artifact references.
 This multi-flag switch can be used several times for directories and files.
-Only IDs already made authoritative by trice insert or trice bind are selected.
+For -logC, only IDs already made authoritative by trice insert or trice bind are selected.
+For -bindReport, physical includes establish references, not actual compiler use.
 If omitted, the current directory is inspected. Globs such as "-src *.c" are not supported.`)
 	p.Var(&id.Srcs, "s", "Short for src.")
 }

@@ -27,6 +27,7 @@ func TestHelpAll(t *testing.T) {
 		"sub-command 'i|insert': For updating til.json and inserting IDs into source files.",
 		"sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned source calls ID-free.",
 		"-logC",
+		"-bindReport",
 	} {
 		if !strings.Contains(got, snippet) {
 			t.Fatalf("help -all output misses %q\n%s", snippet, got)

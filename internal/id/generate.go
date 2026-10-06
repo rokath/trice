@@ -27,8 +27,10 @@ var (
 	GenerateLogCPath string
 	// GenerateOneLineJSON selects the readable, derived TIL and LI JSON views.
 	GenerateOneLineJSON bool
-	GenerateABC         string
-	WriteAllColors      bool
+	// GenerateBindReport selects an inspection-only inventory of existing Bind artifacts.
+	GenerateBindReport bool
+	GenerateABC        string
+	WriteAllColors     bool
 )
 
 // OptionalFilenameFlag allows a flag to be used either as a boolean switch or
@@ -90,6 +92,12 @@ func LogCOutputPath(target string) string {
 
 // SubCmdIdGenerate performs sub-command generate, creating support files/output.
 func SubCmdGenerate(w io.Writer, fSys *afero.Afero) (err error) {
+	if GenerateBindReport {
+		if GenerateLogC || GenerateOneLineJSON || GenerateABC != "" || WriteAllColors {
+			return errors.New("trice generate: -bindReport cannot be combined with -logC, -onelineJSON, -abc or -colors")
+		}
+		return generateBindReport(w, fSys)
+	}
 	if !GenerateLogC && !GenerateOneLineJSON && GenerateABC == "" && !WriteAllColors {
 		fmt.Fprintln(w, `The "trice generate" command needs at least one parameter. Check "trice help -generate".`)
 		return nil

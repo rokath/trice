@@ -89,6 +89,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
+		// Inventory inspection bypasses output setup, which can open a logfile
+		// or connect to a sink. Its only output is the caller-provided writer.
+		if id.GenerateBindReport {
+			return id.SubCmdGenerate(w, fSys)
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdGenerate(w, fSys)
 	case "i", "insert":
