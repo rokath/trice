@@ -8,7 +8,7 @@
 | --- | --- | --- | ---: | --- | --- |
 | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen) | Erledigt | Bisheriges UM in TriceReferenceManual.md umbenennen und Pfade nachziehen | 4 | M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
 | [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) | Offen | Kurzes, einladendes User Manual erstellen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen); Installationsentscheidung aus [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt)/[R14](#checkout-binary-installationswege-für-v2-absichern) |
-| [R23](#beispielanleitungen-zentralisieren-und-readmes-auf-links-reduzieren) | Offen | Beispielanleitungen ins UM/RM übernehmen; Beispiel-READMEs auf Links reduzieren | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen); Inhalte vor Kürzung zuordnen |
+| [R23](#beispielanleitungen-zentralisieren-und-readmes-auf-links-reduzieren) | Erledigt | Beispielanleitungen vollständig im RM; 19 eigene Beispiel-READMEs ausschließlich als Links | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen); spätere kurze Einstiege im UM bleiben [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) |
 | [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern) | Offen | Root-README und Repo-Orientierung einladend überarbeiten; Zusagen präzisieren | 4 | M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen), [R23](#beispielanleitungen-zentralisieren-und-readmes-auf-links-reduzieren) |
 | [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) | Erledigt | Link-Forwarding-Dateien entfernen und aktive docs konsolidieren | 4 | S–M | [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R17](#bestandszuordnung-und-befunde-der-repo-prüfung), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen) |
 | [R21c](#root-ausgaben-und-generierte-beispieldaten-unterscheiden) | Erledigt | Root-Ausgaben und generierte Beispieldaten unterscheiden | 3 | S–M | [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
@@ -16,11 +16,11 @@
 | [R21e](#dokumentationsbilder-und-vergleichsberichte-konsolidieren) | Erledigt | Dokumentationsbilder und Vergleichsberichte konsolidieren | 3 | M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Archiviert | Ehemalige Codex-Umzugswerkzeuge und Anleitung; aktiver Einstieg jetzt handsoff/handson | 3 | M | Eigenständiger Entwicklerablauf; damalige Ergebnisse unten, heute kein aktiver ZIP-Transfer |
-| [R25](#ids-identischer-trices-deterministisch-zuordnen) | Entwurf | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Bestehende ID-Regeln berücksichtigen; Umsetzung und Release-Zuordnung noch nicht beauftragt |
+| [R25](#ids-identischer-trices-deterministisch-zuordnen) | Offen; Release-Pflicht | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Bestehende ID-Regeln berücksichtigen; vor Release umsetzen und abnehmen, jetzt kein Startauftrag |
 | [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und Veröffentlichungsumfang eindeutig machen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren); Bestandsbefund aus [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
 | [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) abgeschlossen; kein `/v2` beschlossen |
 | [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R14](#checkout-binary-installationswege-für-v2-absichern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren), [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang), [R23](#beispielanleitungen-zentralisieren-und-readmes-auf-links-reduzieren) |
-| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben)–[R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten), [R15](#release-notes-und-ausgelieferte-dateien-prüfen); alle aufgenommenen Korrekturen einschließlich Repo-Aufräumen |
+| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben)–[R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten), [R15](#release-notes-und-ausgelieferte-dateien-prüfen); ausdrücklich [R25](#ids-identischer-trices-deterministisch-zuordnen); alle aufgenommenen Korrekturen einschließlich Repo-Aufräumen |
 
 Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten abgenommenes Release um neue Features zu vergrößern.
 
@@ -97,7 +97,7 @@ Vollständige Optionslisten, Compiler-Matrizen, Protokolldetails und PoC-Begrün
 
 ### Beispielanleitungen zentralisieren und READMEs auf Links reduzieren
 
-**R23 · Gewicht 4 · Aufwand M · Neue, ausdrücklich bestätigte Dokumentationsaufgabe**
+**R23 · Gewicht 4 · Aufwand M · Erledigt am 2026-10-06**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
@@ -108,6 +108,38 @@ Für jedes Beispiel vor der Kürzung festhalten, welche UM-/RM-Abschnitte seine 
 Erst nach vollständiger Inhaltsübernahme die eigenen `README.md`/`ReadMe.md` der Beispiele auf **ausschließlich relative Links ins UM oder RM** reduzieren. Aussagekräftige Linktexte nennen das Beispiel und gegebenenfalls Einstieg, Aufbau oder Ausgabeoptionen. Dort keine eigenständigen Absätze, Kommando-/Codeblöcke, Voraussetzungen, Screenshots oder Fehleranleitungen mehr pflegen. Die ausführbaren Quellen und Skripte bleiben am Ort; UM/RM verlinken direkt auf sie und passende Verhaltenstests. Codekommentare behalten ihren normalen Erklärungszweck und werden nicht als Ersatz für zentrale Anwenderdokumentation ausgebaut.
 
 **Abnahme:** Alle bisherigen Anwenderinformationen sind einer zentralen Zielstelle zugeordnet und übernommen oder als bereits vorhanden nachgewiesen. Beispiel-READMEs bestehen ausschließlich aus gültigen UM-/RM-Links; das gilt auch für die Nachbauanleitung, die bislang allein unter `LabPlotUser` liegt. Der Pfad README → UM/RM → ausführbares Beispiel funktioniert mit korrekter Groß-/Kleinschreibung. Neue Anwender finden die vollständige Anleitung über das UM. Markdown, Fragmente, Bilder und beide PDFs prüfen; dokumentierte Aufrufe anhand vorhandener Beispiele und gezielter Ausgabeprüfungen validieren. Keine Veränderung von Produktverhalten, Tests oder Buildabläufen allein für die Dokumentationskonsolidierung.
+
+**Inhaltszuordnung R23:** Die 19 eigenen Beispiel-READMEs wurden vor der Kürzung vollständig mit dem RM und den ausführbaren Quellen abgeglichen. Die folgenden zentralen Abschnitte ersetzen ihre Anleitungen. Die sechs STM32-Grundprojekte und der Beispielwegweiser hatten bereits zentrale Anleitungen; ihre Links wurden gezielt nachgezogen. Fremdquellen, Lizenzen und Archive bleiben unverändert.
+
+| Bisherige lokale Anleitung | Zentrale Ersatzanleitung im RM |
+| --- | --- |
+| `demo/README.md` | [Minimal PC demos: prerequisites, direct/deferred output, and generated files](../TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) |
+| `examples/ReadMe.md` | [Example projects: selection, setup, and instrumentation](../TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation) |
+| `examples/PC_features/README.md` | [PC feature tour: build, output formats, tags, and Context Enrichment](../TriceReferenceManual.md#pc-feature-tour); [PC feature tour: adapting output checks after edits](../TriceReferenceManual.md#updating-the-pc-tours-output-checks) |
+| `examples/G0B1_features/ReadMe.md` | [G0B1 feature tour: FreeRTOS tasks, build, RTT capture, and output scripts](../TriceReferenceManual.md#g0b1-feature-tour) |
+| `examples/PC_log/README.md` | [PC local logging: build, formatter capabilities, and output](../TriceReferenceManual.md#pc-local-logging); [Local deferred text log: configuration and limitations](../TriceReferenceManual.md#local-deferred-text-log) |
+| `examples/G0B1_log/README.md` | [G0B1 FreeRTOS local logging: build, UART, and formatter capabilities](../TriceReferenceManual.md#g0b1-freertos-local-logging); [Local deferred text log: configuration and limitations](../TriceReferenceManual.md#local-deferred-text-log) |
+| `examples/DemoData_CSV/README.md` | [CSV signal producer: build, files, UDP, and signal model](../TriceReferenceManual.md#examplesdemodatacsv); [Live visualization and LabPlot setup](../TriceReferenceManual.md#setting-up-the-labplot-demo) |
+| `examples/DemoData_Trice/README.md` | [Trice signal producer: build, timestamps, capture, and CSV forwarding](../TriceReferenceManual.md#examplesdemodatatrice); [Live visualization and LabPlot setup](../TriceReferenceManual.md#setting-up-the-labplot-demo) |
+| `examples/LabPlotDemo/README.md` | [LabPlot live demo: launchers and plots](../TriceReferenceManual.md#quick-labplot-demonstration); [LabPlot: troubleshooting, Windows setup, and adaptations](../TriceReferenceManual.md#troubleshooting-and-adaptations) |
+| `examples/LabPlotUser/README.md` | [Recreate the LabPlot project: complete walkthrough and producer comparison](../TriceReferenceManual.md#recreate-the-project-in-labplot) |
+| `examples/exampleData/ReadMe.md` | [Shared example producers and generated sidecars](../TriceReferenceManual.md#shared-example-producers) |
+| `examples/TriceAbc/ReadMe.md` | [Trice ABC example: generator and receive integration](../TriceReferenceManual.md#example-examplestriceabc); [ABC nodes: layout, startup, commands, and runtime policy](../TriceReferenceManual.md#abc-demo-layout-startup-and-runtime-policy); [BcSim: byte-stream transport, API, check program, and limitations](../TriceReferenceManual.md#bcsim-broadcast-byte-stream-simulator) |
+| `examples/TriceAbc/BcSim/BcSim_ReadMe.md` | [BcSim: byte-stream transport, API, check program, and limitations](../TriceReferenceManual.md#bcsim-broadcast-byte-stream-simulator) |
+| `examples/F030_bare/ReadMe.md` | [F030 bare project: setup and debugging](../TriceReferenceManual.md#f030bare) |
+| `examples/F030_inst/ReadMe.md` | [F030 instrumented project: setup and instrumentation](../TriceReferenceManual.md#f030inst) |
+| `examples/G0B1_bare/ReadMe.md` | [G0B1 bare FreeRTOS project: setup](../TriceReferenceManual.md#g0b1bare) |
+| `examples/G0B1_inst/ReadMe.md` | [G0B1 instrumented FreeRTOS project: setup](../TriceReferenceManual.md#g0b1inst) |
+| `examples/L432_bare/ReadMe.md` | [L432 bare FreeRTOS project: setup](../TriceReferenceManual.md#l432bare) |
+| `examples/L432_inst/ReadMe.md` | [L432 instrumented FreeRTOS project: setup](../TriceReferenceManual.md#l432inst) |
+
+**Ergebnis:** Voraussetzungen, Aufrufe, Ausgabeoptionen, erwartete Ergebnisse, Experimentierhinweise und Fehlerhilfen stehen zentral im englischen RM. Die PC-Ausgabeprüfungen und der vollständige LabPlot-Nachbau sind dort erklärt; ABC/NodeLib und BcSim behalten ihre Architektur-, API- und Limitationsbeschreibung. Bestehende Feature-Kapitel führen direkt zu diesen RM-Abschnitten statt über lokale README-Umwege. Alle eigenen Beispiel-READMEs enthalten ausschließlich relative Links ins RM. Quellen, Tests und Buildabläufe sind unverändert.
+
+**Korrigierte Altangaben:** Der Trice-Datenproduzent verwendet Bind und die zentrale `demoTIL.json`, keine private Tabelle oder feste ID 1000. `-vis` ist implementiert; seine Optionen werden mit Semikolon getrennt und Shell-Beispiele verwenden einfache Backslashes. Die behauptete Serial-Studio-Projektdatei `DemoData.ssproj` ist nicht versioniert; die manuelle Konfiguration bleibt beschrieben. Der tatsächliche Signalverlauf enthält die langsame Phasenmodulation. Das ABC-Beispiel verwendet COBS in den Knotenkonfigurationen und im gemeinsamen Receiver, keine separate vorhandene `triceRxConfig.h`. Lokale Formatter legen Sidecars in `generated` und die C-Tabelle in `build` ab.
+
+**Abgrenzung:** R19 ist weiterhin offen. Es wurde kein neues kurzes UM begonnen; bis zu dessen eigenem Auftrag führen sämtliche Beispielanleitungen vollständig ins bestehende RM. Daher wird jetzt dessen PDF geprüft, kein noch nicht vorhandenes zweites PDF. Die spätere Aufnahme kurzer Einstiege ins UM bleibt R19.
+
+**Nachweise:** `markdownlint .`, `./scripts/_310_refresh_trice_user_manual.sh check` und `lychee --offline .` bestehen; 19 eigene README-Dateien wurden zusätzlich auf ausschließlich relative RM-Links und gültige Fragmente geprüft. `./scripts/_515_test_logging_features.sh quick` besteht einschließlich CE/SL in C/C++, PC-Ausgabeprüfung und G0B1-Feature-Firmwarebuild, ohne ausgelassene Werkzeuggruppen. In einer isolierten Kopie bestehen die dokumentierten Direct/Deferred-Aufrufe (mit `LC_ALL=C sh ./demo.sh`), CSV-Erzeugung mit geprüftem Header/Startwert/Samplezahl, Trice-Capture mit geprüftem CSV-Header/10-ms-Zeitstempel, PC-Local-Log-Build/-Lauf, BcSim-Vierprozessdemo und ABC-Neunknotendemo. Die Originalquellen und ID-Tabellen bleiben dabei unverändert. `./scripts/_320_generate_trice_user_manual_pdf.sh` erzeugt das RM als 175-seitige PDF; repräsentative Seiten zu Beispielen und Visualisierung wurden gerendert und visuell geprüft. Windows-Ausführung, reale MCU-/J-Link-Aufnahme und interaktive LabPlot-Konfiguration wurden nicht neu ausgeführt. Kein langer Full-Test für diese reine Dokumentationsänderung.
 
 ### README, Repo-Orientierung, Beispiele und Zusagen verbessern
 
@@ -284,7 +316,7 @@ Die Skripte zeigen Branch, Commit, Codex-Version und Profil an. Die bisherigen P
 
 ### IDs identischer Trices deterministisch zuordnen
 
-**R25 · Gewicht 3 · Aufwand M · Aufgabenentwurf; noch kein Implementierungsauftrag**
+**R25 · Gewicht 3 · Aufwand M · Verbindliche Release-Voraussetzung; Umsetzung noch nicht gestartet**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
@@ -312,7 +344,7 @@ Dass hier **beide bisherigen Logstellen eine andere ID erhalten**, ist gewollt u
 
 **Abnahme mit beschreibenden Tests:** Wiederholte Läufe sowie umgekehrte Dateireihenfolge und unterschiedliche Worker-Abschlussreihenfolgen ergeben identische Zuordnungen. Das Beispiel mit dem dritten Trice, Entfernen/Verschieben, mehrere Logstellen derselben Zeile und unterschiedliche relative Pfade sind ausdrücklich abgedeckt. Nicht identische oder nicht austauschbare Trices bleiben getrennt. Quellen/Sidecars, TIL und LI stimmen nach jedem Lauf überein; die erzeugten Records werden weiterhin richtig dekodiert. Die Anwenderdokumentation erklärt die Sortierregel und die bewusst erlaubten ID-Wechsel bei Bestandsänderungen mit einem kurzen Beispiel.
 
-Diese Aufgabe ist noch nicht als Voraussetzung für das nächste Release festgelegt.
+**Verbindlicher Beschluss:** R25 muss vor dem Release v2.0.0 umgesetzt und abgenommen sein. Die Festlegung als Release-Voraussetzung ist kein Startauftrag für R25; der aktuelle Implementierungsauftrag betrifft ausschließlich R23.
 
 ### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
 
