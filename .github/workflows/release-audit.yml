@@ -63,6 +63,7 @@ jobs:
           download_required 'trice_*_amd64.rpm'
           download_required 'trice_*_amd64.apk'
           download_required 'TriceReferenceManual.pdf'
+          download_required 'TriceUserManual.pdf'
 
           require_glob 'trice_tool_linux_amd64.tar.gz'
           require_glob 'trice_tool_darwin_amd64.tar.gz'
@@ -72,6 +73,7 @@ jobs:
           require_glob 'trice_*_amd64.rpm'
           require_glob 'trice_*_amd64.apk'
           require_glob 'TriceReferenceManual.pdf'
+          require_glob 'TriceUserManual.pdf'
 
           echo "::group::Downloaded release assets"
           find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort
@@ -579,14 +581,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -s artifacts/TriceReferenceManual.pdf ]; then
-            echo "::error::missing or empty TriceReferenceManual.pdf artifact"
-            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
-            exit 1
-          fi
-          size="$(wc -c < artifacts/TriceReferenceManual.pdf)"
-          echo "TriceReferenceManual.pdf size: $size bytes"
-          if [ "$size" -le 100000 ]; then
-            echo "::error::TriceReferenceManual.pdf looks too small: $size bytes"
-            exit 1
-          fi
+          for manual in TriceUserManual TriceReferenceManual; do
+            if [ ! -s "artifacts/$manual.pdf" ]; then
+              echo "::error::missing or empty $manual.pdf artifact"
+              find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+              exit 1
+            fi
+            # The short guide is intentionally much smaller than the reference.
+            minimum=10000
+            if [ "$manual" = TriceReferenceManual ]; then minimum=100000; fi
+            size="$(wc -c < "artifacts/$manual.pdf")"
+            echo "$manual.pdf size: $size bytes"
+            if [ "$size" -le "$minimum" ]; then
+              echo "::error::$manual.pdf looks too small: $size bytes"
+              exit 1
+            fi
+          done

@@ -62,7 +62,7 @@ jobs:
             echo "dist/:"
             find dist -maxdepth 3 -type f -printf '%s %p\n' 2>/dev/null | sort || true
             echo "docs/ manual files:"
-            find docs -maxdepth 2 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
+            find docs -maxdepth 1 \( -name 'Trice*Manual.md' -o -name 'Trice*Manual.pdf' \) -type f -printf '%s %p\n' 2>/dev/null | sort || true
             echo "tool versions:"
             go version || true
             node --version || true
@@ -96,9 +96,12 @@ jobs:
             printf '  %s\n' "${matches[@]}"
           }
 
-          require_file docs/TriceReferenceManual.pdf
           mkdir -p dist
-          cp -f docs/TriceReferenceManual.pdf dist/TriceReferenceManual.pdf
+          for manual in TriceUserManual TriceReferenceManual; do
+            require_file "docs/$manual.pdf"
+            cp -f "docs/$manual.pdf" "dist/$manual.pdf"
+            require_file "dist/$manual.pdf"
+          done
 
           require_file dist/trice_tool_linux_amd64.tar.gz
           require_file dist/trice_tool_darwin_amd64.tar.gz
@@ -122,6 +125,7 @@ jobs:
             dist/trice_*_amd64.rpm
             dist/trice_*_amd64.apk
             dist/TriceReferenceManual.pdf
+            dist/TriceUserManual.pdf
           if-no-files-found: error
 
   install-check-linux:
@@ -474,15 +478,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -s artifacts/TriceReferenceManual.pdf ]; then
-            echo "::error::missing or empty release PDF artifact: artifacts/TriceReferenceManual.pdf"
-            find artifacts -maxdepth 1 -type f -print | sort || true
-            exit 1
-          fi
-          size="$(wc -c < artifacts/TriceReferenceManual.pdf)"
-          if [ "$size" -le 100000 ]; then
-            echo "::error::release PDF looks too small: $size bytes"
-            find artifacts -maxdepth 1 -type f -print | sort || true
-            exit 1
-          fi
-          echo "OK release PDF: artifacts/TriceReferenceManual.pdf ($size bytes)"
+          for manual in TriceUserManual TriceReferenceManual; do
+            if [ ! -s "artifacts/$manual.pdf" ]; then
+              echo "::error::missing or empty release PDF artifact: artifacts/$manual.pdf"
+              find artifacts -maxdepth 1 -type f -print | sort || true
+              exit 1
+            fi
+            # The short guide is intentionally much smaller than the reference.
+            minimum=10000
+            if [ "$manual" = TriceReferenceManual ]; then minimum=100000; fi
+            size="$(wc -c < "artifacts/$manual.pdf")"
+            if [ "$size" -le "$minimum" ]; then
+              echo "::error::$manual.pdf looks too small: $size bytes"
+              find artifacts -maxdepth 1 -type f -print | sort || true
+              exit 1
+            fi
+            echo "OK release PDF: artifacts/$manual.pdf ($size bytes)"
+          done

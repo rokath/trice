@@ -24,7 +24,7 @@ dump_release_artifact_context() {
     log "INFO: ./dist does not exist"
   fi
   if [ -d "$ROOT_DIR/docs" ]; then
-    find "$ROOT_DIR/docs" -maxdepth 2 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -type f -print 2>/dev/null | sort | while IFS= read -r line; do
+    find "$ROOT_DIR/docs" -maxdepth 1 \( -name 'Trice*Manual.md' -o -name 'Trice*Manual.pdf' \) -type f -print 2>/dev/null | sort | while IFS= read -r line; do
       log "INFO: $line"
     done
   else
@@ -68,6 +68,7 @@ verify_snapshot_layout() {
   verify_release_artifact "$DIST_DIR/trice_tool_darwin_amd64.tar.gz"
   verify_release_artifact "$DIST_DIR/trice_tool_windows_amd64.zip"
   verify_release_artifact "$DIST_DIR/TriceReferenceManual.pdf"
+  verify_release_artifact "$DIST_DIR/TriceUserManual.pdf"
 
   local source_zip
   source_zip="$(find "$DIST_DIR" -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
@@ -300,14 +301,19 @@ EOF
 }
 
 verify_release_pdf() {
-  local size
+  local manual size minimum
 
-  verify_release_artifact "$DIST_DIR/TriceReferenceManual.pdf"
-  size="$(wc -c <"$DIST_DIR/TriceReferenceManual.pdf")"
-  if [ "$size" -le 100000 ]; then
-    log "FAIL: release PDF looks too small ($size bytes)"
-    exit 1
-  fi
+  for manual in TriceUserManual TriceReferenceManual; do
+    verify_release_artifact "$DIST_DIR/$manual.pdf"
+    # Keep the reference threshold; the new guide is deliberately shorter.
+    minimum=10000
+    if [ "$manual" = TriceReferenceManual ]; then minimum=100000; fi
+    size="$(wc -c <"$DIST_DIR/$manual.pdf")"
+    if [ "$size" -le "$minimum" ]; then
+      log "FAIL: $manual.pdf looks too small ($size bytes)"
+      exit 1
+    fi
+  done
 }
 
 main() {
@@ -336,23 +342,21 @@ main() {
     exit 1
   }
 
-  if [ ! -s "$ROOT_DIR/docs/TriceReferenceManual.pdf" ]; then
-    log "FAIL: docs/TriceReferenceManual.pdf was not generated or is empty"
-    dump_release_artifact_context
-    exit 1
-  fi
-
-  # GoReleaser uploads docs/TriceReferenceManual.pdf as a release extra_file. The
-  # local snapshot check also copies it to ./dist so the expected artifact set
+  # GoReleaser uploads both manual PDFs as release extra_files. The
+  # local snapshot check also copies them to ./dist so the expected artifact set
   # is visible in one directory for smoke tests and CI artifact upload.
   run_cmd mkdir -p "$ROOT_DIR/dist" || {
     log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
     exit 1
   }
-  run_cmd cp -f "$ROOT_DIR/docs/TriceReferenceManual.pdf" "$ROOT_DIR/dist/TriceReferenceManual.pdf" || {
-    log "FAIL: could not copy docs/TriceReferenceManual.pdf into ./dist/"
-    exit 1
-  }
+  local manual
+  for manual in TriceUserManual TriceReferenceManual; do
+    verify_release_artifact "$ROOT_DIR/docs/$manual.pdf"
+    run_cmd cp -f "$ROOT_DIR/docs/$manual.pdf" "$ROOT_DIR/dist/$manual.pdf" || {
+      log "FAIL: could not copy docs/$manual.pdf into ./dist/"
+      exit 1
+    }
+  done
 
   verify_snapshot_layout
   smoke_test_host_archive
