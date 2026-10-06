@@ -34,7 +34,7 @@ func insertIDs(w io.Writer, fSys *afero.Afero, action ant.Processing) (e error) 
 	if e != nil {
 		return e
 	}
-	e = IDData.cmdSwitchTriceIDs(w, fSys, action)
+	e = IDData.insertIDsInOrder(w, fSys, action)
 	if e != nil {
 		return e
 	}
@@ -61,7 +61,11 @@ func (p *idData) processTriceIDInsertion(w io.Writer, fSys *afero.Afero, path st
 	}
 
 	liFile := ToLIFile(path)
-	out, modified, err := p.insertTriceIDs(w, path, liFile, in, a)
+	out, prepared := p.preparedInsert[filepath.Clean(path)]
+	modified := prepared && string(out) != string(in)
+	if !prepared {
+		out, modified, err = p.insertTriceIDs(w, path, liFile, in, a)
+	}
 	p.join(err)
 
 	if filepath.Base(path) == "triceConfig.h" && p.err == nil {
@@ -226,6 +230,11 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 		// - trice( "foo", ... );           --> idn =   0, loc[3] == loc[4]
 		// - trice( iD(0), "foo, ... ")     --> idn =   0, loc[3] != loc[4]
 		// - trice( iD(111), "foo, ... ")   --> idn = 111, loc[3] != loc[4]
+		// A partial scan must not take an ID owned by an unselected location,
+		// even when that ID was explicitly copied into the selected source.
+		if p.reservedIDs[idn] {
+			idn = 0
+		}
 		a.Mutex.Lock() // several files could contain the same t
 
 		// process t

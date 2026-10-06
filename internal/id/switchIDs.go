@@ -26,8 +26,12 @@ type idData struct {
 	idToLocNew     TriceIDLookUpLI // idToLocNew is the trice ID location information generated during insertTriceIDs. At the end of SubCmdIdInsert a new li.json is generated from idToLocRef + idToLocNew.
 	idInitialCount int             // idInitialCount is the initial used ID count.
 	liNeedsRewrite bool            // liNeedsRewrite removes obsolete schema fields even when no source locations changed.
-	TagList        []TagEntry      // IDSpace contains the tag specific unused IDs.
-	err            error
+	// preparedInsert holds final source bytes for the current deterministic insert pass.
+	preparedInsert map[string][]byte
+	// reservedIDs protects locations outside the current writable source scope.
+	reservedIDs map[TriceID]bool
+	TagList     []TagEntry // IDSpace contains the tag specific unused IDs.
+	err         error
 }
 
 // TagEntry is a Trice tag specific ID space, specified with the -IDTag CLI switch.

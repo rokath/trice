@@ -15,8 +15,8 @@ import (
 
 // TestInsertIDsFromSingleFileIntoNonEmptyJSONWithDoubledIDinsideLi ...
 //
-// IDs 1200 & 1201 are exist, so they are expected to be restored on the old position.
-// The IDs 100 & 101 are newly assigned.
+// Historical IDs 1200/1201 and new IDs 100/101 form one interchangeable pool.
+// All four identical sites receive ascending IDs in path and source order.
 func TestInsertIDsFromSingleFileIntoNonEmptyJSONWithNoIDinsideLi(t *testing.T) {
 	defer Setup(t)() // This executes Setup(t) and puts the returned function into the defer list.
 
@@ -627,13 +627,8 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 }`
 	testSet := []SrcFile{
 		// fn: clean:                             insertedIDs:
-		{fn0, `TRice("Hi!" ); TRice("Hi!" );`, `TRice(iD(1200), "Hi!" ); TRice(iD(101), "Hi!" );`},
-		{fn1, `TRice("Hi!" ); TRice("Hi!" );`, `TRice(iD(1201), "Hi!" ); TRice(iD(100), "Hi!" );`},
-	}
-
-	alternativeResultSet := []string{
-		`TRice(iD(1200), "Hi!" ); TRice(iD(100), "Hi!" );`,
-		`TRice(iD(1201), "Hi!" ); TRice(iD(101), "Hi!" );`,
+		{fn0, `TRice("Hi!" ); TRice("Hi!" );`, `TRice(iD(100), "Hi!" ); TRice(iD(101), "Hi!" );`},
+		{fn1, `TRice("Hi!" ); TRice("Hi!" );`, `TRice(iD(1200), "Hi!" ); TRice(iD(1201), "Hi!" );`},
 	}
 
 	// create src files
@@ -651,17 +646,11 @@ func TestInsertIDsIntoCleanFilesWithTilJSON(t *testing.T) {
 	assert.Nil(t, args.Handler(W, FSys, []string{"TRICE", "insert", "-v", "-til", FnJSON, "-li", LIFnJSON, "-src", fn0, "-src", fn1, "-IDMin", "100", "-IDMethod", "upward"}))
 
 	// check source files
-	for i, k := range testSet {
+	for _, k := range testSet {
 		actSrc, e := FSys.ReadFile(k.Fn)
 		assert.Nil(t, e)
-		result := testSet[i].InsertedIDs == string(actSrc) || alternativeResultSet[i] == string(actSrc)
-		if !result {
-			fmt.Println("ACTUAL SRC:", string(actSrc))
-			fmt.Println("EXPECT SRC:", testSet[i].InsertedIDs)
-			fmt.Println("ALTERN SRC:", alternativeResultSet[i])
-		}
-		assert.True(t, result)
-	} // We do not know, which file is processed first.
+		assert.Equal(t, k.InsertedIDs, string(actSrc), "identical sites have one deterministic ordering")
+	}
 }
 
 // TestInsertIDsIntoCleanFilesWithEmptyTilJSON verifies the expected behavior.

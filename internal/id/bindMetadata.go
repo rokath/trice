@@ -141,6 +141,9 @@ func collectBindInputs(w io.Writer, fSys *afero.Afero) ([]bindFileInput, []bindD
 	exclusions = append(exclusions, BindDir)
 
 	files := make(map[string]os.FileInfo)
+	// Absolute identity deduplicates relative/absolute aliases of overlapping
+	// roots; the original spelling remains usable by memory filesystems too.
+	seenSources := make(map[string]bool)
 	var diagnostics []bindDiagnostic
 	roots := append([]string(nil), Srcs...)
 	sort.Strings(roots)
@@ -182,7 +185,14 @@ func collectBindInputs(w io.Writer, fSys *afero.Afero) ([]bindFileInput, []bindD
 			if fileInfo.IsDir() || !isSourceFile(fileInfo) {
 				return nil
 			}
-			files[filepath.Clean(path)] = fileInfo
+			identity, err := filepath.Abs(path)
+			if err != nil {
+				return err
+			}
+			if !seenSources[identity] {
+				seenSources[identity] = true
+				files[filepath.Clean(path)] = fileInfo
+			}
 			return nil
 		})
 		if err != nil {
@@ -777,7 +787,7 @@ func preferredBindIDs(w io.Writer, plans []bindFilePlan, resolver *bindMetadataR
 // primary-sidecar fast path and the complete historical metadata path.
 func acceptBindPreferredID(w io.Writer, resolver *bindMetadataResolver, plan *bindFilePlan, site bindSite, ref bindSiteReference, format TriceFmt, candidates []bindIDCandidate, claimed map[TriceID]bindSiteReference, primaryByFormat bindFormatIndex, locationMatches bindLocationMatchCache, preferred map[bindSiteReference]TriceID) bool {
 	for _, candidate := range candidates {
-		if candidate.id <= 0 {
+		if candidate.id <= 0 || IDData.reservedIDs[candidate.id] {
 			continue
 		}
 		primaryFormat, primaryExists := IDData.idToTrice[candidate.id]

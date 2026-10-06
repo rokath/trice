@@ -79,13 +79,25 @@ func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
 	diagnostics = append(diagnostics, prepareBindContext(w, plans, contextRules)...)
 	IDData.err = nil
 	IDData.PreProcessing(w, fSys)
+	var orderedPaths []string
+	for _, plan := range plans {
+		orderedPaths = append(orderedPaths, plan.path)
+	}
+	IDData.reserveIDsOutside(orderedPaths, nil)
+	defer func() { IDData.reservedIDs = nil }()
 	metadataResolver := newBindMetadataResolver(w, fSys)
 	preferredIDs := preferredBindIDs(w, plans, metadataResolver)
+	IDData.reserveIDsOutside(orderedPaths, nil)
 	initialIDs := make(map[TriceID]struct{}, len(IDData.idToTrice))
 	for id := range IDData.idToTrice {
 		initialIDs[id] = struct{}{}
 	}
 	diagnostics = append(diagnostics, assignBindIDs(w, plans, initialIDs, preferredIDs)...)
+	if len(diagnostics) == 0 {
+		if err := orderBindIDs(plans); err != nil {
+			diagnostics = append(diagnostics, bindDiagnostic{message: err.Error()})
+		}
+	}
 
 	for i := range plans {
 		if plans[i].class == bindFileBound && plans[i].key != "" {
