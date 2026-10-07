@@ -19,15 +19,15 @@
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
-New to Trice? Follow the [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. The first experiments need no board. The [root README](../README.md) introduces the project; [Project Folder Structure](#project-folder-structure) below maps this checkout.
+New to Trice? Follow the [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. The first experiments need no board. 
 
-Already using Trice? Jump to a task under [Integration](#integration), [Log output and analysis](#log-output-and-analysis), [Target behavior and transport](#target-behavior-and-transport), [Troubleshooting and contributions](#troubleshooting-and-contributions), or [Project resources](#project-resources). The manuals contain the explanations; this guide helps you find them.
+Already using Trice? Jump to a task under [2. Entry Points](#entry-points). The manuals contain the explanations; this guide helps you find them.
 
 ## 1. <a id="document-overview"></a>Document Overview
 
 Document                                                                        | Content
 --------------------------------------------------------------------------------|-----------------------------------------------------------------------------------
-[trice/README.md](../README.md)                                                 | Project Overview
+[trice/README.md](../README.md)                                                 | Project Entry
 [trice/docs/TriceUserManual.md](./TriceUserManual.md)                           | From your first PC log to your own firmware. The first experiments need no board.
 [trice/docs/TriceReferenceManual.md](./TriceReferenceManual.md)                 | The complete technical reference
 [trice/docs/TriceGuide.md](./TriceGuide.md)                                     | This file

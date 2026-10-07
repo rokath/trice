@@ -12970,7 +12970,7 @@ Trice combines printf-like source calls, ID-based host decoding, and configurabl
 #### 52.2.3. <a id="other-techniques-and-background-reading"></a>Other techniques and background reading
 
 - Plain `printf` over UART, or a project-specific binary logger.
-- Hardware trace through Arm ITM/SWO, and [Arm Keil Event Recorder](https://arm-software.github.io/CMSIS-View/latest/evr/index.html).
+- Hardware trace through Arm ITM/SWO, and [Arm Keil Event Recorder](https://arm-software.github.io/CMSIS-View/latest/evr.html).
 - [SEGGER RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) as a transport; Trice can also [use RTT](#trice-over-rtt).
 - [Logging with symbols in the Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html).
 - [Call-stack logging through function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a).
