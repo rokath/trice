@@ -2,7 +2,7 @@
 
 package abc_rx_host
 
-// #cgo CFLAGS: -I../../src -I. -Wshadow -Wno-format-security
+// #cgo CFLAGS: -Wshadow -Wno-format-security -I. -I../../src -I../../src/default_conf
 // int TriceAbcRxHostCheck(int n);
 import "C"
 

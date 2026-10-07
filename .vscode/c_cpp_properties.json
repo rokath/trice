@@ -3,7 +3,6 @@
         {
             "name": "Trice",
             "includePath": [
-                "${workspaceFolder}/src",
                 "${workspaceFolder}/examples/L432_inst/Core/Inc",
                 "${workspaceFolder}/examples/L432_inst/Drivers/STM32L4xx_HAL_Driver/Inc",
                 "${workspaceFolder}/examples/L432_inst/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy",
@@ -14,7 +13,9 @@
                 "${workspaceFolder}/examples/L432_inst/Drivers/CMSIS/Include",
                 "${workspaceFolder}/examples/exampleData",
                 "${workspaceFolder}/_test/testdata",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/src/default_conf"
             ],
             "defines": [
                 "USE_FULL_LL_DRIVER",

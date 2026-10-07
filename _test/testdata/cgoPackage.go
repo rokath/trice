@@ -19,7 +19,7 @@ package cgot
 // void CgoClearTriceBuffer( void );
 // int CgoDirectBulkSupported( void );
 // int CgoDeferredBulkSupported( void );
-// #cgo CFLAGS: -g -I../../src -Wshadow -Wno-format-security
+// #cgo CFLAGS: -g -Wshadow -Wno-format-security -I. -I../../src -I../../src/default_conf
 // #include "../../src/trice.c"
 // #include "../../src/trice8.c"
 // #include "../../src/trice16.c"

@@ -30,6 +30,7 @@ mkdir -p deferred/build
   -Ideferred \
   -Igenerated \
   -I../src \
+  -I../src/default_conf \
   deferred/main.c \
   ../src/trice*.c \
   ../src/cobsEncode.c \

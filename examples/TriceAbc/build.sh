@@ -117,14 +117,16 @@ build_node() {
   echo "build: ${name}"
 
   # BASE_CFLAGS is intentionally word-split into separate compiler options.
+  # Each node's configuration must also precede the shared library defaults.
   # shellcheck disable=SC2086
-  "${CC_BIN}" ${BASE_CFLAGS:-} -I"${SCRIPT_DIR}/${name}" "$@" -o "build/${name}${EXE_SUFFIX}"
+  "${CC_BIN}" -I"${SCRIPT_DIR}/${name}" ${BASE_CFLAGS:-} "$@" -o "build/${name}${EXE_SUFFIX}"
 }
 
 CC_BIN="$(find_compiler)"
 EXE_SUFFIX=""
 
-BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -I${ROOT}/src -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim"
+# Project headers come first; library headers and fallback configuration come last.
+BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim -I${ROOT}/src -I${ROOT}/src/default_conf"
 
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW* | MSYS* | CYGWIN*)

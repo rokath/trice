@@ -340,7 +340,7 @@ func testContextTargetToDecoder(t *testing.T, command string) {
 
 	library, err := filepath.Glob(filepath.Join(root, "src", "[a-z]*.c"))
 	require.NoError(t, err)
-	common := []string{"-Wall", "-Wextra", "-Werror", "-Wno-builtin-macro-redefined", "-U__COUNTER__", "-I", project, "-I", buildDir, "-I", filepath.Join(root, "src")}
+	common := []string{"-Wall", "-Wextra", "-Werror", "-Wno-builtin-macro-redefined", "-U__COUNTER__", "-I", project, "-I", buildDir, "-I", filepath.Join(root, "src"), "-I", filepath.Join(root, "src", "default_conf")}
 	args := append([]string{"-std=c11", "-c"}, common...)
 	args = append(args, library...)
 	args = append(args, tablePath)

@@ -117,8 +117,9 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include
 
 C_INCLUDES += \
+-Igenerated \
 -I../../src \
--Igenerated
+-I../../src/default_conf
 
 include flags.mak
 

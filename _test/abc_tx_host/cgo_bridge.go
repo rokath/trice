@@ -2,7 +2,7 @@
 
 package abc_tx_host
 
-// #cgo CFLAGS: -I../../src -I. -Wshadow -Wno-format-security
+// #cgo CFLAGS: -Wshadow -Wno-format-security -I. -I../../src -I../../src/default_conf
 // int TriceAbcTxHostCheck(int n);
 import "C"
 

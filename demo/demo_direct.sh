@@ -30,6 +30,7 @@ mkdir -p direct/build
   -Idirect \
   -Igenerated \
   -I../src \
+  -I../src/default_conf \
   direct/main.c \
   ../src/trice*.c \
   ../src/cobsEncode.c \

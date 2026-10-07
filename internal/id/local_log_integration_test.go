@@ -361,7 +361,7 @@ int main(void) {
 			if runtime.GOOS == "windows" {
 				executable += ".exe"
 			}
-			arguments := []string{"-std=c11", "-Wall", "-Wextra", "-Werror", "-I", project, "-I", sourceDirectory, filepath.Join(project, "main.c"), filepath.Join(project, "til.c")}
+			arguments := []string{"-std=c11", "-Wall", "-Wextra", "-Werror", "-I", project, "-I", sourceDirectory, "-I", filepath.Join(sourceDirectory, "default_conf"), filepath.Join(project, "main.c"), filepath.Join(project, "til.c")}
 			arguments = append(arguments, librarySources...)
 			arguments = append(arguments, "-o", executable)
 			output, compileErr := exec.Command(compiler, arguments...).CombinedOutput()
@@ -455,7 +455,7 @@ int main(void) {
 				compiler,
 				"-std=c11", "-Wall", "-Wextra", "-Werror",
 				"-I", project,
-				"-I", sourceDirectory,
+				"-I", sourceDirectory, "-I", filepath.Join(sourceDirectory, "default_conf"),
 				filepath.Join(project, "main.c"),
 				filepath.Join(sourceDirectory, "triceLogAnsi.c"),
 				"-o", executable,
@@ -501,7 +501,7 @@ func TestGeneratedLocalLogTableHonorsFeatureSubsets(t *testing.T) {
 		output, compileErr := exec.Command(
 			compiler, "-E", "-P",
 			"-I", project,
-			"-I", filepath.Join(repositoryRoot, "src"),
+			"-I", filepath.Join(repositoryRoot, "src"), "-I", filepath.Join(repositoryRoot, "src", "default_conf"),
 			filepath.Join(project, "til.c"),
 		).CombinedOutput()
 		require.NoError(t, compileErr, "%s configuration:\n%s", name, output)
@@ -634,7 +634,7 @@ int main(void) {
 	arguments := []string{
 		"-std=c11", "-Wall", "-Wextra", "-Werror",
 		"-I", project,
-		"-I", sourceDirectory,
+		"-I", sourceDirectory, "-I", filepath.Join(sourceDirectory, "default_conf"),
 		filepath.Join(project, "main.c"),
 		filepath.Join(project, "til.c"),
 	}
@@ -709,7 +709,7 @@ int main(void) {
 	arguments := []string{
 		"-std=c11", "-Wall", "-Wextra", "-Werror",
 		"-I", project,
-		"-I", sourceDirectory,
+		"-I", sourceDirectory, "-I", filepath.Join(sourceDirectory, "default_conf"),
 		filepath.Join(project, "main.c"),
 		filepath.Join(project, "til.c"),
 	}
@@ -752,7 +752,7 @@ int main(void) { return 0; }
 		compiler,
 		"-std=c11",
 		"-I", project,
-		"-I", filepath.Join(repositoryRoot, "src"),
+		"-I", filepath.Join(repositoryRoot, "src"), "-I", filepath.Join(repositoryRoot, "src", "default_conf"),
 		"-c", filepath.Join(project, "main.c"),
 		"-o", object,
 	).CombinedOutput()
@@ -783,7 +783,7 @@ func TestLocalLogRejectsNonBooleanFeatureConfiguration(t *testing.T) {
 			output, compileErr := exec.Command(
 				compiler,
 				"-std=c11",
-				"-I", filepath.Join(repositoryRoot, "src"),
+				"-I", filepath.Join(repositoryRoot, "src"), "-I", filepath.Join(repositoryRoot, "src", "default_conf"),
 				"-c", filepath.Join(project, "invalid.c"),
 				"-o", object,
 			).CombinedOutput()
@@ -822,7 +822,7 @@ func TestLocalLogMinimalFormatterCompilesOut(t *testing.T) {
 		compiler,
 		"-std=c11", "-Wall", "-Wextra", "-Werror",
 		"-I", project,
-		"-I", filepath.Join(repositoryRoot, "src"),
+		"-I", filepath.Join(repositoryRoot, "src"), "-I", filepath.Join(repositoryRoot, "src", "default_conf"),
 		"-c", filepath.Join(repositoryRoot, "src", "triceLogMinimal.c"),
 		"-o", object,
 	).CombinedOutput()
@@ -861,7 +861,7 @@ func TestLocalLogPresentationCompilesOut(t *testing.T) {
 		compiler,
 		"-std=c11", "-Wall", "-Wextra", "-Werror",
 		"-I", project,
-		"-I", filepath.Join(repositoryRoot, "src"),
+		"-I", filepath.Join(repositoryRoot, "src"), "-I", filepath.Join(repositoryRoot, "src", "default_conf"),
 		"-c", filepath.Join(repositoryRoot, "src", "triceLogAnsi.c"),
 		"-o", object,
 	).CombinedOutput()

@@ -59,7 +59,7 @@ echo "INFO: PC_log uses local output; SEGGER RTT sources, SEGGER_RTT_Conf.h and 
 
 # 3. Compile the program, shared sample calls and generated format table.
 "$compiler" -std=c11 -Wall -Wextra -Werror \
-  -I. -Igenerated -I../../src \
+  -I. -Igenerated -I../../src -I../../src/default_conf \
   main.c ../../_test/testdata/triceCheck.c build/til.c "$@" \
   -o "build/pc_log${suffix}"
 

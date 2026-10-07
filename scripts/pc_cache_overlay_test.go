@@ -43,7 +43,7 @@ func cacheOverlayFixture(t *testing.T) string {
 	writeFixture(t, root, "src/value.c", "#include \"shared.h\"\n#include \"config.h\"\n#include \"sidecar.h\"\n#ifndef EXTRA\n#define EXTRA 0\n#endif\n#ifndef SOURCE_OFFSET\n#define SOURCE_OFFSET 0\n#endif\nint cache_value(void) { return SHARED_VALUE + LOCAL_VALUE + SIDECAR_VALUE + EXTRA + SOURCE_OFFSET; }\n")
 	writeFixture(t, root, "generated/sidecar.h", "#define SIDECAR_VALUE 100\n")
 	writeFixture(t, root, "_test/testdata/triceCheck.c", "#include \"../../src/value.c\"\n")
-	source := "package cacheprobe\n\n/*\n#cgo CFLAGS: -I../../src -I. -I../../generated\n#include \"../testdata/triceCheck.c\"\n*/\nimport \"C\"\n\nfunc value() int { return int(C.cache_value()) }\n"
+	source := "package cacheprobe\n\n/*\n#cgo CFLAGS: -I. -I../../generated -I../../src -I../../src/default_conf\n#include \"../testdata/triceCheck.c\"\n*/\nimport \"C\"\n\nfunc value() int { return int(C.cache_value()) }\n"
 	writeFixture(t, root, "_test/testdata/cgoPackage.go", source)
 	testSource := `package cacheprobe
 import ("os"; "strconv"; "testing")

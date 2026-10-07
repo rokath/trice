@@ -26,6 +26,7 @@ mkdir -p live/build
   -Ideferred \
   -Igenerated \
   -I../src \
+  -I../src/default_conf \
   live/main.c \
   ../src/trice*.c \
   ../src/cobsEncode.c \

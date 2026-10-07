@@ -215,7 +215,7 @@ void report(int motor_id, float temperature_c, double voltage) {
 			if !assert.NoError(t, err) {
 				return
 			}
-			compileBindFixture(t, compiler, "c11", source, filepath.Join(project, "module.o"), BindDir, project, filepath.Join(bindRepositoryRoot(t), "src"))
+			compileBindFixture(t, compiler, "c11", source, filepath.Join(project, "module.o"), BindDir, project, filepath.Join(bindRepositoryRoot(t), "src"), filepath.Join(bindRepositoryRoot(t), "src", "default_conf"))
 		})
 	}
 }

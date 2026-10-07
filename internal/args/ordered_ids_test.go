@@ -134,7 +134,7 @@ func TestOrderedIDsTargetRecordsMatchSourceAndCatalog(t *testing.T) {
 				// installed compiler pair; absent families have no PASS subtest.
 				for _, family := range families {
 					t.Run(phase+"/"+family.name, func(t *testing.T) {
-						common := []string{"-I", project, "-I", generated, "-I", filepath.Join(root, "src")}
+						common := []string{"-I", project, "-I", generated, "-I", filepath.Join(root, "src"), "-I", filepath.Join(root, "src", "default_conf")}
 						compile := exec.Command(family.c, append(append([]string{"-std=c11", "-c"}, common...), library...)...)
 						compile.Dir = project
 						buildOutput, err := compile.CombinedOutput()

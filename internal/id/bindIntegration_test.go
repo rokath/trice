@@ -253,7 +253,7 @@ void bind_hybrid(void) {
 	if cCompiler == "" || cppCompiler == "" {
 		t.Fatalf("bind target integration requires a GCC- or Clang-compatible C and C++ frontend")
 	}
-	includes := []string{BindDir, project, filepath.Join(root, "src")}
+	includes := []string{BindDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf")}
 	compileBindFixture(t, cCompiler, "c11", cPath, filepath.Join(project, "module.o"), includes...)
 	compileBindFixture(t, cCompiler, "c11", hybridPath, filepath.Join(project, "hybrid.o"), includes...)
 	compileBindFixture(t, cppCompiler, "c++17", cppPath, filepath.Join(project, "module_cpp.o"), includes...)
@@ -263,8 +263,8 @@ void bind_hybrid(void) {
 	offConfigDir := filepath.Join(project, "off-config")
 	writeBindIntegrationFile(t, cleanConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1))
 	writeBindIntegrationFile(t, offConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 0\n#define TRICE_OFF 1", 1))
-	compileBindFixtureWithPedantry(t, cCompiler, "c11", cPath, filepath.Join(project, "module_clean.o"), false, BindDir, cleanConfigDir, project, filepath.Join(root, "src"))
-	compileBindFixtureWithPedantry(t, cCompiler, "c11", cPath, filepath.Join(project, "module_off.o"), false, BindDir, offConfigDir, project, filepath.Join(root, "src"))
+	compileBindFixtureWithPedantry(t, cCompiler, "c11", cPath, filepath.Join(project, "module_clean.o"), false, BindDir, cleanConfigDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf"))
+	compileBindFixtureWithPedantry(t, cCompiler, "c11", cPath, filepath.Join(project, "module_off.o"), false, BindDir, offConfigDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf"))
 }
 
 // TestBindMVP2RebaseCompilesCAndCPP exercises generated direct, wrapper,
@@ -376,7 +376,7 @@ void bind_mvp2_second_c(int value) {
 	if len(cCompilers) == 0 || len(cppCompilers) == 0 {
 		t.Fatal("MVP2 bind integration requires GCC- or Clang-compatible C and C++ frontends")
 	}
-	includes := []string{BindDir, project, filepath.Join(root, "src")}
+	includes := []string{BindDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf")}
 	for compilerIndex, compiler := range cCompilers {
 		compileBindFixtureOptimized(t, compiler, "c99", "-O0", cPath, filepath.Join(project, fmt.Sprintf("module_c%d_o0.o", compilerIndex)), includes...)
 		compileBindFixtureOptimized(t, compiler, "c99", "-O2", cPath, filepath.Join(project, fmt.Sprintf("module_c%d_o2.o", compilerIndex)), includes...)
@@ -432,7 +432,7 @@ void normal(void) {
 	if compiler == "" {
 		t.Fatal("MVP2 negative integration requires a GCC- or Clang-compatible C frontend")
 	}
-	includes := []string{BindDir, project, filepath.Join(root, "src")}
+	includes := []string{BindDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf")}
 	// Some GCC versions emit an unclassified warning for -U__COUNTER__. Keep
 	// that deliberate simulation warning visible without letting the common
 	// -Werror policy hide the Trice capability-guard result under test.
@@ -449,7 +449,7 @@ void normal(void) {
 	writeBindIntegrationFile(t, cleanConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1))
 	writeBindIntegrationFile(t, offConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 0\n#define TRICE_OFF 1", 1))
 	for _, disabledConfigDir := range []string{cleanConfigDir, offConfigDir} {
-		disabledIncludes := []string{BindDir, disabledConfigDir, project, filepath.Join(root, "src")}
+		disabledIncludes := []string{BindDir, disabledConfigDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf")}
 		output, err = runBindFixtureCompiler(compiler, "c99", advancedPath, filepath.Join(disabledConfigDir, "advanced_no_counter.o"), noCounterFlags, disabledIncludes...)
 		require.NoErrorf(t, err, "%s", output)
 	}
@@ -577,7 +577,7 @@ int main(void) {
 		if runtime.GOOS == "windows" {
 			executable += ".exe"
 		}
-		args := []string{"-std=c99", optimization, "-Wall", "-Wextra", "-Werror", "-pedantic", "-I", BindDir, "-I", project, "-I", filepath.Join(root, "src"), sourcePath, "-o", executable}
+		args := []string{"-std=c99", optimization, "-Wall", "-Wextra", "-Werror", "-pedantic", "-I", BindDir, "-I", project, "-I", filepath.Join(root, "src"), "-I", filepath.Join(root, "src", "default_conf"), sourcePath, "-o", executable}
 		output, err := exec.Command(compiler, args...).CombinedOutput()
 		require.NoErrorf(t, err, "%s %s\n%s", compiler, strings.Join(args, " "), output)
 		output, err = exec.Command(executable).CombinedOutput()
@@ -678,5 +678,6 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 		BindDir,
 		project,
 		filepath.Join(root, "src"),
+		filepath.Join(root, "src", "default_conf"),
 	)
 }

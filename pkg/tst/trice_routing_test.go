@@ -292,7 +292,7 @@ func compileRoutingConfiguration(t *testing.T, compiler string, output routingOu
 	sourceFile := filepath.Join(tempDir, "routing_configuration.c")
 	require.NoError(t, os.WriteFile(sourceFile, []byte(routingCompileSource), 0o644))
 
-	arguments := []string{"-std=c99", "-I", tempDir, "-I", srcDir}
+	arguments := []string{"-std=c99", "-I", tempDir, "-I", srcDir, "-I", filepath.Join(srcDir, "default_conf")}
 	arguments = append(arguments, routingEnableDefinitions(output)...)
 	arguments = append(arguments, bounds...)
 	arguments = append(arguments, "-c", sourceFile, "-o", filepath.Join(tempDir, "routing_configuration.o"))
@@ -328,7 +328,7 @@ func compileAndRunRoutingHarness(t *testing.T, compiler string, output routingOu
 		"-ffunction-sections",
 		"-fdata-sections",
 		"-I", tempDir,
-		"-I", srcDir,
+		"-I", srcDir, "-I", filepath.Join(srcDir, "default_conf"),
 	}
 	arguments = append(arguments, definitions...)
 	linkerGarbageCollection := "-Wl,--gc-sections"

@@ -46,10 +46,9 @@ add_executable(DemoData_Trice
 target_compile_features(DemoData_Trice PRIVATE c_std_11)
 target_compile_definitions(DemoData_Trice PRIVATE TRICE_OFF=${TRICE_OFF})
 
-# Put the project directory first so trice.h finds this demo's triceConfig.h.
+# Put project and generated headers before the library and its fallback config.
 target_include_directories(DemoData_Trice PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${TRICE_SOURCE_DIR}"
 )
 
 # Managed Bound tests provide the generated sidecar directory through a
@@ -62,6 +61,11 @@ if(DEFINED ENV{TRICE_BIND_INCLUDE_DIR} AND NOT "$ENV{TRICE_BIND_INCLUDE_DIR}" ST
     endif()
     target_include_directories(DemoData_Trice PRIVATE "$ENV{TRICE_BIND_INCLUDE_DIR}")
 endif()
+
+target_include_directories(DemoData_Trice PRIVATE
+    "${TRICE_SOURCE_DIR}"
+    "${TRICE_SOURCE_DIR}/default_conf"
+)
 
 if(MSVC)
     # C5105 originates in older Windows SDK headers, not in this project.
