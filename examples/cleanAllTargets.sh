@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Remove generated build output from the listed example projects.
+# Usage: ./cleanAllTargets.sh. Requires Bash and make; no compiler run is needed.
+# Firmware projects use make clean. The final rm commands remove only the
+# named native-producer build directories, not their source files.
 #
 # Simple and CI-safe "clean all targets" script.
 #

@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Usage: ./demo.sh. Build and run four native PC devices on a simulated bus.
+# Requires the C compiler used by build.sh; no embedded hardware is needed.
+# The demo replaces old bc.bus/bc.log files, runs the devices concurrently,
+# waits for them to finish, and prints the text log and raw bus bytes.
 set -euo pipefail
 
 # demo.sh

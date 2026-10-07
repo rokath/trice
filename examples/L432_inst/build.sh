@@ -1,37 +1,13 @@
 #!/usr/bin/env bash
 #
-# Simple and CI-safe build script (pattern-preserving version).
-#
-# Main idea:
-# - Always run relative to the script location (NOT the caller's working directory).
-# - Use strict error handling, so CI fails immediately and clearly.
-# - Run `trice clean` automatically after a successful `trice insert`, even if
-#   the build fails or the user aborts the script with Ctrl-C.
-#
-# Cleanup / Ctrl-C behavior:
-# - This script modifies source files indirectly by calling:
-#
-#       scripts/_230_legacy_insert_ids.sh
-#
-# - After that point, the repository should be cleaned again by calling:
-#
-#       scripts/_240_legacy_clean_ids.sh
-#
-# - The cleanup is intentionally handled in this outer script, because this is
-#   the level that knows the complete sequence:
-#
-#       pre-clean -> insert -> gcc build -> final clean
-#
-# - The cleanup function is used for both normal success and abnormal exits.
-#
-# About the make exit code:
-# - The original script wanted to preserve make's exit code exactly.
-# - With `set -e`, a failing `make` would normally abort the script immediately,
-#   before EXITCODE=$? is reached.
-# - Therefore this version temporarily disables `set -e` only around `make`,
-#   captures the make exit code explicitly, runs cleanup, and exits with the
-#   captured make exit code unless cleanup itself fails after an otherwise
-#   successful build.
+# Usage: ./build.sh                    (normal firmware build)
+#        ./build.sh TRICE_OFF=1        (compile without Trice logging)
+# Build the firmware; this script does not flash the board.
+# Requires Bash, make, Trice and the Arm GNU toolchain in PATH.
+# Normal standalone builds prepare Bind headers before compiling.
+# Repository tests can supply an Insert workflow instead. Cleanup then removes
+# the temporary IDs on success, failure or Ctrl-C; keep those safeguards intact.
+# The helpers below handle that cleanup. The actual build commands follow them.
 
 set -euo pipefail
 

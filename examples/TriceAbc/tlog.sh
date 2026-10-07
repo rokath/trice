@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Usage: ./tlog.sh after ./demo.sh has produced abc.bus.
+# Requires tlog in PATH. Replay the binary bus once and decode it using the
+# shared format/location tables. COBS framing matches the simulated nodes.
+# typeX0 selects the display for variable-length payloads; it does not alter them.
 
 cd "$(dirname "$0")" || exit 1
 

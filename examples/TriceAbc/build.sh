@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Usage: ./build.sh. Build nine native PC nodes; no embedded hardware is needed.
+# Requires Bash and a C compiler, plus Go or an installed Trice executable.
+# Use CC=clang ./build.sh to select a compiler explicitly.
+# The preparation/cleanup helpers come first; generation and compilation follow.
 set -euo pipefail
 
 # build.sh

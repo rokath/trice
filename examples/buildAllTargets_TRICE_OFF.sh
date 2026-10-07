@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Repository-wide example build check with logging disabled.
+# Usage: ./buildAllTargets_TRICE_OFF.sh. Requires Bash and the targets' build tools.
+# Prepare shared Bind data, then pass TRICE_OFF=1 to each listed build.sh.
+# Each target runs in its own directory; failures are counted and reported.
 set -euo pipefail
 
 # Resolve this script's directory (works with symlinks as well)

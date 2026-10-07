@@ -1,28 +1,10 @@
 #!/usr/bin/env bash
 #
-# Simple and CI-safe clang build script.
-#
-# Main idea:
-# - Always run relative to the script location (NOT the caller's working directory).
-# - Use strict error handling, so CI fails immediately and clearly.
-# - Run `trice clean` automatically after a successful `trice insert`, even if
-#   the build fails or the user aborts the script with Ctrl-C.
-#
-# Cleanup / Ctrl-C behavior:
-# - This script modifies source files indirectly by calling:
-#
-#       scripts/_230_legacy_insert_ids.sh
-#
-# - After that point, the repository should be cleaned again by calling:
-#
-#       scripts/_240_legacy_clean_ids.sh
-#
-# - The cleanup is intentionally handled in this outer script, because this is
-#   the level that knows the complete sequence:
-#
-#       optional pre-clean -> insert -> clang build -> final clean
-#
-# - The cleanup function is used for both normal success and abnormal exits.
+# Usage: ./build_with_clang.sh. Build the firmware with Clang; do not flash it.
+# Requires Bash, make, Clang, Trice and Arm GNU libraries in PATH.
+# A standalone run temporarily inserts IDs, compiles, and cleans the IDs again.
+# Repository tests may already own that preparation. Cleanup preserves failures
+# and also runs on Ctrl-C; the helper functions implement these safeguards.
 
 set -euo pipefail
 

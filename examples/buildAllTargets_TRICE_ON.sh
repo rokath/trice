@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Repository-wide example build check; not needed to try one example.
+# Usage: ./buildAllTargets_TRICE_ON.sh. Requires Bash and each target's build tools.
+# Prepare shared Bind data once, then run the listed build.sh scripts in order.
+# Each build runs in a subshell so its directory changes do not affect the next.
+# Continue after a failed target and report the total failures at the end.
 set -euo pipefail
 
 # Resolve this script's directory (works with symlinks as well)

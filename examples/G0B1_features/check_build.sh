@@ -1,4 +1,9 @@
 #!/bin/sh
+# Optional self-check: ./check_build.sh builds the firmware and checks its tables.
+# Requires the same tools as demo_build.sh; no connected board is needed.
+# grep -Fq checks for a literal text fragment without printing matching lines.
+# If you change the sample calls, update their expected fragments below too.
+# The first missing example stops the check with a specific explanation.
 # SPDX-License-Identifier: MIT
 
 set -eu

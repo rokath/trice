@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Usage: ./demo.sh. Build and run the nine-node PC bus simulation.
+# Requires the tools used by build.sh. abc.bus carries binary bus traffic;
+# abc.log collects readable output. Existing demo bus/log files are removed.
+# Each '&' starts a node in parallel; $! records its process ID.
+# wait keeps the script running until all nine nodes finish.
 set -euo pipefail
 
 # demo.sh
