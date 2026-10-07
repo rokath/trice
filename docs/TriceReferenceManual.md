@@ -1555,7 +1555,8 @@ It only needs a function that accepts a byte buffer and length.
 
 #### 6.1.1. <a id="add-trice-target-sources"></a>Add Trice target sources
 
-Add the complete [`src`](../src) folder to your target project unchanged and add `src` to the compiler include path.
+Add the complete [`src`](../src) folder to your target project unchanged, including its `default_conf` subdirectory.
+Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Igenerated -Isrc -Isrc/default_conf`.
 Create a project-specific `triceConfig.h` in your application include path.
 
 #### 6.1.2. <a id="configure-deferred-auxiliary-8-bit-output"></a>Configure deferred auxiliary 8-bit output
@@ -1674,7 +1675,8 @@ See [Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-boa
 
 #### 6.2.2. <a id="add-target-sources"></a>Add target sources
 
-Add the complete [`src`](../src) folder to your target project unchanged and add `src` to the compiler include path.
+Add the complete [`src`](../src) folder to your target project unchanged, including its `default_conf` subdirectory.
+Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Igenerated -Isrc -Isrc/default_conf`.
 
 #### 6.2.3. <a id="configure-direct-rtt"></a>Configure direct RTT
 
@@ -6853,6 +6855,21 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 > Allows Trice over the debug probe without using a pin or UART.
 
+The library includes a fallback [`SEGGER_RTT_Conf.h`](../src/default_conf/SEGGER_RTT_Conf.h).
+Put your project and generated include directories first, then `src`, and `src/default_conf` last:
+
+```sh
+-Iproject -Igenerated -Isrc -Isrc/default_conf
+```
+
+Your project's `SEGGER_RTT_Conf.h` takes precedence and replaces the entire fallback configuration.
+Do not put a configuration directly in `src`: SEGGER's quoted include searches that directory before the `-I` directories, which would hide your project configuration.
+The fallback provides one up-channel with a 1024-byte buffer, one down-channel with a 16-byte buffer, and non-blocking output that skips a write if the buffer is full.
+It uses the C implementation without requiring external RTT assembly files or embOS on Windows.
+It retains SEGGER's CPU-specific interrupt locks; check the interrupt-priority and cache settings for your target before relying on concurrent RTT access.
+Native host builds use no-op locks and need a project-specific configuration for concurrent RTT writers.
+Adding the fallback include path does not enable RTT in `triceConfig.h` or make every file in `src` necessary for your application.
+
 * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
 * Also ST-Link is usable for Trice logs, but maybe not parallel with debugging.
 * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
@@ -11335,7 +11352,7 @@ C_FLAGS+=-Wextra -Wshadow -Wimplicit-function-declaration -Wredundant-decls -Wmi
 C_FLAGS+=-fno-common -ffunction-sections -fdata-sections  -MD -Wall -Wundef
 C_FLAGS+=-DSTM32F4 -I/home/kraiskil/stuff/libopencm3/include
 # These two are for trice.h and triceConfig.h
-C_FLAGS+=-I../../pkg/src/ -I.
+C_FLAGS+=-I. -I../../src -I../../src/default_conf
 
 LFLAGS=-L${OPENCM3_DIR}/lib -lopencm3_stm32f4 -lm -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 LFLAGS+=-T nucleo-f411re.ld

@@ -199,7 +199,7 @@ trice bind -src application -genDir generated -til til.json -li li.json
 
 For a new project, `touch` creates the initially empty dictionaries; it leaves existing contents intact. Bind deliberately rejects a missing TIL instead of silently replacing a lost dictionary with new IDs.
 
-Add the library, application configuration and `generated` directories to the compiler's include path. Bind inserts generated includes and writes the corresponding **sidecars** (headers alongside the normal source tree). Run it again before compilation whenever log sources change; make it a dependency of compilation in your build system. Then build and flash normally.
+Add the application configuration and `generated` directories first, then the library's `src` directory, and finally `src/default_conf` to the compiler's include path. This keeps your own `SEGGER_RTT_Conf.h` ahead of the [RTT fallback configuration](./TriceReferenceManual.md#trice-over-rtt). Bind inserts generated includes and writes the corresponding **sidecars** (headers alongside the normal source tree). Run it again before compilation whenever log sources change; make it a dependency of compilation in your build system. Then build and flash normally.
 
 Direct calls on separate source lines do not require `__COUNTER__`. If a more complex construct is rejected, search the RM for [bind-limits](./TriceReferenceManual.md#bind-limits). [Insert/clean](./TriceReferenceManual.md#trice-id-management) remains a supported alternative that writes IDs into source calls. For an already bound project, follow [re-migration](./TriceReferenceManual.md#re-migration-to-trice-insert) rather than mixing the two workflows by hand.
 

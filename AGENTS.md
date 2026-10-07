@@ -151,6 +151,7 @@
 
 * Do not use absolute filesystem paths in repository files, scripts, or build/test commands.
 * Keep project paths relative so the repository can be checked out anywhere.
+* In compiler include paths, put project and generated header directories first, then `src`, then `src/default_conf` last. The fallback `SEGGER_RTT_Conf.h` belongs in `src/default_conf`, never directly in `src`, so a project-specific configuration takes precedence without modifying vendor includes.
 * In scripts, prefer stabilizing the working directory once near the top, then use consistent relative project paths for the rest of the script.
 * In documentation, links to files and folders inside this repository must be relative and must not use absolute GitHub URLs.
 * Absolute web URLs are allowed in documentation only for truly external resources outside this repository.

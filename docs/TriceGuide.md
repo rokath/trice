@@ -128,6 +128,7 @@ Start with [demo](../demo/) to see a first log, [examples/PC_features](../exampl
 | Folder | Purpose and useful entry point |
 | --- | --- |
 | [src](../src/) | The target C library. Include `trice.h` and provide a project-specific `triceConfig.h`; [firmware integration](./TriceUserManual.md#bring-trice-into-your-firmware) shows the steps. `triceDefaultConfig.h` documents the defaults. |
+| [src/default_conf](../src/default_conf/) | Fallback RTT configuration. Search this directory last, after project/generated headers and `src`, so your own `SEGGER_RTT_Conf.h` takes precedence. See [Trice over RTT](./TriceReferenceManual.md#trice-over-rtt). |
 | [demo](../demo/) | Minimal direct and deferred PC demos. Start with the [first-log walkthrough](./TriceUserManual.md#see-your-first-log). |
 | [examples](../examples/) | PC and STM32 applications, plus shared example producers in `exampleData`. Choose a project through the [central example guide](./TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation); board projects can include their own vendor code. |
 | [docs](./) | This Guide, the short User Manual, and the detailed Reference Manual. `ref` holds images and the CLI-help snapshot. |
