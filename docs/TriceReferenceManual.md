@@ -504,6 +504,7 @@ details.toc[open] .toc-hide {
   * [40.14. Third-party packages and retained versions](#third-party-packages-and-retained-versions)
 * [41. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
   * [41.1. Minimal PC Demos: Direct and Deferred](#minimal-pc-demos-direct-and-deferred)
+    * [41.1.1. Watch a running application](#watch-a-running-application)
   * [41.2. PC Feature Tour](#pc-feature-tour)
     * [41.2.1. Updating the PC Tour's Output Checks](#updating-the-pc-tours-output-checks)
   * [41.3. G0B1 Feature Tour](#g0b1-feature-tour)
@@ -9950,14 +9951,17 @@ inventory.
 
 The two programs under [demo](../demo/) use the same binary output channel in two modes. `direct` writes each record immediately to `build/log.bin`; `deferred` first stores records in a ring buffer and drains it through `TriceTransfer()`. Both compile the repository's `src` directly, without copying a library or requiring a separate build system.
 
+The direct file writer is only a demonstration of **when the output callback runs**. Writing to a file is far too slow and unpredictable for a typical fast direct-output path: here that work takes place inside the log call. A typical Direct Mode application uses [SEGGER RTT](#quickstart-segger-rtt-direct-mode-with-j-link), where records are written to a RAM buffer and read through the debug probe. You can debug the firmware and receive immediate log output alongside it. Demonstrating that setup requires a compatible target and debug probe, so it cannot be part of this hardware-free PC introduction. The file demo does not measure Direct Mode performance.
+
 Put `trice` and a C compiler named `cc` or `gcc` in `PATH`, then use a POSIX shell (Git Bash on Windows):
 
 ```sh
 cd demo
-LC_ALL=C sh ./demo.sh
+./demo_deferred.sh
+./demo_direct.sh
 ```
 
-The [script](../demo/demo.sh) binds both programs once, builds and runs `deferred` followed by `direct`, and decodes both captures using `trice log -p FILEBUFFER`. Calling it through `sh` works even though its versioned file has no executable bit; alternatively, use `chmod +x demo.sh` before `./demo.sh`. `LC_ALL=C` makes the source glob's lowercase selection predictable. `tlog` is not required. The optional prerequisite checks near the start of the script can be enabled; the script installs nothing. On Windows the executables receive the `.exe` suffix automatically.
+The two independent scripts ([deferred](../demo/demo_deferred.sh), [direct](../demo/demo_direct.sh)) each bind IDs, compile one program, run it and decode its capture using `trice log -p FILEBUFFER`. Their comments explain each step. If an extracted source archive has lost the executable permission, use `sh ./demo_deferred.sh` or `sh ./demo_direct.sh`. No `LC_ALL` setting is needed. `tlog` is not required, and the scripts install nothing. The programs are named `demo_deferred.exe` and `demo_direct.exe` inside their respective `build` directories; these filenames work on Windows, Linux and macOS.
 
 Ignoring optional location/prefix columns, the messages are:
 
@@ -9981,9 +9985,39 @@ demo/direct/triceConfig.h     direct configuration
 demo/direct/build/            executable and log.bin
 ```
 
-Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. The compiler's `../src/[a-z]*.c` glob is intended to exclude the uppercase vendor source `SEGGER_RTT.c`, so these demos need no RTT configuration. Inspect the selected source list if a locale causes that glob to include the vendor file.
+Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. The compiler command selects `trice*.c`, `cobsEncode.c` and `tcobsv1Encode.c` from `src`. The demos use TCOBS framing; the shared library function `TriceEncode()` also references the COBS encoder, so both encoders are linked. No decoder or encryption sources are needed. These source selections exclude the vendor file `SEGGER_RTT.c` regardless of the language setting, so these demos need no RTT configuration.
 
-Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42`, rerun the script, and compare the two decoded logs. The shared workflow is maintained only in `demo.sh`.
+Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42` and rerun the corresponding script. Each script spells out the complete workflow so you can follow and modify either example independently.
+
+#### 41.1.1. <a id="watch-a-running-application"></a>Watch a running application
+
+The [live application](../demo/live/main.c) uses the same [deferred configuration](../demo/deferred/triceConfig.h) and produces one counter record per second until you stop it. It works without hardware or additional network tools on macOS, Linux and Windows with Git Bash and a native C compiler.
+
+In **terminal 1**, starting from the repository root:
+
+```sh
+cd demo
+./demo_live.sh
+```
+
+The [script](../demo/demo_live.sh) binds IDs, compiles the application and leaves it running. Once it says the live demo is running, open **terminal 2** at the repository root:
+
+```sh
+cd demo
+trice log -p FILE -args live/build/log.bin
+```
+
+You should see the counter advance while the application continues running:
+
+```text
+Live counter=0.
+Live counter=1.
+Live counter=2.
+```
+
+`FILE` keeps reading when it reaches the current end of the file; `FILEBUFFER`, used by the short demos above, stops there. The application flushes its file buffer after each transfer so the parallel reader can see the new bytes immediately. The logger first displays any records already in the file, then follows new records.
+
+Stop **both terminals** with Ctrl+C before restarting. A new application run recreates `live/build/log.bin`; the capture grows for as long as the application runs. You can replay the stopped capture with `trice log -p FILEBUFFER -args live/build/log.bin`. This is a simple live-logging demonstration, not a timing measurement or a bounded capture system.
 
 ### 41.2. <a id="pc-feature-tour"></a>PC Feature Tour
 
@@ -12937,7 +12971,7 @@ Choose a release or a source checkout, then use its matching target sources, hos
   The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../go.mod); see [building the host tools](#build-trice-tool-from-go-sources) for details.
 - The macOS Homebrew tap is another installation route: `brew install rokath/tap/trice`. Confirm the installed version rather than assuming it includes the current development checkout.
 
-For the first hardware-free experiment, follow the [User Manual](./TriceUserManual.md#get-the-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](#quickstarts).
+For the first hardware-free experiment, follow the [User Manual](./TriceUserManual.md#get-lib-and-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](#quickstarts).
 
 ### 52.2. <a id="alternative-projects-and-related-approaches"></a>Alternative projects and related approaches
 

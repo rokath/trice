@@ -1,6 +1,6 @@
 # Trice User Manual
 
-Trice gives embedded C/C++ code readable log calls without storing their format strings in the firmware. The target sends compact binary records containing an ID and runtime values. The host tool combines them with a dictionary, `til.json`, to display text or structured data.
+Trice gives C code readable log calls without the need storing their format strings in the binary image. The target sends 4-byte binary records containing an ID with cycle & payload size followed by runtime values. The host tool combines them with a dictionary, `til.json`, to display text or structured data.
 
 Start on your PC: no board, probe or serial cable is needed. This guide then takes the same workflow into your firmware. Use the [Reference Manual](./TriceReferenceManual.md) for complete syntax, configuration and limits.
 
@@ -9,7 +9,7 @@ Start on your PC: no board, probe or serial cable is needed. This guide then tak
 
 <!-- mdtoc -->
 
-- [1. Get the tools](#get-the-tools)
+- [1. Get lib and tools](#get-lib-and-tools)
 - [2. See your first log](#see-your-first-log)
 - [3. Try fields, filters and context](#try-fields-filters-and-context)
   - [3.1. Keep values as fields](#keep-values-as-fields)
@@ -29,31 +29,16 @@ Start on your PC: no board, probe or serial cable is needed. This guide then tak
 
 </details>
 
-## 1. <a id="get-the-tools"></a>Get the tools
+## 1. <a id="get-lib-and-tools"></a>Get lib and tools
 
 For the PC examples you need:
 
-- A checkout or extracted source snapshot of Trice, including `demo`, `examples` and `src`.
-- Bash and the usual shell utilities. On Windows, use Git Bash.
-- Go at the version required by [go.mod](../go.mod), or a compatible newer version, to build the host tools.
-- A **native host C compiler** named `cc` or `gcc`. An ARM cross-compiler cannot build a program that runs on your PC. On Windows, the host compiler also needs its matching runtime libraries and headers; see [compiler setup](./TriceReferenceManual.md#installing-the-gcc-and-clang-compilers).
-
-From the repository root, build and install the matching host tools:
-
-```sh
-./scripts/buildTriceTool.sh
-```
-
-The script prints the installation directory and backs up an existing tool before replacing it. Add that directory to your shell's `PATH`, then check:
-
-```sh
-trice --version
-trice help -log
-```
+- A checkout or extracted source snapshot of Trice, including `demo`, `examples` and the library `src`.
+- Bash and the usual shell utilities. On Windows, use Git Bash or s.th. similar.
+- The host tools from [GitHub Releases](https://github.com/rokath/trice/releases) in the `PATH`, CLI check: `trice --version`.
+- A **native host C compiler** named `cc` or `gcc` with its matching runtime libraries and headers; see [compiler setup](./TriceReferenceManual.md#development-environment-setup).
 
 `trice` manages IDs and decodes logs; the companion `tlog` is a shortcut for `trice log`. The examples below use `trice`.
-
-Alternatively, download a host binary from [GitHub Releases](https://github.com/rokath/trice/releases). Use the sources and manuals from the same release. The small target-source archive contains the library, while the full repository source snapshot also contains the examples. Building from your checkout avoids mixing a released binary with newer source features. See [version compatibility](./TriceReferenceManual.md#compatibility-with-firmware-and-host-tool-versions).
 
 ## 2. <a id="see-your-first-log"></a>See your first log
 
@@ -61,26 +46,23 @@ From the repository root:
 
 ```sh
 cd demo
-LC_ALL=C sh ./demo.sh
+./demo_deferred.sh
 ```
 
-The [demo script](../demo/demo.sh) assigns IDs, compiles two PC programs, runs them and decodes their `log.bin` files. Ignoring optional prefix and source-location columns, you should see:
+The [script](../demo/demo_deferred.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. Ignoring optional prefix and source-location columns, you should see:
 
 ```text
 Hello from deferred mode.
 Deferred value=42.
-Hello from direct mode.
-Direct value=42.
 ```
 
-The two programs demonstrate when bytes leave the logging library:
+**Deferred output** first puts records in a buffer. The application calls `TriceTransfer()` later to send them.
 
-- **Direct output** calls the writer immediately at the log site.
-- **Deferred output** first puts records in a buffer. The application calls `TriceTransfer()` later to send them.
+Open [demo/deferred/main.c](../demo/deferred/main.c), change the value `42` to `43`, and run `./demo_deferred.sh` again from `demo`. The message now reports `43`. You have changed firmware input, rebuilt it and decoded the resulting binary record.
 
-Open [demo/direct/main.c](../demo/direct/main.c), change the value `42` to `43`, and run `LC_ALL=C sh ./demo.sh` again from `demo`. The direct message now reports `43`; the deferred one still reports `42`. You have changed firmware input, rebuilt it and decoded the resulting binary record.
+**Bind** maintains the generated header includes; your calls stay readable, such as `trice("att:Deferred value=%d.\n", 43);`.
 
-The generated header includes are maintained by **Bind**, the ID-generation step. Leave their names to the tool. Your calls stay readable, such as `trice("att:Direct value=%d.\n", 43);`. The [full demo explanation](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) covers its files and configuration.
+The same folder also contains a Direct Mode demo and a continuously running Live demo. See the [Reference Manual](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
 
 ## 3. <a id="try-fields-filters-and-context"></a>Try fields, filters and context
 
@@ -262,7 +244,7 @@ These projects have different prerequisites. In particular, the G0B1 build needs
 | Symptom | Next check |
 | --- | --- |
 | `trice` is not found or a documented option is unknown | Check `PATH` and `trice --version`; build from the same checkout as the example. |
-| PC compilation fails on standard headers | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](./TriceReferenceManual.md#installing-the-gcc-and-clang-compilers). |
+| PC compilation fails on standard headers | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](./TriceReferenceManual.md#development-environment-setup). |
 | A generated header is missing or points at a wrong call | Run Bind from the intended project root and check the generated include path. Do not edit individual sidecar definitions. See [Bind diagnostics](./TriceReferenceManual.md#diagnostics-and-troubleshooting). |
 | The target runs but no bytes arrive | Check the writer, output configuration and regular `TriceTransfer()` calls for deferred mode before changing decoder options. |
 | Bytes arrive but cannot be decoded | Check the matching `til.json`, port speed, framing and options against the project's log script. |
