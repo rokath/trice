@@ -30,6 +30,9 @@ The Guide helps you choose your first experiment, discover the features, and fin
 
 If Trice helps your work, [support the project](./docs/TriceReferenceManual.md#support-and-sponsoring).
 
+---
+
+Footnotes:
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
 
 1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](./docs/TriceReferenceManual.md#trice-speed).
