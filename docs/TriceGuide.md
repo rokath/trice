@@ -10,6 +10,7 @@
   * [2.2. Log output and analysis](#log-output-and-analysis)
   * [2.3. Target behavior and transport](#target-behavior-and-transport)
   * [2.4. Troubleshooting and contributions](#troubleshooting-and-contributions)
+  * [2.5. Project resources](#project-resources)
 * [3. Project Folder Structure](#project-folder-structure)
   * [3.1. Sources, examples, and documentation](#sources-examples-and-documentation)
   * [3.2. Repository configuration and history](#repository-configuration-and-history)
@@ -20,7 +21,7 @@
 
 New to Trice? Follow the [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. The first experiments need no board. The [root README](../README.md) introduces the project; [Project Folder Structure](#project-folder-structure) below maps this checkout.
 
-Already using Trice? Jump to a task under [Integration](#integration), [Log output and analysis](#log-output-and-analysis), [Target behavior and transport](#target-behavior-and-transport), or [Troubleshooting and contributions](#troubleshooting-and-contributions). The manuals contain the explanations; this guide helps you find them.
+Already using Trice? Jump to a task under [Integration](#integration), [Log output and analysis](#log-output-and-analysis), [Target behavior and transport](#target-behavior-and-transport), [Troubleshooting and contributions](#troubleshooting-and-contributions), or [Project resources](#project-resources). The manuals contain the explanations; this guide helps you find them.
 
 ## 1. <a id="document-overview"></a>Document Overview
 
@@ -33,7 +34,6 @@ Document                                                                        
 [trice/docs/ref/trice-help-all.txt](./ref/trice-help-all.txt) - CLI help output | CLI help snapshot; run `trice help -all` for your installed tool
 [trice/src/triceDefaultConfig.h](../src/triceDefaultConfig.h) - Source Code     | Target configuration switches explained and their default values
 [trice/_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) - Test Code | Extensive executable Trice test inputs; not a beginner tutorial
-[Project resources](./TriceReferenceManual.md#project-resources)                | Downloads, alternative projects, community links, and sponsoring
 [trice/docs/ref/](./ref) - included material                                    | documentation images and CLI-help data
 [trice/docs/scratchPad/](./scratchPad)                                          | Internal plans, drafts and historical material - no prerequisites for using Trice.
 [trice/CHANGELOG.md](../CHANGELOG.md)                                           | Release history
@@ -47,6 +47,7 @@ What you need                                  | Where to look
 -----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 A guided start with runnable examples          | [User Manual](./TriceUserManual.md), from installation through fields, filters and context to target integration
 Setup, syntax, configuration and limits        | [Reference Manual](./TriceReferenceManual.md), the complete technical reference
+Printf-like calls and their differences | [Trice and printf](./TriceReferenceManual.md#trice-similarities-and-differences-to-printf-usage), including floating-point values and extended formatting
 An example to build and modify                 | [Central example guide](./TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation), with links to the executable projects
 Command-line options                           | [CLI help snapshot](./ref/trice-help-all.txt); run `trice help -all` for your installed tool
 Target configuration defaults                  | [triceDefaultConfig.h](../src/triceDefaultConfig.h), explained in the Reference Manual
@@ -55,18 +56,22 @@ Use `trice bind`                               | [Trice Bind](./TriceReferenceMa
 Trice ID management with `insert` and `clean`  | [ID management](./TriceReferenceManual.md#trice-id-management) and [Insert algorithm and workflow](./TriceReferenceManual.md#the-trice-insert-algorithm)
 Which dictionaries and generated files to keep | [Files to keep](./TriceUserManual.md#know-which-files-to-keep), [dictionary compatibility](./TriceReferenceManual.md#compatibility-with-firmware-and-host-tool-versions), and [Bind artifact report](./TriceReferenceManual.md#bind-artifact-report)
 Local text output without a host decoder       | [Local deferred text log](./TriceReferenceManual.md#local-deferred-text-log) and [local logging examples](./TriceReferenceManual.md#local-logging-example-projects); requires target-side formatting and a generated dictionary
+Generate supporting files | [Trice Generate](./TriceReferenceManual.md#trice-generate): local C format tables, readable JSON views, and artifact reports
+Avoid unnecessary recompilation | [Trice Cache](./TriceReferenceManual.md#trice-cache-for-compilation-speed)
 
 ### 2.2. <a id="log-output-and-analysis"></a>Log output and analysis
 
 | What you need                      | Where to look                                                                                                                                                                                                                                                                                                       |
 |------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Log levels                         | [Tag weights](./TriceReferenceManual.md#tag-weights) and [selecting tags and priority](./TriceReferenceManual.md#selecting-tags-and-priority); these filters operate on the host                                                                                                                                    |
+| Tag colors and aliases | [Trice tags and colors](./TriceReferenceManual.md#trice-tags-color-and-weights) and [user-defined tags](./TriceReferenceManual.md#user-defined-tags-weights-and-colors) |
 | Select or exclude individual tags  | [Selecting tags and priority](./TriceReferenceManual.md#selecting-tags-and-priority) (`-pick`, `-ban`)                                                                                                                                                                                                              |
 | Tag-specific routing on the target | [ID Routing](./TriceReferenceManual.md#id-routing); ID assignment and output-channel configuration are separate steps                                                                                                                                                                                               |
 | Structured fields in JSON or KV    | [Structured Logging](./TriceReferenceManual.md#structured-logging); JSON output is NDJSON, one event per line                                                                                                                                                                                                       |
 | Context Enrichment                 | [Context Enrichment](./TriceReferenceManual.md#trice-context-enrichment) and [supported log sites and alternatives](./TriceReferenceManual.md#supported-log-sites-and-alternatives)                                                                                                                                 |
 | Runtime strings or buffers         | [triceS strings](./TriceReferenceManual.md#runtime-generated-0-terminated-strings-transfer-with-trices), [triceN counted strings](./TriceReferenceManual.md#runtime-generated-counted-strings-transfer-with--tricen), and [triceB buffers](./TriceReferenceManual.md#runtime-generated-buffer-transfer-with-triceb) |
 | Timing analysis                    | [Target stamps](./TriceReferenceManual.md#trice-timestamps) and [delta columns](./TriceReferenceManual.md#target-timestamp-delta-columns); stamp units and meaning are application-defined                                                                                                                          |
+| Source-file and line information | [Location information](./TriceReferenceManual.md#location-information) |
 | Event counts                       | [Event statistics](./TriceReferenceManual.md#event-statistics)                                                                                                                                                                                                                                                      |
 | Graphical visualization            | [Visualization output](./TriceReferenceManual.md#visualization-output-with--vis) and [LabPlot demo](./TriceReferenceManual.md#setting-up-the-labplot-demo)                                                                                                                                                          |
 | Record decoded text or raw bytes   | [Logfile output](./TriceReferenceManual.md#logfile-output) and [binary logfile](./TriceReferenceManual.md#binary-logfile)                                                                                                                                                                                           |
@@ -77,8 +82,11 @@ Local text output without a host decoder       | [Local deferred text log](./Tri
 | What you need                              | Where to look                                                                                                                                                                                                                                                                                                |
 |--------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Minimize log-call execution time           | [Trice Speed](./TriceReferenceManual.md#trice-speed); compare direct and deferred modes and their RAM needs                                                                                                                                                                                                  |
+| Logging from interrupts or multiple tasks | [Critical sections and Trice checks](./TriceReferenceManual.md#trice-checks) |
+| Work without heap allocation | [No dynamic memory management in the target logging path](./TriceReferenceManual.md#no-dynamic-memory-management-needed) |
 | Reduce target image size                   | [Memory needs](./TriceReferenceManual.md#trice-memory-needs) and [image size optimization](./TriceReferenceManual.md#trice-project-image-size-optimization); some measurements describe older versions                                                                                                       |
 | Reduce transferred bytes                   | [Minimal transfer bytes](./TriceReferenceManual.md#minimal-transfer-bytes-amount), [parameter bit widths](./TriceReferenceManual.md#trice-parameter-bit-widths), and [framing](./TriceReferenceManual.md#framing)                                                                                            |
+| Understand binary records | [Binary encoding](./TriceReferenceManual.md#binary-encoding), including record layout and COBS/TCOBS framing |
 | SEGGER RTT                                 | [RTT quickstart](./TriceReferenceManual.md#quickstart-segger-rtt-direct-mode-with-j-link) and [Trice over RTT](./TriceReferenceManual.md#trice-over-rtt)                                                                                                                                                     |
 | SD-card or custom output writer            | [SD-card and user-specific output](./TriceReferenceManual.md#writing-the-trice-logs-into-an-sd-card-or-a-user-specific-output)                                                                                                                                                                               |
 | Big-endian targets                         | [Endianness](./TriceReferenceManual.md#endianness)                                                                                                                                                                                                                                                           |
@@ -99,6 +107,15 @@ Local text output without a host decoder       | [Local deferred text log](./Tri
 | Release changes or contributing | [CHANGELOG](../CHANGELOG.md) and [CONTRIBUTING](../CONTRIBUTING.md)                                                                                                           |
 | Run tests or add test cases     | [Testing the target library](./TriceReferenceManual.md#testing-the-trice-library-c-code-for-the-target)                                                                       |
 | Questions and bug reports       | [Community and contributions](./TriceReferenceManual.md#community-and-contributions)                                                                                           |
+
+### 2.5. <a id="project-resources"></a>Project resources
+
+| What you need | Where to look |
+| --- | --- |
+| Downloads and installation | [Get Trice](./TriceReferenceManual.md#download-and-install-trice): released host tools, source builds, and version compatibility |
+| Compare approaches | [Alternative projects](./TriceReferenceManual.md#alternative-projects-and-related-approaches) for logging, tracing, and visualization |
+| Support the project | [Support and sponsoring](./TriceReferenceManual.md#support-and-sponsoring), including GitHub Sponsors, Buy Me a Coffee, and PayPal |
+| Licensing | [MIT License](../LICENSE.md) |
 
 The User Manual is the short learning path; the Reference Manual contains the full contracts and detailed example instructions. Example READMEs link to the central manuals so each example has one maintained explanation.
 
