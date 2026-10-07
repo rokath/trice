@@ -11,7 +11,7 @@ title: Trice Reference Manual
 
 # Trice Reference Manual
 
-New to Trice? Follow the short [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. This Reference Manual contains the complete syntax, configuration and example instructions.
+New to Trice? Use the [Trice Guide](./TriceGuide.md) to choose a topic, or follow the short [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. This Reference Manual contains the complete syntax, configuration and example instructions. [Project resources](#project-resources) include downloads, related projects, and support options.
 
 <div id="top"></div>
 
@@ -609,6 +609,14 @@ details.toc[open] .toc-hide {
   * [51.7. Prefer Makefile clean targets when available](#prefer-makefile-clean-targets-when-available)
   * [51.8. Example scripts](#example-scripts)
   * [51.9. Summary](#summary-2)
+* [52. Project Resources](#project-resources)
+  * [52.1. Download and install Trice](#download-and-install-trice)
+  * [52.2. Alternative projects and related approaches](#alternative-projects-and-related-approaches)
+    * [52.2.1. Logging and deferred formatting](#logging-and-deferred-formatting)
+    * [52.2.2. Tracing and visualization](#tracing-and-visualization)
+    * [52.2.3. Other techniques and background reading](#other-techniques-and-background-reading)
+  * [52.3. Community and contributions](#community-and-contributions)
+  * [52.4. Support and sponsoring](#support-and-sponsoring)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -6110,6 +6118,27 @@ Buffer logging without a named field remains available: for `0x01` and `0x02`, `
 
 ### 32.1. <a id="placeholders-and-names"></a>Placeholders and Names
 
+Start with a familiar printf-style call:
+
+```c
+trice("info:Supply %d mV, %d mA", voltage_mV, current_mA);
+```
+
+Replace the value conversions with structured placeholders to keep the same text while exporting named values as well:
+
+```c
+trice("info:Supply {} mV, {} mA", voltage_mV, current_mA);
+```
+
+With `voltage_mV = 3300` and `current_mA = 120`, either call displays `Supply 3300 mV, 120 mA` with `-color none` and no outer metadata. The structured form derives field names from the C arguments. With `-logFormat json`, the records differ as follows:
+
+```json
+{"tag":"INFO","level":"INFO","message":"Supply 3300 mV, 120 mA"}
+{"tag":"INFO","level":"INFO","message":"Supply 3300 mV, 120 mA","fields":{"voltage_mV":3300,"current_mA":120}}
+```
+
+These are alternatives for the same log site, not two calls required to produce one event. Bind or Insert must run after changing the template. For these integer values, `{}` uses the same `%d` display as the original call.
+
 | Format string syntax | Meaning |
 |---|---|
 | `{motor_id}` | Explicit field name, default display. |
@@ -6231,6 +6260,24 @@ Every record contains `tag` and `message`. `tag` is the canonical name of a regi
 A runtime string does not change tag classification: with `triceS("{text:%s}", value)` and a value starting with `err:`, `tag` remains `untagged`. Existing text output converts sequences such as `\n` and `\t` for display, including within runtime strings; `message` follows that display. The named field `fields.text` retains the transmitted string, except for outer whitespace.
 
 An optional `level` is determined through a fixed alias table independent of colors and weights. Comparison is case-insensitive. For example, `err`, `ERR` and `Error` map to `ERROR`; `warn`, `wrn` and `Warning` map to `WARNING`. Supported canonical values are `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` and `VERBOSE`. A display-only tag such as `msg` or a freely defined user label receives no invented level. Alias lookup for `tag` does not change the existing tag registry or its filtering behavior; level classification remains independent of it as well.
+
+For example, an application category can pass a severity threshold without becoming that severity tag:
+
+```c
+trice("sensor:Supply {} mV", voltage_mV);
+```
+
+```sh
+trice log -ulabel sensor:650 -logLevel wrn -logFormat json
+```
+
+Using the matching dictionary and input, with `voltage_mV = 3300`, the event is:
+
+```json
+{"tag":"sensor","message":"Supply 3300 mV","fields":{"voltage_mV":3300}}
+```
+
+The `sensor` weight of 650 passes the default Warning threshold of 600. The tag remains `sensor`; neither the weight nor `-logLevel wrn` adds `level="WARNING"` or `level="ERROR"`. This event has no `level` field. The current interface does not assign a separate severity name to an arbitrary user tag. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](#user-defined-tags-weights-and-colors).
 
 In JSON, user fields reside under `fields`. Host and user fields therefore cannot overwrite each other: a user field named `tag` appears under `fields.tag`. User fields are emitted in template order. A record without exportable user fields has no empty `fields` object.
 
@@ -11953,7 +12000,7 @@ Generated commit message:
 | [demoLI.json](../demoLI.json)                                                                                           | location information example                                                                                                      |
 | [demoTIL.json](../demoTIL.json)                                                                                         | Trice ID list example                                                                                                             |
 | `dist/`                                                                                                                 | local distribution files folder created by GoReleaser                                                                             |
-| [docs](../docs)                                                                                                         | documentation folder with link forwarding                                                                                         |
+| [docs](../docs)                                                                                                         | Guide, User Manual, Reference Manual, and supporting material; start with the [Trice Guide](./TriceGuide.md)                          |
 | [examples/](../examples)                                                                                                | example target projects                                                                                                           |
 | [scripts/_310_refresh_trice_user_manual.sh](../scripts/_310_refresh_trice_user_manual.sh)                               | [Trice Reference Manual Maintenance (or any `*.md` file)](#trice-reference-manual-maintenance-or-any-md-file)                               |
 | [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside                                    |
@@ -12872,6 +12919,79 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+
+## 52. <a id="project-resources"></a>Project Resources
+
+### 52.1. <a id="download-and-install-trice"></a>Download and install Trice
+
+Choose a release or a source checkout, then use its matching target sources, host tools, and documentation. An older release binary may not contain features documented by a newer checkout. See [firmware and host-tool compatibility](#compatibility-with-firmware-and-host-tool-versions).
+
+- [GitHub Releases](https://github.com/rokath/trice/releases) provides published host-tool archives and source archives. Choose the operating system and architecture of your host computer; extract the tool and add its directory to `PATH`.
+- For a checkout build, run the existing script from the repository root with Go and Bash installed:
+
+  ```sh
+  ./scripts/buildTriceTool.sh
+  trice --version
+  ```
+
+  The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../go.mod); see [building the host tools](#build-trice-tool-from-go-sources) for details.
+- The macOS Homebrew tap is another installation route: `brew install rokath/tap/trice`. Confirm the installed version rather than assuming it includes the current development checkout.
+
+For the first hardware-free experiment, follow the [User Manual](./TriceUserManual.md#get-the-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](#quickstarts).
+
+### 52.2. <a id="alternative-projects-and-related-approaches"></a>Alternative projects and related approaches
+
+Trice combines printf-like source calls, ID-based host decoding, and configurable binary transport. Other projects emphasize different languages, runtime environments, tracing models, or integrations. These links are starting points for comparison, not a claim that all projects provide the same features or interchangeable formats.
+
+#### 52.2.1. <a id="logging-and-deferred-formatting"></a>Logging and deferred formatting
+
+- [defmt](https://github.com/knurling-rs/defmt): deferred formatting for embedded Rust.
+- [Zephyr dictionary-based logging](https://docs.zephyrproject.org/latest/services/logging/index.html#dictionary-based-logging).
+- [Memfault Compact Logs](https://docs.memfault.com/docs/mcu/compact-logs).
+- [Postform](https://github.com/Javier-varez/Postform).
+- [Embedded Logger (elog)](https://github.com/martinribelotta/elog).
+- [McuLog](https://mcuoneclipse.com/2020/06/01/mculog-logging-framework-for-small-embedded-microcontroller-systems/).
+- [uLog](https://github.com/rdpoor/ulog).
+- [NanoLog](https://github.com/PlatformLab/NanoLog).
+- [Diagnostic Log and Trace (DLT)](https://github.com/COVESA/dlt-daemon).
+
+#### 52.2.2. <a id="tracing-and-visualization"></a>Tracing and visualization
+
+- [Baical UP7](https://baical.net/up7.html).
+- [Pigweed tokenized tracing](https://pigweed.dev/pw_trace_tokenized/).
+- [SEGGER SystemView](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/).
+- [Percepio Tracealyzer](https://percepio.com/tracealyzer/).
+- [QP/Spy](https://www.state-machine.com/qtools/qpspy.html).
+- [MCUViewer](https://github.com/klonyyy/MCUViewer).
+- [RTEdbg](https://github.com/RTEdbg/RTEdbg).
+- [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet).
+- [Traces](https://github.com/yotamr/traces).
+
+#### 52.2.3. <a id="other-techniques-and-background-reading"></a>Other techniques and background reading
+
+- Plain `printf` over UART, or a project-specific binary logger.
+- Hardware trace through Arm ITM/SWO, and [Arm Keil Event Recorder](https://arm-software.github.io/CMSIS-View/latest/evr/index.html).
+- [SEGGER RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) as a transport; Trice can also [use RTT](#trice-over-rtt).
+- [Logging with symbols in the Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html).
+- [Call-stack logging through function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a).
+- [Dynamic printf breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/).
+- [Minimal Structured Logging for Autonomous Vehicles](https://youtu.be/FyJI4Z6jD4w), a talk about another approach.
+
+### 52.3. <a id="community-and-contributions"></a>Community and contributions
+
+Use [GitHub Discussions](https://github.com/rokath/trice/discussions) for questions, ideas, and integration experience. Search [open and closed issues](https://github.com/rokath/trice/issues?q=is%3Aissue) for known problems and previous resolutions. For a reproducible bug, include the tool version, relevant configuration, command, expected result, and actual output.
+
+Examples, documentation improvements, platform recipes, fixes, and reproducible performance measurements are welcome. [CONTRIBUTING](../CONTRIBUTING.md) describes the development workflow, [CHANGELOG](../CHANGELOG.md) records release changes, and the [MIT License](../LICENSE.md) governs the project. [AUTHORS](../AUTHORS.md) lists contributors.
+
+### 52.4. <a id="support-and-sponsoring"></a>Support and sponsoring
+
+If Trice helps your work, you can support it by sharing an example, improving the documentation, reporting a reproducible problem, contributing a fix, or starring the repository. Financial support for continued maintenance is also welcome:
+
+- [GitHub Sponsors](https://github.com/sponsors/rokath/).
+- [Buy Me a Coffee](https://buymeacoffee.com/rokath).
+- [PayPal](https://www.paypal.com/paypalme/rolfkarlthomas).
+
+These are the support routes configured by the project in [FUNDING.yml](../.github/FUNDING.yml). Sponsoring is optional; using Trice does not require a donation.
 
 <div id="bottom"></div>
 

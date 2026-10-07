@@ -1,64 +1,80 @@
-# Trice — compact logging for embedded C/C++
+# Trice — Trace IDs for Embedded C
 
-Write readable log calls in your firmware. Trice sends compact binary records containing an ID and runtime values; the host tool turns them into readable messages or structured data. Format strings stay in the host dictionary, saving target flash and transport bandwidth.
+[![License](https://img.shields.io/github/license/rokath/trice)](./LICENSE.md)
+[![Latest release](https://img.shields.io/github/v/release/rokath/trice)](./docs/TriceReferenceManual.md#download-and-install-trice)
+[![Downloads](https://img.shields.io/github/downloads/rokath/trice/total)](./docs/TriceReferenceManual.md#download-and-install-trice)
+[![Target library CI](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](./.github/workflows/trice_lib_ci_full.yml)
 
-```c
-trice("info:Supply {voltage_mv:%u} mV", voltage_mv);
-```
+<img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
 
-With `voltage_mv = 3300`, the same record can be shown as text:
+**Log and trace in as few as 6 CPU clocks per call.**[^speed]<br>
+Readable calls. Compact records. Even from interrupt handlers.[^design]
 
-```text
-Supply 3300 mV
-```
+**[Explore Trice](./docs/TriceGuide.md)** · **[Quickstart](./docs/TriceUserManual.md#see-your-first-log)** · **[Downloads](./docs/TriceReferenceManual.md#download-and-install-trice)**
 
-Or as JSON, with a numeric field ready for another tool:
+Trace firmware activity, inspect measurements, and interact with your target through [Asynchronous Broadcast Commands](./docs/TriceReferenceManual.md#trice-abc---asynchronous-broadcast-commands).
 
-```json
-{"tag":"INFO","level":"INFO","message":"Supply 3300 mV","fields":{"voltage_mv":3300}}
-```
+![Colored Trice output with source locations and timestamps](./docs/ref/life0.gif)
 
-These examples omit optional timestamp, source-location and prefix columns. The [User Manual](./docs/TriceUserManual.md#keep-values-as-fields) lets you try structured output on your PC.
+## Discover the features
 
-## Start here
+### Observe your firmware
 
-Follow the **[User Manual](./docs/TriceUserManual.md)** from your first PC log through fields, filters and context to your own firmware. No hardware is needed for the first experiments. The **[Reference Manual](./docs/TriceReferenceManual.md)** supplies complete syntax, configuration and limits when you need them.
+- [Logging and tracing with printf-like calls](./docs/TriceReferenceManual.md#trice-similarities-and-differences-to-printf-usage)
+- [Interrupts and critical sections](./docs/TriceReferenceManual.md#trice-checks)
+- [Target stamps, host timestamps, and time differences](./docs/TriceReferenceManual.md#trice-timestamps)
+- [Source-file and line information](./docs/TriceReferenceManual.md#location-information)
+- [Colored tags and aliases](./docs/TriceReferenceManual.md#trice-tags-color-and-weights)
+- [Log levels and selection](./docs/TriceReferenceManual.md#selecting-tags-and-priority) · [Event statistics](./docs/TriceReferenceManual.md#event-statistics)
+- [Multiple targets in one log](./docs/TriceReferenceManual.md#several-targets-at-the-same-time)
 
-For this checkout, build the matching host tools from the repository root using Go (the version required by [go.mod](./go.mod)) and Bash:
+### Work with data and commands
 
-```sh
-./scripts/buildTriceTool.sh
-trice --version
-```
+- [Structured fields with text, JSON, and KV output](./docs/TriceReferenceManual.md#structured-logging)
+- [Context Enrichment for task IDs and application values](./docs/TriceReferenceManual.md#trice-context-enrichment)
+- [Live plots and the LabPlot demo](./docs/TriceReferenceManual.md#setting-up-the-labplot-demo)
+- [Remote commands and responses with Trice ABC](./docs/TriceReferenceManual.md#trice-abc---asynchronous-broadcast-commands)
+- [Target stimulation over UART](./docs/TriceReferenceManual.md#stimulate-target-with-a-user-command-over-uart)
+- [Runtime strings, buffers, floats, and extended formatting](./docs/TriceReferenceManual.md#trice-similarities-and-differences-to-printf-usage)
+- [User protocol packets alongside Trice records](./docs/TriceReferenceManual.md#typex0-user-packets)
+- [Text recordings](./docs/TriceReferenceManual.md#logfile-output) · [Binary captures](./docs/TriceReferenceManual.md#binary-logfile)
 
-The script prints where it installs `trice` and `tlog`; add that directory to `PATH`. The PC demos also need a native C compiler named `cc` or `gcc`. On Windows, run the shell scripts in Git Bash with a Windows host compiler.
+### Fit your target
 
-Prebuilt tools are available from [GitHub Releases](https://github.com/rokath/trice/releases). Use the target sources and documentation belonging to the same release; a released binary may not contain the features of a newer checkout. See [firmware and host-tool compatibility](./docs/TriceReferenceManual.md#compatibility-with-firmware-and-host-tool-versions).
+- [Measured execution speed and direct/deferred modes](./docs/TriceReferenceManual.md#trice-speed)
+- [Target memory needs](./docs/TriceReferenceManual.md#trice-memory-needs) · [Image-size optimization](./docs/TriceReferenceManual.md#trice-project-image-size-optimization)
+- [No heap allocation in the target logging path](./docs/TriceReferenceManual.md#no-dynamic-memory-management-needed)
+- [Compact records, parameter widths, and COBS/TCOBS framing](./docs/TriceReferenceManual.md#binary-encoding)
+- [UART/USB or an existing byte writer](./docs/TriceReferenceManual.md#quickstarts)
+- [SEGGER RTT](./docs/TriceReferenceManual.md#trice-over-rtt)
+- [SD-card and custom outputs](./docs/TriceReferenceManual.md#writing-the-trice-logs-into-an-sd-card-or-a-user-specific-output)
+- [Local text output without a host decoder](./docs/TriceReferenceManual.md#local-deferred-text-log)
+- [Tag-specific output routing](./docs/TriceReferenceManual.md#id-routing)
+- [Big-endian targets](./docs/TriceReferenceManual.md#endianness)
+- [Optional XTEA encryption](./docs/TriceReferenceManual.md#optional-xtea-encryption)
+- [Buffer protection and overflow diagnostics](./docs/TriceReferenceManual.md#trice-protection)
+- [Compile-time logging switches](./docs/TriceReferenceManual.md#switching-trice-on-and-off)
 
-## What you can do
+### Keep the workflow comfortable
 
-- **Keep firmware calls readable.** [Bind](./docs/TriceReferenceManual.md#trice-bind) generates ID sidecar headers before compilation. The source gets the required includes while its log calls remain ID-free. [Insert/clean](./docs/TriceReferenceManual.md#trice-id-management) remains a supported alternative.
-- **Read logs or process fields.** [Structured Logging](./docs/TriceReferenceManual.md#structured-logging) produces text, key/value output or one JSON object per event (NDJSON) from the same records.
-- **Add context to selected messages.** [Context Enrichment](./docs/TriceReferenceManual.md#trice-context-enrichment) can append task, cycle or application values through a build-time rule such as `-ce 'ctx:", cycle={cycle:%u}", pc_sample_phase'`. The [feature tours](./docs/TriceReferenceManual.md#pc-feature-tour) make the result visible.
-- **Focus on the events you need.** Use [tags and severity thresholds](./docs/TriceReferenceManual.md#trice-tags-color-and-weights), [timestamps and deltas](./docs/TriceReferenceManual.md#trice-timestamps), and source locations.
-- **Choose a suitable output path.** Integrate an existing byte writer, UART/USB serial or SEGGER RTT; use direct or buffered output. Trice's target logging path [needs no heap allocation](./docs/TriceReferenceManual.md#no-dynamic-memory-management-needed).
-- **Go further when needed.** Explore [local target formatting](./docs/TriceReferenceManual.md#local-logging-example-projects), [live plotting](./docs/TriceReferenceManual.md#setting-up-the-labplot-demo), or [Asynchronous Broadcast Commands](./docs/TriceReferenceManual.md#trice-abc---asynchronous-broadcast-commands).
+- [ID-free calls with Bind](./docs/TriceReferenceManual.md#trice-bind) · [Insert/Clean](./docs/TriceReferenceManual.md#the-trice-insert-algorithm)
+- [ID management and dictionaries for released firmware](./docs/TriceReferenceManual.md#trice-id-management)
+- [Generated data, local format tables, and artifact reports](./docs/TriceReferenceManual.md#trice-generate)
+- [Adapt existing logging and assert macros](./docs/TriceReferenceManual.md#legacy-user-code-option-trice-aliases-adaptation)
+- [Compiler support and Bind limits](./docs/TriceReferenceManual.md#bind-limits)
+- [Build caching](./docs/TriceReferenceManual.md#trice-cache-for-compilation-speed)
 
-Preserve your project's `til.json`: it maps IDs to messages and is needed to decode captured records. The [generated-file layout](./docs/TriceReferenceManual.md#command-line) explains which other files to keep and how `generated/` fits into the build.
+## Try it and explore
 
-## Find your way around
+**[First PC log — no board needed](./docs/TriceUserManual.md#see-your-first-log)** · **[PC and STM32 examples](./docs/TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation)** · **[Firmware quickstarts](./docs/TriceReferenceManual.md#quickstarts)**
 
-| Your next task | Start here |
-| --- | --- |
-| Try a small application without hardware | [First-log walkthrough](./docs/TriceUserManual.md#see-your-first-log) using [demo](./demo/) |
-| Experiment with fields, context and filters | [Guided experiments](./docs/TriceUserManual.md#try-fields-filters-and-context) using [PC_features](./examples/PC_features/) |
-| Integrate Trice into firmware | [Integration steps](./docs/TriceUserManual.md#bring-trice-into-your-firmware); [src](./src/) contains the target library and [examples](./examples/) has STM32 projects |
-| Look up syntax, configuration and limits | [Reference Manual](./docs/TriceReferenceManual.md) and [CLI help](./docs/ref/trice-help-all.txt) |
-| Build or change the host tools | [Build script](./scripts/buildTriceTool.sh); entry points in [cmd](./cmd/), implementation in [internal](./internal/) and shared packages in [pkg](./pkg/) |
-| Run tests or contribute | [CONTRIBUTING](./CONTRIBUTING.md); [testAll.sh](./scripts/testAll.sh), target configurations in [_test](./_test/), and helpers in [scripts](./scripts/) |
+Find your next topic in the **[Trice Guide](./docs/TriceGuide.md)**, follow the **[User Manual](./docs/TriceUserManual.md)**, or look up details in the **[Reference Manual](./docs/TriceReferenceManual.md)**.
 
 ## Project information
 
-Trice is open source under the [MIT License](./LICENSE.md). The [documentation guide](./docs/TriceDocsGuide.md) helps you choose the right reference. [Release notes](./CHANGELOG.md) describe published changes; compiler and advanced Bind limitations are documented under [bind-limits](./docs/TriceReferenceManual.md#bind-limits).
+**[Downloads and installation](./docs/TriceReferenceManual.md#download-and-install-trice)** · **[Alternative projects](./docs/TriceReferenceManual.md#alternative-projects-and-related-approaches)** · **[Support and sponsoring](./docs/TriceReferenceManual.md#support-and-sponsoring)**
 
-Questions and examples are welcome in [Discussions](https://github.com/rokath/trice/discussions). For a reproducible problem, open an [issue](https://github.com/rokath/trice/issues); for a change, start with [CONTRIBUTING](./CONTRIBUTING.md). You can also [sponsor the project](https://github.com/sponsors/rokath).
+[Community and contributions](./docs/TriceReferenceManual.md#community-and-contributions) · [Release notes](./CHANGELOG.md) · [MIT License](./LICENSE.md) · [Project folders](./docs/TriceGuide.md#project-folder-structure)
+
+[^speed]: Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](./docs/TriceReferenceManual.md#trice-speed).
+[^design]: See [how Trice works](./docs/TriceReferenceManual.md#how-it-works---the-main-idea) and [interrupt protection](./docs/TriceReferenceManual.md#trice-checks). Configure critical sections when interrupts or multiple tasks share a buffer.
