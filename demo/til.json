@@ -14,5 +14,9 @@
 	"1003": {
 		"Type": "trice",
 		"Strg": "att:Deferred value=%d.\\n"
+	},
+	"2058": {
+		"Type": "trice",
+		"Strg": "msg:Live counter=%u.\\n"
 	}
 }

@@ -14,5 +14,9 @@
 	"1003": {
 		"File": "deferred/main.c",
 		"Line": 41
+	},
+	"2058": {
+		"File": "live/main.c",
+		"Line": 48
 	}
 }
