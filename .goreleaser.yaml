@@ -267,6 +267,9 @@ archives:
       - src: "src/*.h"
         dst: src
         strip_parent: true
+      - src: "src/default_conf/*.h"
+        dst: src/default_conf
+        strip_parent: true
       - src: "src/*.md"
         dst: src
         strip_parent: true

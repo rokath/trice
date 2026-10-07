@@ -257,6 +257,11 @@ compile_target_sources() {
     exit 1
   fi
 
+  if [ ! -s "$target_root/src/default_conf/SEGGER_RTT_Conf.h" ]; then
+    log "FAIL: target archive lacks src/default_conf/SEGGER_RTT_Conf.h; check the target-source archive file patterns"
+    return 1
+  fi
+
   c_compiler="${CC:-}"
   if [ -z "$c_compiler" ]; then
     if command -v cc >/dev/null 2>&1; then
@@ -287,13 +292,13 @@ EOF
 
   for source_file in "$target_root"/src/*.c; do
     case "$(basename "$source_file")" in
-      SEGGER_RTT.c | triceUart.c)
+      triceUart.c)
         continue
         ;;
     esac
     # Keep native compiler paths inside this extracted archive on every OS;
     # /tmp is not necessarily understood by Windows compilers.
-    "$c_compiler" -I "$target_root/src" -c "$source_file" -o "$target_root/$(basename "$source_file").o" || {
+    "$c_compiler" -I "$target_root/src" -I "$target_root/src/default_conf" -c "$source_file" -o "$target_root/$(basename "$source_file").o" || {
       log "FAIL: target archive compilation failed: $source_file ($c_compiler)"
       return 1
     }

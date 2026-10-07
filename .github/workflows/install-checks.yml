@@ -444,6 +444,10 @@ jobs:
             exit 1
           fi
           test -s "$source_root/src/trice.h"
+          if [ ! -s "$source_root/src/default_conf/SEGGER_RTT_Conf.h" ]; then
+            echo "::error::target archive lacks src/default_conf/SEGGER_RTT_Conf.h"
+            exit 1
+          fi
           test -s "$source_root/src/trice.c"
           cat > "$source_root/src/triceConfig.h" <<'EOF'
           #ifndef TRICE_CONFIG_H_
@@ -456,9 +460,9 @@ jobs:
           EOF
           for source_file in "$source_root"/src/*.c; do
             case "$(basename "$source_file")" in
-              SEGGER_RTT.c|triceUart.c) continue ;;
+              triceUart.c) continue ;;
             esac
-            cc -I "$source_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
+            cc -I "$source_root/src" -I "$source_root/src/default_conf" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
           done
 
   install-check-release-pdf:
