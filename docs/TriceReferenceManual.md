@@ -1289,6 +1289,8 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 * `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
+See [Trice Project Image Size Optimization](#trice-project-image-size-optimization) for compiling `src/*.c` and removing unused library sections from the final image.
+
 | File                                                | description                                                                                                          |
 |-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | [cobs.h](../src/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
@@ -1305,6 +1307,9 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [trice64McuReverse.h](../src/trice64McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
 | [SEGGER_RTT.h](../src/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
 | [SEGGER_RTT.c](../src/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
+| [SEGGER_RTT_ConfDefaults.h](../src/SEGGER_RTT_ConfDefaults.h) | SEGGER defaults for settings not supplied by the project |
+| [SEGGER_RTT_Conf.h](../src/default_conf/SEGGER_RTT_Conf.h) | Small Trice fallback configuration; project headers take precedence |
+| [SEGGER_RTT_LICENSE.md](../src/SEGGER_RTT_LICENSE.md) | SEGGER license to retain when redistributing its target sources |
 | [tcobs.h](../src/tcobs.h)                           | message compression and packaging interface                                                                          |
 | [tcobsv1Encode.c](../src/tcobsv1Encode.c)           | message encoding and packaging                                                                                       |
 | [tcobsv1Decode.c](../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed                                                                  |
@@ -5832,7 +5837,11 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 ## 30. <a id="trice-project-image-size-optimization"></a>Trice Project Image Size Optimization
 
-Modern compilers are optimizing out unused code automatically, but you can help to reduce trice code size if your compiler is not perfect.
+You can compile the complete `src/*.c` library instead of maintaining a list of individual files. With unused-section removal enabled, only the library functions and data needed by your application remain in the final executable or firmware image. Configuration already excludes many disabled features during preprocessing; the linker removes the remaining unreferenced sections. Compiling every source can still take longer than compiling a selected subset.
+
+The simple PC and demo scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
+
+Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, the Trice and SEGGER configuration values must still agree; see [Trice over RTT](#trice-over-rtt).
 
 ### 30.1. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
@@ -6855,6 +6864,15 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 > Allows Trice over the debug probe without using a pin or UART.
 
+The RTT target sources come from SEGGER's official [SEGGERMicro/RTT repository](https://github.com/SEGGERMicro/RTT).
+Trice includes the unmodified `SEGGER_RTT.c`, `SEGGER_RTT.h`, and `SEGGER_RTT_ConfDefaults.h`
+from [commit `4d8feab3150f86f37a9d323ddc88d6cdf5673072`](https://github.com/SEGGERMicro/RTT/tree/4d8feab3150f86f37a9d323ddc88d6cdf5673072)
+(2026-06-03), together with the [SEGGER license](../src/SEGGER_RTT_LICENSE.md).
+The source snapshot is independent of the J-Link host-tool version:
+installing J-Link V9.84 does not replace the sources compiled into your firmware.
+SEGGER removed the RTT source ZIP from the J-Link installation package in V8.68;
+obtain source updates from its GitHub repository instead.
+
 The library includes a fallback [`SEGGER_RTT_Conf.h`](../src/default_conf/SEGGER_RTT_Conf.h).
 Put your project and generated include directories first, then `src`, and `src/default_conf` last:
 
@@ -6863,12 +6881,30 @@ Put your project and generated include directories first, then `src`, and `src/d
 ```
 
 Your project's `SEGGER_RTT_Conf.h` takes precedence and replaces the entire fallback configuration.
+SEGGER's [`SEGGER_RTT_ConfDefaults.h`](../src/SEGGER_RTT_ConfDefaults.h) first includes that selected
+configuration, then fills in missing settings with `#ifndef` defaults.
+This is the same principle as Trice's `triceConfig.h` and `triceDefaultConfig.h`.
+New project headers need only define their deviations; they no longer need to copy all vendor defaults and CPU-specific lock implementations.
+The Trice fallback keeps only its channel counts, C implementation selection, ARM memory barriers, and native Windows lock policy.
+An empty project header is valid for RTT itself, but selects SEGGER's three up-/down-channel slots,
+not Trice's one-slot defaults; its compiler-selected assembly and Windows lock defaults may also need overrides.
 Do not put a configuration directly in `src`: SEGGER's quoted include searches that directory before the `-I` directories, which would hide your project configuration.
 The fallback provides one up-channel with a 1024-byte buffer, one down-channel with a 16-byte buffer, and non-blocking output that skips a write if the buffer is full.
 It uses the C implementation without requiring external RTT assembly files or embOS on Windows.
 It retains SEGGER's CPU-specific interrupt locks; check the interrupt-priority and cache settings for your target before relying on concurrent RTT access.
 Native host builds use no-op locks and need a project-specific configuration for concurrent RTT writers.
 Adding the fallback include path does not enable RTT in `triceConfig.h` or make every file in `src` necessary for your application.
+
+When updating an existing project, copy all three vendor files and retain `SEGGER_RTT_LICENSE.md`.
+Keep your existing `SEGGER_RTT_Conf.h`: full configurations from older RTT releases remain usable,
+and their explicitly defined values and lock macros take precedence over the new defaults.
+Do not replace them with an empty header.
+Keep RTT channel counts and buffer settings consistent with the corresponding `TRICE_...` settings in `triceConfig.h`;
+Trice checks these at compilation.
+The optional `SEGGER_RTT_ASM_ARMv7M.S` is not shipped here.
+Use `RTT_USE_ASM=0` when compiling only the C implementation.
+Project configurations still need appropriate memory barriers, interrupt locks and cache settings for their CPU.
+Trice's optimized 32-bit writer directly accesses the RTT control block, so a future vendor update must also be checked against that path.
 
 * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
 * Also ST-Link is usable for Trice logs, but maybe not parallel with debugging.
@@ -7293,7 +7329,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
-* The stored RTT source package is [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip). See [Third-party packages and retained versions](#third-party-packages-and-retained-versions) before changing target sources.
+* The current RTT target sources are included in [`src`](../src); their origin and configuration are described in [Trice over RTT](#trice-over-rtt). The stored [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) is an older reference snapshot, not the current library.
 * Add `SEGGER_RTTI.c` to target project
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -9912,7 +9948,7 @@ versions, not a statement that they are current or compatible with every host.
 | --- | --- |
 | [cobs-c-0.5.0.zip](../third_party/cobs-c-0.5.0.zip) and [cobs-c-version_1.0.zip](../third_party/cobs-c-version_1.0.zip) | Craig McQueen's COBS/COBS-R source snapshots, both with `LICENSE.txt` and `README.rst`. They are comparison/reference sources, not the COBS files compiled from `src`. No active build extracts either version; the reason a manual user may still need both is unconfirmed, so both are retained. |
 | [cJSON-1.7.15.zip](../third_party/cJSON-1.7.15.zip) | cJSON source snapshot with its MIT `LICENSE` and README. No active Trice build or structured-log output depends on this ZIP. Its original/manual use is unconfirmed; retaining it does not introduce a JSON dependency. |
-| [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) | RTT target sources, configuration, examples, README, and `LICENSE.md`. It is a source reference for the 8.12a RTT files stored in `src`; the archive is not extracted by normal builds. |
+| [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) | Older RTT target sources, configuration, examples, README, and `LICENSE.md`, retained as a historical source reference. The current files in `src` come from the official SEGGER GitHub repository; see [Trice over RTT](#trice-over-rtt). Normal builds do not extract this archive. |
 | [JLinkRTTLogger.zip](../third_party/segger.com/JLinkRTTLogger.zip) | Windows `JLinkRTTLogger.exe` and `JLinkARM.dll`, retained for the optional J-Link transport. No version manifest or license file is bundled in this ZIP; its exact version and redistribution provenance are unconfirmed. |
 | [STRTTLogger.zip](../third_party/goST/STRTTLogger.zip) | Windows `stRttLogger.exe` and `libusb-1.0.dll`, retained for optional ST-Link RTT logging. The earlier repository notes identify [phryniszak/strtt](https://github.com/phryniszak/strtt) and [gostlink](https://github.com/search?q=gostlink) as related sources. The ZIP has no license or version manifest; that relationship does not verify the exact binary build. |
 | [STLinkReflash_190812.zip](../third_party/segger.com/STLinkReflash_190812.zip) | Windows `STLinkReflash.exe` and `JLinkARM.dll` for the documented onboard ST-Link/J-Link conversion. Retained as a dated vendor utility; the ZIP has no license or version manifest. |
@@ -10002,7 +10038,7 @@ demo/direct/triceConfig.h     direct configuration
 demo/direct/build/            executable and log.bin
 ```
 
-Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. The compiler command selects `trice*.c`, `cobsEncode.c` and `tcobsv1Encode.c` from `src`. The demos use TCOBS framing; the shared library function `TriceEncode()` also references the COBS encoder, so both encoders are linked. No decoder or encryption sources are needed. These source selections exclude the vendor file `SEGGER_RTT.c` regardless of the language setting, so these demos need no RTT configuration.
+Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. Each compiler command includes `src/*.c`, so there is no individual library source list to maintain. The fallback RTT header is supplied by `src/default_conf`; no project RTT configuration is needed. See [Trice Project Image Size Optimization](#trice-project-image-size-optimization) for how only the required library parts remain in the image.
 
 Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42` and rerun the corresponding script. Each script spells out the complete workflow so you can follow and modify either example independently.
 
@@ -10260,7 +10296,7 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030_bare/](../examples/F030_bare/).
 - Add *build.sh* and *clean.sh*.
-- Copy and adapt `Config/SEGGER_RTT_Conf.h` from the stored [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) to [./Core/Inc/](../examples/F030_inst/Core/Inc/) if creating a new project. Existing examples already contain their configuration; see [Third-party packages and retained versions](#third-party-packages-and-retained-versions).
+- For a new RTT project, copy and adapt the small [fallback `SEGGER_RTT_Conf.h`](../src/default_conf/SEGGER_RTT_Conf.h) into [./Core/Inc/](../examples/F030_inst/Core/Inc/), or use the fallback include directory unchanged. Existing examples keep their full project configuration; see [Trice over RTT](#trice-over-rtt).
 - Copy and adapt a file [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) to [./Core/Inc/](../examples/F030_inst/Core/Inc/). You can choose from another example project or one of the test folders.
 - Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
