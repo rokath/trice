@@ -55,6 +55,7 @@ set -eu
 cd "$(dirname "$0")"
 grep -q 'local source edit' main.c
 grep -q 'local dictionary edit' til.json
+grep -q 'new vendor defaults' ../../src/SEGGER_RTT_ConfDefaults.h
 [ ! -e generated/user.h ] && [ ! -e capture.bin ] && [ ! -e pc_features ]
 echo 'PC example ran' >> "$LOG_DIR/example-calls"
 echo 'instrumented private source' > main.c
@@ -89,6 +90,7 @@ exit "${MOCK_G0B1_STATUS:-0}"
 	// These user-owned inputs and old outputs must survive every outcome.
 	preserved := map[string]string{
 		"src/trice.h":                             "tracked library header\n",
+		"src/SEGGER_RTT_ConfDefaults.h":           "new vendor defaults\n",
 		"examples/PC_features/main.c":             "local source edit\n",
 		"examples/PC_features/til.json":           "local dictionary edit\n",
 		"examples/PC_features/generated/user.h":   "user selection\n",
