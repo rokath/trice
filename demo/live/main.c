@@ -39,7 +39,7 @@ int main(void) {
 	}
 
 	UserNonBlockingDeferredWrite8AuxiliaryFn = writeLogFile;
-	// The deferred configuration is shared with the finite deferred demo.
+	// This demo's own triceConfig.h selects deferred output.
 	TriceInit();
 	puts("Live demo running. Stop with Ctrl+C.");
 
