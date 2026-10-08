@@ -549,6 +549,20 @@ func printBindSummary(w io.Writer, plans []bindFilePlan, writes []bindWrite) {
 	for i := range plans {
 		plan := &plans[i]
 		fmt.Fprintf(w, "%s: %s\n", plan.path, plan.class)
+		if filepath.Base(plan.path) == "triceConfig.h" {
+			// Inspect physical definitions after masking whole-file comments, so
+			// documented examples are not mistaken for a project setting. Report
+			// planned changes rather than claiming a write before commit or dry-run.
+			for _, definition := range scanBindMacroDefinitions(stripCComments(string(plan.original))) {
+				if definition.name == "TRICE_CLEAN" {
+					fmt.Fprintln(w, "  Note: TRICE_CLEAN in triceConfig.h is optional for Insert/Clean editor support; Bind normally does not need it.")
+					if plan.configChanged {
+						fmt.Fprintln(w, "  TRICE_CLEAN: reset from 1 to 0 planned.")
+					}
+					break
+				}
+			}
+		}
 		if plan.class == bindFileInsert {
 			fmt.Fprintln(w, "  skipped: insert-owned")
 			continue
