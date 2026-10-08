@@ -35,7 +35,7 @@ If Trice helps your work, [support the project](./docs/TriceReferenceManual.md#s
 
 Footnotes:
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
-0. The name combines **TR**ace **I**Ds, **C** and **E**mbedded systems.
+0. The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
 1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](./docs/TriceReferenceManual.md#trice-speed).
 2. <a id="note-calls"></a>[Printf-like syntax and supported formats](./docs/TriceReferenceManual.md#trice-similarities-and-differences-to-printf-usage).
 3. <a id="note-records"></a>[Compact binary records and transfer size](./docs/TriceReferenceManual.md#minimal-transfer-bytes-amount).
