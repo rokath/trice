@@ -9,10 +9,9 @@
 #include <stdint.h>
 
 /*
- * Keep normal TRice code active. This demo already contains a fixed iD(1000)
+ * This demo already contains a fixed iD(1000)
  * and a matching private til.json, so an insertion step is not required.
  */
-#define TRICE_CLEAN 0
 
 /*
  * A stack buffer is the simplest choice for this single-threaded host program.

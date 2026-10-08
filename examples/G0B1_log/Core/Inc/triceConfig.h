@@ -9,9 +9,6 @@
 extern "C" {
 #endif
 
-//! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
-#define TRICE_CLEAN 0 // Do not define this at an other place! But you can delete this here.
-
 // hardware specific trice lib settings
 #include "main.h"
 #define TriceStamp16 TIM17->CNT    // 0...999 us, matching G0B1_inst.

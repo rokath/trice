@@ -58,9 +58,6 @@ Minimal example:
 extern "C" {
 #endif
 
-//! TRICE_CLEAN, if found inside triceConfig.h, is modified by the Trice tool to silent editor warnings in the cleaned state.
-#define TRICE_CLEAN 1 // Do not define this at another place. But you can delete this here.
-
 #include <stdint.h>
 #define TRICE_DEFERRED_UARTA 1 // 1: use TRICE_UARTA for deferred output
 #define TRICE_UARTA USART2     // Use the hardware-specific device USART2 as TRICE_UARTA.

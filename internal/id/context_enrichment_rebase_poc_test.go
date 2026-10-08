@@ -441,8 +441,7 @@ func TestContextEnrichmentRebasePoC(t *testing.T) {
 	project := t.TempDir()
 	fs, teardown := prepareOSBindProject(t, project)
 	defer teardown()
-	config := strings.Replace(cePoCConfig, "#define TRICE_CLEAN 0", "#ifndef TRICE_CLEAN\n#define TRICE_CLEAN 0\n#endif", 1)
-	writeBindIntegrationFile(t, project, "triceConfig.h", config)
+	writeBindIntegrationFile(t, project, "triceConfig.h", cePoCConfig)
 	source := writeBindIntegrationFile(t, project, "main.c", ceRebasePoCSource)
 	header := writeBindIntegrationFile(t, project, "wrappers.h", ceRebasePoCWrappers)
 	Srcs = ArrayFlag{source, header}

@@ -39,7 +39,7 @@
 	             FILENAME(file_path), line_number, condition_str, user_msg);                 \
 	char* out_var = full_msg
 
-#if (defined(TRICE_CLEAN) && TRICE_CLEAN == 0) || !defined(TRICE_OFF) || TRICE_OFF == 0
+#if TRICE_OFF == 0
 // ALL calls have ID as first parameter.
 
 #define CUSTOM_ASSERT_IMPL(id, condition, condition_str, file, line)      \

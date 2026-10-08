@@ -14,9 +14,6 @@
 #define TRICE_RX_ABC_SUPPORT 1
 #define TRICE_RX_X0_COUNTED_BUFFER_SUPPORT 1
 
-// Always make the clean/non-clean build mode explicit in demo node configs.
-#define TRICE_CLEAN 1
-
 // The host demo uses the CGO bridge instead of a physical UART or RTT probe.
 #define TRICE_CYCLE_COUNTER 0
 

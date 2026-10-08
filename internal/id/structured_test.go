@@ -183,7 +183,6 @@ func TestStructuredTargetTemplatesCompile(t *testing.T) {
 			t.Cleanup(func() { FieldsDir = oldDir })
 			writeBindIntegrationFile(t, project, "triceConfig.h", `#ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
-#define TRICE_CLEAN 0
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DEFERRED_OUTPUT 0

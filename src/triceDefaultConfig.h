@@ -15,9 +15,16 @@ extern "C" {
 #endif
 
 #ifndef TRICE_CLEAN
-// TRICE_CLEAN, when found in triceConfig.h is set to 0 with command "trice insert".
-// and set to 1 with command "trice clean" to get rid of
-// potential editor warnings in the trice clean state.
+// Optional editor aid for the legacy insert/clean workflow. Normally omit this
+// setting: the default is 0, and bind sidecars let editors see ID-free calls.
+// If an editor reports false macro-argument warnings after "trice clean", add
+// an explicit #define TRICE_CLEAN 0 (or 1 for already cleaned sources) only to
+// the project's triceConfig.h. The tool changes that existing definition to 1
+// with "trice clean" and to 0 with "trice insert" or "trice bind"; it never
+// adds the definition automatically.
+// A compiler also sees this setting: 1 suppresses ordinary Trice logging code,
+// not just editor warnings. Run insert or bind before building firmware that
+// must log. Use TRICE_OFF for deliberately disabling logs, not TRICE_CLEAN.
 #define TRICE_CLEAN 0
 #endif
 

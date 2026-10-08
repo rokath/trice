@@ -15,9 +15,6 @@
 /* TX-only nodes override the shared RX defaults before they are derived. */
 #define TRICE_RX_SUPPORT 0
 
-/* Always make the clean/non-clean build mode explicit in demo node configs. */
-#define TRICE_CLEAN 1
-
 /* This node uses the normal transmit stack and does not include receive support. */
 #define TRICE_TX_SUPPORT 1
 

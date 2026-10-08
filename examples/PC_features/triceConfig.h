@@ -6,7 +6,6 @@
 #include <stdint.h>
 
 // The PC example sends framed binary records to a file for the normal host decoder.
-#define TRICE_CLEAN 0
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DEFERRED_OUTPUT 0
