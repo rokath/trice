@@ -85,6 +85,16 @@ Important:
 ## Notes
 
 - `SEGGER_RTT.*` is included here because RTT is a common direct-output path for Trice.
+  The unmodified vendor files `SEGGER_RTT.c`, `SEGGER_RTT.h`, and
+  `SEGGER_RTT_ConfDefaults.h` come from
+  [SEGGERMicro/RTT commit 4d8feab3150f86f37a9d323ddc88d6cdf5673072](https://github.com/SEGGERMicro/RTT/tree/4d8feab3150f86f37a9d323ddc88d6cdf5673072)
+  (2026-06-03). Their [SEGGER license](./SEGGER_RTT_LICENSE.md) must accompany
+  source redistributions, including target-source release archives.
+  This source snapshot is independent of the installed J-Link host-tool version.
+  Keep project and generated include directories first, then `src`, then
+  `src/default_conf` last. The small fallback configuration selects Trice's
+  channel counts and C implementation; SEGGER's defaults supply the remaining
+  settings. A project's `SEGGER_RTT_Conf.h` takes precedence.
 - `xtea.*` is optional and only relevant when encrypted Trice transport is enabled.
 - `cobs*` and `tcobs*` are framing helpers and may or may not be used by a product.
 
