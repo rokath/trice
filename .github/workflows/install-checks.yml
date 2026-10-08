@@ -449,6 +449,13 @@ jobs:
             exit 1
           fi
           test -s "$source_root/src/trice.c"
+          # RTT's defaults and license must accompany the vendor sources.
+          for vendor_file in SEGGER_RTT_ConfDefaults.h SEGGER_RTT_LICENSE.md; do
+            if [ ! -s "$source_root/src/$vendor_file" ]; then
+              echo "::error::target archive lacks src/$vendor_file"
+              exit 1
+            fi
+          done
           cat > "$source_root/src/triceConfig.h" <<'EOF'
           #ifndef TRICE_CONFIG_H_
           #define TRICE_CONFIG_H_

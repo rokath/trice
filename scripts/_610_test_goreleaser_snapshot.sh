@@ -262,6 +262,14 @@ compile_target_sources() {
     return 1
   fi
 
+  # Vendor sources require the defaults header and their separate license.
+  for vendor_file in SEGGER_RTT_ConfDefaults.h SEGGER_RTT_LICENSE.md; do
+    if [ ! -s "$target_root/src/$vendor_file" ]; then
+      log "FAIL: target archive lacks src/$vendor_file; check the target-source archive file patterns"
+      return 1
+    fi
+  done
+
   c_compiler="${CC:-}"
   if [ -z "$c_compiler" ]; then
     if command -v cc >/dev/null 2>&1; then
