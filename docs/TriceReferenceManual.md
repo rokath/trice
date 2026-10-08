@@ -4336,7 +4336,13 @@ To inspect an existing generation directory without running Bind again, use the 
 
 ### 24.16. <a id="trice_clean"></a>`TRICE_CLEAN`
 
-`TRICE_CLEAN` remains optional. `trice bind` does not introduce a new global `TRICE_MODE`.
+`TRICE_CLEAN` is an optional editor aid for the legacy Insert/Clean workflow. Normally leave it undefined; the library defaults to `0`. Bind sidecars let editors resolve ID-free calls without this setting.
+
+If your editor reports false macro-argument warnings after `trice clean`, you can explicitly define `TRICE_CLEAN` in your project's `triceConfig.h` only. Use `0` for inserted sources or `1` for already cleaned sources. `trice clean` changes the existing definition to `1`; `trice insert` and `trice bind` reset it to `0`. The tool never adds this definition automatically.
+
+**The compiler sees this value too:** `TRICE_CLEAN=1` suppresses ordinary logging code. Run Insert or Bind before building firmware that must log. For deliberately disabling logging, use `TRICE_OFF` instead. `trice bind` does not introduce a new global `TRICE_MODE`.
+
+With `-v`, Bind prints a note when it finds a `TRICE_CLEAN` definition in a scanned `triceConfig.h`. The note explains that Bind normally does not need this optional Insert/Clean editor aid. If Bind plans to reset `1` to `0`, it reports that change explicitly. This is informational and does not fail the command. With `-dry-run`, the planned reset is reported but not written; without `-v`, these notes are omitted.
 
 If `TRICE_CLEAN` exists in `triceConfig.h`:
 
