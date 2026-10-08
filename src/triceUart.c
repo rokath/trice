@@ -88,7 +88,7 @@ void triceServeTransmitUartA(void) {
 
 #endif // #if TRICE_DEFERRED_UARTA == 1
 
-#if TRICE_DEFERRED_UARTB == 1
+#if TRICE_DEFERRED_UARTB == 1 && TRICE_BACKEND_ACTIVE
 
 #include "triceUart.h" // User has to provide this hardware-specific file, see examples folders.
 
@@ -143,4 +143,4 @@ void triceTriggerTransmitUartB(void) {
 	}
 }
 
-#endif // #if TRICE_DEFERRED_UARTA == 1 && TRICE_BACKEND_ACTIVE
+#endif // #if TRICE_DEFERRED_UARTB == 1 && TRICE_BACKEND_ACTIVE

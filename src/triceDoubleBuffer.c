@@ -5,12 +5,17 @@
 //! \file triceDoubleBuffer.c
 //! \brief trice Double Buffer implementation.
 
-#include "cobs.h"
-#include "tcobs.h"
 #include "trice.h"
 #include "triceLogInternal.h"
 
 #if TRICE_BUFFER == TRICE_DOUBLE_BUFFER && TRICE_BACKEND_ACTIVE
+
+// Deferred transfer needs only its configured encoder header.
+#if TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS
+#include "cobs.h"
+#elif TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS
+#include "tcobs.h"
+#endif
 
 uint32_t* triceSingleBufferStartWritePosition = (uint32_t*)0;
 

@@ -294,6 +294,35 @@ extern "C" {
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
 #endif
 
+#ifndef TRICE_COBS_ENCODE_SUPPORT
+//! Include COBS encoding only when an active output needs it.
+//! Set to 1 for additional runtime COBS calls to TriceEncode(), and link cobsEncode.c.
+//! Inactive output settings do not add an encoder dependency.
+#define TRICE_COBS_ENCODE_SUPPORT (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)))
+#endif
+
+#ifndef TRICE_TCOBS_ENCODE_SUPPORT
+//! Include TCOBS encoding only when an active output needs it.
+//! Set to 1 for additional runtime TCOBS calls to TriceEncode(), and link tcobsv1Encode.c.
+#define TRICE_TCOBS_ENCODE_SUPPORT (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)))
+#endif
+
+#if (TRICE_COBS_ENCODE_SUPPORT != 0) && (TRICE_COBS_ENCODE_SUPPORT != 1)
+#error TRICE_COBS_ENCODE_SUPPORT must be 0 or 1
+#endif
+
+#if (TRICE_TCOBS_ENCODE_SUPPORT != 0) && (TRICE_TCOBS_ENCODE_SUPPORT != 1)
+#error TRICE_TCOBS_ENCODE_SUPPORT must be 0 or 1
+#endif
+
+#if (TRICE_COBS_ENCODE_SUPPORT == 0) && (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)))
+#error active COBS output requires TRICE_COBS_ENCODE_SUPPORT == 1
+#endif
+
+#if (TRICE_TCOBS_ENCODE_SUPPORT == 0) && (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)))
+#error active TCOBS output requires TRICE_TCOBS_ENCODE_SUPPORT == 1
+#endif
+
 #ifndef XTEA_ENCRYPT_KEY
 //! XTEA_ENCRYPT_KEY allows XTEA TriceEncryption with the key.
 //! To get your private XTEA_KEY, call just once "trice log -port ... -password YourSecret -showKey".
