@@ -5839,7 +5839,7 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 You can compile the complete `src/*.c` library instead of maintaining a list of individual files. With unused-section removal enabled, only the library functions and data needed by your application remain in the final executable or firmware image. Configuration already excludes many disabled features during preprocessing; the linker removes the remaining unreferenced sections. Compiling every source can still take longer than compiling a selected subset.
 
-The simple PC and demo scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
+The PC example scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. The minimal demos omit these optional flags to keep their build commands simple. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
 
 Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, the Trice and SEGGER configuration values must still agree; see [Trice over RTT](#trice-over-rtt).
 
@@ -10006,15 +10006,16 @@ The two programs under [demo](../demo/) use the same binary output channel in tw
 
 The direct file writer is only a demonstration of **when the output callback runs**. Writing to a file is far too slow and unpredictable for a typical fast direct-output path: here that work takes place inside the log call. A typical Direct Mode application uses [SEGGER RTT](#quickstart-segger-rtt-direct-mode-with-j-link), where records are written to a RAM buffer and read through the debug probe. You can debug the firmware and receive immediate log output alongside it. Demonstrating that setup requires a compatible target and debug probe, so it cannot be part of this hardware-free PC introduction. The file demo does not measure Direct Mode performance.
 
-Put `trice` and a C compiler named `cc` or `gcc` in `PATH`, then use a POSIX shell (Git Bash on Windows):
+Put `trice` and a native C compiler in `PATH`, then use a POSIX shell (Git Bash on Windows). The scripts use `cc`; change `compiler=cc` to `compiler=gcc` if needed:
 
 ```sh
-cd demo
-./demo_deferred.sh
-./demo_direct.sh
+cd demo/deferred
+./run.sh
+cd ../direct
+./run.sh
 ```
 
-The two independent scripts ([deferred](../demo/demo_deferred.sh), [direct](../demo/demo_direct.sh)) each bind IDs, compile one program, run it and decode its capture using `trice log -p FILEBUFFER`. Their comments explain each step. If an extracted source archive has lost the executable permission, use `sh ./demo_deferred.sh` or `sh ./demo_direct.sh`. No `LC_ALL` setting is needed. `tlog` is not required, and the scripts install nothing. The programs are named `demo_deferred.exe` and `demo_direct.exe` inside their respective `build` directories; these filenames work on Windows, Linux and macOS.
+The two independent scripts ([deferred](../demo/deferred/run.sh), [direct](../demo/direct/run.sh)) are both named `run.sh` and sit next to their respective `main.c`. Each binds only that file, compiles one program, runs it and decodes its capture using `trice log -p FILEBUFFER`. Their comments explain each step. If an extracted source archive has lost the executable permission, use `sh ./run.sh` in the selected demo folder. No `LC_ALL` setting is needed. `tlog` is not required, and the scripts install nothing. The programs are named `demo_deferred.exe` and `demo_direct.exe` inside their respective `build` directories; these filenames work on Windows, Linux and macOS.
 
 Ignoring optional location/prefix columns, the messages are:
 
@@ -10028,36 +10029,49 @@ Direct value=42.
 The layout separates project data from generated outputs:
 
 ```text
-demo/til.json, demo/li.json   shared, persistent project ID/location tables
-demo/generated/              generated sidecars and field registry
+demo/deferred/run.sh          build, run and decode the deferred demo
 demo/deferred/main.c          deferred application
 demo/deferred/triceConfig.h   deferred configuration
+demo/deferred/til.json        persistent ID-to-format dictionary
+demo/deferred/li.json         source locations within this demo
 demo/deferred/build/          executable and log.bin
+  generated_sidecars/         this demo's sidecars and field registry
+demo/direct/run.sh            build, run and decode the direct demo
 demo/direct/main.c            direct application
 demo/direct/triceConfig.h     direct configuration
+demo/direct/til.json          this demo's dictionary
+demo/direct/li.json           this demo's locations
 demo/direct/build/            executable and log.bin
+  generated_sidecars/         this demo's sidecars and field registry
+demo/live/run.sh              build and run the live demo
+demo/live/main.c              live application
+demo/live/triceConfig.h       independent deferred-output configuration
+demo/live/til.json            this demo's dictionary
+demo/live/li.json             this demo's locations
+demo/live/build/              executable and growing log.bin
+  generated_sidecars/         this demo's sidecars and field registry
 ```
 
-Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. Each compiler command includes `src/*.c`, so there is no individual library source list to maintain. The fallback RTT header is supplied by `src/default_conf`; no project RTT configuration is needed. See [Trice Project Image Size Optimization](#trice-project-image-size-optimization) for how only the required library parts remain in the image.
+Binding uses `til.json` and `li.json` in each project's folder and `-genDir build/generated_sidecars` for the generated headers and field registry. No tables, generated headers or configuration files are shared between demos. To reuse a demo, copy its whole folder and adjust only `trice_src=../../src` in its script to point to your Trice library. The script works regardless of the directory from which you start it. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. Each compiler command includes `src/*.c`, so there is no individual library source list to maintain. The fallback RTT header is supplied by `src/default_conf`; no project RTT configuration is needed. Optional compiler checks are commented out. See [Trice Project Image Size Optimization](#trice-project-image-size-optimization) if you want to add unused-section removal to these deliberately minimal builds.
 
 Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42` and rerun the corresponding script. Each script spells out the complete workflow so you can follow and modify either example independently.
 
 #### 41.1.1. <a id="watch-a-running-application"></a>Watch a running application
 
-The [live application](../demo/live/main.c) uses the same [deferred configuration](../demo/deferred/triceConfig.h) and produces one counter record per second until you stop it. It works without hardware or additional network tools on macOS, Linux and Windows with Git Bash and a native C compiler.
+The [live application](../demo/live/main.c) uses its own [deferred-output configuration](../demo/live/triceConfig.h) and produces one counter record per second until you stop it. It works without hardware or additional network tools on macOS, Linux and Windows with Git Bash and a native C compiler.
 
 In **terminal 1**, starting from the repository root:
 
 ```sh
-cd demo
-./demo_live.sh
+cd demo/live
+./run.sh
 ```
 
-The [script](../demo/demo_live.sh) binds IDs, compiles the application and leaves it running. Once it says the live demo is running, open **terminal 2** at the repository root:
+The [script](../demo/live/run.sh) binds IDs, compiles the application and leaves it running. Once it prints the decoder command, open **terminal 2** at the repository root:
 
 ```sh
-cd demo
-trice log -p FILE -args live/build/log.bin
+cd demo/live
+trice log -p FILE -args build/log.bin
 ```
 
 You should see the counter advance while the application continues running:
@@ -10070,7 +10084,7 @@ Live counter=2.
 
 `FILE` keeps reading when it reaches the current end of the file; `FILEBUFFER`, used by the short demos above, stops there. The application flushes its file buffer after each transfer so the parallel reader can see the new bytes immediately. The logger first displays any records already in the file, then follows new records.
 
-Stop **both terminals** with Ctrl+C before restarting. A new application run recreates `live/build/log.bin`; the capture grows for as long as the application runs. You can replay the stopped capture with `trice log -p FILEBUFFER -args live/build/log.bin`. This is a simple live-logging demonstration, not a timing measurement or a bounded capture system.
+Stop **both terminals** with Ctrl+C before restarting. A new application run recreates `demo/live/build/log.bin`; the capture grows for as long as the application runs. From `demo/live`, replay the stopped capture with `trice log -p FILEBUFFER -args build/log.bin`. The decoder finds this project's own `til.json` and `li.json` in the same directory. This is a simple live-logging demonstration, not a timing measurement or a bounded capture system.
 
 ### 41.2. <a id="pc-feature-tour"></a>PC Feature Tour
 

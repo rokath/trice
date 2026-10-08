@@ -42,14 +42,13 @@ For the PC examples you need:
 
 ## 2. <a id="see-your-first-log"></a>See your first log
 
-From the repository root:
+From the repository [demo/deferred](../demo/deferred):
 
 ```sh
-cd demo
-./demo_deferred.sh
+./run.sh
 ```
 
-The [script](../demo/demo_deferred.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. Ignoring optional prefix and source-location columns, you should see:
+The script [run.sh](../demo/deferred/run.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. Ignoring optional prefix and source-location columns, you should see colored:
 
 ```text
 Hello from deferred mode.
@@ -58,18 +57,18 @@ Deferred value=42.
 
 **Deferred output** first puts records in a buffer. The application calls `TriceTransfer()` later to send them.
 
-Open [demo/deferred/main.c](../demo/deferred/main.c), change the value `42` to `43`, and run `./demo_deferred.sh` again from `demo`. The message now reports `43`. You have changed firmware input, rebuilt it and decoded the resulting binary record.
+Open [demo/deferred/main.c](../demo/deferred/main.c), change the value `42` to `43`, and run `./run.sh` again from `demo/deferred`. The message now reports `43`. You have changed firmware input, rebuilt it and decoded the resulting binary record.
 
 **Bind** maintains the generated header includes; your calls stay readable, such as `trice("att:Deferred value=%d.\n", 43);`.
 
-The same folder also contains a Direct Mode demo and a continuously running Live demo. See the [Reference Manual](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
+The sibling folders `demo/direct` and `demo/live` also contain a `run.sh`. Each demo is an independent project; its generated sidecars stay in `build/generated_sidecars`. Copy a whole demo folder and adjust `trice_src` in its script to point to the Trice library. See the [Reference Manual](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
 
 ## 3. <a id="try-fields-filters-and-context"></a>Try fields, filters and context
 
-The next project collects several small experiments in one program. Starting in `demo` after the previous section:
+The next project collects several small experiments in one program. Starting in `demo/deferred` after the previous section:
 
 ```sh
-cd ../examples/PC_features
+cd ../../examples/PC_features
 ./build_and_run.sh
 ./show_text.sh
 ./show_json.sh
