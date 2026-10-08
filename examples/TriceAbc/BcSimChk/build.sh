@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Usage: ./build.sh. Build one native PC bus-simulation executable.
+# To build and run the four-device demonstration, use ./demo.sh instead.
+# The compiler discovery below is only a fallback for different host systems;
+# the compile command at the bottom shows the two source files being built.
 set -euo pipefail
 
 # build.sh

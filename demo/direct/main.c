@@ -33,10 +33,14 @@ int main(void) {
 		perror("log.bin");
 		return 1;
 	}
+	// Connect the output hook before logging. Each call below writes immediately.
+	// A file is convenient for a PC demo but too slow for a typical embedded
+	// direct-output path; SEGGER RTT is the usual fast RAM-based alternative.
 	UserNonBlockingDirectWrite8AuxiliaryFn = writeLogFile;
 	TriceInit();
 	trice("msg:Hello from direct mode.\n");
 	trice("att:Direct value=%d.\n", 42);
+	// No TriceTransfer is needed: the records have already reached the file writer.
 
 	if (fclose(logFile) != 0) {
 		perror("log.bin");

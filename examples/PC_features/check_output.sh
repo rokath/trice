@@ -1,4 +1,11 @@
 #!/bin/sh
+# Optional self-check: ./check_output.sh builds, runs and decodes the PC tour.
+# Requires the same tools as build_and_run.sh; no hardware is needed.
+# $(...) captures each decoder's output for the checks below.
+# In each case pattern, * allows unrelated text such as source locations;
+# the quoted fragments are the values this example promises to demonstrate.
+# After editing main.c or show_*.sh, review the corresponding expected record.
+# A failed command or the first mismatched record stops this check.
 # SPDX-License-Identifier: MIT
 
 # Expected records follow main.c and show_*.sh; see README.md before changing

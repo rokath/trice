@@ -581,6 +581,258 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 	assert.Contains(t, outputText, "flag provided but not defined: -tilCS")
 }
 
+// TestManualMaintenanceIncludesBothBooks prevents a successful format/check from
+// hiding a missing or invalid guide behind an otherwise valid reference manual.
+func TestManualMaintenanceIncludesBothBooks(t *testing.T) {
+	for _, tc := range []struct {
+		name, mode, missing, rejected string
+	}{
+		{"check_both_books", "check", "", ""},
+		{"format_both_books", "format", "", ""},
+		{"missing_guide_is_not_skipped", "check", "TriceUserManual", ""},
+		{"missing_reference_prevents_partial_format", "format", "TriceReferenceManual", ""},
+		{"invalid_guide_fails_check", "check", "", "TriceUserManual"},
+		{"invalid_reference_fails_check", "check", "", "TriceReferenceManual"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
+			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+				if manual != tc.missing {
+					writeFixture(t, root, "docs/"+manual+".md", "# "+manual+"\n")
+				}
+			}
+			writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+printf '%s\n' "$*"
+if [ "$3" = "docs/$REJECTED.md" ]; then
+  echo "invalid manual: $3" >&2
+  exit 9
+fi
+`)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.mode, map[string]string{"REJECTED": tc.rejected})
+			if tc.missing != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "manual file not found or empty: docs/"+tc.missing+".md")
+				assert.NotContains(t, out, "--file", "preflight must finish before invoking mdtoc")
+			} else if tc.rejected != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "invalid manual: docs/"+tc.rejected+".md")
+			} else {
+				assert.NoError(t, err, out)
+				operation := "check"
+				if tc.mode == "format" {
+					operation = "generate"
+				}
+				assert.Contains(t, out, operation+" --file docs/TriceUserManual.md")
+				assert.Contains(t, out, operation+" --file docs/TriceReferenceManual.md")
+			}
+		})
+	}
+}
+
+// TestManualPDFGenerationPreservesBookIdentity runs the real wrapper against a
+// renderer double. Stale PDFs must never conceal missing inputs or failed output.
+func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
+	for _, tc := range []struct {
+		name, missing, failed, empty string
+	}{
+		{"distinct_artifacts_and_headers_for_both_books", "", "", ""},
+		{"missing_guide_preserves_existing_pdfs", "TriceUserManual", "", ""},
+		{"missing_reference_preserves_existing_pdfs", "TriceReferenceManual", "", ""},
+		{"guide_renderer_failure_is_visible", "", "TriceUserManual", ""},
+		{"reference_renderer_failure_is_visible", "", "TriceReferenceManual", ""},
+		{"empty_guide_output_is_not_success", "", "", "TriceUserManual"},
+		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs")
+			writeFixture(t, root, "docs/ref/asset.txt", "fixture image directory\n")
+			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+				if manual != tc.missing {
+					writeFixture(t, root, "docs/"+manual+".md", "# "+manual+"\n")
+				}
+				writeFixture(t, root, "docs/"+manual+".pdf", "previous "+manual)
+			}
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho fixture-node\n")
+			writeFixture(t, root, "bin/npm", "#!/bin/sh\necho fixture-npm\n")
+			writeFixture(t, root, "bin/npx", `#!/bin/sh
+if [ "$1" = --version ]; then echo fixture-npx; exit 0; fi
+manual=
+for argument do
+  case "$argument" in docs/*.md) manual="$argument" ;; esac
+done
+printf '%s\n' "$*" >> renderer-calls.txt
+if [ "$manual" = "docs/$FAILED.md" ]; then echo "fixture renderer failed: $manual" >&2; exit 23; fi
+if [ "$manual" = "docs/$EMPTY.md" ]; then exit 0; fi
+printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
+`)
+			out, err := runFixture(t, root, "bash scripts/_320_generate_trice_user_manual_pdf.sh", map[string]string{"FAILED": tc.failed, "EMPTY": tc.empty})
+			if tc.missing != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "missing or empty manual file: docs/"+tc.missing+".md")
+				_, statErr := os.Stat(filepath.Join(root, "renderer-calls.txt"))
+				assert.True(t, os.IsNotExist(statErr), "missing input must be detected before rendering")
+				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "previous "+manual, string(data))
+				}
+			} else if tc.failed != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "fixture renderer failed: docs/"+tc.failed+".md")
+				assert.Contains(t, out, "ERROR: md-to-pdf failed")
+				assert.NotContains(t, out, "Generated manual PDF: docs/"+tc.failed+".pdf")
+			} else if tc.empty != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "missing or empty generated PDF: docs/"+tc.empty+".pdf")
+			} else {
+				assert.NoError(t, err, out)
+				calls, readErr := os.ReadFile(filepath.Join(root, "renderer-calls.txt"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(calls), "--config-file scripts/_manual_pdf_config.cjs", "the renderer must apply portable links and visible contents")
+				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "rendered docs/"+manual+".md\n", string(data))
+					assert.Contains(t, string(calls), "<span>"+manual+".md</span>", "each PDF must identify its own Markdown source")
+				}
+			}
+		})
+	}
+}
+
+// workflowShellStep extracts one named run block without executing GitHub jobs.
+// The strict indentation match fails visibly if the workflow layout changes.
+func workflowShellStep(t *testing.T, workflow, step string) string {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("..", ".github", "workflows", workflow))
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+	pattern := `(?m)^      - name: ` + regexp.QuoteMeta(step) + `\n(?:        [^\n]*\n)*?        run: \|\n((?:          [^\n]*\n|\n)+)`
+	match := regexp.MustCompile(pattern).FindStringSubmatch(string(data))
+	if !assert.Len(t, match, 2, "workflow must contain the shell step %q", step) {
+		t.FailNow()
+	}
+	return strings.ReplaceAll(match[1], "\n          ", "\n")[10:]
+}
+
+// TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow steps
+// on tiny documents. Source links and images must retain their distinct roles.
+func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
+	root := t.TempDir()
+	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/TriceReferenceManual.md)\n")
+	for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./TriceReferenceManual.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
+	}
+	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare both manuals for GitHub Pages"} {
+		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
+		assert.NoError(t, err, out)
+	}
+	index, err := os.ReadFile(filepath.Join(root, "index.md"))
+	assert.NoError(t, err)
+	assert.Contains(t, string(index), "./docs/TriceUserManual.html#see-your-first-log")
+	assert.Contains(t, string(index), "./docs/TriceReferenceManual.html")
+	for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+		data, err := os.ReadFile(filepath.Join(root, "docs", manual+".md"))
+		assert.NoError(t, err)
+		assert.Contains(t, string(data), "[Guide](TriceUserManual.html#see-your-first-log)")
+		assert.Contains(t, string(data), "[Reference](TriceReferenceManual.html#bind-limits)")
+		assert.Contains(t, string(data), "[Code](https://github.com/rokath/trice/blob/main/src/trice.h)")
+		assert.Contains(t, string(data), "[Help](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt)")
+		assert.Contains(t, string(data), "![Image](./ref/example.png)")
+		assert.Contains(t, string(data), "[Local](#local)")
+	}
+}
+
+// TestManualPDFNavigationOutlivesTheRenderer executes the actual browser script
+// on representative links. PDFs must not retain a dead localhost URL or hide TOCs.
+func TestManualPDFNavigationOutlivesTheRenderer(t *testing.T) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		t.Skip("node not installed; PDF navigation requires the PDF renderer's runtime")
+	}
+	root := scriptFixture(t, "scripts/_manual_pdf_config.cjs")
+	writeFixture(t, root, "check.cjs", `
+const assert = require('node:assert/strict');
+const vm = require('node:vm');
+const config = require('./scripts/_manual_pdf_config.cjs');
+const cases = [
+  ['#get-the-tools', '#get-the-tools'],
+  ['./TriceUserManual.md#see-your-first-log', '#see-your-first-log'],
+  ['./TriceReferenceManual.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/TriceReferenceManual.md#bind-limits'],
+  ['../examples/PC_features/main.c', 'https://github.com/rokath/trice/blob/main/examples/PC_features/main.c'],
+  ['https://example.com/guide?q=1#chapter', 'https://example.com/guide?q=1#chapter'],
+  ['mailto:maintainer@example.com', 'mailto:maintainer@example.com'],
+];
+const links = cases.map(([href]) => ({
+  href,
+  getAttribute() { return this.href; },
+  setAttribute(name, value) { assert.equal(name, 'href'); this.href = value; },
+}));
+const details = [{open:false}];
+const document = {
+  location: new URL('http://localhost:12345/docs/TriceUserManual.md'),
+  querySelectorAll(selector) {
+    if (selector === 'details') return details;
+    assert.equal(selector, 'a[href]', 'image sources must not be rewritten');
+    return links;
+  },
+};
+for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
+cases.forEach(([before, expected], index) => assert.equal(links[index].href, expected, before));
+assert.equal(details[0].open, true, 'the printed contents must be visible');
+console.log('PASS: local destinations, repository links, external URLs and printed contents');
+`)
+	command := exec.Command(node, "check.cjs")
+	command.Dir = root
+	out, err := command.CombinedOutput()
+	assert.NoError(t, err, string(out))
+	assert.Contains(t, string(out), "PASS:")
+}
+
+// TestReleasePDFChecksRequireEachBook executes both CI verification steps with
+// a deliberately smaller guide and exercises missing and truncated artifacts.
+func TestReleasePDFChecksRequireEachBook(t *testing.T) {
+	for _, workflow := range []string{"install-checks.yml", "release-audit.yml"} {
+		for _, tc := range []struct {
+			name, damaged string
+			size          int
+		}{
+			{"both_books_present", "", 0},
+			{"missing_user_manual", "TriceUserManual", -1},
+			{"missing_reference_manual", "TriceReferenceManual", -1},
+			{"empty_user_manual", "TriceUserManual", 0},
+			{"truncated_reference_manual", "TriceReferenceManual", 100},
+		} {
+			t.Run(workflow+"/"+tc.name, func(t *testing.T) {
+				root := t.TempDir()
+				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+					size := 100001
+					if manual == "TriceUserManual" {
+						size = 10001
+					}
+					if manual == tc.damaged {
+						size = tc.size
+					}
+					if size >= 0 {
+						writeFixture(t, root, "artifacts/"+manual+".pdf", strings.Repeat("x", size))
+					}
+				}
+				out, err := runFixture(t, root, workflowShellStep(t, workflow, "Verify release PDF"), nil)
+				if tc.damaged == "" {
+					assert.NoError(t, err, out)
+					assert.Contains(t, out, "TriceUserManual.pdf")
+					assert.Contains(t, out, "TriceReferenceManual.pdf")
+				} else {
+					assert.Error(t, err, out)
+					assert.Contains(t, out, "::error::")
+					assert.Contains(t, out, tc.damaged+".pdf")
+				}
+			})
+		}
+	}
+}
+
 // TestClangFormatCompatibility ensures only the canonical version can report a
 // formatting regression. An override, missing executable or newer/older version
 // never rewrites source files, and real canonical formatting errors still fail.

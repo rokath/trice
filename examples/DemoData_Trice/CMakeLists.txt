@@ -33,23 +33,17 @@ if(NOT EXISTS "${TRICE_SOURCE_DIR}/trice.h")
     )
 endif()
 
-add_executable(DemoData_Trice
-    src/main.c
-    "${TRICE_SOURCE_DIR}/trice.c"
-    "${TRICE_SOURCE_DIR}/trice32.c"
-    "${TRICE_SOURCE_DIR}/trice64.c"
-    "${TRICE_SOURCE_DIR}/triceStackBuffer.c"
-    "${TRICE_SOURCE_DIR}/cobsEncode.c"
-    "${TRICE_SOURCE_DIR}/tcobsv1Encode.c"
-)
+# Include the complete library; CONFIGURE_DEPENDS notices added source files.
+# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+file(GLOB TRICE_SOURCES CONFIGURE_DEPENDS "${TRICE_SOURCE_DIR}/*.c")
+add_executable(DemoData_Trice src/main.c ${TRICE_SOURCES})
 
 target_compile_features(DemoData_Trice PRIVATE c_std_11)
 target_compile_definitions(DemoData_Trice PRIVATE TRICE_OFF=${TRICE_OFF})
 
-# Put the project directory first so trice.h finds this demo's triceConfig.h.
+# Put project and generated headers before the library and its fallback config.
 target_include_directories(DemoData_Trice PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${TRICE_SOURCE_DIR}"
 )
 
 # Managed Bound tests provide the generated sidecar directory through a
@@ -63,9 +57,15 @@ if(DEFINED ENV{TRICE_BIND_INCLUDE_DIR} AND NOT "$ENV{TRICE_BIND_INCLUDE_DIR}" ST
     target_include_directories(DemoData_Trice PRIVATE "$ENV{TRICE_BIND_INCLUDE_DIR}")
 endif()
 
+target_include_directories(DemoData_Trice PRIVATE
+    "${TRICE_SOURCE_DIR}"
+    "${TRICE_SOURCE_DIR}/default_conf"
+)
+
 if(MSVC)
     # C5105 originates in older Windows SDK headers, not in this project.
-    target_compile_options(DemoData_Trice PRIVATE /W4 /wd5105)
+    target_compile_options(DemoData_Trice PRIVATE /W4 /wd5105 /Gy /Gw)
+    target_link_options(DemoData_Trice PRIVATE /OPT:REF)
     target_compile_definitions(DemoData_Trice PRIVATE
         _CRT_SECURE_NO_WARNINGS
         WIN32_LEAN_AND_MEAN
@@ -73,8 +73,14 @@ if(MSVC)
     target_link_libraries(DemoData_Trice PRIVATE ws2_32)
 else()
     target_compile_options(DemoData_Trice PRIVATE
-        -Wall -Wextra -Wpedantic
+        -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections
     )
+    # Apple and GNU linkers use different names for unused-section removal.
+    if(APPLE)
+        target_link_options(DemoData_Trice PRIVATE -Wl,-dead_strip)
+    else()
+        target_link_options(DemoData_Trice PRIVATE -Wl,--gc-sections)
+    endif()
     target_link_libraries(DemoData_Trice PRIVATE m)
 endif()
 

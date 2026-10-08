@@ -4,7 +4,7 @@
 #
 # Purpose
 # -------
-# Maintenance wrapper for docs/TriceReferenceManual.md.
+# Maintenance wrapper for the User Manual and Reference Manual in docs/.
 #
 # This script only checks or regenerates the manual TOC, numbering, and anchors
 # with mdtoc. PDF generation is intentionally handled by the separate script
@@ -26,7 +26,8 @@ cd "$REPO_ROOT"
 
 MODE="format"
 VERBOSE=0
-MANUAL_FILE="docs/TriceReferenceManual.md"
+# Both entry points must be present; never silently omit one from validation.
+MANUAL_FILES=("docs/TriceUserManual.md" "docs/TriceReferenceManual.md")
 
 usage() {
   sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
@@ -78,17 +79,21 @@ require_mdtoc() {
 
 main() {
   parse_args "$@"
-  require_manual_file
+  local MANUAL_FILE
+  for MANUAL_FILE in "${MANUAL_FILES[@]}"; do
+    require_manual_file
+  done
   require_mdtoc
 
-  if [[ "$MODE" == "check" ]]; then
-    log_verbose "Checking manual TOC, numbering, and anchors with mdtoc..."
-    mdtoc check --file "$MANUAL_FILE"
-    return
-  fi
-
-  log_verbose "Regenerating manual TOC, numbering, and anchors with mdtoc..."
-  mdtoc generate --file "$MANUAL_FILE"
+  for MANUAL_FILE in "${MANUAL_FILES[@]}"; do
+    if [[ "$MODE" == "check" ]]; then
+      log_verbose "Checking $MANUAL_FILE TOC, numbering, and anchors with mdtoc..."
+      mdtoc check --file "$MANUAL_FILE"
+    else
+      log_verbose "Regenerating $MANUAL_FILE TOC, numbering, and anchors with mdtoc..."
+      mdtoc generate --file "$MANUAL_FILE"
+    fi
+  done
 }
 
 main "$@"

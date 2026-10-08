@@ -475,6 +475,58 @@ func TestHandlerGenerateOneLineJSON(t *testing.T) {
 	assert.Equal(t, li, unchangedLI)
 }
 
+// TestHandlerBindReportKeepsOutputReadOnly exercises public flags on a read-only
+// filesystem, including custom scope and dictionaries that do not exist.
+func TestHandlerBindReportKeepsOutputReadOnly(t *testing.T) {
+	FlagsInit()
+	previousSrcs, previousExclusions := id.Srcs, id.ExcludeSrcs
+	previousLogfile := LogfileName
+	t.Cleanup(func() {
+		FlagsInit()
+		id.Srcs, id.ExcludeSrcs = previousSrcs, previousExclusions
+		LogfileName = previousLogfile
+	})
+	id.Srcs, id.ExcludeSrcs = nil, nil
+	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+	require.NoError(t, fs.MkdirAll("app", 0o755))
+	require.NoError(t, fs.MkdirAll("artifacts", 0o755))
+	const owner = "trice_main_c_K1111111111111111.h"
+	require.NoError(t, fs.WriteFile("app/main.c", []byte("#include \""+owner+"\"\n"), 0o644))
+	require.NoError(t, fs.WriteFile("app/excluded.c", []byte("#include \""+owner+"\"\n"), 0o644))
+	require.NoError(t, fs.WriteFile("artifacts/"+owner, []byte("#define TRICE_BIND_FILE_KEY K1111111111111111\n#define TRICE_BIND_ROUTE_K1111111111111111 BIND\n"), 0o644))
+	// A previous command may have selected a logfile. Report mode must not open
+	// that sink or invoke general output setup, even with verbosity enabled.
+	LogfileName = "must-not-be-created.log"
+	var output bytes.Buffer
+	require.NoError(t, Handler(&output, &afero.Afero{Fs: afero.NewReadOnlyFs(fs.Fs)}, []string{
+		"trice", "generate", "-bindReport", "-genDir", "artifacts", "-src", "app", "-exclude", "app/excluded.c", "-til", "absent-til.json", "-li", "absent-li.json", "-v",
+	}))
+	assert.Contains(t, output.String(), "Bind artifact report: artifacts")
+	assert.Contains(t, output.String(), "Referenced in scan: app/main.c")
+	assert.NotContains(t, output.String(), "AMBIGUOUS")
+	for _, path := range []string{"must-not-be-created.log", "absent-til.json", "absent-li.json", "generated"} {
+		exists, err := fs.Exists(path)
+		require.NoError(t, err)
+		assert.False(t, exists, "report mode must not create %s", path)
+	}
+}
+
+// TestHandlerBindReportRejectsOtherModes verifies that the CLI cannot silently
+// turn the promised read-only report into a generating command.
+func TestHandlerBindReportRejectsOtherModes(t *testing.T) {
+	for _, option := range []string{"-logC", "-onelineJSON", "-abc=device", "-colors"} {
+		t.Run(option, func(t *testing.T) {
+			FlagsInit()
+			t.Cleanup(FlagsInit)
+			fs := &afero.Afero{Fs: afero.NewReadOnlyFs(afero.NewMemMapFs())}
+			var output bytes.Buffer
+			err := Handler(&output, fs, []string{"trice", "generate", "-bindReport", option})
+			require.ErrorContains(t, err, "cannot be combined")
+			assert.Empty(t, output.String())
+		})
+	}
+}
+
 // TestNormalizeGenerateLogCPath verifies both documented optional-path forms
 // without retaining the removed -tilC compatibility spelling.
 func TestNormalizeGenerateLogCPath(t *testing.T) {

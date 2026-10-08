@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Generate docs/TriceReferenceManual.pdf from docs/TriceReferenceManual.md.
+# Generate the User Manual and Reference Manual PDFs from their Markdown files.
 #
 # This is the single PDF generation entry point used by developers, CI, and
 # GoReleaser. It does not require VS Code and writes the PDF where the manual
@@ -11,8 +11,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
-MANUAL_FILE="docs/TriceReferenceManual.md"
-PDF_FILE="docs/TriceReferenceManual.pdf"
+# Keep both manuals in the shared developer, CI and release rendering path.
+MANUAL_FILES=("docs/TriceUserManual.md" "docs/TriceReferenceManual.md")
 REF_DIR="docs/ref"
 MD_TO_PDF_PACKAGE="md-to-pdf@5.2.4"
 PUPPETEER_PACKAGE="puppeteer@24.31.0"
@@ -56,13 +56,17 @@ show_context() {
   echo "  renderer: $MD_TO_PDF_PACKAGE with $PUPPETEER_PACKAGE" >&2
 
   echo "  related files:" >&2
-  find docs -maxdepth 3 \( -name 'TriceReferenceManual.md' -o -name 'TriceReferenceManual.pdf' \) -print 2>/dev/null | sort >&2 || true
+  find docs -maxdepth 1 \( -name 'Trice*Manual.md' -o -name 'Trice*Manual.pdf' \) -print 2>/dev/null | sort >&2 || true
 }
 
-if [[ ! -s "$MANUAL_FILE" ]]; then
-  show_context
-  die "missing or empty manual file: $MANUAL_FILE"
-fi
+# Validate every input before replacing either existing PDF.
+for MANUAL_FILE in "${MANUAL_FILES[@]}"; do
+  PDF_FILE="${MANUAL_FILE%.md}.pdf"
+  if [[ ! -s "$MANUAL_FILE" ]]; then
+    show_context
+    die "missing or empty manual file: $MANUAL_FILE"
+  fi
+done
 
 if [[ ! -d "$REF_DIR" ]]; then
   show_context
@@ -83,8 +87,10 @@ css='details > summary { display: none; }
 details:not([open]) > :not(summary) { display: block; }
 img { max-width: 100%; height: auto; }'
 
-pdf_options="$(
-  cat <<EOF_JSON
+for MANUAL_FILE in "${MANUAL_FILES[@]}"; do
+  PDF_FILE="${MANUAL_FILE%.md}.pdf"
+  pdf_options="$(
+    cat <<EOF_JSON
 {
   "format": "A4",
   "printBackground": true,
@@ -95,41 +101,43 @@ pdf_options="$(
     "bottom": "18mm",
     "left": "15mm"
   },
-  "headerTemplate": "<div style=\"width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:space-between; align-items:center;\"><span>TriceReferenceManual.md</span><span>${generated_at}</span></div>",
+  "headerTemplate": "<div style=\"width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:space-between; align-items:center;\"><span>${MANUAL_FILE##*/}</span><span>${generated_at}</span></div>",
   "footerTemplate": "<div style=\"width:100%; font-size:8px; color:#666; padding:0 10mm; display:flex; justify-content:flex-end; align-items:center;\"><span><span class=\"pageNumber\"></span>/<span class=\"totalPages\"></span></span></div>"
 }
 EOF_JSON
-)"
+  )"
 
-launch_options='{"args":["--no-sandbox"]}'
+  launch_options='{"args":["--no-sandbox"]}'
 
-rm -f -- "$PDF_FILE"
+  rm -f -- "$PDF_FILE"
 
-echo "Generating manual PDF from $MANUAL_FILE"
-echo "Output PDF: $PDF_FILE"
+  echo "Generating manual PDF from $MANUAL_FILE"
+  echo "Output PDF: $PDF_FILE"
 
-# md-to-pdf 5.2.4 declares Puppeteer as an open-ended >=8 dependency. Letting
-# npx resolve that range implicitly makes an otherwise pinned release step
-# depend on the newest Puppeteer, its Node.js floor, and its Chrome revision.
-# Supplying both exact packages at the npx root keeps npm's satisfying package
-# selection deterministic. Puppeteer 24.31.0 supports Node.js 18 and newer and
-# installs its matching browser in Puppeteer's normal cross-platform cache.
-if ! npx -y \
-  --package="$MD_TO_PDF_PACKAGE" \
-  --package="$PUPPETEER_PACKAGE" \
-  md-to-pdf \
-  "$MANUAL_FILE" \
-  --basedir "$REPO_ROOT" \
-  --css "$css" \
-  --pdf-options "$pdf_options" \
-  --launch-options "$launch_options"; then
-  show_context
-  die "md-to-pdf failed"
-fi
+  # md-to-pdf 5.2.4 declares Puppeteer as an open-ended >=8 dependency. Letting
+  # npx resolve that range implicitly makes an otherwise pinned release step
+  # depend on the newest Puppeteer, its Node.js floor, and its Chrome revision.
+  # Supplying both exact packages at the npx root keeps npm's satisfying package
+  # selection deterministic. Puppeteer 24.31.0 supports Node.js 18 and newer and
+  # installs its matching browser in Puppeteer's normal cross-platform cache.
+  if ! npx -y \
+    --package="$MD_TO_PDF_PACKAGE" \
+    --package="$PUPPETEER_PACKAGE" \
+    md-to-pdf \
+    "$MANUAL_FILE" \
+    --config-file scripts/_manual_pdf_config.cjs \
+    --basedir "$REPO_ROOT" \
+    --css "$css" \
+    --pdf-options "$pdf_options" \
+    --launch-options "$launch_options"; then
+    show_context
+    die "md-to-pdf failed"
+  fi
 
-if [[ ! -s "$PDF_FILE" ]]; then
-  show_context
-  die "missing or empty generated PDF: $PDF_FILE"
-fi
+  if [[ ! -s "$PDF_FILE" ]]; then
+    show_context
+    die "missing or empty generated PDF: $PDF_FILE"
+  fi
 
-echo "Generated manual PDF: $PDF_FILE ($(pdf_size "$PDF_FILE") bytes)"
+  echo "Generated manual PDF: $PDF_FILE ($(pdf_size "$PDF_FILE") bytes)"
+done

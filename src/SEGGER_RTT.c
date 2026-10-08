@@ -1,57 +1,22 @@
 /*********************************************************************
-*                    SEGGER Microcontroller GmbH                     *
+*                   (c) SEGGER Microcontroller GmbH                  *
 *                        The Embedded Experts                        *
+*                           www.segger.com                           *
 **********************************************************************
 *                                                                    *
-*            (c) 1995 - 2021 SEGGER Microcontroller GmbH             *
-*                                                                    *
-*       www.segger.com     Support: support@segger.com               *
-*                                                                    *
-**********************************************************************
-*                                                                    *
-*       SEGGER RTT * Real Time Transfer for embedded targets         *
-*                                                                    *
-**********************************************************************
-*                                                                    *
-* All rights reserved.                                               *
-*                                                                    *
-* SEGGER strongly recommends to not make any changes                 *
-* to or modify the source code of this software in order to stay     *
-* compatible with the RTT protocol and J-Link.                       *
-*                                                                    *
-* Redistribution and use in source and binary forms, with or         *
-* without modification, are permitted provided that the following    *
-* condition is met:                                                  *
-*                                                                    *
-* o Redistributions of source code must retain the above copyright   *
-*   notice, this condition and the following disclaimer.             *
-*                                                                    *
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND             *
-* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,        *
-* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF           *
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE           *
-* DISCLAIMED. IN NO EVENT SHALL SEGGER Microcontroller BE LIABLE FOR *
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR           *
-* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT  *
-* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;    *
-* OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF      *
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT          *
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE  *
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH   *
-* DAMAGE.                                                            *
-*                                                                    *
-**********************************************************************
-*                                                                    *
-*       RTT version: 8.12a                                           *
+*        SEGGER RTT * Real Time Transfer for embedded targets        *
+*                  https://github.com/SEGGERMicro/RTT                *
 *                                                                    *
 **********************************************************************
 
 ---------------------------END-OF-HEADER------------------------------
-File    : SEGGER_RTT.c
 Purpose : Implementation of SEGGER real-time transfer (RTT) which
           allows real-time communication on targets which support
           debugger memory accesses while the CPU is running.
-Revision: $Rev: 29668 $
+
+          SEGGER strongly recommends to not make any changes to or 
+          modify the source code of this software in order to stay
+          compatible with the RTT protocol and J-Link.
 
 Additional information:
           Type "int" is assumed to be 32-bits in size
@@ -69,7 +34,6 @@ Additional information:
           WrOff <  RdOff:       Used space includes wrap-around
           (WrOff == (SizeOfBuffer - 1)) && (RdOff == 0):
                                 Buffer full and wrap-around after next byte
-
 
 ----------------------------------------------------------------------
 */
@@ -120,12 +84,6 @@ Additional information:
 
 #ifndef   SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
   #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS                  2    // Number of down-buffers (H->T) available on this target
-#endif
-
-#ifndef SEGGER_RTT_BUFFER_SECTION
-  #if defined(SEGGER_RTT_SECTION)
-    #define SEGGER_RTT_BUFFER_SECTION SEGGER_RTT_SECTION
-  #endif
 #endif
 
 #ifndef   SEGGER_RTT_ALIGNMENT
@@ -209,7 +167,7 @@ Additional information:
 #define SEGGER_RTT_PUT_SECTION(Var, Section) RTT_PRAGMA(location=Section) \
                                         Var
   #elif (defined __CC_ARM)
-    #define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__ ((section (Section), zero_init))  Var
+    #define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__ ((section (Section)))  Var
   #else
     #error "Section placement not supported for this compiler."
   #endif

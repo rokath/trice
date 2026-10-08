@@ -1,4 +1,10 @@
 #!/bin/bash
+# Read live RTT logs from the connected, flashed board.
+# Run ./RTTLogUnix.sh from this example directory.
+# Requires Trice, SEGGER J-Link tools and screen.
+# First create an empty capture file, then run JLinkRTTLogger in the background.
+# Trice follows that growing file (-p FILE) and decodes using the shared tables.
+# Transport/value-width options must match triceConfig.h. Stop with Ctrl-C.
 # Needs "sudo apt install screen" or similar done before.
 # Matching for triceConfig.h CONFIGURATION with TRICE_DIRECT_OUTPUT=1
 

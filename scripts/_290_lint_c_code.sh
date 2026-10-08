@@ -292,6 +292,7 @@ run_direct_xtea_compile_check() {
     -fsyntax-only \
     -I"$lint_tmp_dir" \
     -Isrc \
+    -Isrc/default_conf \
     -D"TRICE_BUFFER=$TRICE_BUFFER_DEFINE" \
     -D"TRICE_DEFERRED_OUTPUT=$TRICE_DEFERRED_OUTPUT_DEFINE" \
     -D"TRICE_DIRECT_OUTPUT=$TRICE_DIRECT_OUTPUT_DEFINE" \
@@ -363,6 +364,7 @@ run_cppcheck() {
     --suppress=badBitmaskCheck:src/tcobsv1Encode.c \
     --suppress=missingIncludeSystem \
     -Isrc \
+    -Isrc/default_conf \
     "${LINT_FILES[@]}"
 
   # Keep cppcheck as the main lint backend, but add the targeted compiler pass

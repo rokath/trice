@@ -1,4 +1,10 @@
 #!/bin/sh
+# Live Trice demo: ./run_trice.sh. Requires LabPlot, tlog, Trice and C build tools.
+# Data flow: DemoData_Trice -> UDP 9001 -> tlog -> CSV over UDP 9000 -> LabPlot.
+# The script finds the tools, builds the producer if missing, starts the plot
+# and decoder, then starts the producer. Ctrl-C stops the processes it launched.
+# The -vis expression converts decoded values into the plot's four CSV columns.
+# Optional overrides: LABPLOT for the plot executable and TLOG for the decoder.
 # Start LabPlot, decode the Trice demo, and forward normalized CSV over UDP.
 set -eu
 
@@ -7,6 +13,7 @@ repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
 demo_dir="$repo_root/examples/DemoData_Trice"
 til_file=${TRICE_TIL:-$repo_root/demoTIL.json}
 
+# Find the app on common systems. You can skip the search by setting LABPLOT.
 find_labplot() {
   if [ -n "${LABPLOT:-}" ]; then
     [ -x "$LABPLOT" ] && printf '%s\n' "$LABPLOT" && return
@@ -71,6 +78,7 @@ wait_for_udp_port() {
   sleep "$3"
 }
 
+# 1. Find the two display/decoder tools and build the producer if necessary.
 labplot=$(find_labplot) || {
   echo "LabPlot not found. Set LABPLOT to its executable." >&2
   exit 1
@@ -91,6 +99,7 @@ if [ ! -x "$demo_bin" ]; then
   echo "DemoData_Trice executable not found in $demo_dir/bin." >&2
   exit 1
 fi
+# 2. Open the plot. '&' starts it in the background; $! is its process ID.
 if [ "$(uname -s)" = Darwin ] && [ -z "${LABPLOT:-}" ] && ! command -v labplot >/dev/null 2>&1; then
   open -na LabPlot --args "$script_dir/LabPlotDemo.lml" >/dev/null 2>&1 &
 else
@@ -99,6 +108,7 @@ fi
 labplot_pid=$!
 producer_pid=
 tlog_pid=
+# Stop only the processes this script started, also after a failure or Ctrl-C.
 cleanup() {
   if [ -n "$producer_pid" ]; then kill "$producer_pid" 2>/dev/null || true; fi
   if [ -n "$tlog_pid" ]; then kill "$tlog_pid" 2>/dev/null || true; fi
@@ -106,6 +116,7 @@ cleanup() {
 }
 trap cleanup INT TERM EXIT
 
+# 3. Start the decoder only after the plot can receive its CSV data.
 echo "Waiting for LabPlot to open UDP port 9000..."
 wait_for_udp_port 9000 LabPlot 5
 
@@ -116,6 +127,8 @@ tlog_pid=$!
 echo "Waiting for tlog to open UDP port 9001..."
 wait_for_udp_port 9001 tlog 1
 
+# 4. Start the producer after the decoder is listening; otherwise early events
+# could be lost. Keep the script open while decoding continues.
 "$demo_bin" --udp 127.0.0.1 9001 &
 producer_pid=$!
 

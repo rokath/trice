@@ -1,7 +1,12 @@
 #!/bin/sh
+# Build the native Trice sample producer used by LabPlotDemo.
+# Usage: ./build.sh; optionally ./build.sh TRICE_OFF=1 to disable logging.
+# Requires CMake, a native C compiler and Trice. Bind prepares headers first;
+# CMake then configures in build/, compiles and installs the executable here.
 # SPDX-License-Identifier: MIT
 #
 # Portable CMake build entry point.
+# Library/image details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
 #
 # Linux and macOS provide a suitable shell by default. On Windows, run this
 # script from Git Bash, MSYS2, Cygwin, or WSL.

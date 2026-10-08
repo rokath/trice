@@ -17,7 +17,10 @@ package cgot
 // unsigned TriceOutDepth( void );
 // void CgoSetTriceBuffer( uint8_t* buf );
 // void CgoClearTriceBuffer( void );
-// #cgo CFLAGS: -g -I../../src -Wshadow -Wno-format-security
+// #cgo CFLAGS: -g -Wshadow -Wno-format-security -I. -I../../src -I../../src/default_conf
+// // Match RTT sizes symbolically: CGO simulates transport, but Trice still checks consistency.
+// #cgo CFLAGS: -DTRICE_BUFFER_SIZE_DOWN=BUFFER_SIZE_DOWN
+// #cgo CFLAGS: -DTRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE=SEGGER_RTT_PRINTF_BUFFER_SIZE
 // #include "../../src/trice.c"
 // #include "../../src/trice8.c"
 // #include "../../src/trice16.c"

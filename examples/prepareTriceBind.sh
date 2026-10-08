@@ -1,4 +1,10 @@
 #!/bin/sh
+# Shared build helper, normally loaded by the example build.sh scripts.
+# source (or '.') loads the function; loading this file alone builds nothing.
+# Build scripts call prepare_trice_bind_build with the repository root.
+# The function prepares IDs/headers and adds generated headers to compiler paths.
+# If a repository test already owns the ID workflow, reuse its prepared state.
+# This avoids changing shared ID data halfway through a multi-project test.
 # SPDX-License-Identifier: MIT
 #
 # Shared pre-build preparation for example projects whose sources are kept in

@@ -411,7 +411,7 @@ static bool udp_sender_send(
  * For a stream destination the bytes are appended and flushed. For UDP the
  * complete framed record becomes one datagram, preserving its packet boundary.
  */
-void TriceNonBlockingDirectWrite8Auxiliary(
+static void write_encoded_record(
     const uint8_t* encoded_data,
     size_t encoded_length) {
 	if (output_failed) {
@@ -490,6 +490,8 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	// Attach the destination writer; direct mode calls it inside each log call.
+	UserNonBlockingDirectWrite8AuxiliaryFn = write_encoded_record;
 	TriceInit();
 	trice("msg:Hello LabPlot!\n");
 	/*

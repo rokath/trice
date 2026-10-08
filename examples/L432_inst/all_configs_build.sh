@@ -1,4 +1,10 @@
 #!/bin/bash
+# Advanced build check: ./all_configs_build.sh compiles configurations 0 through 100.
+# Requires Bash, make, Trice and the Arm GNU toolchain; no board is needed.
+# For a single configuration, use ./build.sh CONFIGURATION=number instead.
+# TRICE_L432_TEST_JOBS=2 ./all_configs_build.sh limits concurrent builds to two.
+# Each job gets its own output directory and log so parallel builds cannot clash.
+# The helpers collect results and stop only this script's jobs on Ctrl-C.
 # Build the complete matrix with one preparation and a bounded compiler budget.
 set -euo pipefail
 

@@ -461,7 +461,7 @@ func TestContextEnrichmentRebasePoC(t *testing.T) {
 
 	for _, compiler := range compilers {
 		t.Run(compiler.name, func(t *testing.T) {
-			common := append([]string{"-Wall", "-Wextra", "-Werror", "-I", project, "-I", BindDir, "-I", sourceDir}, compiler.flags...)
+			common := append([]string{"-Wall", "-Wextra", "-Werror", "-I", project, "-I", BindDir, "-I", sourceDir, "-I", filepath.Join(sourceDir, "default_conf")}, compiler.flags...)
 			var objects []string
 			if compiler.runnable {
 				library, globErr := filepath.Glob(filepath.Join(sourceDir, "[a-z]*.c"))
@@ -492,7 +492,7 @@ func TestContextEnrichmentRebasePoC(t *testing.T) {
 							require.NoError(t, relErr)
 							writeBindIntegrationFile(t, baseline, relative, string(data))
 						}
-						strict := append([]string{"-Wall", "-Wextra", "-Werror", "-x", language, "-std=" + standard, "-I", baseline, "-I", filepath.Join(baseline, "build", "triceIDs"), "-I", sourceDir}, compiler.flags...)
+						strict := append([]string{"-Wall", "-Wextra", "-Werror", "-x", language, "-std=" + standard, "-I", baseline, "-I", filepath.Join(baseline, "build", "triceIDs"), "-I", sourceDir, "-I", filepath.Join(sourceDir, "default_conf")}, compiler.flags...)
 						strict = append(strict, "-fsyntax-only", filepath.Join(baseline, "main.c"))
 						output, strictErr := ceRebasePoCRun(project, frontend, strict)
 						if strictErr != nil {

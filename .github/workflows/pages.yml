@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         # This checks out the repository so subsequent steps can read README.md,
-        # docs/TriceReferenceManual.md, etc.
+        # both manuals in docs/, etc.
 
       - name: Generate index.md from README.md for GitHub Pages
         shell: bash
@@ -38,7 +38,7 @@ jobs:
             echo
 
             # Copy README.md, but rewrite all links that point to
-            # ./docs/TriceReferenceManual.md (with or without anchors) so they
+            # either manual in ./docs/ (with or without anchors) so they
             # target the rendered HTML page instead.
             #
             # Examples in README.md:
@@ -47,21 +47,21 @@ jobs:
             #
             # All become (in index.md for Pages):
             #   ...](./docs/TriceReferenceManual.html#trice-speed)
-            sed -E 's,./docs/TriceReferenceManual\.md,./docs/TriceReferenceManual.html,g' README.md
+            sed -E 's,\./docs/(Trice(User|Reference)Manual)\.md,./docs/\1.html,g' README.md
           } > index.md
 
-      - name: Prepare TriceReferenceManual.md for GitHub Pages
+      - name: Prepare both manuals for GitHub Pages
         shell: bash
         run: |
           set -euo pipefail
 
-          # We want docs/TriceReferenceManual.md to remain GitHub-friendly in the repo
+          # Both manuals remain GitHub-friendly in the repo
           # with relative links like:
           #   [freedom](../internal/emitter/lineTransformerANSI.go)
-          #   [Something](./StructuredLoggingWithTrice.md)
+          #   [Reference](./TriceReferenceManual.md#structured-logging)
           #
-          # On the published site we prefer those links to open the GitHub file view,
-          # so the user sees the source file with syntax highlighting, blame, etc.
+          # Source links open the GitHub file view, with syntax highlighting and
+          # blame. Links between manuals stay on the rendered Pages site.
           #
           # Strategy:
           #   1. Copy the original manual to a temporary file.
@@ -81,9 +81,16 @@ jobs:
           #   - We rewrite everything inside the parentheses up to the closing ')',
           #     including any #anchor, so anchors are preserved in the final URL.
 
-          cp docs/TriceReferenceManual.md /tmp/TriceReferenceManual.md
+          manual_source="$(mktemp)"
+          trap 'rm -f "$manual_source"' EXIT
+          for manual_file in docs/TriceUserManual.md docs/TriceReferenceManual.md; do
+            cp "$manual_file" "$manual_source"
 
-          sed -E '
+            sed -E '
+            # Keep manual-to-manual navigation on Pages. Omitting the optional
+            # ./ prefix prevents the source-link rewrite below from catching it.
+            s@(^|[^!])(\[[^]]*\])\(\./(Trice(User|Reference)Manual)\.md([^)]*)\)@\1\2(\3.html\5)@g
+
             # Rewrite links of the form [text](../path...)
             # Capture:
             #   (^|[^!])   -> group 1: start of line OR a character that is NOT "!"
@@ -99,14 +106,15 @@ jobs:
             s#(^|[^!])(\[[^]]*\])\(\.\./([^)]+)\)#\1\2(https://github.com/rokath/trice/blob/main/\3)#g
 
             # Rewrite links of the form [text](./path...)
-            # Here docs/TriceReferenceManual.md lives in docs/, so "./path"
+            # Both manuals live in docs/, so "./path"
             # corresponds to "docs/path" in the repository.
             #
             # Examples:
-            #   [Spec](./StructuredLoggingWithTrice.md)
-            #   -> [Spec](https://github.com/rokath/trice/blob/main/docs/StructuredLoggingWithTrice.md)
-            s#(^|[^!])(\[[^]]*\])\(./([^)]+)\)#\1\2(https://github.com/rokath/trice/blob/main/docs/\3)#g
-          ' /tmp/TriceReferenceManual.md > docs/TriceReferenceManual.md
+            #   [Help](./ref/trice-help-all.txt)
+            #   -> [Help](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt)
+            s#(^|[^!])(\[[^]]*\])\(\./([^)]+)\)#\1\2(https://github.com/rokath/trice/blob/main/docs/\3)#g
+            ' "$manual_source" > "$manual_file"
+          done
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -121,7 +129,7 @@ jobs:
         # Jekyll will:
         # - Use _config.yml in the repository root.
         # - Use index.md (generated above) as the homepage.
-        # - Render docs/TriceReferenceManual.md (modified above) as a page.
+        # - Render both manuals (modified above) as separate pages.
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

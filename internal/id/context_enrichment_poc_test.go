@@ -299,7 +299,7 @@ func TestContextEnrichmentPoC(t *testing.T) {
 	sourceDir := filepath.Join(bindRepositoryRoot(t), "src")
 	library, err := filepath.Glob(filepath.Join(sourceDir, "[a-z]*.c"))
 	require.NoError(t, err)
-	common := []string{"-Wall", "-Wextra", "-Werror", "-I", project, "-I", BindDir, "-I", sourceDir}
+	common := []string{"-Wall", "-Wextra", "-Werror", "-I", project, "-I", BindDir, "-I", sourceDir, "-I", filepath.Join(sourceDir, "default_conf")}
 	args := append([]string{"-std=c11", "-c"}, common...)
 	args = append(args, library...)
 	args = append(args, "til.c")
@@ -384,7 +384,7 @@ void checkScopes(void) {
 `)
 	Srcs = ArrayFlag{source}
 	require.NoError(t, SubCmdIdBind(io.Discard, fileSystem))
-	args := []string{"-std=c11", "-Wall", "-Wextra", "-Werror", "-fsyntax-only", "-I", project, "-I", BindDir, "-I", filepath.Join(bindRepositoryRoot(t), "src"), source}
+	args := []string{"-std=c11", "-Wall", "-Wextra", "-Werror", "-fsyntax-only", "-I", project, "-I", BindDir, "-I", filepath.Join(bindRepositoryRoot(t), "src"), "-I", filepath.Join(bindRepositoryRoot(t), "src", "default_conf"), source}
 	output, err := exec.Command(compiler, args...).CombinedOutput()
 	require.NoError(t, err, "ordinary Bind accepts both independent scopes: %s", output)
 	boundSource, err := os.ReadFile(source)

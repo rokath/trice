@@ -39,6 +39,11 @@
 
 static void nodePrintLine(const char* text); // Print exactly one already assembled line.
 
+#if TRICE_TX_SUPPORT == 1
+// The library's direct-output hook sends encoded records to the simulated bus.
+static void nodeWriteBus(const uint8_t* enc, size_t encLen);
+#endif
+
 #if TRICE_RX_LOG_SUPPORT == 1
 static void nodePrintResolvedLog(const node_t* node, const triceRx_t* rx); // Print one resolved log record.
 
@@ -336,6 +341,10 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 	}
 
 	nodeSetCurrent(node);
+#if TRICE_TX_SUPPORT == 1
+	// Install the output hook only on nodes configured to transmit.
+	UserNonBlockingDirectWrite8AuxiliaryFn = nodeWriteBus;
+#endif
 	nodePrintLineF("%s: joined abc.bus, canSend=%d canReceive=%d rxLogEnabled=%d\n", name, canSend, canReceive, rxLogEnabled);
 
 #if TRICE_RX_LOG_SUPPORT == 1
@@ -393,7 +402,7 @@ void nodeSendDivideResult(node_t* node, float value) {
 }
 
 // Auxiliary direct output is the host bridge for every send-capable demo node.
-void TriceNonBlockingDirectWrite8Auxiliary(const uint8_t* enc, size_t encLen) {
+static void nodeWriteBus(const uint8_t* enc, size_t encLen) {
 	if (gNode == 0 || gNode->canSend == 0u) {
 		return;
 	}

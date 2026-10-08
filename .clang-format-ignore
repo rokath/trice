@@ -4,6 +4,7 @@
 # Third-party / vendor files.
 src/SEGGER_RTT.c
 src/SEGGER_RTT.h
+src/SEGGER_RTT_ConfDefaults.h
 _test/*/SEGGER_RTT_Conf.h
 **/nanoprintf.h
 

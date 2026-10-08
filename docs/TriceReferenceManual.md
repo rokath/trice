@@ -11,6 +11,8 @@ title: Trice Reference Manual
 
 # Trice Reference Manual
 
+New to Trice? Use the [Trice Guide](./TriceGuide.md) to choose a topic, or follow the short [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. This Reference Manual contains the complete syntax, configuration and example instructions. [Project resources](#project-resources) include downloads, related projects, and support options.
+
 <div id="top"></div>
 
 ```diff
@@ -502,6 +504,7 @@ details.toc[open] .toc-hide {
   * [40.14. Third-party packages and retained versions](#third-party-packages-and-retained-versions)
 * [41. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
   * [41.1. Minimal PC Demos: Direct and Deferred](#minimal-pc-demos-direct-and-deferred)
+    * [41.1.1. Watch a running application](#watch-a-running-application)
   * [41.2. PC Feature Tour](#pc-feature-tour)
     * [41.2.1. Updating the PC Tour's Output Checks](#updating-the-pc-tours-output-checks)
   * [41.3. G0B1 Feature Tour](#g0b1-feature-tour)
@@ -519,10 +522,11 @@ details.toc[open] .toc-hide {
     * [41.8.1. L432bare](#l432bare)
     * [41.8.2. L432inst](#l432inst)
 * [42. Trice Generate](#trice-generate)
-  * [42.1. Colors](#colors)
-  * [42.2. C-Code](#c-code)
-  * [42.3. C#-Code](#c-code-1)
-  * [42.4. Generating a Trice ABC Function Pointer List](#generating-a-trice-abc-function-pointer-list)
+  * [42.1. Bind Artifact Report](#bind-artifact-report)
+  * [42.2. Colors](#colors)
+  * [42.3. C-Code](#c-code)
+  * [42.4. C#-Code](#c-code-1)
+  * [42.5. Generating a Trice ABC Function Pointer List](#generating-a-trice-abc-function-pointer-list)
 * [43. Testing the Trice Library C-Code for the Target](#testing-the-trice-library-c-code-for-the-target)
   * [43.1. General info](#general-info)
   * [43.2. How to run the tests](#how-to-run-the-tests)
@@ -606,6 +610,14 @@ details.toc[open] .toc-hide {
   * [51.7. Prefer Makefile clean targets when available](#prefer-makefile-clean-targets-when-available)
   * [51.8. Example scripts](#example-scripts)
   * [51.9. Summary](#summary-2)
+* [52. Project Resources](#project-resources)
+  * [52.1. Download and install Trice](#download-and-install-trice)
+  * [52.2. Alternative projects and related approaches](#alternative-projects-and-related-approaches)
+    * [52.2.1. Logging and deferred formatting](#logging-and-deferred-formatting)
+    * [52.2.2. Tracing and visualization](#tracing-and-visualization)
+    * [52.2.3. Other techniques and background reading](#other-techniques-and-background-reading)
+  * [52.3. Community and contributions](#community-and-contributions)
+  * [52.4. Support and sponsoring](#support-and-sponsoring)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -721,7 +733,9 @@ Moreover, using `trice i -cache && make && trice c -cache` in a build script mak
 
 ### 4.1. <a id="no-dynamic-memory-management-needed"></a>No Dynamic Memory Management needed
 
-All internal Buffers are static allocations and usually need only a few Hundred bytes size.
+Trice's target logging path needs no heap allocator: it does not call `malloc`, `calloc`, `realloc` or `free`. Buffer sizes are selected in the target configuration. Depending on the chosen mode, storage includes static buffers and automatic local buffers on the stack; a stack buffer is not a static object. RAM requirements therefore depend on the configuration, record sizes and buffering strategy; see [Trice memory needs](#trice-memory-needs).
+
+This statement covers Trice's own target logging code, including its CE adapters. It does not cover the Go host tool, an RTOS, a transport callback, an application's local-formatting sink, or a function invoked by a CE expression. For example, a user-supplied `read_context()` that allocates memory still allocates when called through `-ce`. Choose non-allocating application functions when the complete log call must avoid the heap.
 
 ### 4.2. <a id="open-source"></a>Open source
 
@@ -1275,6 +1289,8 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 * `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
+See [Trice Project Image Size Optimization](#trice-project-image-size-optimization) for compiling `src/*.c` and removing unused library sections from the final image.
+
 | File                                                | description                                                                                                          |
 |-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | [cobs.h](../src/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
@@ -1291,6 +1307,9 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 | [trice64McuReverse.h](../src/trice64McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
 | [SEGGER_RTT.h](../src/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
 | [SEGGER_RTT.c](../src/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
+| [SEGGER_RTT_ConfDefaults.h](../src/SEGGER_RTT_ConfDefaults.h) | SEGGER defaults for settings not supplied by the project |
+| [SEGGER_RTT_Conf.h](../src/default_conf/SEGGER_RTT_Conf.h) | Small Trice fallback configuration; project headers take precedence |
+| [SEGGER_RTT_LICENSE.md](../src/SEGGER_RTT_LICENSE.md) | SEGGER license to retain when redistributing its target sources |
 | [tcobs.h](../src/tcobs.h)                           | message compression and packaging interface                                                                          |
 | [tcobsv1Encode.c](../src/tcobsv1Encode.c)           | message encoding and packaging                                                                                       |
 | [tcobsv1Decode.c](../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed                                                                  |
@@ -1541,7 +1560,8 @@ It only needs a function that accepts a byte buffer and length.
 
 #### 6.1.1. <a id="add-trice-target-sources"></a>Add Trice target sources
 
-Add the complete [`src`](../src) folder to your target project unchanged and add `src` to the compiler include path.
+Add the complete [`src`](../src) folder to your target project unchanged, including its `default_conf` subdirectory.
+Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Igenerated -Isrc -Isrc/default_conf`.
 Create a project-specific `triceConfig.h` in your application include path.
 
 #### 6.1.2. <a id="configure-deferred-auxiliary-8-bit-output"></a>Configure deferred auxiliary 8-bit output
@@ -1660,7 +1680,8 @@ See [Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-boa
 
 #### 6.2.2. <a id="add-target-sources"></a>Add target sources
 
-Add the complete [`src`](../src) folder to your target project unchanged and add `src` to the compiler include path.
+Add the complete [`src`](../src) folder to your target project unchanged, including its `default_conf` subdirectory.
+Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Igenerated -Isrc -Isrc/default_conf`.
 
 #### 6.2.3. <a id="configure-direct-rtt"></a>Configure direct RTT
 
@@ -4232,6 +4253,37 @@ In general, `bind` accepts the `insert` options relevant to source search, parsi
 
 Bind automatically excludes its selected generated-file directory from the source scan. This prevents generated descriptors from being treated as new user log sites, including when `-src` names a parent directory.
 
+For example, run Bind from your project root, then optionally generate a local-formatting table or an ABC dispatcher:
+
+```sh
+touch til.json li.json
+trice bind -src application -genDir generated -til til.json -li li.json
+trice generate -src application -genDir generated -til til.json -logC
+trice generate -genDir generated -til til.json -abc device_abc
+```
+
+The first line initializes missing dictionaries for a new project without emptying existing ones. Bind requires a TIL file so that a missing dictionary is not silently replaced with new IDs.
+
+The resulting layout separates application files, persistent dictionaries, generated files and compiler output:
+
+```text
+project/
+  application/                 application sources and triceConfig.h
+  til.json                     persistent ID-to-format dictionary
+  li.json                      source-location information
+  generated/                   -genDir, relative to the command's working directory
+    trice_main_c_K....h         Bind sidecar (representative filename)
+    trice-fields.txt            field registry
+    til.c                      optional local-formatting table from -logC
+    device_abc.h               ABC selection header; user-owned after creation
+    device_abc.c               generated ABC dispatch table
+  build/                       compiler output, chosen by your build system
+```
+
+The two `generate` calls serve different features; an ordinary host-decoded application does not need either one. Add `-Igenerated` when compiling from the project root, or `-I../generated` when compiling from `build`. A relative `-genDir` is resolved from the command's working directory, not from the Trice library's directory or automatically from `build`.
+
+Keep `til.json` and the corresponding `li.json` with the project, and preserve the dictionaries belonging to firmware whose logs you still need to decode. Include an edited ABC selection header in your version control even if it is stored under `generated`. Do not delete that directory wholesale: it may contain user-owned files, and old sidecars may still provide historical ID evidence. The read-only [Bind artifact report](#bind-artifact-report) helps inspect ownership and references without treating an unreferenced file as safe to delete.
+
 With:
 
 ```sh
@@ -4258,6 +4310,8 @@ The build system should:
 - not replace the generator with a mere compiler failure.
 
 The generator replaces a sidecar file only if its contents change. This keeps incremental builds limited to the translation units that are actually affected.
+
+To inspect an existing generation directory without running Bind again, use the explicit [`generate -bindReport` inventory](#bind-artifact-report). It maps sidecars and rebase helpers to physical includes in a selected source scan, reports uncertain ownership, and changes no files. A partial scan does not establish which artifacts a compiler uses or which files are safe to delete.
 
 ### 24.16. <a id="trice_clean"></a>`TRICE_CLEAN`
 
@@ -4526,6 +4580,17 @@ For an unsupported site, `trice bind` does not silently fall back to insert and 
 #### 24.19.1. <a id="bind-limits"></a>bind-limits
 
 When `bind` rejects a source construct, it cannot safely map or support the log sites it contains. The short hint `Search UM for "bind-limits".` points to this section. The error message still includes the file, line and specific cause. A compiler error for a required but unavailable `__COUNTER__` also includes this reference.
+
+Compiler requirements depend on the selected use case:
+
+| Use case | Mapping and requirement |
+| --- | --- |
+| Ordinary Bind with direct calls on distinct source lines | File key and source line identify the call; no `__COUNTER__` is needed. |
+| Direct Context Enrichment | The same source-line mapping is sufficient. Each expression must be valid at its selected call site; selected wrapper/rebase sites are rejected. |
+| Bind wrappers or multiple calls requiring rebasing, without CE | Counter-based mapping and consistency checks require compiler support for `__COUNTER__`. |
+| Experimental CE for wrapper/rebase sites | The [extended PoC](#extended-poc-for-wrapper-macros-and-counter-rebasing) tests an additional preprocessing pass. It is not a production CLI feature. |
+
+The PoC's [compiler matrix](#compiler-matrix-and-evidence-limits) records actual evidence, not a promise for every compiler accepting C or C++. In particular, the existing enum-based rebase check fails strict C++20 builds with the tested warning settings, even without CE. This is a rebase limitation, not a general rejection of ordinary direct Bind calls. MSVC, IAR and Arm Compiler/armclang were not tested in that proof. ARM cross-compilation demonstrates that object files can be built; it does not demonstrate execution on an MCU. The `insert/clean` workflow remains available when Bind's mapping or compiler requirements do not fit the project.
 
 For a direct Trice call, the file and source line normally suffice for mapping. Multiple calls on the same line, or a wrapper macro containing multiple calls, may need additional support. Bind uses the compiler counter `__COUNTER__` for this. It counts during compilation; it is neither a runtime counter nor a cycle counter. Not every compiler provides it. Direct, uniquely addressable log sites work without it.
 
@@ -5772,7 +5837,11 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 ## 30. <a id="trice-project-image-size-optimization"></a>Trice Project Image Size Optimization
 
-Modern compilers are optimizing out unused code automatically, but you can help to reduce trice code size if your compiler is not perfect.
+You can compile the complete `src/*.c` library instead of maintaining a list of individual files. With unused-section removal enabled, only the library functions and data needed by your application remain in the final executable or firmware image. Configuration already excludes many disabled features during preprocessing; the linker removes the remaining unreferenced sections. Compiling every source can still take longer than compiling a selected subset.
+
+The PC example scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. The minimal demos omit these optional flags to keep their build commands simple. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
+
+Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, the Trice and SEGGER configuration values must still agree; see [Trice over RTT](#trice-over-rtt).
 
 ### 30.1. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
@@ -6061,6 +6130,27 @@ Buffer logging without a named field remains available: for `0x01` and `0x02`, `
 
 ### 32.1. <a id="placeholders-and-names"></a>Placeholders and Names
 
+Start with a familiar printf-style call:
+
+```c
+trice("info:Supply %d mV, %d mA", voltage_mV, current_mA);
+```
+
+Replace the value conversions with structured placeholders to keep the same text while exporting named values as well:
+
+```c
+trice("info:Supply {} mV, {} mA", voltage_mV, current_mA);
+```
+
+With `voltage_mV = 3300` and `current_mA = 120`, either call displays `Supply 3300 mV, 120 mA` with `-color none` and no outer metadata. The structured form derives field names from the C arguments. With `-logFormat json`, the records differ as follows:
+
+```json
+{"tag":"INFO","level":"INFO","message":"Supply 3300 mV, 120 mA"}
+{"tag":"INFO","level":"INFO","message":"Supply 3300 mV, 120 mA","fields":{"voltage_mV":3300,"current_mA":120}}
+```
+
+These are alternatives for the same log site, not two calls required to produce one event. Bind or Insert must run after changing the template. For these integer values, `{}` uses the same `%d` display as the original call.
+
 | Format string syntax | Meaning |
 |---|---|
 | `{motor_id}` | Explicit field name, default display. |
@@ -6182,6 +6272,24 @@ Every record contains `tag` and `message`. `tag` is the canonical name of a regi
 A runtime string does not change tag classification: with `triceS("{text:%s}", value)` and a value starting with `err:`, `tag` remains `untagged`. Existing text output converts sequences such as `\n` and `\t` for display, including within runtime strings; `message` follows that display. The named field `fields.text` retains the transmitted string, except for outer whitespace.
 
 An optional `level` is determined through a fixed alias table independent of colors and weights. Comparison is case-insensitive. For example, `err`, `ERR` and `Error` map to `ERROR`; `warn`, `wrn` and `Warning` map to `WARNING`. Supported canonical values are `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` and `VERBOSE`. A display-only tag such as `msg` or a freely defined user label receives no invented level. Alias lookup for `tag` does not change the existing tag registry or its filtering behavior; level classification remains independent of it as well.
+
+For example, an application category can pass a severity threshold without becoming that severity tag:
+
+```c
+trice("sensor:Supply {} mV", voltage_mV);
+```
+
+```sh
+trice log -ulabel sensor:650 -logLevel wrn -logFormat json
+```
+
+Using the matching dictionary and input, with `voltage_mV = 3300`, the event is:
+
+```json
+{"tag":"sensor","message":"Supply 3300 mV","fields":{"voltage_mV":3300}}
+```
+
+The `sensor` weight of 650 passes the default Warning threshold of 600. The tag remains `sensor`; neither the weight nor `-logLevel wrn` adds `level="WARNING"` or `level="ERROR"`. This event has no `level` field. The current interface does not assign a separate severity name to an arbitrary user tag. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](#user-defined-tags-weights-and-colors).
 
 In JSON, user fields reside under `fields`. Host and user fields therefore cannot overwrite each other: a user field named `tag` appears under `fields.tag`. User fields are emitted in template order. A record without exportable user fields has no empty `fields` object.
 
@@ -6756,6 +6864,48 @@ Because the Trice tool needs only to receive, a single target UART-TX pin will d
 
 > Allows Trice over the debug probe without using a pin or UART.
 
+The RTT target sources come from SEGGER's official [SEGGERMicro/RTT repository](https://github.com/SEGGERMicro/RTT).
+Trice includes the unmodified `SEGGER_RTT.c`, `SEGGER_RTT.h`, and `SEGGER_RTT_ConfDefaults.h`
+from [commit `4d8feab3150f86f37a9d323ddc88d6cdf5673072`](https://github.com/SEGGERMicro/RTT/tree/4d8feab3150f86f37a9d323ddc88d6cdf5673072)
+(2026-06-03), together with the [SEGGER license](../src/SEGGER_RTT_LICENSE.md).
+The source snapshot is independent of the J-Link host-tool version:
+installing J-Link V9.84 does not replace the sources compiled into your firmware.
+SEGGER removed the RTT source ZIP from the J-Link installation package in V8.68;
+obtain source updates from its GitHub repository instead.
+
+The library includes a fallback [`SEGGER_RTT_Conf.h`](../src/default_conf/SEGGER_RTT_Conf.h).
+Put your project and generated include directories first, then `src`, and `src/default_conf` last:
+
+```sh
+-Iproject -Igenerated -Isrc -Isrc/default_conf
+```
+
+Your project's `SEGGER_RTT_Conf.h` takes precedence and replaces the entire fallback configuration.
+SEGGER's [`SEGGER_RTT_ConfDefaults.h`](../src/SEGGER_RTT_ConfDefaults.h) first includes that selected
+configuration, then fills in missing settings with `#ifndef` defaults.
+This is the same principle as Trice's `triceConfig.h` and `triceDefaultConfig.h`.
+New project headers need only define their deviations; they no longer need to copy all vendor defaults and CPU-specific lock implementations.
+The Trice fallback keeps only its channel counts, C implementation selection, ARM memory barriers, and native Windows lock policy.
+An empty project header is valid for RTT itself, but selects SEGGER's three up-/down-channel slots,
+not Trice's one-slot defaults; its compiler-selected assembly and Windows lock defaults may also need overrides.
+Do not put a configuration directly in `src`: SEGGER's quoted include searches that directory before the `-I` directories, which would hide your project configuration.
+The fallback provides one up-channel with a 1024-byte buffer, one down-channel with a 16-byte buffer, and non-blocking output that skips a write if the buffer is full.
+It uses the C implementation without requiring external RTT assembly files or embOS on Windows.
+It retains SEGGER's CPU-specific interrupt locks; check the interrupt-priority and cache settings for your target before relying on concurrent RTT access.
+Native host builds use no-op locks and need a project-specific configuration for concurrent RTT writers.
+Adding the fallback include path does not enable RTT in `triceConfig.h` or make every file in `src` necessary for your application.
+
+When updating an existing project, copy all three vendor files and retain `SEGGER_RTT_LICENSE.md`.
+Keep your existing `SEGGER_RTT_Conf.h`: full configurations from older RTT releases remain usable,
+and their explicitly defined values and lock macros take precedence over the new defaults.
+Do not replace them with an empty header.
+Keep RTT channel counts and buffer settings consistent with the corresponding `TRICE_...` settings in `triceConfig.h`;
+Trice checks these at compilation.
+The optional `SEGGER_RTT_ASM_ARMv7M.S` is not shipped here.
+Use `RTT_USE_ASM=0` when compiling only the C implementation.
+Project configurations still need appropriate memory barriers, interrupt locks and cache settings for their CPU.
+Trice's optimized 32-bit writer directly accesses the RTT control block, so a future vendor update must also be checked against that path.
+
 * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
 * Also ST-Link is usable for Trice logs, but maybe not parallel with debugging.
 * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
@@ -7179,7 +7329,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
-* The stored RTT source package is [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip). See [Third-party packages and retained versions](#third-party-packages-and-retained-versions) before changing target sources.
+* The current RTT target sources are included in [`src`](../src); their origin and configuration are described in [Trice over RTT](#trice-over-rtt). The stored [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) is an older reference snapshot, not the current library.
 * Add `SEGGER_RTTI.c` to target project
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -8708,6 +8858,19 @@ The layout separates [BcSim](../examples/TriceAbc/BcSim/) (reusable protocol-neu
 
 `demo.sh` starts receive-capable nodes first, then pure transmitters. A BcSim participant joins at the current end of the bus and does not replay earlier traffic. Runtime files are `abc.bus` (binary framed stream), `abc.log` (human hex log), and `abc.bus.lock/` (writer lock). They are separate from BcSimChk's `bc.*` files. `abc.console.lock/` keeps each complete node or shell status line together; the console lock waits rather than falling back to interleaved writes. A killed lock owner may require manual cleanup after all participants stop.
 
+Use this map when changing the ABC example:
+
+| Location | Purpose and ownership |
+| --- | --- |
+| [NodeLib/node.c](../examples/TriceAbc/NodeLib/node.c) and [node.h](../examples/TriceAbc/NodeLib/node.h) | Shared application handlers, receive integration and node runtime; edit as application code. |
+| [NodeLib/nodeAbc.h](../examples/TriceAbc/NodeLib/nodeAbc.h) | User-owned selection of commands and responses; keep your edits. |
+| [NodeLib/nodeAbc.c](../examples/TriceAbc/NodeLib/nodeAbc.c) | Generated dispatch table connecting selected IDs to the handlers. |
+| `NodeLib/til.c` | Generated table for normal log presentation; regenerated by the build script. |
+| Node directories, such as [N3_bi](../examples/TriceAbc/N3_bi/) | Each node's `main.c` and `triceConfig.h` select its behavior. |
+| `build/` | Compiled node executables; runtime bus files are separate as described above. |
+
+Regenerate the tables after changing IDs or the selection header. The handler implementations remain ordinary application code. This example explicitly places its tables under `NodeLib`; a simple `generate -abc device_abc` instead uses the selected `-genDir`, as shown in the [generated-file layout](#command-line).
+
 The command shapes and effects are intentionally small:
 
 | Command | Payload and effect |
@@ -9785,7 +9948,7 @@ versions, not a statement that they are current or compatible with every host.
 | --- | --- |
 | [cobs-c-0.5.0.zip](../third_party/cobs-c-0.5.0.zip) and [cobs-c-version_1.0.zip](../third_party/cobs-c-version_1.0.zip) | Craig McQueen's COBS/COBS-R source snapshots, both with `LICENSE.txt` and `README.rst`. They are comparison/reference sources, not the COBS files compiled from `src`. No active build extracts either version; the reason a manual user may still need both is unconfirmed, so both are retained. |
 | [cJSON-1.7.15.zip](../third_party/cJSON-1.7.15.zip) | cJSON source snapshot with its MIT `LICENSE` and README. No active Trice build or structured-log output depends on this ZIP. Its original/manual use is unconfirmed; retaining it does not introduce a JSON dependency. |
-| [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) | RTT target sources, configuration, examples, README, and `LICENSE.md`. It is a source reference for the 8.12a RTT files stored in `src`; the archive is not extracted by normal builds. |
+| [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) | Older RTT target sources, configuration, examples, README, and `LICENSE.md`, retained as a historical source reference. The current files in `src` come from the official SEGGER GitHub repository; see [Trice over RTT](#trice-over-rtt). Normal builds do not extract this archive. |
 | [JLinkRTTLogger.zip](../third_party/segger.com/JLinkRTTLogger.zip) | Windows `JLinkRTTLogger.exe` and `JLinkARM.dll`, retained for the optional J-Link transport. No version manifest or license file is bundled in this ZIP; its exact version and redistribution provenance are unconfirmed. |
 | [STRTTLogger.zip](../third_party/goST/STRTTLogger.zip) | Windows `stRttLogger.exe` and `libusb-1.0.dll`, retained for optional ST-Link RTT logging. The earlier repository notes identify [phryniszak/strtt](https://github.com/phryniszak/strtt) and [gostlink](https://github.com/search?q=gostlink) as related sources. The ZIP has no license or version manifest; that relationship does not verify the exact binary build. |
 | [STLinkReflash_190812.zip](../third_party/segger.com/STLinkReflash_190812.zip) | Windows `STLinkReflash.exe` and `JLinkARM.dll` for the documented onboard ST-Link/J-Link conversion. Retained as a dated vendor utility; the ZIP has no license or version manifest. |
@@ -9841,14 +10004,18 @@ inventory.
 
 The two programs under [demo](../demo/) use the same binary output channel in two modes. `direct` writes each record immediately to `build/log.bin`; `deferred` first stores records in a ring buffer and drains it through `TriceTransfer()`. Both compile the repository's `src` directly, without copying a library or requiring a separate build system.
 
-Put `trice` and a C compiler named `cc` or `gcc` in `PATH`, then use a POSIX shell (Git Bash on Windows):
+The direct file writer is only a demonstration of **when the output callback runs**. Writing to a file is far too slow and unpredictable for a typical fast direct-output path: here that work takes place inside the log call. A typical Direct Mode application uses [SEGGER RTT](#quickstart-segger-rtt-direct-mode-with-j-link), where records are written to a RAM buffer and read through the debug probe. You can debug the firmware and receive immediate log output alongside it. Demonstrating that setup requires a compatible target and debug probe, so it cannot be part of this hardware-free PC introduction. The file demo does not measure Direct Mode performance.
+
+Put `trice` and a native C compiler in `PATH`, then use a POSIX shell (Git Bash on Windows). The scripts use `cc`; change `compiler=cc` to `compiler=gcc` if needed:
 
 ```sh
-cd demo
-LC_ALL=C sh ./demo.sh
+cd demo/deferred
+./run.sh
+cd ../direct
+./run.sh
 ```
 
-The [script](../demo/demo.sh) binds both programs once, builds and runs `deferred` followed by `direct`, and decodes both captures using `trice log -p FILEBUFFER`. Calling it through `sh` works even though its versioned file has no executable bit; alternatively, use `chmod +x demo.sh` before `./demo.sh`. `LC_ALL=C` makes the source glob's lowercase selection predictable. `tlog` is not required. The optional prerequisite checks near the start of the script can be enabled; the script installs nothing. On Windows the executables receive the `.exe` suffix automatically.
+The two independent scripts ([deferred](../demo/deferred/run.sh), [direct](../demo/direct/run.sh)) are both named `run.sh` and sit next to their respective `main.c`. Each binds only that file, compiles one program, runs it and decodes its capture using `trice log -p FILEBUFFER`. Their comments explain each step. If an extracted source archive has lost the executable permission, use `sh ./run.sh` in the selected demo folder. No `LC_ALL` setting is needed. `tlog` is not required, and the scripts install nothing. The programs are named `demo_deferred.exe` and `demo_direct.exe` inside their respective `build` directories; these filenames work on Windows, Linux and macOS.
 
 Ignoring optional location/prefix columns, the messages are:
 
@@ -9862,19 +10029,62 @@ Direct value=42.
 The layout separates project data from generated outputs:
 
 ```text
-demo/til.json, demo/li.json   shared, persistent project ID/location tables
-demo/generated/              generated sidecars and field registry
+demo/deferred/run.sh          build, run and decode the deferred demo
 demo/deferred/main.c          deferred application
 demo/deferred/triceConfig.h   deferred configuration
+demo/deferred/til.json        persistent ID-to-format dictionary
+demo/deferred/li.json         source locations within this demo
 demo/deferred/build/          executable and log.bin
+  generated_sidecars/         this demo's sidecars and field registry
+demo/direct/run.sh            build, run and decode the direct demo
 demo/direct/main.c            direct application
 demo/direct/triceConfig.h     direct configuration
+demo/direct/til.json          this demo's dictionary
+demo/direct/li.json           this demo's locations
 demo/direct/build/            executable and log.bin
+  generated_sidecars/         this demo's sidecars and field registry
+demo/live/run.sh              build and run the live demo
+demo/live/main.c              live application
+demo/live/triceConfig.h       independent deferred-output configuration
+demo/live/til.json            this demo's dictionary
+demo/live/li.json             this demo's locations
+demo/live/build/              executable and growing log.bin
+  generated_sidecars/         this demo's sidecars and field registry
 ```
 
-Binding uses the defaults `til.json`, `li.json`, and `generated` relative to `demo`. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. The compiler's `../src/[a-z]*.c` glob is intended to exclude the uppercase vendor source `SEGGER_RTT.c`, so these demos need no RTT configuration. Inspect the selected source list if a locale causes that glob to include the vendor file.
+Binding uses `til.json` and `li.json` in each project's folder and `-genDir build/generated_sidecars` for the generated headers and field registry. No tables, generated headers or configuration files are shared between demos. To reuse a demo, copy its whole folder and adjust only `trice_src=../../src` in its script to point to your Trice library. The script works regardless of the directory from which you start it. On the first bind, a missing generated `#include "trice_main_c_K...h"` is inserted automatically; users neither invent nor maintain its name. Each compiler command includes `src/*.c`, so there is no individual library source list to maintain. The fallback RTT header is supplied by `src/default_conf`; no project RTT configuration is needed. Optional compiler checks are commented out. See [Trice Project Image Size Optimization](#trice-project-image-size-optimization) if you want to add unused-section removal to these deliberately minimal builds.
 
-Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42`, rerun the script, and compare the two decoded logs. The shared workflow is maintained only in `demo.sh`.
+Compare [direct/main.c](../demo/direct/main.c) and [deferred/main.c](../demo/deferred/main.c): the latter explicitly transfers until its ring buffer is empty. Change the value `42` and rerun the corresponding script. Each script spells out the complete workflow so you can follow and modify either example independently.
+
+#### 41.1.1. <a id="watch-a-running-application"></a>Watch a running application
+
+The [live application](../demo/live/main.c) uses its own [deferred-output configuration](../demo/live/triceConfig.h) and produces one counter record per second until you stop it. It works without hardware or additional network tools on macOS, Linux and Windows with Git Bash and a native C compiler.
+
+In **terminal 1**, starting from the repository root:
+
+```sh
+cd demo/live
+./run.sh
+```
+
+The [script](../demo/live/run.sh) binds IDs, compiles the application and leaves it running. Once it prints the decoder command, open **terminal 2** at the repository root:
+
+```sh
+cd demo/live
+trice log -p FILE -args build/log.bin
+```
+
+You should see the counter advance while the application continues running:
+
+```text
+Live counter=0.
+Live counter=1.
+Live counter=2.
+```
+
+`FILE` keeps reading when it reaches the current end of the file; `FILEBUFFER`, used by the short demos above, stops there. The application flushes its file buffer after each transfer so the parallel reader can see the new bytes immediately. The logger first displays any records already in the file, then follows new records.
+
+Stop **both terminals** with Ctrl+C before restarting. A new application run recreates `demo/live/build/log.bin`; the capture grows for as long as the application runs. From `demo/live`, replay the stopped capture with `trice log -p FILEBUFFER -args build/log.bin`. The decoder finds this project's own `til.json` and `li.json` in the same directory. This is a simple live-logging demonstration, not a timing measurement or a bounded capture system.
 
 ### 41.2. <a id="pc-feature-tour"></a>PC Feature Tour
 
@@ -9934,6 +10144,8 @@ cd examples/G0B1_features
 The [build script](../examples/G0B1_features/demo_build.sh) binds this copy and its shared `exampleData` producers into a private `til.json`, applying `-ce 'ctx:", task={task:%p}", osThreadGetId()'`. The call in `LogFeatureSample` executes from both tasks, so the records have different task handles at the same C call site. The neighboring `triceS` transports the worker name. Edit [Core/Src/main.c](../examples/G0B1_features/Core/Src/main.c) to experiment with the named `sample` and `load_pct` fields, 16-/32-bit stamps, Warning, untagged text, buffer output, and the custom `sensor:` tag.
 
 [check_build.sh](../examples/G0B1_features/check_build.sh) verifies the generated task adapter and the string, field, stamp, tag, and buffer entries; it needs no board. It is a compiler/build check, not evidence that firmware ran on an MCU.
+
+Three scopes matter here: the files selected by Bind, the files compiled by the Makefile, and the functions actually called at runtime. A shared producer can need a sidecar because it is scanned or compiled even when the feature tour never calls its demo function. The current `demo_build.sh` selects `Core/Src` and `../exampleData`; it does not select `_test/testdata/triceCheck.c`. A `trice_triceCheck_c_...` header in a generation directory may therefore come from another or earlier repository-wide Bind run. Its presence alone does not show that this tour runs `TriceCheck`. Use [`generate -bindReport`](#bind-artifact-report) with the relevant source selection to inspect references; an absent scan reference is not proof that another build no longer needs the file.
 
 Flash `out.gcc/G0B1.elf` using the [original board setup](#g0b1inst). In a separate terminal capture RTT channel 0 with J-Link:
 
@@ -10098,7 +10310,7 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 - Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030_bare/](../examples/F030_bare/).
 - Add *build.sh* and *clean.sh*.
-- Copy and adapt `Config/SEGGER_RTT_Conf.h` from the stored [SEGGER_RTT_V812a.zip](../third_party/segger.com/SEGGER_RTT_V812a.zip) to [./Core/Inc/](../examples/F030_inst/Core/Inc/) if creating a new project. Existing examples already contain their configuration; see [Third-party packages and retained versions](#third-party-packages-and-retained-versions).
+- For a new RTT project, copy and adapt the small [fallback `SEGGER_RTT_Conf.h`](../src/default_conf/SEGGER_RTT_Conf.h) into [./Core/Inc/](../examples/F030_inst/Core/Inc/), or use the fallback include directory unchanged. Existing examples keep their full project configuration; see [Trice over RTT](#trice-over-rtt).
 - Copy and adapt a file [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h) to [./Core/Inc/](../examples/F030_inst/Core/Inc/). You can choose from another example project or one of the test folders.
 - Create 2 empty files: `touch til.json li.json`inside [./](./)
 - Run `build.sh`. This should build all.
@@ -10347,7 +10559,42 @@ Receive signal 0. Exiting...
 
 For a compact, readable copy of the ID dictionaries, run `trice generate -onelineJSON -til til.json -li li.json`. This writes `til.oneline.json` and `li.oneline.json` in `-genDir` (default `./generated`) as complete JSON objects with one ID entry per line. In the LI copy, each entry shows `Line` before `File`. The original files remain authoritative and unchanged; rerun the command after updating them. Use `-li off` to export only the TIL copy. Missing or invalid requested input files cause an error without replacing either copy. This option cannot be combined with `-logC` or `-abc`.
 
-### 42.1. <a id="colors"></a>Colors
+### 42.1. <a id="bind-artifact-report"></a>Bind Artifact Report
+
+Use `trice generate -bindReport` to inspect existing generated files and their source references. This is an explicit diagnostic command, not an automatic step of every Bind run:
+
+```sh
+trice generate -bindReport -genDir generated -src Core
+trice generate -bindReport -genDir generated -src Core -src ../../_test/testdata -exclude Core/vendor
+```
+
+Paths are relative to the calling directory. `-genDir` defaults to `./generated`; `-src` defaults to the current directory and accepts multiple files or directories, with the usual C/C++ source/header selection and `-exclude` rules. Hidden paths and the selected generation directory are excluded from the source scan. The inventory lists immediate entries in `-genDir`; it does not descend into its subdirectories or follow non-regular entries. Missing directories or source roots and read failures are errors: no partial inventory is published. An empty generation directory is valid.
+
+The report goes to standard output and needs neither `til.json` nor `li.json`. It never assigns IDs, runs Bind, creates directories, rewrites files or deletes artifacts. It cannot be combined with `-logC`, `-onelineJSON`, `-abc` or `-colors`. For an optional saved copy, redirect its output yourself:
+
+```sh
+trice generate -bindReport -src Core > bind-report.txt
+```
+
+For example, if `Core/main.c` includes `trice_main_c_K1111111111111111.h`, the relevant report entry is:
+
+```text
+trice_main_c_K1111111111111111.h [sidecar]
+  File Key: K1111111111111111; owner sidecar: trice_main_c_K1111111111111111.h
+  Referenced in scan: Core/main.c
+```
+
+An existing `trice_triceCheck_c_K2222222222222222.h` whose source is outside `-src Core` instead says `Not referenced in selected scan; owner source not established for this artifact.` This does **not** mean that the owner was deleted or that the header is unused. Including `../../_test/testdata` in the second command can reveal its reference from `triceCheck.c`. A source that moved without changing its include remains associated with the same sidecar.
+
+Rebase entries name their owner sidecar and separately show whether the helper itself is referenced. A helper with no reference may be an old helper belonging to a still-referenced owner. Its contents must exactly match the generated phase helper to establish that metadata; missing or invalid owner declarations and edited helper contents are marked `UNVERIFIED`. Sidecar checks validate the File Key and BIND route declarations against the filename, not every descriptor or the freshness of the file. A handwritten file can imitate these declarations; this report is not a certificate of generated ownership.
+
+`AMBIGUOUS` identifies a File Key claimed by multiple scanned sources. `[missing]` identifies a referenced artifact absent from `-genDir`. Repeated literal includes in one source are deduplicated; both `#include "trice_...h"` and `#include <trice_...h>` are recognized. Comments do not count as references. Macro-based include expressions are not resolved. Physical includes inside `#if` branches do count, because preprocessing conditions, compiler include search paths and actual build dependencies are not evaluated. Inventory findings are printed for inspection; `UNVERIFIED`, `AMBIGUOUS` and `[missing]` do not themselves cause a command error.
+
+Other files remain `[unclassified]`, explicitly with no ownership established. This includes user-owned ABC selection headers, field registries and unrelated files. Nothing in this report authorizes pruning. Bind only removes its own excess rebase helpers for a currently known owner; globally removing artifacts outside a selected scan is a separate operation that is not provided here. `bind -v` retains its existing summary of the current Bind operation; use `generate -bindReport` for an independent inventory.
+
+The [inventory behavior tests](../internal/id/generateBindReport_test.go) cover scope selection, real Bind output, ambiguous ownership, missing and altered artifacts, failure paths and zero attempted writes. The [CLI tests](../internal/args/handler_additional_test.go) also check mode exclusivity and inspection on a read-only filesystem without dictionaries or logfile setup.
+
+### 42.2. <a id="colors"></a>Colors
 
 Support for finding a color style:
 
@@ -10355,7 +10602,7 @@ Support for finding a color style:
 
 See [Check Alternatives](#check-color-alternatives) chapter.
 
-### 42.2. <a id="c-code"></a>C-Code
+### 42.3. <a id="c-code"></a>C-Code
 
 To generate a compact C metadata table for current target-side Trice sites, first run `trice insert` or `trice bind` and then run `trice generate -src <source> -logC[=<output.c>]`. Multiple `-src` options are accepted. Explicit Insert IDs and numeric Bind sidecar descriptors are validated against the selected TIL; no ID is guessed from a matching format string. Historical TIL entries that are absent from the selected sources are omitted without changing the TIL itself. Bind sidecars are read from `./generated` by default; specify `-genDir` for a different directory. Bare `-logC` writes `./generated/til.c`; an explicit output path takes precedence. `-logC` and `-abc` are alternative generation modes and cannot be combined.
 
@@ -10375,11 +10622,11 @@ const triceLog_t triceLog[] = {
 const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
 ```
 
-### 42.3. <a id="c-code-1"></a>C#-Code
+### 42.4. <a id="c-code-1"></a>C#-Code
 
 The current `trice generate` command does not provide a C# source generator. C# applications can read the generated `til.json` as input to their own decoder or use the Trice host tool to produce text, JSON, or KV output.
 
-### 42.4. <a id="generating-a-trice-abc-function-pointer-list"></a>Generating a Trice ABC Function Pointer List
+### 42.5. <a id="generating-a-trice-abc-function-pointer-list"></a>Generating a Trice ABC Function Pointer List
 
 Use `-abc=<target>` to generate the target-specific ABC receive selection and table files:
 
@@ -10465,7 +10712,7 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
   * On Windows, TDM-GCC or another matching MinGW-w64 GCC installation can provide the host compiler and C runtime.
   * Some Go regression tests execute every supported compiler found in `PATH`, including `clang`. If Clang is visible, verify it first with `printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -`.
   * Keep `C_INCLUDE_PATH` unset globally so ARM cross-compiler headers do not leak into host and CGO builds.
-* From the repository root, execute `go clean -cache` after editing C files if CGO tests appear to reuse precompiled files.
+* For direct `go test` calls outside the managed PC worker, execute `go clean -cache` from the repository root after editing externally included C files if CGO appears to reuse precompiled files. The managed PC workflows described below handle these repository inputs automatically.
 * Normal tests use an overlay for the shared CGO test files. If you deliberately need to renew IDs and generated test files after editing `./examples` or `_test`, review the wider effects of `./scripts/_330_renew_ids_and_refresh_tests.sh` and use `keepHistory` to preserve the existing ID tables.
 * To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
 * To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` from there. It is more convenient to run `scripts/_230_legacy_insert_ids.sh` from the Trice root folder.
@@ -10497,6 +10744,12 @@ The bulk path still executes each C test site. It collects binary output and sta
 Framed direct and deferred channels are collected separately. Configurations that previously transferred after every test site retain that transfer schedule, so small target buffers cannot overflow merely because host decoding is batched. Existing deferred bulk tests retain their multi-site transfer schedule to exercise buffering. Unframed configurations keep the single-expectation path because concatenation can lose packet boundaries or change padding interpretation. Successful bulk runs are not repeated completely line by line.
 
 Each configuration has its own `output.log` below `temp/log/pc-<workflow>.<run>/`. On a bulk mismatch, the original binary and text output are saved there, and the worker reruns that configuration line by line. A passing diagnostic rerun does not clear the bulk failure: it points to an interaction involving framing, buffering or state. The reported source line is the first divergent expectation, which may follow the actual cause. Expected and actual strings show escaped control characters; nearby text helps identify shifts. The failure report also gives a reproduction command, which requires the same prepared ID state and compiler include paths. Run directories are retained for diagnosis; subsequent runs use a new directory.
+
+The managed PC worker preserves Go's build cache between runs. Before testing, [pc_cache_overlay.go](../scripts/pc_cache_overlay.go) hashes file names and contents in `src`, `_test/testdata`, each configuration directory and the applicable Bind sidecar directory, including a custom generation directory. It also records the ID workflow and compiler/header-search settings. The worker appends the resulting SHA-256 signature to temporary copies of the CGO Go sources and supplies them through a Go overlay. External C or header changes therefore become visible to Go's build cache without changing the original sources or discarding cached Go dependencies. Added, removed or renamed input files change the signature too; timestamps alone do not. A local configuration change rebuilds that configuration, while shared input changes rebuild all affected configurations. The ABC host bridges participate as well as the generated harnesses.
+
+Every selected test still executes with `-count=1`; only compiled build artifacts are reused. The preceding normal Go and coverage steps also preserve the build cache and use `-count=1`, so a complete `testAll.sh` invocation does not discard the PC builds from the previous run. Overlay JSON and stamped sources remain beside the logs in `overlay.json` and `cache-inputs/` for diagnosis. The temporary Go filenames start with `_`, keeping them out of ordinary package discovery. Unreadable inputs or symbolic links inside the input trees stop preparation instead of silently running a potentially stale binary. This protection covers the repository's PC input trees, not independently modified external C libraries or SDK headers at an unchanged location. After such external changes, explicitly run `go clean -cache`. Go itself accounts for compiler identity and build flags; see [Go's build-cache documentation](https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching).
+
+The behavioral checks in [pc_cache_overlay_test.go](../scripts/pc_cache_overlay_test.go) include real cold and warm CGO builds. They verify current C runtime values after source, header, sidecar, configuration and compiler-option changes, verify that unchanged configurations avoid C recompilation, and independently count actual test executions.
 
 The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which limits the amount of performed trices for each test case to `n`. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
 
@@ -11149,7 +11402,7 @@ C_FLAGS+=-Wextra -Wshadow -Wimplicit-function-declaration -Wredundant-decls -Wmi
 C_FLAGS+=-fno-common -ffunction-sections -fdata-sections  -MD -Wall -Wundef
 C_FLAGS+=-DSTM32F4 -I/home/kraiskil/stuff/libopencm3/include
 # These two are for trice.h and triceConfig.h
-C_FLAGS+=-I../../pkg/src/ -I.
+C_FLAGS+=-I. -I../../src -I../../src/default_conf
 
 LFLAGS=-L${OPENCM3_DIR}/lib -lopencm3_stm32f4 -lm -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 LFLAGS+=-T nucleo-f411re.ld
@@ -11848,7 +12101,7 @@ Generated commit message:
 | [demoLI.json](../demoLI.json)                                                                                           | location information example                                                                                                      |
 | [demoTIL.json](../demoTIL.json)                                                                                         | Trice ID list example                                                                                                             |
 | `dist/`                                                                                                                 | local distribution files folder created by GoReleaser                                                                             |
-| [docs](../docs)                                                                                                         | documentation folder with link forwarding                                                                                         |
+| [docs](../docs)                                                                                                         | Guide, User Manual, Reference Manual, and supporting material; start with the [Trice Guide](./TriceGuide.md)                          |
 | [examples/](../examples)                                                                                                | example target projects                                                                                                           |
 | [scripts/_310_refresh_trice_user_manual.sh](../scripts/_310_refresh_trice_user_manual.sh)                               | [Trice Reference Manual Maintenance (or any `*.md` file)](#trice-reference-manual-maintenance-or-any-md-file)                               |
 | [scripts/gitAddWorktreeFromGitLogLineData.sh](../scripts/gitAddWorktreeFromGitLogLineData.sh)                           | helper to get easy a git worktree folder from any git hash for easy folder compare, see inside                                    |
@@ -12767,6 +13020,79 @@ A source file is never left partially written after Ctrl-C, SIGTERM, crash, or w
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+
+## 52. <a id="project-resources"></a>Project Resources
+
+### 52.1. <a id="download-and-install-trice"></a>Download and install Trice
+
+Choose a release or a source checkout, then use its matching target sources, host tools, and documentation. An older release binary may not contain features documented by a newer checkout. See [firmware and host-tool compatibility](#compatibility-with-firmware-and-host-tool-versions).
+
+- [GitHub Releases](https://github.com/rokath/trice/releases) provides published host-tool archives and source archives. Choose the operating system and architecture of your host computer; extract the tool and add its directory to `PATH`.
+- For a checkout build, run the existing script from the repository root with Go and Bash installed:
+
+  ```sh
+  ./scripts/buildTriceTool.sh
+  trice --version
+  ```
+
+  The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../go.mod); see [building the host tools](#build-trice-tool-from-go-sources) for details.
+- The macOS Homebrew tap is another installation route: `brew install rokath/tap/trice`. Confirm the installed version rather than assuming it includes the current development checkout.
+
+For the first hardware-free experiment, follow the [User Manual](./TriceUserManual.md#get-lib-and-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](#quickstarts).
+
+### 52.2. <a id="alternative-projects-and-related-approaches"></a>Alternative projects and related approaches
+
+Trice combines printf-like source calls, ID-based host decoding, and configurable binary transport. Other projects emphasize different languages, runtime environments, tracing models, or integrations. These links are starting points for comparison, not a claim that all projects provide the same features or interchangeable formats.
+
+#### 52.2.1. <a id="logging-and-deferred-formatting"></a>Logging and deferred formatting
+
+- [defmt](https://github.com/knurling-rs/defmt): deferred formatting for embedded Rust.
+- [Zephyr dictionary-based logging](https://docs.zephyrproject.org/latest/services/logging/index.html#dictionary-based-logging).
+- [Memfault Compact Logs](https://docs.memfault.com/docs/mcu/compact-logs).
+- [Postform](https://github.com/Javier-varez/Postform).
+- [Embedded Logger (elog)](https://github.com/martinribelotta/elog).
+- [McuLog](https://mcuoneclipse.com/2020/06/01/mculog-logging-framework-for-small-embedded-microcontroller-systems/).
+- [uLog](https://github.com/rdpoor/ulog).
+- [NanoLog](https://github.com/PlatformLab/NanoLog).
+- [Diagnostic Log and Trace (DLT)](https://github.com/COVESA/dlt-daemon).
+
+#### 52.2.2. <a id="tracing-and-visualization"></a>Tracing and visualization
+
+- [Baical UP7](https://baical.net/up7.html).
+- [Pigweed tokenized tracing](https://pigweed.dev/pw_trace_tokenized/).
+- [SEGGER SystemView](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/).
+- [Percepio Tracealyzer](https://percepio.com/tracealyzer/).
+- [QP/Spy](https://www.state-machine.com/qtools/qpspy.html).
+- [MCUViewer](https://github.com/klonyyy/MCUViewer).
+- [RTEdbg](https://github.com/RTEdbg/RTEdbg).
+- [Tonbandgerät](https://github.com/schilkp/Tonbandgeraet).
+- [Traces](https://github.com/yotamr/traces).
+
+#### 52.2.3. <a id="other-techniques-and-background-reading"></a>Other techniques and background reading
+
+- Plain `printf` over UART, or a project-specific binary logger.
+- Hardware trace through Arm ITM/SWO, and [Arm Keil Event Recorder](https://arm-software.github.io/CMSIS-View/latest/evr.html).
+- [SEGGER RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) as a transport; Trice can also [use RTT](#trice-over-rtt).
+- [Logging with symbols in the Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html).
+- [Call-stack logging through function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a).
+- [Dynamic printf breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/).
+- [Minimal Structured Logging for Autonomous Vehicles](https://youtu.be/FyJI4Z6jD4w), a talk about another approach.
+
+### 52.3. <a id="community-and-contributions"></a>Community and contributions
+
+Use [GitHub Discussions](https://github.com/rokath/trice/discussions) for questions, ideas, and integration experience. Search [open and closed issues](https://github.com/rokath/trice/issues?q=is%3Aissue) for known problems and previous resolutions. For a reproducible bug, include the tool version, relevant configuration, command, expected result, and actual output.
+
+Examples, documentation improvements, platform recipes, fixes, and reproducible performance measurements are welcome. [CONTRIBUTING](../CONTRIBUTING.md) describes the development workflow, [CHANGELOG](../CHANGELOG.md) records release changes, and the [MIT License](../LICENSE.md) governs the project. [AUTHORS](../AUTHORS.md) lists contributors.
+
+### 52.4. <a id="support-and-sponsoring"></a>Support and sponsoring
+
+If Trice helps your work, you can support it by sharing an example, improving the documentation, reporting a reproducible problem, contributing a fix, or starring the repository. Financial support for continued maintenance is also welcome:
+
+- [GitHub Sponsors](https://github.com/sponsors/rokath/).
+- [Buy Me a Coffee](https://buymeacoffee.com/rokath).
+- [PayPal](https://www.paypal.com/paypalme/rolfkarlthomas).
+
+These are the support routes configured by the project in [FUNDING.yml](../.github/FUNDING.yml). Sponsoring is optional; using Trice does not require a donation.
 
 <div id="bottom"></div>
 

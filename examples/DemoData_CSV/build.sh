@@ -1,4 +1,8 @@
 #!/bin/sh
+# Build the native CSV sample producer used by LabPlotDemo.
+# Usage: ./build.sh. Requires CMake and a native C compiler.
+# CMake configures in build/, compiles, then installs the executable here.
+# --config Release also selects the configuration on Windows multi-config builds.
 # SPDX-License-Identifier: MIT
 #
 # Portable CMake build entry point.

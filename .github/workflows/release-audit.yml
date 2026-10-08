@@ -63,6 +63,7 @@ jobs:
           download_required 'trice_*_amd64.rpm'
           download_required 'trice_*_amd64.apk'
           download_required 'TriceReferenceManual.pdf'
+          download_required 'TriceUserManual.pdf'
 
           require_glob 'trice_tool_linux_amd64.tar.gz'
           require_glob 'trice_tool_darwin_amd64.tar.gz'
@@ -72,6 +73,7 @@ jobs:
           require_glob 'trice_*_amd64.rpm'
           require_glob 'trice_*_amd64.apk'
           require_glob 'TriceReferenceManual.pdf'
+          require_glob 'TriceUserManual.pdf'
 
           echo "::group::Downloaded release assets"
           find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort
@@ -545,7 +547,18 @@ jobs:
             exit 1
           fi
           test -s "$source_root/src/trice.h"
+          if [ ! -s "$source_root/src/default_conf/SEGGER_RTT_Conf.h" ]; then
+            echo "::error::target archive lacks src/default_conf/SEGGER_RTT_Conf.h"
+            exit 1
+          fi
           test -s "$source_root/src/trice.c"
+          # RTT's defaults and license must accompany the vendor sources.
+          for vendor_file in SEGGER_RTT_ConfDefaults.h SEGGER_RTT_LICENSE.md; do
+            if [ ! -s "$source_root/src/$vendor_file" ]; then
+              echo "::error::target archive lacks src/$vendor_file"
+              exit 1
+            fi
+          done
           cat > "$source_root/src/triceConfig.h" <<'EOF'
           #ifndef TRICE_CONFIG_H_
           #define TRICE_CONFIG_H_
@@ -557,9 +570,9 @@ jobs:
           EOF
           for source_file in "$source_root"/src/*.c; do
             case "$(basename "$source_file")" in
-              SEGGER_RTT.c|triceUart.c) continue ;;
+              triceUart.c) continue ;;
             esac
-            cc -I "$source_root/src" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
+            cc -I "$source_root/src" -I "$source_root/src/default_conf" -c "$source_file" -o "/tmp/$(basename "$source_file").o"
           done
 
   audit-release-pdf:
@@ -579,14 +592,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -s artifacts/TriceReferenceManual.pdf ]; then
-            echo "::error::missing or empty TriceReferenceManual.pdf artifact"
-            find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
-            exit 1
-          fi
-          size="$(wc -c < artifacts/TriceReferenceManual.pdf)"
-          echo "TriceReferenceManual.pdf size: $size bytes"
-          if [ "$size" -le 100000 ]; then
-            echo "::error::TriceReferenceManual.pdf looks too small: $size bytes"
-            exit 1
-          fi
+          for manual in TriceUserManual TriceReferenceManual; do
+            if [ ! -s "artifacts/$manual.pdf" ]; then
+              echo "::error::missing or empty $manual.pdf artifact"
+              find artifacts -maxdepth 2 -type f -printf '%s %p\n' | sort || true
+              exit 1
+            fi
+            # The short guide is intentionally much smaller than the reference.
+            minimum=10000
+            if [ "$manual" = TriceReferenceManual ]; then minimum=100000; fi
+            size="$(wc -c < "artifacts/$manual.pdf")"
+            echo "$manual.pdf size: $size bytes"
+            if [ "$size" -le "$minimum" ]; then
+              echo "::error::$manual.pdf looks too small: $size bytes"
+              exit 1
+            fi
+          done

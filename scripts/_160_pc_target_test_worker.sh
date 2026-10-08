@@ -28,29 +28,13 @@ cleanup_pc_temp_files() {
     "${PC_ALL_PACKAGES_FILE:-}"
 }
 
-# create_harness_overlay makes every existing PC configuration consume the two
-# canonical harness templates from testdata. This avoids both new configuration
-# directories and mechanical changes to 61 generated copies. Overlay paths stay
-# relative to _test so they work with native Go on Linux, macOS, and Windows.
+# create_harness_overlay exposes external C input changes to Go's build cache.
+# Stamped copies stay in the retained run directory; package sources and the
+# canonical harness templates remain untouched. Go writes native overlay paths.
 create_harness_overlay() {
   local overlay_file="$1"
-  local generated_file
-  local package_dir
-  local separator=""
-
-  printf '{"Replace":{' >"$overlay_file"
-  for generated_file in */generated_cgoPackage.go; do
-    [ -f "$generated_file" ] || continue
-    package_dir="${generated_file%/generated_cgoPackage.go}"
-    printf '%s"%s/generated_cgoPackage.go":"testdata/cgoPackage.go"' "$separator" "$package_dir" >>"$overlay_file"
-    separator=","
-    printf '%s"%s/generated_cgoPackage_test.go":"testdata/cgoPackage_test.go"' "$separator" "$package_dir" >>"$overlay_file"
-  done
-  printf '}}\n' >>"$overlay_file"
-  if [ -z "$separator" ]; then
-    printf 'FAIL: no generated PC-test harness files found under _test\n' >&2
-    return 1
-  fi
+  printf '+ prepare content-stamped CGO overlay (workflow=%s)\n' "${TRICE_ID_WORKFLOW:-current}"
+  go run ../scripts/pc_cache_overlay.go -out "$overlay_file" -inputs "$PC_LOG_DIR/cache-inputs" -workflow "${TRICE_ID_WORKFLOW:-current}"
 }
 
 # prepare_pc_package_lists resolves all packages before testing. Resolution is
@@ -241,10 +225,8 @@ main() {
   # Separate process groups let cancellation reach go test and its descendants.
   set -m
 
-  # triceCheck.c is included from outside package directories. Clearing both
-  # caches prevents an older C switch from being paired with current //exp data.
-  printf '+ go clean -cache -testcache\n'
-  go clean -cache -testcache || return 1
+  # The content-stamped overlay invalidates affected C builds without discarding
+  # cached Go dependencies. -count=1 above still executes every selected test.
   prepare_pc_package_lists "$selected" || return 1
   cp "$PC_OVERLAY_FILE" "$PC_SAVED_OVERLAY" || return 1
   printf 'PC matrix: mode=%s jobs=%s configurations=%s logs=%s\n' "$PC_MODE" "$PC_JOBS" "$(wc -l <"$PC_ALL_PACKAGES_FILE" | tr -d ' ')" "$PC_LOG_DIR"

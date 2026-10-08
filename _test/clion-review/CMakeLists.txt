@@ -118,6 +118,7 @@ add_executable(trice_review
 target_include_directories(trice_review PRIVATE
   "${TRICE_REVIEW_DIR}"  # <-- MUST be first to prefer user project config
   "${TRICE_SRC_DIR}"     # library headers (trice.h and others), as per your repo layout
+  "${TRICE_SRC_DIR}/default_conf" # fallback configuration must be searched last
 )
 
 # -------------------------------------------------------------------------------------

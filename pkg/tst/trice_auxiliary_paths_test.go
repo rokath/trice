@@ -131,7 +131,7 @@ func compileAndRunAuxiliaryPathHarness(t *testing.T, compiler string, tc auxilia
 	compile := exec.Command(compiler,
 		"-std=c99",
 		"-I", tempDir,
-		"-I", srcDir,
+		"-I", srcDir, "-I", filepath.Join(srcDir, "default_conf"),
 		harnessFile,
 		filepath.Join(srcDir, "triceAuxiliary.c"),
 		"-o", exeFile,

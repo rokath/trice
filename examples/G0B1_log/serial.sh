@@ -1,4 +1,10 @@
 #!/bin/sh
+# Read already formatted text from the board's serial port on macOS.
+# Usage: ./serial.sh [baud] [port], for example ./serial.sh 115200 /dev/cu.usbmodem123.
+# Defaults: 115200 baud and the first /dev/cu.usbmodem* device.
+# This needs no Trice decoder: the firmware has already formatted the messages.
+# The file descriptor keeps the port open while stty configures it and cat reads.
+# Press Ctrl-C to stop reading and close the port.
 
 set -e
 

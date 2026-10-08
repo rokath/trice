@@ -1,32 +1,16 @@
 #!/usr/bin/env bash
 #
-# Simple and CI-safe build script (pattern-preserving version).
-#
-# Main idea:
-# - Always run relative to the script location (NOT the caller's working directory).
-# - Use strict error handling, so CI fails immediately and clearly.
-# - Run `trice clean` automatically after a successful `trice insert`, even if
-#   the build fails or the user aborts the script with Ctrl-C.
-#
-# Cleanup / Ctrl-C behavior:
-# - This script may modify source files indirectly by calling:
-#
-#       scripts/_230_legacy_insert_ids.sh
-#
-# - After that point, the repository should be cleaned again by calling:
-#
-#       scripts/_240_legacy_clean_ids.sh
-#
-# - The cleanup is intentionally handled in this outer script, because this is
-#   the level that knows the complete sequence:
-#
-#       pre-clean -> optional insert -> gcc build -> final clean
-#                 -> optional TRICE_OFF verification build without IDs
-#
-# TRICE_OFF special case:
-# - With TRICE_OFF=1, this script intentionally skips `trice insert`.
-# - Therefore the first gcc build and the additional verification build both run
-#   without inserted IDs, as before.
+# Usage: ./build.sh runs the small feature-tour build in demo_build.sh.
+# With explicit arguments, this script runs the inherited firmware/test build,
+# for example ./build.sh TRICE_OFF=1.
+# Build the firmware; this script does not flash the board.
+# Requires Bash, make, Trice and the Arm GNU toolchain in PATH.
+# Library/image details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Normal standalone builds prepare Bind headers before compiling.
+# Repository tests can supply an Insert workflow instead. Cleanup then removes
+# the temporary IDs on success, failure or Ctrl-C; keep those safeguards intact.
+# Advanced check: ./build.sh --x0-matrix builds the four logging/X0 combinations.
+# The helpers below handle that cleanup. The actual build commands follow them.
 
 set -euo pipefail
 

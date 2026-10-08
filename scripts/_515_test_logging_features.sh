@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=./_100_test_common.sh
 source "$SCRIPT_DIR/_100_test_common.sh"
 
-# A fresh copy contains current tracked bytes, including local source edits,
+# A fresh copy contains current library bytes, including new vendor headers,
 # but no previous build outputs. Failed copies remain beside the detailed log.
 FEATURE_COPY_DIR=""
 
@@ -59,7 +59,7 @@ run_logging_go_checks() {
   done
 }
 
-# create_feature_copy uses the index only as a file list, then streams the
+# create_feature_copy uses Git only as a file list, then streams the
 # worktree bytes through tar. Do not use git archive HEAD: that would omit uncommitted fixes.
 # The copied directory layout keeps the examples' relative source paths valid.
 create_feature_copy() {
@@ -70,6 +70,13 @@ create_feature_copy() {
   git ls-files -z -- src examples/PC_features examples/G0B1_features examples/exampleData \
     >"$FEATURE_COPY_DIR/paths" || {
     log "FAIL: cannot enumerate tracked feature-example sources"
+    return 1
+  }
+  # Source upgrades can add required headers before a commit. Include those
+  # library files too, while still excluding untracked example build outputs.
+  git ls-files -z --others --exclude-standard -- 'src/*.c' 'src/*.h' 'src/*.md' 'src/default_conf/*.h' \
+    >>"$FEATURE_COPY_DIR/paths" || {
+    log "FAIL: cannot enumerate new target library files"
     return 1
   }
   run_cmd bash -o pipefail -c \

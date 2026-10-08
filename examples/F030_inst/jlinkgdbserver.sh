@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# Start a SEGGER J-Link GDB server for this example's connected board.
+# Usage: ./jlinkgdbserver.sh. Requires the JLinkGDBServer command in PATH.
+# Leave this terminal open and connect your debugger from another terminal/IDE.
+# -device selects the MCU; -if SWD selects the debug connection.
+# -speed 4000 selects a 4 MHz debug clock; the RTT telnet port is 19021.
+# -nohalt and -noreset keep this startup from stopping or resetting the firmware.
+# Stop the server with Ctrl-C. Change the device only when using another MCU.
 
 JLinkGDBServer \
   -device STM32F030R8 \

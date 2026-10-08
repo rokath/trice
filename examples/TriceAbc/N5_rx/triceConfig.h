@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef TRICE_CONFIG_N5_RX_H_
 #define TRICE_CONFIG_N5_RX_H_
 
@@ -13,6 +15,9 @@
 
 /* This node excludes the normal transmit stack and includes receive support. */
 #define TRICE_TX_SUPPORT 0
+// Compile all library sources, but keep the unused logging backend disabled.
+// TRICE_OFF affects production of logs, not the receive-side decoder.
+#define TRICE_OFF 1
 #define TRICE_RX_ABC_SUPPORT 1
 #define TRICE_RX_X0_COUNTED_BUFFER_SUPPORT 1
 

@@ -1,4 +1,10 @@
 #!/bin/sh
+# Live CSV demo: ./run_csv.sh. Requires LabPlot, CMake and a native C compiler.
+# Data flow: DemoData_CSV -> UDP port 9000 -> LabPlot plot.
+# The script finds LabPlot, builds the producer if missing, opens the plot,
+# and runs the producer. Press Ctrl-C to stop the producer; cleanup targets only
+# the app-launch process started here. Close any remaining plot window yourself.
+# If discovery fails, set LABPLOT to your LabPlot executable and run again.
 # Start LabPlot and feed the live project with the CSV demo over UDP.
 set -eu
 
@@ -6,6 +12,7 @@ script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH='' cd -- "$script_dir/../.." && pwd)
 demo_dir="$repo_root/examples/DemoData_CSV"
 
+# Find the app on common systems. You can skip the search by setting LABPLOT.
 find_labplot() {
   if [ -n "${LABPLOT:-}" ]; then
     [ -x "$LABPLOT" ] && printf '%s\n' "$LABPLOT" && return
