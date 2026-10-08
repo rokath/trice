@@ -72,27 +72,9 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 #Core/Src/sysmem.c 
 #Core/Src/syscalls.c
 
-# trice lib
-C_SOURCES += \
-../../src/cobsDecode.c \
-../../src/cobsEncode.c \
-../../src/SEGGER_RTT.c \
-../../src/tcobsv1Decode.c \
-../../src/tcobsv1Encode.c \
-../../src/trice.c \
-../../src/trice8.c \
-../../src/trice16.c \
-../../src/trice32.c \
-../../src/trice64.c \
-../../src/triceUart.c \
-../../src/triceAuxiliary.c \
-../../src/triceDoubleBuffer.c \
-../../src/triceRingBuffer.c \
-../../src/triceStackBuffer.c \
-../../src/triceStaticBuffer.c \
-../../src/triceRx.c \
-../../src/triceX0.c \
-../../src/xtea.c 
+# Compile the complete Trice library; project headers keep their precedence.
+# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+C_SOURCES += $(wildcard ../../src/*.c)
 
 # examples
 C_SOURCES += \

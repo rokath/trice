@@ -36,14 +36,19 @@ int main(void) {
 	// The standard C library snprintf supplies the formatter hook contract.
 	UserTriceLogPrintfFn = snprintf;
 	UserTriceLogPrefixFn = stampPrefix;
+	// These calls store binary records. drainLocalLog below turns them into text
+	// inside this C program, so this example needs no separate host decoder.
+	// Change a value or a format here and rebuild to see the effect immediately.
 	trice("msg:PC local log is running\n");
 	trice("value=%d hex=%08x\n", -42, 0x2a);
 	triceS("text:runtime=[%s]\n", "hello from triceS");
 	triceS("text:width and precision=[%-12.5s]\n", "abcdefgh");
+	// aFloat/aDouble transport floating-point bit patterns, not integer casts.
 	trice32("float:single=%+.3f scientific=%.2e\n", aFloat(3.125f), aFloat(-0.03125f));
 	trice64("float:double=%.9f compact=%.6g\n", aDouble(3.141592653589793), aDouble(123456.0));
 	trice8("special:binary=%#b bool=%t octal=%O pointer=%p quoted=%q\n", 5u, 1u, 9u, 0xabu, 'A');
 	triceS("text:quoted=%q\n", "line 1\n\"line 2\"");
+	// The buffer conversion is repeated once per 16-bit array element.
 	TRICE16_B("buffer:%04x \n", samples, sizeof(samples) / sizeof(samples[0]));
 
 	if (drainLocalLog(text, sizeof(text), 0) < 0) {

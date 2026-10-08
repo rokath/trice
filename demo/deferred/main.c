@@ -35,12 +35,16 @@ int main(void) {
 		perror("log.bin");
 		return 1;
 	}
+	// Connect the output hook. Log calls only fill the ring buffer; the hook
+	// runs later when TriceTransfer moves the records to the destination.
 	UserNonBlockingDeferredWrite8AuxiliaryFn = writeLogFile;
 	TriceInit();
 	trice("msg:Hello from deferred mode.\n");
 	trice("att:Deferred value=%d.\n", 42);
 
-	// Keep transferring until every buffered record reached the file writer.
+	// The file still has no records here. Keep transferring until every buffered
+	// record reaches the file writer. Firmware normally does this in its main
+	// loop or an output task, outside the timing-sensitive producer code.
 	while (TricesCountRingBuffer > 0) {
 		TriceTransfer();
 	}

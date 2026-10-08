@@ -119,14 +119,20 @@ build_node() {
   # BASE_CFLAGS is intentionally word-split into separate compiler options.
   # Each node's configuration must also precede the shared library defaults.
   # shellcheck disable=SC2086
-  "${CC_BIN}" -I"${SCRIPT_DIR}/${name}" ${BASE_CFLAGS:-} "$@" -o "build/${name}${EXE_SUFFIX}"
+  "${CC_BIN}" -I"${SCRIPT_DIR}/${name}" ${BASE_CFLAGS:-} "$@" \
+    "${ROOT}"/src/*.c "$link_unused" -o "build/${name}${EXE_SUFFIX}"
 }
 
 CC_BIN="$(find_compiler)"
 EXE_SUFFIX=""
 
 # Project headers come first; library headers and fallback configuration come last.
-BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim -I${ROOT}/src -I${ROOT}/src/default_conf"
+BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -ffunction-sections -fdata-sections -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim -I${ROOT}/src -I${ROOT}/src/default_conf"
+
+# Every node compiles src/*.c; its configuration selects TX/RX features.
+# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+link_unused=-Wl,--gc-sections
+case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW* | MSYS* | CYGWIN*)
@@ -137,6 +143,10 @@ esac
 
 cd "${SCRIPT_DIR}"
 mkdir -p build NodeLib
+
+# Remove the previous generated format table before scanning NodeLib. Its
+# quoted message text is data, not source calls; the table is recreated below.
+rm -f "${SCRIPT_DIR}/NodeLib/til.c"
 
 echo "prepare: trice insert examples/TriceAbc"
 run_trice insert \
@@ -163,7 +173,6 @@ echo "prepare: generate shared NodeLib/nodeAbc.{h,c}"
 )
 
 echo "prepare: generate shared NodeLib/til.c"
-rm -f "${SCRIPT_DIR}/NodeLib/til.c"
 
 (
   cd "${ROOT}"
@@ -183,38 +192,23 @@ COMMON_NODE_SOURCES="
 	${SCRIPT_DIR}/NodeLib/node.c
 "
 
-TX_SOURCES="
-	${ROOT}/src/trice.c
-	${ROOT}/src/trice8.c
-	${ROOT}/src/trice16.c
-	${ROOT}/src/trice32.c
-	${ROOT}/src/trice64.c
-	${ROOT}/src/triceStackBuffer.c
-	${ROOT}/src/triceX0.c
-	${ROOT}/src/cobsEncode.c
-	${ROOT}/src/tcobsv1Encode.c
-"
-
+# Only receive-capable nodes need the generated application dispatch table.
+# Library sources are already included by build_node above.
 RX_SOURCES="
-	${ROOT}/src/triceRx.c
-	${ROOT}/src/cobsDecode.c
 	${SCRIPT_DIR}/NodeLib/nodeAbc.c
 "
 
 build_node N1_tx \
   "${SCRIPT_DIR}/N1_tx/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${TX_SOURCES}
+  ${COMMON_NODE_SOURCES}
 
 build_node N2_tx \
   "${SCRIPT_DIR}/N2_tx/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${TX_SOURCES}
+  ${COMMON_NODE_SOURCES}
 
 build_node N3_bi \
   "${SCRIPT_DIR}/N3_bi/main.c" \
   ${COMMON_NODE_SOURCES} \
-  ${TX_SOURCES} \
   ${RX_SOURCES}
 
 build_node N4_rx \
@@ -236,20 +230,17 @@ build_node N6_rx \
 build_node N7_bi \
   "${SCRIPT_DIR}/N7_bi/main.c" \
   ${COMMON_NODE_SOURCES} \
-  ${TX_SOURCES} \
   ${RX_SOURCES} \
   "${SCRIPT_DIR}/NodeLib/til.c"
 
 build_node N8_bi \
   "${SCRIPT_DIR}/N8_bi/main.c" \
   ${COMMON_NODE_SOURCES} \
-  ${TX_SOURCES} \
   ${RX_SOURCES}
 
 build_node N9_bi \
   "${SCRIPT_DIR}/N9_bi/main.c" \
   ${COMMON_NODE_SOURCES} \
-  ${TX_SOURCES} \
   ${RX_SOURCES}
 
 echo "built TriceAbc demo binaries in examples/TriceAbc/build/"

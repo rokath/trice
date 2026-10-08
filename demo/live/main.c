@@ -39,6 +39,7 @@ int main(void) {
 	}
 
 	UserNonBlockingDeferredWrite8AuxiliaryFn = writeLogFile;
+	// The deferred configuration is shared with the finite deferred demo.
 	TriceInit();
 	puts("Live demo running. Stop with Ctrl+C.");
 
@@ -48,7 +49,8 @@ int main(void) {
 		trice("msg:Live counter=%u.\n", counter);
 		counter++;
 
-		// The log call buffers its record. Transfer writes it to the file.
+		// The log call only buffers its record. Transfer now writes it to the file;
+		// omitting this step would leave the decoder waiting for new bytes.
 		while (TricesCountRingBuffer > 0) {
 			TriceTransfer();
 		}

@@ -5,6 +5,9 @@
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
 
+// Keep this configuration usable when a library source includes it directly.
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

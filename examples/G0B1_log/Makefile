@@ -72,9 +72,9 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 #Core/Src/sysmem.c 
 #Core/Src/syscalls.c
 
-# Compile the complete portable Trice source set. The upper-case SEGGER vendor
-# source is intentionally outside this simple glob and is not used here.
-C_SOURCES += $(wildcard ../../src/[a-z]*.c) \
+# Compile the complete Trice library; project headers keep their precedence.
+# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+C_SOURCES += $(wildcard ../../src/*.c) \
 ../../_test/testdata/triceCheck.c \
 build/til.c
 

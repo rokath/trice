@@ -27,6 +27,11 @@ command -v "$compiler" >/dev/null 2>&1 || {
 suffix=
 case "$(uname -s)" in MINGW* | MSYS* | CYGWIN*) suffix=.exe ;; esac
 
+# Use the native linker's spelling for removing unused functions and data.
+# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+link_unused=-Wl,--gc-sections
+case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
+
 # 2. Generate IDs and compiler headers without changing the readable log calls.
 # Each option below has one job:
 # -src main.c:       Scan this file for Trice calls.
@@ -58,11 +63,11 @@ trice bind \
 # 3. Compile main.c with the Trice library. -I adds header search directories;
 # the warning flags help catch mistakes while experimenting with the example.
 # Project headers take precedence; library defaults are searched last.
+# ../../src/*.c includes the complete library without a maintained source list.
 "$compiler" -std=c11 -Wall -Wextra -Werror \
+  -ffunction-sections -fdata-sections "$link_unused" \
   -I. -Igenerated -I../../src -I../../src/default_conf \
-  main.c ../../src/trice.c ../../src/trice8.c ../../src/trice16.c ../../src/trice32.c \
-  ../../src/trice64.c ../../src/triceStackBuffer.c \
-  ../../src/cobsEncode.c ../../src/tcobsv1Encode.c -o "pc_features${suffix}"
+  main.c ../../src/*.c -o "pc_features${suffix}"
 # 4. Run the program. It writes encoded events to capture.bin for the show scripts.
 "./pc_features${suffix}"
 printf 'Created %s\n' capture.bin

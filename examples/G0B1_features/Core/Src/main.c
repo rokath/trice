@@ -69,11 +69,17 @@ static void LogFeatureSample(unsigned int sample, const char* worker);
 // Keep the caller-specific string in triceS; CE adds only scalar arguments.
 static void LogFeatureSample(unsigned int sample, const char* worker) {
 	const uint8_t reply[] = {0x41u, 0x00u, 0xffu};
+	// This function is called by two tasks. Named fields expose sample values
+	// in JSON/KV as well as the usual text. Trice uses a 16-bit target stamp;
+	// TRice uses a 32-bit stamp. The suffix 16 below selects parameter width.
 	Trice16("info:Task phase {phase:%u}\n", sample);
+	// demo_build.sh enriches only ctx: calls with the current task handle.
 	TRice32("info:ctx:Task sample {sample:%u}\n", sample);
+	// Runtime text belongs in triceS; the worker parameter names the caller.
 	triceS("info:Worker {worker:%s}\n", worker);
 	trice8("wrn:Retry {attempt:%u}\n", sample);
 	trice8("sensor:Load {load_pct:%u} percent\n", sample * 10u);
+	// Compare untagged text with a buffer record that formats each byte as hex.
 	trice("A message without a tag\n");
 	TRICE8_B("rx:%02x ", reply, sizeof(reply));
 }
