@@ -236,10 +236,13 @@ The generated headers are needed to compile, but do not need to be kept after th
 What you want to try | Project and next experiment | Full instructions
 --- | --- | ---
 Task context on an MCU | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](./TriceReferenceManual.md#g0b1-feature-tour)
-Integration changes in an STM32 project | Compare [F030_bare](../examples/F030_bare/) with [F030_inst](../examples/F030_inst/). | [Project setup](./TriceReferenceManual.md#f030inst)
+First instrumentation with RTT | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/). | [RTT integration steps](../examples/F030_inst_rtt/ReadMe.md)
+First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/). | [UART integration steps](../examples/F030_inst_uart/ReadMe.md)
 Text generated on the target | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder. | [Local logging](./TriceReferenceManual.md#pc-local-logging)
 Live plots | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot. | [Plotting setup](./TriceReferenceManual.md#setting-up-the-labplot-demo)
 Commands between nodes | [TriceAbc](../examples/TriceAbc/): run a host-native broadcast demo and change a command. | [ABC example](./TriceReferenceManual.md#example-examplestriceabc)
+
+The two F030 examples share the same uninstrumented baseline so that a folder comparison shows the necessary integration changes. Vendor files are unchanged. The existing [F030_inst](../examples/F030_inst/) demonstrates RTT and serial logging in parallel.
 
 These projects have different prerequisites. In particular, the G0B1 build needs an ARM toolchain; flashing and capturing require the board and probe. A successful cross-build does not mean firmware has run on hardware.
 
