@@ -56,8 +56,7 @@ C_SOURCES += $(wildcard ../../src/*.c)
 # examples
 C_SOURCES += \
 ../exampleData/triceLogDiagData.c \
-../exampleData/triceExamples.c \
-#../../_test/testdata/triceCheck.c
+../exampleData/triceExamples.c
 
 # ASM sources
 ASM_SOURCES =  \
