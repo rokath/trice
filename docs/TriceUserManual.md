@@ -69,8 +69,6 @@ The sibling scripts [demo/direct/run.sh](../demo/direct/run.sh) and [demo/live/r
 
 The next project collects several small experiments in one program. [examples/PC_features/build_and_run.sh](../examples/PC_features/build_and_run.sh) assigns IDs, compiles the PC program and runs it to create `capture.bin`. [show_text.sh](../examples/PC_features/show_text.sh), [show_json.sh](../examples/PC_features/show_json.sh) and [show_kv.sh](../examples/PC_features/show_kv.sh) decode that same file; choosing another output format does not rebuild the target. Relevant messages include `Device pump A`, two `Supply` readings, `Retry 2`, `Humidity 55 percent` and `A message without a tag`.
 
-To run the commands below, first change into [examples/PC_features](../examples/PC_features) (from the repository root: `cd examples/PC_features`).
-
 ![PC_Examples_Screenshot_2026-10-09.png](./ref/PC-Examples_Screenshot_2026-10-09.png)
 
 ### 3.1. <a id="keep-values-as-fields"></a>Keep values as fields
