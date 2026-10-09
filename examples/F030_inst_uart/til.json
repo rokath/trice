@@ -1,0 +1,10 @@
+{
+	"1001": {
+		"Type": "trice",
+		"Strg": "info:Firmware started\\n"
+	},
+	"1002": {
+		"Type": "trice",
+		"Strg": "msg:Value=%u\\n"
+	}
+}
