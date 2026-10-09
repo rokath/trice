@@ -590,8 +590,8 @@ Die sichtbare Ausgabe enthält kein synthetisches `untagged:` mehr. Für ungetag
 | Format | Ausgabe für `trice("hi")`, ohne weitere Metadaten |
 | --- | --- |
 | Text | `hi` |
-| JSON | `{"tag":"untagged","message":"hi"}` |
-| KV | `tag=untagged message="hi"` |
+| JSON | `{"tag":"untagged","level":"INFO","message":"hi"}` |
+| KV | `tag=untagged level=INFO message="hi"` |
 
 Bei einem unbekannten Präfix wie `trice("mgs:blah")` bleibt die Message `mgs:blah`, während das Tag-Metadatum `untagged` lautet. Dadurch bleibt auch ein möglicher Tippfehler sichtbar. Die bestehenden Darstellungsregeln für ausdrücklich geschriebene bekannte Tags bleiben erhalten; ebenso die Regeln für Leerraum und Zeilenabschluss. Anwendertext darf nicht durch pauschales Entfernen gleichlautender Textstücke verändert werden.
 
