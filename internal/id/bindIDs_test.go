@@ -463,6 +463,83 @@ func TestBindUpdatesTriceCleanOnlyAfterSuccessfulAnalysis(t *testing.T) {
 	assert.Equal(t, liBefore, liAfter)
 }
 
+// TestBindTriceCleanNoteIsVerboseAndInformational verifies both user-visible
+// advice and the unchanged optional-setting policy. Dry runs describe the reset
+// honestly without writing; ordinary runs remain silent about this setting.
+func TestBindTriceCleanNoteIsVerboseAndInformational(t *testing.T) {
+	const note = "Note: TRICE_CLEAN in triceConfig.h is optional for Insert/Clean editor support; Bind normally does not need it."
+	const reset = "TRICE_CLEAN: reset from 1 to 0 planned."
+	for _, tc := range []struct {
+		name       string
+		filename   string
+		source     string
+		verbose    bool
+		dryRun     bool
+		wantNote   bool
+		wantReset  bool
+		wantSource string
+	}{
+		{name: "verbose zero explains the optional setting without changing it", filename: "triceConfig.h", source: "#define TRICE_CLEAN 0\n", verbose: true, wantNote: true},
+		{name: "verbose one explains the planned reset and commits zero", filename: "triceConfig.h", source: "#define TRICE_CLEAN 1\n", verbose: true, wantNote: true, wantReset: true, wantSource: "#define TRICE_CLEAN 0\n"},
+		{name: "normal zero emits no optional-setting note", filename: "triceConfig.h", source: "#define TRICE_CLEAN 0\n"},
+		{name: "normal one still resets without emitting a note", filename: "triceConfig.h", source: "#define TRICE_CLEAN 1\n", wantSource: "#define TRICE_CLEAN 0\n"},
+		{name: "verbose dry run reports a reset but preserves one", filename: "triceConfig.h", source: "#define TRICE_CLEAN 1\n", verbose: true, dryRun: true, wantNote: true, wantReset: true},
+		{name: "verbose dry run with zero reports only the advice", filename: "triceConfig.h", source: "#define TRICE_CLEAN 0\n", verbose: true, dryRun: true, wantNote: true},
+		{name: "an omitted setting stays omitted and produces no note", filename: "triceConfig.h", source: "#define TRICE_OFF 0\n", verbose: true},
+		{name: "another header is outside the project-config advice", filename: "settings.h", source: "#define TRICE_CLEAN 1\n", verbose: true},
+		{name: "line-commented examples do not count as definitions", filename: "triceConfig.h", source: "// #define TRICE_CLEAN 0\n", verbose: true},
+		{name: "multiline-commented examples do not count as definitions", filename: "triceConfig.h", source: "/* Editor example:\n#define TRICE_CLEAN 0\n*/\n", verbose: true},
+		{name: "string text does not count as a definition", filename: "triceConfig.h", source: "const char *example = \"#define TRICE_CLEAN 0\";\n", verbose: true},
+		{name: "similarly named macros do not trigger advice", filename: "triceConfig.h", source: "#define TRICE_CLEANUP 0\n", verbose: true},
+		{name: "directive whitespace still identifies a real definition", filename: "triceConfig.h", source: "  #  define\tTRICE_CLEAN\t0\n", verbose: true, wantNote: true},
+		{name: "repeated conditional definitions produce one note per file", filename: "triceConfig.h", source: "#if EDITOR\n#define TRICE_CLEAN 0\n#else\n#define TRICE_CLEAN 0\n#endif\n", verbose: true, wantNote: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			defer prepareBindTest(t, map[string]string{tc.filename: tc.source})()
+			Verbose, DryRun = tc.verbose, tc.dryRun
+			var output bytes.Buffer
+			require.NoError(t, SubCmdIdBind(&output, FSys), "an optional editor setting must not reject Bind")
+			if tc.wantNote {
+				assert.Equal(t, 1, strings.Count(output.String(), note), "report the advice once per configuration file")
+				assert.Contains(t, output.String(), Srcs[0]+":", "identify the configuration containing the setting")
+			} else {
+				assert.NotContains(t, output.String(), note)
+			}
+			if tc.wantReset {
+				assert.Contains(t, output.String(), reset)
+			} else {
+				assert.NotContains(t, output.String(), reset)
+			}
+			after, err := FSys.ReadFile(Srcs[0])
+			require.NoError(t, err)
+			wantSource := tc.source
+			if tc.wantSource != "" {
+				wantSource = tc.wantSource
+			}
+			assert.Equal(t, wantSource, string(after), "the informational note must not introduce additional source changes")
+		})
+	}
+}
+
+// TestBindRejectedAnalysisDoesNotAnnounceTriceCleanReset prevents a failed
+// generation from claiming that an optional configuration reset was scheduled.
+func TestBindRejectedAnalysisDoesNotAnnounceTriceCleanReset(t *testing.T) {
+	const config = "#define TRICE_CLEAN 1\n"
+	defer prepareBindTest(t, map[string]string{
+		"triceConfig.h": config,
+		"module.c":      "void log_message(void) { trice(\"before a later include\"); }\n#include \"later.h\"\n",
+	})()
+	Verbose = true
+	var output bytes.Buffer
+	require.Error(t, SubCmdIdBind(&output, FSys))
+	assert.Contains(t, output.String(), "cannot place bind include safely")
+	assert.NotContains(t, output.String(), "Note: TRICE_CLEAN")
+	assert.NotContains(t, output.String(), "reset from 1 to 0 planned")
+	after, err := FSys.ReadFile(filepath.Join(Proj, t.Name(), "triceConfig.h"))
+	require.NoError(t, err)
+	assert.Equal(t, config, string(after), "failed analysis must preserve the cleaned editor configuration")
+}
+
 // TestBindFileKeyAndSidecarName validates the stable key and readable basename formats directly.
 func TestBindFileKeyAndSidecarName(t *testing.T) {
 	defer Setup(t)()

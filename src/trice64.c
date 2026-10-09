@@ -11,7 +11,8 @@
 // lint -e701  Info 701: Shift left of signed quantity (int)
 // lint -e712  Info 712: Loss of precision (assignment) (unsigned long long to unsigned int)
 
-#if TRICE_64_BIT_SUPPORT == 1 && TRICE_OFF == 0
+// Ordinary log functions are absent when their public macros are disabled.
+#if TRICE_64_BIT_SUPPORT == 1 && TRICE_OFF == 0 && TRICE_CLEAN == 0
 
 // no-stamp 64-bit-values functions
 #ifndef ENABLE_trice64fn_0
@@ -565,4 +566,4 @@ void TRice64fn_12(uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t 
 }
 #endif
 
-#endif // #if TRICE_64_BIT_SUPPORT == 1 && TRICE_OFF == 0
+#endif // #if TRICE_64_BIT_SUPPORT == 1 && TRICE_OFF == 0 && TRICE_CLEAN == 0

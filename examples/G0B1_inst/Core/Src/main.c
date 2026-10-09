@@ -112,16 +112,9 @@ int main(void) {
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 
-#if TRICE_OFF == 1 && TRICE_CLEAN == 0
-
-	// With TRICE_OFF == 1 the custom macros fall back to the custom implementation.
-	// That can work only in the TRICE_CLEAN == 0 state.
-	// The custom macros cause compiler warnings, when the IDs are still inserted.
-	// It makes no sense to translate with TRICE_OFF == 1 && TRICE_CLEAN == 0.
-	// Therefore a 'trice clean' is needed before building the binary with TRICE_OFF == 1.
-	// We silently exclude the custom macros here, to test the TRICE_OFF == 1 tanslation with and without IDs inserted.
-
-#else // #if TRICE_OFF == 1 && TRICE_CLEAN == 0
+	// Skip these custom aliases in disabled builds: their printf fallback expects
+	// ID-free arguments, whereas insert-owned calls can still contain IDs.
+#if TRICE_OFF == 0
 
 	/* Some Custom Trice Alias Examples */
 	const int theRightAnswer = 42;
@@ -140,7 +133,7 @@ int main(void) {
 	// Assert with condition and a message and some extra message arguments
 	CUSTOM_ASSERT(theFastFoundAnswer == theRightAnswer, (char*)"'%s' Am, it is %d", (char*)theQuestion, theRightAnswer);
 
-#endif // #else // #if TRICE_OFF == 1 && TRICE_CLEAN == 0
+#endif // TRICE_OFF == 0
 
 	/* USER CODE END 2 */
 

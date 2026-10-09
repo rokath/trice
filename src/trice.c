@@ -10,14 +10,20 @@
 // The corresponding ABI definitions below use parenthesized declarators so
 // their public function-like macro names are not expanded.
 #include "trice.h"
+
+#if TRICE_BACKEND_ACTIVE
+
+// Only configured encoders are referenced, even without LTO or section removal.
+#if TRICE_COBS_ENCODE_SUPPORT == 1
 #include "cobs.h"
+#endif
+#if TRICE_TCOBS_ENCODE_SUPPORT == 1
 #include "tcobs.h"
+#endif
 
 #if ((TRICE_DIRECT_XTEA_ENCRYPT == 1) || (TRICE_DEFERRED_XTEA_ENCRYPT == 1))
 #include "xtea.h"
 #endif
-
-#if TRICE_BACKEND_ACTIVE
 
 // check configuration:
 
@@ -413,12 +419,25 @@ static size_t triceIDAndLen(uint32_t* pBuf, uint8_t** ppStart, int* triceID) {
 //! It fills dst with the next trice data, which are encoded and framed or not, according the selected switches.
 //! The areas of dst and buf are allowed to overlap.
 //! \param encrypt, when 0, then without encryption, when 1, then with XTEA encryption.
-//! \param framing selects if and which framing is used.
+//! \param framing selects NONE or an encoder enabled by TRICE_*COBS_ENCODE_SUPPORT.
 //! \param dst is the destination. It must be 32-bit aligned.
 //! \param buf is the source. This can be not 32-bit aligned.
 //! \param len is the source len.
-//! \retval is the encoded len with 0-delimiter byte.
+//! \retval is the encoded len with 0-delimiter byte (no delimiter for NONE).
+//! Returns 0 for unavailable or unknown framing. Unavailable framing leaves dst untouched.
 size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8_t* buf, size_t len) {
+
+// Reject absent encoders before encryption or diagnostics can change buffers/state.
+#if TRICE_COBS_ENCODE_SUPPORT == 0
+	if (framing == TRICE_FRAMING_COBS) {
+		return 0;
+	}
+#endif
+#if TRICE_TCOBS_ENCODE_SUPPORT == 0
+	if (framing == TRICE_FRAMING_TCOBS) {
+		return 0;
+	}
+#endif
 
 #if TRICE_DIAGNOSTICS == 1
 	int distance = (int)(buf - dst);
@@ -475,14 +494,18 @@ size_t TriceEncode(unsigned encrypt, unsigned framing, uint8_t* dst, const uint8
 	}
 
 	switch (framing) {
+#if TRICE_TCOBS_ENCODE_SUPPORT == 1
 	case TRICE_FRAMING_TCOBS:
 		encLen = (size_t)TCOBSEncode(dst, dat, len);
 		dst[encLen++] = 0; // Add zero as package delimiter.
 		return encLen;
+#endif
+#if TRICE_COBS_ENCODE_SUPPORT == 1
 	case TRICE_FRAMING_COBS:
 		encLen = /* (size_t) */ COBSEncode(dst, dat, len);
 		dst[encLen++] = 0; // Add zero as package delimiter.
 		return encLen;
+#endif
 	case TRICE_FRAMING_NONE:
 		memmove(dst, dat, len);
 		encLen = len;
@@ -516,8 +539,9 @@ static void triceSeggerRTTDiagnostics(void) {
 
 #endif // #if (TRICE_DIAGNOSTICS ==1) && defined(SEGGER_RTT)
 
-#define TRICE_DIRECT32 ((TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DIRECT_AUXILIARY32 == 1))
-#define TRICE_DIRECT8 ((TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_AUXILIARY8 == 1))
+// Retained channel settings do not activate helpers for a disabled direct output.
+#define TRICE_DIRECT32 ((TRICE_DIRECT_OUTPUT == 1) && ((TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DIRECT_AUXILIARY32 == 1)))
+#define TRICE_DIRECT8 ((TRICE_DIRECT_OUTPUT == 1) && ((TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_AUXILIARY8 == 1)))
 
 #if TRICE_DIRECT32 && TRICE_DIRECT8
 #error configuration
@@ -679,7 +703,7 @@ static void TriceDirectWrite32(const uint32_t* buf, unsigned count) {
 
 #if TRICE_DIRECT8 || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
-#if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+#if TRICE_DIRECT8 && ((TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS))
 
 //! directXEncode transforms buf to enc and adds a 0-delimiter and padding zeroes to the next uint32 boundary.
 //! directXEncode frames buf with len to enc, adds a 0-delimiter and returns the resulting length.
@@ -702,7 +726,7 @@ static size_t directXEncode8(void* enc, const void* buf, unsigned len) {
 	return lenX + 1;
 }
 
-#endif // #if (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) ||  (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)
+#endif // #if TRICE_DIRECT8 && ((TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS) || (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS))
 
 #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
@@ -720,7 +744,15 @@ static void TriceWriteDeviceRtt0(const uint8_t* enc, size_t encLen) {
 	if (encLen <= space) {
 		SEGGER_RTT_WriteNoLock(0, enc, encLen);
 	} else {
+#if TRICE_DIAGNOSTICS == 1
+// This helper serves either direct or deferred RTT; diagnostics must not
+// introduce a reference to the other output's (possibly absent) counter.
+#if TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1
 		TriceDirectOverflowCount++;
+#else
+		TriceDeferredOverflowCount++;
+#endif
+#endif
 	}
 #else  // #if TRICE_PROTECT == 1
 	SEGGER_RTT_WriteNoLock(0, enc, encLen);
@@ -735,6 +767,8 @@ static void TriceWriteDeviceRtt0(const uint8_t* enc, size_t encLen) {
 
 #endif // #if (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 
+#if TRICE_DIRECT8
+
 //! \brief Send encoded bytes via the configured direct write backend.
 //! \param enc Pointer to encoded bytes.
 //! \param encLen Byte count to write.
@@ -747,6 +781,8 @@ static void TriceDirectWrite8(const uint8_t* enc, size_t encLen) {
 	TriceNonBlockingDirectWrite8Auxiliary(enc, encLen);
 #endif
 }
+
+#endif // #if TRICE_DIRECT8
 
 #endif // #if TRICE_DIRECT8 || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1)
 

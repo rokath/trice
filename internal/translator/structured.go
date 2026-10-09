@@ -25,26 +25,6 @@ type recordMember struct {
 	unquoted bool
 }
 
-// canonicalLogLevel uses immutable built-in severity aliases. Weight and color
-// overrides, and newly registered user tags, cannot redefine severity semantics.
-func canonicalLogLevel(candidate string) string {
-	groups := []struct{ level, aliases string }{
-		{"FATAL", "fatal"}, {"CRITICAL", "critical crit"}, {"EMERGENCY", "emergency em"},
-		{"ERROR", "error err e"}, {"WARNING", "warning warn wrn"}, {"ATTENTION", "attention att"},
-		{"INFO", "info inf informal i"}, {"DEBUG", "debug dbg deb db d"}, {"TRACE", "trace tr"},
-		{"NOTICE", "notice note"}, {"ALERT", "alert"}, {"ASSERT", "assert"}, {"ALARM", "alarm a"},
-		{"VERBOSE", "verbose v"},
-	}
-	for _, group := range groups {
-		for _, alias := range strings.Fields(group.aliases) {
-			if strings.EqualFold(candidate, alias) {
-				return group.level
-			}
-		}
-	}
-	return ""
-}
-
 // structuredHostStamp follows the existing host-stamp option without the text
 // column's trailing padding. The supplied clock makes metadata tests exact.
 func structuredHostStamp(now time.Time) string {
@@ -124,11 +104,7 @@ func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStam
 func structuredTagAndMessage(record decoder.ApplicationRecord) (string, string) {
 	canonical, err := emitter.FindTagName(record.Tag)
 	if err != nil {
-		canonical, err = emitter.FindTagNameFold(record.Tag)
-		if err != nil {
-			canonical = "untagged"
-		}
-		return canonical, emitter.DecodeDisplayEscapes(record.Message)
+		return "untagged", emitter.DecodeDisplayEscapes(record.Message)
 	}
 	message := record.Message
 	if emitter.ColorPalette != "off" {
@@ -150,7 +126,7 @@ func structuredTagAndMessage(record decoder.ApplicationRecord) (string, string) 
 // Newlines in messages are escaped data and never split or merge records.
 func renderStructuredRecord(record decoder.ApplicationRecord, li id.TriceIDLookUpLI, now time.Time, state *targetStampState) ([]byte, error) {
 	tag, message := structuredTagAndMessage(record)
-	level := canonicalLogLevel(record.Tag)
+	level := emitter.TagLevel(tag)
 	members := []recordMember{{"tag", tag, true}}
 	if level != "" {
 		members = append(members, recordMember{"level", level, true})

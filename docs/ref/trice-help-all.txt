@@ -7,8 +7,8 @@ sub-command 'ds|displayServer': Starts a display server.
   -color string
     	The format strings can start with a lower or upper case channel information.
     	See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
-    	"off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
-    	"none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
+    	"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
+    	"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
     	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
     	 (default "default")
   -ipa string
@@ -111,8 +111,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	port "HEX" or "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	 (default "default")
   -ban value
-    	Tag group(s) to suppress. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" suppresses every message and "off" suppresses none.
-    	Example: "-ban dbg:wrn -ban diag" suppresses Debug, Warning, and Diag messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".
+    	Suppress a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in tags ignore case and user-defined tags match exactly. "all" suppresses every message and "off" suppresses none.
+    	Example: "-ban dbg -ban wrn -ban 200" suppresses Debug, Warning, and every event at weight 200 (not 199 or 201). Empty or invalid selectors are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".
   -baud int
     	Set the serial port baudrate.
     	It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
@@ -131,8 +131,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -color string
     	The format strings can start with a lower or upper case channel information.
     	See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
-    	"off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
-    	"none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
+    	"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
+    	"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
     	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
     	 (default "default")
   -d16
@@ -204,7 +204,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -logLevel string
     	Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
     	A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
-    	Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban. (default "all")
+    	Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in tag names and aliases ignore case; user-defined tags are matched exactly. The equivalent spelling -loglevel accepts the same values. See also CLI switches -ulabel, -pick and -ban. (default "all")
   -logfile string
     	Append all output to logfile. Options are: 'off|none|filename|auto':
     	"off": no logfile (same as "none")
@@ -214,6 +214,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	All trice output of the appropriate subcommands is appended per default into the logfile additionally to the normal output.
     	Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
     	 (default "off")
+  -loglevel string
+    	Alias for -logLevel; accepts all, off, a registered tag or alias, or an integer weight from 0 to 999. (default "all")
   -newlineIndent int
     	Force newline offset for trice format strings with line breaks before end. -1=auto sense (default -1)
   -noCycleCheck
@@ -230,8 +232,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -pf string
     	Short for '-packageFraming'. (default "TCOBSv1")
   -pick value
-    	Tag group(s) to display exclusively. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" selects every message and "off" selects none.
-    	Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".
+    	Display only a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in tags ignore case and user-defined tags match exactly. "all" selects every message and "off" selects none.
+    	Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every event at weight 200. This is exact selection; use -loglevel 200 for weight 200 and above. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".
   -port string
     	Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP.
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.
@@ -291,7 +293,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	Selector-0/typeX0 handling for TREX logs. "error" reports X0 packets and is the default. "ignore" and "counted:ignore" silently discard valid counted X0 packets but still report malformed ones. "all:ignore" discards the complete selector-0 package without length checks and must only be used for non-mixed X0 packages. "counted:<format>" prints the counted payload with Go fmt. A value without ':' is shorthand for "counted:<format>". (default "error")
   -u	Short for '-unsigned'. (default true)
   -ulabel value
-    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". Built-in tag names and aliases ignore case; user-defined tags are matched exactly.
     	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -unsigned
     	Hex, Octal and Bin values are printed as unsigned values. For signed output use -unsigned=false (default true)
@@ -592,7 +594,7 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". Built-in tag names and aliases ignore case; user-defined tags are matched exactly.
     	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
@@ -695,7 +697,7 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". Built-in tag names and aliases ignore case; user-defined tags are matched exactly.
     	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose
@@ -785,7 +787,7 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
     	Short for '-idlist'.
     	 (default "til.json")
   -ulabel value
-    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+    	Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". Built-in tag names and aliases ignore case; user-defined tags are matched exactly.
     	Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".
   -v	short for verbose
   -verbose

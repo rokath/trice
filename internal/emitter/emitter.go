@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/rokath/trice/internal/receiver"
@@ -77,8 +78,8 @@ func (i *ArrayFlag) Set(value string) error {
 	return nil
 }
 
-// channelArrayFlag stores raw selector names while flags are parsed and the
-// resolved aliases after ResolveFilterSelectors succeeds.
+// channelArrayFlag stores one raw selector per option during parsing, then
+// registered aliases or normalized exact weights after validation succeeds.
 type channelArrayFlag []string
 
 // String implements flag.Value.
@@ -99,7 +100,7 @@ func appendIfMissing(slice []string, item string) []string {
 // Set collects selector names without resolving them because user tags are
 // registered only after all command-line options have been parsed.
 func (i *channelArrayFlag) Set(value string) error {
-	*i = append(*i, strings.Split(value, ":")...)
+	*i = append(*i, value)
 	return nil
 }
 
@@ -128,9 +129,10 @@ func ResolveFilterSelectors() error {
 	return nil
 }
 
-// resolveChannelSelectors expands each known group to all aliases. The
-// reserved selectors all and off remain explicit so the filter can apply set
-// semantics without inventing tag groups.
+// resolveChannelSelectors expands groups to aliases and normalizes integer
+// weights without expanding them to groups. Weight matching therefore follows
+// each group's effective value, including command-specific -ulabel overrides.
+// all and off retain their existing complete-set and empty-set semantics.
 func resolveChannelSelectors(option string, raw channelArrayFlag) (channelArrayFlag, error) {
 	if raw == nil {
 		return nil, nil
@@ -140,13 +142,26 @@ func resolveChannelSelectors(option string, raw channelArrayFlag) (channelArrayF
 		if name == "" {
 			return nil, fmt.Errorf("invalid -%s selector: empty tag name", option)
 		}
+		if strings.Contains(name, ":") {
+			return nil, fmt.Errorf("invalid -%s selector %q: one selector per option; repeat -%s for multiple selectors; weight ranges are not supported", option, name, option)
+		}
 		if name == "all" || name == "off" {
 			resolved = appendIfMissing(resolved, name)
 			continue
 		}
+		if weight, err := strconv.Atoi(name); err == nil {
+			if weight < minTagWeight || weight > maxTagWeight {
+				return nil, fmt.Errorf("invalid -%s selector %q: numeric weight must be in range %d..%d", option, name, minTagWeight, maxTagWeight)
+			}
+			resolved = appendIfMissing(resolved, strconv.Itoa(weight))
+			continue
+		} else if isDecimal(name) {
+			// An overflowing integer is still a numeric selector, not a tag typo.
+			return nil, fmt.Errorf("invalid -%s selector %q: numeric weight must be in range %d..%d", option, name, minTagWeight, maxTagWeight)
+		}
 		variants := tagVariants(name)
 		if variants == nil {
-			return nil, fmt.Errorf("invalid -%s selector %q: unknown tag", option, name)
+			return nil, fmt.Errorf("invalid -%s selector %q: unknown tag or integer weight (0..999)", option, name)
 		}
 		for _, alias := range variants {
 			resolved = appendIfMissing(resolved, alias)
@@ -212,10 +227,10 @@ func ApplicationEventAllowed(candidate string) bool {
 		candidate = untaggedTag
 		index = tagIndex(Tags, candidate)
 	}
-	if index < 0 || (Pick != nil && !slices.Contains(Pick, "all") && !slices.Contains(Pick, candidate)) {
+	if index < 0 || (Pick != nil && !slices.Contains(Pick, "all") && !tagSelectorMatches(Pick, candidate)) {
 		return false
 	}
-	if Ban != nil && (slices.Contains(Ban, "all") || slices.Contains(Ban, candidate)) {
+	if Ban != nil && (slices.Contains(Ban, "all") || tagSelectorMatches(Ban, candidate)) {
 		return false
 	}
 	if LogLevel == "off" {
@@ -250,6 +265,18 @@ func UnclassifiedFragmentAllowed(b []byte) bool {
 	return err == nil && Tags[index].weight >= threshold
 }
 
+// tagSelectorMatches combines named groups and exact effective weights by OR.
+// A numeric prefix in unknown raw text is not itself a weight: typed events
+// classify unknown tags as untagged before calling, while legacy fragments
+// retain their unclassified behavior. Raw literal tag callers remain supported.
+func tagSelectorMatches(selectors channelArrayFlag, candidate string) bool {
+	if !isDecimal(candidate) && slices.Contains(selectors, candidate) {
+		return true
+	}
+	index := tagIndex(Tags, candidate)
+	return index >= 0 && (slices.Contains(selectors, Tags[index].Names[0]) || slices.Contains(selectors, strconv.Itoa(Tags[index].weight)))
+}
+
 // banOrPickFilter applies the -ban/-pick channel rules.
 func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 	if ban == nil && pick == nil {
@@ -265,7 +292,7 @@ func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 		if len(sc) < 2 { // no color separator
 			return len(b) // nothing to filter
 		}
-		if slices.Contains(ban, sc[0]) {
+		if tagSelectorMatches(ban, sc[0]) {
 			return 0 // filter match
 		}
 		return len(b) // no filter match
@@ -276,7 +303,7 @@ func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 		if len(sc) < 2 { // no color separator
 			return 0 // filter out
 		}
-		if slices.Contains(pick, sc[0]) {
+		if tagSelectorMatches(pick, sc[0]) {
 			return len(b) // filter match
 		}
 		return 0 // no filter match

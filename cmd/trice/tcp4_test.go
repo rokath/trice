@@ -48,6 +48,8 @@ func TestTCP4Reception(t *testing.T) {
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	defer setupTest(t, fSys)()
 
+	// Keep the old one-letter prefix in these captured-message fixtures.
+	// It is no longer a built-in tag, so every receiver must preserve "w:".
 	til := `{
 	"16201": {
 		"Type": "TRice",
@@ -82,7 +84,7 @@ func TestTCP4Reception(t *testing.T) {
 	// We use "-port TCP4BUFFER" just for the test, to force the Trice tool to shutdown after receiving a package.
 	// In real life, the user will enter "-port TCP4" instead. To keep things simple we switch off all unnecessary information.
 	input := []string{"trice", "log", "-port", "TCP4BUFFER", "-args", "localhost:" + portNumber, "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
-	expect := `Hello! 👋🙂
+	expect := `w: Hello! 👋🙂
 `
 
 	var out bytes.Buffer
@@ -113,7 +115,7 @@ func TestHEX(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "HEX", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
-	expect := `Hello! 👋🙂
+	expect := `w: Hello! 👋🙂
 `
 
 	var out bytes.Buffer
@@ -143,7 +145,7 @@ func TestDUMP(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "DUMP", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
-	expect := `Hello! 👋🙂
+	expect := `w: Hello! 👋🙂
 `
 
 	var out bytes.Buffer
@@ -173,7 +175,7 @@ func TestBUFFER(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "BUFFER", "-args", "9 146 25 6 69 11 16 86 58 00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
-	expect := `Hello! 👋🙂
+	expect := `w: Hello! 👋🙂
 `
 
 	var out bytes.Buffer
@@ -203,7 +205,7 @@ func TestDEC(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "DEC", "-args", "9 146 25 6 69 11 16 86 58 00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off"}
-	expect := `Hello! 👋🙂
+	expect := `w: Hello! 👋🙂
 `
 
 	var out bytes.Buffer
@@ -235,7 +237,7 @@ func TestHEXToTCP(t *testing.T) {
 	// create a minimalistic til.json
 	assert.Nil(t, fSys.WriteFile("til.json", []byte(til), 0777))
 	input := []string{"trice", "log", "-port", "HEX", "-args", "09 92 19 06 45 0b 10 56 3a,00", "-pw", "MySecret", "-pf", "cobs", "-li", "off", "-hs", "off", "-color", "none", "-prefix", "off", "-ts", "off", "-tcp", "localhost" + portNR}
-	exp := " Hello! 👋🙂\n"
+	exp := "w: Hello! 👋🙂\n"
 
 	go func() { // listening for transmit
 		err := args.Handler(os.Stdout, fSys, input)

@@ -10,7 +10,8 @@
 // lint -e529  Warning 529: Symbol '_SEGGER_RTT__LockState' not subsequently referenced
 // lint -e701  Info 701: Shift left of signed quantity (int)
 
-#if TRICE_32_BIT_SUPPORT == 1 && TRICE_OFF == 0
+// Ordinary log functions are absent when their public macros are disabled.
+#if TRICE_32_BIT_SUPPORT == 1 && TRICE_OFF == 0 && TRICE_CLEAN == 0
 
 // no-stamp 32-bit-values functions
 #ifndef ENABLE_trice32fn_0
@@ -564,4 +565,4 @@ void TRice32fn_12(uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t 
 }
 #endif
 
-#endif // #if TRICE_32_BIT_SUPPORT == 1 && TRICE_OFF == 0
+#endif // #if TRICE_32_BIT_SUPPORT == 1 && TRICE_OFF == 0 && TRICE_CLEAN == 0

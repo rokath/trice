@@ -174,7 +174,6 @@ func TestBindGeneratedTargetCompilesCAndCPP(t *testing.T) {
 	config := `// SPDX-License-Identifier: MIT
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
-#define TRICE_CLEAN 0
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DEFERRED_OUTPUT 0
@@ -261,8 +260,8 @@ void bind_hybrid(void) {
 	// Bound ID-free sources must also stay valid when clean or off selects the existing no-output macros.
 	cleanConfigDir := filepath.Join(project, "clean-config")
 	offConfigDir := filepath.Join(project, "off-config")
-	writeBindIntegrationFile(t, cleanConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1))
-	writeBindIntegrationFile(t, offConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 0\n#define TRICE_OFF 1", 1))
+	writeBindIntegrationFile(t, cleanConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CONFIG_H_", "#define TRICE_CONFIG_H_\n#define TRICE_CLEAN 1", 1))
+	writeBindIntegrationFile(t, offConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CONFIG_H_", "#define TRICE_CONFIG_H_\n#define TRICE_OFF 1", 1))
 	compileBindFixtureWithPedantry(t, cCompiler, "c11", cPath, filepath.Join(project, "module_clean.o"), false, BindDir, cleanConfigDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf"))
 	compileBindFixtureWithPedantry(t, cCompiler, "c11", cPath, filepath.Join(project, "module_off.o"), false, BindDir, offConfigDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf"))
 }
@@ -280,7 +279,6 @@ func TestBindMVP2RebaseCompilesCAndCPP(t *testing.T) {
 	config := `// SPDX-License-Identifier: MIT
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
-#define TRICE_CLEAN 0
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DEFERRED_OUTPUT 0
@@ -401,7 +399,6 @@ func TestBindMVP2CounterGuardsAndGeneratedInvariants(t *testing.T) {
 	config := `// SPDX-License-Identifier: MIT
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
-#define TRICE_CLEAN 0
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1
 #define TRICE_DEFERRED_OUTPUT 0
@@ -446,8 +443,8 @@ void normal(void) {
 
 	cleanConfigDir := filepath.Join(project, "clean-config")
 	offConfigDir := filepath.Join(project, "off-config")
-	writeBindIntegrationFile(t, cleanConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 1", 1))
-	writeBindIntegrationFile(t, offConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CLEAN 0", "#define TRICE_CLEAN 0\n#define TRICE_OFF 1", 1))
+	writeBindIntegrationFile(t, cleanConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CONFIG_H_", "#define TRICE_CONFIG_H_\n#define TRICE_CLEAN 1", 1))
+	writeBindIntegrationFile(t, offConfigDir, "triceConfig.h", strings.Replace(config, "#define TRICE_CONFIG_H_", "#define TRICE_CONFIG_H_\n#define TRICE_OFF 1", 1))
 	for _, disabledConfigDir := range []string{cleanConfigDir, offConfigDir} {
 		disabledIncludes := []string{BindDir, disabledConfigDir, project, filepath.Join(root, "src"), filepath.Join(root, "src", "default_conf")}
 		output, err = runBindFixtureCompiler(compiler, "c99", advancedPath, filepath.Join(disabledConfigDir, "advanced_no_counter.o"), noCounterFlags, disabledIncludes...)
@@ -609,7 +606,6 @@ func TestBindCanonicalTriceCheckGeneratesCompleteSidecar(t *testing.T) {
 	config := `// SPDX-License-Identifier: MIT
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
-#define TRICE_CLEAN 0
 #define TRICE_LEGACY_RPC_SUPPORT 1
 #define TRICE_BUFFER TRICE_STACK_BUFFER
 #define TRICE_DIRECT_OUTPUT 1

@@ -2152,7 +2152,7 @@ Binary logfiles store the Trice messages as they come out of the target in binar
 
 Recording happens before decoding, `-pick`, `-ban`, `-logLevel`, and visualization. These host options therefore do not remove received bytes from the binary recording, even with `-logLevel off`. Partial or malformed input is also recorded; a recording write failure is returned as an error. Data already lost or suppressed on the target cannot be recovered from this file.
 
-Replay can use a different selection, for example `trice log -p FILEBUFFER -args trice.bin -pick err:wrn`. Keep the matching dictionary and decoding settings (encoding, framing, and encryption) with the recording. An explicit binary filename is appended to across runs; use a new filename when separate captures are needed. Keep binary recording disabled during replay, or write to a different file, never the replay input itself.
+Replay can use a different selection, for example `trice log -p FILEBUFFER -args trice.bin -pick err -pick wrn`. Keep the matching dictionary and decoding settings (encoding, framing, and encryption) with the recording. An explicit binary filename is appended to across runs; use a new filename when separate captures are needed. Keep binary recording disabled during replay, or write to a different file, never the replay input itself.
 
 Binary logfiles are handy in the field for long data recordings.
 
@@ -2870,8 +2870,29 @@ With `#define TRICE_OFF 1`, macros in this file are ignored completely by the co
 
 * Trice messages are framed binary data, if framing is not disabled.
 * Framing is important for data disruption cases and is done with [TCOBS](https://github.com/rokath/tcobs) (has included data compression) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all.
-  * Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the Trice tool `-packageFraming` switch accordingly.
+  * Set `TRICE_DIRECT_OUT_FRAMING` and/or `TRICE_DEFERRED_OUT_FRAMING` inside `triceConfig.h` and use the Trice tool `-packageFraming` switch accordingly.
 * For robustness each Trice can get its own (T)COBS package (`TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE`). That is configurable for transfer data reduction. Use `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE` inside `triceConfig.h` (is now default). This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
+
+Encoder dependencies follow the **active outputs**. Select direct framing with `TRICE_DIRECT_OUT_FRAMING` and deferred framing with `TRICE_DEFERRED_OUT_FRAMING`. An inactive output's framing setting adds no dependency. For example, a direct-only COBS application does not need TCOBS despite the deferred framing default.
+
+| Active output framing | Required encoder source | Encoder sources that can be omitted |
+| --- | --- | --- |
+| TCOBS only | `src/tcobsv1Encode.c` | `src/cobsEncode.c` |
+| COBS only | `src/cobsEncode.c` | `src/tcobsv1Encode.c` |
+| NONE only | None | Both encoder sources |
+| Direct COBS and deferred TCOBS, or the reverse | Both encoder sources | Neither |
+
+These selective builds work without LTO, optimization or linker removal of unused sections. Encryption-disabled builds need no `src/xtea.c`; builds without RTT need no `src/SEGGER_RTT.c` or project RTT configuration. With the Trice backend disabled (`TRICE_OFF` or `TRICE_CLEAN`, without counted typeX0 transmission), retained UART settings do not require `triceUart.h` or UART hardware hooks. The [minimal demos](#minimal-pc-demos-direct-and-deferred) still compile `src/*.c` for simplicity; removing unreferenced code from such a complete-library build remains a separate [image-size optimization](#trice-project-image-size-optimization).
+
+`TriceEncode(encrypt, framing, dst, buf, len)` keeps its runtime framing argument. By default, `TRICE_COBS_ENCODE_SUPPORT` and `TRICE_TCOBS_ENCODE_SUPPORT` include exactly the encoders needed by active outputs. If your own code calls this API with additional framing methods, enable the corresponding support in `triceConfig.h` and link its encoder source. For example, add runtime COBS to an otherwise TCOBS-only application with:
+
+```c
+#define TRICE_COBS_ENCODE_SUPPORT 1
+```
+
+Use `TRICE_TCOBS_ENCODE_SUPPORT 1` to add runtime TCOBS instead. Both switches accept only `0` or `1`; disabling an encoder required by an active output is a compile-time error. A request for a framing method not included in the build returns `0`, leaves the source and destination untouched, and produces no fallback frame. Unknown framing values also return `0`. NONE remains available without either encoder; its return value is the copied byte count, without a delimiter. Check the return value before sending the destination buffer.
+
+The [encoder dependency tests](../internal/id/encoder_dependencies_test.go) link isolated native projects at `-O0`, decode their real output, and check disabled outputs and runtime opt-ins. They also inspect ARM GCC objects when that toolchain is installed; no test relies on LTO or unused-section removal.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4315,7 +4336,13 @@ To inspect an existing generation directory without running Bind again, use the 
 
 ### 24.16. <a id="trice_clean"></a>`TRICE_CLEAN`
 
-`TRICE_CLEAN` remains optional. `trice bind` does not introduce a new global `TRICE_MODE`.
+`TRICE_CLEAN` is an optional editor aid for the legacy Insert/Clean workflow. Normally leave it undefined; the library defaults to `0`. Bind sidecars let editors resolve ID-free calls without this setting.
+
+If your editor reports false macro-argument warnings after `trice clean`, you can explicitly define `TRICE_CLEAN` in your project's `triceConfig.h` only. Use `0` for inserted sources or `1` for already cleaned sources. `trice clean` changes the existing definition to `1`; `trice insert` and `trice bind` reset it to `0`. The tool never adds this definition automatically.
+
+**The compiler sees this value too:** `TRICE_CLEAN=1` suppresses ordinary logging code. Run Insert or Bind before building firmware that must log. For deliberately disabling logging, use `TRICE_OFF` instead. `trice bind` does not introduce a new global `TRICE_MODE`.
+
+With `-v`, Bind prints a note when it finds a `TRICE_CLEAN` definition in a scanned `triceConfig.h`. The note explains that Bind normally does not need this optional Insert/Clean editor aid. If Bind plans to reset `1` to `0`, it reports that change explicitly. This is informational and does not fail the command. With `-dry-run`, the planned reset is reported but not written; without `-v`, these notes are omitted.
 
 If `TRICE_CLEAN` exists in `triceConfig.h`:
 
@@ -4935,7 +4962,7 @@ Published command-line changes relative to v1.3.0 also matter when updating scri
 | `trice generate -tilC` | Use `-logC`. This is a source-based generator for current sites already resolved by Insert or Bind, not a spelling alias for dumping every historical TIL entry. Its default output is `generated/til.c`. |
 | `-liPath` | Use `-liRoot` during ID management for stored source paths; use `-liMaxDirs` during logging for displayed parent directories. |
 | `-ulabel alpha:beta` for two user tags | Use `-ulabel alpha -ulabel beta`. A colon now specifies a weight or color for one tag. |
-| Tag selection using `-pick`, `-ban`, or `-logLevel` | Registered aliases select their whole group. `-logLevel` uses priority weights, and unknown selectors are rejected before opening the input. Untagged events participate in filtering. Metadata no longer determines application selection. |
+| Tag selection using `-pick`, `-ban`, or `-logLevel` | Repeat `-pick`/`-ban` once per tag group or exact integer weight; colon-separated lists are rejected. Built-in aliases ignore case and select their whole group; built-in one-letter aliases are removed. `-logLevel`/`-loglevel` selects a minimum weight. Invalid selectors are rejected before opening the input. Untagged events participate in filtering. Metadata no longer determines application selection. |
 | `trice generate -abc deviceX` | Bare names produce `generated/deviceX.h` and `.c`. Use `-genDir` to select the directory or an explicit target path to keep a chosen location. |
 
 ### 26.2. <a id="tiljson-version-control"></a>til.json Version control
@@ -5934,7 +5961,11 @@ Wrn:fox  -> Wrn:fox
 
 The colors, aliases, and weights are defined in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go). The tag itself does not require a target-side enable switch. Use `-pick` or `-ban` to select complete tag groups during host logging. Tag-specific ID ranges can additionally assign and route target IDs.
 
-Short aliases have one unambiguous meaning. For example `W` and `w` select Write, while `wrn`, `WARN`, and `WARNING` select Warning. Configurations created for older Trice versions should replace an ambiguous short alias with the intended explicit name before using it for `-pick`, `-ban`, `-logLevel`, or `-IDRange`.
+Built-in application tag names and aliases are recognized independently of uppercase and lowercase spelling. For example, `rx`, `RX`, `rX`, and `ReCeIvE` all identify RECEIVE, even if that exact spelling is not listed. They share a weight, color, event-statistics counter, and derived structured level. This also applies to built-in names supplied to `-pick`, `-ban`, `-logLevel`/`-loglevel`, `-ulabel`, and `-IDRange`: `-IDRange rX:10,19` assigns that range to every RECEIVE spelling in the source. A second range for another spelling of the same group is rejected.
+
+Recognition does not rewrite message text. With `-color none` or `default`, a recognized prefix is removed only if it contains no uppercase letters: `rx:payload` displays `payload`, while `rX:payload` and `RX:payload` keep their written prefixes. With `-color off`, all written prefixes remain. User-defined tags follow a separate, exact-spelling rule described [below](#user-defined-tags-weights-and-colors).
+
+Built-in aliases contain at least two characters. For example, `wr` selects Write, while `wrn`, `WARN`, and `WARNING` select Warning. The former single-letter aliases such as `e`, `i`, `m`, and `w` are not built in for v2. Their prefixes remain visible and their events belong to `untagged` unless those literal names are explicitly registered with `-ulabel`. Use descriptive built-in names such as `err`, `inf`, `msg`, and `wr` for automatic classification and for `-pick`, `-ban`, `-logLevel`, or `-IDRange`.
 
 It is possible to concatenate individually tagged fragments to produce output such as:
 
@@ -5948,47 +5979,59 @@ Each tag group has one integer weight in the range `0..999`. A larger value mean
 
 The following table lists the default weights defined in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-ulabel warn:650`.
 
-| Group | Weight |
-| --- | ---: |
-| Fatal | 800 |
-| Critical | 750 |
-| Emergency | 700 |
-| Error, Assert, Alarm | 650 |
-| Warning, Notice | 600 |
-| Attention, Alert | 550 |
-| INFO, Config | 500 |
-| Time, Message, Read, Write, Receive, Transmit, Diag, Interrupt, Signal, Test, Default | 400 |
-| `untagged` | 400 |
-| Microsecond, Millisecond, Second, DeltaTime | 350 |
-| Debug | 300 |
-| Trace | 200 |
-| Verbose | 100 |
+| Weight | Level boundary | Other groups with this default weight |
+| ---: | --- | --- |
+| 900 | FATAL | EMERGENCY |
+| 800 | CRITICAL | — |
+| 700 | ERROR | ALARM, ASSERT |
+| 600 | WARNING | ALERT, ATTENTION |
+| 500 | INFO | CONFIG, DEFAULT, MESSAGE, NOTICE, `untagged` |
+| 300 | DEBUG | DIAG, READ, RECEIVE, TEST, TRANSMIT, WRITE |
+| 100 | TRACE | DELTATIME, INTERRUPT, MICROSECOND, MILLISECOND, SECOND, SIGNAL, TIME |
+| 0 | VERBOSE | — |
+
+Only the eight names in the level-boundary column define levels. Other tags are categories: they receive a [structured level derived from their effective weight](#json-and-kv-contract), but do not introduce additional boundaries. For example, RECEIVE has default weight 300 and exported level DEBUG; `-ulabel rx:750` changes its exported level to ERROR while keeping its tag RECEIVE. CLI overrides never move the level boundaries.
 
 `CYCLE_ERROR` is a Trice tool diagnostic rather than an application tag. Its stored value does not define application-message priority.
 
 ### 31.3. <a id="selecting-tags-and-priority"></a>Selecting tags and priority
 
-Use the repeatable `-pick` option to display selected tag groups, or `-ban` to suppress selected groups. The two options are mutually exclusive. Separate names with colons or repeat the option:
+Use the repeatable `-pick` option to display selected tag groups or exact weights, or `-ban` to suppress them. The two options are mutually exclusive. Supply exactly one selector per option and repeat the option for additional selectors:
 
 ```sh
-trice log -pick err:wrn -pick notice
-trice log -ban dbg -ban trace:verbose
+trice log -pick err -pick wrn -pick notice
+trice log -ban dbg -ban trace -ban verbose
 ```
 
-Aliases select the complete group. `-pick all` selects every message and `-pick off` selects none; `-ban all` suppresses every message and `-ban off` suppresses none. Empty list entries and unknown names are command-line errors.
+Aliases select the complete group. `-pick all` selects every message and `-pick off` selects none; `-ban all` suppresses every message and `-ban off` suppresses none. Empty selectors and unknown names are command-line errors. Colon-separated lists such as `-pick err:wrn` are rejected with a hint to repeat the option. Weight ranges such as `-ban 200:400` are not supported.
 
-Use `-logLevel` with `all`, `off`, a registered tag or alias, or a numeric weight from `0` through `999`. An application event passes when its tag group's weight is greater than or equal to the threshold. A lower threshold therefore displays more messages:
+An integer from `0` through `999` selects exactly that effective weight, independently of the tag name or derived level:
+
+```sh
+trice log -ulabel sensor:200 -ban 200
+trice log -ulabel sensor:200 -pick 200
+trice log -pick err -pick 200 -pick 450
+```
+
+The first excludes all events at weight 200 but keeps weights 199 and 201. The second displays only weight 200. The third displays the Error group plus any groups at weights 200 or 450: repeated selectors form a union. A named selector selects only its group, not other groups sharing that weight. Numeric selection uses the current weights after all `-ulabel` overrides, including the weight of `untagged`. Weights 199, 200 and 201 all derive level TRACE, but `-pick 200` still selects only 200. A valid numeric selector is accepted even if no registered group currently has that weight.
+
+Typed application events without a recognized tag use `untagged` for numeric selection. Byte-oriented CHAR/DUMP fragments have no event weight; a numeric selector matches their recognized tag prefixes only. Raw text such as `200:payload` is not a weight annotation.
+
+Use `-logLevel` or its equivalent spelling `-loglevel` with `all`, `off`, a registered tag or alias, or a numeric weight from `0` through `999`. An application event passes when its tag group's weight is greater than or equal to the threshold. A lower threshold therefore displays more messages:
 
 ```sh
 trice log -logLevel info
 trice log -logLevel 500
+trice log -loglevel 500
 ```
 
-Both commands use the same threshold with the default INFO weight of 500. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with default weight 400. `-logLevel off` suppresses all application events.
+These commands use the same threshold with the default INFO weight of 500. Both spellings share one setting; if repeated or mixed, the last assignment wins. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with default weight 500. `-logLevel off` suppresses all application events.
 
-With the default weights, `-logLevel info` excludes Message and `untagged` events because their weight is 400. Use `-logLevel msg` or `-logLevel 400` to include these groups and all higher-weight groups while still excluding Debug (300), Trace (200), and Verbose (100). Without a `-logLevel` option, the threshold defaults to `all`.
+With the default weights, `-logLevel info` includes Message and `untagged` events because they also have weight 500. It excludes Debug and technical categories such as Receive (300), Trace (100), and Verbose (0). Without either spelling of the option, the threshold defaults to `all`.
 
-Use a threshold when the requirement is “Warning and everything more important”, including new user tags assigned sufficiently high weights. For example, `trice log -ulabel motor:780 -logLevel wrn` includes `motor` alongside Warning, Notice, Error, and higher-weight groups. Use `-pick` for a specific set of groups such as Receive and Transmit, regardless of their weights. Combining both expresses a selected subsystem or category set with a minimum priority.
+Use a threshold when the requirement is “Warning and everything more important”, including new user tags assigned sufficiently high weights. For example, `trice log -ulabel motor:780 -logLevel wrn` includes `motor` alongside Warning, Attention, Alert, Error, and higher-weight groups. Use `-pick` for a specific set of groups such as Receive and Transmit, regardless of their weights. Combining both expresses a selected subsystem or category set with a minimum priority.
+
+Filtering uses the exact effective weight, not the derived level's lower boundary. A tag with weight 650 passes `-loglevel 650` and fails `-loglevel 651`, although its structured level is WARNING in both cases. A named threshold also uses the tag's effective weight: `-ulabel INFO:750 -logLevel INFO` selects weight 750 and above; it does not change the fixed INFO level boundary of 500.
 
 These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](#id-routing); received raw bytes can still be kept in a [binary logfile](#binary-logfile).
 
@@ -6001,7 +6044,7 @@ trice log -pick motor -ulabel motor:650
 trice log -ulabel motor:650 -pick motor
 ```
 
-`-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err:wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
+`-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err -pick wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
 
 Each Trice call is one event. Accepted fragments are concatenated until an accepted newline arrives; a rejected newline does not finish the visible line. For example, the three calls `msg:A`, `dbg:B\n`, `msg:C\n` produce `AC\n` with either `-pick msg` or `-logLevel msg` using the default weights. A multi-line event is accepted or rejected as a whole, preserving its continuation indentation. At the end of buffered input, a remaining visible fragment is flushed with a newline.
 
@@ -6030,12 +6073,16 @@ A new tag without an explicit weight receives the final INFO weight after all `-
 An existing name without either property leaves its group unchanged. An existing name with a weight changes the complete group, including every alias. The last explicit assignment wins:
 
 ```sh
--ulabel msg:150 -ulabel M:600 -ulabel msg
+-ulabel msg:150 -ulabel MSG:600 -ulabel msg
 ```
 
-This results in weight `600` for the complete Message group. It does not create additional groups for `msg` or `M`.
+This results in weight `600` for the complete Message group. It does not create additional groups for `msg` or `MSG`.
 
-Weight and color are independent. `-ulabel msg:300 -ulabel msg:"yellow+h:green"` gives every built-in Message alias (`msg`, `message`, `MSG`, `MESSAGE`, and the other aliases) weight `300` and the same color. Repeating either property changes only that property; the last value for each property wins. Free user labels are literal: `-ulabel new:300 -ulabel NEW:400` creates two distinct labels with no user-defined alias relationship.
+Weight and color are independent. `-ulabel msg:300 -ulabel msg:"yellow+h:green"` gives every built-in Message alias (`msg`, `message`, `MSG`, and `MESSAGE`) weight `300` and the same color. Repeating either property changes only that property; the last value for each property wins. Free user labels are literal: `-ulabel new:300 -ulabel NEW:400` creates two distinct labels with no user-defined alias relationship. A one-letter user tag is allowed: `-ulabel x:650` registers the literal tag `x` with weight 650; it does not also register `X`.
+
+The distinction also applies to event classification and CLI selection. With `-ulabel new:300 -ulabel NEW:650`, `new:payload` has tag `new` and level DEBUG, while `NEW:payload` has tag `NEW` and level WARNING. `-pick new` selects only the first label. An unregistered spelling such as `NeW:payload` belongs to `untagged` and keeps its prefix; using `NeW` as a pick, ban, or level selector is an error. In contrast, `-ulabel rX:750` changes the existing RECEIVE group, so `rx`, `RX`, and `rX` all have weight 750 and level ERROR; it creates no additional user tag.
+
+`OK` is not a built-in MESSAGE alias. `OK:ready` remains visible and belongs to `untagged` unless explicitly registered, for example with `-ulabel OK:650`. That registers the literal user tag `OK`; it does not also register `ok` or `Ok`.
 
 Each option accepts exactly one name. The old colon-separated name-list form is invalid. Empty names or values, unknown colors, weights outside `0..999`, purely numeric names, `all`, and `off` are rejected before the command opens or changes its input and output files. A color token itself contains a colon between foreground and background.
 
@@ -6126,7 +6173,7 @@ Try the [PC Feature Tour](#pc-feature-tour) or the [G0B1 Feature Tour](#g0b1-fea
 
 Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
 
-Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
+Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","level":"INFO","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
 
 ### 32.1. <a id="placeholders-and-names"></a>Placeholders and Names
 
@@ -6265,15 +6312,28 @@ Text prefixes, suffixes, colors, indentation, time-difference columns and `-addN
 
 ### 32.5. <a id="json-and-kv-contract"></a>JSON and KV Contract
 
-Every record contains `tag` and `message`. `tag` is the canonical name of a registered format string tag; alias lookup for this metadata field is case-insensitive. For example, `inf:Hi` and `Inf:Hi` both yield `tag=INFO`. If no registered tag matches, the value is `untagged`.
+Every application record contains `tag`, `level` and `message`. `tag` is the canonical name of a registered format string tag. Built-in aliases ignore case in both metadata and filtering: `inf:Hi` and `Inf:Hi` both yield `tag=INFO`; `rX:Hi` yields `tag=RECEIVE`. User-defined tags match exactly, so `new` and `NEW` can be separate groups. If no registered tag matches, the value is `untagged`.
 
-`message` takes the message content of text output without ANSI colors, outer metadata, text prefixes or suffixes. With `-color none` or `default`, only an exactly registered, entirely lowercase format string tag is removed: `inf:Hi` becomes `Hi`, whereas `Inf:Hi` remains `Inf:Hi`. An unknown prefix such as `mgs:Hi` also remains visible. With `-color off`, explicitly written tag prefixes remain, as in text mode. Trice never adds `untagged:` to message text: `trice("Hi")` yields `message="Hi"` and `tag="untagged"`; `trice("mgs:Hi")` yields `message="mgs:Hi"` and `tag="untagged"`. Leading and trailing whitespace, empty messages and messages consisting only of whitespace are preserved.
+`message` takes the message content of text output without ANSI colors, outer metadata, text prefixes or suffixes. With `-color none` or `default`, only a recognized, entirely lowercase format string tag is removed: `inf:Hi` becomes `Hi`, whereas `Inf:Hi` remains `Inf:Hi`. Likewise, `rx:Hi` becomes `Hi`, while `rX:Hi` retains its prefix even though it belongs to RECEIVE. An unknown prefix such as `mgs:Hi` also remains visible. With `-color off`, explicitly written tag prefixes remain, as in text mode. Trice never adds `untagged:` to message text: `trice("Hi")` yields `message="Hi"` and `tag="untagged"`; `trice("mgs:Hi")` yields `message="mgs:Hi"` and `tag="untagged"`. Leading and trailing whitespace, empty messages and messages consisting only of whitespace are preserved.
 
 A runtime string does not change tag classification: with `triceS("{text:%s}", value)` and a value starting with `err:`, `tag` remains `untagged`. Existing text output converts sequences such as `\n` and `\t` for display, including within runtime strings; `message` follows that display. The named field `fields.text` retains the transmitted string, except for outer whitespace.
 
-An optional `level` is determined through a fixed alias table independent of colors and weights. Comparison is case-insensitive. For example, `err`, `ERR` and `Error` map to `ERROR`; `warn`, `wrn` and `Warning` map to `WARNING`. Supported canonical values are `FATAL`, `CRITICAL`, `EMERGENCY`, `ERROR`, `WARNING`, `ATTENTION`, `INFO`, `DEBUG`, `TRACE`, `NOTICE`, `ALERT`, `ASSERT`, `ALARM` and `VERBOSE`. A display-only tag such as `msg` or a freely defined user label receives no invented level. Alias lookup for `tag` does not change the existing tag registry or its filtering behavior; level classification remains independent of it as well.
+`level` is derived from the tag group's effective numeric weight, including `-ulabel` overrides. Select the named level with the highest lower boundary not exceeding that weight. The eight boundaries come from the built-in defaults and stay fixed for the command, even when the weights of level-named tags are overridden. Category tags, custom tags and `untagged` use the same rule. Colors and tag names do not determine the level.
 
-For example, an application category can pass a severity threshold without becoming that severity tag:
+| Effective weight | Exported level |
+| --- | --- |
+| 900–999 | FATAL |
+| 800–899 | CRITICAL |
+| 700–799 | ERROR |
+| 600–699 | WARNING |
+| 500–599 | INFO |
+| 300–499 | DEBUG |
+| 100–299 | TRACE |
+| 0–99 | VERBOSE |
+
+VERBOSE starts at 0, so every supported weight belongs to exactly one interval. There is no default-level or INFO fallback. A new custom tag without an explicit weight still inherits the effective INFO **weight**; its level is then derived from that number. For example, `-ulabel INFO:750 -ulabel sensor` gives both groups weight 750 and level ERROR, while the INFO boundary remains 500 for other groups. Equal overridden tag weights are harmless; the eight fixed level boundaries are distinct.
+
+For example, an application category can pass a severity threshold and receive a level while retaining its tag:
 
 ```c
 trice("sensor:Supply {} mV", voltage_mV);
@@ -6286,10 +6346,16 @@ trice log -ulabel sensor:650 -logLevel wrn -logFormat json
 Using the matching dictionary and input, with `voltage_mV = 3300`, the event is:
 
 ```json
-{"tag":"sensor","message":"Supply 3300 mV","fields":{"voltage_mV":3300}}
+{"tag":"sensor","level":"WARNING","message":"Supply 3300 mV","fields":{"voltage_mV":3300}}
 ```
 
-The `sensor` weight of 650 passes the default Warning threshold of 600. The tag remains `sensor`; neither the weight nor `-logLevel wrn` adds `level="WARNING"` or `level="ERROR"`. This event has no `level` field. The current interface does not assign a separate severity name to an arbitrary user tag. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](#user-defined-tags-weights-and-colors).
+The `sensor` weight of 650 passes the default Warning threshold of 600 and falls in the WARNING interval. With `-logFormat kv`, the same event is:
+
+```text
+tag=sensor level=WARNING message="Supply 3300 mV" field.voltage_mV=3300
+```
+
+Changing `sensor` to weight 550 gives level INFO; changing it to 750 gives level ERROR. Its tag, message and fields remain unchanged. The rule also applies to level-named tags: `-ulabel INFO:750` produces `tag=INFO level=ERROR`. Built-in category RECEIVE normally produces `tag=RECEIVE level=DEBUG`; an untagged message normally produces `tag=untagged level=INFO` without injecting `untagged:` into its message. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](#user-defined-tags-weights-and-colors).
 
 In JSON, user fields reside under `fields`. Host and user fields therefore cannot overwrite each other: a user field named `tag` appears under `fields.tag`. User fields are emitted in template order. A record without exportable user fields has no empty `fields` object.
 
@@ -6317,7 +6383,7 @@ Target stamp values have no leading stamp tag such as `time:` or `dt:`, but reta
 
 For example, `-ts off -ts16 'temp:%d C' -ts16delta 'step:%d C'` with two successive 16-bit stamps of 8 and 11 first yields `"ts16":"8 C"` and then `"ts16":"11 C","ts16Delta":"3 C"`. With `-logFormat kv`, these values appear as `ts16="11 C" ts16Delta="3 C"`.
 
-The fixed order is `tag`, optional `level`, `message`, then any available `id`, `file`, `line`, target stamp and delta, `hs`, and finally user fields. Missing metadata is omitted rather than simulated with null or substitute values. Formatted ID-less `typeX0` events have no ID, TIL fields or target timestamps; they still receive `tag`, `message` and, where applicable, `level` and `hs`.
+The fixed order is `tag`, `level`, `message`, then any available `id`, `file`, `line`, target stamp and delta, `hs`, and finally user fields. Missing optional metadata is omitted rather than simulated with null or substitute values. Formatted ID-less `typeX0` events have no ID, TIL fields or target timestamps; they still receive `tag`, `level`, `message` and, where applicable, `hs`.
 
 ### 32.7. <a id="field-registry"></a>Field Registry
 

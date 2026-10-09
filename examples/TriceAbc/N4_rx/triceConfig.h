@@ -21,9 +21,6 @@
 #define TRICE_RX_ABC_SUPPORT 1
 #define TRICE_RX_X0_COUNTED_BUFFER_SUPPORT 1
 
-/* Always make the clean/non-clean build mode explicit in demo node configs. */
-#define TRICE_CLEAN 1
-
 /* No output-buffer or output-framing macro is needed for a pure receive node. */
 
 #endif /* TRICE_CONFIG_N4_RX_H_ */

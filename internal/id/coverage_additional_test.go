@@ -291,7 +291,7 @@ func TestLookupToFileKeepsOriginalOnRenameError(t *testing.T) {
 // TestEvaluateIDRangeStringsAdditionalBranches covers the remaining validation
 // exits so range handling is protected before future id refactors.
 func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
-	errorTag, err := emitter.FindTagName("e")
+	errorTag, err := emitter.FindTagName("err")
 	require.NoError(t, err)
 	debugTag, err := emitter.FindTagName("dbg")
 	require.NoError(t, err)
@@ -384,21 +384,21 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 		},
 		{
 			name:       "canonical tag alias can only be assigned once",
-			idRange:    ArrayFlag{"e:100,102", "err:200,202"},
+			idRange:    ArrayFlag{"err:100,102", "ERROR:200,202"},
 			min:        10,
 			max:        20,
 			wantErrSub: "tagName " + errorTag + " has already an assigned ID range",
 		},
 		{
 			name:       "range overlapping default interval is rejected",
-			idRange:    ArrayFlag{"e:15,25"},
+			idRange:    ArrayFlag{"err:15,25"},
 			min:        10,
 			max:        20,
 			wantErrSub: "overlapping ID ranges for " + errorTag + " (Min 15, Max 25) and default (Min 10, Max 20)",
 		},
 		{
 			name:       "range sharing endpoint with default interval is rejected",
-			idRange:    ArrayFlag{"e:20,25"},
+			idRange:    ArrayFlag{"err:20,25"},
 			min:        10,
 			max:        20,
 			wantErrSub: "overlapping ID ranges for " + errorTag + " (Min 20, Max 25) and default (Min 10, Max 20)",
@@ -425,7 +425,7 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 		},
 		{
 			name:       "valid rule before invalid rule leaves no partial state",
-			idRange:    ArrayFlag{"e:100,102", "missing-separator"},
+			idRange:    ArrayFlag{"err:100,102", "missing-separator"},
 			min:        10,
 			max:        20,
 			wantErrSub: "missing-separator",
@@ -433,7 +433,7 @@ func TestEvaluateIDRangeStringsAdditionalBranches(t *testing.T) {
 		},
 		{
 			name:      "single ID at lower encoding limit is accepted",
-			idRange:   ArrayFlag{"e:1,1"},
+			idRange:   ArrayFlag{"err:1,1"},
 			min:       10,
 			max:       20,
 			wantCount: 1,

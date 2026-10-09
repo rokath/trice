@@ -15,9 +15,16 @@ extern "C" {
 #endif
 
 #ifndef TRICE_CLEAN
-// TRICE_CLEAN, when found in triceConfig.h is set to 0 with command "trice insert".
-// and set to 1 with command "trice clean" to get rid of
-// potential editor warnings in the trice clean state.
+// Optional editor aid for the legacy insert/clean workflow. Normally omit this
+// setting: the default is 0, and bind sidecars let editors see ID-free calls.
+// If an editor reports false macro-argument warnings after "trice clean", add
+// an explicit #define TRICE_CLEAN 0 (or 1 for already cleaned sources) only to
+// the project's triceConfig.h. The tool changes that existing definition to 1
+// with "trice clean" and to 0 with "trice insert" or "trice bind"; it never
+// adds the definition automatically.
+// A compiler also sees this setting: 1 suppresses ordinary Trice logging code,
+// not just editor warnings. Run insert or bind before building firmware that
+// must log. Use TRICE_OFF for deliberately disabling logs, not TRICE_CLEAN.
 #define TRICE_CLEAN 0
 #endif
 
@@ -292,6 +299,35 @@ extern "C" {
 //! - TRICE_FRAMING_COBS: The trice tool needs switch `-pf COBS`. Useful with XTEA or to decode the binary trice date with Python or an other language.
 //! - TRICE_FRAMING_NONE: The trice tool needs switch `-pf none`. This mode may be helpful if you write your own trice viewer without a decoder.
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_TCOBS
+#endif
+
+#ifndef TRICE_COBS_ENCODE_SUPPORT
+//! Include COBS encoding only when an active output needs it.
+//! Set to 1 for additional runtime COBS calls to TriceEncode(), and link cobsEncode.c.
+//! Inactive output settings do not add an encoder dependency.
+#define TRICE_COBS_ENCODE_SUPPORT (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)))
+#endif
+
+#ifndef TRICE_TCOBS_ENCODE_SUPPORT
+//! Include TCOBS encoding only when an active output needs it.
+//! Set to 1 for additional runtime TCOBS calls to TriceEncode(), and link tcobsv1Encode.c.
+#define TRICE_TCOBS_ENCODE_SUPPORT (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)))
+#endif
+
+#if (TRICE_COBS_ENCODE_SUPPORT != 0) && (TRICE_COBS_ENCODE_SUPPORT != 1)
+#error TRICE_COBS_ENCODE_SUPPORT must be 0 or 1
+#endif
+
+#if (TRICE_TCOBS_ENCODE_SUPPORT != 0) && (TRICE_TCOBS_ENCODE_SUPPORT != 1)
+#error TRICE_TCOBS_ENCODE_SUPPORT must be 0 or 1
+#endif
+
+#if (TRICE_COBS_ENCODE_SUPPORT == 0) && (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_COBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_COBS)))
+#error active COBS output requires TRICE_COBS_ENCODE_SUPPORT == 1
+#endif
+
+#if (TRICE_TCOBS_ENCODE_SUPPORT == 0) && (((TRICE_DIRECT_OUTPUT == 1) && (TRICE_DIRECT_OUT_FRAMING == TRICE_FRAMING_TCOBS)) || ((TRICE_DEFERRED_OUTPUT == 1) && (TRICE_DEFERRED_OUT_FRAMING == TRICE_FRAMING_TCOBS)))
+#error active TCOBS output requires TRICE_TCOBS_ENCODE_SUPPORT == 1
 #endif
 
 #ifndef XTEA_ENCRYPT_KEY

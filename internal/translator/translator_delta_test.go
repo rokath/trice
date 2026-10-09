@@ -819,6 +819,42 @@ func TestTREXUntaggedClassificationPreservesUserText(t *testing.T) {
 	}
 }
 
+// TestExactWeightSelectionInTextMode checks real decoded calls, including line
+// joining across rejected newlines. Text selection must use the same exact
+// weights as JSON/KV and preserve unknown prefixes after alias removal.
+func TestExactWeightSelectionInTextMode(t *testing.T) {
+	for _, tc := range []struct {
+		name, pick, ban, threshold, want string
+	}{
+		{name: "pick exact weight joins accepted calls", pick: "200", want: "AC\n"},
+		{name: "ban exact weight keeps both neighboring weights", ban: "200", want: "B\nD\n"},
+		{name: "minimum threshold restricts exact pick", pick: "200", threshold: "201"},
+		{name: "threshold includes higher weights too", threshold: "200", want: "AB\nC\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			oldTags, oldLabels := emitter.Tags, emitter.UserLabel
+			t.Cleanup(func() { emitter.Tags, emitter.UserLabel = oldTags, oldLabels })
+			got := runTREXPartialCalls(t, []string{`sensor:A`, `above:B\n`, `sensor:C\n`, `below:D\n`}, false, func() {
+				emitter.UserLabel = []string{"sensor:200", "above:201", "below:199"}
+				require.NoError(t, emitter.AddUserLabels())
+				if tc.pick != "" {
+					require.NoError(t, emitter.Pick.Set(tc.pick))
+				}
+				if tc.ban != "" {
+					require.NoError(t, emitter.Ban.Set(tc.ban))
+				}
+				if tc.threshold != "" {
+					emitter.LogLevel = tc.threshold
+				}
+				require.NoError(t, emitter.ResolveFilterSelectors())
+			})
+			assert.Equal(t, tc.want, got)
+		})
+	}
+	got := runTREXApplicationText(t, "TRICE_0", `e:problem\n`, nil, nil)
+	assert.Equal(t, "e:problem\n", got, "a removed one-letter alias must remain user text")
+}
+
 // TestTREXUsesTemplateInsteadOfRuntimeValueForTag verifies that a dynamic
 // string beginning with a known tag cannot change an untagged template's group.
 func TestTREXUsesTemplateInsteadOfRuntimeValueForTag(t *testing.T) {
@@ -1526,7 +1562,7 @@ func TestDecodeAndComposeLoopIntegratesVisAfterFiltering(t *testing.T) {
 	})
 
 	t.Run("level rejects both normal output and visualization", func(t *testing.T) {
-		normal, visualized := runTranslatorVisCase(t, "msg", "", "", "notice")
+		normal, visualized := runTranslatorVisCase(t, "msg", "", "", "wrn")
 		assert.Empty(t, normal)
 		assert.Empty(t, visualized)
 	})

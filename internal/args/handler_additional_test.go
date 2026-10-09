@@ -240,10 +240,29 @@ func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
 	}{
 		{name: "unknown pick", args: []string{"-pick", "missing"}, contains: "unknown tag"},
 		{name: "empty pick", args: []string{"-pick", ""}, contains: "empty tag name"},
-		{name: "double separator", args: []string{"-ban", "err::wrn"}, contains: "empty tag name"},
+		{name: "double separator", args: []string{"-ban", "err::wrn"}, contains: "repeat -ban"},
+		{name: "colon pick list", args: []string{"-pick", "err:wrn"}, contains: "repeat -pick"},
+		{name: "colon ban list", args: []string{"-ban", "dbg:trace"}, contains: "repeat -ban"},
+		{name: "ban range remains unsupported", args: []string{"-ban", "200:400"}, contains: "weight ranges are not supported"},
+		{name: "pick range remains unsupported", args: []string{"-pick", "200:400"}, contains: "weight ranges are not supported"},
+		{name: "negative ban weight", args: []string{"-ban", "-1"}, contains: "range 0..999"},
+		{name: "excessive pick weight", args: []string{"-pick", "1000"}, contains: "range 0..999"},
+		{name: "fractional ban weight", args: []string{"-ban", "200.5"}, contains: "integer weight"},
+		{name: "overflowing pick weight", args: []string{"-pick", "999999999999999999999"}, contains: "range 0..999"},
+		{name: "removed single-letter pick alias", args: []string{"-pick", "e"}, contains: "unknown tag"},
+		{name: "removed single-letter ban alias", args: []string{"-ban", "M"}, contains: "unknown tag"},
+		{name: "removed single-letter level alias", args: []string{"-loglevel", "i"}, contains: "unknown tag"},
 		{name: "unknown level", args: []string{"-logLevel", "missing"}, contains: "unknown tag"},
 		{name: "negative level", args: []string{"-logLevel", "-1"}, contains: "range 0..999"},
 		{name: "large level", args: []string{"-logLevel", "1000"}, contains: "range 0..999"},
+		{name: "lowercase unknown level", args: []string{"-loglevel", "missing"}, contains: "unknown tag"},
+		{name: "lowercase negative weight", args: []string{"-loglevel", "-1"}, contains: "range 0..999"},
+		{name: "lowercase excessive weight", args: []string{"-loglevel", "1000"}, contains: "range 0..999"},
+		{name: "lowercase fractional weight", args: []string{"-loglevel", "1.5"}, contains: "numeric weight"},
+		{name: "lowercase empty value", args: []string{"-loglevel", ""}, contains: "level is empty"},
+		{name: "custom pick does not ignore case", args: []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-pick", "NeW"}, contains: "unknown tag"},
+		{name: "custom ban does not ignore case", args: []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-ban", "NeW"}, contains: "unknown tag"},
+		{name: "custom threshold does not ignore case", args: []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-loglevel", "NeW"}, contains: "unknown tag"},
 	}
 
 	for _, entryPoint := range entryPoints {
@@ -257,6 +276,69 @@ func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.contains)
 				assert.False(t, started)
+			})
+		}
+	}
+}
+
+// TestLogLevelSpellingsShareThresholdAndCommandIsolation checks both CLI entry
+// points without opening input. Numeric boundaries, tag aliases and all/off
+// share one setting; the last spelling wins and the next command resets it.
+func TestLogLevelSpellingsShareThresholdAndCommandIsolation(t *testing.T) {
+	originalStartLogLoop := startLogLoop
+	oldTags, oldLabels, oldLevel := emitter.Tags, emitter.UserLabel, emitter.LogLevel
+	t.Cleanup(func() {
+		startLogLoop = originalStartLogLoop
+		emitter.Tags, emitter.UserLabel, emitter.LogLevel = oldTags, oldLabels, oldLevel
+	})
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	for _, entry := range []struct {
+		name string
+		run  func([]string) error
+	}{
+		{"trice log", func(args []string) error { return Handler(io.Discard, fSys, append([]string{"trice", "log"}, args...)) }},
+		{"tlog", func(args []string) error { return LogHandler(io.Discard, fSys, append([]string{"tlog"}, args...)) }},
+	} {
+		for _, tc := range []struct {
+			name string
+			args []string
+			want string
+		}{
+			{"camel-case minimum", []string{"-logLevel", "0"}, "0"},
+			{"lowercase minimum", []string{"-loglevel", "0"}, "0"},
+			{"camel-case maximum", []string{"-logLevel", "999"}, "999"},
+			{"lowercase maximum", []string{"-loglevel", "999"}, "999"},
+			{"camel-case exact weight", []string{"-logLevel", "651"}, "651"},
+			{"lowercase exact weight", []string{"-loglevel", "651"}, "651"},
+			{"lowercase tag alias", []string{"-loglevel", "wrn"}, "wrn"},
+			{"lowercase category alias", []string{"-loglevel", "rx"}, "rx"},
+			{"mixed-case category alias", []string{"-loglevel", "rX"}, "rX"},
+			{"mixed-case override and selectors", []string{"-ulabel", "rX:750", "-pick", "ReCeIvE", "-loglevel", "Rx"}, "Rx"},
+			{"mixed-case ban", []string{"-ban", "rX"}, "all"},
+			{"numeric ban without a matching tag", []string{"-ban", "200"}, "all"},
+			{"numeric pick without a matching tag", []string{"-pick", "200"}, "all"},
+			{"minimum numeric pick", []string{"-pick", "0"}, "all"},
+			{"maximum numeric ban", []string{"-ban", "999"}, "all"},
+			{"repeated names and weights", []string{"-pick", "err", "-pick", "200", "-pick", "wrn"}, "all"},
+			{"numeric selection and override in either order", []string{"-ban", "200", "-ulabel", "sensor:200"}, "all"},
+			{"explicit single-letter user label", []string{"-ulabel", "x:200", "-pick", "x", "-loglevel", "x"}, "x"},
+			{"lowercase user label", []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-pick", "new", "-loglevel", "new"}, "new"},
+			{"uppercase user label", []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-pick", "NEW", "-loglevel", "NEW"}, "NEW"},
+			{"lowercase all", []string{"-loglevel", "all"}, "all"},
+			{"lowercase off", []string{"-loglevel", "off"}, "off"},
+			{"last lowercase assignment wins", []string{"-logLevel", "600", "-loglevel", "700"}, "700"},
+			{"last camel-case assignment wins", []string{"-loglevel", "700", "-logLevel", "600"}, "600"},
+		} {
+			t.Run(entry.name+"/"+tc.name, func(t *testing.T) {
+				FlagsInit()
+				started := false
+				startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
+				require.NoError(t, entry.run(tc.args))
+				assert.True(t, started)
+				assert.Equal(t, tc.want, emitter.LogLevel)
+				FlagsInit()
+				require.NoError(t, entry.run(nil))
+				assert.Equal(t, "all", emitter.LogLevel, "a later command must not inherit either spelling's threshold")
 			})
 		}
 	}
