@@ -6123,7 +6123,11 @@ There are over 1000 foreground, background, and style combinations:
 
 ![Trice color alternatives](./ref/ColorAlternatives.PNG)
 
-Run `trice generate -colors` to display them. Use `-ulabel name:color` for a per-command override. Modify [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) and rebuild the Trice tool with `go install ./...` or `./scripts/buildTriceTool.sh` to change the built-in palette.
+Choose a built-in palette with `trice log -color dark`, `-color light`, or `-color contrast`. `dark` is the default and uses bright foregrounds for dark terminals; `light` uses darker foregrounds for light terminals. `contrast` adds explicit backgrounds and emphasis to distinguish tag groups. `default` and `color` are aliases for `dark`; `none` and `off` retain their prefix-handling behavior described above.
+
+Warm colors identify warnings and errors, while informational messages use cool colors or green. Related I/O tags use related hues with different emphasis. The time-unit tags intentionally share one style. Actual ANSI hues depend on the terminal's color settings; the palette does not change the terminal background.
+
+Run `trice generate -colors` to display the supported color strings and a preview of all three tag palettes. Use `-ulabel name:color` for a per-command override; it takes precedence over the chosen palette. The assignments are kept together in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go).
 
 ### 31.10. <a id="color-issues-under-windows"></a>Color issues under Windows
 

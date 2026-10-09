@@ -106,7 +106,7 @@ func triceOutput(w io.Writer, fSys *afero.Afero, fileName string, verbose bool) 
 // evaluateColorPalette validates emitter.ColorPalette and falls back to "default".
 func evaluateColorPalette(w io.Writer) {
 	switch emitter.ColorPalette {
-	case "off", "none", "default", "color":
+	case "off", "none", "default", "color", "dark", "light", "contrast":
 		return
 	default:
 		fmt.Fprintln(w, "Ignoring unknown -color", emitter.ColorPalette, "using default.")

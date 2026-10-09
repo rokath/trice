@@ -155,6 +155,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
+		// The server applies its own palette to incoming, uncolored log fragments.
+		if err := emitter.AddUserLabels(); err != nil {
+			return err
+		}
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		return LogHandler(w, fSys, append([]string{args[0]}, subArgs...))
@@ -314,7 +318,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 		if emitter.Suffix == "" {
 			emitter.Suffix = "`},"
 		}
-		if emitter.ColorPalette == "default" {
+		if emitter.ColorPalette == "default" || emitter.ColorPalette == "dark" {
 			emitter.ColorPalette = "off"
 		}
 		decoder.TargetStamp32 = "" // todo: justify this line

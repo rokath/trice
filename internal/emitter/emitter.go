@@ -35,7 +35,7 @@ var (
 	// ColorPalette controls tag-prefix handling.
 	// off = no color handling at all. Lower case color prefixes are not removed. Use with care.
 	// none = no colors. Lower case color prefixes are removed.
-	// default = color codes added (TODO: change to ANSI)
+	// dark/light/contrast = ANSI tag palettes; default and color are aliases for dark.
 	ColorPalette string
 
 	// IPAddr is the remote display server IP address.

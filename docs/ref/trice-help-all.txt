@@ -9,8 +9,12 @@ sub-command 'ds|displayServer': Starts a display server.
     	See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
     	"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
     	"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
-    	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
-    	 (default "default")
+    	"dark": Bright foregrounds for dark terminals (default).
+    	"light": Darker foregrounds for light terminals.
+    	"contrast": Explicit backgrounds and emphasis for stronger tag differentiation.
+    	"default|color": Aliases for dark. Colored palettes remove recognized lowercase tags.
+    	Run "trice generate -colors" to preview the tag palettes and supported color strings.
+    	 (default "dark")
   -ipa string
     	IP address like '127.0.0.1'.
     	You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
@@ -133,8 +137,12 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
     	"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
     	"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
-    	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
-    	 (default "default")
+    	"dark": Bright foregrounds for dark terminals (default).
+    	"light": Darker foregrounds for light terminals.
+    	"contrast": Explicit backgrounds and emphasis for stronger tag differentiation.
+    	"default|color": Aliases for dark. Colored palettes remove recognized lowercase tags.
+    	Run "trice generate -colors" to preview the tag palettes and supported color strings.
+    	 (default "dark")
   -d16
     	Short for '-doubled16BitID'.
   -databits int
