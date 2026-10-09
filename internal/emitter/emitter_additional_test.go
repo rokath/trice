@@ -52,10 +52,11 @@ func (s *rpcWriteLineStub) WriteLine(line []string, reply *int64) error {
 }
 
 type tagSnapshot struct {
-	count    int
-	weight   int
-	names    []string
-	colorize func(string) string
+	count           int
+	weight          int
+	names           []string
+	caseInsensitive bool // Preserve built-in recognition when restoring test state.
+	colorize        func(string) string
 }
 
 type emitterSnapshot struct {
@@ -82,10 +83,11 @@ func cloneTags(src []tag) []tagSnapshot {
 	dst := make([]tagSnapshot, len(src))
 	for i := range src {
 		dst[i] = tagSnapshot{
-			count:    src[i].count,
-			weight:   src[i].weight,
-			names:    append([]string(nil), src[i].Names...),
-			colorize: src[i].colorize,
+			count:           src[i].count,
+			weight:          src[i].weight,
+			names:           append([]string(nil), src[i].Names...),
+			caseInsensitive: src[i].caseInsensitive,
+			colorize:        src[i].colorize,
 		}
 	}
 	return dst
@@ -96,10 +98,11 @@ func restoreTags(src []tagSnapshot) {
 	Tags = make([]tag, len(src))
 	for i := range src {
 		Tags[i] = tag{
-			count:    src[i].count,
-			weight:   src[i].weight,
-			Names:    append([]string(nil), src[i].names...),
-			colorize: src[i].colorize,
+			count:           src[i].count,
+			weight:          src[i].weight,
+			Names:           append([]string(nil), src[i].names...),
+			caseInsensitive: src[i].caseInsensitive,
+			colorize:        src[i].colorize,
 		}
 	}
 }
@@ -189,11 +192,11 @@ func TestAppendIfMissing(t *testing.T) {
 }
 
 // TestChannelArrayFlagSetCollectsRawSelectors verifies that parsing preserves
-// names and empty parts until the complete tag registry is available.
+// one complete selector per option until the complete registry is available.
 func TestChannelArrayFlagSetCollectsRawSelectors(t *testing.T) {
 	var f channelArrayFlag
 	require.NoError(t, f.Set("msg::motor"))
-	assert.Equal(t, channelArrayFlag{"msg", "", "motor"}, f)
+	assert.Equal(t, channelArrayFlag{"msg::motor"}, f)
 }
 
 // TestResolveFilterSelectorsUsesCompleteTagRegistry verifies that built-in and
@@ -204,9 +207,9 @@ func TestResolveFilterSelectorsUsesCompleteTagRegistry(t *testing.T) {
 
 	UserLabel = ArrayFlag{"motor:350"}
 	require.NoError(t, AddUserLabels())
-	Pick = channelArrayFlag{"motor", "msg", "M"}
+	Pick = channelArrayFlag{"motor", "msg", "MSG"}
 	Ban = nil
-	LogLevel = "M"
+	LogLevel = "MSG"
 	require.NoError(t, ResolveFilterSelectors())
 
 	assert.Contains(t, []string(Pick), "motor")
@@ -216,7 +219,7 @@ func TestResolveFilterSelectorsUsesCompleteTagRegistry(t *testing.T) {
 	assert.Equal(t, len(tagVariants("msg"))+1, len(Pick))
 	messageThreshold, err := logLevelWeight(LogLevel)
 	require.NoError(t, err)
-	assert.Equal(t, 400, messageThreshold)
+	assert.Equal(t, 500, messageThreshold)
 }
 
 // TestResolveFilterSelectorsRejectsInvalidValues verifies understandable
@@ -232,6 +235,12 @@ func TestResolveFilterSelectorsRejectsInvalidValues(t *testing.T) {
 		{name: "unknown pick", pick: channelArrayFlag{"missing"}, logLevel: "all", contains: "unknown tag"},
 		{name: "empty pick", pick: channelArrayFlag{""}, logLevel: "all", contains: "empty tag name"},
 		{name: "double separator", ban: channelArrayFlag{"err", "", "wrn"}, logLevel: "all", contains: "empty tag name"},
+		{name: "colon tag list", pick: channelArrayFlag{"err:wrn"}, logLevel: "all", contains: "repeat -pick"},
+		{name: "colon weight range", ban: channelArrayFlag{"200:400"}, logLevel: "all", contains: "weight ranges are not supported"},
+		{name: "negative pick weight", pick: channelArrayFlag{"-1"}, logLevel: "all", contains: "range 0..999"},
+		{name: "excessive ban weight", ban: channelArrayFlag{"1000"}, logLevel: "all", contains: "range 0..999"},
+		{name: "overflowing pick weight", pick: channelArrayFlag{"999999999999999999999999"}, logLevel: "all", contains: "range 0..999"},
+		{name: "fractional ban weight", ban: channelArrayFlag{"200.5"}, logLevel: "all", contains: "integer weight"},
 		{name: "empty level", logLevel: "", contains: "level is empty"},
 		{name: "negative level", logLevel: "-1", contains: "range 0..999"},
 		{name: "large level", logLevel: "1000", contains: "range 0..999"},
@@ -268,17 +277,102 @@ func TestResolveFilterSelectorsAcceptsLevelAliasesAndBoundaries(t *testing.T) {
 	UserLabel = nil
 	require.NoError(t, AddUserLabels())
 
-	for _, level := range []string{"all", "off", "0", "999", "MESSAGE", "msg", "M"} {
+	for _, level := range []string{"all", "off", "0", "999", "MESSAGE", "msg", "MSG"} {
 		LogLevel = level
 		Ban = nil
 		Pick = nil
 		assert.NoError(t, ResolveFilterSelectors(), level)
 	}
-	for _, level := range []string{"MESSAGE", "msg", "M"} {
+	for _, level := range []string{"MESSAGE", "msg", "MSG"} {
 		weight, err := logLevelWeight(level)
 		require.NoError(t, err)
-		assert.Equal(t, 400, weight)
+		assert.Equal(t, 500, weight)
 	}
+}
+
+// TestExactWeightSelectorsDoNotActAsThresholds exercises group-independent
+// equality, neighboring weights, both endpoints, repeated selectors, unknown
+// event classification and interaction with the separate priority threshold.
+func TestExactWeightSelectorsDoNotActAsThresholds(t *testing.T) {
+	for _, tc := range []struct {
+		name, tag, threshold string
+		pick, ban            channelArrayFlag
+		want                 bool
+	}{
+		{name: "pick the exact custom weight", tag: "sensor", pick: channelArrayFlag{"200"}, want: true},
+		{name: "pick a second category at the same weight", tag: "other", pick: channelArrayFlag{"200"}, want: true},
+		{name: "named pick does not select a peer at the same weight", tag: "other", pick: channelArrayFlag{"sensor"}},
+		{name: "named ban keeps a peer at the same weight", tag: "other", ban: channelArrayFlag{"sensor"}, want: true},
+		{name: "pick excludes the next lower weight", tag: "below", pick: channelArrayFlag{"200"}},
+		{name: "pick excludes the next higher weight", tag: "above", pick: channelArrayFlag{"200"}},
+		{name: "ban excludes the exact weight", tag: "sensor", ban: channelArrayFlag{"200"}},
+		{name: "ban keeps the next lower weight", tag: "below", ban: channelArrayFlag{"200"}, want: true},
+		{name: "ban keeps the next higher weight", tag: "above", ban: channelArrayFlag{"200"}, want: true},
+		{name: "pick uses overridden built-in weight", tag: "rX", pick: channelArrayFlag{"200"}, want: true},
+		{name: "ban uses overridden built-in weight", tag: "RECEIVE", ban: channelArrayFlag{"200"}},
+		{name: "pick unknown event by untagged weight", tag: "typo", pick: channelArrayFlag{"200"}, want: true},
+		{name: "ban absent tag by untagged weight", tag: "", ban: channelArrayFlag{"200"}},
+		{name: "numeric format prefix is not a named weight tag", tag: "201", pick: channelArrayFlag{"201"}},
+		{name: "minimum weight remains selectable", tag: "zero", pick: channelArrayFlag{"0"}, want: true},
+		{name: "minimum selector is not an all selector", tag: "maximum", pick: channelArrayFlag{"0"}},
+		{name: "maximum weight can be banned", tag: "maximum", ban: channelArrayFlag{"999"}},
+		{name: "maximum ban keeps weight zero", tag: "zero", ban: channelArrayFlag{"999"}, want: true},
+		{name: "repeated exact weights form a union", tag: "above", pick: channelArrayFlag{"200", "201"}, want: true},
+		{name: "repeated bans exclude either exact weight", tag: "above", ban: channelArrayFlag{"200", "201"}},
+		{name: "mixed named and numeric picks select named group", tag: "wrn", pick: channelArrayFlag{"200", "wrn"}, want: true},
+		{name: "mixed named and numeric picks select exact weight", tag: "sensor", pick: channelArrayFlag{"wrn", "200"}, want: true},
+		{name: "mixed bans keep an unrelated category", tag: "above", ban: channelArrayFlag{"200", "wrn"}, want: true},
+		{name: "pick off contributes no match to a union", tag: "sensor", pick: channelArrayFlag{"off", "200"}, want: true},
+		{name: "ban off does not cancel the numeric ban", tag: "sensor", ban: channelArrayFlag{"off", "200"}},
+		{name: "pick all includes other weights", tag: "above", pick: channelArrayFlag{"all", "200"}, want: true},
+		{name: "ban all excludes other weights", tag: "below", ban: channelArrayFlag{"all", "200"}},
+		{name: "exact pick passes equal minimum threshold", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "200", want: true},
+		{name: "exact pick cannot bypass higher threshold", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "201"},
+		{name: "numeric ban and threshold keep higher weight", tag: "above", ban: channelArrayFlag{"200"}, threshold: "200", want: true},
+		{name: "loglevel off suppresses a numeric pick", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "off"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := snapshotEmitterState()
+			t.Cleanup(func() { restoreEmitterState(s) })
+			UserLabel = ArrayFlag{"sensor:200", "other:200", "below:199", "above:201", "rx:200", "untagged:200", "zero:0", "maximum:999"}
+			require.NoError(t, AddUserLabels())
+			Pick, Ban, LogLevel = tc.pick, tc.ban, "all"
+			if tc.threshold != "" {
+				LogLevel = tc.threshold
+			}
+			require.NoError(t, ResolveFilterSelectors())
+			assert.Equal(t, tc.want, ApplicationEventAllowed(tc.tag))
+		})
+	}
+}
+
+// TestExactWeightSelectorParsingAndFragments checks normalized decimal values,
+// idempotent resolution, command reset and the legacy CHAR/DUMP path. Unknown
+// fragments have no event weight, even when their visible prefix is numeric.
+func TestExactWeightSelectorParsingAndFragments(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = ArrayFlag{"sensor:200", "rx:200", "next:201"}
+	require.NoError(t, AddUserLabels())
+	Pick, Ban, LogLevel = channelArrayFlag{"0200", "200", "999", "0"}, nil, "all"
+	require.NoError(t, ResolveFilterSelectors())
+	assert.Equal(t, channelArrayFlag{"200", "999", "0"}, Pick)
+	require.NoError(t, ResolveFilterSelectors())
+	assert.Equal(t, channelArrayFlag{"200", "999", "0"}, Pick, "resolution must be idempotent")
+	for _, message := range []string{"sensor:value", "rX:value"} {
+		assert.True(t, UnclassifiedFragmentAllowed([]byte(message)), message)
+	}
+	for _, message := range []string{"next:value", "200:value", "typo:value", "no tag"} {
+		assert.False(t, UnclassifiedFragmentAllowed([]byte(message)), message)
+	}
+	Pick, Ban = nil, channelArrayFlag{"200"}
+	require.NoError(t, ResolveFilterSelectors())
+	assert.False(t, UnclassifiedFragmentAllowed([]byte("rX:value")))
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("200:value")), "numeric text is not a registered tag")
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("next:value")))
+	UserLabel = nil
+	require.NoError(t, AddUserLabels())
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("rx:value")), "a later command restores RECEIVE weight 300")
 }
 
 // TestSpecialPickAndBanSelectors verifies that all denotes the complete set
@@ -321,7 +415,7 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 		want             bool
 	}{
 		{name: "below numeric threshold", tag: "dbg", level: "500"},
-		{name: "on numeric threshold", tag: "msg", level: "400", want: true},
+		{name: "on numeric threshold", tag: "msg", level: "500", want: true},
 		{name: "above numeric threshold", tag: "wrn", level: "500", want: true},
 		{name: "alias threshold accepts equal group", tag: "ERROR", level: "err", want: true},
 		{name: "tag threshold rejects lower group", tag: "wrn", level: "ERROR"},
@@ -340,8 +434,8 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 		{name: "ban other normal", tag: "err", ban: channelArrayFlag{"wrn"}, level: "err", want: true},
 		{name: "ban all selects none", tag: "err", ban: channelArrayFlag{"all"}, level: "all"},
 		{name: "ban off leaves level active", tag: "dbg", ban: channelArrayFlag{"off"}, level: "info"},
-		{name: "unknown tag uses untagged weight", tag: "mgs", level: "400", want: true},
-		{name: "unknown tag rejected above untagged", tag: "mgs", level: "notice"},
+		{name: "unknown tag uses untagged weight", tag: "mgs", level: "500", want: true},
+		{name: "unknown tag rejected above untagged", tag: "mgs", level: "wrn"},
 		{name: "unknown tag selected as untagged", tag: "mgs", pick: channelArrayFlag{"untagged"}, level: "all", want: true},
 	}
 	for _, tt := range tests {
@@ -371,7 +465,7 @@ func TestUnclassifiedFragmentAllowed(t *testing.T) {
 	Pick = channelArrayFlag{"msg"}
 	require.NoError(t, ResolveFilterSelectors())
 	assert.False(t, UnclassifiedFragmentAllowed([]byte("unknown:raw bytes")))
-	assert.False(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg is below the info threshold")
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg and info share the default weight")
 	LogLevel = "msg"
 	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg is admitted at its own weight")
 	LogLevel = "off"
@@ -462,16 +556,16 @@ func tagWeightsByAlias(tags []tag) map[string]int {
 // TestDefaultTagWeights protects the documented built-in priority policy.
 func TestDefaultTagWeights(t *testing.T) {
 	expected := map[string]int{
-		"FATAL": 800, "CRITICAL": 750, "EMERGENCY": 700,
-		"ERROR": 650, "WARNING": 600, "ATTENTION": 550,
-		"INFO": 500, "DEBUG": 300, "TRACE": 200,
-		"TIME": 400, "MESSAGE": 400, "READ": 400, "WRITE": 400,
-		"RECEIVE": 400, "TRANSMIT": 400, "DIAG": 400,
-		"INTERRUPT": 400, "SIGNAL": 400, "TEST": 400,
-		"DEFAULT": 400, "untagged": 400, "NOTICE": 600, "ALERT": 550,
-		"ASSERT": 650, "ALARM": 650, "CYCLE_ERROR": 0,
-		"VERBOSE": 100, "CONFIG": 500, "MICROSECOND": 350,
-		"MILLISECOND": 350, "SECOND": 350, "DELTATIME": 350,
+		"FATAL": 900, "CRITICAL": 800, "EMERGENCY": 900,
+		"ERROR": 700, "WARNING": 600, "ATTENTION": 600,
+		"INFO": 500, "DEBUG": 300, "TRACE": 100,
+		"TIME": 100, "MESSAGE": 500, "READ": 300, "WRITE": 300,
+		"RECEIVE": 300, "TRANSMIT": 300, "DIAG": 300,
+		"INTERRUPT": 100, "SIGNAL": 100, "TEST": 300,
+		"DEFAULT": 500, "untagged": 500, "NOTICE": 500, "ALERT": 600,
+		"ASSERT": 700, "ALARM": 700, "CYCLE_ERROR": 0,
+		"VERBOSE": 0, "CONFIG": 500, "MICROSECOND": 100,
+		"MILLISECOND": 100, "SECOND": 100, "DELTATIME": 100,
 	}
 
 	for canonical, weight := range expected {
@@ -499,7 +593,7 @@ func TestUntaggedIsAnIndependentBuiltInGroup(t *testing.T) {
 	require.NoError(t, AddUserLabels())
 	weight, err = TagWeight("untagged")
 	require.NoError(t, err)
-	assert.Equal(t, 400, weight)
+	assert.Equal(t, 500, weight)
 }
 
 // TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups verifies aliases,
@@ -509,7 +603,7 @@ func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 	t.Cleanup(func() { restoreEmitterState(s) })
 
 	UserLabel = ArrayFlag{
-		"msg:150", "M:600", "msg",
+		"msg:150", "MSG:600", "msg",
 		"motor", "INFO:550", "afterInfo",
 		"sensor:150", "sensor:175", "zero:0", "maximum:999", "µs",
 	}
@@ -517,7 +611,7 @@ func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 	assert.Empty(t, duplicateTagAliases(Tags))
 	assert.Equal(t, len(defaultTags)+5, len(Tags))
 
-	for _, alias := range []string{"MESSAGE", "msg", "M"} {
+	for _, alias := range []string{"MESSAGE", "msg", "MSG"} {
 		weight, err := TagWeight(alias)
 		require.NoError(t, err)
 		assert.Equal(t, 600, weight)
@@ -539,7 +633,7 @@ func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 	assert.Equal(t, 999, maximumWeight)
 	microsecondsWeight, err := TagWeight("µs")
 	require.NoError(t, err)
-	assert.Equal(t, 350, microsecondsWeight)
+	assert.Equal(t, 100, microsecondsWeight)
 
 	// Table order and palette changes do not alter the stored group priority.
 	for left, right := 0, len(Tags)-1; left < right; left, right = left+1, right-1 {
@@ -591,7 +685,7 @@ func TestAddUserLabelsCombinesGeneratedColorsAndWeights(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 550, plainWeight)
 
-	UserLabel = ArrayFlag{"msg:blue:white", "M:650", "late:green:black", "late:100"}
+	UserLabel = ArrayFlag{"msg:blue:white", "MSG:650", "late:green:black", "late:100"}
 	require.NoError(t, AddUserLabels())
 	weight, err := TagWeight("MESSAGE")
 	require.NoError(t, err)

@@ -28,8 +28,8 @@ var (
 
 	colorInfo = `The format strings can start with a lower or upper case channel information.
 See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
-"off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
-"none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
+"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
+"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
 "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
 `
 	boolInfo = "This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true."
@@ -106,7 +106,8 @@ Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6
 `+boolInfo)
 	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
 A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
-Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. See also CLI switches -ulabel, -pick and -ban.`)
+Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in tag names and aliases ignore case; user-defined tags are matched exactly. The equivalent spelling -loglevel accepts the same values. See also CLI switches -ulabel, -pick and -ban.`)
+	fsScLog.StringVar(&emitter.LogLevel, "loglevel", "all", "Alias for -logLevel; accepts all, off, a registered tag or alias, or an integer weight from 0 to 999.")
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
@@ -183,10 +184,10 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagLogLIList(fsScLog)
 	flagIPAddress(fsScLog)
-	fsScLog.Var(&emitter.Ban, "ban", `Tag group(s) to suppress. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" suppresses every message and "off" suppresses none.
-Example: "-ban dbg:wrn -ban diag" suppresses Debug, Warning, and Diag messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".`) // multi flag
-	fsScLog.Var(&emitter.Pick, "pick", `Tag group(s) to display exclusively. Repeat the option or separate names with colons. Registered aliases select their complete group; "all" selects every message and "off" selects none.
-Example: "-pick err:wrn -pick default" displays only Error, Warning, and Default messages. Empty or unknown names are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Ban, "ban", `Suppress a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in tags ignore case and user-defined tags match exactly. "all" suppresses every message and "off" suppresses none.
+Example: "-ban dbg -ban wrn -ban 200" suppresses Debug, Warning, and every event at weight 200 (not 199 or 201). Empty or invalid selectors are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Pick, "pick", `Display only a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in tags ignore case and user-defined tags match exactly. "all" selects every message and "off" selects none.
+Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every event at weight 200. This is exact selection; use -loglevel 200 for weight 200 and above. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".`) // multi flag
 	flagUserLabel(fsScLog)
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
@@ -323,7 +324,7 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 }
 
 func flagUserLabel(p *flag.FlagSet) {
-	p.Var(&emitter.UserLabel, "ulabel", `Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors".
+	p.Var(&emitter.UserLabel, "ulabel", `Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". Built-in tag names and aliases ignore case; user-defined tags are matched exactly.
 Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".`) // multi flag
 }
 

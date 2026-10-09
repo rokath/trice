@@ -309,7 +309,7 @@ func (p *idData) cmdSwitchTriceIDs(w io.Writer, fSys *afero.Afero, action ant.Pr
 }
 
 // EvaluateIDRangeStrings reads the -IDRange strings and fills the IDData.IDSpace accordingly.
-// Each tag (like "err:") is allowed to occur only once, so a "e:" will fail after "err" was applied.
+// Each tag group is allowed to occur only once, so "ERROR:" fails after "err" was applied.
 // IDRanges are not allowed to overlap.
 func EvaluateIDRangeStrings() error {
 	// Trice IDs occupy the lower 14 bits of the encoded ID word.
@@ -350,17 +350,12 @@ func EvaluateIDRangeStrings() error {
 		if mi > ma {
 			return fmt.Errorf("invalid -IDRange %q: Min(%d) > Max(%d)", x, mi, ma)
 		}
-		// Find tis.TagName.
-		for _, t := range emitter.Tags {
-			for _, tn := range t.Names {
-				if tn == name {
-					tis.tagName = t.Names[0] // take the first tag name as reference.
-					goto next
-				}
-			}
+		// Use the same recognition rule as source callsites: built-in aliases
+		// ignore case, while independently registered user tags remain exact.
+		tis.tagName, err = emitter.FindTagName(name)
+		if err != nil {
+			return fmt.Errorf("the with -IDRange applied name %s is unknown. Please check var Tags inside trice/internal/emitter/lineTransformerANSI.go for options", name)
 		}
-		return fmt.Errorf("the with -IDRange applied name %s is unknown. Please check var Tags inside trice/internal/emitter/lineTransformerANSI.go for options", name)
-	next:
 		// Check for single name range assignment.
 		for i := range tagList {
 			e := &(tagList[i]) // get list entry address

@@ -254,6 +254,7 @@ type tag struct {
 	count           int                 // count records successfully decoded application events in this tag group.
 	weight          int                 // weight is the group priority and is independent of table order and color.
 	Names           []string            // Names contains all aliases for one tag.
+	caseInsensitive bool                // caseInsensitive recognizes built-in application aliases regardless of spelling.
 	colorize        func(string) string // colorize is the function called for each tag.
 	colorOverridden bool                // colorOverridden marks an explicit -ulabel color for presentation without a visible tag.
 }
@@ -261,43 +262,52 @@ type tag struct {
 // defaultTags contains the immutable built-in tag definitions used to start
 // each command. CYCLE_ERROR is a tool diagnostic and its weight is not used
 // for application-message selection.
-var defaultTags = []tag{
-	// log level
-	{weight: 800, Names: []string{"FATAL", "Fatal", "fatal"}, colorize: colorizeFATAL},
-	{weight: 750, Names: []string{"CRITICAL", "crit", "Critical", "critical", "Crit", "CRIT"}, colorize: colorizeCRITICAL},
-	{weight: 700, Names: []string{"EMERGENCY", "em", "Emergency", "emergency"}, colorize: colorizeEMERGENCY},
-	{weight: 650, Names: []string{"ERROR", "e", "Error", "err", "error", "E", "ERR"}, colorize: colorizeERROR},
+var defaultTags = builtInTags([]tag{
+	// Descending weights and alphabetical peers make the policy easy to review;
+	// filtering and level derivation do not depend on this presentation order.
+	{weight: 900, Names: []string{"EMERGENCY", "em", "Emergency", "emergency"}, colorize: colorizeEMERGENCY},
+	{weight: 900, Names: []string{"FATAL", "Fatal", "fatal"}, colorize: colorizeFATAL},
+	{weight: 800, Names: []string{"CRITICAL", "crit", "Critical", "critical", "Crit", "CRIT"}, colorize: colorizeCRITICAL},
+	{weight: 700, Names: []string{"ALARM", "Alarm", "alarm"}, colorize: colorizeALARM},
+	{weight: 700, Names: []string{"ASSERT", "Assert", "assert"}, colorize: colorizeASSERT},
+	{weight: 700, Names: []string{"ERROR", "Error", "err", "error", "ERR"}, colorize: colorizeERROR},
+	{weight: 600, Names: []string{"ALERT", "Alert", "alert"}, colorize: colorizeALERT},
+	{weight: 600, Names: []string{"ATTENTION", "att", "attention", "Attention", "ATT"}, colorize: colorizeATTENTION},
 	{weight: 600, Names: []string{"WARNING", "wrn", "Warning", "warning", "WRN", "Warn", "warn", "WARN"}, colorize: colorizeWARNING},
-	{weight: 550, Names: []string{"ATTENTION", "att", "attention", "Attention", "ATT"}, colorize: colorizeATTENTION},
-	{weight: 500, Names: []string{"INFO", "i", "inf", "info", "Info", "informal", "I", "INF", "INFORMAL"}, colorize: colorizeINFO},
-	{weight: 300, Names: []string{"DEBUG", "d", "db", "Debug", "dbg", "deb", "debug", "D", "DB", "DBG"}, colorize: colorizeDEBUG},
-	{weight: 200, Names: []string{"TRACE", "tr", "Trace", "trace"}, colorize: colorizeTRACE},
-
-	// user modes
-	{weight: 400, Names: []string{"TIME", "tim", "time", "Time", "TIM", "TIMESTAMP", "timestamp", "Timestamp"}, colorize: colorizeTIME},
-	{weight: 400, Names: []string{"MESSAGE", "m", "msg", "message", "M", "MSG", "OK"}, colorize: colorizeMESSAGE},
-	{weight: 400, Names: []string{"READ", "r", "rd", "read", "rd_", "RD", "RD_"}, colorize: colorizeREAD},
-	{weight: 400, Names: []string{"WRITE", "w", "wr", "write", "wr_", "W", "WR", "WR_"}, colorize: colorizeWRITE},
-	{weight: 400, Names: []string{"RECEIVE", "rx", "receive", "Receive", "RX"}, colorize: colorizeRECEIVE},
-	{weight: 400, Names: []string{"TRANSMIT", "tx", "transmit", "Transmit", "TX"}, colorize: colorizeTRANSMIT},
-	{weight: 400, Names: []string{"DIAG", "dia", "diag", "Diag", "DIA"}, colorize: colorizeDIAG},
-	{weight: 400, Names: []string{"INTERRUPT", "int", "isr", "ISR", "INT", "interrupt", "Interrupt"}, colorize: colorizeINTERRUPT},
-	{weight: 400, Names: []string{"SIGNAL", "sig", "signal", "SIG"}, colorize: colorizeSIGNAL},
-	{weight: 400, Names: []string{"TEST", "t", "tst", "test", "T", "TST"}, colorize: colorizeTEST},
-
-	{weight: 400, Names: []string{"DEFAULT", "def", "Default", "default"}, colorize: colorizeDEFAULT},
-	{weight: 400, Names: []string{untaggedTag}, colorize: colorizeUntagged},
-	{weight: 600, Names: []string{"NOTICE", "note", "Notice", "notice", "Note", "NOTE"}, colorize: colorizeNOTICE},
-	{weight: 550, Names: []string{"ALERT", "Alert", "alert"}, colorize: colorizeALERT},
-	{weight: 650, Names: []string{"ASSERT", "Assert", "assert"}, colorize: colorizeASSERT},
-	{weight: 650, Names: []string{"ALARM", "a", "Alarm", "alarm"}, colorize: colorizeALARM},
-	{weight: 0x0, Names: []string{"CYCLE_ERROR"}, colorize: colorizeCYCLE}, // not for user code!
-	{weight: 100, Names: []string{"VERBOSE", "v", "Verbose", "verbose"}, colorize: colorizeVERBOSE},
 	{weight: 500, Names: []string{"CONFIG", "cfg", "config"}, colorize: colorizeDEFAULT},
-	{weight: 350, Names: []string{"MICROSECOND", "us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorize: colorizeTIME},
-	{weight: 350, Names: []string{"MILLISECOND", "ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorize: colorizeTIME},
-	{weight: 350, Names: []string{"SECOND", "s", "S", "Sec", "SEC", "SECONDS", "Second", "Seconds"}, colorize: colorizeTIME},
-	{weight: 350, Names: []string{"DELTATIME", "dt", "delta", "dT", "deltaTime", "delta-time"}, colorize: colorizeTIME},
+	{weight: 500, Names: []string{"DEFAULT", "def", "Default", "default"}, colorize: colorizeDEFAULT},
+	{weight: 500, Names: []string{"INFO", "inf", "info", "Info", "informal", "INF", "INFORMAL"}, colorize: colorizeINFO},
+	{weight: 500, Names: []string{"MESSAGE", "msg", "message", "MSG"}, colorize: colorizeMESSAGE},
+	{weight: 500, Names: []string{"NOTICE", "note", "Notice", "notice", "Note", "NOTE"}, colorize: colorizeNOTICE},
+	{weight: 500, Names: []string{untaggedTag}, colorize: colorizeUntagged},
+	{weight: 300, Names: []string{"DEBUG", "db", "Debug", "dbg", "deb", "debug", "DB", "DBG"}, colorize: colorizeDEBUG},
+	{weight: 300, Names: []string{"DIAG", "dia", "diag", "Diag", "DIA"}, colorize: colorizeDIAG},
+	{weight: 300, Names: []string{"READ", "rd", "read", "rd_", "RD", "RD_"}, colorize: colorizeREAD},
+	{weight: 300, Names: []string{"RECEIVE", "rx", "receive", "Receive", "RX"}, colorize: colorizeRECEIVE},
+	{weight: 300, Names: []string{"TEST", "tst", "test", "TST"}, colorize: colorizeTEST},
+	{weight: 300, Names: []string{"TRANSMIT", "tx", "transmit", "Transmit", "TX"}, colorize: colorizeTRANSMIT},
+	{weight: 300, Names: []string{"WRITE", "wr", "write", "wr_", "WR", "WR_"}, colorize: colorizeWRITE},
+	{weight: 100, Names: []string{"DELTATIME", "dt", "delta", "dT", "deltaTime", "delta-time"}, colorize: colorizeTIME},
+	{weight: 100, Names: []string{"INTERRUPT", "int", "isr", "ISR", "INT", "interrupt", "Interrupt"}, colorize: colorizeINTERRUPT},
+	{weight: 100, Names: []string{"MICROSECOND", "us", "µs", "uS", "µS", "uSec", "µSec", "uSEC", "µSEC", "MicroSec", "Microsecond", "Microseconds"}, colorize: colorizeTIME},
+	{weight: 100, Names: []string{"MILLISECOND", "ms", "mS", "mSec", "mSEC", "MSEC", "MilliSec", "Millisecond", "Milliseconds"}, colorize: colorizeTIME},
+	{weight: 100, Names: []string{"SECOND", "Sec", "SEC", "SECONDS", "Second", "Seconds"}, colorize: colorizeTIME},
+	{weight: 100, Names: []string{"SIGNAL", "sig", "signal", "SIG"}, colorize: colorizeSIGNAL},
+	{weight: 100, Names: []string{"TIME", "tim", "time", "Time", "TIM", "TIMESTAMP", "timestamp", "Timestamp"}, colorize: colorizeTIME},
+	{weight: 100, Names: []string{"TRACE", "tr", "Trace", "trace"}, colorize: colorizeTRACE},
+	{weight: 0, Names: []string{"VERBOSE", "Verbose", "verbose"}, colorize: colorizeVERBOSE},
+
+	{weight: 0x0, Names: []string{"CYCLE_ERROR"}, colorize: colorizeCYCLE}, // not for user code!
+})
+
+// builtInTags marks application defaults for case-insensitive lookup once at
+// initialization. Copies retain this policy; newly registered user tags do not
+// acquire it. Tool diagnostics keep their exact spelling.
+func builtInTags(tags []tag) []tag {
+	for i := range tags {
+		tags[i].caseInsensitive = tags[i].Names[0] != "CYCLE_ERROR"
+	}
+	return tags
 }
 
 // copyTagRegistry returns a deep copy so command-specific weights, counts, and
@@ -311,11 +321,13 @@ func copyTagRegistry(src []tag) []tag {
 	return dst
 }
 
-// tagIndex returns the group index for any canonical name or alias.
+// tagIndex applies one recognition rule to metadata, weights, selectors and
+// presentation. Built-in aliases ignore case; user labels remain literal so
+// independently registered labels such as new and NEW cannot merge.
 func tagIndex(tags []tag, name string) int {
 	for i, group := range tags {
 		for _, alias := range group.Names {
-			if alias == name {
+			if alias == name || (group.caseInsensitive && strings.EqualFold(alias, name)) {
 				return i
 			}
 		}
@@ -333,17 +345,42 @@ func tagIndex(tags []tag, name string) int {
 // C file contains the reciprocal maintenance note.
 var Tags = copyTagRegistry(defaultTags)
 
-// levelTags = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "FATAL", "EMERGENCY", "ATTENTION", "TRACE"}
+// levelTags selects the canonical tags that define numeric level boundaries.
+// Their immutable defaultTags weights apply to every command; changing a tag's
+// effective weight with -ulabel never moves boundaries for other events.
+var levelTags = []string{"FATAL", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "TRACE", "VERBOSE"}
+
+// TagLevel derives structured severity from the current weight of a canonical
+// tag or registered alias. Unknown names and tool diagnostics have no level;
+// application callers resolve missing/unknown format tags to untagged first.
+func TagLevel(name string) string {
+	index := tagIndex(Tags, name)
+	if index < 0 || Tags[index].Names[0] == "CYCLE_ERROR" {
+		return ""
+	}
+	// Keep the highest eligible named boundary, independent of either list's
+	// order. Category tags and coincident category weights create no boundaries.
+	weight := Tags[index].weight
+	boundary := -1
+	level := ""
+	for _, group := range defaultTags {
+		if group.weight > weight || group.weight <= boundary {
+			continue
+		}
+		for _, candidate := range levelTags {
+			if group.Names[0] == candidate {
+				level, boundary = candidate, group.weight
+				break
+			}
+		}
+	}
+	return level
+}
 
 // FindTagName maps any tag alias to its canonical name.
 func FindTagName(name string) (tagName string, err error) {
-	for _, t := range Tags {
-		for _, tn := range t.Names {
-			if tn == name {
-				tagName = t.Names[0] // take the first tag name as reference.
-				return
-			}
-		}
+	if index := tagIndex(Tags, name); index >= 0 {
+		return Tags[index].Names[0], nil
 	}
 	return "", fmt.Errorf("no tagName found for name %s", name)
 }
@@ -355,8 +392,9 @@ func UntaggedColorOverridden() bool {
 	return index >= 0 && Tags[index].colorOverridden
 }
 
-// FindTagNameFold resolves a registered alias without regard to case for
-// structured metadata. The existing exact lookup still controls text output.
+// FindTagNameFold resolves all registered aliases without regard to case for
+// Context Enrichment selectors, whose separate matching contract ignores case
+// even for free selectors. Logging uses FindTagName to keep user tags literal.
 func FindTagNameFold(name string) (string, error) {
 	for _, t := range Tags {
 		for _, alias := range t.Names {
@@ -415,12 +453,8 @@ func RecordTagEvent(candidate string) {
 // TagEvents returns count of successfully decoded application events in a group.
 // If ch is unknown, the returned value is -1.
 func TagEvents(ch string) int {
-	for _, s := range Tags {
-		for _, c := range s.Names {
-			if c == ch {
-				return s.count
-			}
-		}
+	if index := tagIndex(Tags, ch); index >= 0 {
+		return Tags[index].count
 	}
 	return -1
 }
@@ -447,12 +481,8 @@ func PrintTagStatistics(w io.Writer) {
 
 // tagVariants returns all known aliases for ch, or nil if unknown.
 func tagVariants(ch string) []string {
-	for _, s := range Tags {
-		for _, c := range s.Names {
-			if c == ch {
-				return s.Names
-			}
-		}
+	if index := tagIndex(Tags, ch); index >= 0 {
+		return Tags[index].Names
 	}
 	return nil
 }
@@ -486,12 +516,8 @@ func (p *lineTransformerANSI) colorize(s string) (r string, show bool) {
 	if p.colorPalette == "none" {
 		return r, true
 	}
-	for _, cs := range Tags {
-		for _, c := range cs.Names {
-			if c == sc[0] {
-				return cs.colorize(r), true
-			}
-		}
+	if index := tagIndex(Tags, sc[0]); index >= 0 {
+		return Tags[index].colorize(r), true
 	}
 	return r, true
 }
@@ -518,12 +544,8 @@ func Colorize(s string) (r string) {
 	if ColorPalette == "none" {
 		return r
 	}
-	for _, cs := range Tags {
-		for _, c := range cs.Names {
-			if c == sc[0] {
-				return cs.colorize(r)
-			}
-		}
+	if index := tagIndex(Tags, sc[0]); index >= 0 {
+		return Tags[index].colorize(r)
 	}
 	return r
 }

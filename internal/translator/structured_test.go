@@ -155,7 +155,7 @@ func TestStructuredJSONFloatAndStringValues(t *testing.T) {
 		{"positive infinity omitted", "TRICE64_1", "info:{value:%g}", structuredWords(64, math.Float64bits(math.Inf(1))), `{"tag":"INFO","level":"INFO","message":"+Inf"}` + "\n"},
 		{"negative infinity omitted", "TRICE64_1", "info:{value:%g}", structuredWords(64, math.Float64bits(math.Inf(-1))), `{"tag":"INFO","level":"INFO","message":"-Inf"}` + "\n"},
 		{"string clipping is presentation only", "triceS", "info:{message:%.3s}", []byte(`motor "A"`), `{"tag":"INFO","level":"INFO","message":"mot","fields":{"message":"motor \"A\""}}` + "\n"},
-		{"runtime tag cannot reclassify string", "triceN", "{text:%s}", []byte(`err:C:\tmp\new`), `{"tag":"untagged","message":"err:C:\tmp\new","fields":{"text":"err:C:\\tmp\\new"}}` + "\n"},
+		{"runtime tag cannot reclassify string", "triceN", "{text:%s}", []byte(`err:C:\tmp\new`), `{"tag":"untagged","level":"INFO","message":"err:C:\tmp\new","fields":{"text":"err:C:\\tmp\\new"}}` + "\n"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			configureStructuredTest(t, "json")
@@ -185,13 +185,13 @@ func TestStructuredRecordsPreserveEventBoundaries(t *testing.T) {
 	assert.Empty(t, diagnostics)
 	assert.Equal(t, "{\"tag\":\"INFO\",\"level\":\"INFO\",\"message\":\"A7\",\"fields\":{\"tag\":7}}\n"+
 		"{\"tag\":\"INFO\",\"level\":\"INFO\",\"message\":\"B\\nC\\n\"}\n"+
-		"{\"tag\":\"untagged\",\"message\":\"\"}\n"+
-		"{\"tag\":\"untagged\",\"message\":\"mgs:set={1,2} 8\",\"fields\":{\"value\":8}}\n", output)
+		"{\"tag\":\"untagged\",\"level\":\"INFO\",\"message\":\"\"}\n"+
+		"{\"tag\":\"untagged\",\"level\":\"INFO\",\"message\":\"mgs:set={1,2} 8\",\"fields\":{\"value\":8}}\n", output)
 }
 
 // TestStructuredTagAndMessageFollowTextMode compares decoded TREX calls across
 // formats. The outer record is different, but its message content follows the
-// same case-sensitive tag rule and retains all message whitespace.
+// same lowercase-only removal rule and retains all message whitespace.
 func TestStructuredTagAndMessageFollowTextMode(t *testing.T) {
 	for _, tt := range []struct {
 		name, template, palette, tag, message string
@@ -199,6 +199,12 @@ func TestStructuredTagAndMessageFollowTextMode(t *testing.T) {
 		{"lowercase alias", "inf:  Hi  \n", "none", "INFO", "  Hi  \n"},
 		{"mixed-case alias", "Inf:Hi\n", "none", "INFO", "Inf:Hi\n"},
 		{"uppercase alias", "INFO:Hi\n", "none", "INFO", "INFO:Hi\n"},
+		{"lowercase category alias", "rx:  Hi  \n", "none", "RECEIVE", "  Hi  \n"},
+		{"unlisted mixed-case category alias", "rX:  Hi  \n", "none", "RECEIVE", "rX:  Hi  \n"},
+		{"unlisted mixed-case canonical name", "ReCeIvE:Hi\n", "none", "RECEIVE", "ReCeIvE:Hi\n"},
+		{"uppercase category alias", "RX:Hi\n", "none", "RECEIVE", "RX:Hi\n"},
+		{"mixed-case category with color off", "rX:Hi\n", "off", "RECEIVE", "rX:Hi\n"},
+		{"removed OK alias stays visible", "OK:Hi\n", "none", "untagged", "OK:Hi\n"},
 		{"unknown typo", "mgs:Hi\n", "none", "untagged", "mgs:Hi\n"},
 		{"explicit untagged", "untagged:Hi\n", "none", "untagged", "Hi\n"},
 		{"no tag with Unicode space", " \u2003Grüße \n", "none", "untagged", " \u2003Grüße \n"},
@@ -584,11 +590,11 @@ func TestStructuredBufferScope(t *testing.T) {
 	assert.Contains(t, diagnostics, "does not support named structured fields")
 	output, diagnostics = runStructuredWire(t, id.TriceIDLookUp{1: {Type: "trice8B", Strg: "msg:%02x "}}, structuredPacket(1, []byte{1, 2}))
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, `{"tag":"MESSAGE","message":"01 02 "}`+"\n", output)
+	assert.Equal(t, `{"tag":"MESSAGE","level":"INFO","message":"01 02 "}`+"\n", output)
 	decoder.LogFormat = "kv"
 	output, diagnostics = runStructuredWire(t, id.TriceIDLookUp{1: {Type: "trice8B", Strg: "msg:%02x "}}, structuredPacket(1, []byte{1, 2}))
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, `tag=MESSAGE message="01 02 "`+"\n", output, "classic buffers do not create named fields")
+	assert.Equal(t, `tag=MESSAGE level=INFO message="01 02 "`+"\n", output, "classic buffers do not create named fields")
 }
 
 // TestStructuredMixedConversionsPreserveArgumentPositions checks that ordinary
@@ -710,18 +716,18 @@ func TestStructuredSelectionAndVisualization(t *testing.T) {
 	}
 }
 
-// TestStructuredLevelIsIndependentOfTagWeight prevents presentation and filter
-// settings from changing the semantic severity in exported records.
-func TestStructuredLevelIsIndependentOfTagWeight(t *testing.T) {
+// TestStructuredLevelFollowsEffectiveTagWeight verifies that canonical and
+// mixed-case metadata aliases use the overridden weight, preserving tag and text.
+func TestStructuredLevelFollowsEffectiveTagWeight(t *testing.T) {
 	configureStructuredTest(t, "json")
 	oldTags, oldLabels := emitter.Tags, emitter.UserLabel
 	t.Cleanup(func() { emitter.Tags, emitter.UserLabel = oldTags, oldLabels })
 	emitter.UserLabel = []string{"info:50", "motor:999"}
 	assert.NoError(t, emitter.AddUserLabels())
 	for _, tt := range []struct{ tag, want string }{
-		{"Info", `{"tag":"INFO","level":"INFO","message":"Info:ready"}`},
-		{"motor", `{"tag":"motor","message":"ready"}`},
-		{"MoToR", `{"tag":"motor","message":"MoToR:ready"}`},
+		{"Info", `{"tag":"INFO","level":"VERBOSE","message":"Info:ready"}`},
+		{"motor", `{"tag":"motor","level":"FATAL","message":"ready"}`},
+		{"MoToR", `{"tag":"untagged","level":"INFO","message":"MoToR:ready"}`},
 		{"WaRn", `{"tag":"WARNING","level":"WARNING","message":"WaRn:ready"}`},
 	} {
 		t.Run(tt.tag, func(t *testing.T) {
@@ -729,6 +735,107 @@ func TestStructuredLevelIsIndependentOfTagWeight(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want+"\n", string(encoded))
 		})
+	}
+}
+
+// TestStructuredLevelDerivationAcrossWireFormats exercises actual TREX input,
+// filtering and serialization together. Both JSON and KV must expose the same
+// numeric level without rewriting category identity, fields or message text.
+func TestStructuredLevelDerivationAcrossWireFormats(t *testing.T) {
+	for _, tc := range []struct {
+		name, template, tag, level, message string
+		labels                              []string
+		threshold                           string
+		pick, ban                           string
+		rejected                            bool
+	}{
+		{name: "category starts in DEBUG", template: "rx:  value={value}  ", tag: "RECEIVE", level: "DEBUG", message: "  value=7  "},
+		{name: "category override moves to ERROR", template: "rx:  value={value}  ", labels: []string{"rx:750"}, tag: "RECEIVE", level: "ERROR", message: "  value=7  "},
+		{name: "canonical alias shares the override", template: "RECEIVE:  value={value}  ", labels: []string{"rx:750"}, tag: "RECEIVE", level: "ERROR", message: "RECEIVE:  value=7  "},
+		{name: "mixed-case alias shares weight and threshold", template: "rX:  value={value}  ", labels: []string{"rx:750"}, threshold: "750", tag: "RECEIVE", level: "ERROR", message: "rX:  value=7  "},
+		{name: "mixed-case alias does not bypass threshold", template: "rX:value={value}", labels: []string{"rX:750"}, threshold: "751", rejected: true},
+		{name: "mixed-case override and pick preserve lowercase presentation", template: "rx:  value={value}  ", labels: []string{"rX:750"}, pick: "ReCeIvE", tag: "RECEIVE", level: "ERROR", message: "  value=7  "},
+		{name: "lowercase pick includes mixed-case event", template: "rX:value={value}", labels: []string{"rx:750"}, pick: "rx", tag: "RECEIVE", level: "ERROR", message: "rX:value=7"},
+		{name: "mixed-case ban excludes lowercase event", template: "rx:value={value}", ban: "rX", rejected: true},
+		{name: "lowercase ban excludes mixed-case event", template: "rX:value={value}", ban: "rx", rejected: true},
+		{name: "lowercase user label stays independent", template: "new:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "new", tag: "new", level: "DEBUG", message: "value=7"},
+		{name: "uppercase user label keeps prefix and weight", template: "NEW:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "NEW", tag: "NEW", level: "WARNING", message: "NEW:value=7"},
+		{name: "uppercase user label is not picked as lowercase", template: "NEW:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "new", rejected: true},
+		{name: "unregistered custom spelling uses untagged", template: "NeW:value={value}", labels: []string{"new:300", "NEW:650", "untagged:150"}, tag: "untagged", level: "TRACE", message: "NeW:value=7"},
+		{name: "custom tag just below WARNING", template: "sensor:value={value}", labels: []string{"sensor:599"}, tag: "sensor", level: "INFO", message: "value=7"},
+		{name: "exact numeric pick preserves structured fields", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", tag: "sensor", level: "TRACE", message: "value=7"},
+		{name: "exact numeric ban suppresses entire event", template: "sensor:value={value}", labels: []string{"sensor:200"}, ban: "200", rejected: true},
+		{name: "numeric pick is not a minimum threshold", template: "sensor:value={value}", labels: []string{"sensor:201"}, pick: "200", rejected: true},
+		{name: "numeric ban keeps a neighboring higher weight", template: "sensor:value={value}", labels: []string{"sensor:201"}, ban: "200", tag: "sensor", level: "TRACE", message: "value=7"},
+		{name: "numeric pick follows a built-in override", template: "rX:value={value}", labels: []string{"rx:200"}, pick: "200", tag: "RECEIVE", level: "TRACE", message: "rX:value=7"},
+		{name: "numeric pick follows untagged override", template: "typo:value={value}", labels: []string{"untagged:200"}, pick: "200", tag: "untagged", level: "TRACE", message: "typo:value=7"},
+		{name: "minimum threshold still restricts exact pick", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", threshold: "201", rejected: true},
+		{name: "removed single-letter prefix stays in message", template: "e:value={value}", tag: "untagged", level: "INFO", message: "e:value=7"},
+		{name: "explicit single-letter tag is a separate category", template: "x:value={value}", labels: []string{"x:200"}, pick: "200", tag: "x", level: "TRACE", message: "value=7"},
+		{name: "custom tag exactly at WARNING", template: "sensor:value={value}", labels: []string{"sensor:600"}, tag: "sensor", level: "WARNING", message: "value=7"},
+		{name: "custom tag remains WARNING at 650", template: "sensor:value={value}", labels: []string{"sensor:650"}, tag: "sensor", level: "WARNING", message: "value=7"},
+		{name: "color override does not change numeric level", template: "sensor:value={value}", labels: []string{"sensor:650", "sensor:red:blue"}, tag: "sensor", level: "WARNING", message: "value=7"},
+		{name: "custom tag moves to ERROR at 750", template: "sensor:value={value}", labels: []string{"sensor:750"}, tag: "sensor", level: "ERROR", message: "value=7"},
+		{name: "level-named tag follows its weight", template: "info:value={value}", labels: []string{"INFO:750"}, tag: "INFO", level: "ERROR", message: "value=7"},
+		{name: "INFO override does not move sensor boundary", template: "sensor:value={value}", labels: []string{"INFO:750", "sensor:550"}, tag: "sensor", level: "INFO", message: "value=7"},
+		{name: "equal overridden level-tag weights are unambiguous", template: "sensor:value={value}", labels: []string{"INFO:750", "wrn:750", "sensor:650"}, tag: "sensor", level: "WARNING", message: "value=7"},
+		{name: "unweighted custom tag inherits effective INFO weight", template: "sensor:value={value}", labels: []string{"sensor", "INFO:750"}, tag: "sensor", level: "ERROR", message: "value=7"},
+		{name: "unweighted custom tag normally becomes INFO", template: "sensor:value={value}", labels: []string{"sensor"}, tag: "sensor", level: "INFO", message: "value=7"},
+		{name: "untagged stays free of an injected prefix", template: "  value={value}  ", tag: "untagged", level: "INFO", message: "  value=7  "},
+		{name: "unknown tag keeps the typo and derives untagged level", template: "mgs:value={value}", labels: []string{"untagged:150"}, tag: "untagged", level: "TRACE", message: "mgs:value=7"},
+		{name: "OK is unknown rather than a MESSAGE alias", template: "OK:value={value}", tag: "untagged", level: "INFO", message: "OK:value=7"},
+		{name: "lowercase ok is not stripped as a MESSAGE alias", template: "ok:value={value}", tag: "untagged", level: "INFO", message: "ok:value=7"},
+		{name: "explicit OK user tag gets its own level", template: "OK:value={value}", labels: []string{"OK:650"}, tag: "OK", level: "WARNING", message: "OK:value=7"},
+		{name: "weight zero is a named VERBOSE interval", template: "sensor:value={value}", labels: []string{"sensor:0"}, tag: "sensor", level: "VERBOSE", message: "value=7"},
+		{name: "weight 999 remains FATAL", template: "sensor:value={value}", labels: []string{"sensor:999"}, tag: "sensor", level: "FATAL", message: "value=7"},
+		{name: "numeric threshold uses exact 650", template: "sensor:value={value}", labels: []string{"sensor:650"}, threshold: "650", tag: "sensor", level: "WARNING", message: "value=7"},
+		{name: "numeric threshold rejects 650 below 651", template: "sensor:value={value}", labels: []string{"sensor:650"}, threshold: "651", rejected: true},
+		{name: "tag threshold follows overridden INFO weight", template: "sensor:value={value}", labels: []string{"INFO:750", "sensor:650"}, threshold: "INFO", rejected: true},
+	} {
+		for _, format := range []string{"json", "kv"} {
+			t.Run(tc.name+"/"+format, func(t *testing.T) {
+				configureStructuredTest(t, format)
+				oldTags, oldLabels := emitter.Tags, emitter.UserLabel
+				t.Cleanup(func() { emitter.Tags, emitter.UserLabel = oldTags, oldLabels })
+				emitter.UserLabel = tc.labels
+				if !assert.NoError(t, emitter.AddUserLabels()) {
+					return
+				}
+				if tc.threshold != "" {
+					emitter.LogLevel = tc.threshold
+				}
+				if tc.pick != "" {
+					assert.NoError(t, emitter.Pick.Set(tc.pick))
+				}
+				if tc.ban != "" {
+					assert.NoError(t, emitter.Ban.Set(tc.ban))
+				}
+				if !assert.NoError(t, emitter.ResolveFilterSelectors()) {
+					return
+				}
+				lut := id.TriceIDLookUp{1: {Type: "TRICE32_1", Strg: tc.template}}
+				output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, structuredWords(32, 7)))
+				assert.Empty(t, diagnostics)
+				if tc.rejected {
+					assert.Empty(t, output, "classification must not lower the filtering threshold")
+					return
+				}
+				if format == "json" {
+					var record struct {
+						Tag, Level, Message string
+						Fields              map[string]int
+					}
+					if assert.NoError(t, json.Unmarshal([]byte(output), &record)) {
+						assert.Equal(t, tc.tag, record.Tag)
+						assert.Equal(t, tc.level, record.Level)
+						assert.Equal(t, tc.message, record.Message)
+						assert.Equal(t, map[string]int{"value": 7}, record.Fields)
+					}
+				} else {
+					assert.Equal(t, "tag="+tc.tag+" level="+tc.level+" message="+strconv.Quote(tc.message)+" field.value=7\n", output)
+				}
+			})
+		}
 	}
 }
 
@@ -742,7 +849,7 @@ func TestStructuredFormattedX0KeepsEmptyEvents(t *testing.T) {
 	decoder.ShowID = "%d"
 	output, diagnostics := runStructuredWire(t, nil, []byte{0, 0, 0, 0})
 	assert.Empty(t, diagnostics)
-	assert.Equal(t, `{"tag":"untagged","message":""}`+"\n", output, "no ID or fields may be invented for X0")
+	assert.Equal(t, `{"tag":"untagged","level":"INFO","message":""}`+"\n", output, "no ID or fields may be invented for X0")
 	decoder.TypeX0 = "counted:ignore"
 	output, diagnostics = runStructuredWire(t, nil, []byte{0, 0, 0, 0})
 	assert.Empty(t, output)

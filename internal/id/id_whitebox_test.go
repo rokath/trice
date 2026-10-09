@@ -88,7 +88,7 @@ func TestMalformedIDRangeLeavesCommandFilesUnchanged(t *testing.T) {
 				"-src", SFName,
 				"-til", FnJSON,
 				"-li", LIFnJSON,
-				"-IDRange", "e:100,101",
+				"-IDRange", "err:100,101",
 				"-IDRange", "missing-separator",
 			})
 			require.Error(t, err)

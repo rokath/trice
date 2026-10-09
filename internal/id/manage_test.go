@@ -241,13 +241,13 @@ func TestIDSpaceHelpers(t *testing.T) {
 	assert.False(t, IDData.IDIsPartOfIDSpace(999))
 
 	IDData.TagList = nil
-	IDRange = ArrayFlag{"e:100,102"}
+	IDRange = ArrayFlag{"err:100,102"}
 	Min = 10
 	Max = 12
 	require.NoError(t, EvaluateIDRangeStrings())
 	require.Len(t, IDData.TagList, 1)
 
 	IDData.TagList = nil
-	IDRange = ArrayFlag{"e:100,102", "err:101,103"}
+	IDRange = ArrayFlag{"err:100,102", "ERROR:101,103"}
 	assert.Error(t, EvaluateIDRangeStrings())
 }
