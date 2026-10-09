@@ -10,7 +10,6 @@
 
 #include "triceVariadic.h"
 
-// clang-format off
 #define TRICE_INSERT_TRICE(  tid, ...) TRICE_CONCAT2(TRICE_INSERT_TRICE_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 #define TRICE_INSERT_trice(  tid, ...) TRICE_CONCAT2(TRICE_INSERT_trice_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 #define TRICE_INSERT_Trice(  tid, ...) TRICE_CONCAT2(TRICE_INSERT_Trice_,   TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
@@ -33,8 +32,6 @@
 #define TRICE_INSERT_Trice64(tid, ...) TRICE_CONCAT2(TRICE_INSERT_Trice64_, TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 #define TRICE_INSERT_TRice64(tid, ...) TRICE_CONCAT2(TRICE_INSERT_TRice64_, TRICE_COUNT_VALUE_ARGUMENTS(__VA_ARGS__))(tid, __VA_ARGS__)
 #endif // (TRICE_64_BIT_SUPPORT == 1)
-
-// clang-format on
 
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 # This script:
 #   - Enumerates *all* tracked C/C++ source/header files via `git ls-files`
 #   - Lets clang-format apply `.clang-format-ignore` natively
+#   - Honors per-directory `.clang-format` settings, including the library's formatting guard
 #   - Processes the file list in one clang-format batch
 #   - Runs clang-format either in:
 #       * FORMAT MODE (in-place changes)
@@ -208,7 +209,7 @@ fi
 # Validate configuration before any in-place edit, then collect tracked paths.
 # Native ignore handling keeps vendor and scratch-pad files out of the batch.
 ###############################################################################
-if ! "$CLANG_FORMAT_BIN" -style=file:.clang-format -dump-config >/dev/null; then
+if ! "$CLANG_FORMAT_BIN" -style=file -dump-config >/dev/null; then
   echo "clang-format: Failed to parse .clang-format." >&2
   "$CLANG_FORMAT_BIN" --version >&2 || true
   exit 1
@@ -242,7 +243,7 @@ fi
 
 # One native process handles the entire batch; --verbose reports processed paths
 # after ignore rules have been applied, rather than claiming ignored files ran.
-FORMAT_ARGS=(--style=file:.clang-format --files="$FILES_LIST")
+FORMAT_ARGS=(--style=file --files="$FILES_LIST")
 if [ "$VERBOSE" -eq 1 ]; then
   echo "clang-format: Running in $MODE mode with $CLANG_FORMAT_VERSION_OUTPUT."
   FORMAT_ARGS+=(--verbose)

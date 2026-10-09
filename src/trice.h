@@ -544,8 +544,6 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_DIAGNOSTICS == 1
 
-// clang-format off
-
 #ifndef TRICE_ENTER
 
 	#if TRICE_BUFFER == TRICE_STACK_BUFFER
@@ -727,8 +725,6 @@ extern uint32_t* TriceBufferWritePosition;
 		} while (0)
 
 #endif
-
-// clang-format on
 
 #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 
