@@ -257,7 +257,7 @@ Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format an
 func bindIDsInit() {
 	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
 	flagsInsertAndBind(fsScBind)
-	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
+	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. Missing directories, including parents, are created automatically; for example, -genDir a/b/c creates a/b/c.")
 	fsScBind.Var(&id.ContextEnrichment, "ce", `Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
 Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".`)
 	flagUserLabel(fsScBind)

@@ -656,7 +656,7 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
     	 (default none)
   -genDir string
-    	Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. (default "./generated")
+    	Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. Missing directories, including parents, are created automatically; for example, -genDir a/b/c creates a/b/c. (default "./generated")
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
