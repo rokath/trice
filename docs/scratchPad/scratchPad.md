@@ -10,5 +10,9 @@ TODO:
 - -ce Beispiele
 - Trice Fretures
   - speed, space, tags, selection, routing, level, id, history, rtt, abc, vis, sl, ce, COBS/TCOBS, encryption, hs, ts, tsdelta, endianness, X0, li, small on wire, multi-targets, serial, udp in, tcp io, protection, bind, insert-cache, aliases, assert, self-contained
+
+
+C:\Users\ms\repos\trice\examples\F030_inst_rtt\ReadMe.md ist kein Link ins RM z.B. 
+C:\Users\ms\repos\trice\examples\F030_inst_rtt\build.sh unterscheidet sich sehr von bare
 -->
 ---
