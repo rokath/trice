@@ -48,7 +48,7 @@ From the repository [demo/deferred](../demo/deferred):
 ./run.sh
 ```
 
-The script [run.sh](../demo/deferred/run.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. Ignoring optional prefix and source-location columns, you should see colored:
+The script [demo/deferred/run.sh](../demo/deferred/run.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. It uses `cc` or, if unavailable, `gcc` from your `PATH`. Ignoring optional prefix and source-location columns, you should see colored:
 
 ```text
 Hello from deferred mode.
@@ -61,25 +61,21 @@ Open [demo/deferred/main.c](../demo/deferred/main.c), change the value `42` to `
 
 **Bind** maintains the generated header includes; your calls stay readable, such as `trice("att:Deferred value=%d.\n", 43);`.
 
-The sibling folders `demo/direct` and `demo/live` also contain a `run.sh`. Each demo is an independent project; its generated sidecars stay in `build/generated_sidecars`. Copy a whole demo folder and adjust `trice_src` in its script to point to the Trice library. See the [Reference Manual](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
+The sibling scripts [demo/direct/run.sh](../demo/direct/run.sh) and [demo/live/run.sh](../demo/live/run.sh) demonstrate direct and continuous output. Each demo is an independent project; its generated sidecars stay in `build/generated_sidecars`. Copy a whole demo folder and adjust `trice_src` in its script to point to the Trice library. See the [Reference Manual](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
+
+![PC-Demos_Screenshot_2026-10-09.png](./ref/PC-Demos_Screenshot_2026-10-09.png)
 
 ## 3. <a id="try-fields-filters-and-context"></a>Try fields, filters and context
 
-The next project collects several small experiments in one program. Starting in `demo/deferred` after the previous section:
+The next project collects several small experiments in one program. [examples/PC_features/build_and_run.sh](../examples/PC_features/build_and_run.sh) assigns IDs, compiles the PC program and runs it to create `capture.bin`. [show_text.sh](../examples/PC_features/show_text.sh), [show_json.sh](../examples/PC_features/show_json.sh) and [show_kv.sh](../examples/PC_features/show_kv.sh) decode that same file; choosing another output format does not rebuild the target. Relevant messages include `Device pump A`, two `Supply` readings, `Retry 2`, `Humidity 55 percent` and `A message without a tag`.
 
-```sh
-cd ../../examples/PC_features
-./build_and_run.sh
-./show_text.sh
-./show_json.sh
-./show_kv.sh
-```
+To run the commands below, first change into [examples/PC_features](../examples/PC_features) (from the repository root: `cd examples/PC_features`).
 
-These scripts decode the same `capture.bin`; choosing another output format does not rebuild the target. Relevant messages include `Device pump A`, two `Supply` readings, `Retry 2`, `Humidity 55 percent` and `A message without a tag`.
+![PC_Examples_Screenshot_2026-10-09.png](./ref/PC-Examples_Screenshot_2026-10-09.png)
 
 ### 3.1. <a id="keep-values-as-fields"></a>Keep values as fields
 
-The [source](../examples/PC_features/main.c) contains:
+The source file [examples/PC_features/main.c](../examples/PC_features/main.c) contains:
 
 ```c
 TRice32("info:ctx:Supply {voltage_mv:%u} mV\n", voltage_mv);
@@ -109,6 +105,8 @@ A tag is the prefix before the first colon, for example `info:` or `wrn:`. Try t
 
 The first shows INFO events only. The second selects Warning and higher-priority events, including `Retry 2`; the third uses the equivalent lowercase option spelling and numeric Warning threshold. The fourth raises this tour's custom `sensor` tag above the Warning threshold, so `Humidity 55 percent` also appears. This is useful when you want all serious messages rather than a list of individual tags. Higher weights mean higher priority; a lower threshold admits more events.
 
+![PC_ExamplesSelect_Screenshot_2026-10-09.png](./ref/PC_ExamplesSelect_Screenshot_2026-10-09.png)
+
 Repeat `-pick` or `-ban` for several selectors: `./show_json.sh -pick info -pick wrn` displays either group. A number selects an exact weight: `-ban 450` hides this tour's sensor events, while `-pick 450` displays only events at weight 450. In comparison, `-loglevel 450` displays weights 450 and above. Colon-separated lists and weight ranges are rejected; use one selector per option.
 
 JSON and KV derive `level` from the effective weight while keeping `tag` as the category. Here, `sensor` normally has weight 450 and appears as `tag=sensor level=DEBUG`. With `-ulabel sensor:650`, it becomes `tag=sensor level=WARNING`; its message and fields stay the same. RECEIVE normally has level DEBUG, and `untagged` has level INFO. The eight [level intervals](./TriceReferenceManual.md#json-and-kv-contract) stay fixed when tag weights are overridden.
@@ -121,7 +119,7 @@ Built-in aliases have at least two letters, for example `err`, `inf`, `msg`, `wr
 
 Macro capitalization selects the stamp carried by a record: `trice` has none, `Trice` has 16 bits and `TRice` has 32 bits. A numeric suffix such as `32` in `TRice32` instead selects the parameter bit width.
 
-This tour deliberately uses two different meanings. `TriceStamp16` reads `pc_sample_phase`; `TriceStamp32` reads `pc_sample_milliseconds`, as defined in [triceConfig.h](../examples/PC_features/triceConfig.h). The host scripts choose how to display each. The two Supply calls carry 32-bit values `100` and `125`, shown as milliseconds; the second has a delta of `25`. Humidity carries a 16-bit phase value of `7`.
+This tour deliberately uses two different meanings. `TriceStamp16` reads `pc_sample_phase`; `TriceStamp32` reads `pc_sample_milliseconds`, as defined in [examples/PC_features/triceConfig.h](../examples/PC_features/triceConfig.h). The host scripts choose how to display each. The two Supply calls carry 32-bit values `100` and `125`, shown as milliseconds; the second has a delta of `25`. Humidity carries a 16-bit phase value of `7`.
 
 ```sh
 ./show_json.sh -ts16 'phase:%d' -ts32 ms -ts32delta ms
@@ -131,7 +129,7 @@ Change `pc_sample_milliseconds = 125u` to `150u`, rebuild and decode again: the 
 
 ### 3.4. <a id="add-context-with-one-build-rule"></a>Add context with one build rule
 
-**Context Enrichment (CE)** appends application values to selected log calls during ID generation. The [build script](../examples/PC_features/build_and_run.sh) already passes:
+**Context Enrichment (CE)** appends application values to selected log calls during ID generation. The script [examples/PC_features/build_and_run.sh](../examples/PC_features/build_and_run.sh) already passes:
 
 ```sh
 -ce 'ctx:", cycle={cycle:%u}", pc_sample_phase'
@@ -141,7 +139,7 @@ This is an option fragment for `trice bind`, not a separate shell command. `ctx:
 
 Try changing `cycle` to `phase` in both places inside the CE format (`phase={phase:%u}`), then rebuild and decode. The displayed label and JSON field name change together. Every selected call must be able to access the expression. Current `bind -ce` supports direct, uniquely addressable calls; selected wrapper/rebase sites are rejected. CE does not append runtime parameters to `triceS`/`triceN`; use their own string argument for runtime text. These boundaries and the alternative `insert/clean -ce` workflow are explained in [Context Enrichment](./TriceReferenceManual.md#trice-context-enrichment).
 
-When you edit an example, its output check may correctly fail because it still expects the original values. Run `./check_output.sh` on the unchanged tour; after intentional edits, inspect the new output and update the corresponding expectations. The [guide to adapting these checks](./TriceReferenceManual.md#updating-the-pc-tours-output-checks) explains where they come from.
+When you edit an example, its output check may correctly fail because it still expects the original values. Run [examples/PC_features/check_output.sh](../examples/PC_features/check_output.sh) as `./check_output.sh` on the unchanged tour; after intentional edits, inspect the new output and update the corresponding expectations. The [guide to adapting these checks](./TriceReferenceManual.md#updating-the-pc-tours-output-checks) explains where they come from.
 
 ## 4. <a id="bring-trice-into-your-firmware"></a>Bring Trice into your firmware
 
