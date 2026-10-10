@@ -43,6 +43,9 @@ main() {
   for package in $package_list; do
     case "$package" in
       */_test/*) continue ;;
+      # Disposable project copies are not repository test packages. Git ignore
+      # rules do not prevent go list from discovering their Go sources.
+      */temp/*) continue ;;
       *) packages+=("$package") ;;
     esac
   done

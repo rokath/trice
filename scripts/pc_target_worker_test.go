@@ -154,6 +154,8 @@ func TestPCWorkerBatchingAndFailures(t *testing.T) {
 
 // TestGoStepsPreserveBuildCacheAndExecuteTests guards the full-suite path:
 // earlier Go steps must not erase the PC cache or substitute cached test PASSes.
+// Disposable project copies must be excluded from tests and coverage even when
+// Go discovers them alongside the normal repository packages.
 func TestGoStepsPreserveBuildCacheAndExecuteTests(t *testing.T) {
 	for _, step := range []string{"scripts/_540_test_go.sh", "scripts/_550_test_go_coverage.sh"} {
 		t.Run(filepath.Base(step), func(t *testing.T) {
@@ -165,7 +167,7 @@ func TestGoStepsPreserveBuildCacheAndExecuteTests(t *testing.T) {
 set -eu
 printf '%s\n' "$*" >> go-calls.txt
 case "$1" in
-  list) printf 'fixture/normal\nfixture/_test/pc\n' ;;
+  list) printf 'fixture/temp/stale/project/scripts\nfixture/normal\nfixture/_test/pc\nfixture/temp/other\n' ;;
   env) if [ "$2" = GOVERSION ]; then printf 'go1.25.0\n'; fi ;;
   test)
     for arg; do
@@ -186,6 +188,7 @@ esac
 			assert.NotContains(t, calls, "clean", "normal Go steps must preserve the full-suite build cache")
 			assert.Contains(t, calls, "test -count=1 fixture/normal")
 			assert.NotContains(t, calls, "test -count=1 fixture/normal fixture/_test/pc", "PC tests remain owned by their managed workers")
+			assert.NotContains(t, calls, "fixture/temp/", "disposable packages must not be tested or instrumented")
 			if strings.Contains(step, "coverage") {
 				assert.Contains(t, calls, "-covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=fixture/normal")
 			}
