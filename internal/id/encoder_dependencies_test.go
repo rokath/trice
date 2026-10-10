@@ -298,8 +298,8 @@ func TestDeferredRTTDoesNotPullInactiveDirectEncoder(t *testing.T) {
 	}
 	project, _ := encoderProject(t, encoderBuildCase{
 		buffer: "TRICE_RING_BUFFER", deferred: "TRICE_FRAMING_TCOBS", tcobs: true,
-		// Match the real RTT defaults; no device transport is executed.
-		extra: "#define TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE 1\n#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS\n#define TRICE_BUFFER_SIZE_DOWN BUFFER_SIZE_DOWN\n#define TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE SEGGER_RTT_PRINTF_BUFFER_SIZE\n",
+		// The library must inherit the real RTT defaults without project aliases.
+		extra: "#define TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE 1\n#define TRICE_DIRECT_OUT_FRAMING TRICE_FRAMING_COBS\n",
 	})
 	library := filepath.Join(project, "library")
 	root := bindRepositoryRoot(t)
@@ -337,6 +337,103 @@ func TestDeferredRTTDoesNotPullInactiveDirectEncoder(t *testing.T) {
 				assert.NotContains(t, symbols, "TriceDeferredOverflowCount")
 			}
 		})
+	}
+}
+
+// TestRTTConfigurationDefaultsFollowSelectedHeader compiles the actual library
+// with fallback/custom RTT settings and verifies that explicit conflicts still
+// fail. Non-RTT and fully disabled builds deliberately have no SEGGER headers.
+func TestRTTConfigurationDefaultsFollowSelectedHeader(t *testing.T) {
+	t.Parallel()
+	compilers := availableBindCompilers("cc", "gcc", "clang")
+	if len(compilers) == 0 {
+		t.Skip("no native C compiler available")
+	}
+	// Keep expected values independent of the implementation's macro aliases.
+	settings := []string{
+		"SEGGER_RTT_MAX_NUM_UP_BUFFERS", "SEGGER_RTT_MAX_NUM_DOWN_BUFFERS",
+		"BUFFER_SIZE_UP", "BUFFER_SIZE_DOWN", "SEGGER_RTT_PRINTF_BUFFER_SIZE",
+	}
+	fallback := [5]int{1, 1, 1024, 16, 64}
+	custom := [5]int{2, 2, 2048, 32, 128}
+	withoutRTT := [5]int{1, 1, 1024, 0, 0}
+	direct32 := "#define TRICE_DIRECT_OUTPUT 1\n#define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1\n"
+	auxiliary := "#define TRICE_DIRECT_OUTPUT 1\n#define TRICE_DIRECT_AUXILIARY8 1\n"
+	// Each case owns its configuration and all copied headers; parallel compiler
+	// runs cannot alter another case or the repository's example sources.
+	type configCase struct {
+		name, extra, projectConfig, wantError, buffer string
+		want                                          [5]int
+		rtt                                           bool
+	}
+	cases := []configCase{
+		{name: "direct_32_uses_fallback", extra: direct32, want: fallback, rtt: true},
+		{name: "direct_8_uses_fallback", extra: "#define TRICE_DIRECT_OUTPUT 1\n#define TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE 1\n", want: fallback, rtt: true},
+		{name: "deferred_8_uses_fallback", buffer: "TRICE_RING_BUFFER", extra: "#define TRICE_DEFERRED_OUTPUT 1\n#define TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE 1\n", want: fallback, rtt: true},
+		{name: "RTT_locks_use_fallback", extra: auxiliary + "#define USE_SEGGER_RTT_LOCK_UNLOCK_MACROS 1\n", want: fallback, rtt: true},
+		{name: "non_RTT_needs_no_SEGGER_headers", extra: auxiliary, want: withoutRTT},
+	}
+	var customConfig, matchingOverrides, zeroConfig string
+	for i, setting := range settings {
+		customConfig += fmt.Sprintf("#define %s %d\n", setting, custom[i])
+		matchingOverrides += fmt.Sprintf("#define TRICE_%s %d\n", setting, custom[i])
+		zeroConfig += fmt.Sprintf("#define %s %d\n", setting, withoutRTT[i])
+		cases = append(cases, configCase{
+			name: "explicit_conflict_" + setting, extra: direct32 + fmt.Sprintf("#define TRICE_%s %d\n", setting, fallback[i]+1),
+			wantError: "TRICE_" + setting + " != " + setting, rtt: true,
+		})
+	}
+	cases = append(cases,
+		configCase{name: "project_header_takes_precedence", extra: direct32, projectConfig: customConfig, want: custom, rtt: true},
+		configCase{name: "explicit_matching_values_are_preserved", extra: direct32 + matchingOverrides, projectConfig: customConfig, want: custom, rtt: true},
+		configCase{name: "zero_sized_optional_buffers_are_preserved", extra: direct32, projectConfig: zeroConfig, want: withoutRTT, rtt: true},
+	)
+	for _, switchName := range []string{"TRICE_OFF", "TRICE_CLEAN"} {
+		cases = append(cases,
+			configCase{name: switchName + "_needs_no_SEGGER_headers", extra: direct32 + "#define " + switchName + " 1\n#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 0\n", want: withoutRTT},
+			configCase{name: switchName + "_with_X0_still_uses_RTT", extra: direct32 + "#define " + switchName + " 1\n#define TRICE_TX_X0_COUNTED_BUFFER_SUPPORT 1\n", want: fallback, rtt: true},
+		)
+	}
+	for _, compiler := range compilers {
+		for _, tc := range cases {
+			t.Run(filepath.Base(compiler)+"/"+tc.name, func(t *testing.T) {
+				t.Parallel()
+				// Direct output uses a stack buffer; deferred RTT needs persistent storage.
+				buffer := tc.buffer
+				if buffer == "" {
+					buffer = "TRICE_STACK_BUFFER"
+				}
+				project, _ := encoderProject(t, encoderBuildCase{buffer: buffer, tcobs: true, extra: tc.extra})
+				library := filepath.Join(project, "library")
+				if tc.rtt {
+					for _, name := range []string{"SEGGER_RTT.h", "SEGGER_RTT_ConfDefaults.h", "default_conf/SEGGER_RTT_Conf.h"} {
+						data, err := os.ReadFile(filepath.Join(bindRepositoryRoot(t), "src", name))
+						require.NoError(t, err)
+						destination := filepath.Join(library, name)
+						require.NoError(t, os.MkdirAll(filepath.Dir(destination), 0o755))
+						require.NoError(t, os.WriteFile(destination, data, 0o644))
+					}
+				}
+				if tc.projectConfig != "" {
+					require.NoError(t, os.WriteFile(filepath.Join(project, "SEGGER_RTT_Conf.h"), []byte(tc.projectConfig), 0o644))
+				}
+				fixture := "#include \"trice.c\"\n"
+				if tc.wantError == "" {
+					for i, setting := range settings {
+						fixture += fmt.Sprintf("_Static_assert(TRICE_%s == %d, \"unexpected %s\");\n", setting, tc.want[i], setting)
+					}
+				}
+				source := filepath.Join(project, "configuration.c")
+				require.NoError(t, os.WriteFile(source, []byte(fixture), 0o644))
+				output, err := exec.Command(compiler, "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror", "-I", project, "-I", library, "-I", filepath.Join(library, "default_conf"), "-c", source, "-o", filepath.Join(project, "configuration.o")).CombinedOutput()
+				if tc.wantError != "" {
+					require.Error(t, err, "conflicting RTT settings must not compile")
+					assert.Contains(t, string(output), tc.wantError)
+					return
+				}
+				require.NoError(t, err, "%s", output)
+			})
+		}
 	}
 }
 

@@ -29,11 +29,12 @@
 
 #if defined(SEGGER_RTT) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1)
 
-// triceDefaultConfig.h defines 5 recommended SEGGER_RTT values (with prefix TRICE_), the user can change in its triceConfig.h.
-// Because SEGGER_RTT_Conf.h is used separately in the SEGGER code, which we do not touch,
-// we need to make sure, that these values are equal for the Trice code and the SEGGER code.
-// Make sure for example, a (inside triceConfig.h) defined TRICE_BUFFER_SIZE_UP is equal to BUFFER_SIZE_UP in "SEGGER_RTT.h".
-// If user defines its own value, this must be reflected in "SEGGER_RTT_Conf.h" to avoid misbehave.
+// triceDefaultConfig.h reads the selected SEGGER_RTT_Conf.h through SEGGER_RTT.h
+// and normally gives Trice the same channel counts and buffer sizes. The SEGGER
+// source files are compiled separately with that configuration, so an explicit
+// TRICE_* setting in triceConfig.h must agree with SEGGER's value. For example,
+// BUFFER_SIZE_DOWN=32 automatically makes TRICE_BUFFER_SIZE_DOWN=32; explicitly
+// setting TRICE_BUFFER_SIZE_DOWN=16 instead is an error caught here at build time.
 
 #include "SEGGER_RTT.h" // get the value used in SEGGER_RTT_Conf.h
 

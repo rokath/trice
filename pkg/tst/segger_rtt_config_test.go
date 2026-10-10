@@ -291,10 +291,10 @@ func TestTriceRTTWritersUseVendorBuffer(t *testing.T) {
 	}
 }
 
-// TestCGORTTSizesFollowSelectedVendorConfiguration uses the actual shared CGO
-// template flags to compile trice.c with its consistency checks unchanged.
-// Changing the SEGGER sizes must automatically change the Trice values too;
-// fixed 16/64 overrides would fail the customized and zero-size cases.
+// TestCGORTTSizesFollowSelectedVendorConfiguration verifies that legacy CGO
+// aliases remain compatible and that they are no longer required. Changing
+// SEGGER sizes must update Trice defaults; explicit conflicts must still fail
+// when compiling the production source, including with TRICE_CGO enabled.
 func TestCGORTTSizesFollowSelectedVendorConfiguration(t *testing.T) {
 	root, err := filepath.Abs(filepath.Join("..", ".."))
 	if !assert.NoError(t, err) {
@@ -316,7 +316,7 @@ func TestCGORTTSizesFollowSelectedVendorConfiguration(t *testing.T) {
 			}
 		}
 	}
-	if !assert.Len(t, sizeFlags, 2, "the shared template must couple both Trice sizes to the selected RTT configuration") {
+	if !assert.Len(t, sizeFlags, 2, "the legacy shared template contains both explicit RTT aliases") {
 		return
 	}
 	const config = `// SPDX-License-Identifier: MIT
@@ -346,11 +346,15 @@ int main(void) {
 				name, want   string
 				flags        []string
 				omitCoupling bool
+				wantMismatch bool
 			}{
-				{"fallback_sizes", "Trice=16/64 RTT=16/64", nil, false},
-				{"changed_vendor_sizes_are_inherited", "Trice=7/19 RTT=7/19", []string{"-DBUFFER_SIZE_DOWN=7", "-DSEGGER_RTT_PRINTF_BUFFER_SIZE=19"}, false},
-				{"explicit_zero_sizes_are_inherited", "Trice=0/0 RTT=0/0", []string{"-DBUFFER_SIZE_DOWN=0", "-DSEGGER_RTT_PRINTF_BUFFER_SIZE=0"}, false},
-				{"without_coupling_mismatches_still_fail_in_production_source", "", nil, true},
+				{"fallback_sizes", "Trice=16/64 RTT=16/64", nil, false, false},
+				{"changed_vendor_sizes_are_inherited", "Trice=7/19 RTT=7/19", []string{"-DBUFFER_SIZE_DOWN=7", "-DSEGGER_RTT_PRINTF_BUFFER_SIZE=19"}, false, false},
+				{"explicit_zero_sizes_are_inherited", "Trice=0/0 RTT=0/0", []string{"-DBUFFER_SIZE_DOWN=0", "-DSEGGER_RTT_PRINTF_BUFFER_SIZE=0"}, false, false},
+				{"fallback_sizes_need_no_aliases", "Trice=16/64 RTT=16/64", nil, true, false},
+				{"changed_vendor_sizes_need_no_aliases", "Trice=7/19 RTT=7/19", []string{"-DBUFFER_SIZE_DOWN=7", "-DSEGGER_RTT_PRINTF_BUFFER_SIZE=19"}, true, false},
+				{"zero_vendor_sizes_need_no_aliases", "Trice=0/0 RTT=0/0", []string{"-DBUFFER_SIZE_DOWN=0", "-DSEGGER_RTT_PRINTF_BUFFER_SIZE=0"}, true, false},
+				{"explicit_mismatches_still_fail_in_production_source", "", []string{"-DTRICE_BUFFER_SIZE_DOWN=0", "-DTRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE=0"}, true, true},
 			} {
 				t.Run(tc.name, func(t *testing.T) {
 					project := t.TempDir()
@@ -369,9 +373,8 @@ int main(void) {
 					// configurations must still produce a compiler error.
 					compileArgs := append(append([]string{}, args...), "-c", filepath.Join(root, "src", "trice.c"), "-o", filepath.Join(project, "trice.o"))
 					output, err := exec.Command(compiler, compileArgs...).CombinedOutput()
-					if tc.omitCoupling {
-						// CGO must not bypass production validation. Without the
-						// test flags, Trice's 0/0 defaults still conflict with RTT.
+					if tc.wantMismatch {
+						// CGO must not bypass validation of explicit project values.
 						assert.Error(t, err, "inconsistent values must remain a compiler error")
 						assert.Contains(t, string(output), "TRICE_BUFFER_SIZE_DOWN != BUFFER_SIZE_DOWN")
 						assert.Contains(t, string(output), "TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE != SEGGER_RTT_PRINTF_BUFFER_SIZE")
