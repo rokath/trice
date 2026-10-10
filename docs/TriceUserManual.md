@@ -157,7 +157,7 @@ For a first single-context application, the essential configuration is:
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_AUXILIARY8 1
 
-#endif
+#endif // #ifndef TRICE_CONFIG_H_
 ```
 
 Before logging from interrupts or multiple tasks, define real `TRICE_ENTER_CRITICAL_SECTION` / `TRICE_LEAVE_CRITICAL_SECTION` protection appropriate to your MCU and scheduler. The default empty protection is only a starting point for a single context. Buffer sizing and the complete setup are in the [byte-writer quickstart](./TriceReferenceManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit).
@@ -192,11 +192,10 @@ Depending on the configuration, one `TriceTransfer()` call may not send all buff
 
 `BoardInit`, `AppRun` and `UserWrite` are your application's functions. Implement `UserWrite` with your byte-output function; the empty outline above does not transmit anything. The writer must accept the complete chunk or implement an explicit overflow policy. It must not retain the supplied pointer after returning; a DMA queue needs its own copy or another correctly managed transport adapter. Trice's target logging path needs no heap allocator, but that says nothing about allocations in your writer or other application functions.
 
-Use **Bind** as the pre-build step. For a project whose application sources and configuration live in `application` and whose build directory is `build`, run from that project's root:
+Use **Bind** as the pre-build step. For a project whose application sources and configuration live in `application` and whose build directory is `build`, run from that project's root after initially `touch til.json li.json`:
 
 ```sh
-touch til.json li.json
-trice bind -src application -genDir build/sidecars -til til.json -li li.json
+trice bind -src application -genDir build/sidecars
 ```
 
 For a new project, `touch` creates the initially empty dictionaries; it leaves existing contents intact. Bind deliberately rejects a missing TIL instead of silently replacing a lost dictionary with new IDs. It creates `build/sidecars`, including missing parent directories, automatically.
@@ -219,12 +218,12 @@ The same captured records can later be decoded with `-logFormat json` or `-logFo
 
 ## 5. <a id="know-which-files-to-keep"></a>Know which files to keep
 
-File or directory | What to do with it
---- | ---
-Application sources and `triceConfig.h` | Keep under version control, including the generated include lines that Bind adds to sources.
-`til.json` | Keep under version control and extend it across builds. Its newest accumulated version also decodes older firmware and captures.
-`li.json` | Generated source-location table; normally leave it out of version control. Keep a copy with a firmware build or capture when you need that build's exact source locations.
-`build/sidecars/` | Regenerable sidecar headers and field registry. Leave them out of version control; Bind recreates them before compilation.
+File or directory                                       | What to do with it
+--------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Application sources and `triceConfig.h`                 | Keep under version control, including the generated include lines that Bind adds to sources.
+`til.json`                                              | Keep under version control and extend it across builds. Its newest accumulated version also decodes older firmware and captures.
+`li.json`                                               | Generated source-location table; normally leave it out of version control. Keep a copy with a firmware build or capture when you need that build's exact source locations.
+`build/sidecars/`                                       | Regenerable sidecar headers and field registry. Leave them out of version control; Bind recreates them before compilation.
 Executables, object files and `capture.bin` / `log.bin` | Build/run outputs; retain firmware images and captures when useful for later investigation.
 
 `til.json` is the long-lived ID-to-format dictionary: preserve existing entries when adding new messages. It does not need a separate matching copy for every build. `li.json` instead describes source files and line numbers, which can change between builds. A current TIL can decode an old capture while a current LI would point to the wrong source locations; use that build's LI or disable locations with `-li off`.
@@ -233,32 +232,34 @@ The generated headers are needed to compile, but do not need to be kept after th
 
 ## 6. <a id="choose-your-next-example"></a>Choose your next example
 
-What you want to try | Project and next experiment | Full instructions
---- | --- | ---
-Task context on an MCU | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](./TriceReferenceManual.md#g0b1-feature-tour)
-First instrumentation with RTT | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/). | [RTT integration steps](../examples/F030_inst_rtt/ReadMe.md)
-First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/). | [UART integration steps](../examples/F030_inst_uart/ReadMe.md)
-Text generated on the target | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder. | [Local logging](./TriceReferenceManual.md#pc-local-logging)
-Live plots | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot. | [Plotting setup](./TriceReferenceManual.md#setting-up-the-labplot-demo)
-Commands between nodes | [TriceAbc](../examples/TriceAbc/): run a host-native broadcast demo and change a command. | [ABC example](./TriceReferenceManual.md#example-examplestriceabc)
+What you want to try            | Project and next experiment                                                                                                                  | Full instructions
+--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------
+First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/).                                                | [RTT integration steps](../examples/F030_inst_rtt/ReadMe.md)
+First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](../examples/F030_inst_uart/ReadMe.md)
+Task context on an MCU          | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](./TriceReferenceManual.md#g0b1-feature-tour)
+Text generated on the target    | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder.                                                     | [Local logging](./TriceReferenceManual.md#pc-local-logging)
+Live plots                      | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot.                                                           | [Plotting setup](./TriceReferenceManual.md#setting-up-the-labplot-demo)
+Commands between nodes          | [TriceAbc](../examples/TriceAbc/): run a host-native broadcast demo and change a command.                                                    | [ABC example](./TriceReferenceManual.md#example-examplestriceabc)
 
-The two F030 examples share the same uninstrumented baseline so that a folder comparison shows the necessary integration changes. Vendor files are unchanged. The existing [F030_inst](../examples/F030_inst/) demonstrates RTT and serial logging in parallel.
+[F030_bare](../examples/F030_bare/) is the STM32CubeMX-generated starting point without Trice instrumentation. [F030_inst_rtt](../examples/F030_inst_rtt/) and [F030_inst_uart](../examples/F030_inst_uart/) mainly show the concrete changes needed to add Trice with RTT or UART, respectively. Compare either instrumented folder with `F030_bare` using a folder-diff tool: the differences show roughly which files and settings to adapt in your own CubeMX project.
+
+[F030_inst](../examples/F030_inst/) is a more developed example. It runs direct output over RTT and deferred output over UART in parallel, illustrating how both modes can be used in one project.
 
 These projects have different prerequisites. In particular, the G0B1 build needs an ARM toolchain; flashing and capturing require the board and probe. A successful cross-build does not mean firmware has run on hardware.
 
 ## 7. <a id="if-something-does-not-work"></a>If something does not work
 
-Symptom | Next check
---- | ---
+Symptom                                                           | Next check
+------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 `trice` or `tlog` is not found, or a documented option is unknown | Check `PATH` and `trice --version`. Install a tool version that supports the option; `trice help -all` lists the available switches.
-PC compilation fails on standard headers | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](./TriceReferenceManual.md#development-environment-setup).
-A generated header is missing or points at a wrong call | Run Bind from the intended project root and check the generated include path. Do not edit individual sidecar definitions. See [Bind diagnostics](./TriceReferenceManual.md#diagnostics-and-troubleshooting).
-The target runs but no bytes arrive | Use `tlog -p COM7 -baud 115200 -s` to display incoming bytes. Check the writer, output configuration and regular `TriceTransfer()` calls for deferred mode.
-Bytes arrive but cannot be decoded | Use `tlog -p COM7 -baud 115200 -debug` to inspect framed and decoded packets. Check the project's accumulated `til.json`, port speed, framing and options against its log script.
-Source locations point to the wrong lines | Use the `li.json` from the firmware build being decoded, or disable source locations with `-li off`.
-Messages disappear after adding a filter | Remove `-pick`, `-ban` and `-logLevel` temporarily; check the tag or custom-tag weight.
-CE reports an unknown identifier or unsupported site | Make the expression accessible at every selected call; follow [bind-limits](./TriceReferenceManual.md#bind-limits) for wrappers and alternatives.
-An example's output check fails after an edit | Compare actual output with the new intended values, then [update the expectations](./TriceReferenceManual.md#updating-the-pc-tours-output-checks).
+PC compilation fails on standard headers                          | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](./TriceReferenceManual.md#development-environment-setup).
+A generated header is missing or points at a wrong call           | Run Bind from the intended project root and check the generated include path. Do not edit individual sidecar definitions. See [Bind diagnostics](./TriceReferenceManual.md#diagnostics-and-troubleshooting).
+The target runs but no bytes arrive                               | Use `tlog -p COM7 -baud 115200 -s` to display incoming bytes. Check the writer, output configuration and regular `TriceTransfer()` calls for deferred mode.
+Bytes arrive but cannot be decoded                                | Use `tlog -p COM7 -baud 115200 -debug` to inspect framed and decoded packets. Check the project's accumulated `til.json`, port speed, framing and options against its log script.
+Source locations point to the wrong lines                         | Use the `li.json` from the firmware build being decoded, or disable source locations with `-li off`.
+Messages disappear after adding a filter                          | Remove `-pick`, `-ban` and `-logLevel` temporarily; check the tag or custom-tag weight.
+CE reports an unknown identifier or unsupported site              | Make the expression accessible at every selected call; follow [bind-limits](./TriceReferenceManual.md#bind-limits) for wrappers and alternatives.
+An example's output check fails after an edit                     | Compare actual output with the new intended values, then [update the expectations](./TriceReferenceManual.md#updating-the-pc-tours-output-checks).
 
 `tlog` is the CLI helper for `trice log`; it accepts the same logging options without the `log` subcommand. Replace the port and baud rate above with your connection settings. `-s` shows the received bytes before decoding; `-debug` adds framing and decoder diagnostics. You can combine them when checking a new transport.
 
