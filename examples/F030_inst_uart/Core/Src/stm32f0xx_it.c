@@ -139,7 +139,7 @@ void SysTick_Handler(void) {
  */
 void USART2_IRQHandler(void) {
 	/* USER CODE BEGIN USART2_IRQn 0 */
-	// Serve only the enabled transmit interrupt; receive logging is not needed.
+	// Serve only the enabled transmit interrupt; receive logging is not needed in this example.
 	if (LL_USART_IsEnabledIT_TXE(USART2) && LL_USART_IsActiveFlag_TXE(USART2)) {
 		triceServeTransmitUartA();
 	}

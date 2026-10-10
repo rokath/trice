@@ -67,7 +67,8 @@ static void MX_USART2_UART_Init(void);
 int main(void) {
 
 	/* USER CODE BEGIN 1 */
-
+	TriceInit();
+	trice("info:Firmware init start...\n");
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -91,11 +92,8 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
-	// Initialize logging after the board peripherals are ready.
-	TriceInit();
-	trice("info:Firmware started\n");
+	trice("info:Firmware init done.\n");
 	trice("msg:Value=%u\n", 42u);
-
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -163,7 +161,7 @@ static void MX_USART2_UART_Init(void) {
 	/**USART2 GPIO Configuration
 	PA2   ------> USART2_TX
 	PA3   ------> USART2_RX
-	*/
+	 */
 	GPIO_InitStruct.Pin = USART_TX_Pin;
 	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
 	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;

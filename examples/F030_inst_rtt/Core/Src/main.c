@@ -67,7 +67,8 @@ static void MX_USART2_UART_Init(void);
 int main(void) {
 
 	/* USER CODE BEGIN 1 */
-
+	TriceInit();
+	trice("info:Firmware init start...\n");
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -91,11 +92,8 @@ int main(void) {
 	MX_GPIO_Init();
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
-	// Initialize logging after the board peripherals are ready.
-	TriceInit();
-	trice("info:Firmware started\n");
+	trice("info:Firmware init done.\n");
 	trice("msg:Value=%u\n", 42u);
-
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -159,9 +157,9 @@ static void MX_USART2_UART_Init(void) {
 
 	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
 	/**USART2 GPIO Configuration
-  PA2   ------> USART2_TX
-  PA3   ------> USART2_RX
-  */
+	PA2   ------> USART2_TX
+	PA3   ------> USART2_RX
+	 */
 	GPIO_InitStruct.Pin = USART_TX_Pin;
 	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
 	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
@@ -186,7 +184,7 @@ static void MX_USART2_UART_Init(void) {
 
 	/* USER CODE END USART2_Init 1 */
 	USART_InitStruct.BaudRate = 115200;
-	USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_9B;
+	USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
 	USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
 	USART_InitStruct.Parity = LL_USART_PARITY_NONE;
 	USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
@@ -276,7 +274,7 @@ void Error_Handler(void) {
 void assert_failed(uint8_t* file, uint32_t line) {
 	/* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
-	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	   ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	/* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

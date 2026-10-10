@@ -1,65 +1,65 @@
 /**
-  ******************************************************************************
-  * @file    system_stm32f0xx.c
-  * @author  MCD Application Team
-  * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Source File.
-  *
-  * 1. This file provides two functions and one global variable to be called from
-  *    user application:
-  *      - SystemInit(): This function is called at startup just after reset and 
-  *                      before branch to main program. This call is made inside
-  *                      the "startup_stm32f0xx.s" file.
-  *
-  *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
-  *                                  by the user application to setup the SysTick
-  *                                  timer or configure other parameters.
-  *
-  *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
-  *                                 be called whenever the core clock is changed
-  *                                 during program execution.
-  *
-  *
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    system_stm32f0xx.c
+ * @author  MCD Application Team
+ * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Source File.
+ *
+ * 1. This file provides two functions and one global variable to be called from
+ *    user application:
+ *      - SystemInit(): This function is called at startup just after reset and
+ *                      before branch to main program. This call is made inside
+ *                      the "startup_stm32f0xx.s" file.
+ *
+ *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
+ *                                  by the user application to setup the SysTick
+ *                                  timer or configure other parameters.
+ *
+ *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
+ *                                 be called whenever the core clock is changed
+ *                                 during program execution.
+ *
+ *
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2016 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /** @addtogroup CMSIS
-  * @{
-  */
+ * @{
+ */
 
 /** @addtogroup stm32f0xx_system
-  * @{
-  */
+ * @{
+ */
 
 /** @addtogroup STM32F0xx_System_Private_Includes
-  * @{
-  */
+ * @{
+ */
 
 #include "stm32f0xx.h"
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @addtogroup STM32F0xx_System_Private_TypesDefinitions
-  * @{
-  */
+ * @{
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @addtogroup STM32F0xx_System_Private_Defines
-  * @{
-  */
+ * @{
+ */
 #if !defined(HSE_VALUE)
 #define HSE_VALUE ((uint32_t)8000000) /*!< Default value of the External oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
@@ -75,20 +75,20 @@
                                                  This value can be provided and adapted by the user application. */
 #endif                                   /* HSI48_VALUE */
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @addtogroup STM32F0xx_System_Private_Macros
-  * @{
-  */
+ * @{
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @addtogroup STM32F0xx_System_Private_Variables
-  * @{
-  */
+ * @{
+ */
 /* This variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()
       2) by calling HAL API function HAL_RCC_GetHCLKFreq()
@@ -103,28 +103,28 @@ const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 
 const uint8_t APBPrescTable[8] = {0, 0, 0, 0, 1, 2, 3, 4};
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @addtogroup STM32F0xx_System_Private_FunctionPrototypes
-  * @{
-  */
+ * @{
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @addtogroup STM32F0xx_System_Private_Functions
-  * @{
-  */
+ * @{
+ */
 
 /**
-  * @brief  Setup the microcontroller system
-  * @param  None
-  * @retval None
-  */
+ * @brief  Setup the microcontroller system
+ * @param  None
+ * @retval None
+ */
 void SystemInit(void) {
-	/* NOTE :SystemInit(): This function is called at startup just after reset and 
+	/* NOTE :SystemInit(): This function is called at startup just after reset and
                          before branch to main program. This call is made inside
                          the "startup_stm32f0xx.s" file.
                          User can setups the default system clock (System clock source, PLL Multiplier
@@ -133,47 +133,47 @@ void SystemInit(void) {
 }
 
 /**
-   * @brief  Update SystemCoreClock variable according to Clock Register Values.
-  *         The SystemCoreClock variable contains the core clock (HCLK), it can
-  *         be used by the user application to setup the SysTick timer or configure
-  *         other parameters.
-  *
-  * @note   Each time the core clock (HCLK) changes, this function must be called
-  *         to update SystemCoreClock variable value. Otherwise, any configuration
-  *         based on this variable will be incorrect.
-  *
-  * @note   - The system frequency computed by this function is not the real
-  *           frequency in the chip. It is calculated based on the predefined
-  *           constant and the selected clock source:
-  *
-  *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(*)
-  *
-  *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(**)
-  *
-  *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(**)
-  *             or HSI_VALUE(*) multiplied/divided by the PLL factors.
-  *
-  *           - If SYSCLK source is HSI48, SystemCoreClock will contain the HSI48_VALUE(***)
-  *
-  *         (*) HSI_VALUE is a constant defined in stm32f0xx_hal_conf.h file (default value
-  *             8 MHz) but the real value may vary depending on the variations
-  *             in voltage and temperature.
-  *
-  *         (**) HSE_VALUE is a constant defined in stm32f0xx_hal_conf.h file (its value
-  *              depends on the application requirements), user has to ensure that HSE_VALUE
-  *              is same as the real frequency of the crystal used. Otherwise, this function
-  *              may have wrong result.
-  *
-  *         (***) HSI48_VALUE is a constant defined in stm32f0xx_hal_conf.h file (default value
-  *             48 MHz) but the real value may vary depending on the variations
-  *             in voltage and temperature.
-  *
-  *         - The result of this function could be not correct when using fractional
-  *           value for HSE crystal.
-  *
-  * @param  None
-  * @retval None
-  */
+ * @brief  Update SystemCoreClock variable according to Clock Register Values.
+ *         The SystemCoreClock variable contains the core clock (HCLK), it can
+ *         be used by the user application to setup the SysTick timer or configure
+ *         other parameters.
+ *
+ * @note   Each time the core clock (HCLK) changes, this function must be called
+ *         to update SystemCoreClock variable value. Otherwise, any configuration
+ *         based on this variable will be incorrect.
+ *
+ * @note   - The system frequency computed by this function is not the real
+ *           frequency in the chip. It is calculated based on the predefined
+ *           constant and the selected clock source:
+ *
+ *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(*)
+ *
+ *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(**)
+ *
+ *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(**)
+ *             or HSI_VALUE(*) multiplied/divided by the PLL factors.
+ *
+ *           - If SYSCLK source is HSI48, SystemCoreClock will contain the HSI48_VALUE(***)
+ *
+ *         (*) HSI_VALUE is a constant defined in stm32f0xx_hal_conf.h file (default value
+ *             8 MHz) but the real value may vary depending on the variations
+ *             in voltage and temperature.
+ *
+ *         (**) HSE_VALUE is a constant defined in stm32f0xx_hal_conf.h file (its value
+ *              depends on the application requirements), user has to ensure that HSE_VALUE
+ *              is same as the real frequency of the crystal used. Otherwise, this function
+ *              may have wrong result.
+ *
+ *         (***) HSI48_VALUE is a constant defined in stm32f0xx_hal_conf.h file (default value
+ *             48 MHz) but the real value may vary depending on the variations
+ *             in voltage and temperature.
+ *
+ *         - The result of this function could be not correct when using fractional
+ *           value for HSE crystal.
+ *
+ * @param  None
+ * @retval None
+ */
 void SystemCoreClockUpdate(void) {
 	uint32_t tmp = 0, pllmull = 0, pllsource = 0, predivfactor = 0;
 
@@ -211,7 +211,7 @@ void SystemCoreClockUpdate(void) {
 #else
 			/* HSI used as PLL clock source : SystemCoreClock = HSI/2 * PLLMUL */
 			SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
-#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 || 
+#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 ||
           STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB ||
           STM32F091xC || STM32F098xx || STM32F030xC */
 		}
@@ -228,13 +228,13 @@ void SystemCoreClockUpdate(void) {
 }
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 /**
-  * @}
-  */
+ * @}
+ */

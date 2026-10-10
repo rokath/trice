@@ -18,6 +18,7 @@
 		uint32_t primaskstate = __get_PRIMASK(); \
 		__disable_irq();                         \
 		{
+
 #define TRICE_LEAVE_CRITICAL_SECTION \
 	}                                \
 	__set_PRIMASK(primaskstate);     \

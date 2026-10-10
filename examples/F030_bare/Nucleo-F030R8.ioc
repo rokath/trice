@@ -138,6 +138,6 @@ SH.GPXTI13.ConfNb=1
 USART2.BaudRate=115200
 USART2.IPParameters=VirtualMode-Asynchronous,BaudRate,WordLength
 USART2.VirtualMode-Asynchronous=VM_ASYNC
-USART2.WordLength=WORDLENGTH_9B
+USART2.WordLength=WORDLENGTH_8B
 board=NUCLEO-F030R8
 boardIOC=true
