@@ -10369,7 +10369,7 @@ PS E:\repos\trice\examples\F030_bare>
 }
 ```
 
-- Download [STM32G030.svd](https://github.com/fullyautomated/st-svd/blob/main/STM32G030.svd) or get it from the STMCubeIDE installation folder if you want to install this Eclipse IDE as well, but IMHO you do not need it.
+- Download [STM32F0x0.svd](https://raw.githubusercontent.com/Open-CMSIS-Pack/STM32F0xx_DFP/main/CMSIS/SVD/STM32F0x0.svd) and save it in the workspace as `STM32F030R8.svd` to match the `svdFile` setting above. This SVD covers the STM32F030R8; it is also available with STM32CubeIDE.
 - You may need to extract and install the [STM32 USB drivers](https://www.st.com/en/development-tools/stsw-link009.html). You can find them also in `./third_party/st.com/en.stsw-link009_v2.0.2.zip`.
 - It is assumed, that you converted the OB ST-Link to an OB J-Link already. See [Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-board-onboard-st-link-to-j-link) for details.
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
