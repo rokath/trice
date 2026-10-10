@@ -512,44 +512,6 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-// These settings are recommended for SEGGER_RTT_Conf.h (names there without prefix TRICE_).
-// You should adapt your SEGGER_RTT_Conf.h values to exactly these values here.
-// You can define your own values in your project specific triceConfig.h equal to your SEGGER_RTT_Conf.h.
-//
-// The BUFFER_SIZE_UP value is de-facto the TRICE_DIRECT_BUFFER_SIZE, if no direct auxilary output is used.
-// Please make sure, that a TRICE_BUFFER_SIZE_UP in your triceConfig.h is the same as BUFFER_SIZE_UP in file
-// SEGGER_RTT_Conf.h. The other 4 values should be set in SEGGER_RTT_Conf.h to the values here, or, define them in
-// your project specific triceConfig.h equal to the SEGGER_RTT_Conf.h settings (with the TRICE_ prefix).
-// The Trice library uses just the BUFFER_SIZE_UP value implicit in SEGGER_Write_RTT0_NoCheck32 when TRICE_PROTECT is enabled.
-// The other values are recommended for more efficient memory usage, if you use no other SEGGER_RTT functionality.
-//
-#ifndef TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS
-#define TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS 1 // Max. number of up-buffers (T->H) available on this target
-#endif
-
-#ifndef TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
-// Even we do not need a down buffer, we have to set this number to at least 1 to avoid compiler warnings (SEGGER_RTT bug).
-// This causes a small RAM overhead (struct for the nuffer header) but avoids complaining the compiler this way:
-// SEGGER_RTT.c:341:11: warning: array subscript 0 is outside array bounds of 'volatile SEGGER_RTT_BUFFER_DOWN[0]' [-Warray-bounds=]
-// If you very short of RAM, set TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS to 0 and patch the SEGGER_RTT code or disable this warning.
-#define TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS 1 // Max. number of down-buffers (H->T) available on this target
-#endif
-
-#ifndef TRICE_BUFFER_SIZE_UP
-#define TRICE_BUFFER_SIZE_UP 1024 // "TRICE_DIRECT_BUFFER_SIZE"
-#endif
-
-#ifndef TRICE_BUFFER_SIZE_DOWN
-#define TRICE_BUFFER_SIZE_DOWN 0 // Size of the buffer for terminal input to target from host
-#endif
-
-#ifndef TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE
-#define TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE 0 // Size of buffer for RTT printf to bulk-send chars via RTT
-#endif
-//
-///////////////////////////////////////////////////////////////////////////////
-
 //  #ifndef TRICE_TX_LOG_SUPPORT
 //  #define TRICE_TX_LOG_SUPPORT 1 // The device can use Trice statements like `trice( "msg:hello" );` The default is 1.
 //  #endif
@@ -592,6 +554,75 @@ extern "C" {
 
 #ifndef TRICE_TX_SUPPORT
 #define TRICE_TX_SUPPORT (TRICE_TX_LOG_SUPPORT | TRICE_TX_ABC_SUPPORT | TRICE_TX_X0_COUNTED_BUFFER_SUPPORT) // TRICE_TX_SUPPORT 0 excludes the TRICE TX stack for TRICE RX - only devices.
+#endif
+
+// The backend is the code that encodes and sends Trice data to the configured
+// output, for example SEGGER RTT. Ordinary Trice calls use it only when both
+// TRICE_OFF and TRICE_CLEAN are 0. Counted-buffer calls such as triceX0() can
+// still use the backend when TRICE_TX_X0_COUNTED_BUFFER_SUPPORT is 1, even if
+// ordinary Trice calls are disabled. Resolve this after the TX switches above
+// have received their defaults.
+#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1))
+
+// Read SEGGER's configuration only when an active backend uses RTT or its lock
+// macros. Otherwise, for example with TRICE_OFF=1 and counted-buffer support
+// disabled, a build does not need SEGGER headers. The project's include path
+// selects SEGGER_RTT_Conf.h; src/default_conf supplies the shared fallback if
+// the project has no copy. SEGGER_RTT.h exposes its configured values below.
+#if TRICE_BACKEND_ACTIVE && (defined(SEGGER_RTT) || (TRICE_DIRECT_SEGGER_RTT_8BIT_WRITE == 1) || (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1) || (TRICE_DEFERRED_SEGGER_RTT_8BIT_WRITE == 1) || (USE_SEGGER_RTT_LOCK_UNLOCK_MACROS == 1))
+#include "SEGGER_RTT.h"
+#endif
+
+// Trice needs the same RTT dimensions as the separately compiled SEGGER code.
+// For example, BUFFER_SIZE_DOWN=32 in SEGGER_RTT_Conf.h automatically gives
+// TRICE_BUFFER_SIZE_DOWN=32; the user does not repeat the value in triceConfig.h.
+// Explicit TRICE_* settings remain unchanged and trice.c checks that they match.
+// If no RTT header was included, keep the historical non-RTT defaults below.
+
+// Number of RTT up channels, carrying data from the target to the host. This
+// counts channels, not bytes; SEGGER's first channel is channel 0.
+#ifndef TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS
+#ifdef SEGGER_RTT_MAX_NUM_UP_BUFFERS
+#define TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS SEGGER_RTT_MAX_NUM_UP_BUFFERS
+#else
+#define TRICE_SEGGER_RTT_MAX_NUM_UP_BUFFERS 1
+#endif
+#endif
+
+// Number of RTT down channels, carrying data from the host to the target.
+#ifndef TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+#ifdef SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+#define TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
+#else
+#define TRICE_SEGGER_RTT_MAX_NUM_DOWN_BUFFERS 1
+#endif
+#endif
+
+// Byte capacity of SEGGER's initial up buffer, which carries Trice output.
+#ifndef TRICE_BUFFER_SIZE_UP
+#ifdef BUFFER_SIZE_UP
+#define TRICE_BUFFER_SIZE_UP BUFFER_SIZE_UP
+#else
+#define TRICE_BUFFER_SIZE_UP 1024
+#endif
+#endif
+
+// Byte capacity of SEGGER's initial down buffer, used for host input.
+#ifndef TRICE_BUFFER_SIZE_DOWN
+#ifdef BUFFER_SIZE_DOWN
+#define TRICE_BUFFER_SIZE_DOWN BUFFER_SIZE_DOWN
+#else
+#define TRICE_BUFFER_SIZE_DOWN 0
+#endif
+#endif
+
+// Byte capacity of SEGGER's temporary formatting buffer for RTT printf.
+#ifndef TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE
+#ifdef SEGGER_RTT_PRINTF_BUFFER_SIZE
+#define TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE SEGGER_RTT_PRINTF_BUFFER_SIZE
+#else
+#define TRICE_SEGGER_RTT_PRINTF_BUFFER_SIZE 0
+#endif
 #endif
 
 #ifdef __cplusplus

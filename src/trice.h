@@ -98,10 +98,6 @@ extern "C" {
 #include "triceRx.h"
 #include "triceLog.h"
 
-// Keep typeX0 output independent from the normal TRICE_OFF and TRICE_CLEAN
-// switches. Without typeX0, TRICE_CLEAN still disables the ordinary backend.
-#define TRICE_BACKEND_ACTIVE (((TRICE_CLEAN == 0) && (TRICE_OFF == 0)) || (TRICE_TX_X0_COUNTED_BUFFER_SUPPORT == 1))
-
 #ifndef TRICE_WEAK // user can define TRICE_WEAK for special cases
 #ifdef WEAK
 #define TRICE_WEAK WEAK // use existing weak
@@ -544,8 +540,6 @@ extern uint32_t* TriceBufferWritePosition;
 
 #endif // #else // #if TRICE_DIAGNOSTICS == 1
 
-// clang-format off
-
 #ifndef TRICE_ENTER
 
 	#if TRICE_BUFFER == TRICE_STACK_BUFFER
@@ -727,8 +721,6 @@ extern uint32_t* TriceBufferWritePosition;
 		} while (0)
 
 #endif
-
-// clang-format on
 
 #if (TRICE_OFF == 0) && (TRICE_CLEAN == 0)
 

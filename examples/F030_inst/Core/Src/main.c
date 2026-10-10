@@ -201,7 +201,7 @@ static void MX_USART2_UART_Init(void) {
 	/**USART2 GPIO Configuration
 	PA2   ------> USART2_TX
 	PA3   ------> USART2_RX
-	*/
+	 */
 	GPIO_InitStruct.Pin = USART_TX_Pin;
 	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
 	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;

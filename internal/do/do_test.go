@@ -21,6 +21,7 @@ import (
 	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 )
 
 // requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
@@ -153,6 +154,22 @@ func TestDistributeArgsFallsBackForNilWriterAndNilFs(t *testing.T) {
 	got := DistributeArgs(nil, nil, "off", false)
 	if got == nil {
 		t.Fatalf("expected non-nil writer")
+	}
+}
+
+// TestEvaluateNamedColorPalettes verifies that selectable palettes pass CLI
+// validation without warnings or silent replacement by another palette.
+func TestEvaluateNamedColorPalettes(t *testing.T) {
+	s := snapshotDoGlobals()
+	t.Cleanup(func() { restoreDoGlobals(s) })
+	for _, palette := range []string{"dark", "light", "contrast", "default", "color", "off", "none"} {
+		t.Run(palette, func(t *testing.T) {
+			var out bytes.Buffer
+			emitter.ColorPalette = palette
+			evaluateColorPalette(&out)
+			assert.Equal(t, palette, emitter.ColorPalette)
+			assert.Empty(t, out.String())
+		})
 	}
 }
 

@@ -141,6 +141,9 @@ main() {
   for package in $package_list; do
     case "$package" in
       */_test/*) continue ;;
+      # Keep disposable project copies out of both tests and coverage targets;
+      # go list traverses them even when Git ignores the temp directory.
+      */temp/*) continue ;;
     esac
     packages+=("$package")
     if [ -n "$coverage_packages" ]; then

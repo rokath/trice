@@ -8,7 +8,15 @@ cd "$(dirname "$0")"
 
 # When copying this project folder, adjust only this path to the Trice library.
 trice_src=../../src
-compiler=cc # Use gcc here if that is your compiler's name.
+# Prefer cc; Windows toolchains often provide only gcc.
+compiler=cc
+if ! command -v "$compiler" >/dev/null 2>&1; then
+  compiler=gcc
+fi
+command -v "$compiler" >/dev/null 2>&1 || {
+  echo "ERROR: Put a native C compiler named cc or gcc in PATH." >&2
+  exit 1
+}
 # Optional: uncomment to display the compiler path before building.
 # command -v "$compiler"
 

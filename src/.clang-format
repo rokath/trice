@@ -1,0 +1,3 @@
+# Set DisableFormat to false to format the library with the parent project's style.
+BasedOnStyle: InheritParentConfig
+DisableFormat: true

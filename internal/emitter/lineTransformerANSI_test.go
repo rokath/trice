@@ -9,9 +9,131 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mgutz/ansi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestTagPalettes checks visible styling, prefix handling, and statistics output
+// for representative severity, configuration, I/O, and metadata tags.
+func TestTagPalettes(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = nil
+	LogLevel = "all"
+	for _, tc := range []struct {
+		palette string
+		info    string
+		warning string
+		receive string
+	}{
+		{"dark", "cyan+h:default", "yellow+h:default", "green+u:default"},
+		{"default", "cyan+h:default", "yellow+h:default", "green+u:default"},
+		{"color", "cyan+h:default", "yellow+h:default", "green+u:default"},
+		{"light", "blue:default", "yellow:black", "green+b:default"},
+		{"contrast", "cyan+h:black", "yellow+b:black", "black+u:green+h"},
+	} {
+		t.Run(tc.palette, func(t *testing.T) {
+			ColorPalette = tc.palette
+			require.NoError(t, AddUserLabels())
+			p := newLineTransformerANSI(newCheckDisplay(), tc.palette)
+			for _, event := range []struct{ source, visible, style string }{
+				{"info:ready", "ready", tc.info},
+				{"Inf:ready", "Inf:ready", tc.info},
+				{"wrn:retry", "retry", tc.warning},
+				{"rx:data", "data", tc.receive},
+				{"rX:data", "rX:data", tc.receive},
+				{"cfg:setting", "setting", "blue+u:default"},
+			} {
+				// Contrast also gives configuration metadata an explicit background.
+				if tc.palette == "contrast" && event.source == "cfg:setting" {
+					event.style = "blue+u:white+h"
+				}
+				if event.source == "cfg:setting" && tc.palette != "light" && tc.palette != "contrast" {
+					event.style = "cyan+u:default"
+				}
+				want := ansi.ColorFunc(event.style)(event.visible)
+				got, shown := p.colorize(event.source)
+				assert.True(t, shown)
+				assert.Equal(t, want, got, event.source)
+				assert.Equal(t, want, Colorize(event.source), "ID statistics")
+			}
+			for _, plain := range []string{"ready", "unknown:ready"} {
+				got, shown := p.colorize(plain)
+				assert.True(t, shown)
+				assert.Equal(t, plain, got)
+			}
+			assert.Equal(t, "ready", Colorize("untagged:ready"))
+			assert.Equal(t, 500, Tags[tagIndex(Tags, "info")].weight)
+		})
+	}
+}
+
+// TestPaletteOverridesAndResets proves that explicit colors survive palette
+// selection and that later commands start from their own palette, without leaks.
+func TestPaletteOverridesAndResets(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	LogLevel = "all"
+	for _, palette := range []string{"dark", "light", "contrast"} {
+		ColorPalette = palette
+		UserLabel = ArrayFlag{"info:red:blue", "sensor:green:default", "untagged:yellow:black"}
+		require.NoError(t, AddUserLabels())
+		assert.Equal(t, ansi.ColorFunc("red:blue")("ready"), Colorize("info:ready"))
+		assert.Equal(t, ansi.ColorFunc("green:default")("42"), Colorize("sensor:42"))
+		assert.Equal(t, ansi.ColorFunc("yellow:black")("ready"), Colorize("untagged:ready"))
+
+		// Off and none must suppress even explicit colors, preserving their tag rules.
+		for _, mode := range []string{"off", "none"} {
+			ColorPalette = mode
+			want := "ready"
+			if mode == "off" {
+				want = "info:ready"
+			}
+			assert.Equal(t, want, Colorize("info:ready"))
+		}
+		ColorPalette = palette
+		UserLabel = nil
+		require.NoError(t, AddUserLabels())
+		assert.NotEqual(t, ansi.ColorFunc("red:blue")("ready"), Colorize("info:ready"))
+		assert.Equal(t, "ready", Colorize("untagged:ready"))
+		assert.Equal(t, -1, tagIndex(Tags, "sensor"))
+
+		// A composed line ends in a reset for every colored palette.
+		display := newCheckDisplay()
+		newLineTransformerANSI(display, palette).WriteLine([]string{"info:ready", " plain"})
+		require.Len(t, display.lines, 1)
+		assert.True(t, strings.HasSuffix(display.lines[0], " plain"+ansi.Reset))
+	}
+}
+
+// TestPaletteStylesAreDistinct checks usable color tokens and prevents accidental
+// duplicate styles; all time units intentionally belong to the TIME color group.
+func TestPaletteStylesAreDistinct(t *testing.T) {
+	for _, palette := range []string{"dark", "light", "contrast"} {
+		t.Run(palette, func(t *testing.T) {
+			owners := make(map[string]string)
+			for _, group := range defaultTags {
+				name := group.Names[0]
+				style := tagColorStyle(name, palette)
+				if style == "" {
+					assert.Contains(t, []string{"DEFAULT", untaggedTag}, name)
+					continue
+				}
+				assert.True(t, isGeneratedColor(style), "%s: %s", name, style)
+				parts := strings.Split(style, ":")
+				assert.NotEqual(t, parts[0], parts[1], "foreground/background: %s", name)
+				switch name {
+				case "DELTATIME", "MICROSECOND", "MILLISECOND", "SECOND":
+					assert.Equal(t, tagColorStyle("TIME", palette), style)
+					continue
+				}
+				assert.NotContains(t, owners, style, "%s duplicates %s", name, owners[style])
+				owners[style] = name
+			}
+		})
+	}
+}
 
 // duplicateTagAliases reports every alias that belongs to more than one tag group.
 func duplicateTagAliases(tags []tag) map[string][]string {

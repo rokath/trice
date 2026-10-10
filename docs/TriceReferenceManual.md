@@ -515,6 +515,8 @@ details.toc[open] .toc-hide {
   * [41.6. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
     * [41.6.1. F030bare](#f030bare)
     * [41.6.2. F030inst](#f030inst)
+    * [41.6.3. F030instrtt](#f030instrtt)
+    * [41.6.4. F030instuart](#f030instuart)
   * [41.7. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
     * [41.7.1. G0B1bare](#g0b1bare)
     * [41.7.2. G0B1inst](#g0b1inst)
@@ -5868,7 +5870,7 @@ You can compile the complete `src/*.c` library instead of maintaining a list of 
 
 The PC example scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. The minimal demos omit these optional flags to keep their build commands simple. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
 
-Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, the Trice and SEGGER configuration values must still agree; see [Trice over RTT](#trice-over-rtt).
+Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, Trice inherits the selected SEGGER buffer sizes and channel counts automatically; explicit `TRICE_*` overrides must still agree with them. See [Trice over RTT](#trice-over-rtt).
 
 ### 30.1. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
@@ -6123,7 +6125,11 @@ There are over 1000 foreground, background, and style combinations:
 
 ![Trice color alternatives](./ref/ColorAlternatives.PNG)
 
-Run `trice generate -colors` to display them. Use `-ulabel name:color` for a per-command override. Modify [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) and rebuild the Trice tool with `go install ./...` or `./scripts/buildTriceTool.sh` to change the built-in palette.
+Choose a built-in palette with `trice log -color dark`, `-color light`, or `-color contrast`. `dark` is the default and uses bright foregrounds for dark terminals; `light` uses darker foregrounds for light terminals. `contrast` adds explicit backgrounds and emphasis to distinguish tag groups. `default` and `color` are aliases for `dark`; `none` and `off` retain their prefix-handling behavior described above.
+
+Warm colors identify warnings and errors, while informational messages use cool colors or green. Related I/O tags use related hues with different emphasis. The time-unit tags intentionally share one style. Actual ANSI hues depend on the terminal's color settings; the palette does not change the terminal background.
+
+Run `trice generate -colors` to display the supported color strings and a preview of all three tag palettes. Use `-ulabel name:color` for a per-command override; it takes precedence over the chosen palette. The assignments are kept together in [lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go).
 
 ### 31.10. <a id="color-issues-under-windows"></a>Color issues under Windows
 
@@ -6965,8 +6971,8 @@ When updating an existing project, copy all three vendor files and retain `SEGGE
 Keep your existing `SEGGER_RTT_Conf.h`: full configurations from older RTT releases remain usable,
 and their explicitly defined values and lock macros take precedence over the new defaults.
 Do not replace them with an empty header.
-Keep RTT channel counts and buffer settings consistent with the corresponding `TRICE_...` settings in `triceConfig.h`;
-Trice checks these at compilation.
+Trice derives matching `TRICE_...` values from the selected SEGGER configuration automatically.
+Only explicit overrides in `triceConfig.h` need to match; Trice checks them at compilation.
 The optional `SEGGER_RTT_ASM_ARMv7M.S` is not shipped here.
 Use `RTT_USE_ASM=0` when compiling only the C implementation.
 Project configurations still need appropriate memory barriers, interrupt locks and cache settings for their CPU.
@@ -6977,13 +6983,13 @@ Trice's optimized 32-bit writer directly accesses the RTT control block, so a fu
 * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
   * When using very high Trice loads over RTT for a long time, sometimes an on-board J-Link (re-flashed ST-Link) could get internally into an inconsistent state (probably internal buffer overrun), what needs a power cycle then.
 * You could consider RTT over open-OCD as an alternative.
-* The default SEGGER up-buffer size is 1024 bytes, good for most cases. If not, adapt it in your *triceConfig.h* file **AND** in the *SEGGER_RTT_Conf.h* file:
+* The default SEGGER up-buffer size is 1024 bytes, good for most cases. To change it, set the size in your project-specific *SEGGER_RTT_Conf.h*. Trice inherits it automatically:
   You need only one up-channel for Trice:
 
   ```C
   #define BUFFER_SIZE_UP (128)  // "TRICE_DIRECT_BUFFER_SIZE"
   ```
-* Inside the [triceDefaultConfig.h](../src/triceDefaultConfig.h) you can find some other settings recommended for the *SEGGER_RTT_Conf.h* file. You have to set them manually in the *SEGGER_RTT_Conf.h* because the SEGGER target sources do not include *trice.h* (and implicit [triceDefaultConfig.h](../src/triceDefaultConfig.h) and *triceConfig.h*).
+* [triceDefaultConfig.h](../src/triceDefaultConfig.h) automatically loads the selected SEGGER configuration when the RTT backend or RTT lock support is active. It derives all five `TRICE_*` buffer-size and channel-count defaults from those settings, so matching definitions in *triceConfig.h* are unnecessary. Explicit `TRICE_*` values remain supported; a mismatch with *SEGGER_RTT_Conf.h* produces a compiler error. Configure RTT itself in *SEGGER_RTT_Conf.h*, since SEGGER sources read that file independently of Trice.
 * **Possible:** Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([\#446](https://github.com/rokath/trice/issues/446))
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -10278,11 +10284,24 @@ The C files under [examples/exampleData](../examples/exampleData/) are shared pr
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
+Use [F030_bare](../examples/F030_bare/) as the uninstrumented baseline and compare it with [F030_inst_rtt](#f030instrtt) or [F030_inst_uart](#f030instuart) for the first instrumentation steps. The three `build.sh` scripts change to their own project directory and pass their arguments to `make`; the instrumented variants additionally run `trice bind`. Put `make` and the Arm GNU tools on PATH, plus `trice` and `tlog` for the instrumented variants. Use `./build.sh -j2` for two compiler jobs. These scripts build firmware without flashing it.
+
+The instrumented variants keep the persistent ID-to-format dictionary `til.json` in version control. Their build scripts create the local `li.json` location index and regenerable headers in `out/sidecars`; these outputs are ignored by Git. `li.json` records current source paths and line numbers, so it is regenerated rather than committed. [F030_inst](#f030inst) is the larger parallel RTT/UART example and retains its existing build workflow.
+
 #### 41.6.1. <a id="f030bare"></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
 This is a STMCubeMX generated project without Trice instrumentation for easy compare with [F030_inst](../examples/F030_inst) to figure out the needed changes to set up trice.
+
+Build the current project from the repository root with:
+
+```sh
+cd examples/F030_bare
+./build.sh
+```
+
+The firmware files are `out/F030_bare.elf`, `out/F030_bare.hex` and `out/F030_bare.bin`. The original CubeMX setup walkthrough below shows the former `build/` output directory; use `out/` with the current Makefile and debugger configuration.
 
 <h6>Steps performed as potential guide:</h6>
 
@@ -10291,7 +10310,7 @@ This is a STMCubeMX generated project without Trice instrumentation for easy com
 - Initialize with default values.
 - Optionally set system clock to 32MHz for faster target timestamps.
 - Optionally set UART baud rate to 115200.
-- Mantadory set UART data bits including parity to **9**.
+- Set UART word length to **8 bits (including parity)**, parity to **None**, and stop bits to **1** (8N1).
 - Enable USART2 global interrupt.
 - In Project Manager *Project*:
   - Set toolchain folder location to `E:\repos\trice\examples\F030_bare\`.
@@ -10350,7 +10369,7 @@ PS E:\repos\trice\examples\F030_bare>
 }
 ```
 
-- Download [STM32G030.svd](https://github.com/fullyautomated/st-svd/blob/main/STM32G030.svd) or get it from the STMCubeIDE installation folder if you want to install this Eclipse IDE as well, but IMHO you do not need it.
+- Download [STM32F0x0.svd](https://raw.githubusercontent.com/Open-CMSIS-Pack/STM32F0xx_DFP/main/CMSIS/SVD/STM32F0x0.svd) and save it in the workspace as `STM32F030R8.svd` to match the `svdFile` setting above. This SVD covers the STM32F030R8; it is also available with STM32CubeIDE.
 - You may need to extract and install the [STM32 USB drivers](https://www.st.com/en/development-tools/stsw-link009.html). You can find them also in `./third_party/st.com/en.stsw-link009_v2.0.2.zip`.
 - It is assumed, that you converted the OB ST-Link to an OB J-Link already. See [Convert Evaluation Board onboard ST-Link to J-Link](#convert-evaluation-board-onboard-st-link-to-j-link) for details.
 - Press the Debug-Button or "CTRL+SHIFT+D" and start debugging.
@@ -10370,7 +10389,9 @@ PS E:\repos\trice\examples\F030_bare>
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
-This is a working example with deferred encrypted out over UART. By uncommenting 2 lines in [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h), you get also parallel direct out over RTT. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps from [F030_bare](../examples/F030_bare/).
+This example enables deferred UART output and parallel direct RTT output in [triceConfig.h](../examples/F030_inst/Core/Inc/triceConfig.h). It also enables legacy RPC support and uses the shared example producers. Encryption is disabled by default. For setup see [Trice over RTT](#trice-over-rtt) and adapt steps from [F030_bare](../examples/F030_bare/).
+
+The project-specific [SEGGER_RTT_Conf.h](../examples/F030_inst/Core/Inc/SEGGER_RTT_Conf.h) sets the RTT down-buffer and printf-buffer sizes to `0`. Trice automatically inherits these values from the selected SEGGER configuration. Removing the project file would select the shared fallback with sizes `16` and `64` instead; either configuration passes the consistency checks unless an explicit `TRICE_*` override disagrees with it.
 
 <h6>Intrumenting:</h6>
 
@@ -10389,6 +10410,60 @@ This is a working example with deferred encrypted out over UART. By uncommenting
   <img src="./ref/G0B1_2024-07-22.png" width="1000">
 
 - The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
+
+#### 41.6.3. <a id="f030instrtt"></a>F030_inst_rtt
+
+Folder: [../examples/F030_inst_rtt/](../examples/F030_inst_rtt/)
+
+Compare this project with [F030_bare](../examples/F030_bare/) to see the changes required for RTT logging. The vendor files are identical. `main.c` adds the Trice include, initialization and three startup log calls; [triceConfig.h](../examples/F030_inst_rtt/Core/Inc/triceConfig.h) selects direct 32-bit RTT output with a stack buffer. The Makefile adds the Trice library and generated headers. No UART logging or RPC support is enabled.
+
+```sh
+cd examples/F030_inst_rtt
+./build.sh
+```
+
+[build.sh](../examples/F030_inst_rtt/build.sh) runs `trice bind` and `make`. Keep `til.json` and `triceConfig.h` in version control. Sidecars and firmware are created in `out/`; `li.json` contains the current source locations as described above.
+
+No project-specific `SEGGER_RTT_Conf.h` is needed. The include path ends with [src/default_conf](../src/default_conf/), which supplies the shared fallback. When RTT is enabled, Trice automatically loads the selected SEGGER configuration and inherits its buffer sizes and channel counts. The example needs neither a SEGGER include nor matching aliases in `triceConfig.h`. Explicit `TRICE_*` overrides remain possible, but `trice.c` rejects values that disagree with the SEGGER configuration. The fallback's down-buffer and printf-buffer sizes remain `16` and `64`.
+
+Flash `out/F030_inst_rtt.elf` onto a NUCLEO-F030R8 board using your debugger. With the SEGGER J-Link tools installed and a J-Link connection to the board, run [log.sh](../examples/F030_inst_rtt/log.sh), then reset the board:
+
+```sh
+./log.sh
+```
+
+The startup records print `Firmware init start...`, `Firmware init done.` and `Value=42`. `TriceInit` runs at the beginning of `main`, allowing logging during peripheral initialization. RTT writes directly to its RAM buffer; no transfer call or UART interrupt is needed. Since this example logs only from `main`, it does not define its own critical-section macros.
+
+For the corresponding UART steps, compare [F030_inst_uart](#f030instuart). [F030_inst](#f030inst) demonstrates RTT and UART in parallel.
+
+#### 41.6.4. <a id="f030instuart"></a>F030_inst_uart
+
+Folder: [../examples/F030_inst_uart/](../examples/F030_inst_uart/)
+
+Compare this project with [F030_bare](../examples/F030_bare/) to see the changes required for UART logging. The vendor files are identical. `main.c` adds the Trice include, initialization and three startup log calls. Its loop calls `TriceTransfer` to encode and send queued records. USART2 uses 115200 baud, 8N1, matching the bare project's setting. Its interrupt handler serves the transmit interrupt.
+
+[triceConfig.h](../examples/F030_inst_uart/Core/Inc/triceConfig.h) selects deferred UART output with a ring buffer, while [triceUart.h](../examples/F030_inst_uart/Core/Inc/triceUart.h) connects the four transmit operations to the STM32 LL API. The Makefile adds the Trice library and generated headers. No RTT logging, receive backchannel or RPC support is enabled, and no project-specific `SEGGER_RTT_Conf.h` is needed.
+
+The critical-section macros remain necessary even though application log calls run only in `main`: the UART driver shares its transmit pointer, index and remaining-byte count between `TriceTransfer` and the USART interrupt. Saving PRIMASK, disabling interrupts and restoring the previous mask protects this state, including nested critical sections.
+
+```sh
+cd examples/F030_inst_uart
+./build.sh
+```
+
+[build.sh](../examples/F030_inst_uart/build.sh) runs `trice bind` and `make`. Keep `til.json` and `triceConfig.h` in version control. Sidecars and firmware are created in `out/`; `li.json` contains the current source locations as described above.
+
+Flash `out/F030_inst_uart.elf` onto a NUCLEO-F030R8 board using your debugger. USART2 TX is PA2, connected to the board's ST-LINK virtual COM port. Run [log.sh](../examples/F030_inst_uart/log.sh), then reset the board. The default port is COM7; select another port with the normal `tlog` switch `-p`:
+
+```sh
+./log.sh
+# For example, on Linux:
+./log.sh -p /dev/ttyACM0
+```
+
+The startup records print `Firmware init start...`, `Firmware init done.` and `Value=42`. `TriceInit` runs at the beginning of `main`; records generated before USART initialization stay in RAM until the loop calls `TriceTransfer`. The UART then sends asynchronously through TX-empty interrupts.
+
+For the corresponding RTT steps, compare [F030_inst_rtt](#f030instrtt). [F030_inst](#f030inst) demonstrates RTT and UART in parallel.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

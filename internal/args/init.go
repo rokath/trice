@@ -30,7 +30,11 @@ var (
 See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
 "off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
 "none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
-"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
+"dark": Bright foregrounds for dark terminals (default).
+"light": Darker foregrounds for light terminals.
+"contrast": Explicit backgrounds and emphasis for stronger tag differentiation.
+"default|color": Aliases for dark. Colored palettes remove recognized lowercase tags.
+Run "trice generate -colors" to preview the tag palettes and supported color strings.
 `
 	boolInfo = "This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true."
 )
@@ -125,7 +129,7 @@ This timestamp switch generates the timestamps on the PC only (reception time), 
 	fsScLog.StringVar(&decoder.TargetStamp0Delta, "ts0delta", "", `Target stamp delta placeholder format string at start of each line, if no target stamps existent (configured). Use it to align a separate delta column. If omitted, trice derives a blank placeholder automatically from the widest active ts16delta/ts32delta display width. Lowercase-only tag prefixes like "time:" are ignored for that width, mixed/uppercase prefixes stay part of it. Use "" explicitly to suppress the no-stamp delta placeholder completely.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
 	fsScLog.StringVar(&translator.TriceEndianness, "triceEndianness", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
-	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
+	fsScLog.StringVar(&emitter.ColorPalette, "color", "dark", colorInfo)                                                                                                                                           // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
@@ -253,7 +257,7 @@ Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format an
 func bindIDsInit() {
 	fsScBind = flag.NewFlagSet("bind", flag.ContinueOnError)
 	flagsInsertAndBind(fsScBind)
-	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
+	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. Missing directories, including parents, are created automatically; for example, -genDir a/b/c creates a/b/c.")
 	fsScBind.Var(&id.ContextEnrichment, "ce", `Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
 Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".`)
 	flagUserLabel(fsScBind)
@@ -294,8 +298,8 @@ func versionInit() {
 }
 
 func dsInit() {
-	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)            // sub-command
-	fsScSv.StringVar(&emitter.ColorPalette, "color", "default", colorInfo) // flag
+	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)         // sub-command
+	fsScSv.StringVar(&emitter.ColorPalette, "color", "dark", colorInfo) // flag
 	flagLogfile(fsScSv)
 	flagIPAddress(fsScSv)
 }

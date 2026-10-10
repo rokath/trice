@@ -37,6 +37,7 @@ jobs:
           args: >
             --config lychee.toml
             --no-progress
+            --remap "https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c file://${{ github.workspace }}/_test/testdata/triceCheck.c"
             .
           #
           # fail:

@@ -34,6 +34,12 @@ type userLabelSpec struct {
 // specifications atomically. Unweighted new labels inherit the final INFO weight.
 func AddUserLabels() error {
 	tags := copyTagRegistry(defaultTags)
+	// Apply the selected palette before explicit -ulabel overrides.
+	for i := range tags {
+		if style := tagColorStyle(tags[i].Names[0], ColorPalette); style != "" {
+			tags[i].colorize = ansi.ColorFunc(style)
+		}
+	}
 	// Defer unweighted new labels until INFO's final weight is known. This also
 	// preserves the existing order of explicitly weighted and defaulted labels.
 	pending := make(map[string]tag)
@@ -187,6 +193,19 @@ func ShowAllColors() {
 		i++
 		return false
 	})
+	// Show the actual tag assignments alongside the raw color vocabulary.
+	fmt.Println("\nTag palettes: -color dark (default), light, or contrast")
+	for _, palette := range []string{"dark", "light", "contrast"} {
+		fmt.Printf("\n%s:\n", palette)
+		for _, group := range defaultTags {
+			name := group.Names[0]
+			style := tagColorStyle(name, palette)
+			if style == "" {
+				style = "off"
+			}
+			fmt.Printf("  %-14s %-24s %s\n", name, style, ansi.ColorFunc(style)(name+": Example message"))
+		}
+	}
 }
 
 // newLineTransformerANSI translates lines to ANSI colors according to colorPalette.
@@ -201,40 +220,99 @@ var (
 	LogLevel = "all"
 
 	// log level colors
-	colorizeFATAL     = ansi.ColorFunc("magenta+b:red")       // FATAL
-	colorizeCRITICAL  = ansi.ColorFunc("red+i:default+h")     //
-	colorizeEMERGENCY = ansi.ColorFunc("red+i:blue")          //
-	colorizeERROR     = ansi.ColorFunc("11:red")              // ERROR
-	colorizeWARNING   = ansi.ColorFunc("11+i:red")            // WARN
-	colorizeATTENTION = ansi.ColorFunc("11:green")            //
-	colorizeINFO      = ansi.ColorFunc("cyan+b:default+h")    // INFO
-	colorizeDEBUG     = ansi.ColorFunc("130+i")               // DEBUG
-	colorizeTRACE     = ansi.ColorFunc("default+i:default+h") //
+	colorizeFATAL     = ansi.ColorFunc(tagColorStyle("FATAL", "dark"))
+	colorizeCRITICAL  = ansi.ColorFunc(tagColorStyle("CRITICAL", "dark"))
+	colorizeEMERGENCY = ansi.ColorFunc(tagColorStyle("EMERGENCY", "dark"))
+	colorizeERROR     = ansi.ColorFunc(tagColorStyle("ERROR", "dark"))
+	colorizeWARNING   = ansi.ColorFunc(tagColorStyle("WARNING", "dark"))
+	colorizeATTENTION = ansi.ColorFunc(tagColorStyle("ATTENTION", "dark"))
+	colorizeINFO      = ansi.ColorFunc(tagColorStyle("INFO", "dark"))
+	colorizeDEBUG     = ansi.ColorFunc(tagColorStyle("DEBUG", "dark"))
+	colorizeTRACE     = ansi.ColorFunc(tagColorStyle("TRACE", "dark"))
 
 	// user mode colors
-	colorizeTIME      = ansi.ColorFunc("blue+i:yellow+h")     //
-	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")       //
-	colorizeREAD      = ansi.ColorFunc("black+i:yellow+h")    //
-	colorizeWRITE     = ansi.ColorFunc("black+u:yellow+h")    //
-	colorizeRECEIVE   = ansi.ColorFunc("black+h:black")       //
-	colorizeTRANSMIT  = ansi.ColorFunc("black:black+h")       //
-	colorizeDIAG      = ansi.ColorFunc("yellow+i:default+h")  //
-	colorizeINTERRUPT = ansi.ColorFunc("magenta+i:default+h") //
-	colorizeSIGNAL    = ansi.ColorFunc("118+i")               //
-	colorizeTEST      = ansi.ColorFunc("yellow+h:black")      //
+	colorizeTIME      = ansi.ColorFunc(tagColorStyle("TIME", "dark"))
+	colorizeMESSAGE   = ansi.ColorFunc(tagColorStyle("MESSAGE", "dark"))
+	colorizeREAD      = ansi.ColorFunc(tagColorStyle("READ", "dark"))
+	colorizeWRITE     = ansi.ColorFunc(tagColorStyle("WRITE", "dark"))
+	colorizeRECEIVE   = ansi.ColorFunc(tagColorStyle("RECEIVE", "dark"))
+	colorizeTRANSMIT  = ansi.ColorFunc(tagColorStyle("TRANSMIT", "dark"))
+	colorizeDIAG      = ansi.ColorFunc(tagColorStyle("DIAG", "dark"))
+	colorizeINTERRUPT = ansi.ColorFunc(tagColorStyle("INTERRUPT", "dark"))
+	colorizeSIGNAL    = ansi.ColorFunc(tagColorStyle("SIGNAL", "dark"))
+	colorizeTEST      = ansi.ColorFunc(tagColorStyle("TEST", "dark"))
 
-	colorizeDEFAULT = ansi.ColorFunc("off")                //
-	colorizeNOTICE  = ansi.ColorFunc("blue:white+h")       //
-	colorizeALERT   = ansi.ColorFunc("magenta:magenta+h")  //
-	colorizeASSERT  = ansi.ColorFunc("yellow+i:blue")      //
-	colorizeALARM   = ansi.ColorFunc("red+i:white+h")      //
-	colorizeCYCLE   = ansi.ColorFunc("magenta+i:yellow+h") //
-	colorizeVERBOSE = ansi.ColorFunc("blue:default")       // VERB
-	colorizeUSER    = ansi.ColorFunc("off")                //
+	colorizeDEFAULT = ansi.ColorFunc("off") //
+	colorizeNOTICE  = ansi.ColorFunc(tagColorStyle("NOTICE", "dark"))
+	colorizeALERT   = ansi.ColorFunc(tagColorStyle("ALERT", "dark"))
+	colorizeASSERT  = ansi.ColorFunc(tagColorStyle("ASSERT", "dark"))
+	colorizeALARM   = ansi.ColorFunc(tagColorStyle("ALARM", "dark"))
+	colorizeCYCLE   = ansi.ColorFunc(tagColorStyle("CYCLE_ERROR", "dark"))
+	colorizeVERBOSE = ansi.ColorFunc(tagColorStyle("VERBOSE", "dark"))
+	colorizeUSER    = ansi.ColorFunc("off") //
 
 	AllStatistics bool // Keep the complete statistics when Trice is closed.
 	TagStatistics bool // Print the occured count for each Trice log when Trice is closed.
 )
+
+// tagPaletteStyles keeps terminal-specific choices together for each tag.
+// Urgent tags stand out through filled backgrounds in dark/light. Related I/O tags
+// share a hue and differ by emphasis. Blinking and inverse video are avoided.
+type tagPaletteStyles struct {
+	dark     string // dark uses bright foregrounds on the terminal's dark background.
+	light    string // light uses darker foregrounds on the terminal's light background.
+	contrast string // contrast adds explicit backgrounds and emphasis for differentiation.
+}
+
+// tagPalette uses only the vocabulary shown by generate -colors.
+// DEFAULT, untagged text, and unstyled user labels retain terminal defaults.
+var tagPalette = map[string]tagPaletteStyles{
+	"EMERGENCY":   {"white+b:red", "white+b:red", "white+b:red"},
+	"FATAL":       {"white:magenta", "white:magenta", "white+b:magenta"},
+	"CRITICAL":    {"white:red", "white:red", "black+b:red+h"},
+	"ALARM":       {"black:red+h", "black:red+h", "black+u:red+h"},
+	"ASSERT":      {"magenta+b:default", "magenta+b:default", "magenta+b:white+h"},
+	"ERROR":       {"red+h:default", "red:default", "red+b:white+h"},
+	"ALERT":       {"black:yellow", "black:yellow", "black+b:yellow+h"},
+	"ATTENTION":   {"yellow+b:default", "black:yellow+h", "black+u:yellow+h"},
+	"WARNING":     {"yellow+h:default", "yellow:black", "yellow+b:black"},
+	"CONFIG":      {"cyan+u:default", "blue+u:default", "blue+u:white+h"},
+	"INFO":        {"cyan+h:default", "blue:default", "cyan+h:black"},
+	"MESSAGE":     {"green+h:default", "green:default", "green+h:black"},
+	"NOTICE":      {"blue+h:default", "cyan+b:default", "blue+b:white+h"},
+	"DEBUG":       {"magenta:default", "magenta:default", "magenta+h:black"},
+	"DIAG":        {"cyan:default", "cyan:default", "black:cyan"},
+	"READ":        {"green:default", "green+u:default", "black:green+h"},
+	"RECEIVE":     {"green+u:default", "green+b:default", "black+u:green+h"},
+	"TEST":        {"green+b:default", "green:black", "green+b:white+h"},
+	"TRANSMIT":    {"yellow+u:default", "blue+b:default", "black+u:cyan+h"},
+	"WRITE":       {"yellow:default", "blue+h:default", "black:cyan+h"},
+	"INTERRUPT":   {"magenta+u:default", "magenta+u:default", "black:magenta+h"},
+	"SIGNAL":      {"blue+b:default", "magenta:yellow+h", "black+u:magenta+h"},
+	"TIME":        {"white:default", "black:default", "white:black"},
+	"TRACE":       {"white+u:default", "black+u:default", "black:white"},
+	"VERBOSE":     {"black+h:default", "black+h:default", "black+u:white"},
+	"CYCLE_ERROR": {"red+u:default", "red+u:default", "red+u:white+h"},
+}
+
+// tagColorStyle groups time units and selects a palette. An empty result
+// leaves deliberately unstyled tags unchanged. Default/color aliases and
+// unknown palettes resolve to dark, matching the CLI fallback.
+func tagColorStyle(name, palette string) string {
+	switch name {
+	case "DELTATIME", "MICROSECOND", "MILLISECOND", "SECOND":
+		name = "TIME"
+	}
+	styles := tagPalette[name]
+	switch palette {
+	case "light":
+		return styles.light
+	case "contrast":
+		return styles.contrast
+	default:
+		return styles.dark
+	}
+}
 
 // colorizeUntagged preserves text without adding ANSI styling.
 func colorizeUntagged(s string) string {
@@ -306,6 +384,10 @@ var defaultTags = builtInTags([]tag{
 func builtInTags(tags []tag) []tag {
 	for i := range tags {
 		tags[i].caseInsensitive = tags[i].Names[0] != "CYCLE_ERROR"
+		// Initialize direct emitter users with the same dark defaults as the CLI.
+		if style := tagColorStyle(tags[i].Names[0], "dark"); style != "" {
+			tags[i].colorize = ansi.ColorFunc(style)
+		}
 	}
 	return tags
 }
@@ -563,7 +645,7 @@ func (p *lineTransformerANSI) WriteLine(line []string) {
 			colored = true
 		}
 	}
-	if (p.colorPalette == "default" || p.colorPalette == "color") && 1 < len(l) && colored {
+	if p.colorPalette != "off" && p.colorPalette != "none" && 1 < len(l) && colored {
 		l = append(l, ansi.Reset)
 	}
 	p.lw.WriteLine(l)

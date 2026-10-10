@@ -9,8 +9,12 @@ sub-command 'ds|displayServer': Starts a display server.
     	See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
     	"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
     	"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
-    	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
-    	 (default "default")
+    	"dark": Bright foregrounds for dark terminals (default).
+    	"light": Darker foregrounds for light terminals.
+    	"contrast": Explicit backgrounds and emphasis for stronger tag differentiation.
+    	"default|color": Aliases for dark. Colored palettes remove recognized lowercase tags.
+    	Run "trice generate -colors" to preview the tag palettes and supported color strings.
+    	 (default "dark")
   -ipa string
     	IP address like '127.0.0.1'.
     	You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
@@ -133,8 +137,12 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
     	See https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c for examples. Color options:
     	"off": Disable ANSI color. The lower case channel information is kept: "wr:x"-> "wr:x"
     	"none": Disable ANSI color. The lower case channel information is removed: "wr:x"-> "x"
-    	"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
-    	 (default "default")
+    	"dark": Bright foregrounds for dark terminals (default).
+    	"light": Darker foregrounds for light terminals.
+    	"contrast": Explicit backgrounds and emphasis for stronger tag differentiation.
+    	"default|color": Aliases for dark. Colored palettes remove recognized lowercase tags.
+    	Run "trice generate -colors" to preview the tag palettes and supported color strings.
+    	 (default "dark")
   -d16
     	Short for '-doubled16BitID'.
   -databits int
@@ -648,7 +656,7 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
     	source code files inside directory ./_test EXCEPT file trice.h inside _test/src directory.
     	 (default none)
   -genDir string
-    	Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. (default "./generated")
+    	Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. Missing directories, including parents, are created automatically; for example, -genDir a/b/c creates a/b/c. (default "./generated")
   -i string
     	Short for '-idlist'.
     	 (default "til.json")
