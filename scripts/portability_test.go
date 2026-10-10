@@ -1245,6 +1245,8 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 
 // TestPCLogSourcesAreLocaleIndependent records the real build command on each
 // supported OS path without requiring SEGGER software or a native compiler.
+// All library sources are compiled with project headers before RTT defaults;
+// the platform linker removes unused transport code.
 func TestPCLogSourcesAreLocaleIndependent(t *testing.T) {
 	for _, platform := range []string{"Darwin", "Linux", "MINGW64_NT"} {
 		for _, locale := range []string{"C", "de_DE.UTF-8"} {
@@ -1261,12 +1263,28 @@ func TestPCLogSourcesAreLocaleIndependent(t *testing.T) {
 				}
 				out, err := runFixture(t, root, "sh examples/PC_log/build_and_run.sh", map[string]string{"PLATFORM": platform, "LC_ALL": locale})
 				assert.NoError(t, err, out)
-				assert.Contains(t, out, "SEGGER_RTT_Conf.h and J-Link tools are not required")
+				assert.Contains(t, out, "no project RTT header or J-Link installation is needed")
 				data, err := os.ReadFile(filepath.Join(root, "examples/PC_log/compiler-args.txt"))
 				assert.NoError(t, err)
-				assert.NotContains(t, string(data), "SEGGER_RTT.c")
+				assert.Contains(t, string(data), "../../src/SEGGER_RTT.c")
 				assert.Contains(t, string(data), "../../src/trice.c")
 				assert.Contains(t, string(data), "../../src/triceLog.c")
+				assert.Contains(t, string(data), "-I.\n-Igenerated\n-I../../src\n-I../../src/default_conf\n")
+				assert.Contains(t, string(data), "-ffunction-sections\n-fdata-sections\n")
+				// Darwin uses a different linker switch; executable suffixes must
+				// still follow the selected platform in both locale settings.
+				if platform == "Darwin" {
+					assert.Contains(t, string(data), "-Wl,-dead_strip\n")
+					assert.NotContains(t, string(data), "-Wl,--gc-sections")
+				} else {
+					assert.Contains(t, string(data), "-Wl,--gc-sections\n")
+					assert.NotContains(t, string(data), "-Wl,-dead_strip")
+				}
+				if platform == "MINGW64_NT" {
+					assert.Contains(t, string(data), "-o\nbuild/pc_log.exe\n")
+				} else {
+					assert.Contains(t, string(data), "-o\nbuild/pc_log\n")
+				}
 			})
 		}
 	}
