@@ -1,5 +1,9 @@
 # Trice Guide for Orientation
 
+New to Trice? Follow the [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. The first experiments need no board. 
+
+Already using Trice? Jump to a task under [2. Entry Points](#entry-points). The manuals contain the explanations; this guide helps you find them.
+
 <h2> Table of Contents </h2>
 
 <!-- mdtoc -->
@@ -18,10 +22,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
-New to Trice? Follow the [User Manual](./TriceUserManual.md) from your first PC log to your own firmware. The first experiments need no board. 
-
-Already using Trice? Jump to a task under [2. Entry Points](#entry-points). The manuals contain the explanations; this guide helps you find them.
 
 ## 1. <a id="document-overview"></a>Document Overview
 
