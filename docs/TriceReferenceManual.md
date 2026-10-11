@@ -630,8 +630,8 @@ details.toc[open] .toc-hide {
 
 ---
 
-![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
-<p align="right"><small>(Animated GIFs appear as still images in PDFs.) </small></p>
+[![TriceCheck output with numeric and string values](./ref/TriceCheckOutput-preview.png)](./ref/TriceCheckOutput.gif)
+<p align="right"><small>(Select the preview to open the full animation; PDFs show the still image.)</small></p>
 
 ---
 
@@ -1379,7 +1379,7 @@ The Trice macros are designed for maximal execution speed and therefore we have 
 
 #### 5.9.7. <a id="limitations"></a>Limitations
 
-* The maximum parameter count per trice is 12, but buffer transfer allows up to 32764 bytes payload. See `triceB` and its relatives.
+* The maximum parameter count per trice is 12. Buffer macros such as `triceB` accept more data, but limit the payload to `TRICE_SINGLE_MAX_SIZE - 12` bytes: 92 bytes with the default size of 104, or at most 32752 bytes with the largest supported size of 32764. See [Binary Encoding](#binary-encoding) for the format limit and buffer allowance.
 * Each trice must fit into a single line in trice versions before v0.61.0.
   * Not ok before v0.61.0 but ok for later versions:
 
@@ -2018,9 +2018,11 @@ With `trice log -port COM12` you can visualize the trices on the PC, if for exam
 
 The following capture output comes from an (old) example project inside [../examples](../examples).
 
-![life.gif](./ref/life.gif)
+[![Colored Trice log output with timestamps](./ref/life-preview.png)](./ref/life.gif)
 
-See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
+Select the preview to open the full animation.
+
+See [../_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the linked animation. These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file. More convenient is the `-lf auto` switch.
 
@@ -2330,7 +2332,9 @@ At startup, each rule checks all matching historical `til.json` entries. Incompa
 
 ### 12.4. <a id="setting-up-the-labplot-demo"></a>Setting up the LabPlot Demo
 
-![./ref/LabPlotDemo.gif](./ref/LabPlotDemo.gif)
+[![LabPlot live curves and tlog output](./ref/LabPlotDemo-preview.png)](./ref/LabPlotDemo.gif)
+
+Select the preview to open the full animation.
 
 This section uses [LabPlot](https://labplot.org/), a cross-platform interactive
 plotting application. The finished, ready-to-run example is in
@@ -3209,6 +3213,10 @@ This allows `trice` output to be tailored for debugging, profiling, timing analy
 |   `W`   | bit width 8, 16, 32 or 64 (uW stands for u8, u16, or u64)                    |
 |   `x`   | unspecified bit                                                              |
 |   `X`   | =`xxxxxxxx` unspecified byte                                                 |
+
+The long count field can represent up to 32767 payload bytes. This is the binary format limit, not the amount that the current target buffer macros can write. `TRICE_N`, `TRICE_S`, and the buffer macros built on `TRICE_N` cap the payload at `TRICE_SINGLE_MAX_SIZE - 12` bytes. `TRICE_SINGLE_MAX_SIZE` is the reserved size of one aligned target-side record and cannot exceed 32764 bytes; therefore the largest payload through these macros is 32752 bytes. The limit for a runtime string counts its characters, excluding the terminating zero byte.
+
+The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and the count field, plus one 4-byte word for alignment and output scratch space. The target rounds the stored payload up to a 32-bit boundary; some output paths also need space after the record, for example when padding for XTEA encryption. At the macro's maximum payload size, the aligned record uses at most `TRICE_SINGLE_MAX_SIZE - 4` bytes, leaving that word inside the reserved size. Package framing can add further bytes on the transport.
 
 ### 19.2. <a id="package-format"></a>Package Format
 
@@ -8093,7 +8101,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
   * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
-  * To support more than 12 values for each Trice macro, the Trice code on target and host is straightforward extendable up to a total payload of 32764 bytes.
+  * The long count field can encode up to 32767 payload bytes, but the current target buffer macros impose a lower limit; see [Binary Encoding](#binary-encoding). Supporting more than 12 values per Trice macro would require extending the target and host code.
 * Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to intense compile time checks.
   * This length code extension can be done automatically using `trice u -addParamCount`. This is not needed anymore:
 * The _Trice_ tool compares the number of given format specifiers with the written parameters in a precimpile step to minimize the risk of runtime errors.
@@ -8148,7 +8156,7 @@ static inline uint64_t aDouble( double x ){
 
 * The `%s` format specifier is supported by the Trice macro too but needs specific treatment.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 32764 bytes each, if the configured Trice buffer size is sufficient.
+* Strings created at runtime need a special `TRICE_S` (or `triceS`, `TriceS`, `TRiceS`) macro, which accepts exactly one `%s` format specifier. It transfers at most `TRICE_SINGLE_MAX_SIZE - 12` string bytes, excluding the terminating zero byte: 92 bytes by default or at most 32752 bytes with the largest supported configuration. Longer strings are truncated.
   * Example:
 
   ```c
@@ -8275,7 +8283,9 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
 * [x] Look in [triceCheck.c](../_test/testdata/triceCheck.c) for exampe code producing this:
 
-![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
+[![TriceCheck output with numeric and string values](./ref/TriceCheckOutput-preview.png)](./ref/TriceCheckOutput.gif)
+
+Select the preview to open the full animation.
 
 ### 38.10. <a id="unsupported-printf-format-features"></a>Unsupported `printf` format features
 
@@ -9083,7 +9093,9 @@ The [ARM-Keil µVision IDE](https://www2.keil.com/mdk5/uvision/) does sometimes 
 
 (The trice IDs occur just during the compilation.)
 
-  <img src="./ref/Animation.gif" width="1200">
+  [![Trice source and completed example build](./ref/Animation-build-preview.png)](./ref/Animation.gif)
+
+Select the preview to open the full animation.
 
 ### 40.4. <a id="setup-linux-pc---example-with-debian12---kde-desktop"></a>Setup Linux PC - Example with Debian12 - KDE Desktop
 
@@ -9988,7 +10000,9 @@ The debugger path can be added independently, for example
 
 `trice l -p JLINK -args="-Device STM32G0B1RE -if SWD -Speed 4000 -RTTChannel 0" -pf none -ts ms -d16` (example)
 
-  <img src="./ref/Animation.gif" width="1000">
+  [![Trice output during a debugging session](./ref/Animation-log-preview.png)](./ref/Animation.gif)
+
+Select the preview to open the full animation.
 
 ### 40.13. <a id="setting-up-a-new-project"></a>Setting up a new project
 
