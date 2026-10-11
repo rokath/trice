@@ -106,7 +106,7 @@ func TestBindReassignsHistoricalIDOutsideCurrentPolicy(t *testing.T) {
 	writeBindTestLI(t, LIFnJSON, TriceIDLookUpLI{250: {File: Srcs[0], Line: 4}})
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_module_c_K1111111111111111.h"))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_module_c_1111111111111111.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(sidecar), "iD(10u)")
 	assert.NotContains(t, string(sidecar), "iD(250u)")
@@ -124,12 +124,12 @@ func TestBindGeneratesStableSidecarAndKeepsCallsIDFree(t *testing.T) {
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 	bound, err := FSys.ReadFile(path)
 	require.NoError(t, err)
-	assert.Contains(t, string(bound), "#include \"trice_module_c_K1111111111111111.h\" // trice-bind:")
+	assert.Contains(t, string(bound), "#include \"trice_sidecar_module_c_1111111111111111.h\" // trice-bind:")
 	assert.Contains(t, string(bound), `trice("msg:value=%d\n", value);`)
 	assert.Contains(t, string(bound), `TRICE8_1(id(0), "msg:byte=%d\n", value);`)
 	assert.NotContains(t, string(bound), "iD(100)")
 
-	sidecarPath := filepath.Join(BindDir, "trice_module_c_K1111111111111111.h")
+	sidecarPath := filepath.Join(BindDir, "trice_sidecar_module_c_1111111111111111.h")
 	sidecar, err := FSys.ReadFile(sidecarPath)
 	require.NoError(t, err)
 	assert.Contains(t, string(sidecar), "#define TRICE_BIND_SITE_K1111111111111111_L5 TRICE_BIND_AUTO,    iD(100u)")
@@ -153,7 +153,7 @@ func TestBindPreservesUppercaseStampSemantics(t *testing.T) {
 	DefaultStampSize = 32
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_stamp_c_K1111111111111111.h"))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_stamp_c_1111111111111111.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(sidecar), "TRICE_BIND_AUTO,    ID(100u)")
 	assert.Contains(t, string(sidecar), "TRICE_BIND_REPLACE, id(101u)")
@@ -186,7 +186,7 @@ func TestBindDefaultWrapperSelection(t *testing.T) {
 // TestBindRecognizesWhitespaceIncludeAndReactivation accepts comment-free repeated owner includes.
 func TestBindRecognizesWhitespaceIncludeAndReactivation(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_renamed_c_" + key + ".h"
+	name := "trice_sidecar_renamed_c_0123456789ABCDEF.h"
 	source := fmt.Sprintf("# include \"%s\"\ntrice(\"first\");\n#include \"late.h\"\n# include \"%s\" // no identity in this comment\ntrice(\"second\");\n", name, name)
 	defer prepareBindTest(t, map[string]string{"renamed-again.c": source})()
 	require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
@@ -204,14 +204,14 @@ func TestBindRecognizesWhitespaceIncludeAndReactivation(t *testing.T) {
 
 // TestBindIgnoresCommentedIncludes keeps non-directive text out of placement and identity analysis.
 func TestBindIgnoresCommentedIncludes(t *testing.T) {
-	source := "/*\n#include \"trice_foreign_c_K0123456789ABCDEF.h\"\n*/\ntrice(\"bound\");\n"
+	source := "/*\n#include \"trice_sidecar_foreign_c_0123456789ABCDEF.h\"\n*/\ntrice(\"bound\");\n"
 	defer prepareBindTest(t, map[string]string{"commented.c": source})()
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 	after, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
-	assert.Contains(t, string(after), "#include \"trice_commented_c_K1111111111111111.h\"")
-	assert.Contains(t, string(after), "#include \"trice_foreign_c_K0123456789ABCDEF.h\"")
+	assert.Contains(t, string(after), "#include \"trice_sidecar_commented_c_1111111111111111.h\"")
+	assert.Contains(t, string(after), "#include \"trice_sidecar_foreign_c_0123456789ABCDEF.h\"")
 }
 
 // TestBindIgnoresCommentedCalls keeps parser-like text in comments out of bind diagnostics and sidecars.
@@ -220,7 +220,7 @@ func TestBindIgnoresCommentedCalls(t *testing.T) {
 	defer prepareBindTest(t, map[string]string{"commented-calls.c": source})()
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_commented_calls_c_K1111111111111111.h"))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_commented_calls_c_1111111111111111.h"))
 	require.NoError(t, err)
 	assert.Equal(t, 1, strings.Count(string(sidecar), "#define TRICE_BIND_SITE_"))
 	assert.Contains(t, string(sidecar), "active")
@@ -283,7 +283,7 @@ func TestBindMarkersAliasesAndMacroDefinitionSupport(t *testing.T) {
 	after, readErr := FSys.ReadFile(Srcs[0])
 	require.NoError(t, readErr)
 	assert.Contains(t, string(after), "trice-bind: keep as last include")
-	sidecar, readErr := FSys.ReadFile(filepath.Join(BindDir, "trice_alias_c_K1111111111111111.h"))
+	sidecar, readErr := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_alias_c_1111111111111111.h"))
 	require.NoError(t, readErr)
 	assert.Contains(t, string(sidecar), "TRICE_BIND_DEFINITION_K1111111111111111")
 	assert.NotContains(t, string(sidecar), "777u")
@@ -304,7 +304,7 @@ func TestBindMultipleDirectSitesGenerateLocalRebase(t *testing.T) {
 	assert.NotContains(t, string(bound), "iD(100")
 	assert.Equal(t, strings.Count(source, "\n")+3, strings.Count(string(bound), "\n"), "one owner include and two rebase boundary includes are added")
 
-	sidecarPath := filepath.Join(BindDir, "trice_multi_c_K1111111111111111.h")
+	sidecarPath := filepath.Join(BindDir, "trice_sidecar_multi_c_1111111111111111.h")
 	sidecar, err := FSys.ReadFile(sidecarPath)
 	require.NoError(t, err)
 	assert.Contains(t, string(sidecar), "#define TRICE_BIND_REBASE_COUNT_K1111111111111111_R0 3")
@@ -312,11 +312,11 @@ func TestBindMultipleDirectSitesGenerateLocalRebase(t *testing.T) {
 	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L4_O1)")
 	assert.Contains(t, string(sidecar), "constructor(TRICE_BIND_ID_LOCATION_K1111111111111111_L4_O2)")
 	assert.Equal(t, 3, strings.Count(string(sidecar), "TRICE_BIND_LOCATION_"))
-	beginHelper, err := FSys.ReadFile(filepath.Join(BindDir, "trice_multi_c_K1111111111111111_R0_begin.h"))
+	beginHelper, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_multi_c_1111111111111111_R0_begin.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(beginHelper), "#define TRICE_BIND_REBASE_SCOPE K1111111111111111_R0")
-	assert.Contains(t, string(beginHelper), "#include \"trice_multi_c_K1111111111111111.h\"")
-	endHelper, err := FSys.ReadFile(filepath.Join(BindDir, "trice_multi_c_K1111111111111111_R0_end.h"))
+	assert.Contains(t, string(beginHelper), "#include \"trice_sidecar_multi_c_1111111111111111.h\"")
+	endHelper, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_multi_c_1111111111111111_R0_end.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(endHelper), "#define TRICE_BIND_REBASE_END")
 
@@ -339,7 +339,7 @@ func TestBindWrapperDefinitionsReuseIDsAtAllInvocations(t *testing.T) {
 	defer prepareBindTest(t, map[string]string{"wrapper.c": source})()
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_wrapper_c_K1111111111111111.h"))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_wrapper_c_1111111111111111.h"))
 	require.NoError(t, err)
 	text := string(sidecar)
 	assert.Equal(t, 2, strings.Count(text, "#define TRICE_BIND_DEFINITION_"))
@@ -365,7 +365,7 @@ func TestBindSingleSiteWrapperUsesNormalLineDescriptors(t *testing.T) {
 	bound, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
 	assert.NotContains(t, string(bound), "TRICE_BIND_REBASE_BEGIN")
-	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_single_wrapper_c_K1111111111111111.h"))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_single_wrapper_c_1111111111111111.h"))
 	require.NoError(t, err)
 	text := string(sidecar)
 	assert.NotContains(t, text, "__COUNTER__")
@@ -379,7 +379,7 @@ func TestBindSingleSiteWrapperUsesNormalLineDescriptors(t *testing.T) {
 // TestBindDetectsDuplicateFileKey rejects copied owner identity across physical files.
 func TestBindDetectsDuplicateFileKey(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_owner_c_" + key + ".h"
+	name := "trice_sidecar_owner_c_0123456789ABCDEF.h"
 	source := fmt.Sprintf("#include \"%s\"\ntrice(\"bound\");\n", name)
 	defer prepareBindTest(t, map[string]string{"a.c": source, "b.c": source})()
 	require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
@@ -393,8 +393,8 @@ func TestBindDetectsDuplicateFileKey(t *testing.T) {
 
 // TestBindRejectsConflictingOwnerIncludes detects two distinct identities in one physical file.
 func TestBindRejectsConflictingOwnerIncludes(t *testing.T) {
-	first := "trice_owner_c_K0123456789ABCDEF.h"
-	second := "trice_owner_c_K1111111111111111.h"
+	first := "trice_sidecar_owner_c_0123456789ABCDEF.h"
+	second := "trice_sidecar_owner_c_1111111111111111.h"
 	source := fmt.Sprintf("#include \"%s\"\n#include \"%s\"\ntrice(\"bound\");\n", first, second)
 	defer prepareBindTest(t, map[string]string{"owner.c": source})()
 
@@ -434,9 +434,9 @@ func TestBindAssignmentsAreDeterministicAcrossParallelReadOrder(t *testing.T) {
 	bindRandomReader = bytes.NewReader(append(bytes.Repeat([]byte{0xAA}, 8), bytes.Repeat([]byte{0xBB}, 8)...))
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	aSidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_a_c_KAAAAAAAAAAAAAAAA.h"))
+	aSidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_a_c_AAAAAAAAAAAAAAAA.h"))
 	require.NoError(t, err)
-	zSidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_z_c_KBBBBBBBBBBBBBBBB.h"))
+	zSidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_z_c_BBBBBBBBBBBBBBBB.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(aSidecar), "iD(100u)")
 	assert.Contains(t, string(zSidecar), "iD(101u)")
@@ -550,7 +550,93 @@ func TestBindFileKeyAndSidecarName(t *testing.T) {
 	key, err := newBindFileKey(map[string][]string{})
 	require.NoError(t, err)
 	assert.Equal(t, "K0123456789ABCDEF", key)
-	assert.Equal(t, "trice_module_name_c___K0123456789ABCDEF.h", bindSidecarFilename("dir/module.name-c++", key))
+	assert.Equal(t, "trice_sidecar_module_name_c___0123456789ABCDEF.h", bindSidecarFilename("dir/module.name-c++", key))
+}
+
+// TestBindSidecarIncludesRestoreMacroKey checks that filenames carry exactly
+// 64 bits while their parsed C macro identity retains the fixed K prefix.
+func TestBindSidecarIncludesRestoreMacroKey(t *testing.T) {
+	for _, test := range []struct {
+		name string
+		key  string
+	}{
+		{name: "trice_sidecar_main_c_0123456789ABCDEF.h", key: "K0123456789ABCDEF"},
+		{name: "trice_sidecar_module_name_c___FFFFFFFFFFFFFFFF.h", key: "KFFFFFFFFFFFFFFFF"},
+		{name: "trice_sidecar_main_c_0000000000000000.h", key: "K0000000000000000"},
+		{name: "trice_sidecar_main_c_01234567.h"},
+		{name: "trice_sidecar_main_c_0123456789ABCDEFF.h"},
+		{name: "trice_sidecar_main_c_0123456789abcdef.h"},
+		{name: "trice_sidecar_main_c_K0123456789ABCDEF.h"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			includes := scanBindIncludes("#include \"" + test.name + "\"\n")
+			require.Len(t, includes, 1)
+			assert.Equal(t, test.key != "", includes[0].isSidecar)
+			assert.Equal(t, test.key, includes[0].key)
+			if test.key != "" {
+				assert.Equal(t, test.name, includes[0].name)
+			}
+		})
+	}
+}
+
+// TestBindSameBasenameRegeneratesStableArtifacts verifies collision retries
+// and rebuilding deleted owner/rebase headers without changing IDs or sources.
+func TestBindSameBasenameRegeneratesStableArtifacts(t *testing.T) {
+	defer prepareBindTest(t, map[string]string{
+		"a/main.c": "trice(\"first\"); trice(\"second\");\n",
+		"b/main.c": "trice(\"third\");\n",
+	})()
+	// The second file first draws the occupied key, then a distinct 64-bit key.
+	bindRandomReader = bytes.NewReader(append(bytes.Repeat([]byte{0x11}, 16), bytes.Repeat([]byte{0x22}, 8)...))
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	project := filepath.Join(Proj, t.Name())
+	sources := make(map[string][]byte)
+	for index, directory := range []string{"a", "b"} {
+		path := filepath.Join(project, directory, "main.c")
+		owner, _ := readOwnedBindSidecar(t, path)
+		keyDigits := strings.Repeat(fmt.Sprint(index+1), 16)
+		assert.Equal(t, "trice_sidecar_main_c_"+keyDigits+".h", owner.name)
+		assert.Equal(t, "K"+keyDigits, owner.key)
+		var err error
+		sources[path], err = FSys.ReadFile(path)
+		require.NoError(t, err)
+	}
+	// Snapshot all flat outputs, including rebase helpers and the field registry.
+	artifacts := make(map[string][]byte)
+	entries, err := FSys.ReadDir(BindDir)
+	require.NoError(t, err)
+	for _, entry := range entries {
+		artifacts[entry.Name()], err = FSys.ReadFile(filepath.Join(BindDir, entry.Name()))
+		require.NoError(t, err)
+	}
+	assert.Contains(t, artifacts, "trice_sidecar_main_c_1111111111111111_R0_begin.h")
+	til, err := FSys.ReadFile(FnJSON)
+	require.NoError(t, err)
+	li, err := FSys.ReadFile(LIFnJSON)
+	require.NoError(t, err)
+	require.NoError(t, FSys.RemoveAll(BindDir))
+	// An exhausted reader makes accidental key reassignment fail immediately.
+	bindRandomReader = bytes.NewReader(nil)
+	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+	for path, before := range sources {
+		after, err := FSys.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, before, after)
+	}
+	entries, err = FSys.ReadDir(BindDir)
+	require.NoError(t, err)
+	assert.Len(t, entries, len(artifacts))
+	for name, before := range artifacts {
+		after, err := FSys.ReadFile(filepath.Join(BindDir, name))
+		require.NoError(t, err)
+		assert.Equal(t, before, after, name)
+	}
+	for path, before := range map[string][]byte{FnJSON: til, LIFnJSON: li} {
+		after, err := FSys.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, before, after, path)
+	}
 }
 
 // TestBindClassifiesPhysicalFiles exercises none, insert-owned, bind-owned, and mixed inputs.
@@ -581,7 +667,7 @@ func TestBindKeepsRepeatedFormatsDistinctAndStable(t *testing.T) {
 	defer prepareBindTest(t, map[string]string{"same.c": source})()
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	sidecarPath := filepath.Join(BindDir, "trice_same_c_K1111111111111111.h")
+	sidecarPath := filepath.Join(BindDir, "trice_sidecar_same_c_1111111111111111.h")
 	first, err := FSys.ReadFile(sidecarPath)
 	require.NoError(t, err)
 	assert.Contains(t, string(first), "iD(100u)")
@@ -614,7 +700,7 @@ func TestBindRepeatedFormatsKeepLIOrder(t *testing.T) {
 			t.Run(fmt.Sprintf("secondary_%t/%s", secondary, test.name), func(t *testing.T) {
 				// A persistent owner include keeps the fixture's physical lines exact.
 				const key = "K1111111111111111"
-				source := "#include \"trice_same_c_" + key + ".h\"\n"
+				source := "#include \"trice_sidecar_same_c_1111111111111111.h\"\n"
 				nextLine := 2
 				for _, line := range test.current {
 					source += strings.Repeat("\n", line-nextLine) + "trice(\"same\");\n"
@@ -672,7 +758,7 @@ func TestBindOrdersSidecarPoolDespiteConflictingLI(t *testing.T) {
 	for _, verbose := range []bool{false, true} {
 		t.Run(fmt.Sprintf("verbose_%t", verbose), func(t *testing.T) {
 			const key = "K1111111111111111"
-			const name = "trice_same_c_" + key + ".h"
+			const name = "trice_sidecar_same_c_1111111111111111.h"
 			source := "#include \"" + name + "\"\ntrice(\"same\");\ntrice(\"same\");\n"
 			defer prepareBindTest(t, map[string]string{"same.c": source})()
 			Verbose = verbose
@@ -841,7 +927,7 @@ func TestBindRollsBackCommitFailure(t *testing.T) {
 // TestBindRejectsCorruptSidecarRoute checks every key and route definition before replacing artifacts.
 func TestBindRejectsCorruptSidecarRoute(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_owner_c_" + key + ".h"
+	name := "trice_sidecar_owner_c_0123456789ABCDEF.h"
 	source := fmt.Sprintf("#include \"%s\"\ntrice(\"bound\");\n", name)
 	defer prepareBindTest(t, map[string]string{"owner.c": source})()
 	require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
@@ -861,7 +947,7 @@ func TestBindRejectsCorruptSidecarRoute(t *testing.T) {
 // TestBindPreservesEmptyOwnerIdentity removes stale sites without dropping the include or key.
 func TestBindPreservesEmptyOwnerIdentity(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_empty_c_" + key + ".h"
+	name := "trice_sidecar_empty_c_0123456789ABCDEF.h"
 	source := "#include \"" + name + "\"\nint value;\n"
 	defer prepareBindTest(t, map[string]string{"empty.c": source})()
 	require.NoError(t, FSys.MkdirAll(BindDir, 0o755))
@@ -896,8 +982,7 @@ func TestBindAutomaticallyExcludesBindDirectory(t *testing.T) {
 
 // TestInsertSkipsRecognizedBindOwner prevents accidental source instrumentation by the legacy command.
 func TestInsertSkipsRecognizedBindOwner(t *testing.T) {
-	key := "K0123456789ABCDEF"
-	source := "#include \"trice_owner_c_" + key + ".h\"\ntrice(\"bound\");\n"
+	source := "#include \"trice_sidecar_owner_c_0123456789ABCDEF.h\"\ntrice(\"bound\");\n"
 	defer prepareBindTest(t, map[string]string{"owner.c": source})()
 
 	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
@@ -937,7 +1022,7 @@ func TestBindMultilineCommentStaysOnOnePhysicalLine(t *testing.T) {
 	defer prepareBindTest(t, map[string]string{"multiline.c": source})()
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_multiline_c_K1111111111111111.h"))
+	sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_multiline_c_1111111111111111.h"))
 	require.NoError(t, err)
 	assert.Contains(t, string(sidecar), "// trice( \\ ...")
 	for _, line := range strings.Split(string(sidecar), "\n") {

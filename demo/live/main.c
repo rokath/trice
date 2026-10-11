@@ -16,7 +16,7 @@
 
 #include "trice.h"
 // trice bind manages the generated include name below.
-#include "trice_main_c_K47FC081B2DF519B8.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_sidecar_main_c_47FC081B2DF519B8.h" // trice-bind: keep as last include before this file's Trice calls
 
 // The file stays open while the application runs; TriceTransfer uses this writer.
 static FILE* logFile;

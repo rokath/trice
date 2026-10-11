@@ -17,7 +17,7 @@ import (
 
 // bindReportHelperName recognizes the filename namespace, not ownership by
 // itself. The helper bytes and its owner's declarations are checked separately.
-var bindReportHelperName = regexp.MustCompile(`^(trice_[A-Za-z0-9_]+_(K[0-9A-F]{16}))_(R[0-9]+)_(begin|end)\.h$`)
+var bindReportHelperName = regexp.MustCompile(`^(trice_sidecar_[A-Za-z0-9_]+_([0-9A-F]{16}))_(R[0-9]+)_(begin|end)\.h$`)
 
 // bindReportIncludeName accepts literal quoted and angle-bracket includes.
 // Macro expressions containing a filename string are not physical references
@@ -88,7 +88,8 @@ func generateBindReport(w io.Writer, fSys *afero.Afero) error {
 			sidecar := bindSidecarName.FindStringSubmatch(quoted)
 			if len(sidecar) == 3 && sidecar[0] == quoted {
 				references[name] = append(references[name], filepath.ToSlash(input.path))
-				keyOwners[sidecar[2]] = append(keyOwners[sidecar[2]], filepath.ToSlash(input.path))
+				key := "K" + sidecar[2]
+				keyOwners[key] = append(keyOwners[key], filepath.ToSlash(input.path))
 			} else if bindReportHelperName.MatchString(name) {
 				// Record the literal helper reference independently of ownership
 				// comments; the actual helper bytes are checked below.
@@ -114,9 +115,9 @@ func generateBindReport(w io.Writer, fSys *afero.Afero) error {
 			match := bindSidecarName.FindStringSubmatch(quoted)
 			helper := bindReportHelperName.FindStringSubmatch(artifact.name)
 			if len(match) == 3 && match[0] == quoted {
-				artifact.kind, artifact.owner, artifact.key = "sidecar", artifact.name, match[2]
+				artifact.kind, artifact.owner, artifact.key = "sidecar", artifact.name, "K"+match[2]
 			} else if len(helper) == 5 {
-				artifact.kind, artifact.owner, artifact.key = "rebase "+helper[4], helper[1]+".h", helper[2]
+				artifact.kind, artifact.owner, artifact.key = "rebase "+helper[4], helper[1]+".h", "K"+helper[2]
 			}
 			if artifact.key != "" {
 				path := filepath.Join(BindDir, artifact.name)

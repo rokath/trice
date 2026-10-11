@@ -73,7 +73,7 @@ func TestSelectCurrentLogEntriesFromBoundSource(t *testing.T) {
 	defer Setup(t)()
 	const key = "K1111111111111111"
 	source := filepath.Join(Proj, "bound.c")
-	sidecarName := "trice_bound_c_" + key + ".h"
+	sidecarName := "trice_sidecar_bound_c_1111111111111111.h"
 	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"first\"); trice(\"second=%x\", 2); }\n"
 	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
 	BindDir = filepath.Join(Proj, "build", "triceIDs")
@@ -102,7 +102,7 @@ func TestSelectCurrentLogEntriesIgnoresOriginalZeroIDInSidecarComment(t *testing
 	defer Setup(t)()
 	const key = "K5555555555555555"
 	source := filepath.Join(Proj, "replaced.c")
-	sidecarName := "trice_replaced_c_" + key + ".h"
+	sidecarName := "trice_sidecar_replaced_c_5555555555555555.h"
 	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"value=%d\", 7); }\n"
 	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
 	BindDir = filepath.Join(Proj, "build", "triceIDs")
@@ -126,7 +126,7 @@ func TestSelectCurrentLogEntriesRejectsStaleDescriptorCount(t *testing.T) {
 	defer Setup(t)()
 	const key = "K4444444444444444"
 	source := filepath.Join(Proj, "stale-count.c")
-	sidecarName := "trice_stale_count_c_" + key + ".h"
+	sidecarName := "trice_sidecar_stale_count_c_4444444444444444.h"
 	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"first\"); trice(\"second\"); }\n"
 	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
 	BindDir = filepath.Join(Proj, "build", "triceIDs")
@@ -173,7 +173,7 @@ func TestSelectCurrentLogEntriesRejectsUnresolvedCommentedBindSite(t *testing.T)
 	defer Setup(t)()
 	const key = "K3333333333333333"
 	source := filepath.Join(Proj, "commented.c")
-	sidecarName := "trice_commented_c_" + key + ".h"
+	sidecarName := "trice_sidecar_commented_c_3333333333333333.h"
 	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"active\"); }\n// trice(\"commented\");\n"
 	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
 	BindDir = filepath.Join(Proj, "build", "triceIDs")
@@ -197,7 +197,7 @@ func TestSelectCurrentLogEntriesSkipsUnsupportedCommentedSite(t *testing.T) {
 	defer Setup(t)()
 	const key = "K6666666666666666"
 	source := filepath.Join(Proj, "unsupported-comment.c")
-	sidecarName := "trice_unsupported_comment_c_" + key + ".h"
+	sidecarName := "trice_sidecar_unsupported_comment_c_6666666666666666.h"
 	sourceText := "#include \"" + sidecarName + "\"\nvoid f(void) { trice(\"active\"); }\n// trice(\"unicode=%U\", 'A');\n"
 	require.NoError(t, FSys.WriteFile(source, []byte(sourceText), 0o644))
 	BindDir = filepath.Join(Proj, "build", "triceIDs")
@@ -284,9 +284,8 @@ func TestAddCurrentLogSiteRejectsInvalidMappings(t *testing.T) {
 // regular generated file is opened.
 func TestGenerateLogCRejectsStaleBindStateWithoutTouchingOutput(t *testing.T) {
 	defer Setup(t)()
-	const key = "K2222222222222222"
 	source := filepath.Join(Proj, "stale.c")
-	require.NoError(t, FSys.WriteFile(source, []byte("#include \"trice_stale_c_"+key+".h\"\nvoid f(void) { trice(\"new\"); }\n"), 0o644))
+	require.NoError(t, FSys.WriteFile(source, []byte("#include \"trice_sidecar_stale_c_2222222222222222.h\"\nvoid f(void) { trice(\"new\"); }\n"), 0o644))
 	Srcs = ArrayFlag{source}
 	BindDir = filepath.Join(Proj, "missing", "triceIDs")
 	FnJSON = filepath.Join(Proj, "current-til.json")

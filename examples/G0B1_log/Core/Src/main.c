@@ -33,7 +33,7 @@
 #define NANOPRINTF_IMPLEMENTATION
 #include "nanoprintf.h"
 #include "trice.h"
-#include "trice_main_c_KB93C5977DE12EC66.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_sidecar_main_c_B93C5977DE12EC66.h" // trice-bind: keep as last include before this file's Trice calls
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

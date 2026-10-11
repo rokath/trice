@@ -15,7 +15,7 @@ var (
 	// bindIncludeDirective matches physical include directives without interpreting preprocessing conditions.
 	bindIncludeDirective = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*include\b[^\r\n]*`)
 	// bindSidecarName extracts the generated flat sidecar name and its embedded file key.
-	bindSidecarName = regexp.MustCompile(`"(trice_[A-Za-z0-9_]+_(K[0-9A-F]{16})\.h)"`)
+	bindSidecarName = regexp.MustCompile(`"(trice_sidecar_[A-Za-z0-9_]+_([0-9A-F]{16})\.h)"`)
 	// bindIDWrapper extracts the case-sensitive legacy stamp wrapper selected by insert.
 	bindIDWrapper = regexp.MustCompile(`\b(?:iD|id|Id|ID)\b`)
 	// bindSidecarKeyDefinition validates the identity declared by an existing generated sidecar.
@@ -124,7 +124,7 @@ func scanBindIncludes(source string) []bindInclude {
 		match := bindSidecarName.FindStringSubmatch(lineText)
 		if len(match) == 3 {
 			include.name = match[1]
-			include.key = match[2]
+			include.key = "K" + match[2]
 			include.isSidecar = true
 		}
 		if name, key, _, _, ok := parseBindCompactRebaseInclude(lineText); ok {
@@ -287,7 +287,9 @@ func bindSidecarFilename(sourcePath, key string) string {
 			normalized.WriteByte('_')
 		}
 	}
-	return "trice_" + normalized.String() + "_" + key + ".h"
+	// The fixed K prefix belongs to C macro identifiers; filenames expose only
+	// the hexadecimal identity after the readable source basename.
+	return "trice_sidecar_" + normalized.String() + "_" + strings.TrimPrefix(key, "K") + ".h"
 }
 
 // addBindInclude applies the conservative placement rule and returns a re-parsed final source.
