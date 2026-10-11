@@ -17,6 +17,7 @@
 **/gccLinksClangWarning.txt
 **/.mxproject
 **/.DS_Store
+**/*.bkp
 # Generated only when a root-level log capture or C table is explicitly requested.
 /trice.bin
 /til.c

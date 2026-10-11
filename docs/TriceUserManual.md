@@ -1,8 +1,21 @@
 # Trice User Manual
 
-Trice gives C code readable log calls without the need storing their format strings in the binary image. The target sends 4-byte binary records containing an ID with cycle & payload size followed by runtime values. The host tool combines them with a dictionary, `til.json`, to display text or structured data.
+Trice keeps format strings out of the target binary. The host finds them in `til.json` and combines them with the ID and any binary runtime values. Without a target timestamp or payload, a Trice record needs just four bytes, what explains the speed:
 
-Start on your PC: no board, probe or serial cable is needed. This guide then takes the same workflow into your firmware. Use the [Reference Manual](./TriceReferenceManual.md) for complete syntax, configuration and limits.
+<!--
+```text
+[ Type + ID:      16 bits       ]
+[ Target stamp:   0/16/32 bits  ]
+[ Length / cycle: 16 bits       ]
+[ Payload:        0..32767 bytes ]
+```
+-->
+
+![x](./ref/TriceBinaryFormat.drawio.svg)
+
+See [Binary Encoding](./TriceReferenceManual.md#binary-encoding) for the field layout and length variants.
+
+**To start on your PC no board, probe or serial cable is needed.** This guide then takes the same workflow into your firmware. Use the [Reference Manual](./TriceReferenceManual.md) for complete syntax, configuration and limits.
 
 <details markdown="1">
 <summary>Contents</summary>
@@ -42,11 +55,7 @@ For the PC examples you need:
 
 ## 2. <a id="see-your-first-log"></a>See your first log
 
-From the repository [demo/deferred](../demo/deferred):
-
-```sh
-./run.sh
-```
+Start in repository folder [demo/deferred](../demo/deferred) with [./run.sh](../demo/deferred/run.sh)
 
 The script [demo/deferred/run.sh](../demo/deferred/run.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. It uses `cc` or, if unavailable, `gcc` from your `PATH`. Ignoring optional prefix and source-location columns, you should see colored:
 
@@ -68,6 +77,13 @@ The sibling scripts [demo/direct/run.sh](../demo/direct/run.sh) and [demo/live/r
 ## 3. <a id="try-fields-filters-and-context"></a>Try fields, filters and context
 
 The next project collects several small experiments in one program. [examples/PC_features/build_and_run.sh](../examples/PC_features/build_and_run.sh) assigns IDs, compiles the PC program and runs it to create `capture.bin`. [show_text.sh](../examples/PC_features/show_text.sh), [show_json.sh](../examples/PC_features/show_json.sh) and [show_kv.sh](../examples/PC_features/show_kv.sh) decode that same file; choosing another output format does not rebuild the target. Relevant messages include `Device pump A`, two `Supply` readings, `Retry 2`, `Humidity 55 percent` and `A message without a tag`.
+
+From the repository root, create the capture before trying the commands below:
+
+```sh
+cd examples/PC_features
+./build_and_run.sh
+```
 
 ![PC_Examples_Screenshot_2026-10-09.png](./ref/PC-Examples_Screenshot_2026-10-09.png)
 
@@ -141,7 +157,13 @@ When you edit an example, its output check may correctly fail because it still e
 
 ## 4. <a id="bring-trice-into-your-firmware"></a>Bring Trice into your firmware
 
-Start with deferred logging through an existing byte-output function, such as a UART/USB transmit queue. The PC deferred demo demonstrates the same separation between collecting and sending records. If you already use J-Link, [the RTT quickstart](./TriceReferenceManual.md#quickstart-segger-rtt-direct-mode-with-j-link) is an alternative.
+All examples are executable and intended to help starting with Trice on any MCU/CPU.
+
+[F030_bare](../examples/F030_bare/) is a STM32CubeMX-generated F030R8 project and kept uninstrumented. Compare it with [F030_inst_rtt](../examples/F030_inst_rtt/) or [F030_inst_uart](../examples/F030_inst_uart/) to see all Trice related changes.
+
+Both examples call `TriceInit()` at the start of `main()`. RTT writes the first record directly; UART keeps it in RAM until USART is ready and `TriceTransfer()` runs.
+
+For another board or an existing byte-output function, such as a UART/USB transmit queue, check also the generic deferred outline below. The PC deferred demo shows the same separation between collecting and sending records. If you already use J-Link, [the RTT quickstart](./TriceReferenceManual.md#quickstart-segger-rtt-direct-mode-with-j-link) is another starting point. Check also if [onboard J-Link](./TriceReferenceManual.md#convert-evaluation-board-onboard-st-link-to-j-link) is an option.
 
 ### 4.1. <a id="add-the-library-and-configuration"></a>Add the library and configuration
 
@@ -200,7 +222,18 @@ trice bind -src application -genDir build/sidecars
 
 For a new project, `touch` creates the initially empty dictionaries; it leaves existing contents intact. Bind deliberately rejects a missing TIL instead of silently replacing a lost dictionary with new IDs. It creates `build/sidecars`, including missing parent directories, automatically.
 
-Add the application configuration and `build/sidecars` directories first, then the library's `src` directory, and finally `src/default_conf` to the compiler's include path. This keeps your own `SEGGER_RTT_Conf.h` ahead of the [RTT fallback configuration](./TriceReferenceManual.md#trice-over-rtt). Bind inserts generated includes into the sources and writes the corresponding **sidecars** (compiler headers) into `build/sidecars`. Run it again before compilation whenever log sources change; make it a dependency of compilation in your build system. Then build and flash normally. The generated sidecars are build artifacts and do not belong under version control.
+Set the compiler include **order** like this
+
+```make
+ -Iapplication \
+ -Ibuild/sidecars \
+ -Isrc \
+ -Isrc/default_conf \
+```
+
+Your `SEGGER_RTT_Conf.h`, if existend, then takes precedence over the [RTT fallback configuration](./TriceReferenceManual.md#trice-over-rtt).
+
+Bind inserts generated includes into source files and writes **sidecar headers** to `build/sidecars`. Make `trice bind` a build dependency so it runs before compilation when log sources change. Then build and flash normally. Do not commit generated sidecars.
 
 Before placing several Trice calls on one source line or inside your own macros, read [Bind limits and wrapper macros](./TriceReferenceManual.md#bind-limits).
 
