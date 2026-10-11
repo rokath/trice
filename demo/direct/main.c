@@ -10,7 +10,7 @@
 #include "trice.h"
 // trice bind adds the following generated include automatically during its
 // first run; users do not need to create or maintain the file name.
-#include "trice_main_c_K6B53773E459BC817.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_sidecar_main_c_6B53773E459BC817.h" // trice-bind: keep as last include before this file's Trice calls
 
 static FILE* logFile; // logFile is open only while the synchronous demo emits its Trice records.
 static bool logFail;  // logFail preserves callback failures because the callback returns void.

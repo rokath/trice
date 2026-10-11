@@ -572,7 +572,7 @@ func TestHandlerBindReportKeepsOutputReadOnly(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
 	require.NoError(t, fs.MkdirAll("app", 0o755))
 	require.NoError(t, fs.MkdirAll("artifacts", 0o755))
-	const owner = "trice_main_c_K1111111111111111.h"
+	const owner = "trice_sidecar_main_c_1111111111111111.h"
 	require.NoError(t, fs.WriteFile("app/main.c", []byte("#include \""+owner+"\"\n"), 0o644))
 	require.NoError(t, fs.WriteFile("app/excluded.c", []byte("#include \""+owner+"\"\n"), 0o644))
 	require.NoError(t, fs.WriteFile("artifacts/"+owner, []byte("#define TRICE_BIND_FILE_KEY K1111111111111111\n#define TRICE_BIND_ROUTE_K1111111111111111 BIND\n"), 0o644))
@@ -720,7 +720,7 @@ func TestHandlerBindAndGenerateShareGenDir(t *testing.T) {
 	assert.NoError(t, err)
 	bound, readErr := fSys.ReadFile("project/module.c")
 	assert.NoError(t, readErr)
-	assert.Contains(t, string(bound), `#include "trice_module_c_K`)
+	assert.Contains(t, string(bound), `#include "trice_sidecar_module_c_`)
 	entries, readErr := fSys.ReadDir("generated/triceIDs")
 	assert.NoError(t, readErr)
 	assert.Len(t, entries, 2, "sidecar plus the current-run field registry")

@@ -86,7 +86,7 @@ func TestBindContextFinalSchemas(t *testing.T) {
 			bound, err := FSys.ReadFile(Srcs[0])
 			require.NoError(t, err)
 			assert.Contains(t, string(bound), tt.call, "CE never rewrites the user's call")
-			sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_main_c_K1111111111111111.h"))
+			sidecar, err := FSys.ReadFile(filepath.Join(BindDir, "trice_sidecar_main_c_1111111111111111.h"))
 			require.NoError(t, err)
 			if tt.adapter == "" {
 				assert.NotContains(t, string(sidecar), "trice-ce:")
@@ -187,7 +187,7 @@ func TestBindContextConfigurationChanges(t *testing.T) {
 	originalTIL := contextTestTIL(t)
 	bound, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
-	sidecarPath := filepath.Join(BindDir, "trice_main_c_K1111111111111111.h")
+	sidecarPath := filepath.Join(BindDir, "trice_sidecar_main_c_1111111111111111.h")
 	sidecar, err := FSys.ReadFile(sidecarPath)
 	require.NoError(t, err)
 	fields, err := FSys.ReadFile(filepath.Join(BindDir, "trice-fields.txt"))
@@ -295,7 +295,7 @@ func TestBindContextMetadataRejectsStaleFacts(t *testing.T) {
 			defer prepareBindTest(t, map[string]string{"main.c": "trice(\"msg:ctx:sample=%d\", 7);\n"})()
 			ContextEnrichment = ArrayFlag{`ctx:", x={context}", x`}
 			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-			path := filepath.Join(BindDir, "trice_main_c_K1111111111111111.h")
+			path := filepath.Join(BindDir, "trice_sidecar_main_c_1111111111111111.h")
 			content, err := FSys.ReadFile(path)
 			require.NoError(t, err)
 			lines := strings.Split(string(content), "\n")

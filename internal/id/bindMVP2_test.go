@@ -64,7 +64,7 @@ func writeBindTestLI(t *testing.T, path string, lookup TriceIDLookUpLI) []byte {
 // safety check looks through the automatically inserted owner include and
 // still sees the control-flow dependency in the original source.
 func TestBindRebaseLineContextRejectsGeneratedIncludeAfterIf(t *testing.T) {
-	source := "void f(int value) {\n    if (value)\n#include \"trice_invalid_c_K1111111111111111.h\" // trice-bind: keep as last include\n        trice(\"first\"); trice(\"second\");\n}\n"
+	source := "void f(int value) {\n    if (value)\n#include \"trice_sidecar_invalid_c_1111111111111111.h\" // trice-bind: keep as last include\n        trice(\"first\"); trice(\"second\");\n}\n"
 	occurrence := strings.Index(source, "trice(\"first\")")
 	require.NotEqual(t, -1, occurrence)
 	start := lineStart(source, occurrence)
@@ -233,11 +233,11 @@ func TestBindMVP2WrapsOneMultilineInvocationAsItsMinimalRegion(t *testing.T) {
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 	bound, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
-	expected := "#include \"trice_multiline_c_K1111111111111111_R0_begin.h\" // trice-bind: generated rebase begin K1111111111111111_R0\n" +
+	expected := "#include \"trice_sidecar_multiline_c_1111111111111111_R0_begin.h\" // trice-bind: generated rebase begin K1111111111111111_R0\n" +
 		"    LOG_ERROR(\n" +
 		"        value\n" +
 		"    );\n" +
-		"#include \"trice_multiline_c_K1111111111111111_R0_end.h\" // trice-bind: generated rebase end K1111111111111111_R0\n"
+		"#include \"trice_sidecar_multiline_c_1111111111111111_R0_end.h\" // trice-bind: generated rebase end K1111111111111111_R0\n"
 	assert.Contains(t, string(bound), expected)
 	assert.Equal(t, 1, strings.Count(string(bound), bindRebaseIncludeMarker+"begin"))
 
@@ -301,8 +301,8 @@ func TestBindMVP2RemovesStaleHelperHeaders(t *testing.T) {
 	defer prepareBindTest(t, map[string]string{"stale-helper.c": source})()
 
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
-	beginPath := filepath.Join(BindDir, "trice_stale_helper_c_K1111111111111111_R0_begin.h")
-	endPath := filepath.Join(BindDir, "trice_stale_helper_c_K1111111111111111_R0_end.h")
+	beginPath := filepath.Join(BindDir, "trice_sidecar_stale_helper_c_1111111111111111_R0_begin.h")
+	endPath := filepath.Join(BindDir, "trice_sidecar_stale_helper_c_1111111111111111_R0_end.h")
 	_, err := FSys.Stat(beginPath)
 	require.NoError(t, err)
 	_, err = FSys.Stat(endPath)
@@ -324,7 +324,7 @@ func TestBindMVP2RemovesStaleHelperHeaders(t *testing.T) {
 // migrates the previous source representation without losing owner identity.
 func TestBindMVP2ConvertsLegacyVerboseBlocks(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_legacy_c_" + key + ".h"
+	name := "trice_sidecar_legacy_c_0123456789ABCDEF.h"
 	scope := key + "_R0"
 	source := "#include \"" + name + "\" // trice-bind: keep as last include before this file's Trice calls\n" +
 		"/* trice-bind: generated rebase begin " + scope + " */\n" +
@@ -348,7 +348,7 @@ func TestBindMVP2ConvertsLegacyVerboseBlocks(t *testing.T) {
 	assert.NotContains(t, string(bound), bindRebaseBeginMarker)
 	assert.NotContains(t, string(bound), bindRebaseBlockEnd)
 	assert.Equal(t, 1, strings.Count(string(bound), bindRebaseIncludeMarker+"begin"))
-	_, err = FSys.Stat(filepath.Join(BindDir, "trice_legacy_c_"+key+"_R0_begin.h"))
+	_, err = FSys.Stat(filepath.Join(BindDir, "trice_sidecar_legacy_c_0123456789ABCDEF_R0_begin.h"))
 	require.NoError(t, err)
 }
 
@@ -451,7 +451,7 @@ func TestBindMVP2RejectsModifiedHelperTransactionally(t *testing.T) {
 	require.NoError(t, SubCmdIdBind(io.Discard, FSys))
 	bound, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
-	helperPath := filepath.Join(BindDir, "trice_helper_c_K1111111111111111_R0_begin.h")
+	helperPath := filepath.Join(BindDir, "trice_sidecar_helper_c_1111111111111111_R0_begin.h")
 	helper, err := FSys.ReadFile(helperPath)
 	require.NoError(t, err)
 	modified := append(append([]byte(nil), helper...), []byte("// local edit\n")...)
@@ -474,7 +474,7 @@ func TestBindMVP2RejectsModifiedHelperTransactionally(t *testing.T) {
 // preserve the ID, while the current BindDir receives freshly rendered bytes.
 func TestBindReusesReadOnlyMetadataAndRegeneratesMovedSidecar(t *testing.T) {
 	key := "K2222222222222222"
-	sidecarName := "trice_module_c_" + key + ".h"
+	sidecarName := "trice_sidecar_module_c_2222222222222222.h"
 	source := "#include \"" + sidecarName + "\" // trice-bind: keep as last include before this file's Trice calls\n" +
 		"\n// Lines added after the historical sidecar was generated.\n\n" +
 		"void f(void) { trice(\"nested message\"); }\n"
@@ -560,7 +560,7 @@ func TestBindReusesContentDetectedTILWithoutHistoricalSidecar(t *testing.T) {
 // conflicting numeric ID is a recoverable condition rather than a fatal merge.
 func TestBindSecondaryIDCollisionYieldsToPrimary(t *testing.T) {
 	key := "K3333333333333333"
-	sidecarName := "trice_collision_c_" + key + ".h"
+	sidecarName := "trice_sidecar_collision_c_3333333333333333.h"
 	source := "#include \"" + sidecarName + "\" // trice-bind: keep as last include before this file's Trice calls\n" +
 		"void f(void) { trice(\"secondary format\"); }\n"
 	defer prepareBindTest(t, map[string]string{"nested/collision.c": source})()
@@ -597,11 +597,9 @@ func TestBindSecondaryIDCollisionYieldsToPrimary(t *testing.T) {
 // order claims the free primary number once; the later project receives a new
 // primary ID without either secondary TIL being rewritten.
 func TestBindConflictingSecondaryProjectsResolveDeterministically(t *testing.T) {
-	keyA := "K4444444444444444"
-	keyB := "K5555555555555555"
-	sourceA := "#include \"trice_module_c_" + keyA + ".h\" // trice-bind: keep as last include before this file's Trice calls\n" +
+	sourceA := "#include \"trice_sidecar_module_c_4444444444444444.h\" // trice-bind: keep as last include before this file's Trice calls\n" +
 		"void a(void) { trice(\"project a\"); }\n"
-	sourceB := "#include \"trice_module_c_" + keyB + ".h\" // trice-bind: keep as last include before this file's Trice calls\n" +
+	sourceB := "#include \"trice_sidecar_module_c_5555555555555555.h\" // trice-bind: keep as last include before this file's Trice calls\n" +
 		"void b(void) { trice(\"project b\"); }\n"
 	defer prepareBindTest(t, map[string]string{"a/module.c": sourceA, "b/module.c": sourceB})()
 

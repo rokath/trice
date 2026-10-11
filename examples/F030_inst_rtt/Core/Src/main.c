@@ -22,7 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "trice_main_c_KA61D70D132067104.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_sidecar_main_c_A61D70D132067104.h" // trice-bind: keep as last include before this file's Trice calls
 
 /* USER CODE END Includes */
 

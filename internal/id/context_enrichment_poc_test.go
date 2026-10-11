@@ -23,7 +23,7 @@ import (
 // cePoCKey seeds the ordinary Bind include so CE cannot hide a source edit
 // behind the first-time installation of that existing Bind prerequisite.
 const cePoCKey = "K0123456789ABCDEF"
-const cePoCSidecar = "trice_main_c_" + cePoCKey + ".h"
+const cePoCSidecar = "trice_sidecar_main_c_0123456789ABCDEF.h"
 
 // cePoCConfig enables an unframed output hook and the real binary record
 // resolver. Neither a simulated logging macro nor a printf stub produces data.
@@ -53,7 +53,7 @@ const cePoCSource = `// SPDX-License-Identifier: MIT
 #include <stdio.h>
 #include "trice.h"
 #include "triceRx.h"
-#include "trice_main_c_K0123456789ABCDEF.h"
+#include "trice_sidecar_main_c_0123456789ABCDEF.h"
 
 static unsigned originalEvaluations;
 static unsigned contextEvaluations;

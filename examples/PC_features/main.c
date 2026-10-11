@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "trice.h"
-#include "trice_main_c_K1D52CCE8F1C3388A.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_sidecar_main_c_1D52CCE8F1C3388A.h" // trice-bind: keep as last include before this file's Trice calls
 
 // triceConfig.h uses these as independent 16-bit and 32-bit stamp sources.
 // The build script also selects pc_sample_phase as the added CE cycle field.

@@ -21,14 +21,14 @@ var (
 	// legacy verbose source representation retained for migration compatibility.
 	// Horizontal directive whitespace may be normalized by C formatters and is
 	// therefore not part of the generated ownership identity.
-	bindRebaseGeneratedInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"trice_[A-Za-z0-9_]+_(K[0-9A-F]{16})\.h"[\t ]+// trice-bind: generated rebase (begin|end)[\t ]*$`)
+	bindRebaseGeneratedInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"trice_sidecar_[A-Za-z0-9_]+_([0-9A-F]{16})\.h"[\t ]+// trice-bind: generated rebase (begin|end)[\t ]*$`)
 	// bindRebaseCompactInclude recognizes the complete current source boundary
 	// and captures identities that must agree before it may be removed. As with
 	// the legacy form, formatter-controlled horizontal whitespace is ignored.
-	bindRebaseCompactInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"(trice_[A-Za-z0-9_]+_(K[0-9A-F]{16})_(R[0-9]+)_(begin|end)\.h)"[\t ]+// trice-bind: generated rebase (begin|end) (K[0-9A-F]{16}_R[0-9]+)[\t ]*$`)
+	bindRebaseCompactInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"(trice_sidecar_[A-Za-z0-9_]+_([0-9A-F]{16})_(R[0-9]+)_(begin|end)\.h)"[\t ]+// trice-bind: generated rebase (begin|end) (K[0-9A-F]{16}_R[0-9]+)[\t ]*$`)
 	// bindRebaseHelperInclude catches edited helper includes that no longer
 	// match the exact removable form above.
-	bindRebaseHelperInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"trice_[A-Za-z0-9_]+_K[0-9A-F]{16}_R[0-9]+_(begin|end)\.h"`)
+	bindRebaseHelperInclude = regexp.MustCompile(`^[\t ]*#[\t ]*include[\t ]+"trice_sidecar_[A-Za-z0-9_]+_[0-9A-F]{16}_R[0-9]+_(begin|end)\.h"`)
 	bindRebaseScope         = regexp.MustCompile(`^K[0-9A-F]{16}_R[0-9]+$`)
 )
 
@@ -215,7 +215,7 @@ func parseBindCompactRebaseInclude(line string) (name, key, scope, kind string, 
 	if len(match) != 7 {
 		return "", "", "", "", false
 	}
-	name, key = match[1], match[2]
+	name, key = match[1], "K"+match[2]
 	ordinal, nameKind, commentKind, commentScope := match[3], match[4], match[5], match[6]
 	if nameKind != commentKind || commentScope != key+"_"+ordinal {
 		return "", "", "", "", false
@@ -253,7 +253,7 @@ func validateBindRebaseBlock(source string, block bindGeneratedBlock) string {
 	for index := range expected {
 		if expected[index] == "" {
 			match := bindRebaseGeneratedInclude.FindStringSubmatch(lines[index])
-			if len(match) != 3 || match[1] != strings.SplitN(block.scope, "_R", 2)[0] || match[2] != block.kind {
+			if len(match) != 3 || "K"+match[1] != strings.SplitN(block.scope, "_R", 2)[0] || match[2] != block.kind {
 				return fmt.Sprintf("generated Trice bind rebase %s block %s has an invalid sidecar include", block.kind, block.scope)
 			}
 			continue

@@ -57,7 +57,7 @@ func readBindRemigrationLocations(t *testing.T) (TriceIDLookUpLI, []byte) {
 // preservation, repeated owner reactivation, sidecar deletion, and idempotence.
 func TestBindRemigrationRemovesValidatedArtifacts(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_module_c_" + key + ".h"
+	name := "trice_sidecar_module_c_0123456789ABCDEF.h"
 	include := "#include \"" + name + "\" // trice-bind: generated"
 	source := "#include \"trice.h\"\r\n" + include + "\r\ntrice(\"first\");\r\n#include \"module.h\"\r\n" + include + "\r\ntrice(id(0), \"second\");\r\n"
 	expected := "#include \"trice.h\"\r\ntrice(\"first\");\r\n#include \"module.h\"\r\ntrice(id(0), \"second\");\r\n"
@@ -110,8 +110,8 @@ func TestBindMVP2RemigrationRemovesRebaseArtifacts(t *testing.T) {
 	bound, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)
 	assert.Contains(t, string(bound), bindRebaseIncludeMarker+"begin")
-	beginHelperPath := filepath.Join(BindDir, "trice_advanced_c_K1111111111111111_R0_begin.h")
-	endHelperPath := filepath.Join(BindDir, "trice_advanced_c_K1111111111111111_R0_end.h")
+	beginHelperPath := filepath.Join(BindDir, "trice_sidecar_advanced_c_1111111111111111_R0_begin.h")
+	endHelperPath := filepath.Join(BindDir, "trice_sidecar_advanced_c_1111111111111111_R0_end.h")
 
 	require.NoError(t, SubCmdIdRemigrateBindToClean(io.Discard, FSys))
 	clean, err := FSys.ReadFile(Srcs[0])
@@ -138,7 +138,7 @@ func TestBindMVP2RemigrationRemovesRebaseArtifacts(t *testing.T) {
 // when li.json does not describe the currently validated Bound descriptor.
 func TestBindRemigrationRejectsStaleLocation(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_stale_c_" + key + ".h"
+	name := "trice_sidecar_stale_c_0123456789ABCDEF.h"
 	source := "#include \"" + name + "\"\ntrice(\"stale\");\n"
 	defer prepareBindTest(t, map[string]string{"stale.c": source})()
 	sidecarPath := writeValidBindSidecar(t, name, key)
@@ -168,7 +168,7 @@ func TestBindRemigrationRejectsStaleLocation(t *testing.T) {
 // can never be deleted when two managed physical files claim it.
 func TestBindRemigrationRejectsAmbiguousOwnership(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_shared_c_" + key + ".h"
+	name := "trice_sidecar_shared_c_0123456789ABCDEF.h"
 	include := "#include \"" + name + "\"\n"
 	defer prepareBindTest(t, map[string]string{
 		"a.c": include + "trice(\"a\");\n",
@@ -209,8 +209,7 @@ func TestBindRemigrationRejectsUnverifiableArtifacts(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			key := "K0123456789ABCDEF"
-			name := "trice_owner_c_" + key + ".h"
+			name := "trice_sidecar_owner_c_0123456789ABCDEF.h"
 			source := "#include \"" + name + "\"\ntrice(\"unchanged\");\n"
 			defer prepareBindTest(t, map[string]string{"owner.c": source})()
 			if test.createSidecar {
@@ -233,7 +232,7 @@ func TestBindRemigrationRejectsUnverifiableArtifacts(t *testing.T) {
 // error restores every source already replaced by the transaction.
 func TestBindRemigrationRollsBackDeleteFailure(t *testing.T) {
 	key := "K0123456789ABCDEF"
-	name := "trice_rollback_c_" + key + ".h"
+	name := "trice_sidecar_rollback_c_0123456789ABCDEF.h"
 	source := "#include \"" + name + "\"\ntrice(\"rollback\");\n"
 	defer prepareBindTest(t, map[string]string{"rollback.c": source})()
 	sidecarPath := writeValidBindSidecar(t, name, key)

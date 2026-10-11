@@ -8,7 +8,7 @@
 #endif
 #include "trice.h"
 // `trice bind` creates this include and its header; source code keeps no numeric Trice IDs.
-#include "trice_main_c_K50434C4F4744454D.h" // trice-bind: keep as last include before this file's Trice calls
+#include "trice_sidecar_main_c_50434C4F4744454D.h" // trice-bind: keep as last include before this file's Trice calls
 static void writeLocalLog(const char*, size_t);
 static int stampPrefix(char*, size_t, uint16_t, uint8_t, uint32_t);
 #define PC_LOG_TEXT_SIZE 512u // Bounds one record and its UTF-16 console copy.

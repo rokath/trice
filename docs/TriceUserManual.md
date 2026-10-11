@@ -51,7 +51,7 @@ For the PC examples you need:
 - The host tools from [GitHub Releases](https://github.com/rokath/trice/releases) in the `PATH`, CLI check: `trice --version`.
 - A **native host C compiler** named `cc` or `gcc` with its matching runtime libraries and headers; see [compiler setup](./TriceReferenceManual.md#development-environment-setup).
 
-`trice` manages IDs and decodes logs; the companion `tlog` is a shortcut for `trice log`. The examples below use `trice`.
+The `trice` tool manages IDs and decodes logs; the companion `tlog` is a shortcut for `trice log`. The examples below use `trice`.
 
 ## 2. <a id="see-your-first-log"></a>See your first log
 

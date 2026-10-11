@@ -55,15 +55,15 @@ func reportFixture(t *testing.T) (*afero.Afero, *reportReadOnlyFs, string) {
 	ExcludeSrcs = nil
 	GenerateBindReport = true
 	fs := &afero.Afero{Fs: afero.NewMemMapFs()}
-	const owner = "trice_main_c_K1111111111111111.h"
+	const owner = "trice_sidecar_main_c_1111111111111111.h"
 	files := map[string]string{
 		"src/main.c":         "#include \"" + owner + "\"\n#include \"" + owner + "\"\ntrice(\"hi\");\n",
 		"generated/" + owner: "#define TRICE_BIND_FILE_KEY K1111111111111111\n#define TRICE_BIND_ROUTE_K1111111111111111 BIND\n",
-		"generated/trice_triceCheck_c_K2222222222222222.h": "#define TRICE_BIND_FILE_KEY K2222222222222222\n#define TRICE_BIND_ROUTE_K2222222222222222 BIND\n",
-		"generated/device_abc.h":                           "/* user-selected commands; never prune this */\n",
-		"generated/trice-fields.txt":                       "temperature\n",
-		"generated/subdir/kept.txt":                        "nested content is not inspected\n",
-		"src/.hidden/ignored.c":                            "#include \"" + owner + "\"\n",
+		"generated/trice_sidecar_triceCheck_c_2222222222222222.h": "#define TRICE_BIND_FILE_KEY K2222222222222222\n#define TRICE_BIND_ROUTE_K2222222222222222 BIND\n",
+		"generated/device_abc.h":                                  "/* user-selected commands; never prune this */\n",
+		"generated/trice-fields.txt":                              "temperature\n",
+		"generated/subdir/kept.txt":                               "nested content is not inspected\n",
+		"src/.hidden/ignored.c":                                   "#include \"" + owner + "\"\n",
 	}
 	for path, content := range files {
 		require.NoError(t, fs.MkdirAll(filepath.Dir(path), 0o755))
@@ -104,7 +104,7 @@ func TestBindReportMapsReferencesWithoutMutatingOrLoadingDictionaries(t *testing
 	var output bytes.Buffer
 	require.NoError(t, SubCmdGenerate(&output, &afero.Afero{Fs: guard}))
 	assert.Contains(t, output.String(), owner+" [sidecar]\n  File Key: K1111111111111111; owner sidecar: "+owner+"\n  Referenced in scan: src/main.c\n")
-	assert.Contains(t, output.String(), "trice_triceCheck_c_K2222222222222222.h [sidecar]")
+	assert.Contains(t, output.String(), "trice_sidecar_triceCheck_c_2222222222222222.h [sidecar]")
 	assert.Contains(t, output.String(), "Not referenced in selected scan; owner source not established")
 	assert.Contains(t, output.String(), "device_abc.h [unclassified]")
 	assert.Contains(t, output.String(), "may be user-managed")
@@ -155,7 +155,7 @@ func TestBindReportSeparatesHelperReferencesFromOwnerReferences(t *testing.T) {
 func TestBindReportShowsConflictsMissingFilesAndInvalidDeclarations(t *testing.T) {
 	defer Setup(t)()
 	fs, guard, owner := reportFixture(t)
-	const missing = "trice_missing_c_K3333333333333333.h"
+	const missing = "trice_sidecar_missing_c_3333333333333333.h"
 	require.NoError(t, fs.WriteFile("src/other.c", []byte("#include \""+owner+"\"\n#include \""+missing+"\"\n"), 0o644))
 	require.NoError(t, fs.WriteFile("generated/"+owner, []byte("// #define TRICE_BIND_FILE_KEY K1111111111111111\n#define TRICE_BIND_ROUTE_K1111111111111111 BIND\n"), 0o644))
 	artifact := renderBindRebaseArtifact(missing, "K3333333333333333", "K3333333333333333_R2", "end")
@@ -281,7 +281,7 @@ func TestBindReportReadsActualBindOutput(t *testing.T) {
 	var output bytes.Buffer
 	guard := &reportReadOnlyFs{Fs: FSys.Fs}
 	require.NoError(t, SubCmdGenerate(&output, &afero.Afero{Fs: guard}))
-	assert.Contains(t, output.String(), "trice_main_c_K1111111111111111.h [sidecar]")
+	assert.Contains(t, output.String(), "trice_sidecar_main_c_1111111111111111.h [sidecar]")
 	assert.Contains(t, output.String(), "Referenced in scan: "+filepath.ToSlash(Srcs[0]))
 	assert.NotContains(t, output.String(), "UNVERIFIED")
 	assert.NotContains(t, output.String(), "AMBIGUOUS")
@@ -341,7 +341,7 @@ func TestBindReportDoesNotFollowArtifactSymlinks(t *testing.T) {
 	fs := &afero.Afero{Fs: afero.NewOsFs()}
 	require.NoError(t, fs.MkdirAll(BindDir, 0o755))
 	require.NoError(t, fs.MkdirAll(Srcs[0], 0o755))
-	const name = "trice_main_c_K1111111111111111.h"
+	const name = "trice_sidecar_main_c_1111111111111111.h"
 	if err := os.Symlink("absent-target.h", filepath.Join(BindDir, name)); err != nil {
 		t.Skipf("artifact symlink check requires local symlink support: %v", err)
 	}

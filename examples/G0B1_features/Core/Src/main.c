@@ -23,8 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "triceCustomAliases.h"
-#include <limits.h>                         // INT_MAX
-#include "trice_main_c_KF3C2473920A6B5A0.h" // trice-bind: keep as last include before this file's Trice calls
+#include <limits.h>                                // INT_MAX
+#include "trice_sidecar_main_c_F3C2473920A6B5A0.h" // trice-bind: keep as last include before this file's Trice calls
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

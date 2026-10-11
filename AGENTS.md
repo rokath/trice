@@ -124,15 +124,14 @@
 
 ## Read-Only Tool Access
 
-* Read-only information gathering is generally approved and should not require additional user confirmation.
-* `gh` may be used for all read-only GitHub operations without asking for additional confirmation.
+* All read-only access is permanently pre-approved, including local files, repository history, websites, HTTP requests, APIs, and read-only `gh` operations. Never ask for additional user permission to read or to obtain live information needed for the task.
+* This authorization persists across turns. A network or sandbox failure does not mean that user authorization is missing.
 * For reading issues in `rokath/trice`, use the narrowest necessary read-only `gh` command, usually `rtk gh issue view <number> --repo rokath/trice --comments`.
 * Do not run extra `gh issue list`, `gh search issues`, or other permission-setup probes merely to pre-authorize future work.
-* Do not request repeated platform escalations for read-only issue access. If an exact required read command is blocked by the sandbox and no existing approval rule allows it, report that technical limitation once and continue with local or already fetched evidence unless the user explicitly asks to trigger another platform permission prompt.
-* If `gh` or another read-only shell command is blocked only because network access is restricted, do not automatically request escalated execution. Use non-blocking fallbacks first, such as local documentation, repository history, web search results, or already-cached issue references, and state the exact source limitation in the result.
+* Reuse existing platform approvals and approved command prefixes for read access. If the platform technically requires an escalation, follow its required approval mechanism directly without an additional conversational permission question. Explain that the prompt comes from the sandbox, not from missing user consent; repository instructions cannot disable platform enforcement.
+* Do not repeat a pending platform request. Keep independent work moving and use available local documentation, repository history, web results, or cached evidence when access remains unavailable.
 * Do not stop after reporting a blocked read-only network command. Continue with local evidence and produce a qualified result unless the user explicitly asks for live external data.
 * Avoid vague wording such as "expected failure" for blocked tooling. State the observed failure concretely, for example "GitHub API access is blocked by the current network sandbox."
-* Request escalated execution for read-only network access only when the user explicitly asks for live external data despite the platform approval prompt, or when no qualified answer can be produced from non-blocking sources.
 * Do not let missing external read access block a requested analysis when enough local context exists for a qualified estimate.
 * Ask before using `gh` or any other tool for write operations, such as creating, editing, closing, commenting, pushing, or changing repository state.
 

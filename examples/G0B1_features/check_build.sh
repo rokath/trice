@@ -32,7 +32,7 @@ grep -Fq 'rx:%02x ' til.json || {
   echo 'FAIL: the buffer example is absent from til.json' >&2
   exit 1
 }
-grep -Fq 'osThreadGetId()' generated/trice_main_c_*.h || {
+grep -Fq 'osThreadGetId()' generated/trice_sidecar_main_c_*.h || {
   echo 'FAIL: the bound call does not read the current task' >&2
   exit 1
 }

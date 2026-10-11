@@ -3,6 +3,7 @@
 **/dist/
 **/build/
 **/generated/trice_*_K*.h
+**/generated/trice_sidecar_*.h
 **/generated/trice-fields.txt
 **/generated/*.oneline.json
 **/generated/*.c
