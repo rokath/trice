@@ -16,3 +16,5 @@ C:\Users\ms\repos\trice\examples\F030_inst_rtt\ReadMe.md ist kein Link ins RM z.
 C:\Users\ms\repos\trice\examples\F030_inst_rtt\build.sh unterscheidet sich sehr von bare
 -->
 ---
+RM Format Änderung erlauben
+RM Demo Text zu lang
