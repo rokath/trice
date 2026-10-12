@@ -15,11 +15,8 @@ TODO:
 RM Demo Text zu lang
 HW Tests
 
-*) Warum ist ein aus dem RM automatisch erzeugter HTML Baum keine Option? Das wären dann viele kleine HTML-Dateien und schnell erreichbar? Etwa könnte jedes Sub-Chapter, also alles was im ToC ist, eine HTML-Datei werden. Die alle könnten in einen html Folder landen. So etwas muss es doch schon geben?
-*) "Just the Docs" - erkläre das genauer.
-*) Deine OSS Recherche zeigt 3 Wege mit Beispiel-Projekten, die diese nutzen, macht aber keine Aussage über die Verbreitung, Historie und Zukunft.
-*) Warum wird Zensical nur am Rande erwähnt (26k Stars!)
-*) Lässt sich ein einfacher Test bauen, der die aktuelle Aufrufdauer zu einem Link am Ende des RM misst unter Cache-Eleminierung? Der Test ist natürlich PC-abhängig, aber auf einer Maschine kann man die Ergebnisse vergleichen.
----
 
+
+--- Nur antworten nichts machen!
+---
 
