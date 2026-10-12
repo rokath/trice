@@ -1,140 +1,58 @@
 # Dokumentationsübergabe
 
-Stand: 12. Oktober 2026, Europe/Berlin. Fortsetzen mit `handson doc`.
+Stand: 12. Oktober 2026, Europe/Berlin. Auf dem anderen Rechner mit `handson doc` laden, Checkout prüfen und auf die nächste Nutzeranweisung warten.
 
-Diese eigenständige Übergabe ersetzt `handsoff_rm_performance.md` und `handsoff_rm-speedup2.md` und enthält die anschließende OSS-Recherche. Die beiden Vorgänger werden zum Fortsetzen nicht benötigt. Der Nutzer möchte sie nach der Zusammenführung selbst löschen.
+## Aktueller Auftrag und Plan
 
-## Auftrag und verbindliche Entscheidungen
+Die Diskussion zur RM-Struktur ist abgeschlossen genug, um die Entscheidungen zu sichern. Dieser Auftrag erstellt ausschließlich die Übergabe und die Spezifikation für den Rechnerwechsel; er startet keine Dokumentationsmigration.
 
-Ziel: RM-Verweise sollen insbesondere auf schwächeren Handys schnell zur richtigen, lesbaren, stabil positionierten und bedienbaren Zielstelle führen. Gute Lesbarkeit und einfache langfristige Pflege sind ebenso wichtig wie Geschwindigkeit. Manuelle Handytests gelten als nicht zuverlässig reproduzierbar.
+Aktueller Plan: **Modulares Reference Manual mit GitHub-Navigation und Stichwortindex**. Die detaillierte Spezifikation steht ausschließlich in [RM_Documentation_Spec.md](RM_Documentation_Spec.md).
 
-- **GitHub bleibt das Repository. Das Lesen darf auf einer eigenen Website erfolgen**, wenn das die Lösung vereinfacht. GitHub Pages ist dafür ein möglicher Veröffentlichungsort. Die ältere Vorgabe, GitHub-Dateiansicht und Pages gleich stark zu priorisieren, ist damit überholt.
-- Ausschließlich Open Source; vorhandene Werkzeuge bevorzugen. Keine vorschnelle Eigenentwicklung eines Parsers oder Dokumentationssystems.
-- Inhalte einmal pflegen. Parallel gepflegte Kapitelkopien irritieren; skriptgesteuert aus Dokumentationsquellen erzeugte Ausgaben sind ausdrücklich akzeptabel.
-- UM und TriceGuide müssen nicht Markdown bleiben. Eine Formatkonvertierung darf durch einen KI-Agenten erfolgen; ihre einmaligen Kosten sind kein Grund, bessere Formate auszuschließen.
-- Inhaltsverzeichnisse und abgeleitete Linkübersichten sollen automatisch gepflegt werden. Kleine Seiten sind ein möglicher Lösungsweg, keine eigenständige Nutzeranforderung.
-- Quellen und Lesefassung müssen klar erkennbar sein. Dokumentation auf schnelle Erfassbarkeit und gute Verständlichkeit ausrichten.
-- **Freigegeben ist derzeit nur Analyse und diese Zusammenführung.** Kein Startsignal für Prototyp, Formatmigration, neue Abhängigkeiten, Änderungen an UM/RM/Guide, Build-Skripten oder Veröffentlichung.
-- Alle Lesezugriffe sind dauerhaft genehmigt; technisch erzwungene Plattformfreigaben bleiben möglich. Geltende [Agent-Regeln](../../AGENTS.md) lesen. Archive unter `obsolete` bleiben unberührt.
+Die bisherige Übergabe wurde unverändert nach [handsoff_doc_0.md](handsoff_doc_0.md) umbenannt. Sie bewahrt frühere Recherche und Messbefunde; ihre Vorschläge sind keine aktuelle Umsetzungsfreigabe. Insbesondere sind ihr `docs/src/`-Baum, die separate `structure.yml` und die frühere Prototyp-Reihenfolge durch den aktuellen Plan überholt.
 
-## Checkout und bereits erledigte Arbeit
+## Verbindliche Entscheidungen und Grenzen
+
+- Kapitel-Markdown unter `docs/rm/` wird die einzige gepflegte RM-Quelle. Die aktuelle Gesamtdatei wird bei einer später beauftragten Migration nach `docs/scratchPad/obsolete/` verschoben.
+- Die Kapitelreihenfolge wird manuell in `rm/README.md` gepflegt. Hauptkapitel und Dateinamen bleiben unnummeriert; mdtoc erzeugt lokale Kapitel-ToCs und lokale Unterkapitelnummerierung.
+- `rm/INDEX.md` wird mit KI-Unterstützung initial erstellt und redaktionell gepflegt. Keine verpflichtenden Begriffsmakros im Kapiteltext. Zentrale Begriffe sollen gelöscht oder ergänzt und ihre Links später per Tool oder KI aktualisiert werden können.
+- Vorhandene Inhalte und aktive Verweise werden bei der einmaligen Migration erhalten und angepasst. Nicht zu Kapiteln passende Teile dürfen in `HEADER.md` und `FOOTER.md` liegen. Die konkrete Aufteilung ist noch nicht durchgeführt.
+- `RM-search.txt` ist gewünscht als einfache Suchhilfe, aber noch nicht ausreichend spezifiziert. Ein vollständig verlinktes, zusammengefügtes Markdown-RM ist zurückgestellt.
+- mdBook ist ein sinnvoller zusätzlicher HTML-Kandidat aus denselben Quellen, keine Voraussetzung für das Markdown-Layout. Konfiguration, Veröffentlichung und Freigabe zur Umsetzung sind offen. PDF aus Kapiteln wird ausdrücklich erst später diskutiert.
+- Keine Änderungen an Quellcode, UM/Guide-Inhalten, Build-/Release-/Pages-Skripten, Abhängigkeiten oder bestehenden Archiven als Nebenarbeit. Geltende [Agent-Regeln](../../AGENTS.md) beachten. Kein Commit oder Push ohne ausdrückliche Anweisung.
+
+## Tatsächlicher Checkout und Transferbedarf
 
 - Branch: `wip`.
-- HEAD: `ab80b5a82591c99d299a8130a200c4ec4b3f292e` — `Merge branch 'main' into wip`.
-- Vor dieser Zusammenführung war der Arbeitsbaum sauber. Gegenüber dem lokal vorhandenen `origin/wip` ist `wip` zehn Commits voraus; kein Fetch oder Push ausgeführt. Diese Tracking-Angabe beweist keinen aktuellen Remote-Stand.
-- Neue lokale Änderung dieses Auftrags: ausschließlich `docs/scratchPad/handsoff_doc.md`. Die Vorgänger bleiben zunächst erhalten. Kein Staging, Commit, Push oder Deployment.
-- Die Medienoptimierung ist bereits in Git: `276e3b05`, `docs: clarify payload limits and add reference previews`. Fünf statische Vorschauen verlinken auf erhaltene Originalanimationen. Der Commit ist in `wip` und im lokal vorhandenen `origin/main` enthalten. Nicht erneut als unerledigte Arbeit beginnen.
-- Die Freigabe aller Lesezugriffe und die Regel zur verständlichen Dokumentation sind bereits in `AGENTS.md` enthalten; keine weitere Regeländerung nötig.
+- HEAD: `90b240696fbbd612facee7917fc8d9acd7156ced` — `wip`.
+- Arbeitsbaum unmittelbar vor unseren Dateiänderungen: sauber. Während der lesenden Bestandsaufnahme wechselte HEAD von `6aeb816238529c2ac8a1067b145d92ed65e5868f` auf den genannten Commit; die zunächst sichtbare Änderung an `scratchPad/scratchPad.md` ist jetzt darin enthalten und wurde von uns nicht bearbeitet.
+- Gegenüber dem lokal vorhandenen `origin/wip`: vier Commits voraus. Kein Fetch oder Remote-Abgleich; diese Angabe beweist keinen aktuellen Remote-Stand.
+- Noch uncommittet aus diesem Auftrag: neue Fassung von `docs/scratchPad/handsoff_doc.md`, unveränderte Vorgängerfassung als `docs/scratchPad/handsoff_doc_0.md` und neue `docs/scratchPad/RM_Documentation_Spec.md`.
+- Im Checkout existiert weiterhin [TriceReferenceManual.md](../TriceReferenceManual.md); `docs/rm/` wurde noch nicht angelegt. Keine Kapitelmigration, Linkumschreibung oder Werkzeuginstallation durchgeführt.
+- Frühere Medienoptimierung ist bereits in Git. Nicht erneut als unerledigte Aufgabe beginnen. Details und historische Performancebefunde stehen in der Vorgängerübergabe.
 
-## Befunde und Grenzen der Diagnose
+Die drei Übergabedateien manuell stagen und committen und den Commit für den anderen Rechner übertragen, normalerweise durch Push. Auch die vier bereits lokalen Commits müssen für denselben Stand übertragen werden, soweit sie remote noch fehlen. Keine zusätzlichen lokalen Messdaten oder Prototypdateien sind erforderlich. Wir haben kein `git add`, `git commit` oder `git push` ausgeführt.
 
-Am aktuellen Checkout am 12. Oktober erneut lesend geprüft:
+## Relevante Dateien und Erkenntnisse
 
-| Dokument / Prüfung | Ergebnis |
-| --- | --- |
-| RM | 843.505 Bytes, 13.295 Zeilen, 53 Hauptkapitel |
-| UM | 26.197 Bytes, 299 Zeilen |
-| TriceGuide | 24.352 Bytes, 166 Zeilen |
-| Explizite RM-IDs | 559; keine doppelten IDs |
-| Direkte UM-Verweise auf RM-Fragmente | 28; alle Quelltext-Ziel-IDs vorhanden |
+- Aktive Quellen: [RM](../TriceReferenceManual.md), [UM](../TriceUserManual.md), [Guide](../TriceGuide.md), [Medien/CLI-Hilfe](../ref/), [Doku-Einstieg](../README.md).
+- Bestehende Abläufe: [mdtoc-Pflege](../../scripts/_310_refresh_trice_user_manual.sh), [PDF-Erzeugung](../../scripts/_320_generate_trice_user_manual_pdf.sh), [Pages-Workflow](../../.github/workflows/pages.yml), [Release-Konfiguration](../../.goreleaser.yaml). Abhängigkeiten vom bisherigen RM müssen vor einer späteren Migration erfasst werden; PDF-/Release-Umbau nicht stillschweigend mit erledigen.
+- mdBook hat eine eingebaute Volltextsuche ohne Begriffsmakros. Seine `SUMMARY.md` könnte später aus der gepflegten `README.md` entstehen. Ein Stichwortindex ergänzt Volltextsuche, ersetzt sie nicht.
+- `mdbook-indexing` benötigt Makros im Quelltext und passt deshalb nicht direkt zum gewünschten zentralen Index. Kein fertiges Werkzeug für exakt den beschlossenen INDEX-Ablauf wurde verifiziert.
+- stitchmd wurde anhand Dokumentation und Quelltext untersucht, nicht installiert oder am RM ausgeführt. Kapitel-ToCs, explizite mdtoc-IDs und Link-/Bildpfade erfordern zusätzliche Behandlung; für reine Suche lohnt diese Baustelle derzeit nicht.
 
-Vorhandene IDs beweisen weder einen erfolgreichen Ankersprung noch die Bedienbarkeit im Browser. Explizite HTML-IDs und automatisch aus nummerierten Überschriften erzeugte Slugs sind verschieden; bei einer Konvertierung nicht gleichsetzen. Ein Fragmentverweis auf das große RM lädt weiterhin das gesamte Dokument.
+## Prüfungen und offene Arbeit
 
-Die erste Untersuchung einer damaligen öffentlichen Pages-Fassung ergab rund 1,35 MB HTML, 21.131 Starttags und 70 Bild-Elemente; die zugeordneten Bilddateien umfassten rund 16,4 MB. Keine Bild-Elemente hatten `loading="lazy"` oder gleichzeitig Breite und Höhe. Das sind **historische Ressourcenbefunde vor der Medienoptimierung**, keine aktuellen Netzwerk- oder Laufzeitmessungen. Große Dokumentstruktur und nachträgliche Layout-Verschiebungen sind plausible Ursachen, aber noch nicht abschließend nachgewiesen. GitHubs eigenes Rendering wurde nicht profiliert.
+In dieser Sitzung wurden Recherche, lokale Bestandsaufnahme und zwei kleine mdtoc-Diagnosen über stdin durchgeführt; sie änderten keine Dateien. `mdtoc strip` entfernte im Beispiel ToC, Nummerierung und erzeugte Anker. `mdtoc generate --toc off --numbering on --anchor on` erhielt im Beispiel Nummerierung und Anker, entfernte aber nicht den äußeren Details-Container. Das sind keine Migrationstests und keine vollständige RM-Kompatibilitätsprüfung.
 
-Aktueller Build: [Pages-Workflow](../../.github/workflows/pages.yml) mit Jekyll, Cayman und kramdown; Veröffentlichung bei Push auf `main` oder manuellem Workflow-Start. Der Workflow schreibt Links der beiden Manuals für Pages um. [Manual-Pflege](../../scripts/_310_refresh_trice_user_manual.sh) verwendet `mdtoc` für ToC, Nummerierung und Anker; PDF-Erzeugung ist separat. Noch keine neue Werkzeugkette installiert oder konfiguriert.
+Prüfungen der jetzt geschriebenen Übergabedateien, ausgeführt aus `docs/`:
 
-**Ausstehend:** reproduzierbare Browsermessungen, geprüfte mobile Lesefassung, vollständige Konvertierungs- und Linkprüfung sowie Verifikation der aktuell veröffentlichten Fassung. Keine Verbesserung in Sekunden behaupten. Ein früher Pandoc-Chunked-HTML-Versuch scheiterte an einer nicht lokal vorhandenen Bildressource; er war kein erfolgreicher Kompatibilitätstest.
+- `markdownlint --config ../.markdownlint.yaml scratchPad/handsoff_doc.md scratchPad/RM_Documentation_Spec.md` — PASS, Exitcode 0, keine Meldungen.
+- `git diff --check` — PASS, Exitcode 0, keine Meldungen.
+- `python -` mit lesendem Prüfsnippet über stdin — PASS: beide neuen Texte sind gültiges UTF-8 ohne BOM, haben einen abschließenden Zeilenumbruch und keine nachgestellten Leerzeichen; alle 21 relativen Links außerhalb von Codebeispielen existieren. Die umbenannte Vorgängerfassung ist bytegenau identisch mit `git show HEAD:docs/scratchPad/handsoff_doc.md`.
+- Keine Testsuite, kein Browserbenchmark und kein mdBook-, PDF- oder Release-Build für die geplante Struktur ausgeführt. Diese Prüfungen bleiben offen; nichts wurde abgebrochen oder als bestanden angenommen.
 
-## Ergebnis der OSS-Recherche
+Offen bleiben insbesondere das genaue INDEX-Pflegeformat, die Spezifikation von `RM-search.txt`, der Umgang bestehender Builds mit dem abgelösten RM und die optionale mdBook-Einrichtung. Die Spezifikation kennzeichnet diese Fragen ausdrücklich; sie sind keine stillschweigenden Implementierungsaufträge.
 
-Gemeinsames bewährtes Prinzip: überschaubare Themenquellen, daraus erzeugte Website und gegebenenfalls weitere Ausgaben. Nicht das Dateiformat allein entscheidet über schnelles Nachschlagen.
+## Nächster Schritt auf dem anderen Rechner
 
-| Projekt / Modell | Befund | Bewertung für Trice |
-| --- | --- | --- |
-| [Rust-Buch](https://github.com/rust-lang/book): Markdown + mdBook | Einzelne Kapitel bilden ein zusammenhängendes Buch. | Bevorzugter Kandidat: passende Handbuchfunktionen bei überschaubarer Werkzeugkette. |
-| [Zephyr](https://docs.zephyrproject.org/latest/contribute/documentation/generation.html): reStructuredText + Sphinx | HTML/PDF aus Quellen, ergänzt durch generierte API- und Konfigurationsreferenzen. | Starke Alternative, wenn solche Referenzen und mehrere Ausgabeformate wichtiger werden. [MyST](https://myst-parser.readthedocs.io/en/latest/syntax/cross-referencing.html) ermöglicht Markdown als Sphinx-Quelle. |
-| [Spring Boot](https://github.com/spring-projects/spring-boot/wiki/Antora): AsciiDoc + Antora | Thematische Module und mehrere Versionen auf einer Website. | Leistungsfähig für eine größere versionierte Dokumentationslandschaft; derzeit zusätzlicher Struktur- und Pflegeaufwand. |
-
-**Empfehlung, noch keine Nutzerentscheidung:** eine statisch erzeugte Handbuchwebsite, bevorzugt mdBook, mit modularen Quellen und GitHub Pages als möglichem Leseort. UM, Guide und RM bleiben erkennbare Einstiege; das RM wird nach zusammenhängenden Themen gegliedert. UM und Guide sind bereits klein und müssen dafür nicht ebenfalls in viele Dateien zerlegt werden. Markdown wird wegen einfacher laufender Pflege vorgeschlagen, ist aber keine bindende Formatvorgabe.
-
-[mdBook](https://rust-lang.github.io/mdBook/format/configuration/renderers.html) bietet Suche mit Abschnittstreffern, Kapitel- und Abschnittsnavigation, eine Gesamtdruckansicht und Weiterleitungen einschließlich alter Fragmente. Ein hochwertiger separater PDF-Export braucht einen zusätzlichen Exportweg. Relative Markdown-Dateilinks werden für HTML umgesetzt; siehe [Linkverhalten](https://rust-lang.github.io/mdBook/format/markdown.html).
-
-mdBook benötigt eine [SUMMARY.md](https://rust-lang.github.io/mdBook/format/summary.html) für Reihenfolge und Hierarchie. Sie entsteht nicht automatisch durch Dateisuche. Vorgeschlagen ist eine einzige Strukturdefinition für Reihenfolge/Gruppierung, aus der Übersichten erzeugt werden; Titel und Anker stammen aus den Quellen. Das genaue Verfahren ist offen, nicht bereits implementiert. KI unterstützt die einmalige Konvertierung und redaktionelle Arbeit; der regelmäßige Build soll deterministisch ohne KI laufen.
-
-**Zurückgestellte Wege, jeweils nur die wesentliche Begründung:**
-
-- Bestehendes Jekyll mit [Just the Docs](https://just-the-docs.com/docs/navigation/): ernsthafte Alternative mit geringer Umstellung; Navigation und Suche vorhanden. mdBook erscheint für zusammenhängende Handbücher geschlossener. Kein Geschwindigkeitsvorteil eines Generators ist bereits gemessen.
-- Monolithisches RM als Quelle, daraus Kapitel-HTML oder Kapitel-Markdown erzeugen: legitimer Übergang ohne redaktionelle Duplikation, aber die große Bearbeitungsdatei und Regeln zur Zerlegung bleiben. Zusätzliche `docs/split`-Ansichten sind keine priorisierte Dauerlösung.
-- Material for MkDocs: bei [uv](https://github.com/astral-sh/uv/blob/main/mkdocs.yml) eingesetzt; für eine neue Festlegung wegen [Wartungsmodus und Übergang zu Zensical](https://squidfunk.github.io/mkdocs-material/blog/2025/11/05/zensical/) zurückgestellt. Zensical wurde nicht am Trice-Inhalt erprobt.
-- Weitere Medienoptimierung, Lazy Loading oder `content-visibility` allein: können helfen, lösen aber nicht verlässlich das gezielte Nachschlagen im großen RM. PDF als primärer Leseort ist für mobile Abschnittsaufrufe weniger geeignet.
-- Bookdown und kleine Markdown-Splitter: zusätzlicher Werkzeugaufwand bzw. nicht nachgewiesene vollständige Behandlung von Trice-Ankern, Querverweisen und Bildern; kein erkennbarer Vorteil für den bevorzugten Weg.
-
-## Möglicher zukünftiger docs-Ordner
-
-**Entwurf zur Entscheidung, kein angelegter Ordnerbaum und kein freigegebener Umbau.** Dateinamen und Themenauswahl sind Beispiele. Legende: `[S]` einmal gepflegte Quelle, `[K]` Konfiguration, `[G]` automatisch erzeugt, `[A]` bestehendes Archiv.
-
-```text
-docs/
-├── README.md                         [S] Einstieg zur Lesefassung und Pflege
-├── book.toml                         [K] mdBook-Konfiguration
-├── structure.yml                     [K] Reihenfolge und Gruppierung; Vorschlag
-├── src/                              [S] einzige bearbeitete Dokumentation
-│   ├── SUMMARY.md                    [G] Kapitelübersicht aus der Struktur
-│   ├── index.md                      [S] Startseite
-│   ├── user-manual.md                [S] UM: kurzer Lernpfad
-│   ├── trice-guide.md                [S] Guide: Orientierung und Verweise
-│   └── reference/                    [S] RM: technische Themen
-│       ├── index.md                  [G] Themenübersicht
-│       ├── bind.md                   [S]
-│       ├── rtt.md                    [S]
-│       ├── uart.md                   [S]
-│       ├── binary-encoding.md        [S]
-│       └── ...                       [S] weitere zusammenhängende Themen
-├── ref/                              [S/G] bestehende Medien und CLI-Hilfe
-├── scratchPad/                       interne Arbeit; keine Lesernavigation
-│   ├── handsoff_doc.md               diese konsolidierte Übergabe
-│   ├── ...                           andere vorhandene Pläne bleiben
-│   └── obsolete/                     [A] Geschichte; nicht umorganisieren
-└── _build/                           [G] lokal/CI, keine redaktionelle Pflege
-    ├── html/                         Website für GitHub Pages
-    └── exports/                      optionale Gesamtfassung/PDF
-```
-
-Die Texte werden ausschließlich unter `src/` gepflegt; generierte Übersichten sind als solche gekennzeichnet. `ref/` zeigt den bestehenden Medien-/Hilfebestand: Medien und automatisch erzeugte CLI-Hilfe sind getrennt zu behandeln. Wie dessen Ressourcen in den mdBook-Build gelangen, muss im Prototyp geprüft werden; der Baum ist noch keine ausführbare Konfiguration. Das frühere einzelne RM würde nach einer genehmigten Umstellung durch Themenquellen und bei Bedarf eine erzeugte Gesamtfassung ersetzt. Keine parallel bearbeitete Vollfassung neben den Themen.
-
-```text
-[S] Texte + Medien + [K] Struktur
-                │
-                ▼
-       deterministischer Build
-                │
-                ├──► [G] Themenwebsite ──► Lesen auf GitHub Pages
-                └──► [G] Gesamtfassung / optionales PDF
-
-GitHub-Repository: Quellen, Änderungen und Reviews
-Website: lesbare Navigation, Suche und direkte Abschnittsaufrufe
-```
-
-## Prüfung vor einer vollständigen Umstellung
-
-Nach einem ausdrücklichen Startsignal zuerst Binary Encoding, Bind und RTT mit unverändertem Inhalt als begrenzten Prototyp verwenden. Die am 11. Oktober erhobenen Quellgrößen lagen bei rund 16, 59 und 39 kB. Struktur, Lesbarkeit und Geschwindigkeit an diesen tatsächlichen Inhalten prüfen, bevor die ganze Dokumentation konvertiert wird.
-
-- Playwright/Chromium ist als reproduzierbarer Prüfstand vorgeschlagen, noch nicht eingerichtet. Feste Dokumentstände, Browserversion, Rechner, Bildschirmprofil sowie CPU-/Netzdrosselung verwenden. Ein mobiles Viewportprofil allein simuliert keine Handy-Rechenleistung.
-- Frühe, mittlere und späte Zielstellen; Direktaufruf, Klick vom UM und Zurücknavigation. Leeren und gefüllten Cache getrennt prüfen, beispielsweise 20 sequenzielle Läufe; Median, langsamere Durchläufe und Fehlerzahl berichten.
-- Zeit bis Zielüberschrift und erster Absatz lesbar, stabil im sichtbaren Bereich und bedienbar sind messen. Der Test darf nicht selbst zum Ziel scrollen oder einen fehlgeschlagenen Sprung reparieren. HTTP 200, vorhandene ID und bloße DOM-Sichtbarkeit reichen nicht.
-- Mobile Schrift/Zeilenlänge, Navigation, Code und Tabellen visuell kontrollieren. Bildabmessungen und spätere Positionsverschiebungen prüfen. Grundtext soll als normales HTML lesbar sein.
-- Kontrollierte lokale Ausgabe und tatsächlich veröffentlichte Website getrennt prüfen. GitHub-Dateiansicht ist ein zusätzlicher Nutzungsweg, aber keine gleichrangige Voraussetzung mehr. Lighthouse-Gesamtwerte ersetzen keine Abschnittsprüfung.
-- ToCs, Bildpfade, Querverweise und sämtliche übernommenen expliziten Anker prüfen. Wichtige alte Website-Fragmente lassen sich auf neue Ziele weiterleiten. Für GitHub-Datei-URLs gibt es keine eigene Redirect-Logik; eine kleine Verweisübersicht wäre ein möglicher Umgang mit alten Links, noch keine freigegebene Migration.
-
-Primärquellen zum Prüfstand: [Playwright-Emulation](https://playwright.dev/docs/emulation), [Viewport-Prüfung](https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-be-in-viewport), [CPU-/Netzdrosselung](https://developer.chrome.com/docs/devtools/settings/throttling).
-
-## Nächster Schritt und Transfer
-
-Auf dem anderen PC mit `handson doc` diese Übergabe laden, Agent-Regeln, Branch, HEAD und Arbeitsbaum gegenprüfen und dann auf die nächste Nutzeranweisung warten. Die Empfehlung und der Ordnerbaum sind Entscheidungshilfen, keine Umsetzungsfreigabe. Offen sind insbesondere Generatorentscheidung, endgültige Themenstruktur, automatische Übersichtserzeugung, Umgang mit alten Links und messbare Abnahmekriterien.
-
-Aktuelle Quellen: [RM](../TriceReferenceManual.md), [UM](../TriceUserManual.md), [Guide](../TriceGuide.md), [Medien/CLI-Hilfe](../ref/), [Pages-Workflow](../../.github/workflows/pages.yml), [Jekyll-Konfiguration](../../_config.yml), [Manual-Pflege](../../scripts/_310_refresh_trice_user_manual.sh), [PDF-Erzeugung](../../scripts/_320_generate_trice_user_manual_pdf.sh).
-
-Prüfung dieser Übergabe: `rtk proxy markdownlint --config .markdownlint.yaml --stdin < docs/scratchPad/handsoff_doc.md` — PASS. Lesende Dateiprüfung — PASS: gültiges UTF-8, abschließender Zeilenumbruch, keine nachgestellten Leerzeichen, alle elf relativen Links auf vorhandene Ziele. `rtk git diff --check` — PASS. Keine Testsuite und kein Browserbenchmark ausgeführt.
-
-Für den Rechnerwechsel diese neue Übergabe sowie die anschließend gewünschten Löschungen der beiden Vorgänger manuell stagen und committen; den Commit normalerweise pushen und auf dem anderen PC übernehmen. Die zehn bereits lokalen Commits müssen für denselben Checkout ebenfalls übertragen werden. Es sind keine zusätzlichen nur lokal vorhandenen Messdaten oder Prototypdateien erforderlich.
+Nach Übernahme des Git-Stands `handson doc` ausführen. Branch, HEAD, Arbeitsbaum und verlinkte Spezifikation prüfen. Danach auf die nächste Anweisung warten; nicht automatisch migrieren. Vor einem späteren Implementierungsauftrag die noch offenen Entscheidungen klären und den Umfang ausdrücklich festlegen.
