@@ -18,16 +18,19 @@ trice_id_workflow() {
 
   case "$action" in
     insert)
+      trice_prepare_location_file || return 1
       # The option groups intentionally use shell word splitting because they
       # preserve the long-standing repository override interface.
       # shellcheck disable=SC2086
       trice insert $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES $TRICE_ID_OPTIONS -genDir "$TRICE_BIND_DIR"
       ;;
     clean)
+      trice_prepare_location_file || return 1
       # shellcheck disable=SC2086
       trice clean $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES
       ;;
     bind)
+      trice_prepare_location_file || return 1
       # shellcheck disable=SC2086
       trice bind $TRICE_DEFAULTS $TRICE_ALIASES $TRICE_PRJ_FILES $TRICE_ID_OPTIONS -genDir "$TRICE_BIND_DIR"
       ;;

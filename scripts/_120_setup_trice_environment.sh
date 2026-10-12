@@ -8,6 +8,16 @@ TRICE_LI_ROOT=${TRICE_LI_ROOT:-.}
 TRICE_BIND_DIR=${TRICE_BIND_DIR:-./generated}
 TRICE_ID_OPTIONS=${TRICE_ID_OPTIONS:-"-IDMin 13000 -IDMax 16383"}
 
+# Initialize an unversioned LI only when a workflow needs it. Preserve existing
+# ID ownership evidence and keep sourcing this environment free of file writes.
+trice_prepare_location_file() {
+  case "$TRICE_LI_JSON" in off | none) return 0 ;; esac
+  if [ ! -e "$TRICE_LI_JSON" ]; then
+    mkdir -p "$(dirname "$TRICE_LI_JSON")" || return 1
+    touch "$TRICE_LI_JSON" || return 1
+  fi
+}
+
 # trice command line common part
 if [ -z "${TRICE_DEFAULTS:-}" ]; then
   TRICE_DEFAULTS+="-i ${TRICE_TIL_JSON} "     # Use a common til.json for all examples and tests.

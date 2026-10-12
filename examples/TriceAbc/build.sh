@@ -149,6 +149,7 @@ mkdir -p build NodeLib
 rm -f "${SCRIPT_DIR}/NodeLib/til.c"
 
 echo "prepare: trice insert examples/TriceAbc"
+trice_prepare_location_file
 run_trice insert \
   -til "${TRICE_TIL_JSON}" \
   -li "${TRICE_LI_JSON}" \

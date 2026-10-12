@@ -50,6 +50,8 @@ case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 # For emit_sample(3300) with pc_sample_phase=7, the decoded message becomes
 # "Supply 3300 mV, cycle=7\n" and JSON/KV also contains the named cycle field.
 # The original call in main.c stays unchanged; generated headers add the context.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind \
   -src main.c \
   -genDir generated \

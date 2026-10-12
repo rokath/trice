@@ -24,6 +24,8 @@ command -v arm-none-eabi-gcc >/dev/null 2>&1 || {
 # relative to the repository so the location table works on another computer.
 # The selected call executes in both tasks, but its CE expression is evaluated
 # only where the generated adapter is called, with the current FreeRTOS task.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind -src Core/Src -src ../exampleData \
   -exclude Core/Inc/triceCustomAliases.h \
   -alias CUSTOM_PRINT -salias CUSTOM_ASSERT -alias printi -salias prints \

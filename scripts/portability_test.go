@@ -29,6 +29,62 @@ func writeFixture(t *testing.T, root, name, content string) {
 	}
 }
 
+// TestIDWorkflowsInitializeLocalLI covers fresh checkouts, retained ownership
+// evidence, disabled LI, and initialization errors before ID processing starts.
+func TestIDWorkflowsInitializeLocalLI(t *testing.T) {
+	t.Parallel()
+	for _, action := range []string{"bind", "insert", "clean"} {
+		for _, tc := range []struct {
+			name, path, initial string
+			existing, blocked   bool
+		}{
+			{name: "missing_default", path: "demoLI.json"},
+			{name: "missing_nested", path: "metadata/local.json"},
+			{name: "retained_empty", path: "demoLI.json", existing: true},
+			{name: "retained_ownership", path: "demoLI.json", initial: "{\"42\":{\"File\":\"sample.c\",\"Line\":3}}\n", existing: true},
+			{name: "disabled_off", path: "off"},
+			{name: "disabled_none", path: "none"},
+			{name: "parent_is_file", path: "metadata/local.json", blocked: true},
+		} {
+			t.Run(action+"/"+tc.name, func(t *testing.T) {
+				// Each case owns its scripts, metadata, and tool double in a temp tree.
+				root := scriptFixture(t, "scripts/_120_setup_trice_environment.sh", "scripts/_130_trice_id_workflow.sh")
+				if tc.existing {
+					writeFixture(t, root, tc.path, tc.initial)
+				}
+				if tc.blocked {
+					writeFixture(t, root, "metadata", "not a directory\n")
+				}
+				writeFixture(t, root, "bin/trice", "#!/bin/sh\nset -eu\ncase \"$TRICE_LI_JSON\" in off|none) ;; *) [ -f \"$TRICE_LI_JSON\" ] || exit 91 ;; esac\nprintf '%s\\n' \"$1\" > called\n")
+				// Merely loading the environment must not initialize the local table.
+				_, err := runFixture(t, root, "source scripts/_120_setup_trice_environment.sh", map[string]string{"TRICE_LI_JSON": tc.path})
+				assert.NoError(t, err)
+				if !tc.existing && !tc.blocked {
+					assert.NoFileExists(t, filepath.Join(root, tc.path))
+				}
+				// The workflow must initialize LI before invoking the tool, or stop.
+				output, err := runFixture(t, root, "source scripts/_130_trice_id_workflow.sh\ntrice_id_workflow "+action, map[string]string{"TRICE_LI_JSON": tc.path})
+				if tc.blocked {
+					assert.Error(t, err, output)
+					assert.NoFileExists(t, filepath.Join(root, "called"))
+					return
+				}
+				assert.NoError(t, err, output)
+				called, err := os.ReadFile(filepath.Join(root, "called"))
+				assert.NoError(t, err)
+				assert.Equal(t, action+"\n", string(called))
+				if tc.path == "off" || tc.path == "none" {
+					assert.NoFileExists(t, filepath.Join(root, tc.path))
+					return
+				}
+				contents, err := os.ReadFile(filepath.Join(root, tc.path))
+				assert.NoError(t, err)
+				assert.Equal(t, tc.initial, string(contents), "initialization must preserve existing ID evidence")
+			})
+		}
+	}
+}
+
 // scriptFixture copies only the production scripts under test; their normal
 // relative-root discovery then resolves into the isolated fixture repository.
 func scriptFixture(t *testing.T, scripts ...string) string {

@@ -28,6 +28,8 @@ command -v "$compiler" >/dev/null 2>&1 || {
 # The shared triceCheck.c is the same producer corpus used by the PC target
 # tests and the installed MCU examples. logC keeps only these two sources in
 # the target-side format table.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind \
   -src main.c \
   -src ../../_test/testdata/triceCheck.c \

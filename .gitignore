@@ -15,6 +15,10 @@
 .gocache/
 
 # files
+# Demo location tables are regenerated locally; keep test fixtures and archives tracked.
+/demoLI.json
+/demo/*/li.json
+/examples/*/li.json
 **/gccLinksClangWarning.txt
 **/.mxproject
 **/.DS_Store
