@@ -261,6 +261,10 @@ Executables, object files and `capture.bin` / `log.bin` | Build/run outputs; ret
 
 `til.json` is the long-lived ID-to-format dictionary: preserve existing entries when adding new messages. It does not need a separate matching copy for every build. `li.json` instead describes source files and line numbers, which can change between builds. A current TIL can decode an old capture while a current LI would point to the wrong source locations; use that build's LI or disable locations with `-li off`.
 
+Keep the local `li.json` between builds even if you do not want source locations in logs. Bind and Insert use it as evidence for ID ownership and reuse; the TIL alone cannot identify which source site owns each of several identical messages. Deleting LI can change ID assignments, especially during partial source scans. Use `trice log -li off` to suppress location output while continuing to use LI during ID processing. Applying `-li off` to Bind or Insert disables their location-table use too and loses that evidence.
+
+The repository's active demo and example LI files, including `demoLI.json`, are generated locally and ignored by Git. Their build and ID-workflow scripts initialize a missing LI without overwriting an existing one. For your own scripts, create a missing file before the first Bind or Insert: these commands require an existing LI file when LI is enabled. Keep matching LI copies as firmware or capture artifacts when later source-location lookup matters. The historical `_test/testdata/testLI.json` fixture remains versioned.
+
 The generated headers are needed to compile, but do not need to be kept after the build. Recreate them with Bind from the version-controlled sources and TIL. The [generated-file layout](./TriceReferenceManual.md#command-line) covers other outputs, including user-edited ABC headers that remain project files even if stored in a generated directory.
 
 ## 6. <a id="choose-your-next-example"></a>Choose your next example
