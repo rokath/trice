@@ -147,6 +147,27 @@ function destination(value, document, documents, repoRoot, stage, ref, image) {
   return `https://github.com/rokath/trice/${kind}/${encodeURIComponent(ref)}/${repositoryPath.split(path.sep).map(encodeURIComponent).join('/')}${parsed.search}${parsed.hash}`;
 }
 
+// Replace chapter-local mdtoc prefixes without disturbing anchors or inline
+// formatting. A version or size at the start of a title is not a dotted prefix.
+function withoutSectionNumber(text) {
+  return text.replace(/^\d+(?:\.\d+)*\.\s+/, '');
+}
+
+// Number the visible heading hierarchy under its README-ordered main chapter.
+// Each parent owns a sibling count; skipped Markdown levels attach to the nearest
+// visible parent instead of creating zero-numbered, nonexistent sections.
+function numberSections(document, chapterNumber) {
+  const ancestors = [{ depth: 1, number: String(chapterNumber), children: 0 }];
+  for (const heading of document.headings) {
+    if (heading.main || heading.depth === 1) continue;
+    while (ancestors.length > 1 && ancestors[ancestors.length - 1].depth >= heading.depth) ancestors.pop();
+    const parent = ancestors[ancestors.length - 1];
+    heading.number = `${parent.number}.${++parent.children}`;
+    heading.text = `${heading.number}. ${withoutSectionNumber(heading.text)}`;
+    ancestors.push({ depth: heading.depth, number: heading.number, children: 0 });
+  }
+}
+
 // Render a prepared HTML body with the same parser/highlighter as md-to-pdf.
 // Its Markdown H1 remains available for stitchmd's normal chapter promotion.
 function renderDocument(marked, document, documents, repoRoot, stage, ref) {
@@ -160,7 +181,8 @@ function renderDocument(marked, document, documents, repoRoot, stage, ref) {
     const heading = document.headings[headingIndex++];
     if (heading.main) return '';
     const level = Math.min(heading.depth + 1, 6);
-    return `\n\n<h${level} id="${heading.id}">${text}</h${level}>\n\n`;
+    const label = heading.number ? `${heading.number}. ${withoutSectionNumber(text)}` : text;
+    return `\n\n<h${level} id="${heading.id}">${label}</h${level}>\n\n`;
   };
   renderer.link = (href, title, text) => standard.link(destination(href, document, documents, repoRoot, stage, ref, false), title, text);
   renderer.image = (href, title, text) => standard.image(destination(href, document, documents, repoRoot, stage, ref, true), title, text);
@@ -207,17 +229,19 @@ function prepare(marked, repoRoot) {
   const readme = path.join(repoRoot, 'docs/rm/README.md');
   const source = readSource(readme);
   const documents = new Map();
-  // Number only main chapters in the generated book; framing documents and all
-  // maintained Markdown sources keep their existing labels and local numbering.
+  // Number main chapters and their full subsection hierarchy only in the book;
+  // framing documents and maintained sources retain their existing labels.
   let chapterNumber = 0;
   marked.walkTokens(marked.lexer(source), token => {
     if (token.type !== 'link' || /^(?:[a-z][a-z0-9+.-]*:|#|\/\/)/i.test(token.href)) return;
     const filename = path.resolve(path.dirname(readme), decodeURIComponent(token.href));
     if (path.dirname(filename) !== path.dirname(readme) || path.extname(filename) !== '.md' || filename === readme) return;
     if (documents.has(filename)) throw new Error(`duplicate reference chapter in README: ${token.href}`);
-    const label = ['HEADER.md', 'FOOTER.md'].includes(path.basename(filename))
-      ? token.text : `${++chapterNumber}. ${token.text}`;
-    documents.set(filename, inspectDocument(marked, filename, label, readSource(filename)));
+    const framing = ['HEADER.md', 'FOOTER.md'].includes(path.basename(filename));
+    const label = framing ? token.text : `${++chapterNumber}. ${token.text}`;
+    const document = inspectDocument(marked, filename, label, readSource(filename));
+    if (!framing) numberSections(document, chapterNumber);
+    documents.set(filename, document);
   });
   if (!documents.size) throw new Error('no reference chapters listed in docs/rm/README.md');
   const stage = resetStage(repoRoot);

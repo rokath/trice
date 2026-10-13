@@ -874,7 +874,32 @@ func TestReferencePDFPreparation(t *testing.T) {
 	writeFixture(t, root, "docs/rm/FOOTER.md", "# Footer\n\nBook footer.\n")
 	writeFixture(t, root, "docs/ref/image.png", "fixture image\n")
 	writeFixture(t, root, "docs/rm/a.md", "# Alpha\n\n<details markdown=\"1\">\n<summary>Contents</summary>\n\n<!-- mdtoc -->\n\n- [Example](#example)\n\n<!-- /mdtoc -->\n\n</details>\n\n## 1. <a id=\"example\"></a>Example\n\n<!-- Preserve [fake](missing.md) and <a id=\"comment-only\"></a>. -->\n\n[Beta](b.md#example)\n\n![Image](../ref/image.png)\n\n[Code](../../src/example.c)\n\n```md\n[Do not rewrite](b.md#example)\n```\n")
-	writeFixture(t, root, "docs/rm/b.md", "# Beta\n\n## 1. <a id=\"example\"></a>Example\n\n<a href=\"a.md#example\">Alpha</a>\n\nCode with a blank line:\n\n```text\nfirst line\n\nlast line\n```\n")
+	// Exercise deep nesting, sibling resets and a skipped heading level without
+	// letting generated local numbers replace the README-ordered book hierarchy.
+	writeFixture(t, root, "docs/rm/b.md", "# Beta\n\n## 1. <a id=\"example\"></a>Example\n\n<a href=\"a.md#example\">Alpha</a>\n\nCode with a blank line:\n\n```text\nfirst line\n\nlast line\n```\n"+`
+### 1.1. <a id="detail"></a>Detail *formatting*
+
+#### 1.1.1. <a id="nested"></a>Nested
+
+##### Deep
+
+###### Deepest
+
+### 1.2. <a id="sibling"></a>Sibling
+
+## 2. <a id="next"></a>Next
+
+#### Skipped level
+
+## 2.0 protocol
+
+### 32-bit packets
+
+<!--
+## 99. Commented heading
+-->
+
+`)
 	writeFixture(t, root, "temp/manual-pdf/stale.txt", "must be removed\n")
 	writeFixture(t, root, "temp/unrelated.txt", "must survive\n")
 	writeFixture(t, root, "check.cjs", `
@@ -900,6 +925,8 @@ assert.ok(summary.indexOf('[1. Beta]') < summary.indexOf('[2. Alpha]'), 'README 
 assert.ok(summary.includes('[Introduction]') && summary.includes('[Footer]'), 'framing documents stay unnumbered');
 const contents = fs.readFileSync('temp/manual-pdf/_contents.md','utf8');
 assert.ok(contents.includes('>1. Beta</a>') && contents.includes('>2. Alpha</a>'), 'global contents use the same chapter numbers');
+assert.ok(contents.includes('>1.1. Example</a>') && contents.includes('>1.1.1. Detail formatting</a>'), 'contents use full book subsection numbers');
+assert.ok(contents.includes('>2.1. Example</a>'), 'subsection counters restart under the next main chapter');
 const alpha = fs.readFileSync('temp/manual-pdf/chapters/a.md','utf8');
 assert.ok(alpha.startsWith('# <a id="rm-a--chapter" class="rm-main-chapter"></a>2. Alpha\n'), 'chapter headings carry PDF-only numbers and page-break hooks');
 assert.ok(!alpha.includes('<summary>Contents</summary>'), 'local contents are removed');
@@ -909,6 +936,22 @@ assert.match(alpha, /https:\/\/github.com\/rokath\/trice\/blob\/[^/]+\/src\/exam
 assert.ok(alpha.includes('<!-- Preserve [fake](missing.md) and <a id="comment-only"></a>. -->'));
 assert.ok(alpha.replace(/<[^>]+>/g,'').includes('[Do not rewrite](b.md#example)'), 'highlighted code example text is preserved');
 const beta = fs.readFileSync('temp/manual-pdf/chapters/b.md','utf8');
+const headingLabels = [...beta.matchAll(/<h[3-6]\b[^>]*>(.*?)<\/h[3-6]>/gs)].map(match => match[1].replace(/<[^>]*>/g,''));
+assert.deepEqual(headingLabels, [
+  '1.1. Example',
+  '1.1.1. Detail formatting',
+  '1.1.1.1. Nested',
+  '1.1.1.1.1. Deep',
+  '1.1.1.1.1.1. Deepest',
+  '1.1.2. Sibling',
+  '1.2. Next',
+  '1.2.1. Skipped level',
+  '1.3. 2.0 protocol',
+  '1.3.1. 32-bit packets',
+], 'all levels follow the visible hierarchy, reset siblings and preserve literal title numbers');
+assert.ok(beta.includes('<em>formatting</em>'), 'numbering retains inline heading markup');
+assert.ok(beta.includes('## 99. Commented heading'), 'numbering must not rewrite commented headings');
+assert.ok(!contents.includes('Commented heading'), 'comments must not enter the hierarchy');
 assert.ok(beta.includes('href="#rm-a--anchor-example"'), 'HTML links are remapped too');
 assert.ok(alpha.includes('id="rm-a--anchor-example"') && beta.includes('id="rm-b--anchor-example"'));
 for(const [file,data] of before) assert.deepEqual(fs.readFileSync(file),data,'sources must stay untouched');
@@ -916,6 +959,7 @@ fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md', '# <a id="rm-start">
 helper.verify(marked,process.cwd());
 const compiled = fs.readFileSync('temp/manual-pdf/TriceReferenceManual.html','utf8');
 assert.ok(compiled.includes('first line\n\nlast line\n</code></pre>'), 'blank code lines survive final Markdown parsing');
+assert.ok(compiled.includes('1.1.1.1.1.1. Deepest') && compiled.includes('2.1. '), 'final parsing preserves book numbering');
 fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md','[Broken](#missing)\n');
 assert.throws(() => helper.verify(marked,process.cwd()), /missing generated PDF anchor/);
 fs.writeFileSync('docs/rm/b.md','# Beta\n\n[Broken](a.md#missing)\n');

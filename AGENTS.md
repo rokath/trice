@@ -43,6 +43,8 @@
 * Only `git commit` and `git push` require an explicit user instruction. Never infer either operation from a request to implement, fix, test, or format changes.
 * Once the user has authorized a task or confirmed an action, continue through its routine implementation steps without asking for the same permission again. Technical details such as staging related files, splitting requested commits, choosing temporary paths, or running focused checks do not require another conversational approval.
 * Use existing platform approvals and approved command prefixes directly. Do not turn optional tooling choices into additional approval gates; prefer an already-authorized equivalent. If a platform prompt is unavoidable, keep independent work moving and do not request the same pending approval repeatedly.
+* Task-relevant diagnostics, validation, and access to caches for existing project dependencies are covered by the task authorization. Do not request separate conversational permission to activate an already-installed tool or the project's existing pinned build environment.
+* Before escalating a diagnostic, check whether the installed dependency can be read or loaded directly without its package launcher. Prefer direct read-only access or the existing authorized build environment over launcher-induced cache, lock, or log writes. An optional diagnostic must not introduce a new approval gate when an equivalent authorized check is available. Technically enforced platform restrictions still apply; request a platform prompt only for a required action that has no equally effective authorized alternative.
 
 ---
 
