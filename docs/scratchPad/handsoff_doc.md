@@ -1,58 +1,71 @@
 # Dokumentationsübergabe
 
-Stand: 12. Oktober 2026, Europe/Berlin. Auf dem anderen Rechner mit `handson doc` laden, Checkout prüfen und auf die nächste Nutzeranweisung warten.
+Stand: 13. Oktober 2026, Europe/Berlin. Auf dem anderen Rechner mit `handson doc` laden, Checkout prüfen und auf die nächste Nutzeranweisung warten.
 
-## Aktueller Auftrag und Plan
+## Ziel und aktueller Stand
 
-Die Diskussion zur RM-Struktur ist abgeschlossen genug, um die Entscheidungen zu sichern. Dieser Auftrag erstellt ausschließlich die Übergabe und die Spezifikation für den Rechnerwechsel; er startet keine Dokumentationsmigration.
+Das RM soll auf GitHub gut und schnell lesbar sein und leicht gepflegt werden können. **Zerlegung, aktive Linkmigration und Anpassung des bestehenden Pages-Linkumschreibers sind umgesetzt und committet.** Weitere Dokumentationsarbeiten sind noch nicht beauftragt.
 
-Aktueller Plan: **Modulares Reference Manual mit GitHub-Navigation und Stichwortindex**. Die detaillierte Spezifikation steht ausschließlich in [RM_Documentation_Spec.md](RM_Documentation_Spec.md).
+Der Plan steht in [RM_Documentation_Spec.md](RM_Documentation_Spec.md). Seine Bestandsangaben sind teilweise überholt: `docs/rm/` existiert; Linkmigration und Pages-Anpassung sind erledigt. Für den tatsächlichen Stand und spätere Nutzerentscheidungen ist diese Übergabe maßgeblich. Frühere Recherche liegt in [obsolete/handsoff_doc_0.md](obsolete/handsoff_doc_0.md); deren Vorschläge sind keine aktuelle Umsetzungsfreigabe.
 
-Die bisherige Übergabe wurde unverändert nach [handsoff_doc_0.md](handsoff_doc_0.md) umbenannt. Sie bewahrt frühere Recherche und Messbefunde; ihre Vorschläge sind keine aktuelle Umsetzungsfreigabe. Insbesondere sind ihr `docs/src/`-Baum, die separate `structure.yml` und die frühere Prototyp-Reihenfolge durch den aktuellen Plan überholt.
+## Git-Stand und Transfer
+
+- Branch: `wip`.
+- HEAD vor einem späteren Übergabecommit: `e332c81b7d510a76bfc4a34fc78d6dfd8c750636` — `Keep split manual navigation on GitHub Pages`.
+- Arbeitsbaum vor dieser Aktualisierung: sauber. Danach ist ausschließlich diese Übergabe uncommittet.
+- Der lokale Tracking-Ref `origin/wip` zeigt ebenfalls auf diesen HEAD. Kein Live-Abgleich mit dem Remote; dies beweist keinen aktuellen Serverstand. Der Agent hat nicht gepusht.
+- Keine erforderlichen lokalen Messdaten, Build-Artefakte oder Hilfsskripte müssen übertragen werden. Temporäre Zerlegungs-/Linkmigrationshilfen sind nicht versioniert und für die abgeschlossene Migration keine Voraussetzung.
+
+Die aktualisierte Übergabe manuell stagen und committen und den Commit übertragen, normalerweise durch Push. Dieser Übergabeauftrag führt kein `git add`, `git commit` oder `git push` aus.
+
+## Bereits in Git enthalten
+
+- `837b8cf77c9a06706a4e89b7ba8b223a17fb367e` — `Split the reference manual into browsable chapters`: 52 Kapitel sowie README, HEADER und FOOTER unter `docs/rm/`; interne Links und Medienpfade angepasst. Bei der Zerlegung wurden 16 HTML-Kommentarblöcke und 491 Codeblöcke bytegenau erhalten.
+- `186df880d0a071ab2ff4dbe9d111b01b6dd79f6d` — `Point documentation links to the split reference manual`: aktive Leserlinks aus UM, Guide, README, Beispielen, aktiven Notizen sowie Go-/C- und Build-Kommentaren zeigen auf Kapitel und passende Anker. Agent-Regeln verweisen auf den modularen RM-Einstieg.
+- `e332c81b7d510a76bfc4a34fc78d6dfd8c750636` — `Keep split manual navigation on GitHub Pages`: Pages verarbeitet Doku-Einstieg, UM, Guide und RM-Kapitel ohne Monolithen. Dokumentationslinks werden relative HTML-Links; Quelltextlinks führen zur GitHub-Dateiansicht. Bilder, Anker, Query-Strings, Codebeispiele und Kommentare bleiben erhalten. Fehlende Einstiegsdateien werden vor dem Umschreiben gemeldet; Verhaltenstests sind ergänzt.
+
+Die vom Nutzer testweise umbenannte Gesamtdatei ist als [docs/_TriceReferenceManual.md](../_TriceReferenceManual.md) unverändert in Git erhalten. SHA-256: `417c8384ae23bc06ec3780e1c8babaf41019413fa72d57807aed7330fa93ee5c`. Der bisherige Pfad `docs/TriceReferenceManual.md` existiert nicht mehr. Eine spätere Archivierung wurde noch nicht ausgeführt.
 
 ## Verbindliche Entscheidungen und Grenzen
 
-- Kapitel-Markdown unter `docs/rm/` wird die einzige gepflegte RM-Quelle. Die aktuelle Gesamtdatei wird bei einer später beauftragten Migration nach `docs/scratchPad/obsolete/` verschoben.
-- Die Kapitelreihenfolge wird manuell in `rm/README.md` gepflegt. Hauptkapitel und Dateinamen bleiben unnummeriert; mdtoc erzeugt lokale Kapitel-ToCs und lokale Unterkapitelnummerierung.
-- `rm/INDEX.md` wird mit KI-Unterstützung initial erstellt und redaktionell gepflegt. Keine verpflichtenden Begriffsmakros im Kapiteltext. Zentrale Begriffe sollen gelöscht oder ergänzt und ihre Links später per Tool oder KI aktualisiert werden können.
-- Vorhandene Inhalte und aktive Verweise werden bei der einmaligen Migration erhalten und angepasst. Nicht zu Kapiteln passende Teile dürfen in `HEADER.md` und `FOOTER.md` liegen. Die konkrete Aufteilung ist noch nicht durchgeführt.
-- `RM-search.txt` ist gewünscht als einfache Suchhilfe, aber noch nicht ausreichend spezifiziert. Ein vollständig verlinktes, zusammengefügtes Markdown-RM ist zurückgestellt.
-- mdBook ist ein sinnvoller zusätzlicher HTML-Kandidat aus denselben Quellen, keine Voraussetzung für das Markdown-Layout. Konfiguration, Veröffentlichung und Freigabe zur Umsetzung sind offen. PDF aus Kapiteln wird ausdrücklich erst später diskutiert.
-- Keine Änderungen an Quellcode, UM/Guide-Inhalten, Build-/Release-/Pages-Skripten, Abhängigkeiten oder bestehenden Archiven als Nebenarbeit. Geltende [Agent-Regeln](../../AGENTS.md) beachten. Kein Commit oder Push ohne ausdrückliche Anweisung.
+- Kapitel-Markdown ist die einzige laufend gepflegte RM-Quelle. README enthält die manuell gepflegte Hauptkapitelreihenfolge; keine zweite Sortierdatei oder Kapitelduplikate einführen.
+- Hauptüberschriften und Dateinamen bleiben unnummeriert. Autoren schreiben normale Markdown-Überschriften; mdtoc erzeugt lokale Unterkapitelnummern, Anker und ToCs. Der Contents-Details-Container verwendet `numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto`.
+- Auskommentierte Teststellen und vorhandene Inhalte erhalten. Die Zerlegung war keine redaktionelle Neufassung.
+- **Noch kein INDEX.md, keine RM-search.txt.** Der geplante Stichwortindex wird zentral redaktionell gepflegt, ohne verpflichtende Begriffsmakros in Kapiteln. Format, Werkzeug und Aktualisierung sind offen.
+- mdBook bleibt ein optionaler HTML-/Volltextsuch-Kandidat aus denselben Quellen. Keine Installation, zusätzliche Website oder Veröffentlichung ist beauftragt. Eine zusammengefügte Markdown-Lesefassung ist zurückgestellt.
+- PDF-Erzeugung aus Kapiteln und Release-/Installations-/Audit-Umstellung sind ausdrücklich vertagt. Die Pages-Linkumschreibung wurde dagegen separat freigegeben und erledigt.
+- UM und Guide dürfen für diese Migration auf neue RM-Ziele verlinken; weitere Inhaltsänderungen oder Konvertierungen sind nicht freigegeben. Der Nutzer bearbeitet das UM selbst.
+- Archive bleiben unverändert. Keine Kompatibilitätsdatei am alten RM-Pfad oder zusätzliche Migration ohne Auftrag. [Agent-Regeln](../../AGENTS.md) beachten; Lesen ist dauerhaft erlaubt.
 
-## Tatsächlicher Checkout und Transferbedarf
+## Relevante Dateien und offene Integrationsfragen
 
-- Branch: `wip`.
-- HEAD: `90b240696fbbd612facee7917fc8d9acd7156ced` — `wip`.
-- Arbeitsbaum unmittelbar vor unseren Dateiänderungen: sauber. Während der lesenden Bestandsaufnahme wechselte HEAD von `6aeb816238529c2ac8a1067b145d92ed65e5868f` auf den genannten Commit; die zunächst sichtbare Änderung an `scratchPad/scratchPad.md` ist jetzt darin enthalten und wurde von uns nicht bearbeitet.
-- Gegenüber dem lokal vorhandenen `origin/wip`: vier Commits voraus. Kein Fetch oder Remote-Abgleich; diese Angabe beweist keinen aktuellen Remote-Stand.
-- Noch uncommittet aus diesem Auftrag: neue Fassung von `docs/scratchPad/handsoff_doc.md`, unveränderte Vorgängerfassung als `docs/scratchPad/handsoff_doc_0.md` und neue `docs/scratchPad/RM_Documentation_Spec.md`.
-- Im Checkout existiert weiterhin [../rm/README.md](../rm/README.md); `docs/rm/` wurde noch nicht angelegt. Keine Kapitelmigration, Linkumschreibung oder Werkzeuginstallation durchgeführt.
-- Frühere Medienoptimierung ist bereits in Git. Nicht erneut als unerledigte Aufgabe beginnen. Details und historische Performancebefunde stehen in der Vorgängerübergabe.
+- Quellen: [RM-Einstieg](../rm/README.md), [UM](../TriceUserManual.md), [Guide](../TriceGuide.md), [Doku-Einstieg](../README.md), [Medien/CLI-Hilfe](../ref/).
+- Pages: [pages.yml](../../.github/workflows/pages.yml); Tests in [portability_test.go](../../scripts/portability_test.go).
+- [mdtoc-Pflege](../../scripts/_310_refresh_trice_user_manual.sh) und [PDF-Erzeugung](../../scripts/_320_generate_trice_user_manual_pdf.sh) enthalten weiterhin `docs/TriceReferenceManual.md` als Eingabe. Sie können mit der jetzigen Umbenennung nicht unverändert laufen. Auch `format_repo.sh` und der Manual-Formatcheck verwenden die bisherige Pflege. Nicht durch eine Ersatz-Gesamtdatei umgehen.
+- [GoReleaser](../../.goreleaser.yaml), [Snapshot-Prüfung](../../scripts/_610_test_goreleaser_snapshot.sh) sowie Release-/Installations-/Audit-Workflows erwarten weiterhin das bisherige RM-PDF. Diese Artefaktverträge wurden nicht geändert.
+- Verbliebene alte Dateinamen in historischen Beispielen, Quellenangaben, Plantexten und Testfixtures sind keine offenen aktiven RM-Hyperlinks.
+- Die Wirkung der kleineren Kapitel auf mobile Ladezeit wurde noch nicht reproduzierbar gemessen.
 
-Die drei Übergabedateien manuell stagen und committen und den Commit für den anderen Rechner übertragen, normalerweise durch Push. Auch die vier bereits lokalen Commits müssen für denselben Stand übertragen werden, soweit sie remote noch fehlen. Keine zusätzlichen lokalen Messdaten oder Prototypdateien sind erforderlich. Wir haben kein `git add`, `git commit` oder `git push` ausgeführt.
+Lychee 0.24.2 war bereits installiert; keine zusätzliche Abhängigkeit wurde eingeführt. Es prüft auch URLs in anderen Textdateien. Relative Markdown-Links in Go/C erkennt der normale Textscan jedoch nicht: Quelltext über stdin als Markdown mit passendem Basisverzeichnis prüfen (`--default-extension md --base-url <Verzeichnis-URI> -`). Dies bestand für die geänderten Links in `src/triceRx.h` und `internal/id/insertIDs.go`; der RM-Pfad im erzeugten C#-Kommentar wurde auf Existenz geprüft. Diese Zusatzprüfung ist noch nicht in den Repository-Linkcheck integriert. Siehe [Dateiverarbeitung](https://lychee.cli.rs/guides/preprocessing/) und [CLI-Optionen](https://lychee.cli.rs/guides/cli/).
 
-## Relevante Dateien und Erkenntnisse
+## Durchgeführte Prüfungen
 
-- Aktive Quellen: [RM](../rm/README.md), [UM](../TriceUserManual.md), [Guide](../TriceGuide.md), [Medien/CLI-Hilfe](../ref/), [Doku-Einstieg](../README.md).
-- Bestehende Abläufe: [mdtoc-Pflege](../../scripts/_310_refresh_trice_user_manual.sh), [PDF-Erzeugung](../../scripts/_320_generate_trice_user_manual_pdf.sh), [Pages-Workflow](../../.github/workflows/pages.yml), [Release-Konfiguration](../../.goreleaser.yaml). Abhängigkeiten vom bisherigen RM müssen vor einer späteren Migration erfasst werden; PDF-/Release-Umbau nicht stillschweigend mit erledigen.
-- mdBook hat eine eingebaute Volltextsuche ohne Begriffsmakros. Seine `SUMMARY.md` könnte später aus der gepflegten `README.md` entstehen. Ein Stichwortindex ergänzt Volltextsuche, ersetzt sie nicht.
-- `mdbook-indexing` benötigt Makros im Quelltext und passt deshalb nicht direkt zum gewünschten zentralen Index. Kein fertiges Werkzeug für exakt den beschlossenen INDEX-Ablauf wurde verifiziert.
-- stitchmd wurde anhand Dokumentation und Quelltext untersucht, nicht installiert oder am RM ausgeführt. Kapitel-ToCs, explizite mdtoc-IDs und Link-/Bildpfade erfordern zusätzliche Behandlung; für reine Suche lohnt diese Baustelle derzeit nicht.
+Diese Ergebnisse gelten für die implementierten Änderungen vor den letzten beiden Commits, nicht als Tests auf dem anderen Rechner:
 
-## Prüfungen und offene Arbeit
+- `lychee --offline --include-fragments --no-progress --format json .` — PASS, Exitcode 0: 2.939 erfolgreiche Verweise, 0 Fehler; zuvor 150 Fehler. 491 Verweise ausgeschlossen. Externe URLs sowie ausgeschlossene Scratchpad-/Archivbereiche wurden damit nicht vollständig geprüft.
+- `rtk proxy markdownlint .` — PASS. `rtk proxy actionlint .github/workflows/pages.yml` — PASS. `rtk git diff --check` — PASS.
+- `mdtoc check --file <Dokument>` für UM, Guide und alle Kapitel mit mdtoc-Container — PASS für 54 Dokumente.
+- `go test ./scripts -run 'TestManualPages|TestManualPDFNavigationOutlivesTheRenderer' -count=1` — PASS.
+- `go test ./internal/id -run '^Test(Generate|ToListTil|AbcGenerate)' -count=1` — PASS. Beide Go-Aufrufe erfolgten über `rtk env` mit GOCACHE/GOMODCACHE in temporären Verzeichnissen.
+- Isolierte Kopie der echten Doku, ausgeführt mit den beiden tatsächlichen Workflow-Shellblöcken: 58 Dokumente ohne Monolith vorbereitet; alle 682 Code-/Kommentarblöcke bytegenau erhalten; keine aktiven relativen Markdown-Dokumentziele verblieben in den vorbereiteten Seiten.
+- Kodierung und Zeilenenden der 57 geänderten Textdateien erhalten, einschließlich des vorhandenen BOM in CHANGELOG; umbenannter Monolith bytegenau identisch.
 
-In dieser Sitzung wurden Recherche, lokale Bestandsaufnahme und zwei kleine mdtoc-Diagnosen über stdin durchgeführt; sie änderten keine Dateien. `mdtoc strip` entfernte im Beispiel ToC, Nummerierung und erzeugte Anker. `mdtoc generate --toc off --numbering on --anchor on` erhielt im Beispiel Nummerierung und Anker, entfernte aber nicht den äußeren Details-Container. Das sind keine Migrationstests und keine vollständige RM-Kompatibilitätsprüfung.
+Kein vollständiger `testAll`-Lauf wegen der noch nicht umgestellten Manual-Pflege. Kein vollständiger Jekyll-Build, Pages-Deployment, neuer PDF-/Release-Build oder Performancebenchmark. Kein laufender Test muss für den Rechnerwechsel beendet werden.
 
-Prüfungen der jetzt geschriebenen Übergabedateien, ausgeführt aus `docs/`:
-
-- `markdownlint --config ../.markdownlint.yaml scratchPad/handsoff_doc.md scratchPad/RM_Documentation_Spec.md` — PASS, Exitcode 0, keine Meldungen.
-- `git diff --check` — PASS, Exitcode 0, keine Meldungen.
-- `python -` mit lesendem Prüfsnippet über stdin — PASS: beide neuen Texte sind gültiges UTF-8 ohne BOM, haben einen abschließenden Zeilenumbruch und keine nachgestellten Leerzeichen; alle 21 relativen Links außerhalb von Codebeispielen existieren. Die umbenannte Vorgängerfassung ist bytegenau identisch mit `git show HEAD:docs/scratchPad/handsoff_doc.md`.
-- Keine Testsuite, kein Browserbenchmark und kein mdBook-, PDF- oder Release-Build für die geplante Struktur ausgeführt. Diese Prüfungen bleiben offen; nichts wurde abgebrochen oder als bestanden angenommen.
-
-Offen bleiben insbesondere das genaue INDEX-Pflegeformat, die Spezifikation von `RM-search.txt`, der Umgang bestehender Builds mit dem abgelösten RM und die optionale mdBook-Einrichtung. Die Spezifikation kennzeichnet diese Fragen ausdrücklich; sie sind keine stillschweigenden Implementierungsaufträge.
+Prüfung dieser aktualisierten Übergabe: `rtk proxy markdownlint --config ../.markdownlint.yaml scratchPad/handsoff_doc.md` aus `docs/` und `rtk git diff --check` — beide PASS, Exitcode 0. Ein lesendes Python-Prüfsnippet bestätigte UTF-8 ohne BOM, LF-Zeilenenden, keine nachgestellten Leerzeichen und 15 existierende relative Linkziele. Nur diese Datei wurde verändert; Index und HEAD blieben unverändert.
 
 ## Nächster Schritt auf dem anderen Rechner
 
-Nach Übernahme des Git-Stands `handson doc` ausführen. Branch, HEAD, Arbeitsbaum und verlinkte Spezifikation prüfen. Danach auf die nächste Anweisung warten; nicht automatisch migrieren. Vor einem späteren Implementierungsauftrag die noch offenen Entscheidungen klären und den Umfang ausdrücklich festlegen.
+Nach Übernahme des Git-Stands `handson doc` ausführen. Branch, HEAD, Arbeitsbaum, RM-Einstieg, unveränderte Gesamtdatei und Übergabe prüfen. Werkzeuge des neuen Rechners gesondert prüfen; bisherige Ergebnisse nicht als dortige Tests ausgeben. Danach auf die nächste Nutzeranweisung warten.
+
+Der nächste sinnvolle Implementierungsumfang wäre die Kapitelpflege mit mdtoc, weil sie aktuell Formatierung und Gesamtprüfung blockiert. Das ist ein Vorschlag, keine Freigabe. Such-/Indexformat, reproduzierbare Performanceprüfung, spätere Archivierung und PDF-/Release-Verträge jeweils konkret entscheiden; keine dieser Arbeiten automatisch starten.
