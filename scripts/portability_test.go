@@ -637,50 +637,126 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 	assert.Contains(t, outputText, "flag provided but not defined: -tilCS")
 }
 
-// TestManualMaintenanceIncludesBothBooks prevents a successful format/check from
-// hiding a missing or invalid guide behind an otherwise valid reference manual.
-func TestManualMaintenanceIncludesBothBooks(t *testing.T) {
-	for _, tc := range []struct {
-		name, mode, missing, rejected string
-	}{
-		{"check_both_books", "check", "", ""},
-		{"format_both_books", "format", "", ""},
-		{"missing_guide_is_not_skipped", "check", "TriceUserManual", ""},
-		{"missing_reference_prevents_partial_format", "format", "TriceReferenceManual", ""},
-		{"invalid_guide_fails_check", "check", "", "TriceUserManual"},
-		{"invalid_reference_fails_check", "check", "", "TriceReferenceManual"},
+// manualMaintenanceFixture supplies managed chapters alongside navigation,
+// unmanaged notes, nested drafts and the retained monolith. The tool double
+// records actual arguments and never rewrites the documentation sources.
+func manualMaintenanceFixture(t *testing.T) string {
+	t.Helper()
+	root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
+	for _, path := range []string{
+		"docs/TriceUserManual.md",
+		"docs/rm/README.md", "docs/rm/HEADER.md", "docs/rm/FOOTER.md", "docs/rm/INDEX.md",
+		"docs/rm/abstract.md", "docs/rm/binary encoding.md", "docs/rm/rtt.md",
+		"docs/rm/nested/draft.md", "docs/_TriceReferenceManual.md",
 	} {
-		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
-			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
-				if manual != tc.missing {
-					writeFixture(t, root, "docs/"+manual+".md", "# "+manual+"\n")
-				}
-			}
-			writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
-printf '%s\n' "$*"
-if [ "$3" = "docs/$REJECTED.md" ]; then
+		writeFixture(t, root, path, "# Fixture\n\n<!-- mdtoc -->\n<!-- /mdtoc -->\n")
+	}
+	writeFixture(t, root, "docs/rm/notes.md", "# Unmanaged note\n")
+	writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+[ "$#" -eq 3 ] || exit 91
+printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
+if [ "$3" = "$REJECTED" ]; then
   echo "invalid manual: $3" >&2
   exit 9
 fi
 `)
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.mode, map[string]string{"REJECTED": tc.rejected})
-			if tc.missing != "" {
+	return root
+}
+
+// TestManualMaintenanceIncludesChapters verifies check/format dispatch, automatic
+// discovery and propagation of formatter failures without using the old monolith.
+func TestManualMaintenanceIncludesChapters(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments, operation, rejected string
+	}{
+		{name: "check_user_manual_and_all_managed_chapters", arguments: "check", operation: "check"},
+		{name: "format_user_manual_and_all_managed_chapters", arguments: "format", operation: "generate"},
+		{name: "default_mode_still_formats", operation: "generate"},
+		{name: "verbose_check_preserves_selection", arguments: "check --verbose", operation: "check"},
+		{name: "invalid_user_manual_fails_check", arguments: "check", operation: "check", rejected: "docs/TriceUserManual.md"},
+		{name: "invalid_chapter_fails_check", arguments: "check", operation: "check", rejected: "docs/rm/binary encoding.md"},
+		{name: "chapter_generation_failure_stops_formatting", arguments: "format", operation: "generate", rejected: "docs/rm/binary encoding.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.arguments, map[string]string{"REJECTED": tc.rejected})
+			if tc.rejected != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "manual file not found or empty: docs/"+tc.missing+".md")
-				assert.NotContains(t, out, "--file", "preflight must finish before invoking mdtoc")
-			} else if tc.rejected != "" {
-				assert.Error(t, err, out)
-				assert.Contains(t, out, "invalid manual: docs/"+tc.rejected+".md")
+				assert.Contains(t, out, "invalid manual: "+tc.rejected)
 			} else {
 				assert.NoError(t, err, out)
-				operation := "check"
-				if tc.mode == "format" {
-					operation = "generate"
-				}
-				assert.Contains(t, out, operation+" --file docs/TriceUserManual.md")
-				assert.Contains(t, out, operation+" --file docs/TriceReferenceManual.md")
 			}
+			calls, readErr := os.ReadFile(filepath.Join(root, "mdtoc.calls"))
+			if !assert.NoError(t, readErr) {
+				return
+			}
+			// Exact calls also prove navigation, drafts and unmanaged files are skipped
+			// and that a chapter filename containing spaces remains one argument.
+			var expected strings.Builder
+			for _, path := range []string{"docs/TriceUserManual.md", "docs/rm/abstract.md", "docs/rm/binary encoding.md", "docs/rm/rtt.md"} {
+				expected.WriteString(tc.operation + " --file " + path + "\n")
+				if path == tc.rejected {
+					break
+				}
+			}
+			assert.Equal(t, expected.String(), string(calls))
+			if strings.Contains(tc.arguments, "--verbose") {
+				assert.Contains(t, out, "Checking docs/rm/rtt.md TOC, numbering, and anchors with mdtoc...")
+			}
+		})
+	}
+}
+
+// TestManualMaintenanceValidatesSourcesBeforeFormatting ensures missing or empty
+// entry points and chapters fail before mdtoc can modify any otherwise valid file.
+func TestManualMaintenanceValidatesSourcesBeforeFormatting(t *testing.T) {
+	for _, tc := range []struct {
+		name, path, message string
+		empty               bool
+	}{
+		{name: "missing_user_manual", path: "docs/TriceUserManual.md", message: "manual file not found or empty: docs/TriceUserManual.md"},
+		{name: "empty_user_manual", path: "docs/TriceUserManual.md", empty: true, message: "manual file not found or empty: docs/TriceUserManual.md"},
+		{name: "missing_reference_directory", path: "docs/rm", message: "reference manual directory not found: docs/rm"},
+		{name: "missing_reference_entry_point", path: "docs/rm/README.md", message: "manual file not found or empty: docs/rm/README.md"},
+		{name: "empty_reference_entry_point", path: "docs/rm/README.md", empty: true, message: "manual file not found or empty: docs/rm/README.md"},
+		{name: "empty_chapter_prevents_partial_format", path: "docs/rm/rtt.md", empty: true, message: "manual file not found or empty: docs/rm/rtt.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			if tc.empty {
+				writeFixture(t, root, tc.path, "")
+			} else if !assert.NoError(t, os.RemoveAll(filepath.Join(root, tc.path))) {
+				return
+			}
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.message)
+			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"), "preflight must finish before invoking mdtoc")
+		})
+	}
+}
+
+// TestManualMaintenanceRequiresManagedChapters rejects unmatched globs and a
+// directory containing only navigation or unmanaged files instead of real chapters.
+func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
+	for _, withNotes := range []bool{false, true} {
+		name := "navigation_only"
+		if withNotes {
+			name = "navigation_and_unmanaged_notes"
+		}
+		t.Run(name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			for _, path := range []string{"docs/rm/abstract.md", "docs/rm/binary encoding.md", "docs/rm/rtt.md"} {
+				assert.NoError(t, os.Remove(filepath.Join(root, path)))
+			}
+			if !withNotes {
+				assert.NoError(t, os.Remove(filepath.Join(root, "docs/rm/notes.md")))
+			}
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh check", nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "no mdtoc-managed reference chapters found: docs/rm/*.md")
+			assert.Contains(t, out, "expected <!-- mdtoc -->")
+			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"))
 		})
 	}
 }
