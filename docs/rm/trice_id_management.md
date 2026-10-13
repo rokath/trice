@@ -3,6 +3,8 @@
 <details markdown="1">
 <summary>Contents</summary>
 
+---
+
 <!-- mdtoc -->
 
 * [1. Trice inside source code](#trice-inside-source-code)
@@ -15,6 +17,8 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
+
+---
 
 </details>
 

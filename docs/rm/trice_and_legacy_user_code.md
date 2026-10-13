@@ -3,6 +3,8 @@
 <details markdown="1">
 <summary>Contents</summary>
 
+---
+
 <!-- mdtoc -->
 
 * [1. Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
@@ -24,6 +26,8 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
+
+---
 
 </details>
 

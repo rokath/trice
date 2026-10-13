@@ -3,6 +3,8 @@
 <details markdown="1">
 <summary>Contents</summary>
 
+---
+
 <!-- mdtoc -->
 
 - [1. Common Information](#common-information)
@@ -48,6 +50,8 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
+
+---
 
 </details>
 

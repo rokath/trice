@@ -3,6 +3,8 @@
 <details markdown="1">
 <summary>Contents</summary>
 
+---
+
 <!-- mdtoc -->
 
 - [1. Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit)
@@ -26,6 +28,8 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
+
+---
 
 </details>
 
