@@ -494,7 +494,7 @@ This is an example with direct out without framing over RTT and deferred out in 
 - The steps are similar to the steps in [F030_bare](#f030bare).
 - See comments in [triceConfig.h](../../examples/G0B1_inst/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
-<img src="../ref/2024-07-22.png" width="1000">
+<img src="../ref/G0B1_inst_Screenshot.png" width="1000">
 
 <p align="right">(<a href="#example-projects-without-and-with-trice-instrumentation">back to top</a>)</p>
 
