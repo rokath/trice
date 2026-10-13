@@ -43,6 +43,8 @@
 * Only `git commit` and `git push` require an explicit user instruction. Never infer either operation from a request to implement, fix, test, or format changes.
 * Once the user has authorized a task or confirmed an action, continue through its routine implementation steps without asking for the same permission again. Technical details such as staging related files, splitting requested commits, choosing temporary paths, or running focused checks do not require another conversational approval.
 * Use existing platform approvals and approved command prefixes directly. Do not turn optional tooling choices into additional approval gates; prefer an already-authorized equivalent. If a platform prompt is unavoidable, keep independent work moving and do not request the same pending approval repeatedly.
+* Task-relevant diagnostics, validation, and access to caches for existing project dependencies are covered by the task authorization. Do not request separate conversational permission to activate an already-installed tool or the project's existing pinned build environment.
+* Before escalating a diagnostic, check whether the installed dependency can be read or loaded directly without its package launcher. Prefer direct read-only access or the existing authorized build environment over launcher-induced cache, lock, or log writes. An optional diagnostic must not introduce a new approval gate when an equivalent authorized check is available. Technically enforced platform restrictions still apply; request a platform prompt only for a required action that has no equally effective authorized alternative.
 
 ---
 
@@ -126,6 +128,8 @@
 
 * All read-only access is permanently pre-approved, including local files, repository history, websites, HTTP requests, APIs, and read-only `gh` operations. Never ask for additional user permission to read or to obtain live information needed for the task.
 * This authorization persists across turns. A network or sandbox failure does not mean that user authorization is missing.
+* External-source verification for reviews and release-readiness assessments is included in this standing read authorization. Choosing a different HTTP client or read tool never requires renewed user consent. Before proactively requesting escalated execution, use an available browsing tool, connector, or existing approved read path; do not introduce a permission prompt merely because an optional shell command would need one.
+* Keep optional external lookups separate from required checks and test monitoring. Never queue an optional permission-bearing read ahead of independent work or leave the task waiting on that lookup. Continue with available evidence and identify any remaining uncertainty. If the runtime mandates a sandbox approval for a genuinely required operation, use only its technical approval mechanism without asking the user to reconfirm read authorization.
 * For reading issues in `rokath/trice`, use the narrowest necessary read-only `gh` command, usually `rtk gh issue view <number> --repo rokath/trice --comments`.
 * Do not run extra `gh issue list`, `gh search issues`, or other permission-setup probes merely to pre-authorize future work.
 * Reuse existing platform approvals and approved command prefixes for read access. If the platform technically requires an escalation, follow its required approval mechanism directly without an additional conversational permission question. Explain that the prompt comes from the sandbox, not from missing user consent; repository instructions cannot disable platform enforcement.
@@ -160,7 +164,7 @@
 
 ## Documentation Usage
 
-- Use `README.md` and documentation files (especially `./docs/TriceReferenceManual.md`) to understand system design, architecture, constraints, and intended usage.
+- Use `README.md` and documentation files (especially `./docs/rm/README.md` and its linked chapters) to understand system design, architecture, constraints, and intended usage.
 - Consider `./src/TriceDefaultConfig.h` as an additional documentation source.
 
 - Documentation is for understanding only, not for initiating code changes.

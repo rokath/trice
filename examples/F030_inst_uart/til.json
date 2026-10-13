@@ -6,5 +6,13 @@
 	"1002": {
 		"Type": "trice",
 		"Strg": "msg:Value=%u\\n"
+	},
+	"2485": {
+		"Type": "trice",
+		"Strg": "info:Firmware init start...\\n"
+	},
+	"7036": {
+		"Type": "trice",
+		"Strg": "info:Firmware init done.\\n"
 	}
 }

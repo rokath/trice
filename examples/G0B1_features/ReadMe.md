@@ -1,1 +1,1 @@
-- [G0B1 feature tour: FreeRTOS tasks, build, RTT capture, and output scripts](../../docs/TriceReferenceManual.md#g0b1-feature-tour)
+- [G0B1 feature tour: FreeRTOS tasks, build, RTT capture, and output scripts](../../docs/rm/examples.md#g0b1-feature-tour)

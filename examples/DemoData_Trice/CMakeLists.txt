@@ -34,7 +34,7 @@ if(NOT EXISTS "${TRICE_SOURCE_DIR}/trice.h")
 endif()
 
 # Include the complete library; CONFIGURE_DEPENDS notices added source files.
-# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Details: ../../docs/rm/code_size.md
 file(GLOB TRICE_SOURCES CONFIGURE_DEPENDS "${TRICE_SOURCE_DIR}/*.c")
 add_executable(DemoData_Trice src/main.c ${TRICE_SOURCES})
 

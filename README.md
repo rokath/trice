@@ -29,21 +29,21 @@ The Guide helps you choose your first experiment, discover the features, and fin
 </details>
 <br>
 
-If Trice helps your work, [support the project](./docs/TriceReferenceManual.md#support-and-sponsoring).
+If Trice helps your work, [support the project](docs/rm/project_resources.md#support-and-sponsoring).
 
 ---
 
 Footnotes:
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
 0. The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
-1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](./docs/TriceReferenceManual.md#trice-speed).
-2. <a id="note-calls"></a>[Printf-like syntax and supported formats](./docs/TriceReferenceManual.md#trice-similarities-and-differences-to-printf-usage).
-3. <a id="note-records"></a>[Compact binary records and transfer size](./docs/TriceReferenceManual.md#minimal-transfer-bytes-amount).
-4. <a id="note-interrupts"></a>Trice calls can be used directly inside interrupt handlers. The [example output](./docs/TriceReferenceManual.md#trice-tool-in-logging-action) shows interrupt-originated `ISR:` messages mixed with events from normal application code.
-5. <a id="note-compiler"></a>[Target-code portability and modularity](./docs/TriceReferenceManual.md#portability-and-modularity).
-6. <a id="note-ids"></a>[Bind](./docs/TriceReferenceManual.md#trice-bind) keeps numeric IDs out of user log calls; see its [supported constructs and compiler requirements](./docs/TriceReferenceManual.md#bind-limits).
-7. <a id="note-aliases"></a>[Aliases for existing logging and assert macros](./docs/TriceReferenceManual.md#legacy-user-code-option-trice-aliases-adaptation).
-8. <a id="note-commands"></a>[Asynchronous Broadcast Commands and responses](./docs/TriceReferenceManual.md#trice-abc---asynchronous-broadcast-commands).
-9. <a id="note-text"></a>[Text output and event boundaries](./docs/TriceReferenceManual.md#output-formats-and-event-boundaries).
-10. <a id="note-fields"></a>[Structured Logging with named values](./docs/TriceReferenceManual.md#structured-logging).
-11. <a id="note-plots"></a>[Live visualization with the LabPlot demo](./docs/TriceReferenceManual.md#setting-up-the-labplot-demo).
+1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](docs/rm/performance.md).
+2. <a id="note-calls"></a>[Printf-like syntax and supported formats](docs/rm/printf_comparison.md).
+3. <a id="note-records"></a>[Compact binary records and transfer size](docs/rm/features.md#minimal-transfer-bytes-amount).
+4. <a id="note-interrupts"></a>Trice calls can be used directly inside interrupt handlers. The [example output](docs/rm/logging_output.md) shows interrupt-originated `ISR:` messages mixed with events from normal application code.
+5. <a id="note-compiler"></a>[Target-code portability and modularity](docs/rm/features.md#portability-and-modularity).
+6. <a id="note-ids"></a>[Bind](docs/rm/bind.md) keeps numeric IDs out of user log calls; see its [supported constructs and compiler requirements](docs/rm/bind.md#bind-limits).
+7. <a id="note-aliases"></a>[Aliases for existing logging and assert macros](docs/rm/legacy_user_code.md#legacy-user-code-option-trice-aliases-adaptation).
+8. <a id="note-commands"></a>[Asynchronous Broadcast Commands and responses](docs/rm/abc_asynchronous_broadcast_commands.md).
+9. <a id="note-text"></a>[Text output and event boundaries](docs/rm/structured_logging.md#output-formats-and-event-boundaries).
+10. <a id="note-fields"></a>[Structured Logging with named values](docs/rm/structured_logging.md).
+11. <a id="note-plots"></a>[Live visualization with the LabPlot demo](docs/rm/cli.md#setting-up-the-labplot-demo).

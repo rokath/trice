@@ -990,7 +990,7 @@ trice help -generate
 
 ### 4.23. <a id="versions-and-variants-trice-stability"></a>Versions and Variants Trice Stability
 
-When developing firmware, we get often different versions and variants in the developing process. When, for example, getting an older device back, it could be, we do not know the flashed firmware version at all. Because the Trice tool adds only IDs and their Trices to the project specific _til.json_ file, the complete development history remains in that file. So connecting an old device to the Trice tool will deliver correct output. Of course the location information will be outdated. But when reading the Trice logs the compiled version should get visible and it is no big deal to get the corresponding _li.json_ from the repository. If not, using the `-showID "%6d"` Trice log option displays the Trice IDs and you can easily grab the source code file and line.
+When developing firmware, we get often different versions and variants in the developing process. When, for example, getting an older device back, it could be, we do not know the flashed firmware version at all. Because the Trice tool adds only IDs and their Trices to the project specific _til.json_ file, the complete development history remains in that file. So connecting an old device to the Trice tool will deliver correct output. Of course the location information will be outdated. Use the _li.json_ archived with the corresponding firmware build for accurate source positions. Without that file, disable locations with `trice log -li off`; `-showID "%6d"` displays the IDs for lookup in the matching sources.
 
 ### 4.24. <a id="legacy-project-code-integration"></a>Legacy Project Code Integration
 
@@ -2208,7 +2208,7 @@ See chapter [Trice Tags and Color](#trice-tags-color-and-weights).
 
 #### 12.2.11. <a id="location-information"></a>Location Information
 
-The `add`, `insert`, and `clean` commands generate the file selected by `-li|locationInformation`. Each entry stores one canonical source path and its line number:
+The `add`, `bind`, `insert`, and `clean` commands generate the file selected by `-li|locationInformation`. Each entry stores one canonical source path and its line number:
 
 ```json
 {
@@ -2229,7 +2229,11 @@ trice insert -li build/demoLI.json -liRoot . -src examples/TriceABC
 
 During logging, `-liMaxDirs` controls how much of the stored path is shown. Its default `0` shows only the filename. For `examples/TriceABC/src/main.c`, values `1`, `2`, and `3` show `src/main.c`, `TriceABC/src/main.c`, and the complete stored path respectively. Leading `..` components describe the relation to `-liRoot` and are not displayed or counted. `-liFmt` continues to control the surrounding filename and line-number format.
 
-Location information must match the exact firmware version. In field deployments, keeping `li.json` private and showing the numeric ID with `-showID` can be preferable. When `trice clean` is used, consider versioning the matching `li.json` so later insert operations can reuse locations consistently.
+Location information must match the exact firmware version. In field deployments, keeping `li.json` private and showing the numeric ID with `-showID` can be preferable. Use `trice log -li off` to disable location loading and display explicitly, even when a local LI exists.
+
+LI also supplies source ownership evidence during ID processing. Keep the local file between Bind, Clean, and Insert runs even if you log without source locations: identical messages can occur at different sites, and TIL alone does not preserve their source associations. Removing LI can change ID reuse, particularly in partial scans. Passing `-li off` to an ID-processing command disables its LI use and generation too; use the switch only on `log` when you want to retain that evidence.
+
+The repository's active demo location tables are generated locally and ignored by Git; their build and ID-workflow scripts create a missing LI before processing IDs. A custom workflow must initialize a missing LI as well when LI is enabled, because ID processing requires an existing file. Preserve the matching LI as a firmware or capture artifact when later location lookup matters. Keeping LI in version control remains an option for applications that need to preserve source ownership across checkouts.
 
 ### 12.3. <a id="visualization-output-with--vis"></a>Visualization output with `-vis`
 
@@ -3753,6 +3757,8 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 * `trice log` and `tlog` show only the filename by default. `-liMaxDirs=N` adds at most `N` immediately preceding parent directories. Leading `..` components are never displayed or counted.
 * The v1.3.0 option `-liPath` is replaced by `-liRoot` for storage and `-liMaxDirs` for display. Both v1.3.0 and the current location files use `File` and `Line`.
 * The Trice repository uses `-liRoot .` while generating the shared `demoLI.json`, so all stored paths remain relative to the repository root across supported platforms.
+* Active demo and example LI files, including `demoLI.json`, are generated locally rather than versioned. Build and ID-workflow scripts initialize a missing file and retain existing LI evidence. The historical `_test/testdata/testLI.json` fixture remains versioned.
+* Keep local LI between ID-processing runs even if source locations are unwanted in logs. `trice log -li off` suppresses their loading and display while Bind and Insert can continue using LI for ID ownership and reuse. See [Location Information](#location-information).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -4313,7 +4319,7 @@ project/
 
 The two `generate` calls serve different features; an ordinary host-decoded application does not need either one. Add `-Igenerated` when compiling from the project root, or `-I../generated` when compiling from `build`. A relative `-genDir` is resolved from the command's working directory, not from the Trice library's directory or automatically from `build`.
 
-Keep `til.json` and the corresponding `li.json` with the project, and preserve the dictionaries belonging to firmware whose logs you still need to decode. Include an edited ABC selection header in your version control even if it is stored under `generated`. Do not delete that directory wholesale: it may contain user-owned files, and old sidecars may still provide historical ID evidence. The read-only [Bind artifact report](#bind-artifact-report) helps inspect ownership and references without treating an unreferenced file as safe to delete.
+Keep `til.json` under version control and retain the local `li.json` between builds for ID ownership and reuse, even when logging with `-li off`. The repository demos generate their ignored LI files locally; applications may choose to version LI when source ownership must survive checkouts. Preserve dictionaries and matching LI artifacts belonging to firmware whose logs you still need to investigate. Include an edited ABC selection header in your version control even if it is stored under `generated`. Do not delete that directory wholesale: it may contain user-owned files, and old sidecars may still provide historical ID evidence. The read-only [Bind artifact report](#bind-artifact-report) helps inspect ownership and references without treating an unreferenced file as safe to delete.
 
 With:
 
@@ -9174,7 +9180,11 @@ The `generate` entry creates `generated/til.c` from the current G0B1 main source
 run the example's bind/build step first so that its sidecars and ID table agree.
 The insert/clean entries operate on that main source and update the root tables;
 they are maintenance commands, not log viewers. Already bound code follows the
-normal insert/clean ownership rules. The test entry runs one existing bind test.
+normal insert/clean ownership rules. After a fresh checkout, run the repository's
+Bind workflow to initialize the locally generated `demoLI.json` before using
+these maintenance entries, or create the missing file with `touch demoLI.json`
+from the repository root. Retain an existing LI for ID ownership evidence.
+The test entry runs one existing bind test.
 For a hardware-free decoder session, select `trice l -p DUMP`: its retained
 capture uses `testTIL.json`/`testLI.json` and includes a missing cycle-counter value
 194, so one cycle-error diagnostic is expected. Entries whose captures, source

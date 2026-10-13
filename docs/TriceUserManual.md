@@ -1,6 +1,10 @@
 # Trice User Manual
 
-Trice keeps format strings out of the target binary. The host finds them in `til.json` and combines them with the ID and any binary runtime values. Without a target timestamp or payload, a Trice record needs just four bytes, what explains the speed:
+Trice keeps format strings out of the target binary. The host tool finds them in `til.json` and combines them with the ID and any binary runtime values.
+
+<img src="./ref/demoTIL.json.png" height="200" width="380">
+
+Without a target timestamp or payload, a Trice record needs just four bytes, what explains the speed:
 
 <!--
 ```text
@@ -13,12 +17,14 @@ Trice keeps format strings out of the target binary. The host finds them in `til
 
 ![x](./ref/TriceBinaryFormat.drawio.svg)
 
-See [Binary Encoding](./TriceReferenceManual.md#binary-encoding) for the field layout and length variants.
+See [Binary Encoding](rm/binary_encoding.md) for the field layout and length variants.
 
-**To start on your PC no board, probe or serial cable is needed.** This guide then takes the same workflow into your firmware. Use the [Reference Manual](./TriceReferenceManual.md) for complete syntax, configuration and limits.
+**To start on your PC no board, probe or serial cable is needed.** This guide then takes the same workflow into your firmware. Use the [Reference Manual](rm/README.md) for complete syntax, configuration and limits.
 
 <details markdown="1">
 <summary>Contents</summary>
+
+---
 
 <!-- mdtoc -->
 
@@ -40,6 +46,8 @@ See [Binary Encoding](./TriceReferenceManual.md#binary-encoding) for the field l
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
+---
+
 </details>
 
 ## 1. <a id="get-lib-and-tools"></a>Get lib and tools
@@ -49,7 +57,7 @@ For the PC examples you need:
 - A checkout or extracted source snapshot of Trice, including `demo`, `examples` and the library `src`.
 - Bash and the usual shell utilities. On Windows, use Git Bash or s.th. similar.
 - The host tools from [GitHub Releases](https://github.com/rokath/trice/releases) in the `PATH`, CLI check: `trice --version`.
-- A **native host C compiler** named `cc` or `gcc` with its matching runtime libraries and headers; see [compiler setup](./TriceReferenceManual.md#development-environment-setup).
+- A **native host C compiler** named `cc` or `gcc` with its matching runtime libraries and headers; see [compiler setup](rm/development_environment_setup.md).
 
 The `trice` tool manages IDs and decodes logs; the companion `tlog` is a shortcut for `trice log`. The examples below use `trice`.
 
@@ -70,7 +78,7 @@ Open [demo/deferred/main.c](../demo/deferred/main.c), change the value `42` to `
 
 **Bind** maintains the generated header includes; your calls stay readable, such as `trice("att:Deferred value=%d.\n", 43);`.
 
-The sibling scripts [demo/direct/run.sh](../demo/direct/run.sh) and [demo/live/run.sh](../demo/live/run.sh) demonstrate direct and continuous output. Each demo is an independent project; its generated sidecars stay in `build/generated_sidecars`. Copy a whole demo folder and adjust `trice_src` in its script to point to the Trice library. See the [Reference Manual](./TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
+The sibling scripts [demo/direct/run.sh](../demo/direct/run.sh) and [demo/live/run.sh](../demo/live/run.sh) demonstrate direct and continuous output. Each demo is an independent project; its generated sidecars stay in `build/generated_sidecars`. Copy a whole demo folder and adjust `trice_src` in its script to point to the Trice library. See the [Reference Manual](rm/examples.md#minimal-pc-demos-direct-and-deferred) for those examples and the full configuration details.
 
 ![PC-Demos_Screenshot_2026-10-09.png](./ref/PC-Demos_Screenshot_2026-10-09.png)
 
@@ -104,7 +112,7 @@ TRice32("info:ctx:Supply {voltage_mv:%u} mV\n", voltage_mv);
 
 This is an excerpt; the complete event also contains tag and other enabled metadata. The `cycle` field comes from the context rule explained below. `-logFormat json` produces **NDJSON**: one complete JSON object per event, on one output line. KV produces readable `key=value` entries. Numeric fields remain numbers; the device-name call uses `TriceS` to send the runtime string `pump A`.
 
-Try changing `3300u` in the first `emit_sample` call to `3400u`, rebuild, then run `./show_json.sh` again. Both the message and `fields.voltage_mv` change. Plain `%u` still works when you only need a displayed value. Named fields are supported for scalar calls and strings; named buffer fields are rejected. See [Structured Logging](./TriceReferenceManual.md#structured-logging) for field types, literal braces and buffer output.
+Try changing `3300u` in the first `emit_sample` call to `3400u`, rebuild, then run `./show_json.sh` again. Both the message and `fields.voltage_mv` change. Plain `%u` still works when you only need a displayed value. Named fields are supported for scalar calls and strings; named buffer fields are rejected. See [Structured Logging](rm/structured_logging.md) for field types, literal braces and buffer output.
 
 ### 3.2. <a id="select-messages-by-tag-or-priority"></a>Select messages by tag or priority
 
@@ -123,9 +131,9 @@ The first shows INFO events only. The second selects Warning and higher-priority
 
 Repeat `-pick` or `-ban` for several selectors: `./show_json.sh -pick info -pick wrn` displays either group. A number selects an exact weight: `-ban 450` hides this tour's sensor events, while `-pick 450` displays only events at weight 450. In comparison, `-loglevel 450` displays weights 450 and above. Colon-separated lists and weight ranges are rejected; use one selector per option.
 
-JSON and KV derive `level` from the effective weight while keeping `tag` as the category. Here, `sensor` normally has weight 450 and appears as `tag=sensor level=DEBUG`. With `-ulabel sensor:650`, it becomes `tag=sensor level=WARNING`; its message and fields stay the same. RECEIVE normally has level DEBUG, and `untagged` has level INFO. The eight [level intervals](./TriceReferenceManual.md#json-and-kv-contract) stay fixed when tag weights are overridden.
+JSON and KV derive `level` from the effective weight while keeping `tag` as the category. Here, `sensor` normally has weight 450 and appears as `tag=sensor level=DEBUG`. With `-ulabel sensor:650`, it becomes `tag=sensor level=WARNING`; its message and fields stay the same. RECEIVE normally has level DEBUG, and `untagged` has level INFO. The eight [level intervals](rm/structured_logging.md#json-and-kv-contract) stay fixed when tag weights are overridden.
 
-Built-in tag names and aliases ignore case: `rx`, `RX` and `rX` all identify RECEIVE for selection, weights, colors, statistics and structured output. Lowercase tags normally disappear from the displayed message; mixed/uppercase ones remain visible, so `rX:payload` keeps its prefix. Free user tags match exactly: `new` and `NEW` can have separate weights; an unregistered spelling `NeW` is classified as `untagged`. A message without a recognized tag remains as written: `untagged` is classification metadata, not a prefix the tool invents in its message. Details: [tags, weights and selection](./TriceReferenceManual.md#trice-tags-color-and-weights).
+Built-in tag names and aliases ignore case: `rx`, `RX` and `rX` all identify RECEIVE for selection, weights, colors, statistics and structured output. Lowercase tags normally disappear from the displayed message; mixed/uppercase ones remain visible, so `rX:payload` keeps its prefix. Free user tags match exactly: `new` and `NEW` can have separate weights; an unregistered spelling `NeW` is classified as `untagged`. A message without a recognized tag remains as written: `untagged` is classification metadata, not a prefix the tool invents in its message. Details: [tags, weights and selection](rm/tags_color_and_weights.md).
 
 Built-in aliases have at least two letters, for example `err`, `inf`, `msg`, `wrn`, `dbg`, `rx` and `tx`. Former one-letter aliases such as `e` are no longer recognized: `e:problem` remains visible and is classified as `untagged`. You can still explicitly register a one-letter user tag with `-ulabel x:200`.
 
@@ -139,7 +147,7 @@ This tour deliberately uses two different meanings. `TriceStamp16` reads `pc_sam
 ./show_json.sh -ts16 'phase:%d' -ts32 ms -ts32delta ms
 ```
 
-Change `pc_sample_milliseconds = 125u` to `150u`, rebuild and decode again: the second Supply stamp and its delta become `150` and `50`. The host cannot infer units; a 16-bit stamp could equally represent a temperature or application counter. See [timestamps and deltas](./TriceReferenceManual.md#trice-timestamps).
+Change `pc_sample_milliseconds = 125u` to `150u`, rebuild and decode again: the second Supply stamp and its delta become `150` and `50`. The host cannot infer units; a 16-bit stamp could equally represent a temperature or application counter. See [timestamps and deltas](rm/stamps.md).
 
 ### 3.4. <a id="add-context-with-one-build-rule"></a>Add context with one build rule
 
@@ -151,9 +159,9 @@ Change `pc_sample_milliseconds = 125u` to `150u`, rebuild and decode again: the 
 
 This is an option fragment for `trice bind`, not a separate shell command. `ctx:` selects the second tag in `info:ctx:Supply ...`. The quoted text is appended to the message, and `pc_sample_phase` is evaluated at that call site. The same `emit_sample` function is called with phase values `7` and `11`, so its two records gain different `cycle` values without duplicating the format text at every caller.
 
-Try changing `cycle` to `phase` in both places inside the CE format (`phase={phase:%u}`), then rebuild and decode. The displayed label and JSON field name change together. Every selected call must be able to access the expression. Current `bind -ce` supports direct, uniquely addressable calls; selected wrapper/rebase sites are rejected. CE does not append runtime parameters to `triceS`/`triceN`; use their own string argument for runtime text. These boundaries and the alternative `insert/clean -ce` workflow are explained in [Context Enrichment](./TriceReferenceManual.md#trice-context-enrichment).
+Try changing `cycle` to `phase` in both places inside the CE format (`phase={phase:%u}`), then rebuild and decode. The displayed label and JSON field name change together. Every selected call must be able to access the expression. Current `bind -ce` supports direct, uniquely addressable calls; selected wrapper/rebase sites are rejected. CE does not append runtime parameters to `triceS`/`triceN`; use their own string argument for runtime text. These boundaries and the alternative `insert/clean -ce` workflow are explained in [Context Enrichment](rm/context_enrichment.md).
 
-When you edit an example, its output check may correctly fail because it still expects the original values. Run [examples/PC_features/check_output.sh](../examples/PC_features/check_output.sh) as `./check_output.sh` on the unchanged tour; after intentional edits, inspect the new output and update the corresponding expectations. The [guide to adapting these checks](./TriceReferenceManual.md#updating-the-pc-tours-output-checks) explains where they come from.
+When you edit an example, its output check may correctly fail because it still expects the original values. Run [examples/PC_features/check_output.sh](../examples/PC_features/check_output.sh) as `./check_output.sh` on the unchanged tour; after intentional edits, inspect the new output and update the corresponding expectations. The [guide to adapting these checks](rm/examples.md#updating-the-pc-tours-output-checks) explains where they come from.
 
 ## 4. <a id="bring-trice-into-your-firmware"></a>Bring Trice into your firmware
 
@@ -161,13 +169,15 @@ All examples are executable and intended to help starting with Trice on any MCU/
 
 [F030_bare](../examples/F030_bare/) is a STM32CubeMX-generated F030R8 project and kept uninstrumented. Compare it with [F030_inst_rtt](../examples/F030_inst_rtt/) or [F030_inst_uart](../examples/F030_inst_uart/) to see all Trice related changes.
 
+<img src="./ref/FirstDiffView.png" height="100" width="380">
+
 Both examples call `TriceInit()` at the start of `main()`. RTT writes the first record directly; UART keeps it in RAM until USART is ready and `TriceTransfer()` runs.
 
-For another board or an existing byte-output function, such as a UART/USB transmit queue, check also the generic deferred outline below. The PC deferred demo shows the same separation between collecting and sending records. If you already use J-Link, [the RTT quickstart](./TriceReferenceManual.md#quickstart-segger-rtt-direct-mode-with-j-link) is another starting point. Check also if [onboard J-Link](./TriceReferenceManual.md#convert-evaluation-board-onboard-st-link-to-j-link) is an option.
+For another board or an existing byte-output function, such as a UART/USB transmit queue, check also the generic deferred outline below. The PC deferred demo shows the same separation between collecting and sending records. If you already use J-Link, [the RTT quickstart](rm/quickstarts.md#quickstart-segger-rtt-direct-mode-with-j-link) is another starting point. Check also if [onboard J-Link](rm/rtt.md#convert-evaluation-board-onboard-st-link-to-j-link) is an option.
 
 ### 4.1. <a id="add-the-library-and-configuration"></a>Add the library and configuration
 
-Copy or reference the target library [src](../src/). Add its C implementation files to your build. Configuration selects the enabled Trice backends; removing other unused code also depends on the linker settings, as explained in [image-size optimization](./TriceReferenceManual.md#trice-project-image-size-optimization). Compile the library as C even when your application uses C++. Keep your own `triceConfig.h` in the application's include directory; do not edit the library defaults.
+Copy or reference the target library [src](../src/). Add its C implementation files to your build. Configuration selects the enabled Trice backends; removing other unused code also depends on the linker settings, as explained in [image-size optimization](rm/code_size.md). Compile the library as C even when your application uses C++. Keep your own `triceConfig.h` in the application's include directory; do not edit the library defaults.
 
 For a first single-context application, the essential configuration is:
 
@@ -182,7 +192,7 @@ For a first single-context application, the essential configuration is:
 #endif // #ifndef TRICE_CONFIG_H_
 ```
 
-Before logging from interrupts or multiple tasks, define real `TRICE_ENTER_CRITICAL_SECTION` / `TRICE_LEAVE_CRITICAL_SECTION` protection appropriate to your MCU and scheduler. The default empty protection is only a starting point for a single context. Buffer sizing and the complete setup are in the [byte-writer quickstart](./TriceReferenceManual.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit).
+Before logging from interrupts or multiple tasks, define real `TRICE_ENTER_CRITICAL_SECTION` / `TRICE_LEAVE_CRITICAL_SECTION` protection appropriate to your MCU and scheduler. The default empty protection is only a starting point for a single context. Buffer sizing and the complete setup are in the [byte-writer quickstart](rm/quickstarts.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit).
 
 ### 4.2. <a id="connect-the-writer-and-generate-ids"></a>Connect the writer and generate IDs
 
@@ -231,11 +241,11 @@ Set the compiler include **order** like this
  -Isrc/default_conf \
 ```
 
-Your `SEGGER_RTT_Conf.h`, if existend, then takes precedence over the [RTT fallback configuration](./TriceReferenceManual.md#trice-over-rtt).
+Your `SEGGER_RTT_Conf.h`, if existend, then takes precedence over the [RTT fallback configuration](rm/rtt.md).
 
 Bind inserts generated includes into source files and writes **sidecar headers** to `build/sidecars`. Make `trice bind` a build dependency so it runs before compilation when log sources change. Then build and flash normally. Do not commit generated sidecars.
 
-Before placing several Trice calls on one source line or inside your own macros, read [Bind limits and wrapper macros](./TriceReferenceManual.md#bind-limits).
+Before placing several Trice calls on one source line or inside your own macros, read [Bind limits and wrapper macros](rm/bind.md#bind-limits).
 
 ### 4.3. <a id="decode-the-bytes"></a>Decode the bytes
 
@@ -245,9 +255,9 @@ From the firmware project root, use the project's `til.json` and your actual ser
 trice log -p COM7 -baud 115200
 ```
 
-Replace `COM7` with your device's port name (`trice s` can help with that). This command uses the default `til.json` and `li.json` in the current directory and TCOBSv1 framing, which matches the library default used by the configuration above. The result includes `Firmware started`. Binary bytes are expected on the wire, so a plain terminal will not display the original text. Other transport/configuration choices need matching decoder settings; copy the log script of the corresponding [working example](./TriceReferenceManual.md#example-projects-without-and-with-trice-instrumentation).
+Replace `COM7` with your device's port name (`trice s` can help with that). This command uses the default `til.json` and `li.json` in the current directory and TCOBSv1 framing, which matches the library default used by the configuration above. The result includes `Firmware started`. Binary bytes are expected on the wire, so a plain terminal will not display the original text. Other transport/configuration choices need matching decoder settings; copy the log script of the corresponding [working example](rm/examples.md).
 
-The same captured records can later be decoded with `-logFormat json` or `-logFormat kv`. The project's newest accumulated `til.json` also decodes older captures. For source locations, use the `li.json` from the corresponding firmware build; see the next chapter. While logging, the host automatically reloads changes to its existing TIL/LI files; see [automatic reload](./TriceReferenceManual.md#easy-to-use).
+The same captured records can later be decoded with `-logFormat json` or `-logFormat kv`. The project's newest accumulated `til.json` also decodes older captures. For source locations, use the `li.json` from the corresponding firmware build; see the next chapter. While logging, the host automatically reloads changes to its existing TIL/LI files; see [automatic reload](rm/features.md#easy-to-use).
 
 ## 5. <a id="know-which-files-to-keep"></a>Know which files to keep
 
@@ -261,18 +271,22 @@ Executables, object files and `capture.bin` / `log.bin` | Build/run outputs; ret
 
 `til.json` is the long-lived ID-to-format dictionary: preserve existing entries when adding new messages. It does not need a separate matching copy for every build. `li.json` instead describes source files and line numbers, which can change between builds. A current TIL can decode an old capture while a current LI would point to the wrong source locations; use that build's LI or disable locations with `-li off`.
 
-The generated headers are needed to compile, but do not need to be kept after the build. Recreate them with Bind from the version-controlled sources and TIL. The [generated-file layout](./TriceReferenceManual.md#command-line) covers other outputs, including user-edited ABC headers that remain project files even if stored in a generated directory.
+Keep the local `li.json` between builds even if you do not want source locations in logs. Bind and Insert use it as evidence for ID ownership and reuse; the TIL alone cannot identify which source site owns each of several identical messages. Deleting LI can change ID assignments, especially during partial source scans. Use `trice log -li off` to suppress location output while continuing to use LI during ID processing. Applying `-li off` to Bind or Insert disables their location-table use too and loses that evidence.
+
+The repository's active demo and example LI files, including `demoLI.json`, are generated locally and ignored by Git. Their build and ID-workflow scripts initialize a missing LI without overwriting an existing one. For your own scripts, create a missing file before the first Bind or Insert: these commands require an existing LI file when LI is enabled. Keep matching LI copies as firmware or capture artifacts when later source-location lookup matters. The historical `_test/testdata/testLI.json` fixture remains versioned.
+
+The generated headers are needed to compile, but do not need to be kept after the build. Recreate them with Bind from the version-controlled sources and TIL. The [generated-file layout](rm/bind.md#command-line) covers other outputs, including user-edited ABC headers that remain project files even if stored in a generated directory.
 
 ## 6. <a id="choose-your-next-example"></a>Choose your next example
 
 What you want to try            | Project and next experiment                                                                                                                  | Full instructions
 --------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------
-First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/).                                                | [RTT integration steps](./TriceReferenceManual.md#f030instrtt)
-First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](./TriceReferenceManual.md#f030instuart)
-Task context on an MCU          | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](./TriceReferenceManual.md#g0b1-feature-tour)
-Text generated on the target    | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder.                                                     | [Local logging](./TriceReferenceManual.md#pc-local-logging)
-Live plots                      | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot.                                                           | [Plotting setup](./TriceReferenceManual.md#setting-up-the-labplot-demo)
-Commands between nodes          | [TriceAbc](../examples/TriceAbc/): run a host-native broadcast demo and change a command.                                                    | [ABC example](./TriceReferenceManual.md#example-examplestriceabc)
+First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/).                                                | [RTT integration steps](rm/examples.md#f030instrtt)
+First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](rm/examples.md#f030instuart)
+Task context on an MCU          | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](rm/examples.md#g0b1-feature-tour)
+Text generated on the target    | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder.                                                     | [Local logging](rm/examples.md#pc-local-logging)
+Live plots                      | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot.                                                           | [Plotting setup](rm/cli.md#setting-up-the-labplot-demo)
+Commands between nodes          | [TriceAbc](../examples/TriceAbc/): run a host-native broadcast demo and change a command.                                                    | [ABC example](rm/abc_asynchronous_broadcast_commands.md#example-examplestriceabc)
 
 [F030_bare](../examples/F030_bare/) is the STM32CubeMX-generated starting point without Trice instrumentation. [F030_inst_rtt](../examples/F030_inst_rtt/) and [F030_inst_uart](../examples/F030_inst_uart/) mainly show the concrete changes needed to add Trice with RTT or UART, respectively. Compare either instrumented folder with `F030_bare` using a folder-diff tool: the differences show roughly which files and settings to adapt in your own CubeMX project.
 
@@ -285,15 +299,15 @@ These projects have different prerequisites. In particular, the G0B1 build needs
 Symptom                                                           | Next check
 ------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 `trice` or `tlog` is not found, or a documented option is unknown | Check `PATH` and `trice --version`. Install a tool version that supports the option; `trice help -all` lists the available switches.
-PC compilation fails on standard headers                          | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](./TriceReferenceManual.md#development-environment-setup).
-A generated header is missing or points at a wrong call           | Run Bind from the intended project root and check the generated include path. Do not edit individual sidecar definitions. See [Bind diagnostics](./TriceReferenceManual.md#diagnostics-and-troubleshooting).
+PC compilation fails on standard headers                          | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](rm/development_environment_setup.md).
+A generated header is missing or points at a wrong call           | Run Bind from the intended project root and check the generated include path. Do not edit individual sidecar definitions. See [Bind diagnostics](rm/bind.md#diagnostics-and-troubleshooting).
 The target runs but no bytes arrive                               | Use `tlog -p COM7 -baud 115200 -s` to display incoming bytes. Check the writer, output configuration and regular `TriceTransfer()` calls for deferred mode.
 Bytes arrive but cannot be decoded                                | Use `tlog -p COM7 -baud 115200 -debug` to inspect framed and decoded packets. Check the project's accumulated `til.json`, port speed, framing and options against its log script.
 Source locations point to the wrong lines                         | Use the `li.json` from the firmware build being decoded, or disable source locations with `-li off`.
 Messages disappear after adding a filter                          | Remove `-pick`, `-ban` and `-logLevel` temporarily; check the tag or custom-tag weight.
-CE reports an unknown identifier or unsupported site              | Make the expression accessible at every selected call; follow [bind-limits](./TriceReferenceManual.md#bind-limits) for wrappers and alternatives.
-An example's output check fails after an edit                     | Compare actual output with the new intended values, then [update the expectations](./TriceReferenceManual.md#updating-the-pc-tours-output-checks).
+CE reports an unknown identifier or unsupported site              | Make the expression accessible at every selected call; follow [bind-limits](rm/bind.md#bind-limits) for wrappers and alternatives.
+An example's output check fails after an edit                     | Compare actual output with the new intended values, then [update the expectations](rm/examples.md#updating-the-pc-tours-output-checks).
 
 `tlog` is the CLI helper for `trice log`; it accepts the same logging options without the `log` subcommand. Replace the port and baud rate above with your connection settings. `-s` shows the received bytes before decoding; `-debug` adds framing and decoder diagnostics. You can combine them when checking a new transport.
 
-For further examples and checks, inspect [triceCheck.c](../_test/testdata/triceCheck.c), the [PC tour's output assertions](../examples/PC_features/check_output.sh), and the [logging-feature test entry point](../scripts/_515_test_logging_features.sh). They are optional follow-up reading. The [Reference Manual](./TriceReferenceManual.md) and `trice help -all` remain the complete lookup sources.
+For further examples and checks, inspect [triceCheck.c](../_test/testdata/triceCheck.c), the [PC tour's output assertions](../examples/PC_features/check_output.sh), and the [logging-feature test entry point](../scripts/_515_test_logging_features.sh). They are optional follow-up reading. The [Reference Manual](rm/README.md) and `trice help -all` remain the complete lookup sources.

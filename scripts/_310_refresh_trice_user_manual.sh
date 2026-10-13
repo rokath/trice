@@ -4,7 +4,7 @@
 #
 # Purpose
 # -------
-# Maintenance wrapper for the User Manual and Reference Manual in docs/.
+# Maintenance wrapper for the User Manual and Reference Manual chapters in docs/.
 #
 # This script only checks or regenerates the manual TOC, numbering, and anchors
 # with mdtoc. PDF generation is intentionally handled by the separate script
@@ -26,8 +26,8 @@ cd "$REPO_ROOT"
 
 MODE="format"
 VERBOSE=0
-# Both entry points must be present; never silently omit one from validation.
-MANUAL_FILES=("docs/TriceUserManual.md" "docs/TriceReferenceManual.md")
+# Keep the User Manual first; managed RM chapters are discovered before any writes.
+MANUAL_FILES=("docs/TriceUserManual.md")
 
 usage() {
   sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
@@ -66,8 +66,38 @@ parse_args() {
 }
 
 require_manual_file() {
-  if [[ ! -s "$MANUAL_FILE" ]]; then
-    die "manual file not found or empty: $MANUAL_FILE"
+  if [[ ! -s "$1" ]]; then
+    die "manual file not found or empty: $1"
+  fi
+}
+
+# Discover the flat chapter sources without introducing another maintained list.
+# Navigation files are not chapters, even if they later contain a TOC example.
+# Validate inputs before invoking mdtoc so missing sources cannot cause partial
+# formatting. Files without a managed container remain outside this formatter.
+collect_reference_chapters() {
+  local CHAPTER_FILE
+  if [[ ! -d docs/rm ]]; then
+    die "reference manual directory not found: docs/rm"
+  fi
+  require_manual_file "docs/rm/README.md"
+
+  for CHAPTER_FILE in docs/rm/*.md; do
+    # An unmatched glob stays literal; never pass it to mdtoc as a filename.
+    [[ -f "$CHAPTER_FILE" ]] || continue
+    case "$CHAPTER_FILE" in
+      docs/rm/README.md | docs/rm/HEADER.md | docs/rm/FOOTER.md | docs/rm/INDEX.md)
+        continue
+        ;;
+    esac
+    require_manual_file "$CHAPTER_FILE"
+    if grep -q '^<!-- mdtoc -->' "$CHAPTER_FILE"; then
+      MANUAL_FILES+=("$CHAPTER_FILE")
+    fi
+  done
+
+  if [[ "${#MANUAL_FILES[@]}" -eq 1 ]]; then
+    die "no mdtoc-managed reference chapters found: docs/rm/*.md; expected <!-- mdtoc --> in a chapter, excluding README.md, HEADER.md, FOOTER.md and INDEX.md"
   fi
 }
 
@@ -80,9 +110,8 @@ require_mdtoc() {
 main() {
   parse_args "$@"
   local MANUAL_FILE
-  for MANUAL_FILE in "${MANUAL_FILES[@]}"; do
-    require_manual_file
-  done
+  require_manual_file "docs/TriceUserManual.md"
+  collect_reference_chapters
   require_mdtoc
 
   for MANUAL_FILE in "${MANUAL_FILES[@]}"; do

@@ -73,7 +73,7 @@ Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM0/port.c
 #Core/Src/syscalls.c
 
 # Compile the complete Trice library; project headers keep their precedence.
-# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Details: ../../docs/rm/code_size.md
 C_SOURCES += $(wildcard ../../src/*.c)
 
 # examples

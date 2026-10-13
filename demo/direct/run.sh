@@ -23,11 +23,13 @@ command -v "$compiler" >/dev/null 2>&1 || {
 # 1. Assign IDs; keep generated headers and the field registry inside build/.
 # build/ is ignored by git, so generated files do not pollute the repository.
 # Bind creates build/generated_sidecars and its parent build/ for the compiler output.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind -src main.c -genDir build/generated_sidecars
 
 # 2. Compile the program and library. -I adds header directories; -o names output.
 # Project headers come first; default_conf provides the fallback RTT header.
-# Optional size tuning: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Optional size tuning: ../../docs/rm/code_size.md
 "$compiler" -I. -Ibuild/generated_sidecars -I"$trice_src" -I"$trice_src/default_conf" \
   main.c "$trice_src"/*.c -o build/demo_direct.exe
 

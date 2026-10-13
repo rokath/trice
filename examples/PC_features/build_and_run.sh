@@ -28,7 +28,7 @@ suffix=
 case "$(uname -s)" in MINGW* | MSYS* | CYGWIN*) suffix=.exe ;; esac
 
 # Use the native linker's spelling for removing unused functions and data.
-# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Details: ../../docs/rm/code_size.md
 link_unused=-Wl,--gc-sections
 case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 
@@ -50,6 +50,8 @@ case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 # For emit_sample(3300) with pc_sample_phase=7, the decoded message becomes
 # "Supply 3300 mV, cycle=7\n" and JSON/KV also contains the named cycle field.
 # The original call in main.c stays unchanged; generated headers add the context.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind \
   -src main.c \
   -genDir generated \

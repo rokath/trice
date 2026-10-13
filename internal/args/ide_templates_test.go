@@ -132,6 +132,10 @@ func TestIDELaunchUsesCurrentCommandsAndExistingInputs(t *testing.T) {
 			require.NoError(t, flags.Parse(args[1:]), "template must use current CLI flags")
 			assert.Empty(t, flags.Args(), "no stray positional arguments")
 			for _, arg := range args {
+				// The build initializes this ignored table; a fresh checkout lacks it.
+				if arg == root+"/demoLI.json" {
+					continue
+				}
 				if strings.HasPrefix(arg, root+"/") && arg != root+"/generated" {
 					_, err := os.Stat(filepath.FromSlash(arg))
 					assert.NoError(t, err, "referenced input %q must exist", arg)
@@ -193,7 +197,9 @@ func TestIDEGenerateUsesCurrentG0B1Sites(t *testing.T) {
 			continue
 		}
 		source := "examples/G0B1_inst/Core/Src/main.c"
-		fs := ideMemoryInputs(t, source, "demoTIL.json", "demoLI.json")
+		fs := ideMemoryInputs(t, source, "demoTIL.json")
+		// A fresh checkout has no generated LI; initialize it as the build does.
+		require.NoError(t, fs.WriteFile("demoLI.json", nil, 0o644))
 		output, err := runContextCLI(t, fs, "bind", "-src", source,
 			"-i", "demoTIL.json", "-li", "demoLI.json", "-genDir", "generated")
 		require.NoError(t, err, output)

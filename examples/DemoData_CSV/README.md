@@ -1,2 +1,2 @@
-- [CSV signal producer: build, files, UDP, and signal model](../../docs/TriceReferenceManual.md#examplesdemodatacsv)
-- [Live visualization and LabPlot setup](../../docs/TriceReferenceManual.md#setting-up-the-labplot-demo)
+- [CSV signal producer: build, files, UDP, and signal model](../../docs/rm/cli.md#examplesdemodatacsv)
+- [Live visualization and LabPlot setup](../../docs/rm/cli.md#setting-up-the-labplot-demo)

@@ -3,7 +3,7 @@
 # Usage: ./build.sh. Requires Bash, make, Trice and the Arm GNU toolchain.
 # The sequence is bind (IDs/headers), generate (C format table), then make.
 # This compiles only; flash separately, then use serial.sh to read the text.
-# Library/image details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Library/image details: ../../docs/rm/code_size.md
 # SPDX-License-Identifier: MIT
 
 set -euo pipefail
@@ -30,6 +30,8 @@ source "${ROOT}/scripts/_150_setup_build_environment.sh"
 # These files contain the live Trice producers. The shared triceCheck.c is the
 # same corpus compiled by G0B1_inst and the PC target tests. bind assigns stable
 # IDs, and logC emits exactly this target's entries for local formatting.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind \
   -src Core/Src/main.c \
   -src Core/Src/stm32g0xx_it.c \

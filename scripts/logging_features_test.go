@@ -244,7 +244,7 @@ done`, nil)
 func independentDemoFixture(t *testing.T, mode string) string {
 	t.Helper()
 	root := scriptFixture(t, "demo/"+mode+"/run.sh")
-	for _, name := range []string{"main.c", "triceConfig.h", "til.json", "li.json"} {
+	for _, name := range []string{"main.c", "triceConfig.h", "til.json"} {
 		path := filepath.Join("demo", mode, name)
 		data, err := os.ReadFile(filepath.Join("..", path))
 		if !assert.NoError(t, err) {
@@ -330,6 +330,12 @@ func TestPCDemosAreIndependent(t *testing.T) {
 		} {
 			t.Run(mode+"/"+tc.name, func(t *testing.T) {
 				root := independentDemoFixture(t, mode)
+				// Exercise both a fresh checkout and retained local ownership evidence.
+				locationContents := ""
+				if tc.directory != "" {
+					locationContents = "{\"42\":{\"File\":\"main.c\",\"Line\":7}}\n"
+					writeFixture(t, root, "demo/"+mode+"/li.json", locationContents)
+				}
 				// Stale artifacts would emit a visible marker if launched by mistake.
 				writeFixture(t, root, "demo/"+mode+"/build/demo_"+mode+".exe", "#!/bin/sh\nprintf 'stale_run\\n' >> \"$DEMO_TRACE\"\n")
 				writeFixture(t, root, "demo/"+mode+"/build/log.bin", "old capture\n")
@@ -362,6 +368,9 @@ func TestPCDemosAreIndependent(t *testing.T) {
 					want = "bind\ncompile\n"
 				}
 				assert.Equal(t, want, string(trace), "only the selected demo's expected steps may run")
+				locations, err := os.ReadFile(filepath.Join(root, "demo", mode, "li.json"))
+				assert.NoError(t, err)
+				assert.Equal(t, locationContents, string(locations), "first-build initialization must retain existing LI")
 				if tc.failure != "bind" {
 					assert.FileExists(t, filepath.Join(root, "demo", mode, "build", "generated_sidecars", "adapter.h"))
 				}

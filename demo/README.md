@@ -1,1 +1,1 @@
-- [Minimal PC demos: prerequisites, direct/deferred output, and generated files](../docs/TriceReferenceManual.md#minimal-pc-demos-direct-and-deferred)
+- [Minimal PC demos: prerequisites, direct/deferred output, and generated files](../docs/rm/examples.md#minimal-pc-demos-direct-and-deferred)

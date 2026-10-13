@@ -28,6 +28,8 @@ command -v "$compiler" >/dev/null 2>&1 || {
 # The shared triceCheck.c is the same producer corpus used by the PC target
 # tests and the installed MCU examples. logC keeps only these two sources in
 # the target-side format table.
+# Retain local ID ownership evidence; initialize LI only on the first build.
+[ -e li.json ] || touch li.json
 trice bind \
   -src main.c \
   -src ../../_test/testdata/triceCheck.c \
@@ -43,7 +45,7 @@ case "$(uname -s)" in
 esac
 
 # 2. Use the native linker's spelling for removing unused functions and data.
-# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Details: ../../docs/rm/code_size.md
 link_unused=-Wl,--gc-sections
 case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 echo "INFO: PC_log uses local output; no project RTT header or J-Link installation is needed."

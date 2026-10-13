@@ -29,6 +29,62 @@ func writeFixture(t *testing.T, root, name, content string) {
 	}
 }
 
+// TestIDWorkflowsInitializeLocalLI covers fresh checkouts, retained ownership
+// evidence, disabled LI, and initialization errors before ID processing starts.
+func TestIDWorkflowsInitializeLocalLI(t *testing.T) {
+	t.Parallel()
+	for _, action := range []string{"bind", "insert", "clean"} {
+		for _, tc := range []struct {
+			name, path, initial string
+			existing, blocked   bool
+		}{
+			{name: "missing_default", path: "demoLI.json"},
+			{name: "missing_nested", path: "metadata/local.json"},
+			{name: "retained_empty", path: "demoLI.json", existing: true},
+			{name: "retained_ownership", path: "demoLI.json", initial: "{\"42\":{\"File\":\"sample.c\",\"Line\":3}}\n", existing: true},
+			{name: "disabled_off", path: "off"},
+			{name: "disabled_none", path: "none"},
+			{name: "parent_is_file", path: "metadata/local.json", blocked: true},
+		} {
+			t.Run(action+"/"+tc.name, func(t *testing.T) {
+				// Each case owns its scripts, metadata, and tool double in a temp tree.
+				root := scriptFixture(t, "scripts/_120_setup_trice_environment.sh", "scripts/_130_trice_id_workflow.sh")
+				if tc.existing {
+					writeFixture(t, root, tc.path, tc.initial)
+				}
+				if tc.blocked {
+					writeFixture(t, root, "metadata", "not a directory\n")
+				}
+				writeFixture(t, root, "bin/trice", "#!/bin/sh\nset -eu\ncase \"$TRICE_LI_JSON\" in off|none) ;; *) [ -f \"$TRICE_LI_JSON\" ] || exit 91 ;; esac\nprintf '%s\\n' \"$1\" > called\n")
+				// Merely loading the environment must not initialize the local table.
+				_, err := runFixture(t, root, "source scripts/_120_setup_trice_environment.sh", map[string]string{"TRICE_LI_JSON": tc.path})
+				assert.NoError(t, err)
+				if !tc.existing && !tc.blocked {
+					assert.NoFileExists(t, filepath.Join(root, tc.path))
+				}
+				// The workflow must initialize LI before invoking the tool, or stop.
+				output, err := runFixture(t, root, "source scripts/_130_trice_id_workflow.sh\ntrice_id_workflow "+action, map[string]string{"TRICE_LI_JSON": tc.path})
+				if tc.blocked {
+					assert.Error(t, err, output)
+					assert.NoFileExists(t, filepath.Join(root, "called"))
+					return
+				}
+				assert.NoError(t, err, output)
+				called, err := os.ReadFile(filepath.Join(root, "called"))
+				assert.NoError(t, err)
+				assert.Equal(t, action+"\n", string(called))
+				if tc.path == "off" || tc.path == "none" {
+					assert.NoFileExists(t, filepath.Join(root, tc.path))
+					return
+				}
+				contents, err := os.ReadFile(filepath.Join(root, tc.path))
+				assert.NoError(t, err)
+				assert.Equal(t, tc.initial, string(contents), "initialization must preserve existing ID evidence")
+			})
+		}
+	}
+}
+
 // scriptFixture copies only the production scripts under test; their normal
 // relative-root discovery then resolves into the isolated fixture repository.
 func scriptFixture(t *testing.T, scripts ...string) string {
@@ -581,50 +637,126 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 	assert.Contains(t, outputText, "flag provided but not defined: -tilCS")
 }
 
-// TestManualMaintenanceIncludesBothBooks prevents a successful format/check from
-// hiding a missing or invalid guide behind an otherwise valid reference manual.
-func TestManualMaintenanceIncludesBothBooks(t *testing.T) {
-	for _, tc := range []struct {
-		name, mode, missing, rejected string
-	}{
-		{"check_both_books", "check", "", ""},
-		{"format_both_books", "format", "", ""},
-		{"missing_guide_is_not_skipped", "check", "TriceUserManual", ""},
-		{"missing_reference_prevents_partial_format", "format", "TriceReferenceManual", ""},
-		{"invalid_guide_fails_check", "check", "", "TriceUserManual"},
-		{"invalid_reference_fails_check", "check", "", "TriceReferenceManual"},
+// manualMaintenanceFixture supplies managed chapters alongside navigation,
+// unmanaged notes, nested drafts and the retained monolith. The tool double
+// records actual arguments and never rewrites the documentation sources.
+func manualMaintenanceFixture(t *testing.T) string {
+	t.Helper()
+	root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
+	for _, path := range []string{
+		"docs/TriceUserManual.md",
+		"docs/rm/README.md", "docs/rm/HEADER.md", "docs/rm/FOOTER.md", "docs/rm/INDEX.md",
+		"docs/rm/overview.md", "docs/rm/binary encoding.md", "docs/rm/rtt.md",
+		"docs/rm/nested/draft.md", "docs/_TriceReferenceManual.md",
 	} {
-		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
-			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
-				if manual != tc.missing {
-					writeFixture(t, root, "docs/"+manual+".md", "# "+manual+"\n")
-				}
-			}
-			writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
-printf '%s\n' "$*"
-if [ "$3" = "docs/$REJECTED.md" ]; then
+		writeFixture(t, root, path, "# Fixture\n\n<!-- mdtoc -->\n<!-- /mdtoc -->\n")
+	}
+	writeFixture(t, root, "docs/rm/notes.md", "# Unmanaged note\n")
+	writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+[ "$#" -eq 3 ] || exit 91
+printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
+if [ "$3" = "$REJECTED" ]; then
   echo "invalid manual: $3" >&2
   exit 9
 fi
 `)
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.mode, map[string]string{"REJECTED": tc.rejected})
-			if tc.missing != "" {
+	return root
+}
+
+// TestManualMaintenanceIncludesChapters verifies check/format dispatch, automatic
+// discovery and propagation of formatter failures without using the old monolith.
+func TestManualMaintenanceIncludesChapters(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments, operation, rejected string
+	}{
+		{name: "check_user_manual_and_all_managed_chapters", arguments: "check", operation: "check"},
+		{name: "format_user_manual_and_all_managed_chapters", arguments: "format", operation: "generate"},
+		{name: "default_mode_still_formats", operation: "generate"},
+		{name: "verbose_check_preserves_selection", arguments: "check --verbose", operation: "check"},
+		{name: "invalid_user_manual_fails_check", arguments: "check", operation: "check", rejected: "docs/TriceUserManual.md"},
+		{name: "invalid_chapter_fails_check", arguments: "check", operation: "check", rejected: "docs/rm/binary encoding.md"},
+		{name: "chapter_generation_failure_stops_formatting", arguments: "format", operation: "generate", rejected: "docs/rm/binary encoding.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.arguments, map[string]string{"REJECTED": tc.rejected})
+			if tc.rejected != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "manual file not found or empty: docs/"+tc.missing+".md")
-				assert.NotContains(t, out, "--file", "preflight must finish before invoking mdtoc")
-			} else if tc.rejected != "" {
-				assert.Error(t, err, out)
-				assert.Contains(t, out, "invalid manual: docs/"+tc.rejected+".md")
+				assert.Contains(t, out, "invalid manual: "+tc.rejected)
 			} else {
 				assert.NoError(t, err, out)
-				operation := "check"
-				if tc.mode == "format" {
-					operation = "generate"
-				}
-				assert.Contains(t, out, operation+" --file docs/TriceUserManual.md")
-				assert.Contains(t, out, operation+" --file docs/TriceReferenceManual.md")
 			}
+			calls, readErr := os.ReadFile(filepath.Join(root, "mdtoc.calls"))
+			if !assert.NoError(t, readErr) {
+				return
+			}
+			// Exact calls also prove navigation, drafts and unmanaged files are skipped
+			// and that a chapter filename containing spaces remains one argument.
+			var expected strings.Builder
+			for _, path := range []string{"docs/TriceUserManual.md", "docs/rm/binary encoding.md", "docs/rm/overview.md", "docs/rm/rtt.md"} {
+				expected.WriteString(tc.operation + " --file " + path + "\n")
+				if path == tc.rejected {
+					break
+				}
+			}
+			assert.Equal(t, expected.String(), string(calls))
+			if strings.Contains(tc.arguments, "--verbose") {
+				assert.Contains(t, out, "Checking docs/rm/rtt.md TOC, numbering, and anchors with mdtoc...")
+			}
+		})
+	}
+}
+
+// TestManualMaintenanceValidatesSourcesBeforeFormatting ensures missing or empty
+// entry points and chapters fail before mdtoc can modify any otherwise valid file.
+func TestManualMaintenanceValidatesSourcesBeforeFormatting(t *testing.T) {
+	for _, tc := range []struct {
+		name, path, message string
+		empty               bool
+	}{
+		{name: "missing_user_manual", path: "docs/TriceUserManual.md", message: "manual file not found or empty: docs/TriceUserManual.md"},
+		{name: "empty_user_manual", path: "docs/TriceUserManual.md", empty: true, message: "manual file not found or empty: docs/TriceUserManual.md"},
+		{name: "missing_reference_directory", path: "docs/rm", message: "reference manual directory not found: docs/rm"},
+		{name: "missing_reference_entry_point", path: "docs/rm/README.md", message: "manual file not found or empty: docs/rm/README.md"},
+		{name: "empty_reference_entry_point", path: "docs/rm/README.md", empty: true, message: "manual file not found or empty: docs/rm/README.md"},
+		{name: "empty_chapter_prevents_partial_format", path: "docs/rm/rtt.md", empty: true, message: "manual file not found or empty: docs/rm/rtt.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			if tc.empty {
+				writeFixture(t, root, tc.path, "")
+			} else if !assert.NoError(t, os.RemoveAll(filepath.Join(root, tc.path))) {
+				return
+			}
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.message)
+			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"), "preflight must finish before invoking mdtoc")
+		})
+	}
+}
+
+// TestManualMaintenanceRequiresManagedChapters rejects unmatched globs and a
+// directory containing only navigation or unmanaged files instead of real chapters.
+func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
+	for _, withNotes := range []bool{false, true} {
+		name := "navigation_only"
+		if withNotes {
+			name = "navigation_and_unmanaged_notes"
+		}
+		t.Run(name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			for _, path := range []string{"docs/rm/overview.md", "docs/rm/binary encoding.md", "docs/rm/rtt.md"} {
+				assert.NoError(t, os.Remove(filepath.Join(root, path)))
+			}
+			if !withNotes {
+				assert.NoError(t, os.Remove(filepath.Join(root, "docs/rm/notes.md")))
+			}
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh check", nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "no mdtoc-managed reference chapters found: docs/rm/*.md")
+			assert.Contains(t, out, "expected <!-- mdtoc -->")
+			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"))
 		})
 	}
 }
@@ -644,31 +776,53 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs")
+			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs", "scripts/_prepare_reference_manual.cjs")
 			writeFixture(t, root, "docs/ref/asset.txt", "fixture image directory\n")
 			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 				if manual != tc.missing {
-					writeFixture(t, root, "docs/"+manual+".md", "# "+manual+"\n")
+					if manual == "TriceUserManual" {
+						writeFixture(t, root, "docs/TriceUserManual.md", "# TriceUserManual\n")
+					} else {
+						writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Chapter](chapter.md)\n")
+						writeFixture(t, root, "docs/rm/chapter.md", "# Chapter\n")
+					}
 				}
 				writeFixture(t, root, "docs/"+manual+".pdf", "previous "+manual)
 			}
 			writeFixture(t, root, "bin/node", "#!/bin/sh\necho fixture-node\n")
 			writeFixture(t, root, "bin/npm", "#!/bin/sh\necho fixture-npm\n")
+			writeFixture(t, root, "bin/stitchmd", `#!/bin/sh
+if [ "$1" = -version ]; then echo 'stitchmd 0.9.0'; exit 0; fi
+printf '# Reference\n' > temp/manual-pdf/TriceReferenceManual.md
+`)
 			writeFixture(t, root, "bin/npx", `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-npx; exit 0; fi
+case "$*" in
+  *'node scripts/_prepare_reference_manual.cjs --verify'*) exit 0 ;;
+  *'node scripts/_prepare_reference_manual.cjs'*)
+    mkdir -p temp/manual-pdf
+    printf '# Reference\n' > temp/manual-pdf/SUMMARY.md
+    exit 0 ;;
+esac
 manual=
 for argument do
-  case "$argument" in docs/*.md) manual="$argument" ;; esac
+  case "$argument" in *'
+'*) echo 'fixture rejects multiline renderer arguments' >&2; exit 92 ;; esac
+  case "$argument" in docs/*.md|temp/manual-pdf/*.md) manual="$argument" ;; esac
 done
 printf '%s\n' "$*" >> renderer-calls.txt
-if [ "$manual" = "docs/$FAILED.md" ]; then echo "fixture renderer failed: $manual" >&2; exit 23; fi
-if [ "$manual" = "docs/$EMPTY.md" ]; then exit 0; fi
+if [ "${manual##*/}" = "$FAILED.md" ]; then echo "fixture renderer failed: $manual" >&2; exit 23; fi
+if [ "${manual##*/}" = "$EMPTY.md" ]; then exit 0; fi
 printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 `)
 			out, err := runFixture(t, root, "bash scripts/_320_generate_trice_user_manual_pdf.sh", map[string]string{"FAILED": tc.failed, "EMPTY": tc.empty})
 			if tc.missing != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "missing or empty manual file: docs/"+tc.missing+".md")
+				missing := "docs/TriceUserManual.md"
+				if tc.missing == "TriceReferenceManual" {
+					missing = "docs/rm/README.md"
+				}
+				assert.Contains(t, out, "missing or empty manual file: "+missing)
 				_, statErr := os.Stat(filepath.Join(root, "renderer-calls.txt"))
 				assert.True(t, os.IsNotExist(statErr), "missing input must be detected before rendering")
 				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
@@ -678,12 +832,14 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				}
 			} else if tc.failed != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "fixture renderer failed: docs/"+tc.failed+".md")
+				assert.Contains(t, out, "fixture renderer failed:")
+				assert.Contains(t, out, tc.failed+".md")
 				assert.Contains(t, out, "ERROR: md-to-pdf failed")
 				assert.NotContains(t, out, "Generated manual PDF: docs/"+tc.failed+".pdf")
 			} else if tc.empty != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "missing or empty generated PDF: docs/"+tc.empty+".pdf")
+				assert.Contains(t, out, "missing or empty generated PDF:")
+				assert.Contains(t, out, tc.empty+".pdf")
 			} else {
 				assert.NoError(t, err, out)
 				calls, readErr := os.ReadFile(filepath.Join(root, "renderer-calls.txt"))
@@ -692,12 +848,134 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
 					assert.NoError(t, readErr)
-					assert.Equal(t, "rendered docs/"+manual+".md\n", string(data))
+					input := "docs/TriceUserManual.md"
+					if manual == "TriceReferenceManual" {
+						input = "temp/manual-pdf/TriceReferenceManual.md"
+					}
+					assert.Equal(t, "rendered "+input+"\n", string(data))
 					assert.Contains(t, string(calls), "<span>"+manual+".md</span>", "each PDF must identify its own Markdown source")
 				}
+				assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"), "the generated monolith belongs only in temp")
 			}
 		})
 	}
+}
+
+// TestReferencePDFPreparation exercises real Markdown tokenization, namespace
+// mapping and staging cleanup without rendering PDFs or fetching npm packages.
+// It runs inside the existing offline renderer environment when available.
+func TestReferencePDFPreparation(t *testing.T) {
+	if _, err := exec.LookPath("npx"); err != nil {
+		t.Skip("npx not installed; reference preparation uses the PDF renderer runtime")
+	}
+	root := scriptFixture(t, "scripts/_prepare_reference_manual.cjs")
+	writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Introduction](HEADER.md)\n- [Beta](b.md)\n- [Alpha](a.md)\n- [Footer](FOOTER.md)\n")
+	writeFixture(t, root, "docs/rm/HEADER.md", "# Introduction\n\nBook introduction.\n")
+	writeFixture(t, root, "docs/rm/FOOTER.md", "# Footer\n\nBook footer.\n")
+	writeFixture(t, root, "docs/ref/image.png", "fixture image\n")
+	writeFixture(t, root, "docs/rm/a.md", "# Alpha\n\n<details markdown=\"1\">\n<summary>Contents</summary>\n\n<!-- mdtoc -->\n\n- [Example](#example)\n\n<!-- /mdtoc -->\n\n</details>\n\n## 1. <a id=\"example\"></a>Example\n\n<!-- Preserve [fake](missing.md) and <a id=\"comment-only\"></a>. -->\n\n[Beta](b.md#example)\n\n![Image](../ref/image.png)\n\n[Code](../../src/example.c)\n\n```md\n[Do not rewrite](b.md#example)\n```\n")
+	// Exercise deep nesting, sibling resets and a skipped heading level without
+	// letting generated local numbers replace the README-ordered book hierarchy.
+	writeFixture(t, root, "docs/rm/b.md", "# Beta\n\n## 1. <a id=\"example\"></a>Example\n\n<a href=\"a.md#example\">Alpha</a>\n\nCode with a blank line:\n\n```text\nfirst line\n\nlast line\n```\n"+`
+### 1.1. <a id="detail"></a>Detail *formatting*
+
+#### 1.1.1. <a id="nested"></a>Nested
+
+##### Deep
+
+###### Deepest
+
+### 1.2. <a id="sibling"></a>Sibling
+
+## 2. <a id="next"></a>Next
+
+#### Skipped level
+
+## 2.0 protocol
+
+### 32-bit packets
+
+<!--
+## 99. Commented heading
+-->
+
+`)
+	writeFixture(t, root, "temp/manual-pdf/stale.txt", "must be removed\n")
+	writeFixture(t, root, "temp/unrelated.txt", "must survive\n")
+	writeFixture(t, root, "check.cjs", `
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const helper = require('./scripts/_prepare_reference_manual.cjs');
+let marked;
+for (const directory of process.env.PATH.split(path.delimiter)) {
+  try {
+    const entry = require.resolve('md-to-pdf', {paths:[path.resolve(directory,'..')]});
+    marked = require(path.join(path.dirname(entry),'lib/get-marked-with-highlighter.js')).getMarked({},[]);
+    break;
+  } catch (error) { if(error.code !== 'MODULE_NOT_FOUND') throw error; }
+}
+assert.ok(marked, 'the pinned renderer must supply its parser');
+const before = ['docs/rm/README.md','docs/rm/HEADER.md','docs/rm/a.md','docs/rm/b.md','docs/rm/FOOTER.md'].map(file => [file,fs.readFileSync(file)]);
+helper.prepare(marked, process.cwd());
+assert.equal(fs.existsSync('temp/manual-pdf/stale.txt'), false);
+assert.equal(fs.readFileSync('temp/unrelated.txt','utf8'), 'must survive\n');
+const summary = fs.readFileSync('temp/manual-pdf/SUMMARY.md','utf8');
+assert.ok(summary.indexOf('[1. Beta]') < summary.indexOf('[2. Alpha]'), 'README order controls book numbering');
+assert.ok(summary.includes('[Introduction]') && summary.includes('[Footer]'), 'framing documents stay unnumbered');
+const contents = fs.readFileSync('temp/manual-pdf/_contents.md','utf8');
+assert.ok(contents.includes('>1. Beta</a>') && contents.includes('>2. Alpha</a>'), 'global contents use the same chapter numbers');
+assert.ok(contents.includes('>1.1. Example</a>') && contents.includes('>1.1.1. Detail formatting</a>'), 'contents use full book subsection numbers');
+assert.ok(contents.includes('>2.1. Example</a>'), 'subsection counters restart under the next main chapter');
+const alpha = fs.readFileSync('temp/manual-pdf/chapters/a.md','utf8');
+assert.ok(alpha.startsWith('# <a id="rm-a--chapter" class="rm-main-chapter"></a>2. Alpha\n'), 'chapter headings carry PDF-only numbers and page-break hooks');
+assert.ok(!alpha.includes('<summary>Contents</summary>'), 'local contents are removed');
+assert.ok(alpha.includes('href="#rm-b--anchor-example"'), 'chapter links become PDF destinations');
+assert.ok(alpha.includes('src="../../../docs/ref/image.png"'), 'images remain local');
+assert.match(alpha, /https:\/\/github.com\/rokath\/trice\/blob\/[^/]+\/src\/example.c/);
+assert.ok(alpha.includes('<!-- Preserve [fake](missing.md) and <a id="comment-only"></a>. -->'));
+assert.ok(alpha.replace(/<[^>]+>/g,'').includes('[Do not rewrite](b.md#example)'), 'highlighted code example text is preserved');
+const beta = fs.readFileSync('temp/manual-pdf/chapters/b.md','utf8');
+const headingLabels = [...beta.matchAll(/<h[3-6]\b[^>]*>(.*?)<\/h[3-6]>/gs)].map(match => match[1].replace(/<[^>]*>/g,''));
+assert.deepEqual(headingLabels, [
+  '1.1. Example',
+  '1.1.1. Detail formatting',
+  '1.1.1.1. Nested',
+  '1.1.1.1.1. Deep',
+  '1.1.1.1.1.1. Deepest',
+  '1.1.2. Sibling',
+  '1.2. Next',
+  '1.2.1. Skipped level',
+  '1.3. 2.0 protocol',
+  '1.3.1. 32-bit packets',
+], 'all levels follow the visible hierarchy, reset siblings and preserve literal title numbers');
+assert.ok(beta.includes('<em>formatting</em>'), 'numbering retains inline heading markup');
+assert.ok(beta.includes('## 99. Commented heading'), 'numbering must not rewrite commented headings');
+assert.ok(!contents.includes('Commented heading'), 'comments must not enter the hierarchy');
+assert.ok(beta.includes('href="#rm-a--anchor-example"'), 'HTML links are remapped too');
+assert.ok(alpha.includes('id="rm-a--anchor-example"') && beta.includes('id="rm-b--anchor-example"'));
+for(const [file,data] of before) assert.deepEqual(fs.readFileSync(file),data,'sources must stay untouched');
+fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md', '# <a id="rm-start"></a>Reference\n\n' + beta + '\n\n' + alpha);
+helper.verify(marked,process.cwd());
+const compiled = fs.readFileSync('temp/manual-pdf/TriceReferenceManual.html','utf8');
+assert.ok(compiled.includes('first line\n\nlast line\n</code></pre>'), 'blank code lines survive final Markdown parsing');
+assert.ok(compiled.includes('1.1.1.1.1.1. Deepest') && compiled.includes('2.1. '), 'final parsing preserves book numbering');
+fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md','[Broken](#missing)\n');
+assert.throws(() => helper.verify(marked,process.cwd()), /missing generated PDF anchor/);
+fs.writeFileSync('docs/rm/b.md','# Beta\n\n[Broken](a.md#missing)\n');
+assert.throws(() => helper.prepare(marked,process.cwd()), /unknown reference destination/);
+fs.writeFileSync('docs/rm/b.md','# Beta\n\n![Broken](missing.png)\n');
+assert.throws(() => helper.prepare(marked,process.cwd()), /missing reference image/);
+fs.rmSync('docs/rm/b.md');
+assert.throws(() => helper.prepare(marked,process.cwd()), /missing or empty reference source/);
+console.log('PASS: README order, cleanup, sources, code, comments, images, anchors and rejected broken inputs');
+`)
+	out, err := runFixture(t, root, "npx --offline -y --package=md-to-pdf@5.2.4 --package=puppeteer@24.31.0 -c 'node check.cjs'", nil)
+	if err != nil && (strings.Contains(out, "ENOTCACHED") || strings.Contains(out, "cache mode is 'only-if-cached'")) {
+		t.Skip("pinned PDF renderer is not cached; this test never downloads npm packages")
+	}
+	assert.NoError(t, err, out)
+	assert.Contains(t, out, "PASS:")
 }
 
 // workflowShellStep extracts one named run block without executing GitHub jobs.
@@ -720,27 +998,78 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 	root := t.TempDir()
-	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/TriceReferenceManual.md)\n")
-	for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
-		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./TriceReferenceManual.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
+	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/performance.md)\n")
+	writeFixture(t, root, "docs/README.md", "[Guide](TriceGuide.md#entry-points)\n")
+	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
+		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
 	}
-	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare both manuals for GitHub Pages"} {
+	writeFixture(t, root, "docs/rm/README.md", "[Bind](bind.md#bind-limits)\n")
+	// Nested chapters resolve parent documentation and source files differently.
+	// Image previews, commented tests and code examples must survive unchanged.
+	chapter := "[User](../TriceUserManual.md#see-your-first-log)\n[Code](../../src/trice.h)\n[`Header`](../../src/trice.h)\n[Help](../ref/trice-help-all.txt)\n![Image](../ref/example.png)\n[![Preview](../ref/example.png)](../ref/example.gif)\n[Local](#local)\n[External](https://example.com/guide?q=1#chapter)\n<a href=\"../TriceGuide.md#entry-points\">Guide</a>\n```md\n[Example](../../src/trice.h)\n```\n<!--\n[Comment](../../src/trice.h)\n-->\n`[Inline](../../src/trice.h)`\n"
+	writeFixture(t, root, "docs/rm/bind.md", chapter)
+	writeFixture(t, root, "docs/rm/performance.md", "# Trice Performance\n")
+	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare documentation for GitHub Pages"} {
 		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
 		assert.NoError(t, err, out)
 	}
 	index, err := os.ReadFile(filepath.Join(root, "index.md"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(index), "./docs/TriceUserManual.html#see-your-first-log")
-	assert.Contains(t, string(index), "./docs/TriceReferenceManual.html")
-	for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+	assert.Contains(t, string(index), "./docs/rm/README.html")
+	assert.Contains(t, string(index), "docs/rm/performance.html")
+	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
 		data, err := os.ReadFile(filepath.Join(root, "docs", manual+".md"))
 		assert.NoError(t, err)
-		assert.Contains(t, string(data), "[Guide](TriceUserManual.html#see-your-first-log)")
-		assert.Contains(t, string(data), "[Reference](TriceReferenceManual.html#bind-limits)")
+		assert.Contains(t, string(data), "[Guide](./TriceUserManual.html#see-your-first-log)")
+		assert.Contains(t, string(data), "[Reference](./rm/bind.html#bind-limits)")
 		assert.Contains(t, string(data), "[Code](https://github.com/rokath/trice/blob/main/src/trice.h)")
 		assert.Contains(t, string(data), "[Help](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt)")
 		assert.Contains(t, string(data), "![Image](./ref/example.png)")
 		assert.Contains(t, string(data), "[Local](#local)")
+	}
+	data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
+	assert.NoError(t, err)
+	for _, expected := range []string{
+		"[User](../TriceUserManual.html#see-your-first-log)",
+		"[Code](https://github.com/rokath/trice/blob/main/src/trice.h)",
+		"[`Header`](https://github.com/rokath/trice/blob/main/src/trice.h)",
+		"[Help](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt)",
+		"![Image](../ref/example.png)",
+		"[![Preview](../ref/example.png)](../ref/example.gif)",
+		"[Local](#local)",
+		"[External](https://example.com/guide?q=1#chapter)",
+		"<a href=\"../TriceGuide.html#entry-points\">Guide</a>",
+		"```md\n[Example](../../src/trice.h)\n```",
+		"<!--\n[Comment](../../src/trice.h)\n-->",
+		"`[Inline](../../src/trice.h)`",
+	} {
+		assert.Contains(t, string(data), expected)
+	}
+	assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"))
+}
+
+// TestManualPagesRequiresActiveSources verifies missing inputs are reported
+// before the workflow can partially rewrite its remaining documentation.
+func TestManualPagesRequiresActiveSources(t *testing.T) {
+	paths := []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
+	for _, missing := range paths {
+		t.Run(missing, func(t *testing.T) {
+			root := t.TempDir()
+			for _, path := range paths {
+				if path != missing {
+					writeFixture(t, root, path, "[Reference](./rm/bind.md#bind-limits)\n")
+				}
+			}
+			chapter := "[User](../TriceUserManual.md)\n"
+			writeFixture(t, root, "docs/rm/bind.md", chapter)
+			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "ERROR: missing documentation source: "+missing)
+			data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
+			assert.NoError(t, err)
+			assert.Equal(t, chapter, string(data), "preflight failure must not rewrite surviving chapters")
+		})
 	}
 }
 
@@ -758,20 +1087,29 @@ const vm = require('node:vm');
 const config = require('./scripts/_manual_pdf_config.cjs');
 const cases = [
   ['#get-the-tools', '#get-the-tools'],
+  ['#chapter-start', '#manual-start', 'back to top'],
+  ['#chapter-section', '#manual-start', '  BACK to TOP  '],
   ['./TriceUserManual.md#see-your-first-log', '#see-your-first-log'],
-  ['./TriceReferenceManual.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/TriceReferenceManual.md#bind-limits'],
+  ['./TriceUserManual.md#chapter-start', '#manual-start', 'go to top'],
+  ['./rm/bind.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/rm/bind.md#bind-limits'],
   ['../examples/PC_features/main.c', 'https://github.com/rokath/trice/blob/main/examples/PC_features/main.c'],
   ['https://example.com/guide?q=1#chapter', 'https://example.com/guide?q=1#chapter'],
+  ['https://example.com/guide#top', 'https://example.com/guide#top', 'back to top'],
   ['mailto:maintainer@example.com', 'mailto:maintainer@example.com'],
 ];
-const links = cases.map(([href]) => ({
+const links = cases.map(([href, expected, text]) => ({
   href,
+  textContent: text || '',
   getAttribute() { return this.href; },
   setAttribute(name, value) { assert.equal(name, 'href'); this.href = value; },
 }));
 const details = [{open:false}];
 const document = {
   location: new URL('http://localhost:12345/docs/TriceUserManual.md'),
+  querySelector(selector) {
+    assert.equal(selector, 'h1[id]');
+    return {id:'manual-start'};
+  },
   querySelectorAll(selector) {
     if (selector === 'details') return details;
     assert.equal(selector, 'a[href]', 'image sources must not be rewritten');
@@ -781,6 +1119,10 @@ const document = {
 for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
 cases.forEach(([before, expected], index) => assert.equal(links[index].href, expected, before));
 assert.equal(details[0].open, true, 'the printed contents must be visible');
+document.querySelector = () => null;
+links[1].href = '#chapter-start';
+for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
+assert.equal(links[1].href, '#chapter-start', 'an absent book heading must not create a broken destination');
 console.log('PASS: local destinations, repository links, external URLs and printed contents');
 `)
 	command := exec.Command(node, "check.cjs")

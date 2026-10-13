@@ -71,7 +71,7 @@ Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal_i2c_ex.c
 # Core/Src/syscalls.c
 
 # Compile the complete Trice library; project headers keep their precedence.
-# Details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Details: ../../docs/rm/code_size.md
 C_SOURCES += $(wildcard ../../src/*.c)
 
 # examples

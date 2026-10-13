@@ -1,1 +1,1 @@
-- [Shared example producers and generated sidecars](../../docs/TriceReferenceManual.md#shared-example-producers)
+- [Shared example producers and generated sidecars](../../docs/rm/examples.md#shared-example-producers)
