@@ -9,16 +9,25 @@ module.exports = {
         details.open = true;
       }
 
+      // Return navigation targets the whole printed book. Chapter sources keep
+      // their local top links so they remain useful when read separately.
+      const documentStart = document.querySelector('h1[id]');
+
       // Preserve in-document destinations and external URLs. Only links served
       // from md-to-pdf's temporary origin become repository source links;
       // images still load locally so PDF rendering needs no remote image fetch.
       for (const link of document.querySelectorAll('a[href]')) {
         const href = link.getAttribute('href');
-        if (!href || href.startsWith('#')) continue;
+        if (!href) continue;
+        const returnToStart = documentStart && /^\\s*(?:back|go)\\s+to\\s+top\\s*$/i.test(link.textContent || '');
+        if (href.startsWith('#')) {
+          if (returnToStart) link.setAttribute('href', '#' + documentStart.id);
+          continue;
+        }
         const target = new URL(href, document.location.href);
         if (target.origin !== document.location.origin) continue;
         if (target.pathname === document.location.pathname) {
-          link.setAttribute('href', target.hash || '#');
+          link.setAttribute('href', returnToStart ? '#' + documentStart.id : target.hash || '#');
         } else {
           link.setAttribute('href', 'https://github.com/rokath/trice/blob/main'
             + target.pathname + target.search + target.hash);

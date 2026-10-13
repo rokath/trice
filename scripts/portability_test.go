@@ -776,31 +776,53 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs")
+			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs", "scripts/_prepare_reference_manual.cjs")
 			writeFixture(t, root, "docs/ref/asset.txt", "fixture image directory\n")
 			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 				if manual != tc.missing {
-					writeFixture(t, root, "docs/"+manual+".md", "# "+manual+"\n")
+					if manual == "TriceUserManual" {
+						writeFixture(t, root, "docs/TriceUserManual.md", "# TriceUserManual\n")
+					} else {
+						writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Chapter](chapter.md)\n")
+						writeFixture(t, root, "docs/rm/chapter.md", "# Chapter\n")
+					}
 				}
 				writeFixture(t, root, "docs/"+manual+".pdf", "previous "+manual)
 			}
 			writeFixture(t, root, "bin/node", "#!/bin/sh\necho fixture-node\n")
 			writeFixture(t, root, "bin/npm", "#!/bin/sh\necho fixture-npm\n")
+			writeFixture(t, root, "bin/stitchmd", `#!/bin/sh
+if [ "$1" = -version ]; then echo 'stitchmd 0.9.0'; exit 0; fi
+printf '# Reference\n' > temp/manual-pdf/TriceReferenceManual.md
+`)
 			writeFixture(t, root, "bin/npx", `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-npx; exit 0; fi
+case "$*" in
+  *'node scripts/_prepare_reference_manual.cjs --verify'*) exit 0 ;;
+  *'node scripts/_prepare_reference_manual.cjs'*)
+    mkdir -p temp/manual-pdf
+    printf '# Reference\n' > temp/manual-pdf/SUMMARY.md
+    exit 0 ;;
+esac
 manual=
 for argument do
-  case "$argument" in docs/*.md) manual="$argument" ;; esac
+  case "$argument" in *'
+'*) echo 'fixture rejects multiline renderer arguments' >&2; exit 92 ;; esac
+  case "$argument" in docs/*.md|temp/manual-pdf/*.md) manual="$argument" ;; esac
 done
 printf '%s\n' "$*" >> renderer-calls.txt
-if [ "$manual" = "docs/$FAILED.md" ]; then echo "fixture renderer failed: $manual" >&2; exit 23; fi
-if [ "$manual" = "docs/$EMPTY.md" ]; then exit 0; fi
+if [ "${manual##*/}" = "$FAILED.md" ]; then echo "fixture renderer failed: $manual" >&2; exit 23; fi
+if [ "${manual##*/}" = "$EMPTY.md" ]; then exit 0; fi
 printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 `)
 			out, err := runFixture(t, root, "bash scripts/_320_generate_trice_user_manual_pdf.sh", map[string]string{"FAILED": tc.failed, "EMPTY": tc.empty})
 			if tc.missing != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "missing or empty manual file: docs/"+tc.missing+".md")
+				missing := "docs/TriceUserManual.md"
+				if tc.missing == "TriceReferenceManual" {
+					missing = "docs/rm/README.md"
+				}
+				assert.Contains(t, out, "missing or empty manual file: "+missing)
 				_, statErr := os.Stat(filepath.Join(root, "renderer-calls.txt"))
 				assert.True(t, os.IsNotExist(statErr), "missing input must be detected before rendering")
 				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
@@ -810,12 +832,14 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				}
 			} else if tc.failed != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "fixture renderer failed: docs/"+tc.failed+".md")
+				assert.Contains(t, out, "fixture renderer failed:")
+				assert.Contains(t, out, tc.failed+".md")
 				assert.Contains(t, out, "ERROR: md-to-pdf failed")
 				assert.NotContains(t, out, "Generated manual PDF: docs/"+tc.failed+".pdf")
 			} else if tc.empty != "" {
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "missing or empty generated PDF: docs/"+tc.empty+".pdf")
+				assert.Contains(t, out, "missing or empty generated PDF:")
+				assert.Contains(t, out, tc.empty+".pdf")
 			} else {
 				assert.NoError(t, err, out)
 				calls, readErr := os.ReadFile(filepath.Join(root, "renderer-calls.txt"))
@@ -824,12 +848,90 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
 					assert.NoError(t, readErr)
-					assert.Equal(t, "rendered docs/"+manual+".md\n", string(data))
+					input := "docs/TriceUserManual.md"
+					if manual == "TriceReferenceManual" {
+						input = "temp/manual-pdf/TriceReferenceManual.md"
+					}
+					assert.Equal(t, "rendered "+input+"\n", string(data))
 					assert.Contains(t, string(calls), "<span>"+manual+".md</span>", "each PDF must identify its own Markdown source")
 				}
+				assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"), "the generated monolith belongs only in temp")
 			}
 		})
 	}
+}
+
+// TestReferencePDFPreparation exercises real Markdown tokenization, namespace
+// mapping and staging cleanup without rendering PDFs or fetching npm packages.
+// It runs inside the existing offline renderer environment when available.
+func TestReferencePDFPreparation(t *testing.T) {
+	if _, err := exec.LookPath("npx"); err != nil {
+		t.Skip("npx not installed; reference preparation uses the PDF renderer runtime")
+	}
+	root := scriptFixture(t, "scripts/_prepare_reference_manual.cjs")
+	writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Introduction](HEADER.md)\n- [Beta](b.md)\n- [Alpha](a.md)\n- [Footer](FOOTER.md)\n")
+	writeFixture(t, root, "docs/rm/HEADER.md", "# Introduction\n\nBook introduction.\n")
+	writeFixture(t, root, "docs/rm/FOOTER.md", "# Footer\n\nBook footer.\n")
+	writeFixture(t, root, "docs/ref/image.png", "fixture image\n")
+	writeFixture(t, root, "docs/rm/a.md", "# Alpha\n\n<details markdown=\"1\">\n<summary>Contents</summary>\n\n<!-- mdtoc -->\n\n- [Example](#example)\n\n<!-- /mdtoc -->\n\n</details>\n\n## 1. <a id=\"example\"></a>Example\n\n<!-- Preserve [fake](missing.md) and <a id=\"comment-only\"></a>. -->\n\n[Beta](b.md#example)\n\n![Image](../ref/image.png)\n\n[Code](../../src/example.c)\n\n```md\n[Do not rewrite](b.md#example)\n```\n")
+	writeFixture(t, root, "docs/rm/b.md", "# Beta\n\n## 1. <a id=\"example\"></a>Example\n\n<a href=\"a.md#example\">Alpha</a>\n\nCode with a blank line:\n\n```text\nfirst line\n\nlast line\n```\n")
+	writeFixture(t, root, "temp/manual-pdf/stale.txt", "must be removed\n")
+	writeFixture(t, root, "temp/unrelated.txt", "must survive\n")
+	writeFixture(t, root, "check.cjs", `
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const helper = require('./scripts/_prepare_reference_manual.cjs');
+let marked;
+for (const directory of process.env.PATH.split(path.delimiter)) {
+  try {
+    const entry = require.resolve('md-to-pdf', {paths:[path.resolve(directory,'..')]});
+    marked = require(path.join(path.dirname(entry),'lib/get-marked-with-highlighter.js')).getMarked({},[]);
+    break;
+  } catch (error) { if(error.code !== 'MODULE_NOT_FOUND') throw error; }
+}
+assert.ok(marked, 'the pinned renderer must supply its parser');
+const before = ['docs/rm/README.md','docs/rm/HEADER.md','docs/rm/a.md','docs/rm/b.md','docs/rm/FOOTER.md'].map(file => [file,fs.readFileSync(file)]);
+helper.prepare(marked, process.cwd());
+assert.equal(fs.existsSync('temp/manual-pdf/stale.txt'), false);
+assert.equal(fs.readFileSync('temp/unrelated.txt','utf8'), 'must survive\n');
+const summary = fs.readFileSync('temp/manual-pdf/SUMMARY.md','utf8');
+assert.ok(summary.indexOf('[1. Beta]') < summary.indexOf('[2. Alpha]'), 'README order controls book numbering');
+assert.ok(summary.includes('[Introduction]') && summary.includes('[Footer]'), 'framing documents stay unnumbered');
+const contents = fs.readFileSync('temp/manual-pdf/_contents.md','utf8');
+assert.ok(contents.includes('>1. Beta</a>') && contents.includes('>2. Alpha</a>'), 'global contents use the same chapter numbers');
+const alpha = fs.readFileSync('temp/manual-pdf/chapters/a.md','utf8');
+assert.ok(alpha.startsWith('# <a id="rm-a--chapter" class="rm-main-chapter"></a>2. Alpha\n'), 'chapter headings carry PDF-only numbers and page-break hooks');
+assert.ok(!alpha.includes('<summary>Contents</summary>'), 'local contents are removed');
+assert.ok(alpha.includes('href="#rm-b--anchor-example"'), 'chapter links become PDF destinations');
+assert.ok(alpha.includes('src="../../../docs/ref/image.png"'), 'images remain local');
+assert.match(alpha, /https:\/\/github.com\/rokath\/trice\/blob\/[^/]+\/src\/example.c/);
+assert.ok(alpha.includes('<!-- Preserve [fake](missing.md) and <a id="comment-only"></a>. -->'));
+assert.ok(alpha.replace(/<[^>]+>/g,'').includes('[Do not rewrite](b.md#example)'), 'highlighted code example text is preserved');
+const beta = fs.readFileSync('temp/manual-pdf/chapters/b.md','utf8');
+assert.ok(beta.includes('href="#rm-a--anchor-example"'), 'HTML links are remapped too');
+assert.ok(alpha.includes('id="rm-a--anchor-example"') && beta.includes('id="rm-b--anchor-example"'));
+for(const [file,data] of before) assert.deepEqual(fs.readFileSync(file),data,'sources must stay untouched');
+fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md', '# <a id="rm-start"></a>Reference\n\n' + beta + '\n\n' + alpha);
+helper.verify(marked,process.cwd());
+const compiled = fs.readFileSync('temp/manual-pdf/TriceReferenceManual.html','utf8');
+assert.ok(compiled.includes('first line\n\nlast line\n</code></pre>'), 'blank code lines survive final Markdown parsing');
+fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md','[Broken](#missing)\n');
+assert.throws(() => helper.verify(marked,process.cwd()), /missing generated PDF anchor/);
+fs.writeFileSync('docs/rm/b.md','# Beta\n\n[Broken](a.md#missing)\n');
+assert.throws(() => helper.prepare(marked,process.cwd()), /unknown reference destination/);
+fs.writeFileSync('docs/rm/b.md','# Beta\n\n![Broken](missing.png)\n');
+assert.throws(() => helper.prepare(marked,process.cwd()), /missing reference image/);
+fs.rmSync('docs/rm/b.md');
+assert.throws(() => helper.prepare(marked,process.cwd()), /missing or empty reference source/);
+console.log('PASS: README order, cleanup, sources, code, comments, images, anchors and rejected broken inputs');
+`)
+	out, err := runFixture(t, root, "npx --offline -y --package=md-to-pdf@5.2.4 --package=puppeteer@24.31.0 -c 'node check.cjs'", nil)
+	if err != nil && (strings.Contains(out, "ENOTCACHED") || strings.Contains(out, "cache mode is 'only-if-cached'")) {
+		t.Skip("pinned PDF renderer is not cached; this test never downloads npm packages")
+	}
+	assert.NoError(t, err, out)
+	assert.Contains(t, out, "PASS:")
 }
 
 // workflowShellStep extracts one named run block without executing GitHub jobs.
@@ -941,20 +1043,29 @@ const vm = require('node:vm');
 const config = require('./scripts/_manual_pdf_config.cjs');
 const cases = [
   ['#get-the-tools', '#get-the-tools'],
+  ['#chapter-start', '#manual-start', 'back to top'],
+  ['#chapter-section', '#manual-start', '  BACK to TOP  '],
   ['./TriceUserManual.md#see-your-first-log', '#see-your-first-log'],
+  ['./TriceUserManual.md#chapter-start', '#manual-start', 'go to top'],
   ['./rm/trice_bind.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/rm/trice_bind.md#bind-limits'],
   ['../examples/PC_features/main.c', 'https://github.com/rokath/trice/blob/main/examples/PC_features/main.c'],
   ['https://example.com/guide?q=1#chapter', 'https://example.com/guide?q=1#chapter'],
+  ['https://example.com/guide#top', 'https://example.com/guide#top', 'back to top'],
   ['mailto:maintainer@example.com', 'mailto:maintainer@example.com'],
 ];
-const links = cases.map(([href]) => ({
+const links = cases.map(([href, expected, text]) => ({
   href,
+  textContent: text || '',
   getAttribute() { return this.href; },
   setAttribute(name, value) { assert.equal(name, 'href'); this.href = value; },
 }));
 const details = [{open:false}];
 const document = {
   location: new URL('http://localhost:12345/docs/TriceUserManual.md'),
+  querySelector(selector) {
+    assert.equal(selector, 'h1[id]');
+    return {id:'manual-start'};
+  },
   querySelectorAll(selector) {
     if (selector === 'details') return details;
     assert.equal(selector, 'a[href]', 'image sources must not be rewritten');
@@ -964,6 +1075,10 @@ const document = {
 for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
 cases.forEach(([before, expected], index) => assert.equal(links[index].href, expected, before));
 assert.equal(details[0].open, true, 'the printed contents must be visible');
+document.querySelector = () => null;
+links[1].href = '#chapter-start';
+for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
+assert.equal(links[1].href, '#chapter-start', 'an absent book heading must not create a broken destination');
 console.log('PASS: local destinations, repository links, external URLs and printed contents');
 `)
 	command := exec.Command(node, "check.cjs")

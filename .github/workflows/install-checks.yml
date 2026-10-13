@@ -37,6 +37,9 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Install PDF chapter assembler
+        run: go install go.abhg.dev/stitchmd@v0.9.0
+
       - name: Set up GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
