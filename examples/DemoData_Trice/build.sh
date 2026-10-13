@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 #
 # Portable CMake build entry point.
-# Library/image details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Library/image details: ../../docs/rm/trice_project_image_size_optimization.md
 #
 # Linux and macOS provide a suitable shell by default. On Windows, run this
 # script from Git Bash, MSYS2, Cygwin, or WSL.

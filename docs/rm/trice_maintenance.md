@@ -391,7 +391,7 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
 In GitHub are some Actions defined. Some of them get triggered on a `git push` and perform some checks. To get no fail, some scripts should run before committing:
 
 * `npx markdownlint *.md` (or just `markdownlint`) - uses [.markdownlint.yaml](../../.markdownlint.yaml) to allow exceptions.
-  * `npx markdownlint ./docs/TriceReferenceManual.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors. 
+  * `npx markdownlint ./docs/rm/*.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors.
 * [./scripts/_300_clean_dsstore.sh](../../scripts/_300_clean_dsstore.sh) - remove macOS maintenance data.
 * [./scripts/_240_legacy_clean_ids.sh](../../scripts/_240_legacy_clean_ids.sh) removes all IDs in the legacy workflow.
 

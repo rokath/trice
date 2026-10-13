@@ -1,2 +1,2 @@
-- [G0B1 FreeRTOS local logging: build, UART, and formatter capabilities](../../docs/TriceReferenceManual.md#g0b1-freertos-local-logging)
-- [Local deferred text log: configuration and limitations](../../docs/TriceReferenceManual.md#local-deferred-text-log)
+- [G0B1 FreeRTOS local logging: build, UART, and formatter capabilities](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#g0b1-freertos-local-logging)
+- [Local deferred text log: configuration and limitations](../../docs/rm/trice_target_code_implementation.md#local-deferred-text-log)

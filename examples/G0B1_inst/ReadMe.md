@@ -1,1 +1,1 @@
-- [G0B1 instrumented FreeRTOS project: setup](../../docs/TriceReferenceManual.md#g0b1inst)
+- [G0B1 instrumented FreeRTOS project: setup](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#g0b1inst)

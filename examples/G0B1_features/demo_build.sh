@@ -3,7 +3,7 @@
 # Usage: ./demo_build.sh. Requires Trice, make and the Arm GNU toolchain.
 # First bind generates this project's tables and headers, then make compiles.
 # Calls marked ctx: gain the current task handle through osThreadGetId().
-# Library/image details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Library/image details: ../../docs/rm/trice_project_image_size_optimization.md
 # SPDX-License-Identifier: MIT
 set -eu
 cd "$(dirname "$0")"

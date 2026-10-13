@@ -4,7 +4,7 @@ Stand: 12. Oktober 2026. Diese Spezifikation hält die beschlossenen Ergebnisse 
 
 ## Ziel und Geltungsbereich
 
-Das große [Trice Reference Manual](../TriceReferenceManual.md) wird einmalig mit KI-Unterstützung in ungefähr 50 Hauptkapitel zerlegt. Anschließend werden ausschließlich die einzelnen Kapitel gepflegt. Leser können auf GitHub über einen Haupt-ToC, kapitelinterne ToCs und einen Stichwortindex navigieren. Suche über sämtliche Inhalte bleibt ein eigenes, wichtiges Anliegen.
+Das große [Trice Reference Manual](../rm/README.md) wird einmalig mit KI-Unterstützung in ungefähr 50 Hauptkapitel zerlegt. Anschließend werden ausschließlich die einzelnen Kapitel gepflegt. Leser können auf GitHub über einen Haupt-ToC, kapitelinterne ToCs und einen Stichwortindex navigieren. Suche über sämtliche Inhalte bleibt ein eigenes, wichtiges Anliegen.
 
 Diese Umstellung betrifft das RM und die aktiven Verweise darauf. UM und TriceGuide bleiben eigene Einstiege; ihre Inhalte werden deshalb nicht umgeschrieben oder neu organisiert. Die bestehenden Medien unter [docs/ref/](../ref/) bleiben erhalten. Eine zusätzliche Website kann dieselben Quellen verwenden, ist aber für das vereinbarte Markdown-Layout nicht erforderlich.
 

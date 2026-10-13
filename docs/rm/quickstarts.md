@@ -33,7 +33,7 @@
 
 <!--
 Existing manual coverage:
-`TriceReferenceManual.md#writing-the-trice-logs-into-an-sd-card-or-a-user-specific-output` already documents `TRICE_DEFERRED_AUXILIARY8`, `TRICE_DEFERRED_AUXILIARY32`, and `UserNonBlockingDeferredWrite8AuxiliaryFn`.
+[Writing the Trice logs into an SD-card (or a user specific output)](writing_the_trice_logs_into_an_sd_card_or_a_user_specific_output.md) already documents `TRICE_DEFERRED_AUXILIARY8`, `TRICE_DEFERRED_AUXILIARY32`, and `UserNonBlockingDeferredWrite8AuxiliaryFn`.
 This section reframes that information as a first-use quickstart, not as an SD-card special case.
 
 README legacy placement:
@@ -157,7 +157,7 @@ The auxiliary writer path is more portable: many projects already have a byte-st
 
 <!--
 Existing manual coverage:
-See `TriceReferenceManual.md#trice-over-rtt`, especially the RTT/J-Link sections and the notes around `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE`.
+See [Trice over RTT](trice_over_rtt.md), especially the RTT/J-Link sections and the notes around `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE`.
 
 README legacy placement:
 This was previously the dominant README quickstart. It should remain a strong quickstart, but no longer be the only obvious first path.

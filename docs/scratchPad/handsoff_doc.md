@@ -27,14 +27,14 @@ Die bisherige Übergabe wurde unverändert nach [handsoff_doc_0.md](handsoff_doc
 - Arbeitsbaum unmittelbar vor unseren Dateiänderungen: sauber. Während der lesenden Bestandsaufnahme wechselte HEAD von `6aeb816238529c2ac8a1067b145d92ed65e5868f` auf den genannten Commit; die zunächst sichtbare Änderung an `scratchPad/scratchPad.md` ist jetzt darin enthalten und wurde von uns nicht bearbeitet.
 - Gegenüber dem lokal vorhandenen `origin/wip`: vier Commits voraus. Kein Fetch oder Remote-Abgleich; diese Angabe beweist keinen aktuellen Remote-Stand.
 - Noch uncommittet aus diesem Auftrag: neue Fassung von `docs/scratchPad/handsoff_doc.md`, unveränderte Vorgängerfassung als `docs/scratchPad/handsoff_doc_0.md` und neue `docs/scratchPad/RM_Documentation_Spec.md`.
-- Im Checkout existiert weiterhin [TriceReferenceManual.md](../TriceReferenceManual.md); `docs/rm/` wurde noch nicht angelegt. Keine Kapitelmigration, Linkumschreibung oder Werkzeuginstallation durchgeführt.
+- Im Checkout existiert weiterhin [../rm/README.md](../rm/README.md); `docs/rm/` wurde noch nicht angelegt. Keine Kapitelmigration, Linkumschreibung oder Werkzeuginstallation durchgeführt.
 - Frühere Medienoptimierung ist bereits in Git. Nicht erneut als unerledigte Aufgabe beginnen. Details und historische Performancebefunde stehen in der Vorgängerübergabe.
 
 Die drei Übergabedateien manuell stagen und committen und den Commit für den anderen Rechner übertragen, normalerweise durch Push. Auch die vier bereits lokalen Commits müssen für denselben Stand übertragen werden, soweit sie remote noch fehlen. Keine zusätzlichen lokalen Messdaten oder Prototypdateien sind erforderlich. Wir haben kein `git add`, `git commit` oder `git push` ausgeführt.
 
 ## Relevante Dateien und Erkenntnisse
 
-- Aktive Quellen: [RM](../TriceReferenceManual.md), [UM](../TriceUserManual.md), [Guide](../TriceGuide.md), [Medien/CLI-Hilfe](../ref/), [Doku-Einstieg](../README.md).
+- Aktive Quellen: [RM](../rm/README.md), [UM](../TriceUserManual.md), [Guide](../TriceGuide.md), [Medien/CLI-Hilfe](../ref/), [Doku-Einstieg](../README.md).
 - Bestehende Abläufe: [mdtoc-Pflege](../../scripts/_310_refresh_trice_user_manual.sh), [PDF-Erzeugung](../../scripts/_320_generate_trice_user_manual_pdf.sh), [Pages-Workflow](../../.github/workflows/pages.yml), [Release-Konfiguration](../../.goreleaser.yaml). Abhängigkeiten vom bisherigen RM müssen vor einer späteren Migration erfasst werden; PDF-/Release-Umbau nicht stillschweigend mit erledigen.
 - mdBook hat eine eingebaute Volltextsuche ohne Begriffsmakros. Seine `SUMMARY.md` könnte später aus der gepflegten `README.md` entstehen. Ein Stichwortindex ergänzt Volltextsuche, ersetzt sie nicht.
 - `mdbook-indexing` benötigt Makros im Quelltext und passt deshalb nicht direkt zum gewünschten zentralen Index. Kein fertiges Werkzeug für exakt den beschlossenen INDEX-Ablauf wurde verifiziert.

@@ -37,7 +37,7 @@ Project-level documentation:
 
 - Repository: [github.com/rokath/trice](https://github.com/rokath/trice)
 - Main README: [README.md](../README.md)
-- Reference Manual: [TriceReferenceManual.md](../docs/TriceReferenceManual.md)
+- Reference Manual: [../docs/rm/README.md](../docs/rm/README.md)
   - Generated release asset: `TriceReferenceManual.pdf`
 
 ## Configuration Model

@@ -1,1 +1,1 @@
-- [F030 instrumented project: setup and instrumentation](../../docs/TriceReferenceManual.md#f030inst)
+- [F030 instrumented project: setup and instrumentation](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#f030inst)

@@ -1,1 +1,1 @@
-- [L432 bare FreeRTOS project: setup](../../docs/TriceReferenceManual.md#l432bare)
+- [L432 bare FreeRTOS project: setup](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#l432bare)

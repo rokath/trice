@@ -160,7 +160,7 @@
 
 ## Documentation Usage
 
-- Use `README.md` and documentation files (especially `./docs/TriceReferenceManual.md`) to understand system design, architecture, constraints, and intended usage.
+- Use `README.md` and documentation files (especially `./docs/rm/README.md` and its linked chapters) to understand system design, architecture, constraints, and intended usage.
 - Consider `./src/TriceDefaultConfig.h` as an additional documentation source.
 
 - Documentation is for understanding only, not for initiating code changes.

@@ -5,7 +5,7 @@
 # for example ./build.sh TRICE_OFF=1.
 # Build the firmware; this script does not flash the board.
 # Requires Bash, make, Trice and the Arm GNU toolchain in PATH.
-# Library/image details: ../../docs/TriceReferenceManual.md#trice-project-image-size-optimization
+# Library/image details: ../../docs/rm/trice_project_image_size_optimization.md
 # Normal standalone builds prepare Bind headers before compiling.
 # Repository tests can supply an Insert workflow instead. Cleanup then removes
 # the temporary IDs on success, failure or Ctrl-C; keep those safeguards intact.

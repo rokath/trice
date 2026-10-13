@@ -1,1 +1,1 @@
-# [../docs/TriceReferenceManual.md#testing-the-trice-library-c-code-for-the-target](../docs/TriceReferenceManual.md#testing-the-trice-library-c-code-for-the-target)
+# [../docs/rm/testing_the_trice_library_c_code_for_the_target.md](../docs/rm/testing_the_trice_library_c_code_for_the_target.md)

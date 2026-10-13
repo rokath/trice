@@ -1,1 +1,1 @@
-- [F030 bare project: setup and debugging](../../docs/TriceReferenceManual.md#f030bare)
+- [F030 bare project: setup and debugging](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#f030bare)

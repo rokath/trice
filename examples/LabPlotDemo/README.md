@@ -1,2 +1,2 @@
-- [LabPlot live demo: launchers and plots](../../docs/TriceReferenceManual.md#quick-labplot-demonstration)
-- [LabPlot: troubleshooting, Windows setup, and adaptations](../../docs/TriceReferenceManual.md#troubleshooting-and-adaptations)
+- [LabPlot live demo: launchers and plots](../../docs/rm/trice_command_line_interface_examples.md#quick-labplot-demonstration)
+- [LabPlot: troubleshooting, Windows setup, and adaptations](../../docs/rm/trice_command_line_interface_examples.md#troubleshooting-and-adaptations)
