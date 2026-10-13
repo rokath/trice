@@ -9467,6 +9467,10 @@
 		"Type": "trice",
 		"Strg": "err:file not found (error code 7)\\n"
 	},
+	"15634": {
+		"Type": "trice",
+		"Strg": "debug:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
+	},
 	"15651": {
 		"Type": "trice",
 		"Strg": "ras, "
@@ -9486,6 +9490,10 @@
 	"15747": {
 		"Type": "trice",
 		"Strg": "info:State {motor.state} rpm {motorPtr.rpm} / %d\\n"
+	},
+	"15782": {
+		"Type": "trice",
+		"Strg": "deb:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
 	"15827": {
 		"Type": "trice",
