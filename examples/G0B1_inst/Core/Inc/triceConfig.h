@@ -31,7 +31,7 @@ extern "C" {
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 #define TRICE_BUFFER_SIZE_UP 2048 // "TRICE_DIRECT_BUFFER_SIZE"
 
-// Windows: trice log -p com3         -prefix off -hs off -pw MySecret -pf COBS -ts16 us -ts32 ms -i ../../demoTIL.json -li ../../demoLI.json
+// Windows: trice log -p com4         -prefix off -hs off -pw MySecret -pf COBS -ts16 us -ts32 ms -i ../../demoTIL.json -li ../../demoLI.json
 // Unix:    trice log -p /dev/ttyACM0 -prefix off -hs off -pw MySecret -pf COBS -ts16 us -ts32 ms -i ../../demoTIL.json -li ../../demoLI.json
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
