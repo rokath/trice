@@ -19,7 +19,7 @@ docs/
 │   ├── INDEX.md
 │   ├── HEADER.md
 │   ├── FOOTER.md
-│   ├── abstract.md
+│   ├── overview.md
 │   ├── binary_encoding.md
 │   ├── bind.md
 │   ├── rtt.md
@@ -50,7 +50,7 @@ docs/
 ## Kapiteldateien und Überschriften
 
 - Jedes bisherige Hauptkapitel erhält eine eigene Markdown-Datei unter `docs/rm/`.
-- Dateinamen werden aus dem Hauptkapiteltext abgeleitet, im Stil `heading_text.md`, ohne Kapitelnummer. Die genaue Normalisierung von Sonderzeichen und die Auflösung möglicher Namenskonflikte sind bei der Bestandsaufnahme festzulegen.
+- Dateinamen benennen das Thema kurz und stabil, im Stil `topic_name.md`, ohne Kapitelnummer und ohne redundantes `trice_`-Präfix. Spätere redaktionelle Änderungen einer Überschrift erfordern keine erneute Dateiumbenennung.
 - Jedes Kapitel beginnt mit einer H1-Hauptüberschrift ohne Hauptkapitelnummer. Seine bisherigen Unterüberschriften werden entsprechend eine Ebene angehoben.
 - Unterkapitel werden innerhalb der Datei lokal nummeriert, jeweils neu beginnend bei 1. Die H1-Hauptüberschrift bleibt von dieser Nummerierung ausgenommen.
 - mdtoc erzeugt den lokalen ToC und die erforderlichen stabilen Überschriftenanker. Die dafür passende vorhandene Funktion oder nötige Erweiterung ist noch zu prüfen.
@@ -64,7 +64,7 @@ Die Zerlegung erhält Texte, Beispiele, Tabellen, Medien und fachliche Aussagen.
 `docs/rm/README.md` wird von GitHub beim Öffnen des Ordners direkt gerendert. Sie enthält die Links auf alle Hauptkapitel in der gewünschten Lesereihenfolge. Die initiale Reihenfolge wird aus dem bisherigen RM übernommen; anschließend wird sie manuell gepflegt.
 
 ```markdown
-- [Abstract](abstract.md)
+- [Trice Overview](overview.md)
 - [Binary Encoding](binary_encoding.md)
 - [Bind](bind.md)
 - [RTT](rtt.md)

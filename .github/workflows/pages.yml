@@ -43,10 +43,10 @@ jobs:
             #
             # Examples in README.md:
             #   [Manual](./docs/rm/README.md)
-            #   [Speed](docs/rm/trice_speed.md)
+            #   [Speed](docs/rm/performance.md)
             #
             # All become (in index.md for Pages):
-            #   ...](docs/rm/trice_speed.html)
+            #   ...](docs/rm/performance.html)
             sed -E 's@(\]\((\./)?docs/[^)]*)\.md([#?][^)]*)?\)@\1.html\3)@g' README.md
           } > index.md
 

@@ -66,7 +66,7 @@
 * As a general rule lu is only extendable.
 * LI is updated for selected sites while ownership outside the scan is retained.
 * Files are read in parallel. Allocation and the final assignment are planned in source order before source publication.
-* The final assignment follows the [identical-Trice ordering rule](trice_id_management.md#different-ids-for-same-trices) across the selected files. A rename may require a new ID when the old LI path lies outside that selection.
+* The final assignment follows the [identical-Trice ordering rule](id_management.md#different-ids-for-same-trices) across the selected files. A rename may require a new ID when the old LI path lies outside that selection.
 
 ## 3. <a id="method"></a>Method
 
@@ -229,7 +229,7 @@ trice insert -v -src ./_test/ -exclude _test/src/trice.h -exclude _test/generate
 * Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 * The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
 * The user has full control how to deal with that.
-* There are the 3 following options and the user has to decide which fits best for him. The [Trice Cache](trice_features_overview.md#trice-cache) is probably the best fitting setup for many users.
+* There are the 3 following options and the user has to decide which fits best for him. The [Trice Cache](features.md#trice-cache) is probably the best fitting setup for many users.
 
 ### 8.1. <a id="option-cleaning-in-a-post-build-process"></a>Option Cleaning in a Post-build process
 

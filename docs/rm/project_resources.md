@@ -34,7 +34,7 @@ Choose a release or a source checkout, then use its matching target sources, hos
   trice --version
   ```
 
-  The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../../go.mod); see [building the host tools](build_and_release_the_trice_tool.md#build-trice-tool-from-go-sources) for details.
+  The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../../go.mod); see [building the host tools](tool_build_release.md#build-trice-tool-from-go-sources) for details.
 - The macOS Homebrew tap is another installation route: `brew install rokath/tap/trice`. Confirm the installed version rather than assuming it includes the current development checkout.
 
 For the first hardware-free experiment, follow the [User Manual](../TriceUserManual.md#get-lib-and-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](quickstarts.md).
@@ -71,7 +71,7 @@ Trice combines printf-like source calls, ID-based host decoding, and configurabl
 
 - Plain `printf` over UART, or a project-specific binary logger.
 - Hardware trace through Arm ITM/SWO, and [Arm Keil Event Recorder](https://arm-software.github.io/CMSIS-View/latest/evr.html).
-- [SEGGER RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) as a transport; Trice can also [use RTT](trice_over_rtt.md).
+- [SEGGER RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) as a transport; Trice can also [use RTT](rtt.md).
 - [Logging with symbols in the Embedonomicon](https://docs.rust-embedded.org/embedonomicon/logging.html).
 - [Call-stack logging through function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a).
 - [Dynamic printf breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/).

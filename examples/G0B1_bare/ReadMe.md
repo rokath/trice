@@ -1,1 +1,1 @@
-- [G0B1 bare FreeRTOS project: setup](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#g0b1bare)
+- [G0B1 bare FreeRTOS project: setup](../../docs/rm/examples.md#g0b1bare)

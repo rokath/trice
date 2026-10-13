@@ -1,1 +1,1 @@
-- [Shared example producers and generated sidecars](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#shared-example-producers)
+- [Shared example producers and generated sidecars](../../docs/rm/examples.md#shared-example-producers)

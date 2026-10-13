@@ -130,7 +130,7 @@ EXE_SUFFIX=""
 BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -ffunction-sections -fdata-sections -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim -I${ROOT}/src -I${ROOT}/src/default_conf"
 
 # Every node compiles src/*.c; its configuration selects TX/RX features.
-# Details: ../../docs/rm/trice_project_image_size_optimization.md
+# Details: ../../docs/rm/code_size.md
 link_unused=-Wl,--gc-sections
 case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 

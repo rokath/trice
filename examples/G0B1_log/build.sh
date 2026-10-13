@@ -3,7 +3,7 @@
 # Usage: ./build.sh. Requires Bash, make, Trice and the Arm GNU toolchain.
 # The sequence is bind (IDs/headers), generate (C format table), then make.
 # This compiles only; flash separately, then use serial.sh to read the text.
-# Library/image details: ../../docs/rm/trice_project_image_size_optimization.md
+# Library/image details: ../../docs/rm/code_size.md
 # SPDX-License-Identifier: MIT
 
 set -euo pipefail

@@ -1,1 +1,1 @@
-- [First instrumentation with RTT: setup, build and logging](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#f030instrtt)
+- [First instrumentation with RTT: setup, build and logging](../../docs/rm/examples.md#f030instrtt)

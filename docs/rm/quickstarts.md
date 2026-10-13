@@ -37,7 +37,7 @@
 
 <!--
 Existing manual coverage:
-[Writing the Trice logs into an SD-card (or a user specific output)](writing_the_trice_logs_into_an_sd_card_or_a_user_specific_output.md) already documents `TRICE_DEFERRED_AUXILIARY8`, `TRICE_DEFERRED_AUXILIARY32`, and `UserNonBlockingDeferredWrite8AuxiliaryFn`.
+[Writing the Trice logs into an SD-card (or a user specific output)](custom_output.md) already documents `TRICE_DEFERRED_AUXILIARY8`, `TRICE_DEFERRED_AUXILIARY32`, and `UserNonBlockingDeferredWrite8AuxiliaryFn`.
 This section reframes that information as a first-use quickstart, not as an SD-card special case.
 
 README legacy placement:
@@ -161,14 +161,14 @@ The auxiliary writer path is more portable: many projects already have a byte-st
 
 <!--
 Existing manual coverage:
-See [Trice over RTT](trice_over_rtt.md), especially the RTT/J-Link sections and the notes around `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE`.
+See [Trice over RTT](rtt.md), especially the RTT/J-Link sections and the notes around `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE`.
 
 README legacy placement:
 This was previously the dominant README quickstart. It should remain a strong quickstart, but no longer be the only obvious first path.
 -->
 
 Use this path when you have a SEGGER J-Link and want the smallest amount of target-specific transport code.
-See [Convert Evaluation Board onboard ST-Link to J-Link](trice_over_rtt.md#convert-evaluation-board-onboard-st-link-to-j-link) for a cheap option.
+See [Convert Evaluation Board onboard ST-Link to J-Link](rtt.md#convert-evaluation-board-onboard-st-link-to-j-link) for a cheap option.
 
 ### 2.1. <a id="install-tools"></a>Install tools
 
@@ -263,7 +263,7 @@ It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling
 
 ## 3. <a id="quickstart-uart-or-usb-vcom-deferred-output"></a>Quickstart: UART or USB-VCOM deferred output
 
-See also [Communication Ports](start_with_trice.md#communication-ports), the example projects, and the UART-related configuration examples. This section is intentionally short because UART setup is MCU/vendor-specific.
+See also [Communication Ports](getting_started.md#communication-ports), the example projects, and the UART-related configuration examples. This section is intentionally short because UART setup is MCU/vendor-specific.
 
 Use this path when the target has a UART, USB CDC/VCOM, or board-specific serial path and you want Trice to use the built-in UART backend rather than an auxiliary writer.
 

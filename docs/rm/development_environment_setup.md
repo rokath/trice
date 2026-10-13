@@ -1017,7 +1017,7 @@ versions, not a statement that they are current or compatible with every host.
 | --- | --- |
 | [cobs-c-0.5.0.zip](../../third_party/cobs-c-0.5.0.zip) and [cobs-c-version_1.0.zip](../../third_party/cobs-c-version_1.0.zip) | Craig McQueen's COBS/COBS-R source snapshots, both with `LICENSE.txt` and `README.rst`. They are comparison/reference sources, not the COBS files compiled from `src`. No active build extracts either version; the reason a manual user may still need both is unconfirmed, so both are retained. |
 | [cJSON-1.7.15.zip](../../third_party/cJSON-1.7.15.zip) | cJSON source snapshot with its MIT `LICENSE` and README. No active Trice build or structured-log output depends on this ZIP. Its original/manual use is unconfirmed; retaining it does not introduce a JSON dependency. |
-| [SEGGER_RTT_V812a.zip](../../third_party/segger.com/SEGGER_RTT_V812a.zip) | Older RTT target sources, configuration, examples, README, and `LICENSE.md`, retained as a historical source reference. The current files in `src` come from the official SEGGER GitHub repository; see [Trice over RTT](trice_over_rtt.md). Normal builds do not extract this archive. |
+| [SEGGER_RTT_V812a.zip](../../third_party/segger.com/SEGGER_RTT_V812a.zip) | Older RTT target sources, configuration, examples, README, and `LICENSE.md`, retained as a historical source reference. The current files in `src` come from the official SEGGER GitHub repository; see [Trice over RTT](rtt.md). Normal builds do not extract this archive. |
 | [JLinkRTTLogger.zip](../../third_party/segger.com/JLinkRTTLogger.zip) | Windows `JLinkRTTLogger.exe` and `JLinkARM.dll`, retained for the optional J-Link transport. No version manifest or license file is bundled in this ZIP; its exact version and redistribution provenance are unconfirmed. |
 | [STRTTLogger.zip](../../third_party/goST/STRTTLogger.zip) | Windows `stRttLogger.exe` and `libusb-1.0.dll`, retained for optional ST-Link RTT logging. The earlier repository notes identify [phryniszak/strtt](https://github.com/phryniszak/strtt) and [gostlink](https://github.com/search?q=gostlink) as related sources. The ZIP has no license or version manifest; that relationship does not verify the exact binary build. |
 | [STLinkReflash_190812.zip](../../third_party/segger.com/STLinkReflash_190812.zip) | Windows `STLinkReflash.exe` and `JLinkARM.dll` for the documented onboard ST-Link/J-Link conversion. Retained as a dated vendor utility; the ZIP has no license or version manifest. |
@@ -1031,8 +1031,8 @@ For automatic RTT capture, the host tool resolves `JLinkRTTLogger` or
 ZIPs under `third_party`. For example, on Windows, extract a selected logger
 and its accompanying DLL into the same directory and add that directory to
 `PATH`. Installing the appropriate vendor package is another way to provide
-the logger. See [Trice over RTT](trice_over_rtt.md) for the capture workflow and
-[onboard probe conversion](trice_over_rtt.md#convert-evaluation-board-onboard-st-link-to-j-link)
+the logger. See [Trice over RTT](rtt.md) for the capture workflow and
+[onboard probe conversion](rtt.md#convert-evaluation-board-onboard-st-link-to-j-link)
 for the device-specific setup. No probe firmware is changed by a Trice build.
 
 The stored [J-Link manual](../../third_party/segger.com/UM08001_JLink.pdf) and

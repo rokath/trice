@@ -29,7 +29,7 @@ trice bind -src main.c -genDir build/generated_sidecars
 
 # 2. Compile the program and library. -I adds header directories; -o names output.
 # Project headers come first; default_conf provides the fallback RTT header.
-# Optional size tuning: ../../docs/rm/trice_project_image_size_optimization.md
+# Optional size tuning: ../../docs/rm/code_size.md
 "$compiler" -I. -Ibuild/generated_sidecars -I"$trice_src" -I"$trice_src/default_conf" \
   main.c "$trice_src"/*.c -o build/demo_live.exe
 

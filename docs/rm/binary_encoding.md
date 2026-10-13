@@ -96,7 +96,7 @@ The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and t
 
 The user can insert any data with a well-defined structure into the Trice data stream. When interpreting the Trice binary data, the Trice tool handles selector-0/typeX0 records according to the CLI switch `-typeX0`.
 
-One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](trice_and_legacy_user_code.md#legacy-user-code-option-print-buffer-wrapping-and-framing)). For the counted typeX0 variant, the user prepends a generated **printi** buffer with its payload size as a 16-bit count smaller than `16384`. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option. See chapter [20. typeX0 User Packets](typex0_user_packets.md) for further details.
+One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](legacy_user_code.md#legacy-user-code-option-print-buffer-wrapping-and-framing)). For the counted typeX0 variant, the user prepends a generated **printi** buffer with its payload size as a 16-bit count smaller than `16384`. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option. See chapter [20. typeX0 User Packets](typex0_user_packets.md) for further details.
 
 ### 2.2. <a id="framing---none-or-with-cobs-or-tcobs-encoding"></a>Framing - NONE or with COBS or TCOBS encoding
 
@@ -121,7 +121,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
 > Details
 
 * For maximum storage speed each Trice message starts at a 32-bit boundary and has 1-3 padding bytes inside the target device RAM.
-* The macro `TRICE_LEAVE` and/or function `TriceTransfer` ([Trice Target Code Implementation](trice_target_code_implementation.md)) are the Trice data output.
+* The macro `TRICE_LEAVE` and/or function `TriceTransfer` ([Trice Target Code Implementation](target_implementation.md)) are the Trice data output.
   * In **direct mode** each single message gets its own transfer buffer.
   * In **deferred mode** any count of Trice messages is in the transfer buffer.
   * Additional counted **typeX0 records** can share a transfer buffer with normal Trices. Non-counted selector-0 user data needs a separate transfer buffer because its length is not checkable.

@@ -1,2 +1,2 @@
-- [PC feature tour: build, output formats, tags, and Context Enrichment](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#pc-feature-tour)
-- [PC feature tour: adapting output checks after edits](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#updating-the-pc-tours-output-checks)
+- [PC feature tour: build, output formats, tags, and Context Enrichment](../../docs/rm/examples.md#pc-feature-tour)
+- [PC feature tour: adapting output checks after edits](../../docs/rm/examples.md#updating-the-pc-tours-output-checks)

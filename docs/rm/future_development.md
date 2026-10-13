@@ -28,7 +28,7 @@
 
 ## 1. <a id="further-context-enrichment-variants"></a>Further Context Enrichment Variants
 
-[Context Enrichment](trice_context_enrichment.md) supports direct Bind log sites and reversible source extensions with `insert/clean`. Bind rejects selected CE sites in wrapper macros or counter-rebase regions. Use an ordinary function, put direct calls on separate source lines, or use `insert/clean` as described under [bind-limits](trice_bind.md#bind-limits).
+[Context Enrichment](context_enrichment.md) supports direct Bind log sites and reversible source extensions with `insert/clean`. Bind rejects selected CE sites in wrapper macros or counter-rebase regions. Use an ordinary function, put direct calls on separate source lines, or use `insert/clean` as described under [bind-limits](bind.md#bind-limits).
 
 
 

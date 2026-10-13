@@ -1,1 +1,1 @@
-- [Example projects: selection, setup, and instrumentation](../docs/rm/example_projects_without_and_with_trice_instrumentation.md)
+- [Example projects: selection, setup, and instrumentation](../docs/rm/examples.md)

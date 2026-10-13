@@ -45,7 +45,7 @@ case "$(uname -s)" in
 esac
 
 # 2. Use the native linker's spelling for removing unused functions and data.
-# Details: ../../docs/rm/trice_project_image_size_optimization.md
+# Details: ../../docs/rm/code_size.md
 link_unused=-Wl,--gc-sections
 case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 echo "INFO: PC_log uses local output; no project RTT header or J-Link installation is needed."

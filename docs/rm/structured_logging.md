@@ -56,9 +56,9 @@ Further output formats, such as CSV, could be added when needed.
 
 The target continues to transmit the ID and values using the existing wire format. Field names are not transmitted as additional runtime arguments or payload; they reside in the dictionary on the host.
 
-Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN` are supported. The target macros and their bit-width rules remain authoritative. Context Enrichment (`bind -ce`) can add supported structured fields; see [Context Enrichment](trice_context_enrichment.md).
+Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN` are supported. The target macros and their bit-width rules remain authoritative. Context Enrichment (`bind -ce`) can add supported structured fields; see [Context Enrichment](context_enrichment.md).
 
-Try the [PC Feature Tour](example_projects_without_and_with_trice_instrumentation.md#pc-feature-tour) or the [G0B1 Feature Tour](example_projects_without_and_with_trice_instrumentation.md#g0b1-feature-tour): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
+Try the [PC Feature Tour](examples.md#pc-feature-tour) or the [G0B1 Feature Tour](examples.md#g0b1-feature-tour): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
 
 Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
 
@@ -244,7 +244,7 @@ The `sensor` weight of 650 passes the default Warning threshold of 600 and falls
 tag=sensor level=WARNING message="Supply 3300 mV" field.voltage_mV=3300
 ```
 
-Changing `sensor` to weight 550 gives level INFO; changing it to 750 gives level ERROR. Its tag, message and fields remain unchanged. The rule also applies to level-named tags: `-ulabel INFO:750` produces `tag=INFO level=ERROR`. Built-in category RECEIVE normally produces `tag=RECEIVE level=DEBUG`; an untagged message normally produces `tag=untagged level=INFO` without injecting `untagged:` into its message. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](trice_tags_color_and_weights.md#user-defined-tags-weights-and-colors).
+Changing `sensor` to weight 550 gives level INFO; changing it to 750 gives level ERROR. Its tag, message and fields remain unchanged. The rule also applies to level-named tags: `-ulabel INFO:750` produces `tag=INFO level=ERROR`. Built-in category RECEIVE normally produces `tag=RECEIVE level=DEBUG`; an untagged message normally produces `tag=untagged level=INFO` without injecting `untagged:` into its message. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
 
 In JSON, user fields reside under `fields`. Host and user fields therefore cannot overwrite each other: a user field named `tag` appears under `fields.tag`. User fields are emitted in template order. A record without exportable user fields has no empty `fields` object.
 

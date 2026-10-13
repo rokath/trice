@@ -50,7 +50,7 @@ Core/Src/syscalls.c \
 Core/Src/sysmem.c
 
 # Compile the complete Trice library; project headers keep their precedence.
-# Details: ../../docs/rm/trice_project_image_size_optimization.md
+# Details: ../../docs/rm/code_size.md
 C_SOURCES += $(wildcard ../../src/*.c)
 
 # examples

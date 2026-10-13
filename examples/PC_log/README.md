@@ -1,2 +1,2 @@
-- [PC local logging: build, formatter capabilities, and output](../../docs/rm/example_projects_without_and_with_trice_instrumentation.md#pc-local-logging)
-- [Local deferred text log: configuration and limitations](../../docs/rm/trice_target_code_implementation.md#local-deferred-text-log)
+- [PC local logging: build, formatter capabilities, and output](../../docs/rm/examples.md#pc-local-logging)
+- [Local deferred text log: configuration and limitations](../../docs/rm/target_implementation.md#local-deferred-text-log)
