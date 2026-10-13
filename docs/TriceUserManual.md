@@ -1,6 +1,10 @@
 # Trice User Manual
 
-Trice keeps format strings out of the target binary. The host finds them in `til.json` and combines them with the ID and any binary runtime values. Without a target timestamp or payload, a Trice record needs just four bytes, what explains the speed:
+Trice keeps format strings out of the target binary. The host tool finds them in `til.json` and combines them with the ID and any binary runtime values.
+
+<img src="./ref/demoTIL.json.png" height="200" width="380">
+
+Without a target timestamp or payload, a Trice record needs just four bytes, what explains the speed:
 
 <!--
 ```text
@@ -19,6 +23,8 @@ See [Binary Encoding](rm/binary_encoding.md) for the field layout and length var
 
 <details markdown="1">
 <summary>Contents</summary>
+
+---
 
 <!-- mdtoc -->
 
@@ -39,6 +45,8 @@ See [Binary Encoding](rm/binary_encoding.md) for the field layout and length var
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
+
+---
 
 </details>
 
@@ -160,6 +168,8 @@ When you edit an example, its output check may correctly fail because it still e
 All examples are executable and intended to help starting with Trice on any MCU/CPU.
 
 [F030_bare](../examples/F030_bare/) is a STM32CubeMX-generated F030R8 project and kept uninstrumented. Compare it with [F030_inst_rtt](../examples/F030_inst_rtt/) or [F030_inst_uart](../examples/F030_inst_uart/) to see all Trice related changes.
+
+<img src="./ref/FirstDiffView.png" height="100" width="380">
 
 Both examples call `TriceInit()` at the start of `main()`. RTT writes the first record directly; UART keeps it in RAM until USART is ready and `TriceTransfer()` runs.
 
