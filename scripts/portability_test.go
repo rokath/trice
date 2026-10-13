@@ -776,27 +776,78 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 	root := t.TempDir()
-	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/TriceReferenceManual.md)\n")
-	for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
-		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./TriceReferenceManual.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
+	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/trice_speed.md)\n")
+	writeFixture(t, root, "docs/README.md", "[Guide](TriceGuide.md#entry-points)\n")
+	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
+		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/trice_bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
 	}
-	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare both manuals for GitHub Pages"} {
+	writeFixture(t, root, "docs/rm/README.md", "[Bind](trice_bind.md#bind-limits)\n")
+	// Nested chapters resolve parent documentation and source files differently.
+	// Image previews, commented tests and code examples must survive unchanged.
+	chapter := "[User](../TriceUserManual.md#see-your-first-log)\n[Code](../../src/trice.h)\n[`Header`](../../src/trice.h)\n[Help](../ref/trice-help-all.txt)\n![Image](../ref/example.png)\n[![Preview](../ref/example.png)](../ref/example.gif)\n[Local](#local)\n[External](https://example.com/guide?q=1#chapter)\n<a href=\"../TriceGuide.md#entry-points\">Guide</a>\n```md\n[Example](../../src/trice.h)\n```\n<!--\n[Comment](../../src/trice.h)\n-->\n`[Inline](../../src/trice.h)`\n"
+	writeFixture(t, root, "docs/rm/trice_bind.md", chapter)
+	writeFixture(t, root, "docs/rm/trice_speed.md", "# Trice Speed\n")
+	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare documentation for GitHub Pages"} {
 		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
 		assert.NoError(t, err, out)
 	}
 	index, err := os.ReadFile(filepath.Join(root, "index.md"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(index), "./docs/TriceUserManual.html#see-your-first-log")
-	assert.Contains(t, string(index), "./docs/TriceReferenceManual.html")
-	for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+	assert.Contains(t, string(index), "./docs/rm/README.html")
+	assert.Contains(t, string(index), "docs/rm/trice_speed.html")
+	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
 		data, err := os.ReadFile(filepath.Join(root, "docs", manual+".md"))
 		assert.NoError(t, err)
-		assert.Contains(t, string(data), "[Guide](TriceUserManual.html#see-your-first-log)")
-		assert.Contains(t, string(data), "[Reference](TriceReferenceManual.html#bind-limits)")
+		assert.Contains(t, string(data), "[Guide](./TriceUserManual.html#see-your-first-log)")
+		assert.Contains(t, string(data), "[Reference](./rm/trice_bind.html#bind-limits)")
 		assert.Contains(t, string(data), "[Code](https://github.com/rokath/trice/blob/main/src/trice.h)")
 		assert.Contains(t, string(data), "[Help](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt)")
 		assert.Contains(t, string(data), "![Image](./ref/example.png)")
 		assert.Contains(t, string(data), "[Local](#local)")
+	}
+	data, err := os.ReadFile(filepath.Join(root, "docs/rm/trice_bind.md"))
+	assert.NoError(t, err)
+	for _, expected := range []string{
+		"[User](../TriceUserManual.html#see-your-first-log)",
+		"[Code](https://github.com/rokath/trice/blob/main/src/trice.h)",
+		"[`Header`](https://github.com/rokath/trice/blob/main/src/trice.h)",
+		"[Help](https://github.com/rokath/trice/blob/main/docs/ref/trice-help-all.txt)",
+		"![Image](../ref/example.png)",
+		"[![Preview](../ref/example.png)](../ref/example.gif)",
+		"[Local](#local)",
+		"[External](https://example.com/guide?q=1#chapter)",
+		"<a href=\"../TriceGuide.html#entry-points\">Guide</a>",
+		"```md\n[Example](../../src/trice.h)\n```",
+		"<!--\n[Comment](../../src/trice.h)\n-->",
+		"`[Inline](../../src/trice.h)`",
+	} {
+		assert.Contains(t, string(data), expected)
+	}
+	assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"))
+}
+
+// TestManualPagesRequiresActiveSources verifies missing inputs are reported
+// before the workflow can partially rewrite its remaining documentation.
+func TestManualPagesRequiresActiveSources(t *testing.T) {
+	paths := []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
+	for _, missing := range paths {
+		t.Run(missing, func(t *testing.T) {
+			root := t.TempDir()
+			for _, path := range paths {
+				if path != missing {
+					writeFixture(t, root, path, "[Reference](./rm/trice_bind.md#bind-limits)\n")
+				}
+			}
+			chapter := "[User](../TriceUserManual.md)\n"
+			writeFixture(t, root, "docs/rm/trice_bind.md", chapter)
+			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "ERROR: missing documentation source: "+missing)
+			data, err := os.ReadFile(filepath.Join(root, "docs/rm/trice_bind.md"))
+			assert.NoError(t, err)
+			assert.Equal(t, chapter, string(data), "preflight failure must not rewrite surviving chapters")
+		})
 	}
 }
 
@@ -815,7 +866,7 @@ const config = require('./scripts/_manual_pdf_config.cjs');
 const cases = [
   ['#get-the-tools', '#get-the-tools'],
   ['./TriceUserManual.md#see-your-first-log', '#see-your-first-log'],
-  ['./TriceReferenceManual.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/TriceReferenceManual.md#bind-limits'],
+  ['./rm/trice_bind.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/rm/trice_bind.md#bind-limits'],
   ['../examples/PC_features/main.c', 'https://github.com/rokath/trice/blob/main/examples/PC_features/main.c'],
   ['https://example.com/guide?q=1#chapter', 'https://example.com/guide?q=1#chapter'],
   ['mailto:maintainer@example.com', 'mailto:maintainer@example.com'],
