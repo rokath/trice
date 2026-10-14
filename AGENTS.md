@@ -154,7 +154,11 @@
 
 * Do not use absolute filesystem paths in repository files, scripts, or build/test commands.
 * Keep project paths relative so the repository can be checked out anywhere.
-* Write documentation for quick scanning and clear understanding. Lead with the action or key point, use concise wording, and retain the details needed for correct use.
+* Keep documentation short and clear. "Clear" means easy for people to understand, including non-native English readers, not merely logically exact. Lead with the action or key point.
+* Prefer plain words, concrete statements and small examples over jargon and long explanations. Preserve the facts needed for correct use.
+* Use concise names such as `-ce` when the context is clear. Link detailed explanations and edge cases instead of repeating them.
+* For comparisons and limits, use compact tables showing the relevant workflows, options and compiler features. Split distinct environments into separate labeled tables when that makes the comparison clearer. Readers should see the differences at a glance without combining scattered sentences. Explain unfamiliar terms briefly beside the table.
+* Keep `CHANGELOG.md` limited to notable release changes and short migration or limit notices with links. Put all new usage documentation, examples, comparison tables and detailed migration instructions in `docs/rm/`; link to them from the changelog instead of duplicating them.
 * In compiler include paths, put project and generated header directories first, then `src`, then `src/default_conf` last. The fallback `SEGGER_RTT_Conf.h` belongs in `src/default_conf`, never directly in `src`, so a project-specific configuration takes precedence without modifying vendor includes.
 * In scripts, prefer stabilizing the working directory once near the top, then use consistent relative project paths for the rest of the script.
 * In documentation, links to files and folders inside this repository must be relative and must not use absolute GitHub URLs.

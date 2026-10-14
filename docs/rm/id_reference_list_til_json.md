@@ -8,8 +8,9 @@
 <!-- mdtoc -->
 
 * [1. Compatibility with firmware and host-tool versions](#compatibility-with-firmware-and-host-tool-versions)
-* [2. til.json Version control](#tiljson-version-control)
-* [3. Long Time Availability](#long-time-availability)
+* [2. Migrating 1.x scripts and projects](#migrating-1x-scripts-and-projects)
+* [3. til.json Version control](#tiljson-version-control)
+* [4. Long Time Availability](#long-time-availability)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -50,17 +51,33 @@ The following examples use the same unstamped TREX record layout and ID in both 
 
 For unchanged historical firmware that used literal braces, replay with its archived dictionary and matching old host tool. In sources built with the current tools, write literal braces as `{{` and `}}`, then regenerate IDs/dictionaries and rebuild. Logging does not rewrite supplied dictionaries, and historical dictionaries are not automatically converted. An unchanged binary record layout alone does not establish template compatibility. Replay checks must inspect output and diagnostics: a rejected record does not necessarily make the logger exit with a nonzero status.
 
-Published command-line changes relative to v1.3.0 also matter when updating scripts:
+## 2. <a id="migrating-1x-scripts-and-projects"></a>Migrating 1.x scripts and projects
 
-| v1.3.0 usage | Current contract |
+Review scripts written for 1.x before using the v2 tools. These changes are relative to v1.3.0 and apply to both `trice log` and `tlog` where relevant:
+
+| Previous usage | Required adjustment |
 | --- | --- |
-| `trice generate -tilC` | Use `-logC`. This is a source-based generator for current sites already resolved by Insert or Bind, not a spelling alias for dumping every historical TIL entry. Its default output is `generated/til.c`. |
-| `-liPath` | Use `-liRoot` during ID management for stored source paths; use `-liMaxDirs` during logging for displayed parent directories. |
-| `-ulabel alpha:beta` for two user tags | Use `-ulabel alpha -ulabel beta`. A colon now specifies a weight or color for one tag. |
-| Tag selection using `-pick`, `-ban`, or `-logLevel` | Repeat `-pick`/`-ban` once per tag group or exact integer weight; colon-separated lists are rejected. Built-in aliases ignore case and select their whole group; built-in one-letter aliases are removed. `-logLevel`/`-loglevel` selects a minimum weight. Invalid selectors are rejected before opening the input. Untagged events participate in filtering. Metadata no longer determines application selection. |
-| `trice generate -abc deviceX` | Bare names produce `generated/deviceX.h` and `.c`. Use `-genDir` to select the directory or an explicit target path to keep a chosen location. |
+| `trice generate -tilC` | Use `trice generate -src Core -logC`, selecting your own sources. Run Insert or Bind first. Only currently referenced IDs are emitted, not the whole historical TIL. The default output is now `generated/til.c`; use `-logC=build/til.c` to choose a path. |
+| `trice generate -abc deviceX` followed by compiling `deviceX.c` | A name without a directory now produces `generated/deviceX.h` and `.c`. Compile the file from its new location, select another directory with `-genDir`, or specify the target path, for example `-abc=custom/deviceX`. ABC itself was already included in v1.3.0. |
+| ID management with `-liPath` | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it. |
+| Logging with `-liPath` | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename. |
+| `-pick err:wrn` or `-ban dbg:trace` | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above. |
+| `-ulabel alpha:beta` to register two tags | Use `-ulabel alpha -ulabel beta`. A colon now assigns one tag's weight or color, for example `-ulabel alpha:650`. User-defined tags match exact spelling. |
+| Built-in one-letter tags or selectors, or `OK` as a Message alias | Use descriptive names such as `err`, `wrn`, `inf`, `dbg` and `msg`, including in `-IDRange`. Built-in names ignore case. The old aliases are removed; unregistered prefixes count as `untagged`, and unknown selectors are errors. `rx` now selects Receive and `tx` selects Transmit, without the former overlap with Read/Write. |
+| `-logLevel` based on the old tag-table order | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown. |
 
-## 2. <a id="tiljson-version-control"></a>til.json Version control
+Further changes can affect builds and automated checks:
+
+- **Literal braces and replay:** use `{{` and `}}` in new source formats. For old firmware and dictionaries, follow the [compatibility rules](#compatibility-with-firmware-and-host-tool-versions) above. Replay can reject a record and still exit successfully; scripts must also check diagnostics and expected records.
+- **ID ranges and identical calls:** Insert/Bind can change existing IDs when their allowed range changes or identical calls are added, removed or moved. Rebuild the firmware and keep its matching `li.json`; see [ID assignment and ranges](id_management.md#different-ids-for-same-trices).
+- **Location information:** keep `li.json` between ID-management runs, including partial scans. To hide locations during logging, use `trice log -li off`; passing `-li off` to Insert/Bind also disables source ownership information. See [location information](cli.md#location-information).
+- **RTT builds:** put project and generated header directories first, then `src`, then `src/default_conf` on the include path. Update the three SEGGER source/header files together and retain the license and your project-specific configuration; see [RTT integration](rtt.md).
+- **Custom encoding calls:** if `TriceEncode()` uses a framing format not selected by an active output, enable `TRICE_COBS_ENCODE_SUPPORT` or `TRICE_TCOBS_ENCODE_SUPPORT` and link that encoder. Unavailable framing returns `0`; see [encoder selection](code_size.md).
+- **Output parsing:** statistics include messages hidden by host filters. For JSON/KV, read application records from standard output and diagnostics from standard error; see [Structured Logging](structured_logging.md) and [event statistics](tags_color_and_weights.md#event-statistics).
+- **Repository automation:** helper/test scripts use numbered filenames, for example `scripts/_530_test_links.sh` replaces `_testAll_06_LinkCheck.sh`. Update hard-coded helper and documentation paths. `./scripts/testAll.sh` defaults to the quick Bind workflow; use `full` for broad Insert/Clean coverage and `--stop` for early exit. See [target tests](target_tests.md).
+- **Installation:** source builds require Go 1.25 or later. Install v2 from its release archive or build a checkout of its tag; remote `go install` with a v2 version tag is not supported because the module path has no `/v2` suffix. Betas do not update the stable Homebrew tap; see [beta installation](tool_build_release.md#install-a-beta-or-a-stable-release).
+
+## 3. <a id="tiljson-version-control"></a>til.json Version control
 
 * The ID list should go into the version control repository of your project.
 * To keep it clean from the daily development garbage one could `git restore til.json`, and re-build just before check-in.
@@ -81,7 +98,7 @@ git restore til.json # Forget the todays garbage.
 trice clean # Remove the IDs from the source code with deactivated cache.  
 ```
 
-## 3. <a id="long-time-availability"></a>Long Time Availability
+## 4. <a id="long-time-availability"></a>Long Time Availability
 
 * You could place a download link for the Trice tool and the used **til.json** list.
 * Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 200 years.
