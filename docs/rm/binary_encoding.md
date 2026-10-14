@@ -7,10 +7,11 @@
 
 <!-- mdtoc -->
 
-* [1. Symbols](#symbols)
-* [2. Package Format](#package-format)
-  * [2.1. typeX0 Records](#typex0-records)
-  * [2.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
+* [1. Overview](#overview)
+* [2. Symbols](#symbols)
+* [3. Package Format](#package-format)
+  * [3.1. typeX0 Records](#typex0-records)
+  * [3.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -19,7 +20,30 @@
 
 </details>
 
-## 1. <a id="symbols"></a>Symbols
+## 1. <a id="overview"></a>Overview
+
+- An arriving Trice buffer is framed. `tlog` expects TCOBS as default.
+- The Trice buffer arrives in a known endianness. `tlog` expects little endian as default.
+- The first 2 bytes are a 16-bit value with 2 most significant bits as selector bits. If both are `00` a special TypeX0 user buffer is detected. `tlog` then is expecting the 14 LSB as a payload count per default. Else we have a real Trice buffer. They all contain 2 bytes serving as cycle and payload count in a combined way: 
+
+![CountAndCycle.svg](../ref/CountAndCycleBasic.svg)
+
+
+Most trice messages are with small payloads (<128) and take advantage of a cycle counter which allows to detect transmission issues with a high probability. Some Trice messages may contain more payload bytes. Then the cycle counter is incremented too but not transmitted and the cycle byte serves as additional count bits.
+
+![CountAndCycle.svg](../ref/CountAndCycleDetail.svg)
+
+The 2 selector bits control the Trice header layout in the following way:
+
+![TriceTypesBuffer.svg](../ref/TriceTypesBuffer.svg)
+
+For speed and alighnemt reasons the target internal representation is:
+
+![TriceTypesBuffer.svg](../ref/TriceTypesBuffer-d16.svg)
+
+The leading doubled 2 bytes are removed before framing. But there are cases, these doubled 2 bytes are transmitted too. That is when using direct mode is used over RTT, a for developers important setting. To tell that `tlog` the CLI switch `-d16` is needed.
+
+## 2. <a id="symbols"></a>Symbols
 
 | Symbol  | Meaning                                                                      |
 |:-------:|------------------------------------------------------------------------------|
@@ -45,7 +69,7 @@ The long count field can represent up to 32767 payload bytes. This is the binary
 
 The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and the count field, plus one 4-byte word for alignment and output scratch space. The target rounds the stored payload up to a 32-bit boundary; some output paths also need space after the record, for example when padding for XTEA encryption. At the macro's maximum payload size, the aligned record uses at most `TRICE_SINGLE_MAX_SIZE - 4` bytes, leaving that word inside the reserved size. Package framing can add further bytes on the transport.
 
-## 2. <a id="package-format"></a>Package Format
+## 3. <a id="package-format"></a>Package Format
 
 * Because of **TCOBS** or **COBS** package framing, package sizes are detectable by the Trice tool without additional length information from the payload itself.
 * A decoded frame of 0 bytes is ignored. A 1-byte frame is unsupported. Frames with 2 or 3 bytes are selector-0 candidates when their selector bits are `00`; valid counted `typeX0` handling then still depends on the embedded count. Otherwise they are unsupported short user data.
@@ -92,13 +116,13 @@ The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and t
 | NC      |           2 | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z` is **1**, the current Trice contains no cycle counter and has a 15-bit payload count instead (for payloads > 127). |
 | payload |           4 | u8\|u16\|u32\|u64 | The payload contains a number of equal size values.                                                                                                                                                                                                                                                                            |
 
-### 2.1. <a id="typex0-records"></a>typeX0 Records
+### 3.1. <a id="typex0-records"></a>typeX0 Records
 
 The user can insert any data with a well-defined structure into the Trice data stream. When interpreting the Trice binary data, the Trice tool handles selector-0/typeX0 records according to the CLI switch `-typeX0`.
 
 One possible use case is to have user **printi** statements parallel to Trices (see [Legacy User Code Option Print Buffer Wrapping and Framing](legacy_user_code.md#legacy-user-code-option-print-buffer-wrapping-and-framing)). For the counted typeX0 variant, the user prepends a generated **printi** buffer with its payload size as a 16-bit count smaller than `16384`. See [./_test/userprint_dblB_de_tcobs_ua/TargetActivity.c](../../_test/userprint_dblB_de_tcobs_ua/TargetActivity.c) for an implementation option. See chapter [20. typeX0 User Packets](typex0_user_packets.md) for further details.
 
-### 2.2. <a id="framing---none-or-with-cobs-or-tcobs-encoding"></a>Framing - NONE or with COBS or TCOBS encoding
+### 3.2. <a id="framing---none-or-with-cobs-or-tcobs-encoding"></a>Framing - NONE or with COBS or TCOBS encoding
 
 > Summary Information for Trice Data Parsing
 
