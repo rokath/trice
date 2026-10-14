@@ -38,6 +38,7 @@
 
 * Work continuously through the requested task and do not pause for routine, piecemeal permission requests.
 * All read-only operations and all task-relevant builds, formatting commands, diagnostics, and tests are pre-approved and must not require separate user confirmation.
+* Never ask the user to approve or reconfirm task-relevant tests, reruns, coverage, test builds, or the existing pinned dependencies and caches needed for them. This standing authorization includes local TCP ports and network access required by those checks. Reuse existing approved execution paths and command prefixes; do not introduce another approval question merely by changing cache paths or command wrappers. If the platform unavoidably enforces an approval, use only its technical mechanism, without a separate conversational question, and never claim that AGENTS.md can disable that enforcement.
 * Task-relevant edits to version-controlled files are pre-approved, including source files in `./src`; do not request a special file or directory permission.
 * Pause only for a genuinely important ambiguous decision, an unrecoverable or destructive action outside the clearly requested scope, or a technically enforced platform approval that cannot be avoided.
 * Only `git commit` and `git push` require an explicit user instruction. Never infer either operation from a request to implement, fix, test, or format changes.
@@ -52,10 +53,10 @@
 
 ### Tagged handovers
 
-* Treat an exact user prompt `handsoff <tag>` as a request to create or fully refresh `docs/scratchPad/handsoff_<tag>.md`. Replace existing contents instead of appending.
-* Treat an exact user prompt `handson <tag>` as a request to load `docs/scratchPad/handsoff_<tag>.md`, verify it against the current checkout, restore that handover as task context, and then wait for the user's next instruction. Do not resume implementation automatically.
+* Treat an exact user prompt `handsoff <tag>` as a request to create or fully refresh `docs/_scratchPad/handsoff_<tag>.md`. Replace existing contents instead of appending.
+* Treat an exact user prompt `handson <tag>` as a request to load `docs/_scratchPad/handsoff_<tag>.md`, verify it against the current checkout, restore that handover as task context, and then wait for the user's next instruction. Do not resume implementation automatically.
 * `<tag>` is required. Accept only a short lowercase ASCII tag matching `[a-z0-9][a-z0-9_-]*`. If the tag is missing or invalid, report the expected syntax and do not create, read, or guess a file.
-* `handsoff_<tag>.md` files in `docs/scratchPad` are intentionally version-controlled handover files. Do not add them to `.gitignore`.
+* `handsoff_<tag>.md` files in `docs/_scratchPad` are intentionally version-controlled handover files. Do not add them to `.gitignore`.
 * A `handsoff` file must be concise and contain only information useful for continuing the work on another computer:
   - current goal and task
   - current Git branch and HEAD commit
@@ -75,7 +76,7 @@
 ### Full computer-switch workflow
 
 * Treat "Rechnerwechsel vorbereiten" ("prepare a computer switch") as a request to reach a recoverable stopping point. Start no new implementation or long test; let necessary cleanup and test-state restoration finish. Do not kill unrelated sessions or leave temporarily rewritten sources behind.
-* For unfinished work, update one concise handover at `docs/scratchPad/Codex_Handover.md`: goal, binding decisions and exclusions, current results, unfinished work, exact test commands and outcomes, required local-only files, and the next concrete step. Clearly distinguish passed, failed, skipped and interrupted tests. Do not put credentials into the handover.
+* For unfinished work, update one concise handover at `docs/_scratchPad/Codex_Handover.md`: goal, binding decisions and exclusions, current results, unfinished work, exact test commands and outcomes, required local-only files, and the next concrete step. Clearly distinguish passed, failed, skipped and interrupted tests. Do not put credentials into the handover.
 * Inspect tracked and untracked changes and existing local commits. Commit and push only when the user explicitly requests them, for example "Rechnerwechsel vorbereiten, committen und pushen". After a requested push, verify the actual remote branch commit; local tracking refs alone do not prove that the transfer succeeded. Otherwise report the remaining Git step concisely.
 * Finish with branch, commit, any remaining local-only material, and the next concrete transfer step. Use the tagged handover workflow above to transfer task context through Git; do not require users to choose a Python invocation or repeat a long manual checklist.
 * The former automated profile-transfer scripts are archived and are not an active computer-switch entry point. Never export/import a personal profile while this session is still active, silently stop other Codex processes, or copy credentials/configuration to make a transfer work.
@@ -224,6 +225,7 @@
 ## Commits
 
 * Always write Git commit messages entirely in English, including the subject and body, regardless of the conversation language. When reporting created commits, quote their actual English subjects rather than substituting translated summaries.
+* Do not use internal task tags such as R27 in commit messages. Describe the actual problem, change and reason in plain English so the message is understandable without a task plan or conversation history.
 * An explicit commit request, including a follow-up message such as "commit", authorizes the complete task-related commit workflow: inspect with `git status`/`git diff`, stage with `git add`, verify the staged diff, and create the requested `git commit` or cohesive commits. Do not request additional approval for any of these steps or ask the user to reconfirm the commit request. This authorization does not include `git push` or later, unrequested commits.
 * A commit request applies to the file contents present when the request is given. If you make further content changes afterwards, including fixes, formatting, or generated-file updates, show the resulting diff and wait for the user's review before committing. Skip this review only when the user explicitly waives review for those additional changes; a commit request alone is not such a waiver. Routine staging and preparing commit messages do not count as content changes.
 * Reuse approved command prefixes for each Git step. Run read-only checks separately from Git writes so that a combined command does not trigger an unnecessary platform approval for `git diff` or `git status`. Repository instructions do not override enforced sandbox restrictions; request a platform approval only when the required write has no already-approved execution path.
