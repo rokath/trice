@@ -1,8 +1,382 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-[Hintergrund, Beschlüsse und Vorbemerkungen](#hintergrund-und-vorbemerkungen)
+Stand der Bedarfsermittlung: **14. Oktober 2026**. Dieser Auftrag aktualisiert ausschließlich die Aufgabensammlung. Keine Skript-, Test-, Beispiel-, RM-, Workflow- oder Spezifikationsänderungen werden damit umgesetzt; kein neuer Testlauf, Commit, Tag oder Publish ist beauftragt.
 
 ## Aufgabenübersicht
+
+Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Release-Abnahme; die abschließende Ausführung von R16 erfolgt trotz des hohen Gewichts erst nach ihren Voraussetzungen. Optionale Ideen bleiben ausdrücklich außerhalb des zugesagten Release-Umfangs. Erledigte Aufgaben einschließlich ihrer Tabellen und Nachweise stehen [im hinteren Teil](#erledigte-korrekturen).
+
+| ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
+| --- | --- | --- | ---: | --- | --- |
+| [R26](#windows-testfehler-vollständig-beheben) | Offen; höchste Priorität | Sieben Windows-Go-Fehlergruppen analysieren und plattformgerecht korrigieren | 5 | M | Vor neuer Release-Abnahme; laufenden Full-Test beenden lassen |
+| [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Offen; CI-Blocker | stitchmd-Versionsprüfung und Links auf die lokal generierte demoLI.json korrigieren | 5 | S–M | Gemeldeter WIP→main-CI-Lauf; sauberer Checkout ohne lokale LI/Sidecars |
+| [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen; Abgleich/Abnahme | Beschlossene Checkout-/Binary-Installation von v2 abschließend prüfen | 5 | S–M | R05 erledigt; kein /v2-Modulpfad |
+| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen; Restabnahme | Vorhandene Beta-Notes, Archive, Lizenzen und Feature-Audits am Kandidaten abnehmen | 5 | M | R14; aktuelle Quellen und beide PDFs |
+| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; durch R26/R32 blockiert | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R26, R32 und R15; alle für den Kandidaten ausgewählten Änderungen |
+| [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Offen; Bedarf ermittelt | Skriptverträge, check-Nebenwirkungen, alte Pflegewege und verwaiste Handover-Helfer klären | 4 | M | R26 zuerst; keine pauschale Umbenennung oder Neuorganisation |
+| [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Offen; gezielte Lücken | ABC, Standalone-Builds, CGO-/CLion-Einstiege und Bind-Dokumentation abgleichen | 4 | M | Vorhandene Bind-Matrix erhalten; Insert/Clean bleibt verfügbar |
+| [R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Offen; Vorschlag zur Auswahl | Veraltete Einstiegsaussagen korrigieren, Wiederholungen verlinken, kleine Inhaltsverschiebungen | 4 | M | Kapitelquellen bleiben maßgeblich; UM nur auf ausdrücklichen Auftrag |
+| [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und tatsächlichen Veröffentlichungsumfang abnehmen | 4 | M | Beide Manuals/Kapitelpfade vorbereitet; Site-Build noch gesondert prüfen |
+| [R30](#alte-rm-spezifikation-und-suchoptionen-einordnen) | Offen; Vorschlag | Überholte RM-Spezifikation aus aktiver Planung nehmen; vorerst kein INDEX.md | 3 | S | Gültige Strukturentscheidungen erhalten; Gesamt-RM-PDF für Suche beachten |
+| [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Optional; später | Fuzz-/Race-Prüfungen für Parser und Recordpfade | 3 | M | Kein zusätzlicher Release-Umfang ohne Auswahl |
+| [R31](#utf-8-zeichen-gezielt-statt-flächig-einsetzen) | Optional; später | Lesbare Doku-Symbole bewerten; stabile ASCII-Status- und Maschinenkanäle erhalten | 2 | S | Kein Encoding-Umbau; erst funktionale Plattformfehler beheben |
+| [F03](#frühe-hostfilterung-messen) | Optional; später | Frühe Hostfilterung und Template-Caching messen | 2 | M–L | Zuerst Messung; frühere A11/M17 |
+| [F04](#benannte-felder-besser-weiterverwenden) | Optional; später | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Konkreten Anwenderfall festlegen |
+| [F05](#kleine-wrapper-erweiterung-getrennt-bewerten) | Optional; später | CE für eindeutig zuordenbare Ein-Logstellen-Wrapper | 2 | M | Eigener Auftrag auf Basis des vorhandenen PoC |
+| [F06](#allgemeines-ce-rebase-bleibt-eine-architekturentscheidung) | Zurückgestellt | Allgemeines CE für Bind-Wrapper und Counter-Rebase | 1 | L | Architekturentscheidung; nicht für das nächste Release |
+
+**Aktuelle Testlage:** Der Benutzer meldet die Mac-Prüfungen als PASS. Beim Auftragsbeginn läuft sein Windows-`scripts/testAll.sh full`; Schritt 540 und 550 sind bereits fehlgeschlagen. Beide Protokolle zeigen dieselben sieben Go-Testgruppen, nicht nur den zuerst gemeldeten X0-Test. Das ist keine neue, vom Agenten ausgeführte Abnahme und noch kein ermitteltes Endergebnis des gesamten Windows-Laufs. Den laufenden Test weder verändern noch mit einem weiteren zustandsverändernden Lauf überlagern.
+
+**Zusätzlicher CI-Befund:** Beim WIP→main-Merge scheitert der Linux-GoReleaser-Snapshot vor der PDF-Erzeugung an `stitchmd dev`; der separate Linkcheck findet zwei Links auf die nicht versionierte `demoLI.json`. Details und spätere Abnahme stehen bei R32. Diese gemeldeten CI-Protokolle sind von den Windows-Go-Fehlern getrennt; ein lokales PASS mit bereits vorhandenen ignorierten Dateien genügt für diesen Nachweis nicht.
+
+[Offene Release-Aufgaben](#konkrete-aufgaben-vor-dem-release) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Hintergrund](#hintergrund-und-vorbemerkungen) · [Erledigte Aufgaben](#erledigte-korrekturen) · [Historische Repo-Bestandsprüfung](#bestandszuordnung-und-befunde-der-repo-prüfung)
+
+## Konkrete Aufgaben vor dem Release
+
+### Windows-Testfehler vollständig beheben
+
+**R26 · Gewicht 5 · Aufwand M · Offen; vor allen anderen Korrekturen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Beleg:** Die aktuellen `temp/log/_540_test_go.log` und `temp/log/_550_test_go_coverage.log` enthalten jeweils die folgenden sieben fehlgeschlagenen Testgruppen. 540 und 550 sind zwei Ausführungen derselben Fehler, keine zwei unabhängigen Belege für einen Target-Defekt. Die Protokolle wurden nur gelesen. Vor jedem späteren Neulauf vollständig sichern; kein Formatter, ID-Workflow oder paralleler Test darf den noch laufenden Full-Lauf beeinflussen.
+
+| Fehlgeschlagene Testgruppe | Beobachtung / wahrscheinliche Ursache | Gezielter nächster Schritt |
+| --- | --- | --- |
+| `TestCountedX0RetainsEncoderWithOrdinaryLogsDisabled` | `TRICE_OFF` und `TRICE_CLEAN` erreichen `hex.DecodeString` mit abschließendem `\r`; `strings.Split(output, "\n")` entfernt nur LF. | Native Ausgabe an Zeilengrenzen korrekt lesen; LF- und CRLF-Gegenproben für beide Schalter. |
+| `TestConfiguredEncodersLinkAndDecodeWithoutLTO` | Ebenfalls `U+000D` im Hextext sowie `"unavailable\r"` statt `"unavailable"`. Globales `TrimSpace` entfernt die CR-Zeichen zwischen Zeilen nicht. | Die gemeinsame Kanalauswertung prüfen; alle Compiler-/Framing-Kombinationen und die Erkennung fehlender/doppelter Kanäle erhalten. |
+| `TestBindReportRejectsWriteModesAndIncompleteInputs` | `unreadable_artifact` und `unreadable_source` bekommen keinen erwarteten Lesefehler. `bindMetadataReadFailFs.Open` vergleicht den nativen Namen exakt mit einer Slash-Pfad-Fixture. | Prüfen, ob der injizierte Fehler unter Windows wegen Pfadseparatoren nie ausgelöst wird. Pfadvergleich und tatsächlichen Fehlerzugriff absichern; Fehler-, Null-Schreibzugriff- und Kein-Teilbericht-Verträge erhalten. |
+| `TestRTTFallbackAndProjectConfiguration` | Clang scheitert in `putting_fallback_first_hides_the_project_header` an `-Werror,-Wmicrosoft-include`. Windows-Suchregeln wirken im absichtlich umgedrehten Include-Test mit. | Tatsächlichen Suchpfad und gewählte Konfiguration je Compiler belegen. Den beabsichtigten Vorrang Projekt/Generierung vor `src` und `src/default_conf` portabel prüfen; keine Warnungen pauschal abschalten. |
+| `TestManualPagesLinksKeepReadersOnTheSite` | Die Python-Verarbeitung liefert unter Windows CRLF; erwartete Code-/Kommentarblöcke verwenden LF. | Zeilenendenerhaltung des echten Workflow-Schritts und der Fixture unterscheiden. Linkumschreibung darf Code, Kommentare und Inhalt nicht nebenbei ändern; LF/CRLF ausdrücklich abdecken. |
+| `TestManualPagesRequiresActiveSources` | Diagnose enthält `docs\README.md` beziehungsweise native Backslashes, die Erwartung ausschließlich Slashes. | Portablen Diagnosevertrag festlegen und testen: fehlender Pfad eindeutig genannt, Quellen vor dem Abbruch unverändert. |
+| `TestClangFormatNativeCache` | MSYS-Fixture erwartet den nativen Pfad mit `.exe`; gemeldeter verwendbarer Pfad endet ohne dieses Suffix. | Auswahl des tatsächlich ausgeführten nativen Formatters vor dem defekten Launcher belegen; Windows-/MSYS-Pfadschreibweisen prüfen, ohne den Offline-Cache-Vertrag zu schwächen. |
+
+Betroffene Stellen: [Encoder-Tests](../../internal/id/encoder_dependencies_test.go), [Bind-Bericht-Tests](../../internal/id/generateBindReport_test.go), deren [Lesefehler-Fixture](../../internal/id/bindIDs_test.go), [RTT-Konfigurationstest](../../pkg/tst/segger_rtt_config_test.go), [Skript-Portabilitätstests](../../scripts/portability_test.go), [Pages-Workflow](../../.github/workflows/pages.yml) und bei Bedarf [Formatter-Auswahl](../../scripts/_280_format_c_code.sh). Das sind Diagnoseziele, keine Freigabe zur Änderung aller genannten Produktionsdateien.
+
+**Wichtig:** `U+000D` ist Carriage Return, kein Beleg für beschädigtes UTF-8. Nur erlaubte Zeilenenden behandeln; fehlerhafte Hexdaten, doppelte Kanäle, echte Include-Konflikte und echte Lesefehler müssen weiterhin scheitern. Keine pauschalen Windows-Skips, gelockerten Nutzdatenvergleiche oder durch Normalisierung versteckten Inhaltsänderungen.
+
+**Spätere Abnahme:** Erst die sieben Gruppen unter Windows gezielt mit `-count=1` ausführen, anschließend Schritt 540 und 550 mit unveränderter Paket-/Coverage-Auswahl. LF/CRLF, Slash-/Backslash-Pfade und verwendete Compiler abdecken. macOS-Gegenprobe durchführen; Linux-Nachweis nach verfügbarer Umgebung getrennt ausweisen. Nach Abschluss aller ausgewählten Korrekturen folgt der einmalige Full-Lauf bei R16. Die jetzige reine Planpflege führt keinen dieser Befehle aus.
+
+### CI-PDF-Build und Links ohne lokale Artefakte absichern
+
+**R32 · Gewicht 5 · Aufwand S–M · Offen; zusätzlicher Linux-CI-Blocker**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Der Benutzer meldet beim WIP→main-Merge zwei konkrete Fehler. Nur der Bedarf wurde lesend geprüft; kein Installations-, PDF-, Snapshot- oder Linkcheck-Lauf wurde dafür neu gestartet.
+
+**PDF-Hook / stitchmd:** `goreleaser release --snapshot --clean --skip=publish` bricht im Hook `scripts/_320_generate_trice_user_manual_pdf.sh` ab. Node 22.23.3, npm/npx 10.9.9 sind vorhanden; der Renderer ist auf md-to-pdf 5.2.4 und Puppeteer 24.31.0 gepinnt. Das aufgerufene Programm meldet `stitchmd dev`. Es ist also vorhanden; der Abbruch erfolgt beim exakten Vergleich der ersten Versionszeile mit `stitchmd 0.9.0`, noch vor dem eigentlichen Zusammenbau.
+
+Beide aktuellen Workflows, [Installationsprüfung](../../.github/workflows/install-checks.yml) und [Release](../../.github/workflows/goreleaser.yml), enthalten bereits `go install go.abhg.dev/stitchmd@v0.9.0`. Eine fehlende Installationszeile ist damit im aktuellen Checkout nicht der Befund. Zu prüfen sind der tatsächlich ausgeführte CI-Commit, der aufgelöste Programmpfad, die Go-Modul-/Buildinformationen und die Bedeutung der `dev`-Anzeige bei dieser Installationsart. Dass ein Go-Installationsbuild ohne eingebettete Release-Versionszeichenfolge `dev` melden kann, ist hier eine zu verifizierende Erklärung, kein bereits am Runner nachgewiesener Buildvertrag.
+
+**Spätere Korrektur:** Installation und Versionsnachweis auf denselben reproduzierbaren Vertrag bringen: entweder ein verifiziertes offizielles Release-Binary oder ein nachweislich aus der gepinnten Modulversion gebautes Tool mit passender Prüfung. `dev` nicht pauschal erlauben und die Versionsprüfung nicht ersatzlos entfernen. Gezielte Tests für fehlendes/falsches Tool, nachgewiesene gepinnte Installation und nicht identifizierbaren Dev-Build ergänzen; die bisherige Fixture liefert nur die ideale Zeichenfolge `stitchmd 0.9.0` und beweist den realen Installationsweg nicht.
+
+**Lokale LI-Datei / Linkcheck:** `git ls-files -- demoLI.json` ist leer; `.gitignore` ignoriert `/demoLI.json`. UM und [Decoding](../rm/decoding.md) erklären bereits, dass aktive Demo-/Beispiel-LI-Dateien lokal initialisiert werden. `maintenance.md` verlinkt in seiner Repo-Tabelle dagegen noch `[demoLI.json](../../demoLI.json)`. Die gemeldeten zwei CI-Fehler stammen aus dieser Stelle und aus `docs/_TriceReferenceManual.md`. Ohne lokale Vorabgenerierung existiert das Linkziel im CI-Checkout nicht.
+
+**Spätere Korrektur:** Die aktive Wartungstabelle beschreibt `demoLI.json` als generierte lokale Datei ohne Repository-Dateilink; bei Bedarf auf die vorhandene Initialisierungserklärung verweisen. Keine leere LI-Datei nur für den Linkcheck anlegen, keine erneute Versionierung und kein pauschales Ausschalten lokaler Linkprüfungen. Die Initialisierung für tatsächliche Bind-/Insert-Builds bleibt davon getrennt und muss eine vorhandene LI erhalten.
+
+Der im CI gemeldete Monolith liegt im lokalen Arbeitsbaum bereits als noch uncommittete Archivverschiebung vor. Prüfen, welcher Stand tatsächlich auf main angekommen ist. Archivinhalt nicht reparieren: Nach Übernahme des vorgesehenen Archivstands greift der bereits vorhandene Scratchpad-Ausschluss in `lychee.toml`. Die aktive `maintenance.md` muss trotzdem berichtigt werden. Dieser Planpflegeauftrag verschiebt oder committet keine Datei und ändert auch die Lychee-Konfiguration nicht.
+
+**Überholte Planangabe:** Die weiter hinten erhaltenen historischen R21c-/R17-Tabellen nennen `demoLI.json` noch versioniert. Diese Aussage ist für den heutigen Stand ausdrücklich ersetzt: `demoTIL.json` bleibt die versionierte ID-Tabelle; aktive LI-Dateien sind lokal erzeugt/ignoriert, historische Testfixtures bleiben unverändert. Den abgeschlossenen Aufräumauftrag nicht als Begründung für eine Rückmigration verwenden.
+
+**Spätere Abnahme:** Gepinnten Tool-Installationsweg und PDF-Hook in einer sauberen Linux-Umgebung prüfen; anschließend GoReleaser-Snapshot ohne Publish mit beiden nichtleeren PDFs. Den Offline-Linkcheck aus einem frischen Checkout ohne `demoLI.json` bestehen lassen und die normale CI-Linkprüfung einbeziehen. Keine vorhandenen lokalen Dictionaries, Sidecars, npm-/Go-Caches oder PDFs als versteckte Voraussetzung. Windows-/macOS-Einstiege gezielt gegenprüfen; kein neuer langer Full-Lauf allein für die Planergänzung. Die gemeldete Snapshot-Version `1.3.1-next` aus Tag `v1.3.0` ist separat von einem tatsächlich getaggten v2-Beta-Release zu beurteilen; hier keinen Tag erzeugen oder ändern.
+
+### Checkout-/Binary-Installationswege für v2 absichern
+
+**R14 · Gewicht 5 · Aufwand S–M · Implementierung weitgehend vorhanden; abschließender Abgleich offen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Entscheidung des Anwenders: **`/v2` vorerst weglassen.** `go.mod` bleibt bei `module github.com/rokath/trice`, Imports bleiben unverändert. Die Produktversion v2.0.0 wird über fertige Binaries und lokale Builds aus einem Repo-Checkout angeboten. Die [Installationsanleitung im RM](../rm/project_resources.md#download-and-install-trice) nennt dafür `./scripts/buildTriceTool.sh` statt `go install github.com/rokath/trice/cmd/trice@latest`, mit Aufrufort und Hinweis auf die ausgegebenen Installationspfade; README und Guide führen dorthin.
+
+Lokales Bauen und Installieren aus dem Checkout benötigt allein wegen der Produktversion keinen Major-Modulpfad. Das vom Skript intern verwendete lokale `go install ./cmd/trice ./cmd/tlog` bleibt zulässig. Versionierte Go-Auflösung über `@v2.0.0` wäre dagegen an einen passenden Major-Modulpfad gebunden und gehört vorerst nicht zum zugesagten Installationsumfang. Siehe [Go: Major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
+
+Verbleibende Aufgabe: Aktive Installationsanleitungen und Release-Prüfungen auf den beschlossenen Umfang abstimmen. Weitere entfernte Go-Installationsanweisungen dürfen v2 nicht versprechen. Lokalen Build beider Tools und ausgelieferte Binaries prüfen; eine spätere Modulpfadumstellung benötigt eine neue Entscheidung.
+
+**Abnahme:** Der lokale Build mit `./scripts/buildTriceTool.sh` und die angebotenen Binary-Installationswege funktionieren in einer sauberen Umgebung. Dokumentation und Prüfungen passen dazu; keine `/v2`-Umstellung und keine v2-Modulinstallationszusage. Kein Tag oder Publish im Rahmen dieses Auftrags.
+
+### Release Notes und ausgelieferte Dateien prüfen
+
+**R15 · Gewicht 5 · Aufwand M**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Aktualisierung vom 14. Oktober:** Der [Changelog](../../CHANGELOG.md) enthält inzwischen einen kurzen Abschnitt `v2.0.0-beta-1 (unreleased)` mit RM-Links. Release-Notes-Auswahl, taggebundene Veröffentlichung/Audits, Archiv-Lizenzen und ausgepackte Bind-/Text-/JSON-/KV-Prüfungen sind bereits implementiert. Nicht erneut als Neuentwicklung beauftragen. Offen bleibt die Abnahme dieser tatsächlichen Ergebnisse am festgelegten Kandidaten, einschließlich aktueller PDFs und Plattformgrenzen.
+
+Die [Installationsprüfungen](../../.github/workflows/install-checks.yml) und [Release-Prüfungen](../../.github/workflows/release-audit.yml) testen bereits Archive, Pakete, PDF und klassisches Decoding. Die vorhandene Feature-Abnahme mit den **ausgepackten** Tools und Target-Quellen gezielt ausführen: Bind bzw. Insert mit SL/CE, tatsächlich erzeugter Record, Text/JSON/KV und ausschließlich Anwendungsrecords auf dem maschinenlesbaren Kanal. Vorhandene plattformunabhängige Fixture und [_verify_release_features.cjs](../../scripts/_verify_release_features.cjs) verwenden.
+
+Toolchain-Restbefund, mit R27 abzustimmen: `go.mod` verlangt Go 1.25.0; der separat manuell gestartete Workflow `go.yml` nennt noch 1.24.0. Das muss keinen unmittelbaren Buildfehler verursachen, weil Go einen Toolchain-Wechsel auslösen kann, macht die geprüfte Umgebung aber unnötig unklar.
+
+Die unter R18/R19 getrennten Handbücher unter eindeutigen Namen ausliefern: `TriceUserManual` für den Einstieg und `TriceReferenceManual` für Details. Downloadlinks und Artefaktprüfungen müssen beide Dokumente dem richtigen Zweck zuordnen; die bisherige PDF-Prüfung nur umzubenennen reicht nicht.
+
+Mit R19 sind Erzeugung, GoReleaser-Assets und die lokalen/CI-Prüfeinstiege für beide PDFs vorbereitet und gezielt getestet. R15 prüft weiterhin das tatsächlich gebaute und ausgelieferte Gesamtpaket einschließlich der endgültigen Downloadziele; diese Release-Abnahme ist dadurch nicht vorweggenommen.
+
+Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` und `src/*.md` zusammengestellt. Beim ausgepackten Archiv ausdrücklich prüfen, ob die benötigten Lizenzinformationen vorhanden sind und die mitgelieferte `src/ReadMe.md` auch ohne Repo-Elternverzeichnis verständlich ist. Ihre relativen Verweise auf Root-Dokumente dürfen nicht ungeprüft als funktionierende Archivnavigation gelten. Fremdquellenhinweise erhalten; keine Vendor-Aktualisierung in diesen Auftrag aufnehmen.
+
+**Abnahme:** Verständliche englische Release Notes und Anpassungshinweise; finales englisches User Manual und Reference Manual als Markdown/PDF; passende Target-Quellen; nachvollziehbare Artefaktprüfungen auf den zugesagten Betriebssystemen. Kein Publish oder Tag ohne ausdrücklichen Auftrag.
+
+### Release-Abnahme auf einem feststehenden Stand
+
+**R16 · Gewicht 5 · Aufwand M plus Full-Testlauf · Offen; aktuelle Windows- und CI-Fehler blockieren die Abnahme**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Aktualisierung vom 14. Oktober:** Mac-PASS ist die Meldung des Benutzers, keine neue Agentenprüfung. Sein beim Auftragsbeginn laufender Windows-Full-Test hat bereits 540/550-Fehler; die sieben gelesenen Gruppen stehen bei R26. Ein endgültiges Gesamtergebnis wurde in diesem Planpflegeauftrag nicht ermittelt. Frühere erfolgreiche Läufe ersetzen diese aktuelle Abnahme nicht.
+
+Nach R26, R32 und den übrigen für den Kandidaten ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
+
+**Abnahme:**
+
+- Full-Matrix mit Bind und Insert/Clean ohne ungeklärte Fehler; alle Pflichtwerkzeuge vorhanden. PASS einer Suite darf relevante intern übersprungene Tests nicht verdecken.
+- CE-/SL-End-to-End-Abnahme gemäß R07 und installierte Release-Artefakte gemäß R15.
+- Keine zurückgebliebenen unbeabsichtigten Source-/Metadatenänderungen.
+- Go-Coverage mit der Paket- und `-coverpkg`-Auswahl des [Coverage-Workflows](../../.github/workflows/coverage.yml) gegen die Zielbranch-Baseline vergleichen; Coveralls-Zeilenabdeckung und Go-Statement-Coverage unterscheiden. C-Abnahme separat.
+- Finale Dokumentation: kurzes UM und Reference Manual mit mdtoc, Markdown, relativen Links mit korrekter Groß-/Kleinschreibung und PDF prüfen; README, Dokumentationswegweiser und GitHub Pages einbeziehen. Keine aktiven Links auf entfernte Weiterleitungsdateien; Repo-Karte und Bestandszuordnung stimmen mit den tatsächlich vorgenommenen Aufräumarbeiten überein. Danach keine ungeprüften inhaltlichen Änderungen mehr.
+- Ein kurzer echter G0B1-Boardlauf für zwei Task-Kontexte, Stempel und lesbare/strukturierte Ausgabe, sofern diese Hardware-Zusage im Release gemacht wird. Fehlender Hardwarezugang wird als fehlender Nachweis benannt.
+- Versionsentscheidung, bekannte Grenzen und eventuelle bewusst akzeptierte Abweichungen sind dokumentiert.
+
+### Skripte an den aktuellen Repository-Stand anpassen
+
+**R27 · Gewicht 4 · Aufwand M · Offen; statische Bestandsaufnahme abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Umfang der lesenden Inventur: **118 versionierte eigene Shell-/CJS-/Python-Skripte** unter Root, `scripts/`, `demo/` und `examples/`, ergänzt um [den Go-CGO-Overlay-Helfer](../../scripts/pc_cache_overlay.go), aufrufende Workflows und Builddateien. Fremdsoftware, Archive, generierte Dateien und temporäre Buildbäume sind keine aktiven Wartungsziele. Pfade, Aufrufe, Workflow-Zuständigkeit und bekannte Plattformannahmen wurden gesichtet, kritische Stellen vertieft gelesen. Dies ist eine Bedarfsprüfung, keine Ausführung oder vollständige Laufzeitabnahme aller Skripte.
+
+| Skriptgruppe | Aktueller Befund | Bedarf / Grenze |
+| --- | --- | --- |
+| `_100`–`_150`, öffentlicher Bind-Einstieg | Gemeinsamer ID-Workflow und Zustandsbesitz sind vorhanden; `_120` verwaltet die zentrale Source-Auswahl. | Vorhandene Owner-/Restore-Verträge erhalten. Projektlokale TIL/LI nicht ungeprüft in die globale Source-Liste aufnehmen. R28 prüft die tatsächlichen Einstiegslücken. |
+| `_160`–`_250` und `_560`–`_640` | Insert- und Bind-Worker sowie zustandsgeschützte Compiler-/PC-Matrizen existieren. | Keine Neuimplementierung einer bereits vorhandenen Bind-Matrix. Auswahl, Werkzeuge, Logpfade und Wiederherstellung bei Fehler/Abbruch abgleichen; Legacy-Insert/Clean nicht entfernen. |
+| [`_310`](../../scripts/_310_refresh_trice_user_manual.sh) | Prüft/generiert bereits UM und die mdtoc-verwalteten RM-Kapitel. Kein aktiver Zugriff auf den alten Monolithen. | **Keine notwendige funktionale Migration festgestellt.** Name und Begleittexte nennen teils nur ein Manual. Optional verständlicher benennen; dafür keinen zusätzlichen Wrapper-Zoo einführen. README-Kapitelabdeckung und fehlende ToC-Container als mögliche Prüflücke bewerten, nicht einfach alle Markdown-Dateien umformatieren. |
+| [`_440`](../../scripts/_440_test_manual_format.sh), [`format_repo.sh`](../../scripts/format_repo.sh), RM-Pflegebeschreibung | Delegieren korrekt an `_310`, beschreiben den Umfang aber teilweise als einzelnes RM/UM. | Texte an den tatsächlichen Umfang anpassen, soweit R29 die Pflegeanleitung korrigiert. Funktionierende Ein-/Ausgänge erhalten. |
+| [`_330`](../../scripts/_330_renew_ids_and_refresh_tests.sh) | Erneuert IDs weiterhin durch Clean/Insert/Clean; enthält feste ID-Bereiche, eine manuelle CGO-Paketliste und veraltete Editor-/Listenpflegehinweise. | Pflegevertrag für Bind und bewusstes Legacy-Re-Seeding getrennt festlegen. Generierte CGO-Dateien aus den kanonischen Vorlagen prüfen; gewöhnliche Bind-Pflege darf weder historische IDs vergessen noch parallel zum Test Quellen umschreiben. Noch keine neue CLI oder Standardänderung beschlossen. |
+| `_260`–`_300`, `_400`–`_550` | Format-/Lint-/Werkzeugprüfungen existieren; die neuen Windows-Probleme stehen bei R26. | Ein-/Ausgaben, aktuelle Pfade, fehlende Werkzeuge und Aktionstexte abgleichen. `format_repo.sh check` ruft derzeit ebenfalls `cleanAllTargets.sh` und die DS_Store-Bereinigung auf: den Check-Vertrag gegenüber solcher Löschung klären und später gezielt prüfen. |
+| `_320`, `_prepare_reference_manual.cjs`, `_manual_pdf_config.cjs` | Beide PDFs, Kapitelreihenfolge, vollständige PDF-Nummerierung, Navigation und `temp/manual-pdf/` sind bereits umgesetzt. | Kein erneuter Umbau auf einen gepflegten Monolithen. Nach Dokuänderungen frisch generieren; gepinnte Versionen, Buildpfade und temporäre Bereinigung in Entwickler-/CI-/Release-Aufrufen gleich halten. |
+| `buildTriceTool.sh`, `release_prep.sh`, `_610`, `_verify_release_features.cjs`, Release-/Installationsworkflows | Release-Notes-Auswahl, Lizenzen, taggebundene Audits und echte ausgepackte Feature-Prüfungen sind bereits vorhanden. | Restabnahme R14/R15/R16 statt dieselbe Implementierung neu bestellen. `release_prep.sh check` ist kein Ersatz für Full-Matrix oder PDF-Neuerzeugung. Der separate `go.yml` nennt noch Go 1.24.0, `go.mod` verlangt 1.25.0: Toolchain-Quelle angleichen. |
+| Eigene Demo-/Beispielskripte | Viele Einstiege bereiten Bind bereits vor; Hardware-/RTT-/Seriell-Skripte haben bewusst spezifische Voraussetzungen. | Bind-Lücken und Direktaufruf-Abdeckung unter R28; plattformspezifische Aufrufe/Abbruchbehandlung nur anhand konkreter Befunde bearbeiten. Keine Hardwarefunktion als durch statisches Lesen abgenommen ausgeben. |
+| Git-/Worktree-Helfer | Getrennte Entwicklerwerkzeuge; kein konkreter neuer Fehler in dieser Sichtung nachgewiesen. | Keine opportunistischen Änderungen und keine Ausführung ihrer Git-Schreibaktionen. |
+| `_codex_handover_python.sh` und `test_codex_handover.{sh,py}` | Aktive Reste verweisen/importieren `codex_handover_export.py` und `codex_handover_start.py`, die unter `scripts/` fehlen. Der frühere Profiltransfer ist laut R24 archiviert. | Verbliebene aktive Helfer/Tests gezielt als überholt einordnen und ihre Entfernung/Archivierung separat beauftragen. Archivierte Profilexporter nicht wieder aktivieren oder verändern. |
+
+**Spätere Abnahme:** Bestehende öffentliche Einstiegspunkte und dokumentierte Argumente funktionieren; neue gezielte Verhaltenstests prüfen nur geänderte Verträge. Prüfläufe, die Schreibfreiheit versprechen, dürfen keine Quellen, Metadaten oder fremden Buildausgaben löschen; eigene Logs/Caches sind gesondert zu benennen. Werkzeuge nicht pauschal aktualisieren, Skripte nicht allein wegen historischer Namen neu organisieren.
+
+### Bind in Beispielen und Test-Einstiegen vervollständigen
+
+**R28 · Gewicht 4 · Aufwand M · Offen; vorhandene Unterstützung gezielt ergänzen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Bereits vorhanden:** `testAll.sh` verwendet ohne Argumente/mit `quick` Bind; `full` ergänzt Legacy-Insert/Clean und die volle Matrix. `_570`, `_600` und `_640` prüfen Bind. `_515` prüft produktive CE/SL und die PC-/G0B1-Feature-Touren. [`prepareTriceBind.sh`](../../examples/prepareTriceBind.sh) und mehrere direkte Beispiel-Builds generieren ihre Header selbst. `_640` verwendet denselben CGO-Worker wie `_630`. Das ist keine bislang Bind-freie Testlandschaft.
+
+| Bereich | Tatsächlicher Bedarf |
+| --- | --- |
+| [TriceAbc-Build](../../examples/TriceAbc/build.sh) | Arbeitet derzeit ausdrücklich mit Insert und anschließendem Clean. Bind als unterstützten Buildweg ergänzen; generierte ABC-Auswahlheader, Dispatch-/Format-Tabellen und neun Knotenkonfigurationen erhalten. Ob Bind anschließend Standard wird, bei der konkreten Umsetzung festlegen; Insert/Clean bleibt verfügbar. |
+| [Standalone-Prüfung](../../scripts/_200_gcc_example_build_worker.sh) | Enthält sechs öffentliche Einstiege: DemoData_Trice, PC_log, G0B1_log, F030_inst, G0B1_inst, L432_inst. Andere Einstiege nicht pauschal als geprüft zählen. F030_inst_rtt/uart, G0B1_features/build.sh und vorhandene Clang-Varianten gegen andere Testpfade abgleichen, echte Abdeckungslücken ergänzen; PC_features wird bereits gesondert geprüft. |
+| F030 RTT/UART und projektlokale Beispiele | Beide F030-Builds rufen schon `trice bind -src Core -genDir out/sidecars` auf; ihre Makefiles kennen diesen Include-Pfad. Noch nicht nachgewiesene Direktaufrufe/fehlende Seitendateien prüfen, statt das vorhandene Bind-Setup neu umzubauen. Eigene Dictionaries und globale Demodaten getrennt halten. |
+| [`_test/clion-review`](../../_test/clion-review/CMakeLists.txt) | Kompiliert `_test/testdata/triceCheck.c`, nennt aber kein Bind-Generierungsverzeichnis und bereitet keine Sidecars vor. Den unterstützten direkten Review-Build aus einem frischen Checkout klären; generierte Includes vor `src` und den Fallbacks auflösen. Dies ist ein statischer Lückenverdacht, noch kein neu ausgeführter Fehlbuild. |
+| CGO-/Testpflege | `_330` und kanonische `_test/testdata/cgoPackage*.go` samt generierten Kopien abgleichen; in den Vorlagen steht noch ein früherer Skriptname. Keine einzelnen generierten Kopien von Hand reparieren und keine parallele Neuvergabe von IDs während des Tests. |
+| [Testanleitung](../rm/target_tests.md), [Buildanleitung](../rm/tool_build_release.md), [Getting Started](../rm/getting_started.md) | Die Testanleitung empfiehlt manuell zuerst Insert; „Getting Started“ nennt weiterhin nur Insert/Log als wichtige Befehle. Standard-Bind, explizites Legacy-Insert/Clean und Zustandsbesitz verständlich trennen. Direkte `cd _test && go test ./...`-Aufrufe benötigen den dokumentierten vorbereiteten Zustand; der verwaltete Wrapper sollte der sichere Einstieg sein. |
+
+**Spätere Abnahme:** Unterstützte direkte und verwaltete Einstiege mit fehlenden, aktuellen und veralteten Sidecars prüfen, auch aus Checkout-Pfaden mit Leerzeichen. Bind und Legacy-Insert müssen dieselben fachlichen Decoder-Erwartungen erfüllen. Source-/TIL-/LI-Zustand bei Erfolg, Fehler und Abbruch erhalten. Hardwarebuild, Hostausführung und echte Boardabnahme getrennt ausweisen. Bestehende lang laufende Matrizen und ihre Abdeckung nicht verkürzen oder doppelt starten.
+
+### RM inhaltserhaltend kürzen und leicht ordnen
+
+**R29 · Gewicht 4 · Aufwand M · Offen; redaktionelle Vorschläge, keine Umstrukturierung ausgeführt**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die README-Reihenfolge und die Überschriften-/Umfangsstruktur aller **52 Hauptkapitel plus HEADER/FOOTER** wurden inventarisiert; alle Kapiteldateien sind in der README verlinkt. Vertieft gesichtet wurden die langen Einstiegs-, Bind-/CE-, Beispiel-, Test-, Entwicklungs- und Wartungskapitel. Eine Suche nach längeren wortgleichen Absätzen über Kapitel hinweg ergab keine einfachen Kopierduplikate. Die Kürzungsmöglichkeiten sind vor allem **inhaltliche Überschneidungen und ausführliche Allgemeinerklärungen**, keine nachgewiesenen wortgleichen Textblöcke. Eine vollständige technische Nachabnahme jedes Satzes ist damit nicht behauptet.
+
+**Grundsatz:** Aussagen knapper formulieren, gemeinsame Erklärung einmal vollständig pflegen und von weiteren Einstiegen mit einem kurzen Kontextsatz verlinken. Kein Beispiel, Compilerlimit, Parameter, Messwert, Bild, Codeblock oder ausdrücklich gewünschter CE-PoC-Anhang verschwindet. Rein sprachliche Straffung und fachliche Aktualisierung getrennt reviewen. Das UM bleibt nutzergepflegt und wird ohne ausdrücklichen Auftrag nicht geändert.
+
+| Kapitel / Befund | Sinnvolle begrenzte Änderung |
+| --- | --- |
+| [Getting Started](../rm/getting_started.md), 573 Zeilen | Den Insert-zentrierten Einstieg anhand des aktuellen Bind-Vertrags korrigieren. Allgemeine Fork-/Clone-Anleitung in [Repository Workflow](../rm/repository_workflow.md) einordnen; Target-Portierung, Stempel, Parameterbreiten und Parsergrenzen kurz einführen und auf ihre bestehenden Fachkapitel verweisen. Sämtliche einzigartigen Hinweise zuerst am Ziel zuordnen. |
+| [Quickstarts](../rm/quickstarts.md) und [Examples](../rm/examples.md), 320/691 Zeilen | Konkrete Erstläufe und erwartete Ausgabe behalten. Wiederholte Umgebungsvoraussetzungen auf einen gemeinsamen Abschnitt verlinken. Den ausdrücklich beschriebenen Insert-Weg als solchen kennzeichnen; nicht jedes historische Beispiel zwangsweise auf Bind umschreiben. |
+| [Bind](../rm/bind.md), 1.068 Zeilen | Quickstart → normale Build-Integration → Grenzen/Fehlerhilfe → vertiefende Interna als erkennbaren Lesepfad verwenden. Wiederholte Datei-/Owner-/Rebase-Erklärungen zusammenführen und auf [Generate](../rm/generate.md) für den Diagnosebericht verlinken. Eigene Beispiele, Counter-/Headergrenzen und Anhänge vollständig behalten. |
+| [Context Enrichment](../rm/context_enrichment.md), 558 Zeilen; [Structured Logging](../rm/structured_logging.md) | Regeln, Tabellen und Beispiele als maßgebliche Erklärung erhalten. Aufrufe/Buildvoraussetzungen zentral verlinken; ähnliche Grenzen zwischen Bind und CE nicht gleichsetzen. Den ausdrücklich gewünschten CE-PoC-Anhang im Kapitel behalten. |
+| [Usage Tips](../rm/usage_tips.md) | Entwicklerhinweise zu `go test -race -count 100 ./...` nach [Target Tests](../rm/target_tests.md) verschieben. Erste-Verbindung-/Puffer-Hinweise kurz halten und auf Troubleshooting, Target-Konfiguration beziehungsweise Target-Implementierung verlinken; konkrete Sonderfälle wie Stacküberlauf und Cycle Counter erhalten. |
+| [Development Environment Setup](../rm/development_environment_setup.md), 1.052 Zeilen | Einstiegstabelle „Was brauche ich für Host, Firmware, CGO?“; vorhandene Windows-Host-/ARM-/Clang-Hinweise daran ausrichten. Betriebssystemspezifische Installationsschritte darunter gruppieren. Wiederholte Toolchain-Grundlagen verlinken; Transport-/Treiber-/Lizenzhinweise erhalten. |
+| [Maintenance](../rm/maintenance.md), 403 Zeilen; [Tool Build/Release](../rm/tool_build_release.md) | Workflowbeschreibungen auf Zweck, Auslöser, prüfbare Ausgabe und Besonderheiten konzentrieren. Wiederholte allgemeine GitHub-Actions-Erklärungen straffen. Release-/Artefaktbefehle an einer Stelle im Release-Kapitel, mdtoc-/PDF-Pflege an einer Stelle im Wartungskapitel; konkrete Workflownamen/Versionen mit den Dateien abgleichen. |
+| [Target Tests](../rm/target_tests.md) und [Test Issues](../rm/test_issues.md) | Den heutigen Bind-/Full-/Diagnose-Einstieg sichtbar vor die Interna setzen. Alte komplette PASS-Ausgaben als historische Beispiele vom aktuellen Vertrag trennen und gegebenenfalls innerhalb des Kapitels nach hinten verschieben. Erwartungsregeln und Fehlersuche nicht kürzen. Test Issues kann als kleiner Wegweiser bleiben; kein neues Kapitel nötig. |
+| [RTT](../rm/rtt.md), 670 Zeilen; [Without UART](../rm/without_uart.md) | Einen kurzen Entscheidungsweg zum passenden vorhandenen RTT-/Logger-Einstieg, danach Setup und Fehlerfälle. Allgemeine Toolinstallation auf die Entwicklungsumgebung verlinken; board- und transportbezogene Besonderheiten behalten. |
+| [Features](../rm/features.md), [Overview](../rm/overview.md), [How It Works](../rm/how_it_works.md) | Nutzenübersicht kurz halten und auf ausführliche Fachkapitel verweisen. Architekturprinzip und belegte Ressourcen-/Geschwindigkeitsaussagen erhalten; fehlende Plattformnachweise nicht durch kürzere pauschale Zusagen ersetzen. |
+| [Memory Usage](../rm/memory_usage.md), [Performance](../rm/performance.md), [Code Size](../rm/code_size.md) | Keine pauschalen Text-/Seitenquoten: viele Zeilen sind Messprotokolle oder Konfigurationen. Messbedingungen und sämtliche Zahlen erhalten; Vergleichsübersicht vor die unveränderten Detail-/Legacy-Beispiele stellen. |
+| Übrige Fachkapitel | Binary Encoding, Framing, Endianness, Stamps, IDs/Dictionaries, Parseralgorithmus, X0, Ausgaben, Tags, Verschlüsselung, ABC, Legacy-Integration, Ressourcen und Historie am fachlich passenden Ort erhalten. Hier ist aus der Inventur kein pauschaler Kürzungsbedarf abzuleiten. Kleine sprachliche Straffungen nur mit Aussage-/Beispielvergleich. |
+
+**Leichte Strukturänderung als Vorschlag:** Dateinamen und Hauptkapitelbestand zunächst beibehalten; ausschließlich die manuellen Linkzeilen in `docs/rm/README.md` in wenige verständliche Gruppen ordnen. Beispielsweise Einstieg/Quickstarts/Examples → Bind und IDs → Target/Transporte → Ausgabe und Features → Protokoll/Implementierung/Messungen → Tests/Entwicklung/Wartung/Ressourcen. History/Future und Spezial-/Legacy-Themen aus dem unmittelbaren Erstlesepfad nehmen, aber weiterhin sichtbar verlinken. Das ist keine zweite Sortierdatei und keine neue Kapitelnummerierung in Quellen. Vor einer Umsetzung die konkrete Reihenfolge zeigen; der PDF-Build übernimmt dann dieselbe Reihenfolge.
+
+**Inhaltliche Verschiebungen zuerst klein halten:** Fork/Clone nach Repository Workflow; Entwickler-Testtipps nach Target Tests; zusammenhängende Release-Anweisungen nach Tool Build/Release. Für jede verschobene einzigartige Aussage vorher Ausgang, Ziel und eingehende Links erfassen. Keine große Zusammenlegung der 52 Dateien und keine neuen Anhangsdateien allein zur kosmetischen Seitenverkürzung.
+
+**Spätere Abnahme:** Fachinhalte, Code/Kommentare, Bilder, Messwerte und Grenzen nachweislich erhalten; aktive Kapitel-/Fragmentlinks angepasst, Archive unangetastet. mdtoc nur für betroffene Quellen regenerieren; ToCs/Anker und README-Reihenfolge prüfen. Beide PDFs anschließend frisch erzeugen und Tabellen, Nummerierung, Querverweise und Seitenanfänge ansehen. Kein Sprach-/Format-Commit mit funktionalen Skriptänderungen vermischen.
+
+### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
+
+**R22 · Gewicht 4 · Aufwand M · Offen; Dokumentationspfade vorbereitet, tatsächliche Site-Abnahme ausstehend**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Es gibt zwei Implementierungen des Website-Einstiegs: Die versionierte `index.md` bindet die README per Liquid ein; `pages.yml` überschreibt sie beim Build mit einer zweiten, per `sed` erzeugten Variante und behauptet im Kommentar, die Datei sei nicht versioniert. Einen einzigen nachvollziehbaren Erzeugungsweg wählen und lokale Vorschau sowie CI darauf ausrichten. Beide Handbücher und ihre gegenseitigen Links müssen auf Pages richtig dargestellt werden; Quellcode-Links dürfen weiterhin zur passenden Repo-Ansicht führen.
+
+Der Workflow baut vom Repo-Root; `_config.yml` enthält bislang nur Theme und Markdown-Engine. Ein ausdrücklicher fachlicher Veröffentlichungsumfang ist nicht erkennbar. Das ist noch kein Nachweis, welche Dateien Jekyll tatsächlich ausliefert. Den erzeugten Site-Baum prüfen und dann gezielt auf Einstieg, Handbücher, benötigte Bilder und bewusst verlinkte Inhalte begrenzen. Scratchpad, Entwicklerzustand und Fremdsoftware-Archive sollen nicht versehentlich Teil des Anwender-Einstiegs werden. Bestehende Archive dafür nicht verändern; die Auswahl gehört in den Veröffentlichungsweg.
+
+**Abnahme:** Site-Build ohne Deployment prüfen; erzeugter Einstieg, beide Handbücher, Bilder und Querverweise funktionieren. Liste der ausgelieferten Dateigruppen passt zur beabsichtigten Website. Keine widersprüchliche zweite `index.md`-Erzeugung, kein unbeabsichtigter Verlust bewusst angebotener Downloads. Deployment und Publish bleiben gesonderte Aufträge.
+
+### Alte RM-Spezifikation und Suchoptionen einordnen
+
+**R30 · Gewicht 3 · Aufwand S · Offen; Konsolidierungsvorschlag**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+[RM_Documentation_Spec.md](RM_Documentation_Spec.md) ist als **aktive Umsetzungsspezifikation weitgehend überholt**. Sie behauptet noch, `docs/rm/` existiere nicht, `_310`/PDF/Pages müssten erst migriert werden, stitchmd sei nie ausgeführt und die PDF-Erzeugung sei vertagt. Sie verlangt zudem einen initialen INDEX als Abnahmekriterium. Tatsächlich sind Kapitelquellen, README, mdtoc-Pflege, stitchmd-Gesamt-PDF, globale PDF-Nummerierung und Release-Artefaktpfade bereits vorhanden.
+
+**Vorschlag:** Die weiterhin gültigen Regeln hier und in der vorhandenen RM-Wartungsanleitung knapp maßgeblich machen: Kapitelquellen als Wahrheit, manuelle README-Reihenfolge, lokale mdtoc-Navigation, ausschließlich temporärer Monolith, PDFs als generierte Artefakte, keine Archivlink-Reparatur. Danach die alte Spezifikation ausdrücklich als historische Planung kennzeichnen oder nach gesondertem Auftrag archivieren; aktive Verweise auf den aktuellen Stand führen. Nicht ihre überholten Pflichtaufgaben erneut implementieren. Die Spezifikationsdatei selbst wird in diesem Planpflegeauftrag nicht verändert.
+
+**`docs/rm/INDEX.md` als Stichwortindex vorerst nicht einplanen.** Eine zusätzliche Index-Pflege ist ohne nachgewiesene Suchlücke nicht gerechtfertigt. Das UM-PDF ist der kurze Einstieg; für die Suche über **alle RM-Inhalte** ist das bereits generierte `TriceReferenceManual.pdf` maßgeblich, nicht allein das UM. Lokal bleibt die Editorsuche über `docs/rm/` möglich. Auch `RM-search.txt` und ein zusätzlicher mdBook-/HTML-Suchbuild erhalten vorerst keinen Implementierungsauftrag. Ein später belegter Bedarf kann als eigener kleiner Auftrag konkretisiert werden.
+
+**Spätere Abnahme:** Nur eine erkennbare aktuelle Planungsquelle; keine aktive Zusage für den entfallenen Index oder für noch nicht beschlossene Zusatzoutputs. Gültige Strukturentscheidungen und historische Nachweise bleiben erhalten. Kein erneutes Zerlegen, keine Re-Migration und kein Eingriff in vorhandene Archive.
+
+## Sinnvolle Erweiterungen zur späteren Diskussion
+
+Die folgenden Punkte sind Vorschläge, keine Zusage für das nächste Release. Ihre offenen Tabellenzeilen stehen vollständig in der Aufgabenübersicht; der erledigte F01-Bericht steht bei den abgeschlossenen Aufgaben. Bestehende Tests, PoCs und Nutzerentscheidungen bleiben maßgeblich. Vor einer späteren Issue-Erstellung Nutzen, Scope und vorhandene Issues abgleichen; externe Issue-Texte englisch formulieren.
+
+### Parser und Recordpfade systematisch auf unerwartete Eingaben prüfen
+
+**F02:** Im untersuchten Go-Code sind viele tabellarische Verhaltenstests, aber keine `Fuzz...`-Einstiegspunkte vorhanden. Ergänzende Fuzztests für Template-/CE-Parsing und Decoder-Eingaben könnten Escapes, Klammern, verkürzte Records und ungewöhnliche Kombinationen abdecken. Ein gezielter Race-Lauf ist besonders bei Abschluss-/Watcher-Arbeiten sinnvoll.
+
+Nicht jede Testfunktion parallelisieren. Relevante Invarianten sind unter anderem: kein Panic bei abgewiesener Eingabe, keine Teilveröffentlichung, stabiler kanonischer Template-Roundtrip, kein Diagnosetext im JSON-Kanal und keine Datenrennen bei echten nebenläufigen Pfaden. Gefundene Fälle als lesbare Regressionstests erhalten. Ein begrenzter Fuzz-Lauf verspricht keine vollständige Sicherheit.
+
+### UTF-8-Zeichen gezielt statt flächig einsetzen
+
+**R31 · Gewicht 2 · Aufwand S · Optional; keine Release-Voraussetzung**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die Doku enthält bereits UTF-8, beispielsweise typografische Zeichen und einzelne Emojis. **Empfehlung:** Verständliche Überschriften, kurze Absätze, Tabellen und Links zuerst verbessern. Einzelne Symbole können die Orientierung unterstützen, sollten aber keine Information allein tragen und keine unruhige flächige Dekoration erzeugen. Mathematische Symbole oder Einheiten sind sinnvoll, wenn sie präziser sind; Befehle, Pfade, Quellbeispiele und Anker müssen zuverlässig kopierbar bleiben.
+
+Skriptausgaben verwenden weiterhin klare `PASS`/`FAIL`/`SKIP` und lesbare Fehlertexte. Maschinenkanäle, JSON/KV und von Tests/Tools ausgewertete Statuszeilen nicht mit Emojis oder typografischen Ersatzzeichen verändern. Ein später ausdrücklich gewünschter interaktiver Zusatz wäre nur bei passendem Terminal und mit ASCII-Rückfall zu prüfen; Farbausgabe und Statuswort bleiben unabhängig. Kein neues Terminal-Framework und keine Encoding-Umstellung nötig.
+
+CRLF/LF ist eine getrennte Frage: Der aktuelle `U+000D`-Fehler wird in R26 behoben, nicht durch dekorative Unicode-Zeichen. Vor optionaler Änderung GitHub-, PDF- und Terminaldarstellung einschließlich Schriftabdeckung prüfen. Bestehende Unicode-Nutzdaten und ihre Regressionstests erhalten.
+
+### Frühe Hostfilterung messen
+
+**F03 übernimmt die offene A11, zuvor M17.** Replay mit 0, 50, 90 und 100 Prozent verworfenen Ereignissen vergleichen; CPU, Allokationen und Durchsatz für Text, JSON und KV erfassen. Im [TREX-Decoder](../../internal/trexDecoder/trexDecoder.go) werden Templates momentan pro Ereignis geparst und validiert; ein Cache ist ein weiterer Kandidat, aber noch keine beschlossene Umsetzung.
+
+Framing/Integrität, Rohaufzeichnung, Statistik, Diagnosen, Stempelreferenzen und akzeptierte Records müssen gleich bleiben. Typisierte SL-/CE-Records und aktualisierte Wörterbücher gehören in den Vergleich. R09 betrifft wiederholte endliche Testläufe; diese Aufgabe betrifft Durchsatz im dauerhaften Betrieb und darf damit nicht verwechselt werden.
+
+### Benannte Felder besser weiterverwenden
+
+**F04:** Die heutige Visualisierung adressiert numerische Werte über `v0...v11`. Ein Zugriff über bereits vorhandene Feldnamen könnte Regeln lesbarer und gegen geänderte Parameterreihenfolgen robuster machen. Alternativ könnte eine reine Schemaübersicht Namen, Typen und zugehörige IDs über das heutige Häufigkeitsregister hinaus zeigen.
+
+Zuerst einen dieser Anwenderfälle auswählen. Kein neuer Parallelvertrag für dasselbe Schema, keine automatische C-Typinferenz und keine zusätzliche Target-Nutzlast. Gleiche Feldnamen mit unterschiedlichen Typen, fehlende Werte, User- gegenüber Hostfeldern und historische TIL-Einträge benötigen klare Regeln. Keine neue CLI festlegen, bevor der konkrete Nutzen entschieden ist.
+
+### Kleine Wrapper-Erweiterung getrennt bewerten
+
+**F05:** Der [erweiterte CE-PoC](../../internal/id/context_enrichment_rebase_poc_test.go) zeigt einen eindeutig über eine Zeile zuordenbaren Wrapper mit einer Logstelle ohne Compiler-Vorlauf und ohne `__COUNTER__`. Das könnte die bestehende einfache CLI erhalten und ist unabhängig vom allgemeinen Rebase-Ausbau bewertbar.
+
+Vor produktiver Freigabe sind Alias-/Selektorverhalten, lokale Sichtbarkeit, Bitbreiten/Stempel, einmalige Auswertung, wiederholte Expansionen, `generate -logC` und klare Ablehnung nicht unterstützter Formen nachzuweisen. Bis dahin bleibt die heutige dokumentierte Bind-Grenze bestehen; Insert/Clean ist die dauerhafte Alternative.
+
+### Allgemeines CE-Rebase bleibt eine Architekturentscheidung
+
+**F06 übernimmt die bisher zurückgestellte CE-Folgeaufgabe.** Der PoC wählt pro Expansion einen CE-Adapter im Präprozessor. Für komplexe Fälle liefert ein zusätzlicher Vorlauf mit dem konkreten Compiler absolute Counter-Werte. Das löst in den geprüften Fällen die falschen Scope-Anforderungen, kostet aber einen Buildschritt pro Übersetzungseinheit und Konfiguration.
+
+Erhaltene Nachweise: getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einmalige Auswertung, echte Host-Records und Ablehnung veralteter Zuordnungen. Die dokumentierte Matrix umfasst Host-Clang sowie ARM-GCC für Cortex-M0/M4 in mehreren C-/C++-Modi; ARM-Nachweise sind Compile-Nachweise. Strenges C++20 ist wegen der vorhandenen Enum-Rebase-Warnung nicht bestanden. Weitere Compiler, PCH/Module, zusätzliche Counter-Verwendung, Build-Abhängigkeiten und getrennte Artefakte bleiben Integrationsfragen.
+
+**Empfehlung:** Für das nächste Release nicht aufnehmen. Ein einfaches, merkbares Userinterface hat Vorrang. Der bereits verfügbare Insert/Clean-Weg und ausdrücklich geschriebene Werte decken die praktische Alternative ab. Kein Compiler-Vorlauf und keine neue Kontextverwaltung werden implizit eingeführt.
+
+---
+
+## Hintergrund und Vorbemerkungen
+
+Historischer Ausgangsstand: 4. Oktober 2026. Die aktuelle Priorisierung und die lesenden Befunde vom 14. Oktober stehen am Anfang. Ursprüngliche Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung und die Full-Läufe vom 3. und 4. Oktober. Die Repo-Bestandsprüfung R17 bezieht sich auf `cb4dda6495530ad33ed703301ee3df9625ecf3ce`; ihre Zuordnung und Folgeaufgaben stehen am Ende dieses Plans. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
+
+Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
+
+**Beschlossenes Release-Ziel: v2.0.0.** Der Go-Modulpfad bleibt vorerst ohne `/v2`. Angeboten werden fertige Binaries und der lokale Build aus einem Repo-Checkout über `./scripts/buildTriceTool.sh`; versionierte Go-Modulinstallation von v2 wird vorerst nicht angeboten. R14 sichert diese Installationswege ab. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
+
+## Stand und Aussagegrenzen
+
+Die folgenden Testzahlen und Befunde beschreiben die früheren Bestandsaufnahmen, nicht den aktuellen Windows-Lauf. Neuere Kapitel-/PDF- und Release-Implementierungen sind im Checkout vorhanden; ihre verbleibende Abnahme steht bei R14–R16 und R26. Historisch erledigte Aufgaben werden dadurch nicht erneut als offene Implementierung eingeplant.
+
+Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind und Insert/Clean einschließlich CE, Template-Parser, Decoder, strukturierte Ausgabe, Tags und Filter, Visualisierung, Transport- und Ausgabeabschluss, Target-Konfiguration und Testaufbau, Beispiele, aktives UM, README sowie Test- und Release-Workflows. Code und vorhandene Verhaltenstests wurden mit den dokumentierten Verträgen verglichen. Das ist eine breite statische Bestandsaufnahme mit konkreten Belegen, keine vollständige Fehlerfreiheitserklärung oder neue Hardware-Abnahme.
+
+Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der damaligen vollständigen Protokolle ausgewertet. Bei jener Bestandsaufnahme wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier damals abweichenden Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und zunächst unverändert gelassen. Ein späterer `testAll quick` für R13 hat die flachen Logdateien des Full-Laufs ersetzt; dessen hier festgehaltene Messwerte und Fehleranalyse bleiben historische Befunde.
+
+- Ergebnis laut der damaligen `testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheiterten. Die L432-Matrix mit 101 Konfigurationen bestand und brauchte etwa **20 Minuten 14 Sekunden**.
+- Im damaligen Lauf führten beide PC-Workflows jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheiterten, sechs Spezialläufe bestanden. Die fehlgeschlagenen Tests hießen jeweils `TestTriceLog`; es waren keine fehlgeschlagenen Compileraufrufe. Die spätere Beschleunigung und erfolgreiche PC-Abnahme stehen bei R06/R08/R09/P01/P04.
+- Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
+- Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
+- Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
+- Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die ursprüngliche Auswahl ließ sie aus; R07 aktiviert sie jetzt gezielt in Schritt 515 für `quick`, `full` und die Library CI. Normale Go-Unit-/Coverage-Läufe bleiben davon getrennt.
+- Aktuelle GitHub-Issues und Live-CI-Ergebnisse wurden nicht vollständig abgeglichen. Vor einer späteren Issue-Erstellung sind vorhandene Issues auf Dopplungen zu prüfen. Dieser Auftrag erstellt keine Issues.
+
+Die erledigten A1–A10 und der CE-Folgeauftrag für Insert/Clean sind aus der offenen Liste entfernt. Ihre Details bleiben im [historischen Abschlussbericht](obsolete/Implementierungsplan_bis_A10.md). Die früheren M01–M16 und Handovers bleiben im vorhandenen Archiv. Ein historisch erledigter Implementierungsauftrag ersetzt keine heutige Regressionstest-Abnahme; die frühere A6-Notiz zur `untagged:`-Erwartung wird durch den bei R01 präzisierten Ausgabevertrag neu bewertet.
+
+Vorhanden sind insbesondere:
+
+- Structured Logging mit skalaren 8/16/32/64-Bit-Werten, `triceS`/`triceN`, Text, NDJSON und KV; benannte Pufferfelder bleiben ausdrücklich ausgeschlossen.
+- CE für direkte, zeileneindeutige Bind-Stellen und für erkannte Insert/Clean-Aufrufe einschließlich statischer Wrapperdefinitionen. Insert/Clean verwendet den vollständigen Format-/Argumentsuffix, ohne Herkunftskommentare.
+- Tag-Aliase, Gewichte, Auswahl, `untagged`, Ereignisstatistik, getrennte Diagnosen, Zeitstempel und Deltas, Visualisierung sowie gemeinsame generierte Ablage über `-genDir`.
+- `generate -logC`, zusätzliche `*.oneline.json`-Ansichten und die PC-/G0B1-Feature-Beispiele.
+- Erhaltene CE-PoCs einschließlich Wrapper-/Counter-Rebase-Untersuchung. Deren allgemeine produktive Integration ist weiterhin zurückgestellt.
+
+## Ziel für Dokumentation und Orientierung
+
+README und User Manual sollen zum Ausprobieren einladen: Nutzen schnell erkennen, einen überschaubaren Einstieg finden und erst bei Bedarf Details nachschlagen. Die gepflegte Vollreferenz liegt inzwischen in `docs/rm/`, mit `docs/rm/README.md` als manueller Kapitelreihenfolge. Das kurze `docs/TriceUserManual.md` übernimmt den geführten Einstieg. Der Gesamttext für PDF ist ein temporäres Build-Ergebnis, keine zweite redaktionelle Quelle.
+
+**Verbindliche Dokumentationsentscheidung:** Ein überschaubares UM und ein vollständiges RM sind gewünscht. Alle Trice-Anwendererklärungen zu den Beispielen gehören nach Inhalt in diese beiden Handbücher. Beispiel-READMEs enthalten ausschließlich Links auf ihre zentralen Anleitungen. Das UM verweist gezielt ins RM sowie in Beispiele, Code und Tests, damit Neuankömmlinge nicht zwischen verstreuten Anleitungen suchen müssen. Die Root-README bleibt der kurze Projekteinstieg. Diese Entscheidung ersetzt frühere Empfehlungen, eigenständige Anleitungen in Beispiel-READMEs zu pflegen.
+
+| Dokument | Aufgabe im aktuellen Aufbau |
+| --- | --- |
+| `README.md` | Kurze Vorstellung, Nutzen, kleines Beispiel mit Ausgabe, verlässlicher Startpunkt und kompakte Repo-Orientierung. |
+| `docs/TriceUserManual.md` | Zusammenhängender, überschaubarer Einstieg vom ersten PC-Log bis zur eigenen Target-Anbindung; kurze Feature-Beispiele und gezielte Verweise ins RM, zu Beispielen, Code und Tests. |
+| `docs/rm/README.md` und Kapitelquellen | Vollständige Verträge, Optionen, Konfiguration, Grenzen, Hintergrund und CE-PoC-Anhang; fachlich maßgebliches Nachschlagewerk. |
+| Eigene `README.md`/`ReadMe.md` unter `demo` und `examples` | Ausschließlich relative Links auf die passende zentrale Anleitung im UM/RM; keine eigenständigen Anleitungsabsätze oder Kommandos. |
+| `docs/README.md` | Kurzer Dokumentationswegweiser mit Zielgruppe und Zweck der verbleibenden aktiven Dokumente; keine bloße Weiterleitungsdatei. |
+
+Die abgeschlossenen Arbeiten R10–R12, R17–R21 und R23 bleiben im hinteren Teil nachvollziehbar. Für neue Dokuarbeiten gelten R29/R30: kein zweites RM, keine ungefragte UM-Überarbeitung, kein INDEX und keine Archivbereinigung. Beispiel-READMEs bleiben Links auf zentrale Anleitungen. Jetzt wird ausschließlich die Aufgabensammlung gepflegt.
+
+## Gewichtung und Planungshinweise
+
+**Gewicht:** 5 = vor Release zu klären oder abzustellen; 4 = hoher Nutzen für Zuverlässigkeit, Dokumentation oder Testdauer; 3 = sinnvolle Wartung nach den dringenden Punkten; 2 = optionaler Ausbau; 1 = bewusst zurückgestellt.
+
+**Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
+
+Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung berücksichtigt Abhängigkeiten. Der aktuelle Windows-Fehler R26 steht vor allen weiteren Korrekturen. Eine abschließende Abnahme wie R16 kann deshalb hoch priorisiert und zugleich bis nach ihren Voraussetzungen blockiert sein. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. R17 ist als lesende Bestandsprüfung abgeschlossen, nicht als Repo-Bereinigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+
+## Vorschlag für die nächsten Aufträge
+
+Zuerst den bereits laufenden Windows-Full-Test ohne Eingriff beenden lassen und seine vollständigen Fehlerprotokolle sichern. Danach R26 als eigenen Korrekturauftrag bearbeiten und gezielt gegenprüfen. In diesem Auftrag wird ausschließlich geplant; die Source-/ID-Zwischenzustände des laufenden Tests werden nicht verändert oder bereinigt.
+
+Danach auch die gemeldeten CI-Blocker R32 beheben und aus sauberem Checkout abnehmen. Anschließend R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R14/R15 sichern die bereits weitgehend implementierte Distribution ab; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
+
+Merge, Git-Schreibaktionen, Tag, Veröffentlichung und ein neuer langer Full-Test benötigen ihren jeweiligen ausdrücklichen Auftrag. Den Merge führt der Benutzer auf GitHub aus. Die Dateiablage allein rechtfertigt keine weiteren Features oder umfassende Umorganisation von Beispielen und Testmatrix. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
+
+## Erledigte Korrekturen
+
+Die folgenden Aufgaben sind abgeschlossen oder ausdrücklich archiviert. Ältere Pfadnamen, Seitenzahlen und Testzeiten sind historische Nachweise ihres jeweiligen Stands, keine Aufforderung zur Wiederholung und keine Abnahme des aktuellen Windows-Kandidaten. Aktuelle Quellen sind die Kapitel unter `docs/rm/`; neue Integrations- und Plattformlücken stehen ausschließlich in der offenen Liste.
+
+| ID | Status | Ergebnis / Nachweis |
+| --- | --- | --- |
+| [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Erledigt | Aktuelle Referenz von historischen Bind-Entwicklungsständen getrennt; gültige Einzelinformationen übernommen. |
+| [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Erledigt | Leere Debugger-Zustände und ungenutzte Vorlagenbegleiter entfernt; CI-Orientierung aktualisiert. |
+| [R21b](#ide-einstiege-portabel-und-tatsächlich-benutzbar-machen) | Erledigt | IDE-Vorlagen auf aktuelle CLI und portable Compilerwahl umgestellt; JetBrains-Metadaten und Ignore-Verhalten geprüft. |
+| [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) | Erledigt | Kein automatisch erzeugtes untagged-Präfix ausgeben |
+| [R02](#kopierbare-dokumentationsbeispiele-berichtigt) | Erledigt | Kopierbare Dokumentationsbeispiele berichtigt |
+| [R03](#fehlerstatus-bei-fehlgeschlagenem-clean-erhalten) | Erledigt | Fehlerstatus bei fehlgeschlagenem Clean erhalten |
+| [R04](#automatisches-nachladen-wiederhergestellt) | Erledigt | Automatisches Nachladen wiederhergestellt |
+| [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) | Erledigt | Kompatibilitätsvertrag und Release-Ziel festgelegt |
+| [R06](#testbeschleunigung-mit-vollständigen-pc-matrizen-geprüft) | Erledigt | Testbeschleunigung mit vollständigen PC-Matrizen geprüft |
+| [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt) | Erledigt | CE-/SL-Integration und Feature-Beispiele verbindlich ausgewählt |
+| [R08](#ressourcen-und-signalbehandlung-pro-loglauf-abgeschlossen) | Erledigt | Ressourcen und Signalbehandlung pro Loglauf abgeschlossen |
+| [R09](#endliche-eingaben-ohne-pauschale-wartezeit-abgeschlossen) | Erledigt | Endliche Eingaben ohne pauschale Wartezeit abgeschlossen |
+| [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen) | Erledigt | SL- und CE-Kapitel vollständig ins Englische übertragen |
+| [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten) | Erledigt | Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten |
+| [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) | Erledigt | Bestandszuordnung und Befunde der Repo-Prüfung |
+| [P01](#pc-konfigurationen-begrenzt-parallel-geprüft) | Erledigt | PC-Konfigurationen begrenzt parallel geprüft |
+| [P03](#l432-builds-isolieren-und-begrenzen) | Erledigt | L432-Builds isolieren und begrenzen |
+| [P04](#bulk-als-regulärer-pc-testweg-mit-verwertbarer-fehlerdiagnose) | Erledigt | Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose |
+
+Weitere abgeschlossene Dokumentations-, Repo- und ID-Aufgaben aus der bisherigen Übersicht:
 
 | ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | --- | ---: | --- | --- |
@@ -17,16 +391,233 @@
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Archiviert | Ehemalige Codex-Umzugswerkzeuge und Anleitung; aktiver Einstieg jetzt handsoff/handson | 3 | M | Eigenständiger Entwicklerablauf; damalige Ergebnisse unten, heute kein aktiver ZIP-Transfer |
 | [R25](#ids-identischer-trices-deterministisch-zuordnen) | Erledigt; Release-Pflicht erfüllt | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Beschreibende Tests und Target-/Decoder-Nachweis bestanden; abschließender Gesamtlauf bleibt R16 |
-| [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und Veröffentlichungsumfang eindeutig machen | 4 | M | [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R19](#ein-kurzes-user-manual-zum-ausprobieren-erstellen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren); Bestandsbefund aus [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) |
-| [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen | Checkout-/Binary-Installationswege für v2 absichern | 5 | S–M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) abgeschlossen; kein `/v2` beschlossen |
-| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen | Release Notes und Prüfung der ausgelieferten Artefakte | 5 | M | [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R12](#readme-repo-orientierung-beispiele-und-zusagen-verbessern), [R14](#checkout-binary-installationswege-für-v2-absichern), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen)–[R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren), [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang), [R23](#beispielanleitungen-zentralisieren-und-readmes-auf-links-reduzieren) |
-| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen | Abschließende Release-Abnahme | 5 | M; lange Laufzeit | [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben)–[R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt), [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt), [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen), [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten), [R15](#release-notes-und-ausgelieferte-dateien-prüfen); ausdrücklich [R25](#ids-identischer-trices-deterministisch-zuordnen); alle aufgenommenen Korrekturen einschließlich Repo-Aufräumen |
 
-Die weiter unten aufgeführten P- und F-Aufgaben sind kein Grund, ein ansonsten abgenommenes Release um neue Features zu vergrößern.
+### Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten
 
-[Beschleunigung](#weitere-beschleunigung-ohne-geringere-abdeckung) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Erledigte Aufgaben](#erledigte-korrekturen) · [Repo-Bestandsprüfung](#bestandszuordnung-und-befunde-der-repo-prüfung)
+**R13 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
 
-## Konkrete Aufgaben vor dem Release
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die vier lokalen Tabellen in `examples/PC_log` und `examples/G0B1_log` waren nach zusätzlichen SL-/CE-Quellen einmalig aktualisiert worden. Vorhandene TIL-Einträge behielten ihre IDs; in den LI-Tabellen verschoben sich Zeilennummern. Diese inhaltliche Aktualisierung ist bereits im aktuellen Commit-Stand enthalten. Bei unveränderten Eingaben überspringt Bind identische Schreibvorgänge; der vorhandene `TestBindDoesNotReplaceUnchangedFiles` prüft das ausdrücklich.
+
+Die Standalone-Builds aus Schritt 600 laufen weiterhin im Checkout. Der verwaltete Snapshot umfasst jetzt auch die lokalen Beispielquellen, TIL/LI-Dateien, generierten Verzeichnisse und Buildausgaben einschließlich ursprünglich fehlender Pfade und vorhandener Benutzerauswahl. Schritt 490 bereitet Bind innerhalb desselben Zustandsvertrags vor. Am Ende von `testAll` vergleicht eine zusätzliche Prüfung die wirklichen Bytes aller versionierten Dateien mit dem Ausgangszustand und nennt veränderte Pfade; ein bereits zuvor schmutziger Git-Status gilt nicht als Gleichheitsnachweis. Es gibt keine pauschale Git-Rücksetzung.
+
+**Gezielte Abnahme am 30. September:** Die zwei Standalone-Builds pro `PC_log` und `G0B1_log` ließen alle vier Tabellen bytegleich und behielten beim zweiten Lauf deren Inodes; der äußere Snapshot stellte den Checkout anschließend wieder her. Isolierte Verhaltenstests prüfen schmutzige und ursprünglich fehlende lokale Dateien, generierte Benutzerauswahl und Buildausgaben nach Erfolg, Worker-Fehler und Signal, außerdem die transaktionale Vorbereitung in Schritt 490 bei Erfolg und Fehler. Ein Runner-Test beweist, dass eine erneute Änderung einer schon vorher schmutzigen Datei trotz unverändertem Git-Kurzstatus erkannt und mit Pfad gemeldet wird. `testAll quick` besteht mit 19/19 Schritten einschließlich der realen Schritte 490, 600 und der Byte-Prüfung. Die vollständige Release-Matrix bleibt bei R16.
+
+### Kein automatisch erzeugtes untagged-Präfix ausgeben
+
+**R01 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die sichtbare Ausgabe enthält kein synthetisches `untagged:` mehr. Für ungetaggte oder unbekannt getaggte Ereignisse verhindert die Textausgabe zugleich, dass ein Doppelpunkt im Benutzertext nachträglich als Format-Tag interpretiert wird. JSON/KV verwenden weiter `tag=untagged` als Metadatum, ohne die Message zu verändern. Die `Fish`-Erwartung ist korrigiert. Die C-gestützten Vergleichsschleifen brechen bei der ersten Abweichung pro Konfiguration ab; `--no-stop` steuert weiterhin die Fortsetzung im äußeren Test-Worker. Gezielte Regressionstests decken die unabhängigen Fälle ab. Die vollständige Release-Matrix bleibt ausdrücklich Aufgabe R16.
+
+**Gezielte Abnahme am 30. September:** Translator-Paket und die einschlägigen Emitter-Tests bestehen. Die Fehlerprobe erzwingt je einen falschen Bulk-, Einzelzeilen- und Direct-/Deferred-Vergleich und bestätigt jeweils nur eine Diagnose trotz `TRICE_TEST_NO_STOP=1`. Die kurzen PC-Workflows bestehen mit Insert und Bind. Eine komplette Ringpuffer-Einzelzeilenkonfiguration sowie die kombinierte Direct-/Deferred-Konfiguration und alle drei zuvor betroffenen Spezialfälle bestehen unter Insert; die kombinierte Konfiguration und Spezialfälle bestehen auch unter Bind. Der unabhängige `Fish`-Fall ist Teil der Ringpuffer-Einzelzeilenprüfung. Ein ad hoc Bind-Mehrpaketlauf ohne den vorgesehenen Go-Cache-Reset lieferte zunächst einen leeren Direct-Wert; der kontrollierte Bind-Einzellauf nach `go clean -cache -testcache` bestand. Für die abschließende Matrix den regulären PC-Test-Worker mit seinem Cache-Reset verwenden. Markdownlint für das geänderte UM besteht. Die vollständige Full-Matrix bleibt bei R16.
+
+**Verbindliche Ausgaberegel: Trice darf die Zeichenfolge `untagged:` niemals selbst zu einer Logmeldung hinzufügen.** Sie darf in der sichtbaren Meldung nur vorkommen, wenn die Anwendung sie selbst als Text geliefert hat. Das gilt für Text, JSON und KV und ausdrücklich auch bei `-color off`. Bei `trice("hi")` lautet die sichtbare Message deshalb `hi`, ohne `untagged:` vor oder innerhalb des Textes. Die interne Klassifizierung heißt trotzdem `untagged`; JSON/KV dürfen dafür ein separates Tag-Metadatum mit dem Wert `untagged` ausgeben. Filterung, Gewicht, Farbe und Ereignisstatistik verwenden weiterhin diese Klassifizierung. Ein vom Anwender tatsächlich gelieferter Text `untagged:` darf nicht pauschal entfernt werden.
+
+| Format | Ausgabe für `trice("hi")`, ohne weitere Metadaten |
+| --- | --- |
+| Text | `hi` |
+| JSON | `{"tag":"untagged","level":"INFO","message":"hi"}` |
+| KV | `tag=untagged level=INFO message="hi"` |
+
+Bei einem unbekannten Präfix wie `trice("mgs:blah")` bleibt die Message `mgs:blah`, während das Tag-Metadatum `untagged` lautet. Dadurch bleibt auch ein möglicher Tippfehler sichtbar. Die bestehenden Darstellungsregeln für ausdrücklich geschriebene bekannte Tags bleiben erhalten; ebenso die Regeln für Leerraum und Zeilenabschluss. Anwendertext darf nicht durch pauschales Entfernen gleichlautender Textstücke verändert werden.
+
+Die damaligen Protokolle `_630_test_pc_targets_insert.log` und `_640_test_pc_targets_bind.log` enthielten pro Workflow 14.655 fehlgeschlagene Einzelzeilen-/Spezialvergleiche. Der Abgleich aller erwarteten und tatsächlichen Strings ergab in beiden Workflows dieselben Abweichungen. Die folgende Tabelle beschreibt ausschließlich den **damals beobachteten Fehler**: `tatsächlich` ist keine gewünschte neue Testerwartung. Insbesondere bleibt `Hello World!` der richtige Erwartungswert; `untagged:Hello World!` war der zu behebende Ist-Wert.
+
+| Ursache | Konkreter Unterschied | Häufigkeit je Workflow |
+| --- | --- | ---: |
+| Unerwünschtes automatisch ergänztes Präfix bei `-color off` | Erwartet `Hello World!`, tatsächlich `untagged:Hello World!`; entsprechend bei anderen ungetaggten Meldungen | 14.581 |
+| Veralteter Feldname im manuellen JSON-Beispiel | Erwartet `... Birn:2, Fisch:2.781000}`, tatsächlich `... Birn:2, Fish:2.781000}` | 74 |
+
+Das unerwünschte Präfix betrifft die Vergleiche mit den `//exp:`-Erwartungen in [triceCheck.c](../../_test/testdata/triceCheck.c), außerdem die Spezialfälle `dblB_de_protect_tcobs_ua`, `ringB_de_protect_tcobs_ua` und `modify_for_debug`. Bei zwei getrennten ungetaggten Aufrufen mit `Hello ` und `World!` muss die zusammengesetzte Textausgabe `Hello World!` bleiben. Das derzeit beobachtete `untagged:Hello untagged:World!` verletzt diesen Vertrag; die Klassifizierung beider Ereignisse bleibt trotzdem jeweils `untagged`. Der unabhängige `Fish`-Unterschied stammt aus `exampleOfManualJSONencoding()`: Der Formatstring verwendet bereits `Fish`, nur die Erwartung an der aufrufenden Teststelle enthält noch `Fisch`.
+
+Je gewöhnlicher Einzelzeilenkonfiguration sind es 197 Präfixabweichungen und eine `Fish`-Abweichung. Die kombinierten Direct-/Deferred-Konfigurationen prüfen beides zweimal. Die drei genannten Spezialtests haben jeweils eine Präfixabweichung. Die hohen Summen entstehen durch Wiederholung über die Konfigurationen, nicht durch ebenso viele verschiedene Ursachen.
+
+[Der Bulk-Vergleich](../../_test/testdata/cgoPackage.go) schneidet nach der erwarteten Textlänge weiter. Bereits das erste zusätzliche `untagged:` verschob in den früheren Protokollen die folgenden Ausschnitte; jeder der acht Bulk-Läufe meldete deshalb 1.743 Textunterschiede und Restdaten. Diese Folgefehler waren kein unabhängiger Nachweis eines Framing- oder Übertragungsdefekts. Nach der Korrektur besteht der gezielt ausgeführte Ringpuffer-Bulk-Lauf unter Insert und Bind; alle Bulk-Konfigurationen bleiben Teil der Full-Matrix bei R16.
+
+Umgesetzt: Die automatisch zugewiesene Klassifizierung verändert den Message-Text in Text, JSON und KV nicht mehr. Die vorhandenen präfixfreien Erwartungen blieben erhalten; die separate `Fisch`-Erwartung lautet jetzt `Fish`. Weder Testausgaben noch Erwartungen wurden pauschal um `untagged:` bereinigt beziehungsweise erweitert. Verhaltenstests und die betreffenden UM-Aussagen folgen dem präzisierten Vertrag.
+
+**Früher Testabbruch:** Vor der Korrektur koppelte `keepCheckingAfterFailure()` das Weiterprüfen innerhalb eines Pakets an `TRICE_TEST_NO_STOP=1`. Dadurch meldete der Bulk-Vergleich nach dem ersten Längenfehler Tausende Folgeunterschiede; die Einzelzeilenprüfung führte noch alle übrigen Logaufrufe aus. Die Bulk-, Einzelzeilen- und kombinierten Direct-/Deferred-Tests brechen jetzt innerhalb **jeder Konfiguration beim ersten fehlgeschlagenen Vergleich ab**. Die Diagnose nennt Index, Source-Zeile sowie erwarteten und tatsächlichen Wert und markiert die Konfiguration als fehlgeschlagen. Der äußere [PC-Test-Worker](../../scripts/_160_pc_target_test_worker.sh) diagnostiziert bei `--no-stop` fehlgeschlagene Bulk-Konfigurationen weiterhin einzeln und prüft danach die **nächste Konfiguration**; ohne `--no-stop` bleibt der bisherige Abbruch des Workflows nach Fehler und Gegenprobe. `-failfast` allein ersetzt den Rücksprung aus einer bereits laufenden Vergleichsschleife nicht.
+
+Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Der `Fish`-Fall und die `untagged`-Ausgabe sind auch in gezielten, voneinander unabhängigen Verhaltenstests abgesichert. Im erfolgreichen Durchlauf bleiben sämtliche bisherigen Testfälle und Assertions aktiv; nur die Fehlerdiagnose endet pro Konfiguration früher. Der Bulk-Vergleich zählt nach einem Längenunterschied keine verschobenen Ausschnitte als eigenständige Fehler weiter.
+
+**Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum: Ohne wörtliches `untagged:` im Anwendungstext enthält keine ausgegebene Meldung diese Zeichenfolge; ein vom Anwender gelieferter gleichlautender Text bleibt erhalten. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Einen absichtlich ausgelösten frühen Fehler in Bulk, Einzelzeile und Direct/Deferred prüfen: jeweils genau ein aussagekräftiger Vergleichsfehler pro Konfiguration, aber unter `--no-stop` läuft die nächste Konfiguration weiter und der Gesamtschritt bleibt FAIL. Den unabhängigen `Fish`-Fall separat prüfen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
+
+### Kopierbare Dokumentationsbeispiele berichtigt
+
+**R02 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Im [UM](../rm/README.md) ist die alternative CE-Regel für Position und Geschwindigkeit syntaktisch gültig. Die ABC-Dateinamen und ihr Standardort `generated/` entsprechen der CLI; ein expliziter Zielpfad bleibt möglich. Das nicht vorhandene `-tilCS`-Beispiel wurde durch eine zutreffende C#-Integrationsnotiz ersetzt. Das Testkapitel nennt die heutigen Skripte und `_test`; die Release-Kommandos sind einzeln kopierbar. Der Link im [PC-Feature-Beispiel](../../examples/PC_features/README.md) verwendet die versionierte Schreibweise `ReadMe.md`.
+
+**Gezielte Abnahme:** Isolierte Bind- und ABC-Tests prüfen die CE-Regel sowie generierte Namen und Pfade. Die CLI weist `-tilCS` als unbekannten Schalter ab. UM-Format und Markdownlint bestehen; die lokale Linkprüfung für UM und PC-README findet keine Fehler. Die netzabhängige vollständige Linkprüfung war in dieser Umgebung wegen blockierter Verbindungen zu externen Websites nicht abschließbar. Release-/Git-Kommandos wurden nicht ausgeführt.
+
+### Fehlerstatus bei fehlgeschlagenem Clean erhalten
+
+**R03 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die vier betroffenen Buildskripte speichern den echten Status von `trice clean`, bevor sie ihn auswerten. Ein allein fehlgeschlagenes Clean führt zum Fehlerstatus und meldet dessen Exitcode; ein bereits fehlgeschlagener Build oder eine Unterbrechung behalten ihren ursprünglichen Status. Das vereinfachte Cleanup-Beispiel im UM reicht Clean-Fehler ebenfalls weiter, ohne im normalen Abschluss erneut zu bereinigen.
+
+**Gezielte Abnahme:** Isolierte Verhaltenstests führen alle vier Skripte mit erfolgreichem Build und Clean, Clean-Fehlercode 23, vorigem Build-Fehlercode 17 sowie SIGINT und SIGTERM aus. Pro Lauf werden Vor- und Nach-Clean genau einmal aufgerufen; Status und Warnung stimmen in allen Fällen. Shell-Formatprüfung, ShellCheck und die vollständige `scripts`-Testsuite bestehen.
+
+### Automatisches Nachladen wiederhergestellt
+
+**R04 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Entscheidung: Automatisches Nachladen bleibt ein wichtiges zugesagtes Feature. Der Logger überwacht die Verzeichnisse der geladenen TIL-/LI-Dateien und verarbeitet damit auch atomaren Dateiersatz durch Bind/Insert. Rasche Folgespeicherungen gehen nicht mehr in einer fünfsekündigen Sperre verloren. Vollständig eingelesene Tabellen werden unter gemeinsamem Schreib-/Leseschutz ersetzt; Decoder, Positionsausgabe und Statistik verwenden denselben Schutz. Fehlerhafte, leere oder vorübergehend fehlende Dateien lassen den letzten gültigen Stand unverändert und werden erneut eingelesen. Diagnoseausgaben gehen auf stderr; gleiche wiederholte Lesefehler erzeugen keinen Warnungsstrom. Beim Verlassen des Loglaufs werden Watcher und Timer beendet und ihr Abschluss abgewartet.
+
+Das [UM unter Easy-to-use](../rm/features.md#easy-to-use) erklärt Bedienung und Grenzen: TIL und LI sind keine dateiübergreifende Transaktion, `{}` leert die jeweilige Tabelle absichtlich, eine beim Start fehlende LI-Datei bleibt für diesen Loglauf deaktiviert, und bereits deaktivierte Visualisierungsregeln werden nicht automatisch wieder aktiviert. Allgemeine Signal-/Receiver-Lebenszyklen bleiben Gegenstand von R08.
+
+**Gezielte Abnahme:** [Watcher-Tests](../../internal/id/fileWatcher_test.go) prüfen reale Schreib-/Ersetzungsereignisse, Wiederanlage, ungültiges JSON ohne Teilübernahme, Wiederholung ohne Folgeereignis, stille Fehlerwiederholungen, abgeschaltete Pfade, Backendfehler und Ressourcenfreigabe. [CLI-Integrationstests](../../internal/args/fileWatcher_test.go) betreiben jeweils einen laufenden Logger für Text, JSON und KV mit echter Dateieingabe: geänderte Feldschemata und Positionen, mehrfacher Dateiersatz, Weiterloggen bei defektem JSON, Erholung und fortlaufende Visualisierung. Diese Tests bestehen auch mit Race Detector; die betroffenen Go-Paketsuites bestehen. Die lange Full-Matrix wurde nicht erneut gestartet.
+
+### Kompatibilitätsvertrag und Release-Ziel festgelegt
+
+**R05 · Gewicht 5 · Aufwand S–M · Abgeschlossen; Release-Ziel v2.0.0 bestätigt**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Entscheidung des Anwenders: **v2.0.0 ist das verbindliche Release-Ziel**. Die nachgewiesenen absichtlichen Änderungen an veröffentlichten CLI- und Template-Schnittstellen sind inkompatibel; nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ist dafür ein Major-Schritt vorgesehen. Die Zahl der Brüche ist unerheblich. Ein v1.4.0 mit unveränderter Rückwärtskompatibilitätszusage beschreibt diesen Stand nicht zutreffend. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
+
+Nachweis: Der lokale Release-Tag `v1.3.0` zeigt auf `54ce845b069f989bfc762f28f6dd364954e6050f`. Sein unveränderter Quellstand wurde mit `git archive` in ein temporäres Verzeichnis extrahiert und dort mit lokal vorhandenen Abhängigkeiten gebaut. Das aktuelle Tool wurde aus Stand `768844f1` separat in die temporäre Ablage gebaut. Beide CLI-Binaries wurden mit identischen TIL-/TREX-Fixtures ausgeführt. Es wurden weder historische Dateien im Repo geändert noch alte Quellstände in den Worktree zurückgesetzt.
+
+| Vertrag | Beobachtete Änderung / zu dokumentierende Folge |
+| --- | --- |
+| CLI für C-Generierung | v1.3.0 erzeugt mit `generate -tilC` eine `til.c`; der aktuelle Host weist den Schalter mit Exitcode 2 ab. `-logC` hat einen auf aktuelle Source-Stellen bezogenen Vertrag. |
+| CLI für Location-Daten | v1.3.0 akzeptiert `-liPath base`; der aktuelle Host weist es mit Exitcode 2 ab. `-liRoot` und `-liMaxDirs` trennen jetzt Speicherung und Darstellung. **Beide veröffentlichten Vergleichsschemata verwenden `File` und `Line`; `Path` war ein unveröffentlichter Zwischenstand.** |
+| User-Tags | v1.3.0 akzeptiert `-ulabel alpha:beta` als zwei Tags. Der aktuelle Host weist `beta` als unbekannte Farbe ab. Je Tag eine Option verwenden; Doppelpunkt für Gewicht/Farbe. |
+| Formatstrings | Der alte Host gibt `literal={x}` und `set={1,2}` wörtlich aus. Der aktuelle Host erwartet bei `{x}` einen Wert beziehungsweise weist `{1,2}` als ungültigen Feldnamen ab. `{{x}}` erscheint im alten Host doppelt geklammert und im aktuellen Host als `{x}`. Ein neues `{x}` mit einem 32-Bit-Wert wird nur vom aktuellen Host als strukturiertes Feld dekodiert. |
+| Klassische Meldungen | Derselbe 32-Bit-Record mit `msg:count=%d` ergibt in beiden Hosts `count=7`; `hi` bleibt `hi`. [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) ist umgesetzt: Automatische Klassifizierung als `untagged` fügt kein Präfix in den Meldungstext ein. |
+| Tag-Auswahl und Darstellung | Eindeutige Aliase und gewichtete Schwellen gelten pro Anwendungsereignis; Metadaten werden separat behandelt. Unbekanntes `-logLevel` oder `-pick` wird jetzt vor dem Öffnen der Eingabe abgewiesen; v1.3.0 akzeptiert dieselben geprüften Werte. |
+| Generierte Ablage | `generate -abc deviceX` erzeugt unter v1.3.0 `deviceX.h/.c` im Aufrufverzeichnis, aktuell unter `generated/`. `-genDir` ist der gemeinsame Verzeichnisschalter. |
+
+Wichtig: `-buildDir`/`-bindDir` und das zeitweilige LI-Feld `Path` waren Zwischenstände der neuen Arbeit, keine zusätzlichen Brüche gegenüber v1.3.0. Release Notes müssen veröffentlichte Änderungen von unveröffentlichten Umbenennungen unterscheiden.
+
+Der unterstützte Vertrag steht jetzt im [UM-Kapitel zur Firmware-/Host-Kompatibilität](../rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions), mit einer Kombinationstabelle und konkreten Vorher-/Nachher-Ausgaben. README und CLI-Hilfe verweisen auf beziehungsweise nennen die Template-Grenze. Historische Firmware, zugehörige TIL/LI, Host-Version und Decodieroptionen zusammen archivieren. Alte Firmware mit literalen Klammern bleibt mit ihrem passenden alten Host reproduzierbar; neue Quellen nutzen doppelte literale Klammern und werden neu instrumentiert und gebaut. Ein kompatibles Recordlayout allein ist keine pauschale Zusage für beliebig gemischte Target-Quellen, Wörterbücher und Hosts. Ein Decoderdiagnose-Record führt zudem nicht zwingend zu einem fehlerhaften Prozess-Exitcode; Abnahme muss Meldungen und Diagnosen prüfen.
+
+**Kein Migrationsprogramm und kein erneutes `-migrationBraces`.** Die früher verworfene Migration bleibt ausgeschlossen. Es geht um eine ehrliche Kompatibilitätsbeschreibung und gezielte Vergleichstests, nicht um still eingeführte Kompatibilitätsmechanismen.
+
+**Gezielte Abnahme:** Der neue Test `TestReleaseCompatibilityWithV130Dictionaries` in [structured_test.go](../../internal/args/structured_test.go) sichert klassische Meldungen, ungetaggten Text, historische Klammerfehler, aktuelle Escape-Schreibweise und benannte Felder mit echten TREX-Bytes ab; die TIL bleibt dabei bytegleich. Vorhandene CLI-, Generator-, Tag- und Template-Tests decken die übrigen aktuellen Verträge ab. Der direkte Zwei-Binary-Vergleich bestätigt die dokumentierten alten Ausgaben und CLI-Unterschiede; die Standardtests benötigen weder Git-Historie noch eine installierte alte Trice-Version.
+
+**Folgearbeiten:** Die Distributionsentscheidung ist getroffen: vorerst kein `/v2`, Installation über Binaries oder Repo-Checkout mit `./scripts/buildTriceTool.sh`. R14 sichert die dazugehörigen Anleitungen und Prüfungen ab. Go-Tests für `cmd`, `internal` und `pkg`, UM-Format, Markdownlint und lokale Linkprüfung bestanden. Die ausführlichen Release Notes bleiben R15, die vollständige Plattform-/Target-Abnahme R16.
+
+### Testbeschleunigung mit vollständigen PC-Matrizen geprüft
+
+**R06 · Gewicht 4 · Aufwand M · Umsetzung und vollständige PC-Gegenproben abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Der Auftrag umfasst R08/R09 und P01/P04. Die wiederholte 100-ms-Wartezeit bei endlichen Eingaben entfällt, Logaufrufe geben ihre Ressourcen frei, geeignete Konfigurationen decodieren gesammelt und der PC-Worker führt höchstens vier Konfigurationen gleichzeitig aus. Die ursprünglichen Erwartungen und die zusätzlichen Tests jedes Pakets bleiben enthalten. Eine Infrastruktur zur Zeitmessung jedes Einzeltests wurde nicht eingeführt.
+
+**Wiederherstellung nach Rechnerwechsel:** Der neue Checkout und der Server standen auf `c4bf94267d74e6e2dc07d03085a35c1425ee4ddb`; die Implementierungsänderungen waren darin noch nicht enthalten. Aus dem übertragenen Codex-Verlauf wurden 25 erfolgreiche Patch-Vorgänge für 19 Dateien einschließlich drei neuer Testdateien chronologisch rekonstruiert. Drei protokollierte fehlgeschlagene Patch-Versuche wurden ausgelassen. Die anschließende Formatierung und Prüfung erfolgten auf dem neuen Mac. Nicht protokollierte manuelle Änderungen und alte vollständige Logdateien lassen sich damit nicht beweisen oder wiederherstellen. Der [Leitfaden zum Rechnerwechsel](obsolete/docs/Codex_Rechnerwechsel_DE.md) ist inzwischen historisch archiviert; für die Aufgabenübergabe gelten heute die Tagged-Handover-Regeln in AGENTS.
+
+Die neue Abnahme erfolgte auf macOS/arm64 mit Go 1.25.3 und Apple Clang 21.0.0. Gemessen wurde die verstrichene Zeit des jeweiligen vollständigen verwalteten Workflows, einschließlich ID-Vorbereitung, Cache-Leerung, Kompilierung und Wiederherstellung. Alle Läufe verwendeten vier Worker. Die Werte sind Einzelmessungen und keine Hardware-unabhängige Laufzeitzusage.
+
+| PC-Workflow | Ausführungsmodus | Ergebnis auf dem neuen Mac | Gesamtdauer |
+| --- | --- | --- | --- |
+| Bind, vollständige Matrix | `auto` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 6 min 17,37 s |
+| Insert/Clean, vollständige Matrix | `auto` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 6 min 1,31 s |
+| Bind, vollständige Gegenprobe | `line-by-line` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 7 min 16,92 s |
+
+Die bestandenen Bind- und Insert-Läufe prüfen im Automatikmodus jeweils 30 Bulk-, 24 Einzelzeilen- und neun Spezialkonfigurationen. Die 54 gewöhnlichen Konfigurationen prüfen zusammen **129.130 erwartete Ausgaben pro Workflow**: 34 mit einem Kanal und 20 mit zwei Kanälen, jeweils 1.745 Erwartungen pro Kanal. Spezialtests und zusätzliche Verhaltenstests kommen hinzu. Die Gegenprobe bestand mit denselben 129.130 erwarteten Ausgaben, allen 54 gewöhnlichen Konfigurationen im Einzelzeilenweg und denselben neun Spezialkonfigurationen. Die Protokolle liegen lokal unter `temp/testtime-recovered-bind/`, `temp/testtime-recovered-insert/` und `temp/testtime-recovered-line/`; sie gehören nicht zum versionierten Stand.
+
+**Historischer Vergleich:** Im Full-Lauf vom 29./30. September benötigte PC/Insert 3 h 52 min 8 s und PC/Bind 3 h 52 min 29 s. Diese Läufe scheiterten an den bei R01 beschriebenen Ausgaben; sie sind keine erfolgreiche Ausgangsabnahme. Der Rechner und die Werkzeugversionen unterscheiden sich zudem vom neuen Lauf. Daher keinen belastbaren Beschleunigungsfaktor aus diesen Einzelwerten ableiten. Der separat protokollierte erfolgreiche neue Bind-Lauf auf dem alten Mac benötigte rund 4 min 17 s. Für den dort zuletzt gestarteten Insert-Lauf fehlt nach dem Rechnerwechsel ein verlässlich übertragener Abschluss.
+
+**Weitere Abnahme auf dem neuen Mac:** Die Go-Suites für `cmd`, `internal`, `pkg` und `scripts` bestehen. Gezielte Replay-/Lifecycle-Tests bestehen zusätzlich mit Race Detector. ShellCheck, Formatprüfung der geänderten Shell-/C-Dateien, UM-Format und Markdownlint bestehen. Ein erster eingeschränkter Go-Lauf scheiterte ausschließlich an den gesperrten lokalen TCP-/UDP-Testports; der anschließende Lauf mit erlaubtem Portzugriff bestand. Die gesamte `testAll full`-Suite einschließlich L432 und eine reale Windows-Matrix wurden hier nicht erneut ausgeführt; das bleibt R16. Die damals vorgesehenen Folgearbeiten [P02](#cache-nutzen-ohne-veralteten-c-code-zu-testen) und [P03](#l432-builds-isolieren-und-begrenzen) wurden anschließend getrennt umgesetzt und abgenommen.
+
+**Verbleibender Plattformhinweis für R16:** Im bestandenen Einzelzeilenlauf meldete Bash einmal `child setpgid ...: Operation not permitted`. Sämtliche Pakete, der Workflow-Exit und die exakte Dateiwiederherstellung waren erfolgreich. Der gezielte Test `TestPCWorkerCancellationReachesDescendants` bestand anschließend dreimal, jeweils für normale Jobs und einen Diagnose-Nachlauf einschließlich verzögert beendeter Kindprozesse. Die einmalige Meldung ist damit nicht reproduziert oder ursächlich erklärt; bei der Release-Abnahme auf die Prozessgruppenbildung und auf einen realen Matrixabbruch achten. Die Meldung wurde nicht unterdrückt.
+
+### CE-/SL-Integration und Feature-Beispiele verbindlich ausgewählt
+
+**R07 · Gewicht 5 · Aufwand M · Umsetzung und gezielte lokale Abnahme abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+[Schritt 515](../../scripts/_515_test_logging_features.sh) läuft einmal in `quick` und `full`. Er aktiviert gezielt `TestContextEnrichmentTargetToDecoder` und `TestContextInsertCleanTargetToDecoder`: C/C++-Records, Text/JSON/KV, Feldtypen und Stempel, Bind, Insert/Clean-Rücknahme, abgeschaltetes Logging und einmalige Auswertung. Die bestehenden SL-Unit-Tests und bisherigen Bind-Prüfungen bleiben erhalten und werden nicht zusätzlich im neuen Schritt wiederholt.
+
+Die kleinen Nachweise `TestContextEnrichmentPoC` und `TestContextEnrichmentPoCRebaseScopeBoundary` laufen als separat bezeichnete Gruppe mit. Der große experimentelle `TestContextEnrichmentRebasePoC` bleibt gezielt aufrufbar; sein Aufruf und die begrenzte Aussagekraft der jeweils verfügbaren Compiler stehen im UM. Daraus folgt weiterhin keine produktive CE-Unterstützung für Wrapper/Rebase.
+
+Die unveränderten [PC-Ausgabeprüfungen](../../examples/PC_features/check_output.sh) und [G0B1-Buildprüfungen](../../examples/G0B1_features/check_build.sh) laufen in einer frischen Kopie der benötigten versionierten Dateien. Dabei werden aktuelle Worktree-Bytes einschließlich lokaler Source-Änderungen kopiert, keine früheren Objekte oder Captures. Originalquellen, gemeinsame `exampleData`-Dateien, TIL/LI und benutzereigene generierte Dateien bleiben unberührt. Erfolgreiche Kopien werden entfernt, fehlgeschlagene bleiben neben den Logs erhalten. Nichtleere ELF/HEX/BIN-Dateien sind zusätzliche Pflichtnachweise für G0B1.
+
+Fehlende Werkzeuge führen bei `quick` zu einem ausdrücklich sichtbaren `WARN`, bei `full` zum Fehler. Ausgewählte Go-Tests müssen namentlich `PASS` melden; leere Auswahl oder übersprungene Untertests zählen als Fehler. Ein Fehler beendet den Schritt ohne Folgeprüfungen; Abbruch-Exitcodes bleiben erhalten. Die [Library CI](../../.github/workflows/trice_lib_reusable.yml) installiert zusätzlich das bereits von den Tests benötigte clangd und ruft denselben Schritt mit `full` auf.
+
+**Gezielte Abnahme:** Die vier ausgewählten Go-Tests, die PC-Ausgabeprüfung und der G0B1-Firmwarebuild bestanden lokal auf macOS mit Clang/clangd und ARM GCC. [Verhaltenstests](../../scripts/logging_features_test.go) prüfen Auswahl und Einmaligkeit, fehlende Werkzeuge, leere/übersprungene Go-Auswahl, Fehlerabbruch, Signal-Exitcodes, fehlende/leere Firmware und unveränderte Originaldateien bei Erfolg und Fehler. Ein echter Windows-/Linux-Lauf, die Ausführung auf einem G0B1-Board und der GitHub-CI-Lauf wurden hier nicht durchgeführt; diese Plattformnachweise bleiben R16. Der vorherige Full-Lauf mit 25 Schritten bleibt historische Abnahme; die neue Auswahl umfasst 26 Schritte.
+
+Die zusätzliche Abnahme durch den tatsächlichen Runner, mit ausschließlich Schritt 515 und strenger `full`-Werkzeugprüfung, bestand in **37 Sekunden für den Schritt**, einschließlich der abschließenden Dateizustandsprüfung **39 Sekunden insgesamt**. Das sind lokale Messwerte auf diesem Mac mit vorhandenem Go-Buildcache. Die Protokolle liegen unter `temp/log/r07-validation/`; der vorhandene Standardbericht wurde nicht überschrieben und zeigt inzwischen den späteren grünen Quick-Lauf mit 19 Schritten und 312 Sekunden. `go test ./scripts -count=1`, ShellCheck, Shellformat, Actionlint, UM-Format und Markdownlint bestehen. Für R07 wurde die gesamte Full-Matrix nicht erneut gestartet.
+
+### Ressourcen und Signalbehandlung pro Loglauf abgeschlossen
+
+**R08 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+[Translate](../../internal/translator/translator.go) meldet seine Signalbehandlung beim normalen Abschluss wieder ab und wartet auf das Ende der zuständigen Goroutine. Der nutzlose periodische Ticker entfällt; die bestehende kurze Schonfrist nach SIGINT/SIGTERM bleibt erhalten und lässt sich beim normalen Abschluss abbrechen. Statistik, Diagnosen und Signal-Exitcode bleiben erhalten.
+
+`binaryLogger.Close` und `bytesViewer.Close` reichen das Schließen an ihre besessenen Ressourcen weiter. Eingabe und Binärlogdatei werden genau einmal geschlossen, auch wenn eine Schließoperation fehlschlägt; der geliehene Diagnose-Writer bleibt offen. Der CLI-Loglauf schließt die vollständige Wrapperkette sofort nach `Translate`, bevor ein weiterer Loglauf beginnen könnte. Schließfehler gehen an den Aufrufer zurück.
+
+**Abnahme:** [Lifecycle-Tests des Translators](../../internal/translator/lifecycle_test.go) starten und beenden die Signalbehandlung wiederholt und prüfen den Abschluss während der Schonfrist. Die Signal-Prozessprüfung in [translator_delta_test.go](../../internal/translator/translator_delta_test.go) prüft SIGINT und SIGTERM mit Bereitschaftssignal statt Warteannahme, genau einen Input-Close und erfolgreichen Exit. [CLI-Lifecycle-Tests](../../internal/args/lifecycle_test.go) prüfen echte Eingabe-/Binärdateien unter beiden Wrappers bei EOF, Lesefehler, Schreibfehler und Schließfehler; [Receiver-Tests](../../internal/receiver/receiver_test.go) prüfen Besitz und wiederholtes Close. Die gezielten Lifecycle-Tests bestehen auch mit Race Detector.
+
+### Endliche Eingaben ohne pauschale Wartezeit abgeschlossen
+
+**R09 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die bisherige 100-ms-Mindestlaufzeit pro endlichem Logaufruf ist entfernt. Der TREX-Decoder gibt EOF erst zurück, wenn nach dem tatsächlichen Eingabeende keine gepufferten vollständigen Records mehr verarbeitet werden können. Ein leerer Record ist Fortschritt und beendet die Ausgabe nicht vorzeitig. Endliche Quellen schließen dann sofort ab; ein begonnenes letztes Textfragment wird weiterhin ausgegeben. Normales EOF erzeugt keine zusätzliche Diagnose im Text-/JSON-/KV-Ausgabekanal.
+
+Ungeframte, fragmentiert gelesene Header und Nutzdaten bleiben bis zur Vervollständigung erhalten. Ein unmöglicher Längenwert eines bekannten festen Recordtyps beziehungsweise eine unbekannte ID geht weiterhin durch die Resynchronisierung. `FILE` bleibt eine Live-Quelle; `TCP4BUFFER` endet erst bei echtem Peer-EOF, nicht bei einem kurzzeitig leeren Read. Die bestehende Pause gegen beschäftigtes Warten bei inaktiven Live-Quellen bleibt erhalten.
+
+Der historische Befund erklärt den großen Gewinn: Je Workflow liefen 34 gewöhnliche Konfigurationen mit etwa 183–185 Sekunden und 20 Direct-/Deferred-Kombinationen mit etwa 365 Sekunden, jeweils mit 1.745 Erwartungen pro Kanal. Allein 100 ms für `2 × (34 + 2 × 20) × 1.745` Logaufrufe ergeben rechnerisch **7 Stunden 10 Minuten 26 Sekunden**. Go/C-Übergänge waren damit nicht als Hauptursache nachgewiesen; auch der neue Bulk-Weg führt weiterhin jede C-Teststelle aus.
+
+**Abnahme:** [Replay-Tests](../../internal/translator/lifecycle_test.go) verwenden echte TREX-Bytes: Daten und EOF im selben Read, mehrere gepufferte Records einschließlich leerer Meldung, Byte-für-Byte-Eingabe, verkürztes Endpaket, 16-/32-Bit-Stempel, doppelte 16-Bit-ID, langen Laufzeitstring, Abschlussfragment und Live-Pausen. Begrenzte Read-Zahlen weisen nach, dass endliche Eingaben nicht weiter gepollt werden. Die bestehenden Decoder-, Translator- und CLI-Suites prüfen zusätzlich Filter, Stempel, strukturierte Ausgabe und Ausgabefehler. Der Zeitvergleich steht bei R06.
+
+### SL- und CE-Kapitel vollständig ins Englische übertragen
+
+**R11 · Gewicht 5 · Aufwand M–L · Umsetzung abgeschlossen; für den Merge vorgezogen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die Kapitel „Structured Logging“ und „Trice Context Enrichment“ im [UM](../rm/structured_logging.md) sind vollständig englisch, einschließlich aller Tabellen, Beispiele, Einschränkungen, Fehlererklärungen und des kapitelinternen CE-PoC-Anhangs. Auch der aktive CE-Absatz unter „Future Development“ ist übersetzt. Arbeitsauftragsnummern A9/A10 sind innerhalb dieser Kapitel durch fachliche Beschreibungen ersetzt; die experimentelle Wrapper-/Rebase-Unterstützung bleibt ausdrücklich von der produktiven Unterstützung getrennt. Testnamen, Testpfade und Funktionsumfang bleiben unverändert. Die weitere Bereinigung des Bind-/Visualisierungs-Kapitels und paralleler Dokumente bleibt R10.
+
+Die vollständigen deutschen Originale vor der Übersetzung liegen als datierte Kapitelkopien unter [Structured_Logging_DE_2026-10-04.md](obsolete/Structured_Logging_DE_2026-10-04.md) und [Context_Enrichment_DE_2026-10-04.md](obsolete/Context_Enrichment_DE_2026-10-04.md). Auf weiteren Benutzerauftrag sind auch die verbliebenen deutschen Texte unter `bind-limits` und die deutsche Scratch-Pad-Notiz übersetzt; ihre Originale liegen unter [Remaining_Manual_Texts_DE_2026-10-04.md](obsolete/Remaining_Manual_Texts_DE_2026-10-04.md). `bind-limits` verweist nun ausdrücklich auf den vorhandenen Architektur-PoC und unterscheidet dessen Nachweis von der weiterhin zurückgestellten produktiven Integration. Bereits vorhandene Archive wurden nicht geändert. Die Kopien behalten die damaligen Überschriften und Verweise als historische Referenz; sie werden nicht als eigenständige Manuals gepflegt.
+
+**Gezielte Abnahme am 4. Oktober:** Die Archivkopien stimmen bis auf den abschließenden Leerraum bytegenau mit den ursprünglichen vollständigen Kapiteln überein. Alle 47 Code-/Ausgabeblöcke sind unverändert und in gleicher Reihenfolge vorhanden. Der fachliche Absatzvergleich erhält insbesondere `message` und Leerraum, flache Punktnamen, Typen/NaN/64-Bit-Werte, getrennte Stempel-/Delta-Metadaten, CE-Regelreihenfolge, exakten Suffix-Match, lokale Sichtbarkeit, einmalige Auswertung und die unterschiedlichen Bind-/Insert-Grenzen. mdtoc erzeugt ToC, Nummerierung und Anker neu; Markdownlint und mdtoc-Check bestehen. Aktive eingehende Links zu den übersetzten Kapitelankern sind angepasst; `bind-limits` bleibt erhalten.
+
+Die strengere lokale Lychee-Prüfung mit Fragmenten hatte außerhalb des Auftrags den Link `#Trice Parameter Bit Widths` im Target-Code-Überblick beanstandet. Der Benutzer hat ihn anschließend auf `#trice-parameter-bit-widths` korrigiert. Der parallel gestartete Full-Test bestand alle 26 Einzelschritte; seine abschließende Byte-Prüfung meldete die parallel beauftragten Dokumentationsänderungen. Der anschließende Quick-Lauf bestand einschließlich Zustandsprüfung (20 Schritte, 380 Sekunden). Produktcode und Testauswahl wurden für R11 nicht verändert. Das ist weiterhin kein vollständiger Release-Nachweis nach R16.
+
+### Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose
+
+**P04 · Gewicht 4 · Aufwand M–L · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+`TRICE_PC_TEST_MODE=auto` wählt im [gemeinsamen Harness](../../_test/testdata/cgoPackage.go) den nachgewiesenen Weg je Konfiguration. Von 63 Paketen verwenden 30 Bulk, 24 weiterhin den Einzelweg und neun ihre speziellen Tests. Framed Direct und Deferred werden getrennt gesammelt und decodiert. Der bisherige Transfer nach jeder C-Teststelle bleibt dort erhalten, wo kleine Puffer ihn benötigen; die ursprünglichen acht Deferred-Bulk-Fälle behalten ihre Mehrstellen-Transfers zur Prüfung des Pufferns. Ungeframte Kanäle bleiben einzeln, damit Padding und Paketgrenzen nicht durch Verkettung verändert werden.
+
+Alle 1.745 Erwartungen pro gewöhnlichem Kanal und sämtliche weiteren Tests in jedem Paket bleiben aktiv. Erfolgreiche Bulk-Konfigurationen werden nicht nochmals vollständig einzeln ausgeführt. `TRICE_PC_TEST_MODE=line-by-line` bleibt als explizite Gegenprobe verfügbar. Ein Overlay verwendet die zentralen Harness-Vorlagen, ohne 61 generierte Kopien umzuschreiben.
+
+Der erste Bulk-Unterschied nennt `triceCheck.c:<Zeile>`, Erwartungsindex, Kanal, Byteposition, Soll/Ist mit sichtbaren Steuerzeichen und begrenzten Kontext. Mehrzeilige und leere Erwartungen behalten ihre Grenzen. Die genannte Zeile ist die erste abweichende Erwartung, nicht zwingend die Ursache einer früheren Datenstrombeschädigung. Original-Binärstrom und kompletter Text bleiben im konfigurationsbezogenen Logverzeichnis erhalten. Eine automatische Einzelgegenprobe nach einem Bulk-Fehler kann dessen Gesamtexit nicht wieder auf PASS setzen.
+
+**Abnahme:** Deskriptive Harness-Tests prüfen richtigen, veränderten, fehlenden und zusätzlichen Text sowie leere und mehrzeilige Erwartungen. Der [C-gestützte Fehlerproben-Test](../../_test/ringB_de_multi_cobs_ua/cgo_test.go) beweist den ersten Abbruch für Einzel-, Bulk- und kombinierten Weg und prüft erhaltene Binär-/Textartefakte. Die vollständigen Matrixvergleiche stehen bei R06.
+
+### PC-Konfigurationen begrenzt parallel geprüft
+
+**P01 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Der [PC-Worker](../../scripts/_160_pc_target_test_worker.sh) startet standardmäßig höchstens vier Konfigurationen als getrennte Prozesse. `TRICE_PC_TEST_JOBS` erlaubt eine andere positive Grenze, einschließlich `1` für seriellen Betrieb. Globale Go-/C-Zustände werden nicht mit `t.Parallel` geteilt. Jede Konfiguration besitzt ein eigenes `output.log`; pro Lauf entsteht ein neues Verzeichnis unter `temp/log/pc-<workflow>.<Lauf>/`.
+
+ID-Vorbereitung und Wiederherstellung bleiben außerhalb der parallelen Phase. Ohne `--no-stop` wird nach dem ersten erkannten Fehler nur die bereits gestartete Gruppe beendet und keine weitere Gruppe begonnen. Mit `--no-stop` laufen die übrigen Konfigurationen weiter, der Gesamtexit bleibt fehlerhaft. Ein Abbruch erreicht auch Compiler-/Test-Kindprozesse und automatische Diagnose-Nachläufe; der Worker wartet vor der Source-Wiederherstellung auf deren Ende.
+
+Fehlerberichte nennen Workflow, Konfiguration, Logpfad, relevante Diagnose und einen Reproduktionsaufruf. Auch der stille äußere `testAll`-Runner zeigt konkrete Fehlerausschnitte statt nur FAIL. Der Reproduktionsaufruf setzt denselben vorbereiteten ID-Zustand und die passenden Compiler-Include-Pfade voraus; der verwaltete Workflow stellt diese weiterhin bereit. Die groben Fortschrittsgewichte berücksichtigen den verkleinerten Anteil der PC-Matrizen.
+
+**Abnahme:** [Isolierte Worker-Verhaltenstests](../../scripts/pc_target_worker_test.go) prüfen seriellen Erfolg, tatsächliche parallele Überlappung, Jobgrenze, getrennte Logs, Fail-fast, `--no-stop`, Fehlererhalt trotz erfolgreicher Gegenprobe, ungültige Steuerwerte und Abbruch einschließlich verzögert beendeter Kindprozesse im normalen und diagnostischen Lauf. [Runner-Tests](../../scripts/portability_test.go) prüfen die konkreten Fehlerdetails auch bei stiller Ausführung. Die vollständige `scripts`-Suite besteht. Die beschriebenen Signal-Prozessprüfungen laufen unter POSIX; eine reale Windows-Matrix bleibt Teil von R16.
 
 ### Anwenderdokumentation von Entwicklungsständen befreien
 
@@ -364,69 +955,25 @@ Dass hier **beide bisherigen Logstellen eine andere ID erhalten**, ist gewollt u
 
 **Verbindlicher Beschluss:** R25 bleibt Voraussetzung für v2.0.0 und ist mit dem ausdrücklich erteilten Auftrag umgesetzt. Diese gezielte fachliche Abnahme ersetzt nicht die abschließende Release-Abnahme R16 auf einem feststehenden Commit.
 
-### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
+Weitere abgeschlossene Generatoraufgabe:
 
-**R22 · Gewicht 4 · Aufwand M · Neuer Folgeauftrag aus R17; nach R18/R19/R12/R20**
+| ID | Status | Ergebnis / Nachweis |
+| --- | --- | --- |
+| [F01](#generierte-dateien-verständlich-zuordnen) | Erledigt | Lesender `generate -bindReport` mit Zuordnung und Fehlerdiagnosen; kein Pruning. |
 
-[Zur Aufgabenübersicht](#aufgabenübersicht)
+### Generierte Dateien verständlich zuordnen
 
-Es gibt zwei Implementierungen des Website-Einstiegs: Die versionierte `index.md` bindet die README per Liquid ein; `pages.yml` überschreibt sie beim Build mit einer zweiten, per `sed` erzeugten Variante und behauptet im Kommentar, die Datei sei nicht versioniert. Einen einzigen nachvollziehbaren Erzeugungsweg wählen und lokale Vorschau sowie CI darauf ausrichten. Beide Handbücher und ihre gegenseitigen Links müssen auf Pages richtig dargestellt werden; Quellcode-Links dürfen weiterhin zur passenden Repo-Ansicht führen.
+**F01 · umgesetzt:** `trice generate -bindReport -genDir generated -src <Source>` zeigt bestehende Sidecars, deren File Keys, Rebase-Helfer und physische Include-Verweise innerhalb der gewählten Source-Auswahl. Mehrere `-src` und `-exclude` sind möglich. Nicht im Scan gefundene Referenzen sind ausdrücklich **kein Nachweis für unbenutzte oder löschbare Dateien**; tatsächlicher Compilergebrauch und Präprozessorbedingungen werden nicht bestimmt. Der früher vorgeschlagene Ausdruck „für den gewählten Build gebraucht“ ist deshalb kein Leistungsversprechen.
 
-Der Workflow baut vom Repo-Root; `_config.yml` enthält bislang nur Theme und Markdown-Engine. Ein ausdrücklicher fachlicher Veröffentlichungsumfang ist nicht erkennbar. Das ist noch kein Nachweis, welche Dateien Jekyll tatsächlich ausliefert. Den erzeugten Site-Baum prüfen und dann gezielt auf Einstieg, Handbücher, benötigte Bilder und bewusst verlinkte Inhalte begrenzen. Scratchpad, Entwicklerzustand und Fremdsoftware-Archive sollen nicht versehentlich Teil des Anwender-Einstiegs werden. Bestehende Archive dafür nicht verändern; die Auswahl gehört in den Veröffentlichungsweg.
+[Bind](../../internal/id/bindIDs.go) entfernt bereits überzählige Rebase-Helfer eines aktuell bekannten Owners. Eine globale Bereinigung aller verwaisten Owner-Dateien ist ein anderer Vertrag. Nicht gescannte Sources können weiterhin legitime Besitzer sein; historische Sidecars werden zudem als ID-Evidenz genutzt. Benutzereigene ABC-Auswahlheader im selben Verzeichnis müssen geschützt sein.
 
-**Abnahme:** Site-Build ohne Deployment prüfen; erzeugter Einstieg, beide Handbücher, Bilder und Querverweise funktionieren. Liste der ausgelieferten Dateigruppen passt zur beabsichtigten Website. Keine widersprüchliche zweite `index.md`-Erzeugung, kein unbeabsichtigter Verlust bewusst angebotener Downloads. Deployment und Publish bleiben gesonderte Aufträge.
+Der eigenständige Bericht schreibt ausschließlich auf die Ausgabe, benötigt keine TIL/LI und ist nicht mit schreibenden Generate-Modi oder `-colors` kombinierbar. Fehlende referenzierte Artefakte, widersprüchliche File Keys sowie ungültige Besitzerdeklarationen und geänderte Helfer erscheinen ausdrücklich als fehlend, mehrdeutig oder unbestätigt. Fremde Dateien, insbesondere ABC-Auswahlheader, bleiben unklassifiziert. Unterverzeichnisse des Generierungsordners werden angezeigt, aber nicht rekursiv inventarisiert. Fehlende Scan-Wurzeln und Lesefehler brechen die Diagnose vor Veröffentlichung eines Teilberichts ab. Der bestehende kurze `bind -v`-Bericht bleibt unverändert.
 
-### Checkout-/Binary-Installationswege für v2 absichern
+Die englische [RM-Erklärung](../rm/generate.md#bind-artifact-report) enthält Beispiele und Grenzen. [Beschreibende Verhaltenstests](../../internal/id/generateBindReport_test.go) prüfen Zuordnung, Wiederholbarkeit, Ausschlüsse, echte Bind-Artefakte und Fehlerfälle sowie unveränderte Dateiinhalte und **null versuchte Schreibzugriffe**. [CLI-Tests](../../internal/args/handler_additional_test.go) sichern zusätzlich Flag-Kombinationen und einen lesenden Aufruf ohne Dictionaries oder Ausgabe-Sinks ab.
 
-**R14 · Gewicht 5 · Aufwand S–M · Distributionsentscheidung getroffen; verbleibender Abgleich vor Release**
+**Abnahme:** Der vollständige Go-Lauf `go test ./... -count=1 -covermode=atomic -coverprofile=./temp/log/coverage-f01.out -coverpkg=./...` bestand. Nach ergänzter Erkennung literaler Includes und zusätzlichen Gegenproben bestanden abschließend sämtliche Tests von `internal/id` und `internal/args` mit Coverage; die neue Berichtsfunktion erreicht dabei 100 % Statement-Coverage. Gegenproben umfassen verschobene Sources, überlappende Wurzeln, Kommentare, nicht aufgelöste Include-Makros, quoted/angle Includes und nicht verfolgte Artefakt-Symlinks. Ein echter CLI-Aufruf auf `examples/G0B1_features/Core` und `_test/testdata` ordnet die vorhandenen Sidecars und Rebase-Helfer richtig zu. Markdown, Handbuchformat, erzeugte CLI-Hilfe und lokale RM-/Hilfetext-Links bestehen. Kein erneuter vollständiger C-Konfigurationslauf, da Target-Code und Bind-Erzeugung unverändert sind.
 
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Entscheidung des Anwenders: **`/v2` vorerst weglassen.** `go.mod` bleibt bei `module github.com/rokath/trice`, Imports bleiben unverändert. Die Produktversion v2.0.0 wird über fertige Binaries und lokale Builds aus einem Repo-Checkout angeboten. Die [Installationsanleitung im RM](../rm/project_resources.md#download-and-install-trice) nennt dafür `./scripts/buildTriceTool.sh` statt `go install github.com/rokath/trice/cmd/trice@latest`, mit Aufrufort und Hinweis auf die ausgegebenen Installationspfade; README und Guide führen dorthin.
-
-Lokales Bauen und Installieren aus dem Checkout benötigt allein wegen der Produktversion keinen Major-Modulpfad. Das vom Skript intern verwendete lokale `go install ./cmd/trice ./cmd/tlog` bleibt zulässig. Versionierte Go-Auflösung über `@v2.0.0` wäre dagegen an einen passenden Major-Modulpfad gebunden und gehört vorerst nicht zum zugesagten Installationsumfang. Siehe [Go: Major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
-
-Verbleibende Aufgabe: Aktive Installationsanleitungen und Release-Prüfungen auf den beschlossenen Umfang abstimmen. Weitere entfernte Go-Installationsanweisungen dürfen v2 nicht versprechen. Lokalen Build beider Tools und ausgelieferte Binaries prüfen; eine spätere Modulpfadumstellung benötigt eine neue Entscheidung.
-
-**Abnahme:** Der lokale Build mit `./scripts/buildTriceTool.sh` und die angebotenen Binary-Installationswege funktionieren in einer sauberen Umgebung. Dokumentation und Prüfungen passen dazu; keine `/v2`-Umstellung und keine v2-Modulinstallationszusage. Kein Tag oder Publish im Rahmen dieses Auftrags.
-
-### Release Notes und ausgelieferte Dateien prüfen
-
-**R15 · Gewicht 5 · Aufwand M**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Der aktuelle [Changelog](../../CHANGELOG.md) endet bei v1.3.0. Einen verständlichen neuen Release-Abschnitt erstellen: Bind, SL, CE, Tags/Gewichte, Visualisierung, Generatoren, Ablage, Plattform-/Compilergrenzen und konkret nötige Anpassungen bestehender Projekte. Ein vollständiger Git-Log ersetzt diese Anwendersicht nicht.
-
-Die [Installationsprüfungen](../../.github/workflows/install-checks.yml) und [Release-Prüfungen](../../.github/workflows/release-audit.yml) testen bereits Archive, Pakete, PDF und klassisches Decoding. Eine kleine neue Feature-Abnahme soll mit den **ausgepackten** Tools und Target-Quellen erfolgen: Bind bzw. Insert mit SL/CE, tatsächlich erzeugter Record, Text/JSON/KV und ausschließlich Anwendungsrecords auf dem maschinenlesbaren Kanal. Passende plattformunabhängige Fixture verwenden.
-
-Die Toolchain-Angaben angleichen: `go.mod` verlangt Go 1.25.0; der separat manuell gestartete Workflow `go.yml` nennt noch 1.24.0. Das muss keinen unmittelbaren Buildfehler verursachen, weil Go einen Toolchain-Wechsel auslösen kann, macht die geprüfte Umgebung aber unnötig unklar.
-
-Die unter R18/R19 getrennten Handbücher unter eindeutigen Namen ausliefern: `TriceUserManual` für den Einstieg und `TriceReferenceManual` für Details. Downloadlinks und Artefaktprüfungen müssen beide Dokumente dem richtigen Zweck zuordnen; die bisherige PDF-Prüfung nur umzubenennen reicht nicht.
-
-Mit R19 sind Erzeugung, GoReleaser-Assets und die lokalen/CI-Prüfeinstiege für beide PDFs vorbereitet und gezielt getestet. R15 prüft weiterhin das tatsächlich gebaute und ausgelieferte Gesamtpaket einschließlich der endgültigen Downloadziele; diese Release-Abnahme ist dadurch nicht vorweggenommen.
-
-Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` und `src/*.md` zusammengestellt. Beim ausgepackten Archiv ausdrücklich prüfen, ob die benötigten Lizenzinformationen vorhanden sind und die mitgelieferte `src/ReadMe.md` auch ohne Repo-Elternverzeichnis verständlich ist. Ihre relativen Verweise auf Root-Dokumente dürfen nicht ungeprüft als funktionierende Archivnavigation gelten. Fremdquellenhinweise erhalten; keine Vendor-Aktualisierung in diesen Auftrag aufnehmen.
-
-**Abnahme:** Verständliche englische Release Notes und Anpassungshinweise; finales englisches User Manual und Reference Manual als Markdown/PDF; passende Target-Quellen; nachvollziehbare Artefaktprüfungen auf den zugesagten Betriebssystemen. Kein Publish oder Tag ohne ausdrücklichen Auftrag.
-
-### Release-Abnahme auf einem feststehenden Stand
-
-**R16 · Gewicht 5 · Aufwand M plus Full-Testlauf**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Nach den ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
-
-**Abnahme:**
-
-- Full-Matrix mit Bind und Insert/Clean ohne ungeklärte Fehler; alle Pflichtwerkzeuge vorhanden. PASS einer Suite darf relevante intern übersprungene Tests nicht verdecken.
-- CE-/SL-End-to-End-Abnahme gemäß R07 und installierte Release-Artefakte gemäß R15.
-- Keine zurückgebliebenen unbeabsichtigten Source-/Metadatenänderungen.
-- Go-Coverage mit der Paket- und `-coverpkg`-Auswahl des [Coverage-Workflows](../../.github/workflows/coverage.yml) gegen die Zielbranch-Baseline vergleichen; Coveralls-Zeilenabdeckung und Go-Statement-Coverage unterscheiden. C-Abnahme separat.
-- Finale Dokumentation: kurzes UM und Reference Manual mit mdtoc, Markdown, relativen Links mit korrekter Groß-/Kleinschreibung und PDF prüfen; README, Dokumentationswegweiser und GitHub Pages einbeziehen. Keine aktiven Links auf entfernte Weiterleitungsdateien; Repo-Karte und Bestandszuordnung stimmen mit den tatsächlich vorgenommenen Aufräumarbeiten überein. Danach keine ungeprüften inhaltlichen Änderungen mehr.
-- Ein kurzer echter G0B1-Boardlauf für zwei Task-Kontexte, Stempel und lesbare/strukturierte Ausgabe, sofern diese Hardware-Zusage im Release gemacht wird. Fehlender Hardwarezugang wird als fehlender Nachweis benannt.
-- Versionsentscheidung, bekannte Grenzen und eventuelle bewusst akzeptierte Abweichungen sind dokumentiert.
+Ein optionales späteres Löschen braucht weiterhin eindeutig nachgewiesenen Besitz und vollständigen Projektumfang. **Kein automatisches Pruning als unbemerkte Nebenwirkung eines partiellen Bind-Laufs.** Löschverhalten bleibt eine eigene, nicht beauftragte Entscheidung.
 
 ## Weitere Beschleunigung ohne geringere Abdeckung
 
@@ -478,317 +1025,6 @@ R08/R09, P04, P01, P02 und P03 sind umgesetzt. Alle Erwartungen, Konfigurationen
 **Abnahme der Korrektur:** `go test ./... -count=1` und der vollständige Go-Coverage-Lauf mit `-count=1 -covermode=atomic -coverpkg=./...` bestehen. Das separate Profil `temp/log/coverage-nm-fix.out` vermied ein Überschreiben der damaligen Full-Protokolle während dieser gezielten Abnahme. Der danach vom Benutzer gestartete Full-Lauf vom 4. Oktober, 10:03 bis 10:29 Uhr, bestand mit **25/25 Schritten in 1583 Sekunden (26:23)** vollständig. Die L432-Matrix bestand erneut mit **101/101 Konfigurationen in 272 Sekunden (4:32)**; der Ausgangszustand der versionierten Dateien wurde bestätigt.
 
 **Laufzeiten sichtbar machen:** Der Runner zeigt nun vor jedem Skriptnamen die einzeln gemessene Laufzeit als `(%3dm%3ds)`, etwa `(  4m 30s)`. Die Angabe gilt für alle Ergebniszustände und bleibt in `temp/log/testAll_summary.log` erhalten. Im interaktiven Terminal aktualisiert sie sich während des Schritts. Damit lassen sich insbesondere die PC-Blöcke unter Windows vergleichen, ohne jeden einzelnen Testfall zu instrumentieren. Die bisherigen Messwerte auf macOS ersetzen weiterhin keine neue Windows-Zeitmessung.
-
-## Sinnvolle Erweiterungen zur späteren Diskussion
-
-Diese Punkte sind Vorschläge, keine offenen Versprechen für das nächste Release. Bestehende Tests, PoCs und frühere Entscheidungen bleiben maßgeblich. Vor einer Issue-Erstellung Nutzen, Scope und vorhandene Issues abgleichen; externe Issue-Texte später englisch formulieren.
-
-| ID | Idee | Gewicht | Aufwand | Empfehlung |
-| --- | --- | ---: | --- | --- |
-| [F01](#generierte-dateien-verständlich-zuordnen) | Erledigt: lesende Bestandsprüfung generierter Artefakte | 3 | M | Explizit mit `generate -bindReport` aufrufen; kein Pruning |
-| [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Fuzz- und Race-Prüfungen für neue Parser und Recordpfade | 3 | M | Robustheit vor weiteren Ausgabeformaten |
-| [F03](#frühe-hostfilterung-messen) | Frühe Hostfilterung / Template-Caching | 2 | M–L | Alte A11/M17-Aufgabe; zuerst messen |
-| [F04](#benannte-felder-besser-weiterverwenden) | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Mit einem konkreten Anwenderfall beginnen |
-| [F05](#kleine-wrapper-erweiterung-getrennt-bewerten) | CE für eindeutig zuordenbare Ein-Logstellen-Wrapper | 2 | M | Kleiner separater Ausbau auf Basis des PoC |
-| [F06](#allgemeines-ce-rebase-bleibt-eine-architekturentscheidung) | Allgemeines CE für Bind-Wrapper und Counter-Rebase | 1 | L | Weiter zurückstellen |
-
-### Generierte Dateien verständlich zuordnen
-
-**F01 · umgesetzt:** `trice generate -bindReport -genDir generated -src <Source>` zeigt bestehende Sidecars, deren File Keys, Rebase-Helfer und physische Include-Verweise innerhalb der gewählten Source-Auswahl. Mehrere `-src` und `-exclude` sind möglich. Nicht im Scan gefundene Referenzen sind ausdrücklich **kein Nachweis für unbenutzte oder löschbare Dateien**; tatsächlicher Compilergebrauch und Präprozessorbedingungen werden nicht bestimmt. Der früher vorgeschlagene Ausdruck „für den gewählten Build gebraucht“ ist deshalb kein Leistungsversprechen.
-
-[Bind](../../internal/id/bindIDs.go) entfernt bereits überzählige Rebase-Helfer eines aktuell bekannten Owners. Eine globale Bereinigung aller verwaisten Owner-Dateien ist ein anderer Vertrag. Nicht gescannte Sources können weiterhin legitime Besitzer sein; historische Sidecars werden zudem als ID-Evidenz genutzt. Benutzereigene ABC-Auswahlheader im selben Verzeichnis müssen geschützt sein.
-
-Der eigenständige Bericht schreibt ausschließlich auf die Ausgabe, benötigt keine TIL/LI und ist nicht mit schreibenden Generate-Modi oder `-colors` kombinierbar. Fehlende referenzierte Artefakte, widersprüchliche File Keys sowie ungültige Besitzerdeklarationen und geänderte Helfer erscheinen ausdrücklich als fehlend, mehrdeutig oder unbestätigt. Fremde Dateien, insbesondere ABC-Auswahlheader, bleiben unklassifiziert. Unterverzeichnisse des Generierungsordners werden angezeigt, aber nicht rekursiv inventarisiert. Fehlende Scan-Wurzeln und Lesefehler brechen die Diagnose vor Veröffentlichung eines Teilberichts ab. Der bestehende kurze `bind -v`-Bericht bleibt unverändert.
-
-Die englische [RM-Erklärung](../rm/generate.md#bind-artifact-report) enthält Beispiele und Grenzen. [Beschreibende Verhaltenstests](../../internal/id/generateBindReport_test.go) prüfen Zuordnung, Wiederholbarkeit, Ausschlüsse, echte Bind-Artefakte und Fehlerfälle sowie unveränderte Dateiinhalte und **null versuchte Schreibzugriffe**. [CLI-Tests](../../internal/args/handler_additional_test.go) sichern zusätzlich Flag-Kombinationen und einen lesenden Aufruf ohne Dictionaries oder Ausgabe-Sinks ab.
-
-**Abnahme:** Der vollständige Go-Lauf `go test ./... -count=1 -covermode=atomic -coverprofile=./temp/log/coverage-f01.out -coverpkg=./...` bestand. Nach ergänzter Erkennung literaler Includes und zusätzlichen Gegenproben bestanden abschließend sämtliche Tests von `internal/id` und `internal/args` mit Coverage; die neue Berichtsfunktion erreicht dabei 100 % Statement-Coverage. Gegenproben umfassen verschobene Sources, überlappende Wurzeln, Kommentare, nicht aufgelöste Include-Makros, quoted/angle Includes und nicht verfolgte Artefakt-Symlinks. Ein echter CLI-Aufruf auf `examples/G0B1_features/Core` und `_test/testdata` ordnet die vorhandenen Sidecars und Rebase-Helfer richtig zu. Markdown, Handbuchformat, erzeugte CLI-Hilfe und lokale RM-/Hilfetext-Links bestehen. Kein erneuter vollständiger C-Konfigurationslauf, da Target-Code und Bind-Erzeugung unverändert sind.
-
-Ein optionales späteres Löschen braucht weiterhin eindeutig nachgewiesenen Besitz und vollständigen Projektumfang. **Kein automatisches Pruning als unbemerkte Nebenwirkung eines partiellen Bind-Laufs.** Löschverhalten bleibt eine eigene, nicht beauftragte Entscheidung.
-
-### Parser und Recordpfade systematisch auf unerwartete Eingaben prüfen
-
-**F02:** Im untersuchten Go-Code sind viele tabellarische Verhaltenstests, aber keine `Fuzz...`-Einstiegspunkte vorhanden. Ergänzende Fuzztests für Template-/CE-Parsing und Decoder-Eingaben könnten Escapes, Klammern, verkürzte Records und ungewöhnliche Kombinationen abdecken. Ein gezielter Race-Lauf ist besonders bei Abschluss-/Watcher-Arbeiten sinnvoll.
-
-Nicht jede Testfunktion parallelisieren. Relevante Invarianten sind unter anderem: kein Panic bei abgewiesener Eingabe, keine Teilveröffentlichung, stabiler kanonischer Template-Roundtrip, kein Diagnosetext im JSON-Kanal und keine Datenrennen bei echten nebenläufigen Pfaden. Gefundene Fälle als lesbare Regressionstests erhalten. Ein begrenzter Fuzz-Lauf verspricht keine vollständige Sicherheit.
-
-### Frühe Hostfilterung messen
-
-**F03 übernimmt die offene A11, zuvor M17.** Replay mit 0, 50, 90 und 100 Prozent verworfenen Ereignissen vergleichen; CPU, Allokationen und Durchsatz für Text, JSON und KV erfassen. Im [TREX-Decoder](../../internal/trexDecoder/trexDecoder.go) werden Templates momentan pro Ereignis geparst und validiert; ein Cache ist ein weiterer Kandidat, aber noch keine beschlossene Umsetzung.
-
-Framing/Integrität, Rohaufzeichnung, Statistik, Diagnosen, Stempelreferenzen und akzeptierte Records müssen gleich bleiben. Typisierte SL-/CE-Records und aktualisierte Wörterbücher gehören in den Vergleich. R09 betrifft wiederholte endliche Testläufe; diese Aufgabe betrifft Durchsatz im dauerhaften Betrieb und darf damit nicht verwechselt werden.
-
-### Benannte Felder besser weiterverwenden
-
-**F04:** Die heutige Visualisierung adressiert numerische Werte über `v0...v11`. Ein Zugriff über bereits vorhandene Feldnamen könnte Regeln lesbarer und gegen geänderte Parameterreihenfolgen robuster machen. Alternativ könnte eine reine Schemaübersicht Namen, Typen und zugehörige IDs über das heutige Häufigkeitsregister hinaus zeigen.
-
-Zuerst einen dieser Anwenderfälle auswählen. Kein neuer Parallelvertrag für dasselbe Schema, keine automatische C-Typinferenz und keine zusätzliche Target-Nutzlast. Gleiche Feldnamen mit unterschiedlichen Typen, fehlende Werte, User- gegenüber Hostfeldern und historische TIL-Einträge benötigen klare Regeln. Keine neue CLI festlegen, bevor der konkrete Nutzen entschieden ist.
-
-### Kleine Wrapper-Erweiterung getrennt bewerten
-
-**F05:** Der [erweiterte CE-PoC](../../internal/id/context_enrichment_rebase_poc_test.go) zeigt einen eindeutig über eine Zeile zuordenbaren Wrapper mit einer Logstelle ohne Compiler-Vorlauf und ohne `__COUNTER__`. Das könnte die bestehende einfache CLI erhalten und ist unabhängig vom allgemeinen Rebase-Ausbau bewertbar.
-
-Vor produktiver Freigabe sind Alias-/Selektorverhalten, lokale Sichtbarkeit, Bitbreiten/Stempel, einmalige Auswertung, wiederholte Expansionen, `generate -logC` und klare Ablehnung nicht unterstützter Formen nachzuweisen. Bis dahin bleibt die heutige dokumentierte Bind-Grenze bestehen; Insert/Clean ist die dauerhafte Alternative.
-
-### Allgemeines CE-Rebase bleibt eine Architekturentscheidung
-
-**F06 übernimmt die bisher zurückgestellte CE-Folgeaufgabe.** Der PoC wählt pro Expansion einen CE-Adapter im Präprozessor. Für komplexe Fälle liefert ein zusätzlicher Vorlauf mit dem konkreten Compiler absolute Counter-Werte. Das löst in den geprüften Fällen die falschen Scope-Anforderungen, kostet aber einen Buildschritt pro Übersetzungseinheit und Konfiguration.
-
-Erhaltene Nachweise: getrennte lokale Scopes, wiederholte Wrapper-Aufrufe, einmalige Auswertung, echte Host-Records und Ablehnung veralteter Zuordnungen. Die dokumentierte Matrix umfasst Host-Clang sowie ARM-GCC für Cortex-M0/M4 in mehreren C-/C++-Modi; ARM-Nachweise sind Compile-Nachweise. Strenges C++20 ist wegen der vorhandenen Enum-Rebase-Warnung nicht bestanden. Weitere Compiler, PCH/Module, zusätzliche Counter-Verwendung, Build-Abhängigkeiten und getrennte Artefakte bleiben Integrationsfragen.
-
-**Empfehlung:** Für das nächste Release nicht aufnehmen. Ein einfaches, merkbares Userinterface hat Vorrang. Der bereits verfügbare Insert/Clean-Weg und ausdrücklich geschriebene Werte decken die praktische Alternative ab. Kein Compiler-Vorlauf und keine neue Kontextverwaltung werden implizit eingeführt.
-
----
-
-## Erledigte Korrekturen
-
-| ID | Status | Ergebnis / Nachweis |
-| --- | --- | --- |
-| [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Erledigt | Aktuelle Referenz von historischen Bind-Entwicklungsständen getrennt; gültige Einzelinformationen übernommen. |
-| [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Erledigt | Leere Debugger-Zustände und ungenutzte Vorlagenbegleiter entfernt; CI-Orientierung aktualisiert. |
-| [R21b](#ide-einstiege-portabel-und-tatsächlich-benutzbar-machen) | Erledigt | IDE-Vorlagen auf aktuelle CLI und portable Compilerwahl umgestellt; JetBrains-Metadaten und Ignore-Verhalten geprüft. |
-| [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) | Erledigt | Kein automatisch erzeugtes untagged-Präfix ausgeben |
-| [R02](#kopierbare-dokumentationsbeispiele-berichtigt) | Erledigt | Kopierbare Dokumentationsbeispiele berichtigt |
-| [R03](#fehlerstatus-bei-fehlgeschlagenem-clean-erhalten) | Erledigt | Fehlerstatus bei fehlgeschlagenem Clean erhalten |
-| [R04](#automatisches-nachladen-wiederhergestellt) | Erledigt | Automatisches Nachladen wiederhergestellt |
-| [R05](#kompatibilitätsvertrag-und-release-ziel-festgelegt) | Erledigt | Kompatibilitätsvertrag und Release-Ziel festgelegt |
-| [R06](#testbeschleunigung-mit-vollständigen-pc-matrizen-geprüft) | Erledigt | Testbeschleunigung mit vollständigen PC-Matrizen geprüft |
-| [R07](#ce-sl-integration-und-feature-beispiele-verbindlich-ausgewählt) | Erledigt | CE-/SL-Integration und Feature-Beispiele verbindlich ausgewählt |
-| [R08](#ressourcen-und-signalbehandlung-pro-loglauf-abgeschlossen) | Erledigt | Ressourcen und Signalbehandlung pro Loglauf abgeschlossen |
-| [R09](#endliche-eingaben-ohne-pauschale-wartezeit-abgeschlossen) | Erledigt | Endliche Eingaben ohne pauschale Wartezeit abgeschlossen |
-| [R11](#sl--und-ce-kapitel-vollständig-ins-englische-übertragen) | Erledigt | SL- und CE-Kapitel vollständig ins Englische übertragen |
-| [R13](#test-ausgangszustand-einschließlich-standalone-beispielen-erhalten) | Erledigt | Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten |
-| [R17](#bestandszuordnung-und-befunde-der-repo-prüfung) | Erledigt | Bestandszuordnung und Befunde der Repo-Prüfung |
-| [P01](#pc-konfigurationen-begrenzt-parallel-geprüft) | Erledigt | PC-Konfigurationen begrenzt parallel geprüft |
-| [P03](#l432-builds-isolieren-und-begrenzen) | Erledigt | L432-Builds isolieren und begrenzen |
-| [P04](#bulk-als-regulärer-pc-testweg-mit-verwertbarer-fehlerdiagnose) | Erledigt | Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose |
-
-### Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten
-
-**R13 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die vier lokalen Tabellen in `examples/PC_log` und `examples/G0B1_log` waren nach zusätzlichen SL-/CE-Quellen einmalig aktualisiert worden. Vorhandene TIL-Einträge behielten ihre IDs; in den LI-Tabellen verschoben sich Zeilennummern. Diese inhaltliche Aktualisierung ist bereits im aktuellen Commit-Stand enthalten. Bei unveränderten Eingaben überspringt Bind identische Schreibvorgänge; der vorhandene `TestBindDoesNotReplaceUnchangedFiles` prüft das ausdrücklich.
-
-Die Standalone-Builds aus Schritt 600 laufen weiterhin im Checkout. Der verwaltete Snapshot umfasst jetzt auch die lokalen Beispielquellen, TIL/LI-Dateien, generierten Verzeichnisse und Buildausgaben einschließlich ursprünglich fehlender Pfade und vorhandener Benutzerauswahl. Schritt 490 bereitet Bind innerhalb desselben Zustandsvertrags vor. Am Ende von `testAll` vergleicht eine zusätzliche Prüfung die wirklichen Bytes aller versionierten Dateien mit dem Ausgangszustand und nennt veränderte Pfade; ein bereits zuvor schmutziger Git-Status gilt nicht als Gleichheitsnachweis. Es gibt keine pauschale Git-Rücksetzung.
-
-**Gezielte Abnahme am 30. September:** Die zwei Standalone-Builds pro `PC_log` und `G0B1_log` ließen alle vier Tabellen bytegleich und behielten beim zweiten Lauf deren Inodes; der äußere Snapshot stellte den Checkout anschließend wieder her. Isolierte Verhaltenstests prüfen schmutzige und ursprünglich fehlende lokale Dateien, generierte Benutzerauswahl und Buildausgaben nach Erfolg, Worker-Fehler und Signal, außerdem die transaktionale Vorbereitung in Schritt 490 bei Erfolg und Fehler. Ein Runner-Test beweist, dass eine erneute Änderung einer schon vorher schmutzigen Datei trotz unverändertem Git-Kurzstatus erkannt und mit Pfad gemeldet wird. `testAll quick` besteht mit 19/19 Schritten einschließlich der realen Schritte 490, 600 und der Byte-Prüfung. Die vollständige Release-Matrix bleibt bei R16.
-
-### Kein automatisch erzeugtes untagged-Präfix ausgeben
-
-**R01 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die sichtbare Ausgabe enthält kein synthetisches `untagged:` mehr. Für ungetaggte oder unbekannt getaggte Ereignisse verhindert die Textausgabe zugleich, dass ein Doppelpunkt im Benutzertext nachträglich als Format-Tag interpretiert wird. JSON/KV verwenden weiter `tag=untagged` als Metadatum, ohne die Message zu verändern. Die `Fish`-Erwartung ist korrigiert. Die C-gestützten Vergleichsschleifen brechen bei der ersten Abweichung pro Konfiguration ab; `--no-stop` steuert weiterhin die Fortsetzung im äußeren Test-Worker. Gezielte Regressionstests decken die unabhängigen Fälle ab. Die vollständige Release-Matrix bleibt ausdrücklich Aufgabe R16.
-
-**Gezielte Abnahme am 30. September:** Translator-Paket und die einschlägigen Emitter-Tests bestehen. Die Fehlerprobe erzwingt je einen falschen Bulk-, Einzelzeilen- und Direct-/Deferred-Vergleich und bestätigt jeweils nur eine Diagnose trotz `TRICE_TEST_NO_STOP=1`. Die kurzen PC-Workflows bestehen mit Insert und Bind. Eine komplette Ringpuffer-Einzelzeilenkonfiguration sowie die kombinierte Direct-/Deferred-Konfiguration und alle drei zuvor betroffenen Spezialfälle bestehen unter Insert; die kombinierte Konfiguration und Spezialfälle bestehen auch unter Bind. Der unabhängige `Fish`-Fall ist Teil der Ringpuffer-Einzelzeilenprüfung. Ein ad hoc Bind-Mehrpaketlauf ohne den vorgesehenen Go-Cache-Reset lieferte zunächst einen leeren Direct-Wert; der kontrollierte Bind-Einzellauf nach `go clean -cache -testcache` bestand. Für die abschließende Matrix den regulären PC-Test-Worker mit seinem Cache-Reset verwenden. Markdownlint für das geänderte UM besteht. Die vollständige Full-Matrix bleibt bei R16.
-
-**Verbindliche Ausgaberegel: Trice darf die Zeichenfolge `untagged:` niemals selbst zu einer Logmeldung hinzufügen.** Sie darf in der sichtbaren Meldung nur vorkommen, wenn die Anwendung sie selbst als Text geliefert hat. Das gilt für Text, JSON und KV und ausdrücklich auch bei `-color off`. Bei `trice("hi")` lautet die sichtbare Message deshalb `hi`, ohne `untagged:` vor oder innerhalb des Textes. Die interne Klassifizierung heißt trotzdem `untagged`; JSON/KV dürfen dafür ein separates Tag-Metadatum mit dem Wert `untagged` ausgeben. Filterung, Gewicht, Farbe und Ereignisstatistik verwenden weiterhin diese Klassifizierung. Ein vom Anwender tatsächlich gelieferter Text `untagged:` darf nicht pauschal entfernt werden.
-
-| Format | Ausgabe für `trice("hi")`, ohne weitere Metadaten |
-| --- | --- |
-| Text | `hi` |
-| JSON | `{"tag":"untagged","level":"INFO","message":"hi"}` |
-| KV | `tag=untagged level=INFO message="hi"` |
-
-Bei einem unbekannten Präfix wie `trice("mgs:blah")` bleibt die Message `mgs:blah`, während das Tag-Metadatum `untagged` lautet. Dadurch bleibt auch ein möglicher Tippfehler sichtbar. Die bestehenden Darstellungsregeln für ausdrücklich geschriebene bekannte Tags bleiben erhalten; ebenso die Regeln für Leerraum und Zeilenabschluss. Anwendertext darf nicht durch pauschales Entfernen gleichlautender Textstücke verändert werden.
-
-Die damaligen Protokolle `_630_test_pc_targets_insert.log` und `_640_test_pc_targets_bind.log` enthielten pro Workflow 14.655 fehlgeschlagene Einzelzeilen-/Spezialvergleiche. Der Abgleich aller erwarteten und tatsächlichen Strings ergab in beiden Workflows dieselben Abweichungen. Die folgende Tabelle beschreibt ausschließlich den **damals beobachteten Fehler**: `tatsächlich` ist keine gewünschte neue Testerwartung. Insbesondere bleibt `Hello World!` der richtige Erwartungswert; `untagged:Hello World!` war der zu behebende Ist-Wert.
-
-| Ursache | Konkreter Unterschied | Häufigkeit je Workflow |
-| --- | --- | ---: |
-| Unerwünschtes automatisch ergänztes Präfix bei `-color off` | Erwartet `Hello World!`, tatsächlich `untagged:Hello World!`; entsprechend bei anderen ungetaggten Meldungen | 14.581 |
-| Veralteter Feldname im manuellen JSON-Beispiel | Erwartet `... Birn:2, Fisch:2.781000}`, tatsächlich `... Birn:2, Fish:2.781000}` | 74 |
-
-Das unerwünschte Präfix betrifft die Vergleiche mit den `//exp:`-Erwartungen in [triceCheck.c](../../_test/testdata/triceCheck.c), außerdem die Spezialfälle `dblB_de_protect_tcobs_ua`, `ringB_de_protect_tcobs_ua` und `modify_for_debug`. Bei zwei getrennten ungetaggten Aufrufen mit `Hello ` und `World!` muss die zusammengesetzte Textausgabe `Hello World!` bleiben. Das derzeit beobachtete `untagged:Hello untagged:World!` verletzt diesen Vertrag; die Klassifizierung beider Ereignisse bleibt trotzdem jeweils `untagged`. Der unabhängige `Fish`-Unterschied stammt aus `exampleOfManualJSONencoding()`: Der Formatstring verwendet bereits `Fish`, nur die Erwartung an der aufrufenden Teststelle enthält noch `Fisch`.
-
-Je gewöhnlicher Einzelzeilenkonfiguration sind es 197 Präfixabweichungen und eine `Fish`-Abweichung. Die kombinierten Direct-/Deferred-Konfigurationen prüfen beides zweimal. Die drei genannten Spezialtests haben jeweils eine Präfixabweichung. Die hohen Summen entstehen durch Wiederholung über die Konfigurationen, nicht durch ebenso viele verschiedene Ursachen.
-
-[Der Bulk-Vergleich](../../_test/testdata/cgoPackage.go) schneidet nach der erwarteten Textlänge weiter. Bereits das erste zusätzliche `untagged:` verschob in den früheren Protokollen die folgenden Ausschnitte; jeder der acht Bulk-Läufe meldete deshalb 1.743 Textunterschiede und Restdaten. Diese Folgefehler waren kein unabhängiger Nachweis eines Framing- oder Übertragungsdefekts. Nach der Korrektur besteht der gezielt ausgeführte Ringpuffer-Bulk-Lauf unter Insert und Bind; alle Bulk-Konfigurationen bleiben Teil der Full-Matrix bei R16.
-
-Umgesetzt: Die automatisch zugewiesene Klassifizierung verändert den Message-Text in Text, JSON und KV nicht mehr. Die vorhandenen präfixfreien Erwartungen blieben erhalten; die separate `Fisch`-Erwartung lautet jetzt `Fish`. Weder Testausgaben noch Erwartungen wurden pauschal um `untagged:` bereinigt beziehungsweise erweitert. Verhaltenstests und die betreffenden UM-Aussagen folgen dem präzisierten Vertrag.
-
-**Früher Testabbruch:** Vor der Korrektur koppelte `keepCheckingAfterFailure()` das Weiterprüfen innerhalb eines Pakets an `TRICE_TEST_NO_STOP=1`. Dadurch meldete der Bulk-Vergleich nach dem ersten Längenfehler Tausende Folgeunterschiede; die Einzelzeilenprüfung führte noch alle übrigen Logaufrufe aus. Die Bulk-, Einzelzeilen- und kombinierten Direct-/Deferred-Tests brechen jetzt innerhalb **jeder Konfiguration beim ersten fehlgeschlagenen Vergleich ab**. Die Diagnose nennt Index, Source-Zeile sowie erwarteten und tatsächlichen Wert und markiert die Konfiguration als fehlgeschlagen. Der äußere [PC-Test-Worker](../../scripts/_160_pc_target_test_worker.sh) diagnostiziert bei `--no-stop` fehlgeschlagene Bulk-Konfigurationen weiterhin einzeln und prüft danach die **nächste Konfiguration**; ohne `--no-stop` bleibt der bisherige Abbruch des Workflows nach Fehler und Gegenprobe. `-failfast` allein ersetzt den Rücksprung aus einer bereits laufenden Vergleichsschleife nicht.
-
-Ein erster Fehler darf unabhängige Fehler nicht dauerhaft verdecken: Der `Fish`-Fall und die `untagged`-Ausgabe sind auch in gezielten, voneinander unabhängigen Verhaltenstests abgesichert. Im erfolgreichen Durchlauf bleiben sämtliche bisherigen Testfälle und Assertions aktiv; nur die Fehlerdiagnose endet pro Konfiguration früher. Der Bulk-Vergleich zählt nach einem Längenunterschied keine verschobenen Ausschnitte als eigenständige Fehler weiter.
-
-**Abnahme:** Ungetaggte und unbekannt getaggte Meldungen in Text, JSON und KV prüfen, einschließlich `-color off`, zusammengesetzter Textfragmente und unverändertem Leerraum: Ohne wörtliches `untagged:` im Anwendungstext enthält keine ausgegebene Meldung diese Zeichenfolge; ein vom Anwender gelieferter gleichlautender Text bleibt erhalten. JSON/KV enthalten `tag="untagged"` und den unveränderten Message-Text; explizite bekannte Tags folgen weiterhin ihren bisherigen Regeln. Nachweisen, dass Auswahl über `untagged`, Gewichtsschwellen, Farbe und Ereignisstatistik weiterhin auf der Klassifizierung beruhen. Einen absichtlich ausgelösten frühen Fehler in Bulk, Einzelzeile und Direct/Deferred prüfen: jeweils genau ein aussagekräftiger Vergleichsfehler pro Konfiguration, aber unter `--no-stop` läuft die nächste Konfiguration weiter und der Gesamtschritt bleibt FAIL. Den unabhängigen `Fish`-Fall separat prüfen. Eine Bulk-/Einzelzeilenkonfiguration, eine kombinierte Direct-/Deferred-Konfiguration und die drei Spezialfälle gezielt nach Insert und Bind prüfen. Anschließend vollständige Matrix im finalen Lauf. Alle bisherigen Assertions und Konfigurationen bleiben erhalten; eventuelle dann noch sichtbare Abweichungen getrennt untersuchen.
-
-### Kopierbare Dokumentationsbeispiele berichtigt
-
-**R02 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Im [UM](../rm/README.md) ist die alternative CE-Regel für Position und Geschwindigkeit syntaktisch gültig. Die ABC-Dateinamen und ihr Standardort `generated/` entsprechen der CLI; ein expliziter Zielpfad bleibt möglich. Das nicht vorhandene `-tilCS`-Beispiel wurde durch eine zutreffende C#-Integrationsnotiz ersetzt. Das Testkapitel nennt die heutigen Skripte und `_test`; die Release-Kommandos sind einzeln kopierbar. Der Link im [PC-Feature-Beispiel](../../examples/PC_features/README.md) verwendet die versionierte Schreibweise `ReadMe.md`.
-
-**Gezielte Abnahme:** Isolierte Bind- und ABC-Tests prüfen die CE-Regel sowie generierte Namen und Pfade. Die CLI weist `-tilCS` als unbekannten Schalter ab. UM-Format und Markdownlint bestehen; die lokale Linkprüfung für UM und PC-README findet keine Fehler. Die netzabhängige vollständige Linkprüfung war in dieser Umgebung wegen blockierter Verbindungen zu externen Websites nicht abschließbar. Release-/Git-Kommandos wurden nicht ausgeführt.
-
-### Fehlerstatus bei fehlgeschlagenem Clean erhalten
-
-**R03 · Gewicht 5 · Aufwand S · Umsetzung abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die vier betroffenen Buildskripte speichern den echten Status von `trice clean`, bevor sie ihn auswerten. Ein allein fehlgeschlagenes Clean führt zum Fehlerstatus und meldet dessen Exitcode; ein bereits fehlgeschlagener Build oder eine Unterbrechung behalten ihren ursprünglichen Status. Das vereinfachte Cleanup-Beispiel im UM reicht Clean-Fehler ebenfalls weiter, ohne im normalen Abschluss erneut zu bereinigen.
-
-**Gezielte Abnahme:** Isolierte Verhaltenstests führen alle vier Skripte mit erfolgreichem Build und Clean, Clean-Fehlercode 23, vorigem Build-Fehlercode 17 sowie SIGINT und SIGTERM aus. Pro Lauf werden Vor- und Nach-Clean genau einmal aufgerufen; Status und Warnung stimmen in allen Fällen. Shell-Formatprüfung, ShellCheck und die vollständige `scripts`-Testsuite bestehen.
-
-### Automatisches Nachladen wiederhergestellt
-
-**R04 · Gewicht 5 · Aufwand M · Umsetzung abgeschlossen; abschließende Full-Matrix bei R16**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Entscheidung: Automatisches Nachladen bleibt ein wichtiges zugesagtes Feature. Der Logger überwacht die Verzeichnisse der geladenen TIL-/LI-Dateien und verarbeitet damit auch atomaren Dateiersatz durch Bind/Insert. Rasche Folgespeicherungen gehen nicht mehr in einer fünfsekündigen Sperre verloren. Vollständig eingelesene Tabellen werden unter gemeinsamem Schreib-/Leseschutz ersetzt; Decoder, Positionsausgabe und Statistik verwenden denselben Schutz. Fehlerhafte, leere oder vorübergehend fehlende Dateien lassen den letzten gültigen Stand unverändert und werden erneut eingelesen. Diagnoseausgaben gehen auf stderr; gleiche wiederholte Lesefehler erzeugen keinen Warnungsstrom. Beim Verlassen des Loglaufs werden Watcher und Timer beendet und ihr Abschluss abgewartet.
-
-Das [UM unter Easy-to-use](../rm/features.md#easy-to-use) erklärt Bedienung und Grenzen: TIL und LI sind keine dateiübergreifende Transaktion, `{}` leert die jeweilige Tabelle absichtlich, eine beim Start fehlende LI-Datei bleibt für diesen Loglauf deaktiviert, und bereits deaktivierte Visualisierungsregeln werden nicht automatisch wieder aktiviert. Allgemeine Signal-/Receiver-Lebenszyklen bleiben Gegenstand von R08.
-
-**Gezielte Abnahme:** [Watcher-Tests](../../internal/id/fileWatcher_test.go) prüfen reale Schreib-/Ersetzungsereignisse, Wiederanlage, ungültiges JSON ohne Teilübernahme, Wiederholung ohne Folgeereignis, stille Fehlerwiederholungen, abgeschaltete Pfade, Backendfehler und Ressourcenfreigabe. [CLI-Integrationstests](../../internal/args/fileWatcher_test.go) betreiben jeweils einen laufenden Logger für Text, JSON und KV mit echter Dateieingabe: geänderte Feldschemata und Positionen, mehrfacher Dateiersatz, Weiterloggen bei defektem JSON, Erholung und fortlaufende Visualisierung. Diese Tests bestehen auch mit Race Detector; die betroffenen Go-Paketsuites bestehen. Die lange Full-Matrix wurde nicht erneut gestartet.
-
-### Kompatibilitätsvertrag und Release-Ziel festgelegt
-
-**R05 · Gewicht 5 · Aufwand S–M · Abgeschlossen; Release-Ziel v2.0.0 bestätigt**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Entscheidung des Anwenders: **v2.0.0 ist das verbindliche Release-Ziel**. Die nachgewiesenen absichtlichen Änderungen an veröffentlichten CLI- und Template-Schnittstellen sind inkompatibel; nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html) ist dafür ein Major-Schritt vorgesehen. Die Zahl der Brüche ist unerheblich. Ein v1.4.0 mit unveränderter Rückwärtskompatibilitätszusage beschreibt diesen Stand nicht zutreffend. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
-
-Nachweis: Der lokale Release-Tag `v1.3.0` zeigt auf `54ce845b069f989bfc762f28f6dd364954e6050f`. Sein unveränderter Quellstand wurde mit `git archive` in ein temporäres Verzeichnis extrahiert und dort mit lokal vorhandenen Abhängigkeiten gebaut. Das aktuelle Tool wurde aus Stand `768844f1` separat in die temporäre Ablage gebaut. Beide CLI-Binaries wurden mit identischen TIL-/TREX-Fixtures ausgeführt. Es wurden weder historische Dateien im Repo geändert noch alte Quellstände in den Worktree zurückgesetzt.
-
-| Vertrag | Beobachtete Änderung / zu dokumentierende Folge |
-| --- | --- |
-| CLI für C-Generierung | v1.3.0 erzeugt mit `generate -tilC` eine `til.c`; der aktuelle Host weist den Schalter mit Exitcode 2 ab. `-logC` hat einen auf aktuelle Source-Stellen bezogenen Vertrag. |
-| CLI für Location-Daten | v1.3.0 akzeptiert `-liPath base`; der aktuelle Host weist es mit Exitcode 2 ab. `-liRoot` und `-liMaxDirs` trennen jetzt Speicherung und Darstellung. **Beide veröffentlichten Vergleichsschemata verwenden `File` und `Line`; `Path` war ein unveröffentlichter Zwischenstand.** |
-| User-Tags | v1.3.0 akzeptiert `-ulabel alpha:beta` als zwei Tags. Der aktuelle Host weist `beta` als unbekannte Farbe ab. Je Tag eine Option verwenden; Doppelpunkt für Gewicht/Farbe. |
-| Formatstrings | Der alte Host gibt `literal={x}` und `set={1,2}` wörtlich aus. Der aktuelle Host erwartet bei `{x}` einen Wert beziehungsweise weist `{1,2}` als ungültigen Feldnamen ab. `{{x}}` erscheint im alten Host doppelt geklammert und im aktuellen Host als `{x}`. Ein neues `{x}` mit einem 32-Bit-Wert wird nur vom aktuellen Host als strukturiertes Feld dekodiert. |
-| Klassische Meldungen | Derselbe 32-Bit-Record mit `msg:count=%d` ergibt in beiden Hosts `count=7`; `hi` bleibt `hi`. [R01](#kein-automatisch-erzeugtes-untagged-präfix-ausgeben) ist umgesetzt: Automatische Klassifizierung als `untagged` fügt kein Präfix in den Meldungstext ein. |
-| Tag-Auswahl und Darstellung | Eindeutige Aliase und gewichtete Schwellen gelten pro Anwendungsereignis; Metadaten werden separat behandelt. Unbekanntes `-logLevel` oder `-pick` wird jetzt vor dem Öffnen der Eingabe abgewiesen; v1.3.0 akzeptiert dieselben geprüften Werte. |
-| Generierte Ablage | `generate -abc deviceX` erzeugt unter v1.3.0 `deviceX.h/.c` im Aufrufverzeichnis, aktuell unter `generated/`. `-genDir` ist der gemeinsame Verzeichnisschalter. |
-
-Wichtig: `-buildDir`/`-bindDir` und das zeitweilige LI-Feld `Path` waren Zwischenstände der neuen Arbeit, keine zusätzlichen Brüche gegenüber v1.3.0. Release Notes müssen veröffentlichte Änderungen von unveröffentlichten Umbenennungen unterscheiden.
-
-Der unterstützte Vertrag steht jetzt im [UM-Kapitel zur Firmware-/Host-Kompatibilität](../rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions), mit einer Kombinationstabelle und konkreten Vorher-/Nachher-Ausgaben. README und CLI-Hilfe verweisen auf beziehungsweise nennen die Template-Grenze. Historische Firmware, zugehörige TIL/LI, Host-Version und Decodieroptionen zusammen archivieren. Alte Firmware mit literalen Klammern bleibt mit ihrem passenden alten Host reproduzierbar; neue Quellen nutzen doppelte literale Klammern und werden neu instrumentiert und gebaut. Ein kompatibles Recordlayout allein ist keine pauschale Zusage für beliebig gemischte Target-Quellen, Wörterbücher und Hosts. Ein Decoderdiagnose-Record führt zudem nicht zwingend zu einem fehlerhaften Prozess-Exitcode; Abnahme muss Meldungen und Diagnosen prüfen.
-
-**Kein Migrationsprogramm und kein erneutes `-migrationBraces`.** Die früher verworfene Migration bleibt ausgeschlossen. Es geht um eine ehrliche Kompatibilitätsbeschreibung und gezielte Vergleichstests, nicht um still eingeführte Kompatibilitätsmechanismen.
-
-**Gezielte Abnahme:** Der neue Test `TestReleaseCompatibilityWithV130Dictionaries` in [structured_test.go](../../internal/args/structured_test.go) sichert klassische Meldungen, ungetaggten Text, historische Klammerfehler, aktuelle Escape-Schreibweise und benannte Felder mit echten TREX-Bytes ab; die TIL bleibt dabei bytegleich. Vorhandene CLI-, Generator-, Tag- und Template-Tests decken die übrigen aktuellen Verträge ab. Der direkte Zwei-Binary-Vergleich bestätigt die dokumentierten alten Ausgaben und CLI-Unterschiede; die Standardtests benötigen weder Git-Historie noch eine installierte alte Trice-Version.
-
-**Folgearbeiten:** Die Distributionsentscheidung ist getroffen: vorerst kein `/v2`, Installation über Binaries oder Repo-Checkout mit `./scripts/buildTriceTool.sh`. R14 sichert die dazugehörigen Anleitungen und Prüfungen ab. Go-Tests für `cmd`, `internal` und `pkg`, UM-Format, Markdownlint und lokale Linkprüfung bestanden. Die ausführlichen Release Notes bleiben R15, die vollständige Plattform-/Target-Abnahme R16.
-
-### Testbeschleunigung mit vollständigen PC-Matrizen geprüft
-
-**R06 · Gewicht 4 · Aufwand M · Umsetzung und vollständige PC-Gegenproben abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Der Auftrag umfasst R08/R09 und P01/P04. Die wiederholte 100-ms-Wartezeit bei endlichen Eingaben entfällt, Logaufrufe geben ihre Ressourcen frei, geeignete Konfigurationen decodieren gesammelt und der PC-Worker führt höchstens vier Konfigurationen gleichzeitig aus. Die ursprünglichen Erwartungen und die zusätzlichen Tests jedes Pakets bleiben enthalten. Eine Infrastruktur zur Zeitmessung jedes Einzeltests wurde nicht eingeführt.
-
-**Wiederherstellung nach Rechnerwechsel:** Der neue Checkout und der Server standen auf `c4bf94267d74e6e2dc07d03085a35c1425ee4ddb`; die Implementierungsänderungen waren darin noch nicht enthalten. Aus dem übertragenen Codex-Verlauf wurden 25 erfolgreiche Patch-Vorgänge für 19 Dateien einschließlich drei neuer Testdateien chronologisch rekonstruiert. Drei protokollierte fehlgeschlagene Patch-Versuche wurden ausgelassen. Die anschließende Formatierung und Prüfung erfolgten auf dem neuen Mac. Nicht protokollierte manuelle Änderungen und alte vollständige Logdateien lassen sich damit nicht beweisen oder wiederherstellen. Der [Leitfaden zum Rechnerwechsel](obsolete/docs/Codex_Rechnerwechsel_DE.md) ist inzwischen historisch archiviert; für die Aufgabenübergabe gelten heute die Tagged-Handover-Regeln in AGENTS.
-
-Die neue Abnahme erfolgte auf macOS/arm64 mit Go 1.25.3 und Apple Clang 21.0.0. Gemessen wurde die verstrichene Zeit des jeweiligen vollständigen verwalteten Workflows, einschließlich ID-Vorbereitung, Cache-Leerung, Kompilierung und Wiederherstellung. Alle Läufe verwendeten vier Worker. Die Werte sind Einzelmessungen und keine Hardware-unabhängige Laufzeitzusage.
-
-| PC-Workflow | Ausführungsmodus | Ergebnis auf dem neuen Mac | Gesamtdauer |
-| --- | --- | --- | --- |
-| Bind, vollständige Matrix | `auto` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 6 min 17,37 s |
-| Insert/Clean, vollständige Matrix | `auto` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 6 min 1,31 s |
-| Bind, vollständige Gegenprobe | `line-by-line` | 63 von 63 Paketen bestanden; ursprünglicher Dateistand exakt wiederhergestellt | 7 min 16,92 s |
-
-Die bestandenen Bind- und Insert-Läufe prüfen im Automatikmodus jeweils 30 Bulk-, 24 Einzelzeilen- und neun Spezialkonfigurationen. Die 54 gewöhnlichen Konfigurationen prüfen zusammen **129.130 erwartete Ausgaben pro Workflow**: 34 mit einem Kanal und 20 mit zwei Kanälen, jeweils 1.745 Erwartungen pro Kanal. Spezialtests und zusätzliche Verhaltenstests kommen hinzu. Die Gegenprobe bestand mit denselben 129.130 erwarteten Ausgaben, allen 54 gewöhnlichen Konfigurationen im Einzelzeilenweg und denselben neun Spezialkonfigurationen. Die Protokolle liegen lokal unter `temp/testtime-recovered-bind/`, `temp/testtime-recovered-insert/` und `temp/testtime-recovered-line/`; sie gehören nicht zum versionierten Stand.
-
-**Historischer Vergleich:** Im Full-Lauf vom 29./30. September benötigte PC/Insert 3 h 52 min 8 s und PC/Bind 3 h 52 min 29 s. Diese Läufe scheiterten an den bei R01 beschriebenen Ausgaben; sie sind keine erfolgreiche Ausgangsabnahme. Der Rechner und die Werkzeugversionen unterscheiden sich zudem vom neuen Lauf. Daher keinen belastbaren Beschleunigungsfaktor aus diesen Einzelwerten ableiten. Der separat protokollierte erfolgreiche neue Bind-Lauf auf dem alten Mac benötigte rund 4 min 17 s. Für den dort zuletzt gestarteten Insert-Lauf fehlt nach dem Rechnerwechsel ein verlässlich übertragener Abschluss.
-
-**Weitere Abnahme auf dem neuen Mac:** Die Go-Suites für `cmd`, `internal`, `pkg` und `scripts` bestehen. Gezielte Replay-/Lifecycle-Tests bestehen zusätzlich mit Race Detector. ShellCheck, Formatprüfung der geänderten Shell-/C-Dateien, UM-Format und Markdownlint bestehen. Ein erster eingeschränkter Go-Lauf scheiterte ausschließlich an den gesperrten lokalen TCP-/UDP-Testports; der anschließende Lauf mit erlaubtem Portzugriff bestand. Die gesamte `testAll full`-Suite einschließlich L432 und eine reale Windows-Matrix wurden hier nicht erneut ausgeführt; das bleibt R16. Die damals vorgesehenen Folgearbeiten [P02](#cache-nutzen-ohne-veralteten-c-code-zu-testen) und [P03](#l432-builds-isolieren-und-begrenzen) wurden anschließend getrennt umgesetzt und abgenommen.
-
-**Verbleibender Plattformhinweis für R16:** Im bestandenen Einzelzeilenlauf meldete Bash einmal `child setpgid ...: Operation not permitted`. Sämtliche Pakete, der Workflow-Exit und die exakte Dateiwiederherstellung waren erfolgreich. Der gezielte Test `TestPCWorkerCancellationReachesDescendants` bestand anschließend dreimal, jeweils für normale Jobs und einen Diagnose-Nachlauf einschließlich verzögert beendeter Kindprozesse. Die einmalige Meldung ist damit nicht reproduziert oder ursächlich erklärt; bei der Release-Abnahme auf die Prozessgruppenbildung und auf einen realen Matrixabbruch achten. Die Meldung wurde nicht unterdrückt.
-
-### CE-/SL-Integration und Feature-Beispiele verbindlich ausgewählt
-
-**R07 · Gewicht 5 · Aufwand M · Umsetzung und gezielte lokale Abnahme abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-[Schritt 515](../../scripts/_515_test_logging_features.sh) läuft einmal in `quick` und `full`. Er aktiviert gezielt `TestContextEnrichmentTargetToDecoder` und `TestContextInsertCleanTargetToDecoder`: C/C++-Records, Text/JSON/KV, Feldtypen und Stempel, Bind, Insert/Clean-Rücknahme, abgeschaltetes Logging und einmalige Auswertung. Die bestehenden SL-Unit-Tests und bisherigen Bind-Prüfungen bleiben erhalten und werden nicht zusätzlich im neuen Schritt wiederholt.
-
-Die kleinen Nachweise `TestContextEnrichmentPoC` und `TestContextEnrichmentPoCRebaseScopeBoundary` laufen als separat bezeichnete Gruppe mit. Der große experimentelle `TestContextEnrichmentRebasePoC` bleibt gezielt aufrufbar; sein Aufruf und die begrenzte Aussagekraft der jeweils verfügbaren Compiler stehen im UM. Daraus folgt weiterhin keine produktive CE-Unterstützung für Wrapper/Rebase.
-
-Die unveränderten [PC-Ausgabeprüfungen](../../examples/PC_features/check_output.sh) und [G0B1-Buildprüfungen](../../examples/G0B1_features/check_build.sh) laufen in einer frischen Kopie der benötigten versionierten Dateien. Dabei werden aktuelle Worktree-Bytes einschließlich lokaler Source-Änderungen kopiert, keine früheren Objekte oder Captures. Originalquellen, gemeinsame `exampleData`-Dateien, TIL/LI und benutzereigene generierte Dateien bleiben unberührt. Erfolgreiche Kopien werden entfernt, fehlgeschlagene bleiben neben den Logs erhalten. Nichtleere ELF/HEX/BIN-Dateien sind zusätzliche Pflichtnachweise für G0B1.
-
-Fehlende Werkzeuge führen bei `quick` zu einem ausdrücklich sichtbaren `WARN`, bei `full` zum Fehler. Ausgewählte Go-Tests müssen namentlich `PASS` melden; leere Auswahl oder übersprungene Untertests zählen als Fehler. Ein Fehler beendet den Schritt ohne Folgeprüfungen; Abbruch-Exitcodes bleiben erhalten. Die [Library CI](../../.github/workflows/trice_lib_reusable.yml) installiert zusätzlich das bereits von den Tests benötigte clangd und ruft denselben Schritt mit `full` auf.
-
-**Gezielte Abnahme:** Die vier ausgewählten Go-Tests, die PC-Ausgabeprüfung und der G0B1-Firmwarebuild bestanden lokal auf macOS mit Clang/clangd und ARM GCC. [Verhaltenstests](../../scripts/logging_features_test.go) prüfen Auswahl und Einmaligkeit, fehlende Werkzeuge, leere/übersprungene Go-Auswahl, Fehlerabbruch, Signal-Exitcodes, fehlende/leere Firmware und unveränderte Originaldateien bei Erfolg und Fehler. Ein echter Windows-/Linux-Lauf, die Ausführung auf einem G0B1-Board und der GitHub-CI-Lauf wurden hier nicht durchgeführt; diese Plattformnachweise bleiben R16. Der vorherige Full-Lauf mit 25 Schritten bleibt historische Abnahme; die neue Auswahl umfasst 26 Schritte.
-
-Die zusätzliche Abnahme durch den tatsächlichen Runner, mit ausschließlich Schritt 515 und strenger `full`-Werkzeugprüfung, bestand in **37 Sekunden für den Schritt**, einschließlich der abschließenden Dateizustandsprüfung **39 Sekunden insgesamt**. Das sind lokale Messwerte auf diesem Mac mit vorhandenem Go-Buildcache. Die Protokolle liegen unter `temp/log/r07-validation/`; der vorhandene Standardbericht wurde nicht überschrieben und zeigt inzwischen den späteren grünen Quick-Lauf mit 19 Schritten und 312 Sekunden. `go test ./scripts -count=1`, ShellCheck, Shellformat, Actionlint, UM-Format und Markdownlint bestehen. Für R07 wurde die gesamte Full-Matrix nicht erneut gestartet.
-
-### Ressourcen und Signalbehandlung pro Loglauf abgeschlossen
-
-**R08 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-[Translate](../../internal/translator/translator.go) meldet seine Signalbehandlung beim normalen Abschluss wieder ab und wartet auf das Ende der zuständigen Goroutine. Der nutzlose periodische Ticker entfällt; die bestehende kurze Schonfrist nach SIGINT/SIGTERM bleibt erhalten und lässt sich beim normalen Abschluss abbrechen. Statistik, Diagnosen und Signal-Exitcode bleiben erhalten.
-
-`binaryLogger.Close` und `bytesViewer.Close` reichen das Schließen an ihre besessenen Ressourcen weiter. Eingabe und Binärlogdatei werden genau einmal geschlossen, auch wenn eine Schließoperation fehlschlägt; der geliehene Diagnose-Writer bleibt offen. Der CLI-Loglauf schließt die vollständige Wrapperkette sofort nach `Translate`, bevor ein weiterer Loglauf beginnen könnte. Schließfehler gehen an den Aufrufer zurück.
-
-**Abnahme:** [Lifecycle-Tests des Translators](../../internal/translator/lifecycle_test.go) starten und beenden die Signalbehandlung wiederholt und prüfen den Abschluss während der Schonfrist. Die Signal-Prozessprüfung in [translator_delta_test.go](../../internal/translator/translator_delta_test.go) prüft SIGINT und SIGTERM mit Bereitschaftssignal statt Warteannahme, genau einen Input-Close und erfolgreichen Exit. [CLI-Lifecycle-Tests](../../internal/args/lifecycle_test.go) prüfen echte Eingabe-/Binärdateien unter beiden Wrappers bei EOF, Lesefehler, Schreibfehler und Schließfehler; [Receiver-Tests](../../internal/receiver/receiver_test.go) prüfen Besitz und wiederholtes Close. Die gezielten Lifecycle-Tests bestehen auch mit Race Detector.
-
-### Endliche Eingaben ohne pauschale Wartezeit abgeschlossen
-
-**R09 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die bisherige 100-ms-Mindestlaufzeit pro endlichem Logaufruf ist entfernt. Der TREX-Decoder gibt EOF erst zurück, wenn nach dem tatsächlichen Eingabeende keine gepufferten vollständigen Records mehr verarbeitet werden können. Ein leerer Record ist Fortschritt und beendet die Ausgabe nicht vorzeitig. Endliche Quellen schließen dann sofort ab; ein begonnenes letztes Textfragment wird weiterhin ausgegeben. Normales EOF erzeugt keine zusätzliche Diagnose im Text-/JSON-/KV-Ausgabekanal.
-
-Ungeframte, fragmentiert gelesene Header und Nutzdaten bleiben bis zur Vervollständigung erhalten. Ein unmöglicher Längenwert eines bekannten festen Recordtyps beziehungsweise eine unbekannte ID geht weiterhin durch die Resynchronisierung. `FILE` bleibt eine Live-Quelle; `TCP4BUFFER` endet erst bei echtem Peer-EOF, nicht bei einem kurzzeitig leeren Read. Die bestehende Pause gegen beschäftigtes Warten bei inaktiven Live-Quellen bleibt erhalten.
-
-Der historische Befund erklärt den großen Gewinn: Je Workflow liefen 34 gewöhnliche Konfigurationen mit etwa 183–185 Sekunden und 20 Direct-/Deferred-Kombinationen mit etwa 365 Sekunden, jeweils mit 1.745 Erwartungen pro Kanal. Allein 100 ms für `2 × (34 + 2 × 20) × 1.745` Logaufrufe ergeben rechnerisch **7 Stunden 10 Minuten 26 Sekunden**. Go/C-Übergänge waren damit nicht als Hauptursache nachgewiesen; auch der neue Bulk-Weg führt weiterhin jede C-Teststelle aus.
-
-**Abnahme:** [Replay-Tests](../../internal/translator/lifecycle_test.go) verwenden echte TREX-Bytes: Daten und EOF im selben Read, mehrere gepufferte Records einschließlich leerer Meldung, Byte-für-Byte-Eingabe, verkürztes Endpaket, 16-/32-Bit-Stempel, doppelte 16-Bit-ID, langen Laufzeitstring, Abschlussfragment und Live-Pausen. Begrenzte Read-Zahlen weisen nach, dass endliche Eingaben nicht weiter gepollt werden. Die bestehenden Decoder-, Translator- und CLI-Suites prüfen zusätzlich Filter, Stempel, strukturierte Ausgabe und Ausgabefehler. Der Zeitvergleich steht bei R06.
-
-### SL- und CE-Kapitel vollständig ins Englische übertragen
-
-**R11 · Gewicht 5 · Aufwand M–L · Umsetzung abgeschlossen; für den Merge vorgezogen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die Kapitel „Structured Logging“ und „Trice Context Enrichment“ im [UM](../rm/structured_logging.md) sind vollständig englisch, einschließlich aller Tabellen, Beispiele, Einschränkungen, Fehlererklärungen und des kapitelinternen CE-PoC-Anhangs. Auch der aktive CE-Absatz unter „Future Development“ ist übersetzt. Arbeitsauftragsnummern A9/A10 sind innerhalb dieser Kapitel durch fachliche Beschreibungen ersetzt; die experimentelle Wrapper-/Rebase-Unterstützung bleibt ausdrücklich von der produktiven Unterstützung getrennt. Testnamen, Testpfade und Funktionsumfang bleiben unverändert. Die weitere Bereinigung des Bind-/Visualisierungs-Kapitels und paralleler Dokumente bleibt R10.
-
-Die vollständigen deutschen Originale vor der Übersetzung liegen als datierte Kapitelkopien unter [Structured_Logging_DE_2026-10-04.md](obsolete/Structured_Logging_DE_2026-10-04.md) und [Context_Enrichment_DE_2026-10-04.md](obsolete/Context_Enrichment_DE_2026-10-04.md). Auf weiteren Benutzerauftrag sind auch die verbliebenen deutschen Texte unter `bind-limits` und die deutsche Scratch-Pad-Notiz übersetzt; ihre Originale liegen unter [Remaining_Manual_Texts_DE_2026-10-04.md](obsolete/Remaining_Manual_Texts_DE_2026-10-04.md). `bind-limits` verweist nun ausdrücklich auf den vorhandenen Architektur-PoC und unterscheidet dessen Nachweis von der weiterhin zurückgestellten produktiven Integration. Bereits vorhandene Archive wurden nicht geändert. Die Kopien behalten die damaligen Überschriften und Verweise als historische Referenz; sie werden nicht als eigenständige Manuals gepflegt.
-
-**Gezielte Abnahme am 4. Oktober:** Die Archivkopien stimmen bis auf den abschließenden Leerraum bytegenau mit den ursprünglichen vollständigen Kapiteln überein. Alle 47 Code-/Ausgabeblöcke sind unverändert und in gleicher Reihenfolge vorhanden. Der fachliche Absatzvergleich erhält insbesondere `message` und Leerraum, flache Punktnamen, Typen/NaN/64-Bit-Werte, getrennte Stempel-/Delta-Metadaten, CE-Regelreihenfolge, exakten Suffix-Match, lokale Sichtbarkeit, einmalige Auswertung und die unterschiedlichen Bind-/Insert-Grenzen. mdtoc erzeugt ToC, Nummerierung und Anker neu; Markdownlint und mdtoc-Check bestehen. Aktive eingehende Links zu den übersetzten Kapitelankern sind angepasst; `bind-limits` bleibt erhalten.
-
-Die strengere lokale Lychee-Prüfung mit Fragmenten hatte außerhalb des Auftrags den Link `#Trice Parameter Bit Widths` im Target-Code-Überblick beanstandet. Der Benutzer hat ihn anschließend auf `#trice-parameter-bit-widths` korrigiert. Der parallel gestartete Full-Test bestand alle 26 Einzelschritte; seine abschließende Byte-Prüfung meldete die parallel beauftragten Dokumentationsänderungen. Der anschließende Quick-Lauf bestand einschließlich Zustandsprüfung (20 Schritte, 380 Sekunden). Produktcode und Testauswahl wurden für R11 nicht verändert. Das ist weiterhin kein vollständiger Release-Nachweis nach R16.
-
-### Bulk als regulärer PC-Testweg mit verwertbarer Fehlerdiagnose
-
-**P04 · Gewicht 4 · Aufwand M–L · Umsetzung abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-`TRICE_PC_TEST_MODE=auto` wählt im [gemeinsamen Harness](../../_test/testdata/cgoPackage.go) den nachgewiesenen Weg je Konfiguration. Von 63 Paketen verwenden 30 Bulk, 24 weiterhin den Einzelweg und neun ihre speziellen Tests. Framed Direct und Deferred werden getrennt gesammelt und decodiert. Der bisherige Transfer nach jeder C-Teststelle bleibt dort erhalten, wo kleine Puffer ihn benötigen; die ursprünglichen acht Deferred-Bulk-Fälle behalten ihre Mehrstellen-Transfers zur Prüfung des Pufferns. Ungeframte Kanäle bleiben einzeln, damit Padding und Paketgrenzen nicht durch Verkettung verändert werden.
-
-Alle 1.745 Erwartungen pro gewöhnlichem Kanal und sämtliche weiteren Tests in jedem Paket bleiben aktiv. Erfolgreiche Bulk-Konfigurationen werden nicht nochmals vollständig einzeln ausgeführt. `TRICE_PC_TEST_MODE=line-by-line` bleibt als explizite Gegenprobe verfügbar. Ein Overlay verwendet die zentralen Harness-Vorlagen, ohne 61 generierte Kopien umzuschreiben.
-
-Der erste Bulk-Unterschied nennt `triceCheck.c:<Zeile>`, Erwartungsindex, Kanal, Byteposition, Soll/Ist mit sichtbaren Steuerzeichen und begrenzten Kontext. Mehrzeilige und leere Erwartungen behalten ihre Grenzen. Die genannte Zeile ist die erste abweichende Erwartung, nicht zwingend die Ursache einer früheren Datenstrombeschädigung. Original-Binärstrom und kompletter Text bleiben im konfigurationsbezogenen Logverzeichnis erhalten. Eine automatische Einzelgegenprobe nach einem Bulk-Fehler kann dessen Gesamtexit nicht wieder auf PASS setzen.
-
-**Abnahme:** Deskriptive Harness-Tests prüfen richtigen, veränderten, fehlenden und zusätzlichen Text sowie leere und mehrzeilige Erwartungen. Der [C-gestützte Fehlerproben-Test](../../_test/ringB_de_multi_cobs_ua/cgo_test.go) beweist den ersten Abbruch für Einzel-, Bulk- und kombinierten Weg und prüft erhaltene Binär-/Textartefakte. Die vollständigen Matrixvergleiche stehen bei R06.
-
-### PC-Konfigurationen begrenzt parallel geprüft
-
-**P01 · Gewicht 4 · Aufwand M · Umsetzung abgeschlossen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Der [PC-Worker](../../scripts/_160_pc_target_test_worker.sh) startet standardmäßig höchstens vier Konfigurationen als getrennte Prozesse. `TRICE_PC_TEST_JOBS` erlaubt eine andere positive Grenze, einschließlich `1` für seriellen Betrieb. Globale Go-/C-Zustände werden nicht mit `t.Parallel` geteilt. Jede Konfiguration besitzt ein eigenes `output.log`; pro Lauf entsteht ein neues Verzeichnis unter `temp/log/pc-<workflow>.<Lauf>/`.
-
-ID-Vorbereitung und Wiederherstellung bleiben außerhalb der parallelen Phase. Ohne `--no-stop` wird nach dem ersten erkannten Fehler nur die bereits gestartete Gruppe beendet und keine weitere Gruppe begonnen. Mit `--no-stop` laufen die übrigen Konfigurationen weiter, der Gesamtexit bleibt fehlerhaft. Ein Abbruch erreicht auch Compiler-/Test-Kindprozesse und automatische Diagnose-Nachläufe; der Worker wartet vor der Source-Wiederherstellung auf deren Ende.
-
-Fehlerberichte nennen Workflow, Konfiguration, Logpfad, relevante Diagnose und einen Reproduktionsaufruf. Auch der stille äußere `testAll`-Runner zeigt konkrete Fehlerausschnitte statt nur FAIL. Der Reproduktionsaufruf setzt denselben vorbereiteten ID-Zustand und die passenden Compiler-Include-Pfade voraus; der verwaltete Workflow stellt diese weiterhin bereit. Die groben Fortschrittsgewichte berücksichtigen den verkleinerten Anteil der PC-Matrizen.
-
-**Abnahme:** [Isolierte Worker-Verhaltenstests](../../scripts/pc_target_worker_test.go) prüfen seriellen Erfolg, tatsächliche parallele Überlappung, Jobgrenze, getrennte Logs, Fail-fast, `--no-stop`, Fehlererhalt trotz erfolgreicher Gegenprobe, ungültige Steuerwerte und Abbruch einschließlich verzögert beendeter Kindprozesse im normalen und diagnostischen Lauf. [Runner-Tests](../../scripts/portability_test.go) prüfen die konkreten Fehlerdetails auch bei stiller Ausführung. Die vollständige `scripts`-Suite besteht. Die beschriebenen Signal-Prozessprüfungen laufen unter POSIX; eine reale Windows-Matrix bleibt Teil von R16.
 
 ## Bestandszuordnung und Befunde der Repo-Prüfung
 
@@ -921,67 +1157,3 @@ Für R12 reicht im öffentlichen Einstieg diese Karte: **Ausprobieren:** `demo` 
 **Abnahme R17:** Alle 2.239 Pfade sind den gezählten Hauptgruppen zugeordnet; Root-Dateien, Beispiele, Testfamilien, Experimente und aktive Dokumentationsgruppen sind zusätzlich aufgeschlüsselt. Referenzprüfung und Build-/Test-/Release-Verwendung begründen die Empfehlungen. Offene manuelle Nutzungen sind sichtbar. Sechs kleine Folgegruppen R21a–f und der Veröffentlichungsauftrag R22 ergänzen R10/R12/R15/R18–R20, ohne deren Arbeit doppelt zu beauftragen. Es wurde keine der empfohlenen Bereinigungen ausgeführt.
 
 **Prüfung des Ergebnisses:** Die Tabellenzählung wurde maschinell mit `git ls-files -z` verglichen: alle Hauptgruppen, alle 27 Root-Dateien und alle 1.116 Beispieldateien sind vollständig und ohne Doppelzuordnung erfasst; die sechs Experimentzahlen stimmen ebenfalls. Markdownlint wurde für diese normalerweise ausgeschlossene Plan-Datei ausdrücklich ausgeführt und besteht. Lokale Dateiziele ihrer Markdown-Links existieren; `git diff --check` ist sauber. Externe Webseiten wurden für diese Repo-Bestandsprüfung nicht erneut geprüft.
-
-## Hintergrund und Vorbemerkungen
-
-Stand: 4. Oktober 2026. Ursprüngliche Bestandsaufnahme auf Basis von Commit `9b4e2abb`, des lokalen Release-Tags `v1.3.0` und des abgeschlossenen Full-Testlaufs vom 29./30. September, ergänzt um die gezielte Abnahme der Testbeschleunigung und die Full-Läufe vom 3. und 4. Oktober. Die Repo-Bestandsprüfung R17 bezieht sich auf `cb4dda6495530ad33ed703301ee3df9625ecf3ce`; ihre Zuordnung und Folgeaufgaben stehen am Ende dieses Plans. Dieser Plan bleibt deutsch. Er erteilt **keinen Implementierungs-, Commit-, Issue- oder Release-Auftrag**.
-
-Ziel ist ein verlässliches Release der bereits vorhandenen Funktionen. Weitere Features sind dafür nicht erforderlich. Vorrang haben nachgewiesene Fehler, vollständige Abnahme und verständliche, zutreffende englische Anwenderdokumentation.
-
-**Beschlossenes Release-Ziel: v2.0.0.** Der Go-Modulpfad bleibt vorerst ohne `/v2`. Angeboten werden fertige Binaries und der lokale Build aus einem Repo-Checkout über `./scripts/buildTriceTool.sh`; versionierte Go-Modulinstallation von v2 wird vorerst nicht angeboten. R14 sichert diese Installationswege ab. Ein Tag oder eine Veröffentlichung sind damit nicht beauftragt.
-
-## Stand und Aussagegrenzen
-
-Untersucht wurden die CLI und ihre Hilfe, ID-Verwaltung und Generatoren, Bind und Insert/Clean einschließlich CE, Template-Parser, Decoder, strukturierte Ausgabe, Tags und Filter, Visualisierung, Transport- und Ausgabeabschluss, Target-Konfiguration und Testaufbau, Beispiele, aktives UM, README sowie Test- und Release-Workflows. Code und vorhandene Verhaltenstests wurden mit den dokumentierten Verträgen verglichen. Das ist eine breite statische Bestandsaufnahme mit konkreten Belegen, keine vollständige Fehlerfreiheitserklärung oder neue Hardware-Abnahme.
-
-Der vom Benutzer gestartete Lauf `./scripts/testAll.sh full --no-stop` wurde nach seinem Abschluss anhand der damaligen vollständigen Protokolle ausgewertet. Bei jener Bestandsaufnahme wurde kein weiterer Testlauf, Build, Formatter oder ID-Workflow gestartet. Die vier damals abweichenden Beispiel-JSON-Dateien wurden semantisch mit HEAD verglichen und zunächst unverändert gelassen. Ein späterer `testAll quick` für R13 hat die flachen Logdateien des Full-Laufs ersetzt; dessen hier festgehaltene Messwerte und Fehleranalyse bleiben historische Befunde.
-
-- Ergebnis laut der damaligen `testAll_summary.log`: **23 Schritte PASS, 2 Schritte FAIL**, Gesamtdauer **8 Stunden 12 Minuten 4 Sekunden**. Nur Schritt 630 (PC/Insert) und Schritt 640 (PC/Bind) scheiterten. Die L432-Matrix mit 101 Konfigurationen bestand und brauchte etwa **20 Minuten 14 Sekunden**.
-- Im damaligen Lauf führten beide PC-Workflows jeweils acht Bulk- und 63 Einzelzeilen-/Spezialkonfigurationen aus. Acht Bulk- und 57 Einzelzeilen-/Spezialläufe scheiterten, sechs Spezialläufe bestanden. Die fehlgeschlagenen Tests hießen jeweils `TestTriceLog`; es waren keine fehlgeschlagenen Compileraufrufe. Die spätere Beschleunigung und erfolgreiche PC-Abnahme stehen bei R06/R08/R09/P01/P04.
-- Sämtliche protokollierten Einzelzeilen-Abweichungen sind zwischen Insert und Bind identisch und fallen in zwei Gruppen: ein unerwünschtes automatisch ergänztes `untagged:` im ausgegebenen Meldungstext und einmal `Fisch` gegenüber tatsächlich ausgegebenem `Fish`. Nach der präzisierten Benutzerentscheidung bleibt `untagged` eine Klassifizierung und darf die Message nicht verändern; die Präfix-Erwartungen sind deshalb nicht pauschal zu erweitern. Der Bulk-Vergleich verschiebt nach dem ersten Längenunterschied weitere Ausschnitte und erzeugt dadurch umfangreiche Folgefehler. Einzelheiten und Abnahme stehen bei R01.
-- Schritt 600 führt eigenständige Builds von `PC_log` und `G0B1_log` aus. Die vier lokalen TIL/LI-Tabellen sind inzwischen auf dem aktuellen Source-Stand. R13 schützt ihren Anfangszustand und die zugehörigen lokalen Artefakte bei Testläufen; zwei gezielte identische Standalone-Builds pro Beispiel haben weder JSON-Bytes noch Datei-Inodes verändert.
-- Schritt 550 meldet **91,1 % Go-Statement-Coverage**. Das ist weder ein Vergleich mit der Zielbranch-Baseline noch Coveralls-Zeilenabdeckung oder Target-C-Abdeckung.
-- Die Compiler-/Decoder-Integrationstests für CE benötigen `TRICE_BIND_INTEGRATION=1`. Die ursprüngliche Auswahl ließ sie aus; R07 aktiviert sie jetzt gezielt in Schritt 515 für `quick`, `full` und die Library CI. Normale Go-Unit-/Coverage-Läufe bleiben davon getrennt.
-- Aktuelle GitHub-Issues und Live-CI-Ergebnisse wurden nicht vollständig abgeglichen. Vor einer späteren Issue-Erstellung sind vorhandene Issues auf Dopplungen zu prüfen. Dieser Auftrag erstellt keine Issues.
-
-Die erledigten A1–A10 und der CE-Folgeauftrag für Insert/Clean sind aus der offenen Liste entfernt. Ihre Details bleiben im [historischen Abschlussbericht](obsolete/Implementierungsplan_bis_A10.md). Die früheren M01–M16 und Handovers bleiben im vorhandenen Archiv. Ein historisch erledigter Implementierungsauftrag ersetzt keine heutige Regressionstest-Abnahme; die frühere A6-Notiz zur `untagged:`-Erwartung wird durch den bei R01 präzisierten Ausgabevertrag neu bewertet.
-
-Vorhanden sind insbesondere:
-
-- Structured Logging mit skalaren 8/16/32/64-Bit-Werten, `triceS`/`triceN`, Text, NDJSON und KV; benannte Pufferfelder bleiben ausdrücklich ausgeschlossen.
-- CE für direkte, zeileneindeutige Bind-Stellen und für erkannte Insert/Clean-Aufrufe einschließlich statischer Wrapperdefinitionen. Insert/Clean verwendet den vollständigen Format-/Argumentsuffix, ohne Herkunftskommentare.
-- Tag-Aliase, Gewichte, Auswahl, `untagged`, Ereignisstatistik, getrennte Diagnosen, Zeitstempel und Deltas, Visualisierung sowie gemeinsame generierte Ablage über `-genDir`.
-- `generate -logC`, zusätzliche `*.oneline.json`-Ansichten und die PC-/G0B1-Feature-Beispiele.
-- Erhaltene CE-PoCs einschließlich Wrapper-/Counter-Rebase-Untersuchung. Deren allgemeine produktive Integration ist weiterhin zurückgestellt.
-
-## Ziel für Dokumentation und Orientierung
-
-README und User Manual sollen zum Ausprobieren einladen: Nutzen schnell erkennen, einen überschaubaren Einstieg finden und erst bei Bedarf Details nachschlagen. Das bisherige ausführliche UM bleibt inhaltlich erhalten und wird zu `docs/TriceReferenceManual.md`. Ein neues, deutlich kürzeres `docs/TriceUserManual.md` übernimmt den geführten Einstieg.
-
-**Verbindliche Dokumentationsentscheidung:** Ein überschaubares UM und ein vollständiges RM sind gewünscht. Alle Trice-Anwendererklärungen zu den Beispielen gehören nach Inhalt in diese beiden Handbücher. Beispiel-READMEs enthalten ausschließlich Links auf ihre zentralen Anleitungen. Das UM verweist gezielt ins RM sowie in Beispiele, Code und Tests, damit Neuankömmlinge nicht zwischen verstreuten Anleitungen suchen müssen. Die Root-README bleibt der kurze Projekteinstieg. Diese Entscheidung ersetzt frühere Empfehlungen, eigenständige Anleitungen in Beispiel-READMEs zu pflegen.
-
-| Dokument | Aufgabe im künftigen Aufbau |
-| --- | --- |
-| `README.md` | Kurze Vorstellung, Nutzen, kleines Beispiel mit Ausgabe, verlässlicher Startpunkt und kompakte Repo-Orientierung. |
-| `docs/TriceUserManual.md` | Zusammenhängender, überschaubarer Einstieg vom ersten PC-Log bis zur eigenen Target-Anbindung; kurze Feature-Beispiele und gezielte Verweise ins RM, zu Beispielen, Code und Tests. |
-| `docs/TriceReferenceManual.md` | Vollständige Verträge, Optionen, Konfiguration, Grenzen, Hintergrund und CE-PoC-Anhang; fachlich maßgebliches Nachschlagewerk. |
-| Eigene `README.md`/`ReadMe.md` unter `demo` und `examples` | Ausschließlich relative Links auf die passende zentrale Anleitung im UM/RM; keine eigenständigen Anleitungsabsätze oder Kommandos. |
-| `docs/README.md` | Kurzer Dokumentationswegweiser mit Zielgruppe und Zweck der verbleibenden aktiven Dokumente; keine bloße Weiterleitungsdatei. |
-
-Reine Link-Forwarding-Dateien in `docs` entfallen, nachdem ihre aktiven eingehenden Verweise angepasst sind. Für das gesamte Repo wird der Zweck jedes Verzeichnisses und jeder Datei geprüft. Die öffentliche Übersicht bleibt kompakt; die vollständige Bestandsprüfung wird dadurch nicht ersetzt. R17–R21 ergänzen dafür die bestehenden R10–R12, ohne Übersetzung und Einstieg doppelt zu beauftragen. Jetzt wird ausschließlich geplant.
-
-## Gewichtung und Planungshinweise
-
-**Gewicht:** 5 = vor Release zu klären oder abzustellen; 4 = hoher Nutzen für Zuverlässigkeit, Dokumentation oder Testdauer; 3 = sinnvolle Wartung nach den dringenden Punkten; 2 = optionaler Ausbau; 1 = bewusst zurückgestellt.
-
-**Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
-
-Die Reihenfolge bevorzugt kleine Aufgaben, berücksichtigt aber Abhängigkeiten. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. R17 ist als lesende Bestandsprüfung abgeschlossen, nicht als Repo-Bereinigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
-
-## Vorschlag für die nächsten Aufträge
-
-Die bisher beauftragten Schritte der Gesamtaufgabe **Testzeit verkürzen** sind abgeschlossen: R06, R08/R09, P01/P04, die L432-Beschleunigung P03 und die gezielte Go-/CGO-Cache-Invalidierung P02. Umsetzung und Nachweise stehen unten; Laufzeiten je Skript sind inzwischen sichtbar. Eine Einzeltest-Zeitmessungsinfrastruktur wurde wie vereinbart nicht aufgebaut. Die produktive CE-/SL-Testauswahl **R07** ist umgesetzt. Die reale Windows-/Linux-Abnahme von P02 bleibt Bestandteil von R16. v2.0.0 ist weiterhin das bestätigte Release-Ziel.
-
-R10–R12, R17–R20, R21a–f und R23 sind abgeschlossen. README, kurzes UM und RM sind miteinander verbunden. Der nächste Dokumentationsschritt ist **R22 Pages-Abnahme**: Der Umfang der veröffentlichten Site und der vollständige gerenderte Weg müssen noch abgenommen werden, auch wenn R19 die beiden Manualpfade bereits vorbereitet und ihre Linkumsetzung testet. R18 oder R23 müssen dafür nicht erneut begonnen werden. Den Merge führt der Benutzer auf GitHub aus. Die Dateiablage allein rechtfertigt weder neue Features noch einen Umbau der STM32-Beispiele oder der Testmatrix.
-
-R14 sichert den beschlossenen v2-Distributionsweg ab; seine Installationsvorgaben werden bereits beim Schreiben des neuen Einstiegs verwendet. Danach R15/R16 für Release Notes und Abnahme beider Handbücher und des bereinigten Repos. P02 und F01 sind umgesetzt; die übrigen F-Aufgaben bleiben zur späteren Auswahl offen. Die deutsche Planung und historischen deutschen Texte bleiben außerhalb der englischen Anwenderdokumentation.
