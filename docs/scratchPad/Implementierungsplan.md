@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R14, R26 und R32 wurden anschließend jeweils mit „GO“ ausdrücklich freigegeben, umgesetzt und auf Windows geprüft. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
+Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R14, R15, R26 und R32 wurden anschließend jeweils mit „GO“ ausdrücklich freigegeben und auf Windows bearbeitet und geprüft. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
 
 ## Aufgabenübersicht
 
@@ -8,7 +8,7 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 | ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | --- | ---: | --- | --- |
-| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen; Restabnahme | Vorhandene Beta-Notes, Archive, Lizenzen und Feature-Audits am Kandidaten abnehmen | 5 | M | R14 lokal geprüft; aktuelle Quellen und beide PDFs |
+| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Windows lokal geprüft; Release-Abnahme offen | Veröffentlichte Beta-Assets und endgültige Downloadziele abnehmen | 5 | Rest S–M | Lokaler Snapshot geprüft; tatsächlicher Tag/Release und native Plattformnachweise stehen aus |
 | [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R14/R26/R32 lokal auf Windows geprüft; native CI, R15 und übrige ausgewählte Änderungen |
 | [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Offen; Bedarf ermittelt | Skriptverträge, check-Nebenwirkungen, alte Pflegewege und verwaiste Handover-Helfer klären | 4 | M | R26 zuerst; keine pauschale Umbenennung oder Neuorganisation |
 | [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Offen; gezielte Lücken | ABC, Standalone-Builds, CGO-/CLion-Einstiege und Bind-Dokumentation abgleichen | 4 | M | Vorhandene Bind-Matrix erhalten; Insert/Clean bleibt verfügbar |
@@ -28,6 +28,8 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 **R14-Testlage:** Der Checkout-Installer löst Windows-GOPATH-Pfade korrekt auf und schützt damit auch vorhandene Installationen. 380 Skripttests, der echte Checkout-CI-Schritt mit isoliertem GOBIN/GOPATH sowie ein neuer Snapshot mit Archivprüfungen bestehen auf Windows. Die neue CI-Matrix für Windows/Linux/macOS ist eingerichtet; ihre nativen GitHub-Läufe und Paketinstallationen bleiben R16. Modulpfad und Imports wurden nicht auf `/v2` umgestellt.
 
+**R15-Testlage:** Im isolierten Checkout von `41291b9f` plus den gezielten R15-Korrekturen bestehen Snapshot-Build, 28 Regressionstests, ausgepackte Windows-Tools für amd64/386 mit frischen Bind-/CE-Records sowie Lizenz-, Archiv-, PDF- und Offline-Linkprüfungen. Das UM hat 9, das RM 458 Seiten. Der Snapshot heißt aufgrund der vorhandenen Taghistorie `1.3.1-next`; damit sind die Veröffentlichung und Downloadziele von `v2.0.0-beta-1` noch nicht abgenommen. Details und verbleibende Schritte stehen bei R15; native Linux-/macOS- und Paketprüfungen bleiben R16.
+
 [Offene Release-Aufgaben](#konkrete-aufgaben-vor-dem-release) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Hintergrund](#hintergrund-und-vorbemerkungen) · [Erledigte Aufgaben](#erledigte-korrekturen) · [Historische Repo-Bestandsprüfung](#bestandszuordnung-und-befunde-der-repo-prüfung)
 
 ## Konkrete Aufgaben vor dem Release
@@ -35,21 +37,17 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 ### Release Notes und ausgelieferte Dateien prüfen
 
-**R15 · Gewicht 5 · Aufwand M**
+**R15 · Gewicht 5 · Windows lokal geprüft; veröffentlichte Assets noch offen**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
-**Aktualisierung vom 14. Oktober:** Der [Changelog](../../CHANGELOG.md) enthält inzwischen einen kurzen Abschnitt `v2.0.0-beta-1 (unreleased)` mit RM-Links. Release-Notes-Auswahl, taggebundene Veröffentlichung/Audits, Archiv-Lizenzen und ausgepackte Bind-/Text-/JSON-/KV-Prüfungen sind bereits implementiert. Nicht erneut als Neuentwicklung beauftragen. Offen bleibt die Abnahme dieser tatsächlichen Ergebnisse am festgelegten Kandidaten, einschließlich aktueller PDFs und Plattformgrenzen.
+**Lokale Abnahme vom 14. Oktober:** Snapshot, Archive, Lizenzen, Bind/CE mit Text/JSON/KV, beide PDFs und Release-Notes-Auswahl sind auf Windows geprüft. Die gezielten Korrekturen und vollständigen Nachweise stehen [bei den erledigten lokalen Arbeiten](#release-archive-und-handbücher-lokal-abnehmen). Offen bleibt die Abnahme der tatsächlich veröffentlichten Beta am anschließend festgelegten finalen Stand.
 
-Die [Installationsprüfungen](../../.github/workflows/install-checks.yml) und [Release-Prüfungen](../../.github/workflows/release-audit.yml) testen bereits Archive, Pakete, PDF und klassisches Decoding. Die vorhandene Feature-Abnahme mit den **ausgepackten** Tools und Target-Quellen gezielt ausführen: Bind bzw. Insert mit SL/CE, tatsächlich erzeugter Record, Text/JSON/KV und ausschließlich Anwendungsrecords auf dem maschinenlesbaren Kanal. Vorhandene plattformunabhängige Fixture und [_verify_release_features.cjs](../../scripts/_verify_release_features.cjs) verwenden.
+**Noch offen:**
 
-Toolchain-Restbefund, mit R27 abzustimmen: `go.mod` verlangt Go 1.25.0; der separat manuell gestartete Workflow `go.yml` nennt noch 1.24.0. Das muss keinen unmittelbaren Buildfehler verursachen, weil Go einen Toolchain-Wechsel auslösen kann, macht die geprüfte Umgebung aber unnötig unklar.
-
-Die unter R18/R19 getrennten Handbücher unter eindeutigen Namen ausliefern: `TriceUserManual` für den Einstieg und `TriceReferenceManual` für Details. Downloadlinks und Artefaktprüfungen müssen beide Dokumente dem richtigen Zweck zuordnen; die bisherige PDF-Prüfung nur umzubenennen reicht nicht.
-
-Mit R19 sind Erzeugung, GoReleaser-Assets und die lokalen/CI-Prüfeinstiege für beide PDFs vorbereitet und gezielt getestet. R15 prüft weiterhin das tatsächlich gebaute und ausgelieferte Gesamtpaket einschließlich der endgültigen Downloadziele; diese Release-Abnahme ist dadurch nicht vorweggenommen.
-
-Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` und `src/*.md` zusammengestellt. Beim ausgepackten Archiv ausdrücklich prüfen, ob die benötigten Lizenzinformationen vorhanden sind und die mitgelieferte `src/ReadMe.md` auch ohne Repo-Elternverzeichnis verständlich ist. Ihre relativen Verweise auf Root-Dokumente dürfen nicht ungeprüft als funktionierende Archivnavigation gelten. Fremdquellenhinweise erhalten; keine Vendor-Aktualisierung in diesen Auftrag aufnehmen.
+- Den nach Review/Commit ausgewählten endgültigen Stand unter R16 erneut plattformübergreifend abnehmen. Cross-Builds auf Windows ersetzen keine native Linux-/macOS-Ausführung und keine Paketinstallation.
+- Nach ausdrücklich beauftragtem Tag/Publish die tatsächlichen Beta-Assets herunterladen: Version und Commit, vollständige Lizenzen, Bind/CE mit Text/JSON/KV sowie beide PDF-Namen und endgültigen Downloadziele prüfen. Ein Snapshot lädt keine Release-Assets hoch; die GoReleaser-Zuordnung beider PDFs und die CI-Download-/Größenprüfungen sind vorbereitet und getestet.
+- Die taggebundenen Release-Notes-Links erst nach Verfügbarkeit des Tags auch remote abnehmen. Die bestehende stabile Homebrew-Installation bleibt außerhalb dieser Beta-Veröffentlichung.
 
 **Abnahme:** Verständliche englische Release Notes und Anpassungshinweise; finales englisches User Manual und Reference Manual als Markdown/PDF; passende Target-Quellen; nachvollziehbare Artefaktprüfungen auf den zugesagten Betriebssystemen. Kein Publish oder Tag ohne ausdrücklichen Auftrag.
 
@@ -301,6 +299,7 @@ Die folgenden Aufgaben sind abgeschlossen oder ausdrücklich archiviert. Ältere
 
 | ID | Status | Ergebnis / Nachweis |
 | --- | --- | --- |
+| [R15 lokal](#release-archive-und-handbücher-lokal-abnehmen) | Umsetzung und Windows-Teilabnahme abgeschlossen | Snapshot, zehn Host-Archive, Target-Quellen, Lizenzen, amd64/386-Feature-Audits und beide PDFs geprüft. Veröffentlichte Assets und Downloadziele bleiben oben bei R15 offen. |
 | [R14](#checkout-binary-installationswege-für-v2-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | GOPATH-/Überschreibschutz korrigiert; echter Checkout-CI-Schritt, 380 Skripttests und Snapshot-Archive geprüft. Native CI/Paketinstallation bei R16 offen. |
 | [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | Echter Go-Installationsbuild, frischer PDF-/Snapshot-Lauf und beide Linkcheck-Modi bestanden; Linux-CI/macOS bei R16 offen. |
 | [R26](#windows-testfehler-vollständig-beheben) | Umsetzung und Windows-Abnahme abgeschlossen | 99 gezielte Tests sowie 540/550 bestanden; neue native macOS-/Linux-Abnahme bei R16 offen. |
@@ -338,6 +337,27 @@ Weitere abgeschlossene Dokumentations-, Repo- und ID-Aufgaben aus der bisherigen
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Archiviert | Ehemalige Codex-Umzugswerkzeuge und Anleitung; aktiver Einstieg jetzt handsoff/handson | 3 | M | Eigenständiger Entwicklerablauf; damalige Ergebnisse unten, heute kein aktiver ZIP-Transfer |
 | [R25](#ids-identischer-trices-deterministisch-zuordnen) | Erledigt; Release-Pflicht erfüllt | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Beschreibende Tests und Target-/Decoder-Nachweis bestanden; abschließender Gesamtlauf bleibt R16 |
+
+### Release-Archive und Handbücher lokal abnehmen
+
+**R15 · Lokale Umsetzung und Windows-Teilabnahme vom 14. Oktober abgeschlossen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Prüfstand ist ein isolierter Checkout bei `41291b9f` plus den R15-Änderungen an Workflow, Target-README, PDF-Konfiguration und zugehörigem Regressionstest. Fremde Änderungen im aktiven Arbeitscheckout wurden nicht als Testquellen verwendet. Das ist noch kein unveränderter finaler Release-Commit; die [verbleibende Release-Abnahme](#release-notes-und-ausgelieferte-dateien-prüfen) bleibt offen.
+
+**Erledigt und geprüft:**
+
+- Der echte Release-Notes-Schritt wählt aus dem [Changelog](../../CHANGELOG.md) ausschließlich `v2.0.0-beta-1` aus, entfernt den Arbeitsvermerk `unreleased` und bindet 15 vorhandene Dokumentationsziele an diesen Tag. Englische Funktionsübersicht und Migrationshinweise sind vorhanden; die Ziele wurden lokal geprüft, nicht als bereits veröffentlichte Tag-URLs ausgegeben.
+- `goreleaser release --snapshot --clean --skip=publish` besteht einschließlich `go mod tidy`, `go generate ./...`, beider PDFs, Cross-Builds, zehn Host-Archiven, Target-Archiv und Linux-Paketbau. Der Versionsname `1.3.1-next` stammt vom vorhandenen Tag `v1.3.0`; ein v2-Tag wurde nicht angelegt.
+- Alle zehn Host-Archive enthalten `trice`, `tlog` und die vollständige MIT-Lizenz. Die 58 Dateien des Target-Archivs entsprechen exakt der konfigurierten Quellauswahl einschließlich Fallback-Headern und unveränderter MIT-/SEGGER-Lizenztexte. Alle 17 erzeugten Archiv-/Paketprüfsummen stimmen.
+- Die mitgelieferte [Target-README](../../src/ReadMe.md) erklärt jetzt die Grenzen des Target-Archivs, die getrennten Host-Tools und die beiden passenden Handbücher. Verweise auf außerhalb des Archivs fehlende Root-Dokumente sind durch verständliche Pfadangaben für vollständige Checkouts ersetzt. Fremdquellenhinweise bleiben erhalten.
+- [_verify_release_features.cjs](../../scripts/_verify_release_features.cjs) besteht mit den tatsächlich ausgepackten Windows-Archiven für **amd64 und 386** und den ausgepackten Target-Quellen. Die Fixture startet jeweils ohne generierte Dictionary-/Bind-Dateien, führt Bind mit CE aus, kompiliert und erzeugt `capture.bin`. Beide ausgelieferten Tools liefern jeweils zehn erwartete Records als Text, JSON und KV, einschließlich strukturierter Felder, Stamps und CE-Werte; JSON/KV enthalten keine zusätzlichen Diagnosezeilen.
+- Beide englischen Handbücher entstehen aus ihren Markdown-Quellen: `TriceUserManual.pdf` mit 9 Seiten und `TriceReferenceManual.pdf` mit 458 Seiten. UM-Querverweise werden nun wie im RM an den Quellcommit gebunden; die PDF-Metadatentitel verwenden die Handbuchtitel. PDF-Ziele enthalten keine temporären localhost-Adressen oder `blob/main`-Verweise. Die Einstiegsseiten wurden visuell geprüft. Die echten CI-Schritte für erwartete Snapshot-Artefakte und beide PDF-Größenprüfungen bestehen mit diesen Dateien.
+- 28 gezielte Go-Tests für Release-Notes-Auswahl, Tag-Bindung, Feature-Validierung, PDF-Artefakte und Navigation bestehen. Der Navigationstest besteht auch nach der Metadatentitel-Korrektur erneut. Der Offline-Linkcheck erfasst 1.979 Vorkommen bei 289 Ausschlüssen und **0 Fehlern**.
+- [go.yml](../../.github/workflows/go.yml) liest die Go-Version nun aus `go.mod`, wie die übrigen Release-Einstiege. Der veraltete feste Wert `1.24.0` entfällt. Lokal wurde mit Go 1.26.1 gebaut; `go.mod` verlangt mindestens 1.25.0.
+
+**Nachweise:** Prüfcheckout, ausgepackte Tools und Protokolle liegen unter `temp/r15-workspace`, `temp/r15-tools` und `temp/r15-logs`; die vorhandenen R32-Tool-/Renderer-Caches wurden wiederverwendet. Maßgeblich sind `candidate.txt`, `candidate.patch`, `snapshot-r15.log`, `focused-go.log`, `pdf-navigation.log`, `pdf-final.log`, `features-amd64.log`, `features-386.log`, `release-notes.md`, `artifact-report.json`, `ci-artifacts.log` und `link-offline.json`. Die erzeugten PDFs liegen im `docs`-Verzeichnis des temporären Checkouts. Diese lokalen Nachweise sind nicht versioniert.
 
 ### Checkout-/Binary-Installationswege für v2 absichern
 
