@@ -55,6 +55,6 @@ examples/**/*.bus
 /examples/L432_inst/.vscode/.cortex-debug.registers.state.json
 
 # Local Codex handover archives and Python bytecode are not project sources.
-/docs/scratchPad/codex-handover-*.zip
-/docs/scratchPad/__pycache__/
+/docs/_scratchPad/codex-handover-*.zip
+/docs/_scratchPad/__pycache__/
 /scripts/__pycache__/

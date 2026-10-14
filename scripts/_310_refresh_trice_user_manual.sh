@@ -71,16 +71,74 @@ require_manual_file() {
   fi
 }
 
+# Short chapters without subsections need no empty TOC. Ignore example headings
+# inside fenced code and HTML comments when deciding whether a TOC is missing.
+chapter_has_sections() {
+  awk '
+    {
+      line = $0
+      if (fence != "") {
+        if (line ~ "^[[:space:]]*" fence "+[[:space:]]*$") fence = ""
+        next
+      }
+      if (!comment && line ~ /^[[:space:]]*```/) { fence = "```"; next }
+      if (!comment && line ~ /^[[:space:]]*~~~/) { fence = "~~~"; next }
+      visible = ""
+      while (length(line)) {
+        if (comment) {
+          end = index(line, "-->")
+          if (!end) { line = ""; break }
+          line = substr(line, end + 3); comment = 0
+        } else {
+          start = index(line, "<!--")
+          if (!start) { visible = visible line; break }
+          visible = visible substr(line, 1, start - 1)
+          line = substr(line, start + 4)
+          comment = 1
+        }
+      }
+      if (visible ~ /^##+[[:space:]]/) found = 1
+    }
+    END { exit !found }
+  ' "$1"
+}
+
 # Discover the flat chapter sources without introducing another maintained list.
 # Navigation files are not chapters, even if they later contain a TOC example.
-# Validate inputs before invoking mdtoc so missing sources cannot cause partial
-# formatting. Files without a managed container remain outside this formatter.
+# Validate README coverage and managed containers before invoking mdtoc so an
+# incomplete chapter set cannot silently pass or cause partial formatting.
 collect_reference_chapters() {
-  local CHAPTER_FILE
+  local CHAPTER_FILE LINK_LINE LINK_FILE LINKED_FILE FOUND
+  local LINK_PATTERN='^[[:space:]]*[-*][[:space:]]+\[[^]]+\]\(([^)]+\.md)\)[[:space:]]*$'
+  local LINKED_CHAPTERS=()
   if [[ ! -d docs/rm ]]; then
     die "reference manual directory not found: docs/rm"
   fi
   require_manual_file "docs/rm/README.md"
+
+  # Match the chapter-list form also used by the PDF assembler. Notes that are
+  # neither linked nor mdtoc-managed remain outside the formatter's scope.
+  while IFS= read -r LINK_LINE || [[ -n "$LINK_LINE" ]]; do
+    [[ "$LINK_LINE" =~ $LINK_PATTERN ]] || continue
+    LINK_FILE="${BASH_REMATCH[1]}"
+    LINK_FILE="${LINK_FILE#./}"
+    case "$LINK_FILE" in
+      */* | README.md | INDEX.md) die "expected a flat RM chapter link in docs/rm/README.md: $LINK_FILE" ;;
+    esac
+    CHAPTER_FILE="docs/rm/$LINK_FILE"
+    require_manual_file "$CHAPTER_FILE"
+    case "$LINK_FILE" in HEADER.md | FOOTER.md) continue ;; esac
+    # The default expansion also supports empty arrays under Bash 3.2 with -u.
+    for LINKED_FILE in "${LINKED_CHAPTERS[@]:-}"; do
+      [[ "$LINKED_FILE" != "$CHAPTER_FILE" ]] || die "duplicate chapter link in docs/rm/README.md: $CHAPTER_FILE"
+    done
+    if grep -Eq '^<!-- /?mdtoc -->' "$CHAPTER_FILE" || chapter_has_sections "$CHAPTER_FILE"; then
+      if ! grep -qx '<!-- mdtoc -->' "$CHAPTER_FILE" || ! grep -qx '<!-- /mdtoc -->' "$CHAPTER_FILE"; then
+        die "missing complete mdtoc container in reference chapter: $CHAPTER_FILE; expected <!-- mdtoc --> and <!-- /mdtoc -->"
+      fi
+    fi
+    LINKED_CHAPTERS+=("$CHAPTER_FILE")
+  done <docs/rm/README.md
 
   for CHAPTER_FILE in docs/rm/*.md; do
     # An unmatched glob stays literal; never pass it to mdtoc as a filename.
@@ -92,6 +150,11 @@ collect_reference_chapters() {
     esac
     require_manual_file "$CHAPTER_FILE"
     if grep -q '^<!-- mdtoc -->' "$CHAPTER_FILE"; then
+      FOUND=0
+      for LINKED_FILE in "${LINKED_CHAPTERS[@]:-}"; do
+        [[ "$LINKED_FILE" != "$CHAPTER_FILE" ]] || FOUND=1
+      done
+      [[ "$FOUND" -eq 1 ]] || die "mdtoc-managed chapter is not linked from docs/rm/README.md: $CHAPTER_FILE"
       MANUAL_FILES+=("$CHAPTER_FILE")
     fi
   done

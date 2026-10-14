@@ -56,6 +56,8 @@ fi
 
 GO_FILES=()
 while IFS= read -r f; do
+  # Go's underscore discovery rule does not apply to explicit formatter paths.
+  case "$f" in docs/_scratchPad/*) continue ;; esac
   [ -n "$f" ] && [ -e "$f" ] && GO_FILES+=("$f")
 done < <(git ls-files '*.go')
 

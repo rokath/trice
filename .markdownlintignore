@@ -2,6 +2,6 @@
 # Ignore all Drivers folders under examples/*
 examples/**/Drivers/**
 # ScratchPad contains working drafts and is excluded from repository-wide Markdown linting.
-docs/scratchPad/**
+docs/_scratchPad/**
 # Ignore generated tools, logs, and other disposable test artifacts.
 temp/**

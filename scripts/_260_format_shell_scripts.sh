@@ -52,8 +52,6 @@ for arg in "$@"; do
 done
 
 ensure_shfmt() {
-  mkdir -p "$TOOLS_DIR"
-
   # Native Windows Go installations append .exe even when called from Git Bash.
   if [ ! -x "$SHFMT_BIN" ] && [ -x "$SHFMT_BIN.exe" ]; then
     SHFMT_BIN="$SHFMT_BIN.exe"
@@ -90,6 +88,7 @@ ensure_shfmt() {
     echo "Installing pinned shfmt $SHFMT_VERSION into $TOOLS_DIR"
   fi
 
+  mkdir -p "$TOOLS_DIR"
   GOBIN="$TOOLS_DIR" go install "mvdan.cc/sh/v3/cmd/shfmt@$SHFMT_VERSION"
 
   if ! [ -x "$SHFMT_BIN" ]; then
@@ -108,6 +107,8 @@ ensure_shfmt
 
 SHELL_FILES=()
 while IFS= read -r f; do
+  # Tracked notes and archives are not maintained shell sources.
+  case "$f" in docs/_scratchPad/*) continue ;; esac
   [ -n "$f" ] && [ -e "$f" ] && SHELL_FILES+=("$f")
 done < <(git ls-files '*.sh')
 

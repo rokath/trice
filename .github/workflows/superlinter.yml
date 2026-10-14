@@ -38,6 +38,8 @@ jobs:
           # LOG_LEVEL: DEBUG
           LINTER_RULES_PATH: .
           MARKDOWN_CONFIG_FILE: .markdownlint.yaml
+          # Notes and historical fixtures are not maintained source inputs.
+          FILTER_REGEX_EXCLUDE: '(^|/)docs/_scratchPad/'
 
           # ───────────────────────────────────────────────────────────────
           # GLOBAL SETTINGS

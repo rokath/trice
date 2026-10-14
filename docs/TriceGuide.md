@@ -35,7 +35,7 @@ Document                                                                        
 [trice/src/triceDefaultConfig.h](../src/triceDefaultConfig.h) - Source Code     | Target configuration switches explained and their default values
 [trice/_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) - Test Code | Extensive executable Trice test inputs; not a beginner tutorial
 [trice/docs/ref/](./ref) - included material                                    | documentation images and CLI-help data
-[trice/docs/scratchPad/](./scratchPad)                                          | Internal plans, drafts and historical material - no prerequisites for using Trice.
+[trice/docs/_scratchPad/](./_scratchPad)                                        | Internal plans, drafts and historical material - no prerequisites for using Trice.
 [trice/CHANGELOG.md](../CHANGELOG.md)                                           | Release history
 [trice/CONTRIBUTING.md](../CONTRIBUTING.md)                                     | Contribution and validation guidance
 
@@ -146,7 +146,7 @@ Start with [demo](../demo/) to see a first log, [examples/PC_features](../exampl
 | [.github](../.github/) | CI, release, and documentation workflows, issue templates, and funding configuration. See the [workflow reference](rm/maintenance.md#the-github-folder--purpose-and-contents). |
 | [.vscode](../.vscode/) and [.idea](../.idea/) | Optional VS Code and GoLand project settings; not target-library dependencies. |
 | [.code_snippets](../.code_snippets/) | Retained legacy helper snippets; not the recommended integration path. |
-| [docs/scratchPad](./scratchPad/) | Internal plans and drafts. Its `obsolete` subtree is archived history, not current usage guidance or a build prerequisite. |
+| [docs/_scratchPad](./_scratchPad/) | Internal plans and drafts. Its `obsolete` subtree is archived history, not current usage guidance or a build prerequisite. |
 | `experiments/` | Experimental or local working material, if present. Use the documented examples for supported entry points. |
 | [go.mod](../go.mod) and [go.sum](../go.sum) | Go version, module requirements, and dependency checksums for the host tools. |
 | [Root metadata](rm/maintenance.md#trice-project-structure-files-and-folders) | Release notes, licenses, contribution guidance, formatter/linter settings, and publishing configuration. The Reference Manual lists individual files. |

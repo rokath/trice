@@ -83,7 +83,7 @@
 | [index.md](../../index.md)                                                                                                 | Jekyll index site for README.md                                                                                                   |
 | [internal/](../../internal)                                                                                                | Trice tool internal Go packages                                                                                                   |
 | [pkg/](../../pkg)                                                                                                          | Trice tool common Go packages                                                                                                     |
-| [scripts/_330_renew_ids_and_refresh_tests.sh](../../scripts/_330_renew_ids_and_refresh_tests.sh)                           | renew all ID data                                                                                                                 |
+| [scripts/_330_renew_ids_and_refresh_tests.sh](../../scripts/_330_renew_ids_and_refresh_tests.sh)                           | deliberate legacy ID re-seeding and CGO harness refresh; see [Target Tests](target_tests.md)                                        |
 | [src/](../../src)                                                                                                          | C sources for trice instrumentation -> Add to target project                                                                      |
 | `temp/`                                                                                                                 | ignored local workspace for binary logfiles and other runtime artifacts like `scripts/testAll.sh` helper files under `./temp/log` |
 | `testAll.log`                                                                                                           | ignored local output of the last `./scripts/testAll.sh` run                                                                       |
@@ -362,7 +362,7 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
   * Markdown Preview Enhanced
     * Click the preview button in the top right.
   * `mdtoc`
-    * The checked-in manual already contains the managed TOC container and persisted config. Keep these markers in place where the table of contents should be generated.
+    * The User Manual and RM chapters contain managed TOC containers and persisted settings. Keep these markers in place where each table of contents should be generated. List every RM chapter in `docs/rm/README.md`.
     ```md
     <!-- mdtoc -->
     <!-- mdtoc-config
@@ -377,8 +377,8 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
     -->
     <!-- /mdtoc -->
     ```
-    * Run `./scripts/_310_refresh_trice_user_manual.sh format` to regenerate the reference manual's TOC, numbering, and anchors with `mdtoc`.
-    * Run `./scripts/_310_refresh_trice_user_manual.sh check` to verify that the checked-in reference manual matches the persisted `mdtoc` state.
+    * Run `./scripts/_310_refresh_trice_user_manual.sh format` to regenerate TOCs, numbering and anchors in the User Manual and all managed RM chapters with `mdtoc`.
+    * Run `./scripts/_310_refresh_trice_user_manual.sh check` to verify both manuals without editing them. Missing chapters, incomplete TOC containers and chapters omitted from the RM overview fail before formatting starts.
     * The repository no longer uses a VS Code TOC extension for manual maintenance.
   * Markdown Paste (telesoho)
     * Helpful to get web site content preformatted as Markdown. Use mouse context menu.
@@ -394,6 +394,9 @@ This workflow creates the Trice github pages avaliable under [rokath.github.io/t
 
 In GitHub are some Actions defined. Some of them get triggered on a `git push` and perform some checks. To get no fail, some scripts should run before committing:
 
+* `./scripts/format_repo.sh check` checks manual, shell, Go and C formatting. It preserves sources, ID metadata, example build outputs and `.DS_Store` files; it does not install formatters. Temporary formatter files are removed on exit.
+* `./scripts/format_repo.sh format` also refreshes Bind headers, cleans example build outputs and removes `.DS_Store` files. Run it separately from `testAll.sh`.
+* `docs/_scratchPad/` contains notes and historical sources. It is excluded from repository-wide Go discovery, formatting, linting and link checks; no `go.mod` is needed there.
 * `npx markdownlint *.md` (or just `markdownlint`) - uses [.markdownlint.yaml](../../.markdownlint.yaml) to allow exceptions.
   * `npx markdownlint ./docs/rm/*.md 2>&1 | awk '!seen[$2]++'` for example to reduce message count in case of errors.
 * [./scripts/_300_clean_dsstore.sh](../../scripts/_300_clean_dsstore.sh) - remove macOS maintenance data.
