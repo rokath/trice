@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand der Bedarfsermittlung: **14. Oktober 2026**. Dieser Auftrag aktualisiert ausschließlich die Aufgabensammlung. Keine Skript-, Test-, Beispiel-, RM-, Workflow- oder Spezifikationsänderungen werden damit umgesetzt; kein neuer Testlauf, Commit, Tag oder Publish ist beauftragt.
+Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R26 wurde anschließend mit „R26 GO“ ausdrücklich freigegeben, umgesetzt und auf Windows abgenommen. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
 
 ## Aufgabenübersicht
 
@@ -8,11 +8,10 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 | ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | --- | ---: | --- | --- |
-| [R26](#windows-testfehler-vollständig-beheben) | Offen; höchste Priorität | Sieben Windows-Go-Fehlergruppen analysieren und plattformgerecht korrigieren | 5 | M | Vor neuer Release-Abnahme; laufenden Full-Test beenden lassen |
 | [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Offen; CI-Blocker | stitchmd-Versionsprüfung und Links auf die lokal generierte demoLI.json korrigieren | 5 | S–M | Gemeldeter WIP→main-CI-Lauf; sauberer Checkout ohne lokale LI/Sidecars |
 | [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen; Abgleich/Abnahme | Beschlossene Checkout-/Binary-Installation von v2 abschließend prüfen | 5 | S–M | R05 erledigt; kein /v2-Modulpfad |
 | [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen; Restabnahme | Vorhandene Beta-Notes, Archive, Lizenzen und Feature-Audits am Kandidaten abnehmen | 5 | M | R14; aktuelle Quellen und beide PDFs |
-| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; durch R26/R32 blockiert | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R26, R32 und R15; alle für den Kandidaten ausgewählten Änderungen |
+| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R26 auf Windows abgenommen; R32, R15 und übrige ausgewählte Änderungen |
 | [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Offen; Bedarf ermittelt | Skriptverträge, check-Nebenwirkungen, alte Pflegewege und verwaiste Handover-Helfer klären | 4 | M | R26 zuerst; keine pauschale Umbenennung oder Neuorganisation |
 | [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Offen; gezielte Lücken | ABC, Standalone-Builds, CGO-/CLion-Einstiege und Bind-Dokumentation abgleichen | 4 | M | Vorhandene Bind-Matrix erhalten; Insert/Clean bleibt verfügbar |
 | [R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Offen; Vorschlag zur Auswahl | Veraltete Einstiegsaussagen korrigieren, Wiederholungen verlinken, kleine Inhaltsverschiebungen | 4 | M | Kapitelquellen bleiben maßgeblich; UM nur auf ausdrücklichen Auftrag |
@@ -25,7 +24,7 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 | [F05](#kleine-wrapper-erweiterung-getrennt-bewerten) | Optional; später | CE für eindeutig zuordenbare Ein-Logstellen-Wrapper | 2 | M | Eigener Auftrag auf Basis des vorhandenen PoC |
 | [F06](#allgemeines-ce-rebase-bleibt-eine-architekturentscheidung) | Zurückgestellt | Allgemeines CE für Bind-Wrapper und Counter-Rebase | 1 | L | Architekturentscheidung; nicht für das nächste Release |
 
-**Aktuelle Testlage:** Der Benutzer meldet die Mac-Prüfungen als PASS. Beim Auftragsbeginn läuft sein Windows-`scripts/testAll.sh full`; Schritt 540 und 550 sind bereits fehlgeschlagen. Beide Protokolle zeigen dieselben sieben Go-Testgruppen, nicht nur den zuerst gemeldeten X0-Test. Das ist keine neue, vom Agenten ausgeführte Abnahme und noch kein ermitteltes Endergebnis des gesamten Windows-Laufs. Den laufenden Test weder verändern noch mit einem weiteren zustandsverändernden Lauf überlagern.
+**Aktuelle Testlage:** R26 ist umgesetzt und auf Windows mit 99 gezielten Tests sowie den vollständigen Schritten 540/550 abgenommen. Der Detailnachweis steht bei den abgeschlossenen Aufgaben. Der zuvor gestartete Full-Test des Benutzers bleibt ein separater Lauf mit den damaligen Go-Fehlern; kein neuer Full-Lauf wurde gestartet. Mac-PASS ist die Benutzermeldung vor diesen Korrekturen; eine neue native macOS-/Linux-Abnahme und der einheitliche Release-Kandidat bleiben R16.
 
 **Zusätzlicher CI-Befund:** Beim WIP→main-Merge scheitert der Linux-GoReleaser-Snapshot vor der PDF-Erzeugung an `stitchmd dev`; der separate Linkcheck findet zwei Links auf die nicht versionierte `demoLI.json`. Details und spätere Abnahme stehen bei R32. Diese gemeldeten CI-Protokolle sind von den Windows-Go-Fehlern getrennt; ein lokales PASS mit bereits vorhandenen ignorierten Dateien genügt für diesen Nachweis nicht.
 
@@ -33,29 +32,6 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 ## Konkrete Aufgaben vor dem Release
 
-### Windows-Testfehler vollständig beheben
-
-**R26 · Gewicht 5 · Aufwand M · Offen; vor allen anderen Korrekturen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-**Beleg:** Die aktuellen `temp/log/_540_test_go.log` und `temp/log/_550_test_go_coverage.log` enthalten jeweils die folgenden sieben fehlgeschlagenen Testgruppen. 540 und 550 sind zwei Ausführungen derselben Fehler, keine zwei unabhängigen Belege für einen Target-Defekt. Die Protokolle wurden nur gelesen. Vor jedem späteren Neulauf vollständig sichern; kein Formatter, ID-Workflow oder paralleler Test darf den noch laufenden Full-Lauf beeinflussen.
-
-| Fehlgeschlagene Testgruppe | Beobachtung / wahrscheinliche Ursache | Gezielter nächster Schritt |
-| --- | --- | --- |
-| `TestCountedX0RetainsEncoderWithOrdinaryLogsDisabled` | `TRICE_OFF` und `TRICE_CLEAN` erreichen `hex.DecodeString` mit abschließendem `\r`; `strings.Split(output, "\n")` entfernt nur LF. | Native Ausgabe an Zeilengrenzen korrekt lesen; LF- und CRLF-Gegenproben für beide Schalter. |
-| `TestConfiguredEncodersLinkAndDecodeWithoutLTO` | Ebenfalls `U+000D` im Hextext sowie `"unavailable\r"` statt `"unavailable"`. Globales `TrimSpace` entfernt die CR-Zeichen zwischen Zeilen nicht. | Die gemeinsame Kanalauswertung prüfen; alle Compiler-/Framing-Kombinationen und die Erkennung fehlender/doppelter Kanäle erhalten. |
-| `TestBindReportRejectsWriteModesAndIncompleteInputs` | `unreadable_artifact` und `unreadable_source` bekommen keinen erwarteten Lesefehler. `bindMetadataReadFailFs.Open` vergleicht den nativen Namen exakt mit einer Slash-Pfad-Fixture. | Prüfen, ob der injizierte Fehler unter Windows wegen Pfadseparatoren nie ausgelöst wird. Pfadvergleich und tatsächlichen Fehlerzugriff absichern; Fehler-, Null-Schreibzugriff- und Kein-Teilbericht-Verträge erhalten. |
-| `TestRTTFallbackAndProjectConfiguration` | Clang scheitert in `putting_fallback_first_hides_the_project_header` an `-Werror,-Wmicrosoft-include`. Windows-Suchregeln wirken im absichtlich umgedrehten Include-Test mit. | Tatsächlichen Suchpfad und gewählte Konfiguration je Compiler belegen. Den beabsichtigten Vorrang Projekt/Generierung vor `src` und `src/default_conf` portabel prüfen; keine Warnungen pauschal abschalten. |
-| `TestManualPagesLinksKeepReadersOnTheSite` | Die Python-Verarbeitung liefert unter Windows CRLF; erwartete Code-/Kommentarblöcke verwenden LF. | Zeilenendenerhaltung des echten Workflow-Schritts und der Fixture unterscheiden. Linkumschreibung darf Code, Kommentare und Inhalt nicht nebenbei ändern; LF/CRLF ausdrücklich abdecken. |
-| `TestManualPagesRequiresActiveSources` | Diagnose enthält `docs\README.md` beziehungsweise native Backslashes, die Erwartung ausschließlich Slashes. | Portablen Diagnosevertrag festlegen und testen: fehlender Pfad eindeutig genannt, Quellen vor dem Abbruch unverändert. |
-| `TestClangFormatNativeCache` | MSYS-Fixture erwartet den nativen Pfad mit `.exe`; gemeldeter verwendbarer Pfad endet ohne dieses Suffix. | Auswahl des tatsächlich ausgeführten nativen Formatters vor dem defekten Launcher belegen; Windows-/MSYS-Pfadschreibweisen prüfen, ohne den Offline-Cache-Vertrag zu schwächen. |
-
-Betroffene Stellen: [Encoder-Tests](../../internal/id/encoder_dependencies_test.go), [Bind-Bericht-Tests](../../internal/id/generateBindReport_test.go), deren [Lesefehler-Fixture](../../internal/id/bindIDs_test.go), [RTT-Konfigurationstest](../../pkg/tst/segger_rtt_config_test.go), [Skript-Portabilitätstests](../../scripts/portability_test.go), [Pages-Workflow](../../.github/workflows/pages.yml) und bei Bedarf [Formatter-Auswahl](../../scripts/_280_format_c_code.sh). Das sind Diagnoseziele, keine Freigabe zur Änderung aller genannten Produktionsdateien.
-
-**Wichtig:** `U+000D` ist Carriage Return, kein Beleg für beschädigtes UTF-8. Nur erlaubte Zeilenenden behandeln; fehlerhafte Hexdaten, doppelte Kanäle, echte Include-Konflikte und echte Lesefehler müssen weiterhin scheitern. Keine pauschalen Windows-Skips, gelockerten Nutzdatenvergleiche oder durch Normalisierung versteckten Inhaltsänderungen.
-
-**Spätere Abnahme:** Erst die sieben Gruppen unter Windows gezielt mit `-count=1` ausführen, anschließend Schritt 540 und 550 mit unveränderter Paket-/Coverage-Auswahl. LF/CRLF, Slash-/Backslash-Pfade und verwendete Compiler abdecken. macOS-Gegenprobe durchführen; Linux-Nachweis nach verfügbarer Umgebung getrennt ausweisen. Nach Abschluss aller ausgewählten Korrekturen folgt der einmalige Full-Lauf bei R16. Die jetzige reine Planpflege führt keinen dieser Befehle aus.
 
 ### CI-PDF-Build und Links ohne lokale Artefakte absichern
 
@@ -117,11 +93,11 @@ Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` 
 
 ### Release-Abnahme auf einem feststehenden Stand
 
-**R16 · Gewicht 5 · Aufwand M plus Full-Testlauf · Offen; aktuelle Windows- und CI-Fehler blockieren die Abnahme**
+**R16 · Gewicht 5 · Aufwand M plus Full-Testlauf · Offen; CI- und weitere Plattformabnahme ausstehend**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
-**Aktualisierung vom 14. Oktober:** Mac-PASS ist die Meldung des Benutzers, keine neue Agentenprüfung. Sein beim Auftragsbeginn laufender Windows-Full-Test hat bereits 540/550-Fehler; die sieben gelesenen Gruppen stehen bei R26. Ein endgültiges Gesamtergebnis wurde in diesem Planpflegeauftrag nicht ermittelt. Frühere erfolgreiche Läufe ersetzen diese aktuelle Abnahme nicht.
+**Aktualisierung vom 14. Oktober:** R26 ist implementiert; die sieben Windows-Fehlergruppen und die vollständigen Schritte 540/550 sind separat grün abgenommen. Der native macOS-/Linux-Nachweis nach diesen Korrekturen steht noch aus. Mac-PASS vor der Korrektur ist die Meldung des Benutzers, keine neue Agentenprüfung. Der zuvor gestartete Original-Full-Lauf und seine damaligen Go-Fehler bleiben ein eigener Befund. Die R26-Teilabnahme ersetzt keinen einheitlichen Kandidatenlauf nach den ausgewählten Änderungen und R32.
 
 Nach R26, R32 und den übrigen für den Kandidaten ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
 
@@ -345,9 +321,9 @@ Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung be
 
 ## Vorschlag für die nächsten Aufträge
 
-Zuerst den bereits laufenden Windows-Full-Test ohne Eingriff beenden lassen und seine vollständigen Fehlerprotokolle sichern. Danach R26 als eigenen Korrekturauftrag bearbeiten und gezielt gegenprüfen. In diesem Auftrag wird ausschließlich geplant; die Source-/ID-Zwischenzustände des laufenden Tests werden nicht verändert oder bereinigt.
+R26 ist umgesetzt und auf Windows gezielt sowie mit 540/550 abgenommen. Den bereits gestarteten Original-Full-Lauf getrennt auswerten und seine vollständigen Fehlerprotokolle erhalten. Seine Source-/ID-Zwischenzustände wurden für R26 nicht verändert oder bereinigt; die geprüfte Korrektur entstand in einer isolierten Kopie.
 
-Danach auch die gemeldeten CI-Blocker R32 beheben und aus sauberem Checkout abnehmen. Anschließend R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R14/R15 sichern die bereits weitgehend implementierte Distribution ab; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
+Als nächster Korrekturauftrag bietet sich R32 mit den gemeldeten CI-Blockern und einer Abnahme aus sauberem Checkout an. Anschließend R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R14/R15 sichern die bereits weitgehend implementierte Distribution ab; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs und den noch fehlenden nativen Plattformnachweisen. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
 
 Merge, Git-Schreibaktionen, Tag, Veröffentlichung und ein neuer langer Full-Test benötigen ihren jeweiligen ausdrücklichen Auftrag. Den Merge führt der Benutzer auf GitHub aus. Die Dateiablage allein rechtfertigt keine weiteren Features oder umfassende Umorganisation von Beispielen und Testmatrix. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
 
@@ -357,6 +333,7 @@ Die folgenden Aufgaben sind abgeschlossen oder ausdrücklich archiviert. Ältere
 
 | ID | Status | Ergebnis / Nachweis |
 | --- | --- | --- |
+| [R26](#windows-testfehler-vollständig-beheben) | Umsetzung und Windows-Abnahme abgeschlossen | 99 gezielte Tests sowie 540/550 bestanden; neue native macOS-/Linux-Abnahme bei R16 offen. |
 | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Erledigt | Aktuelle Referenz von historischen Bind-Entwicklungsständen getrennt; gültige Einzelinformationen übernommen. |
 | [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Erledigt | Leere Debugger-Zustände und ungenutzte Vorlagenbegleiter entfernt; CI-Orientierung aktualisiert. |
 | [R21b](#ide-einstiege-portabel-und-tatsächlich-benutzbar-machen) | Erledigt | IDE-Vorlagen auf aktuelle CLI und portable Compilerwahl umgestellt; JetBrains-Metadaten und Ignore-Verhalten geprüft. |
@@ -391,6 +368,44 @@ Weitere abgeschlossene Dokumentations-, Repo- und ID-Aufgaben aus der bisherigen
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Archiviert | Ehemalige Codex-Umzugswerkzeuge und Anleitung; aktiver Einstieg jetzt handsoff/handson | 3 | M | Eigenständiger Entwicklerablauf; damalige Ergebnisse unten, heute kein aktiver ZIP-Transfer |
 | [R25](#ids-identischer-trices-deterministisch-zuordnen) | Erledigt; Release-Pflicht erfüllt | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Beschreibende Tests und Target-/Decoder-Nachweis bestanden; abschließender Gesamtlauf bleibt R16 |
+
+### Windows-Testfehler vollständig beheben
+
+**R26 · Gewicht 5 · Aufwand M · Umsetzung und Windows-Abnahme abgeschlossen; weitere Plattformabnahme bei R16**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Ausgangsbefund vor der Umsetzung:** Die damals aktuellen `temp/log/_540_test_go.log` und `temp/log/_550_test_go_coverage.log` enthalten jeweils die folgenden sieben fehlgeschlagenen Testgruppen. 540 und 550 sind zwei Ausführungen derselben Fehler, keine zwei unabhängigen Belege für einen Target-Defekt. Die Protokolle wurden nur gelesen. Vor jedem späteren Neulauf vollständig sichern; kein Formatter, ID-Workflow oder paralleler Test darf den noch laufenden Full-Lauf beeinflussen.
+
+| Fehlgeschlagene Testgruppe | Beobachtung / wahrscheinliche Ursache | Gezielter nächster Schritt |
+| --- | --- | --- |
+| `TestCountedX0RetainsEncoderWithOrdinaryLogsDisabled` | `TRICE_OFF` und `TRICE_CLEAN` erreichen `hex.DecodeString` mit abschließendem `\r`; `strings.Split(output, "\n")` entfernt nur LF. | Native Ausgabe an Zeilengrenzen korrekt lesen; LF- und CRLF-Gegenproben für beide Schalter. |
+| `TestConfiguredEncodersLinkAndDecodeWithoutLTO` | Ebenfalls `U+000D` im Hextext sowie `"unavailable\r"` statt `"unavailable"`. Globales `TrimSpace` entfernt die CR-Zeichen zwischen Zeilen nicht. | Die gemeinsame Kanalauswertung prüfen; alle Compiler-/Framing-Kombinationen und die Erkennung fehlender/doppelter Kanäle erhalten. |
+| `TestBindReportRejectsWriteModesAndIncompleteInputs` | `unreadable_artifact` und `unreadable_source` bekommen keinen erwarteten Lesefehler. `bindMetadataReadFailFs.Open` vergleicht den nativen Namen exakt mit einer Slash-Pfad-Fixture. | Prüfen, ob der injizierte Fehler unter Windows wegen Pfadseparatoren nie ausgelöst wird. Pfadvergleich und tatsächlichen Fehlerzugriff absichern; Fehler-, Null-Schreibzugriff- und Kein-Teilbericht-Verträge erhalten. |
+| `TestRTTFallbackAndProjectConfiguration` | Clang scheitert in `putting_fallback_first_hides_the_project_header` an `-Werror,-Wmicrosoft-include`. Windows-Suchregeln wirken im absichtlich umgedrehten Include-Test mit. | Tatsächlichen Suchpfad und gewählte Konfiguration je Compiler belegen. Den beabsichtigten Vorrang Projekt/Generierung vor `src` und `src/default_conf` portabel prüfen; keine Warnungen pauschal abschalten. |
+| `TestManualPagesLinksKeepReadersOnTheSite` | Die Python-Verarbeitung liefert unter Windows CRLF; erwartete Code-/Kommentarblöcke verwenden LF. | Zeilenendenerhaltung des echten Workflow-Schritts und der Fixture unterscheiden. Linkumschreibung darf Code, Kommentare und Inhalt nicht nebenbei ändern; LF/CRLF ausdrücklich abdecken. |
+| `TestManualPagesRequiresActiveSources` | Diagnose enthält `docs\README.md` beziehungsweise native Backslashes, die Erwartung ausschließlich Slashes. | Portablen Diagnosevertrag festlegen und testen: fehlender Pfad eindeutig genannt, Quellen vor dem Abbruch unverändert. |
+| `TestClangFormatNativeCache` | MSYS-Fixture erwartet den nativen Pfad mit `.exe`; gemeldeter verwendbarer Pfad endet ohne dieses Suffix. | Auswahl des tatsächlich ausgeführten nativen Formatters vor dem defekten Launcher belegen; Windows-/MSYS-Pfadschreibweisen prüfen, ohne den Offline-Cache-Vertrag zu schwächen. |
+
+Betroffene Stellen: [Encoder-Tests](../../internal/id/encoder_dependencies_test.go), [Bind-Bericht-Tests](../../internal/id/generateBindReport_test.go), deren [Lesefehler-Fixture](../../internal/id/bindIDs_test.go), [RTT-Konfigurationstest](../../pkg/tst/segger_rtt_config_test.go), [Skript-Portabilitätstests](../../scripts/portability_test.go), [Pages-Workflow](../../.github/workflows/pages.yml) und bei Bedarf [Formatter-Auswahl](../../scripts/_280_format_c_code.sh). Das sind Diagnoseziele, keine Freigabe zur Änderung aller genannten Produktionsdateien.
+
+**Wichtig:** `U+000D` ist Carriage Return, kein Beleg für beschädigtes UTF-8. Nur erlaubte Zeilenenden behandeln; fehlerhafte Hexdaten, doppelte Kanäle, echte Include-Konflikte und echte Lesefehler müssen weiterhin scheitern. Keine pauschalen Windows-Skips, gelockerten Nutzdatenvergleiche oder durch Normalisierung versteckten Inhaltsänderungen.
+
+**Abnahmeumfang:** Erst die sieben Gruppen unter Windows gezielt mit `-count=1` ausführen, anschließend Schritt 540 und 550 mit unveränderter Paket-/Coverage-Auswahl. LF/CRLF, Slash-/Backslash-Pfade und verwendete Compiler abdecken. macOS-Gegenprobe durchführen; Linux-Nachweis nach verfügbarer Umgebung getrennt ausweisen. Nach Abschluss aller ausgewählten Korrekturen folgt der einmalige Full-Lauf bei R16. Die Ergebnisse der anschließenden Umsetzung stehen unten; die neue native macOS-/Linux-Abnahme bleibt bei R16 offen.
+
+**Ergebnis am 14. Oktober 2026:** Die Änderung beschränkt sich auf fünf Go-Testdateien und die Pages-Linkumschreibung. Die Encoder-Fixture verarbeitet LF/CRLF an den Zeilengrenzen und weist beschädigte Hexdaten sowie doppelte Kanäle weiterhin ab. Der Bind-Lesefehler wird nach normalisiertem Pfad tatsächlich injiziert und sein Zugriff geprüft. Die RTT-Probe liegt außerhalb der Konfigurationsordner, damit sie die explizite Include-Reihenfolge statt der zusätzlichen Windows-Quote-Suche testet. Pages erhält mit Byte-I/O UTF-8 und die ursprünglichen LF-/CRLF-Zeilenenden; fehlende Pfade erscheinen mit Slashes. Die Formatter-Fixture belegt die Ausführung des nativen Cache-Tools statt nur dessen angezeigter `.exe`-Schreibweise.
+
+**Prüfungen auf Windows:**
+
+- `rtk go test ./internal/id ./pkg/tst ./scripts -run '^(TestEncoderOutputLineEndings|TestCountedX0RetainsEncoderWithOrdinaryLogsDisabled|TestConfiguredEncodersLinkAndDecodeWithoutLTO|TestBindReportRejectsWriteModesAndIncompleteInputs|TestRTTFallbackAndProjectConfiguration|TestManualPagesLinksKeepReadersOnTheSite|TestManualPagesRequiresActiveSources|TestClangFormatNativeCache)$' -count=1 -p 1 -parallel 2` — PASS, 99 Tests in drei Paketen.
+- `rtk proxy bash scripts/_540_test_go.sh --quiet` — PASS, vollständiger normaler Go-Lauf mit 24 getesteten Paketen und Go-Formatprüfung.
+- `rtk proxy bash scripts/_550_test_go_coverage.sh --quiet` — PASS, dieselben 24 getesteten Pakete mit der unveränderten Coverage-Auswahl; anschließend nichtleeres `trice.exe` erzeugt. Gesamtwert: **90,3 % Go-Statement-Coverage**. Kein Coveralls-Zeilen-/Zielbranchvergleich und keine C-Coverage; Produktiv-Go wurde nicht geändert.
+- `gofmt -d` für die fünf geänderten Go-Testdateien, `actionlint .github/workflows/pages.yml` einschließlich ShellCheck und `git diff --check` — PASS.
+- LF, CRLF, gemischte Zeilenenden, fehlendes finales LF, doppelte/defekte Records, Nutzdaten-Leerzeichen und eingebettetes CR sind als Gegenproben enthalten. Die echten Pages-Schritte prüfen LF/CRLF, UTF-8, Code und Kommentare; fehlgeschlagener Preflight erhält auch eine BOM-/CRLF-Fixture unverändert. Native-Cache-Gegenproben enthalten Linux-, Darwin-, MINGW- und MSYS-Layouts, ausgeführt auf Windows; das ist kein nativer Nachweis dieser anderen Betriebssysteme.
+
+**Testisolation und Protokolle:** Ausgangspunkt war `baf9d42f`. Weil der originale Full-Test weiterlief, erfolgte die Abnahme in `temp/r26-workspace/`. Seine Protokolle liegen unter `temp/r26-workspace/temp/log/`; die ursprünglichen 540-/550-Fehlerlogs und der damalige Summary-Zwischenstand wurden vorher nach `temp/r26-original-logs/` kopiert. Der erste 540-Versuch in der Kopie wurde vor den Go-Tests durch Gits Eigentümerprüfung blockiert; sein Log bleibt als `r26-initial-git-ownership.log` erhalten. Danach wurde ausschließlich im Testprozess `safe.directory` für diese selbst angelegte Kopie gesetzt und der bestehende Go-Cache verwendet. Die Benutzerkonfiguration blieb unverändert.
+
+Die sechs übernommenen Dateien wurden bytegenau mit der getesteten Kopie verglichen; UTF-8 und LF sind erhalten. Der Original-Full-Lauf und seine Quellen-/ID-Zustände wurden weder ersetzt noch neu gestartet. Seine alten 540-/550-Fehler werden durch die separate Abnahme nicht nachträglich zu einem einheitlichen grünen Full-Lauf. Ein neuer nativer macOS-/Linux-Nachweis und die abschließende Kandidatenabnahme bleiben R16; R32 ist weiterhin ein eigenständiger offener CI-Blocker. Kein Commit oder Push durch diesen Implementierungsauftrag.
 
 ### Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten
 
