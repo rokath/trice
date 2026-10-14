@@ -1170,15 +1170,36 @@ func TestManualPDFNavigationOutlivesTheRenderer(t *testing.T) {
 	writeFixture(t, root, "check.cjs", `
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
-const config = require('./scripts/_manual_pdf_config.cjs');
+const childProcess = require('node:child_process');
+const path = require('node:path');
+const configPath = require.resolve('./scripts/_manual_pdf_config.cjs');
+const originalExecFileSync = childProcess.execFileSync;
+// Exercise a reproducible checkout and an exported tree without requiring Git
+// metadata in the fixture or launching platform-specific executable doubles.
+for (const ref of ['0123456789abcdef0123456789abcdef01234567', 'main']) {
+  delete require.cache[configPath];
+  childProcess.execFileSync = (command, args, options) => {
+    assert.equal(command, 'git');
+    assert.deepEqual(args, ['rev-parse', 'HEAD']);
+    assert.equal(options.cwd, path.resolve(path.dirname(configPath), '..'));
+    if (ref === 'main') throw new Error('no Git metadata in exported sources');
+    return ref + '\n';
+  };
+  let config;
+  try {
+    config = require(configPath);
+  } finally {
+    childProcess.execFileSync = originalExecFileSync;
+  }
+const repositoryBase = 'https://github.com/rokath/trice/blob/' + ref;
 const cases = [
   ['#get-the-tools', '#get-the-tools'],
   ['#chapter-start', '#manual-start', 'back to top'],
   ['#chapter-section', '#manual-start', '  BACK to TOP  '],
   ['./TriceUserManual.md#see-your-first-log', '#see-your-first-log'],
   ['./TriceUserManual.md#chapter-start', '#manual-start', 'go to top'],
-  ['./rm/bind.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/rm/bind.md#bind-limits'],
-  ['../examples/PC_features/main.c', 'https://github.com/rokath/trice/blob/main/examples/PC_features/main.c'],
+  ['./rm/bind.md#bind-limits', repositoryBase + '/docs/rm/bind.md#bind-limits'],
+  ['../examples/PC_features/main.c', repositoryBase + '/examples/PC_features/main.c'],
   ['https://example.com/guide?q=1#chapter', 'https://example.com/guide?q=1#chapter'],
   ['https://example.com/guide#top', 'https://example.com/guide#top', 'back to top'],
   ['mailto:maintainer@example.com', 'mailto:maintainer@example.com'],
@@ -1191,10 +1212,11 @@ const links = cases.map(([href, expected, text]) => ({
 }));
 const details = [{open:false}];
 const document = {
+  title: 'temporary renderer address',
   location: new URL('http://localhost:12345/docs/TriceUserManual.md'),
   querySelector(selector) {
     assert.equal(selector, 'h1[id]');
-    return {id:'manual-start'};
+    return {id:'manual-start', textContent:'  Trice User Manual  '};
   },
   querySelectorAll(selector) {
     if (selector === 'details') return details;
@@ -1205,10 +1227,14 @@ const document = {
 for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
 cases.forEach(([before, expected], index) => assert.equal(links[index].href, expected, before));
 assert.equal(details[0].open, true, 'the printed contents must be visible');
+assert.equal(document.title, 'Trice User Manual', 'PDF metadata must identify the book rather than localhost');
 document.querySelector = () => null;
+document.title = 'Existing book title';
 links[1].href = '#chapter-start';
 for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
 assert.equal(links[1].href, '#chapter-start', 'an absent book heading must not create a broken destination');
+assert.equal(document.title, 'Existing book title', 'an absent book heading must preserve the existing title');
+}
 console.log('PASS: local destinations, repository links, external URLs and printed contents');
 `)
 	command := exec.Command(node, "check.cjs")
