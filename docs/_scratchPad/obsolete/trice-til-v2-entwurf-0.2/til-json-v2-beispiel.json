@@ -1,0 +1,120 @@
+{
+  "SchemaVersion": 2,
+  "Profiles": [
+    "default",
+    "sensor",
+    "motor"
+  ],
+  "StreamFormat": {
+    "Framing": {
+      "default": {
+        "Current": "TCOBSv1",
+        "HistoryUntil": {
+          "2026-02-01T00:00:00Z": "COBS"
+        }
+      },
+      "motor": {
+        "Current": "COBS",
+        "HistoryUntil": {
+          "2026-06-01T00:00:00Z": null
+        }
+      }
+    },
+    "PackageMode": {
+      "default": {
+        "Current": "multi",
+        "HistoryUntil": {}
+      },
+      "motor": {
+        "Current": "single",
+        "HistoryUntil": {}
+      }
+    },
+    "Doubled16BitID": {
+      "default": {
+        "Current": false,
+        "HistoryUntil": {}
+      },
+      "sensor": {
+        "Current": true,
+        "HistoryUntil": {}
+      }
+    },
+    "Endianness": {
+      "default": {
+        "Current": "littleEndian",
+        "HistoryUntil": {}
+      }
+    },
+    "DefaultTRICEBitWidth": {
+      "default": {
+        "Current": 32,
+        "HistoryUntil": {}
+      }
+    },
+    "Encryption": {
+      "Method": {
+        "default": {
+          "Current": "none",
+          "HistoryUntil": {}
+        },
+        "sensor": {
+          "Current": "XTEA",
+          "HistoryUntil": {}
+        }
+      },
+      "Password": {
+        "sensor": {
+          "Current": "demo-password",
+          "HistoryUntil": {}
+        }
+      }
+    },
+    "TimestampFormat": {
+      "ts0": {
+        "default": {
+          "Current": "time:            ",
+          "HistoryUntil": {}
+        }
+      },
+      "ts16": {
+        "default": {
+          "Current": "time:%10d ",
+          "HistoryUntil": {
+            "2026-05-01T00:00:00Z": "[%04x] "
+          }
+        }
+      },
+      "ts32": {
+        "default": {
+          "Current": "time:%10d ",
+          "HistoryUntil": {}
+        }
+      }
+    },
+    "TypeX0": {
+      "default": {
+        "Current": "error",
+        "HistoryUntil": {}
+      },
+      "sensor": {
+        "Current": "counted:% x",
+        "HistoryUntil": {}
+      }
+    }
+  },
+  "Trices": {
+    "1000": {
+      "Type": "TRICE32_1",
+      "Strg": "temperature=%d\n"
+    },
+    "1001": {
+      "Type": "TRICE16_3",
+      "Strg": "x=%d y=%d z=%d\n"
+    },
+    "1002": {
+      "Type": "TRICE_S",
+      "Strg": "state=%s\n"
+    }
+  }
+}

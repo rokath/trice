@@ -1,0 +1,42 @@
+{
+	"1000": {
+		"Type": "trice",
+		"Strg": "msg:main started\\n"
+	},
+	"1001": {
+		"Type": "trice",
+		"Strg": "msg:inline shared value=%d\\n"
+	},
+	"1002": {
+		"Type": "trice",
+		"Strg": "msg:source shared value=%d\\n"
+	},
+	"1003": {
+		"Type": "trice",
+		"Strg": "msg:source primary value=%d\\n"
+	},
+	"1004": {
+		"Type": "trice",
+		"Strg": "msg:inline shared value=%d\\n"
+	},
+	"1005": {
+		"Type": "trice",
+		"Strg": "msg:main completed value=%d\\n"
+	},
+	"1006": {
+		"Type": "trice",
+		"Strg": "msg:source shared value=%d\\n"
+	},
+	"1007": {
+		"Type": "trice",
+		"Strg": "msg:source secondary value=%d\\n"
+	},
+	"1008": {
+		"Type": "trice",
+		"Strg": "msg:inline secondary value=%d\\n"
+	},
+	"1009": {
+		"Type": "trice",
+		"Strg": "msg:inline primary value=%d\\n"
+	}
+}
