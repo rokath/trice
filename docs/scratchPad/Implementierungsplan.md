@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R26 und R32 wurden anschließend jeweils mit „GO“ ausdrücklich freigegeben, umgesetzt und auf Windows geprüft. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
+Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R14, R26 und R32 wurden anschließend jeweils mit „GO“ ausdrücklich freigegeben, umgesetzt und auf Windows geprüft. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
 
 ## Aufgabenübersicht
 
@@ -8,9 +8,8 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 | ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | --- | ---: | --- | --- |
-| [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen; Abgleich/Abnahme | Beschlossene Checkout-/Binary-Installation von v2 abschließend prüfen | 5 | S–M | R05 erledigt; kein /v2-Modulpfad |
-| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen; Restabnahme | Vorhandene Beta-Notes, Archive, Lizenzen und Feature-Audits am Kandidaten abnehmen | 5 | M | R14; aktuelle Quellen und beide PDFs |
-| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R26/R32 lokal auf Windows geprüft; Linux-CI, R15 und übrige ausgewählte Änderungen |
+| [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen; Restabnahme | Vorhandene Beta-Notes, Archive, Lizenzen und Feature-Audits am Kandidaten abnehmen | 5 | M | R14 lokal geprüft; aktuelle Quellen und beide PDFs |
+| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R14/R26/R32 lokal auf Windows geprüft; native CI, R15 und übrige ausgewählte Änderungen |
 | [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Offen; Bedarf ermittelt | Skriptverträge, check-Nebenwirkungen, alte Pflegewege und verwaiste Handover-Helfer klären | 4 | M | R26 zuerst; keine pauschale Umbenennung oder Neuorganisation |
 | [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Offen; gezielte Lücken | ABC, Standalone-Builds, CGO-/CLion-Einstiege und Bind-Dokumentation abgleichen | 4 | M | Vorhandene Bind-Matrix erhalten; Insert/Clean bleibt verfügbar |
 | [R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Offen; Vorschlag zur Auswahl | Veraltete Einstiegsaussagen korrigieren, Wiederholungen verlinken, kleine Inhaltsverschiebungen | 4 | M | Kapitelquellen bleiben maßgeblich; UM nur auf ausdrücklichen Auftrag |
@@ -27,24 +26,12 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 **R32-Testlage:** Der gemeldete `stitchmd dev`-Abbruch und der aktive Link auf die nicht versionierte `demoLI.json` sind korrigiert. Im frischen Testcheckout ohne lokale LI/Sidecars bestehen PDF-Hook, GoReleaser-Snapshot sowie Offline- und regulärer Online-Linkcheck. npm- und Browser-Cache waren beim ersten PDF-Lauf leer. Das ist ein Windows-Nachweis; die erneute Linux-CI-Abnahme und native macOS-Gegenprobe bleiben bei R16 offen.
 
+**R14-Testlage:** Der Checkout-Installer löst Windows-GOPATH-Pfade korrekt auf und schützt damit auch vorhandene Installationen. 380 Skripttests, der echte Checkout-CI-Schritt mit isoliertem GOBIN/GOPATH sowie ein neuer Snapshot mit Archivprüfungen bestehen auf Windows. Die neue CI-Matrix für Windows/Linux/macOS ist eingerichtet; ihre nativen GitHub-Läufe und Paketinstallationen bleiben R16. Modulpfad und Imports wurden nicht auf `/v2` umgestellt.
+
 [Offene Release-Aufgaben](#konkrete-aufgaben-vor-dem-release) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Hintergrund](#hintergrund-und-vorbemerkungen) · [Erledigte Aufgaben](#erledigte-korrekturen) · [Historische Repo-Bestandsprüfung](#bestandszuordnung-und-befunde-der-repo-prüfung)
 
 ## Konkrete Aufgaben vor dem Release
 
-
-### Checkout-/Binary-Installationswege für v2 absichern
-
-**R14 · Gewicht 5 · Aufwand S–M · Implementierung weitgehend vorhanden; abschließender Abgleich offen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Entscheidung des Anwenders: **`/v2` vorerst weglassen.** `go.mod` bleibt bei `module github.com/rokath/trice`, Imports bleiben unverändert. Die Produktversion v2.0.0 wird über fertige Binaries und lokale Builds aus einem Repo-Checkout angeboten. Die [Installationsanleitung im RM](../rm/project_resources.md#download-and-install-trice) nennt dafür `./scripts/buildTriceTool.sh` statt `go install github.com/rokath/trice/cmd/trice@latest`, mit Aufrufort und Hinweis auf die ausgegebenen Installationspfade; README und Guide führen dorthin.
-
-Lokales Bauen und Installieren aus dem Checkout benötigt allein wegen der Produktversion keinen Major-Modulpfad. Das vom Skript intern verwendete lokale `go install ./cmd/trice ./cmd/tlog` bleibt zulässig. Versionierte Go-Auflösung über `@v2.0.0` wäre dagegen an einen passenden Major-Modulpfad gebunden und gehört vorerst nicht zum zugesagten Installationsumfang. Siehe [Go: Major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
-
-Verbleibende Aufgabe: Aktive Installationsanleitungen und Release-Prüfungen auf den beschlossenen Umfang abstimmen. Weitere entfernte Go-Installationsanweisungen dürfen v2 nicht versprechen. Lokalen Build beider Tools und ausgelieferte Binaries prüfen; eine spätere Modulpfadumstellung benötigt eine neue Entscheidung.
-
-**Abnahme:** Der lokale Build mit `./scripts/buildTriceTool.sh` und die angebotenen Binary-Installationswege funktionieren in einer sauberen Umgebung. Dokumentation und Prüfungen passen dazu; keine `/v2`-Umstellung und keine v2-Modulinstallationszusage. Kein Tag oder Publish im Rahmen dieses Auftrags.
 
 ### Release Notes und ausgelieferte Dateien prüfen
 
@@ -75,6 +62,8 @@ Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` 
 **Aktualisierung vom 14. Oktober:** R26 ist implementiert; die sieben Windows-Fehlergruppen und die vollständigen Schritte 540/550 sind separat grün abgenommen. Der native macOS-/Linux-Nachweis nach diesen Korrekturen steht noch aus. Mac-PASS vor der Korrektur ist die Meldung des Benutzers, keine neue Agentenprüfung. Der zuvor gestartete Original-Full-Lauf und seine damaligen Go-Fehler bleiben ein eigener Befund. Die R26-Teilabnahme ersetzt keinen einheitlichen Kandidatenlauf nach den ausgewählten Änderungen und R32.
 
 R32 ist anschließend lokal auf Windows im frischen Checkout geprüft: echter gepinnter stitchmd-Installationsweg, PDF-Hook mit neuem npm-/Browser-Cache, Snapshot ohne Publish und beide Linkcheck-Modi bestehen. Die erneute Linux-CI-Abnahme und native macOS-Gegenprobe wurden hier nicht ausgeführt; auf diesem Rechner sind weder WSL noch Docker verfügbar. Diese Nachweise bleiben Teil von R16, ebenso der feststehende Release-Kandidat.
+
+R14 ergänzt einen geprüften Checkout-Installer, klare Archiv-/Checkout-Anleitungen und eine neue native Checkout-CI-Matrix. Der tatsächliche Matrix-Schritt sowie die ausgepackten Windows-Snapshot-Tools sind lokal grün; Linux-/macOS-Ausführung, Paketinstallation und die veröffentlichte v2-Version sind damit nicht bereits abgenommen. Diese noch fehlenden Nachweise am feststehenden Kandidaten bleiben bei R16/R15.
 
 Nach R26, R32 und den übrigen für den Kandidaten ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
 
@@ -302,7 +291,7 @@ Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung be
 
 R26 ist umgesetzt und auf Windows gezielt sowie mit 540/550 abgenommen. Den bereits gestarteten Original-Full-Lauf getrennt auswerten und seine vollständigen Fehlerprotokolle erhalten. Seine Source-/ID-Zwischenzustände wurden für R26 nicht verändert oder bereinigt; die geprüfte Korrektur entstand in einer isolierten Kopie.
 
-R32 ist ebenfalls umgesetzt; der lokale Nachweis aus frischem Checkout steht bei den abgeschlossenen Aufgaben. Als nächste Korrekturaufträge R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R14/R15 sichern die bereits weitgehend implementierte Distribution ab; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs, erneuter Linux-CI-Abnahme und den noch fehlenden nativen Plattformnachweisen. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
+R32 und R14 sind ebenfalls umgesetzt; ihre lokalen Nachweise aus frischem Checkout stehen bei den abgeschlossenen Aufgaben. Als nächste Korrekturaufträge R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R15 bleibt die Restabnahme der Distribution am Kandidaten; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs, erneuter Linux-CI-Abnahme und den noch fehlenden nativen Plattformnachweisen. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
 
 Merge, Git-Schreibaktionen, Tag, Veröffentlichung und ein neuer langer Full-Test benötigen ihren jeweiligen ausdrücklichen Auftrag. Den Merge führt der Benutzer auf GitHub aus. Die Dateiablage allein rechtfertigt keine weiteren Features oder umfassende Umorganisation von Beispielen und Testmatrix. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
 
@@ -312,6 +301,7 @@ Die folgenden Aufgaben sind abgeschlossen oder ausdrücklich archiviert. Ältere
 
 | ID | Status | Ergebnis / Nachweis |
 | --- | --- | --- |
+| [R14](#checkout-binary-installationswege-für-v2-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | GOPATH-/Überschreibschutz korrigiert; echter Checkout-CI-Schritt, 380 Skripttests und Snapshot-Archive geprüft. Native CI/Paketinstallation bei R16 offen. |
 | [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | Echter Go-Installationsbuild, frischer PDF-/Snapshot-Lauf und beide Linkcheck-Modi bestanden; Linux-CI/macOS bei R16 offen. |
 | [R26](#windows-testfehler-vollständig-beheben) | Umsetzung und Windows-Abnahme abgeschlossen | 99 gezielte Tests sowie 540/550 bestanden; neue native macOS-/Linux-Abnahme bei R16 offen. |
 | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Erledigt | Aktuelle Referenz von historischen Bind-Entwicklungsständen getrennt; gültige Einzelinformationen übernommen. |
@@ -348,6 +338,33 @@ Weitere abgeschlossene Dokumentations-, Repo- und ID-Aufgaben aus der bisherigen
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Archiviert | Ehemalige Codex-Umzugswerkzeuge und Anleitung; aktiver Einstieg jetzt handsoff/handson | 3 | M | Eigenständiger Entwicklerablauf; damalige Ergebnisse unten, heute kein aktiver ZIP-Transfer |
 | [R25](#ids-identischer-trices-deterministisch-zuordnen) | Erledigt; Release-Pflicht erfüllt | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Beschreibende Tests und Target-/Decoder-Nachweis bestanden; abschließender Gesamtlauf bleibt R16 |
+
+### Checkout-/Binary-Installationswege für v2 absichern
+
+**R14 · Gewicht 5 · Aufwand S–M · Umsetzung und lokale Windows-Prüfung abgeschlossen; native CI/Paketinstallation bei R16 offen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Verbindlicher Installationsumfang:** `/v2` bleibt vorerst ausgeschlossen. `go.mod` behält `module github.com/rokath/trice`; Imports bleiben unverändert. v2 wird über Release-Archive oder einen lokalen Build aus dem Checkout des gewünschten Tags angeboten. Das lokale `go install ./cmd/trice ./cmd/tlog` ist zulässig; eine entfernte Modulinstallation mit einem v2-Tag wird nicht zugesagt. Siehe [Go: Major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
+
+**Ergebnis am 14. Oktober 2026:** Die aktive Dokumentation versprach bereits keine entfernte v2-Installation. [Project Resources](../rm/project_resources.md#download-and-install-trice) und [Tool Build/Release](../rm/tool_build_release.md#build-trice-tool-from-go-sources) erklären nun beide Tools, die GOBIN-/GOPATH-Zielwahl, PATH, Versionskontrolle und den Überschreibschutz. Die widersprüchliche Beschränkung auf den Main-Branch ist durch den gewünschten Release-Tag ersetzt. README/Guide verweisen bereits auf diese maßgeblichen Einstiege und bleiben unverändert; ebenso das benutzergepflegte UM.
+
+Im [Checkout-Installer](../../scripts/buildTriceTool.sh) trennte `${go_path%%:*}` auch einen Windows-Laufwerksbuchstaben ab. Dadurch wurden falsche Zielpfade angezeigt und vorhandene Tools vor `go install` nicht erkannt. Die Korrektur wählt anhand von `go env GOHOSTOS` das Semikolon unter Windows beziehungsweise den Doppelpunkt unter POSIX. GOBIN-Vorrang, Backup-/Force-Verhalten, lokaler Paketbau und Git-Metadaten bleiben erhalten. Die [Regressionstests](../../scripts/release_preparation_test.go) prüfen POSIX-Pfadlisten, Windows-Laufwerke/Backslashes/UNC, Leerzeichen, GOBIN-Vorrang und den Abbruch vor jedem Build bei vorhandenem trice oder tlog.
+
+Die [Installationsprüfung](../../.github/workflows/install-checks.yml) besitzt jetzt zusätzlich einen unabhängigen Checkout-Job für `ubuntu-latest`, `macos-latest` und `windows-latest`. Jeder Runner baut beide Tools zuerst in ein isoliertes GOBIN, danach über ein isoliertes GOPATH, und prüft Version, Hilfe sowie Decoding mit jedem installierten Binary. Die bestehenden Archiv-, Paket- und Release-Prüfungen bleiben bestehen.
+
+**Lokale Prüfungen auf Windows:**
+
+- Die neuen Tests wurden zuerst gegen den unveränderten Installer ausgeführt: vier Windows-Pfadfälle und beide Überschreibschutzfälle scheiterten, POSIX-/GOBIN-Fälle bestanden. Dieser belastbare Ausgangsnachweis liegt in `temp/r14-logs/regression-baseline.log`; der frühere Fixture-Entwurf hatte zusätzlich eine inzwischen berichtigte reine Log-Abstands-Erwartung.
+- Nach Korrektur: `rtk go test ./scripts -count=1` — PASS, **380 Tests**, einschließlich aller neuen Regressionen; Log `scripts-final.log`. Kein Produktiv-Go geändert, kein neuer Full-Test gestartet.
+- Der unveränderte Befehlsblock „Build and verify checkout tools“ aus dem neuen Workflow wurde in `temp/r14-workspace/` mit echtem Go ausgeführt — PASS. GOBIN- und GOPATH-Ziele liegen dort unter `temp/checkout runner/`; der Pfad mit Leerzeichen ist beabsichtigt. Alle vier installierten Tools bestehen Version/Hilfe/Decoding. Benutzerinstallationen wurden nicht ersetzt; Go-/Modul-Caches wurden weiterverwendet. Log: `checkout-build.log`.
+- `goreleaser release --snapshot --clean --skip=publish` im frischen Testcheckout — PASS nach **58 s**; beide PDFs und die aktuellen Archive/Pakete wurden neu erzeugt. Version `1.3.1-next` folgt dem vorhandenen Tagstand, kein v2-Tag wurde angelegt und nichts veröffentlicht. Log: `snapshot.log`.
+- Aus den Windows-/Linux-/macOS-amd64-Archiven wurden beide nichtleeren Tools ausgepackt und ihre Go-Paket-/Modulpfade geprüft: `github.com/rokath/trice/cmd/trice`, `github.com/rokath/trice/cmd/tlog` und unverändert `github.com/rokath/trice`. Die Windows-Tools bestehen zusätzlich Version/Hilfe/Decoding aus dem ausgepackten Verzeichnis außerhalb des Repo-Stammverzeichnisses. Nichtleere DEB-/RPM-/APK-Artefakte sind vorhanden; deren Installation auf Linux wurde hier nicht ausgeführt. Log: `archive-smoke.log`.
+- `shellcheck scripts/buildTriceTool.sh`, `actionlint .github/workflows/install-checks.yml` einschließlich ShellCheck, `bash -n`, Go-Formatprüfung, Markdownlint der beiden Kapitel und `git diff --check` — PASS. UTF-8/LF und bestehende Schlussleerzeilen sind erhalten; alle fünf Implementierungsdateien stimmen bytegenau mit der geprüften Kopie überein.
+- Vollständiger Offline-Linkcheck mit vorhandenem Lychee, unveränderter Repository-Konfiguration und CI-Source-Remap — PASS, **1.976 Links, 0 Fehler**. Log/JSON: `link-offline.log` und `link-offline.json`.
+- PDF-Struktur und URI-Links wurden mit vorhandenem pypdf geprüft; keine temporären localhost-/127.0.0.1-Linkziele. Die geänderten Installationsstellen wurden im Chromium-PDF-Viewer auf den Seiten 440, 445 und 454 gesichtet; Screenshots liegen bei den Logs.
+
+**Isolation und Restabnahme:** Ausgangspunkt war `4ad8d48b`. Alle Zwischenstände/Builds liegen unter `temp/r14-workspace/`, Protokolle unter `temp/r14-logs/`; die vorhandene gepinnte R32-Renderer-Umgebung wurde wiederverwendet. Git vertraute der selbst angelegten Kopie nur über die Prozesskonfiguration; keine globale Git-Einstellung geändert. Die neue native CI-Matrix ist eingerichtet, aber nicht auf GitHub ausgelöst worden. Native Linux-/macOS-Ausführung, Paketinstallationen/Homebrew und die tatsächlich veröffentlichte v2-Version bleiben R16/R15. Kein Commit, Push, Tag oder Publish durch diesen Implementierungsauftrag; eine spätere Modulpfadumstellung erfordert eine neue Entscheidung.
 
 ### CI-PDF-Build und Links ohne lokale Artefakte absichern
 
