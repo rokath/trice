@@ -765,15 +765,28 @@ func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
 // renderer double. Stale PDFs must never conceal missing inputs or failed output.
 func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 	for _, tc := range []struct {
-		name, missing, failed, empty string
+		name, missing, failed, empty, stitcher, toolError string
 	}{
-		{"distinct_artifacts_and_headers_for_both_books", "", "", ""},
-		{"missing_guide_preserves_existing_pdfs", "TriceUserManual", "", ""},
-		{"missing_reference_preserves_existing_pdfs", "TriceReferenceManual", "", ""},
-		{"guide_renderer_failure_is_visible", "", "TriceUserManual", ""},
-		{"reference_renderer_failure_is_visible", "", "TriceReferenceManual", ""},
-		{"empty_guide_output_is_not_success", "", "", "TriceUserManual"},
-		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual"},
+		{"distinct_artifacts_and_headers_for_both_books", "", "", "", "", ""},
+		{"missing_guide_preserves_existing_pdfs", "TriceUserManual", "", "", "", ""},
+		{"missing_reference_preserves_existing_pdfs", "TriceReferenceManual", "", "", "", ""},
+		{"guide_renderer_failure_is_visible", "", "TriceUserManual", "", "", ""},
+		{"reference_renderer_failure_is_visible", "", "TriceReferenceManual", "", "", ""},
+		{"empty_guide_output_is_not_success", "", "", "TriceUserManual", "", ""},
+		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual", "", ""},
+		{"pinned_go_install_dev_build", "", "", "", "pinned", ""},
+		{"pinned_go_install_crlf_metadata", "", "", "", "crlf", ""},
+		{"missing_stitcher", "", "", "", "missing", "stitchmd 0.9.0 is required; install with:"},
+		{"wrong_release", "", "", "", "wrong_release", "stitchmd 0.9.0 is required for reproducible PDF assembly"},
+		{"failed_version_command", "", "", "", "failed_version", "cannot read stitchmd version"},
+		{"missing_go_for_dev_build", "", "", "", "missing_go", "Go is required to verify stitchmd dev"},
+		{"failed_build_information", "", "", "", "failed_metadata", "cannot read stitchmd build information"},
+		{"empty_build_information", "", "", "", "empty_metadata", "stitchmd dev must be built from"},
+		{"unversioned_dev_build", "", "", "", "unversioned", "stitchmd dev must be built from"},
+		{"wrong_module_version", "", "", "", "wrong_module", "stitchmd dev must be built from"},
+		{"wrong_main_package", "", "", "", "wrong_package", "stitchmd dev must be built from"},
+		{"pinned_dependency_is_not_the_main_module", "", "", "", "dependency", "stitchmd dev must be built from"},
+		{"replaced_module_is_not_pinned", "", "", "", "replacement", "stitchmd dev must be built from"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs", "scripts/_prepare_reference_manual.cjs")
@@ -792,8 +805,41 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 			writeFixture(t, root, "bin/node", "#!/bin/sh\necho fixture-node\n")
 			writeFixture(t, root, "bin/npm", "#!/bin/sh\necho fixture-npm\n")
 			writeFixture(t, root, "bin/stitchmd", `#!/bin/sh
-if [ "$1" = -version ]; then echo 'stitchmd 0.9.0'; exit 0; fi
+if [ "$1" = -version ]; then
+  case "$STITCHMD_FIXTURE" in
+    failed_version) echo 'version command failed'; exit 19 ;;
+    wrong_release) echo 'stitchmd 0.8.0' ;;
+    '') echo 'stitchmd 0.9.0' ;;
+    *) echo 'stitchmd dev' ;;
+  esac
+  exit 0
+fi
 printf '# Reference\n' > temp/manual-pdf/TriceReferenceManual.md
+`)
+			// Metadata doubles model go install and reject nearby but unpinned
+			// identities. The selected binary must be the one inspected by Go.
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v stitchmd)" ] || exit 93
+case "$STITCHMD_FIXTURE" in
+  failed_metadata) echo 'unreadable executable'; exit 18 ;;
+  empty_metadata) exit 0 ;;
+esac
+package=go.abhg.dev/stitchmd
+module=go.abhg.dev/stitchmd
+version=v0.9.0
+case "$STITCHMD_FIXTURE" in
+  unversioned) version='(devel)' ;;
+  wrong_module) version=v0.8.0 ;;
+  wrong_package) package=example.com/other ;;
+  dependency) package=example.com/other; module=example.com/other ;;
+esac
+{
+  printf 'fixture: go1.26.1\n\tpath\t%s\n\tmod\t%s\t%s\th1:fixture\n' "$package" "$module" "$version"
+  case "$STITCHMD_FIXTURE" in
+    dependency) printf '\tdep\tgo.abhg.dev/stitchmd\tv0.9.0\th1:fixture\n' ;;
+    replacement) printf '\t=>\t../modified-stitchmd\t(devel)\n' ;;
+  esac
+} | if [ "$STITCHMD_FIXTURE" = crlf ]; then awk '{printf "%s\r\n", $0}'; else cat; fi
 `)
 			writeFixture(t, root, "bin/npx", `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-npx; exit 0; fi
@@ -815,7 +861,19 @@ if [ "${manual##*/}" = "$FAILED.md" ]; then echo "fixture renderer failed: $manu
 if [ "${manual##*/}" = "$EMPTY.md" ]; then exit 0; fi
 printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 `)
-			out, err := runFixture(t, root, "bash scripts/_320_generate_trice_user_manual_pdf.sh", map[string]string{"FAILED": tc.failed, "EMPTY": tc.empty})
+			command := "bash scripts/_320_generate_trice_user_manual_pdf.sh"
+			if tc.stitcher == "missing" || tc.stitcher == "missing_go" {
+				// Hide only the selected command; host utilities remain available
+				// so an installed developer tool cannot mask a missing-tool case.
+				hidden := "stitchmd"
+				if tc.stitcher == "missing_go" {
+					hidden = "go"
+				}
+				command = "command() { if [ \"$1\" = -v ] && [ \"$2\" = " + hidden + " ]; then return 1; fi; builtin command \"$@\"; }; source scripts/_320_generate_trice_user_manual_pdf.sh"
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"FAILED": tc.failed, "EMPTY": tc.empty, "STITCHMD_FIXTURE": tc.stitcher,
+			})
 			if tc.missing != "" {
 				assert.Error(t, err, out)
 				missing := "docs/TriceUserManual.md"
@@ -825,6 +883,17 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				assert.Contains(t, out, "missing or empty manual file: "+missing)
 				_, statErr := os.Stat(filepath.Join(root, "renderer-calls.txt"))
 				assert.True(t, os.IsNotExist(statErr), "missing input must be detected before rendering")
+				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "previous "+manual, string(data))
+				}
+			} else if tc.toolError != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, tc.toolError)
+				assert.Contains(t, out, "PDF generation context:")
+				assert.NoFileExists(t, filepath.Join(root, "temp/manual-pdf/SUMMARY.md"), "unverified tools must fail before staging")
+				assert.NoFileExists(t, filepath.Join(root, "renderer-calls.txt"))
 				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
 					assert.NoError(t, readErr)
@@ -997,18 +1066,31 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 // TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow steps
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
+	for _, tc := range []struct{ name, newline string }{{"LF", "\n"}, {"CRLF", "\r\n"}} {
+		t.Run(tc.name, func(t *testing.T) {
+			checkManualPagesLinks(t, tc.newline)
+		})
+	}
+}
+
+// checkManualPagesLinks exercises the same real workflow with both authored
+// newline styles; link rewriting must preserve code, comments and UTF-8 bytes.
+func checkManualPagesLinks(t *testing.T, newline string) {
+	t.Helper()
+	lineEndings := func(text string) string { return strings.ReplaceAll(text, "\n", newline) }
 	root := t.TempDir()
 	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/performance.md)\n")
-	writeFixture(t, root, "docs/README.md", "[Guide](TriceGuide.md#entry-points)\n")
+	writeFixture(t, root, "docs/README.md", lineEndings("[Guide](TriceGuide.md#entry-points)\n"))
 	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
-		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
+		writeFixture(t, root, "docs/"+manual+".md", lineEndings("[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n"))
 	}
-	writeFixture(t, root, "docs/rm/README.md", "[Bind](bind.md#bind-limits)\n")
+	writeFixture(t, root, "docs/rm/README.md", lineEndings("[Bind](bind.md#bind-limits)\n"))
 	// Nested chapters resolve parent documentation and source files differently.
 	// Image previews, commented tests and code examples must survive unchanged.
 	chapter := "[User](../TriceUserManual.md#see-your-first-log)\n[Code](../../src/trice.h)\n[`Header`](../../src/trice.h)\n[Help](../ref/trice-help-all.txt)\n![Image](../ref/example.png)\n[![Preview](../ref/example.png)](../ref/example.gif)\n[Local](#local)\n[External](https://example.com/guide?q=1#chapter)\n<a href=\"../TriceGuide.md#entry-points\">Guide</a>\n```md\n[Example](../../src/trice.h)\n```\n<!--\n[Comment](../../src/trice.h)\n-->\n`[Inline](../../src/trice.h)`\n"
+	chapter = lineEndings(chapter + "UTF-8: café, µs.\n")
 	writeFixture(t, root, "docs/rm/bind.md", chapter)
-	writeFixture(t, root, "docs/rm/performance.md", "# Trice Performance\n")
+	writeFixture(t, root, "docs/rm/performance.md", lineEndings("# Trice Performance\n"))
 	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare documentation for GitHub Pages"} {
 		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
 		assert.NoError(t, err, out)
@@ -1043,9 +1125,12 @@ func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 		"```md\n[Example](../../src/trice.h)\n```",
 		"<!--\n[Comment](../../src/trice.h)\n-->",
 		"`[Inline](../../src/trice.h)`",
+		"UTF-8: café, µs.",
 	} {
-		assert.Contains(t, string(data), expected)
+		assert.Contains(t, string(data), lineEndings(expected))
 	}
+	assert.Equal(t, strings.Count(chapter, "\n"), strings.Count(string(data), "\n"), "link rewriting must retain line boundaries")
+	assert.Equal(t, strings.Count(chapter, "\r\n"), strings.Count(string(data), "\r\n"), "authored line endings must survive on every host")
 	assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"))
 }
 
@@ -1061,7 +1146,8 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 					writeFixture(t, root, path, "[Reference](./rm/bind.md#bind-limits)\n")
 				}
 			}
-			chapter := "[User](../TriceUserManual.md)\n"
+			// Even byte-sensitive input must survive a failed preflight unchanged.
+			chapter := "\xef\xbb\xbf[User](../TriceUserManual.md)\r\n"
 			writeFixture(t, root, "docs/rm/bind.md", chapter)
 			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
 			assert.Error(t, err, out)
@@ -1084,15 +1170,36 @@ func TestManualPDFNavigationOutlivesTheRenderer(t *testing.T) {
 	writeFixture(t, root, "check.cjs", `
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
-const config = require('./scripts/_manual_pdf_config.cjs');
+const childProcess = require('node:child_process');
+const path = require('node:path');
+const configPath = require.resolve('./scripts/_manual_pdf_config.cjs');
+const originalExecFileSync = childProcess.execFileSync;
+// Exercise a reproducible checkout and an exported tree without requiring Git
+// metadata in the fixture or launching platform-specific executable doubles.
+for (const ref of ['0123456789abcdef0123456789abcdef01234567', 'main']) {
+  delete require.cache[configPath];
+  childProcess.execFileSync = (command, args, options) => {
+    assert.equal(command, 'git');
+    assert.deepEqual(args, ['rev-parse', 'HEAD']);
+    assert.equal(options.cwd, path.resolve(path.dirname(configPath), '..'));
+    if (ref === 'main') throw new Error('no Git metadata in exported sources');
+    return ref + '\n';
+  };
+  let config;
+  try {
+    config = require(configPath);
+  } finally {
+    childProcess.execFileSync = originalExecFileSync;
+  }
+const repositoryBase = 'https://github.com/rokath/trice/blob/' + ref;
 const cases = [
   ['#get-the-tools', '#get-the-tools'],
   ['#chapter-start', '#manual-start', 'back to top'],
   ['#chapter-section', '#manual-start', '  BACK to TOP  '],
   ['./TriceUserManual.md#see-your-first-log', '#see-your-first-log'],
   ['./TriceUserManual.md#chapter-start', '#manual-start', 'go to top'],
-  ['./rm/bind.md#bind-limits', 'https://github.com/rokath/trice/blob/main/docs/rm/bind.md#bind-limits'],
-  ['../examples/PC_features/main.c', 'https://github.com/rokath/trice/blob/main/examples/PC_features/main.c'],
+  ['./rm/bind.md#bind-limits', repositoryBase + '/docs/rm/bind.md#bind-limits'],
+  ['../examples/PC_features/main.c', repositoryBase + '/examples/PC_features/main.c'],
   ['https://example.com/guide?q=1#chapter', 'https://example.com/guide?q=1#chapter'],
   ['https://example.com/guide#top', 'https://example.com/guide#top', 'back to top'],
   ['mailto:maintainer@example.com', 'mailto:maintainer@example.com'],
@@ -1105,10 +1212,11 @@ const links = cases.map(([href, expected, text]) => ({
 }));
 const details = [{open:false}];
 const document = {
+  title: 'temporary renderer address',
   location: new URL('http://localhost:12345/docs/TriceUserManual.md'),
   querySelector(selector) {
     assert.equal(selector, 'h1[id]');
-    return {id:'manual-start'};
+    return {id:'manual-start', textContent:'  Trice User Manual  '};
   },
   querySelectorAll(selector) {
     if (selector === 'details') return details;
@@ -1119,10 +1227,14 @@ const document = {
 for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
 cases.forEach(([before, expected], index) => assert.equal(links[index].href, expected, before));
 assert.equal(details[0].open, true, 'the printed contents must be visible');
+assert.equal(document.title, 'Trice User Manual', 'PDF metadata must identify the book rather than localhost');
 document.querySelector = () => null;
+document.title = 'Existing book title';
 links[1].href = '#chapter-start';
 for (const script of config.script) vm.runInNewContext(script.content, {document, URL});
 assert.equal(links[1].href, '#chapter-start', 'an absent book heading must not create a broken destination');
+assert.equal(document.title, 'Existing book title', 'an absent book heading must preserve the existing title');
+}
 console.log('PASS: local destinations, repository links, external URLs and printed contents');
 `)
 	command := exec.Command(node, "check.cjs")
@@ -1336,12 +1448,19 @@ func TestClangFormatNativeCache(t *testing.T) {
 			root, env := clangBootstrapFixture(t, layout.platform)
 			data, err := os.ReadFile(filepath.Join(root, "seed/formatter"))
 			assert.NoError(t, err)
-			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.native, string(data))
+			// Observe execution instead of its displayed path: MSYS can launch an
+			// .exe through the same path without the suffix. The launcher must
+			// never substitute for this native tool, even when Python is absent.
+			env["NATIVE_FORMATTER_LOG"] = filepath.Join(root, "native-formatter.log")
+			native := strings.Replace(string(data), "#!/bin/sh\n", "#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$NATIVE_FORMATTER_LOG\"\n", 1)
+			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.native, native)
 			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.launcher, "#!/bin/sh\necho broken-launcher; exit 99\n")
 			env["FAIL_STAGE"] = "python"
 			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh setup", env)
 			assert.NoError(t, err, out)
-			assert.Contains(t, out, layout.native)
+			nativeCalls, err := os.ReadFile(env["NATIVE_FORMATTER_LOG"])
+			assert.NoError(t, err)
+			assert.Contains(t, string(nativeCalls), "--version\n", "the cached native tool must actually execute")
 			assert.NotContains(t, out, "broken-launcher")
 			_, err = os.Stat(filepath.Join(root, "setup.log"))
 			assert.True(t, os.IsNotExist(err))

@@ -1,18 +1,5 @@
 # Trice Output to SD Cards and Custom Writers
 
-<details markdown="1">
-<summary>Contents</summary>
-
----
-
-<!-- mdtoc -->
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
----
-
-</details>
-
 * Enable `TRICE_DEFERRED_AUXILIARY8` in your project specific _triceConfig.h_ file. 
 * Enabling `TRICE_DEFERRED_AUXILIARY8` is possible parallel to any direct and/or deferred output.
 * The `TRICE_DEFERRED_OUT_FRAMING` value is used also for the deferred auxiliary writes.

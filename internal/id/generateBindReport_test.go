@@ -240,6 +240,9 @@ func TestBindReportRejectsWriteModesAndIncompleteInputs(t *testing.T) {
 			var output bytes.Buffer
 			err := SubCmdGenerate(&output, &afero.Afero{Fs: inspected})
 			require.ErrorContains(t, err, expected)
+			if failure, ok := inspected.(*bindMetadataReadFailFs); ok {
+				assert.Positive(t, failure.readAttempts, "the selected read failure must actually be injected")
+			}
 			assert.Empty(t, output.String(), "a failed inspection must not publish a misleading partial inventory")
 			assert.Equal(t, 0, guard.writes)
 			assert.Equal(t, before, reportTree(t, fs))

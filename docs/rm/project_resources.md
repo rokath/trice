@@ -26,15 +26,17 @@
 
 Choose a release or a source checkout, then use its matching target sources, host tools, and documentation. An older release binary may not contain features documented by a newer checkout. See [firmware and host-tool compatibility](id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions).
 
-- [GitHub Releases](https://github.com/rokath/trice/releases) provides published host-tool archives and source archives. Choose the operating system and architecture of your host computer; extract the tool and add its directory to `PATH`.
+- [GitHub Releases](https://github.com/rokath/trice/releases) provides published host-tool archives and source archives. Choose the operating system and architecture of your host computer; extract both `trice` and `tlog` and add their directory to `PATH`.
 - For a checkout build, run the existing script from the repository root with Go and Bash installed:
 
   ```sh
   ./scripts/buildTriceTool.sh
   trice --version
+  tlog --version
   ```
 
   The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../../go.mod); see [building the host tools](tool_build_release.md#build-trice-tool-from-go-sources) for details.
+- For v2, use a release archive or build a checkout of its tag. Remote `go install github.com/rokath/trice/cmd/trice@v2.0.0` is not supported while the module path has no `/v2` suffix. A local checkout build does not require that suffix.
 - The macOS Homebrew tap provides stable releases: `brew install rokath/tap/trice`. For a beta, use its tagged release archive or build from its source checkout. Confirm the installed version rather than assuming it includes the current development checkout.
 
 For the first hardware-free experiment, follow the [User Manual](../TriceUserManual.md#get-lib-and-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](quickstarts.md).

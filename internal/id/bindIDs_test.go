@@ -46,7 +46,9 @@ type bindMetadataReadFailFs struct {
 // Open records and rejects access to the selected secondary JSON file. The
 // resolver should cache this negative result and therefore call Open only once.
 func (f *bindMetadataReadFailFs) Open(name string) (afero.File, error) {
-	if name == f.path {
+	// Fixture paths use slashes; callers may pass native Windows separators.
+	// Match the same filesystem path so error injection cannot silently vanish.
+	if filepath.Clean(name) == filepath.Clean(f.path) {
 		f.readAttempts++
 		return nil, os.ErrPermission
 	}

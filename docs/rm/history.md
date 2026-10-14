@@ -1,18 +1,5 @@
 # A Brief History of Trice
 
-<details markdown="1">
-<summary>Contents</summary>
-
----
-
-<!-- mdtoc -->
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
----
-
-</details>
-
 Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? OK, increment a counter and display it in a background loop with some printf-like function. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with a video interrupt synced oscilloscope gave me the needed information, after I changed the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
 
 A `printf` is so cool on a PC, developing software there. But an embedded device often cannot use it for performance reasons. My very first attempt was writing the format string `.const` offset together with its values in a FIFO during a log statement and to do the `printf` it in the background. But that is compiler specific. OK the full string address is better but needs buffer space. [Zephyr](https://docs.zephyrproject.org/latest/) for example does something like that calling it "deferred logging".

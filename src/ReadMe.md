@@ -36,9 +36,15 @@ interpretation is:
 Project-level documentation:
 
 - Repository: [github.com/rokath/trice](https://github.com/rokath/trice)
-- Main README: [README.md](../README.md)
-- Reference Manual: [../docs/rm/README.md](../docs/rm/README.md)
-  - Generated release asset: `TriceReferenceManual.pdf`
+- A full repository checkout includes `README.md`, the guide in `docs/TriceGuide.md`,
+  the User Manual in `docs/TriceUserManual.md`, and the Reference Manual chapters
+  under `docs/rm/`.
+- The target-source archive contains the library and its licenses. It does not
+  include the host tools or repository documentation. Download the matching
+  host-tool archive and manuals from the same GitHub release.
+- `TriceUserManual.pdf` provides the guided introduction; `TriceReferenceManual.pdf`
+  contains the detailed reference. Keep these files with the matching source and
+  host-tool version.
 
 ## Configuration Model
 

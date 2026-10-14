@@ -1,18 +1,5 @@
 # Trice Target Configuration
 
-<details markdown="1">
-<summary>Contents</summary>
-
----
-
-<!-- mdtoc -->
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
----
-
-</details>
-
 Check comments inside [triceDefaultConfig.h](../../src/triceDefaultConfig.h) and adapt your project configuration like shown in [triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h) as example.
 
 A Trice macro is avoiding all the `printf()` internal overhead (space and time) but is nearly as easy to use. For example instead of writing

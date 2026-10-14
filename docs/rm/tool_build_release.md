@@ -27,16 +27,17 @@
 
 ## 1. <a id="build-trice-tool-from-go-sources"></a>Build Trice tool from Go sources
 
-* Install [Go](https://go.dev/).
-* Run:
+* Install [Go](https://go.dev/) at the version required by [go.mod](../../go.mod), and Bash (Git Bash on Windows).
+* From the repository root, run:
 
   ```bash
   ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ bash ./scripts/buildTriceTool.sh # internally runs go install ./cmd/trice/...
+  $ bash ./scripts/buildTriceTool.sh # installs ./cmd/trice and ./cmd/tlog locally
   ```
 
-* Afterwards you should find executables `trice` and `tlog` inside `~/go/bin`.
-* Extend PATH variable with `~/go/bin` **OR** copy the Trice binaries from there into a folder of your path.
+* The script prints the installation paths for both `trice` and `tlog` (`.exe` on Windows). It uses `GOBIN` when set; otherwise it uses the first `GOPATH` entry plus `/bin`, normally `~/go/bin`.
+* Add that directory to `PATH`, or copy both binaries to a directory already in `PATH`. Verify with `trice version` and `tlog --version`.
+* An existing tool is protected against accidental replacement. An interactive run asks before overwriting; unattended runs require `--force`. Backups are enabled by default; `--no-backup` disables them.
 * Check:
 
   ```bash
@@ -62,7 +63,7 @@
   ```
 
 * Hints
-  * Use only the main branch. Other branches may be inconsistent.
+  * For a release build, check out the desired release tag first. Development branches may contain unreleased changes.
   * When using [./scripts/buildTriceTool.sh](../../scripts/buildTriceTool.sh), the generated Trice image is significant smaller (about 30%), because the build script removes debugging information from the Trice binary. The Trice release images contain this additionally information for a more verbose error reporting, just in case.  
   * `tlog` is a separate binary for the `trice log` runtime path. It accepts the log flags directly, for example `tlog -port HEX ...`, and release archives/packages ship it next to `trice`.
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
@@ -114,12 +115,12 @@ The last tests can last quite a while, depending on your machine.
 
 ```bash
 ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-$ go install ./cmd/trice/
+$ go install ./cmd/trice ./cmd/tlog
 ```
 
-Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
+This direct local command also builds both tools, using Go's `GOBIN`/`GOPATH` installation directory.
 
-After installing Go, in your home folder should exist a folder ./go/bin. Please add it to your path variable. OR: Copy the Trice binaries from there into a folder of your path after creating them with `go install ./cmd/trice/... ./cmd/tlog/...`. There is now a remommended script `./scripts/buildTriceTool.sh`. Using it, depending on your system you may need to enter `bash ./scripts/buildTriceTool.sh`, includes the actual Trice repository state into the Trice binaries, which is shown with `trice version` and `tlog --version` then - useful in case of issues.
+Prefer `bash ./scripts/buildTriceTool.sh` for metadata and overwrite protection. It includes the current repository state in both binaries, shown by `trice version` and `tlog --version`.
 
 ## 2. <a id="prepare-a-release"></a>Prepare A Release
 
@@ -225,6 +226,8 @@ The audit downloads that release explicitly and tests its archives, packages, ta
 ### 3.6. <a id="install-a-beta-or-a-stable-release"></a>Install a Beta or a Stable Release
 
 For a beta, download the matching platform archive from its tagged release and place its tools in `PATH`, or build from a checkout of that tag. Use the matching target sources and manuals.
+
+The module remains `github.com/rokath/trice`. Versioned remote installation with a v2 tag is not supported without a `/v2` module path; use the archive or local checkout build described above. See [Go major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
 
 Homebrew remains the stable-release route. `skip_upload: auto` prevents prerelease tags from updating the normal tap, and beta audits skip the Homebrew job. Before publishing a stable v2 release, review `release.prerelease` and the stable installation checks explicitly.
 
