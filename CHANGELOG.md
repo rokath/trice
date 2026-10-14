@@ -6,23 +6,62 @@ This first v2 beta is intended for testing the new instrumentation and logging w
 
 ### New workflows and features
 
-- `trice bind` keeps numeric IDs out of readable log calls and generates the compiler sidecars before the firmware build. The existing Insert/Clean workflow remains available.
-- `tlog` provides the logging command as a separate executable and ships beside `trice`.
-- Structured Logging exposes named values in text, JSON and key/value output. Context Enrichment adds selected application context at the log call without adding manual arguments to every call.
-- Tag selection, severity weights, colors and event statistics share the revised tag rules.
-- Identical log calls receive deterministic ID assignments within the selected scan. Adding, removing or moving an identical call can change the IDs assigned to the other calls in that group.
+- `trice bind` keeps numeric IDs out of source log calls. Before the firmware build, it generates extra headers (sidecars) that supply the IDs during compilation. The existing Insert/Clean workflow remains available.
+- [Structured Logging](docs/rm/structured_logging.md) exposes named values in text, JSON (one object per event) and key/value output, including source locations and target timestamps. `-logFormat text` remains the default; use `-logFormat json` or `-logFormat kv` for machine-readable output. Both the existing `trice log` and `tlog` commands support these features.
+- [Context Enrichment](docs/rm/context_enrichment.md) adds values such as a clock reading to selected log calls through `-ce` rules. You do not need to add the arguments to each call by hand. Bind supports this for direct calls; Insert adds the context to the source, and Clean can remove it with the same rules.
+- [Tag selection and severity](docs/rm/tags_color_and_weights.md) use weights from 0 to 999: higher values mean higher priority. User tags can receive their own weights and colors; `-color dark`, `-color light` and `-color contrast` select terminal palettes.
+- [Local deferred text logging](docs/rm/target_implementation.md#local-deferred-text-log) formats buffered binary records on the target with `TriceLog()`, using a generated metadata table and configurable formatter hooks. Optional features include strings, floating-point values, source prefixes, colors and tag removal. This provides text output without a host decoder.
+- [Visualization output](docs/rm/cli.md#visualization-output-with--vis) transforms selected numeric messages with repeatable `-vis` rules and writes the results to files or UDP, for example as scaled CSV measurements for a plotting tool.
+- [Generation tools](docs/rm/generate.md) provide `-logC` to generate a C table of the messages used by selected sources. `-onelineJSON` creates dictionary copies with one ID entry per line. `-bindReport` lists existing generated headers and the sources that include them, without changing files.
+- Insert and Bind assign the available IDs to calls with the same type and format string in source order: file path, line and position within the line. Adding, removing or moving one of these calls can change the IDs of the others, even when their source text is unchanged. See [ID assignment](docs/rm/id_management.md#different-ids-for-same-trices).
 - The short [User Manual](docs/TriceUserManual.md) includes runnable PC experiments. The [Reference Manual](docs/rm/README.md) is maintained as smaller chapters and is also assembled into a complete release PDF. F030 examples demonstrate instrumenting a CubeMX project with RTT or UART.
+
+### Target integration and fixes
+
+- Updated SEGGER RTT sources include vendor defaults and an overridable fallback configuration in `src/default_conf`. Trice automatically inherits channel counts and buffer sizes from the selected `SEGGER_RTT_Conf.h`; matching definitions no longer need to be repeated in `triceConfig.h`.
+- Calls without value arguments now compile in strict C99 and later without compiler-specific extensions. Builds no longer need to link disabled output drivers or unused framing encoders, even without link-time optimization (LTO).
+- Deferred output selected by ID now includes the first and last ID of each range. Invalid bounds cause a compiler error. Deferred UART, auxiliary and RTT outputs require `TRICE_SINGLE_PACK_MODE` when ID selection is active.
+- Logging reloads `til.json` and `li.json` when they are edited or replaced. `FILEBUFFER` replay exits after reading the captured file and closes its files and input resources.
+- Filters keep or hide each decoded log call together with its timestamps and source location. Decoder errors remain visible even when application messages are filtered out. Statistics count each successfully decoded event once, including hidden events; one event may produce several text lines.
 
 ### Upgrading and installation
 
-- Install both host tools from the beta's platform archive, or build them from a checkout of its tag with `./scripts/buildTriceTool.sh`. Versioned remote Go installation of v2 is not offered; the Go module path remains unchanged.
-- Run Bind before compilation and place its generated headers on the include path. Regenerate the sidecars with Bind after changing log sources; do not rename or edit individual generated definitions.
-- Keep the accumulated TIL for decoding and preserve firmware-specific LI files when source locations are needed. See [dictionary and firmware compatibility](docs/rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions).
+- Install both host tools from the beta's platform archive, or check out its tag and run `./scripts/buildTriceTool.sh`. Source builds require Go 1.25 or later. Remote `go install` with a v2 version tag is not supported because the Go module path has no `/v2` suffix.
+- When adopting Bind, run it before compilation and add its generated header directory to the compiler's include path. Run Bind again after changing log sources. Do not rename or edit individual generated headers. Existing Insert/Clean projects can keep that workflow.
+- Keep old entries in `til.json` to decode earlier firmware. Save the matching `li.json` with each firmware version when source locations are needed. The host must understand the dictionary's formats; see [dictionary and firmware compatibility](docs/rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions).
+- Host and target-source archives include the full MIT license; the target archive also includes the SEGGER license. Both manuals are provided as separate release PDFs.
 - Beta downloads are available directly from the selected GitHub Release. The normal Homebrew tap continues to provide stable releases.
+- ABC (Asynchronous Broadcast Commands) was already included in v1.3.0, with a multi-node example and C-code generation. ABC scripts that use a target name without a directory need the output-path adjustment below.
+
+### Migrating 1.x scripts and projects
+
+Review scripts written for 1.x before using the v2 tools. The following changes are relative to v1.3.0 and apply to both `trice log` and `tlog` where relevant:
+
+| Previous usage | Required adjustment |
+| --- | --- |
+| `trice generate -tilC` | Use `trice generate -src Core -logC`, selecting your own sources. Run Insert or Bind first. Only currently referenced IDs are emitted, not the whole historical TIL. The default output is now `generated/til.c`; use `-logC=build/til.c` to choose a path. |
+| `trice generate -abc deviceX` followed by compiling `deviceX.c` | A name without a directory now produces `generated/deviceX.h` and `.c`. Compile the file from its new location, select another directory with `-genDir`, or specify the target path, for example `-abc=custom/deviceX`. |
+| ID management with `-liPath` | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it. |
+| Logging with `-liPath` | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename. |
+| `-pick err:wrn` or `-ban dbg:trace` | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above. |
+| `-ulabel alpha:beta` to register two tags | Use `-ulabel alpha -ulabel beta`. A colon now assigns one tag's weight or color, for example `-ulabel alpha:650`. User-defined tags match exact spelling. |
+| Built-in one-letter tags or selectors, or `OK` as a Message alias | Use descriptive names such as `err`, `wrn`, `inf`, `dbg` and `msg`, including in `-IDRange`. Built-in names ignore case. The old aliases are removed; unregistered prefixes count as `untagged`, and unknown selectors are errors. `rx` now selects Receive and `tx` selects Transmit, without the former overlap with Read/Write. |
+| `-logLevel` based on the old tag-table order | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown. |
+
+Further changes can affect builds and automated checks:
+
+- **Literal braces:** write `{{` and `}}` in current source format strings to display `{` and `}`. Single braces now introduce structured fields. Regenerate IDs/dictionaries and rebuild after changing sources. Replay unchanged historical firmware containing literal braces with its archived dictionary and matching 1.x host; supplied dictionaries are not automatically converted.
+- **ID ranges:** `-IDRange` bounds must be within `1..16383`. Tag ranges must not overlap each other or the general ID range. Insert/Bind assigns a different ID when a processed call's current ID is outside its allowed range. Rebuild the affected firmware after IDs change.
+- **Identical calls:** adding, removing or moving an identical log call can change the IDs of other calls with the same type and format string. Rebuild the firmware and retain its matching `li.json` for source locations.
+- **Location information:** keep `li.json` between ID-management runs. It records which source files own the IDs, including files outside a partial scan. To hide locations during logging, use `trice log -li off`; passing `-li off` to Insert/Bind also disables this ownership information.
+- **RTT builds:** put project and generated header directories first, then `src`, then `src/default_conf` on the include path. When updating RTT, copy `SEGGER_RTT.c`, `SEGGER_RTT.h` and `SEGGER_RTT_ConfDefaults.h` together and retain the license. Keep an existing project-specific `SEGGER_RTT_Conf.h`; see [RTT integration](docs/rm/rtt.md).
+- **Custom encoding calls:** projects calling `TriceEncode()` with a framing format not selected by an active output must explicitly enable `TRICE_COBS_ENCODE_SUPPORT` or `TRICE_TCOBS_ENCODE_SUPPORT` and link that encoder. Unavailable framing returns `0`.
+- **Output parsing:** statistics now include messages hidden by host filters. For JSON/KV, read application records from standard output and diagnostics from standard error. Replay can reject a record and still exit successfully; scripts must also check the diagnostics and whether the expected records were produced.
+- **Repository automation:** helper/test scripts use numbered filenames, for example `scripts/_530_test_links.sh` replaces `_testAll_06_LinkCheck.sh`. Update hard-coded helper and documentation paths; the RM entry point is now `docs/rm/README.md`. `./scripts/testAll.sh` defaults to the quick Bind workflow and continues after failures; use `full` for broad Insert/Clean coverage and `--stop` for early exit. See [target tests](docs/rm/target_tests.md).
 
 ### Known limits and feedback
 
-- Bind counter-selected wrapper and same-line regions require a compiler with `__COUNTER__` support; other restrictions are listed in [Bind limits](docs/rm/bind.md#bind-limits).
+- Bind needs compiler support for `__COUNTER__` to distinguish multiple calls on one line or ambiguous macro-wrapper expansions. See [Bind limits](docs/rm/bind.md#bind-limits) for supported source constructs and other restrictions.
 - Bind Context Enrichment currently supports selected direct calls. Selected wrapper/rebase sites are rejected; see [supported log sites and alternatives](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives).
 - Host tests and cross-compilation do not replace execution on a physical MCU. Report platform/compiler problems, instrumentation failures and unexpected text/JSON/KV output with the tool version, configuration and a small reproducer.
 
