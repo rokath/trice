@@ -22,7 +22,7 @@ extern uint32_t ms32; //! ms32 is a 32-bit millisecond counter, counting circula
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 2048
 
-// Windows: trice log -p jlink -args "-Device STM32F030R8" -pf none -prefix off -hs off -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json
+// Windows: trice log -p jlink -args "-Device STM32F030R8" -pf none -prefix off -hs off -d16 -showID "deb:%5d" -i ../../demoTIL.json -li ../../demoLI.json -typeX0 "% x"
 // Unix:   ./RTTLogUnix.sh or manually:
 // 		Terminal 1: rm ./temp/trice.bin && JLinkRTTLogger -Device STM32G0B1RE -If SWD -Speed 4000 -RTTChannel 0 ./temp/trice.bin
 // 		Terminal 2: touch ./temp/trice.bin && trice log -p FILE -args ./temp/trice.bin -pf none -prefix off -hs off -d16 -ts16 time:tick #%6d -i ../../demoTIL.json -li ../../demoLI.json
