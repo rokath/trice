@@ -765,15 +765,28 @@ func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
 // renderer double. Stale PDFs must never conceal missing inputs or failed output.
 func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 	for _, tc := range []struct {
-		name, missing, failed, empty string
+		name, missing, failed, empty, stitcher, toolError string
 	}{
-		{"distinct_artifacts_and_headers_for_both_books", "", "", ""},
-		{"missing_guide_preserves_existing_pdfs", "TriceUserManual", "", ""},
-		{"missing_reference_preserves_existing_pdfs", "TriceReferenceManual", "", ""},
-		{"guide_renderer_failure_is_visible", "", "TriceUserManual", ""},
-		{"reference_renderer_failure_is_visible", "", "TriceReferenceManual", ""},
-		{"empty_guide_output_is_not_success", "", "", "TriceUserManual"},
-		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual"},
+		{"distinct_artifacts_and_headers_for_both_books", "", "", "", "", ""},
+		{"missing_guide_preserves_existing_pdfs", "TriceUserManual", "", "", "", ""},
+		{"missing_reference_preserves_existing_pdfs", "TriceReferenceManual", "", "", "", ""},
+		{"guide_renderer_failure_is_visible", "", "TriceUserManual", "", "", ""},
+		{"reference_renderer_failure_is_visible", "", "TriceReferenceManual", "", "", ""},
+		{"empty_guide_output_is_not_success", "", "", "TriceUserManual", "", ""},
+		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual", "", ""},
+		{"pinned_go_install_dev_build", "", "", "", "pinned", ""},
+		{"pinned_go_install_crlf_metadata", "", "", "", "crlf", ""},
+		{"missing_stitcher", "", "", "", "missing", "stitchmd 0.9.0 is required; install with:"},
+		{"wrong_release", "", "", "", "wrong_release", "stitchmd 0.9.0 is required for reproducible PDF assembly"},
+		{"failed_version_command", "", "", "", "failed_version", "cannot read stitchmd version"},
+		{"missing_go_for_dev_build", "", "", "", "missing_go", "Go is required to verify stitchmd dev"},
+		{"failed_build_information", "", "", "", "failed_metadata", "cannot read stitchmd build information"},
+		{"empty_build_information", "", "", "", "empty_metadata", "stitchmd dev must be built from"},
+		{"unversioned_dev_build", "", "", "", "unversioned", "stitchmd dev must be built from"},
+		{"wrong_module_version", "", "", "", "wrong_module", "stitchmd dev must be built from"},
+		{"wrong_main_package", "", "", "", "wrong_package", "stitchmd dev must be built from"},
+		{"pinned_dependency_is_not_the_main_module", "", "", "", "dependency", "stitchmd dev must be built from"},
+		{"replaced_module_is_not_pinned", "", "", "", "replacement", "stitchmd dev must be built from"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs", "scripts/_prepare_reference_manual.cjs")
@@ -792,8 +805,41 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 			writeFixture(t, root, "bin/node", "#!/bin/sh\necho fixture-node\n")
 			writeFixture(t, root, "bin/npm", "#!/bin/sh\necho fixture-npm\n")
 			writeFixture(t, root, "bin/stitchmd", `#!/bin/sh
-if [ "$1" = -version ]; then echo 'stitchmd 0.9.0'; exit 0; fi
+if [ "$1" = -version ]; then
+  case "$STITCHMD_FIXTURE" in
+    failed_version) echo 'version command failed'; exit 19 ;;
+    wrong_release) echo 'stitchmd 0.8.0' ;;
+    '') echo 'stitchmd 0.9.0' ;;
+    *) echo 'stitchmd dev' ;;
+  esac
+  exit 0
+fi
 printf '# Reference\n' > temp/manual-pdf/TriceReferenceManual.md
+`)
+			// Metadata doubles model go install and reject nearby but unpinned
+			// identities. The selected binary must be the one inspected by Go.
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v stitchmd)" ] || exit 93
+case "$STITCHMD_FIXTURE" in
+  failed_metadata) echo 'unreadable executable'; exit 18 ;;
+  empty_metadata) exit 0 ;;
+esac
+package=go.abhg.dev/stitchmd
+module=go.abhg.dev/stitchmd
+version=v0.9.0
+case "$STITCHMD_FIXTURE" in
+  unversioned) version='(devel)' ;;
+  wrong_module) version=v0.8.0 ;;
+  wrong_package) package=example.com/other ;;
+  dependency) package=example.com/other; module=example.com/other ;;
+esac
+{
+  printf 'fixture: go1.26.1\n\tpath\t%s\n\tmod\t%s\t%s\th1:fixture\n' "$package" "$module" "$version"
+  case "$STITCHMD_FIXTURE" in
+    dependency) printf '\tdep\tgo.abhg.dev/stitchmd\tv0.9.0\th1:fixture\n' ;;
+    replacement) printf '\t=>\t../modified-stitchmd\t(devel)\n' ;;
+  esac
+} | if [ "$STITCHMD_FIXTURE" = crlf ]; then awk '{printf "%s\r\n", $0}'; else cat; fi
 `)
 			writeFixture(t, root, "bin/npx", `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-npx; exit 0; fi
@@ -815,7 +861,19 @@ if [ "${manual##*/}" = "$FAILED.md" ]; then echo "fixture renderer failed: $manu
 if [ "${manual##*/}" = "$EMPTY.md" ]; then exit 0; fi
 printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 `)
-			out, err := runFixture(t, root, "bash scripts/_320_generate_trice_user_manual_pdf.sh", map[string]string{"FAILED": tc.failed, "EMPTY": tc.empty})
+			command := "bash scripts/_320_generate_trice_user_manual_pdf.sh"
+			if tc.stitcher == "missing" || tc.stitcher == "missing_go" {
+				// Hide only the selected command; host utilities remain available
+				// so an installed developer tool cannot mask a missing-tool case.
+				hidden := "stitchmd"
+				if tc.stitcher == "missing_go" {
+					hidden = "go"
+				}
+				command = "command() { if [ \"$1\" = -v ] && [ \"$2\" = " + hidden + " ]; then return 1; fi; builtin command \"$@\"; }; source scripts/_320_generate_trice_user_manual_pdf.sh"
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"FAILED": tc.failed, "EMPTY": tc.empty, "STITCHMD_FIXTURE": tc.stitcher,
+			})
 			if tc.missing != "" {
 				assert.Error(t, err, out)
 				missing := "docs/TriceUserManual.md"
@@ -825,6 +883,17 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				assert.Contains(t, out, "missing or empty manual file: "+missing)
 				_, statErr := os.Stat(filepath.Join(root, "renderer-calls.txt"))
 				assert.True(t, os.IsNotExist(statErr), "missing input must be detected before rendering")
+				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "previous "+manual, string(data))
+				}
+			} else if tc.toolError != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, tc.toolError)
+				assert.Contains(t, out, "PDF generation context:")
+				assert.NoFileExists(t, filepath.Join(root, "temp/manual-pdf/SUMMARY.md"), "unverified tools must fail before staging")
+				assert.NoFileExists(t, filepath.Join(root, "renderer-calls.txt"))
 				for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 					data, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
 					assert.NoError(t, readErr)
