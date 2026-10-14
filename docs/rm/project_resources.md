@@ -35,7 +35,7 @@ Choose a release or a source checkout, then use its matching target sources, hos
   ```
 
   The script builds `trice` and `tlog` and prints the installation paths. Use the Go version required by [go.mod](../../go.mod); see [building the host tools](tool_build_release.md#build-trice-tool-from-go-sources) for details.
-- The macOS Homebrew tap is another installation route: `brew install rokath/tap/trice`. Confirm the installed version rather than assuming it includes the current development checkout.
+- The macOS Homebrew tap provides stable releases: `brew install rokath/tap/trice`. For a beta, use its tagged release archive or build from its source checkout. Confirm the installed version rather than assuming it includes the current development checkout.
 
 For the first hardware-free experiment, follow the [User Manual](../TriceUserManual.md#get-lib-and-tools). Its PC examples additionally require a native C compiler. Shell examples use Bash; Windows users can run them in Git Bash with a Windows host compiler. For target integration, choose a [firmware quickstart](quickstarts.md).
 

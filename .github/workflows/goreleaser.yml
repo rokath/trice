@@ -5,6 +5,11 @@ on:
   # Go to: Actions -> "goreleaser" workflow -> "Run workflow".
   # This matches your intent: no automatic releases on push or tag.
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to build, for example v2.0.0-beta-1"
+        required: true
+        type: string
   # If in the future you want to trigger releases when pushing tags,
   # you can uncomment the block below:
   #
@@ -24,6 +29,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate release tag input
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$RELEASE_TAG" ] || ! git check-ref-format "refs/tags/$RELEASE_TAG"; then
+            echo "::error::invalid or missing release tag: $RELEASE_TAG"
+            exit 1
+          fi
+
       - name: Check out repository
         uses: actions/checkout@v7
         with:
@@ -32,6 +48,28 @@ jobs:
           # and to generate changelogs. With a shallow clone this may fail
           # or produce incomplete changelogs.
           fetch-depth: 0
+          # The workflow branch supplies the pipeline; the input supplies sources.
+          ref: refs/tags/${{ inputs.tag }}
+
+      - name: Verify requested release tag
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$RELEASE_TAG" ] || ! git check-ref-format "refs/tags/$RELEASE_TAG"; then
+            echo "::error::invalid or missing release tag: $RELEASE_TAG"
+            exit 1
+          fi
+          if ! tag_commit="$(git rev-parse --verify "refs/tags/$RELEASE_TAG^{commit}")"; then
+            echo "::error::requested release tag does not resolve to a commit: $RELEASE_TAG"
+            exit 1
+          fi
+          if [ "$(git rev-parse HEAD)" != "$tag_commit" ]; then
+            echo "::error::checkout does not match requested release tag: $RELEASE_TAG"
+            exit 1
+          fi
+          echo "Building release tag $RELEASE_TAG at $tag_commit"
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -50,6 +88,38 @@ jobs:
       - name: Install PDF chapter assembler
         run: go install go.abhg.dev/stitchmd@v0.9.0
 
+      - name: Prepare selected release notes
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const tag = process.env.RELEASE_TAG;
+          const lines = fs.readFileSync('CHANGELOG.md', 'utf8').split(/\r?\n/);
+          // Select a complete version token, so beta-1 cannot select beta-10.
+          const start = lines.findIndex(line => line === `## ${tag}` || line.startsWith(`## ${tag} `));
+          if (!tag || start < 0) {
+            console.error(`::error::CHANGELOG.md lacks a release-notes section for ${tag}`);
+            console.error(lines.filter(line => line.startsWith('## ')).slice(0, 8).join('\n'));
+            process.exit(1);
+          }
+          const next = lines.findIndex((line, index) => index > start && line.startsWith('## '));
+          const body = lines.slice(start + 1, next < 0 ? lines.length : next).join('\n').trim();
+          if (!body) {
+            console.error(`::error::CHANGELOG.md has an empty release-notes section for ${tag}`);
+            process.exit(1);
+          }
+          // Keep the source marked unreleased until publication; omit it in assets.
+          // Release pages need the selected tag as context for repository links.
+          const repository = `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${process.env.GITHUB_REPOSITORY}`;
+          const notes = body.replace(/\]\((docs\/[^)]+)\)/g, (_, target) => `](${repository}/blob/${encodeURIComponent(tag)}/${target})`);
+          fs.mkdirSync('temp', { recursive: true });
+          fs.writeFileSync('temp/release-notes.md', `## ${tag}\n\n${notes}\n`);
+          console.log(`Prepared release notes for ${tag}`);
+          NODE
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
@@ -61,12 +131,14 @@ jobs:
           # "release --clean" is the modern equivalent of "--rm-dist":
           # it removes the dist/ directory before building, so you never
           # accidentally ship stale artifacts from a previous run.
-          args: release --clean
+          args: release --clean --release-notes temp/release-notes.md
         env:
           # GitHub automatically provides this token.
           # GoReleaser uses it to create or update the GitHub Release and
           # upload the build artifacts (archives, checksums, etc.).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Disambiguate tags sharing one commit; build the explicitly chosen tag.
+          GORELEASER_CURRENT_TAG: ${{ inputs.tag }}
           # Cross-repository Homebrew tap publishing needs a dedicated token
           # with contents:write on rokath/homebrew-tap.
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}

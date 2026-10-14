@@ -1,70 +1,52 @@
 # Dokumentationsübergabe
 
-Stand: 13. Oktober 2026, Europe/Berlin. Auf dem anderen Rechner mit `handson doc` laden, den Checkout prüfen und anschließend auf die nächste Nutzeranweisung warten.
+Stand: 14. Oktober 2026. Auf dem anderen Rechner mit `handson doc` laden, den Checkout prüfen und auf die nächste Nutzeranweisung warten.
 
 ## Ziel und Git-Stand
 
-Die Kapitelpflege ist umgesetzt. Der neue PDF-Build erzeugt das Gesamt-RM aus den Kapitelquellen und läuft lokal; die Unterkapitelnummerierung im Gesamt-PDF ist noch offen. Der Nutzer verlangt jetzt ausschließlich diese Übergabe und Commits aller lokalen Änderungen. Keine weitere Implementierung, PDF-Neugenerierung oder langen Tests vor dem Rechnerwechsel.
+Die aktuelle Dokumentationsarbeit ist abgeschlossen; der Rechnerwechsel steht an. Neue Anleitung gehört ins RM, der Changelog enthält nur wesentliche Änderungen mit Links.
 
 - Branch: `wip`.
-- Ausgangs-HEAD vor den aktuellen Commits: `7de67c5b5e6abebf6bd56fad9ce15e80f9ef1545` — `wip RM doc`.
-- HEAD der gesicherten Änderungen vor dem abschließenden Übergabecommit: `f6a83a5f8dc38b79032a4cc87dad41ae257bea8b` — `Update the G0B1 Windows logger port example`. Der Checkout auf dem anderen Rechner soll zusätzlich den nachfolgenden Übergabecommit enthalten.
-- Alle bisherigen Arbeitsbaumänderungen sind in sieben Themen-Commits gesichert: PDF-Pipeline `72eeee94`, Kapitel-Trennlinien `c423f920`, Prerelease-Einstellung `faa0322f`, UM samt Bildern `83ec3ddf`, F030-Bindingdaten `c29050f2`, Beispiel-Diagnostik samt `demoTIL.json` `c50d5f56`, G0B1-Loggerbeispiel `f6a83a5f`. Vor dem Übergabecommit ist ausschließlich diese Datei noch uncommittet.
-- Kein Push beauftragt oder ausgeführt. Für den anderen Rechner müssen die neuen Commits noch übertragen werden, normalerweise durch Push. Lokale Tracking-Refs beweisen keinen aktuellen Remote-Stand.
+- Basis-HEAD: `9d2c2a6e709119cdc6740376f30e103397bd71dc` — `wip`. Ein späterer Commit dieser Übergabe folgt diesem Stand.
+- Noch uncommittet: [AGENTS.md](../../AGENTS.md), [CHANGELOG.md](../../CHANGELOG.md), [Context Enrichment](../rm/context_enrichment.md), [1.x-Migration](../rm/id_reference_list_til_json.md) und diese Übergabe.
+- Kein Commit, Push, Tag oder Release wurde für diesen Auftrag ausgeführt. Alle fünf Dateien müssen vor dem Rechnerwechsel noch gesichert und übertragen werden.
 
-## Verbindliche Entscheidungen
+## Bereits in Git enthalten
 
-- [docs/rm/](../rm/README.md) enthält die gepflegten RM-Quellen. README bestimmt die manuelle Kapitelreihenfolge; HEADER und FOOTER ergänzen die 52 Hauptkapitel.
-- Hauptüberschriften und Dateinamen der Quellen bleiben unnummeriert. mdtoc erzeugt die kapitelinternen ToCs, Unterkapitelnummern und Überschriftenanker. [Die Kapitelpflege](../../scripts/_310_refresh_trice_user_manual.sh) ist bereits im Ausgangs-HEAD enthalten.
-- Im Gesamt-PDF sollen die Hauptkapitel automatisch nummeriert werden. Das ist umgesetzt. Die vollständige Hierarchie der Unterkapitel, etwa `19.1` und `19.1.1`, ist noch nicht umgesetzt.
-- Vor `<!-- mdtoc -->` und nach `<!-- /mdtoc -->` stehen jetzt in allen 52 Kapiteln jeweils `---` und eine Leerzeile. Der Nutzer hat dies auch im UM eingefügt. Die Marker selbst bleiben unverändert.
-- Zwischenstände gehören nach `temp/manual-pdf/`. Vor jeder Generierung wird ausschließlich dieses Unterverzeichnis geleert; sonstige Dateien in `temp/` bleiben erhalten.
-- Im PDF gehen Back-to-Top-Links zum Dokumentanfang. Jedes neue Hauptkapitel beginnt auf einer neuen Seite. Die Kapitelquellen behalten ihre lokale Navigation.
-- Die Release-Artefakte heißen weiterhin `docs/TriceReferenceManual.pdf` und `docs/TriceUserManual.pdf`.
-- Keine Dateiumbenennungen, Archivierung, INDEX.md, RM-search.txt oder mdBook-Installation in diesem Auftrag. Archive und [der bisherige Monolith](../_TriceReferenceManual.md) bleiben unverändert. Frühere Pläne sind keine zusätzliche Umsetzungsfreigabe.
+- [docs/rm/README.md](../rm/README.md) bestimmt die Reihenfolge der 52 gepflegten Hauptkapitel. Die Dateinamen wurden vereinfacht; aktive Links zeigen auf die Kapitel.
+- Der PDF-Build erzeugt beide Manuals aus den Quellen, einschließlich vollständiger Haupt- und Unterkapitelnummerierung. Die frühere offene Nummerierungsaufgabe ist erledigt (`f29a3f97`). Einstieg: [PDF-Skript](../../scripts/_320_generate_trice_user_manual_pdf.sh); Zusammenbau: [RM-Helper](../../scripts/_prepare_reference_manual.cjs). PDF-Navigation und neue Seiten je Hauptkapitel sind implementiert.
+- Die Release-Vorbereitung enthält taggebundene Veröffentlichung und Audits, Changelog-Auswahl als Release Notes, vollständige Archiv-Lizenzen und Prüfungen der ausgelieferten Bind-/Text-/JSON-/KV-Funktionen. Siehe [Release-Anleitung](../rm/tool_build_release.md). Veröffentlichungsstatus wurde in diesem Auftrag nicht extern geprüft.
 
-## Antwort zur Unterkapitelnummerierung und mdtoc
+## Aktuelle lokale Änderungen
 
-Ich habe die Unterkapitelnummern unverändert übernommen, weil du dazu ausdrücklich „Ich frage nur“ geschrieben hattest. Für das Gesamt-PDF ist eine vollständige Nummerierung wie `19.1` sinnvoller. Die Beschränkung auf Hauptkapitelnummern und der eigene Nummerierungsschritt waren meine Entscheidung; den einfacheren Weg über `mdtoc` hätte ich früher prüfen sollen.
+- Im RM stehen zwei Vergleichstabellen für Compiler mit bzw. ohne `__COUNTER__`, mit kurzem GCC-/Clang-Hinweis und Beispiel für ein einfaches Log-Makro. [Einstieg zur Übersicht](../rm/context_enrichment.md#supported-log-sites-and-alternatives). Die alte überlappende Vergleichstabelle wurde ersetzt; sonstige CE-Fehlerfälle bleiben dokumentiert.
+- Bind ohne CE unterstützt mehrere Trice-Statements pro Zeile mit `__COUNTER__`. Ohne dieses Compiler-Makro unterstützt Bind einzelne direkte Aufrufe und einfache, eindeutig aufrufbare Makros. Bind mit CE lehnt ausgewählte Aufrufe auf gemeinsamen Zeilen und in Log-Makros auch mit `__COUNTER__` ab. Insert/Clean braucht für diese Fälle keinen Counter, mit und ohne CE.
+- Die ausführliche CLI-Migration und Build-/Replay-Hinweise liegen jetzt im [RM-Migrationsabschnitt](../rm/id_reference_list_til_json.md#migrating-1x-scripts-and-projects). ABC und `tlog` waren bereits in v1.3.0 vorhanden.
+- Der v2-Beta-Changelog ist auf Neuerungen, Korrekturen und kurze Migrationshinweise mit RM-Links gekürzt. Historische Einträge blieben bytegleich.
+- AGENTS.md verlangt kurze, menschlich verständliche Doku, konkrete Beispiele, übersichtliche Tabellen und bei Bedarf getrennte Tabellen je Umgebung. Neue Doku und Migrationstabellen gehören in `docs/rm/`, nicht in den Changelog.
+- Beide geänderten Kapitel wurden mit `mdtoc` regeneriert; lokale Nummerierung, ToCs und Anker sind aktuell. Keine Quellcode- oder Workflowänderungen in diesem Auftrag.
 
-Der aktuelle Zwischenstand enthält bereits viel HTML, weshalb `mdtoc` dort die Unterüberschriften nicht vollständig erfassen kann. Das ist eine Folge meines Aufbaus, kein guter Grund, `mdtoc` grundsätzlich auszuschließen. Die sachgerechte nächste Prüfung ist deshalb: strukturelle Überschriften beim Zusammenfügen als Markdown erhalten, lokale generierte ToCs/Nummern/Anker in temporären Kopien entfernen und erst auf dem Gesamt-Markdown `mdtoc` für die globale Hierarchie, ToC und Anker laufen lassen. Dabei müssen die bestehenden Querlinks, Bilder, Codeblöcke und Kommentare erhalten bleiben. Einfach `mdtoc` auf den heutigen HTML-lastigen Zwischenstand anzuwenden reicht nicht.
+## Verbindliche Grenzen
 
-Diese Erklärung ist gespeichert; die Implementierung bleibt vor dem Rechnerwechsel unverändert. Die konkrete Umstellung ist der nächste Vorschlag, keine automatisch fortzusetzende Arbeit.
+- UM nicht ohne ausdrücklichen Auftrag ändern; der Nutzer bearbeitet es selbst.
+- Archive und der alte RM-Monolith bleiben unverändert. Keine neuen INDEX.md, RM-search.txt, mdBook-Installation oder zusätzliche Abhängigkeiten.
+- [RM_Documentation_Spec.md](RM_Documentation_Spec.md) enthält teilweise ältere Zielbilder; daraus keine vertagten Aufgaben automatisch wieder aufnehmen.
+- Git-Commits, Push, Tags und Prerelease-Veröffentlichung brauchen einen ausdrücklichen Auftrag. `handson doc` allein startet keine Implementierung.
 
-## Implementierter PDF-Build
+## Prüfungen
 
-- Einstieg: [scripts/_320_generate_trice_user_manual_pdf.sh](../../scripts/_320_generate_trice_user_manual_pdf.sh). Verwendet stitchmd **0.9.0**, md-to-pdf **5.2.4** und Puppeteer **24.31.0**. Beide PDFs werden mit `bash scripts/_320_generate_trice_user_manual_pdf.sh` erzeugt.
-- [scripts/_prepare_reference_manual.cjs](../../scripts/_prepare_reference_manual.cjs) liest die README-Reihenfolge, entfernt komplette lokale Contents-Container und bereitet temporäre Kapitel vor. Unterüberschriften und Kapitelinhalt werden derzeit früh zu HTML gerendert; die Hauptüberschrift bleibt für stitchmd als Markdown erhalten. Kapitelcontainer verhindern, dass fehlerhaft abgeschlossene HTML-Listen nachfolgende Kapitel einrücken.
-- `stitchmd -no-toc` erzeugt `temp/manual-pdf/TriceReferenceManual.md`. Der Helper erzeugt eine globale verlinkte ToC, nummeriert die 52 Hauptkapitel und prüft eindeutige Anker und interne Ziele. `--verify` legt auch das zusammengefügte HTML ab.
-- Querlinks zwischen enthaltenen Kapiteln werden PDF-interne Links. Bilder werden lokal eingebunden und vorab auf Existenz geprüft. Andere Repository-Links werden GitHub-Links auf den Build-Commit. Namensräume vermeiden kollidierende Kapitelanker.
-- [scripts/_manual_pdf_config.cjs](../../scripts/_manual_pdf_config.cjs) öffnet Contents-Details für den Druck und korrigiert Back-to-Top-Ziele. CSS und PDF-Optionen werden als einzeilige CLI-Argumente übergeben, weil der Windows-npm-Aufruf mehrzeilige Argumente zuvor unvollständig weitergab. PDF-Lesezeichen sind aktiviert.
-- [Release-Workflow](../../.github/workflows/goreleaser.yml) und [Installationsprüfung](../../.github/workflows/install-checks.yml) installieren dieselbe stitchmd-Version. Verhaltenstests stehen in [scripts/portability_test.go](../../scripts/portability_test.go).
-- In [der GoReleaser-Konfiguration](../../.goreleaser.yaml) steht unter `release:` jetzt `prerelease: true`. Das markiert während der Beta-Phase alle veröffentlichten Releases als Prerelease; vor einer stabilen Veröffentlichung muss diese Einstellung neu entschieden werden. Vorgeschlagener Tag: `v2.0.0-beta-1`. Kein Tag und kein Release wurden erstellt.
+Go-Prüfungen verwendeten einen beschreibbaren temporären GOCACHE. Die Befehle unten geben die Testauswahl ohne dessen rechnerabhängigen Pfad wieder.
 
-## Prüfungen und Grenzen
+- `rtk proxy mdtoc check --file docs/rm/context_enrichment.md` und entsprechend `docs/rm/id_reference_list_til_json.md` — PASS.
+- `rtk proxy markdownlint AGENTS.md CHANGELOG.md docs/rm/context_enrichment.md docs/rm/id_reference_list_til_json.md` — PASS. Die Übergabe wurde wegen des scratchPad-Ausschlusses separat geprüft: `rtk proxy cat docs/scratchPad/handsoff_doc.md | rtk proxy markdownlint --stdin` — PASS.
+- `rtk proxy lychee --offline --include-fragments --no-progress CHANGELOG.md docs/rm/context_enrichment.md docs/rm/id_reference_list_til_json.md` — PASS, keine lokalen Link-/Fragmentfehler. Externe URLs werden offline nicht geprüft. Die Lychee-Konfiguration schließt scratchPad aus; die relativen Übergabelinks und ihre Anker wurden separat mit Python geprüft — PASS.
+- `rtk go test ./scripts -run '^TestSelectedReleaseNotes$' -count=1` — PASS.
+- Bereits in dieser Sitzung: `rtk env TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindMVP2RebaseCompilesCAndCPP|TestBindMVP2CounterGuardsAndGeneratedInvariants|TestBindContextRejectsUnsupportedSitesWithoutPartialWrites|TestContextInsertCleanTargetToDecoder)$' -count=1 -v` — alle vier Tests PASS; reale C/C++-Kompilierung, einschließlich Insert mit CE ohne `__COUNTER__`.
+- `rtk git diff --check` und Vergleich der historischen Changelog-Abschnitte — PASS.
+- Kein neues `testAll`, PDF-Build, GitHub-CI-Lauf oder Hardwaretest nach diesen Dokumentationsänderungen.
 
-Bereits vor diesem Übergabeauftrag bestanden; keine Behauptung über Tests auf dem anderen Rechner:
+## Offenes und nächster Schritt
 
-- `rtk go test ./scripts -run '^Test(ManualPDFGeneration|ManualPDFNavigation|ReferencePDF)' -count=1` — PASS, 10 gezielte Tests. Prüft unter anderem README-Reihenfolge, temporäre Bereinigung, Quellenintegrität, Code/Kommentare, Bilder, Anker, Navigation und fehlerhafte Eingaben.
-- `bash scripts/_310_refresh_trice_user_manual.sh check` — PASS nach den Trennlinien in den 52 Kapiteln. Die zuletzt gespeicherten parallelen UM-Inhaltsänderungen erfolgten danach.
-- `goreleaser check` — PASS für `prerelease: true`.
-- Shellsyntax, Node-Syntax beider CJS-Dateien, Go-Formatierung, Shellformatierung, ShellCheck, actionlint für die beiden Workflows und `git diff --check` — PASS.
-- Tatsächliche lokale PDF-Erzeugung — PASS. Letzter Build am 13. Oktober um 16:12:54 Europe/Berlin: RM 455 Seiten, 629 Lesezeichen, 942 interne PDF-Linkannotationen; UM 9 Seiten, 15 Lesezeichen, 14 interne PDF-Linkannotationen.
-- PDF-Prüfung — alle 52 Hauptkapitel nummeriert und jeweils auf einer neuen Seite; alle 69 Back-to-Top-Links im RM führen auf die erste Seite; keine horizontal abgeschnittenen Texte oder lokalen/temp/file-Linkziele. Repräsentative Seiten visuell geprüft.
-- Zwischenstand — 891 interne Links und 1.258 eindeutige Anker geprüft; Text aller 495 Codeblöcke bis ins zusammengefügte HTML erhalten. Alle 52 neuen Kapitel-ToC-Trennlinien werden beim Entfernen des jeweiligen lokalen ToC mit entfernt.
-- Keine vollständigen C-/Integrationstests, kein `testAll`, kein GitHub-CI-/Release-Lauf. Die parallelen Nutzeränderungen an Beispielen und JSON-Daten wurden nur für den Commit gesichtet, nicht neu funktional getestet.
-- Übergabeprüfung — UTF-8 ohne BOM, LF, keine nachgestellten Leerzeichen und alle 13 relativen Linkziele geprüft; `git diff --check` und die Prüfungen der gestagten Diffs bestanden. Vor dem abschließenden Übergabecommit keine anderen uncommitteten Dateien.
+Die PDFs wurden nach den aktuellen RM-Änderungen nicht neu erzeugt und können veraltet sein. PDFs und temporäre Build-Artefakte sind ignoriert; sie werden nicht für den Transfer benötigt. Es läuft kein Test oder Generator mehr.
 
-## Lokale Artefakte und parallele Nutzeränderungen
-
-PDFs und `temp/manual-pdf/` sind regulär ignorierte Build-Artefakte und werden nicht erzwungen in Git aufgenommen. Temporäre PDF-Prüfwerkzeuge und Bilder unter `temp/` sind keine neue Projektabhängigkeit und werden nicht benötigt, um die PDFs zu bauen. Kein laufender Test oder Generator muss für den Rechnerwechsel beendet werden.
-
-Das zuletzt erzeugte UM-PDF enthält noch nicht alle danach gespeicherten UM-Änderungen, insbesondere die Trennlinien und `FirstDiffView.png`. Die aktuelle Markdown-Quelle und beide neuen Bilder sind committet; auf dem anderen Rechner erneut generieren.
-
-Parallel bearbeitete und ausdrücklich mit zu sichernde Dateien: [UM](../TriceUserManual.md), [demoTIL-Bild](../ref/demoTIL.json.png), [Vergleichsbild](../ref/FirstDiffView.png), `demoTIL.json`, `examples/F030_inst_uart/Core/Src/main.c`, dessen `til.json`, `examples/G0B1_inst/Core/Inc/triceConfig.h` und `examples/exampleData/triceExamples.c`. Inhalte und vorhandene Zeilenenden bleiben unverändert. Der geänderte F030-Sidecar-Include verweist auf eine generierte, nicht versionierte Datei; auf dem anderen Rechner bei Bedarf mit der bestehenden Bind-Pflege regenerieren, kein spontaner Reparaturauftrag.
-
-## Nächste Schritte auf dem anderen Rechner
-
-Die neuen Commits übertragen und `handson doc` ausführen. Branch, HEAD, Arbeitsbaum und relevante Quellen gegen diese Übergabe prüfen; Node/npm, stitchmd 0.9.0, mdtoc und GoReleaser dort gesondert prüfen. Danach auf die nächste Nutzeranweisung warten.
-
-Als nächster Implementierungsschritt bietet sich die vollständige PDF-Unterkapitelnummerierung mit `mdtoc` auf dem zusammengefügten Markdown an. Anschließend beide PDFs einschließlich der neuesten UM-Änderungen neu erzeugen und erneut Querlinks, Codeblöcke, Nummerierung und Seitenanfänge prüfen. Ein Prerelease folgt erst auf gesonderten Auftrag.
+Alle fünf Änderungen committen und normalerweise pushen. Auf dem anderen Rechner Branch, HEAD und Arbeitsbaum gegen diese Übergabe prüfen; danach `handson doc`. Für spätere PDF-Arbeit Node/npm, mdtoc, stitchmd und die im PDF-Skript vorgegebenen Versionen prüfen. Bei Fortsetzung der PDF-/Release-Arbeit beide PDFs aus den aktuellen Quellen neu erzeugen und Navigation, Tabellen und Seitenanfänge prüfen; keinen Prerelease automatisch veröffentlichen.

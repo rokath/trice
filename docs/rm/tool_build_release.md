@@ -10,13 +10,13 @@
 * [1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
 * [2. Prepare A Release](#prepare-a-release)
   * [2.1. Check a GoReleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
-* [3. Trigger a real Trice release via CI (with git tag)](#trigger-a-real-trice-release-via-ci-with-git-tag)
-  * [3.1. Make sure your workflow reacts to tags](#make-sure-your-workflow-reacts-to-tags)
-  * [3.2. Final checks before tagging](#final-checks-before-tagging)
-  * [3.3. Choose a version and create a git tag](#choose-a-version-and-create-a-git-tag)
-  * [3.4. Push the tag to GitHub (this triggers CI)](#push-the-tag-to-github-this-triggers-ci)
-  * [3.5. Watch the CI release run on GitHub](#watch-the-ci-release-run-on-github)
-  * [3.6. Check the GitHub Release](#check-the-github-release)
+* [3. Publish a Release Manually from a Selected Tag](#publish-a-release-manually-from-a-selected-tag)
+  * [3.1. Verify the Candidate Commit](#verify-the-candidate-commit)
+  * [3.2. Create and Transfer the Release Tag](#create-and-transfer-the-release-tag)
+  * [3.3. Start the Release Workflow](#start-the-release-workflow)
+  * [3.4. Inspect the Published Assets](#inspect-the-published-assets)
+  * [3.5. Audit That Exact Release](#audit-that-exact-release)
+  * [3.6. Install a Beta or a Stable Release](#install-a-beta-or-a-stable-release)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -164,107 +164,69 @@ What you should see:
 If this **succeeds**, you’ve already tested 90% of what CI will do for a real release.
 If it **fails**, fix the problem locally first (missing files, bad paths, etc.) – it would fail the same way in CI.
 
-## 3. <a id="trigger-a-real-trice-release-via-ci-with-git-tag"></a>Trigger a **real** Trice release via CI (with `git tag`)
+## 3. <a id="publish-a-release-manually-from-a-selected-tag"></a>Publish a Release Manually from a Selected Tag
 
-Letting CI build and publish an **official release**.
+The [release workflow](../../.github/workflows/goreleaser.yml) runs only when started manually. Publishing a Git tag makes the selected source snapshot available; the separate workflow start publishes its release assets.
 
-### 3.1. <a id="make-sure-your-workflow-reacts-to-tags"></a>Make sure your workflow reacts to tags
+### 3.1. <a id="verify-the-candidate-commit"></a>Verify the Candidate Commit
 
-In [.github/workflows/goreleaser.yml](../../.github/workflows/goreleaser.yml), you need `on:   workflow_dispatch:   push:     tags:       - 'v*'`.
-
-* `workflow_dispatch` = you can still run it manually from the Actions tab.
-* `push -> tags: 'v*'` = whenever you push a tag like `v0.44.0`, this workflow will start automatically.
-
-Commit & push this change (if you haven’t already):
+Review the release notes, commit the intended changes and run the final checks on that fixed state:
 
 ```sh
-git add .github/workflows/goreleaser.yml
-git commit -m "Configure GoReleaser workflow to run on tags"
-git push origin main
+git status
+./scripts/testAll.sh full
+git status
 ```
 
-### 3.2. <a id="final-checks-before-tagging"></a>Final checks before tagging
+The test summary must pass, including source-state restoration. Check any skips explicitly. This run builds the local snapshot packages, verifies their licenses, and exercises Bind, Context Enrichment and structured output using the unpacked host tools and target sources. Run the [installation workflow](../../.github/workflows/install-checks.yml) on the same candidate to check Linux, macOS and Windows.
 
-In your local `trice` repo:
+### 3.2. <a id="create-and-transfer-the-release-tag"></a>Create and Transfer the Release Tag
 
-* Update to latest main:
-  * `git checkout main`
-  * `git pull origin main`
-* Run your tests: `go test ./...` or, for the full compiler matrix, `./scripts/testAll.sh full`.
-* Optionally run the snapshot dry run again: `goreleaser release --clean --snapshot --skip=publish`.
-    
-If all of that is green, you’re ready to “bless” a version.
+Use an annotated tag on the approved commit. For the first v2 beta:
 
-### 3.3. <a id="choose-a-version-and-create-a-git-tag"></a>Choose a version and create a `git tag`
+```sh
+git tag -a v2.0.0-beta-1 -m "Trice v2.0.0-beta-1"
+git push origin v2.0.0-beta-1
+```
 
-Decide on a version, for example:
+Transfer the branch containing the updated workflows as well. Keep the tag fixed after publishing so its sources, tool metadata and documentation continue to describe the same release.
 
-* `v0.44.0`
-* `v1.0.0`  
-    (Important: GoReleaser expects **SemVer-style tags** like `vX.Y.Z`.)
+### 3.3. <a id="start-the-release-workflow"></a>Start the Release Workflow
 
-Create an **annotated tag**:
+In GitHub Actions, open **goreleaser**, choose **Run workflow**, select the branch containing the approved pipeline, and enter `v2.0.0-beta-1` in the required `tag` field.
 
-`git tag -a v0.44.0 -m "Trice v0.44.0"`
+The workflow checks out `refs/tags/<tag>`, checks its commit, and explicitly passes that tag to GoReleaser. The workflow branch selects the pipeline; the tag selects the sources and release version. An equivalent CLI invocation, using `wip` as the workflow branch, is:
 
-Check your tags:
+```sh
+gh workflow run goreleaser.yml --ref wip -f tag=v2.0.0-beta-1
+```
 
-`git tag`
+The workflow uses the selected version's section in [CHANGELOG.md](../../CHANGELOG.md) as the release notes; a missing or empty section stops publication. Wait for the **Run GoReleaser** and **Verify generated release artifacts** steps to succeed. During the v2 beta phase, [the release configuration](../../.goreleaser.yaml) marks releases as prereleases.
 
-You should see `v0.44.0` in the list.
+### 3.4. <a id="inspect-the-published-assets"></a>Inspect the Published Assets
 
-> 💡 The **tag** is what GoReleaser uses as the release version (`.Tag`, `.Version`, etc.) in your `.goreleaser.yaml`.  
-> Your `ldflags` like `-X main.version={{ .Version }}` will use this.
+Open the release with the selected tag and check:
 
-### 3.4. <a id="push-the-tag-to-github-this-triggers-ci"></a>Push the tag to GitHub (this triggers CI)
+- Platform archives contain both `trice` and `tlog`, plus the complete `LICENSE.md`.
+- The target-source ZIP contains `src`, `src/default_conf`, the repository license and the SEGGER license.
+- Linux packages, checksums and both `TriceUserManual.pdf` and `TriceReferenceManual.pdf` are present.
+- The host tools report the expected version and commit.
 
-Now push the tag:
+### 3.5. <a id="audit-that-exact-release"></a>Audit That Exact Release
 
-`git push origin v0.44.0`
+Start [release-audit](../../.github/workflows/release-audit.yml) manually with the same `tag`. For example:
 
-This does **not** push all tags, only `v0.44.0`.
+```sh
+gh workflow run release-audit.yml --ref wip -f tag=v2.0.0-beta-1
+```
 
-Because of your workflow’s `on: push: tags: 'v*'`, this **automatically starts** the GoReleaser workflow in GitHub Actions.
+The audit downloads that release explicitly and tests its archives, packages, target sources and PDFs. The host archive jobs also compile the PC feature tour against the unpacked target library, then verify text, JSON and KV with both shipped tools. Missing artifacts, changed licenses, incorrect fields or non-record JSON stdout fail the audit.
 
-### 3.5. <a id="watch-the-ci-release-run-on-github"></a>Watch the CI release run on GitHub
+### 3.6. <a id="install-a-beta-or-a-stable-release"></a>Install a Beta or a Stable Release
 
-1.  Open your browser and go to your repo:
-    
-    `https://github.com/rokath/trice`
-    
-2.  Click the **“Actions”** tab at the top.
-    
-3.  In the list of workflows, click on **“goreleaser”**.
-    
-4.  You should see a new run with something like:
-    
-* Event: `push`
-* Ref: `refs/tags/v0.44.0`
-* Status: in progress → green (hopefully)
-        
-5.  Click on that run, then on the job (e.g. `goreleaser`):
-    
-* Step “Check out repository”
-* Step “Set up Go”
-* Step “Run GoReleaser”
+For a beta, download the matching platform archive from its tagged release and place its tools in `PATH`, or build from a checkout of that tag. Use the matching target sources and manuals.
 
-If “Run GoReleaser” is green ✔, the CI release has succeeded.
-
-### 3.6. <a id="check-the-github-release"></a>Check the GitHub Release
-
-Finally, verify the published release:
-
-1.  In your repo, click the **“Releases”** section (right side or under “Code”).
-    
-2.  You should see a new release **`v0.44.0`** created by GoReleaser.
-    
-3.  Inside it you’ll find:
-    
-* the generated archives (tar.gz/zip), 
-* checksums,
-* etc., as defined in your `.goreleaser.yaml`.
-        
-This is now your **official Trice release built by CI**.
+Homebrew remains the stable-release route. `skip_upload: auto` prevents prerelease tags from updating the normal tap, and beta audits skip the Homebrew job. Before publishing a stable v2 release, review `release.prerelease` and the stable installation checks explicitly.
 
 <p align="right">(<a href="#building-and-releasing-the-trice-tools">back to top</a>)</p>
 

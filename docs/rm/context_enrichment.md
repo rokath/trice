@@ -14,6 +14,9 @@
 - [5. Using Global and Local Values](#using-global-and-local-values)
 - [6. Build, IDs and Generated Files](#build-ids-and-generated-files)
 - [7. Supported Log Sites and Alternatives](#supported-log-sites-and-alternatives)
+  - [7.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-9595counter9595-exists)
+  - [7.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-9595counter9595-macro-in-compiler)
+  - [7.3. Examples and remaining limits](#examples-and-remaining-limits)
 - [8. Test Coverage](#test-coverage)
 - [9. Appendix: CE Feasibility Proofs](#appendix-ce-feasibility-proofs)
   - [9.1. Mechanism Under Test](#mechanism-under-test)
@@ -314,9 +317,31 @@ With Bind, stale or contradictory CE metadata causes an error; after changing a 
 
 ## 7. <a id="supported-log-sites-and-alternatives"></a>Supported Log Sites and Alternatives
 
-`bind -ce` supports direct Trice calls uniquely addressable by file and source line, including within ordinary and `static inline` functions. This path requires no `__COUNTER__`. Multiline calls are also possible if no other Bind log site occupies their lines.
+`__COUNTER__` is a built-in compiler macro that generates consecutive numbers during compilation. [GCC](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html) and [Clang](https://clang.llvm.org/docs/LanguageExtensions.html), including toolchains based on them, provide it.
 
-Selected wrapper macros and counter-rebase sites remain deferred. A typical error is:
+For `-ce`, the tables describe calls receiving extra values. A single statement may extend over several lines. Log macros here use fixed format strings recognized by Trice.
+
+### 7.1. <a id="compiler-macro-9595counter9595-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
+
+| Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros |
+| --- | --- | --- | --- |
+| Insert/Clean, with or without `-ce` | Yes | Yes | Yes |
+| Bind without `-ce` | Yes | Yes | Yes |
+| Bind with `-ce` | Yes | No | No |
+
+### 7.2. <a id="no-9595counter9595-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
+
+| Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros |
+| --- | --- | --- | --- |
+| Insert/Clean, with or without `-ce` | Yes | Yes | Yes |
+| Bind without `-ce` | Yes | No | Simple macros only |
+| Bind with `-ce` | Yes | No | No |
+
+A simple macro is, for example, `#define LOG() trice("msg:ready")`, called as `LOG();` on its own single line.
+
+### 7.3. <a id="examples-and-remaining-limits"></a>Examples and remaining limits
+
+`bind -ce` supports direct calls in ordinary and inline functions. It rejects adding values to calls sharing a line or inside logging macros, even with `__COUNTER__`. Calls not selected by a CE rule retain ordinary [Bind support](bind.md#bind-limits). A typical error is:
 
 ```text
 main.c:42: error: CE requires a direct, line-addressable bind site. Search UM for "bind-limits".
@@ -348,13 +373,10 @@ With `insert -ce 'job:", job={job}", jobId'`, `jobId` is inserted directly into 
 
 This requires a call with a known format string that the Trice parser can recognize. A definition such as `#define LOG_ANY(format) trice(format)` provides neither a static selector nor a complete schema. CE is not a general C preprocessor and does not promise support for arbitrary macro-assembled formats. An explicit Trice call or a function with a fixed format and passed values remains a simple alternative.
 
-| Log form | `bind -ce` | `insert/clean -ce` |
-|---|---|---|
-| Direct, uniquely addressable call, including in an inline function | Supported | Supported |
-| Multiple direct calls on the same line | Rejected when selected by CE | Recognizable calls are extended individually |
-| Wrapper definition with a static Trice format | Still rejected when selected by CE | The recognized definition is extended and restored |
-| Local name missing at the actual expansion | Compiler error | Compiler error |
-| String/buffer record with additional scalar CE arguments | Error before publication | Error before publication |
+| Other CE limits | Result for both workflows |
+| --- | --- |
+| A local variable used by CE is missing at the call | Compiler error |
+| Extra scalar CE values appended to a string/buffer record | Error before changing files |
 
 **Why the Bind limitation remains despite a successful PoC:** Existing counter rebasing placed expressions from different log sites into multiple C branches. The compiler checks even branches that are not executed. A local variable valid only on the left can therefore cause an artificial error on the right. The extended PoC selects the adapter during macro expansion and avoids this error for the tested cases. It requires an additional preprocessing pass with the actual compiler per translation unit and build configuration, plus matching generated mapping files.
 

@@ -1,4 +1,36 @@
-﻿# Changelog
+# Changelog
+
+## v2.0.0-beta-1 (unreleased)
+
+This first v2 beta introduces new instrumentation and logging workflows for testing in real projects.
+
+### New workflows and features
+
+- [Bind](docs/rm/bind.md) supplies IDs through generated headers while keeping source log calls ID-free; Insert/Clean remains available.
+- [Structured Logging](docs/rm/structured_logging.md) exports named values, source locations and timestamps as text, JSON or key/value records.
+- `-ce` ([Context Enrichment](docs/rm/context_enrichment.md)) adds selected values automatically with Bind or Insert; Clean removes matching source additions.
+- [Tags and severity](docs/rm/tags_color_and_weights.md) gain weight-based filtering, custom weights/colors and dark, light and contrast palettes.
+- [Local deferred text logging](docs/rm/target_implementation.md#local-deferred-text-log) formats buffered records on the target without a host decoder.
+- [Visualization output](docs/rm/cli.md#visualization-output-with--vis) sends transformed numeric measurements to files or UDP.
+- [Generation tools](docs/rm/generate.md) add source-selected C tables, readable JSON dictionary copies and read-only Bind artifact reports.
+- [Deterministic ID assignment](docs/rm/id_management.md#different-ids-for-same-trices) orders identical calls; adding, removing or moving a call can change existing IDs in its group.
+- Documentation gains a guided [User Manual](docs/TriceUserManual.md), split [Reference Manual](docs/rm/README.md), two release PDFs and F030 RTT/UART instrumentation examples.
+
+### Target integration and fixes
+
+- Updated [SEGGER RTT integration](docs/rm/rtt.md) provides shared fallback defaults and automatically inherits the selected channel counts and buffer sizes.
+- Calls without value arguments compile in strict C99 and later. Disabled backends and unused encoders no longer add unnecessary link dependencies.
+- [Deferred ID routing](docs/rm/id_management.md#id-routing) includes both range endpoints, validates bounds and requires single-pack transfer when ID selection is active.
+- Dictionary live reload handles file replacement; finite `FILEBUFFER` replay exits promptly and releases resources.
+- Filters handle complete log events and their metadata; diagnostics remain visible, and statistics count decoded events before filtering.
+
+### Release and migration notes
+
+- Host source builds require Go 1.25; v2 uses release archives or local tag checkouts rather than versioned remote Go installation.
+- CLI flags, generated-file paths, tag/filter syntax and location paths have changed. See [migration from 1.x](docs/rm/id_reference_list_til_json.md#migrating-1x-scripts-and-projects).
+- Template syntax now treats single braces as fields. See [firmware and dictionary compatibility](docs/rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions).
+- Bind and CE have different compiler/macro limits; see the [workflow comparison tables](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives).
+- Release archives now include the full MIT license and the target sources retain the SEGGER license. Beta releases use explicitly selected tags and do not update the stable Homebrew tap.
 
 ## <a id='v1.3.0-changes'></a>v1.3.0 Changes (2026-07-09)
 
