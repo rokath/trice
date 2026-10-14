@@ -1,5 +1,31 @@
 ﻿# Changelog
 
+## v2.0.0-beta-1 (unreleased)
+
+This first v2 beta is intended for testing the new instrumentation and logging workflows in real projects. Use the host tools, target sources and documentation from the same release.
+
+### New workflows and features
+
+- `trice bind` keeps numeric IDs out of readable log calls and generates the compiler sidecars before the firmware build. The existing Insert/Clean workflow remains available.
+- `tlog` provides the logging command as a separate executable and ships beside `trice`.
+- Structured Logging exposes named values in text, JSON and key/value output. Context Enrichment adds selected application context at the log call without adding manual arguments to every call.
+- Tag selection, severity weights, colors and event statistics share the revised tag rules.
+- Identical log calls receive deterministic ID assignments within the selected scan. Adding, removing or moving an identical call can change the IDs assigned to the other calls in that group.
+- The short [User Manual](docs/TriceUserManual.md) includes runnable PC experiments. The [Reference Manual](docs/rm/README.md) is maintained as smaller chapters and is also assembled into a complete release PDF. F030 examples demonstrate instrumenting a CubeMX project with RTT or UART.
+
+### Upgrading and installation
+
+- Install both host tools from the beta's platform archive, or build them from a checkout of its tag with `./scripts/buildTriceTool.sh`. Versioned remote Go installation of v2 is not offered; the Go module path remains unchanged.
+- Run Bind before compilation and place its generated headers on the include path. Regenerate the sidecars with Bind after changing log sources; do not rename or edit individual generated definitions.
+- Keep the accumulated TIL for decoding and preserve firmware-specific LI files when source locations are needed. See [dictionary and firmware compatibility](docs/rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions).
+- Beta downloads are available directly from the selected GitHub Release. The normal Homebrew tap continues to provide stable releases.
+
+### Known limits and feedback
+
+- Bind counter-selected wrapper and same-line regions require a compiler with `__COUNTER__` support; other restrictions are listed in [Bind limits](docs/rm/bind.md#bind-limits).
+- Bind Context Enrichment currently supports selected direct calls. Selected wrapper/rebase sites are rejected; see [supported log sites and alternatives](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives).
+- Host tests and cross-compilation do not replace execution on a physical MCU. Report platform/compiler problems, instrumentation failures and unexpected text/JSON/KV output with the tool version, configuration and a small reproducer.
+
 ## <a id='v1.3.0-changes'></a>v1.3.0 Changes (2026-07-09)
 
 ### <a id='v1.3.0overview'></a>v1.3.0 Overview

@@ -230,6 +230,17 @@ smoke_test_host_archive() {
       exit 1
       ;;
   esac
+
+  # Compile a copied PC tour against shipped sources and decode with shipped tools.
+  # The checker also compares complete tool/source license notices to LICENSE.md.
+  local feature_source_zip feature_bash
+  feature_source_zip="$(find "$DIST_DIR" -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+  feature_bash="$BASH"
+  if [ "$host_os" = windows ]; then feature_bash="$(cygpath -w "$BASH")"; fi
+  run_cmd env RELEASE_FEATURE_BASH="$feature_bash" node "$SCRIPTS_DIR/_verify_release_features.cjs" "$unpack_dir/$archive_dir" "$feature_source_zip" || {
+    log "FAIL: shipped Bind/CE/Structured Logging feature test failed"
+    exit 1
+  }
 }
 
 compile_target_sources() {
@@ -255,6 +266,11 @@ compile_target_sources() {
   if [ -z "$target_root" ]; then
     log "FAIL: could not locate unpacked target sources"
     exit 1
+  fi
+
+  if [ ! -s "$target_root/LICENSE.md" ] || ! cmp -s "$ROOT_DIR/LICENSE.md" "$target_root/LICENSE.md"; then
+    log "FAIL: target archive lacks the complete repository LICENSE.md notice: $target_root/LICENSE.md"
+    return 1
   fi
 
   if [ ! -s "$target_root/src/default_conf/SEGGER_RTT_Conf.h" ]; then
@@ -336,7 +352,7 @@ main() {
 
   # These are snapshot prerequisites even when GoReleaser itself is installed.
   local tool
-  for tool in go tar unzip; do
+  for tool in go tar unzip node; do
     if ! has_command "$tool"; then
       log "MISSING TOOL: $tool"
       log "SKIP: local release-asset build requires $tool, which is not installed."

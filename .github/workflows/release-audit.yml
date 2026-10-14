@@ -2,6 +2,11 @@ name: release-audit
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Published release tag to audit, for example v2.0.0-beta-1"
+        required: true
+        type: string
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -11,22 +16,38 @@ permissions:
 
 jobs:
   download-release-assets:
-    name: Download Latest Release Assets
+    name: Download Selected Release Assets
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
       tag: ${{ steps.release.outputs.tag }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
 
     steps:
-      - name: Resolve and download latest release assets
+      - name: Resolve and download selected release assets
         id: release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
         shell: bash
         run: |
           set -euo pipefail
-          tag="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)"
+          if [ -z "$RELEASE_TAG" ] || ! git check-ref-format "refs/tags/$RELEASE_TAG"; then
+            echo "::error::invalid or missing release tag: $RELEASE_TAG"
+            exit 1
+          fi
+          if ! metadata="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json tagName,isPrerelease,isDraft)"; then
+            echo "::error::could not read requested release: $RELEASE_TAG"
+            exit 1
+          fi
+          tag="$(printf '%s' "$metadata" | jq -r '.tagName')"
+          if [ "$tag" != "$RELEASE_TAG" ] || [ "$(printf '%s' "$metadata" | jq -r '.isDraft')" != false ]; then
+            echo "::error::requested release is a draft or has an unexpected tag: $RELEASE_TAG"
+            exit 1
+          fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          # Homebrew remains a stable-release route, independent of beta audits.
+          echo "prerelease=$(printf '%s' "$metadata" | jq -r '.isPrerelease')" >> "$GITHUB_OUTPUT"
           echo "Auditing release tag: $tag"
           mkdir -p release-assets
 
@@ -76,7 +97,7 @@ jobs:
           require_glob 'TriceUserManual.pdf'
 
           echo "::group::Downloaded release assets"
-          find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort
+          find release-assets -maxdepth 1 -type f -exec wc -c {} + | sort
           echo "::endgroup::"
 
       - name: Upload release assets for audit jobs
@@ -95,6 +116,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ needs.download-release-assets.outputs.tag }}
+
+      - name: Set up release feature checker
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
 
       - name: Download release assets
         uses: actions/download-artifact@v8
@@ -124,7 +152,7 @@ jobs:
           case "$version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "Linux archive version does not match latest release tag $RELEASE_TAG"
+              echo "Linux archive version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -134,7 +162,7 @@ jobs:
           case "$tlog_version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "Linux archive tlog version does not match latest release tag $RELEASE_TAG"
+              echo "Linux archive tlog version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -149,6 +177,13 @@ jobs:
               ;;
           esac
 
+      - name: Verify shipped Bind CE and structured logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          node scripts/_verify_release_features.cjs artifacts/trice_tool_linux_amd64 "$source_zip"
+
   audit-macos:
     name: Release Audit macOS Archive
     runs-on: macos-latest
@@ -158,6 +193,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ needs.download-release-assets.outputs.tag }}
+
+      - name: Set up release feature checker
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
 
       - name: Download release assets
         uses: actions/download-artifact@v8
@@ -187,7 +229,7 @@ jobs:
           case "$version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "macOS archive version does not match latest release tag $RELEASE_TAG"
+              echo "macOS archive version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -197,7 +239,7 @@ jobs:
           case "$tlog_version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "macOS archive tlog version does not match latest release tag $RELEASE_TAG"
+              echo "macOS archive tlog version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -212,6 +254,13 @@ jobs:
               ;;
           esac
 
+      - name: Verify shipped Bind CE and structured logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          node scripts/_verify_release_features.cjs artifacts/trice_tool_darwin_amd64 "$source_zip"
+
   audit-windows:
     name: Release Audit Windows Archive
     runs-on: windows-latest
@@ -221,6 +270,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ needs.download-release-assets.outputs.tag }}
+
+      - name: Set up release feature checker
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
 
       - name: Download release assets
         uses: actions/download-artifact@v8
@@ -252,13 +308,13 @@ jobs:
           $versionOutput = & $trice version
           Write-Output $versionOutput
           if (-not (($versionOutput -join "`n").Contains("version=$expectedVersion"))) {
-            throw "Windows archive version does not match latest release tag $env:RELEASE_TAG"
+            throw "Windows archive version does not match selected release tag $env:RELEASE_TAG"
           }
           & $trice help
           $tlogVersionOutput = & $tlog --version
           Write-Output $tlogVersionOutput
           if (-not (($tlogVersionOutput -join "`n").Contains("version=$expectedVersion"))) {
-            throw "Windows archive tlog version does not match latest release tag $env:RELEASE_TAG"
+            throw "Windows archive tlog version does not match selected release tag $env:RELEASE_TAG"
           }
           & $tlog help
           $output = & $trice log -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json
@@ -267,6 +323,14 @@ jobs:
           if (-not $text.Contains('Hello!')) {
             throw 'decoded smoke output did not contain Hello!'
           }
+
+      - name: Verify shipped Bind CE and structured logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          # Use this Git Bash, even if Windows also exposes a WSL bash launcher.
+          RELEASE_FEATURE_BASH="$(cygpath -w "$BASH")" node scripts/_verify_release_features.cjs artifacts/windows/trice_tool_windows_amd64 "$source_zip"
 
   audit-debian:
     name: Release Audit Debian Package
@@ -311,7 +375,7 @@ jobs:
           case "$version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "Debian package version does not match latest release tag $RELEASE_TAG"
+              echo "Debian package version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -321,7 +385,7 @@ jobs:
           case "$tlog_version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "Debian package tlog version does not match latest release tag $RELEASE_TAG"
+              echo "Debian package tlog version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -381,7 +445,7 @@ jobs:
           case "$version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "RPM package version does not match latest release tag $RELEASE_TAG"
+              echo "RPM package version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -391,7 +455,7 @@ jobs:
           case "$tlog_version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "RPM package tlog version does not match latest release tag $RELEASE_TAG"
+              echo "RPM package tlog version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -451,7 +515,7 @@ jobs:
           case "$version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "APK package version does not match latest release tag $RELEASE_TAG"
+              echo "APK package version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -461,7 +525,7 @@ jobs:
           case "$tlog_version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "APK package tlog version does not match latest release tag $RELEASE_TAG"
+              echo "APK package tlog version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -480,6 +544,7 @@ jobs:
     name: Release Audit Homebrew
     runs-on: macos-latest
     needs: download-release-assets
+    if: needs.download-release-assets.outputs.prerelease == 'false'
     timeout-minutes: 15
 
     steps:
@@ -499,7 +564,7 @@ jobs:
           case "$version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "installed Homebrew version does not match latest release tag $RELEASE_TAG"
+              echo "installed Homebrew version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -509,7 +574,7 @@ jobs:
           case "$tlog_version_output" in
             *"version=$expected_version"*) ;;
             *)
-              echo "installed Homebrew tlog version does not match latest release tag $RELEASE_TAG"
+              echo "installed Homebrew tlog version does not match selected release tag $RELEASE_TAG"
               exit 1
               ;;
           esac
@@ -522,6 +587,11 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ needs.download-release-assets.outputs.tag }}
+
       - name: Download release assets
         uses: actions/download-artifact@v8
         with:
@@ -547,6 +617,11 @@ jobs:
             exit 1
           fi
           test -s "$source_root/src/trice.h"
+          if [ ! -s "$source_root/LICENSE.md" ] || ! cmp -s LICENSE.md "$source_root/LICENSE.md"; then
+            echo "::error::target archive lacks the complete repository LICENSE.md notice: $source_root/LICENSE.md"
+            find "$source_root" -maxdepth 2 -type f -print | sort
+            exit 1
+          fi
           if [ ! -s "$source_root/src/default_conf/SEGGER_RTT_Conf.h" ]; then
             echo "::error::target archive lacks src/default_conf/SEGGER_RTT_Conf.h"
             exit 1

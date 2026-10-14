@@ -141,6 +141,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set up release feature checker
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8
         with:
@@ -175,6 +180,13 @@ jobs:
               ;;
           esac
 
+      - name: Verify shipped Bind CE and structured logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          node scripts/_verify_release_features.cjs artifacts/trice_tool_linux_amd64 "$source_zip"
+
   install-check-macos:
     name: Install Check macOS Archive
     runs-on: macos-latest
@@ -184,6 +196,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up release feature checker
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
 
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8
@@ -219,6 +236,13 @@ jobs:
               ;;
           esac
 
+      - name: Verify shipped Bind CE and structured logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          node scripts/_verify_release_features.cjs artifacts/trice_tool_darwin_amd64 "$source_zip"
+
   install-check-windows:
     name: Install Check Windows Archive
     runs-on: windows-latest
@@ -228,6 +252,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Set up release feature checker
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
 
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8
@@ -263,6 +292,14 @@ jobs:
           if (-not $text.Contains('Hello!')) {
             throw 'decoded smoke output did not contain Hello!'
           }
+
+      - name: Verify shipped Bind CE and structured logging
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
+          # Use this Git Bash, even if Windows also exposes a WSL bash launcher.
+          RELEASE_FEATURE_BASH="$(cygpath -w "$BASH")" node scripts/_verify_release_features.cjs artifacts/windows/trice_tool_windows_amd64 "$source_zip"
 
   install-check-debian:
     name: Install Check Debian Package
@@ -422,6 +459,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8
         with:
@@ -447,6 +487,11 @@ jobs:
             exit 1
           fi
           test -s "$source_root/src/trice.h"
+          if [ ! -s "$source_root/LICENSE.md" ] || ! cmp -s LICENSE.md "$source_root/LICENSE.md"; then
+            echo "::error::target archive lacks the complete repository LICENSE.md notice: $source_root/LICENSE.md"
+            find "$source_root" -maxdepth 2 -type f -print | sort
+            exit 1
+          fi
           if [ ! -s "$source_root/src/default_conf/SEGGER_RTT_Conf.h" ]; then
             echo "::error::target archive lacks src/default_conf/SEGGER_RTT_Conf.h"
             exit 1

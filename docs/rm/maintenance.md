@@ -286,7 +286,7 @@ This workflow runs GoReleaser, the tool that builds and packages Trice for distr
 * **Local Action (developer machine):** `goreleaser`
 * **GitHub Action (Continuous Integration):** [.github/workflows/goreleaser.yml](../../.github/workflows/goreleaser.yml)
 
-See also [Trigger a **real** Trice release via CI (with `git tag`)](tool_build_release.md#trigger-a-real-trice-release-via-ci-with-git-tag)
+See also [Publish a release manually from a selected tag](tool_build_release.md#publish-a-release-manually-from-a-selected-tag)
 
 ### 2.8. <a id="github-action-labelyml---automatic-labeling-rules"></a>GitHub Action label.yml - Automatic Labeling Rules
 
