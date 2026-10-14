@@ -154,6 +154,73 @@ int main(void) {
 }
 `
 
+// parseEncoderOutput accepts native LF/CRLF records without trimming payload
+// bytes. Malformed lines, invalid hex and repeated channels remain hard errors.
+func parseEncoderOutput(output []byte) (map[string]string, error) {
+	text := strings.ReplaceAll(string(output), "\r\n", "\n")
+	text = strings.TrimSuffix(text, "\n")
+	if text == "" {
+		return nil, fmt.Errorf("empty encoder output")
+	}
+	channels := make(map[string]string)
+	for _, line := range strings.Split(text, "\n") {
+		channel, frame, found := strings.Cut(line, "=")
+		if !found || channel == "" || frame == "" {
+			return nil, fmt.Errorf("invalid encoder output line %q", line)
+		}
+		if _, duplicate := channels[channel]; duplicate {
+			return nil, fmt.Errorf("duplicate encoder channel %q", channel)
+		}
+		if frame != "unavailable" {
+			if _, err := hex.DecodeString(frame); err != nil {
+				return nil, fmt.Errorf("encoder channel %q: %w", channel, err)
+			}
+		}
+		channels[channel] = frame
+	}
+	return channels, nil
+}
+
+// TestEncoderOutputLineEndings verifies portable record boundaries and rejects
+// corrupted payloads rather than hiding them behind whitespace normalization.
+func TestEncoderOutputLineEndings(t *testing.T) {
+	for _, tc := range []struct {
+		name, output string
+	}{
+		{"LF", "direct=0001\nnone=02ff\ncobs=unavailable\n"},
+		{"CRLF", "direct=0001\r\nnone=02ff\r\ncobs=unavailable\r\n"},
+		{"mixed_endings", "direct=0001\r\nnone=02ff\ncobs=unavailable\r\n"},
+		{"final_line_without_newline", "direct=0001\nnone=02ff\ncobs=unavailable"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			channels, err := parseEncoderOutput([]byte(tc.output))
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"direct": "0001", "none": "02ff", "cobs": "unavailable"}, channels)
+		})
+	}
+	for _, tc := range []struct {
+		name, output, failure string
+	}{
+		{"empty_output", "", "empty encoder output"},
+		{"missing_separator", "direct0001\n", "invalid encoder output line"},
+		{"missing_channel", "=0001\n", "invalid encoder output line"},
+		{"missing_frame", "direct=\n", "invalid encoder output line"},
+		{"blank_record", "direct=0001\n\n", "invalid encoder output line"},
+		{"duplicate_channel", "direct=0001\r\ndirect=02ff\r\n", "duplicate encoder channel"},
+		{"leading_payload_space", "direct= 0001\n", "invalid byte"},
+		{"trailing_payload_space", "direct=0001 \r\n", "invalid byte"},
+		{"interior_carriage_return", "direct=00\r01\n", "invalid byte"},
+		{"unterminated_carriage_return", "direct=0001\r", "invalid byte"},
+		{"invalid_hex", "direct=gg\n", "invalid byte"},
+		{"odd_hex_length", "direct=001\n", "odd length"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := parseEncoderOutput([]byte(tc.output))
+			require.ErrorContains(t, err, tc.failure)
+		})
+	}
+}
+
 // decodeEncoderFrame uses the independent host decoder, never a target decoder
 // linked into the fixture (which could hide an unwanted library dependency).
 func decodeEncoderFrame(t *testing.T, framing, text string) []byte {
@@ -246,14 +313,8 @@ func TestConfiguredEncodersLinkAndDecodeWithoutLTO(t *testing.T) {
 				output, err = exec.Command(executable).CombinedOutput()
 				require.NoError(t, err, "%s", output)
 				// Missing or duplicate channels are failures, not silently ignored output.
-				lines := make(map[string]string)
-				for _, line := range strings.Split(strings.TrimSpace(string(output)), "\n") {
-					channel, frame, found := strings.Cut(line, "=")
-					require.True(t, found, line)
-					_, duplicate := lines[channel]
-					assert.False(t, duplicate, "one record per channel: %s", channel)
-					lines[channel] = frame
-				}
+				lines, err := parseEncoderOutput(output)
+				require.NoError(t, err)
 				for _, mode := range []struct {
 					name, framing string
 					available     bool
@@ -549,14 +610,10 @@ func TestCountedX0RetainsEncoderWithOrdinaryLogsDisabled(t *testing.T) {
 			require.NoError(t, err, "%s", output)
 			output, err = exec.Command(executable).CombinedOutput()
 			require.NoError(t, err, "%s", output)
-			var frames []string
-			for _, line := range strings.Split(string(output), "\n") {
-				if strings.HasPrefix(line, "direct=") {
-					frames = append(frames, strings.TrimPrefix(line, "direct="))
-				}
-			}
-			require.Len(t, frames, 1, "the disabled ordinary log must not create another frame")
-			data := decodeEncoderFrame(t, "TRICE_FRAMING_TCOBS", frames[0])
+			channels, err := parseEncoderOutput(output)
+			require.NoError(t, err, "the disabled ordinary log must not create another frame")
+			require.Contains(t, channels, "direct", "the counted X0 frame must be transferred")
+			data := decodeEncoderFrame(t, "TRICE_FRAMING_TCOBS", channels["direct"])
 			require.GreaterOrEqual(t, len(data), 5)
 			assert.Equal(t, []byte{3, 0, 0x41, 0, 0xff}, data[:5], "counted X0 header and payload survive OFF/CLEAN")
 			for _, padding := range data[5:] {

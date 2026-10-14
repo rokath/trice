@@ -115,7 +115,10 @@ func TestRTTFallbackAndProjectConfiguration(t *testing.T) {
 							return
 						}
 					}
-					probe := filepath.Join(project, "probe.c")
+					// Keep the translation unit outside configuration directories.
+					// MSVC-style nested quote lookup otherwise finds its project
+					// header before the explicit -I order this test must exercise.
+					probe := filepath.Join(root, "probe.c")
 					if !assert.NoError(t, os.WriteFile(probe, []byte(rttConfigProbe), 0o644)) {
 						return
 					}

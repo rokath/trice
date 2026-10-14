@@ -81,7 +81,7 @@ jobs:
           # Require the active entry points before modifying any build copy.
           entry_points = [Path("docs/README.md"), Path("docs/TriceUserManual.md"), Path("docs/TriceGuide.md")]
           chapters = sorted(Path("docs/rm").glob("*.md"))
-          missing = [str(path) for path in [*entry_points, Path("docs/rm/README.md")] if not path.is_file()]
+          missing = [path.as_posix() for path in [*entry_points, Path("docs/rm/README.md")] if not path.is_file()]
           if missing:
               raise SystemExit("ERROR: missing documentation source: " + ", ".join(missing))
 
@@ -136,7 +136,10 @@ jobs:
               return "".join(lines)
 
           for document in [*entry_points, *chapters]:
-              document.write_text(rewrite(document.read_text(encoding="utf-8"), document), encoding="utf-8")
+              # Byte I/O preserves authored LF/CRLF and UTF-8, including a BOM.
+              # Only link destinations may change in the disposable build copy.
+              text = document.read_bytes().decode("utf-8")
+              document.write_bytes(rewrite(text, document).encode("utf-8"))
           PY
 
       - name: Setup Pages

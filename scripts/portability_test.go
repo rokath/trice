@@ -997,18 +997,31 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 // TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow steps
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
+	for _, tc := range []struct{ name, newline string }{{"LF", "\n"}, {"CRLF", "\r\n"}} {
+		t.Run(tc.name, func(t *testing.T) {
+			checkManualPagesLinks(t, tc.newline)
+		})
+	}
+}
+
+// checkManualPagesLinks exercises the same real workflow with both authored
+// newline styles; link rewriting must preserve code, comments and UTF-8 bytes.
+func checkManualPagesLinks(t *testing.T, newline string) {
+	t.Helper()
+	lineEndings := func(text string) string { return strings.ReplaceAll(text, "\n", newline) }
 	root := t.TempDir()
 	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/performance.md)\n")
-	writeFixture(t, root, "docs/README.md", "[Guide](TriceGuide.md#entry-points)\n")
+	writeFixture(t, root, "docs/README.md", lineEndings("[Guide](TriceGuide.md#entry-points)\n"))
 	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
-		writeFixture(t, root, "docs/"+manual+".md", "[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n")
+		writeFixture(t, root, "docs/"+manual+".md", lineEndings("[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n"))
 	}
-	writeFixture(t, root, "docs/rm/README.md", "[Bind](bind.md#bind-limits)\n")
+	writeFixture(t, root, "docs/rm/README.md", lineEndings("[Bind](bind.md#bind-limits)\n"))
 	// Nested chapters resolve parent documentation and source files differently.
 	// Image previews, commented tests and code examples must survive unchanged.
 	chapter := "[User](../TriceUserManual.md#see-your-first-log)\n[Code](../../src/trice.h)\n[`Header`](../../src/trice.h)\n[Help](../ref/trice-help-all.txt)\n![Image](../ref/example.png)\n[![Preview](../ref/example.png)](../ref/example.gif)\n[Local](#local)\n[External](https://example.com/guide?q=1#chapter)\n<a href=\"../TriceGuide.md#entry-points\">Guide</a>\n```md\n[Example](../../src/trice.h)\n```\n<!--\n[Comment](../../src/trice.h)\n-->\n`[Inline](../../src/trice.h)`\n"
+	chapter = lineEndings(chapter + "UTF-8: café, µs.\n")
 	writeFixture(t, root, "docs/rm/bind.md", chapter)
-	writeFixture(t, root, "docs/rm/performance.md", "# Trice Performance\n")
+	writeFixture(t, root, "docs/rm/performance.md", lineEndings("# Trice Performance\n"))
 	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare documentation for GitHub Pages"} {
 		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
 		assert.NoError(t, err, out)
@@ -1043,9 +1056,12 @@ func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 		"```md\n[Example](../../src/trice.h)\n```",
 		"<!--\n[Comment](../../src/trice.h)\n-->",
 		"`[Inline](../../src/trice.h)`",
+		"UTF-8: café, µs.",
 	} {
-		assert.Contains(t, string(data), expected)
+		assert.Contains(t, string(data), lineEndings(expected))
 	}
+	assert.Equal(t, strings.Count(chapter, "\n"), strings.Count(string(data), "\n"), "link rewriting must retain line boundaries")
+	assert.Equal(t, strings.Count(chapter, "\r\n"), strings.Count(string(data), "\r\n"), "authored line endings must survive on every host")
 	assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"))
 }
 
@@ -1061,7 +1077,8 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 					writeFixture(t, root, path, "[Reference](./rm/bind.md#bind-limits)\n")
 				}
 			}
-			chapter := "[User](../TriceUserManual.md)\n"
+			// Even byte-sensitive input must survive a failed preflight unchanged.
+			chapter := "\xef\xbb\xbf[User](../TriceUserManual.md)\r\n"
 			writeFixture(t, root, "docs/rm/bind.md", chapter)
 			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
 			assert.Error(t, err, out)
@@ -1336,12 +1353,19 @@ func TestClangFormatNativeCache(t *testing.T) {
 			root, env := clangBootstrapFixture(t, layout.platform)
 			data, err := os.ReadFile(filepath.Join(root, "seed/formatter"))
 			assert.NoError(t, err)
-			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.native, string(data))
+			// Observe execution instead of its displayed path: MSYS can launch an
+			// .exe through the same path without the suffix. The launcher must
+			// never substitute for this native tool, even when Python is absent.
+			env["NATIVE_FORMATTER_LOG"] = filepath.Join(root, "native-formatter.log")
+			native := strings.Replace(string(data), "#!/bin/sh\n", "#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$NATIVE_FORMATTER_LOG\"\n", 1)
+			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.native, native)
 			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.launcher, "#!/bin/sh\necho broken-launcher; exit 99\n")
 			env["FAIL_STAGE"] = "python"
 			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh setup", env)
 			assert.NoError(t, err, out)
-			assert.Contains(t, out, layout.native)
+			nativeCalls, err := os.ReadFile(env["NATIVE_FORMATTER_LOG"])
+			assert.NoError(t, err)
+			assert.Contains(t, string(nativeCalls), "--version\n", "the cached native tool must actually execute")
 			assert.NotContains(t, out, "broken-launcher")
 			_, err = os.Stat(filepath.Join(root, "setup.log"))
 			assert.True(t, os.IsNotExist(err))
