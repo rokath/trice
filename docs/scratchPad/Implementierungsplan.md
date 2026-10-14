@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R26 wurde anschließend mit „R26 GO“ ausdrücklich freigegeben, umgesetzt und auf Windows abgenommen. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
+Stand: **14. Oktober 2026**. Die ursprüngliche Bedarfsermittlung änderte ausschließlich die Aufgabensammlung. R26 und R32 wurden anschließend jeweils mit „GO“ ausdrücklich freigegeben, umgesetzt und auf Windows geprüft. Die übrigen offenen Punkte bleiben Planung; ihre Auflistung erteilt keinen weiteren Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
 
 ## Aufgabenübersicht
 
@@ -8,10 +8,9 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 | ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung |
 | --- | --- | --- | ---: | --- | --- |
-| [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Offen; CI-Blocker | stitchmd-Versionsprüfung und Links auf die lokal generierte demoLI.json korrigieren | 5 | S–M | Gemeldeter WIP→main-CI-Lauf; sauberer Checkout ohne lokale LI/Sidecars |
 | [R14](#checkout-binary-installationswege-für-v2-absichern) | Offen; Abgleich/Abnahme | Beschlossene Checkout-/Binary-Installation von v2 abschließend prüfen | 5 | S–M | R05 erledigt; kein /v2-Modulpfad |
 | [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Offen; Restabnahme | Vorhandene Beta-Notes, Archive, Lizenzen und Feature-Audits am Kandidaten abnehmen | 5 | M | R14; aktuelle Quellen und beide PDFs |
-| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R26 auf Windows abgenommen; R32, R15 und übrige ausgewählte Änderungen |
+| [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R26/R32 lokal auf Windows geprüft; Linux-CI, R15 und übrige ausgewählte Änderungen |
 | [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Offen; Bedarf ermittelt | Skriptverträge, check-Nebenwirkungen, alte Pflegewege und verwaiste Handover-Helfer klären | 4 | M | R26 zuerst; keine pauschale Umbenennung oder Neuorganisation |
 | [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Offen; gezielte Lücken | ABC, Standalone-Builds, CGO-/CLion-Einstiege und Bind-Dokumentation abgleichen | 4 | M | Vorhandene Bind-Matrix erhalten; Insert/Clean bleibt verfügbar |
 | [R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Offen; Vorschlag zur Auswahl | Veraltete Einstiegsaussagen korrigieren, Wiederholungen verlinken, kleine Inhaltsverschiebungen | 4 | M | Kapitelquellen bleiben maßgeblich; UM nur auf ausdrücklichen Auftrag |
@@ -26,36 +25,12 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 
 **Aktuelle Testlage:** R26 ist umgesetzt und auf Windows mit 99 gezielten Tests sowie den vollständigen Schritten 540/550 abgenommen. Der Detailnachweis steht bei den abgeschlossenen Aufgaben. Der zuvor gestartete Full-Test des Benutzers bleibt ein separater Lauf mit den damaligen Go-Fehlern; kein neuer Full-Lauf wurde gestartet. Mac-PASS ist die Benutzermeldung vor diesen Korrekturen; eine neue native macOS-/Linux-Abnahme und der einheitliche Release-Kandidat bleiben R16.
 
-**Zusätzlicher CI-Befund:** Beim WIP→main-Merge scheitert der Linux-GoReleaser-Snapshot vor der PDF-Erzeugung an `stitchmd dev`; der separate Linkcheck findet zwei Links auf die nicht versionierte `demoLI.json`. Details und spätere Abnahme stehen bei R32. Diese gemeldeten CI-Protokolle sind von den Windows-Go-Fehlern getrennt; ein lokales PASS mit bereits vorhandenen ignorierten Dateien genügt für diesen Nachweis nicht.
+**R32-Testlage:** Der gemeldete `stitchmd dev`-Abbruch und der aktive Link auf die nicht versionierte `demoLI.json` sind korrigiert. Im frischen Testcheckout ohne lokale LI/Sidecars bestehen PDF-Hook, GoReleaser-Snapshot sowie Offline- und regulärer Online-Linkcheck. npm- und Browser-Cache waren beim ersten PDF-Lauf leer. Das ist ein Windows-Nachweis; die erneute Linux-CI-Abnahme und native macOS-Gegenprobe bleiben bei R16 offen.
 
 [Offene Release-Aufgaben](#konkrete-aufgaben-vor-dem-release) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Hintergrund](#hintergrund-und-vorbemerkungen) · [Erledigte Aufgaben](#erledigte-korrekturen) · [Historische Repo-Bestandsprüfung](#bestandszuordnung-und-befunde-der-repo-prüfung)
 
 ## Konkrete Aufgaben vor dem Release
 
-
-### CI-PDF-Build und Links ohne lokale Artefakte absichern
-
-**R32 · Gewicht 5 · Aufwand S–M · Offen; zusätzlicher Linux-CI-Blocker**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Der Benutzer meldet beim WIP→main-Merge zwei konkrete Fehler. Nur der Bedarf wurde lesend geprüft; kein Installations-, PDF-, Snapshot- oder Linkcheck-Lauf wurde dafür neu gestartet.
-
-**PDF-Hook / stitchmd:** `goreleaser release --snapshot --clean --skip=publish` bricht im Hook `scripts/_320_generate_trice_user_manual_pdf.sh` ab. Node 22.23.3, npm/npx 10.9.9 sind vorhanden; der Renderer ist auf md-to-pdf 5.2.4 und Puppeteer 24.31.0 gepinnt. Das aufgerufene Programm meldet `stitchmd dev`. Es ist also vorhanden; der Abbruch erfolgt beim exakten Vergleich der ersten Versionszeile mit `stitchmd 0.9.0`, noch vor dem eigentlichen Zusammenbau.
-
-Beide aktuellen Workflows, [Installationsprüfung](../../.github/workflows/install-checks.yml) und [Release](../../.github/workflows/goreleaser.yml), enthalten bereits `go install go.abhg.dev/stitchmd@v0.9.0`. Eine fehlende Installationszeile ist damit im aktuellen Checkout nicht der Befund. Zu prüfen sind der tatsächlich ausgeführte CI-Commit, der aufgelöste Programmpfad, die Go-Modul-/Buildinformationen und die Bedeutung der `dev`-Anzeige bei dieser Installationsart. Dass ein Go-Installationsbuild ohne eingebettete Release-Versionszeichenfolge `dev` melden kann, ist hier eine zu verifizierende Erklärung, kein bereits am Runner nachgewiesener Buildvertrag.
-
-**Spätere Korrektur:** Installation und Versionsnachweis auf denselben reproduzierbaren Vertrag bringen: entweder ein verifiziertes offizielles Release-Binary oder ein nachweislich aus der gepinnten Modulversion gebautes Tool mit passender Prüfung. `dev` nicht pauschal erlauben und die Versionsprüfung nicht ersatzlos entfernen. Gezielte Tests für fehlendes/falsches Tool, nachgewiesene gepinnte Installation und nicht identifizierbaren Dev-Build ergänzen; die bisherige Fixture liefert nur die ideale Zeichenfolge `stitchmd 0.9.0` und beweist den realen Installationsweg nicht.
-
-**Lokale LI-Datei / Linkcheck:** `git ls-files -- demoLI.json` ist leer; `.gitignore` ignoriert `/demoLI.json`. UM und [Decoding](../rm/decoding.md) erklären bereits, dass aktive Demo-/Beispiel-LI-Dateien lokal initialisiert werden. `maintenance.md` verlinkt in seiner Repo-Tabelle dagegen noch `[demoLI.json](../../demoLI.json)`. Die gemeldeten zwei CI-Fehler stammen aus dieser Stelle und aus `docs/_TriceReferenceManual.md`. Ohne lokale Vorabgenerierung existiert das Linkziel im CI-Checkout nicht.
-
-**Spätere Korrektur:** Die aktive Wartungstabelle beschreibt `demoLI.json` als generierte lokale Datei ohne Repository-Dateilink; bei Bedarf auf die vorhandene Initialisierungserklärung verweisen. Keine leere LI-Datei nur für den Linkcheck anlegen, keine erneute Versionierung und kein pauschales Ausschalten lokaler Linkprüfungen. Die Initialisierung für tatsächliche Bind-/Insert-Builds bleibt davon getrennt und muss eine vorhandene LI erhalten.
-
-Der im CI gemeldete Monolith liegt im lokalen Arbeitsbaum bereits als noch uncommittete Archivverschiebung vor. Prüfen, welcher Stand tatsächlich auf main angekommen ist. Archivinhalt nicht reparieren: Nach Übernahme des vorgesehenen Archivstands greift der bereits vorhandene Scratchpad-Ausschluss in `lychee.toml`. Die aktive `maintenance.md` muss trotzdem berichtigt werden. Dieser Planpflegeauftrag verschiebt oder committet keine Datei und ändert auch die Lychee-Konfiguration nicht.
-
-**Überholte Planangabe:** Die weiter hinten erhaltenen historischen R21c-/R17-Tabellen nennen `demoLI.json` noch versioniert. Diese Aussage ist für den heutigen Stand ausdrücklich ersetzt: `demoTIL.json` bleibt die versionierte ID-Tabelle; aktive LI-Dateien sind lokal erzeugt/ignoriert, historische Testfixtures bleiben unverändert. Den abgeschlossenen Aufräumauftrag nicht als Begründung für eine Rückmigration verwenden.
-
-**Spätere Abnahme:** Gepinnten Tool-Installationsweg und PDF-Hook in einer sauberen Linux-Umgebung prüfen; anschließend GoReleaser-Snapshot ohne Publish mit beiden nichtleeren PDFs. Den Offline-Linkcheck aus einem frischen Checkout ohne `demoLI.json` bestehen lassen und die normale CI-Linkprüfung einbeziehen. Keine vorhandenen lokalen Dictionaries, Sidecars, npm-/Go-Caches oder PDFs als versteckte Voraussetzung. Windows-/macOS-Einstiege gezielt gegenprüfen; kein neuer langer Full-Lauf allein für die Planergänzung. Die gemeldete Snapshot-Version `1.3.1-next` aus Tag `v1.3.0` ist separat von einem tatsächlich getaggten v2-Beta-Release zu beurteilen; hier keinen Tag erzeugen oder ändern.
 
 ### Checkout-/Binary-Installationswege für v2 absichern
 
@@ -98,6 +73,8 @@ Zusätzlicher Befund aus R17: Das Target-Archiv wird über `src/*.c`, `src/*.h` 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
 **Aktualisierung vom 14. Oktober:** R26 ist implementiert; die sieben Windows-Fehlergruppen und die vollständigen Schritte 540/550 sind separat grün abgenommen. Der native macOS-/Linux-Nachweis nach diesen Korrekturen steht noch aus. Mac-PASS vor der Korrektur ist die Meldung des Benutzers, keine neue Agentenprüfung. Der zuvor gestartete Original-Full-Lauf und seine damaligen Go-Fehler bleiben ein eigener Befund. Die R26-Teilabnahme ersetzt keinen einheitlichen Kandidatenlauf nach den ausgewählten Änderungen und R32.
+
+R32 ist anschließend lokal auf Windows im frischen Checkout geprüft: echter gepinnter stitchmd-Installationsweg, PDF-Hook mit neuem npm-/Browser-Cache, Snapshot ohne Publish und beide Linkcheck-Modi bestehen. Die erneute Linux-CI-Abnahme und native macOS-Gegenprobe wurden hier nicht ausgeführt; auf diesem Rechner sind weder WSL noch Docker verfügbar. Diese Nachweise bleiben Teil von R16, ebenso der feststehende Release-Kandidat.
 
 Nach R26, R32 und den übrigen für den Kandidaten ausgewählten Änderungen zuerst ihre gezielten Prüfungen, anschließend einmal den vollständigen Lauf auf einem feststehenden Stand ausführen. Die Auswertung des abgeschlossenen Laufs vom 29./30. September steht bei R01, R06 und R13; seine flachen Logdateien wurden beim späteren Quick-Lauf ersetzt. Künftige Fehlerprotokolle und Zeitbasen vor einem weiteren `testAll`-Lauf gesondert sichern, weil der Runner alte Logs entfernt. Keine konkurrierenden zustandsverändernden Läufe starten.
 
@@ -163,6 +140,8 @@ Umfang der lesenden Inventur: **118 versionierte eigene Shell-/CJS-/Python-Skrip
 Die README-Reihenfolge und die Überschriften-/Umfangsstruktur aller **52 Hauptkapitel plus HEADER/FOOTER** wurden inventarisiert; alle Kapiteldateien sind in der README verlinkt. Vertieft gesichtet wurden die langen Einstiegs-, Bind-/CE-, Beispiel-, Test-, Entwicklungs- und Wartungskapitel. Eine Suche nach längeren wortgleichen Absätzen über Kapitel hinweg ergab keine einfachen Kopierduplikate. Die Kürzungsmöglichkeiten sind vor allem **inhaltliche Überschneidungen und ausführliche Allgemeinerklärungen**, keine nachgewiesenen wortgleichen Textblöcke. Eine vollständige technische Nachabnahme jedes Satzes ist damit nicht behauptet.
 
 **Grundsatz:** Aussagen knapper formulieren, gemeinsame Erklärung einmal vollständig pflegen und von weiteren Einstiegen mit einem kurzen Kontextsatz verlinken. Kein Beispiel, Compilerlimit, Parameter, Messwert, Bild, Codeblock oder ausdrücklich gewünschter CE-PoC-Anhang verschwindet. Rein sprachliche Straffung und fachliche Aktualisierung getrennt reviewen. Das UM bleibt nutzergepflegt und wird ohne ausdrücklichen Auftrag nicht geändert.
+
+**Zusatzbefund aus R32:** Die Projektdatei-Tabelle in `maintenance.md` wird nach Leerzeilen ohne erneute Tabellenkopf-/Trennzeile fortgesetzt. Der bestehende Renderer zeigt diesen zweiten Block als Fließtext mit Pipes statt als Tabelle; sichtbar auf Seite 430 des R32-Test-PDFs. Bei R29 die Tabellenstruktur mit unverändertem Inhalt reparieren. R32 ändert nur das LI-Linkziel und behebt diesen vorbestehenden Layoutfehler nicht.
 
 | Kapitel / Befund | Sinnvolle begrenzte Änderung |
 | --- | --- |
@@ -323,7 +302,7 @@ Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung be
 
 R26 ist umgesetzt und auf Windows gezielt sowie mit 540/550 abgenommen. Den bereits gestarteten Original-Full-Lauf getrennt auswerten und seine vollständigen Fehlerprotokolle erhalten. Seine Source-/ID-Zwischenzustände wurden für R26 nicht verändert oder bereinigt; die geprüfte Korrektur entstand in einer isolierten Kopie.
 
-Als nächster Korrekturauftrag bietet sich R32 mit den gemeldeten CI-Blockern und einer Abnahme aus sauberem Checkout an. Anschließend R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R14/R15 sichern die bereits weitgehend implementierte Distribution ab; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs und den noch fehlenden nativen Plattformnachweisen. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
+R32 ist ebenfalls umgesetzt; der lokale Nachweis aus frischem Checkout steht bei den abgeschlossenen Aufgaben. Als nächste Korrekturaufträge R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R14/R15 sichern die bereits weitgehend implementierte Distribution ab; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs, erneuter Linux-CI-Abnahme und den noch fehlenden nativen Plattformnachweisen. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
 
 Merge, Git-Schreibaktionen, Tag, Veröffentlichung und ein neuer langer Full-Test benötigen ihren jeweiligen ausdrücklichen Auftrag. Den Merge führt der Benutzer auf GitHub aus. Die Dateiablage allein rechtfertigt keine weiteren Features oder umfassende Umorganisation von Beispielen und Testmatrix. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
 
@@ -333,6 +312,7 @@ Die folgenden Aufgaben sind abgeschlossen oder ausdrücklich archiviert. Ältere
 
 | ID | Status | Ergebnis / Nachweis |
 | --- | --- | --- |
+| [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | Echter Go-Installationsbuild, frischer PDF-/Snapshot-Lauf und beide Linkcheck-Modi bestanden; Linux-CI/macOS bei R16 offen. |
 | [R26](#windows-testfehler-vollständig-beheben) | Umsetzung und Windows-Abnahme abgeschlossen | 99 gezielte Tests sowie 540/550 bestanden; neue native macOS-/Linux-Abnahme bei R16 offen. |
 | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien) | Erledigt | Aktuelle Referenz von historischen Bind-Entwicklungsständen getrennt; gültige Einzelinformationen übernommen. |
 | [R21a](#kleine-zustandsreste-und-workflow-begleitdateien) | Erledigt | Leere Debugger-Zustände und ungenutzte Vorlagenbegleiter entfernt; CI-Orientierung aktualisiert. |
@@ -368,6 +348,29 @@ Weitere abgeschlossene Dokumentations-, Repo- und ID-Aufgaben aus der bisherigen
 | [R21f](#fremdsoftware-ablage-erklären-und-alt-konfiguration-abgleichen) | Erledigt | Fremdsoftware-Ablage und alte Linkchecker-Konfiguration abgleichen | 3 | S–M | [R10](#anwenderdokumentation-von-entwicklungsständen-befreien), [R18](#bisheriges-user-manual-als-reference-manual-weiterführen), [R20](#link-forwarding-dateien-entfernen-und-docs-konsolidieren) |
 | [R24](#entwicklerwerkzeuge-vom-scratchpad-entkoppeln) | Archiviert | Ehemalige Codex-Umzugswerkzeuge und Anleitung; aktiver Einstieg jetzt handsoff/handson | 3 | M | Eigenständiger Entwicklerablauf; damalige Ergebnisse unten, heute kein aktiver ZIP-Transfer |
 | [R25](#ids-identischer-trices-deterministisch-zuordnen) | Erledigt; Release-Pflicht erfüllt | Identische Trices nach Dateipfad und Quellposition auf aufsteigende IDs abbilden | 3 | M | Beschreibende Tests und Target-/Decoder-Nachweis bestanden; abschließender Gesamtlauf bleibt R16 |
+
+### CI-PDF-Build und Links ohne lokale Artefakte absichern
+
+**R32 · Gewicht 5 · Aufwand S–M · Umsetzung und lokale Windows-Prüfung abgeschlossen; Linux-CI/macOS bei R16 offen**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Ergebnis am 14. Oktober 2026:** [PDF-Skript](../../scripts/_320_generate_trice_user_manual_pdf.sh), [Skript-Regressionstests](../../scripts/portability_test.go) und [Maintenance](../rm/maintenance.md) sind gezielt korrigiert. Die CI-Workflows installieren bereits `go.abhg.dev/stitchmd@v0.9.0` und bleiben unverändert. Ein echter neuer Installationsbuild bestätigt `stitchmd dev` mit Hauptmodul `v0.9.0`; Upstream setzt die angezeigte Version erst mit dem Release-Linkerflag `main._version`.
+
+Das Skript akzeptiert weiterhin die exakte Release-Anzeige `stitchmd 0.9.0`. Bei `stitchmd dev` muss `go version -m` für das tatsächlich ausgewählte Programm sowohl das Hauptpaket als auch das Hauptmodul `go.abhg.dev/stitchmd` mit Version `v0.9.0` ohne Ersetzungen ausweisen. Fehlendes Go, falsche Versionen, lokale/unversionierte Builds, reine Abhängigkeitstreffer und nicht lesbare Metadaten brechen vor Staging/PDF-Änderungen mit Diagnose ab. Unter MSYS/Cygwin wird die von Bash implizit ergänzte `.exe`-Endung für Go explizit aufgelöst.
+
+`demoLI.json` wird in der Wartungstabelle als lokal generierte Datei beschrieben; der Link führt jetzt zur vorhandenen LI-Erklärung statt auf eine nicht versionierte Datei. Die LI-Initialisierung bleibt unverändert. Der alte Monolith war bereits mit `b84fb3d35` archiviert; Archivinhalt und `lychee.toml` wurden nicht verändert. Historische R17-/R21c-Angaben zur Versionierung von `demoLI.json` bleiben überholt: `demoTIL.json` ist versioniert, aktive LI-Dateien werden lokal erzeugt.
+
+**Prüfungen auf Windows:**
+
+- `GOBIN` auf `temp/r32-tools/bin` setzen und `go install go.abhg.dev/stitchmd@v0.9.0` — PASS; Buildinformationen weisen `v0.9.0` und die Go-Modulprüfsumme aus. Keine Änderung am Modulvertrag oder am bisherigen lokalen stitchmd.
+- `rtk go test ./scripts -count=1` — PASS, 368 Tests. Abschließender Lauf `rtk go test ./scripts -run '^(TestManualPDFGenerationPreservesBookIdentity|TestReferencePDFPreparation|TestReleasePDFChecksRequireEachBook)$' -count=1` — PASS, 33 Tests. Die erweiterten Fixtures prüfen akzeptierte LF-/CRLF-Metadaten, fehlende/falsche Tools, fehlerhafte/unversionierte/ersetzte Module und den Erhalt bisheriger PDFs bei Preflight-Fehlern.
+- `bash scripts/_320_generate_trice_user_manual_pdf.sh` im frischen Testcheckout, mit neuem `NPM_CONFIG_CACHE` und `PUPPETEER_CACHE_DIR` unter `temp/r32-tools/` — PASS; beide gepinnten Renderer-Pakete und der Browser wurden frisch installiert. UM: 9 Seiten; RM: 456 Seiten. PDF-Struktur/Gliederung und URI-Links wurden mit vorhandenem pypdf geprüft; keine localhost-/127.0.0.1-Linkziele. Sichtprüfungen der Einstiegsseiten und der geänderten Maintenance-Stelle erfolgten mit dem vorhandenen Chromium-PDF-Viewer; der dort bestätigte Bestandsfehler der Tabellenfortsetzung steht getrennt bei R29. Screenshots liegen bei den Testlogs.
+- `goreleaser release --snapshot --clean --skip=publish` im selben Checkout — PASS nach 2m59s; beide PDFs unter `docs/` neu erzeugt und 40 Snapshot-Artefakte, darunter die nichtleeren Windows-/Linux-/macOS-Archive, erstellt. Der Snapshot überspringt den Release-Upload einschließlich `release.extra_files`; die PDFs stehen deshalb nicht als Upload-Einträge in `dist/artifacts.json`. Kein Publish oder Tag.
+- Vorhandenes Lychee 0.24.2 mit unveränderter `lychee.toml`, demselben Source-Link-Remap wie CI und Eingabe `.` — offline und regulär online PASS, jeweils 1.974 Links und 0 Fehler. `demoLI.json` blieb vor und nach PDF-/Snapshot-Hooks abwesend; keine leere Hilfsdatei angelegt.
+- `shellcheck scripts/_320_generate_trice_user_manual_pdf.sh`, `bash -n`, Go-Format- und Diff-Prüfung — PASS. Die bestehenden Installations-, Release- und Linkcheck-Workflows wurden mit actionlint einschließlich ShellCheck geprüft.
+
+**Isolation und Grenzen:** Ausgangspunkt ist `5af032fa`; die drei Implementierungsdateien wurden in den frisch geklonten Checkout `temp/r32-workspace/` übernommen. Logs und Linkcheck-JSON liegen unter `temp/r32-logs/`; Renderer-Caches und der neue stitchmd-Build unter `temp/r32-tools/`. Der erste PDF-Versuch deckte die MSYS-Endungsauflösung auf; sein Log bleibt als `pdf-initial-msys-path.log` erhalten. Für Git wurde nur pro Snapshot-Prozess `safe.directory` auf die selbst angelegte Kopie gesetzt. Vorhandene Go-Caches wurden genutzt; ein vollständig leerer Go-Cache wurde nicht geprüft. Kein neuer Full-Test, keine Änderungen an Target-Quellen und kein Commit/Push in diesem Auftrag. Ein nativer Linux-/macOS-Lauf sowie der GitHub-CI-Lauf sind ausstehend und ausdrücklich R16 zugeordnet.
 
 ### Windows-Testfehler vollständig beheben
 
@@ -405,7 +408,7 @@ Betroffene Stellen: [Encoder-Tests](../../internal/id/encoder_dependencies_test.
 
 **Testisolation und Protokolle:** Ausgangspunkt war `baf9d42f`. Weil der originale Full-Test weiterlief, erfolgte die Abnahme in `temp/r26-workspace/`. Seine Protokolle liegen unter `temp/r26-workspace/temp/log/`; die ursprünglichen 540-/550-Fehlerlogs und der damalige Summary-Zwischenstand wurden vorher nach `temp/r26-original-logs/` kopiert. Der erste 540-Versuch in der Kopie wurde vor den Go-Tests durch Gits Eigentümerprüfung blockiert; sein Log bleibt als `r26-initial-git-ownership.log` erhalten. Danach wurde ausschließlich im Testprozess `safe.directory` für diese selbst angelegte Kopie gesetzt und der bestehende Go-Cache verwendet. Die Benutzerkonfiguration blieb unverändert.
 
-Die sechs übernommenen Dateien wurden bytegenau mit der getesteten Kopie verglichen; UTF-8 und LF sind erhalten. Der Original-Full-Lauf und seine Quellen-/ID-Zustände wurden weder ersetzt noch neu gestartet. Seine alten 540-/550-Fehler werden durch die separate Abnahme nicht nachträglich zu einem einheitlichen grünen Full-Lauf. Ein neuer nativer macOS-/Linux-Nachweis und die abschließende Kandidatenabnahme bleiben R16; R32 ist weiterhin ein eigenständiger offener CI-Blocker. Kein Commit oder Push durch diesen Implementierungsauftrag.
+Die sechs übernommenen Dateien wurden bytegenau mit der getesteten Kopie verglichen; UTF-8 und LF sind erhalten. Der Original-Full-Lauf und seine Quellen-/ID-Zustände wurden weder ersetzt noch neu gestartet. Seine alten 540-/550-Fehler werden durch die separate Abnahme nicht nachträglich zu einem einheitlichen grünen Full-Lauf. Ein neuer nativer macOS-/Linux-Nachweis und die abschließende Kandidatenabnahme bleiben R16; die später getrennt umgesetzten PDF-/Linkkorrekturen stehen bei R32. Kein Commit oder Push durch diesen Implementierungsauftrag.
 
 ### Test-Ausgangszustand einschließlich Standalone-Beispielen erhalten
 
