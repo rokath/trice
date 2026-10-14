@@ -1,19 +1,5 @@
 # Trice Logging Output
 
-<details markdown="1">
-<summary>Contents</summary>
-
----
-
-<!-- mdtoc -->
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
----
-
-</details>
-
-
 With `trice log -port COM12` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at the 115200 default baudrate.
 
 The following capture output comes from an (old) example project inside [../examples](../../examples).

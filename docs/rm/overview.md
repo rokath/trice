@@ -1,18 +1,5 @@
 # Trice Overview
 
-<details markdown="1">
-<summary>Contents</summary>
-
----
-
-<!-- mdtoc -->
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
----
-
-</details>
-
 If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyzing dynamic behavior in the field, they are not usable.
 
 Logging then, usually done with printf-like functions, quickly yields a result after having i.e. `putchar()` implemented. This turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small microcontrollers that's it.

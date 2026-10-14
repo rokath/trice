@@ -1,18 +1,5 @@
 # Optional XTEA Encryption
 
-<details markdown="1">
-<summary>Contents</summary>
-
----
-
-<!-- mdtoc -->
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
-<!-- /mdtoc -->
-
----
-
-</details>
-
 * You can deliver your device with encrypted trices. This way only the service [wo]men is able to read the *Trices*.
 * Implemented is [XTEA](https://en.wikipedia.org/wiki/XTEA) but this is exchangeable.
 * The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h). You need to add `-password MySecret` as `trice log` switch and you're done.

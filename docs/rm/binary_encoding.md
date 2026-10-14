@@ -28,7 +28,6 @@
 
 ![CountAndCycle.svg](../ref/CountAndCycleBasic.svg)
 
-
 Most trice messages are with small payloads (<128) and take advantage of a cycle counter which allows to detect transmission issues with a high probability. Some Trice messages may contain more payload bytes. Then the cycle counter is incremented too but not transmitted and the cycle byte serves as additional count bits.
 
 ![CountAndCycle.svg](../ref/CountAndCycleDetail.svg)
