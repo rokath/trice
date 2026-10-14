@@ -6,12 +6,108 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 )
+
+// checkoutBuildFixture runs the real installer with metadata/tool doubles. Go
+// records local package arguments without installing into any host directory.
+func checkoutBuildFixture(t *testing.T) string {
+	t.Helper()
+	root := scriptFixture(t, "scripts/buildTriceTool.sh")
+	writeFixture(t, root, "bin/git", `#!/bin/sh
+case "$1" in
+  remote) echo 'fixture/trice' ;;
+  rev-parse) echo 'fixture' ;;
+  describe) exit 1 ;;
+  diff) exit 0 ;;
+  *) exit 94 ;;
+esac
+`)
+	writeFixture(t, root, "bin/date", "#!/bin/sh\necho 20261014-120000\n")
+	writeFixture(t, root, "bin/go", `#!/bin/sh
+set -eu
+case "$1" in
+  env)
+    case "$2" in
+      GOEXE) printf '%s\n' "$FIXTURE_EXE" ;;
+      GOHOSTOS) printf '%s\n' "$FIXTURE_HOST" ;;
+      GOBIN) printf '%s\n' "${FIXTURE_GOBIN:-}" ;;
+      GOPATH) printf '%s\n' "$FIXTURE_GOPATH" ;;
+      *) exit 95 ;;
+    esac
+    ;;
+  install) printf '%s\n' "$@" > go-install.args ;;
+  *) exit 96 ;;
+esac
+`)
+	return root
+}
+
+// TestCheckoutBuildInstallTargets covers native path-list rules independently
+// of the test host. Phantom paths are inspected but never created or installed.
+func TestCheckoutBuildInstallTargets(t *testing.T) {
+	for _, tc := range []struct {
+		name, host, gobin, envGobin, gopath, destination, suffix string
+	}{
+		{"linux_first_gopath", "linux", "", "", "/r14-fixture/first path:/r14-fixture/second", "/r14-fixture/first path/bin", ""},
+		{"macos_first_gopath", "darwin", "", "", "/r14-fixture/first:/r14-fixture/second", "/r14-fixture/first/bin", ""},
+		{"windows_single_drive", "windows", "", "", "C:/r14-fixture/Go workspace", "C:/r14-fixture/Go workspace/bin", ".exe"},
+		{"windows_drive_list", "windows", "", "", "C:/r14-fixture/first path;D:/r14-fixture/second", "C:/r14-fixture/first path/bin", ".exe"},
+		{"windows_backslashes", "windows", "", "", `C:\r14-fixture\first path;D:\r14-fixture\second`, `C:\r14-fixture\first path/bin`, ".exe"},
+		{"windows_unc_list", "windows", "", "", `\\r14-fixture\share\first;\\r14-fixture\share\second`, `\\r14-fixture\share\first/bin`, ".exe"},
+		{"configured_gobin", "linux", "", "/r14-fixture/configured tools", "/r14-fixture/unused", "/r14-fixture/configured tools", ""},
+		{"environment_gobin_takes_precedence", "windows", "C:/r14-fixture/environment tools", "C:/r14-fixture/unused", "C:/r14-fixture/unused", "C:/r14-fixture/environment tools", ".exe"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := checkoutBuildFixture(t)
+			out, err := runFixture(t, root, "bash scripts/buildTriceTool.sh", map[string]string{
+				"GOBIN": tc.gobin, "GOROOT": "", "FIXTURE_GOBIN": tc.envGobin,
+				"FIXTURE_GOPATH": tc.gopath, "FIXTURE_HOST": tc.host, "FIXTURE_EXE": tc.suffix,
+			})
+			assert.NoError(t, err, out)
+			for _, tool := range []string{"trice", "tlog"} {
+				assert.Regexp(t, `(?m)^Installed `+tool+` target: +`+regexp.QuoteMeta(tc.destination+"/"+tool+tc.suffix)+`$`, out)
+			}
+			data, readErr := os.ReadFile(filepath.Join(root, "go-install.args"))
+			assert.NoError(t, readErr)
+			assert.True(t, strings.HasSuffix(string(data), "\n./cmd/trice\n./cmd/tlog\n"), "both tools must install from the current checkout: %s", data)
+		})
+	}
+}
+
+// TestCheckoutBuildProtectsBothTools proves that GOPATH resolution protects an
+// existing trice or tlog before either build starts, including a Windows drive.
+func TestCheckoutBuildProtectsBothTools(t *testing.T) {
+	for _, tool := range []string{"trice", "tlog"} {
+		t.Run(tool, func(t *testing.T) {
+			root := checkoutBuildFixture(t)
+			suffix := ""
+			if runtime.GOOS == "windows" {
+				suffix = ".exe"
+			}
+			name := "Go workspace/bin/" + tool + suffix
+			writeFixture(t, root, name, "previous installation\n")
+			out, err := runFixture(t, root, "bash scripts/buildTriceTool.sh", map[string]string{
+				"GOBIN": "", "GOROOT": "", "FIXTURE_GOBIN": "",
+				"FIXTURE_GOPATH": filepath.ToSlash(filepath.Join(root, "Go workspace")),
+				"FIXTURE_HOST":   runtime.GOOS, "FIXTURE_EXE": suffix,
+			})
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "Refusing to overwrite existing target in non-interactive mode:")
+			assert.Contains(t, out, "Use --force to overwrite")
+			assert.NoFileExists(t, filepath.Join(root, "go-install.args"), "neither tool may be installed before overwrite approval")
+			data, readErr := os.ReadFile(filepath.Join(root, name))
+			assert.NoError(t, readErr)
+			assert.Equal(t, "previous installation\n", string(data))
+		})
+	}
+}
 
 // TestReleaseAuditSelectsRequestedTag executes the real resolver/download step.
 // Its GH double refuses an omitted/different tag, so latest fallback cannot pass.

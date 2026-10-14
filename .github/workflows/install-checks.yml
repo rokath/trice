@@ -15,6 +15,75 @@ permissions:
   contents: read
 
 jobs:
+  checkout-install:
+    name: Install Checkout Tools (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build and verify checkout tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Keep both installs disposable; retain the original module cache.
+          module_cache="$(go env GOMODCACHE)"
+          export GOMODCACHE="$module_cache"
+          suffix="$(go env GOEXE)"
+          for destination in gobin gopath; do
+            if [ "$destination" = gobin ]; then
+              export GOBIN="$RUNNER_TEMP/trice-checkout-gobin"
+              install_dir="$GOBIN"
+            else
+              export GOBIN=""
+              export GOPATH="$RUNNER_TEMP/trice-checkout-gopath"
+              install_dir="$GOPATH/bin"
+            fi
+            echo "Checking checkout installation via $destination"
+            bash scripts/buildTriceTool.sh
+            # Go accepts native Windows paths; Git Bash uses its POSIX spelling.
+            if [ "$RUNNER_OS" = Windows ]; then install_dir="$(cygpath -u "$install_dir")"; fi
+            for tool in trice tlog; do
+              binary="$install_dir/$tool$suffix"
+              if [ ! -s "$binary" ]; then
+                echo "::error::missing or empty checkout binary: $binary"
+                go version || true
+                go env GOBIN GOPATH GOHOSTOS GOEXE || true
+                find "$install_dir" -maxdepth 1 -type f -print 2>/dev/null | sort || true
+                exit 1
+              fi
+            done
+            "$install_dir/trice$suffix" version
+            "$install_dir/trice$suffix" help
+            "$install_dir/tlog$suffix" --version
+            "$install_dir/tlog$suffix" help
+            # Exercise decoding with each installed tool, not a developer PATH.
+            for tool in trice tlog; do
+              command=("$install_dir/$tool$suffix")
+              if [ "$tool" = trice ]; then command+=(log); fi
+              output="$("${command[@]}" -port HEX -args '09 92 19 06 45 0b 10 56 3a,00' -pw MySecret -pf cobs -li off -hs off -color none -prefix off -ts off -i .github/fixtures/trice-smoke-til.json)"
+              printf '%s\n' "$output"
+              case "$output" in
+                *"Hello!"*) ;;
+                *) echo "::error::$tool installed via $destination did not decode Hello!"; exit 1 ;;
+              esac
+            done
+          done
+
   build-artifacts:
     name: Build snapshot artifacts
     runs-on: ubuntu-latest

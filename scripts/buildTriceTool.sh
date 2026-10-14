@@ -321,7 +321,12 @@ else
 
   if [ -z "$go_bin_dir" ]; then
     go_path="$(go env GOPATH)"
-    go_bin_dir="${go_path%%:*}/bin"
+    # GOPATH uses the Go host's path-list separator. A Windows drive colon
+    # belongs to the path; splitting it would also bypass overwrite protection.
+    case "$(go env GOHOSTOS)" in
+      windows) go_bin_dir="${go_path%%;*}/bin" ;;
+      *) go_bin_dir="${go_path%%:*}/bin" ;;
+    esac
   fi
 
   target_name="trice${go_exe_suffix}"
