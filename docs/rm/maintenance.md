@@ -9,8 +9,8 @@
 
 * [1. Trice Project structure (Files and Folders)](#trice-project-structure-files-and-folders)
 * [2. 📁 The .github Folder — Purpose and Contents](#the-github-folder--purpose-and-contents)
-  * [2.1. 📁 .github Root](#github-root)
-  * [2.2. 📂 .github/workflows — GitHub Actions Workflows](#githubworkflows--github-actions-workflows)
+  * [2.1. 📁 `.github` Root](#github-root)
+  * [2.2. 📂 `.github/workflows` — GitHub Actions Workflows](#githubworkflows--github-actions-workflows)
   * [2.3. GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-formatyml---check-c-code-formatting)
   * [2.4. GitHub Action codeql.yml - Static Code Analysis](#github-action-codeqlyml---static-code-analysis)
   * [2.5. GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverageyml---test-coverage-and-coveralls-integration)
@@ -24,7 +24,7 @@
   * [2.13. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
   * [2.14. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
   * [2.15. GitHub Action pages.yml - Creates The Trice GitHub Pages](#github-action-pagesyml---creates-the-trice-github-pages)
-* [3. Trice Reference Manual Maintenance (or any *.md file)](#trice-reference-manual-maintenance-or-any-md-file)
+* [3. Trice Reference Manual Maintenance (or any `*.md` file)](#trice-reference-manual-maintenance-or-any-md-file)
 * [4. Cleaning the Sources](#cleaning-the-sources)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->

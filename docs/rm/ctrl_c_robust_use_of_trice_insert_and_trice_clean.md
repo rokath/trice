@@ -13,7 +13,7 @@
 * [4. Recommended Bash pattern](#recommended-bash-pattern)
 * [5. Preserve the build exit code](#preserve-the-build-exit-code)
 * [6. Be careful with current working directory changes](#be-careful-with-current-working-directory-changes)
-* [7. Prefer Makefile clean targets when available](#prefer-makefile-clean-targets-when-available)
+* [7. Prefer Makefile `clean` targets when available](#prefer-makefile-clean-targets-when-available)
 * [8. Example scripts](#example-scripts)
 * [9. Summary](#summary)
 

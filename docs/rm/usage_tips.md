@@ -15,8 +15,8 @@
 * [6. Logfile viewing](#logfile-viewing)
 * [7. Using the Trice tool with 3rd party tools](#using-the-trice-tool-with-3rd-party-tools)
 * [8. Several targets at the same time](#several-targets-at-the-same-time)
-* [9. Executing go test -race -count 100 ./...](#executing-go-test--race--count-100-)
-* [10. TRICESTACKBUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization)
+* [9. Executing `go test -race -count 100 ./...`](#executing-go-test--race--count-100-)
+* [10. TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
 * [11. Cycle Counter](#cycle-counter)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
@@ -95,7 +95,7 @@ You can connect each target over its transmit channel with an own Trice instance
 
 The C-code is executed during some tests. Prerequisite is an installed GCC.
 
-## 10. <a id="tricestackbuffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
+## 10. <a id="trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 

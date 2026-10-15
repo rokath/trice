@@ -7,7 +7,7 @@
 
 <!-- mdtoc -->
 
-* [1. Target side compile-time Trice On-Off](#target-side-compile-time--trice-on-off)
+* [1. Target side compile-time  Trice On-Off](#target-side-compile-time--trice-on-off)
 * [2. Host side Trice On-Off](#host-side-trice-on-off)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->

@@ -35,7 +35,7 @@ Search project and generated header directories first, then `src`, then `src/def
 ## 1. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
 For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
-[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](usage_tips.md#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization).
+[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](usage_tips.md#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization).
 
 
 ## 2. <a id="compiler-independent-setting-a-bit-outdated"></a>Compiler Independent Setting (a bit outdated)
