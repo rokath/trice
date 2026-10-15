@@ -37,6 +37,7 @@ TEST_ALL_PLAN_ARGUMENTS=()
 TEST_ALL_STATE_DIR=""
 TEST_ALL_STATE_CAPTURED=0
 TEST_ALL_STATE_VERIFIED=0
+TEST_ALL_ABORTED=0
 
 summary_line() {
   printf '%s\n' "$1" >>"$SUMMARY_LOG"
@@ -162,11 +163,19 @@ verify_tracked_bytes() {
   return 1
 }
 
-# finish_test_runner also checks state when a signal exits the runner before
-# its normal summary. A detected mutation changes an otherwise successful exit.
+# cancel_test_runner records cancellation without exiting ahead of a foreground
+# step's restoration. Bash runs this trap after that foreground command returns.
+cancel_test_runner() {
+  trap '' INT TERM
+  TEST_ALL_ABORTED="$1"
+}
+
+# finish_test_runner also checks state on an early exit. A detected mutation
+# changes an otherwise successful exit; repeated signals cannot interrupt it.
 finish_test_runner() {
   local status=$?
 
+  trap '' INT TERM
   trap - EXIT
   stop_progress_spinner
   if [ -n "$TEST_ALL_STATE_DIR" ]; then
@@ -425,13 +434,16 @@ parse_test_all_arguments() {
 run_step_with_policy() {
   local rc=0
   run_step "$@" || rc=$?
-  if [ "$rc" -eq 0 ]; then
-    return 0
-  fi
   # --no-stop continues after test failures, not after a user's cancellation.
   if [ "$rc" -eq 130 ] || [ "$rc" -eq 143 ]; then
     TEST_ALL_ABORTED="$rc"
     return "$rc"
+  fi
+  if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
+    return "$TEST_ALL_ABORTED"
+  fi
+  if [ "$rc" -eq 0 ]; then
+    return 0
   fi
   TEST_ALL_FAILED=1
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
@@ -458,6 +470,7 @@ run_selected_steps() {
   done
 
   for ((index = 0; index < TEST_ALL_STEP_COUNT; index++)); do
+    [ "$TEST_ALL_ABORTED" -eq 0 ] || return 1
     step="${TEST_ALL_PLAN_SCRIPTS[index]}"
     argument="${TEST_ALL_PLAN_ARGUMENTS[index]}"
     weight="$(expected_step_weight "$step")"
@@ -531,6 +544,8 @@ main() {
   exit "$TEST_ALL_FAILED"
 }
 
+trap 'cancel_test_runner 130' INT
+trap 'cancel_test_runner 143' TERM
 trap 'finish_test_runner' EXIT
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   main "$@"

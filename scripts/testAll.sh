@@ -44,6 +44,9 @@
 
 set -u
 
+# Terminal signals also reach the runner; wait for its restoration before returning.
+trap ':' INT TERM
+
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 run_with_inhibit_linux() {
   local rc

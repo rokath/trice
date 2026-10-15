@@ -661,6 +661,157 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 	}
 }
 
+// TestManagedWorkflowRepeatedInterrupts signals the complete test process group,
+// as terminal Ctrl-C does. A handshake holds real tar extraction open so later
+// signals deterministically reach both the restoring shell and its child tool.
+func TestManagedWorkflowRepeatedInterrupts(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX process-group signals; ordinary state restoration is tested on Windows")
+	}
+	tar, err := exec.LookPath("tar")
+	if err != nil {
+		t.Skip("tar is required for managed workflow restoration")
+	}
+	for _, firstSignal := range []string{"INT", "TERM"} {
+		for _, entry := range []string{"standalone", "testAll", "testAll.sh"} {
+			t.Run(firstSignal+"/"+entry, func(t *testing.T) {
+				root := scriptFixture(t,
+					"scripts/testAll.sh", "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh",
+					"scripts/_120_setup_trice_environment.sh", "scripts/_130_trice_id_workflow.sh",
+					"scripts/_140_trice_test_state.sh")
+				initGitFixture(t, root)
+				initial := map[string]string{
+					"sample.c":            "#include \"trice_sidecar_sample.h\"\n// local user edit\ntrice(\"msg:hello\\n\");\n",
+					"demoTIL.json":        "local TIL bytes\n",
+					"demoLI.json":         "local LI bytes\n",
+					"generated/sidecar.h": "local sidecar bytes\n",
+				}
+				for path, contents := range initial {
+					writeFixture(t, root, path, contents)
+				}
+				writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/sh\nexit 0\n")
+				// Only extraction pauses; snapshot creation still uses the host tar.
+				writeFixture(t, root, "bin/tar", `#!/usr/bin/env bash
+set -eu
+if [ "$1" = -xf ]; then
+  touch events/restore-ready
+  attempts=0
+  until [ -f events/restore-release ]; do
+    sleep 0.01
+    attempts=$((attempts+1))
+    [ "$attempts" -le 500 ] || exit 91
+  done
+fi
+exec "$REAL_TAR" "$@"
+`)
+				writeFixture(t, root, "worker.sh", `#!/usr/bin/env bash
+printf 'trice(iD(1234), "msg:hello\\n");\n' > sample.c
+printf 'changed TIL\n' > demoTIL.json
+printf 'changed LI\n' > demoLI.json
+rm -f generated/sidecar.h
+touch generated/new-sidecar.h events/worker-ready
+while :; do sleep 0.05; done
+`)
+				writeFixture(t, root, "scripts/_590_test_fixture.sh", `#!/usr/bin/env bash
+source scripts/_100_test_common.sh
+init_logfile
+source scripts/_140_trice_test_state.sh
+trice_test_run_managed_workflow bind none ./worker.sh
+`)
+				// Replace only the production plan, retaining the public wrapper,
+				// actual runner, and one real managed step in the same process group.
+				runner, readErr := os.ReadFile(filepath.Join(root, "scripts/_110_test_runner.sh"))
+				if !assert.NoError(t, readErr) {
+					return
+				}
+				writeFixture(t, root, "scripts/runner-implementation.sh", string(runner))
+				writeFixture(t, root, "scripts/_110_test_runner.sh", `#!/usr/bin/env bash
+source scripts/runner-implementation.sh
+# Exercise terminal progress even though the test captures stdout.
+TEST_ALL_INTERACTIVE=1
+build_test_plan() {
+  add_plan_step _590_test_fixture.sh
+  add_plan_step _600_test_later.sh
+}
+main "$@"
+`)
+				writeFixture(t, root, "scripts/_600_test_later.sh", "#!/bin/sh\ntouch events/later-step\n")
+				// Linux CI need not have a running systemd or change power settings.
+				writeFixture(t, root, "bin/systemd-inhibit", "#!/bin/sh\nshift 4\nexec \"$@\"\n")
+				writeFixture(t, root, "run-tests.sh", `#!/usr/bin/env bash
+if [ "$ENTRY" = standalone ]; then
+  exec bash scripts/_590_test_fixture.sh
+fi
+if [ "$ENTRY" = testAll.sh ]; then
+  exec bash scripts/testAll.sh full
+fi
+exec bash scripts/_110_test_runner.sh full
+`)
+				// Job control gives the disposable job its own process group and
+				// keeps SIGINT enabled even though the driver starts it in the background.
+				out, err := runFixture(t, root, `set -m
+mkdir -p events
+git add -- sample.c demoTIL.json demoLI.json
+bash run-tests.sh > runner.out 2>&1 &
+job=$!
+trap 'kill -KILL -- "-$job" 2>/dev/null || true; wait "$job" 2>/dev/null || true' EXIT
+wait_for() {
+  local attempts=0
+  until [ -f "$1" ]; do
+    if ! kill -0 "$job" 2>/dev/null || [ "$attempts" -ge 500 ]; then
+      cat runner.out
+      return 1
+    fi
+    sleep 0.01
+    attempts=$((attempts+1))
+  done
+}
+wait_for events/worker-ready || exit 1
+kill -s "$FIRST_SIGNAL" -- "-$job"
+wait_for events/restore-ready || exit 1
+kill -s "$FIRST_SIGNAL" -- "-$job"
+kill -s "$FIRST_SIGNAL" -- "-$job"
+touch events/restore-release
+status=0
+wait "$job" || status=$?
+cat runner.out
+printf 'WorkflowExit:%s\n' "$status"
+trap - EXIT
+`, map[string]string{
+					"TRICE_PRJ_FILES": "-src ./sample.c", "REAL_TAR": tar,
+					"ENTRY": entry, "FIRST_SIGNAL": firstSignal,
+				})
+				assert.NoError(t, err, out)
+				wantStatus := "130"
+				if firstSignal == "TERM" {
+					wantStatus = "143"
+				}
+				assert.Contains(t, out, "WorkflowExit:"+wantStatus)
+				assert.Equal(t, 1, strings.Count(out, "Cancellation requested. Restoring the initial test state; please wait..."), out)
+				if entry != "standalone" {
+					assert.Contains(t, out, "Result: ABORTED (signal exit status "+wantStatus+")")
+					assert.NotContains(t, out, "initial state was not restored")
+				}
+				assert.NoFileExists(t, filepath.Join(root, "events/later-step"), "cancellation never starts another test")
+				log, readErr := os.ReadFile(filepath.Join(root, "temp/log/_590_test_fixture.log"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(log), "exact initial files restored")
+				assert.Contains(t, string(log), "end status: "+wantStatus)
+				for path, contents := range initial {
+					data, readErr := os.ReadFile(filepath.Join(root, path))
+					assert.NoError(t, readErr, path)
+					assert.Equal(t, contents, string(data), path)
+				}
+				assert.NoFileExists(t, filepath.Join(root, "generated/new-sidecar.h"))
+				snapshots, globErr := filepath.Glob(filepath.Join(root, "temp/trice-state.*"))
+				assert.NoError(t, globErr)
+				assert.Empty(t, snapshots, "successful restoration removes its recovery snapshot")
+			})
+		}
+	}
+}
+
 // TestRuntimePreparationIsTransactional ensures step 490 does not leave its
 // canonical Bind setup in the checkout, even if the preparatory bind fails.
 func TestRuntimePreparationIsTransactional(t *testing.T) {

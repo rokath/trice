@@ -476,7 +476,18 @@ trice_test_finish() {
   local status="${1:-$?}"
   local restore_status=0
 
-  trap - INT TERM EXIT
+  # Repeated Ctrl-C must not interrupt restoration or the tools it launches.
+  # Ignore cancellation until this process exits, and prevent EXIT recursion.
+  trap '' INT TERM
+  trap - EXIT
+  if [ "$status" -eq 130 ] || [ "$status" -eq 143 ]; then
+    local message="Cancellation requested. Restoring the initial test state; please wait..."
+    trice_state_log "$message"
+    # Aggregated runs log quietly; still show why cancellation takes a moment.
+    if [ "${QUIET:-0}" -eq 1 ]; then
+      printf '\n%s\n' "$message" >&2
+    fi
+  fi
   cd "$TRICE_STATE_ROOT" >/dev/null 2>&1 || true
   trice_test_restore_include_path
   trice_test_state_restore || restore_status=$?
