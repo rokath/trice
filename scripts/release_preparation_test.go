@@ -322,6 +322,107 @@ func TestReleaseWorkflowBindings(t *testing.T) {
 	}
 }
 
+// TestLibraryWorkflowTriggers protects the pre-merge matrix and existing check
+// identity. Ordinary branch pushes must not create a second expensive run.
+func TestLibraryWorkflowTriggers(t *testing.T) {
+	for _, filename := range []string{"trice_lib_ci.yml", "trice_lib_ci_full.yml"} {
+		t.Run(filename, func(t *testing.T) {
+			data, err := os.ReadFile(filepath.Join("..", ".github", "workflows", filename))
+			if !assert.NoError(t, err) {
+				t.FailNow()
+			}
+			// Typed YAML fields keep GitHub event bindings distinct from strings
+			// embedded in comments or shell examples elsewhere in the workflow.
+			var workflow struct {
+				Name string
+				On   map[string]yaml.Node
+				Jobs map[string]struct {
+					Name, If, Needs, Uses string
+					With                  map[string]interface{}
+				}
+			}
+			if !assert.NoError(t, yaml.Unmarshal(data, &workflow)) {
+				t.FailNow()
+			}
+			assert.NotContains(t, workflow.On, "push", "a wip push without a PR must stay cheap")
+			assert.Contains(t, workflow.On, "schedule")
+			assert.Contains(t, workflow.On, "workflow_dispatch")
+			assert.Equal(t, "github.event_name == 'schedule'", workflow.Jobs["guard_activity"].If)
+			build := workflow.Jobs["heavy_ci"]
+			assert.Equal(t, "guard_activity", build.Needs)
+			assert.Equal(t, "${{ !cancelled() && (github.event_name != 'schedule' || needs.guard_activity.outputs.should_run == 'true') }}", build.If,
+				"PR/manual checks must run after a skipped guard, while cancellation still stops them")
+			assert.Equal(t, "./.github/workflows/trice_lib_reusable.yml", build.Uses)
+			for _, compiler := range []string{"toolchain_gcc_trice_on", "toolchain_gcc_trice_off", "toolchain_clang"} {
+				assert.Equal(t, true, build.With[compiler], compiler)
+			}
+			if filename == "trice_lib_ci.yml" {
+				assert.Equal(t, "TRICE Library CI (Nightly Quick)", workflow.Name,
+					"keep existing branch-protection check identities")
+				assert.Equal(t, "Heavy CI (quick)", build.Name)
+				// Decode only the PR mapping; schedule is a YAML sequence and
+				// workflow_dispatch is an empty mapping in the same event list.
+				var pullRequest struct {
+					Branches []string
+					Types    []string
+				}
+				prEvent, exists := workflow.On["pull_request"]
+				assert.True(t, exists)
+				assert.NoError(t, prEvent.Decode(&pullRequest))
+				assert.Equal(t, []string{"main"}, pullRequest.Branches)
+				assert.Empty(t, pullRequest.Types,
+					"default PR activities include synchronization after a corrective push")
+				assert.Equal(t, "${{ github.event_name == 'pull_request' && 'full' || 'quick' }}", build.With["configs_mode"])
+				assert.Equal(t, 0, build.With["configs_start"])
+				assert.Equal(t, 10, build.With["configs_end"])
+			} else {
+				assert.NotContains(t, workflow.On, "pull_request", "one full library matrix per PR update")
+				assert.Equal(t, "full", build.With["configs_mode"])
+			}
+		})
+	}
+}
+
+// TestLibraryNightlyActivityGuard executes each unchanged schedule decision
+// against controlled Git history. Idle nights skip; Git failures fail visibly.
+func TestLibraryNightlyActivityGuard(t *testing.T) {
+	for _, filename := range []string{"trice_lib_ci.yml", "trice_lib_ci_full.yml"} {
+		for _, tc := range []struct {
+			name, history, want string
+			gitFailure          bool
+		}{
+			{name: "idle_main_skips", want: "should_run=false\n"},
+			{name: "recent_main_runs", history: "abc123 merged change\n", want: "should_run=true\n"},
+			{name: "git_error_is_not_a_skip", gitFailure: true},
+		} {
+			t.Run(filename+"/"+tc.name, func(t *testing.T) {
+				root := t.TempDir()
+				writeFixture(t, root, "bin/git", `#!/bin/sh
+set -eu
+[ "$*" = 'log --since=24 hours ago --pretty=oneline origin/main' ] || exit 98
+[ "$TEST_GIT_FAILURE" = false ] || { echo 'fixture Git history is unavailable' >&2; exit 23; }
+printf '%s' "$TEST_GIT_HISTORY"
+`)
+				outputFile := filepath.Join(root, "github-output")
+				out, err := runFixture(t, root, workflowShellStep(t, filename, "Decide whether to run heavy CI"), map[string]string{
+					"GITHUB_OUTPUT": outputFile, "TEST_GIT_HISTORY": tc.history,
+					"TEST_GIT_FAILURE": booleanText(tc.gitFailure),
+				})
+				if tc.gitFailure {
+					assert.Error(t, err, out)
+					assert.Contains(t, out, "fixture Git history is unavailable")
+					assert.NoFileExists(t, outputFile)
+				} else {
+					assert.NoError(t, err, out)
+					decision, err := os.ReadFile(outputFile)
+					assert.NoError(t, err)
+					assert.Equal(t, tc.want, string(decision))
+				}
+			})
+		}
+	}
+}
+
 // TestReleaseFeatureOutputValidation tests malformed records, lost CE/stamps,
 // stray stdout and changed/truncated notices independently of the real packages.
 func TestReleaseFeatureOutputValidation(t *testing.T) {

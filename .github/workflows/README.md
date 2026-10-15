@@ -6,7 +6,7 @@ manual or scheduled rather than running on every pull request.
 
 | Area | Workflows | Purpose |
 | --- | --- | --- |
-| Target library and integration | [Quick](trice_lib_ci.yml), [Full](trice_lib_ci_full.yml), [Reusable runner](trice_lib_reusable.yml) | Compile and test target configurations and host/target integration. Quick and Full call the shared runner. |
+| Target library and integration | [PR / Nightly Quick](trice_lib_ci.yml), [Nightly / Manual Full](trice_lib_ci_full.yml), [Reusable runner](trice_lib_reusable.yml) | PRs to `main` run the full configuration matrix; the Quick workflow uses a smaller selection for nightly/manual runs. Both call the shared runner. |
 | Go tests and coverage | [Go](go.yml), [Coverage](coverage.yml) | Manual Go build/tests and automated coverage reporting. |
 | C/C++ formatting | [Clang-Format](clang-format.yml) | Check project sources while respecting vendor exclusions. |
 | Shell checks | [ShellCheck](shellcheck.yml), [shfmt](shfmt.yml) | Check shell correctness and formatting. |
@@ -15,6 +15,13 @@ manual or scheduled rather than running on every pull request.
 | Distribution | [GoReleaser](goreleaser.yml), [Installation checks](install-checks.yml), [Release audit](release-audit.yml) | Build distributions and check packaged tools and release assets. Inspect each workflow before starting a manual run. |
 | Website | [Pages](pages.yml) | Build and deploy the documentation website. |
 | Repository maintenance | [Labeler](label.yml), [Stale](stale.yml) | Apply pull-request labels and handle inactive issues/pull requests. |
+
+Library checks run when a PR to `main` opens, reopens or receives another push.
+A push to `wip` without an open PR does not start these library workflows.
+Only scheduled runs skip the builds when `main` has no commits in the last
+24 hours; manual starts always execute their selected checks. The existing
+workflow/job names stay unchanged for branch-protection compatibility, so the
+PR check still contains "Quick" in its name even though it runs the full matrix.
 
 For local checks, run `./scripts/testAll.sh` from the repository root. Use
 `./scripts/testAll.sh full` for final validation across the full target matrix;
