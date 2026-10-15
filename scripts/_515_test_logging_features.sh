@@ -68,6 +68,7 @@ create_feature_copy() {
   log "INFO: isolated feature examples (retained on failure): $FEATURE_COPY_DIR"
   mkdir -p "$FEATURE_COPY_DIR/project" || return 1
   git ls-files -z -- src examples/PC_features examples/G0B1_features examples/exampleData \
+    scripts/_150_setup_build_environment.sh \
     ':!examples/PC_features/li.json' ':!examples/G0B1_features/li.json' \
     >"$FEATURE_COPY_DIR/paths" || {
     log "FAIL: cannot enumerate tracked feature-example sources"
@@ -89,8 +90,9 @@ create_feature_copy() {
 # G0B1's shared exampleData sources and pre-existing generated files stay intact.
 run_feature_example() {
   local relative="$1" status
+  shift
   create_feature_copy || return 1
-  run_cmd "$FEATURE_COPY_DIR/project/$relative" || {
+  run_cmd "$FEATURE_COPY_DIR/project/$relative" "$@" || {
     status=$?
     log "FAIL: $relative; isolated sources and outputs retained in $FEATURE_COPY_DIR"
     return "$status"
@@ -98,7 +100,7 @@ run_feature_example() {
 }
 
 main() {
-  local pc_compiler=cc artifact
+  local pc_compiler=cc artifact compiler
   SELECTED="$(get_mode "${1:-$SELECTED}")" || return 2
   init_logfile
 
@@ -116,6 +118,12 @@ main() {
   log "INFO: experimental TestContextEnrichmentRebasePoC is a separate opt-in proof, not productive CE support; see UM Testing"
 
   has_command cc || pc_compiler=gcc
+  if logging_tools "host Bind entry points" git go cmake "$pc_compiler"; then
+    run_logging_go_checks ./scripts TestBindEntrypointIntegration || return $?
+  elif [ "$SELECTED" = "full" ]; then
+    return 1
+  fi
+
   if logging_tools "PC feature example" git tar trice "$pc_compiler"; then
     run_feature_example examples/PC_features/check_output.sh || return $?
   elif [ "$SELECTED" = "full" ]; then
@@ -123,15 +131,23 @@ main() {
   fi
 
   if logging_tools "G0B1 feature build" git tar trice make arm-none-eabi-gcc arm-none-eabi-objcopy arm-none-eabi-size; then
-    run_feature_example examples/G0B1_features/check_build.sh || return $?
-    for artifact in G0B1.elf G0B1.hex G0B1.bin; do
-      if [ ! -s "$FEATURE_COPY_DIR/project/examples/G0B1_features/out.gcc/$artifact" ]; then
-        log "FAIL: expected nonempty feature-build artifact: examples/G0B1_features/out.gcc/$artifact"
-        log "INFO: inspect the retained build in $FEATURE_COPY_DIR"
-        return 1
+    for compiler in gcc clang; do
+      # Quick covers the standard GCC path once; full also checks the public
+      # Clang variant without repeating the firmware switch matrix.
+      if [ "$compiler" = clang ]; then
+        [ "$SELECTED" = full ] || continue
+        logging_tools "G0B1 feature Clang build" clang || return 1
       fi
+      run_feature_example examples/G0B1_features/check_build.sh "$compiler" || return $?
+      for artifact in G0B1.elf G0B1.hex G0B1.bin; do
+        if [ ! -s "$FEATURE_COPY_DIR/project/examples/G0B1_features/out.$compiler/$artifact" ]; then
+          log "FAIL: expected nonempty feature-build artifact: examples/G0B1_features/out.$compiler/$artifact"
+          log "INFO: inspect the retained build in $FEATURE_COPY_DIR"
+          return 1
+        fi
+      done
+      log "PASS: G0B1 feature firmware built with $compiler; MCU execution requires a separate board test"
     done
-    log "PASS: G0B1 feature firmware built; MCU execution requires a separate board test"
   elif [ "$SELECTED" = "full" ]; then
     return 1
   fi

@@ -73,6 +73,37 @@ if(NOT EXISTS "${TRICE_REVIEW_DIR}/triceConfig.h")
   message(FATAL_ERROR "Expected file not found: ${TRICE_REVIEW_DIR}/triceConfig.h")
 endif()
 
+# Keep review preparation private: indexing and builds must not rewrite the
+# canonical test source or the repository's shared TIL/LI files.
+find_program(TRICE_EXECUTABLE NAMES trice HINTS "${TRICE_ROOT_DIR}/temp/bin")
+if(NOT TRICE_EXECUTABLE)
+  message(FATAL_ERROR "Trice is required to prepare review headers. Run scripts/buildTriceTool.sh, or configure with -DTRICE_EXECUTABLE=<path-to-trice>.")
+endif()
+set(TRICE_REVIEW_INPUT "${CMAKE_CURRENT_BINARY_DIR}/source/triceCheck.c")
+set(TRICE_REVIEW_SIDECARS "${CMAKE_CURRENT_BINARY_DIR}/sidecars")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/source")
+configure_file("${TRICE_TESTDATA_DIR}/triceCheck.c" "${TRICE_REVIEW_INPUT}" COPYONLY)
+if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/til.json")
+  configure_file("${TRICE_ROOT_DIR}/demoTIL.json" "${CMAKE_CURRENT_BINARY_DIR}/til.json" COPYONLY)
+endif()
+if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/li.json")
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/li.json" "")
+endif()
+set(TRICE_REVIEW_BIND_COMMAND
+  "${TRICE_EXECUTABLE}" bind -src "${TRICE_REVIEW_INPUT}"
+  -til "${CMAKE_CURRENT_BINARY_DIR}/til.json"
+  -li "${CMAKE_CURRENT_BINARY_DIR}/li.json" -liRoot "${CMAKE_CURRENT_BINARY_DIR}"
+  -genDir "${TRICE_REVIEW_SIDECARS}"
+  -alias CUSTOM_PRINT -salias CUSTOM_ASSERT -alias printi -salias prints
+)
+# Configure supplies headers for the IDE immediately. The build target also
+# refreshes missing or stale sidecars before any C compilation starts.
+execute_process(COMMAND ${TRICE_REVIEW_BIND_COMMAND} RESULT_VARIABLE TRICE_REVIEW_BIND_STATUS)
+if(NOT TRICE_REVIEW_BIND_STATUS EQUAL 0)
+  message(FATAL_ERROR "Trice Bind failed for the private review source (status ${TRICE_REVIEW_BIND_STATUS}). See the diagnostics above; generated files are under ${CMAKE_CURRENT_BINARY_DIR}.")
+endif()
+add_custom_target(trice_review_bind COMMAND ${TRICE_REVIEW_BIND_COMMAND} VERBATIM)
+
 # -------------------------------------------------------------------------------------
 # 3) Collect Trice library C sources.
 #    We deliberately glob here because you described ~40 files that should all be included.
@@ -102,9 +133,10 @@ file(GLOB TRICE_C_SOURCES CONFIGURE_DEPENDS
 # -------------------------------------------------------------------------------------
 add_executable(trice_review
   "${TRICE_REVIEW_DIR}/main.c"
-  "${TRICE_TESTDATA_DIR}/triceCheck.c"
+  "${TRICE_REVIEW_INPUT}"
   ${TRICE_C_SOURCES}
 )
+add_dependencies(trice_review trice_review_bind)
 
 # -------------------------------------------------------------------------------------
 # 5) Include directories: ensure user config is found BEFORE library defaults.
@@ -117,6 +149,7 @@ add_executable(trice_review
 # -------------------------------------------------------------------------------------
 target_include_directories(trice_review PRIVATE
   "${TRICE_REVIEW_DIR}"  # <-- MUST be first to prefer user project config
+  "${TRICE_REVIEW_SIDECARS}" # private generated headers before library defaults
   "${TRICE_SRC_DIR}"     # library headers (trice.h and others), as per your repo layout
   "${TRICE_SRC_DIR}/default_conf" # fallback configuration must be searched last
 )

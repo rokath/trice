@@ -1,12 +1,28 @@
 #!/bin/sh
 # Build the FreeRTOS feature tour; this does not flash or run the board.
-# Usage: ./demo_build.sh. Requires Trice, make and the Arm GNU toolchain.
+# Usage: ./demo_build.sh [gcc|clang]. Requires Trice, make and Arm GNU libraries.
 # First bind generates this project's tables and headers, then make compiles.
 # Calls marked ctx: gain the current task handle through osThreadGetId().
 # Library/image details: ../../docs/rm/code_size.md
 # SPDX-License-Identifier: MIT
 set -eu
 cd "$(dirname "$0")"
+
+# Both compiler entry points share the same project-local Bind preparation.
+build_target=${1:-gcc}
+case "$build_target" in
+  gcc | clang) ;;
+  *)
+    echo "ERROR: Expected gcc or clang, got '$build_target'." >&2
+    exit 1
+    ;;
+esac
+if [ "$build_target" = clang ]; then
+  command -v clang >/dev/null 2>&1 || {
+    echo "ERROR: Put Clang in PATH before building this example." >&2
+    exit 1
+  }
+fi
 
 # 1. Check the tools before generating the decoding tables and compiler headers.
 command -v trice >/dev/null 2>&1 || {
@@ -45,5 +61,5 @@ if [ -n "${C_INCLUDE_PATH:-}" ]; then
   include_path="${include_path}${path_separator}${C_INCLUDE_PATH}"
 fi
 # This environment assignment applies only to make and the compilers it starts.
-C_INCLUDE_PATH="$include_path" make gcc
-printf 'Built %s\n' 'out.gcc/G0B1.elf'
+C_INCLUDE_PATH="$include_path" make "$build_target"
+printf 'Built %s\n' "out.${build_target}/G0B1.elf"

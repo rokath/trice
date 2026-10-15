@@ -2,6 +2,7 @@
 # Usage: ./build.sh. Build nine native PC nodes; no embedded hardware is needed.
 # Requires Bash and a C compiler, plus Go or an installed Trice executable.
 # Use CC=clang ./build.sh to select a compiler explicitly.
+# Select Bind with TRICE_ID_WORKFLOW=bind; the default remains Insert/Clean.
 # The preparation/cleanup helpers come first; generation and compilation follow.
 set -euo pipefail
 
@@ -11,12 +12,12 @@ set -euo pipefail
 #
 # The script keeps three responsibilities together because they depend on the
 # same exact source state:
-# 1. insert IDs into the demo sources,
+# 1. prepare IDs in private build copies of the demo sources,
 # 2. generate the shared ABC and TIL-C helper files,
 # 3. compile the nine demo binaries.
 #
 # After a successful insert step the script always runs `trice clean` during
-# cleanup so the demo sources do not remain unnecessarily in inserted form.
+# cleanup of the private copies. Original sources remain unchanged in both modes.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
@@ -25,8 +26,28 @@ ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 TRICE_TIL_JSON=${TRICE_TIL_JSON:-"${ROOT}/demoTIL.json"}
 TRICE_LI_JSON=${TRICE_LI_JSON:-"${ROOT}/demoLI.json"}
 TRICE_LI_ROOT=${TRICE_LI_ROOT:-"${ROOT}"}
+# Resolve relative overrides against the repository root, independently of
+# demo.sh's directory change. All phases must use the same TIL/LI files.
+for metadata_variable in TRICE_TIL_JSON TRICE_LI_JSON TRICE_LI_ROOT; do
+  metadata_path=${!metadata_variable}
+  case "$metadata_path" in
+    off | none | /* | [[:alpha:]]:*) ;;
+    *) printf -v "$metadata_variable" '%s/%s' "$ROOT" "$metadata_path" ;;
+  esac
+done
 source "${ROOT}/scripts/_120_setup_trice_environment.sh"
 
+# Both workflows use disposable source copies, so switching workflows never
+# needs to remove Bind ownership or inline IDs from the user's original files.
+SOURCE_DIR="${SCRIPT_DIR}/build/source"
+ID_WORKFLOW=${TRICE_ID_WORKFLOW:-insert}
+case "$ID_WORKFLOW" in
+  bind | insert) ;;
+  *)
+    echo "error: TRICE_ID_WORKFLOW must be bind or insert, got '$ID_WORKFLOW'." >&2
+    exit 1
+    ;;
+esac
 ids_inserted=0
 
 run_trice() {
@@ -65,16 +86,7 @@ cleanup() {
       -til "${TRICE_TIL_JSON}" \
       -li "${TRICE_LI_JSON}" \
       -liRoot "${TRICE_LI_ROOT}" \
-      -src "${SCRIPT_DIR}/NodeLib" \
-      -src "${SCRIPT_DIR}/N1_tx" \
-      -src "${SCRIPT_DIR}/N2_tx" \
-      -src "${SCRIPT_DIR}/N3_bi" \
-      -src "${SCRIPT_DIR}/N4_rx" \
-      -src "${SCRIPT_DIR}/N5_rx" \
-      -src "${SCRIPT_DIR}/N6_rx" \
-      -src "${SCRIPT_DIR}/N7_bi" \
-      -src "${SCRIPT_DIR}/N8_bi" \
-      -src "${SCRIPT_DIR}/N9_bi"; then
+      "${ID_SOURCES[@]}"; then
       echo "warning: trice clean failed" >&2
       if [ "${status}" -eq 0 ]; then
         status=1
@@ -116,10 +128,9 @@ build_node() {
 
   echo "build: ${name}"
 
-  # BASE_CFLAGS is intentionally word-split into separate compiler options.
-  # Each node's configuration must also precede the shared library defaults.
-  # shellcheck disable=SC2086
-  "${CC_BIN}" -I"${SCRIPT_DIR}/${name}" ${BASE_CFLAGS:-} "$@" \
+  # Arrays preserve include and source paths when the checkout contains spaces.
+  # Each node's configuration precedes shared and generated library headers.
+  "${CC_BIN}" -I"${SOURCE_DIR}/${name}" "${BASE_CFLAGS[@]}" "$@" \
     "${ROOT}"/src/*.c "$link_unused" -o "build/${name}${EXE_SUFFIX}"
 }
 
@@ -127,7 +138,9 @@ CC_BIN="$(find_compiler)"
 EXE_SUFFIX=""
 
 # Project headers come first; library headers and fallback configuration come last.
-BASE_CFLAGS="-std=c99 -Wall -Wextra -pedantic -O2 -ffunction-sections -fdata-sections -I${SCRIPT_DIR} -I${SCRIPT_DIR}/NodeLib -I${SCRIPT_DIR}/BcSim -I${ROOT}/src -I${ROOT}/src/default_conf"
+BASE_CFLAGS=(-std=c99 -Wall -Wextra -pedantic -O2 -ffunction-sections -fdata-sections
+  "-I${SOURCE_DIR}" "-I${SOURCE_DIR}/NodeLib" "-I${SOURCE_DIR}/BcSim"
+  "-I${SCRIPT_DIR}/build/sidecars" "-I${ROOT}/src" "-I${ROOT}/src/default_conf")
 
 # Every node compiles src/*.c; its configuration selects TX/RX features.
 # Details: ../../docs/rm/code_size.md
@@ -137,40 +150,49 @@ case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW* | MSYS* | CYGWIN*)
     EXE_SUFFIX=".exe"
-    BASE_CFLAGS="${BASE_CFLAGS} -D_CRT_SECURE_NO_WARNINGS"
+    BASE_CFLAGS+=(-D_CRT_SECURE_NO_WARNINGS)
     ;;
 esac
 
 cd "${SCRIPT_DIR}"
 mkdir -p build NodeLib
 
+# Recreate only our generated source tree; deleted application files must not
+# survive from an older build. Keep the user-owned ABC selection header intact.
+rm -rf "${SOURCE_DIR}"
+mkdir -p "${SOURCE_DIR}"
+ID_SOURCES=()
+for directory in BcSim NodeLib N1_tx N2_tx N3_bi N4_rx N5_rx N6_rx N7_bi N8_bi N9_bi; do
+  cp -R "${SCRIPT_DIR}/${directory}" "${SOURCE_DIR}/${directory}"
+  if [ "$directory" != BcSim ]; then
+    ID_SOURCES+=(-src "${SOURCE_DIR}/${directory}")
+  fi
+done
+
 # Remove the previous generated format table before scanning NodeLib. Its
 # quoted message text is data, not source calls; the table is recreated below.
-rm -f "${SCRIPT_DIR}/NodeLib/til.c"
+rm -f "${SOURCE_DIR}/NodeLib/til.c" "${SOURCE_DIR}/NodeLib/nodeAbc.c"
 
-echo "prepare: trice insert examples/TriceAbc"
+echo "prepare: trice ${ID_WORKFLOW} examples/TriceAbc (private build sources)"
 trice_prepare_location_file
-run_trice insert \
+BIND_OPTIONS=()
+if [ "$ID_WORKFLOW" = bind ]; then
+  BIND_OPTIONS=(-genDir "${SCRIPT_DIR}/build/sidecars")
+fi
+run_trice "$ID_WORKFLOW" \
   -til "${TRICE_TIL_JSON}" \
   -li "${TRICE_LI_JSON}" \
   -liRoot "${TRICE_LI_ROOT}" \
-  -src "${SCRIPT_DIR}/NodeLib" \
-  -src "${SCRIPT_DIR}/N1_tx" \
-  -src "${SCRIPT_DIR}/N2_tx" \
-  -src "${SCRIPT_DIR}/N3_bi" \
-  -src "${SCRIPT_DIR}/N4_rx" \
-  -src "${SCRIPT_DIR}/N5_rx" \
-  -src "${SCRIPT_DIR}/N6_rx" \
-  -src "${SCRIPT_DIR}/N7_bi" \
-  -src "${SCRIPT_DIR}/N8_bi" \
-  -src "${SCRIPT_DIR}/N9_bi"
+  "${ID_SOURCES[@]}" ${BIND_OPTIONS[@]+"${BIND_OPTIONS[@]}"}
 
-ids_inserted=1
+if [ "$ID_WORKFLOW" = insert ]; then ids_inserted=1; fi
 
 echo "prepare: generate shared NodeLib/nodeAbc.{h,c}"
 (
   cd "${ROOT}"
-  run_trice generate -i "${ROOT}/demoTIL.json" -abc "examples/TriceAbc/NodeLib/nodeAbc"
+  # A bare target uses -genDir directly; an explicit ABC path is relative to
+  # the TIL directory and would be wrong with an independently selected TIL.
+  run_trice generate -i "${TRICE_TIL_JSON}" -abc nodeAbc -genDir "${SOURCE_DIR}/NodeLib"
 )
 
 echo "prepare: generate shared NodeLib/til.c"
@@ -178,70 +200,68 @@ echo "prepare: generate shared NodeLib/til.c"
 (
   cd "${ROOT}"
 
-  # logC filters the historical TIL through the sources prepared by insert and
+  # logC filters the historical TIL through the prepared sources and sidecars and
   # writes only metadata used by the current TriceAbc programs.
-  run_trice generate -i "${ROOT}/demoTIL.json" -src "examples/TriceAbc" -logC="examples/TriceAbc/NodeLib/til.c"
+  run_trice generate -i "${TRICE_TIL_JSON}" -src "${SOURCE_DIR}" \
+    ${BIND_OPTIONS[@]+"${BIND_OPTIONS[@]}"} -logC="${SOURCE_DIR}/NodeLib/til.c"
 )
 
-if [ ! -f "${SCRIPT_DIR}/NodeLib/til.c" ]; then
-  echo "error: expected generated file ${SCRIPT_DIR}/NodeLib/til.c was not created." >&2
-  exit 1
-fi
+for generated_table in til.c nodeAbc.c; do
+  if [ ! -s "${SOURCE_DIR}/NodeLib/${generated_table}" ]; then
+    echo "error: expected nonempty generated table ${SOURCE_DIR}/NodeLib/${generated_table} was not created." >&2
+    exit 1
+  fi
+done
 
-COMMON_NODE_SOURCES="
-	${SCRIPT_DIR}/BcSim/BcSim.c
-	${SCRIPT_DIR}/NodeLib/node.c
-"
+COMMON_NODE_SOURCES=("${SOURCE_DIR}/BcSim/BcSim.c" "${SOURCE_DIR}/NodeLib/node.c")
 
 # Only receive-capable nodes need the generated application dispatch table.
 # Library sources are already included by build_node above.
-RX_SOURCES="
-	${SCRIPT_DIR}/NodeLib/nodeAbc.c
-"
+RX_SOURCES=("${SOURCE_DIR}/NodeLib/nodeAbc.c")
 
 build_node N1_tx \
-  "${SCRIPT_DIR}/N1_tx/main.c" \
-  ${COMMON_NODE_SOURCES}
+  "${SOURCE_DIR}/N1_tx/main.c" \
+  "${COMMON_NODE_SOURCES[@]}"
 
 build_node N2_tx \
-  "${SCRIPT_DIR}/N2_tx/main.c" \
-  ${COMMON_NODE_SOURCES}
+  "${SOURCE_DIR}/N2_tx/main.c" \
+  "${COMMON_NODE_SOURCES[@]}"
 
 build_node N3_bi \
-  "${SCRIPT_DIR}/N3_bi/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES}
+  "${SOURCE_DIR}/N3_bi/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}"
 
 build_node N4_rx \
-  "${SCRIPT_DIR}/N4_rx/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES}
+  "${SOURCE_DIR}/N4_rx/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}"
 
 build_node N5_rx \
-  "${SCRIPT_DIR}/N5_rx/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES}
+  "${SOURCE_DIR}/N5_rx/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}"
 
 build_node N6_rx \
-  "${SCRIPT_DIR}/N6_rx/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES} \
-  "${SCRIPT_DIR}/NodeLib/til.c"
+  "${SOURCE_DIR}/N6_rx/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}" \
+  "${SOURCE_DIR}/NodeLib/til.c"
 
 build_node N7_bi \
-  "${SCRIPT_DIR}/N7_bi/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES} \
-  "${SCRIPT_DIR}/NodeLib/til.c"
+  "${SOURCE_DIR}/N7_bi/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}" \
+  "${SOURCE_DIR}/NodeLib/til.c"
 
 build_node N8_bi \
-  "${SCRIPT_DIR}/N8_bi/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES}
+  "${SOURCE_DIR}/N8_bi/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}"
 
 build_node N9_bi \
-  "${SCRIPT_DIR}/N9_bi/main.c" \
-  ${COMMON_NODE_SOURCES} \
-  ${RX_SOURCES}
+  "${SOURCE_DIR}/N9_bi/main.c" \
+  "${COMMON_NODE_SOURCES[@]}" \
+  "${RX_SOURCES[@]}"
 
 echo "built TriceAbc demo binaries in examples/TriceAbc/build/"

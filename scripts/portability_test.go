@@ -621,6 +621,12 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 				"examples/G0B1_log/li.json":                "old MCU LI\n",
 				"examples/G0B1_log/out.gcc/user-object.o":  "MCU build bytes\n",
 				"examples/G0B1_inst/out.gcc/user-object.o": "other target bytes\n",
+				"examples/F030_inst_rtt/Core/Src/main.c":   "local RTT source\n",
+				"examples/F030_inst_rtt/til.json":          "local RTT TIL\n",
+				"examples/F030_inst_rtt/li.json":           "local RTT LI\n",
+				"examples/F030_inst_rtt/out/user.o":        "local RTT build\n",
+				"examples/F030_inst_uart/Core/Inc/conf.h":  "local UART header\n",
+				"examples/F030_inst_uart/til.json":         "local UART TIL\n",
 			}
 			for path, contents := range initial {
 				writeFixture(t, root, path, contents)
@@ -628,6 +634,12 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
 			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/bash\nprintf 'bound source\\n' > sample.c\nprintf 'bound central TIL\\n' > demoTIL.json\nprintf 'bound central LI\\n' > demoLI.json\nprintf 'new selection\\n' > generated/user-selection.h\n")
 			writeFixture(t, root, "worker.sh", "#!/bin/bash\nprintf 'updated PC TIL\\n' > examples/PC_log/til.json\nprintf 'updated PC LI\\n' > examples/PC_log/li.json\nprintf 'updated MCU LI\\n' > examples/G0B1_log/li.json\nprintf 'new MCU TIL\\n' > examples/G0B1_log/til.json\nmkdir -p examples/G0B1_log/generated\nprintf 'new header\\n' > examples/G0B1_log/generated/sidecar.h\nprintf 'overwrite\\n' > examples/PC_log/generated/user-choice.h\nprintf 'overwrite\\n' > examples/PC_log/build/user-object.o\nprintf 'overwrite\\n' > examples/G0B1_log/out.gcc/user-object.o\nprintf 'overwrite\\n' > examples/G0B1_inst/out.gcc/user-object.o\n"+tc.workerEnd+"\n")
+			// The added local examples must restore their private ownership data,
+			// including paths that did not exist before the standalone build.
+			worker, err := os.ReadFile(filepath.Join(root, "worker.sh"))
+			assert.NoError(t, err)
+			localChanges := "printf 'bound RTT source\\n' > examples/F030_inst_rtt/Core/Src/main.c\nprintf 'updated RTT TIL\\n' > examples/F030_inst_rtt/til.json\nprintf 'updated RTT LI\\n' > examples/F030_inst_rtt/li.json\nprintf 'overwrite\\n' > examples/F030_inst_rtt/out/user.o\nprintf 'bound UART header\\n' > examples/F030_inst_uart/Core/Inc/conf.h\nprintf 'updated UART TIL\\n' > examples/F030_inst_uart/til.json\nprintf 'new UART LI\\n' > examples/F030_inst_uart/li.json\nmkdir -p examples/F030_inst_uart/out/sidecars\nprintf 'new UART sidecar\\n' > examples/F030_inst_uart/out/sidecars/generated.h\n"
+			writeFixture(t, root, "worker.sh", strings.Replace(string(worker), tc.workerEnd, localChanges+tc.workerEnd, 1))
 			out, err := runFixture(t, root, "source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
 			if tc.name == "success" {
 				assert.NoError(t, err, out)
@@ -641,7 +653,7 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 				assert.NoError(t, readErr, path)
 				assert.Equal(t, contents, string(data), path)
 			}
-			for _, path := range []string{"examples/G0B1_log/til.json", "examples/G0B1_log/generated"} {
+			for _, path := range []string{"examples/G0B1_log/til.json", "examples/G0B1_log/generated", "examples/F030_inst_uart/li.json", "examples/F030_inst_uart/out"} {
 				_, statErr := os.Lstat(filepath.Join(root, path))
 				assert.True(t, os.IsNotExist(statErr), path)
 			}
@@ -700,7 +712,6 @@ func TestExampleCleanupPreservesFailureStatus(t *testing.T) {
 		"examples/L432_inst/build.sh",
 		"examples/F030_inst/build.sh",
 		"examples/G0B1_inst/build_with_clang.sh",
-		"examples/G0B1_features/build_with_clang.sh",
 	}
 	cases := []struct {
 		name, buildStatus, cleanStatus, signal, wantStatus string
@@ -1926,10 +1937,10 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "# Fixture has no toolchain environment overrides.\n")
 			writeFixture(t, root, "examples/cleanAllTargets.sh", "#!/bin/sh\nexit 0\n")
 			writeFixture(t, root, "examples/buildAllTargets_TRICE_ON.sh", "#!/bin/sh\necho matrix-$TRICE_ID_WORKFLOW\n")
-			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc"} {
+			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc", "clang"} {
 				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 0\n")
 			}
-			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "G0B1_inst/build.sh", "L432_inst/build.sh"} {
+			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh"} {
 				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\nif [ -z \"${TRICE_ID_WORKFLOW:-}\" ]; then echo 'INFO: standalone'; else echo managed-$TRICE_ID_WORKFLOW; fi\nexit \"${BUILD_STATUS:-0}\"\n")
 			}
 			writeFixture(t, root, "build.log", "warning: tool-version diagnostic\n")
@@ -1938,7 +1949,7 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			assert.Contains(t, out, "matrix-"+workflow)
 			assert.Contains(t, out, "Hint:")
 			if workflow == "bind" {
-				assert.Equal(t, 6, strings.Count(out, "INFO: standalone"), out)
+				assert.Equal(t, 9, strings.Count(out, "INFO: standalone"), out)
 			} else {
 				assert.NotContains(t, out, "INFO: standalone")
 			}

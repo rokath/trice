@@ -2,11 +2,18 @@
 #
 # Usage: ./build_with_clang.sh. Build the firmware with Clang; do not flash it.
 # Requires Bash, make, Clang, Trice and Arm GNU libraries in PATH.
-# A standalone run temporarily inserts IDs, compiles, and cleans the IDs again.
+# A standalone run uses the feature tour's project-local Bind preparation.
 # Repository tests may already own that preparation. Cleanup preserves failures
 # and also runs on Ctrl-C; the helper functions implement these safeguards.
 
 set -euo pipefail
+
+# The feature project owns Core/Src and its CE adapter; the shared canonical
+# example workflow does not scan these sources. Reuse its GCC preparation.
+if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" != "1" ]; then
+  source "$(dirname "$0")/../../scripts/_150_setup_build_environment.sh"
+  exec "$(dirname "$0")/demo_build.sh" clang
+fi
 
 # ------------------------------------------------------------------------------
 # 1) Resolve stable directories
@@ -106,8 +113,8 @@ trap 'cleanup 143' TERM
 # 3) Run TRICE scripts
 # ------------------------------------------------------------------------------
 
-# An outer test wrapper owns Insert/Bind preparation and exact restoration. A
-# direct user invocation keeps the historical local Insert/Clean lifecycle.
+# Standalone builds were dispatched to the private feature workflow above.
+# An outer test wrapper owns Insert/Bind preparation and exact restoration.
 if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
   echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"
 else
@@ -145,5 +152,5 @@ make ${MAKE_JOBS} clang
 # Use the same cleanup path as the traps. This avoids duplicate clean logic and
 # keeps normal success, build failure and Ctrl-C behavior consistent.
 #
-# This also leaves the repository in the Trice IDs cleaned state.
+# The outer workflow restores its initial source and metadata state afterward.
 cleanup 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Optional self-check: ./check_build.sh builds the firmware and checks its tables.
+# Optional self-check: ./check_build.sh [gcc|clang] builds and checks the tables.
 # Requires the same tools as demo_build.sh; no connected board is needed.
 # grep -Fq checks for a literal text fragment without printing matching lines.
 # If you change the sample calls, update their expected fragments below too.
@@ -11,7 +11,14 @@ cd "$(dirname "$0")"
 
 # Compilation verifies that the CE adapter can call the FreeRTOS task API at
 # the selected site. The table checks prevent a successful but empty bind.
-./demo_build.sh
+case "${1:-gcc}" in
+  gcc) ./build.sh ;;
+  clang) ./build_with_clang.sh ;;
+  *)
+    echo "ERROR: Expected gcc or clang, got '$1'." >&2
+    exit 1
+    ;;
+esac
 grep -Fq 'task={task:%p}' til.json || {
   echo 'FAIL: the task-handle CE field is absent from til.json' >&2
   exit 1
