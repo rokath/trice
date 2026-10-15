@@ -35,7 +35,7 @@ If Trice helps your work, [support the project](docs/rm/project_resources.md#sup
 
 Footnotes:
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
-0. The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
+0. <a id="note-plots">The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
 1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](docs/rm/performance.md).
 2. <a id="note-calls"></a>[Printf-like syntax and supported formats](docs/rm/printf_comparison.md).
 3. <a id="note-records"></a>[Compact binary records and transfer size](docs/rm/features.md#minimal-transfer-bytes-amount).
