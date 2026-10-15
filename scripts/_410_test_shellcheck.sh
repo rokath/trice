@@ -28,6 +28,8 @@ main() {
   # Use Git's tracked file list so generated and temporary scripts cannot
   # influence the result of a pre-PR check.
   while IFS= read -r file; do
+    # Archive scripts remain historical inputs, even when tracked by Git.
+    case "$file" in docs/_scratchPad/*) continue ;; esac
     if [ -n "$file" ] && [ -f "$file" ]; then
       # ShellCheck has no zsh/fish parser. Do not reinterpret those scripts as
       # Bash just to silence SC1071; report the unsupported dialect explicitly.

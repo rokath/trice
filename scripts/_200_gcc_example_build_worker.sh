@@ -53,16 +53,25 @@ run_standalone_bind_examples() {
     "PC_log/build_and_run.sh"
     "G0B1_log/build.sh"
     "F030_inst/build.sh"
+    "F030_inst_rtt/build.sh"
+    "F030_inst_uart/build.sh"
     "G0B1_inst/build.sh"
+    "G0B1_inst/build_with_clang.sh"
     "L432_inst/build.sh"
   )
 
   for entry in "${entries[@]}"; do
     printf '+ standalone examples/%s\n' "$entry"
-    entry_log="$LOGFILE.standalone.${entry%/*}"
+    entry_log="$LOGFILE.standalone.${entry%/*}.${entry##*/}"
     # Check each entry's own dependencies instead of assuming an ARM compiler
     # also supplies the host compiler and CMake used by the desktop examples.
     case "$entry" in
+      */build_with_clang.sh)
+        if ! command -v clang >/dev/null 2>&1; then
+          printf 'SKIP: standalone %s: clang not installed\n' "$entry"
+          continue
+        fi
+        ;;
       DemoData_Trice/*)
         has_host_build_tools || continue
         ;;

@@ -152,15 +152,10 @@ func initGitFixture(t *testing.T, root string) {
 	}
 }
 
-// TestScratchpadModuleBoundary verifies real Go discovery and execution rather
-// than mocking package lists. Broken historical sources must stay untouched and
-// uncompiled while active packages still run, including under global coverage.
-func TestScratchpadModuleBoundary(t *testing.T) {
-	boundary, err := os.ReadFile(filepath.Join("..", "docs", "scratchPad", "go.mod"))
-	if !assert.NoError(t, err) {
-		t.FailNow()
-	}
-
+// TestScratchpadExcludedFromGo verifies the underscore directory convention
+// without requiring any marker file in the user's notes. Broken archived Go
+// sources stay untouched while active tests and global coverage still run.
+func TestScratchpadExcludedFromGo(t *testing.T) {
 	t.Run("repository_discovery_keeps_active_packages_and_excludes_scratchpad", func(t *testing.T) {
 		cmd := exec.Command("go", "list", "./...")
 		cmd.Dir = ".."
@@ -174,7 +169,7 @@ func TestScratchpadModuleBoundary(t *testing.T) {
 				"the archive exclusion must retain active tests")
 		}
 		for _, name := range packages {
-			assert.NotContains(t, name, "/docs/scratchPad",
+			assert.NotContains(t, name, "/docs/_scratchPad",
 				"drafts and obsolete sources must not become root-module test targets")
 		}
 	})
@@ -192,11 +187,10 @@ func TestScratchpadModuleBoundary(t *testing.T) {
 			writeFixture(t, root, "go.mod", "module example.com/active\n\ngo 1.25.0\n")
 			writeFixture(t, root, "active.go", "package active\nfunc Value() int { return 7 }\n")
 			writeFixture(t, root, "active_test.go", "package active\nimport \"testing\"\nfunc TestActiveValue(t *testing.T) { if Value() != 7 { t.Fatal(\"active behavior changed\") } }\n")
-			writeFixture(t, root, "docs/scratchPad/go.mod", string(boundary))
 			// This reproduces the archived update tests' missing helper. If the
-			// boundary stops working, both invocations fail during compilation.
+			// underscore exclusion stops working, both invocations fail to compile.
 			archived := "package historical\nimport \"testing\"\nfunc TestRetiredUpdate(t *testing.T) { setupTest() }\n"
-			writeFixture(t, root, "docs/scratchPad/obsolete/cmd/trice/main_update_test.go", archived)
+			writeFixture(t, root, "docs/_scratchPad/obsolete/cmd/trice/main_update_test.go", archived)
 			cmd := exec.Command("go", tc.args...)
 			cmd.Dir = root
 			output, err := cmd.CombinedOutput()
@@ -206,7 +200,7 @@ func TestScratchpadModuleBoundary(t *testing.T) {
 			assert.Contains(t, string(output), "--- PASS: TestActiveValue",
 				"success must include executing the active test, not an empty selection")
 			assert.NotContains(t, string(output), "TestRetiredUpdate")
-			preserved, err := os.ReadFile(filepath.Join(root, "docs/scratchPad/obsolete/cmd/trice/main_update_test.go"))
+			preserved, err := os.ReadFile(filepath.Join(root, "docs/_scratchPad/obsolete/cmd/trice/main_update_test.go"))
 			assert.NoError(t, err)
 			assert.Equal(t, archived, string(preserved), "historical sources remain unchanged")
 			if tc.coverage {
@@ -215,6 +209,187 @@ func TestScratchpadModuleBoundary(t *testing.T) {
 				assert.Contains(t, string(profile), "example.com/active/active.go")
 				assert.NotContains(t, string(profile), "scratchPad",
 					"archived packages must also stay out of global coverage targets")
+			}
+		})
+	}
+}
+
+// TestRepositoryFormattingCheckPreservesOutputs exercises wrapper dispatch with
+// destructive helper doubles confined to a fixture. Check mode must not call
+// Bind or cleanup, even after an explicit earlier format argument.
+func TestRepositoryFormattingCheckPreservesOutputs(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments, failed string
+		format                  bool
+	}{
+		{name: "check", arguments: "check"},
+		{name: "verbose_check", arguments: "check --verbose"},
+		{name: "last_mode_is_check", arguments: "format check"},
+		{name: "default_formats_and_cleans", format: true},
+		{name: "explicit_format", arguments: "format", format: true},
+		{name: "last_mode_is_format", arguments: "check format", format: true},
+		{name: "failed_check_stops_without_cleanup", arguments: "check", failed: "_270_format_go_code.sh"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/format_repo.sh")
+			for _, name := range []string{
+				"scripts/_310_refresh_trice_user_manual.sh", "scripts/_260_format_shell_scripts.sh",
+				"scripts/_270_format_go_code.sh", "scripts/_280_format_c_code.sh",
+				"trice_bindIDs_in_examples_and_test_folder.sh", "examples/cleanAllTargets.sh",
+				"scripts/_300_clean_dsstore.sh",
+			} {
+				writeFixture(t, root, name, `#!/bin/sh
+name=${0##*/}
+printf '%s\n' "$name" >> helpers.calls
+[ "$name" != "$FAILED_HELPER" ] || exit 19
+case "$name" in
+  trice_bindIDs*) printf 'updated IDs\n' > demoTIL.json ;;
+  cleanAllTargets.sh) rm -f examples/fixture/build/output ;;
+  _300_clean_dsstore.sh) rm -f .DS_Store ;;
+esac
+`)
+			}
+			for _, name := range []string{"demoTIL.json", ".DS_Store", "examples/fixture/build/output"} {
+				writeFixture(t, root, name, "preserve this\n")
+			}
+			out, err := runFixture(t, root, "bash scripts/format_repo.sh "+tc.arguments, map[string]string{"FAILED_HELPER": tc.failed})
+			assert.Equal(t, tc.failed != "", err != nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "helpers.calls"))
+			assert.NoError(t, readErr)
+			expected := "_310_refresh_trice_user_manual.sh\n_260_format_shell_scripts.sh\n_270_format_go_code.sh\n"
+			if tc.failed == "" {
+				expected += "_280_format_c_code.sh\n"
+			}
+			if tc.format {
+				expected += "trice_bindIDs_in_examples_and_test_folder.sh\n_280_format_c_code.sh\ncleanAllTargets.sh\n_300_clean_dsstore.sh\n"
+				assert.NoFileExists(t, filepath.Join(root, ".DS_Store"))
+				assert.NoFileExists(t, filepath.Join(root, "examples/fixture/build/output"))
+			} else {
+				for _, name := range []string{"demoTIL.json", ".DS_Store", "examples/fixture/build/output"} {
+					data, err := os.ReadFile(filepath.Join(root, name))
+					assert.NoError(t, err)
+					assert.Equal(t, "preserve this\n", string(data), name)
+				}
+			}
+			assert.Equal(t, expected, string(calls))
+		})
+	}
+}
+
+// TestLegacyIDRefreshChecksInputsAndStopsOnFailure preserves the deliberate
+// history-reset contract while keeping incomplete inputs and failed tools from
+// triggering later source rewrites, generated copies or build cleanup.
+func TestLegacyIDRefreshChecksInputsAndStopsOnFailure(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments, missing, failed string
+	}{
+		{name: "explicit_legacy_reseed"},
+		{name: "retain_existing_history", arguments: "keepHistory"},
+		{name: "missing_canonical_template", missing: "_test/testdata/cgoPackage_test.go"},
+		{name: "missing_configured_package", missing: "_test/alias_dblB_de_tcobs_ua"},
+		{name: "failed_clean_stops_refresh", arguments: "keepHistory", failed: "clean"},
+		{name: "failed_insert_stops_refresh", arguments: "keepHistory", failed: "insert"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_330_renew_ids_and_refresh_tests.sh", "scripts/_120_setup_trice_environment.sh")
+			// Mirror directory names only; the fixture never touches real CGO sources.
+			entries, err := os.ReadDir(filepath.Join("..", "_test"))
+			if !assert.NoError(t, err) {
+				return
+			}
+			for _, entry := range entries {
+				if entry.IsDir() {
+					writeFixture(t, root, "_test/"+entry.Name()+"/generated_cgoPackage.go", "original harness\n")
+				}
+			}
+			for _, name := range []string{"cgoPackage.go", "cgoPackage_test.go"} {
+				writeFixture(t, root, "_test/testdata/"+name, "canonical "+name+"\n")
+			}
+			for _, name := range []string{"demoTIL.json", "demoLI.json"} {
+				writeFixture(t, root, name, "retained history\n")
+			}
+			writeFixture(t, root, "bin/trice", `#!/bin/sh
+printf '%s\n' "$*" >> trice.calls
+[ "$1" != "$FAILED_ACTION" ] || exit 19
+`)
+			writeFixture(t, root, "examples/cleanAllTargets.sh", "#!/bin/sh\ntouch ../cleanup.called\n")
+			if tc.missing != "" {
+				assert.NoError(t, os.RemoveAll(filepath.Join(root, tc.missing)))
+			}
+			out, err := runFixture(t, root, "bash scripts/_330_renew_ids_and_refresh_tests.sh "+tc.arguments, map[string]string{"FAILED_ACTION": tc.failed})
+			assert.Equal(t, tc.missing != "" || tc.failed != "", err != nil, out)
+			if tc.missing != "" {
+				assert.Contains(t, out, "ERROR:")
+				assert.Contains(t, out, filepath.Base(tc.missing))
+				assert.NoFileExists(t, filepath.Join(root, "trice.calls"))
+			} else {
+				calls, readErr := os.ReadFile(filepath.Join(root, "trice.calls"))
+				assert.NoError(t, readErr)
+				lines := strings.Split(strings.TrimSpace(string(calls)), "\n")
+				expectedCalls := 9 // Initial clean, seven ordered inserts, final clean.
+				if tc.failed == "clean" {
+					expectedCalls = 1
+				} else if tc.failed == "insert" {
+					expectedCalls = 2
+				}
+				assert.Len(t, lines, expectedCalls)
+				assert.True(t, strings.HasPrefix(lines[0], "clean "), string(calls))
+			}
+			if tc.missing != "" || tc.failed != "" {
+				assert.NoFileExists(t, filepath.Join(root, "cleanup.called"))
+			} else {
+				assert.FileExists(t, filepath.Join(root, "cleanup.called"))
+				data, readErr := os.ReadFile(filepath.Join(root, "_test/alias_dblB_de_tcobs_ua/generated_cgoPackage.go"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "canonical cgoPackage.go\n", string(data))
+			}
+			for _, name := range []string{"demoTIL.json", "demoLI.json"} {
+				data, readErr := os.ReadFile(filepath.Join(root, name))
+				assert.NoError(t, readErr)
+				expected := "retained history\n"
+				if tc.missing == "" && tc.arguments == "" {
+					expected = ""
+				}
+				assert.Equal(t, expected, string(data), name)
+			}
+		})
+	}
+}
+
+// TestSourceChecksExcludeScratchpad covers explicit Git file enumeration, which
+// otherwise bypasses Go's underscore rule and would format or lint archived code.
+func TestSourceChecksExcludeScratchpad(t *testing.T) {
+	for _, tc := range []struct {
+		script, tool, file, args string
+	}{
+		{"_260_format_shell_scripts.sh", "shfmt", "active.sh", "check"},
+		{"_260_format_shell_scripts.sh", "shfmt", "active.sh", "format"},
+		{"_270_format_go_code.sh", "gofmt", "active.go", "check"},
+		{"_270_format_go_code.sh", "gofmt", "active.go", "format"},
+		{"_410_test_shellcheck.sh", "shellcheck", "active.sh", ""},
+	} {
+		t.Run(tc.script+"/"+tc.args, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/"+tc.script, "scripts/_100_test_common.sh")
+			archived := "docs/_scratchPad/obsolete/" + tc.file
+			writeFixture(t, root, tc.file, "#!/bin/sh\n")
+			writeFixture(t, root, archived, "deliberately invalid historical source\n")
+			writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf '%s\\n' '"+tc.file+"' '"+archived+"'\n")
+			writeFixture(t, root, "bin/"+tc.tool, `#!/bin/sh
+if [ "$1" = --version ]; then echo v3.8.0; exit 0; fi
+printf '%s\n' "$@" >> tool.calls
+for arg; do case "$arg" in docs/_scratchPad/*) exit 19 ;; esac; done
+`)
+			out, err := runFixture(t, root, "bash scripts/"+tc.script+" "+tc.args, map[string]string{"SHFMT_BIN": "./bin/shfmt"})
+			assert.NoError(t, err, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "tool.calls"))
+			assert.NoError(t, readErr)
+			assert.Contains(t, string(calls), tc.file)
+			assert.NotContains(t, string(calls), "scratchPad")
+			data, readErr := os.ReadFile(filepath.Join(root, archived))
+			assert.NoError(t, readErr)
+			assert.Equal(t, "deliberately invalid historical source\n", string(data))
+			if tc.tool == "shfmt" && tc.args == "check" {
+				assert.NoDirExists(t, filepath.Join(root, "temp/tools"), "checks must not create a tool installation directory")
 			}
 		})
 	}
@@ -446,6 +621,12 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 				"examples/G0B1_log/li.json":                "old MCU LI\n",
 				"examples/G0B1_log/out.gcc/user-object.o":  "MCU build bytes\n",
 				"examples/G0B1_inst/out.gcc/user-object.o": "other target bytes\n",
+				"examples/F030_inst_rtt/Core/Src/main.c":   "local RTT source\n",
+				"examples/F030_inst_rtt/til.json":          "local RTT TIL\n",
+				"examples/F030_inst_rtt/li.json":           "local RTT LI\n",
+				"examples/F030_inst_rtt/out/user.o":        "local RTT build\n",
+				"examples/F030_inst_uart/Core/Inc/conf.h":  "local UART header\n",
+				"examples/F030_inst_uart/til.json":         "local UART TIL\n",
 			}
 			for path, contents := range initial {
 				writeFixture(t, root, path, contents)
@@ -453,6 +634,12 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
 			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/bash\nprintf 'bound source\\n' > sample.c\nprintf 'bound central TIL\\n' > demoTIL.json\nprintf 'bound central LI\\n' > demoLI.json\nprintf 'new selection\\n' > generated/user-selection.h\n")
 			writeFixture(t, root, "worker.sh", "#!/bin/bash\nprintf 'updated PC TIL\\n' > examples/PC_log/til.json\nprintf 'updated PC LI\\n' > examples/PC_log/li.json\nprintf 'updated MCU LI\\n' > examples/G0B1_log/li.json\nprintf 'new MCU TIL\\n' > examples/G0B1_log/til.json\nmkdir -p examples/G0B1_log/generated\nprintf 'new header\\n' > examples/G0B1_log/generated/sidecar.h\nprintf 'overwrite\\n' > examples/PC_log/generated/user-choice.h\nprintf 'overwrite\\n' > examples/PC_log/build/user-object.o\nprintf 'overwrite\\n' > examples/G0B1_log/out.gcc/user-object.o\nprintf 'overwrite\\n' > examples/G0B1_inst/out.gcc/user-object.o\n"+tc.workerEnd+"\n")
+			// The added local examples must restore their private ownership data,
+			// including paths that did not exist before the standalone build.
+			worker, err := os.ReadFile(filepath.Join(root, "worker.sh"))
+			assert.NoError(t, err)
+			localChanges := "printf 'bound RTT source\\n' > examples/F030_inst_rtt/Core/Src/main.c\nprintf 'updated RTT TIL\\n' > examples/F030_inst_rtt/til.json\nprintf 'updated RTT LI\\n' > examples/F030_inst_rtt/li.json\nprintf 'overwrite\\n' > examples/F030_inst_rtt/out/user.o\nprintf 'bound UART header\\n' > examples/F030_inst_uart/Core/Inc/conf.h\nprintf 'updated UART TIL\\n' > examples/F030_inst_uart/til.json\nprintf 'new UART LI\\n' > examples/F030_inst_uart/li.json\nmkdir -p examples/F030_inst_uart/out/sidecars\nprintf 'new UART sidecar\\n' > examples/F030_inst_uart/out/sidecars/generated.h\n"
+			writeFixture(t, root, "worker.sh", strings.Replace(string(worker), tc.workerEnd, localChanges+tc.workerEnd, 1))
 			out, err := runFixture(t, root, "source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
 			if tc.name == "success" {
 				assert.NoError(t, err, out)
@@ -466,11 +653,162 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 				assert.NoError(t, readErr, path)
 				assert.Equal(t, contents, string(data), path)
 			}
-			for _, path := range []string{"examples/G0B1_log/til.json", "examples/G0B1_log/generated"} {
+			for _, path := range []string{"examples/G0B1_log/til.json", "examples/G0B1_log/generated", "examples/F030_inst_uart/li.json", "examples/F030_inst_uart/out"} {
 				_, statErr := os.Lstat(filepath.Join(root, path))
 				assert.True(t, os.IsNotExist(statErr), path)
 			}
 		})
+	}
+}
+
+// TestManagedWorkflowRepeatedInterrupts signals the complete test process group,
+// as terminal Ctrl-C does. A handshake holds real tar extraction open so later
+// signals deterministically reach both the restoring shell and its child tool.
+func TestManagedWorkflowRepeatedInterrupts(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX process-group signals; ordinary state restoration is tested on Windows")
+	}
+	tar, err := exec.LookPath("tar")
+	if err != nil {
+		t.Skip("tar is required for managed workflow restoration")
+	}
+	for _, firstSignal := range []string{"INT", "TERM"} {
+		for _, entry := range []string{"standalone", "testAll", "testAll.sh"} {
+			t.Run(firstSignal+"/"+entry, func(t *testing.T) {
+				root := scriptFixture(t,
+					"scripts/testAll.sh", "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh",
+					"scripts/_120_setup_trice_environment.sh", "scripts/_130_trice_id_workflow.sh",
+					"scripts/_140_trice_test_state.sh")
+				initGitFixture(t, root)
+				initial := map[string]string{
+					"sample.c":            "#include \"trice_sidecar_sample.h\"\n// local user edit\ntrice(\"msg:hello\\n\");\n",
+					"demoTIL.json":        "local TIL bytes\n",
+					"demoLI.json":         "local LI bytes\n",
+					"generated/sidecar.h": "local sidecar bytes\n",
+				}
+				for path, contents := range initial {
+					writeFixture(t, root, path, contents)
+				}
+				writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/sh\nexit 0\n")
+				// Only extraction pauses; snapshot creation still uses the host tar.
+				writeFixture(t, root, "bin/tar", `#!/usr/bin/env bash
+set -eu
+if [ "$1" = -xf ]; then
+  touch events/restore-ready
+  attempts=0
+  until [ -f events/restore-release ]; do
+    sleep 0.01
+    attempts=$((attempts+1))
+    [ "$attempts" -le 500 ] || exit 91
+  done
+fi
+exec "$REAL_TAR" "$@"
+`)
+				writeFixture(t, root, "worker.sh", `#!/usr/bin/env bash
+printf 'trice(iD(1234), "msg:hello\\n");\n' > sample.c
+printf 'changed TIL\n' > demoTIL.json
+printf 'changed LI\n' > demoLI.json
+rm -f generated/sidecar.h
+touch generated/new-sidecar.h events/worker-ready
+while :; do sleep 0.05; done
+`)
+				writeFixture(t, root, "scripts/_590_test_fixture.sh", `#!/usr/bin/env bash
+source scripts/_100_test_common.sh
+init_logfile
+source scripts/_140_trice_test_state.sh
+trice_test_run_managed_workflow bind none ./worker.sh
+`)
+				// Replace only the production plan, retaining the public wrapper,
+				// actual runner, and one real managed step in the same process group.
+				runner, readErr := os.ReadFile(filepath.Join(root, "scripts/_110_test_runner.sh"))
+				if !assert.NoError(t, readErr) {
+					return
+				}
+				writeFixture(t, root, "scripts/runner-implementation.sh", string(runner))
+				writeFixture(t, root, "scripts/_110_test_runner.sh", `#!/usr/bin/env bash
+source scripts/runner-implementation.sh
+# Exercise terminal progress even though the test captures stdout.
+TEST_ALL_INTERACTIVE=1
+build_test_plan() {
+  add_plan_step _590_test_fixture.sh
+  add_plan_step _600_test_later.sh
+}
+main "$@"
+`)
+				writeFixture(t, root, "scripts/_600_test_later.sh", "#!/bin/sh\ntouch events/later-step\n")
+				// Linux CI need not have a running systemd or change power settings.
+				writeFixture(t, root, "bin/systemd-inhibit", "#!/bin/sh\nshift 4\nexec \"$@\"\n")
+				writeFixture(t, root, "run-tests.sh", `#!/usr/bin/env bash
+if [ "$ENTRY" = standalone ]; then
+  exec bash scripts/_590_test_fixture.sh
+fi
+if [ "$ENTRY" = testAll.sh ]; then
+  exec bash scripts/testAll.sh full
+fi
+exec bash scripts/_110_test_runner.sh full
+`)
+				// Job control gives the disposable job its own process group and
+				// keeps SIGINT enabled even though the driver starts it in the background.
+				out, err := runFixture(t, root, `set -m
+mkdir -p events
+git add -- sample.c demoTIL.json demoLI.json
+bash run-tests.sh > runner.out 2>&1 &
+job=$!
+trap 'kill -KILL -- "-$job" 2>/dev/null || true; wait "$job" 2>/dev/null || true' EXIT
+wait_for() {
+  local attempts=0
+  until [ -f "$1" ]; do
+    if ! kill -0 "$job" 2>/dev/null || [ "$attempts" -ge 500 ]; then
+      cat runner.out
+      return 1
+    fi
+    sleep 0.01
+    attempts=$((attempts+1))
+  done
+}
+wait_for events/worker-ready || exit 1
+kill -s "$FIRST_SIGNAL" -- "-$job"
+wait_for events/restore-ready || exit 1
+kill -s "$FIRST_SIGNAL" -- "-$job"
+kill -s "$FIRST_SIGNAL" -- "-$job"
+touch events/restore-release
+status=0
+wait "$job" || status=$?
+cat runner.out
+printf 'WorkflowExit:%s\n' "$status"
+trap - EXIT
+`, map[string]string{
+					"TRICE_PRJ_FILES": "-src ./sample.c", "REAL_TAR": tar,
+					"ENTRY": entry, "FIRST_SIGNAL": firstSignal,
+				})
+				assert.NoError(t, err, out)
+				wantStatus := "130"
+				if firstSignal == "TERM" {
+					wantStatus = "143"
+				}
+				assert.Contains(t, out, "WorkflowExit:"+wantStatus)
+				assert.Equal(t, 1, strings.Count(out, "Cancellation requested. Restoring the initial test state; please wait..."), out)
+				if entry != "standalone" {
+					assert.Contains(t, out, "Result: ABORTED (signal exit status "+wantStatus+")")
+					assert.NotContains(t, out, "initial state was not restored")
+				}
+				assert.NoFileExists(t, filepath.Join(root, "events/later-step"), "cancellation never starts another test")
+				log, readErr := os.ReadFile(filepath.Join(root, "temp/log/_590_test_fixture.log"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(log), "exact initial files restored")
+				assert.Contains(t, string(log), "end status: "+wantStatus)
+				for path, contents := range initial {
+					data, readErr := os.ReadFile(filepath.Join(root, path))
+					assert.NoError(t, readErr, path)
+					assert.Equal(t, contents, string(data), path)
+				}
+				assert.NoFileExists(t, filepath.Join(root, "generated/new-sidecar.h"))
+				snapshots, globErr := filepath.Glob(filepath.Join(root, "temp/trice-state.*"))
+				assert.NoError(t, globErr)
+				assert.Empty(t, snapshots, "successful restoration removes its recovery snapshot")
+			})
+		}
 	}
 }
 
@@ -525,7 +863,6 @@ func TestExampleCleanupPreservesFailureStatus(t *testing.T) {
 		"examples/L432_inst/build.sh",
 		"examples/F030_inst/build.sh",
 		"examples/G0B1_inst/build_with_clang.sh",
-		"examples/G0B1_features/build_with_clang.sh",
 	}
 	cases := []struct {
 		name, buildStatus, cleanStatus, signal, wantStatus string
@@ -652,6 +989,8 @@ func manualMaintenanceFixture(t *testing.T) string {
 		writeFixture(t, root, path, "# Fixture\n\n<!-- mdtoc -->\n<!-- /mdtoc -->\n")
 	}
 	writeFixture(t, root, "docs/rm/notes.md", "# Unmanaged note\n")
+	writeFixture(t, root, "docs/rm/short.md", "# Short chapter\n\n```md\n## Example heading\n```\n\n<!--\n## Retired heading\n-->\n")
+	writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Overview](overview.md)\n- [Encoding](binary encoding.md)\n- [RTT](rtt.md)\n- [Short](short.md)\n- [Introduction](HEADER.md)\n- [Footer](FOOTER.md)\n")
 	writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
 [ "$#" -eq 3 ] || exit 91
 printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
@@ -720,6 +1059,7 @@ func TestManualMaintenanceValidatesSourcesBeforeFormatting(t *testing.T) {
 		{name: "missing_reference_entry_point", path: "docs/rm/README.md", message: "manual file not found or empty: docs/rm/README.md"},
 		{name: "empty_reference_entry_point", path: "docs/rm/README.md", empty: true, message: "manual file not found or empty: docs/rm/README.md"},
 		{name: "empty_chapter_prevents_partial_format", path: "docs/rm/rtt.md", empty: true, message: "manual file not found or empty: docs/rm/rtt.md"},
+		{name: "missing_linked_chapter_prevents_partial_format", path: "docs/rm/rtt.md", message: "manual file not found or empty: docs/rm/rtt.md"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := manualMaintenanceFixture(t)
@@ -736,6 +1076,29 @@ func TestManualMaintenanceValidatesSourcesBeforeFormatting(t *testing.T) {
 	}
 }
 
+// TestManualMaintenanceRejectsIncompleteChapterLists checks omissions in both
+// directions before generation can modify even the User Manual.
+func TestManualMaintenanceRejectsIncompleteChapterLists(t *testing.T) {
+	for _, tc := range []struct {
+		name, path, content, message string
+	}{
+		{"linked_chapter_without_container", "docs/rm/rtt.md", "# RTT\n\n## Setup\n", "missing complete mdtoc container in reference chapter: docs/rm/rtt.md"},
+		{"unclosed_container", "docs/rm/rtt.md", "# RTT\n\n<!-- mdtoc -->\n", "missing complete mdtoc container in reference chapter: docs/rm/rtt.md"},
+		{"unlisted_managed_chapter", "docs/rm/new.md", "# New\n\n<!-- mdtoc -->\n<!-- /mdtoc -->\n", "mdtoc-managed chapter is not linked from docs/rm/README.md: docs/rm/new.md"},
+		{"duplicate_link", "docs/rm/README.md", "# Reference\n\n- [RTT](rtt.md)\n- [RTT again](./rtt.md)\n", "duplicate chapter link in docs/rm/README.md: docs/rm/rtt.md"},
+		{"nested_link", "docs/rm/README.md", "# Reference\n\n- [Draft](nested/draft.md)\n", "expected a flat RM chapter link in docs/rm/README.md: nested/draft.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			writeFixture(t, root, tc.path, tc.content)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.message)
+			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"))
+		})
+	}
+}
+
 // TestManualMaintenanceRequiresManagedChapters rejects unmatched globs and a
 // directory containing only navigation or unmanaged files instead of real chapters.
 func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
@@ -746,6 +1109,7 @@ func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
 		}
 		t.Run(name, func(t *testing.T) {
 			root := manualMaintenanceFixture(t)
+			writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Introduction](HEADER.md)\n- [Footer](FOOTER.md)\n")
 			for _, path := range []string{"docs/rm/overview.md", "docs/rm/binary encoding.md", "docs/rm/rtt.md"} {
 				assert.NoError(t, os.Remove(filepath.Join(root, path)))
 			}
@@ -1287,6 +1651,49 @@ func TestReleasePDFChecksRequireEachBook(t *testing.T) {
 	}
 }
 
+// TestClangFormatSkipsDeletedPaths exercises Git's unstaged-deletion behavior
+// and verifies both temporary lists are removed, including an empty selection.
+func TestClangFormatSkipsDeletedPaths(t *testing.T) {
+	for _, mode := range []string{"check", "format"} {
+		for _, present := range []bool{true, false} {
+			t.Run(mode+"/present="+strconv.FormatBool(present), func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_280_format_c_code.sh")
+				writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf '%s\\n' 'active file.c' removed.c\n")
+				writeFixture(t, root, "bin/formatter", `#!/bin/sh
+if [ "$1" = --version ]; then echo 'clang-format version 23.1.2'; exit 0; fi
+for arg; do
+  case "$arg" in
+    --files=*)
+      while IFS= read -r file; do
+        [ -f "$file" ] || { echo "missing source: $file"; exit 19; }
+        printf '%s\n' "$file" >> formatter.calls
+      done < "${arg#--files=}"
+      ;;
+  esac
+done
+`)
+				if present {
+					writeFixture(t, root, "active file.c", "int value;\n")
+				}
+				tmp := filepath.Join(root, "owned-temp")
+				assert.NoError(t, os.Mkdir(tmp, 0755))
+				out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh "+mode, map[string]string{"CLANG_FORMAT_BIN": "./bin/formatter", "TMPDIR": tmp})
+				assert.NoError(t, err, out)
+				if present {
+					calls, readErr := os.ReadFile(filepath.Join(root, "formatter.calls"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "active file.c\n", string(calls))
+				} else {
+					assert.NoFileExists(t, filepath.Join(root, "formatter.calls"))
+				}
+				entries, readErr := os.ReadDir(tmp)
+				assert.NoError(t, readErr)
+				assert.Empty(t, entries, "formatter-owned temporary files must be removed")
+			})
+		}
+	}
+}
+
 // TestClangFormatCompatibility ensures only the canonical version can report a
 // formatting regression. An override, missing executable or newer/older version
 // never rewrites source files, and real canonical formatting errors still fail.
@@ -1476,6 +1883,7 @@ func TestClangFormatBatch(t *testing.T) {
 			root, env := clangBootstrapFixture(t, "Linux")
 			env["CLANG_FORMAT_BIN"] = "./bin/formatter"
 			env["SCENARIO"] = scenario
+			writeFixture(t, root, "path with spaces/ü.hpp", "int declaration;\n")
 			writeFixture(t, root, "bin/git", `#!/bin/sh
 case "$SCENARIO" in
   empty) exit 0 ;;
@@ -1680,10 +2088,10 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "# Fixture has no toolchain environment overrides.\n")
 			writeFixture(t, root, "examples/cleanAllTargets.sh", "#!/bin/sh\nexit 0\n")
 			writeFixture(t, root, "examples/buildAllTargets_TRICE_ON.sh", "#!/bin/sh\necho matrix-$TRICE_ID_WORKFLOW\n")
-			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc"} {
+			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc", "clang"} {
 				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 0\n")
 			}
-			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "G0B1_inst/build.sh", "L432_inst/build.sh"} {
+			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh"} {
 				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\nif [ -z \"${TRICE_ID_WORKFLOW:-}\" ]; then echo 'INFO: standalone'; else echo managed-$TRICE_ID_WORKFLOW; fi\nexit \"${BUILD_STATUS:-0}\"\n")
 			}
 			writeFixture(t, root, "build.log", "warning: tool-version diagnostic\n")
@@ -1692,7 +2100,7 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			assert.Contains(t, out, "matrix-"+workflow)
 			assert.Contains(t, out, "Hint:")
 			if workflow == "bind" {
-				assert.Equal(t, 6, strings.Count(out, "INFO: standalone"), out)
+				assert.Equal(t, 9, strings.Count(out, "INFO: standalone"), out)
 			} else {
 				assert.NotContains(t, out, "INFO: standalone")
 			}

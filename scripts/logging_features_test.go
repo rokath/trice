@@ -19,7 +19,7 @@ func loggingFeatureFixture(t *testing.T) (string, map[string]string) {
 	t.Helper()
 	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_515_test_logging_features.sh")
 	initGitFixture(t, root)
-	for _, tool := range []string{"clang", "clang++", "clangd", "cc", "gcc", "trice", "make", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+	for _, tool := range []string{"clang", "clang++", "clangd", "cc", "gcc", "cmake", "trice", "make", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
 		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 0\n")
 	}
 	writeFixture(t, root, "bin/go", `#!/usr/bin/env bash
@@ -35,6 +35,7 @@ esac
 case "$2" in
   ./internal/args) tests='TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder TestOrderedIDsTargetRecordsMatchSourceAndCatalog' ;;
   ./internal/id) tests='TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary' ;;
+  ./scripts) tests='TestBindEntrypointIntegration' ;;
   *) echo 'FAIL: unexpected package selection'; exit 8 ;;
 esac
 for test in $tests; do
@@ -69,17 +70,20 @@ exit "${MOCK_PC_STATUS:-0}"
 	writeFixture(t, root, "examples/G0B1_features/check_build.sh", `#!/usr/bin/env bash
 set -eu
 cd "$(dirname "$0")"
-[ ! -e out.gcc/cached.o ] && [ ! -e generated/user.h ]
+compiler=${1:-gcc}
+if [ "$compiler" = gcc ]; then
+  [ ! -e out.gcc/cached.o ] && [ ! -e generated/user.h ]
+fi
 echo 'G0B1 example ran' >> "$LOG_DIR/example-calls"
 echo 'instrumented private source' > Core/Src/main.c
 echo 'bound private shared source' > ../exampleData/triceExamples.c
-mkdir -p out.gcc generated
+mkdir -p "out.$compiler" generated
 echo 'private sidecar' > generated/adapter.h
 for artifact in G0B1.elf G0B1.hex G0B1.bin; do
   if [ "${MOCK_ARTIFACT:-}" = "$artifact" ]; then continue; fi
-  echo 'firmware' > "out.gcc/$artifact"
+  echo 'firmware' > "out.$compiler/$artifact"
 done
-if [ "${MOCK_ARTIFACT:-}" = empty ]; then : > out.gcc/G0B1.elf; fi
+if [ "${MOCK_ARTIFACT:-}" = empty ]; then : > "out.$compiler/G0B1.elf"; fi
 echo 'PASS: fixture G0B1 build checks'
 exit "${MOCK_G0B1_STATUS:-0}"
 `)
@@ -144,9 +148,10 @@ func TestLoggingFeaturesSelectionAndIsolation(t *testing.T) {
 			calls, err := os.ReadFile(filepath.Join(root, "temp/log/go-calls"))
 			assert.NoError(t, err)
 			lines := strings.Split(strings.TrimSpace(string(calls)), "\n")
-			assert.Len(t, lines, 2, "only the two focused Go selections run")
+			assert.Len(t, lines, 3, "each focused Go selection runs once")
 			assert.Contains(t, string(calls), "test ./internal/args -run ^(TestContextEnrichmentTargetToDecoder|TestContextInsertCleanTargetToDecoder|TestOrderedIDsTargetRecordsMatchSourceAndCatalog)$ -count=1 -v | integration=1")
 			assert.Contains(t, string(calls), "test ./internal/id -run ^(TestContextEnrichmentPoC|TestContextEnrichmentPoCRebaseScopeBoundary)$ -count=1 -v | integration=1")
+			assert.Contains(t, string(calls), "test ./scripts -run ^(TestBindEntrypointIntegration)$ -count=1 -v | integration=1")
 			assert.NotContains(t, string(calls), "TestContextEnrichmentRebasePoC")
 			calls, err = os.ReadFile(filepath.Join(root, "temp/log/example-calls"))
 			assert.NoError(t, err)
@@ -189,7 +194,7 @@ func TestLoggingFeaturesRequireActualGoPasses(t *testing.T) {
 // so these cases are independent of which tools happen to be installed locally.
 func TestLoggingFeaturesMissingTools(t *testing.T) {
 	t.Parallel()
-	for _, missing := range []string{"go", "clang", "clang++", "clangd", "cc gcc", "trice", "git", "tar", "make", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+	for _, missing := range []string{"go", "clang", "clang++", "clangd", "cc gcc", "cmake", "trice", "git", "tar", "make", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
 		for _, mode := range []string{"quick", "full"} {
 			t.Run(mode+"_missing_"+missing, func(t *testing.T) {
 				root, _ := loggingFeatureFixture(t)

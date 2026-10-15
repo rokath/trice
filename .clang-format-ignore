@@ -13,4 +13,4 @@ examples/**/Drivers/**
 examples/**/Middlewares/**
 
 # Experimental / obsolete scratch-pad code.
-**/scratchPad/**
+**/_scratchPad/**

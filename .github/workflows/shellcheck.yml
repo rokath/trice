@@ -29,6 +29,7 @@ jobs:
 
           # minimum severity to report: error, warning, info, style
           severity: warning
+          ignore_paths: "docs/_scratchPad"
           # optional extras you *could* add:
           # scandir: .                # where to search for scripts (default ".")
           # ignore_paths: "vendor"    # space-separated paths to ignore

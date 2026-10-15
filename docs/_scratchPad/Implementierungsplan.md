@@ -10,8 +10,8 @@ Alle offenen Aufgaben stehen hier nach Wichtigkeit. Gewicht 5 betrifft die Relea
 | --- | --- | --- | ---: | --- | --- |
 | [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Windows lokal geprüft; Release-Abnahme offen | Veröffentlichte Beta-Assets und endgültige Downloadziele abnehmen | 5 | Rest S–M | Lokaler Snapshot geprüft; tatsächlicher Tag/Release und native Plattformnachweise stehen aus |
 | [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; CI- und Plattformabnahme | Finale Plattform-, Full-Matrix-, Coverage- und Dokumentationsabnahme | 5 | M; lange Laufzeit | R14/R26/R32 lokal auf Windows geprüft; native CI, R15 und übrige ausgewählte Änderungen |
-| [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Offen; Bedarf ermittelt | Skriptverträge, check-Nebenwirkungen, alte Pflegewege und verwaiste Handover-Helfer klären | 4 | M | R26 zuerst; keine pauschale Umbenennung oder Neuorganisation |
-| [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Offen; gezielte Lücken | ABC, Standalone-Builds, CGO-/CLion-Einstiege und Bind-Dokumentation abgleichen | 4 | M | Vorhandene Bind-Matrix erhalten; Insert/Clean bleibt verfügbar |
+| [R27](#skripte-an-den-aktuellen-repository-stand-anpassen) | Umgesetzt und committet; Gesamtabnahme manuell | Schreibfreie Formatprüfung, Kapitelkontrolle, Legacy-Pflege und Scratchpad-Ausschlüsse korrigiert; alte Handover-Helfer entfernt | 4 | M | Quick auf Nutzerwunsch während Coverage beendet; kein behaupteter Gesamt-PASS |
+| [R28](#bind-in-beispielen-und-test-einstiegen-vervollständigen) | Umgesetzt; gezielte macOS-Prüfungen bestanden | ABC mit Bind/Insert, private CLion-Header, Standalone- und Clang-Abdeckung, CGO-Vorlagen und RM aktualisiert | 4 | M | Vorhandene Matrizen erhalten; große Gesamtläufe bleiben manuell |
 | [R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Offen; Vorschlag zur Auswahl | Veraltete Einstiegsaussagen korrigieren, Wiederholungen verlinken, kleine Inhaltsverschiebungen | 4 | M | Kapitelquellen bleiben maßgeblich; UM nur auf ausdrücklichen Auftrag |
 | [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und tatsächlichen Veröffentlichungsumfang abnehmen | 4 | M | Beide Manuals/Kapitelpfade vorbereitet; Site-Build noch gesondert prüfen |
 | [R30](#alte-rm-spezifikation-und-suchoptionen-einordnen) | Offen; Vorschlag | Überholte RM-Spezifikation aus aktiver Planung nehmen; vorerst kein INDEX.md | 3 | S | Gültige Strukturentscheidungen erhalten; Gesamt-RM-PDF für Suche beachten |
@@ -77,11 +77,22 @@ Nach R26, R32 und den übrigen für den Kandidaten ausgewählten Änderungen zue
 
 ### Skripte an den aktuellen Repository-Stand anpassen
 
-**R27 · Gewicht 4 · Aufwand M · Offen; statische Bestandsaufnahme abgeschlossen**
+**R27 · Gewicht 4 · Aufwand M · Umgesetzt und committet; Gesamtabnahme manuell**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
-Umfang der lesenden Inventur: **118 versionierte eigene Shell-/CJS-/Python-Skripte** unter Root, `scripts/`, `demo/` und `examples/`, ergänzt um [den Go-CGO-Overlay-Helfer](../../scripts/pc_cache_overlay.go), aufrufende Workflows und Builddateien. Fremdsoftware, Archive, generierte Dateien und temporäre Buildbäume sind keine aktiven Wartungsziele. Pfade, Aufrufe, Workflow-Zuständigkeit und bekannte Plattformannahmen wurden gesichtet, kritische Stellen vertieft gelesen. Dies ist eine Bedarfsprüfung, keine Ausführung oder vollständige Laufzeitabnahme aller Skripte.
+**Umgesetzt am 14. Oktober:**
+
+- `format_repo.sh check` ruft weder Bind noch Build-/DS_Store-Bereinigung auf. Der Shell-Check legt auch kein Werkzeugverzeichnis mehr an. Der Formatmodus behält seine bisherigen Pflegeaktionen.
+- `_310` prüft README-Kapitellinks, fehlende Quellen, doppelte Kapitel, fehlende beziehungsweise unvollständige ToC-Container und nicht verlinkte mdtoc-Kapitel vor dem ersten Schreibzugriff. Kurze Kapitel ohne Unterüberschriften bleiben ohne ToC zulässig; Codebeispiele und auskommentierte Überschriften zählen dabei nicht als Abschnitte. Apples Bash 3.2 ist berücksichtigt. Skriptname und öffentliche Aufrufe bleiben erhalten; Begleittexte nennen beide Manuals.
+- `_330` bleibt bewusst Clean/Insert/Clean mit unveränderten ID-Bereichen und `keepHistory`. Gewöhnliche Bind-Pflege ist separat dokumentiert. Fehlende Werkzeuge, kanonische CGO-Vorlagen und Testverzeichnisse werden vor dem Historienreset gemeldet; ein fehlgeschlagener Trice-Aufruf stoppt Folgeaktionen. Keine neue CLI, automatische Neuvergabe oder Änderung der CGO-Matrix.
+- Der vom Benutzer bereits umbenannte Bereich `docs/_scratchPad/` ist aus Go-Paketsuche, expliziten Shell-/Go-Formatlisten, ShellCheck, C-Formatierung, Markdown-/YAML-Lint und Linkcheck ausgeschlossen. Die Go-Regression prüft echte Tests und globale Coverage ohne zusätzliche `go.mod`; aktive Links, IDE-Ausschluss und Handover-Pfade sind angepasst. Archivdateien bleiben unangetastet.
+- Der C-Formatter überspringt lokal entfernte oder verschobene Git-Pfade und räumt seine beiden temporären Dateilisten auf. Tests decken leere Auswahl, Check/Format sowie Leerzeichen und Umlaut im Dateinamen ab.
+- Die drei verbliebenen Profiltransfer-Helfer `_codex_handover_python.sh` und `test_codex_handover.{sh,py}` sind nach ausdrücklicher Freigabe entfernt. Die archivierten Originalwerkzeuge bleiben erhalten. Git-/Worktree-Helfer, PDF-Erzeugungsweg und vorhandene Bind-/Insert-Matrizen bleiben unverändert; deren gesonderte Lücken gehören weiterhin zu R28 beziehungsweise R29.
+
+**Bisherige Prüfungen:** gezielte Verhaltenstests, ShellCheck, Markdownlint, `git diff --check` und echte Manual-Prüfung mit `/bin/bash` bestehen. Online-Lychee besteht mit 1.980 Linkvorkommen und 0 Fehlern; Offline-Lychee einschließlich lokaler Fragmente ebenfalls mit 0 Fehlern. Der abschließende Quick-Lauf mit regulärem Modulcache bestand die ersten 15 Schritte einschließlich normaler Go-Tests; der Nutzer ließ während Coverage anhalten und übernimmt die großen Gesamtläufe manuell. Deshalb kein Gesamt-PASS für diesen Lauf. Beide PDFs wurden erfolgreich neu erzeugt und geprüft. Die Änderungen sind in Git; zuletzt `ffdc2725`, davor die vier thematisch getrennten Wartungs-/Archiv-/Agentenregel-Commits. Kein Push, Tag oder Publish erfolgt.
+
+**Ursprüngliche Bestandsaufnahme vor der Umsetzung:** **118 versionierte eigene Shell-/CJS-/Python-Skripte** unter Root, `scripts/`, `demo/` und `examples/`, ergänzt um [den Go-CGO-Overlay-Helfer](../../scripts/pc_cache_overlay.go), aufrufende Workflows und Builddateien. Die folgende Tabelle dokumentiert die damaligen Befunde; die Korrekturen und aktuellen Nachweise stehen darüber. Fremdsoftware, Archive, generierte Dateien und temporäre Buildbäume sind keine aktiven Wartungsziele. Dies war eine Bedarfsprüfung, keine vollständige Laufzeitabnahme aller Skripte.
 
 | Skriptgruppe | Aktueller Befund | Bedarf / Grenze |
 | --- | --- | --- |
@@ -101,9 +112,24 @@ Umfang der lesenden Inventur: **118 versionierte eigene Shell-/CJS-/Python-Skrip
 
 ### Bind in Beispielen und Test-Einstiegen vervollständigen
 
-**R28 · Gewicht 4 · Aufwand M · Offen; vorhandene Unterstützung gezielt ergänzen**
+**R28 · Gewicht 4 · Aufwand M · Umgesetzt; gezielte macOS-Prüfungen bestanden**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Umgesetzt am 14. Oktober; noch nicht committet:**
+
+- ABC unterstützt `TRICE_ID_WORKFLOW=bind` und `insert`. Beide bauen alle neun Knoten aus privaten Kopien unter `build/source`; der benutzereigene Auswahlheader bleibt unverändert. Bind erzeugt `build/sidecars`; Insert/Clean bleibt vorerst der bisherige Standard, da ein Standardwechsel nicht entschieden wurde. Die gewählten TIL-/LI-Dateien werden wie bisher gepflegt; unabhängige Tabellenpfade werden jetzt auch bei der Generierung beachtet.
+- CLion/CMake kopiert Testquelle und TIL in den eigenen Buildordner und bereitet private Sidecars beim Konfigurieren und vor dem Kompilieren vor. Originalquellen und globale Metadaten bleiben unverändert. Fehlende Header werden neu erzeugt, gültige veraltete nach einer Quellenänderung aktualisiert; manuell beschädigte generierte Helfer werden mit Bind-Diagnose abgewiesen.
+- `_200` prüft in seiner bestehenden Full-Standalone-Phase zusätzlich F030 RTT/UART und G0B1_inst mit Clang. `_140` sichert dafür auch die lokalen F030-Quellen, TIL/LI und `out`-Verzeichnisse und stellt sie exakt wieder her. Die einfachen F030-Buildskripte bleiben unverändert.
+- Die G0B1-Feature-Tour verwendet auch mit Clang ihre eigene Bind-/CE-Vorbereitung. `_515` ruft den öffentlichen GCC-Einstieg auf, in `full` zusätzlich den öffentlichen Clang-Einstieg. Die bestehende Compiler-Schaltermatrix wird nicht doppelt gebaut. ABC-Buslauf und CLion werden ebenfalls gezielt durch `_515` geprüft.
+- Alle 122 generierten CGO-Dateien wurden mechanisch aus den beiden kanonischen Vorlagen aktualisiert; alle 61 Paare sind bytegleich zu diesen. Keine ID-Neuvergabe und keine neue Pflege-CLI. Der veraltete Skriptverweis in der Vorlage ist korrigiert.
+- RM-Einstieg, Test-/Buildanleitung und ABC-Buildbeschreibung erklären Bind, Legacy-Insert/Clean und Zustandsbesitz. Das UM bleibt unverändert.
+
+**Nachweise:** `TRICE_BIND_INTEGRATION=1 go test ./scripts -run '^TestBindEntrypointIntegration$' -count=1 -v` besteht: neun ABC-Binaries pro Workflow, echte Busausgabe mit empfangenen Logs und ABC-Antworten, Compilerfehler/TERM sowie CLion mit fehlenden/veralteten Headern und Leerzeichen im Checkout-Pfad. `_640_test_pc_targets_bind.sh quick` und `_630_test_pc_targets_insert.sh quick` bestehen jeweils mit drei Konfigurationen und exakter Wiederherstellung. Echte isolierte F030-RTT-/UART-Builds sowie G0B1-Feature-Builds und Tabellenprüfungen mit GCC/Clang bestehen; globale Metadaten bleiben unverändert. Gezielte Skriptregressionen zu Besitz, Wiederherstellung, Fehlern/Abbruch und `_515` bestehen. ShellCheck mit Repository-Warnschwelle, shfmt, gofmt, Markdownlint, mdtoc und lokale RM-Linkprüfung einschließlich Fragmente bestehen (199 Linkvorkommen, 0 Fehler). Ein früherer kompletter Skriptpaketlauf erfasste während laufender Änderungen eine veraltete `_515`-Testfixture; die aktuelle gezielte Auswahl besteht. Kein neuer `testAll`-/Full-Gesamtlauf und keine Boardausführung.
+
+**Separater Bestandsbefund:** Die typeX0-Empfangsausgabe im ABC-Beispiel war bereits vorher auskommentiert (`nodeOpen` in `NodeLib/node.c`). R28 ändert diesen Laufzeitvertrag nicht; die Integration prüft ausgesendete typeX0-Daten und echte ABC-Antworten sowie normale empfangene Logs.
+
+**Ursprüngliche Bestandsaufnahme:**
 
 **Bereits vorhanden:** `testAll.sh` verwendet ohne Argumente/mit `quick` Bind; `full` ergänzt Legacy-Insert/Clean und die volle Matrix. `_570`, `_600` und `_640` prüfen Bind. `_515` prüft produktive CE/SL und die PC-/G0B1-Feature-Touren. [`prepareTriceBind.sh`](../../examples/prepareTriceBind.sh) und mehrere direkte Beispiel-Builds generieren ihre Header selbst. `_640` verwendet denselben CGO-Worker wie `_630`. Das ist keine bislang Bind-freie Testlandschaft.
 
@@ -289,7 +315,7 @@ Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung be
 
 R26 ist umgesetzt und auf Windows gezielt sowie mit 540/550 abgenommen. Den bereits gestarteten Original-Full-Lauf getrennt auswerten und seine vollständigen Fehlerprotokolle erhalten. Seine Source-/ID-Zwischenzustände wurden für R26 nicht verändert oder bereinigt; die geprüfte Korrektur entstand in einer isolierten Kopie.
 
-R32 und R14 sind ebenfalls umgesetzt; ihre lokalen Nachweise aus frischem Checkout stehen bei den abgeschlossenen Aufgaben. Als nächste Korrekturaufträge R27/R28 anhand der belegten Lücken auswählen, dann die begrenzten Dokuarbeiten R29/R30. R15 bleibt die Restabnahme der Distribution am Kandidaten; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs, erneuter Linux-CI-Abnahme und den noch fehlenden nativen Plattformnachweisen. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
+R32 und R14 sind ebenfalls umgesetzt; ihre lokalen Nachweise aus frischem Checkout stehen bei den abgeschlossenen Aufgaben. R27 ist committet; R28 ist implementiert und gezielt geprüft, aber noch nicht committet. Danach die begrenzten Dokuarbeiten R29/R30 gesondert beauftragen. R15 bleibt die Restabnahme der Distribution am Kandidaten; R22 bleibt die tatsächliche Pages-Abnahme. R16 folgt auf einem feststehenden Kandidaten mit aktuellen PDFs, erneuter Linux-CI-Abnahme und den noch fehlenden nativen Plattformnachweisen. Große Gesamtläufe führt der Nutzer manuell aus. Nicht automatisch sämtliche optionalen Ideen zu Release-Voraussetzungen machen.
 
 Merge, Git-Schreibaktionen, Tag, Veröffentlichung und ein neuer langer Full-Test benötigen ihren jeweiligen ausdrücklichen Auftrag. Den Merge führt der Benutzer auf GitHub aus. Die Dateiablage allein rechtfertigt keine weiteren Features oder umfassende Umorganisation von Beispielen und Testmatrix. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
 

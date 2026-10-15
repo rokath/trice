@@ -7,8 +7,9 @@
 // The Go functions defined here are not exported. They are called by the Go test functions in this package.
 // This way the test functions are executing the trice C-code compiled with the triceConfig.h here.
 // Inside ./testdata this file is named cgoPackage.go where it is maintained.
-// The ../renewIDs_in_examples_and_test_folder.sh script copies this file under the name generated_cgoPackage.go into various
-// package folders, where it is used separately.
+// Normal test runs overlay this canonical file onto each generated_cgoPackage.go.
+// scripts/_330_renew_ids_and_refresh_tests.sh deliberately refreshes the on-disk
+// copies as part of legacy ID maintenance; it is not needed before normal tests.
 package cgot
 
 // #include <stdint.h>

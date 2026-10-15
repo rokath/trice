@@ -15,6 +15,8 @@ permissions:
 jobs:
   guard_activity:
     name: Guard - skip if no commits in last 24h
+    # PRs and explicit manual runs must not depend on recent main activity.
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     outputs:
       should_run: ${{ steps.decide.outputs.should_run }}
@@ -44,13 +46,17 @@ jobs:
           fi
 
   heavy_ci:
+    # Preserve the existing required-check name; PRs now use the full matrix.
     name: Heavy CI (quick)
     needs: guard_activity
-    if: ${{ needs.guard_activity.outputs.should_run == 'true' }}
+    # A skipped guard must not skip the required PR check. The status function
+    # also permits this job to run after a skipped dependency, unless cancelled.
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.guard_activity.outputs.should_run == 'true') }}
     uses: ./.github/workflows/trice_lib_reusable.yml
     with:
-      # Quick mode: keep runtime bounded
-      configs_mode: quick
+      # Validate every configuration before merging; nightly/manual Quick runs
+      # retain their bounded selection. The Full workflow remains available too.
+      configs_mode: ${{ github.event_name == 'pull_request' && 'full' || 'quick' }}
       configs_start: 0
       configs_end: 10
 

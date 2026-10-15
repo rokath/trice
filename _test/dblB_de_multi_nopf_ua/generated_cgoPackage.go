@@ -7,8 +7,9 @@
 // The Go functions defined here are not exported. They are called by the Go test functions in this package.
 // This way the test functions are executing the trice C-code compiled with the triceConfig.h here.
 // Inside ./testdata this file is named cgoPackage.go where it is maintained.
-// The ../renewIDs_in_examples_and_test_folder.sh script copies this file under the name generated_cgoPackage.go into various
-// package folders, where it is used separately.
+// Normal test runs overlay this canonical file onto each generated_cgoPackage.go.
+// scripts/_330_renew_ids_and_refresh_tests.sh deliberately refreshes the on-disk
+// copies as part of legacy ID maintenance; it is not needed before normal tests.
 package cgot
 
 // #include <stdint.h>
@@ -17,6 +18,8 @@ package cgot
 // unsigned TriceOutDepth( void );
 // void CgoSetTriceBuffer( uint8_t* buf );
 // void CgoClearTriceBuffer( void );
+// int CgoDirectBulkSupported( void );
+// int CgoDeferredBulkSupported( void );
 // #cgo CFLAGS: -g -Wshadow -Wno-format-security -I. -I../../src -I../../src/default_conf
 // // Match RTT sizes symbolically: CGO simulates transport, but Trice still checks consistency.
 // #cgo CFLAGS: -DTRICE_BUFFER_SIZE_DOWN=BUFFER_SIZE_DOWN
@@ -46,7 +49,9 @@ import "C"
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -115,6 +120,30 @@ func triceClearOutBuffer() {
 	C.CgoClearTriceBuffer()
 }
 
+// bulkTargetMode preserves unframed transport boundaries and special tests.
+// Framed direct/deferred channels can be collected and decoded independently.
+func bulkTargetMode(mode string) string {
+	switch mode {
+	case "directMode":
+		if C.CgoDirectBulkSupported() != 0 {
+			return "directModeBulk"
+		}
+	case "combinedMode":
+		if C.CgoDirectBulkSupported() != 0 && C.CgoDeferredBulkSupported() != 0 {
+			return "combinedModeBulk"
+		}
+	case "deferredModeLineByLine":
+		if C.CgoDeferredBulkSupported() != 0 {
+			return "deferredModeDrainedBulk"
+		}
+	case "deferredModeLineByLineAndBulk", "deferredModeBulk":
+		if C.CgoDeferredBulkSupported() != 0 {
+			return "deferredModeBulk"
+		}
+	}
+	return mode
+}
+
 // linesInFile does get the lines in a file and stores them in a string slice.
 func linesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-file-go
 	// Create new Scanner.
@@ -139,6 +168,7 @@ func getExpectedResults(fSys *afero.Afero, filename string, maxTestlines int) (r
 	// get all file lines into a []string
 	f, e := fSys.Open(filename)
 	msg.OnErr(e)
+	defer f.Close()
 	lines := linesInFile(f)
 	var testLinesCounter = 0
 	for i, line := range lines {
@@ -182,8 +212,7 @@ type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
 // triceLogLineByLine executes each triceCheck.c test line, gets its binary output and
 // restarts the whole Trice log functionality for this, resulting in a long test duration.
-// This test is avoidable for only-deferred modes which allow doTestTriceLogBulk=true,
-// but useful for debugging.
+// It remains useful for unframed output and for diagnosing failed bulk runs.
 // triceLogLineByLine creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
@@ -206,15 +235,20 @@ func triceLogLineByLine(t *testing.T, triceLog logF, testLines int, triceCheckC 
 		buffer := buf[1 : len(buf)-1]
 		act := triceLog(t, osFSys, buffer)
 		triceClearOutBuffer()
-		assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)))
+		if !assert.Equal(t, v.exps, act, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act))) {
+			// Abort this configuration; the shell runner owns continuation to the next one.
+			t.FailNow()
+		}
 	}
+	t.Logf("Checked %d expectations, strategy=line-by-line", len(result))
 }
 
 // triceLogBulk executes each triceCheck.c test line, gets its binary output and
 // collects all these outputs into one (big) buffer. Then the Trice log functionality
 // is started once for this (big) buffer and the whole output is generated. Afterwards
-// this generated output is compared line by line with the expected results. The
-// function triceLogBulk is much faster than triceLogLineByLine but difficult to debug.
+// this generated output is compared line by line with the expected results.
+// triceLogBulk avoids per-expectation logger startup. On failure it identifies
+// the first divergent source expectation and preserves the original stream.
 // triceLogBulk creates a list of expected results from triceCheckC.
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
@@ -235,7 +269,7 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	var bin []byte // bin collects the binary data.
 	bulk := 5
 	for i, r := range result {
-		fmt.Print("i:", i, "\texecute triceCheck.c line:", r.line, "\texp:", r.exps)
+		t.Logf("Bulk input %d: triceCheck.c:%d", i, r.line)
 		triceCheck(r.line) // target activity
 
 		// In case "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" wee need to call triceTransfer
@@ -262,18 +296,96 @@ func triceLogBulk(t *testing.T, triceLog logF, testLines int, triceCheckC string
 	buf := fmt.Sprint(bin)             // buf is the ASCII representation of bin.
 	buffer := buf[1 : len(buf)-1]      // buffer contains the bare data (without brackets).
 	act := triceLog(t, osFSys, buffer) // act is the complete printed text.
-	for i, v := range result {
-		if len(act) >= len(v.exps) {
-			a := act[:len(v.exps)] // get next part of actual data (usually a line).
-			assert.Equal(t, v.exps, a, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(a)))
-			act = act[len(v.exps):]
-		} else {
-			fmt.Println(i, "of", len(result), "v.exps:", v.exps)
-			fmt.Println(len(act), "act:", act)
-			assert.Fail(t, fmt.Sprintf("%d: line %d: len(exp)=%d, len(act)=%d", i, v.line, len(v.exps), len(act)), "actual data too short")
+	checkBulkOutput(t, result, act, bin, "deferred")
+	//assert.Fail(t, "forced fail")
+}
+
+// bulkOutputError maps byte ranges back to expectation source lines, including
+// multiline/empty expectations. The first divergence is evidence, not a claim
+// that the corresponding C call necessarily caused a stream corruption.
+func bulkOutputError(result []results, actual string, channel string) error {
+	offset := 0
+	for i, want := range result {
+		end := min(offset+len(want.exps), len(actual))
+		got := actual[offset:end]
+		if got != want.exps {
+			contextStart, contextEnd := max(0, offset-80), min(len(actual), end+80)
+			return fmt.Errorf("EXPECTATION FAILURE triceCheck.c:%d channel=%s expectation=%d/%d byte=%d\nwant: %q\ngot:  %q\ncontext: %q\nFirst divergent expectation; inspect preceding records too", want.line, channel, i+1, len(result), offset, want.exps, got, actual[contextStart:contextEnd])
+		}
+		offset = end
+	}
+	if offset != len(actual) {
+		line := 0
+		if len(result) > 0 {
+			line = result[len(result)-1].line
+		}
+		return fmt.Errorf("EXPECTATION FAILURE triceCheck.c:%d channel=%s extra output after final expectation: %q", line, channel, actual[offset:min(len(actual), offset+160)])
+	}
+	return nil
+}
+
+// checkBulkOutput keeps exact original bytes/text in the configuration's log
+// directory on failure. The worker supplies the workflow and reproduction call.
+func checkBulkOutput(t *testing.T, result []results, actual string, wire []byte, channel string) {
+	t.Helper()
+	if err := bulkOutputError(result, actual, channel); err != nil {
+		if dir := os.Getenv("TRICE_PC_TEST_ARTIFACT_DIR"); dir != "" {
+			for suffix, data := range map[string][]byte{".bin": wire, ".txt": []byte(actual)} {
+				name := filepath.Join(dir, channel+suffix)
+				if saveErr := os.WriteFile(name, data, 0o600); saveErr != nil {
+					t.Logf("could not save %s: %v", name, saveErr)
+				} else {
+					t.Logf("Original bulk output: %s", name)
+				}
+			}
+		}
+		t.Fatal(err)
+	}
+	t.Logf("Checked %d expectations, channel=%s, strategy=bulk", len(result), channel)
+}
+
+// triceLogFramedChannels collects direct output before triggering the deferred
+// transfer. Each channel retains its own framing and host settings. All source
+// calls still execute in their original order; only logger restarts disappear.
+func triceLogFramedChannels(t *testing.T, hasDirect, hasDeferred bool) {
+	g.getGlobalVarsDefaults()
+	fs := &afero.Afero{Fs: afero.NewOsFs()}
+	result := getExpectedResults(fs, targetActivityC, testLines)
+	out := make([]byte, 65536)
+	setTriceBuffer(out)
+	var direct, deferred []byte
+	for _, want := range result {
+		triceCheck(want.line)
+		if hasDirect {
+			direct = append(direct, out[:triceOutDepth()]...)
+		}
+		triceClearOutBuffer()
+		if hasDeferred {
+			transferPendingTrices()
+			deferred = append(deferred, out[:triceOutDepth()]...)
+			triceClearOutBuffer()
 		}
 	}
-	//assert.Fail(t, "forced fail")
+	logDirect := triceLog
+	if hasDirect && hasDeferred {
+		logDirect = triceLogDirect
+	}
+	for i, wire := range [][]byte{direct, deferred} {
+		if (i == 0 && !hasDirect) || (i == 1 && !hasDeferred) {
+			continue
+		}
+		logger, channel := logDirect, "direct"
+		if i == 1 {
+			logger, channel = triceLog, "deferred"
+			if hasDirect {
+				logger = triceLogDeferred
+			}
+		}
+		g.setGlobalVarsDefaults()
+		buffer := fmt.Sprint(wire)
+		actual := logger(t, fs, buffer[1:len(buffer)-1])
+		checkBulkOutput(t, result, actual, wire, channel)
+	}
 }
 
 // triceLogDirectAndDeferred works like triceLogTest but additionally expects doubled output: direct and deferred.
@@ -296,7 +408,9 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 			g.setGlobalVarsDefaults() // restore changed defaults
 			act := triceLog0(t, osFSys, buffer)
 			triceClearOutBuffer()
-			assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
+			if !assert.Equal(t, v.exps, act, fmt.Sprint(i, v)) {
+				t.FailNow()
+			}
 		}
 		{ // Check deferred output.
 			if false {
@@ -310,10 +424,13 @@ func triceLogDirectAndDeferred(t *testing.T, triceLog0, triceLog1 logF, testLine
 				g.setGlobalVarsDefaults() // restore changed defaults
 				act := triceLog1(t, osFSys, buffer)
 				triceClearOutBuffer()
-				assert.Equal(t, v.exps, act, fmt.Sprint(i, v))
+				if !assert.Equal(t, v.exps, act, fmt.Sprint(i, v)) {
+					t.FailNow()
+				}
 			}
 		}
 	}
+	t.Logf("Checked %d expectations per channel, channels=direct,deferred, strategy=line-by-line", len(result))
 }
 
 type globalDefaults struct {

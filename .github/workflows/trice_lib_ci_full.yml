@@ -13,6 +13,8 @@ permissions:
 jobs:
   guard_activity:
     name: Guard - skip if no commits in last 24h
+    # Only unattended nightly runs use the activity shortcut.
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
     outputs:
       should_run: ${{ steps.decide.outputs.should_run }}
@@ -41,7 +43,8 @@ jobs:
   heavy_ci:
     name: Heavy CI (full)
     needs: guard_activity
-    if: ${{ needs.guard_activity.outputs.should_run == 'true' }}
+    # An explicit Full run must execute even when main has been idle.
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.guard_activity.outputs.should_run == 'true') }}
     uses: ./.github/workflows/trice_lib_reusable.yml
     with:
       # Full configuration sweep: 0..100

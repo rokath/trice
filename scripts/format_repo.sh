@@ -3,9 +3,11 @@
 # format_repo.sh
 #
 # Central wrapper for repository formatting and normalization scripts.
-# The Trice Reference Manual step delegates to a dedicated helper that refreshes
-# the manual TOC, numbering, and anchors with mdtoc. PDF generation is handled
+# The manual step checks or refreshes the User Manual and Reference Manual
+# chapter TOCs, numbering, and anchors with mdtoc. PDF generation is handled
 # separately by scripts/_320_generate_trice_user_manual_pdf.sh and by GoReleaser.
+# CHECK preserves sources, ID metadata, build outputs and macOS metadata.
+# FORMAT also binds IDs, cleans example build outputs and removes .DS_Store files.
 #
 # Usage:
 #   ./scripts/format_repo.sh                 # defaults to FORMAT mode
@@ -42,10 +44,11 @@ main() {
     # final formatting pass restores their repository-wide alignment.
     echo "$SCRIPT_DIR/../trice_bindIDs_in_examples_and_test_folder.sh" && "$SCRIPT_DIR/../trice_bindIDs_in_examples_and_test_folder.sh"
     echo "$SCRIPT_DIR/_280_format_c_code.sh" "$@" && "$SCRIPT_DIR/_280_format_c_code.sh" "$@"
-  fi
 
-  echo "$SCRIPT_DIR/../examples/cleanAllTargets.sh" && "$SCRIPT_DIR/../examples/cleanAllTargets.sh"
-  echo "$SCRIPT_DIR/_300_clean_dsstore.sh" "$SCRIPT_DIR/.." --silent && "$SCRIPT_DIR/_300_clean_dsstore.sh" "$SCRIPT_DIR/.." --silent
+    # Cleanup belongs to explicit maintenance, never to a formatting check.
+    echo "$SCRIPT_DIR/../examples/cleanAllTargets.sh" && "$SCRIPT_DIR/../examples/cleanAllTargets.sh"
+    echo "$SCRIPT_DIR/_300_clean_dsstore.sh" "$SCRIPT_DIR/.." --silent && "$SCRIPT_DIR/_300_clean_dsstore.sh" "$SCRIPT_DIR/.." --silent
+  fi
 }
 
 main "$@"

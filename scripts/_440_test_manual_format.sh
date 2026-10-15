@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Test 440: Checks the Trice Reference Manual formatting when mdtoc is installed.
+# Test 440: Checks User Manual and RM chapter formatting when mdtoc is installed.
 #
 # Direct invocation:
 # - ./scripts/_440_test_manual_format.sh

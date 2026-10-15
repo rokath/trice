@@ -222,21 +222,29 @@ FORMAT_TMP_DIR="$(mktemp -d)" || {
 # A private list avoids collisions between concurrent checks and command-line
 # length limits on Windows. Git leaves spaces and UTF-8 path bytes intact.
 FILES_LIST="$FORMAT_TMP_DIR/files"
+TRACKED_FILES_LIST="$FORMAT_TMP_DIR/tracked"
 
 # cleanup_format_tmp removes only artifacts created by this script invocation.
 # Invoked indirectly by the EXIT trap installed by the formatting workflow.
 # shellcheck disable=SC2329
 cleanup_format_tmp() {
-  rm -f "$FILES_LIST"
+  rm -f "$FILES_LIST" "$TRACKED_FILES_LIST"
   rmdir "$FORMAT_TMP_DIR" 2>/dev/null || true
 }
 trap cleanup_format_tmp EXIT
 
 if ! git -c core.quotePath=false ls-files \
-  '*.c' '*.h' '*.cpp' '*.hpp' '*.cc' '*.hh' '*.cxx' '*.hxx' >"$FILES_LIST"; then
+  '*.c' '*.h' '*.cpp' '*.hpp' '*.cc' '*.hh' '*.cxx' '*.hxx' >"$TRACKED_FILES_LIST"; then
   echo "clang-format: Failed to list tracked C/C++ files in the repository." >&2
   exit 1
 fi
+# Git still lists paths deleted or moved locally until their deletion is staged.
+# Match the shell/Go formatters: process only sources present in the worktree.
+while IFS= read -r file; do
+  if [ -f "$file" ]; then
+    printf '%s\n' "$file"
+  fi
+done <"$TRACKED_FILES_LIST" >"$FILES_LIST"
 if [ ! -s "$FILES_LIST" ]; then
   exit 0
 fi

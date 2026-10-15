@@ -164,12 +164,25 @@ trice_state_append_example_outputs() {
   local absent_manifest="$2"
   local path
 
+  # Small project-local examples have their own IDs and sidecars. Snapshot their
+  # sources separately from the canonical global Bind scope before direct builds.
+  for path in examples/F030_inst_rtt/Core examples/F030_inst_uart/Core; do
+    if [ -d "$TRICE_STATE_ROOT/$path" ]; then
+      (
+        cd "$TRICE_STATE_ROOT" || exit 1
+        find "$path" -type f \( -name '*.c' -o -name '*.h' \) -print
+      ) >>"$raw_manifest" || return 1
+    fi
+  done
+
   for path in \
     examples/PC_log/main.c \
     examples/G0B1_log/Core/Src/main.c \
     examples/G0B1_log/Core/Src/stm32g0xx_it.c \
     examples/PC_log/til.json examples/PC_log/li.json \
-    examples/G0B1_log/til.json examples/G0B1_log/li.json; do
+    examples/G0B1_log/til.json examples/G0B1_log/li.json \
+    examples/F030_inst_rtt/til.json examples/F030_inst_rtt/li.json \
+    examples/F030_inst_uart/til.json examples/F030_inst_uart/li.json; do
     trice_state_append_optional_file "$path" "example file" "$raw_manifest" "$absent_manifest" || return 1
   done
 
@@ -178,6 +191,7 @@ trice_state_append_example_outputs() {
     examples/G0B1_log/generated examples/G0B1_log/build examples/G0B1_log/out.gcc \
     examples/DemoData_CSV/build examples/DemoData_Trice/build \
     examples/F030_bare/out examples/F030_inst/out \
+    examples/F030_inst_rtt/out examples/F030_inst_uart/out \
     examples/G0B1_bare/out.gcc examples/G0B1_bare/out.clang \
     examples/G0B1_inst/out.gcc examples/G0B1_inst/out.clang \
     examples/L432_bare/out.gcc examples/L432_bare/out.clang \
@@ -462,7 +476,18 @@ trice_test_finish() {
   local status="${1:-$?}"
   local restore_status=0
 
-  trap - INT TERM EXIT
+  # Repeated Ctrl-C must not interrupt restoration or the tools it launches.
+  # Ignore cancellation until this process exits, and prevent EXIT recursion.
+  trap '' INT TERM
+  trap - EXIT
+  if [ "$status" -eq 130 ] || [ "$status" -eq 143 ]; then
+    local message="Cancellation requested. Restoring the initial test state; please wait..."
+    trice_state_log "$message"
+    # Aggregated runs log quietly; still show why cancellation takes a moment.
+    if [ "${QUIET:-0}" -eq 1 ]; then
+      printf '\n%s\n' "$message" >&2
+    fi
+  fi
   cd "$TRICE_STATE_ROOT" >/dev/null 2>&1 || true
   trice_test_restore_include_path
   trice_test_state_restore || restore_status=$?
