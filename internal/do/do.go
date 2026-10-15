@@ -25,6 +25,10 @@ import (
 var (
 	TCPOutAddr = ""
 	Verbose    bool
+	// TCPListen normally opens the configured output address unchanged. Tests
+	// may supply an already listening socket before starting a handler, so an
+	// ephemeral port can be used without a reserve/close/rebind race.
+	TCPListen = net.Listen
 )
 
 // DistributeArgs distributes argument-derived values to collaborating packages.
@@ -130,7 +134,7 @@ func tcpWriter() io.Writer {
 	}
 	// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
 	fmt.Fprintln(diagnostics, "Listening on "+TCPOutAddr+"...")
-	listen, err := net.Listen("tcp", TCPOutAddr)
+	listen, err := TCPListen("tcp", TCPOutAddr)
 	if err != nil {
 		log.Fatal(err)
 	}

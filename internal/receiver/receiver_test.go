@@ -8,34 +8,55 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
-	"runtime"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
-func requireWindowsTCPTestsEnabled(t *testing.T) {
+// listenTCP4Test creates a real local listener without a fixed port. Every
+// accept and transfer has a deadline, including assertion-failure cleanup.
+func listenTCP4Test(t *testing.T) *net.TCPListener {
 	t.Helper()
-	// These TCP listener tests intentionally open a local server socket.
-	// On Windows, Defender Firewall may show interactive prompts for the
-	// temporary go test binaries that host these listeners. The binaries live in
-	// changing go-build paths, so allowing them once does not reliably suppress
-	// later prompts. That makes routine local test runs noisy and disruptive for
-	// developers who mostly work on Windows.
-	//
-	// We therefore skip these tests on Windows by default and require an
-	// explicit opt-in when someone actually wants to verify the listener-based
-	// behavior there.
-	//
-	// Enable with:
-	//   TRICE_RUN_WINDOWS_TCP_TESTS=1 go test ./...
-	if runtime.GOOS == "windows" && os.Getenv("TRICE_RUN_WINDOWS_TCP_TESTS") == "" {
-		t.Skip("skipping TCP listener test on Windows; set TRICE_RUN_WINDOWS_TCP_TESTS=1 to enable")
-	}
+	listener, err := net.ListenTCP("tcp4", &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = listener.Close() })
+	require.NoError(t, listener.SetDeadline(time.Now().Add(5*time.Second)))
+	return listener
+}
+
+// serveTCP4Test handles exactly the connection under test and joins its server
+// before the next test can restore globals or reuse other fixture state.
+func serveTCP4Test(t *testing.T, listener *net.TCPListener, handle func(net.Conn) error) {
+	t.Helper()
+	done := make(chan error, 1)
+	go func() {
+		connection, err := listener.Accept()
+		if err == nil {
+			err = connection.SetDeadline(time.Now().Add(5 * time.Second))
+			if err == nil {
+				err = handle(connection)
+			}
+			// Publish completion only after the server socket is released.
+			if closeErr := connection.Close(); err == nil {
+				err = closeErr
+			}
+		}
+		done <- err
+	}()
+	t.Cleanup(func() {
+		_ = listener.Close()
+		select {
+		case err := <-done:
+			if !errors.Is(err, net.ErrClosed) {
+				assert.NoError(t, err)
+			}
+		case <-time.After(6 * time.Second):
+			t.Error("TCP receiver fixture did not stop")
+		}
+	})
 }
 
 // TestBUFFERReceiver tests the NewReadWriteCloser BUFFER functionality.
@@ -508,24 +529,20 @@ func TestUDP4WritePanics(t *testing.T) {
 // TestTCP4WriteAndDefaultArguments verifies both the tcp4 write wrapper and
 // the default-address branch in NewReadWriteCloser.
 func TestTCP4WriteAndDefaultArguments(t *testing.T) {
-	requireWindowsTCPTestsEnabled(t)
-
-	listener, err := net.Listen("tcp4", DefaultTCP4Args)
-	require.NoError(t, err)
-	defer listener.Close()
+	listener := listenTCP4Test(t)
+	// Exercise the default-argument branch with a test-local ephemeral endpoint;
+	// the production default is restored when this test ends.
+	savedDefault := DefaultTCP4Args
+	DefaultTCP4Args = listener.Addr().String()
+	t.Cleanup(func() { DefaultTCP4Args = savedDefault })
 
 	received := make(chan []byte, 1)
-	go func() {
-		conn, acceptErr := listener.Accept()
-		if acceptErr != nil {
-			received <- nil
-			return
-		}
-		defer conn.Close()
+	serveTCP4Test(t, listener, func(conn net.Conn) error {
 		buf := make([]byte, 8)
-		n, _ := conn.Read(buf)
+		n, err := conn.Read(buf)
 		received <- append([]byte(nil), buf[:n]...)
-	}()
+		return err
+	})
 
 	savedVerbose := Verbose
 	Verbose = true
@@ -536,6 +553,7 @@ func TestTCP4WriteAndDefaultArguments(t *testing.T) {
 	require.NoError(t, err)
 	rc.(*tcp4).w = &out
 	defer rc.Close()
+	require.NoError(t, rc.(*tcp4).conn.SetDeadline(time.Now().Add(5*time.Second)))
 
 	assert.Contains(t, out.String(), "Assigning default arguments for port TCP4")
 	assert.Contains(t, out.String(), "PortArguments= "+DefaultTCP4Args)
@@ -543,7 +561,12 @@ func TestTCP4WriteAndDefaultArguments(t *testing.T) {
 	n, err := rc.Write([]byte{0x31, 0x32, 0x33})
 	require.NoError(t, err)
 	assert.Equal(t, 3, n)
-	assert.Equal(t, []byte{0x31, 0x32, 0x33}, <-received)
+	select {
+	case data := <-received:
+		assert.Equal(t, []byte{0x31, 0x32, 0x33}, data)
+	case <-time.After(5 * time.Second):
+		t.Error("TCP receiver fixture did not receive the written bytes")
+	}
 }
 
 // TestBinaryLoggerWriteAndClose verifies the expected behavior.
@@ -610,60 +633,27 @@ func TestUDP4CloseVerbose(t *testing.T) {
 
 // TestTCP4Receiver tests the NewReadWriteCloser TCP4 functionality.
 func TestTCP4Receiver(t *testing.T) {
-	requireWindowsTCPTestsEnabled(t)
-
-	ch := make(chan net.Addr)
-
-	go func() {
-		const (
-			CONN_TYPE = "tcp4"
-			CONN_HOST = "127.0.0.1"
-			CONN_PORT = "" // let port be chosen
-		)
-		// Listen for incoming connections.
-		l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
-		assert.Nil(t, err)
-		ch <- l.Addr()
-		// Close the listener when the application closes.
-		defer l.Close()
-		for {
-			// Listen for an incoming connection.
-			conn, err := l.Accept()
-			assert.Nil(t, err)
-			// Handle connections in a new goroutine.
-			go handleRequest(conn)
-		}
-	}()
-
-	addr := <-ch
-	s := fmt.Sprint(addr)
-	rc, err := NewReadWriteCloser(nil, nil, false, "TCP4", s)
-	assert.Nil(t, err)
-	b := make([]byte, 100)
-	n, err := rc.Read(b)
-	assert.Nil(t, err)
-	assert.Equal(t, []byte{0x01, 0x7f, 0xFF}, b[:n])
+	listener := listenTCP4Test(t)
+	serveTCP4Test(t, listener, func(connection net.Conn) error {
+		_, err := connection.Write([]byte{0x01, 0x7f, 0xFF})
+		return err
+	})
+	rc, err := NewReadWriteCloser(nil, nil, false, "TCP4", listener.Addr().String())
+	require.NoError(t, err)
+	defer rc.Close()
+	require.NoError(t, rc.(*tcp4).conn.SetDeadline(time.Now().Add(5*time.Second)))
+	b := make([]byte, 3)
+	_, err = io.ReadFull(rc, b)
+	require.NoError(t, err)
+	assert.Equal(t, []byte{0x01, 0x7f, 0xFF}, b)
 }
 
 // TestTCP4CloseVerbose verifies the verbose close message for TCP readers.
 func TestTCP4CloseVerbose(t *testing.T) {
-	requireWindowsTCPTestsEnabled(t)
-
-	listener, err := net.Listen("tcp4", "127.0.0.1:0")
-	require.NoError(t, err)
-	defer listener.Close()
-
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		conn, acceptErr := listener.Accept()
-		if acceptErr == nil {
-			_ = conn.Close()
-		}
-	}()
+	listener := listenTCP4Test(t)
+	serveTCP4Test(t, listener, func(connection net.Conn) error { return nil })
 
 	client := newTCP4Connection(listener.Addr().String())
-	<-done
 
 	savedVerbose := Verbose
 	Verbose = true
@@ -673,12 +663,4 @@ func TestTCP4CloseVerbose(t *testing.T) {
 	client.w = &out
 	assert.NoError(t, client.Close())
 	assert.Contains(t, out.String(), "Closing tcp4 device.")
-}
-
-// handleRequest handles incoming requests.
-func handleRequest(conn net.Conn) {
-	// Send a response back to person contacting us.
-	conn.Write([]byte{0x01, 0x7f, 0xFF})
-	// Close the connection when you're done with it.
-	conn.Close()
 }
