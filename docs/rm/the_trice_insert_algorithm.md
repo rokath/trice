@@ -131,11 +131,11 @@ Until here the algorithm seem to be ok.
 
 * A Trice **ID** is inserted by `trice insert` as shown in the table:
 
-  | Unpatched User Code | After `trice insert`          | Remark        |
-  |---------------------|-------------------------------|---------------|
-  | `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps     |
-  | `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps |
-  | `TRice( "Hi!\n");`  | `TRice( iD(12345), "Hi!\n");` | 32-bit stamps |
+  Unpatched User Code | After `trice insert`          | Remark
+  ---------------------|-------------------------------|---------------
+  `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps
+  `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps
+  `TRice( "Hi!\n");`  | `TRice( iD(12345), "Hi!\n");` | 32-bit stamps
 
 * `trice insert` preserves existing whitespace directly after the opening Trice parenthesis. For example, `trice("Hi!\n");` becomes `trice(iD(12345), "Hi!\n");`, while `trice( "Hi!\n");` becomes `trice( iD(12345), "Hi!\n");`. This keeps `trice insert` and `trice clean` formatting-preserving for common formatter styles.
 
@@ -143,14 +143,14 @@ Until here the algorithm seem to be ok.
 
 * Legacy code is handled this way:
 
-  | Unpatched User Code       | After `trice insert`          | Remark                                             |
-  |---------------------------|-------------------------------|----------------------------------------------------|
-  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`      |
-  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16` |
-  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice i -defaultStampSize 32` |
-  | `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps                                          |
-  | `TRICE( Id(0), "Hi!\n");` | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps                                      |
-  | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                      |
+  Unpatched User Code       | After `trice insert`          | Remark
+  ---------------------------|-------------------------------|----------------------------------------------------
+  `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`
+  `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16`
+  `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice i -defaultStampSize 32`
+  `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps
+  `TRICE( Id(0), "Hi!\n");` | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps
+  `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps
 
 * A pre-build step `trice insert` generates the `Id(12345)` part. Examples:
   * `trice i` in your project root expects a til.json file there and checks sources and **til.json** for changes to insert.

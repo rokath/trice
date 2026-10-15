@@ -86,17 +86,17 @@ Please check the manuals and create a pull request or simply let me know.
 
 ### 5.1. <a id="armcc-compiler-v5"></a>ARMCC compiler v5
 
-| Compiler | Linker         | Result                                          | Comment                           |
-|----------|----------------|-------------------------------------------------|-----------------------------------|
-| o0       |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big                          |
-| o1       |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 |                                   |
-| o3       |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 |                                   |
-| o0       | split sections | Code= 7880 RO-data=268 RW-data=156 ZI-data=4892 | for debugging                     |
-| o1       | split sections | Code= 5404 RO-data=260 RW-data=148 ZI-data=4892 | **for debugging**                 |
-| o3       | split sections | Code= 4996 RO-data=260 RW-data=148 ZI-data=4892 | **good balance**                  |
-| o0       | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | builds slower                     |
-| o1       | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower                     |
-| o3       | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image** |
+Compiler | Linker         | Result                                          | Comment
+----------|----------------|-------------------------------------------------|-----------------------------------
+o0       |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big
+o1       |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 | |
+o3       |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 | |
+o0       | split sections | Code= 7880 RO-data=268 RW-data=156 ZI-data=4892 | for debugging
+o1       | split sections | Code= 5404 RO-data=260 RW-data=148 ZI-data=4892 | **for debugging**
+o3       | split sections | Code= 4996 RO-data=260 RW-data=148 ZI-data=4892 | **good balance**
+o0       | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | builds slower
+o1       | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower
+o3       | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image**
 
 <p align="right">(<a href="#trice-code-size-optimization">back to top</a>)</p>
 

@@ -356,12 +356,12 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 ðŸ
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
-| Program Size (STM32-F030R8 demo project)      | trice instrumentation | buffer size | compiler optimize for time | comment                         |
-|-----------------------------------------------|-----------------------|-------------|----------------------------|---------------------------------|
-| Code=1592 RO-data=236 RW-data= 4 ZI-data=1028 | none                  | 0           | off                        | CubeMX generated, no trice      |
-| Code=1712 RO-data=240 RW-data=24 ZI-data=1088 | core                  | 64          | off                        | core added without trices       |
-| Code=3208 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | off                        | TRICE_SHORT_MEMORY is 1 (small) |
-| Code=3808 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | on                         | TRICE_SHORT_MEMORY is 0 (fast)  |
+Program Size (STM32-F030R8 demo project)      | trice instrumentation | buffer size | compiler optimize for time | comment
+-----------------------------------------------|-----------------------|-------------|----------------------------|---------------------------------
+Code=1592 RO-data=236 RW-data= 4 ZI-data=1028 | none                  | 0           | off                        | CubeMX generated, no trice
+Code=1712 RO-data=240 RW-data=24 ZI-data=1088 | core                  | 64          | off                        | core added without trices
+Code=3208 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | off                        | TRICE_SHORT_MEMORY is 1 (small)
+Code=3808 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | on                         | TRICE_SHORT_MEMORY is 0 (fast)
 
 * The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
@@ -369,10 +369,10 @@ The following numbers are measured with a legacy encoding, showing that the inst
 
 ## 10. <a id="memory-needs-for-old-example-2"></a>Memory Needs for Old Example 2
 
-| Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark                                                             |
-|--------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------|
-| MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation. |
-| MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.     |
+Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark
+--------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------
+MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation.
+MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.
 
 * The size need is less than 4 KB. See also [Trice Project Image Size Optimization](code_size.md).
 

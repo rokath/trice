@@ -53,13 +53,13 @@ Within each group, the IDs already selected by normal allocation are sorted nume
 
 For example, assume these three IDs belong to one group:
 
-| Source state | Site in path order | Assigned ID |
-| --- | --- | ---: |
-| Before | `b.c:10` | 100 |
-| Before | `d.c:20` | 200 |
-| After adding `a.c:5`, with ID 300 also selected | `a.c:5` | 100 |
-| After | `b.c:10` | 200 |
-| After | `d.c:20` | 300 |
+Source state | Site in path order | Assigned ID
+--- | --- | ---:
+Before | `b.c:10` | 100
+Before | `d.c:20` | 200
+After adding `a.c:5`, with ID 300 also selected | `a.c:5` | 100
+After | `b.c:10` | 200
+After | `d.c:20` | 300
 
 Both existing sites may change IDs when an identical site is added, removed, or moved. This is intentional. An unchanged source selection with the same selected ID pool produces the same mapping on subsequent runs, regardless of scan-root order or worker completion. The same rule applies after Clean/Insert; Clean itself does not allocate IDs. An explicit ID in an Insert source is not a request to exempt that site from ordering. Bind changes its own generated descriptors and leaves Insert-owned source files and their IDs alone.
 

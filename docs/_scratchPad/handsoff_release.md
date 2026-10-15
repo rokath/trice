@@ -40,19 +40,19 @@ Bei der Übergabe ermittelte Umgebung: macOS 26.6.2 (25G83), Darwin/arm64, Go 1.
 
 Aus den tatsächlichen Worker-Logs:
 
-| Schritt | Umfang | Parallelität | Dauer |
-| --- | --- | --- | --- |
-| 620 L432 | 101 Konfigurationen | 12 Jobs, je `make-jobs=1` | 283 s |
-| 630 PC Insert | 63 Konfigurationen, `mode=auto` | 4 Jobs | 325 s |
-| 640 PC Bind | 63 Konfigurationen, `mode=auto` | 4 Jobs | 333 s |
+Schritt | Umfang | Parallelität | Dauer
+--- | --- | --- | ---
+620 L432 | 101 Konfigurationen | 12 Jobs, je `make-jobs=1` | 283 s
+630 PC Insert | 63 Konfigurationen, `mode=auto` | 4 Jobs | 325 s
+640 PC Bind | 63 Konfigurationen, `mode=auto` | 4 Jobs | 333 s
 
 Go-Paketzeiten aus den beiden Logs; Pakete laufen parallel, diese Werte daher nicht summieren:
 
-| Paket | Schritt 540: Go-Tests | Schritt 550: Coverage |
-| --- | ---: | ---: |
-| `scripts` | 183,919 s | 170,586 s |
-| `pkg/tst` | 56,426 s | 50,055 s |
-| `internal/id` | 35,475 s | 34,645 s |
+Paket | Schritt 540: Go-Tests | Schritt 550: Coverage
+--- | ---: | ---:
+`scripts` | 183,919 s | 170,586 s
+`pkg/tst` | 56,426 s | 50,055 s
+`internal/id` | 35,475 s | 34,645 s
 
 Die folgenden Summary-Zeilen sind absichtlich in Git mitgenommen: Die lokalen Rohlogs werden nicht auf den anderen Rechner übertragen und beim nächsten `testAll` teilweise ersetzt.
 

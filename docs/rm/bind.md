@@ -774,12 +774,12 @@ When `bind` rejects a source construct, it cannot safely map or support the log 
 
 Compiler requirements depend on the selected use case:
 
-| Use case | Mapping and requirement |
-| --- | --- |
-| Ordinary Bind with direct calls on distinct source lines | File key and source line identify the call; no `__COUNTER__` is needed. |
-| Direct Context Enrichment | The same source-line mapping is sufficient. Each expression must be valid at its selected call site; selected wrapper/rebase sites are rejected. |
-| Bind wrappers or multiple calls requiring rebasing, without CE | Counter-based mapping and consistency checks require compiler support for `__COUNTER__`. |
-| Experimental CE for wrapper/rebase sites | The [extended PoC](context_enrichment.md#extended-poc-for-wrapper-macros-and-counter-rebasing) tests an additional preprocessing pass. It is not a production CLI feature. |
+Use case | Mapping and requirement
+--- | ---
+Ordinary Bind with direct calls on distinct source lines | File key and source line identify the call; no `__COUNTER__` is needed.
+Direct Context Enrichment | The same source-line mapping is sufficient. Each expression must be valid at its selected call site; selected wrapper/rebase sites are rejected.
+Bind wrappers or multiple calls requiring rebasing, without CE | Counter-based mapping and consistency checks require compiler support for `__COUNTER__`.
+Experimental CE for wrapper/rebase sites | The [extended PoC](context_enrichment.md#extended-poc-for-wrapper-macros-and-counter-rebasing) tests an additional preprocessing pass. It is not a production CLI feature.
 
 The PoC's [compiler matrix](context_enrichment.md#compiler-matrix-and-evidence-limits) records actual evidence, not a promise for every compiler accepting C or C++. In particular, the existing enum-based rebase check fails strict C++20 builds with the tested warning settings, even without CE. This is a rebase limitation, not a general rejection of ordinary direct Bind calls. MSVC, IAR and Arm Compiler/armclang were not tested in that proof. ARM cross-compilation demonstrates that object files can be built; it does not demonstrate execution on an MCU. The `insert/clean` workflow remains available when Bind's mapping or compiler requirements do not fit the project.
 
@@ -991,19 +991,19 @@ The former standalone architecture paper “Trice IDs Without Source-Code Patchi
 
 ## 24. <a id="appendix-trice_clean-states-at-a-glance"></a>Appendix: `TRICE_CLEAN` States at a Glance
 
-| State     |    `TRICE_CLEAN` | Own sidecar active | Effect                        |
-|-----------|-----------------:|-------------------:|-------------------------------|
-| Inserted  | undefined or `0` |                 no | Explicit TIDs from the source |
-| Bound     | undefined or `0` |                yes | TIDs from the sidecar         |
-| Clean/Off |              `1` |         irrelevant | Existing clean/off path       |
+State     |    `TRICE_CLEAN` | Own sidecar active | Effect
+-----------|-----------------:|-------------------:|-------------------------------
+Inserted  | undefined or `0` |                 no | Explicit TIDs from the source
+Bound     | undefined or `0` |                yes | TIDs from the sidecar
+Clean/Off |              `1` |         irrelevant | Existing clean/off path
 
 Tool effect when the definition exists:
 
-| Tool           | Effect on `TRICE_CLEAN` |
-|----------------|------------------------:|
-| `trice insert` |          sets it to `0` |
-| `trice clean`  |          sets it to `1` |
-| `trice bind`   |          sets it to `0` |
+Tool           | Effect on `TRICE_CLEAN`
+----------------|------------------------:
+`trice insert` |          sets it to `0`
+`trice clean`  |          sets it to `1`
+`trice bind`   |          sets it to `0`
 
 If the definition is absent, `trice bind` does not add it.
 
@@ -1015,11 +1015,11 @@ The original design comparison considered three ways to distinguish log sites th
 
 A translation unit is one C or C++ source file together with the headers processed for that compilation. `__LINE__` cannot distinguish two calls on the same physical line. `__COUNTER__` can distinguish expansions, but its absolute value also depends on unrelated macros and headers in that translation unit. Binding a stable ID directly to that absolute value would make unrelated source edits affect the mapping.
 
-| Approach | How it distinguishes sites | Benefit | Cost and limitation | Current status |
-| --- | --- | --- | --- | --- |
-| Local counter rebase | Record a counter base immediately before a small source region and select IDs by the difference from that base. | Compile the original source; no target-compiler invocation or compilation database is required by `bind`. Earlier unrelated counter use does not affect the region. | Generated begin/end includes are necessary. Counter use inside the region must match exactly; only safely bounded source constructs are accepted. | Implemented for the ordinary Bind constructs described in this chapter. |
-| Exact target-preprocessor pass | Observe expansions using the actual target compiler and the build's options. | Can observe macros and active branches in a particular build configuration. | Requires the real compiler, defines, include paths, forced includes and any precompiled headers. Bind and the later build must agree; multiple configurations may require distinct mappings. Preprocessed text alone does not portably recover every wrapper's definition identity. | Considered as an alternative; not a normal Bind build step. The separate CE PoC investigates a related approach without providing production CE wrapper support. |
-| Generated compiler input | Give sites explicit ordinals in generated copies of sources and headers. | Site selection need not depend on a compiler counter. | The compiler processes generated copies. Build integration must preserve relative includes, dependencies, diagnostics, debugging paths and IDE navigation. | Considered as an alternative; no supported shadow-source mode is provided. |
+Approach | How it distinguishes sites | Benefit | Cost and limitation | Current status
+--- | --- | --- | --- | ---
+Local counter rebase | Record a counter base immediately before a small source region and select IDs by the difference from that base. | Compile the original source; no target-compiler invocation or compilation database is required by `bind`. Earlier unrelated counter use does not affect the region. | Generated begin/end includes are necessary. Counter use inside the region must match exactly; only safely bounded source constructs are accepted. | Implemented for the ordinary Bind constructs described in this chapter.
+Exact target-preprocessor pass | Observe expansions using the actual target compiler and the build's options. | Can observe macros and active branches in a particular build configuration. | Requires the real compiler, defines, include paths, forced includes and any precompiled headers. Bind and the later build must agree; multiple configurations may require distinct mappings. Preprocessed text alone does not portably recover every wrapper's definition identity. | Considered as an alternative; not a normal Bind build step. The separate CE PoC investigates a related approach without providing production CE wrapper support.
+Generated compiler input | Give sites explicit ordinals in generated copies of sources and headers. | Site selection need not depend on a compiler counter. | The compiler processes generated copies. Build integration must preserve relative includes, dependencies, diagnostics, debugging paths and IDE navigation. | Considered as an alternative; no supported shadow-source mode is provided.
 
 For example, a local base of 87 followed by three Trice counter expansions at 88, 89 and 90 gives local ordinals 0, 1 and 2. If an earlier header consumes another ten counter values, the base and those three values all increase by ten; the ordinals remain unchanged. If an unrelated macro consumes a counter value *inside* the region, that property no longer holds. Generated range and final-count checks turn the discrepancy into a compile error instead of accepting a silently shifted ID.
 
@@ -1033,14 +1033,14 @@ Checking whether a compiler defines `__COUNTER__` and checking whether a region 
 
 Bind and Insert tests share canonical sources, ID configuration and build/test workers. The workflow wrapper prepares the source state and include paths; the shared worker performs the actual compiler or decoder checks. This avoids maintaining independent copies of `triceCheck.c` or weakening one workflow's expected output. The relevant states are ID-free without active Bind artifacts, Inserted with explicit IDs, and Bound with owner includes and generated headers.
 
-| Check or component | What it establishes | Repository entry point |
-| --- | --- | --- |
-| Shared ID settings and transitions | The repository helpers use the same source scope, aliases, TIL, LI, ID policy and generated directory. | [_120_setup_trice_environment.sh](../../scripts/_120_setup_trice_environment.sh), [_130_trice_id_workflow.sh](../../scripts/_130_trice_id_workflow.sh) |
-| Managed state restoration | Snapshot affected source/metadata bytes and generated artifacts; restore the initial state after success, failure, `SIGINT` or `SIGTERM`. Failed restoration makes the wrapper fail. | [_140_trice_test_state.sh](../../scripts/_140_trice_test_state.sh), [portability tests](../../scripts/portability_test.go) |
-| Generator behavior | File ownership, stable IDs, stamps, include placement, idempotence, ordered diagnostics and rollback on rejected input or write failure. | [bindIDs_test.go](../../internal/id/bindIDs_test.go), [bindMVP2_test.go](../../internal/id/bindMVP2_test.go) |
-| Generated target behavior | Compile real generated headers as C/C++; check counter guards, expansion invariants, emitted IDs and canonical Trice macro coverage. | [bindIntegration_test.go](../../internal/id/bindIntegration_test.go), [_500_test_bind.sh](../../scripts/_500_test_bind.sh) |
-| Return from Bound to Inserted | Remove only validated owner and rebase artifacts, correct LI positions and reject ambiguous or modified artifacts without partial changes. | [bindRemigrate_test.go](../../internal/id/bindRemigrate_test.go), [_250_legacy_remigrate_bind_to_clean.sh](../../scripts/_250_legacy_remigrate_bind_to_clean.sh) |
-| Shared PC target matrix | Run the same selected configurations and expectations in Insert and Bind state, with separate logs and restored inputs. | [_160_pc_target_test_worker.sh](../../scripts/_160_pc_target_test_worker.sh), [_630_test_pc_targets_insert.sh](../../scripts/_630_test_pc_targets_insert.sh), [_640_test_pc_targets_bind.sh](../../scripts/_640_test_pc_targets_bind.sh) |
+Check or component | What it establishes | Repository entry point
+--- | --- | ---
+Shared ID settings and transitions | The repository helpers use the same source scope, aliases, TIL, LI, ID policy and generated directory. | [_120_setup_trice_environment.sh](../../scripts/_120_setup_trice_environment.sh), [_130_trice_id_workflow.sh](../../scripts/_130_trice_id_workflow.sh)
+Managed state restoration | Snapshot affected source/metadata bytes and generated artifacts; restore the initial state after success, failure, `SIGINT` or `SIGTERM`. Failed restoration makes the wrapper fail. | [_140_trice_test_state.sh](../../scripts/_140_trice_test_state.sh), [portability tests](../../scripts/portability_test.go)
+Generator behavior | File ownership, stable IDs, stamps, include placement, idempotence, ordered diagnostics and rollback on rejected input or write failure. | [bindIDs_test.go](../../internal/id/bindIDs_test.go), [bindMVP2_test.go](../../internal/id/bindMVP2_test.go)
+Generated target behavior | Compile real generated headers as C/C++; check counter guards, expansion invariants, emitted IDs and canonical Trice macro coverage. | [bindIntegration_test.go](../../internal/id/bindIntegration_test.go), [_500_test_bind.sh](../../scripts/_500_test_bind.sh)
+Return from Bound to Inserted | Remove only validated owner and rebase artifacts, correct LI positions and reject ambiguous or modified artifacts without partial changes. | [bindRemigrate_test.go](../../internal/id/bindRemigrate_test.go), [_250_legacy_remigrate_bind_to_clean.sh](../../scripts/_250_legacy_remigrate_bind_to_clean.sh)
+Shared PC target matrix | Run the same selected configurations and expectations in Insert and Bind state, with separate logs and restored inputs. | [_160_pc_target_test_worker.sh](../../scripts/_160_pc_target_test_worker.sh), [_630_test_pc_targets_insert.sh](../../scripts/_630_test_pc_targets_insert.sh), [_640_test_pc_targets_bind.sh](../../scripts/_640_test_pc_targets_bind.sh)
 
 The compiler-build matrices also use shared workers for Insert and Bind. `TRICE_OFF` is checked separately because disabling logging does not depend on ID binding. See [Testing the Trice Library C-Code for the Target](target_tests.md) for current selections, required tools, parallelism, logs and failure handling. Standalone build/ID maintenance helpers can intentionally leave a new source state; the restoration contract belongs to the managed test wrappers. An uncatchable process kill or machine failure cannot execute a shell restoration trap, so retained recovery data must be reviewed in that case.
 

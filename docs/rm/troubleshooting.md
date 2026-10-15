@@ -74,12 +74,12 @@ trice log -s -port com1 -v -ts32="att:%08x fix" # enter this (adapted)
 
 ## 2. <a id="short-trouble-shooting-hints"></a>Short Trouble Shooting Hints
 
-| Problem                        | Hint                                                                                           |
-|--------------------------------|------------------------------------------------------------------------------------------------|
-| Missing `objcopy` in macOS     | `brew install binutils`                                                                        |
-| Small GUI Editor for macOS     | `brew install cotedit` Usage: `cot` (not as root)                                              |
-| Small In-Terminal Editor Linux | https://cte.e10labs.com/, tilde, micro, joe, https://craigbarnes.gitlab.io/dte/ (also as root) |
-| Nothing shown with `trice -s`  | Check that format strings end with `\n` and/or use `-addNL`                                    |
+Problem                        | Hint
+--------------------------------|------------------------------------------------------------------------------------------------
+Missing `objcopy` in macOS     | `brew install binutils`
+Small GUI Editor for macOS     | `brew install cotedit` Usage: `cot` (not as root)
+Small In-Terminal Editor Linux | https://cte.e10labs.com/, tilde, micro, joe, https://craigbarnes.gitlab.io/dte/ (also as root)
+Nothing shown with `trice -s`  | Check that format strings end with `\n` and/or use `-addNL`
 
 <p align="right">(<a href="#trice-troubleshooting">back to top</a>)</p>
 
