@@ -72,12 +72,23 @@ int tryIt( void ){
 You can also edit any of your existing project files accordingly. Just replace any `printf` with `trice`. (Handle float or double numbers and runtime-generated strings, according to [Trice Similarities and Differences to printf Usage](printf_comparison.md). The file [_test/testdata/triceCheck.c](../../_test/testdata/triceCheck.c) shows many usage examples.
 The uppercase Trice macros are inlining the complete Trice code and the lowercase Trice macros are function calls, so most probably you want use `trice` to keep the overall code size smaller.
 
-* Create 2 empty files `til.json` and `li.json` in your project root.
+For new projects, use [Bind](bind.md):
+
+```sh
+touch til.json li.json # Only on the first setup; retain these files afterward.
+trice bind -src . -genDir build/sidecars # Also creates the generated directory.
+```
+
+Add your configuration and `build/sidecars` to the compiler include path, followed by `src` and `src/default_conf`. Run Bind before compilation whenever log sources change. Bind adds generated includes; your Trice statements keep their original form. Keep `til.json` in version control and retain the local `li.json`; generated sidecars are build artifacts. The [F030 RTT and UART examples](examples.md#nucleo-f030r8-examples) show the setup.
+
+The legacy Insert/Clean workflow remains available:
+
+* Create 2 empty files `til.json` and `li.json` in your project root, if they do not exist yet.
 * Run `trice insert` and the trice code line changes to `trice( iD(1234), "Hello! 👋🙂\a\n" );`.
 * The 2 JSON files are now filled with information.
 * Run `trice clean` and the trice code line changes back to `trice( "Hello! 👋🙂\a\n" );`.
 
-You can use `trice insert` as pre- and `trice clean` as post-compile step, to not spoil your source code with IDs.
+With Insert/Clean, use `trice insert` before compilation and optionally `trice clean` afterward to remove inline IDs. Choose one workflow for a source tree; do not run Insert over Bind-owned files. See [switching workflows](bind.md).
 
 > **The optional Trice cache technique avoids un-edited file changes at all, which means no Trice-related build speed disadvantages.**
 
@@ -92,14 +103,15 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
 
 * In a console, like [git bash](https://gitforwindows.org/), type `trice help -all`. You should see the complete Trice tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   * Do not worry, most of it you will never need.
-  * There are only 2 important commands: `trice insert` and `trice log`. Call them with the right CLI switches.
-    * `trice help -insert` and `trice help -log` show partial help.
+  * Start with `trice bind` to prepare compilation and `tlog` to read messages. `trice log` remains available too.
+    * `trice help -bind`, `trice help -insert` and `tlog -h` show focused help.
     * Examples:
 
       | CLI command                                     | Description                                                                                                                                   |
       |-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-      | `touch ./til.json`                              | Create an empty `til.json file`. This is needed only the very first time.                                                                     |
-      | `trice i -src . -src ../myLib`                  | Insert IDs to the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file.      |
+      | `touch til.json li.json`                        | Initialize the metadata files once; keep existing files.                                                                                       |
+      | `trice bind -src . -src ../myLib -genDir build/sidecars` | Prepare Bind headers for your project and library.                                                                                      |
+      | `trice i -src . -src ../myLib`                  | Legacy alternative: insert inline IDs into your project and library sources.                                                                  |
       | ...                                             | Compile your project                                                                                                                          |
       | `trice c -src . -src ../myLib`                  | Optionally restore the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
       | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`.                                                                |
@@ -107,13 +119,13 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
       | `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.                                                                           |
       | `trice l -p FILEBUFFER -args logfile.bin`       | Play a recorded binary log file.                                                                                                              |
 
-    * It is recommended to add `trice insert ...` as pre-compile step into the tool chain.
-    * Hint: It is possible to add `trice clean ...` as a post-compile step, so that you can check in your project sources without IDs. That is supported in v0.61.0 and later. This allows to use library sources with trices in different projects and the source code is not spoiled with IDs. The `-cache` CLI switch is recommended then. <small>See [Trice Cache for Compilation Speed](insert_clean_cache.md)</small>.
+    * Add `trice bind ...` as a dependency of compilation. With the legacy workflow, use `trice insert ...` instead.
+    * For Insert/Clean only, an optional `trice clean ...` post-compile step removes inline IDs. The `-cache` switch avoids unnecessary source rewrites. See [Trice Cache for Compilation Speed](insert_clean_cache.md).
 * The command `trice` does not make any assumptions about the target processor - 8-bit to 64-bit, supports little and big endianness.
 * The command `trice` is compiler agnostic - it should work with any compiler.
 * The VS Code editor is free to download and use, like shown in the [`examples/F030_inst`](../../examples/F030_inst) project.
   * Even if you do not have such hardware, you can compile the [`examples/F030_inst`](../../examples/F030_inst) project just to get started.
-  * When adding or modifying Trice macros inside [examples/F030_inst/Core/Src/main.c](../../examples/F030_inst/Core/Src/main.c) and recompiling you should see automatically changed ID numbers inside the code.
+  * After changing Trice calls in [examples/F030_inst/Core/Src/main.c](../../examples/F030_inst/Core/Src/main.c), `build.sh` refreshes Bind headers automatically. IDs live in those headers rather than in your statements.
 * The examples and test subfolders contain several VS Code Makefile projects and they are also usable as starting points for your configuration.
 * You can use Trice calls also inside header files but when running `trice insert` as pre- and `trice clean` as post-compile step, all files including these headers will be re-compiled every time, what may be too time consuming. Enable the Trice cache then. See [Trice Cache for Compilation Speed](insert_clean_cache.md) for more information.
 

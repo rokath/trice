@@ -9,6 +9,7 @@
 
 * [1. General info](#general-info)
 * [2. How to run the tests](#how-to-run-the-tests)
+  * [2.1. CLion review build](#clion-review-build)
 * [3. Tests Details](#tests-details)
 * [4. How to add new test cases](#how-to-add-new-test-cases)
 * [5. Test Internals](#test-internals)
@@ -97,11 +98,26 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 * For direct `go test` calls outside the managed PC worker, execute `go clean -cache` from the repository root after editing externally included C files if CGO appears to reuse precompiled files. The managed PC workflows described below handle these repository inputs automatically.
 * Normal tests use an overlay for the shared CGO test files. For ordinary Bind maintenance use `./trice_bindIDs_in_examples_and_test_folder.sh`; it retains ID history. `./scripts/_330_renew_ids_and_refresh_tests.sh` is deliberate legacy maintenance: it runs Clean/Insert/Clean, copies the canonical CGO harness files and cleans example build outputs. Without `keepHistory` it discards the shared TIL/LI history and reseeds IDs. Do not run either maintenance command alongside tests.
 * To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
-* To run the tests manually `cd` into `_test` and execute `trice insert -i ../demoTIL.json -li ../demoLI.json` and then `go test ./...` from there. It is more convenient to run `scripts/_230_legacy_insert_ids.sh` from the Trice root folder.
-* It is convenient to run `scripts/testAll.sh` from the Trice root folder to perform this.
+* Start with `./scripts/testAll.sh` from the repository root: the default checks use Bind. `./scripts/testAll.sh full` also runs Legacy-Insert/Clean and the full compiler matrices.
+* For target-code tests only, use `./scripts/_640_test_pc_targets_bind.sh quick` (representative configurations) or `./scripts/_640_test_pc_targets_bind.sh full` (all configurations). The corresponding legacy entry is `./scripts/_630_test_pc_targets_insert.sh quick` or `full`.
+* These managed wrappers own ID preparation and restore the initial sources, TIL, LI and generated-header state after success, failure or cancellation. Do not run competing preparation scripts while they are active.
+* Direct `cd _test && go test ./...` calls need preparation first. For Bind, run `./trice_bindIDs_in_examples_and_test_folder.sh` from the root and provide its generated include directory to CGO, as the [PC worker](../../scripts/_160_pc_target_test_worker.sh) does. For Legacy-Insert/Clean, use the corresponding managed wrapper; Insert skips Bind-owned files, so simply running Insert over a bound checkout is insufficient. Direct calls do not provide automatic state restoration or the worker's C-input cache overlay.
 * `scripts/testAll.sh` creates its local helper artifacts inside the ignored `./temp/log` folder. The versioned `demoTIL.json` and `demoLI.json` files in the repository root stay available as example reference files. When `GOCACHE` is unset, `scripts/testAll.sh` also uses the ignored repo-local cache folder `./.gocache`.
 * A script name beginning with `_` marks an internal helper or an individually runnable test step. Its three-digit prefix groups the flat `scripts` folder: `100`--`250` are shared workflow helpers, `260`--`330` are maintenance helpers, and `400`--`640` are tests ordered broadly from short checks to long compiler matrices.
 * It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
+
+### 2.1. <a id="clion-review-build"></a>CLion review build
+
+The [CMake review project](../../_test/clion-review/CMakeLists.txt) builds a host executable for indexing and inspections. With `trice`, CMake and a host C compiler available:
+
+```sh
+cmake -S _test/clion-review -B temp/clion-review
+cmake --build temp/clion-review
+```
+
+If needed, select the tool with `-DTRICE_EXECUTABLE=path/to/trice`. CMake copies the shared test source and TIL into the build directory, prepares private Bind headers, and refreshes them before compilation. The canonical source and shared dictionaries remain unchanged. This is a host review build, not a board test or a replacement for the CGO matrix.
+
+Step `_515` checks the real CLion build and all nine ABC nodes with both ID workflows in isolated checkout paths containing spaces. To run just this check, use `TRICE_BIND_INTEGRATION=1 go test ./scripts -run '^TestBindEntrypointIntegration$' -count=1`. Ordinary script tests use tool doubles; the GCC example matrix additionally exercises the two small F030 entry points and the G0B1 Clang entry. Step `_515` builds the G0B1 feature tour through its public GCC entry, and also through its Clang entry in `full` mode.
 
 ## 3. <a id="tests-details"></a>Tests Details
 

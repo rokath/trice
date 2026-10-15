@@ -110,8 +110,7 @@
   ok      github.com/rokath/trice/pkg/tst 0.406s
   ```
 
-To execute the target code tests, you can run `scripts/testAll.sh` or `cd` into `_test` and run `go test ./...` from there. ATTENTION: These tests run a significant long time (many minutes depending on your machine), because the **Go** - **C** border is crossed very often.
-The last tests can last quite a while, depending on your machine.
+Use `./scripts/testAll.sh` for the standard Bind checks. For target-code tests only, use `./scripts/_640_test_pc_targets_bind.sh quick` or `full`; `./scripts/_630_test_pc_targets_insert.sh` provides the legacy Insert/Clean variant. These wrappers prepare IDs and restore the starting source and metadata state. Direct `go test` calls inside `_test` require a matching prepared state; see [target-test instructions](target_tests.md#how-to-run-the-tests). The full matrix can take many minutes.
 
 ```bash
 ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
