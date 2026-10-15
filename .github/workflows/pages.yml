@@ -4,6 +4,10 @@ on:
   push:
     branches: ["main"]          # Run this workflow on every push to the main branch
   workflow_dispatch:            # Allow manual triggering of the workflow from the GitHub UI
+  workflow_run:
+    workflows: ["Repository statistics"]
+    types: [completed]
+    branches: ["main"]
 
 permissions:
   contents: read                # Required to read the repository contents
@@ -16,6 +20,11 @@ concurrency:
 
 jobs:
   build:
+    # Only successful statistics runs from this repository may request a rebuild.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest      # Use the latest Ubuntu runner
     steps:
       - name: Checkout
@@ -156,6 +165,52 @@ jobs:
         # - Use _config.yml in the repository root.
         # - Use index.md (generated above) as the homepage.
         # - Render the UM, Guide and RM chapters (modified above) as separate pages.
+
+      - name: Include repository statistics in the existing site
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Before the first collection, keep publishing the documentation normally.
+          stats_ref=$(git ls-remote --heads origin refs/heads/github-repo-stats)
+          if [ -z "$stats_ref" ]; then
+            echo "NOTICE: github-repo-stats branch is absent; publishing documentation without statistics."
+            exit 0
+          fi
+
+          # Read only the generated report; never check out or run data-branch code.
+          git fetch --no-tags --depth=1 origin refs/heads/github-repo-stats
+          mkdir -p _statistics
+          git archive FETCH_HEAD rokath/trice/latest-report | tar -x -C _statistics
+          report="_statistics/rokath/trice/latest-report"
+          if [ ! -s "$report/report.html" ]; then
+            echo "::error::Expected a nonempty $report/report.html from github-repo-stats. Generated files:"
+            find _statistics -type f
+            exit 1
+          fi
+
+          # Add a separate subtree after Jekyll; existing documentation is untouched.
+          mkdir -p _site/stats/report
+          cp -R "$report/." _site/stats/report/
+          cat > _site/stats/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Trice project statistics</title>
+          </head>
+          <body>
+          <p><a href="../">Trice documentation</a></p>
+          <h1>Project statistics</h1>
+          <p><strong>GitHub activity statistics are not a count of unique Trice users. Automated access and repeated downloads are included.</strong></p>
+          <p>Cumulative unique visitors and cloners add daily values; they are not unique people across the displayed period. Missing values may appear as zero. Historical stars and forks are reconstructed from entries that still exist.</p>
+          <p>The unchanged upstream report shows its generation time in UTC. Release downloads are not included.</p>
+          <p><a href="report/report.html">Open the full report</a></p>
+          <iframe src="report/report.html" title="GitHub activity report" style="width:100%;height:80vh;border:0"></iframe>
+          </body>
+          </html>
+          HTML
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

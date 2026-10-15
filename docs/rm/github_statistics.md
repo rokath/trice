@@ -34,21 +34,23 @@ runs are serialized.
 The existing [Pages workflow](../../.github/workflows/pages.yml) builds the
 documentation from the repository root with Jekyll and deploys one `_site`
 artifact. The root `_config.yml` uses the Cayman theme. **Pages integration is
-pending separate review during release preparation.** No existing workflow,
-README, documentation content, build configuration or Trice source is changed
-by this initial preparation.
+prepared locally and is not live yet.** The workflow adds the report under
+`_site/stats/` after Jekyll finishes, before the existing artifact upload.
+Successful statistics runs on `main` request the same Pages build/deployment.
+There is no second deployment, and existing documentation files are retained.
+Before the first collection, an absent data branch is skipped so documentation
+can still be published. A missing or empty report in an existing data branch
+fails with its expected path instead of publishing broken statistics.
 
-The proposed next step is to copy the generated report into `_site/stats/`
-after Jekyll finishes and before the existing artifact upload. A statistics
-update would request the same Pages workflow; there would be no second
-deployment or replacement of the documentation site. Review that change before
-activation. The actual GitHub Pages settings and live default branch could not
-be checked because GitHub API access from the shell was blocked. The existing
-Pages workflow and local `origin/HEAD` identify `main` as the intended branch.
+The public dashboard will be at `/trice/stats/`; the unchanged upstream report
+is embedded below a short explanation of its limits. No README, Trice source,
+build or release configuration is changed. GitHub confirms `main` as the
+default branch and GitHub Actions as the existing Pages build type. The Pages
+statistics trigger is deliberately limited to `main`.
 
 ## One-time GitHub setup
 
-Complete the Pages review before activating collection and publication.
+Review both workflows before activating collection and publication.
 
 1. Create a **fine-grained personal access token** from an account with the
    required repository access. Select resource owner `rokath` and **only**
@@ -62,13 +64,17 @@ Complete the Pages review before activating collection and publication.
 3. Have the reviewed changes merged into the actual default branch when the
    release preparation allows it. No merge, push or deployment is performed by
    preparing these files locally.
-4. Open **Actions > Repository statistics > Run workflow**, select the default
+4. Verify **Settings > Pages > Build and deployment > Source** is **GitHub
+   Actions**. Keep the existing Pages deployment.
+5. Open **Actions > Repository statistics > Run workflow**, select the default
    branch and run once. Check that the workflow succeeds and the data branch
    contains the report. This first run imports the traffic still available to
    GitHub, normally the last 14 days.
-5. For publication, verify **Settings > Pages > Build and deployment > Source**
-   is **GitHub Actions**. Keep the existing Pages deployment. After the agreed
-   integration, verify both the documentation and `/trice/stats/` in a browser.
+6. Wait for **Deploy GitHub Pages** to finish after that successful run. Verify
+   both the documentation and `/trice/stats/` in a browser. The dashboard links
+   to the documentation and to the full upstream report. No browser token or
+   login is needed to read it. If the automatic Pages run does not start,
+   start **Deploy GitHub Pages** manually on `main` and inspect its logs.
 
 The upstream action accepts one token for reading and writing. Consequently
 the fine-grained token needs both permissions above; the normal `GITHUB_TOKEN`
@@ -93,7 +99,7 @@ Automated access and repeated downloads are included.**
 | Historical stars and forks | Reconstruction from currently existing entries is not a complete historical net inventory; removed entries cannot be recovered that way. |
 | Report timestamp | The report gives its generation time in UTC. Check Actions for collection failures. |
 
-Publication should place the warning and these limits beside the unchanged
+The dashboard places the warning and these limits beside the unchanged
 upstream report. Its charts and wording are not locally patched. No user
 identities are intentionally added to the public statistics.
 
@@ -106,6 +112,6 @@ individual runs can still create additional Git commits and snapshot files.
 Traffic older than GitHub's retention window cannot be recovered after a long
 interruption. Do not invent values for those gaps.
 
-Run `actionlint .github/workflows/statistics.yml` and
+Run `actionlint .github/workflows/statistics.yml .github/workflows/pages.yml` and
 `markdownlint docs/rm/github_statistics.md` locally. These checks do not run
 Trice builds, change release files, contact the traffic API or push data.
