@@ -20,10 +20,10 @@
   - [6.1. F030bare](#f030bare)
     - [6.1.1. Steps performed as potential guide:](#steps-performed-as-potential-guide)
     - [6.1.2. Hint](#hint)
-  - [6.2. F030inst](#f030inst)
-    - [6.2.1. Intrumenting:](#intrumenting)
-  - [6.3. F030instrtt](#f030instrtt)
-  - [6.4. F030instuart](#f030instuart)
+  - [6.2. F030instrtt](#f030instrtt)
+  - [6.3. F030instuart](#f030instuart)
+  - [6.4. F030inst](#f030inst)
+    - [6.4.1. Intrumenting:](#intrumenting)
 - [7. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
   - [7.1. G0B1bare](#g0b1bare)
     - [7.1.1. G0B1bare Description](#g0b1bare-description)
@@ -48,20 +48,22 @@
 
 </details>
 
-| Project Name                       | Description                                                                                                                                                                                                                                                                      |
-|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|                                    |                                                                                                                                                                                                                                                                                  |
-| [F030_bare](../../examples/F030_bare) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to [F030_inst](../../examples/F030_inst) so see quickly the needed instrumentation steps you need for your own project.                                        |
-| [F030_inst](../../examples/F030_inst) | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library. Compare it with [F030_bare](../../examples/F030_bare) to see quickly how to instrument your project.                                           |
-|                                    |                                                                                                                                                                                                                                                                                  |
-| [G0B1_bare](../../examples/G0B1_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                      |
-| [G0B1_inst](../../examples/G0B1_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
-| [PC_features](#pc-feature-tour) | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts. |
-| [G0B1_features](#g0b1-feature-tour) | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts. |
-|                                    |                                                                                                                                                                                                                                                                                  |
-| [L432_bare](../../examples/L432_bare) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../../examples/L432_inst) project is then a next step performable. |
-| [L432_inst](../../examples/L432_inst) | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                    |
-|                                    |                                                                                                                                                                                                                                                                                  |
+Project Name                                    | Description
+-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|                                                 | |
+[F030_bare](../../examples/F030_bare)           | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to `F030_inst*` so see quickly the needed instrumentation steps you need for your own project.
+[F030_inst_uart](../../examples/F030_inst_uart) | Recommended starting point when RTT is not the aim
+[F030_inst_rtt](../../examples/F030_inst_rtt)   | To use RTT start here
+[F030_inst](../../examples/F030_inst)           | This example shows how to use RTT and serial parallel.
+|                                                 | |
+[G0B1_bare](../../examples/G0B1_bare)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.
+[G0B1_inst](../../examples/G0B1_inst)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.
+[PC_features](#pc-feature-tour)                 | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts.
+[G0B1_features](#g0b1-feature-tour)             | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts.
+|                                                 | |
+[L432_bare](../../examples/L432_bare)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../../examples/L432_inst) project is then a next step performable.
+[L432_inst](../../examples/L432_inst)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.
+|                                                 | |
 
 <p align="right">(<a href="#trice-example-projects">back to top</a>)</p>
 
@@ -168,14 +170,14 @@ cd examples/PC_features
 
 The [build script](../../examples/PC_features/build_and_run.sh) binds local IDs and applies `-ce 'ctx:", cycle={cycle:%u}", pc_sample_phase'`. The shared `emit_sample` call therefore gains a `cycle` field without editing its `Supply {voltage_mv:%u}` format. The device name uses `TriceS` because CE does not append runtime arguments to string Trices. `til.json` and `li.json` are versioned project tables; the capture, executable, and generated headers are build outputs. Rebuild after changing the source or CE rule.
 
-| Feature | Source to edit | Observable result |
-| --- | --- | --- |
-| Numeric fields and runtime string | `emit_sample` and the device-name `TriceS` | JSON `fields.voltage_mv` and `fields.device`; the device is `pump A`. |
-| CE at one shared call site | `info:ctx:` and `pc_sample_phase` | Supply readings contain `cycle=7` and `cycle=11`. |
-| Built-in and custom tags | `wrn:`, `dbg:`, `sensor:` | Warning threshold filters events; `sensor` has weight 450 in the show scripts. |
-| Two stamp widths | `TRice16` for Phase, `Trice8` for Humidity, and `TRice32` for Supply | Phase has a 32-bit stamp; Humidity has a 16-bit stamp. |
-| Stamp delta | Two Supply calls | Second 32-bit stamp is 125 ms, with a 25 ms delta. |
-| Untagged message and buffer | Last calls in `main` | Message `A message without a tag`, metadata tag `untagged`, and bytes `41 00 ff `. |
+Feature                           | Source to edit                                                       | Observable result
+-----------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------------------
+Numeric fields and runtime string | `emit_sample` and the device-name `TriceS`                           | JSON `fields.voltage_mv` and `fields.device`; the device is `pump A`.
+CE at one shared call site        | `info:ctx:` and `pc_sample_phase`                                    | Supply readings contain `cycle=7` and `cycle=11`.
+Built-in and custom tags          | `wrn:`, `dbg:`, `sensor:`                                            | Warning threshold filters events; `sensor` has weight 450 in the show scripts.
+Two stamp widths                  | `TRice16` for Phase, `Trice8` for Humidity, and `TRice32` for Supply | Phase has a 32-bit stamp; Humidity has a 16-bit stamp.
+Stamp delta                       | Two Supply calls                                                     | Second 32-bit stamp is 125 ms, with a 25 ms delta.
+Untagged message and buffer       | Last calls in `main`                                                 | Message `A message without a tag`, metadata tag `untagged`, and bytes `41 00 ff `.
 
 The [text](../../examples/PC_features/show_text.sh), [JSON](../../examples/PC_features/show_json.sh), and [KV](../../examples/PC_features/show_kv.sh) scripts append your extra arguments to their `trice log` command:
 
@@ -378,33 +380,9 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-### 6.2. <a id="f030inst"></a>F030_inst
+### 6.2. <a id="f030instrtt"></a>F030_inst_rtt
 
-Folder: [../examples/F030_inst/](../../examples/F030_inst/)
-
-This example enables deferred UART output and parallel direct RTT output in [triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h). It also enables legacy RPC support and uses the shared example producers. Encryption is disabled by default. For setup see [Trice over RTT](rtt.md) and adapt steps from [F030_bare](../../examples/F030_bare/).
-
-The project-specific [SEGGER_RTT_Conf.h](../../examples/F030_inst/Core/Inc/SEGGER_RTT_Conf.h) sets the RTT down-buffer and printf-buffer sizes to `0`. Trice automatically inherits these values from the selected SEGGER configuration. Removing the project file would select the shared fallback with sizes `16` and `64` instead; either configuration passes the consistency checks unless an explicit `TRICE_*` override disagrees with it.
-
-#### 6.2.1. <a id="intrumenting"></a>Intrumenting:
-
-- Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030_bare/](../../examples/F030_bare/).
-- Add *build.sh* and *clean.sh*.
-- For a new RTT project, copy and adapt the small [fallback `SEGGER_RTT_Conf.h`](../../src/default_conf/SEGGER_RTT_Conf.h) into [./Core/Inc/](../../examples/F030_inst/Core/Inc/), or use the fallback include directory unchanged. Existing examples keep their full project configuration; see [Trice over RTT](rtt.md).
-- Copy and adapt a file [triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h) to [./Core/Inc/](../../examples/F030_inst/Core/Inc/). You can choose from another example project or one of the test folders.
-- Create 2 empty files: `touch til.json li.json`inside [./](../)
-- Run `build.sh`. This should build all.
-- Add `#include "trice.h"` to *main.c* and to *stm32f0xx_it.c* and edit these files according to diff.
-- Add to `int main( void )` some `Trice( "..." );` messages.
-
-- Run `trice s` to determine the relevant comport.
-- You can have this output:
-
-  <img src="../ref/G0B1_2024-07-22.png" width="1000">
-
-- The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
-
-### 6.3. <a id="f030instrtt"></a>F030_inst_rtt
+If you have a STM F030 evaluation board or something similar [changing the onboard STLINK to an onboard JLINK](https://github.com/rokath/trice/blob/main/docs/rm/rtt.md#convert-evaluation-board-onboard-st-link-to-j-link) is recommended. That allows easy debugging together with direct Trice output.
 
 Folder: [../examples/F030_inst_rtt/](../../examples/F030_inst_rtt/)
 
@@ -419,17 +397,23 @@ cd examples/F030_inst_rtt
 
 No project-specific `SEGGER_RTT_Conf.h` is needed. The include path ends with [src/default_conf](../../src/default_conf/), which supplies the shared fallback. When RTT is enabled, Trice automatically loads the selected SEGGER configuration and inherits its buffer sizes and channel counts. The example needs neither a SEGGER include nor matching aliases in `triceConfig.h`. Explicit `TRICE_*` overrides remain possible, but `trice.c` rejects values that disagree with the SEGGER configuration. The fallback's down-buffer and printf-buffer sizes remain `16` and `64`.
 
-Flash `out/F030_inst_rtt.elf` onto a NUCLEO-F030R8 board using your debugger. With the SEGGER J-Link tools installed and a J-Link connection to the board, run [log.sh](../../examples/F030_inst_rtt/log.sh), then reset the board:
+Flash `out/F030_inst_rtt.elf` onto a NUCLEO-F030R8 board using your debugger. For example in VC Code with the cortex debug extension press the green triangle after adapting the launch.json to your needs:
+
+![F030_inst_rtt_debug.png](../ref/F030_inst_rtt_debug.png)
+
+With the SEGGER J-Link tools installed and a J-Link connection to the board, run [log.sh](../../examples/F030_inst_rtt/log.sh), then reset the board:
 
 ```sh
 ./log.sh
 ```
 
+![F030_inst_rtt.png](../ref/F030_inst_rtt.png)
+
 The startup records print `Firmware init start...`, `Firmware init done.` and `Value=42`. `TriceInit` runs at the beginning of `main`, allowing logging during peripheral initialization. RTT writes directly to its RAM buffer; no transfer call or UART interrupt is needed. Since this example logs only from `main`, it does not define its own critical-section macros.
 
 For the corresponding UART steps, compare [F030_inst_uart](#f030instuart). [F030_inst](#f030inst) demonstrates RTT and UART in parallel.
 
-### 6.4. <a id="f030instuart"></a>F030_inst_uart
+### 6.3. <a id="f030instuart"></a>F030_inst_uart
 
 Folder: [../examples/F030_inst_uart/](../../examples/F030_inst_uart/)
 
@@ -454,9 +438,37 @@ Flash `out/F030_inst_uart.elf` onto a NUCLEO-F030R8 board using your debugger. U
 ./log.sh -p /dev/ttyACM0
 ```
 
+![F030_inst_uart.png](../ref/F030_inst_uart.png)
+
 The startup records print `Firmware init start...`, `Firmware init done.` and `Value=42`. `TriceInit` runs at the beginning of `main`; records generated before USART initialization stay in RAM until the loop calls `TriceTransfer`. The UART then sends asynchronously through TX-empty interrupts.
 
 For the corresponding RTT steps, compare [F030_inst_rtt](#f030instrtt). [F030_inst](#f030inst) demonstrates RTT and UART in parallel.
+
+### 6.4. <a id="f030inst"></a>F030_inst
+
+Folder: [../examples/F030_inst/](../../examples/F030_inst/)
+
+This example enables deferred UART output and parallel direct RTT output in [triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h). It also enables legacy RPC support and uses the shared example producers. Encryption is disabled by default. For setup see [Trice over RTT](rtt.md) and adapt steps from [F030_bare](../../examples/F030_bare/).
+
+The project-specific [SEGGER_RTT_Conf.h](../../examples/F030_inst/Core/Inc/SEGGER_RTT_Conf.h) sets the RTT down-buffer and printf-buffer sizes to `0`. Trice automatically inherits these values from the selected SEGGER configuration. Removing the project file would select the shared fallback with sizes `16` and `64` instead; either configuration passes the consistency checks unless an explicit `TRICE_*` override disagrees with it.
+
+#### 6.4.1. <a id="intrumenting"></a>Intrumenting:
+
+- Extend the Makefile with the information you get from comparing the *Makefile* here and in [../F030_bare/](../../examples/F030_bare/).
+- Add *build.sh* and *clean.sh*.
+- For a new RTT project, copy and adapt the small [fallback `SEGGER_RTT_Conf.h`](../../src/default_conf/SEGGER_RTT_Conf.h) into [./Core/Inc/](../../examples/F030_inst/Core/Inc/), or use the fallback include directory unchanged. Existing examples keep their full project configuration; see [Trice over RTT](rtt.md).
+- Copy and adapt a file [triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h) to [./Core/Inc/](../../examples/F030_inst/Core/Inc/). You can choose from another example project or one of the test folders.
+- Create 2 empty files: `touch til.json li.json`inside [./](../)
+- Run `build.sh`. This should build all.
+- Add `#include "trice.h"` to *main.c* and to *stm32f0xx_it.c* and edit these files according to diff.
+- Add to `int main( void )` some `Trice( "..." );` messages.
+
+- Run `trice s` to determine the relevant comport.
+- You can have this output:
+
+  <img src="../ref/G0B1_2024-07-22.png" width="1000">
+
+- The Trices with 16-bit timestamps are about 150 clocks away from each other. @32MHz this is a time of less 5 µs.
 
 <p align="right">(<a href="#trice-example-projects">back to top</a>)</p>
 
