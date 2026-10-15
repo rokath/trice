@@ -96,6 +96,35 @@ func prepareBindTest(t *testing.T, sources map[string]string) func() {
 	}
 }
 
+// TestBindIncludeAfterConditionalIncludes keeps the owner include active in
+// every platform branch, while preserving an enclosing header guard.
+func TestBindIncludeAfterConditionalIncludes(t *testing.T) {
+	for _, test := range []struct {
+		name   string
+		source string
+		before string
+	}{
+		{"platform alternatives", "#if defined(_WIN32)\n#include <windows.h>\n#else\n#include <unistd.h>\n#endif\nvoid log_message(void) { trice(\"message\"); }\n", "#endif\n"},
+		{"nested alternatives", "#if OUTER\n#if INNER\n#include <first.h>\n#else\n#include <second.h>\n#endif\n#endif\nvoid log_message(void) { trice(\"message\"); }\n", "#endif\n#endif\n"},
+		{"header guard", "#ifndef MODULE_H\n#define MODULE_H\n#if PLATFORM\n#include <first.h>\n#else\n#include <second.h>\n#endif\nstatic void log_message(void) { trice(\"message\"); }\n#endif\n", "#endif\n"},
+		{"later call condition", "#if PLATFORM\n#include <first.h>\n#else\n#include <second.h>\n#endif\n#if ENABLE_LOG\nvoid log_message(void) { trice(\"message\"); }\n#endif\n", "#endif\n"},
+		{"commented directives", "#include <first.h>\n/*\n#endif\n*/\nvoid log_message(void) { trice(\"message\"); }\n", "#include <first.h>\n"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			defer prepareBindTest(t, map[string]string{"module.c": test.source})()
+			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+			bound, err := FSys.ReadFile(Srcs[0])
+			require.NoError(t, err)
+			assert.Contains(t, string(bound), test.before+"#include \"trice_sidecar_module_c_1111111111111111.h\"")
+			// A second bind must preserve the selected boundary and line IDs.
+			require.NoError(t, SubCmdIdBind(io.Discard, FSys))
+			again, err := FSys.ReadFile(Srcs[0])
+			require.NoError(t, err)
+			assert.Equal(t, bound, again)
+		})
+	}
+}
+
 // TestBindReassignsHistoricalIDOutsideCurrentPolicy verifies that bind does not
 // reuse a read-only TIL candidate after its current tag range has changed.
 func TestBindReassignsHistoricalIDOutsideCurrentPolicy(t *testing.T) {
