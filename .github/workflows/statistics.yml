@@ -1,0 +1,39 @@
+name: Repository statistics
+
+on:
+  schedule:
+    # Collect near the end of the UTC day to reduce partial-day samples.
+    - cron: "43 23 * * *"
+  workflow_dispatch:
+
+# The upstream action uses its dedicated secret for both API reads and Git writes.
+permissions: {}
+
+concurrency:
+  group: repository-statistics
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    # Development branches and forks must not write to the shared data branch.
+    if: github.repository == 'rokath/trice' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check statistics secret
+        env:
+          GHRS_TOKEN: ${{ secrets.GHRS_GITHUB_API_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "$GHRS_TOKEN" ]; then
+            echo "::error::Create the Actions secret GHRS_GITHUB_API_TOKEN; see docs/rm/github_statistics.md for permissions."
+            exit 1
+          fi
+
+      - name: Collect data and generate the upstream report
+        # Upstream v1.4.2, Apache-2.0; no local fork or custom collector.
+        uses: jgehrcke/github-repo-stats@306db38ad131cab2aa5f2cd3062bf6f8aa78c1aa
+        with:
+          repository: rokath/trice
+          databranch: github-repo-stats
+          ghtoken: ${{ secrets.GHRS_GITHUB_API_TOKEN }}
