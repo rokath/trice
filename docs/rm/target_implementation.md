@@ -8,13 +8,13 @@
 <!-- mdtoc -->
 
 * [1. TRICE Macro structure](#trice-macro-structure)
-  * [1.1. TRICEENTER](#triceenter)
-  * [1.2. TRICEPUT](#triceput)
-  * [1.3. TRICELEAVE](#triceleave)
-* [2. TRICESTACKBUFFER](#tricestackbuffer)
-* [3. TRICESTATICBUFFER](#tricestaticbuffer)
-* [4. TRICEDOUBLEBUFFER](#tricedoublebuffer)
-* [5. TRICERINGBUFFER](#triceringbuffer)
+  * [1.1. TRICE_ENTER](#trice_enter)
+  * [1.2. TRICE_PUT](#trice_put)
+  * [1.3. TRICE_LEAVE](#trice_leave)
+* [2. TRICE_STACK_BUFFER](#trice_stack_buffer)
+* [3. TRICE_STATIC_BUFFER](#trice_static_buffer)
+* [4. TRICE_DOUBLE_BUFFER](#trice_double_buffer)
+* [5. TRICE_RING_BUFFER](#trice_ring_buffer)
 * [6. Deferred Out](#deferred-out)
   * [6.1. Double Buffer](#double-buffer)
   * [6.2. Ring Buffer](#ring-buffer)
@@ -25,7 +25,7 @@
     * [6.3.4. Selecting a printf implementation](#selecting-a-printf-implementation)
     * [6.3.5. Formatter families](#formatter-families)
     * [6.3.6. Optional prefix hook](#optional-prefix-hook)
-    * [6.3.7. Calling TriceLog](#calling-tricelog)
+    * [6.3.7. Calling `TriceLog`](#calling-tricelog)
     * [6.3.8. Size-oriented configurations](#size-oriented-configurations)
     * [6.3.9. Examples](#examples)
 * [7. Direct Transfer](#direct-transfer)
@@ -40,37 +40,37 @@
 
 ## 1. <a id="trice-macro-structure"></a>TRICE Macro structure
 
-### 1.1. <a id="triceenter"></a>TRICE_ENTER
+### 1.1. <a id="trice_enter"></a>TRICE_ENTER
 
 * Optionally disable interrupts.
 * Prepare `TriceBufferWritePosition` and keep its initial value.
 
-### 1.2. <a id="triceput"></a>TRICE_PUT
+### 1.2. <a id="trice_put"></a>TRICE_PUT
 
 * Use and increment `TriceBufferWritePosition`.
 
-### 1.3. <a id="triceleave"></a>TRICE_LEAVE
+### 1.3. <a id="trice_leave"></a>TRICE_LEAVE
 
 * Use `TriceBufferWritePosition` and its initial value for data transfer
 * Optionally restore interrupt state.
 
-## 2. <a id="tricestackbuffer"></a>TRICE_STACK_BUFFER
+## 2. <a id="trice_stack_buffer"></a>TRICE_STACK_BUFFER
 
 * `TRICE_ENTER`: Allocate stack
 * `TRICE_LEAVE`: Call TriceDirectOut()
 
-## 3. <a id="tricestaticbuffer"></a>TRICE_STATIC_BUFFER
+## 3. <a id="trice_static_buffer"></a>TRICE_STATIC_BUFFER
 
 * This is like `TRICE_STACK_BUFFER` but avoids stack allocation, what is better for many stacks.
 * `TRICE_ENTER`: Set TriceBufferWritePosition to buffer start.
 * `TRICE_LEAVE`: Call TriceDirectOut().
 
-## 4. <a id="tricedoublebuffer"></a>TRICE_DOUBLE_BUFFER
+## 4. <a id="trice_double_buffer"></a>TRICE_DOUBLE_BUFFER
 
 * `TRICE_ENTER`: Keep TriceBufferWritePosition.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
-## 5. <a id="triceringbuffer"></a>TRICE_RING_BUFFER
+## 5. <a id="trice_ring_buffer"></a>TRICE_RING_BUFFER
 
 * `TRICE_ENTER`: Keep or wrap TriceBufferWritePosition and add offset.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
@@ -165,24 +165,24 @@ The switches are deliberately independent of any printf implementation. Their
 names are similar to familiar nanoprintf choices where useful, but Trice neither
 includes nanoprintf nor defines `NANOPRINTF_*` macros.
 
-| Switch | Default | Effect when set to `1` |
-| --- | ---: | --- |
-| `TRICE_LOCAL_LOG` | `0` | Includes the local consumer and formatter. |
-| `TRICE_LOCAL_LOG_USE_PRINTF_HOOK` | `1` | Declares and uses the runtime `UserTriceLogPrintfFn` hook. |
-| `TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER` | `1` | Includes the separate exact `%d`/`%x` fallback. |
-| `TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS` | `1` | Accepts fixed widths such as `%8d`, `%02x`, and `%-12s`. |
-| `TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS` | `1` | Accepts fixed precision such as `%.3f` and `%.5s`. |
-| `TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS` | `1` | Accepts `%e`, `%E`, `%f`, `%F`, `%g`, and `%G` through the hook. |
-| `TRICE_LOCAL_LOG_USE_64_BIT_VALUES` | `1` | Includes 64-bit integer, buffer, and `aDouble()` paths. |
-| `TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS` | `0` | Includes Trice's internal `%b` conversion. |
-| `TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG` | `1` | Accepts `#`, including the internal `%#b` prefix. |
-| `TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS` | `0` | Includes internal `%O`, `%t`, `%p`, and `%q` conversions. |
-| `TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES` | `1` | Includes bounded `triceS` and string-form `triceN`. |
-| `TRICE_LOCAL_LOG_USE_BUFFER_TRICES` | `0` | Includes `TRICE8_B` through `TRICE64_B`. |
-| `TRICE_LOCAL_LOG_USE_PREFIX_HOOK` | `0` | Declares and calls `UserTriceLogPrefixFn` before each message body. |
-| `TRICE_LOCAL_LOG_USE_ANSI_COLORS` | `0` | Colors records which begin with a recognized Trice tag. |
-| `TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` | `0` | Removes a recognized all-lower-case tag and its first colon. |
-| `TRICE_LOCAL_LOG_KEEP_DISABLED_IDS` | `1` | Keeps ID and shape metadata, but no string, for disabled generated entries. |
+Switch | Default | Effect when set to `1`
+--- | ---: | ---
+`TRICE_LOCAL_LOG` | `0` | Includes the local consumer and formatter.
+`TRICE_LOCAL_LOG_USE_PRINTF_HOOK` | `1` | Declares and uses the runtime `UserTriceLogPrintfFn` hook.
+`TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER` | `1` | Includes the separate exact `%d`/`%x` fallback.
+`TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS` | `1` | Accepts fixed widths such as `%8d`, `%02x`, and `%-12s`.
+`TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS` | `1` | Accepts fixed precision such as `%.3f` and `%.5s`.
+`TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS` | `1` | Accepts `%e`, `%E`, `%f`, `%F`, `%g`, and `%G` through the hook.
+`TRICE_LOCAL_LOG_USE_64_BIT_VALUES` | `1` | Includes 64-bit integer, buffer, and `aDouble()` paths.
+`TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS` | `0` | Includes Trice's internal `%b` conversion.
+`TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG` | `1` | Accepts `#`, including the internal `%#b` prefix.
+`TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS` | `0` | Includes internal `%O`, `%t`, `%p`, and `%q` conversions.
+`TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES` | `1` | Includes bounded `triceS` and string-form `triceN`.
+`TRICE_LOCAL_LOG_USE_BUFFER_TRICES` | `0` | Includes `TRICE8_B` through `TRICE64_B`.
+`TRICE_LOCAL_LOG_USE_PREFIX_HOOK` | `0` | Declares and calls `UserTriceLogPrefixFn` before each message body.
+`TRICE_LOCAL_LOG_USE_ANSI_COLORS` | `0` | Colors records which begin with a recognized Trice tag.
+`TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` | `0` | Removes a recognized all-lower-case tag and its first colon.
+`TRICE_LOCAL_LOG_KEEP_DISABLED_IDS` | `1` | Keeps ID and shape metadata, but no string, for disabled generated entries.
 
 Every switch is Boolean and invalid values fail during preprocessing. Defaults
 preserve the original local-log integer, string, width, precision, float, and

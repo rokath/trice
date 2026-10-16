@@ -7,12 +7,12 @@
 
 Encoder dependencies follow the **active outputs**. Select direct framing with `TRICE_DIRECT_OUT_FRAMING` and deferred framing with `TRICE_DEFERRED_OUT_FRAMING`. An inactive output's framing setting adds no dependency. For example, a direct-only COBS application does not need TCOBS despite the deferred framing default.
 
-| Active output framing | Required encoder source | Encoder sources that can be omitted |
-| --- | --- | --- |
-| TCOBS only | `src/tcobsv1Encode.c` | `src/cobsEncode.c` |
-| COBS only | `src/cobsEncode.c` | `src/tcobsv1Encode.c` |
-| NONE only | None | Both encoder sources |
-| Direct COBS and deferred TCOBS, or the reverse | Both encoder sources | Neither |
+Active output framing | Required encoder source | Encoder sources that can be omitted
+--- | --- | ---
+TCOBS only | `src/tcobsv1Encode.c` | `src/cobsEncode.c`
+COBS only | `src/cobsEncode.c` | `src/tcobsv1Encode.c`
+NONE only | None | Both encoder sources
+Direct COBS and deferred TCOBS, or the reverse | Both encoder sources | Neither
 
 These selective builds work without LTO, optimization or linker removal of unused sections. Encryption-disabled builds need no `src/xtea.c`; builds without RTT need no `src/SEGGER_RTT.c` or project RTT configuration. With the Trice backend disabled (`TRICE_OFF` or `TRICE_CLEAN`, without counted typeX0 transmission), retained UART settings do not require `triceUart.h` or UART hardware hooks. The [minimal demos](examples.md#minimal-pc-demos-direct-and-deferred) still compile `src/*.c` for simplicity; removing unreferenced code from such a complete-library build remains a separate [image-size optimization](code_size.md).
 

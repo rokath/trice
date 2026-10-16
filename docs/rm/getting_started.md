@@ -107,17 +107,17 @@ A quick setup is possible when using RTT as output channel. Otherwise you need t
     * `trice help -bind`, `trice help -insert` and `tlog -h` show focused help.
     * Examples:
 
-      | CLI command                                     | Description                                                                                                                                   |
-      |-------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-      | `touch til.json li.json`                        | Initialize the metadata files once; keep existing files.                                                                                       |
-      | `trice bind -src . -src ../myLib -genDir build/sidecars` | Prepare Bind headers for your project and library.                                                                                      |
-      | `trice i -src . -src ../myLib`                  | Legacy alternative: insert inline IDs into your project and library sources.                                                                  |
-      | ...                                             | Compile your project                                                                                                                          |
-      | `trice c -src . -src ../myLib`                  | Optionally restore the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file. |
-      | `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`.                                                                |
-      | `cat filename.log`                              | View a recorded log file.                                                                                                                     |
-      | `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.                                                                           |
-      | `trice l -p FILEBUFFER -args logfile.bin`       | Play a recorded binary log file.                                                                                                              |
+      CLI command                                     | Description
+      -------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------
+      `touch til.json li.json`                        | Initialize the metadata files once; keep existing files.
+      `trice bind -src . -src ../myLib -genDir build/sidecars` | Prepare Bind headers for your project and library.
+      `trice i -src . -src ../myLib`                  | Legacy alternative: insert inline IDs into your project and library sources.
+      ...                                             | Compile your project
+      `trice c -src . -src ../myLib`                  | Optionally restore the current and your `../myLib` folder. This will read\|extend\|modify `./til.json` and use & create the `./li.json` file.
+      `trice l -p com1 -baud 921600 -lf my/path/auto` | Start Logging over UART and create automatically a new log file in `my/path/`.
+      `cat filename.log`                              | View a recorded log file.
+      `trice l -p JLINK -args "..."`                  | Start Logging over RTT. Binary log files are collected in `./temp`.
+      `trice l -p FILEBUFFER -args logfile.bin`       | Play a recorded binary log file.
 
     * Add `trice bind ...` as a dependency of compilation. With the legacy workflow, use `trice insert ...` instead.
     * For Insert/Clean only, an optional `trice clean ...` post-compile step removes inline IDs. The `-cache` switch avoids unnecessary source rewrites. See [Trice Cache for Compilation Speed](insert_clean_cache.md).
@@ -220,11 +220,11 @@ Trice should be usable on any MCU with any compiler. On ARM MCUs the easiest way
 
 Compare folders of one of these folder groups:
 
-| Without Instrumentation                         | With Trice Instrumentation                      | Remarks  |
-|-------------------------------------------------|-------------------------------------------------|----------|
-| [`./examples/F030_bare`](../../examples/F030_bare) | [`./examples/F030_inst`](../../examples/F030_inst) | no RTOS  |
-| [`./examples/G0B1_bare`](../../examples/G0B1_bare) | [`./examples/G0B1_inst`](../../examples/G0B1_inst) | FreeRTOS |
-| [`./examples/L432_bare`](../../examples/L432_bare) | [`./examples/L432_inst`](../../examples/L432_inst) | FreeRTOS |
+Without Instrumentation                         | With Trice Instrumentation                      | Remarks
+-------------------------------------------------|-------------------------------------------------|----------
+[`./examples/F030_bare`](../../examples/F030_bare) | [`./examples/F030_inst`](../../examples/F030_inst) | no RTOS
+[`./examples/G0B1_bare`](../../examples/G0B1_bare) | [`./examples/G0B1_inst`](../../examples/G0B1_inst) | FreeRTOS
+[`./examples/L432_bare`](../../examples/L432_bare) | [`./examples/L432_inst`](../../examples/L432_inst) | FreeRTOS
 
 This way you see in a quick way any needed adaptations for your target project to port trice to it.
 
@@ -252,26 +252,26 @@ are always usable and the number 8, 16, 32, 64 specifies the parameter width, wh
 
 More examples:
 
-| Trice     | Header | Stamp | max. Values  | Trice Size |
-|-----------|--------|-------|--------------|------------|
-| `trice8`  | 4      | 0     | 0 \*1 byte   | 4          |
-| ...       | ...    | ...   | ...          | ...        |
-| `trice8`  | 4      | 0     | 12 \*1 byte  | 16         |
-| `Trice8`  | 4      | 2     | 0 \*1 byte   | 6          |
-| ...       | ...    | ...   | ...          | ...        |
-| `Trice8`  | 4      | 2     | 12 \*1 byte  | 18         |
-| `TRice8`  | 4      | 4     | 0  \*1 byte  | 8          |
-| ...       | ...    | ...   | ...          | ...        |
-| `TRice8`  | 4      | 4     | 12 \*1 byte  | 20         |
-| `trice16` | 4      | 0     | 2  \*2 byte  | 8          |
-| `Trice16` | 4      | 2     | 1  \*2 byte  | 8          |
-| `trice32` | 4      | 0     | 1  \*4 byte  | 8          |
-| `Trice32` | 4      | 2     | 1  \*4 byte  | 10         |
-| `TRice32` | 4      | 4     | 2  \*4 byte  | 16         |
-| `trice64` | 4      | 0     | 1  \*8 byte  | 12         |
-| `TRice64` | 4      | 4     | 1  \*8 byte  | 16         |
-| ...       | ...    | ...   | ...          | ...        |
-| `TRice64` | 4      | 4     | 12  \*8 byte | 104        |
+Trice     | Header | Stamp | max. Values  | Trice Size
+-----------|--------|-------|--------------|------------
+`trice8`  | 4      | 0     | 0 \*1 byte   | 4
+...       | ...    | ...   | ...          | ...
+`trice8`  | 4      | 0     | 12 \*1 byte  | 16
+`Trice8`  | 4      | 2     | 0 \*1 byte   | 6
+...       | ...    | ...   | ...          | ...
+`Trice8`  | 4      | 2     | 12 \*1 byte  | 18
+`TRice8`  | 4      | 4     | 0  \*1 byte  | 8
+...       | ...    | ...   | ...          | ...
+`TRice8`  | 4      | 4     | 12 \*1 byte  | 20
+`trice16` | 4      | 0     | 2  \*2 byte  | 8
+`Trice16` | 4      | 2     | 1  \*2 byte  | 8
+`trice32` | 4      | 0     | 1  \*4 byte  | 8
+`Trice32` | 4      | 2     | 1  \*4 byte  | 10
+`TRice32` | 4      | 4     | 2  \*4 byte  | 16
+`trice64` | 4      | 0     | 1  \*8 byte  | 12
+`TRice64` | 4      | 4     | 1  \*8 byte  | 16
+...       | ...    | ...   | ...          | ...
+`TRice64` | 4      | 4     | 12  \*8 byte | 104
 
 The value TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the parameter bit with for the macros `trice`, `Trice`, `TRice` (without number). It can make sense to set this value to 16 on smaller machines.
 
@@ -331,53 +331,53 @@ _Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bi
 
 * `./src`: **User Interface**
 
-| File                      | description                                                                                                                                  |
-|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| [trice.h](../../src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path. |
-| `triceConfig.h`           | Create this file to overwrite  [triceDefaultConfig.h](../../src/triceDefaultConfig.h) as needed.                                                |
+File                      | description
+---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------
+[trice.h](../../src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path.
+`triceConfig.h`           | Create this file to overwrite  [triceDefaultConfig.h](../../src/triceDefaultConfig.h) as needed.
 
 * `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
 See [Trice Project Image Size Optimization](code_size.md) for compiling `src/*.c` and removing unused library sections from the final image.
 
-| File                                                | description                                                                                                          |
-|-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| [cobs.h](../../src/cobs.h)                             | message packaging, alternatively for tcobs                                                                           |
-| [cobsEncode.c](../../src/cobsEncode.c)                 | message encoding, alternatively for tcobs                                                                            |
-| [cobsDecode.c](../../src/cobsDecode.c)                 | message decoding, normally not needed                                                                                |
-| [trice.c](../../src/trice.c)                           | trice core lib                                                                                                       |
-| [trice8McuOrder.h](../../src/trice8McuOrder.h)         | trice MCU endianness lib                                                                                             |
-| [trice8McuReverse.h](../../src/trice8McuReverse.h)     | trice MCU reverse endianness lib                                                                                     |
-| [trice16McuOrder.h](../../src/trice16McuOrder.h)       | trice MCU endianness lib                                                                                             |
-| [trice16McuReverse.h](../../src/trice16McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
-| [trice32McuOrder.h](../../src/trice32McuOrder.h)       | trice MCU endianness lib                                                                                             |
-| [trice32McuReverse.h](../../src/trice32McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
-| [trice64McuOrder.h](../../src/trice64McuOrder.h)       | trice MCU endianness lib                                                                                             |
-| [trice64McuReverse.h](../../src/trice64McuReverse.h)   | trice MCU reverse endianness lib                                                                                     |
-| [SEGGER_RTT.h](../../src/SEGGER_RTT.h)                 | Segger RTT code interface                                                                                            |
-| [SEGGER_RTT.c](../../src/SEGGER_RTT.c)                 | Segger RTT code                                                                                                      |
-| [SEGGER_RTT_ConfDefaults.h](../../src/SEGGER_RTT_ConfDefaults.h) | SEGGER defaults for settings not supplied by the project |
-| [SEGGER_RTT_Conf.h](../../src/default_conf/SEGGER_RTT_Conf.h) | Small Trice fallback configuration; project headers take precedence |
-| [SEGGER_RTT_LICENSE.md](../../src/SEGGER_RTT_LICENSE.md) | SEGGER license to retain when redistributing its target sources |
-| [tcobs.h](../../src/tcobs.h)                           | message compression and packaging interface                                                                          |
-| [tcobsv1Encode.c](../../src/tcobsv1Encode.c)           | message encoding and packaging                                                                                       |
-| [tcobsv1Decode.c](../../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed                                                                  |
-| [tcobsv1Internal.h](../../src/tcobsv1Internal.h)       | message decoding and packaging internal interface                                                                    |
-| [trice8.h](../../src/trice8.h)                         | 8-bit trice code interface                                                                                           |
-| [trice8.c](../../src/trice8.c)                         | 8-bit trice code                                                                                                     |
-| [trice16.h](../../src/trice16.h)                       | 16-bit trice code interface                                                                                          |
-| [trice16.c](../../src/trice16.c)                       | 16-bit trice code                                                                                                    |
-| [trice32.h](../../src/trice32.h)                       | 32-bit trice code interface                                                                                          |
-| [trice32.c](../../src/trice32.c)                       | 32-bit trice code                                                                                                    |
-| [trice64.h](../../src/trice64.h)                       | 64-bit trice code interface                                                                                          |
-| [trice64.c](../../src/trice64.c)                       | 64-bit trice code                                                                                                    |
-| [triceAuxiliary.c](../../src/triceAuxiliary.c)         | trice code for auxiliary interfaces                                                                                  |
-| [triceDefaultConfig.h](../../src/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h* |
-| [triceDoubleBuffer.c](../../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode                                                         |
-| [triceStackBuffer.c](../../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode                                                                   |
-| [triceRingBuffer.c](../../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode                                                     |
-| [xtea.h](../../src/xtea.h)                             | XTEA message encryption/decryption interface                                                                         |
-| [xtea.c](../../src/xtea.c)                             | XTEA message encryption/decryption code                                                                              |
+File                                                | description
+-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------
+[cobs.h](../../src/cobs.h)                             | message packaging, alternatively for tcobs
+[cobsEncode.c](../../src/cobsEncode.c)                 | message encoding, alternatively for tcobs
+[cobsDecode.c](../../src/cobsDecode.c)                 | message decoding, normally not needed
+[trice.c](../../src/trice.c)                           | trice core lib
+[trice8McuOrder.h](../../src/trice8McuOrder.h)         | trice MCU endianness lib
+[trice8McuReverse.h](../../src/trice8McuReverse.h)     | trice MCU reverse endianness lib
+[trice16McuOrder.h](../../src/trice16McuOrder.h)       | trice MCU endianness lib
+[trice16McuReverse.h](../../src/trice16McuReverse.h)   | trice MCU reverse endianness lib
+[trice32McuOrder.h](../../src/trice32McuOrder.h)       | trice MCU endianness lib
+[trice32McuReverse.h](../../src/trice32McuReverse.h)   | trice MCU reverse endianness lib
+[trice64McuOrder.h](../../src/trice64McuOrder.h)       | trice MCU endianness lib
+[trice64McuReverse.h](../../src/trice64McuReverse.h)   | trice MCU reverse endianness lib
+[SEGGER_RTT.h](../../src/SEGGER_RTT.h)                 | Segger RTT code interface
+[SEGGER_RTT.c](../../src/SEGGER_RTT.c)                 | Segger RTT code
+[SEGGER_RTT_ConfDefaults.h](../../src/SEGGER_RTT_ConfDefaults.h) | SEGGER defaults for settings not supplied by the project
+[SEGGER_RTT_Conf.h](../../src/default_conf/SEGGER_RTT_Conf.h) | Small Trice fallback configuration; project headers take precedence
+[SEGGER_RTT_LICENSE.md](../../src/SEGGER_RTT_LICENSE.md) | SEGGER license to retain when redistributing its target sources
+[tcobs.h](../../src/tcobs.h)                           | message compression and packaging interface
+[tcobsv1Encode.c](../../src/tcobsv1Encode.c)           | message encoding and packaging
+[tcobsv1Decode.c](../../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed
+[tcobsv1Internal.h](../../src/tcobsv1Internal.h)       | message decoding and packaging internal interface
+[trice8.h](../../src/trice8.h)                         | 8-bit trice code interface
+[trice8.c](../../src/trice8.c)                         | 8-bit trice code
+[trice16.h](../../src/trice16.h)                       | 16-bit trice code interface
+[trice16.c](../../src/trice16.c)                       | 16-bit trice code
+[trice32.h](../../src/trice32.h)                       | 32-bit trice code interface
+[trice32.c](../../src/trice32.c)                       | 32-bit trice code
+[trice64.h](../../src/trice64.h)                       | 64-bit trice code interface
+[trice64.c](../../src/trice64.c)                       | 64-bit trice code
+[triceAuxiliary.c](../../src/triceAuxiliary.c)         | trice code for auxiliary interfaces
+[triceDefaultConfig.h](../../src/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*
+[triceDoubleBuffer.c](../../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode
+[triceStackBuffer.c](../../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode
+[triceRingBuffer.c](../../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode
+[xtea.h](../../src/xtea.h)                             | XTEA message encryption/decryption interface
+[xtea.c](../../src/xtea.c)                             | XTEA message encryption/decryption code
 
 * The *tcobs\*.\** files are copied from [tcobs v1](https://github.com/rokath/tcobs). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).

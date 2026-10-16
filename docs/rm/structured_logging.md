@@ -87,16 +87,16 @@ With `voltage_mV = 3300` and `current_mA = 120`, either call displays `Supply 33
 
 These are alternatives for the same log site, not two calls required to produce one event. Bind or Insert must run after changing the template. For these integer values, `{}` uses the same `%d` display as the original call.
 
-| Format string syntax | Meaning |
-|---|---|
-| `{motor_id}` | Explicit field name, default display. |
-| `{}` | Derive the name from the corresponding C argument. |
-| `{plant.}` | Prefix the derived name with `plant.`. |
-| `{:%.1f}` | Derived name and explicit display. |
-| `{temperature:%.1f C}` | Explicit name and display. |
-| `{: = %.1f C}` | Derived name and display. |
-| `{motor_id:: %d, }` | Name `motor_id`, display `: %d, `. |
-| `{{` and `}}` | Literal opening and closing braces. |
+Format string syntax | Meaning
+---|---
+`{motor_id}` | Explicit field name, default display.
+`{}` | Derive the name from the corresponding C argument.
+`{plant.}` | Prefix the derived name with `plant.`.
+`{:%.1f}` | Derived name and explicit display.
+`{temperature:%.1f C}` | Explicit name and display.
+`{: = %.1f C}` | Derived name and display.
+`{motor_id:: %d, }` | Name `motor_id`, display `: %d, `.
+`{{` and `}}` | Literal opening and closing braces.
 
 The first colon separates the name from its display. The display may contain free text and further colons, but must contain exactly one supported format specifier. `%%` is not an additional value. Dynamic widths such as `%*d` are not allowed in a structured field.
 
@@ -132,15 +132,15 @@ This produces `set={1,2}, value=7` when `value = 7`. A backslash before a brace 
 
 ## 2. <a id="field-types-and-display"></a>Field Types and Display
 
-| Format specifier | Structured value |
-|---|---|
-| `%d`, `%i` | Signed integer of the Trice bit width. |
-| `%u`, `%o`, `%O`, `%x`, `%X`, `%b` | Unsigned integer. The selected numeric base affects only the message. |
-| `%f`, `%F`, `%e`, `%E`, `%g`, `%G` | Floating-point number; 32 bits with `aFloat`, 64 bits with `aDouble`. |
-| `%c`, `%q`, `%U` | Character as a string; invalid Unicode code points become the replacement character. |
-| `%t` | Boolean: zero is `false`, other values are `true`. |
-| `%s` | String from `triceS` or `triceN`. |
-| `%p` | Address in the form `0x...`; does not imply the type of the referenced object. |
+Format specifier | Structured value
+---|---
+`%d`, `%i` | Signed integer of the Trice bit width.
+`%u`, `%o`, `%O`, `%x`, `%X`, `%b` | Unsigned integer. The selected numeric base affects only the message.
+`%f`, `%F`, `%e`, `%E`, `%g`, `%G` | Floating-point number; 32 bits with `aFloat`, 64 bits with `aDouble`.
+`%c`, `%q`, `%U` | Character as a string; invalid Unicode code points become the replacement character.
+`%t` | Boolean: zero is `false`, other values are `true`.
+`%s` | String from `triceS` or `triceN`.
+`%p` | Address in the form `0x...`; does not imply the type of the referenced object.
 
 `%%` is a literal percent sign and creates neither a field nor an additional argument.
 
@@ -209,16 +209,16 @@ A runtime string does not change tag classification: with `triceS("{text:%s}", v
 
 `level` is derived from the tag group's effective numeric weight, including `-ulabel` overrides. Select the named level with the highest lower boundary not exceeding that weight. The eight boundaries come from the built-in defaults and stay fixed for the command, even when the weights of level-named tags are overridden. Category tags, custom tags and `untagged` use the same rule. Colors and tag names do not determine the level.
 
-| Effective weight | Exported level |
-| --- | --- |
-| 900–999 | FATAL |
-| 800–899 | CRITICAL |
-| 700–799 | ERROR |
-| 600–699 | WARNING |
-| 500–599 | INFO |
-| 300–499 | DEBUG |
-| 100–299 | TRACE |
-| 0–99 | VERBOSE |
+Effective weight | Exported level
+--- | ---
+900–999 | FATAL
+800–899 | CRITICAL
+700–799 | ERROR
+600–699 | WARNING
+500–599 | INFO
+300–499 | DEBUG
+100–299 | TRACE
+0–99 | VERBOSE
 
 VERBOSE starts at 0, so every supported weight belongs to exactly one interval. There is no default-level or INFO fallback. A new custom tag without an explicit weight still inherits the effective INFO **weight**; its level is then derived from that number. For example, `-ulabel INFO:750 -ulabel sensor` gives both groups weight 750 and level ERROR, while the INFO boundary remains 500 for other groups. Equal overridden tag weights are harmless; the eight fixed level boundaries are distinct.
 
@@ -260,13 +260,13 @@ tag=INFO level=INFO message="Motor \"A\"\nready" field.message="Motor \"A\"\nrea
 
 ## 6. <a id="optional-metadata"></a>Optional Metadata
 
-| Field | Prerequisite and content |
-|---|---|
-| `id` | ID-based event and enabled `-showID`; numeric Trice ID without text padding. |
-| `file`, `line` | Existing LI entry, enabled `-li` and `-liFmt`; only an available filename or a nonzero line number is emitted. |
-| `ts16`, `ts32` | Existing 16- or 32-bit target stamp and output enabled through `-ts` or the corresponding `-ts16`/`-ts32` option. Each value is a string in its own CLI display format; an existing zero value is also emitted. |
-| `ts16Delta`, `ts32Delta` | Enabled `-ts16delta` or `-ts32delta` option and a previous stamp of the same bit width. The first stamp has no delta field at all. Display follows the respective delta option. |
-| `hs` | Enabled `-hs`; formatted host time string without trailing column padding. `-hs off` or `none` omits it. |
+Field | Prerequisite and content
+---|---
+`id` | ID-based event and enabled `-showID`; numeric Trice ID without text padding.
+`file`, `line` | Existing LI entry, enabled `-li` and `-liFmt`; only an available filename or a nonzero line number is emitted.
+`ts16`, `ts32` | Existing 16- or 32-bit target stamp and output enabled through `-ts` or the corresponding `-ts16`/`-ts32` option. Each value is a string in its own CLI display format; an existing zero value is also emitted.
+`ts16Delta`, `ts32Delta` | Enabled `-ts16delta` or `-ts32delta` option and a previous stamp of the same bit width. The first stamp has no delta field at all. Display follows the respective delta option.
+`hs` | Enabled `-hs`; formatted host time string without trailing column padding. `-hs off` or `none` omits it.
 
 Target stamp values have no leading stamp tag such as `time:` or `dt:`, but retain configured additional text and units. Outer whitespace is removed. The four kinds remain separate: for example, `ts16` may represent a temperature and `ts32` a time. `-ts0` and `-ts0delta` are text placeholders only and create no metadata fields.
 

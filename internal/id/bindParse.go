@@ -14,6 +14,8 @@ import (
 var (
 	// bindIncludeDirective matches physical include directives without interpreting preprocessing conditions.
 	bindIncludeDirective = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*include\b[^\r\n]*`)
+	// bindConditionalDirective tracks nesting without evaluating platform macros.
+	bindConditionalDirective = regexp.MustCompile(`(?m)^[\t ]*#[\t ]*(if|ifdef|ifndef|endif)\b[^\r\n]*`)
 	// bindSidecarName extracts the generated flat sidecar name and its embedded file key.
 	bindSidecarName = regexp.MustCompile(`"(trice_sidecar_[A-Za-z0-9_]+_([0-9A-F]{16})\.h)"`)
 	// bindIDWrapper extracts the case-sensitive legacy stamp wrapper selected by insert.
@@ -313,6 +315,22 @@ func addBindInclude(plan *bindFilePlan) {
 			return
 		}
 		insertAt = include.afterLine
+	}
+	// The last physical include may belong to a platform alternative. Move
+	// beyond surrounding conditions that close before the first managed call,
+	// so the owner sidecar is active for every branch. Keep enclosing guards
+	// that also contain the call intact; no condition is evaluated here.
+	conditionalSource := stripCComments(string(plan.final))[insertAt:firstPosition]
+	conditionalDepth := 0
+	for _, directive := range bindConditionalDirective.FindAllStringSubmatchIndex(conditionalSource, -1) {
+		if conditionalSource[directive[2]:directive[3]] != "endif" {
+			conditionalDepth++
+			continue
+		}
+		conditionalDepth--
+		if conditionalDepth < 0 {
+			insertAt = lineEndIncludingNewline(string(plan.final), firstPosition-len(conditionalSource)+directive[1])
+		}
 	}
 	newline := sourceNewline(string(plan.final))
 	includeLine := fmt.Sprintf("#include \"%s\" // trice-bind: keep as last include before this file's Trice calls", plan.sidecarName)

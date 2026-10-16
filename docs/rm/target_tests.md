@@ -37,12 +37,12 @@ Each result line shows the elapsed time for that script before its name, with ri
 
 Both selections include [step 515](../../scripts/_515_test_logging_features.sh), which runs the existing compiler-to-decoder CE/SL checks and the feature examples:
 
-| Check | Evidence |
-| --- | --- |
-| `TestContextEnrichmentTargetToDecoder` and `TestContextInsertCleanTargetToDecoder` | Real C/C++ records, text/JSON/KV output, structured fields, stamps, reversible Insert/Clean, disabled logging and exactly-once argument evaluation. |
-| `TestContextEnrichmentPoC` and `TestContextEnrichmentPoCRebaseScopeBoundary` | Retained proofs for direct callsites and the scope limitation of the existing Rebase dispatcher. |
-| [PC feature example](../../examples/PC_features/check_output.sh) | Runtime string, fields, stamps/deltas, CE, tag filtering and KV output from the built example. |
-| [G0B1 feature example](../../examples/G0B1_features/check_build.sh) | Firmware build, task-context adapter, runtime-string and structured-field metadata, nonempty ELF/HEX/BIN artifacts. This does not execute the firmware on an MCU. |
+Check | Evidence
+--- | ---
+`TestContextEnrichmentTargetToDecoder` and `TestContextInsertCleanTargetToDecoder` | Real C/C++ records, text/JSON/KV output, structured fields, stamps, reversible Insert/Clean, disabled logging and exactly-once argument evaluation.
+`TestContextEnrichmentPoC` and `TestContextEnrichmentPoCRebaseScopeBoundary` | Retained proofs for direct callsites and the scope limitation of the existing Rebase dispatcher.
+[PC feature example](../../examples/PC_features/check_output.sh) | Runtime string, fields, stamps/deltas, CE, tag filtering and KV output from the built example.
+[G0B1 feature example](../../examples/G0B1_features/check_build.sh) | Firmware build, task-context adapter, runtime-string and structured-field metadata, nonempty ELF/HEX/BIN artifacts. This does not execute the firmware on an MCU.
 
 The compiler/decoder checks require Go, Clang, Clang++ and clangd. The examples require the current repository's `trice` tool, Git and tar; the PC example needs `cc` or `gcc`, and G0B1 needs Make and ARM GNU GCC/objcopy/size with its bare-metal libraries. In `quick`, an unavailable group is explicitly skipped and the runner shows `WARN`. In `full`, missing tools make this step fail. A selected Go test that reports `SKIP`, or fails to report its named `PASS`, is also an error. This prevents an empty test selection from appearing to validate the features. The shared Library CI workflow invokes this same step in `full` mode.
 
@@ -331,26 +331,26 @@ $
 
 ### 8.1. <a id="folder-naming-convention"></a>Folder Naming Convention
 
-| Folder Name Part | Meaning                                                                                                  |
-|:----------------:|----------------------------------------------------------------------------------------------------------|
-|    `testdata`    | This is no test folder. It contains data common to all tests.                                            |
-|      `_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.                     |
-|      `_di_`      | direct mode                                                                                              |
-|      `_de_`      | deferred mode                                                                                            |
-|    `special_`    | a test, not using `./testdata/triceCheck.c`                                                              |
-|    `staticB_`    | static buffer, direct mode only possible                                                                 |
-|    `stackB_`     | stack buffer, direct mode only possible                                                                  |
-|     `ringB_`     | ring buffer, deferred mode and optional parallel direct mode                                             |
-|     `dblB_`      | double buffer, deferred mode and optional parallel direct mode                                           |
-|     `_rtt8_`     | (simulated) SEGGER_RTT byte transfer                                                                     |
-|    `_rtt32_`     | (simulated) SEGGER_RTT word transfer                                                                     |
-|       `__`       | direct and deferred mode together                                                                        |
-|     `_xtea_`     | with encryption, otherwise without encryption                                                            |
-|     `_tcobs`     | TCOBS package framing                                                                                    |
-|     `_cobs`      | COBS package framing                                                                                     |
-|     `_nopf`      | no package framing                                                                                       |
-|    `_multi_`     | Usually each Trice is handled separately. In multi mode, groups of available Trices are framed together. |
-|      `_ua`       | simulated UART A output (for deferred modes)                                                             |
+Folder Name Part | Meaning
+:----------------:|----------------------------------------------------------------------------------------------------------
+`testdata`    | This is no test folder. It contains data common to all tests.
+`_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.
+`_di_`      | direct mode
+`_de_`      | deferred mode
+`special_`    | a test, not using `./testdata/triceCheck.c`
+`staticB_`    | static buffer, direct mode only possible
+`stackB_`     | stack buffer, direct mode only possible
+`ringB_`     | ring buffer, deferred mode and optional parallel direct mode
+`dblB_`      | double buffer, deferred mode and optional parallel direct mode
+`_rtt8_`     | (simulated) SEGGER_RTT byte transfer
+`_rtt32_`     | (simulated) SEGGER_RTT word transfer
+`__`       | direct and deferred mode together
+`_xtea_`     | with encryption, otherwise without encryption
+`_tcobs`     | TCOBS package framing
+`_cobs`      | COBS package framing
+`_nopf`      | no package framing
+`_multi_`     | Usually each Trice is handled separately. In multi mode, groups of available Trices are framed together.
+`_ua`       | simulated UART A output (for deferred modes)
 
 <p align="right">(<a href="#testing-the-trice-target-library">back to top</a>)</p>
 

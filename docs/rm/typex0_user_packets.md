@@ -9,11 +9,11 @@
 
 * [1. Packet Classification](#packet-classification)
 * [2. The typeX0 Counted Format](#the-typex0-counted-format)
-* [3. CLI Option -typeX0](#cli-option--typex0)
+* [3. CLI Option `-typeX0`](#cli-option--typex0)
 * [4. typeX0 Target Code](#typex0-target-code)
   * [4.1. Target-side counted helper](#target-side-counted-helper)
   * [4.2. typeX0 Build Switches](#typex0-build-switches)
-  * [4.3. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
+  * [4.3. `typeX0` Usage in `./examples/G0B1_inst`](#typex0-usage-in-examplesg0b1_inst)
 * [5. Go implementation layout](#go-implementation-layout)
 * [6. Tests](#tests)
 * [7. Initial scope](#initial-scope)
@@ -60,13 +60,13 @@ len >= 2:
 
 Summary:
 
-| Packet length | Selector | Packet Type        | Trice Tool Action       |
-|--------------:|---------:|--------------------|-------------------------|
-|           `0` |        - | `user0B`           | ignored (reserved)      |
-|           `1` |        - | `user1B`           | error (reserved)        |
-|        `2..3` |   `!= 0` | `user2B`, `user3B` | error (reserved)        |
-|        `>= 2` |      `0` | `typeX0`           | according `-typeX0` CLI |
-|        `>= 4` |   `!= 0` | regular Trice      | default                 |
+Packet length | Selector | Packet Type        | Trice Tool Action
+--------------:|---------:|--------------------|-------------------------
+`0` |        - | `user0B`           | ignored (reserved)
+`1` |        - | `user1B`           | error (reserved)
+`2..3` |   `!= 0` | `user2B`, `user3B` | error (reserved)
+`>= 2` |      `0` | `typeX0`           | according `-typeX0` CLI
+`>= 4` |   `!= 0` | regular Trice      | default
 
 Packet length 0 is possible when framing like COBS is used and 2 delimiter bytes (usually 0) occur without a package in between.
 
@@ -202,16 +202,16 @@ Print the same payload twice, once as string and once as spaced hex.
 
 `triceX0.c` contains the counted buffer reference implementation. The Trice tool then needs the CLI switch `-typeX0=[mode:]<format>`, where `counted` is the default mode for values without a colon. Examples:
 
-| CLI switch `trice log ...`     | Meaning                                                             |
-|--------------------------------|---------------------------------------------------------------------|
-| `-typeX0=all:ignore`           | ignore the complete non-mixed X0 package without length checking    |
-| `-typeX0=counted:ignore`       | just check for valid length and ignore                              |
-| `-typeX0=ignore`               | just check for valid length and ignore (short for `counted:ignore`) |
-| `-typeX0=counted:"sig:%60s\n"` | print a right-aligned string with tag `sig:`                        |
-| `-typeX0="%60s\n"`             | print a right-aligned string without a tag (short form, no colon)   |
-| `-typeX0="sig:%60s\n"`         | invalid `sig:` mode because shorthand cannot contain a colon        |
-| `-typeX0=sig:"%60s\n"`         | invalid `sig:` mode                                                 |
-| `-typeX0=forward:<ADDRESS>`    | send X0 package to ADDRESS (not implemented)                        |
+CLI switch `trice log ...`     | Meaning
+--------------------------------|---------------------------------------------------------------------
+`-typeX0=all:ignore`           | ignore the complete non-mixed X0 package without length checking
+`-typeX0=counted:ignore`       | just check for valid length and ignore
+`-typeX0=ignore`               | just check for valid length and ignore (short for `counted:ignore`)
+`-typeX0=counted:"sig:%60s\n"` | print a right-aligned string with tag `sig:`
+`-typeX0="%60s\n"`             | print a right-aligned string without a tag (short form, no colon)
+`-typeX0="sig:%60s\n"`         | invalid `sig:` mode because shorthand cannot contain a colon
+`-typeX0=sig:"%60s\n"`         | invalid `sig:` mode
+`-typeX0=forward:<ADDRESS>`    | send X0 package to ADDRESS (not implemented)
 
 Hint: Depending on shell quoting, these forms can all pass the same raw option value `counted:sig:%60s\n` to the CLI parser:
 
@@ -272,12 +272,12 @@ is a real function and writes counted selector-0 records into the configured Tri
 
 This switch is intentionally independent from `TRICE_OFF`:
 
-| `TRICE_OFF` | `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` | Setting                                                                 |
-|-------------|--------------------------------------|-------------------------------------------------------------------------|
-| `== 0`      | `== 0`                               | normal Trice macros are active, `triceX0()` is a no-op                  |
-| `== 0`      | `== 1`                               | normal Trice macros are active, `triceX0()` emits counted X0 records    |
-| `== 1`      | `== 0`                               | normal Trice macros are off, `triceX0()` is a no-op                     |
-| `== 1`      | `== 1`                               | normal Trice macros are off, `triceX0()` still emits counted X0 records |
+`TRICE_OFF` | `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` | Setting
+-------------|--------------------------------------|-------------------------------------------------------------------------
+`== 0`      | `== 0`                               | normal Trice macros are active, `triceX0()` is a no-op
+`== 0`      | `== 1`                               | normal Trice macros are active, `triceX0()` emits counted X0 records
+`== 1`      | `== 0`                               | normal Trice macros are off, `triceX0()` is a no-op
+`== 1`      | `== 1`                               | normal Trice macros are off, `triceX0()` still emits counted X0 records
 
 The 4th combination is useful for applications that want to use only selector-0 user packets while keeping all normal Trice statements compiled out. The Trice tool can still scan normal Trice statements in the source code for ID maintenance, but the compiler receives no normal Trice output code from them.
 

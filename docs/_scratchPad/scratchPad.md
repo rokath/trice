@@ -15,20 +15,7 @@ TODO:
 RM Demo Text zu lang
 HW Tests
 
-
-Zwischenfrage: Wie kommt go.mod ins scratchPad und wie kann scratchPad komplett für irgendwelche Tests ausgeschlossen werden? Es ist auf gut Deutsch einfach ein Schmierzettel Verzeichnis: 
---- FAIL: TestScratchpadModuleBoundary (0.00s)
-    portability_test.go:160: 
-        	Error Trace:	/home/runner/work/trice/trice/scripts/portability_test.go:160
-        	Error:      	Received unexpected error:
-        	            	open ../docs/scratchPad/go.mod: no such file or directory
-        	Test:       	TestScratchpadModuleBoundary
-FAIL
-coverage: 0.0% of statements in ./...
-FAIL	github.com/rokath/trice/scripts	46.680s
-FAIL
-Error: Process completed with exit code 1.
-
+Trice16F vs C in triceExamples Zeile 50
 
 
 --- Nur antworten nichts machen!

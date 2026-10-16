@@ -30,24 +30,24 @@
 
 Keep each released firmware together with its `til.json`, matching `li.json` if needed, host-tool version, and decoding options such as framing, byte order, and default value width. Retaining an ID preserves its dictionary entry; it does not make every dictionary compatible with every host version. Location information must describe the firmware actually running, even when one cumulative TIL covers multiple firmware versions.
 
-| Firmware and dictionary | Host tool | Supported use |
-| --- | --- | --- |
-| v1.3.0 firmware with its unchanged dictionaries | v1.3.0 | Reproduce historical output with the corresponding original options. |
-| Existing firmware with classic printf formats and retained IDs | Current host | Supported when the formats are valid under the current template syntax and transport settings match. Literal braces are a relevant exception; see the examples below. |
-| Current firmware and current dictionaries, including structured fields or CE | Current host | Supported within the documented record families and CE limits. Current instrumentation and its matching target sources are required when building these features. |
-| A dictionary containing current named fields or doubled literal braces | v1.3.0 | Not a supported interpretation of the new templates. The old host does not understand fields and prints doubled braces literally. |
-| C headers, implementation files, or generated Bind sidecars mixed from different releases | Any host | No general source/build compatibility guarantee. Use target files from one release and regenerate sidecars with the corresponding host tool. |
+Firmware and dictionary | Host tool | Supported use
+--- | --- | ---
+v1.3.0 firmware with its unchanged dictionaries | v1.3.0 | Reproduce historical output with the corresponding original options.
+Existing firmware with classic printf formats and retained IDs | Current host | Supported when the formats are valid under the current template syntax and transport settings match. Literal braces are a relevant exception; see the examples below.
+Current firmware and current dictionaries, including structured fields or CE | Current host | Supported within the documented record families and CE limits. Current instrumentation and its matching target sources are required when building these features.
+A dictionary containing current named fields or doubled literal braces | v1.3.0 | Not a supported interpretation of the new templates. The old host does not understand fields and prints doubled braces literally.
+C headers, implementation files, or generated Bind sidecars mixed from different releases | Any host | No general source/build compatibility guarantee. Use target files from one release and regenerate sidecars with the corresponding host tool.
 
 The following examples use the same unstamped TREX record layout and ID in both host versions. `Strg` is the stored dictionary string; the scalar case carries the value `7`.
 
-| Stored `Strg` | Record payload | v1.3.0 interpretation | Current interpretation |
-| --- | --- | --- | --- |
-| `msg:count=%d` | One 32-bit value | `count=7` | `count=7` |
-| `hi` | No values | `hi` | `hi`; JSON/KV classify it as `untagged` without inserting a tag into `message`. |
-| `msg:literal={x}` | No values | `literal={x}` | `{x}` requires a value; the record is rejected with a diagnostic. |
-| `msg:set={1,2}` | No values | `set={1,2}` | Invalid field name; the record is rejected with a diagnostic. |
-| `msg:literal={{x}}` | No values | `literal={{x}}` | `literal={x}` |
-| `msg:value={x}` | One 32-bit value | Not a supported one-value printf format | `value=7`, with field `x=7` in structured output. |
+Stored `Strg` | Record payload | v1.3.0 interpretation | Current interpretation
+--- | --- | --- | ---
+`msg:count=%d` | One 32-bit value | `count=7` | `count=7`
+`hi` | No values | `hi` | `hi`; JSON/KV classify it as `untagged` without inserting a tag into `message`.
+`msg:literal={x}` | No values | `literal={x}` | `{x}` requires a value; the record is rejected with a diagnostic.
+`msg:set={1,2}` | No values | `set={1,2}` | Invalid field name; the record is rejected with a diagnostic.
+`msg:literal={{x}}` | No values | `literal={{x}}` | `literal={x}`
+`msg:value={x}` | One 32-bit value | Not a supported one-value printf format | `value=7`, with field `x=7` in structured output.
 
 For unchanged historical firmware that used literal braces, replay with its archived dictionary and matching old host tool. In sources built with the current tools, write literal braces as `{{` and `}}`, then regenerate IDs/dictionaries and rebuild. Logging does not rewrite supplied dictionaries, and historical dictionaries are not automatically converted. An unchanged binary record layout alone does not establish template compatibility. Replay checks must inspect output and diagnostics: a rejected record does not necessarily make the logger exit with a nonzero status.
 
@@ -55,16 +55,16 @@ For unchanged historical firmware that used literal braces, replay with its arch
 
 Review scripts written for 1.x before using the v2 tools. These changes are relative to v1.3.0 and apply to both `trice log` and `tlog` where relevant:
 
-| Previous usage | Required adjustment |
-| --- | --- |
-| `trice generate -tilC` | Use `trice generate -src Core -logC`, selecting your own sources. Run Insert or Bind first. Only currently referenced IDs are emitted, not the whole historical TIL. The default output is now `generated/til.c`; use `-logC=build/til.c` to choose a path. |
-| `trice generate -abc deviceX` followed by compiling `deviceX.c` | A name without a directory now produces `generated/deviceX.h` and `.c`. Compile the file from its new location, select another directory with `-genDir`, or specify the target path, for example `-abc=custom/deviceX`. ABC itself was already included in v1.3.0. |
-| ID management with `-liPath` | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it. |
-| Logging with `-liPath` | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename. |
-| `-pick err:wrn` or `-ban dbg:trace` | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above. |
-| `-ulabel alpha:beta` to register two tags | Use `-ulabel alpha -ulabel beta`. A colon now assigns one tag's weight or color, for example `-ulabel alpha:650`. User-defined tags match exact spelling. |
-| Built-in one-letter tags or selectors, or `OK` as a Message alias | Use descriptive names such as `err`, `wrn`, `inf`, `dbg` and `msg`, including in `-IDRange`. Built-in names ignore case. The old aliases are removed; unregistered prefixes count as `untagged`, and unknown selectors are errors. `rx` now selects Receive and `tx` selects Transmit, without the former overlap with Read/Write. |
-| `-logLevel` based on the old tag-table order | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown. |
+Previous usage | Required adjustment
+--- | ---
+`trice generate -tilC` | Use `trice generate -src Core -logC`, selecting your own sources. Run Insert or Bind first. Only currently referenced IDs are emitted, not the whole historical TIL. The default output is now `generated/til.c`; use `-logC=build/til.c` to choose a path.
+`trice generate -abc deviceX` followed by compiling `deviceX.c` | A name without a directory now produces `generated/deviceX.h` and `.c`. Compile the file from its new location, select another directory with `-genDir`, or specify the target path, for example `-abc=custom/deviceX`. ABC itself was already included in v1.3.0.
+ID management with `-liPath` | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it.
+Logging with `-liPath` | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename.
+`-pick err:wrn` or `-ban dbg:trace` | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above.
+`-ulabel alpha:beta` to register two tags | Use `-ulabel alpha -ulabel beta`. A colon now assigns one tag's weight or color, for example `-ulabel alpha:650`. User-defined tags match exact spelling.
+Built-in one-letter tags or selectors, or `OK` as a Message alias | Use descriptive names such as `err`, `wrn`, `inf`, `dbg` and `msg`, including in `-IDRange`. Built-in names ignore case. The old aliases are removed; unregistered prefixes count as `untagged`, and unknown selectors are errors. `rx` now selects Receive and `tx` selects Transmit, without the former overlap with Read/Write.
+`-logLevel` based on the old tag-table order | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown.
 
 Further changes can affect builds and automated checks:
 

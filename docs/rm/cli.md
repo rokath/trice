@@ -20,11 +20,11 @@
   * [2.9. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
   * [2.10. Explore and modify tags and their colors](#explore-and-modify-tags-and-their-colors)
   * [2.11. Location Information](#location-information)
-* [3. Visualization output with -vis](#visualization-output-with--vis)
+* [3. Visualization output with `-vis`](#visualization-output-with--vis)
 * [4. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
   * [4.1. The common live-data format](#the-common-live-data-format)
-  * [4.2. ./examples/DemoDataCSV](#examplesdemodatacsv)
-  * [4.3. ./examples/DemoDataTrice](#examplesdemodatatrice)
+  * [4.2. ./examples/DemoData_CSV](#examplesdemodata_csv)
+  * [4.3. ./examples/DemoData_Trice](#examplesdemodata_trice)
   * [4.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
   * [4.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
   * [4.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
@@ -362,7 +362,7 @@ Trice records to `tlog`; `tlog` decodes them and sends the same CSV format
 onward. This separation means that one LabPlot project works for both
 examples.
 
-### 4.2. <a id="examplesdemodatacsv"></a>./examples/DemoData_CSV
+### 4.2. <a id="examplesdemodata_csv"></a>./examples/DemoData_CSV
 
 The [CSV producer](../../examples/DemoData_CSV/src/main.c) is a small C11 program
 for Windows, macOS, and Linux. Each newline-terminated record contains
@@ -440,7 +440,7 @@ time_s,x,y,z
 th@Thomass-MacBook-Pro-7 bin % 
 ```
 
-### 4.3. <a id="examplesdemodatatrice"></a>./examples/DemoData_Trice
+### 4.3. <a id="examplesdemodata_trice"></a>./examples/DemoData_Trice
 
 The [Trice producer](../../examples/DemoData_Trice/src/main.c) transports the
 same signals as binary Trice records. Keep it inside the repository: its

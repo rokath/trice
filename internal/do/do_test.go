@@ -6,9 +6,7 @@ import (
 	"bytes"
 	"io"
 	"net"
-	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -23,27 +21,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
-
-// requireWindowsTCPTestsEnabled skips the test unless the Windows TCP test environment is enabled.
-func requireWindowsTCPTestsEnabled(t *testing.T) {
-	t.Helper()
-	// These TCP listener tests intentionally open a local server socket.
-	// On Windows, Defender Firewall may show interactive prompts for the
-	// temporary go test binaries that host these listeners. The binaries live in
-	// changing go-build paths, so allowing them once does not reliably suppress
-	// later prompts. That makes routine local test runs noisy and disruptive for
-	// developers who mostly work on Windows.
-	//
-	// We therefore skip these tests on Windows by default and require an
-	// explicit opt-in when someone actually wants to verify the listener-based
-	// behavior there.
-	//
-	// Enable with:
-	//   TRICE_RUN_WINDOWS_TCP_TESTS=1 go test ./...
-	if runtime.GOOS == "windows" && os.Getenv("TRICE_RUN_WINDOWS_TCP_TESTS") == "" {
-		t.Skip("skipping TCP listener test on Windows; set TRICE_RUN_WINDOWS_TCP_TESTS=1 to enable")
-	}
-}
 
 type doGlobalsSnapshot struct {
 	tcpOutAddr        string
@@ -265,18 +242,22 @@ func TestTCPWriterWithoutAddressReturnsDiscardWriter(t *testing.T) {
 	}
 }
 
-// pickLoopbackAddr returns an available loopback address for TCP-based tests.
+// pickLoopbackAddr keeps the selected socket open until tcpWriter accepts its
+// client. Injecting that listener prevents a reserve/close/rebind race.
 func pickLoopbackAddr(t *testing.T) string {
 	t.Helper()
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	l, err := net.ListenTCP("tcp4", &net.TCPAddr{IP: net.IPv4(127, 0, 0, 1)})
 	if err != nil {
 		t.Fatalf("failed to reserve loopback port: %v", err)
 	}
-	addr := l.Addr().String()
-	if err := l.Close(); err != nil {
-		t.Fatalf("failed to close temporary listener: %v", err)
-	}
-	return addr
+	assert.NoError(t, l.SetDeadline(time.Now().Add(5*time.Second)))
+	savedListen := TCPListen
+	TCPListen = func(network, address string) (net.Listener, error) { return l, nil }
+	t.Cleanup(func() {
+		_ = l.Close()
+		TCPListen = savedListen
+	})
+	return l.Addr().String()
 }
 
 // connectWithRetry connects to the TCP endpoint with retries until it becomes reachable.
@@ -295,33 +276,64 @@ func connectWithRetry(t *testing.T, addr string) net.Conn {
 	}
 }
 
+// startTCPWriterTest joins the output setup even if an assertion stops the
+// caller before it receives the writer. Closing the client releases a pending
+// handshake; any unclaimed server connection is then closed before globals reset.
+func startTCPWriterTest(t *testing.T) (net.Conn, <-chan io.Writer) {
+	t.Helper()
+	TCPOutAddr = pickLoopbackAddr(t)
+	ready := make(chan io.Writer, 1)
+	done := make(chan struct{})
+	var client net.Conn
+	t.Cleanup(func() {
+		if client != nil {
+			_ = client.Close()
+		}
+		select {
+		case <-done:
+		case <-time.After(6 * time.Second):
+			t.Error("TCP writer setup did not stop")
+		}
+		select {
+		case writer := <-ready:
+			if closer, ok := writer.(io.Closer); ok {
+				assert.NoError(t, closer.Close())
+			}
+		default:
+		}
+	})
+	go func() {
+		ready <- tcpWriter()
+		close(done)
+	}()
+	client = connectWithRetry(t, TCPOutAddr)
+	assert.NoError(t, client.SetDeadline(time.Now().Add(2*time.Second)))
+	return client, ready
+}
+
 // TestTCPWriterWithAddressReturnsConnAndForwardsWrites verifies the expected behavior.
 func TestTCPWriterWithAddressReturnsConnAndForwardsWrites(t *testing.T) {
-	requireWindowsTCPTestsEnabled(t)
-
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
 
 	Verbose = false
-	TCPOutAddr = pickLoopbackAddr(t)
-
-	ready := make(chan io.Writer, 1)
-	go func() {
-		ready <- tcpWriter()
-	}()
-
-	client := connectWithRetry(t, TCPOutAddr)
+	client, ready := startTCPWriterTest(t)
 	defer client.Close()
-	_ = client.SetDeadline(time.Now().Add(2 * time.Second))
 
 	if _, err := client.Write([]byte("hello")); err != nil {
 		t.Fatalf("client write failed: %v", err)
 	}
 
-	serverWriter := <-ready
+	var serverWriter io.Writer
+	select {
+	case serverWriter = <-ready:
+	case <-time.After(5 * time.Second):
+		t.Fatal("TCP writer did not finish its handshake")
+	}
 	if serverWriter == nil {
 		t.Fatalf("expected server writer")
 	}
+	defer serverWriter.(io.Closer).Close()
 	if _, err := serverWriter.Write([]byte("world")); err != nil {
 		t.Fatalf("server write failed: %v", err)
 	}
@@ -337,22 +349,12 @@ func TestTCPWriterWithAddressReturnsConnAndForwardsWrites(t *testing.T) {
 
 // TestTCPWriterVerboseSendsGreeting verifies the expected behavior.
 func TestTCPWriterVerboseSendsGreeting(t *testing.T) {
-	requireWindowsTCPTestsEnabled(t)
-
 	s := snapshotDoGlobals()
 	t.Cleanup(func() { restoreDoGlobals(s) })
 
 	Verbose = true
-	TCPOutAddr = pickLoopbackAddr(t)
-
-	ready := make(chan io.Writer, 1)
-	go func() {
-		ready <- tcpWriter()
-	}()
-
-	client := connectWithRetry(t, TCPOutAddr)
+	client, ready := startTCPWriterTest(t)
 	defer client.Close()
-	_ = client.SetDeadline(time.Now().Add(2 * time.Second))
 
 	if _, err := client.Write([]byte("ping")); err != nil {
 		t.Fatalf("client write failed: %v", err)
@@ -366,7 +368,13 @@ func TestTCPWriterVerboseSendsGreeting(t *testing.T) {
 		t.Fatalf("unexpected greeting: %q", string(greeting))
 	}
 
-	if <-ready == nil {
-		t.Fatalf("expected server writer")
+	select {
+	case writer := <-ready:
+		if writer == nil {
+			t.Fatal("expected server writer")
+		}
+		assert.NoError(t, writer.(io.Closer).Close())
+	case <-time.After(5 * time.Second):
+		t.Fatal("TCP writer did not finish its greeting")
 	}
 }

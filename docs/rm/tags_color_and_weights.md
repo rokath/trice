@@ -64,16 +64,16 @@ Each tag group has one integer weight in the range `0..999`. A larger value mean
 
 The following table lists the default weights defined in [lineTransformerANSI.go](../../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-ulabel warn:650`.
 
-| Weight | Level boundary | Other groups with this default weight |
-| ---: | --- | --- |
-| 900 | FATAL | EMERGENCY |
-| 800 | CRITICAL | — |
-| 700 | ERROR | ALARM, ASSERT |
-| 600 | WARNING | ALERT, ATTENTION |
-| 500 | INFO | CONFIG, DEFAULT, MESSAGE, NOTICE, `untagged` |
-| 300 | DEBUG | DIAG, READ, RECEIVE, TEST, TRANSMIT, WRITE |
-| 100 | TRACE | DELTATIME, INTERRUPT, MICROSECOND, MILLISECOND, SECOND, SIGNAL, TIME |
-| 0 | VERBOSE | — |
+Weight | Level boundary | Other groups with this default weight
+---: | --- | ---
+900 | FATAL | EMERGENCY
+800 | CRITICAL | —
+700 | ERROR | ALARM, ASSERT
+600 | WARNING | ALERT, ATTENTION
+500 | INFO | CONFIG, DEFAULT, MESSAGE, NOTICE, `untagged`
+300 | DEBUG | DIAG, READ, RECEIVE, TEST, TRANSMIT, WRITE
+100 | TRACE | DELTATIME, INTERRUPT, MICROSECOND, MILLISECOND, SECOND, SIGNAL, TIME
+0 | VERBOSE | —
 
 Only the eight names in the level-boundary column define levels. Other tags are categories: they receive a [structured level derived from their effective weight](structured_logging.md#json-and-kv-contract), but do not introduce additional boundaries. For example, RECEIVE has default weight 300 and exported level DEBUG; `-ulabel rx:750` changes its exported level to ERROR while keeping its tag RECEIVE. CLI overrides never move the level boundaries.
 
@@ -179,12 +179,12 @@ Command-specific user tags, weight overrides, and color overrides are discarded 
 
 The host assigns the built-in `untagged` group once to an application event whose stored format string has no recognized tag. This also applies to an empty prefix, an unknown prefix caused by a typo, or ordinary text containing a colon. For ID-based messages, classification uses the format string from the Trice ID lookup table rather than text supplied as a runtime value.
 
-| Stored format string | Visible text with `-color off` |
-| --- | --- |
-| `Hello` | `Hello` |
-| `untagged:Hello` | `untagged:Hello` |
-| `mgs:blah` | `mgs:blah` |
-| `msg:Hello` | `msg:Hello` |
+Stored format string | Visible text with `-color off`
+--- | ---
+`Hello` | `Hello`
+`untagged:Hello` | `untagged:Hello`
+`mgs:blah` | `mgs:blah`
+`msg:Hello` | `msg:Hello`
 
 The host never adds `untagged:` to visible application text. It appears only if the application supplied those characters. For example, `trice("Hello")` displays `Hello` with every palette, while an unknown prefix such as `mgs:blah` remains visible so a typo can be spotted. An explicitly written `untagged:` follows the usual presentation rules for lowercase tags: `-color off` keeps it, while `-color none` and `default` remove the tag from the visible text.
 

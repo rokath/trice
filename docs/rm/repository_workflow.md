@@ -7,7 +7,7 @@
 
 <!-- mdtoc -->
 
-* [1. Install opencommit on macOS](#install-opencommit-on-macos)
+* [1. Install `opencommit` on macOS](#install-opencommit-on-macos)
   * [1.1. 🧰 Prerequisites](#prerequisites)
   * [1.2. 🔑 Step 1 — Get Your OpenAI API Key](#step-1--get-your-openai-api-key)
   * [1.3. ⚙️ Step 2 — Install OpenCommit](#step-2--install-opencommit)
@@ -16,7 +16,7 @@
   * [1.6. 🚀 Step 5 — Use OpenCommit](#step-5--use-opencommit)
   * [1.7. 🔁 Step 6 — (Optional) Install Git Hook](#step-6--optional-install-git-hook)
   * [1.8. 🧩 Step 7 — Troubleshooting](#step-7--troubleshooting)
-* [2. Install opencommit on Windows](#install-opencommit-on-windows)
+* [2. Install `opencommit` on Windows](#install-opencommit-on-windows)
   * [2.1. 🧭 Overview](#overview)
   * [2.2. ⚙️ Prerequisites](#prerequisites-1)
   * [2.3. 🪄 Installation Steps](#installation-steps)
@@ -31,39 +31,39 @@
 
 </details>
 
-| Action                                    | Command                                                                                                                                                                                                 |
-|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Get a local repository copy.              | `git clone github.com/rokath/trice.git trice`                                                                                                                                                           |
-| Show current folder                       | `pwd`                                                                                                                                                                                                   |
-| Show repository status.                   | `git status`                                                                                                                                                                                            |
-| Clean the repo, if needed.                | `git stash push`                                                                                                                                                                                        |
-| Show all branches.                        | `git branch -a`                                                                                                                                                                                         |
-| Switch to main.                           | `git switch main`                                                                                                                                                                                       |
-| Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`                                                                                                                                                                   |
-| List worktree.                            | `git worktree list`                                                                                                                                                                                     |
-| Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`                                                                                                                                                              |
-| Add branch dev to worktree                | `git worktree add ../trice-dev dev`                                                                                                                                                                     |
-| Rstore the repo if needed.                | `git stash pop`                                                                                                                                                                                         |
-| Change to new folder.                     | `cd ../trice_wt_PRIDa`                                                                                                                                                                                  |
-| Show repository status.                   | `git status`                                                                                                                                                                                            |
-| Test pull request.                        | `./scripts/testAll.sh full`                                                                                                                                                                             |
-| Show repository status.                   | `git status`                                                                                                                                                                                            |
-| Clean pull request.                       | `git restore .`                                                                                                                                                                                         |
-| Change to previous folder.                | `cd -`                                                                                                                                                                                                  |
-| Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`                                                                                                                                                                 |
-| Delete git branch.                        | `git branch -d PRIDa`                                                                                                                                                                                   |
-| Log last 3 commits in branch maste        | `git log -3 main`                                                                                                                                                                                       |
-| Checkout by hash                          | `git checkout <hash>`                                                                                                                                                                                   |
-| One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`      |
-| One Liner Log for branch `devel`          | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`                         |
-| One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'` |
-| New worktree detached branch for compare  | `git worktree add --detach ../trice_9995fdc4b 9995fdc4b`                                                                                                                                                |
-| Add a special commit worktree             | `./AddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>`                                                                                                                                 |
-| Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`                                                                                        |
-| Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`                                                                                                                       |
-| Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```                                                                                                                                                   |
-| Show all opencommit parameter             | `oco config describe`                                                                                                                                                                                   |
-| Show some config settings                 | `oco config get OCO_MODEL && oco config get OCO_PROMPT_MODULE && oco config get OCO_EMOJI`                                                                                                              |
+Action                                    | Command
+-------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Get a local repository copy.              | `git clone github.com/rokath/trice.git trice`
+Show current folder                       | `pwd`
+Show repository status.                   | `git status`
+Clean the repo, if needed.                | `git stash push`
+Show all branches.                        | `git branch -a`
+Switch to main.                           | `git switch main`
+Fetch a pull request as new branch PRIDa. | `git fetch origin pull/ID/head:PRIDa`
+List worktree.                            | `git worktree list`
+Add to worktree.                          | `git worktree add ../trice_wt_PRIDa PRIDa`
+Add branch dev to worktree                | `git worktree add ../trice-dev dev`
+Rstore the repo if needed.                | `git stash pop`
+Change to new folder.                     | `cd ../trice_wt_PRIDa`
+Show repository status.                   | `git status`
+Test pull request.                        | `./scripts/testAll.sh full`
+Show repository status.                   | `git status`
+Clean pull request.                       | `git restore .`
+Change to previous folder.                | `cd -`
+Delete worktree branch.                   | `git worktree remove ../trice_wt_PRIDa`
+Delete git branch.                        | `git branch -d PRIDa`
+Log last 3 commits in branch maste        | `git log -3 main`
+Checkout by hash                          | `git checkout <hash>`
+One Liner Log until shortly before v1.0.0 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M' --since 2025-04-01`
+One Liner Log for branch `devel`          | `git log --graph --decorate devel --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`
+One Liner Log with author                 | `git log --graph --decorate --all --pretty=format:'%C(bold yellow)%h%Creset %C(bold green)%ad%Creset %C(bold blue)%an%Creset %C(bold cyan)%d%Creset %C(white)%s%Creset' --date=format:'%Y-%m-%d %H:%M'`
+New worktree detached branch for compare  | `git worktree add --detach ../trice_9995fdc4b 9995fdc4b`
+Add a special commit worktree             | `./AddWorktreeFromGitLogLineData.sh <commit-hash> <YYYY-MM-DD> <HH:MM>`
+Create a bunch of worktrees               | `./AddWorktreesBetween.sh "<since-date>" "<until-date>"` or `./AddWorktreesBetween.sh <older-hash> <newer-hash>`
+Delete all `trice_*` worktrees            | `cd ~/repos && rm trice_* && cd trice && git worktree prune && git worktree list`
+Delete all `trice_*` branches             | ```git branch -D `git branch \| grep -E 'trice_'` ```
+Show all opencommit parameter             | `oco config describe`
+Show some config settings                 | `oco config get OCO_MODEL && oco config get OCO_PROMPT_MODULE && oco config get OCO_EMOJI`
 
 ## 1. <a id="install-opencommit-on-macos"></a>Install `opencommit` on macOS
 
