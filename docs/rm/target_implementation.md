@@ -1,20 +1,18 @@
-# Trice Target Implementation
+# Target Implementation
 
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
 * [1. TRICE Macro structure](#trice-macro-structure)
-  * [1.1. TRICE_ENTER](#trice_enter)
-  * [1.2. TRICE_PUT](#trice_put)
-  * [1.3. TRICE_LEAVE](#trice_leave)
-* [2. TRICE_STACK_BUFFER](#trice_stack_buffer)
-* [3. TRICE_STATIC_BUFFER](#trice_static_buffer)
-* [4. TRICE_DOUBLE_BUFFER](#trice_double_buffer)
-* [5. TRICE_RING_BUFFER](#trice_ring_buffer)
+  * [1.1. TRICEENTER](#triceenter)
+  * [1.2. TRICEPUT](#triceput)
+  * [1.3. TRICELEAVE](#triceleave)
+* [2. TRICESTACKBUFFER](#tricestackbuffer)
+* [3. TRICESTATICBUFFER](#tricestaticbuffer)
+* [4. TRICEDOUBLEBUFFER](#tricedoublebuffer)
+* [5. TRICERINGBUFFER](#triceringbuffer)
 * [6. Deferred Out](#deferred-out)
   * [6.1. Double Buffer](#double-buffer)
   * [6.2. Ring Buffer](#ring-buffer)
@@ -25,52 +23,52 @@
     * [6.3.4. Selecting a printf implementation](#selecting-a-printf-implementation)
     * [6.3.5. Formatter families](#formatter-families)
     * [6.3.6. Optional prefix hook](#optional-prefix-hook)
-    * [6.3.7. Calling `TriceLog`](#calling-tricelog)
+    * [6.3.7. Calling TriceLog](#calling-tricelog)
     * [6.3.8. Size-oriented configurations](#size-oriented-configurations)
     * [6.3.9. Examples](#examples)
 * [7. Direct Transfer](#direct-transfer)
 * [8. Possible Target Code Improvements](#possible-target-code-improvements)
+* [9. Target Code Overview](#target-code-overview)
+* [10. Obsolete RPC support](#obsolete-rpc-support)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
 ## 1. <a id="trice-macro-structure"></a>TRICE Macro structure
 
-### 1.1. <a id="trice_enter"></a>TRICE_ENTER
+### 1.1. <a id="triceenter"></a>TRICE_ENTER
 
 * Optionally disable interrupts.
 * Prepare `TriceBufferWritePosition` and keep its initial value.
 
-### 1.2. <a id="trice_put"></a>TRICE_PUT
+### 1.2. <a id="triceput"></a>TRICE_PUT
 
 * Use and increment `TriceBufferWritePosition`.
 
-### 1.3. <a id="trice_leave"></a>TRICE_LEAVE
+### 1.3. <a id="triceleave"></a>TRICE_LEAVE
 
 * Use `TriceBufferWritePosition` and its initial value for data transfer
 * Optionally restore interrupt state.
 
-## 2. <a id="trice_stack_buffer"></a>TRICE_STACK_BUFFER
+## 2. <a id="tricestackbuffer"></a>TRICE_STACK_BUFFER
 
 * `TRICE_ENTER`: Allocate stack
 * `TRICE_LEAVE`: Call TriceDirectOut()
 
-## 3. <a id="trice_static_buffer"></a>TRICE_STATIC_BUFFER
+## 3. <a id="tricestaticbuffer"></a>TRICE_STATIC_BUFFER
 
 * This is like `TRICE_STACK_BUFFER` but avoids stack allocation, what is better for many stacks.
 * `TRICE_ENTER`: Set TriceBufferWritePosition to buffer start.
 * `TRICE_LEAVE`: Call TriceDirectOut().
 
-## 4. <a id="trice_double_buffer"></a>TRICE_DOUBLE_BUFFER
+## 4. <a id="tricedoublebuffer"></a>TRICE_DOUBLE_BUFFER
 
 * `TRICE_ENTER`: Keep TriceBufferWritePosition.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
-## 5. <a id="trice_ring_buffer"></a>TRICE_RING_BUFFER
+## 5. <a id="triceringbuffer"></a>TRICE_RING_BUFFER
 
 * `TRICE_ENTER`: Keep or wrap TriceBufferWritePosition and add offset.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
@@ -499,5 +497,63 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 * This function interface is used for all cases.
 * First we use the existing code for implementation and then we clean the code.
 
-<p align="right">(<a href="#trice-target-implementation">back to top</a>)</p>
+## 9. <a id="target-code-overview"></a>Target Code Overview
+
+* `./src`: **User Interface**
+
+File                      | description
+---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------
+[trice.h](../../src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path.
+`triceConfig.h`           | Create this file to overwrite  [triceDefaultConfig.h](../../src/triceDefaultConfig.h) as needed.
+
+* `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
+
+See [Trice Project Image Size Optimization](memory_usage.md) for compiling `src/*.c` and removing unused library sections from the final image.
+
+File                                                | description
+-----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------
+[cobs.h](../../src/cobs.h)                             | message packaging, alternatively for tcobs
+[cobsEncode.c](../../src/cobsEncode.c)                 | message encoding, alternatively for tcobs
+[cobsDecode.c](../../src/cobsDecode.c)                 | message decoding, normally not needed
+[trice.c](../../src/trice.c)                           | trice core lib
+[trice8McuOrder.h](../../src/trice8McuOrder.h)         | trice MCU endianness lib
+[trice8McuReverse.h](../../src/trice8McuReverse.h)     | trice MCU reverse endianness lib
+[trice16McuOrder.h](../../src/trice16McuOrder.h)       | trice MCU endianness lib
+[trice16McuReverse.h](../../src/trice16McuReverse.h)   | trice MCU reverse endianness lib
+[trice32McuOrder.h](../../src/trice32McuOrder.h)       | trice MCU endianness lib
+[trice32McuReverse.h](../../src/trice32McuReverse.h)   | trice MCU reverse endianness lib
+[trice64McuOrder.h](../../src/trice64McuOrder.h)       | trice MCU endianness lib
+[trice64McuReverse.h](../../src/trice64McuReverse.h)   | trice MCU reverse endianness lib
+[SEGGER_RTT.h](../../src/SEGGER_RTT.h)                 | Segger RTT code interface
+[SEGGER_RTT.c](../../src/SEGGER_RTT.c)                 | Segger RTT code
+[SEGGER_RTT_ConfDefaults.h](../../src/SEGGER_RTT_ConfDefaults.h) | SEGGER defaults for settings not supplied by the project
+[SEGGER_RTT_Conf.h](../../src/default_conf/SEGGER_RTT_Conf.h) | Small Trice fallback configuration; project headers take precedence
+[SEGGER_RTT_LICENSE.md](../../src/SEGGER_RTT_LICENSE.md) | SEGGER license to retain when redistributing its target sources
+[tcobs.h](../../src/tcobs.h)                           | message compression and packaging interface
+[tcobsv1Encode.c](../../src/tcobsv1Encode.c)           | message encoding and packaging
+[tcobsv1Decode.c](../../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed
+[tcobsv1Internal.h](../../src/tcobsv1Internal.h)       | message decoding and packaging internal interface
+[trice8.h](../../src/trice8.h)                         | 8-bit trice code interface
+[trice8.c](../../src/trice8.c)                         | 8-bit trice code
+[trice16.h](../../src/trice16.h)                       | 16-bit trice code interface
+[trice16.c](../../src/trice16.c)                       | 16-bit trice code
+[trice32.h](../../src/trice32.h)                       | 32-bit trice code interface
+[trice32.c](../../src/trice32.c)                       | 32-bit trice code
+[trice64.h](../../src/trice64.h)                       | 64-bit trice code interface
+[trice64.c](../../src/trice64.c)                       | 64-bit trice code
+[triceAuxiliary.c](../../src/triceAuxiliary.c)         | trice code for auxiliary interfaces
+[triceDefaultConfig.h](../../src/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*
+[triceDoubleBuffer.c](../../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode
+[triceStackBuffer.c](../../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode
+[triceRingBuffer.c](../../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode
+[xtea.h](../../src/xtea.h)                             | XTEA message encryption/decryption interface
+[xtea.c](../../src/xtea.c)                             | XTEA message encryption/decryption code
+
+* The *tcobs\*.\** files are copied from [tcobs v1](https://github.com/rokath/tcobs). They are maintained there and extensively tested and probably not a matter of significant change.
+* The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
+
+
+## 10. <a id="obsolete-rpc-support"></a>Obsolete RPC support
+
+The older RPC implementation is obsolete; it is separate from current [ABC commands](abc_asynchronous_broadcast_commands.md). Some library sources, tests and examples still contain RPC compatibility code. Do not enable it for a new integration. Removing it from example code is a separate task; this documentation reorganization does not change those sources.
 

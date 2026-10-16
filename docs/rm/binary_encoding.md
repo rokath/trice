@@ -1,9 +1,7 @@
-# Binary Encoding
+# Binary Format, Framing and Encryption
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -12,11 +10,13 @@
 * [3. Package Format](#package-format)
   * [3.1. typeX0 Records](#typex0-records)
   * [3.2. Framing - NONE or with COBS or TCOBS encoding](#framing---none-or-with-cobs-or-tcobs-encoding)
+* [4. Framing and encoder dependencies](#framing-and-encoder-dependencies)
+* [5. Endianness](#endianness)
+* [6. Optional XTEA encryption](#optional-xtea-encryption)
+* [7. Minimal Transfer Bytes Amount](#minimal-transfer-bytes-amount)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -24,7 +24,7 @@
 
 - An arriving Trice buffer is framed. `tlog` expects TCOBS as default.
 - The Trice buffer arrives in a known endianness. `tlog` expects little endian as default.
-- The first 2 bytes are a 16-bit value with 2 most significant bits as selector bits. If both are `00` a special TypeX0 user buffer is detected. `tlog` then is expecting the 14 LSB as a payload count per default. Else we have a real Trice buffer. They all contain 2 bytes serving as cycle and payload count in a combined way: 
+- The first 2 bytes are a 16-bit value with 2 most significant bits as selector bits. If both are `00` a special TypeX0 user buffer is detected. `tlog` then is expecting the 14 LSB as a payload count per default. Else we have a real Trice buffer. They all contain 2 bytes serving as cycle and payload count in a combined way:
 
 ![CountAndCycle.svg](../ref/CountAndCycleBasic.svg)
 
@@ -86,7 +86,7 @@ The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and t
 
   16-bit groups                      | Selector (2 msb) | Comment                                                                                   | Endianness sizes
   :-----------------------------------|:----------------:|-------------------------------------------------------------------------------------------|:--------------------------------
-  _________ `00xxxxxxX ...`          |        0         | [typeX0 record](#typex0-records), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`
+  _________ `00xxxxxxX ...`          |        0         | [typeX0 record](binary_encoding.md#typex0-records), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`
   _________ `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, Trice format without     stamp                                         | ___ `u16 u16 [uW] ... [uW]`
   _________ `10iiiiiiI TT NC ...`    |        2         | >= 4-byte message, Trice format with 16-bit stamp                                         | ___ `u16 u16 u16 [uW] ... [uW]`
   `10iiiiiiI 10iiiiiiI TT NC ...`    |        2         | First 16bit are doubled. Info over `-d16` trice switch.                                   | `u16 u16 u16 u16 [uW] ... [uW]`
@@ -177,7 +177,114 @@ One possible use case is to have user **printi** statements parallel to Trices (
 * wr: The internal write function bit width.
 * use: The possible user write function bit width (auxiliary write)
 
+## 4. <a id="framing-and-encoder-dependencies"></a>Framing and encoder dependencies
 
+* Trice messages are framed binary data, if framing is not disabled.
+* Framing is important for data disruption cases and is done with [TCOBS](https://github.com/rokath/tcobs) (has included data compression) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all.
+  * Set `TRICE_DIRECT_OUT_FRAMING` and/or `TRICE_DEFERRED_OUT_FRAMING` inside `triceConfig.h` and use the Trice tool `-packageFraming` switch accordingly.
+* For robustness each Trice can get its own (T)COBS package (`TRICE_DEFERRED_TRANSFER_MODE == TRICE_SINGLE_PACK_MODE`). That is configurable for transfer data reduction. Use `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_MULTI_PACK_MODE` inside `triceConfig.h` (is now default). This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
 
-<p align="right">(<a href="#binary-encoding">back to top</a>)</p>
+Encoder dependencies follow the **active outputs**. Select direct framing with `TRICE_DIRECT_OUT_FRAMING` and deferred framing with `TRICE_DEFERRED_OUT_FRAMING`. An inactive output's framing setting adds no dependency. For example, a direct-only COBS application does not need TCOBS despite the deferred framing default.
+
+Active output framing | Required encoder source | Encoder sources that can be omitted
+--- | --- | ---
+TCOBS only | `src/tcobsv1Encode.c` | `src/cobsEncode.c`
+COBS only | `src/cobsEncode.c` | `src/tcobsv1Encode.c`
+NONE only | None | Both encoder sources
+Direct COBS and deferred TCOBS, or the reverse | Both encoder sources | Neither
+
+These selective builds work without LTO, optimization or linker removal of unused sections. Encryption-disabled builds need no `src/xtea.c`; builds without RTT need no `src/SEGGER_RTT.c` or project RTT configuration. With the Trice backend disabled (`TRICE_OFF` or `TRICE_CLEAN`, without counted typeX0 transmission), retained UART settings do not require `triceUart.h` or UART hardware hooks. The [minimal demos](examples.md#minimal-pc-demos-direct-and-deferred) still compile `src/*.c` for simplicity; removing unreferenced code from such a complete-library build remains a separate [image-size optimization](memory_usage.md).
+
+`TriceEncode(encrypt, framing, dst, buf, len)` keeps its runtime framing argument. By default, `TRICE_COBS_ENCODE_SUPPORT` and `TRICE_TCOBS_ENCODE_SUPPORT` include exactly the encoders needed by active outputs. If your own code calls this API with additional framing methods, enable the corresponding support in `triceConfig.h` and link its encoder source. For example, add runtime COBS to an otherwise TCOBS-only application with:
+
+```c
+#define TRICE_COBS_ENCODE_SUPPORT 1
+```
+
+Use `TRICE_TCOBS_ENCODE_SUPPORT 1` to add runtime TCOBS instead. Both switches accept only `0` or `1`; disabling an encoder required by an active output is a compile-time error. A request for a framing method not included in the build returns `0`, leaves the source and destination untouched, and produces no fallback frame. Unknown framing values also return `0`. NONE remains available without either encoder; its return value is the copied byte count, without a delimiter. Check the return value before sending the destination buffer.
+
+The [encoder dependency tests](../../internal/id/encoder_dependencies_test.go) link isolated native projects at `-O0`, decode their real output, and check disabled outputs and runtime opt-ins. They also inspect ARM GCC objects when that toolchain is installed; no test relies on LTO or unused-section removal.
+
+## 5. <a id="endianness"></a>Endianness
+
+* To interpret a decoded package, it´s endianness needs to be known.
+* For efficiency, binary trice data are normally stored and transmitted in MCU endianness and the Trice tool expects binary data in little endian format as most MCUs are little endian.
+* On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined as 1 and `TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN` should have the same value. The Trice tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
+* If trice transmit data are needed to be not in MCU order for some reason, that increases the critical trice storage time and target code amount.
+* De facto different values for  `TRICE_MCU_IS_BIG_ENDIAN` and `TRICE_TRANSFER_ORDER_IS_BIG_ENDIAN` are mainly used to test the Trice CLI switch `-triceEndianness bigEndian` automatically.
+
+## 6. <a id="optional-xtea-encryption"></a>Optional XTEA encryption
+
+Trice supports optional [XTEA](https://en.wikipedia.org/wiki/XTEA) encryption. Configure it in the application's `triceConfig.h`, using the settings documented in [triceDefaultConfig.h](../../src/triceDefaultConfig.h):
+
+| Setting | Use |
+| --- | --- |
+| `XTEA_ENCRYPT_KEY` | Target encryption key. |
+| `TRICE_DIRECT_XTEA_ENCRYPT 1` | Encrypt direct output; adds work in the call's critical path. |
+| `TRICE_DEFERRED_XTEA_ENCRYPT 1` | Encrypt deferred output during transfer. |
+
+Run `trice log -port ... -password MySecret -showKey` once to obtain the matching key definition, then use the same password when decoding. The example password is not a project secret.
+
+Encryption pads data to an 8-byte boundary before framing; decryption follows frame decoding. COBS is the usual choice. Select `-pf cobs` on the host and `TRICE_FRAMING_COBS` for the encrypted target output. TCOBS offers little compression on encrypted data.
+
+This format provides no message-authentication mechanism. Do not interpret successful decryption as proof of the sender's identity or of unmodified data.
+
+## 7. <a id="minimal-transfer-bytes-amount"></a>Minimal Transfer Bytes Amount
+
+A Trice message is 4 bytes long (2 ID bytes and 2 count bytes) plus optional time stamps and/or values. In conjunction with the compressing [TCOBS](https://github.com/rokath/tcobs) framing the Trice data stream is as small as possible. Use the `-debug` switch to see the compressed and framed packages alongside the decompressed ones together with the decoded messages.
+
+To see the encoding for each single message `#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE` inside the project specific _triceConfig.h_.
+
+Without `-debug` CLI switch:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -li off -hs off -ts off
+...
+This is a message without values and without stamp.
+...
+```
+
+With `-debug` CLI switch:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -li off -hs off -ts off -debug
+...
+TCOBSv1: c1 74 e2 23 00
+->TRICE: c1 74 e2 00
+This is a message without values and without stamp.
+...
+```
+
+The TCOBS encoding cannot compress in the example above, because the data are too small, but here is a significant compression result shown:
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -debug
+...
+TCOBSv1: b8 76 7b 18 84 fe e1 fd e1 fc e1 fb e1 fa e1 00
+->TRICE: b8 76 7b 18 ff ff ff ff fe ff ff ff fd ff ff ff fc ff ff ff fb ff ff ff fa ff ff ff
+_test/testdata/triceCheck.c   805              value=-1, -2, -3, -4, -5, -6
+...
+```
+
+* The `TRICE_SINGLE_PACK_MODE` inserts after each Trice a package delimiter `0`.
+* The `TRICE_MULTI_PACK_MODE` inserts after a group of Trice messages a package delimiter `0`, what minimizes the transmit data amount.
+
+When encryption is active, a compression makes no sense, but the `TRICE_MULTI_PACK_MODE` can help to reduce the total amount of padding bytes, because each encrypted package must have a multiple of 8 as length.
+
+```bash
+ms@MacBook-Pro G0B1_inst % trice log -p /dev/tty.usbmodem0007722641261 -prefix off -hs off -pw MySecret -pf cobs -debug
+...
+cobs: 21 84 b7 60 8b 21 89 1e e3 07 6d dc d9 2d 6f 59 04 8e 50 8f 24 1c a2 63 2e 3d 4a 57 ef 39 63 01 cb 00
+->TRICE: 84 b7 60 8b 21 89 1e e3 07 6d dc d9 2d 6f 59 04 8e 50 8f 24 1c a2 63 2e 3d 4a 57 ef 39 63 01 cb
+-> DEC:  cc b6 63 01 71 02 ff fe cd 76 72 03 ff fe fd ce f6 64 81 00 00 73 04 ff fe fd fc 00 00 00 00 00
+_test/testdata/triceCheck.c   827        0_355 value=-1, -2
+_test/testdata/triceCheck.c   828              value=-1, -2, -3
+_test/testdata/triceCheck.c   829    0,033_124 value=-1, -2, -3, -4
+cobs: 19 50 70 79 d7 75 6f d7 99 dc d8 ec 06 e1 66 e7 a7 c1 0d 96 85 df 19 25 55 00
+->TRICE: 50 70 79 d7 75 6f d7 99 dc d8 ec 06 e1 66 e7 a7 c1 0d 96 85 df 19 25 55
+-> DEC:  cf b6 64 01 74 05 ff fe fd fc fb d0 76 75 06 ff fe fd fc fb fa 00 00 00
+_test/testdata/triceCheck.c   830        0_356 value=-1, -2, -3, -4, -5
+_test/testdata/triceCheck.c   831              value=-1, -2, -3, -4, -5, -6
+...
+```
 

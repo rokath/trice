@@ -1,33 +1,131 @@
-# Trice Memory Usage
+# Memory Usage and Code Size
 
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
-* [1. F030_bare Size](#f030_bare-size)
-* [2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off1)
-* [3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
-* [4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
-* [5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting-only-enabling-segger_rtt)
-* [6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
-* [7. Settings Conclusion](#settings-conclusion)
-* [8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-old-version)
-* [9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
-* [10. Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
+* [1. No Dynamic Memory Management needed](#no-dynamic-memory-management-needed)
+* [2. Code Optimization -o3 or -oz (if supported)](#code-optimization--o3-or--oz-if-supported)
+* [3. Compiler Independent Setting (a bit outdated)](#compiler-independent-setting-a-bit-outdated)
+* [4. Linker Option --split-sections (if supported)](#linker-option---split-sections-if-supported)
+* [5. Linker Optimization -flto (if supported)](#linker-optimization--flto-if-supported)
+  * [5.1. ARMCC Compiler v5 Linker Feedback](#armcc-compiler-v5-linker-feedback)
+  * [5.2. ARMCLANG Compiler v6 Link-Time Optimization](#armclang-compiler-v6-link-time-optimization)
+  * [5.3. GCC](#gcc)
+  * [5.4. LLVM ARM Clang](#llvm-arm-clang)
+  * [5.5. Other IDE´s and compilers](#other-ides-and-compilers)
+* [6. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
+  * [6.1. ARMCC compiler v5](#armcc-compiler-v5)
+* [7. TRICESTACKBUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization)
+* [8. Recorded memory measurements](#recorded-memory-measurements)
+  * [8.1. F030bare Size](#f030bare-size)
+  * [8.2. F030inst Size with TRICEOFF=1](#f030inst-size-with-triceoff1)
+  * [8.3. F030inst with ring buffer](#f030inst-with-ring-buffer)
+  * [8.4. F030inst with ring buffer](#f030inst-with-ring-buffer-1)
+  * [8.5. A developer setting, only enabling SEGGERRTT](#a-developer-setting-only-enabling-seggerrtt)
+  * [8.6. A developer setting, only enabling SEGGERRTT and without deferred output gives after running ./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0:](#a-developer-setting-only-enabling-seggerrtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
+  * [8.7. Settings Conclusion](#settings-conclusion)
+  * [8.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-old-version)
+  * [8.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
+  * [8.10. Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
----
-
 </details>
+
+Choose RAM and Flash settings separately. Buffer mode, maximum record size and active outputs affect RAM; enabled backends and linker garbage collection affect Flash. See [performance](performance.md) for execution-time tradeoffs.
+
+## 1. <a id="no-dynamic-memory-management-needed"></a>No Dynamic Memory Management needed
+
+Trice's target logging path needs no heap allocator: it does not call `malloc`, `calloc`, `realloc` or `free`. Buffer sizes are selected in the target configuration. Depending on the chosen mode, storage includes static buffers and automatic local buffers on the stack; a stack buffer is not a static object. RAM requirements therefore depend on the configuration, record sizes and buffering strategy; see [Trice memory needs](memory_usage.md).
+
+This statement covers Trice's own target logging code, including its CE adapters. It does not cover the Go host tool, an RTOS, a transport callback, an application's local-formatting sink, or a function invoked by a CE expression. For example, a user-supplied `read_context()` that allocates memory still allocates when called through `-ce`. Choose non-allocating application functions when the complete log call must avoid the heap.
+
+You can compile the complete `src/*.c` library instead of maintaining a list of individual files. With unused-section removal enabled, only the library functions and data needed by your application remain in the final executable or firmware image. Configuration already excludes many disabled features during preprocessing; the linker removes the remaining unreferenced sections. Compiling every source can still take longer than compiling a selected subset.
+
+The PC example scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. The minimal demos omit these optional flags to keep their build commands simple. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
+
+Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, Trice inherits the selected SEGGER buffer sizes and channel counts automatically; explicit `TRICE_*` overrides must still agree with them. See [Trice over RTT](rtt.md).
+
+## 2. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
+
+For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
+[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](memory_usage.md#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization).
+
+
+## 3. <a id="compiler-independent-setting-a-bit-outdated"></a>Compiler Independent Setting (a bit outdated)
+
+Maybe the following is a bit unhandy but it decreases the code amount, build time and the image size.
+
+* For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_trice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
+* For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_Trice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
+* For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_TRice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
+
+When having lots of program memory simply let all values be `1`. With specific linker optimization unused functions can get stripped out automatically.
+
+It is possible to `#define TRICE_SINGLE_MAX_SIZE 12` for example in *triceConfig.h*. This automaticaly disables all Trice messages with payloads > 8 bytes (Trice size is 4 bytes).
+
+## 4. <a id="linker-option---split-sections-if-supported"></a>Linker Option --split-sections (if supported)
+
+In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each function"` allows good optimization and getting rid of unused code without additional linker optimization. This leads to a faster build process and is fine for most cases. It allows excluding unused functions.
+
+## 5. <a id="linker-optimization--flto-if-supported"></a>Linker Optimization -flto (if supported)
+
+* To get the smallest possible image, do _not_ use option `--split sections`.
+* Use linker optimization alone.
+* This increases the build time but reduces the image size significantly.
+
+### 5.1. <a id="armcc-compiler-v5-linker-feedback"></a>ARMCC Compiler v5 Linker Feedback
+
+* In ARM-MDK uVision, when using ARMCC compiler v5, there is a check box `Project -> Options -> Target -> "Cross Module Optimization"`.
+* In ARMCC this works also with the lite version.
+
+### 5.2. <a id="armclang-compiler-v6-link-time-optimization"></a>ARMCLANG Compiler v6 Link-Time Optimization
+
+* In ARM-MDK uVision, when using ARMCLANG compiler v6, the check box `Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"` is usable to set the CLI `-flto` switch.
+* LTO is not possible with ARMCLANG6 lite: https://developer.arm.com/documentation/ka004054/latest.
+
+### 5.3. <a id="gcc"></a>GCC
+
+With GCC use the `-flto` CLI switch directly.
+
+### 5.4. <a id="llvm-arm-clang"></a>LLVM ARM Clang
+
+This compiler is much faster and creates the smallest images. Right now it uses the GCC libs and linker.
+
+### 5.5. <a id="other-ides-and-compilers"></a>Other IDE´s and compilers
+
+Please check the manuals and create a pull request or simply let me know.
+
+## 6. <a id="legacy-stm32f030-example-project---different-build-sizes"></a>Legacy STM32F030 Example Project - Different Build Sizes
+
+### 6.1. <a id="armcc-compiler-v5"></a>ARMCC compiler v5
+
+Compiler | Linker         | Result                                          | Comment
+----------|----------------|-------------------------------------------------|-----------------------------------
+o0       |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big
+o1       |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 | |
+o3       |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 | |
+o0       | split sections | Code= 7880 RO-data=268 RW-data=156 ZI-data=4892 | for debugging
+o1       | split sections | Code= 5404 RO-data=260 RW-data=148 ZI-data=4892 | **for debugging**
+o3       | split sections | Code= 4996 RO-data=260 RW-data=148 ZI-data=4892 | **good balance**
+o0       | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | builds slower
+o1       | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower
+o3       | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image**
+
+## 7. <a id="tricestackbuffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
+
+As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
+
+## 8. <a id="recorded-memory-measurements"></a>Recorded memory measurements
+
+These measurements describe the firmware, compiler and configuration shown in each record. They are reference examples, not current size guarantees. Rebuild your own configuration to measure it.
 
 Depending on your target configuration the needed space can differ:
 
-## 1. <a id="f030_bare-size"></a>F030_bare Size
+### 8.1. <a id="f030bare-size"></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -39,7 +137,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-## 2. <a id="f030_inst-size-with-trice_off1"></a>F030_inst Size with TRICE_OFF=1
+### 8.2. <a id="f030inst-size-with-triceoff1"></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -51,7 +149,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-## 3. <a id="f030_inst-with-ring-buffer"></a>F030_inst with ring buffer
+### 8.3. <a id="f030inst-with-ring-buffer"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -127,7 +225,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-## 4. <a id="f030_inst-with-ring-buffer-1"></a>F030_inst with ring buffer
+### 8.4. <a id="f030inst-with-ring-buffer-1"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -202,7 +300,7 @@ com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-## 5. <a id="a-developer-setting-only-enabling-segger_rtt"></a>A developer setting, only enabling SEGGER_RTT
+### 8.5. <a id="a-developer-setting-only-enabling-seggerrtt"></a>A developer setting, only enabling SEGGER_RTT
 
 * `./build.sh`:
 
@@ -280,7 +378,7 @@ Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 �
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
 
-## 6. <a id="a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
+### 8.6. <a id="a-developer-setting-only-enabling-seggerrtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
 
 ```bash
 arm-none-eabi-size out/F030_inst.elf
@@ -334,13 +432,13 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 
 "🐁 Speedy Gonzales" direct outout needs about 200 MCU clocks and not 500 as before.
 
-## 7. <a id="settings-conclusion"></a>Settings Conclusion
+### 8.7. <a id="settings-conclusion"></a>Settings Conclusion
 
 * 4-8 KB Flash and 1.2 KB RAM needed for the Trice library.
 * The RAM size is mainly influenced by the configured buffer sizes.
 * Switching off diagnostics and/or protection is ok for less memory needs and faster Trice execution after getting some experience with the project.
 
-## 8. <a id="legacy-trice-space-example-old-version"></a>Legacy Trice Space Example (Old Version)
+### 8.8. <a id="legacy-trice-space-example-old-version"></a>Legacy Trice Space Example (Old Version)
 
 * STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`
 * Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -352,7 +450,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 * No format strings go into the target code anymore.
 * In general Trice instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-## 9. <a id="memory-needs-for-old-example-1"></a>Memory Needs for Old Example 1
+### 8.9. <a id="memory-needs-for-old-example-1"></a>Memory Needs for Old Example 1
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -367,14 +465,12 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512     
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
-## 10. <a id="memory-needs-for-old-example-2"></a>Memory Needs for Old Example 2
+### 8.10. <a id="memory-needs-for-old-example-2"></a>Memory Needs for Old Example 2
 
 Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark
 --------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------
 MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation.
 MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.
 
-* The size need is less than 4 KB. See also [Trice Project Image Size Optimization](code_size.md).
-
-<p align="right">(<a href="#trice-memory-usage">back to top</a>)</p>
+* The size need is less than 4 KB. See also [Trice Project Image Size Optimization](memory_usage.md).
 

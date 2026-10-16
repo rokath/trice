@@ -1,23 +1,21 @@
-# Trice Context Enrichment
+# Context Enrichment
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
 - [1. Getting Started with Position and Speed](#getting-started-with-position-and-speed)
 - [2. Rules and Selectors](#rules-and-selectors)
-- [3. Reversible Workflow with insert and clean](#reversible-workflow-with-insert-and-clean)
-- [4. Expressions, Fields and Evaluation](#expressions-fields-and-evaluation)
-- [5. Using Global and Local Values](#using-global-and-local-values)
-- [6. Build, IDs and Generated Files](#build-ids-and-generated-files)
-- [7. Supported Log Sites and Alternatives](#supported-log-sites-and-alternatives)
-  - [7.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-__counter__-exists)
-  - [7.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-__counter__-macro-in-compiler)
-  - [7.3. Examples and remaining limits](#examples-and-remaining-limits)
-- [8. Test Coverage](#test-coverage)
+- [3. Expressions, Fields and Evaluation](#expressions-fields-and-evaluation)
+- [4. Using Global and Local Values](#using-global-and-local-values)
+- [5. Build, IDs and Generated Files](#build-ids-and-generated-files)
+- [6. Supported Log Sites and Alternatives](#supported-log-sites-and-alternatives)
+  - [6.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-9595counter9595-exists)
+  - [6.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-9595counter9595-macro-in-compiler)
+  - [6.3. Examples and remaining limits](#examples-and-remaining-limits)
+- [7. Test Coverage](#test-coverage)
+- [8. Reversible workflow with Insert and Clean](#reversible-workflow-with-insert-and-clean)
 - [9. Appendix: CE Feasibility Proofs](#appendix-ce-feasibility-proofs)
   - [9.1. Mechanism Under Test](#mechanism-under-test)
   - [9.2. Verified Behavior](#verified-behavior)
@@ -35,8 +33,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -142,7 +138,171 @@ Both calls receive the extension; `WARNING:` or `wrn:` retains its original spel
 
 Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-ulabel` and `-ce` have separate purposes.
 
-## 3. <a id="reversible-workflow-with-insert-and-clean"></a>Reversible Workflow with insert and clean
+
+
+## 3. <a id="expressions-fields-and-evaluation"></a>Expressions, Fields and Evaluation
+
+Every CE expression must be comma-free, valid and visible at every selected log site. Suitable examples include `pos.x`, `motor->speed`, `array[i]`, `x + 1`, `aFloat(velocity)` and `condition ? a : b`. `getValue(a, b)` and the comma operator are not allowed in the CLI list; calculate such results in a local variable beforehand. Each option value occupies one complete line; `//` comments are not allowed in expressions.
+
+`{}` derives a field name from a simple expression: `pos.x` becomes `pos.x`, and `motor->speed` becomes `motor.speed`. More complex expressions require a name, for example `ctx:", next={next}", x + 1`. Classical printf placeholders and named fields can be mixed. Literal braces are written as `{{` and `}}`. Duplicate field names in the final record are an error, including when one occurs in the source and another in a CE rule.
+
+Original arguments precede additional CE arguments. Each additional expression is evaluated exactly once per actually executed call. A call that is not executed, or a build with `TRICE_OFF` or `TRICE_CLEAN`, does not evaluate it. CE adds no ordering guarantee between different C expressions; dependent side effects belong in separate statements before the call.
+
+Scalar Trices still transmit at most twelve values of the same bit width. CE preserves bit width and stamp type and adjusts fixed arity, for example from `TRice32_1` to `TRice32_3`. Floating-point values explicitly require `aFloat(...)` at 32 bits and `aDouble(...)` at 64 bits; there is no automatic conversion. 8-/16-bit Trices cannot transmit floating-point values. The compiler checks actual C types and identifier visibility.
+
+String, buffer and other special Trice families receive no additional runtime arguments through CE. A text-only extension without additional values is possible if the final format remains valid for the original family, for example `label:" online"` on a `triceS`. Named buffer fields remain excluded, as in Structured Logging.
+
+## 4. <a id="using-global-and-local-values"></a>Using Global and Local Values
+
+Global state values and functions available everywhere are often especially convenient:
+
+```sh
+trice insert -ce 'ctx7:", clock={clock}", readClock()'
+```
+
+Every selected log site must be able to call `readClock()`; its declaration must be known there. The value is read when the log call actually executes, not when the Trice tool runs. Without an executed log call, CE does not call the function either.
+
+Local variables are also useful when all selected sites can use the same expression. For example, the rule `-ce 'job:", job={job}", jobId'` fits both functions:
+
+```c
+void startJob(int jobId) {
+    trice("info:job:start\n");
+}
+
+void finishJob(int jobId) {
+    trice("info:job:finish\n");
+}
+```
+
+The shared rule reads the local parameter of whichever function executes. There is no global `jobId` storage or mixing of different calls.
+
+The following variant cannot use that same rule:
+
+```c
+void startJob(int jobId) {
+    trice("info:job:start\n");
+}
+
+void finishJob(int finishedJobId) {
+    trice("info:job:finish\n");
+}
+```
+
+`jobId` does not exist in `finishJob`. The compiler reports the missing name automatically; no additional CLI option is needed. Solutions include a consistent parameter name, a local helper value, separate selectors with appropriate rules, or a directly specified field: `trice("info:finish, job={job}\n", finishedJobId);`.
+
+An ordinary helper function cannot access its caller's local variables either. This also applies to `static inline`: inlining adds no visibility. Values must be passed as parameters:
+
+```c
+static inline void logJob(int jobId) {
+    trice("info:job:progress\n");
+}
+
+void worker(void) {
+    int currentJob = 17;
+    logJob(currentJob);
+}
+```
+
+This limitation remains because CE produces ordinary C/C++ code. The Trice tool knows neither all types and declarations nor the preprocessor branches selected by the actual compiler. It checks syntax, schema and supported log forms itself; the compiler, already required for the build, checks exact visibility. A separate full compiler preprocessing pass solely to report errors earlier would unnecessarily complicate usage and builds.
+
+## 5. <a id="build-ids-and-generated-files"></a>Build, IDs and Generated Files
+
+CE is applied before schema and ID determination. The ID follows the final Trice type and canonical template, including field names. A different expression with the same schema does not change the ID: `ctx:", x={position}", pos.x` may change to `ctx:", x={position}", pos.y`. Changes to the field name, format or final type follow the existing ID assignment rules instead. Historical TIL entries remain available for older firmware.
+
+After every source or CE configuration change, rerun `bind` with the complete desired rule list and rebuild the firmware. Without `-ce`, the next Bind run produces normal schemas without CE again. Rules are not carried forward from earlier runs. The dictionary and generated firmware must belong together; changing only `til.json` cannot create additional target values.
+
+Normal Bind setup steps, such as the initial sidecar include, still apply. CE itself writes neither the extension nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
+
+`generate -logC` uses the final CE schemas from TIL. Bind sidecars provide the mapping; Insert uses explicit IDs in the source. Rules need not be supplied again:
+
+```sh
+trice generate -til til.json -genDir generated -logC triceLog.c
+```
+
+With Bind, stale or contradictory CE metadata causes an error; after changing a Trice call, first bind again with the desired rules. With Insert, the source may contain custom lowercase selectors in addition to the TIL template. Message, field schema and Trice type must match the explicit ID's entry. For changed messages, rerun `insert` first; to replace a CE extension, use the workflow above: `clean -ce`, then `insert -ce`. The same source scope and TIL must be accessible; Bind also requires its sidecars in the corresponding build directory.
+
+## 6. <a id="supported-log-sites-and-alternatives"></a>Supported Log Sites and Alternatives
+
+`__COUNTER__` is a built-in compiler macro that generates consecutive numbers during compilation. [GCC](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html) and [Clang](https://clang.llvm.org/docs/LanguageExtensions.html), including toolchains based on them, provide it.
+
+For `-ce`, the tables describe calls receiving extra values. A single statement may extend over several lines. Log macros here use fixed format strings recognized by Trice.
+
+### 6.1. <a id="compiler-macro-9595counter9595-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
+
+Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
+--- | --- | --- | ---
+Insert/Clean, with or without `-ce` | Yes | Yes | Yes
+Bind without `-ce` | Yes | Yes | Yes
+Bind with `-ce` | Yes | No | No
+
+### 6.2. <a id="no-9595counter9595-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
+
+Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
+--- | --- | --- | ---
+Insert/Clean, with or without `-ce` | Yes | Yes | Yes
+Bind without `-ce` | Yes | No | Simple macros only
+Bind with `-ce` | Yes | No | No
+
+A simple macro is, for example, `#define LOG() trice("msg:ready")`, called as `LOG();` on its own single line.
+
+### 6.3. <a id="examples-and-remaining-limits"></a>Examples and remaining limits
+
+`bind -ce` supports direct calls in ordinary and inline functions. It rejects adding values to calls sharing a line or inside logging macros, even with `__COUNTER__`. Calls not selected by a CE rule retain ordinary [Bind support](bind.md#bind-limits). A typical error is:
+
+```text
+main.c:42: error: CE requires a direct, line-addressable bind site. Search UM for "bind-limits".
+```
+
+The [bind-limits](bind.md#bind-limits) section explains the cause and possible code adjustments without requiring compiler expertise. Suitable changes include separate source lines or ordinary functions with explicitly passed local values. Wrapper/rebase sites not selected by CE retain existing Bind behavior, including its compiler requirements.
+
+`insert -ce` writes final arguments directly into each recognized log site. This avoids Bind selection through source lines or compiler counters. In particular, these calls can be extended with `-ce 'ctx7:", clock={}", clock'`:
+
+```c
+trice("msg:ctx7:first\n"); trice("msg:ctx7:second\n");
+
+#define LOG_STATUS() trice("msg:ctx7:status\n")
+```
+
+For a wrapper, Insert extends the Trice call in the **macro definition**. Every later call to `LOG_STATUS()` uses this extension. `clock` must be visible at every expansion. This does not configure different rules per call site for the same wrapper; selectors belong to the recognized format string in its definition.
+
+Parameters of such a wrapper can also be used:
+
+```c
+#define LOG_JOB(jobId) trice("info:job:progress\n")
+
+void worker(void) {
+    LOG_JOB(17);
+}
+```
+
+With `insert -ce 'job:", job={job}", jobId'`, `jobId` is inserted directly into the definition and replaced with `17` during macro expansion. Normal macro rules remain unchanged; in particular, avoid arguments with mutually dependent side effects.
+
+This requires a call with a known format string that the Trice parser can recognize. A definition such as `#define LOG_ANY(format) trice(format)` provides neither a static selector nor a complete schema. CE is not a general C preprocessor and does not promise support for arbitrary macro-assembled formats. An explicit Trice call or a function with a fixed format and passed values remains a simple alternative.
+
+Other CE limits | Result for both workflows
+--- | ---
+A local variable used by CE is missing at the call | Compiler error
+Extra scalar CE values appended to a string/buffer record | Error before changing files
+
+**Why the Bind limitation remains despite a successful PoC:** Existing counter rebasing placed expressions from different log sites into multiple C branches. The compiler checks even branches that are not executed. A local variable valid only on the left can therefore cause an artificial error on the right. The extended PoC selects the adapter during macro expansion and avoids this error for the tested cases. It requires an additional preprocessing pass with the actual compiler per translation unit and build configuration, plus matching generated mapping files.
+
+This build effort has not been introduced as a production workflow. Also, `__COUNTER__` is not available in every compiler and is neither a runtime counter nor a cycle counter. Even globally visible CE values therefore do not separately enable complex Bind sites. The uniform limitation is easy to explain and reject during Bind. `insert/clean -ce` requires neither this mapping nor this preliminary pass. Exact evidence, costs and open questions appear in the [PoC appendix within this chapter](context_enrichment.md#appendix-ce-feasibility-proofs).
+
+## 7. <a id="test-coverage"></a>Test Coverage
+
+The [rule and Bind tests](../../internal/id/contextEnrichment_test.go) check selectors, aliases, order, invalid rules, limits, stable IDs, configuration changes, the field registry and unchanged files after rejection or write errors. The [Insert/Clean tests](../../internal/id/contextSource_test.go) additionally cover complete and partial matches, format and argument suffix positions, multi-part rule groups, newlines, repetition, handwritten fields, comments, moved calls, exclusions and rollback after write errors. The [CLI and target tests](../../internal/args/context_enrichment_test.go) exercise both public workflows through `generate -logC` and actual target records to text/JSON/KV output.
+
+Evidence for the production implementation covers Clang in C11 and C++17, `clangd` with a real compile configuration, 8/16/32/64-bit values, different stamp types and builds without `__COUNTER__`. It checks separate local scopes, once-only evaluation, `TRICE_OFF`, `TRICE_CLEAN` and understandable compiler/editor errors for missing identifiers. Insert additionally tests two log sites in separate local blocks on the same wrapper line and their complete removal. The editor check excludes only clangd's `SwapBinaryOperands` refactoring action: Clangd 21 proposes overlapping edits within an explicit `Id(...)` for this action. Compiler diagnostics and missing-identifier errors remain checked. Other compilers are assessed separately in the PoC appendix.
+
+Repeat the focused acceptance tests from the repository root:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment|TestInsertCleanContext|TestSourceContext|TestContextInsertClean)' -count=1
+```
+
+## 8. <a id="reversible-workflow-with-insert-and-clean"></a>Reversible workflow with Insert and Clean
+
+This is the [deprecated ID workflow](insert_clean_cache.md), retained for existing projects and CE sites not supported by Bind.
 
 Starting point in `main.c`:
 
@@ -230,173 +390,13 @@ trice("msg:ctx7:manual, clock={clock}\n", clock);
 
 `clean -ce 'ctx7:", clock={clock}", clock'` removes the field and last argument. A corresponding `insert -ce` adds nothing. The call may be moved to another line or file; recognition depends neither on its previous location nor on build files.
 
-`insert -ce` and `clean -ce` respect `-src`, `-exclude` and `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. CE does not modify Trice calls in ordinary C comments; existing ID processing of those examples remains in place. Files already bound through sidecar includes are not automatically converted to Insert. Use [re-migration to `trice insert`](bind.md#re-migration-to-trice-insert) for these files.
+`insert -ce` and `clean -ce` respect `-src`, `-exclude` and `TRICE_INSERT_OFF`/`TRICE_INSERT_ON`. CE does not modify Trice calls in ordinary C comments; existing ID processing of those examples remains in place. Files already bound through sidecar includes are not automatically converted to Insert. Use [re-migration to `trice insert`](insert_clean_cache.md#re-migration-to-trice-insert) for these files.
 
 The CE path validates all selected files before publication and writes source, TIL, LI and the Insert field registry together, rolling back on write errors. `-dry-run` publishes nothing. With `-ce`, the experimental timestamp-only `-cache` is bypassed to prevent changed rules from mixing with old source copies. `trice-fields.txt` still describes the last successful Insert/Bind run; Clean creates no new field registry.
 
-## 4. <a id="expressions-fields-and-evaluation"></a>Expressions, Fields and Evaluation
-
-Every CE expression must be comma-free, valid and visible at every selected log site. Suitable examples include `pos.x`, `motor->speed`, `array[i]`, `x + 1`, `aFloat(velocity)` and `condition ? a : b`. `getValue(a, b)` and the comma operator are not allowed in the CLI list; calculate such results in a local variable beforehand. Each option value occupies one complete line; `//` comments are not allowed in expressions.
-
-`{}` derives a field name from a simple expression: `pos.x` becomes `pos.x`, and `motor->speed` becomes `motor.speed`. More complex expressions require a name, for example `ctx:", next={next}", x + 1`. Classical printf placeholders and named fields can be mixed. Literal braces are written as `{{` and `}}`. Duplicate field names in the final record are an error, including when one occurs in the source and another in a CE rule.
-
-Original arguments precede additional CE arguments. Each additional expression is evaluated exactly once per actually executed call. A call that is not executed, or a build with `TRICE_OFF` or `TRICE_CLEAN`, does not evaluate it. CE adds no ordering guarantee between different C expressions; dependent side effects belong in separate statements before the call.
-
-Scalar Trices still transmit at most twelve values of the same bit width. CE preserves bit width and stamp type and adjusts fixed arity, for example from `TRice32_1` to `TRice32_3`. Floating-point values explicitly require `aFloat(...)` at 32 bits and `aDouble(...)` at 64 bits; there is no automatic conversion. 8-/16-bit Trices cannot transmit floating-point values. The compiler checks actual C types and identifier visibility.
-
-String, buffer and other special Trice families receive no additional runtime arguments through CE. A text-only extension without additional values is possible if the final format remains valid for the original family, for example `label:" online"` on a `triceS`. Named buffer fields remain excluded, as in Structured Logging.
-
-## 5. <a id="using-global-and-local-values"></a>Using Global and Local Values
-
-Global state values and functions available everywhere are often especially convenient:
-
-```sh
-trice insert -ce 'ctx7:", clock={clock}", readClock()'
-```
-
-Every selected log site must be able to call `readClock()`; its declaration must be known there. The value is read when the log call actually executes, not when the Trice tool runs. Without an executed log call, CE does not call the function either.
-
-Local variables are also useful when all selected sites can use the same expression. For example, the rule `-ce 'job:", job={job}", jobId'` fits both functions:
-
-```c
-void startJob(int jobId) {
-    trice("info:job:start\n");
-}
-
-void finishJob(int jobId) {
-    trice("info:job:finish\n");
-}
-```
-
-The shared rule reads the local parameter of whichever function executes. There is no global `jobId` storage or mixing of different calls.
-
-The following variant cannot use that same rule:
-
-```c
-void startJob(int jobId) {
-    trice("info:job:start\n");
-}
-
-void finishJob(int finishedJobId) {
-    trice("info:job:finish\n");
-}
-```
-
-`jobId` does not exist in `finishJob`. The compiler reports the missing name automatically; no additional CLI option is needed. Solutions include a consistent parameter name, a local helper value, separate selectors with appropriate rules, or a directly specified field: `trice("info:finish, job={job}\n", finishedJobId);`.
-
-An ordinary helper function cannot access its caller's local variables either. This also applies to `static inline`: inlining adds no visibility. Values must be passed as parameters:
-
-```c
-static inline void logJob(int jobId) {
-    trice("info:job:progress\n");
-}
-
-void worker(void) {
-    int currentJob = 17;
-    logJob(currentJob);
-}
-```
-
-This limitation remains because CE produces ordinary C/C++ code. The Trice tool knows neither all types and declarations nor the preprocessor branches selected by the actual compiler. It checks syntax, schema and supported log forms itself; the compiler, already required for the build, checks exact visibility. A separate full compiler preprocessing pass solely to report errors earlier would unnecessarily complicate usage and builds.
-
-## 6. <a id="build-ids-and-generated-files"></a>Build, IDs and Generated Files
-
-CE is applied before schema and ID determination. The ID follows the final Trice type and canonical template, including field names. A different expression with the same schema does not change the ID: `ctx:", x={position}", pos.x` may change to `ctx:", x={position}", pos.y`. Changes to the field name, format or final type follow the existing ID assignment rules instead. Historical TIL entries remain available for older firmware.
-
-After every source or CE configuration change, rerun `bind` with the complete desired rule list and rebuild the firmware. Without `-ce`, the next Bind run produces normal schemas without CE again. Rules are not carried forward from earlier runs. The dictionary and generated firmware must belong together; changing only `til.json` cannot create additional target values.
-
-Normal Bind setup steps, such as the initial sidecar include, still apply. CE itself writes neither the extension nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
-
-`generate -logC` uses the final CE schemas from TIL. Bind sidecars provide the mapping; Insert uses explicit IDs in the source. Rules need not be supplied again:
-
-```sh
-trice generate -til til.json -genDir generated -logC triceLog.c
-```
-
-With Bind, stale or contradictory CE metadata causes an error; after changing a Trice call, first bind again with the desired rules. With Insert, the source may contain custom lowercase selectors in addition to the TIL template. Message, field schema and Trice type must match the explicit ID's entry. For changed messages, rerun `insert` first; to replace a CE extension, use the workflow above: `clean -ce`, then `insert -ce`. The same source scope and TIL must be accessible; Bind also requires its sidecars in the corresponding build directory.
-
-## 7. <a id="supported-log-sites-and-alternatives"></a>Supported Log Sites and Alternatives
-
-`__COUNTER__` is a built-in compiler macro that generates consecutive numbers during compilation. [GCC](https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html) and [Clang](https://clang.llvm.org/docs/LanguageExtensions.html), including toolchains based on them, provide it.
-
-For `-ce`, the tables describe calls receiving extra values. A single statement may extend over several lines. Log macros here use fixed format strings recognized by Trice.
-
-### 7.1. <a id="compiler-macro-__counter__-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
-
-Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
---- | --- | --- | ---
-Insert/Clean, with or without `-ce` | Yes | Yes | Yes
-Bind without `-ce` | Yes | Yes | Yes
-Bind with `-ce` | Yes | No | No
-
-### 7.2. <a id="no-__counter__-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
-
-Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
---- | --- | --- | ---
-Insert/Clean, with or without `-ce` | Yes | Yes | Yes
-Bind without `-ce` | Yes | No | Simple macros only
-Bind with `-ce` | Yes | No | No
-
-A simple macro is, for example, `#define LOG() trice("msg:ready")`, called as `LOG();` on its own single line.
-
-### 7.3. <a id="examples-and-remaining-limits"></a>Examples and remaining limits
-
-`bind -ce` supports direct calls in ordinary and inline functions. It rejects adding values to calls sharing a line or inside logging macros, even with `__COUNTER__`. Calls not selected by a CE rule retain ordinary [Bind support](bind.md#bind-limits). A typical error is:
-
-```text
-main.c:42: error: CE requires a direct, line-addressable bind site. Search UM for "bind-limits".
-```
-
-The [bind-limits](bind.md#bind-limits) section explains the cause and possible code adjustments without requiring compiler expertise. Suitable changes include separate source lines or ordinary functions with explicitly passed local values. Wrapper/rebase sites not selected by CE retain existing Bind behavior, including its compiler requirements.
-
-`insert -ce` writes final arguments directly into each recognized log site. This avoids Bind selection through source lines or compiler counters. In particular, these calls can be extended with `-ce 'ctx7:", clock={}", clock'`:
-
-```c
-trice("msg:ctx7:first\n"); trice("msg:ctx7:second\n");
-
-#define LOG_STATUS() trice("msg:ctx7:status\n")
-```
-
-For a wrapper, Insert extends the Trice call in the **macro definition**. Every later call to `LOG_STATUS()` uses this extension. `clock` must be visible at every expansion. This does not configure different rules per call site for the same wrapper; selectors belong to the recognized format string in its definition.
-
-Parameters of such a wrapper can also be used:
-
-```c
-#define LOG_JOB(jobId) trice("info:job:progress\n")
-
-void worker(void) {
-    LOG_JOB(17);
-}
-```
-
-With `insert -ce 'job:", job={job}", jobId'`, `jobId` is inserted directly into the definition and replaced with `17` during macro expansion. Normal macro rules remain unchanged; in particular, avoid arguments with mutually dependent side effects.
-
-This requires a call with a known format string that the Trice parser can recognize. A definition such as `#define LOG_ANY(format) trice(format)` provides neither a static selector nor a complete schema. CE is not a general C preprocessor and does not promise support for arbitrary macro-assembled formats. An explicit Trice call or a function with a fixed format and passed values remains a simple alternative.
-
-Other CE limits | Result for both workflows
---- | ---
-A local variable used by CE is missing at the call | Compiler error
-Extra scalar CE values appended to a string/buffer record | Error before changing files
-
-**Why the Bind limitation remains despite a successful PoC:** Existing counter rebasing placed expressions from different log sites into multiple C branches. The compiler checks even branches that are not executed. A local variable valid only on the left can therefore cause an artificial error on the right. The extended PoC selects the adapter during macro expansion and avoids this error for the tested cases. It requires an additional preprocessing pass with the actual compiler per translation unit and build configuration, plus matching generated mapping files.
-
-This build effort has not been introduced as a production workflow. Also, `__COUNTER__` is not available in every compiler and is neither a runtime counter nor a cycle counter. Even globally visible CE values therefore do not separately enable complex Bind sites. The uniform limitation is easy to explain and reject during Bind. `insert/clean -ce` requires neither this mapping nor this preliminary pass. Exact evidence, costs and open questions appear in the [PoC appendix within this chapter](#appendix-ce-feasibility-proofs).
-
-## 8. <a id="test-coverage"></a>Test Coverage
-
-The [rule and Bind tests](../../internal/id/contextEnrichment_test.go) check selectors, aliases, order, invalid rules, limits, stable IDs, configuration changes, the field registry and unchanged files after rejection or write errors. The [Insert/Clean tests](../../internal/id/contextSource_test.go) additionally cover complete and partial matches, format and argument suffix positions, multi-part rule groups, newlines, repetition, handwritten fields, comments, moved calls, exclusions and rollback after write errors. The [CLI and target tests](../../internal/args/context_enrichment_test.go) exercise both public workflows through `generate -logC` and actual target records to text/JSON/KV output.
-
-Evidence for the production implementation covers Clang in C11 and C++17, `clangd` with a real compile configuration, 8/16/32/64-bit values, different stamp types and builds without `__COUNTER__`. It checks separate local scopes, once-only evaluation, `TRICE_OFF`, `TRICE_CLEAN` and understandable compiler/editor errors for missing identifiers. Insert additionally tests two log sites in separate local blocks on the same wrapper line and their complete removal. The editor check excludes only clangd's `SwapBinaryOperands` refactoring action: Clangd 21 proposes overlapping edits within an explicit `Id(...)` for this action. Compiler diagnostics and missing-identifier errors remain checked. Other compilers are assessed separately in the PoC appendix.
-
-Repeat the focused acceptance tests from the repository root:
-
-```sh
-TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment|TestInsertCleanContext|TestSourceContext|TestContextInsertClean)' -count=1
-```
-
 ## 9. <a id="appendix-ce-feasibility-proofs"></a>Appendix: CE Feasibility Proofs
 
-As of 27 September 2026, the isolated proof for direct Bind log sites passes. It is in [context_enrichment_poc_test.go](../../internal/id/context_enrichment_poc_test.go). The production option `trice bind -ce` has since been implemented on this foundation; usage and acceptance are described in [this chapter](#trice-context-enrichment). This appendix also contains the original rebase counterexample and the [extended PoC for wrapper macros and counter rebasing](#extended-poc-for-wrapper-macros-and-counter-rebasing). The latter informs a future decision and enables no additional production CE support.
+As of 27 September 2026, the isolated proof for direct Bind log sites passes. It is in [context_enrichment_poc_test.go](../../internal/id/context_enrichment_poc_test.go). The production option `trice bind -ce` has since been implemented on this foundation; usage and acceptance are described in [this chapter](context_enrichment.md). This appendix also contains the original rebase counterexample and the [extended PoC for wrapper macros and counter rebasing](context_enrichment.md#extended-poc-for-wrapper-macros-and-counter-rebasing). The latter informs a future decision and enables no additional production CE support.
 
 ### 9.1. <a id="mechanism-under-test"></a>Mechanism Under Test
 
@@ -451,7 +451,7 @@ A GCC-/Clang-compatible C and C++ compiler and `clangd` must be in `PATH`. The f
 
 ### 9.5. <a id="relationship-to-production-support"></a>Relationship to Production Support
 
-The proof covers the minimum cases from the [CE chapter](#trice-context-enrichment). It checks direct scalar 32-bit log sites with one site per physical line and the `iD` stamp type. PoC rules are fixed test data; the direct-site proof contains no CLI parser, complete selector/alias policy or production error validation.
+The proof covers the minimum cases from the [CE chapter](context_enrichment.md). It checks direct scalar 32-bit log sites with one site per physical line and the `iD` stamp type. PoC rules are fixed test data; the direct-site proof contains no CLI parser, complete selector/alias policy or production error validation.
 
 The production implementation applies the transformation before schema/ID assignment and generates the sidecar extension persistently. Its first stage remains limited to direct sites uniquely addressable by source line. Additional [Bind behavior tests](../../internal/id/contextEnrichment_test.go) and [CLI/target tests](../../internal/args/context_enrichment_test.go) check broader acceptance separately from the direct-site PoC: 8/16/32/64 bits, different stamp types, `TRICE_OFF`/`TRICE_CLEAN`, rule conflicts, configuration changes, multiline calls, inline functions and real compiler/editor runs without `__COUNTER__`. Four examples come from `triceCheck.c`; fourteen records in total pass through the public `generate -logC` resolver and Go decoder for text, JSON and KV. CE for wrapper macros and counter rebasing remains a separate follow-up task.
 

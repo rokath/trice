@@ -1,9 +1,7 @@
-# Trice Tags, Color, and Weights
+# Tags, Colors, Filters and Statistics
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -17,11 +15,10 @@
 * [8. Output options](#output-options)
 * [9. Check color alternatives](#check-color-alternatives)
 * [10. Color issues under Windows](#color-issues-under-windows)
+* [11. Host filters and target behavior](#host-filters-and-target-behavior)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -48,7 +45,7 @@ The colors, aliases, and weights are defined in [lineTransformerANSI.go](../../i
 
 Built-in application tag names and aliases are recognized independently of uppercase and lowercase spelling. For example, `rx`, `RX`, `rX`, and `ReCeIvE` all identify RECEIVE, even if that exact spelling is not listed. They share a weight, color, event-statistics counter, and derived structured level. This also applies to built-in names supplied to `-pick`, `-ban`, `-logLevel`/`-loglevel`, `-ulabel`, and `-IDRange`: `-IDRange rX:10,19` assigns that range to every RECEIVE spelling in the source. A second range for another spelling of the same group is rejected.
 
-Recognition does not rewrite message text. With `-color none` or `default`, a recognized prefix is removed only if it contains no uppercase letters: `rx:payload` displays `payload`, while `rX:payload` and `RX:payload` keep their written prefixes. With `-color off`, all written prefixes remain. User-defined tags follow a separate, exact-spelling rule described [below](#user-defined-tags-weights-and-colors).
+Recognition does not rewrite message text. With `-color none` or `default`, a recognized prefix is removed only if it contains no uppercase letters: `rx:payload` displays `payload`, while `rX:payload` and `RX:payload` keep their written prefixes. With `-color off`, all written prefixes remain. User-defined tags follow a separate, exact-spelling rule described [below](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
 
 Built-in aliases contain at least two characters. For example, `wr` selects Write, while `wrn`, `WARN`, and `WARNING` select Warning. The former single-letter aliases such as `e`, `i`, `m`, and `w` are not built in for v2. Their prefixes remain visible and their events belong to `untagged` unless those literal names are explicitly registered with `-ulabel`. Use descriptive built-in names such as `err`, `inf`, `msg`, and `wr` for automatic classification and for `-pick`, `-ban`, `-logLevel`, or `-IDRange`.
 
@@ -118,7 +115,7 @@ Use a threshold when the requirement is “Warning and everything more important
 
 Filtering uses the exact effective weight, not the derived level's lower boundary. A tag with weight 650 passes `-loglevel 650` and fails `-loglevel 651`, although its structured level is WARNING in both cases. A named threshold also uses the tag's effective weight: `-ulabel INFO:750 -logLevel INFO` selects weight 750 and above; it does not change the fixed INFO level boundary of 500.
 
-These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](id_management.md#id-routing); received raw bytes can still be kept in a [binary logfile](cli.md#binary-logfile).
+These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](target_routing.md#id-routing); received raw bytes can still be kept in a [binary logfile](cli.md#binary-logfile).
 
 For a short capture to experiment with, run the [PC feature tour](examples.md#pc-feature-tour) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](examples.md#g0b1-feature-tour) applies the same output choices to a board capture.
 
@@ -218,5 +215,8 @@ Run `trice generate -colors` to display the supported color strings and a previe
 
 If a Windows console displays ANSI escape sequences instead of colors, use a terminal with ANSI color support, such as Windows Terminal, Git Bash, or [Alacritty](../../third_party/alacritty/ReadMe.md). Additional background is available in [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078).
 
-<p align="right">(<a href="#trice-tags-color-and-weights">back to top</a>)</p>
+## 11. <a id="host-filters-and-target-behavior"></a>Host filters and target behavior
 
+`-logLevel`, `-pick` and `-ban` select messages on the host. They do not remove log calls from firmware or reduce bytes already transmitted. [Target routing](target_routing.md) instead selects configured output channels by ID range; [compile-time disabling](target_configuration.md#target-side-compile-time--trice-on-off) removes target logging.
+
+![Colored output](../ref/COLOR_output.PNG)

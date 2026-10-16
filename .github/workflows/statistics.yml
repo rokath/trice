@@ -26,7 +26,7 @@ jobs:
         shell: bash
         run: |
           if [ -z "$GHRS_TOKEN" ]; then
-            echo "::error::Create the Actions secret GHRS_GITHUB_API_TOKEN; see docs/rm/github_statistics.md for permissions."
+            echo "::error::Create the Actions secret GHRS_GITHUB_API_TOKEN; see docs/rm/maintenance.md#one-time-github-setup for permissions."
             exit 1
           fi
 

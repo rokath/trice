@@ -1,52 +1,53 @@
-# Trice Overview
+# Trice Overview and Concepts
 
-If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyzing dynamic behavior in the field, they are not usable.
+<details markdown="1">
+<summary>Contents</summary>
 
-Logging then, usually done with printf-like functions, quickly yields a result after having i.e. `putchar()` implemented. This turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small microcontrollers that's it.
+<!-- mdtoc -->
 
-Bigger microcontrollers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex systems, but for in-field related issues at least unhandy.
+* [1. How it works](#how-it-works)
+* [2. Direct and deferred output](#direct-and-deferred-output)
+* [3. Compact records](#compact-records)
+* [4. Portability and modularity](#portability-and-modularity)
 
-Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
+<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
+<!-- /mdtoc -->
 
-The Trice technique tries to fill this gap, being minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
+</details>
 
-Trice is an unusual software tracer-logger, using [internally](how_it_works.md) IDs instead of format strings to get maximum [speed](features.md#execution-speed) but provides the user with a printf-like comfort:
+**New to Trice?** Follow the [User Manual](../TriceUserManual.md) for your first PC log and firmware integration. This reference explains the complete options, rules and limits. Use the [Guide](../TriceGuide.md) to find a task.
 
-```C
-trice("Hello! 👋🙂");
+## 1. <a id="how-it-works"></a>How it works
 
-int a = -4;
-float x = 3.14159265;
-trice("info:π/%d is %f with the bit pattern %032b\n", a, aFloat(x/a), x );
+A Trice call records an ID and binary values. The host looks up the format in `til.json` and formats the result. Ordinary host-decoded logging therefore keeps format strings and printf formatting out of the firmware. [Local text logging](target_implementation.md#local-deferred-text-log) is a separate configuration that performs formatting on the target.
 
-string s = "world";
-triceS("msg:A runtime generated string: %s", s);
+```text
+Source calls → trice bind → sidecar headers + dictionaries → compiler
+Target records → byte transport → host decoder + til.json → readable events
 ```
 
-Replacing a `printf` library, the [Trice target source code](../../src) occupies 1-4 KB Flash [memory](memory_usage.md) and less than 1 KB RAM depending on the configuration which is done with a user file named `triceConfig.h`:
+[Bind](bind.md) is the normal pre-build step. It creates compiler headers and maintains their includes in the source; log calls remain ID-free. Preserve the accumulated dictionary and local location information according to [IDs and dictionaries](id_management.md). The older [Insert/Clean workflow](insert_clean_cache.md) is deprecated.
 
-```C
-#define TRICE_DEFERRED_OUTPUT 1
-#define TRICE_BUFFER TRICE_DOUBLE_BUFFER
-#define TRICE_DEFERRED_UARTA 1
-#define TRICE_UARTA USART2
-```
+![Trice encoding and decoding](../ref/triceCOBSBlockDiagram.svg)
 
-The open-source Trice PC tool is executable on all [Go](https://go.dev) platforms, at least:
+## 2. <a id="direct-and-deferred-output"></a>Direct and deferred output
 
-* [x] Linux
-* [x] macOS
-* [x] Windows
+| Mode | Work done by a log call | Application responsibility |
+| --- | --- | --- |
+| Direct | Creates a record and passes it through the configured direct output path. | Provide an output callback with acceptable execution time. |
+| Deferred | Stores a record in a ring or double buffer. | Call `TriceTransfer()` regularly to encode and drain pending records. |
 
-In the future other ports are possible:
+Both modes can be enabled together; see [F030_inst](examples.md#f030inst). Deferred mode reduces the immediate work at the call site but still needs time for transfer. Choose buffers using the [performance measurements](performance.md) and [memory reference](memory_usage.md); the fastest measured configuration is not a guarantee for every target.
 
-* C/C++ or Rust program to run on a separate controller board
-* [Go-mobile](https://github.com/golang/mobile)
-* [tinyGo](https://tinygo.org/)
-* [Wasm](https://webassembly.org/)
-* [Python](https://en.wikipedia.org/wiki/Python_(programming_language))
+## 3. <a id="compact-records"></a>Compact records
 
-![./ref/life0.gif](../ref/life0.gif)
+Without a target stamp or payload, a record needs four bytes. Stamps, payload, padding and transport framing add bytes. See [binary layout and size limits](binary_encoding.md) for the exact representation, including the distinction between the format limit and the C buffer allowance.
 
-<p align="right">(<a href="#trice-overview">back to top</a>)</p>
+## 4. <a id="portability-and-modularity"></a>Portability and modularity
+
+The Go host tools run on Linux, macOS and Windows. The target C library supports different integer widths and byte orders; your project supplies hardware-specific configuration and transport functions. Compiler-dependent wrapper features have explicit [Bind limits](bind.md#bind-limits).
+
+Use [UART, RTT or a custom writer](custom_output.md) to carry the bytes. [typeX0](typex0_user_packets.md) allows application packets alongside Trice records. Host [filters](tags_color_and_weights.md), [structured output](structured_logging.md), [context enrichment](context_enrichment.md) and [visualization](visualization.md) have their own reference chapters.
+
+The project uses the [MIT license](../../LICENSE.md); see [resources and support](project_resources.md).
 

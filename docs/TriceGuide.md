@@ -53,11 +53,11 @@ Command-line options                           | [CLI help snapshot](./ref/trice
 Target configuration defaults                  | [triceDefaultConfig.h](../src/triceDefaultConfig.h), explained in the Reference Manual
 An existing byte writer, RTT, or UART          | [Quickstarts](rm/quickstarts.md)
 Use `trice bind`                               | [Trice Bind](rm/bind.md), [build integration](rm/bind.md#build-integration), and [bind-limits](rm/bind.md#bind-limits)
-Trice ID management with `insert` and `clean`  | [ID management](rm/id_management.md) and [Insert algorithm and workflow](rm/the_trice_insert_algorithm.md)
-Which dictionaries and generated files to keep | [Files to keep](./TriceUserManual.md#know-which-files-to-keep), [dictionary compatibility](rm/id_reference_list_til_json.md#compatibility-with-firmware-and-host-tool-versions), and [Bind artifact report](rm/generate.md#bind-artifact-report)
+Existing `insert` / `clean` builds | [Deprecated Insert/Clean workflow](rm/insert_clean_cache.md); use Bind for new integrations.
+Which dictionaries and generated files to keep | [Files to keep](./TriceUserManual.md#know-which-files-to-keep), [dictionary compatibility](rm/id_management.md#compatibility-with-firmware-and-host-tool-versions), and [Bind artifact report](rm/generate.md#bind-artifact-report)
 Local text output without a host decoder       | [Local deferred text log](rm/target_implementation.md#local-deferred-text-log) and [local logging examples](rm/examples.md#local-logging-example-projects); requires target-side formatting and a generated dictionary
 Generate supporting files | [Trice Generate](rm/generate.md): local C format tables, readable JSON views, and artifact reports
-Avoid unnecessary recompilation | [Trice Cache](rm/insert_clean_cache.md)
+Cache for existing Insert/Clean builds | [Deprecated source cache](rm/insert_clean_cache.md); Bind does not need this cache.
 
 ### 2.2. <a id="log-output-and-analysis"></a>Log output and analysis
 
@@ -66,34 +66,34 @@ What you need                      | Where to look
 Log levels                         | [Tag weights](rm/tags_color_and_weights.md#tag-weights) and [selecting tags and priority](rm/tags_color_and_weights.md#selecting-tags-and-priority); these filters operate on the host
 Tag colors and aliases | [Trice tags and colors](rm/tags_color_and_weights.md) and [user-defined tags](rm/tags_color_and_weights.md#user-defined-tags-weights-and-colors)
 Select or exclude individual tags  | [Selecting tags and priority](rm/tags_color_and_weights.md#selecting-tags-and-priority) (`-pick`, `-ban`)
-Tag-specific routing on the target | [ID Routing](rm/id_management.md#id-routing); ID assignment and output-channel configuration are separate steps
+Tag-specific routing on the target | [ID Routing](rm/target_routing.md#id-routing); ID assignment and output-channel configuration are separate steps
 Structured fields in JSON or KV    | [Structured Logging](rm/structured_logging.md); JSON output is NDJSON, one event per line
 Context Enrichment                 | [Context Enrichment](rm/context_enrichment.md) and [supported log sites and alternatives](rm/context_enrichment.md#supported-log-sites-and-alternatives)
 Runtime strings or buffers         | [triceS strings](rm/printf_comparison.md#runtime-generated-0-terminated-strings-transfer-with-trices), [triceN counted strings](rm/printf_comparison.md#runtime-generated-counted-strings-transfer-with--tricen), and [triceB buffers](rm/printf_comparison.md#runtime-generated-buffer-transfer-with-triceb)
 Timing analysis                    | [Target stamps](rm/stamps.md) and [delta columns](rm/stamps.md#target-timestamp-delta-columns); stamp units and meaning are application-defined
 Source-file and line information | [Location information](rm/cli.md#location-information)
 Event counts                       | [Event statistics](rm/tags_color_and_weights.md#event-statistics)
-Graphical visualization            | [Visualization output](rm/cli.md#visualization-output-with--vis) and [LabPlot demo](rm/cli.md#setting-up-the-labplot-demo)
+Graphical visualization            | [Visualization output](rm/visualization.md#visualization-output-with--vis) and [LabPlot demo](rm/visualization.md#setting-up-the-labplot-demo)
 Record decoded text or raw bytes   | [Logfile output](rm/cli.md#logfile-output) and [binary logfile](rm/cli.md#binary-logfile)
-Integrating multiple targets       | [Several targets at the same time](rm/usage_tips.md#several-targets-at-the-same-time)
+Integrating multiple targets       | [Several targets at the same time](rm/cli.md#several-targets-at-the-same-time)
 
 ### 2.3. <a id="target-behavior-and-transport"></a>Target behavior and transport
 
 What you need                              | Where to look
 --------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Minimize log-call execution time           | [Trice Speed](rm/performance.md); compare direct and deferred modes and their RAM needs
-Logging from interrupts or multiple tasks | [Critical sections and Trice checks](rm/getting_started.md#trice-checks)
-Work without heap allocation | [No dynamic memory management in the target logging path](rm/features.md#no-dynamic-memory-management-needed)
-Reduce target image size                   | [Memory needs](rm/memory_usage.md) and [image size optimization](rm/code_size.md); some measurements describe older versions
-Reduce transferred bytes                   | [Minimal transfer bytes](rm/features.md#minimal-transfer-bytes-amount), [parameter bit widths](rm/getting_started.md#trice-parameter-bit-widths), and [framing](rm/framing.md)
+Logging from interrupts or multiple tasks | [Critical sections and Trice checks](rm/target_configuration.md#critical-sections-and-checks)
+Work without heap allocation | [No dynamic memory management in the target logging path](rm/memory_usage.md#no-dynamic-memory-management-needed)
+Reduce target image size                   | [Memory needs and image size optimization](rm/memory_usage.md); some measurements describe older versions
+Reduce transferred bytes                   | [Minimal transfer bytes](rm/binary_encoding.md#minimal-transfer-bytes-amount), [parameter bit widths](rm/printf_comparison.md#trice-parameter-bit-widths), and [framing](rm/binary_encoding.md#framing-and-encoder-dependencies)
 Understand binary records | [Binary encoding](rm/binary_encoding.md), including record layout and COBS/TCOBS framing
 SEGGER RTT                                 | [RTT quickstart](rm/quickstarts.md#quickstart-segger-rtt-direct-mode-with-j-link) and [Trice over RTT](rm/rtt.md)
 SD-card or custom output writer            | [SD-card and user-specific output](rm/custom_output.md)
-Big-endian targets                         | [Endianness](rm/endianness.md)
+Big-endian targets                         | [Endianness](rm/binary_encoding.md#endianness)
 User protocol packets in the log stream    | [typeX0 user packets](rm/typex0_user_packets.md)
-Encryption                                 | [Optional XTEA encryption](rm/optional_xtea_encryption.md)
-Buffer protection and overflow diagnostics | [Trice Protection](rm/features.md#trice-protection) and [avoiding buffer overruns](rm/usage_tips.md#avoid-buffer-overruns)
-Disable logging at compile time            | [Switching Trice on and off](rm/switching_trice_on_and_off.md)
+Encryption                                 | [Optional XTEA encryption](rm/binary_encoding.md#optional-xtea-encryption)
+Buffer protection and overflow diagnostics | [Trice Protection](rm/target_configuration.md#buffer-protection-and-diagnostics) and [avoiding buffer overruns](rm/target_configuration.md#avoid-buffer-overruns)
+Disable logging at compile time            | [Switching Trice on and off](rm/target_configuration.md#target-side-compile-time--trice-on-off)
 Remote commands with Trice ABC             | [Asynchronous Broadcast Commands](rm/abc_asynchronous_broadcast_commands.md), including [what ABC is not](rm/abc_asynchronous_broadcast_commands.md#what-abc-is-not)
 Stimulate the target from the host         | [User commands over UART](rm/cli.md#stimulate-target-with-a-user-command-over-uart); application code interprets the received command
 Adapt existing logging and assert macros   | [Legacy aliases](rm/legacy_user_code.md#legacy-user-code-option-trice-aliases-adaptation) and [alias example](rm/legacy_user_code.md#alias-example-project); the [assert test configuration](../_test/aliasassert_dblB_de_tcobs_ua/triceConfig.h) demonstrates application-specific assert integration
@@ -143,13 +143,13 @@ Folder | Purpose and useful entry point
 
 Location | Purpose
 --- | ---
-[.github](../.github/) | CI, release, and documentation workflows, issue templates, and funding configuration. See the [workflow reference](rm/maintenance.md#the-github-folder--purpose-and-contents).
+[.github](../.github/) | CI, release, and documentation workflows, issue templates, and funding configuration. See the [workflow reference](rm/maintenance.md#github-workflows).
 [.vscode](../.vscode/) and [.idea](../.idea/) | Optional VS Code and GoLand project settings; not target-library dependencies.
 [.code_snippets](../.code_snippets/) | Retained legacy helper snippets; not the recommended integration path.
 [docs/_scratchPad](./_scratchPad/) | Internal plans and drafts. Its `obsolete` subtree is archived history, not current usage guidance or a build prerequisite.
 `experiments/` | Experimental or local working material, if present. Use the documented examples for supported entry points.
 [go.mod](../go.mod) and [go.sum](../go.sum) | Go version, module requirements, and dependency checksums for the host tools.
-[Root metadata](rm/maintenance.md#trice-project-structure-files-and-folders) | Release notes, licenses, contribution guidance, formatter/linter settings, and publishing configuration. The Reference Manual lists individual files.
+[Root metadata](rm/maintenance.md#project-structure-and-ownership) | Release notes, licenses, contribution guidance, formatter/linter settings, and publishing configuration. The Reference Manual lists individual files.
 
 ### 3.3. <a id="generated-and-local-files"></a>Generated and local files
 

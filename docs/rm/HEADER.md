@@ -68,4 +68,3 @@ details.toc[open] .toc-hide {
 <p align="right"><small>(Select the preview to open the full animation; PDFs show the still image.)</small></p>
 
 ---
-

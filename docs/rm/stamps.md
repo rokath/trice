@@ -1,9 +1,7 @@
-# Trice Stamps
+# Stamps and Time Measurements
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -12,18 +10,17 @@
   * [2.1. Purpose](#purpose)
   * [2.2. General Behavior](#general-behavior)
   * [2.3. Column Order](#column-order)
-  * [2.4. Independence from `-ts`](#independence-from--ts)
+  * [2.4. Independence from -ts](#independence-from--ts)
   * [2.5. Formatting Rules](#formatting-rules)
-  * [2.6. Special Case: `-ts32 epoch`](#special-case--ts32-epoch)
-  * [2.7. Automatic `-ts0delta` Placeholder](#automatic--ts0delta-placeholder)
+  * [2.6. Special Case: -ts32 epoch](#special-case--ts32-epoch)
+  * [2.7. Automatic -ts0delta Placeholder](#automatic--ts0delta-placeholder)
   * [2.8. Typical Use Cases](#typical-use-cases)
   * [2.9. Example Screenshots](#example-screenshots)
   * [2.10. Summary](#summary)
+* [3. Target Trice Stamps](#target-trice-stamps)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -301,5 +298,24 @@ The `tsdelta` switches make timestamp display more flexible by separating:
 
 This allows `trice` output to be tailored for debugging, profiling, timing analysis, and mixed absolute/delta log views without changing the target-side encoding.
 
-<p align="right">(<a href="#trice-stamps">back to top</a>)</p>
+## 3. <a id="target-trice-stamps"></a>Target Trice Stamps
+
+* If you wish to have your Trice messages stamped, most probably time stamped, add the 2 hardware specific macros/functions to your project (example in [./examples/F030_inst/Core/Inc/triceConfig.h](../../examples/F030_inst/Core/Inc/triceConfig.h) and [./examples/F030_inst/Core/Src/stm32f0xx_it.c](../../examples/F030_inst/Core/Src/stm32f0xx_it.c) ). The time base is in your hands and is allowed to be different for the 16-bit and 32-bit stamps. Example:
+
+    ```c
+    //! ms32 is a 32-bit millisecond counter, counting circularly in steps of 1 every ms.
+    extern uint32_t ms32;
+    #define TriceStamp16 (SysTick->VAL) // Counts from 31999 -> 0 in each ms.
+    #define TriceStamp32  ms32
+    ```
+* In the code snippet above the 32-bit timestamp is used for milliseconds and the 16.bit timestamp is used as clock counter what allows fine grained time measurements.
+* In the screenshot below, the 16-bit timestamp is a parallel counter running between 0-9999 milliseconds, which allows 16-bit timestamps all the time and only every 10 seconds is a full 32-bit timestamp needed.
+
+  <img src="../ref/0-16-32BitTimeStamps.jpg" width="1000">
+
+
+* The trice tool `-ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
+* It is also possible to use the stamp option not for time stamps but for any values, like addresses or a voltage or a random number.
+
+_Hint:_ I usually have the 32-bit timestamp as millisecond counter and the 16-bit timestamp as systick counter to measure short execution times.
 
