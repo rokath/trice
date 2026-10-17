@@ -198,7 +198,24 @@ jobs:
           # Add a separate subtree after Jekyll; existing documentation is untouched.
           mkdir -p _site/stats/report
           cp -R "$report/." _site/stats/report/
-          cat > _site/stats/index.html <<'HTML'
+
+          # Optional until the first download collection; data-branch code is never run.
+          downloads_link='<p>Release download charts will appear after the first download collection.</p>'
+          downloads_report='rokath/trice/downloads/report'
+          if git cat-file -e "FETCH_HEAD:$downloads_report" 2>/dev/null; then
+            git archive FETCH_HEAD "$downloads_report" | tar -x -C _statistics
+            for artifact in index.html by-release.svg over-time.svg; do
+              if [ ! -s "_statistics/$downloads_report/$artifact" ]; then
+                echo "::error::Expected a nonempty _statistics/$downloads_report/$artifact. Generated files:"
+                find _statistics -type f
+                exit 1
+              fi
+            done
+            mkdir -p _site/stats/downloads
+            cp -R "_statistics/$downloads_report/." _site/stats/downloads/
+            downloads_link='<p><a href="downloads/">Release download charts: totals by release and over time</a></p>'
+          fi
+          cat > _site/stats/index.html <<HTML
           <!doctype html>
           <html lang="en">
           <head>
@@ -211,7 +228,8 @@ jobs:
           <h1>Project statistics</h1>
           <p><strong>GitHub activity statistics are not a count of unique Trice users. Automated access and repeated downloads are included.</strong></p>
           <p>Cumulative unique visitors and cloners add daily values; they are not unique people across the displayed period. Missing values may appear as zero. Historical stars and forks are reconstructed from entries that still exist.</p>
-          <p>The unchanged upstream report shows its generation time in UTC. Release downloads are not included.</p>
+          <p>The unchanged upstream report shows its generation time in UTC. Release downloads are shown separately.</p>
+          $downloads_link
           <p><a href="report/report.html">Open the full report</a></p>
           <iframe src="report/report.html" title="GitHub activity report" style="width:100%;height:80vh;border:0"></iframe>
           </body>
