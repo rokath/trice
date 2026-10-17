@@ -15,6 +15,7 @@ Security analysis | [CodeQL](codeql.yml) | Analyze Go and C/C++ code.
 Distribution | [GoReleaser](goreleaser.yml), [Installation checks](install-checks.yml), [Release audit](release-audit.yml) | Build distributions and check packaged tools and release assets. Inspect each workflow before starting a manual run.
 Website | [Pages](pages.yml) | Build and deploy the documentation website.
 Repository maintenance | [Labeler](label.yml), [Stale](stale.yml) | Apply pull-request labels and handle inactive issues/pull requests.
+Statistics data isolation | [Statistics branch guard](statistics-branch-guard.yml) | Reject PRs involving `github-repo-stats`. Make `Statistics branch isolation` a required check on `main`; `wip` retains direct pushes. The workflow alone does not enforce the merge restriction.
 
 Library checks run when a PR to `main` opens, reopens or receives another push.
 A push to `wip` without an open PR does not start these library workflows.
