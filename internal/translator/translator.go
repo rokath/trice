@@ -22,6 +22,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/keybcmd"
+	"github.com/rokath/trice/internal/printf"
 	"github.com/rokath/trice/internal/receiver"
 	_ "github.com/rokath/trice/internal/trexDecoder"
 	"github.com/rokath/trice/internal/vis"
@@ -129,10 +130,13 @@ func handleSignals(w io.Writer, rc io.ReadCloser, visRouter *vis.Router, sigs <-
 const DefaultTargetStamp0 = "time:            "
 
 type targetStampState struct {
-	prev16    uint16
-	prev32    uint32
-	hasPrev16 bool
-	hasPrev32 bool
+	prev16      uint16
+	prev32      uint32
+	hasPrev16   bool
+	hasPrev32   bool
+	programs    map[stampField]*printf.Program // One history per field, width, and translator source.
+	samples     map[stampField]*printf.Sample  // Snapshots belong only to the most recent decoded event.
+	diagnostics io.Writer                      // Runtime failures retain the application message.
 }
 
 func prepareTargetStampFormats() error {
@@ -176,6 +180,9 @@ func prepareTargetStampFormats() error {
 	if strings.HasPrefix(decoder.TargetStamp32Delta, "epoch") {
 		return fmt.Errorf(`invalid value '%s' for CLI switch -ts32delta. "epoch..." is only supported for -ts32 absolute timestamps`, decoder.TargetStamp32Delta)
 	}
+	if _, err := compileStampExpressions(); err != nil {
+		return err
+	}
 	autoTargetStamp0Delta()
 	return nil
 }
@@ -210,11 +217,17 @@ func autoTargetStamp0Delta() {
 }
 
 func targetStampWidth(size int, format string) int {
+	if text, active := expressionPlaceholder(size, format); active {
+		return len(text)
+	}
 	return len(formatTargetStamp(size, format, 0))
 }
 
 func targetStampDisplayWidth(size int, format string) int {
 	s := formatTargetStamp(size, format, 0)
+	if text, active := expressionPlaceholder(size, format); active {
+		s = text
+	}
 	tag, rest, found := strings.Cut(s, ":")
 	if found && tag != "" && !containsUppercase(tag) {
 		return len(rest)
@@ -533,13 +546,24 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 	if err := prepareTargetStampFormats(); err != nil {
 		return err
 	}
-	state := targetStampState{}
+	state, err := newStampState(diagnostics)
+	if err != nil {
+		return err
+	}
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 
 		if err != io.EOF && err != nil {
 			return err
 		}
+		// Record presence is independent of text length, stamp value, and filters.
+		// Observing here also covers empty and intermediate line-composition calls.
+		var record decoder.ApplicationRecord
+		var available bool
+		if provider, ok := dec.(decoder.RecordProvider); ok {
+			record, available = provider.ApplicationRecord()
+		}
+		state.observeStamp(record, available)
 		if decoder.LogFormat != "text" {
 			if n > 0 {
 				separateDecoderDiagnostics(diagnostics, dec, b[:n])
@@ -638,7 +662,7 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 
 			var s string
 			if logLineStart {
-				s = renderTargetStamp(decoder.TargetTimestampSize, decoder.TargetTimestamp)
+				s = state.absoluteStamp(decoder.TargetTimestampSize, decoder.TargetTimestamp)
 				if decoder.BlankMetadata {
 					s = blankTaggedMetadataValue(s)
 				}
@@ -648,7 +672,7 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 					_, err = sw.Write([]byte("default: "))
 					msg.OnErr(err)
 				}
-				s = renderTargetDelta(decoder.TargetTimestampSize, decoder.TargetTimestamp, &state)
+				s = state.deltaStamp(decoder.TargetTimestampSize, decoder.TargetTimestamp)
 				if decoder.BlankMetadata {
 					s = blankTaggedMetadataValue(s)
 				}

@@ -17,6 +17,7 @@ import (
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/printf"
 	"github.com/spf13/afero"
 )
 
@@ -289,8 +290,8 @@ func (rule *runtimeRule) classifyCandidate(triceID id.TriceID, triceFormat id.Tr
 	shape, err := fixedNumericShape(triceFormat)
 	if err == nil {
 		for i, expression := range rule.expressions {
-			if expressionErr := validateExpressionVerb(expression, rule.verbs[i], &shape); expressionErr != nil {
-				err = fmt.Errorf("expression %d (%s): %w", i+1, expression.source, expressionErr)
+			if expressionErr := printf.ValidateExpressionVerb(expression, rule.verbs[i], &shape); expressionErr != nil {
+				err = fmt.Errorf("expression %d (%s): %w", i+1, expression.Source, expressionErr)
 				break
 			}
 		}
@@ -326,7 +327,7 @@ func (rule *runtimeRule) ensureCandidate(record decoder.VisRecord) bool {
 
 // acceptsStamp enforces explicit widths and latches generic ts only after all earlier eligibility checks.
 func (rule *runtimeRule) acceptsStamp(record decoder.VisRecord) bool {
-	usesStamp := rule.references.genericTS || rule.references.ts16 || rule.references.ts32
+	usesStamp := rule.references.GenericTS || rule.references.TS16 || rule.references.TS32
 	if !usesStamp {
 		return true
 	}
@@ -337,9 +338,9 @@ func (rule *runtimeRule) acceptsStamp(record decoder.VisRecord) bool {
 
 	explicitBits := 0
 	switch {
-	case rule.references.ts16:
+	case rule.references.TS16:
 		explicitBits = 16
-	case rule.references.ts32:
+	case rule.references.TS32:
 		explicitBits = 32
 	}
 	if explicitBits != 0 && record.StampBits != explicitBits {
@@ -349,7 +350,7 @@ func (rule *runtimeRule) acceptsStamp(record decoder.VisRecord) bool {
 		)
 		return false
 	}
-	if !rule.references.genericTS {
+	if !rule.references.GenericTS {
 		return true
 	}
 	if rule.genericStampBits == 0 {
@@ -371,13 +372,13 @@ func (rule *runtimeRule) acceptsStamp(record decoder.VisRecord) bool {
 func (rule *runtimeRule) encode(record decoder.VisRecord) ([]byte, error) {
 	arguments := make([]interface{}, len(rule.expressions))
 	for i, expression := range rule.expressions {
-		value, err := expression.root.evaluate(record)
+		value, err := expression.Evaluate(record)
 		if err != nil {
-			return nil, fmt.Errorf("expression %d (%s): %w", i+1, expression.source, err)
+			return nil, fmt.Errorf("expression %d (%s): %w", i+1, expression.Source, err)
 		}
-		argument, err := argumentForVerb(value, rule.verbs[i])
+		argument, err := printf.ArgumentForVerb(value, rule.verbs[i])
 		if err != nil {
-			return nil, fmt.Errorf("expression %d (%s): %w", i+1, expression.source, err)
+			return nil, fmt.Errorf("expression %d (%s): %w", i+1, expression.Source, err)
 		}
 		arguments[i] = argument
 	}
@@ -458,55 +459,55 @@ func (rule *runtimeRule) verbosef(format string, arguments ...interface{}) {
 }
 
 // fixedNumericShape reconstructs the same supported TREX scalar layout used by the decoder.
-func fixedNumericShape(triceFormat id.TriceFmt) (candidateShape, error) {
+func fixedNumericShape(triceFormat id.TriceFmt) (printf.Shape, error) {
 	typeName := triceFormat.Type
 	if before, _, found := strings.Cut(typeName, "Assert"); found {
 		typeName = strings.TrimSpace(before)
 	}
 	if len(typeName) < 5 || !strings.EqualFold(typeName[:5], "TRICE") {
-		return candidateShape{}, fmt.Errorf("type %q is not a Trice type", triceFormat.Type)
+		return printf.Shape{}, fmt.Errorf("type %q is not a Trice type", triceFormat.Type)
 	}
 
 	template, err := fmtspec.ParseTemplate(triceFormat.Strg, nil)
 	if err != nil {
-		return candidateShape{}, err
+		return printf.Shape{}, err
 	}
 	_, formatKinds := decoder.UReplaceN(template.Format)
 	fullType, err := id.ConstructFullTriceInfo(typeName, len(formatKinds))
 	if err != nil {
-		return candidateShape{}, fmt.Errorf("cannot reconstruct type %q: %w", triceFormat.Type, err)
+		return printf.Shape{}, fmt.Errorf("cannot reconstruct type %q: %w", triceFormat.Type, err)
 	}
 	bits, count, err := parseFixedNumericType(fullType)
 	if err != nil {
-		return candidateShape{}, err
+		return printf.Shape{}, err
 	}
 	if count != len(formatKinds) {
-		return candidateShape{}, fmt.Errorf(
+		return printf.Shape{}, fmt.Errorf(
 			"type %q expects %d values but its format contains %d conversions",
 			triceFormat.Type, count, len(formatKinds),
 		)
 	}
 
-	shape := candidateShape{count: min(count, decoder.VisValueCapacity)}
+	shape := printf.Shape{Count: min(count, decoder.VisValueCapacity)}
 	for i, formatKind := range formatKinds {
-		var kind scalarKind
+		var kind printf.Kind
 		switch formatKind {
 		case decoder.UnsignedFormatSpecifier, decoder.PointerFormatSpecifier:
-			kind = scalarUnsigned
+			kind = printf.Unsigned
 		case decoder.SignedFormatSpecifier:
-			kind = scalarSigned
+			kind = printf.Signed
 		case decoder.FloatFormatSpecifier:
 			if bits != 32 && bits != 64 {
-				return candidateShape{}, fmt.Errorf("%d-bit TREX values cannot carry floating-point data", bits)
+				return printf.Shape{}, fmt.Errorf("%d-bit TREX values cannot carry floating-point data", bits)
 			}
-			kind = scalarFloat
+			kind = printf.Float
 		case decoder.BooleanFormatSpecifier:
-			kind = scalarBool
+			kind = printf.Bool
 		default:
-			return candidateShape{}, fmt.Errorf("format conversion %d is not a supported numeric value", i+1)
+			return printf.Shape{}, fmt.Errorf("format conversion %d is not a supported numeric value", i+1)
 		}
 		if i < decoder.VisValueCapacity {
-			shape.values[i] = kind
+			shape.Values[i] = kind
 		}
 	}
 	return shape, nil

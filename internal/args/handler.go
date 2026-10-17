@@ -275,6 +275,9 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	decoder.ShowTargetStamp32DeltaPassed = isLogFlagPassed("ts32delta")
 	decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
 	decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
+	if err := translator.PrepareTargetStampFormats(); err != nil {
+		return err
+	}
 	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 	return startLogLoop(w, fSys) // endless loop until EOF or a returned failure
 }

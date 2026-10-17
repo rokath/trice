@@ -5,6 +5,8 @@ package vis
 import (
 	"testing"
 
+	"github.com/rokath/trice/internal/printf"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -36,12 +38,12 @@ func TestParseRuleAcceptsTheMVPGrammar(t *testing.T) {
 	assert.Equal(t, "time_s,x,y,z\n", rule.header)
 	require.Len(t, rule.expressions, 3)
 	require.Len(t, rule.verbs, 3)
-	assert.Equal(t, byte('d'), rule.verbs[0].verb)
-	assert.Equal(t, byte('f'), rule.verbs[1].verb)
-	assert.Equal(t, byte('t'), rule.verbs[2].verb)
-	assert.True(t, rule.references.ts32)
-	assert.True(t, rule.references.values[0])
-	assert.True(t, rule.references.values[1])
+	assert.Equal(t, byte('d'), rule.verbs[0].Verb)
+	assert.Equal(t, byte('f'), rule.verbs[1].Verb)
+	assert.Equal(t, byte('t'), rule.verbs[2].Verb)
+	assert.True(t, rule.references.TS32)
+	assert.True(t, rule.references.Values[0])
+	assert.True(t, rule.references.Values[1])
 }
 
 // TestParseRuleKeepsLogByDefault verifies that omitting the policy has no effect on normal output.
@@ -131,9 +133,9 @@ func TestParseRuleRejectsUnsupportedSyntax(t *testing.T) {
 
 // TestParseOutputFormatSupportsPromisedVerbs verifies the complete MVP conversion set and literal percent handling.
 func TestParseOutputFormatSupportsPromisedVerbs(t *testing.T) {
-	verbs, err := parseOutputFormat(`%d %b %o %x %X %f %e %E %g %G %v %t %%`)
+	verbs, err := printf.ParseOutputFormat(`%d %b %o %x %X %f %e %E %g %G %v %t %%`)
 	require.NoError(t, err)
 	require.Len(t, verbs, 12)
-	assert.Equal(t, byte('d'), verbs[0].verb)
-	assert.Equal(t, byte('t'), verbs[len(verbs)-1].verb)
+	assert.Equal(t, byte('d'), verbs[0].Verb)
+	assert.Equal(t, byte('t'), verbs[len(verbs)-1].Verb)
 }
