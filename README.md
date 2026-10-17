@@ -29,6 +29,8 @@ The Guide helps you choose your first experiment, discover the features, and fin
 </details>
 <br>
 
+[Project statistics](https://rokath.github.io/trice/stats/)
+
 If Trice helps your work, [support the project](docs/rm/project_resources.md#support-and-sponsoring).
 
 ---
