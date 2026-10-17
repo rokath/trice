@@ -1,0 +1,40 @@
+name: Statistics branch guard
+
+on:
+  # Use the trusted base workflow: a data-branch PR must not delete its own guard.
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited]
+  merge_group:
+    types: [checks_requested]
+  # Register the check before making it required in the repository rules.
+  workflow_dispatch:
+
+# This metadata-only check never checks out or executes pull-request content.
+permissions: {}
+
+jobs:
+  guard:
+    name: Statistics branch isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Reject statistics branch merges
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          BASE_BRANCH: ${{ github.event.pull_request.base.ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Missing PR metadata must fail visibly rather than silently pass.
+          if [ "$EVENT_NAME" = pull_request_target ] && { [ -z "$HEAD_BRANCH" ] || [ -z "$BASE_BRANCH" ]; }; then
+            echo '::error::Cannot check statistics branch isolation: source or target branch is missing.'
+            exit 1
+          fi
+          if [ "$HEAD_BRANCH" = github-repo-stats ] || [ "$BASE_BRANCH" = github-repo-stats ]; then
+            echo '::error::github-repo-stats contains generated statistics. Do not merge this branch.'
+            printf 'Rejected merge: %s -> %s\n' "$HEAD_BRANCH" "$BASE_BRANCH"
+            exit 1
+          fi
+          # Merge-queue entries have already passed the individual PR check.
+          echo 'PASS: no statistics data branch is being merged.'
