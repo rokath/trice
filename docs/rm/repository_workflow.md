@@ -1,13 +1,11 @@
-# Working with the Trice Repository
+# Working with the Repository
 
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
-* [1. Install `opencommit` on macOS](#install-opencommit-on-macos)
+* [1. Install opencommit on macOS](#install-opencommit-on-macos)
   * [1.1. 🧰 Prerequisites](#prerequisites)
   * [1.2. 🔑 Step 1 — Get Your OpenAI API Key](#step-1--get-your-openai-api-key)
   * [1.3. ⚙️ Step 2 — Install OpenCommit](#step-2--install-opencommit)
@@ -16,20 +14,24 @@
   * [1.6. 🚀 Step 5 — Use OpenCommit](#step-5--use-opencommit)
   * [1.7. 🔁 Step 6 — (Optional) Install Git Hook](#step-6--optional-install-git-hook)
   * [1.8. 🧩 Step 7 — Troubleshooting](#step-7--troubleshooting)
-* [2. Install `opencommit` on Windows](#install-opencommit-on-windows)
+* [2. Install opencommit on Windows](#install-opencommit-on-windows)
   * [2.1. 🧭 Overview](#overview)
   * [2.2. ⚙️ Prerequisites](#prerequisites-1)
   * [2.3. 🪄 Installation Steps](#installation-steps)
   * [2.4. 🚀 Usage](#usage)
   * [2.5. 🔧 Troubleshooting](#troubleshooting)
   * [2.6. ✅ Example](#example)
+* [3. Fork It (get a contributor)](#fork-it-get-a-contributor)
+  * [3.1. ✅ What “forking” means](#what-forking-means)
+  * [3.2. 🧭 How to Fork (GitHub)](#how-to-fork-github)
+* [4. Clone It](#clone-it)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
----
-
 </details>
+
+Repository work is optional for firmware users. For installation and first use follow the [UM](../TriceUserManual.md). OpenCommit below is an optional contributor tool, not a Trice prerequisite.
 
 Action                                    | Command
 -------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -76,12 +78,12 @@ Before you begin, make sure you have:
 * Install [Homebrew](https://brew.sh) first if you don’t have it.
 * **Git**:  Check if Git is installed: `git --version`
 If not, install the Xcode Command Line Tools:
-  *  `xcode-select --install`   
-*  **Node.js and npm**  
+  *  `xcode-select --install`
+*  **Node.js and npm**
   OpenCommit runs on Node.js. Check with: `node -v` and `npm -v`
-  If not installed: `brew install node` 
+  If not installed: `brew install node`
 * **An OpenAI API key** (or compatible provider like OpenRouter, see below).
-    
+
 * * *
 
 ### 1.2. <a id="step-1--get-your-openai-api-key"></a>🔑 Step 1 — Get Your OpenAI API Key
@@ -90,16 +92,16 @@ If not, install the Xcode Command Line Tools:
 * Log in (or sign up) using your email, Google, Microsoft, or Apple account.
 * Navigate to your API Keys page: 👉 [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
   * Click **“Create new secret key”**.
-  * Give it a name (e.g., `opencommit-mac`) and copy it immediately.  
+  * Give it a name (e.g., `opencommit-mac`) and copy it immediately.
     It will look like this: `sk-proj-1a2b3c4d5e6f...`
     > ⚠️ You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
-    
+
 * * *
 
 ### 1.3. <a id="step-2--install-opencommit"></a>⚙️ Step 2 — Install OpenCommit
 
 * Run the following in your Terminal: `npm install -g opencommit`
-  You may see warnings about deprecated dependencies — those are safe to ignore.  
+  You may see warnings about deprecated dependencies — those are safe to ignore.
 * Once installed, check: `opencommit --version`
 
 * * *
@@ -119,9 +121,9 @@ If not, install the Xcode Command Line Tools:
 * You can customize OpenCommit’s behavior by setting additional environment variables, for example:
 
 ```bash
-export OCO_LANG="en"           # or "de", "fr", etc. 
-export OCO_MODEL="gpt-5"       # or another model like "gpt-4-turbo" 
-export OCO_PROMPT_MODULE="conventional" 
+export OCO_LANG="en"           # or "de", "fr", etc.
+export OCO_MODEL="gpt-5"       # or another model like "gpt-4-turbo"
+export OCO_PROMPT_MODULE="conventional"
 export OCO_EMOJI=true
  ```
 
@@ -131,13 +133,13 @@ Add these to your `~/.zshrc` for persistence.
 
 ### 1.6. <a id="step-5--use-opencommit"></a>🚀 Step 5 — Use OpenCommit
 
-* Go to a Git repository: `cd /path/to/your/repo` 
+* Go to a Git repository: `cd /path/to/your/repo`
 * Stage your changes: `git add .`
 * Run OpenCommit: `opencommit`
-* It will analyze your staged changes and automatically generate a commit message.  
+* It will analyze your staged changes and automatically generate a commit message.
     Example:
     `🔍 Analyzing changes... ✅ Commit message generated: feat(api): add endpoint for user authentication`
-    
+
 * * *
 
 ### 1.7. <a id="step-6--optional-install-git-hook"></a>🔁 Step 6 — (Optional) Install Git Hook
@@ -151,8 +153,8 @@ Add these to your `~/.zshrc` for persistence.
 
 If OpenCommit says:
 
-* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).    
-* **“Unauthorized”** → Verify your key is valid or not expired.  
+* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).
+* **“Unauthorized”** → Verify your key is valid or not expired.
 * **“Cannot find opencommit command”** → Reinstall globally with `npm install -g opencommit`.
 
 * * *
@@ -203,9 +205,9 @@ This guide explains how to install and configure OpenCommit on Windows step by s
     * You can also customize OpenCommit’s behavior by setting additional environment variables, for example:
 
     ```bash
-    OCO_LANG="en"            # or "de", "fr", etc. 
-    OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo" 
-    OCO_PROMPT_MODULE="conventional" 
+    OCO_LANG="en"            # or "de", "fr", etc.
+    OCO_MODEL="gpt-4o"       # or another model like "gpt-4-turbo"
+    OCO_PROMPT_MODULE="conventional"
     OCO_EMOJI=true
     ```
 
@@ -253,5 +255,78 @@ Generated commit message:
 ...
 ```
 
-<p align="right">(<a href="#working-with-the-trice-repository">back to top</a>)</p>
+## 3. <a id="fork-it-get-a-contributor"></a>Fork It (get a contributor)
+
+If you wish to get a contributor please fork the Trice repository.
+
+### 3.1. <a id="what-forking-means"></a>✅ What “forking” means
+
+Forking creates **your own copy** of someone else’s repository under your account.
+You can then:
+
+* freely make changes,
+* push commits to your fork,
+* and later submit a **pull request** to propose changes back to the original repo.
+
+### 3.2. <a id="how-to-fork-github"></a>🧭 How to Fork (GitHub)
+
+**1\. Go to the repository you want to fork**
+
+Example: `https://github.com/rokath/trice`
+
+**2\. Click the **“Fork”** button (top-right)**
+
+You’ll be taken to a _Create Fork_ page.
+
+**3\. Choose options (usually leave defaults)**
+
+* **Owner** → your GitHub account
+* **Repository name** → auto-filled
+* Optional: copy only the default branch
+
+Click **Create Fork**.
+
+**4\. Clone your fork locally**
+
+`git clone https://github.com/YOUR_USERNAME/trice.git && cd trice`
+
+**5\. (Optional but recommended) Add the original repo as `upstream`**
+
+This lets you pull updates later.
+
+`git remote add upstream https://github.com/rokath/trice.git`
+
+Check remotes:
+
+`git remote -v`
+
+**6\. Keep your fork updated**
+
+`git fetch upstream git merge upstream/main`
+
+Or:
+
+`git pull upstream main`
+
+## 4. <a id="clone-it"></a>Clone It
+
+**1\. Make sure Git is installed**
+
+Check with:
+
+`git --version`
+
+If not installed, download from [https://git-scm.com](https://git-scm.com/)
+
+**2\. Clone the repository**
+
+Run this command in your terminal or command prompt:
+
+`git clone https://github.com/rokath/trice.git`
+
+This creates a local folder named **trice** with the full project history.
+
+**3\. (Optional) Enter the project folder**
+
+`cd trice`
 

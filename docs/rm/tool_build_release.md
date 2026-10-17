@@ -1,9 +1,7 @@
-# Building and Releasing the Trice Tools
+# Building and Releasing the Tools
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -20,8 +18,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -229,6 +225,4 @@ For a beta, download the matching platform archive from its tagged release and p
 The module remains `github.com/rokath/trice`. Versioned remote installation with a v2 tag is not supported without a `/v2` module path; use the archive or local checkout build described above. See [Go major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
 
 Homebrew remains the stable-release route. `skip_upload: auto` prevents prerelease tags from updating the normal tap, and beta audits skip the Homebrew job. Before publishing a stable v2 release, review `release.prerelease` and the stable installation checks explicitly.
-
-<p align="right">(<a href="#building-and-releasing-the-trice-tools">back to top</a>)</p>
 

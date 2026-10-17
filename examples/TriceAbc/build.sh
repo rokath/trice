@@ -143,7 +143,7 @@ BASE_CFLAGS=(-std=c99 -Wall -Wextra -pedantic -O2 -ffunction-sections -fdata-sec
   "-I${SCRIPT_DIR}/build/sidecars" "-I${ROOT}/src" "-I${ROOT}/src/default_conf")
 
 # Every node compiles src/*.c; its configuration selects TX/RX features.
-# Details: ../../docs/rm/code_size.md
+# Details: ../../docs/rm/memory_usage.md
 link_unused=-Wl,--gc-sections
 case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 

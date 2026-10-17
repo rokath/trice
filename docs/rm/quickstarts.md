@@ -1,9 +1,7 @@
-# Quickstarts
+# Firmware Integration Recipes
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -11,7 +9,7 @@
   - [1.1. Add Trice target sources](#add-trice-target-sources)
   - [1.2. Configure deferred auxiliary 8-bit output](#configure-deferred-auxiliary-8-bit-output)
   - [1.3. Assign your writer function](#assign-your-writer-function)
-  - [1.4. Insert IDs before compiling](#insert-ids-before-compiling)
+  - [1.4. Bind before compiling](#bind-before-compiling)
   - [1.5. Decode on the PC](#decode-on-the-pc)
   - [1.6. Common first checks](#common-first-checks)
   - [1.7. Why this quickstart matters](#why-this-quickstart-matters)
@@ -20,7 +18,7 @@
   - [2.2. Add target sources](#add-target-sources)
   - [2.3. Configure direct RTT](#configure-direct-rtt)
   - [2.4. Add a first Trice call](#add-a-first-trice-call)
-  - [2.5. Insert, build, flash](#insert-build-flash)
+  - [2.5. Bind, build, flash](#bind-build-flash)
   - [2.6. Log through J-Link RTT](#log-through-j-link-rtt)
   - [2.7. When this path is ideal](#when-this-path-is-ideal)
   - [2.8. When this path is not ideal](#when-this-path-is-not-ideal)
@@ -29,9 +27,9 @@
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
----
-
 </details>
+
+These recipes extend the [UM firmware walkthrough](../TriceUserManual.md#bring-trice-into-your-firmware) with transport-specific settings. Install the host tools as described there. All three recipes use Bind; keep each project's TIL/LI and run Bind before compilation whenever its log sources change.
 
 ## 1. <a id="quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit"></a>Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit
 
@@ -58,7 +56,7 @@ It only needs a function that accepts a byte buffer and length.
 ### 1.1. <a id="add-trice-target-sources"></a>Add Trice target sources
 
 Add the complete [`src`](../../src) folder to your target project unchanged, including its `default_conf` subdirectory.
-Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Igenerated -Isrc -Isrc/default_conf`.
+Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Ibuild/sidecars -Isrc -Isrc/default_conf`.
 Create a project-specific `triceConfig.h` in your application include path.
 
 ### 1.2. <a id="configure-deferred-auxiliary-8-bit-output"></a>Configure deferred auxiliary 8-bit output
@@ -100,7 +98,7 @@ static void MyNonBlockingByteWrite(const uint8_t* data, size_t len) {
 
 void AppInit(void) {
     BoardInit();
-    TriceInit(); // normally only needed when SEGGER_RTT is used. Otherwise it is an empty function.
+    TriceInit(); // Initialize the configured Trice backends.
 
     UserNonBlockingDeferredWrite8AuxiliaryFn = MyNonBlockingByteWrite;
 
@@ -117,16 +115,18 @@ void AppMainLoop(void) {
 
 `TriceTransfer()` moves accumulated Trice records from the deferred buffer to your writer. Call it cyclically from the main loop, a low-priority task, or another context that is safe for your output driver.
 
-### 1.4. <a id="insert-ids-before-compiling"></a>Insert IDs before compiling
+The writer must accept the complete chunk or implement an explicit overflow policy. It must not retain the supplied pointer after returning. A DMA or transmit queue needs its own copy or another correctly managed transport adapter. Empty critical-section macros above are only a single-context starting point; replace them before logging from interrupts or multiple tasks.
+
+### 1.4. <a id="bind-before-compiling"></a>Bind before compiling
 
 From your project root:
 
 ```bash
 touch til.json li.json
-trice insert -src ./ -i ./til.json -li ./li.json
+trice bind -src project -genDir build/sidecars -i til.json -li li.json
 ```
 
-Then build and flash your target.
+Here `project` is your application source/configuration directory. Bind creates `build/sidecars` and its parents. Add that directory to the compiler include path shown above, and make Bind a dependency of compilation. Then build and flash. See [build integration](bind.md#build-integration) for build-system rules; do not commit generated sidecars.
 
 ### 1.5. <a id="decode-on-the-pc"></a>Decode on the PC
 
@@ -153,9 +153,7 @@ If your writer produces a file, pipe, TCP stream, or another source, use the mat
 
 ### 1.7. <a id="why-this-quickstart-matters"></a>Why this quickstart matters
 
-The old README led many first-time readers toward SEGGER RTT because it is convenient and fast.
-That path is still valuable, but it also implies J-Link hardware and SEGGER tooling.
-The auxiliary writer path is more portable: many projects already have a byte-stream output, and Trice can reuse it.
+The auxiliary writer reuses an existing byte stream and needs no probe-specific transport. For RTT-specific setup use the next recipe.
 
 ## 2. <a id="quickstart-segger-rtt-direct-mode-with-j-link"></a>Quickstart: SEGGER RTT direct mode with J-Link
 
@@ -172,13 +170,13 @@ See [Convert Evaluation Board onboard ST-Link to J-Link](rtt.md#convert-evaluati
 
 ### 2.1. <a id="install-tools"></a>Install tools
 
-- Install the `trice` host tool.
+- Follow the [UM prerequisites](../TriceUserManual.md#get-lib-and-tools) for the host tool.
 - Install the SEGGER J-Link software package so that `JLinkRTTLogger` or the relevant J-Link tools are in `PATH`.
 
 ### 2.2. <a id="add-target-sources"></a>Add target sources
 
 Add the complete [`src`](../../src) folder to your target project unchanged, including its `default_conf` subdirectory.
-Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Igenerated -Isrc -Isrc/default_conf`.
+Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Ibuild/sidecars -Isrc -Isrc/default_conf`.
 
 ### 2.3. <a id="configure-direct-rtt"></a>Configure direct RTT
 
@@ -202,7 +200,7 @@ Minimal `triceConfig.h`:
 
 int main(void) {
     BoardInit();
-    TriceInit(); // normally only needed when SEGGER_RTT is used. Otherwise it is an empty function.
+    TriceInit(); // Initialize the configured Trice backends.
 
     trice("Hello RTT\n");
 
@@ -214,14 +212,14 @@ int main(void) {
 
 Direct RTT does not require `TriceTransfer()` for the normal direct output path.
 
-### 2.5. <a id="insert-build-flash"></a>Insert, build, flash
+### 2.5. <a id="bind-build-flash"></a>Bind, build, flash
 
 ```bash
 touch til.json li.json
-trice insert -src ./ -i ./til.json -li ./li.json
+trice bind -src project -genDir build/sidecars -i til.json -li li.json
 ```
 
-Build and flash the target.
+Use your application source directory instead of `project`. Apply the same [Bind build dependency](bind.md#build-integration) and generated include path as above, then build and flash the target. If calls run in interrupts or multiple tasks, configure [critical sections](target_configuration.md#critical-sections-and-checks) for the target.
 
 ### 2.6. <a id="log-through-j-link-rtt"></a>Log through J-Link RTT
 
@@ -257,15 +255,15 @@ Direct RTT is excellent for lab development because the target writes to RTT mem
 
 ### 2.8. <a id="when-this-path-is-not-ideal"></a>When this path is not ideal
 
-It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling is a blocker, start with the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) or a UART/VCOM deferred path.
+It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling is a blocker, start with the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](quickstarts.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) or a UART/VCOM deferred path.
 
 <a id="quickstart-uart-vcom-deferred"></a>
 
 ## 3. <a id="quickstart-uart-or-usb-vcom-deferred-output"></a>Quickstart: UART or USB-VCOM deferred output
 
-See also [Communication Ports](getting_started.md#communication-ports), the example projects, and the UART-related configuration examples. This section is intentionally short because UART setup is MCU/vendor-specific.
+See also [Communication Ports](custom_output.md), the example projects, and the UART-related configuration examples. This section is intentionally short because UART setup is MCU/vendor-specific.
 
-Use this path when the target has a UART, USB CDC/VCOM, or board-specific serial path and you want Trice to use the built-in UART backend rather than an auxiliary writer.
+Use this path with the built-in UART backend and the required MCU UART hooks. A USB CDC/VCOM writer is normally an auxiliary byte writer; use the first recipe unless your application supplies a compatible UART adapter. See [F030 UART instrumentation](examples.md#f030instuart) for concrete peripheral and interrupt integration.
 
 Minimal shape of `triceConfig.h`:
 
@@ -291,7 +289,7 @@ Application shape:
 int main(void) {
     BoardInit();
     UartInit();
-    TriceInit(); // normally only needed when SEGGER_RTT is used. Otherwise it is an empty function.
+    TriceInit(); // Initialize the configured Trice backends.
 
     trice("boot\n");
 
@@ -302,7 +300,9 @@ int main(void) {
 }
 ```
 
-Host side:
+Prepare this project with the same [Bind step and include order](quickstarts.md#bind-before-compiling) before compilation. Adapt the UART, its transmit interrupt/hardware hooks and critical sections to your board; the outline alone is not a complete driver.
+
+Host side (baud rate must match the UART configuration):
 
 ```bash
 trice log -p COM15 -baud 921600 -i ./til.json -li ./li.json
@@ -314,7 +314,5 @@ On Linux/macOS:
 trice log -p /dev/ttyACM0 -baud 921600 -i ./til.json -li ./li.json
 ```
 
-For a quick first success, the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) may be easier if your project already has a working serial or USB write function.
-
-<p align="right">(<a href="#quickstarts">back to top</a>)</p>
+For a quick first success, the [Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit](quickstarts.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) may be easier if your project already has a working serial or USB write function.
 

@@ -334,3 +334,8 @@ Ausgewertet und oben eingearbeitet. Die folgenden ursprünglichen Notizen bleibe
 - GH Maintenance Skripts auch in einem Anhangskapitel erläutern. Hier kann auch statistice dann mit rein.
 - Trice Tests Techniken im Detail erläutern, Speziell CGO Tests und Testskript Besonderheiten
 - typeX0 soll inhaltlich weitgehend erhalten bleiben, darf aber angepasst werden.
+
+## Nachtrag (Nur zur Info für das RM Update - kein Umsetzungsauftrag für andere Repo-Bereiche)
+
+RPC ist komplett obsolete. Nicht aus den Sourcen entfernen, aber aus den examples. Soweit noch in der Doku, in den Anhang als obsolet verbannen.
+Dort wo insert in den examples noch auftaucht, soll es später komplett verschwinden

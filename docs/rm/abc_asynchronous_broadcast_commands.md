@@ -1,9 +1,7 @@
-# Trice ABC - Asynchronous Broadcast Commands
+# Asynchronous Broadcast Commands
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -15,7 +13,7 @@
 - [6. Handler payload handling](#handler-payload-handling)
 - [7. Responses](#responses)
 - [8. What ABC is not](#what-abc-is-not)
-- [9. Example: `examples/TriceAbc`](#example-examplestriceabc)
+- [9. Example: examples/TriceAbc](#example-examplestriceabc)
   - [9.1. ABC Demo Layout, Startup, and Runtime Policy](#abc-demo-layout-startup-and-runtime-policy)
 - [10. BcSim Broadcast Byte-Stream Simulator](#bcsim-broadcast-byte-stream-simulator)
 - [11. Host tests](#host-tests)
@@ -25,8 +23,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -606,7 +602,5 @@ ABC send macro
 
 Everything else, including addressing, responses, reliability, retries, authorization, and RPC semantics, belongs to the application layer above ABC.
 
-Using Trice ABC for the same (remote) handler from different devices assigns different IDs to the same handler. This way one can consider a Trice ABC ID as senders address and the activated handler has access over the passed triceRx_t pointer to it. 
-
-<p align="right">(<a href="#trice-abc---asynchronous-broadcast-commands">back to top</a>)</p>
+Using Trice ABC for the same (remote) handler from different devices assigns different IDs to the same handler. This way one can consider a Trice ABC ID as senders address and the activated handler has access over the passed triceRx_t pointer to it.
 

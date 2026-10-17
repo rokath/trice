@@ -1,1 +1,1 @@
-- [Recreate the LabPlot project: complete walkthrough and producer comparison](../../docs/rm/cli.md#recreate-the-project-in-labplot)
+- [Recreate the LabPlot project: complete walkthrough and producer comparison](../../docs/rm/visualization.md#recreate-the-project-in-labplot)

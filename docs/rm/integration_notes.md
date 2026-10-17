@@ -1,9 +1,7 @@
-# Trice Integration Notes
+# Platform Integration Recipes
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -21,9 +19,9 @@
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
----
-
 </details>
+
+These recipes cover special integration environments. The LibOpenCM3 recipe below is a historical Insert-based build, not a verified Bind recipe. Its intermediate-source Makefile is preserved for existing users; do not convert it by replacing only the command name. For new integrations use [Bind](bind.md) and the [firmware recipes](quickstarts.md).
 
 ## 1. <a id="trice-on-libopencm3"></a>Trice on LibOpenCM3
 
@@ -541,6 +539,4 @@ The triceConfig.h is the only part of the trice sources which should be modified
 ## 4. <a id="possible-compiler-issue-when-using-trice-macros-without-parameters-on-old-compiler-or-with-strict-c-settings"></a>Possible Compiler Issue when using Trice macros without parameters on old compiler or with strict-C settings
 
 If you encounter a compilation error on `trice( "hi");` for example, but not on `trice( "%u stars", 5 );`, this is probably caused by the way your compiler interprets variadic macros. Simply change to `trice0( "hi");` or change your compiler settings. See issue [\#279](https://github.com/rokath/trice/issues/279) for more details. If your project needs to be translated with strict-C settings for some reason, you have to use the `trice0` macros when no values exist for the Trice macros.
-
-<p align="right">(<a href="#trice-integration-notes">back to top</a>)</p>
 

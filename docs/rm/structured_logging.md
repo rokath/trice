@@ -3,8 +3,6 @@
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
 * [1. Placeholders and Names](#placeholders-and-names)
@@ -17,8 +15,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -161,6 +157,7 @@ trice bind -src app -genDir generated -til til.json -li li.json
 Alternatively, for the Insert/Clean workflow:
 
 ```sh
+# Deprecated alternative for an existing Insert/Clean build:
 trice insert -src app -genDir generated -til til.json -li li.json
 trice clean -src app -til til.json -li li.json
 ```
@@ -287,6 +284,4 @@ A successful `bind` or `insert` run produces `trice-fields.txt`, listing field n
 The count covers instrumented sites with that user field in the current invocation. The file is regenerated completely, without adding historical TIL fields. A run over part of the sources describes only that part; project-wide checks should therefore include all relevant sources. Cache hits are counted. Host metadata is excluded, but a field actually named `tag` by the user is included.
 
 Sorting is by ascending count, then alphabetically by field name for equal counts. The line format is `%8d %s\n`; field names have no artificial length limit. A successful run without user fields creates an empty file. `-dry-run` publishes no new file and preserves an existing registry (`trice-fields.txt`).
-
-<p align="right">(<a href="#structured-logging">back to top</a>)</p>
 

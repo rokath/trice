@@ -1,9 +1,7 @@
-# Trice And Legacy User Code
+# Integrating Existing Logging Macros
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -27,16 +25,14 @@
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
----
-
 </details>
 
 When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other:
 
-* [Legacy User Code Option Separate Physical Output Channel](#legacy-user-code-option-separate-physical-output-channel)
-* [Legacy User Code Option Trice Adaptation Edits](#legacy-user-code-option-trice-adaptation-edits)
-* [Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
-* [Legacy User Code Option Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaptation)
+* [Legacy User Code Option Separate Physical Output Channel](legacy_user_code.md#legacy-user-code-option-separate-physical-output-channel)
+* [Legacy User Code Option Trice Adaptation Edits](legacy_user_code.md#legacy-user-code-option-trice-adaptation-edits)
+* [Legacy User Code Option Print Buffer Wrapping and Framing](legacy_user_code.md#legacy-user-code-option-print-buffer-wrapping-and-framing)
+* [Legacy User Code Option Trice Aliases Adaptation](legacy_user_code.md#legacy-user-code-option-trice-aliases-adaptation)
 
 ## 1. <a id="legacy-user-code-option-separate-physical-output-channel"></a>Legacy User Code Option Separate Physical Output Channel
 
@@ -303,6 +299,4 @@ To use the Alias technique with `examples/G0B1_inst` the following adaptations w
 * After flashing:
 
 ![G0B1AliasExample.png](../ref/G0B1AliasExample.png)
-
-<p align="right">(<a href="#trice-and-legacy-user-code">back to top</a>)</p>
 

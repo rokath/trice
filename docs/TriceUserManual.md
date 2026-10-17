@@ -177,7 +177,7 @@ For another board or an existing byte-output function, such as a UART/USB transm
 
 ### 4.1. <a id="add-the-library-and-configuration"></a>Add the library and configuration
 
-Copy or reference the target library [src](../src/). Add its C implementation files to your build. Configuration selects the enabled Trice backends; removing other unused code also depends on the linker settings, as explained in [image-size optimization](rm/code_size.md). Compile the library as C even when your application uses C++. Keep your own `triceConfig.h` in the application's include directory; do not edit the library defaults.
+Copy or reference the target library [src](../src/). Add its C implementation files to your build. Configuration selects the enabled Trice backends; removing other unused code also depends on the linker settings, as explained in [image-size optimization](rm/memory_usage.md). Compile the library as C even when your application uses C++. Keep your own `triceConfig.h` in the application's include directory; do not edit the library defaults.
 
 For a first single-context application, the essential configuration is:
 
@@ -257,7 +257,7 @@ trice log -p COM7 -baud 115200
 
 Replace `COM7` with your device's port name (`trice s` can help with that). This command uses the default `til.json` and `li.json` in the current directory and TCOBSv1 framing, which matches the library default used by the configuration above. The result includes `Firmware started`. Binary bytes are expected on the wire, so a plain terminal will not display the original text. Other transport/configuration choices need matching decoder settings; copy the log script of the corresponding [working example](rm/examples.md).
 
-The same captured records can later be decoded with `-logFormat json` or `-logFormat kv`. The project's newest accumulated `til.json` also decodes older captures. For source locations, use the `li.json` from the corresponding firmware build; see the next chapter. While logging, the host automatically reloads changes to its existing TIL/LI files; see [automatic reload](rm/features.md#easy-to-use).
+The same captured records can later be decoded with `-logFormat json` or `-logFormat kv`. The project's newest accumulated `til.json` also decodes older captures. For source locations, use the `li.json` from the corresponding firmware build; see the next chapter. While logging, the host automatically reloads changes to its existing TIL/LI files; see [automatic reload](rm/cli.md#automatic-dictionary-reload).
 
 ## 5. <a id="know-which-files-to-keep"></a>Know which files to keep
 
@@ -285,7 +285,7 @@ First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) wi
 First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](rm/examples.md#f030instuart)
 Task context on an MCU          | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](rm/examples.md#g0b1-feature-tour)
 Text generated on the target    | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder.                                                     | [Local logging](rm/examples.md#pc-local-logging)
-Live plots                      | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot.                                                           | [Plotting setup](rm/cli.md#setting-up-the-labplot-demo)
+Live plots                      | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot.                                                           | [Plotting setup](rm/visualization.md#setting-up-the-labplot-demo)
 Commands between nodes          | [TriceAbc](../examples/TriceAbc/): run a host-native broadcast demo and change a command.                                                    | [ABC example](rm/abc_asynchronous_broadcast_commands.md#example-examplestriceabc)
 
 [F030_bare](../examples/F030_bare/) is the STM32CubeMX-generated starting point without Trice instrumentation. [F030_inst_rtt](../examples/F030_inst_rtt/) and [F030_inst_uart](../examples/F030_inst_uart/) mainly show the concrete changes needed to add Trice with RTT or UART, respectively. Compare either instrumented folder with `F030_bare` using a folder-diff tool: the differences show roughly which files and settings to adapt in your own CubeMX project.
