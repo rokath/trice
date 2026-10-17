@@ -118,10 +118,12 @@ VS Code Markdown previews, table formatting and paste extensions can help editin
 Use the unchanged [github-repo-stats action](https://github.com/jgehrcke/github-repo-stats)
 to archive GitHub traffic and generate its standard HTML/PDF report. It covers
 daily views and clones, stars, forks, referrers and popular paths. No custom
-collector, chart library or Trice dependency is added.
+traffic collector, chart library or Trice dependency is added. A separate
+[download report generator](../../scripts/github_downloads.py) uses Python's
+standard library to render release-download charts.
 
-Release downloads, additional charts, release markers and a separately measured
-daily star/fork inventory are deferred. The original statistics task describes
+Release markers and a separately measured daily star/fork inventory remain
+deferred. The original statistics task describes
 possible later work; it does not expand this initial scope.
 
 The action is pinned to **v1.4.2**, commit
@@ -144,6 +146,13 @@ same repository. It can create that branch on its first run. Its report is at
 release branches receive no daily statistics commits. Concurrent collection
 runs are serialized.
 
+After upstream succeeds, a second job reads all release API pages and stores
+one download snapshot per UTC day under `rokath/trice/downloads/snapshots/`
+in the same data branch. A repeat run replaces that day's snapshot. It renders
+SVG charts and a separate HTML report under `rokath/trice/downloads/report/`.
+The job uses the normal read-only `GITHUB_TOKEN` for release counts and the
+existing `GHRS_GITHUB_API_TOKEN` for data-branch writes; no new secret is needed.
+
 The existing [Pages workflow](../../.github/workflows/pages.yml) builds the
 documentation from the repository root with Jekyll and deploys one `_site`
 artifact. The root `_config.yml` uses the Cayman theme. **Pages integration is
@@ -155,8 +164,11 @@ Before the first collection, an absent data branch is skipped so documentation
 can still be published. A missing or empty report in an existing data branch
 fails with its expected path instead of publishing broken statistics.
 
-The public dashboard will be at `/trice/stats/`; the unchanged upstream report
-is embedded below a short explanation of its limits. No README, Trice source,
+The public dashboard is at `/trice/stats/`; the unchanged upstream report
+is embedded below a short explanation of its limits. The separate download
+report is linked at `/trice/stats/downloads/` after its first collection.
+Before then, Pages shows a notice; incomplete download reports fail with the
+missing artifact's path. No README, Trice source,
 build or release configuration is changed. GitHub confirms `main` as the
 default branch and GitHub Actions as the existing Pages build type. The Pages
 statistics trigger is deliberately limited to `main`.
@@ -216,6 +228,15 @@ The dashboard places the warning and these limits beside the unchanged
 upstream report. Its charts and wording are not locally patched. No user
 identities are intentionally added to the public statistics.
 
+**Release downloads:** the separate report shows the current sum per published
+release (including prereleases) and its measured total over time. Counters include
+all release assets, such as binaries, manuals and checksums, and repeated or
+automated downloads. Git operations and automatically generated source archives
+are excluded. Historical daily counts cannot be reconstructed; the curve starts
+with the first download snapshot. Missing days remain gaps. Deleting or replacing
+assets can lower the total because it sums counters of currently existing assets.
+The report also links both standalone SVG charts for download.
+
 ### 5.5. <a id="recovery-and-local-checks"></a>Recovery and local checks
 
 After a failed or missed run, inspect the Actions error, restore token access
@@ -228,4 +249,11 @@ interruption. Do not invent values for those gaps.
 Run `actionlint .github/workflows/statistics.yml .github/workflows/pages.yml` and
 `markdownlint docs/rm/maintenance.md` locally. These checks do not run
 Trice builds, change release files, contact the traffic API or push data.
+
+For an offline report, save `gh api --paginate --slurp 'repos/rokath/trice/releases?per_page=100'`
+to `temp/releases.json`, then run
+`python3 scripts/github_downloads.py temp/releases.json temp/downloads`.
+Open `temp/downloads/report/index.html`. Reuse `temp/downloads` to retain local
+daily snapshots. `go test ./scripts -run 'TestDownload'` checks the generator
+and Pages integration with fixtures, without API access or Git writes.
 

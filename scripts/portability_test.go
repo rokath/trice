@@ -1388,6 +1388,20 @@ assert.ok(!contents.includes('Commented heading'), 'comments must not enter the 
 assert.ok(beta.includes('href="#rm-a--anchor-example"'), 'HTML links are remapped too');
 assert.ok(alpha.includes('id="rm-a--anchor-example"') && beta.includes('id="rm-b--anchor-example"'));
 for(const [file,data] of before) assert.deepEqual(fs.readFileSync(file),data,'sources must stay untouched');
+// Group labels affect global contents only; ungrouped sources above keep working.
+fs.writeFileSync('docs/rm/README.md', '# Reference\n\n- [Introduction](HEADER.md)\n\n## Normal use\n\n- [Beta](b.md)\n\n## Advanced features\n\n- [Alpha](a.md)\n\n## Empty group\n\n## Appendices\n\n- [Appendix](c.md)\n- [Footer](FOOTER.md)\n');
+fs.writeFileSync('docs/rm/c.md', '# Appendix\n\nAppendix text.\n');
+helper.prepare(marked, process.cwd());
+const groupedContents = fs.readFileSync('temp/manual-pdf/_contents.md','utf8');
+const groups = [...groupedContents.matchAll(/class="toc-group"[^>]*><strong>(.*?)<\/strong>/g)].map(match => match[1]);
+assert.deepEqual(groups, ['Normal use','Advanced features','Appendices'], 'only groups with chapters appear, in README order');
+for (const [group, chapter] of [['Normal use','1. Beta'],['Advanced features','2. Alpha'],['Appendices','3. Appendix']]) {
+  assert.ok(groupedContents.indexOf('>'+group+'</strong>') < groupedContents.indexOf('>'+chapter+'</a>'), 'each group precedes its chapters');
+}
+assert.equal(fs.readFileSync('temp/manual-pdf/chapters/a.md','utf8'), alpha, 'grouping preserves chapter content and numbering');
+assert.equal(fs.readFileSync('temp/manual-pdf/chapters/b.md','utf8'), beta, 'grouping preserves existing subsection numbers');
+const groupedSummary = fs.readFileSync('temp/manual-pdf/SUMMARY.md','utf8');
+assert.ok(groupedSummary.includes('[3. Appendix]') && !groupedSummary.includes('Normal use') && !groupedSummary.includes('Appendices'), 'groups add no book chapters or divider pages');
 fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md', '# <a id="rm-start"></a>Reference\n\n' + beta + '\n\n' + alpha);
 helper.verify(marked,process.cwd());
 const compiled = fs.readFileSync('temp/manual-pdf/TriceReferenceManual.html','utf8');

@@ -37,3 +37,47 @@ jobs:
           repository: rokath/trice
           databranch: github-repo-stats
           ghtoken: ${{ secrets.GHRS_GITHUB_API_TOKEN }}
+
+  downloads:
+    # Wait until upstream has created/updated the data branch; use a fresh runner.
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout download report generator
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Checkout statistics data
+        uses: actions/checkout@v7
+        with:
+          ref: github-repo-stats
+          path: _download_data
+          token: ${{ secrets.GHRS_GITHUB_API_TOKEN }}
+
+      - name: Collect release downloads and render charts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --paginate --slurp 'repos/rokath/trice/releases?per_page=100' > _releases.json
+          python3 scripts/github_downloads.py _releases.json _download_data/rokath/trice/downloads
+
+      - name: Archive download snapshot and report
+        shell: bash
+        working-directory: _download_data
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- rokath/trice/downloads
+          if git diff --cached --quiet; then
+            echo 'Download statistics are unchanged.'
+            exit 0
+          fi
+          git commit -m 'Update release download statistics'
+          git push origin HEAD:github-repo-stats
