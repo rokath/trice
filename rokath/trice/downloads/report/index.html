@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trice release downloads</title>
+<style>
+body {font:16px/1.5 system-ui,sans-serif;color:#303846;max-width:980px;margin:auto;padding:16px}
+.chart {overflow:auto} .releases {max-height:70vh}
+img {display:block;width:100%;height:auto;min-width:640px}
+</style>
+</head>
+<body>
+<p><a href="../">Project statistics</a></p>
+<h1>Release downloads</h1>
+<p><strong>20,815 downloads</strong> across 168 published releases,
+including prereleases. Last observation: 2026-10-17T14:58:21Z.</p>
+<p>Downloads count existing GitHub release assets, including binaries, manuals and checksums.
+Repeated and automated downloads count too; this is not a count of unique users or installations.
+Git clones and automatically generated source archives are excluded.</p>
+<h2>Total downloads over time</h2>
+<p>Daily UTC observations start on 2026-10-17. Earlier daily counts cannot be recovered.
+Missing days are gaps. Deleting or replacing release assets can lower the measured total.</p>
+<div class="chart"><img src="over-time.svg" alt="Observed total release-asset downloads by UTC date"></div>
+<p><a href="over-time.svg" download>Download time chart (SVG)</a></p>
+<h2>Downloads by release</h2>
+<p>Current lifetime counters per release, newest first. Scroll to see all releases.</p>
+<div class="chart releases"><img src="by-release.svg" alt="Release download totals, newest releases first"></div>
+<p><a href="by-release.svg" download>Download release chart (SVG)</a></p>
+<p>Source: <a href="https://docs.github.com/en/rest/releases/releases#list-releases">GitHub release API</a>.</p>
+</body>
+</html>
