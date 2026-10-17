@@ -190,7 +190,7 @@ com5:       triceExamples.c    45      # 29145 2.718282 (default rounded float)
 com5:       triceExamples.c    46      # 28969 A Buffer:
 com5:       triceExamples.c    47      # 28790 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 com5:       triceExamples.c    48      # 28076 31372e32  31383238  34383238  34303935  35333235
-com5:       triceExamples.c    49      # 27430 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 com5:       triceExamples.c    50              5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 com5:       triceExamples.c    52      # 26554 i=44444400 aaaaaa00
 com5:       triceExamples.c    52      # 26342 i=44444401 aaaaaa01
@@ -212,7 +212,7 @@ com5:       triceExamples.c    45      # 29131 2.718282 (default rounded float)
 com5:       triceExamples.c    46      # 28955 A Buffer:
 com5:       triceExamples.c    47      # 28776 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 com5:       triceExamples.c    48      # 28062 31372e32  31383238  34383238  34303935  35333235
-com5:       triceExamples.c    49      # 27416 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 com5:       triceExamples.c    50              5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 com5:       triceExamples.c    52      # 26540 i=44444400 aaaaaa00
 com5:       triceExamples.c    52      # 26328 i=44444401 aaaaaa01
@@ -265,7 +265,7 @@ com5:       triceExamples.c    45      # 28602 2.718282 (default rounded float)
 com5:       triceExamples.c    46      # 28383 A Buffer:
 com5:       triceExamples.c    47      # 28162 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 com5:       triceExamples.c    48      # 27406 31372e32  31383238  34383238  34303935  35333235
-com5:       triceExamples.c    49      # 26718 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 com5:       triceExamples.c    50              5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 com5:       triceExamples.c    52      # 25757 i=44444400 aaaaaa00
 com5:       triceExamples.c    52      # 25502 i=44444401 aaaaaa01
@@ -287,7 +287,7 @@ com5:       triceExamples.c    45      # 28616 2.718282 (default rounded float)
 com5:       triceExamples.c    46      # 28397 A Buffer:
 com5:       triceExamples.c    47      # 28176 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 com5:       triceExamples.c    48      # 27420 31372e32  31383238  34383238  34303935  35333235
-com5:       triceExamples.c    49      # 26732 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 com5:       triceExamples.c    50              5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 com5:       triceExamples.c    52      # 25771 i=44444400 aaaaaa00
 com5:       triceExamples.c    52      # 25516 i=44444401 aaaaaa01
@@ -341,7 +341,7 @@ Dec  6 16:14:39.181798  jlink:       triceExamples.c    45       24_727 16341 2.
 Dec  6 16:14:39.181798  jlink:       triceExamples.c    46       24_148 16340 A Buffer:
 Dec  6 16:14:39.181798  jlink:       triceExamples.c    47       23_578 16339 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 Dec  6 16:14:39.181798  jlink:       triceExamples.c    48       22_394 16338 31372e32  31383238  34383238  34303935  35333235
-Dec  6 16:14:39.181798  jlink:       triceExamples.c    49       21_295 16337 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 Dec  6 16:14:39.181798  jlink:       triceExamples.c    50              16200 5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 Dec  6 16:14:39.182303  jlink:       triceExamples.c    52       19_555 16335 i=44444400 aaaaaa00
 Dec  6 16:14:39.182303  jlink:       triceExamples.c    52       18_941 16335 i=44444401 aaaaaa01
@@ -363,7 +363,7 @@ Dec  6 16:14:40.187121  jlink:       triceExamples.c    45       24_730 16341 2.
 Dec  6 16:14:40.187121  jlink:       triceExamples.c    46       24_149 16340 A Buffer:
 Dec  6 16:14:40.187121  jlink:       triceExamples.c    47       23_577 16339 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 Dec  6 16:14:40.187630  jlink:       triceExamples.c    48       22_391 16338 31372e32  31383238  34383238  34303935  35333235
-Dec  6 16:14:40.187690  jlink:       triceExamples.c    49       21_290 16337 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 Dec  6 16:14:40.187690  jlink:       triceExamples.c    50              16200 5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 Dec  6 16:14:40.187690  jlink:       triceExamples.c    52       19_546 16335 i=44444400 aaaaaa00
 Dec  6 16:14:40.188195  jlink:       triceExamples.c    52       18_930 16335 i=44444401 aaaaaa01
@@ -419,7 +419,7 @@ Dec  6 16:20:11.549660  jlink:       triceExamples.c    45       28_675 16341 2.
 Dec  6 16:20:11.549660  jlink:       triceExamples.c    46       28_452 16340 A Buffer:
 Dec  6 16:20:11.550166  jlink:       triceExamples.c    47       28_238 16339 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 Dec  6 16:20:11.550247  jlink:       triceExamples.c    48       27_412 16338 31372e32  31383238  34383238  34303935  35333235
-Dec  6 16:20:11.550247  jlink:       triceExamples.c    49       26_671 16337 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 Dec  6 16:20:11.550247  jlink:       triceExamples.c    50              16200 5 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
 Dec  6 16:20:11.550754  jlink:       triceExamples.c    52       25_646 16335 i=44444400 aaaaaa00
 Dec  6 16:20:11.550754  jlink:       triceExamples.c    52       25_389 16335 i=44444401 aaaaaa01

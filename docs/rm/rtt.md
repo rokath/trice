@@ -265,7 +265,7 @@ In this **G0B1_inst** example we use the additional `-d16` and `-pf none` switch
             triceExamples.c    46        0,500 A Buffer:
             triceExamples.c    47        0,520 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36 
             triceExamples.c    48        0,562 31372e32  31383238  34383238  34303935  35333235  
-            triceExamples.c    49        0,601 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+            ...
             triceExamples.c    50              3 times a 16 byte long Trice messages, which may not be written all if the buffer is too small:
             triceExamples.c    52        0,664 i=44444400 aaaaaa00
             triceExamples.c    52        0,687 i=44444401 aaaaaa01
@@ -621,7 +621,7 @@ Nov 14 17:32:33.707851  TCP4:       triceExamples.c    19        0_146 2.718282 
 Nov 14 17:32:33.807685  TCP4:       triceExamples.c    20        0_175 A Buffer:
 Nov 14 17:32:33.908202  TCP4:       triceExamples.c    21        0_204 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
 Nov 14 17:32:34.007148  TCP4:       triceExamples.c    22        0_254 31372e32  31383238  34383238  34303935  35333235
-Nov 14 17:32:35.007949  TCP4:       triceExamples.c    23        0_301 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+...
 Nov 14 17:32:35.112304  TCP4:       triceExamples.c    24              100 times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:
 Nov 14 17:32:35.307567  TCP4:       triceExamples.c    26        0_379 i=44444400 aaaaaa00
 Nov 14 17:32:35.408257  TCP4:       triceExamples.c    27    0,000_002 i=44444400 aaaaaa00
