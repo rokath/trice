@@ -7,7 +7,7 @@
 
 <div align="right">
 
-*Hi, I am Trice.*<sup>[0](#note-plots)</sup>
+<em>Hi, I am Trice.</em><sup><a href="#note-name">*</a></sup>
 
 </div>
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
@@ -34,8 +34,10 @@ If Trice helps your work, [support the project](docs/rm/project_resources.md#sup
 ---
 
 Footnotes:
+
+<a id="note-name"></a>\* The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
+
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
-0. <a id="note-plots">The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
 1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](docs/rm/performance.md).
 2. <a id="note-calls"></a>[Printf-like syntax and supported formats](docs/rm/printf_comparison.md).
 3. <a id="note-records"></a>[Compact binary records and transfer size](docs/rm/binary_encoding.md#minimal-transfer-bytes-amount).
