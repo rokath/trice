@@ -22,6 +22,8 @@ See the moments that matter: a fleeting interrupt, a changing sensor value, or t
 
 The Guide helps you choose your first experiment, discover the features, and find the details for your own project. Start on your PC, then explore what Trice can do on your hardware.
 
+**Keep interrupt logging light:** transmit raw hardware counter stamps and let the host [reconstruct wraps and convert units](docs/rm/stamp_expressions.md). Moving this arithmetic to the host can significantly reduce target CPU work, especially when logging in interrupt handlers.
+
 <details markdown="1"><summary>Small demo animation</summary>
 
 ![Colored Trice output with source locations and timestamps](./docs/ref/life0.gif)
