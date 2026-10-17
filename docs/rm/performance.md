@@ -314,7 +314,7 @@ As you can see in the highlighted blue timestamp bar, typical 8-10 clocks are ne
 
 ![2024-12-05_G0B1_inst_slowSpeed.png](../ref/2024-12-05_G0B1_inst_slowSpeed.png)
 
-> 🛑 The Trice execution time is now over 20 microseconds❗
+> ❗ **Important:** The Trice execution time is now over 20 microseconds.
 
 Still fast enough for many cases but you hopefully have a good knowledge now how to tune Trice best for your application.
 

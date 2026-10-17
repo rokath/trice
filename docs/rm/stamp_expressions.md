@@ -219,13 +219,15 @@ trice log -p COM15 -baud 921600 -pick err -ts off \
 
 | Capture time, us | Raw stamp | Accumulated ticks | Visible? |
 | ---: | ---: | ---: | --- |
-| 0 | 47999 | 0 | Yes |
-| 500 | 23999 | 24000 | No |
-| 1000 | 47999 | 48000 | No |
-| 1500 | 23999 | 72000 | No |
-| 2000 | 47999 | 96000 | No |
-| 2500 | 23999 | 120000 | No |
-| 3000 | 47999 | 144000 | Yes |
+| 0 | 47999 | 0 | ✅ Yes |
+| 500 | 23999 | 24000 | ❌ No |
+| 1000 | 47999 | 48000 | ❌ No |
+| 1500 | 23999 | 72000 | ❌ No |
+| 2000 | 47999 | 96000 | ❌ No |
+| 2500 | 23999 | 120000 | ❌ No |
+| 3000 | 47999 | 144000 | ✅ Yes |
+
+Here ✅ Yes and ❌ No describe visibility only; all rows still supply usable counter samples.
 
 The second visible message displays `3000.000 us` for both the continuous stamp and its visible delta. Comparing only the visible raw values would give zero. Suppressing heartbeat records on the target cannot provide this result.
 

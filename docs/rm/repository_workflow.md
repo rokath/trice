@@ -6,24 +6,24 @@
 <!-- mdtoc -->
 
 * [1. Install opencommit on macOS](#install-opencommit-on-macos)
-  * [1.1. 🧰 Prerequisites](#prerequisites)
-  * [1.2. 🔑 Step 1 — Get Your OpenAI API Key](#step-1--get-your-openai-api-key)
-  * [1.3. ⚙️ Step 2 — Install OpenCommit](#step-2--install-opencommit)
-  * [1.4. 🔧 Step 3 — Set Up Your API Key on macOS](#step-3--set-up-your-api-key-on-macos)
-  * [1.5. ⚙️ Step 4 — Optional Configuration](#step-4--optional-configuration)
-  * [1.6. 🚀 Step 5 — Use OpenCommit](#step-5--use-opencommit)
-  * [1.7. 🔁 Step 6 — (Optional) Install Git Hook](#step-6--optional-install-git-hook)
-  * [1.8. 🧩 Step 7 — Troubleshooting](#step-7--troubleshooting)
+  * [1.1. Prerequisites](#prerequisites)
+  * [1.2. Step 1 — Get Your OpenAI API Key](#step-1--get-your-openai-api-key)
+  * [1.3. Step 2 — Install OpenCommit](#step-2--install-opencommit)
+  * [1.4. Step 3 — Set Up Your API Key on macOS](#step-3--set-up-your-api-key-on-macos)
+  * [1.5. Step 4 — Optional Configuration](#step-4--optional-configuration)
+  * [1.6. Step 5 — Use OpenCommit](#step-5--use-opencommit)
+  * [1.7. Step 6 — (Optional) Install Git Hook](#step-6--optional-install-git-hook)
+  * [1.8. Step 7 — Troubleshooting](#step-7--troubleshooting)
 * [2. Install opencommit on Windows](#install-opencommit-on-windows)
-  * [2.1. 🧭 Overview](#overview)
-  * [2.2. ⚙️ Prerequisites](#prerequisites-1)
-  * [2.3. 🪄 Installation Steps](#installation-steps)
-  * [2.4. 🚀 Usage](#usage)
-  * [2.5. 🔧 Troubleshooting](#troubleshooting)
-  * [2.6. ✅ Example](#example)
+  * [2.1. Overview](#overview)
+  * [2.2. Prerequisites](#prerequisites-1)
+  * [2.3. Installation Steps](#installation-steps)
+  * [2.4. Usage](#usage)
+  * [2.5. Troubleshooting](#troubleshooting)
+  * [2.6. Example](#example)
 * [3. Fork It (get a contributor)](#fork-it-get-a-contributor)
-  * [3.1. ✅ What “forking” means](#what-forking-means)
-  * [3.2. 🧭 How to Fork (GitHub)](#how-to-fork-github)
+  * [3.1. What “forking” means](#what-forking-means)
+  * [3.2. How to Fork (GitHub)](#how-to-fork-github)
 * [4. Clone It](#clone-it)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
@@ -71,7 +71,7 @@ Show some config settings                 | `oco config get OCO_MODEL && oco con
 
 * * *
 
-### 1.1. <a id="prerequisites"></a>🧰 Prerequisites
+### 1.1. <a id="prerequisites"></a>Prerequisites
 
 Before you begin, make sure you have:
 
@@ -86,19 +86,19 @@ If not, install the Xcode Command Line Tools:
 
 * * *
 
-### 1.2. <a id="step-1--get-your-openai-api-key"></a>🔑 Step 1 — Get Your OpenAI API Key
+### 1.2. <a id="step-1--get-your-openai-api-key"></a>Step 1 — Get Your OpenAI API Key
 
 * Go to **[https://platform.openai.com](https://platform.openai.com)**
 * Log in (or sign up) using your email, Google, Microsoft, or Apple account.
-* Navigate to your API Keys page: 👉 [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
+* Navigate to your API Keys page: [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)
   * Click **“Create new secret key”**.
   * Give it a name (e.g., `opencommit-mac`) and copy it immediately.
     It will look like this: `sk-proj-1a2b3c4d5e6f...`
-    > ⚠️ You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
+    > ⚠️ **Warning:** You’ll only see it once — store it securely (e.g., 1Password, Bitwarden).
 
 * * *
 
-### 1.3. <a id="step-2--install-opencommit"></a>⚙️ Step 2 — Install OpenCommit
+### 1.3. <a id="step-2--install-opencommit"></a>Step 2 — Install OpenCommit
 
 * Run the following in your Terminal: `npm install -g opencommit`
   You may see warnings about deprecated dependencies — those are safe to ignore.
@@ -106,7 +106,7 @@ If not, install the Xcode Command Line Tools:
 
 * * *
 
-### 1.4. <a id="step-3--set-up-your-api-key-on-macos"></a>🔧 Step 3 — Set Up Your API Key on macOS
+### 1.4. <a id="step-3--set-up-your-api-key-on-macos"></a>Step 3 — Set Up Your API Key on macOS
 
 * Add your key as an environment variable: `export OPENAI_API_KEY="sk-proj-your-key-here"`
 * To make it **permanent**, add it to your shell configuration file (`~/.zshrc`):
@@ -116,7 +116,7 @@ If not, install the Xcode Command Line Tools:
 
 * * *
 
-### 1.5. <a id="step-4--optional-configuration"></a>⚙️ Step 4 — Optional Configuration
+### 1.5. <a id="step-4--optional-configuration"></a>Step 4 — Optional Configuration
 
 * You can customize OpenCommit’s behavior by setting additional environment variables, for example:
 
@@ -131,7 +131,7 @@ Add these to your `~/.zshrc` for persistence.
 
 * * *
 
-### 1.6. <a id="step-5--use-opencommit"></a>🚀 Step 5 — Use OpenCommit
+### 1.6. <a id="step-5--use-opencommit"></a>Step 5 — Use OpenCommit
 
 * Go to a Git repository: `cd /path/to/your/repo`
 * Stage your changes: `git add .`
@@ -142,14 +142,14 @@ Add these to your `~/.zshrc` for persistence.
 
 * * *
 
-### 1.7. <a id="step-6--optional-install-git-hook"></a>🔁 Step 6 — (Optional) Install Git Hook
+### 1.7. <a id="step-6--optional-install-git-hook"></a>Step 6 — (Optional) Install Git Hook
 
 * To have OpenCommit run automatically every time you commit: `npx opencommit install-hook`
 * Now every time you run `git commit`, OpenCommit will propose a commit message for you.
 
 * * *
 
-### 1.8. <a id="step-7--troubleshooting"></a>🧩 Step 7 — Troubleshooting
+### 1.8. <a id="step-7--troubleshooting"></a>Step 7 — Troubleshooting
 
 If OpenCommit says:
 
@@ -161,7 +161,7 @@ If OpenCommit says:
 
 ## 2. <a id="install-opencommit-on-windows"></a>Install `opencommit` on Windows
 
-### 2.1. <a id="overview"></a>🧭 Overview
+### 2.1. <a id="overview"></a>Overview
 
 OpenCommit is a tool that uses AI (like GPT models) to automatically generate meaningful Git commit messages based on your code changes.
 
@@ -169,12 +169,12 @@ This guide explains how to install and configure OpenCommit on Windows step by s
 
 * * *
 
-### 2.2. <a id="prerequisites-1"></a>⚙️ Prerequisites
+### 2.2. <a id="prerequisites-1"></a>Prerequisites
 
 * Before installing OpenCommit, make sure you have:
-  * Git installed 👉 Download and install from https://git-scm.com/download/win
+  * Git installed: Download and install from https://git-scm.com/download/win
 * Verify installation by running in PowerShell or CMD: `git --version`
-* Node.js and npm (Node Package Manager) installed 👉 Download from https://nodejs.org/en (LTS version recommended).
+* Node.js and npm (Node Package Manager) installed: Download from https://nodejs.org/en (LTS version recommended).
   * Verify:
 
   ```bash
@@ -182,11 +182,11 @@ This guide explains how to install and configure OpenCommit on Windows step by s
   npm -v
   ```
 
-* An OpenAI API key (for GPT access) 👉 Get it from https://platform.openai.com/account/api-keys
+* An OpenAI API key (for GPT access): Get it from https://platform.openai.com/account/api-keys
 
 * * *
 
-### 2.3. <a id="installation-steps"></a>🪄 Installation Steps
+### 2.3. <a id="installation-steps"></a>Installation Steps
 
 **1. Install OpenCommit Globally**
 
@@ -224,7 +224,7 @@ This guide explains how to install and configure OpenCommit on Windows step by s
 
 * * *
 
-### 2.4. <a id="usage"></a>🚀 Usage
+### 2.4. <a id="usage"></a>Usage
 
 * Once installed, simply run: `opencommit`. This will:
   * Analyze your staged changes (git diff --cached)
@@ -232,7 +232,7 @@ This guide explains how to install and configure OpenCommit on Windows step by s
   * Ask for confirmation before committing
 * You can also use: `opencommit --no-verify` to skip confirmation and commit directly.
 
-### 2.5. <a id="troubleshooting"></a>🔧 Troubleshooting
+### 2.5. <a id="troubleshooting"></a>Troubleshooting
 
 * Issue	Solution
   * opencommit: command not found	Ensure npm global bin path is added to your Windows PATH (e.g., C:\Users\<YourUser>\AppData\Roaming\npm).
@@ -241,7 +241,7 @@ This guide explains how to install and configure OpenCommit on Windows step by s
 
 * * *
 
-### 2.6. <a id="example"></a>✅ Example
+### 2.6. <a id="example"></a>Example
 
 ```bash
 git add .
@@ -259,7 +259,7 @@ Generated commit message:
 
 If you wish to get a contributor please fork the Trice repository.
 
-### 3.1. <a id="what-forking-means"></a>✅ What “forking” means
+### 3.1. <a id="what-forking-means"></a>What “forking” means
 
 Forking creates **your own copy** of someone else’s repository under your account.
 You can then:
@@ -268,7 +268,7 @@ You can then:
 * push commits to your fork,
 * and later submit a **pull request** to propose changes back to the original repo.
 
-### 3.2. <a id="how-to-fork-github"></a>🧭 How to Fork (GitHub)
+### 3.2. <a id="how-to-fork-github"></a>How to Fork (GitHub)
 
 **1\. Go to the repository you want to fork**
 
