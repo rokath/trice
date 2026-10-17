@@ -8,6 +8,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/rokath/trice/internal/printf"
+
 	"github.com/rokath/trice/internal/id"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,45 +17,45 @@ import (
 
 // TestArgumentForVerbAppliesDocumentedConversions verifies type preservation and checked truncation.
 func TestArgumentForVerbAppliesDocumentedConversions(t *testing.T) {
-	integerVerb := formatVerb{verb: 'd', class: verbInteger}
-	floatVerb := formatVerb{verb: 'f', class: verbFloat}
-	genericVerb := formatVerb{verb: 'v', class: verbGeneric}
-	boolVerb := formatVerb{verb: 't', class: verbBool}
+	integerVerb := printf.Verb{Verb: 'd', Class: printf.IntegerVerb}
+	floatVerb := printf.Verb{Verb: 'f', Class: printf.FloatVerb}
+	genericVerb := printf.Verb{Verb: 'v', Class: printf.GenericVerb}
+	boolVerb := printf.Verb{Verb: 't', Class: printf.BoolVerb}
 
-	argument, err := argumentForVerb(scalar{kind: scalarSigned, bits: 16, signed: -7}, integerVerb)
+	argument, err := printf.ArgumentForVerb(printf.Scalar{Kind: printf.Signed, Bits: 16, Signed: -7}, integerVerb)
 	require.NoError(t, err)
 	assert.IsType(t, int16(0), argument)
 	assert.Equal(t, int16(-7), argument)
 
-	argument, err = argumentForVerb(scalar{kind: scalarUnsigned, bits: 32, unsigned: 0xf0000000}, integerVerb)
+	argument, err = printf.ArgumentForVerb(printf.Scalar{Kind: printf.Unsigned, Bits: 32, Unsigned: 0xf0000000}, integerVerb)
 	require.NoError(t, err)
 	assert.IsType(t, uint32(0), argument)
 	assert.Equal(t, uint32(0xf0000000), argument)
 
-	argument, err = argumentForVerb(scalar{kind: scalarFloat, bits: 64, floating: 3.9}, integerVerb)
+	argument, err = printf.ArgumentForVerb(printf.Scalar{Kind: printf.Float, Bits: 64, Floating: 3.9}, integerVerb)
 	require.NoError(t, err)
 	assert.Equal(t, int64(3), argument)
-	argument, err = argumentForVerb(scalar{kind: scalarFloat, bits: 64, floating: -3.9}, integerVerb)
+	argument, err = printf.ArgumentForVerb(printf.Scalar{Kind: printf.Float, Bits: 64, Floating: -3.9}, integerVerb)
 	require.NoError(t, err)
 	assert.Equal(t, int64(-3), argument)
 
-	argument, err = argumentForVerb(scalar{kind: scalarUnsigned, bits: 64, unsigned: math.MaxUint64}, floatVerb)
+	argument, err = printf.ArgumentForVerb(printf.Scalar{Kind: printf.Unsigned, Bits: 64, Unsigned: math.MaxUint64}, floatVerb)
 	require.NoError(t, err)
 	assert.Equal(t, float64(uint64(math.MaxUint64)), argument)
 
-	argument, err = argumentForVerb(scalar{kind: scalarFloat, bits: 32, floating: 1.25}, genericVerb)
+	argument, err = printf.ArgumentForVerb(printf.Scalar{Kind: printf.Float, Bits: 32, Floating: 1.25}, genericVerb)
 	require.NoError(t, err)
 	assert.IsType(t, float32(0), argument)
 	assert.Equal(t, float32(1.25), argument)
 
-	argument, err = argumentForVerb(scalar{kind: scalarBool, bits: 8, boolean: true}, boolVerb)
+	argument, err = printf.ArgumentForVerb(printf.Scalar{Kind: printf.Bool, Bits: 8, Boolean: true}, boolVerb)
 	require.NoError(t, err)
 	assert.Equal(t, true, argument)
 }
 
 // TestArgumentForVerbRejectsUnsafeIntegerConversions verifies NaN, infinities, and both int64 bounds.
 func TestArgumentForVerbRejectsUnsafeIntegerConversions(t *testing.T) {
-	integerVerb := formatVerb{verb: 'd', class: verbInteger}
+	integerVerb := printf.Verb{Verb: 'd', Class: printf.IntegerVerb}
 	values := []float64{
 		math.NaN(),
 		math.Inf(1),
@@ -62,7 +64,7 @@ func TestArgumentForVerbRejectsUnsafeIntegerConversions(t *testing.T) {
 		-9223372036854775808.0 - 2048,
 	}
 	for _, value := range values {
-		_, err := argumentForVerb(scalar{kind: scalarFloat, bits: 64, floating: value}, integerVerb)
+		_, err := printf.ArgumentForVerb(printf.Scalar{Kind: printf.Float, Bits: 64, Floating: value}, integerVerb)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "cannot be converted safely")
 	}
@@ -112,19 +114,19 @@ func TestDirectFieldsAndLiteralsRetainEvaluatorCategories(t *testing.T) {
 		32,
 		unsignedValue(32, 9),
 	)
-	wantKinds := []scalarKind{scalarUnsigned, scalarUnsigned, scalarUnsigned, scalarSigned, scalarFloat}
+	wantKinds := []printf.Kind{printf.Unsigned, printf.Unsigned, printf.Unsigned, printf.Signed, printf.Float}
 	for i, expression := range rule.expressions {
-		value, err := expression.root.evaluate(record)
+		value, err := expression.Evaluate(record)
 		require.NoError(t, err)
-		assert.Equal(t, wantKinds[i], value.kind)
+		assert.Equal(t, wantKinds[i], value.Kind)
 	}
 
 	arithmetic, err := parseRule(`msg:printf("%v",v0+0)@type.txt`)
 	require.NoError(t, err)
-	value, err := arithmetic.expressions[0].root.evaluate(record)
+	value, err := arithmetic.expressions[0].Evaluate(record)
 	require.NoError(t, err)
-	assert.Equal(t, scalarFloat, value.kind)
-	assert.Equal(t, reflect.TypeOf(float64(0)), reflect.TypeOf(nativeScalar(value)))
+	assert.Equal(t, printf.Float, value.Kind)
+	assert.Equal(t, reflect.TypeOf(float64(0)), reflect.TypeOf(printf.NativeScalar(value)))
 }
 
 // TestBoolCandidateCompatibilityIsDeferred verifies that %t is accepted syntactically but classified by the LUT type.
@@ -134,11 +136,11 @@ func TestBoolCandidateCompatibilityIsDeferred(t *testing.T) {
 
 	boolShape, err := fixedNumericShape(id.TriceFmt{Type: "TRICE32_1", Strg: "msg:v=%t\n"})
 	require.NoError(t, err)
-	require.NoError(t, validateExpressionVerb(rule.expressions[0], rule.verbs[0], &boolShape))
+	require.NoError(t, printf.ValidateExpressionVerb(rule.expressions[0], rule.verbs[0], &boolShape))
 
 	signedShape, err := fixedNumericShape(id.TriceFmt{Type: "TRICE32_1", Strg: "msg:v=%d\n"})
 	require.NoError(t, err)
-	require.Error(t, validateExpressionVerb(rule.expressions[0], rule.verbs[0], &signedShape))
+	require.Error(t, printf.ValidateExpressionVerb(rule.expressions[0], rule.verbs[0], &signedShape))
 }
 
 // TestNoFormattingDiagnosticReachesASink verifies representative widths, precision, Boolean, and literal percent.

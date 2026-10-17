@@ -5,9 +5,9 @@
 [![Downloads](https://img.shields.io/github/downloads/rokath/trice/total)](./docs/TriceGuide.md#project-resources)
 [![Target library CI](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](./.github/workflows/trice_lib_ci_full.yml)
 
-<div align="right">
+<div align="right" markdown="1">
 
-*Hi, I am Trice.*<sup>[0](#note-plots)</sup>
+*Hi, I am Trice.*<sup><a href="#note-name">*</a></sup>
 
 </div>
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
@@ -22,6 +22,8 @@ See the moments that matter: a fleeting interrupt, a changing sensor value, or t
 
 The Guide helps you choose your first experiment, discover the features, and find the details for your own project. Start on your PC, then explore what Trice can do on your hardware.
 
+**Keep interrupt logging light:** transmit raw hardware counter stamps and let the host [reconstruct wraps and convert units](docs/rm/stamp_expressions.md). Moving this arithmetic to the host can significantly reduce target CPU work, especially when logging in interrupt handlers.
+
 <details markdown="1"><summary>Small demo animation</summary>
 
 ![Colored Trice output with source locations and timestamps](./docs/ref/life0.gif)
@@ -29,13 +31,17 @@ The Guide helps you choose your first experiment, discover the features, and fin
 </details>
 <br>
 
+[Project statistics](https://rokath.github.io/trice/stats/)
+
 If Trice helps your work, [support the project](docs/rm/project_resources.md#support-and-sponsoring).
 
 ---
 
 Footnotes:
+
+<a id="note-name"></a>\* The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
+
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
-0. <a id="note-plots">The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
 1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](docs/rm/performance.md).
 2. <a id="note-calls"></a>[Printf-like syntax and supported formats](docs/rm/printf_comparison.md).
 3. <a id="note-records"></a>[Compact binary records and transfer size](docs/rm/binary_encoding.md#minimal-transfer-bytes-amount).

@@ -46,6 +46,8 @@
 
 It is up to the user to provide the functions `TriceStamp16` and/or `TriceStamp32`. Normally they return a µs or ms tick count but any values are allowed.
 
+**Reduce target work by transmitting raw hardware counter values.** The stamp function can read the hardware counter directly; the host then normalizes the count direction, reconstructs wraps, and converts units. Moving this arithmetic off the target can significantly reduce CPU work, especially inside interrupt handlers, and shorten interrupt execution time. See [Stamp expressions and continuous counters](stamp_expressions.md) for the conversion examples and the [`unwrap` reference](stamp_expressions.md#unwrap-reference) for its parameters, state changes, and sampling requirements.
+
 The [PC feature tour](examples.md#pc-feature-tour) makes this distinction visible without hardware: its 16-bit stamp is a sample phase, while its 32-bit stamp counts milliseconds. The matching [G0B1 feature tour](examples.md#g0b1-feature-tour) uses the board's own timers.
 
 ## 1. <a id="target-timestamps-formatting"></a>Target (Time)Stamps Formatting

@@ -81,7 +81,7 @@ func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStam
 		if size == 4 {
 			name = "ts32"
 		}
-		members = append(members, recordMember{name, structuredTargetStamp(renderTargetStamp(size, record.Stamp)), false})
+		members = append(members, recordMember{name, structuredTargetStamp(state.absoluteStamp(size, record.Stamp)), false})
 	}
 	if deltaFormat != "" && deltaFormat != "off" && deltaFormat != "none" {
 		hadPrevious := state.hasPrev16
@@ -89,6 +89,12 @@ func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStam
 		if size == 4 {
 			hadPrevious = state.hasPrev32
 			name = "ts32Delta"
+		}
+		if text, missing, active := state.expressionStamp(size, true); active {
+			if !missing {
+				members = append(members, recordMember{name, structuredTargetStamp(text), false})
+			}
+			return members
 		}
 		delta := formatTargetDelta(size, deltaFormat, record.Stamp, state)
 		if hadPrevious {

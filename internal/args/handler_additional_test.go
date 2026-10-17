@@ -169,6 +169,45 @@ func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
 	}
 }
 
+// TestStampExpressionsValidateBeforeInput checks the reserved prefix and contexts
+// through the same initialization path that opens a real logger.
+func TestStampExpressionsValidateBeforeInput(t *testing.T) {
+	original := startLogLoop
+	t.Cleanup(func() { startLogLoop = original; FlagsInit() })
+	for _, tt := range []struct {
+		option, value string
+		valid         bool
+	}{
+		{"-ts16", `printf("time:%d",unwrap(ts,65536))`, true},
+		{"-ts32", `printf("time:%d",unwrap(ts32,4294967296))`, true},
+		{"-ts16delta", `printf("dt:%f",delta(unwrap(47999-ts,48000))/48)`, true},
+		{"-ts32delta", `printf("dt:%d",delta(ts32))`, true},
+		{"-ts16", "us", true}, {"-ts16", "ms", true}, {"-ts16", "", true},
+		{"-ts32", "", true}, {"-ts16delta", "dt:%d", true},
+		{"-ts16", "printf (%d)", true},
+		{"-ts16", `printf("%d",ts32)`, false},
+		{"-ts32", `printf("%d",ts16)`, false},
+		{"-ts16", `printf("%d",delta(ts))`, false},
+		{"-ts16delta", `printf("%d",v0)`, false},
+		{"-ts16", `printf("%d",unwrap(ts,48000.5))`, false},
+		{"-ts16", `printf("%d",ts) garbage`, false},
+		{"-ts16", "printf(", false},
+	} {
+		t.Run(tt.option+"/"+tt.value, func(t *testing.T) {
+			FlagsInit()
+			started := false
+			startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
+			err := runLog(io.Discard, &afero.Afero{Fs: afero.NewMemMapFs()}, []string{tt.option, tt.value})
+			assert.Equal(t, tt.valid, started)
+			if tt.valid {
+				require.NoError(t, err)
+			} else {
+				require.ErrorContains(t, err, tt.option)
+			}
+		})
+	}
+}
+
 // TestLogEntryPointsResolveUserSelectorsAfterRegistration verifies option-order
 // independence for Pick and Ban through both supported log entry points.
 func TestLogEntryPointsResolveUserSelectorsAfterRegistration(t *testing.T) {

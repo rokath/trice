@@ -5,13 +5,12 @@ package vis
 
 import (
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"net"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/rokath/trice/internal/printf"
 )
 
 // RuleStrings collects repeatable -vis command-line values in their original order.
@@ -41,34 +40,14 @@ const (
 	outputDrop
 )
 
-// verbClass groups formatter verbs by their required argument conversion.
-type verbClass uint8
-
-const (
-	// verbInteger accepts signed, unsigned, or safely converted floating values.
-	verbInteger verbClass = iota
-	// verbFloat converts numeric values to float64.
-	verbFloat
-	// verbGeneric preserves the evaluator result type.
-	verbGeneric
-	// verbBool accepts only a direct Boolean field.
-	verbBool
-)
-
-// formatVerb describes one consuming conversion in a validated Go format string.
-type formatVerb struct {
-	verb  byte
-	class verbClass
-}
-
 // parsedRule separates the selector, encoder, sink, and output policy before runtime state is added.
 type parsedRule struct {
 	raw         string
 	tag         string
 	format      string
-	expressions []compiledExpression
-	verbs       []formatVerb
-	references  expressionReferences
+	expressions []printf.Expression
+	verbs       []printf.Verb
+	references  printf.References
 	sink        string
 	policy      outputPolicy
 	header      string
@@ -96,69 +75,18 @@ func parseRule(raw string) (parsedRule, error) {
 		return parsedRule{}, err
 	}
 
-	expression, err := parser.ParseExpr(callText)
-	if err != nil {
-		return parsedRule{}, fmt.Errorf("invalid printf encoder: %w", err)
-	}
-	call, ok := expression.(*ast.CallExpr)
-	if !ok {
-		return parsedRule{}, fmt.Errorf("encoder must be a printf(...) call")
-	}
-	function, ok := call.Fun.(*ast.Ident)
-	if !ok || function.Name != "printf" {
-		return parsedRule{}, fmt.Errorf("only the printf encoder is supported")
-	}
-	if call.Ellipsis.IsValid() {
-		return parsedRule{}, fmt.Errorf("variadic expansion is not supported")
-	}
-	if len(call.Args) == 0 {
-		return parsedRule{}, fmt.Errorf("printf requires a double-quoted Go format string")
-	}
-	formatLiteral, ok := call.Args[0].(*ast.BasicLit)
-	if !ok || formatLiteral.Kind != token.STRING ||
-		len(formatLiteral.Value) < 2 || formatLiteral.Value[0] != '"' {
-		return parsedRule{}, fmt.Errorf("printf requires a double-quoted Go format string")
-	}
-	outputFormat, err := strconv.Unquote(formatLiteral.Value)
-	if err != nil {
-		return parsedRule{}, fmt.Errorf("invalid printf format string: %w", err)
-	}
-	verbs, err := parseOutputFormat(outputFormat)
+	program, err := printf.Parse(callText)
 	if err != nil {
 		return parsedRule{}, err
-	}
-	if len(call.Args)-1 != len(verbs) {
-		return parsedRule{}, fmt.Errorf(
-			"printf format consumes %d values but %d expressions were supplied",
-			len(verbs), len(call.Args)-1,
-		)
-	}
-
-	compiled := make([]compiledExpression, 0, len(verbs))
-	var references expressionReferences
-	for i, argument := range call.Args[1:] {
-		source := expressionSource(callText, argument)
-		item, err := compileExpression(argument, source)
-		if err != nil {
-			return parsedRule{}, fmt.Errorf("expression %d (%s): %w", i+1, source, err)
-		}
-		if err := validateExpressionVerb(item, verbs[i], nil); err != nil {
-			return parsedRule{}, fmt.Errorf("expression %d (%s): %w", i+1, source, err)
-		}
-		references.merge(item.references)
-		compiled = append(compiled, item)
-	}
-	if references.ts16 && references.ts32 {
-		return parsedRule{}, fmt.Errorf("one rule cannot reference both ts16 and ts32")
 	}
 
 	return parsedRule{
 		raw:         raw,
 		tag:         tag,
-		format:      outputFormat,
-		expressions: compiled,
-		verbs:       verbs,
-		references:  references,
+		format:      program.Format,
+		expressions: program.Expressions,
+		verbs:       program.Verbs,
+		references:  program.References,
 		sink:        sink,
 		policy:      policy,
 		header:      header,
@@ -313,81 +241,4 @@ func validateSinkSpecification(specification string) error {
 		return fmt.Errorf("file sink path must not be empty")
 	}
 	return nil
-}
-
-// parseOutputFormat accepts only literal-width Go conversions promised by the MVP.
-func parseOutputFormat(format string) ([]formatVerb, error) {
-	var verbs []formatVerb
-	for i := 0; i < len(format); i++ {
-		if format[i] != '%' {
-			continue
-		}
-		start := i
-		i++
-		if i >= len(format) {
-			return nil, fmt.Errorf("printf format ends with an incomplete conversion")
-		}
-		if format[i] == '%' {
-			continue
-		}
-
-		for i < len(format) && strings.ContainsRune("+#- 0", rune(format[i])) {
-			i++
-		}
-		if i < len(format) && (format[i] == '[' || format[i] == '*') {
-			return nil, fmt.Errorf("dynamic widths and explicit argument indexes are not supported at byte %d", start)
-		}
-		for i < len(format) && format[i] >= '0' && format[i] <= '9' {
-			i++
-		}
-		if i < len(format) && format[i] == '.' {
-			i++
-			precisionStart := i
-			if i < len(format) && (format[i] == '[' || format[i] == '*') {
-				return nil, fmt.Errorf("dynamic precisions and explicit argument indexes are not supported at byte %d", start)
-			}
-			for i < len(format) && format[i] >= '0' && format[i] <= '9' {
-				i++
-			}
-			if i == precisionStart {
-				return nil, fmt.Errorf("precision must be a literal decimal number at byte %d", start)
-			}
-		}
-		if i >= len(format) {
-			return nil, fmt.Errorf("printf format ends with an incomplete conversion")
-		}
-		if format[i] == '[' || format[i] == '*' {
-			return nil, fmt.Errorf("dynamic widths and explicit argument indexes are not supported at byte %d", start)
-		}
-
-		verb := format[i]
-		item := formatVerb{verb: verb}
-		switch verb {
-		case 'd', 'b', 'o', 'x', 'X':
-			item.class = verbInteger
-		case 'f', 'e', 'E', 'g', 'G':
-			item.class = verbFloat
-		case 'v':
-			item.class = verbGeneric
-		case 't':
-			item.class = verbBool
-		default:
-			if verb == 'u' {
-				return nil, fmt.Errorf("%%u is not supported; use %%d for unsigned decimal output")
-			}
-			return nil, fmt.Errorf("formatter verb %%%c is not supported", verb)
-		}
-		verbs = append(verbs, item)
-	}
-	return verbs, nil
-}
-
-// expressionSource extracts the original CLI spelling for actionable diagnostics.
-func expressionSource(callText string, expression ast.Expr) string {
-	start := int(expression.Pos()) - 1
-	end := int(expression.End()) - 1
-	if start < 0 || end < start || end > len(callText) {
-		return "<expression>"
-	}
-	return callText[start:end]
 }
