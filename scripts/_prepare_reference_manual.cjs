@@ -79,9 +79,9 @@ function escapeHtml(value) {
 
 // Build both heading aliases and explicit authored anchors before resolving any
 // cross-chapter links. Canonical heading IDs and authored IDs use separate spaces.
-function inspectDocument(marked, filename, label, source) {
+function inspectDocument(marked, filename, label, source, group) {
   const namespace = `rm-${encodeURIComponent(path.basename(filename, '.md')).replace(/%/g, '_')}`;
-  const document = { filename, label, source: withoutChapterContents(marked, source), namespace, anchors: new Map(), headings: [] };
+  const document = { filename, label, group, source: withoutChapterContents(marked, source), namespace, anchors: new Map(), headings: [] };
   const tokens = marked.lexer(document.source);
   marked.walkTokens(tokens, token => {
     if (token.type !== 'html' || token.pre) return;
@@ -208,7 +208,13 @@ function renderDocument(marked, document, documents, repoRoot, stage, ref) {
 // Generate one navigable Contents chapter from headings, not chapter-local ToCs.
 function contents(documents) {
   const lines = ['# Contents', '', '<ul class="book-contents">'];
+  let group;
   for (const document of documents.values()) {
+    // README groups organize the contents only; they never consume chapter numbers.
+    if (document.group !== group) {
+      group = document.group;
+      if (group) lines.push(`<li class="toc-group" style="list-style:none; font-size:2.5em; line-height:1.15; margin:0.6em 0 0.2em; break-after:avoid-page"><strong>${escapeHtml(group)}</strong></li>`);
+    }
     const main = document.headings.find(heading => heading.main);
     lines.push(`<li><a href="#${main.id}">${escapeHtml(document.label)}</a>`);
     const sections = document.headings.filter(heading => !heading.main && heading.depth <= 4);
@@ -232,14 +238,20 @@ function prepare(marked, repoRoot) {
   // Number main chapters and their full subsection hierarchy only in the book;
   // framing documents and maintained sources retain their existing labels.
   let chapterNumber = 0;
+  let group;
   marked.walkTokens(marked.lexer(source), token => {
+    // Keep the authored group labels without introducing divider pages in the book.
+    if (token.type === 'heading' && token.depth === 2) {
+      group = token.text;
+      return;
+    }
     if (token.type !== 'link' || /^(?:[a-z][a-z0-9+.-]*:|#|\/\/)/i.test(token.href)) return;
     const filename = path.resolve(path.dirname(readme), decodeURIComponent(token.href));
     if (path.dirname(filename) !== path.dirname(readme) || path.extname(filename) !== '.md' || filename === readme) return;
     if (documents.has(filename)) throw new Error(`duplicate reference chapter in README: ${token.href}`);
     const framing = ['HEADER.md', 'FOOTER.md'].includes(path.basename(filename));
     const label = framing ? token.text : `${++chapterNumber}. ${token.text}`;
-    const document = inspectDocument(marked, filename, label, readSource(filename));
+    const document = inspectDocument(marked, filename, label, readSource(filename), framing ? undefined : group);
     if (!framing) numberSections(document, chapterNumber);
     documents.set(filename, document);
   });
