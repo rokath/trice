@@ -156,18 +156,20 @@ updates `rokath/trice/README.md`, so it does not overwrite that root notice.
 Do not merge this branch into development branches or merge project changes
 into it. Its ahead/behind count is not a request to synchronize it with `main`.
 
-Before removing the inherited project files, publish the guard workflow on
-`main` and `wip`, run it manually once on `main`, and require
-**Statistics branch isolation** for `main` in GitHub's branch rules. Keep the
-check advisory on `wip` so ordinary development pushes remain possible.
-It fails PRs with `github-repo-stats`
-as their source or target, including retargeted PRs, without executing PR code.
-Keep the same guard in the data branch so PRs targeting it also receive an
-explicit error. Protect the data branch against deletion and force pushes,
-while allowing normal direct statistics commits. Preserve the existing data
-and history when pruning project files; no history rewrite is needed. A local
-Git merge is still possible; the required check enforces the restriction on
-protected GitHub branches.
+The data branch has an independent root commit, with no common ancestor with
+`main` or `wip`. Git rejects ordinary, squash and fast-forward merges in either
+direction, including merges from a renamed copy of the data branch. Do not use
+`--allow-unrelated-histories` to bypass this separation. The existing statistics
+and reports were retained unchanged. The previous history is saved under the
+protected tag `stats-history-before-isolation-20261017`.
+
+Protect the data branch against deletion and force pushes, while allowing
+normal direct statistics commits. Protect the archive tag against updates and
+deletion. Keep the [guard workflow](../../.github/workflows/statistics-branch-guard.yml)
+on development and data branches as an additional PR check. Require
+**Statistics branch isolation** for `main`; keep it advisory on `wip` so direct
+development pushes remain possible. It rejects PRs with `github-repo-stats` as
+their source or target, including retargeted PRs, without executing PR code.
 
 After upstream succeeds, a second job reads all release API pages and stores
 one download snapshot per UTC day under `rokath/trice/downloads/snapshots/`
