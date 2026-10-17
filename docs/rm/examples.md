@@ -563,7 +563,7 @@ $ trice l -p com8 -hs off -prefix off
       triceExamples.c    28        1_310 A Buffer:
       triceExamples.c    29        1_348 32 2e 37 31 38 32 38 31 38 32 38 34 35 39 30 34 35 32 33 35 33 36
       triceExamples.c    30        1_603 31372e32  31383238  34383238  34303935  35333235
-      triceExamples.c    31        1_799 ARemoteFunctionName(2e32)(3137)(3238)(3138)(3238)(3438)(3935)(3430)(3235)(3533)(3633)
+      ...
       triceExamples.c    32              10 times a 16 byte long Trice messages, which not all will be written because of the TRICE_PROTECT:
       triceExamples.c    34        2_072 i=44444400 aaaaaa00
       triceExamples.c    34        2_119 i=44444401 aaaaaa01

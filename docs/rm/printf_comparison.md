@@ -166,7 +166,7 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );
-* There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../../_test/testdata/triceCheck.c) for usage or see the following.
+* There are also specific macros like `trice32B`. Please look into [triceCheck.c](../../_test/testdata/triceCheck.c) for usage or see the following.
 
 ## 8. <a id="runtime-generated-buffer-transfer-with-triceb"></a>Runtime Generated Buffer Transfer with triceB
 
