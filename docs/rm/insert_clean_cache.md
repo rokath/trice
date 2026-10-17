@@ -62,7 +62,7 @@ Both `trice add` and `trice insert` can collect existing numeric IDs into TIL/LI
 
 | Behavior | `add` | `insert` |
 | --- | --- | --- |
-| Collect existing IDs into TIL/LI | Yes. | Yes. |
+| Collect existing IDs into TIL/LI | ✅ Yes. | ✅ Yes. |
 | Call without an ID | Leaves it alone. | Assigns an ID. |
 | ID already maps to a different message | Reports the conflict; leaves the source unchanged. | Assigns another eligible ID and changes the source. |
 | Write source files | Never. | When needed. |
@@ -605,9 +605,9 @@ Build
 
 State     |    `TRICE_CLEAN` | Own sidecar active | Effect
 -----------|-----------------:|-------------------:|-------------------------------
-Inserted  | undefined or `0` |                 no | Explicit TIDs from the source
-Bound     | undefined or `0` |                yes | TIDs from the sidecar
-Clean/Off |              `1` |         irrelevant | Existing clean/off path
+Inserted  | undefined or `0` |              ❌ No | Explicit TIDs from the source
+Bound     | undefined or `0` |             ✅ Yes | TIDs from the sidecar
+Clean/Off |              `1` |                  — | Existing clean/off path
 
 Tool effect when the definition exists:
 

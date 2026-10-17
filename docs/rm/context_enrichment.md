@@ -227,27 +227,33 @@ With Bind, stale or contradictory CE metadata causes an error; after changing a 
 
 For `-ce`, the tables describe calls receiving extra values. A single statement may extend over several lines. Log macros here use fixed format strings recognized by Trice.
 
+Table key: ✅ Yes = supported; ❌ No = unsupported; Partial = supported only under the stated restriction.
+
 ### 6.1. <a id="compiler-macro-9595counter9595-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
 
 Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
 --- | --- | --- | ---
-Insert/Clean, with or without `-ce` | Yes | Yes | Yes
-Bind without `-ce` | Yes | Yes | Yes
-Bind with `-ce` | Yes | No | No
+Insert/Clean, with or without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
+Bind without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
+Bind with `-ce` | ✅ Yes | ❌ No | ❌ No
 
 ### 6.2. <a id="no-9595counter9595-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
 
 Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
 --- | --- | --- | ---
-Insert/Clean, with or without `-ce` | Yes | Yes | Yes
-Bind without `-ce` | Yes | No | Simple macros only
-Bind with `-ce` | Yes | No | No
+Insert/Clean, with or without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
+Bind without `-ce` | ✅ Yes | ❌ No | Partial: simple macros only
+Bind with `-ce` | ✅ Yes | ❌ No | ❌ No
 
 A simple macro is, for example, `#define LOG() trice("msg:ready")`, called as `LOG();` on its own single line.
 
 ### 6.3. <a id="examples-and-remaining-limits"></a>Examples and remaining limits
 
-`bind -ce` supports direct calls in ordinary and inline functions. It rejects adding values to calls sharing a line or inside logging macros, even with `__COUNTER__`. Calls not selected by a CE rule retain ordinary [Bind support](bind.md#bind-limits). A typical error is:
+`bind -ce` supports direct calls in ordinary and inline functions. Calls not selected by a CE rule retain ordinary [Bind support](bind.md#bind-limits).
+
+> ⛔ **Unsupported:** `bind -ce` rejects adding values to calls sharing a line or inside logging macros, even with `__COUNTER__`.
+
+A typical error is:
 
 ```text
 main.c:42: error: CE requires a direct, line-addressable bind site. Search UM for "bind-limits".

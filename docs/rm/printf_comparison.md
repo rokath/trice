@@ -216,9 +216,11 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 
 ### 9.3. <a id="overview-table"></a>Overview Table
 
+In the remarks, ✅ means supported and ❌ means unsupported. The format-specifier columns retain their literal spellings.
+
 Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark
 -----------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------
-signed decimal integer                                          | d | d  | d | Supported.
+signed decimal integer                                          | d | d  | d | ✅ Supported.
 unsigned decimal integer                                        | u | -  | u | The Trice tool changes %u into %d and treats value as unsigned.
 signed decimal integer                                          | i | d  | i | The Trice tool changes %i into %d and treats value as signed.
 signed octal integer                                            | - | o  | o | With `trice log -unsigned=false` value is treated as signed.
@@ -239,16 +241,16 @@ the shortest representation of %e or %f                         | g | g  | g | `
 the shortest representation of %E or %F                         | G | G  | G | `aFloat(value)`\|`aDouble(value)`
 a character as byte                                             | c | -  | c | Value can contain ASCII character.
 a character represented by the corresponding Unicode code point | c | c  | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format.
-a quoted character                                              | - | q  | q | Supported.
-the word true or false                                          | - | t  | t | Supported.
+a quoted character                                              | - | q  | q | ✅ Supported.
+the word true or false                                          | - | t  | t | ✅ Supported.
 a string                                                        | s | s  | s | Use `triceS` macro with one and only one runtime generated string.
-pointer address                                                 | p | p  | p | Supported.
-a double %% prints a single %                                   | % | %  | % | Supported.
-Unicode escape sequence                                         | - | U  | - | **Not supported.**
-value in default format                                         | - | v  | - | **Not supported.**
-Go-syntax representation of the value                           | - | #v | - | **Not supported.**
-a Go-syntax representation of the type of the value             | - | T  | - | **Not supported.**
-nothing printed                                                 | n | -  | - | **Not supported.**
+pointer address                                                 | p | p  | p | ✅ Supported.
+a double %% prints a single %                                   | % | %  | % | ✅ Supported.
+Unicode escape sequence                                         | - | U  | - | ❌ **Not supported.**
+value in default format                                         | - | v  | - | ❌ **Not supported.**
+Go-syntax representation of the value                           | - | #v | - | ❌ **Not supported.**
+a Go-syntax representation of the type of the value             | - | T  | - | ❌ **Not supported.**
+nothing printed                                                 | n | -  | - | ❌ **Not supported.**
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
 * [x] Look in [triceCheck.c](../../_test/testdata/triceCheck.c) for exampe code producing this:

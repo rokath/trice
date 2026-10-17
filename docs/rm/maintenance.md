@@ -91,6 +91,8 @@ Keep each chapter's `mdtoc` container. Write plain headings without manual numbe
 <!-- /mdtoc -->
 ```
 
+Keep headings and contents labels free of emojis. Use the [shared symbol meanings](HEADER.md#symbols-and-table-results) sparingly in UM and RM prose: one symbol plus its English text label per note. In comparison tables, keep the words beside ✅ Yes and ❌ No, retain any restrictions with Partial, and distinguish — (not applicable), ? (unknown/not checked) and 0 (a measured zero). Do not decorate commands, code or quoted tool output. Preserve the commented symbol collection in [FOOTER.md](FOOTER.md) as reference material.
+
 | Task | Command |
 | --- | --- |
 | Regenerate manual ToCs, numbering and anchors | `./scripts/_310_refresh_trice_user_manual.sh format` |

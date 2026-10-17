@@ -21,6 +21,8 @@ See [Binary Encoding](rm/binary_encoding.md) for the field layout and length var
 
 **To start on your PC no board, probe or serial cable is needed.** This guide then takes the same workflow into your firmware. Use the [Reference Manual](rm/README.md) for complete syntax, configuration and limits.
 
+Short notes use an emoji and a text label, such as `💡 Tip` or `⚠️ Warning`. In tables, `✅ Yes` and `❌ No` answer the column's question. The [shared symbol legend](rm/HEADER.md#symbols-and-table-results) also explains partial, inapplicable and unknown results.
+
 <details markdown="1">
 <summary>Contents</summary>
 
@@ -65,7 +67,9 @@ The `trice` tool manages IDs and decodes logs; the companion `tlog` is a shortcu
 
 Start in repository folder [demo/deferred](../demo/deferred) with [./run.sh](../demo/deferred/run.sh)
 
-The script [demo/deferred/run.sh](../demo/deferred/run.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. It uses `cc` or, if unavailable, `gcc` from your `PATH`. Ignoring optional prefix and source-location columns, you should see colored:
+The script [demo/deferred/run.sh](../demo/deferred/run.sh) assigns IDs, compiles the PC program, runs it and decodes its `log.bin` file. It uses `cc` or, if unavailable, `gcc` from your `PATH`.
+
+> ✅ **Expected result:** Ignoring optional prefix and source-location columns, you should see colored:
 
 ```text
 Hello from deferred mode.
@@ -147,7 +151,9 @@ This tour deliberately uses two different meanings. `TriceStamp16` reads `pc_sam
 ./show_json.sh -ts16 'phase:%d' -ts32 ms -ts32delta ms
 ```
 
-Change `pc_sample_milliseconds = 125u` to `150u`, rebuild and decode again: the second Supply stamp and its delta become `150` and `50`. The host cannot infer units; a 16-bit stamp could equally represent a temperature or application counter. See [timestamps and deltas](rm/stamps.md).
+Change `pc_sample_milliseconds = 125u` to `150u`, rebuild and decode again: the second Supply stamp and its delta become `150` and `50`.
+
+> ℹ️ **Note:** The host cannot infer units; a 16-bit stamp could equally represent a temperature or application counter. See [timestamps and deltas](rm/stamps.md).
 
 ### 3.4. <a id="add-context-with-one-build-rule"></a>Add context with one build rule
 
@@ -192,7 +198,7 @@ For a first single-context application, the essential configuration is:
 #endif // #ifndef TRICE_CONFIG_H_
 ```
 
-Before logging from interrupts or multiple tasks, define real `TRICE_ENTER_CRITICAL_SECTION` / `TRICE_LEAVE_CRITICAL_SECTION` protection appropriate to your MCU and scheduler. The default empty protection is only a starting point for a single context. Buffer sizing and the complete setup are in the [byte-writer quickstart](rm/quickstarts.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit).
+> ⚠️ **Warning:** Before logging from interrupts or multiple tasks, define real `TRICE_ENTER_CRITICAL_SECTION` / `TRICE_LEAVE_CRITICAL_SECTION` protection appropriate to your MCU and scheduler. The default empty protection is only a starting point for a single context. Buffer sizing and the complete setup are in the [byte-writer quickstart](rm/quickstarts.md#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit).
 
 ### 4.2. <a id="connect-the-writer-and-generate-ids"></a>Connect the writer and generate IDs
 
@@ -269,7 +275,7 @@ Application sources and `triceConfig.h`                 | Keep under version con
 `build/sidecars/`                                       | Regenerable sidecar headers and field registry. Leave them out of version control; Bind recreates them before compilation.
 Executables, object files and `capture.bin` / `log.bin` | Build/run outputs; retain firmware images and captures when useful for later investigation.
 
-`til.json` is the long-lived ID-to-format dictionary: preserve existing entries when adding new messages. It does not need a separate matching copy for every build. `li.json` instead describes source files and line numbers, which can change between builds. A current TIL can decode an old capture while a current LI would point to the wrong source locations; use that build's LI or disable locations with `-li off`.
+> ❗ **Important:** `til.json` is the long-lived ID-to-format dictionary: preserve existing entries when adding new messages. It does not need a separate matching copy for every build. `li.json` instead describes source files and line numbers, which can change between builds. A current TIL can decode an old capture while a current LI would point to the wrong source locations; use that build's LI or disable locations with `-li off`.
 
 Keep the local `li.json` between builds even if you do not want source locations in logs. Bind and Insert use it as evidence for ID ownership and reuse; the TIL alone cannot identify which source site owns each of several identical messages. Deleting LI can change ID assignments, especially during partial source scans. Use `trice log -li off` to suppress location output while continuing to use LI during ID processing. Applying `-li off` to Bind or Insert disables their location-table use too and loses that evidence.
 
@@ -308,6 +314,8 @@ Messages disappear after adding a filter                          | Remove `-pic
 CE reports an unknown identifier or unsupported site              | Make the expression accessible at every selected call; follow [bind-limits](rm/bind.md#bind-limits) for wrappers and alternatives.
 An example's output check fails after an edit                     | Compare actual output with the new intended values, then [update the expectations](rm/examples.md#updating-the-pc-tours-output-checks).
 
-`tlog` is the CLI helper for `trice log`; it accepts the same logging options without the `log` subcommand. Replace the port and baud rate above with your connection settings. `-s` shows the received bytes before decoding; `-debug` adds framing and decoder diagnostics. You can combine them when checking a new transport.
+`tlog` is the CLI helper for `trice log`; it accepts the same logging options without the `log` subcommand.
+
+> 🔍 **Check:** Replace the port and baud rate above with your connection settings. `-s` shows the received bytes before decoding; `-debug` adds framing and decoder diagnostics. You can combine them when checking a new transport.
 
 For further examples and checks, inspect [triceCheck.c](../_test/testdata/triceCheck.c), the [PC tour's output assertions](../examples/PC_features/check_output.sh), and the [logging-feature test entry point](../scripts/_515_test_logging_features.sh). They are optional follow-up reading. The [Reference Manual](rm/README.md) and `trice help -all` remain the complete lookup sources.
