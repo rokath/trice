@@ -148,6 +148,27 @@ same repository. It can create that branch on its first run. Its report is at
 release branches receive no daily statistics commits. Concurrent collection
 runs are serialized.
 
+`github-repo-stats` is generated data, not a development branch. Keep only its
+`rokath/trice/` data and reports, the root `README.md`, required licenses, and
+the small [statistics branch guard](../../.github/workflows/statistics-branch-guard.yml).
+The root README identifies the branch and links its reports. The upstream action
+updates `rokath/trice/README.md`, so it does not overwrite that root notice.
+Do not merge this branch into development branches or merge project changes
+into it. Its ahead/behind count is not a request to synchronize it with `main`.
+
+Before removing the inherited project files, publish the guard workflow on
+`main` and `wip`, run it manually once on `main`, and require
+**Statistics branch isolation** for `main` in GitHub's branch rules. Keep the
+check advisory on `wip` so ordinary development pushes remain possible.
+It fails PRs with `github-repo-stats`
+as their source or target, including retargeted PRs, without executing PR code.
+Keep the same guard in the data branch so PRs targeting it also receive an
+explicit error. Protect the data branch against deletion and force pushes,
+while allowing normal direct statistics commits. Preserve the existing data
+and history when pruning project files; no history rewrite is needed. A local
+Git merge is still possible; the required check enforces the restriction on
+protected GitHub branches.
+
 After upstream succeeds, a second job reads all release API pages and stores
 one download snapshot per UTC day under `rokath/trice/downloads/snapshots/`
 in the same data branch. A repeat run replaces that day's snapshot. It renders
@@ -206,8 +227,9 @@ Review both workflows before activating collection and publication.
 The upstream action accepts one token for reading and writing. Consequently
 the fine-grained token needs both permissions above; the normal `GITHUB_TOKEN`
 has no permissions in this workflow. A branch rule requiring pull requests on
-the data branch would block the action's direct commits. Keep existing branch
-protection unchanged; resolve any restriction explicitly before activation.
+the data branch would block the action's direct commits. Allow normal
+fast-forward writes when enabling the deletion and force-push protection
+described above; do not require PRs or CI checks on the data branch itself.
 
 GitHub's [stargazer access restrictions](https://docs.github.com/en/rest/activity/starring)
 also apply. Authentication and account access must be verified in the first
@@ -248,7 +270,7 @@ individual runs can still create additional Git commits and snapshot files.
 Traffic older than GitHub's retention window cannot be recovered after a long
 interruption. Do not invent values for those gaps.
 
-Run `actionlint .github/workflows/statistics.yml .github/workflows/pages.yml` and
+Run `actionlint .github/workflows/statistics.yml .github/workflows/pages.yml .github/workflows/statistics-branch-guard.yml` and
 `markdownlint docs/rm/maintenance.md` locally. These checks do not run
 Trice builds, change release files, contact the traffic API or push data.
 
