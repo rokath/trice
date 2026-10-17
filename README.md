@@ -5,9 +5,9 @@
 [![Downloads](https://img.shields.io/github/downloads/rokath/trice/total)](./docs/TriceGuide.md#project-resources)
 [![Target library CI](https://github.com/rokath/trice/actions/workflows/trice_lib_ci_full.yml/badge.svg)](./.github/workflows/trice_lib_ci_full.yml)
 
-<div align="right">
+<div align="right" markdown="1">
 
-<em>Hi, I am Trice.</em><sup><a href="#note-name">*</a></sup>
+*Hi, I am Trice.*<sup><a href="#note-name">*</a></sup>
 
 </div>
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
