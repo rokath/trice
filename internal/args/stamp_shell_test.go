@@ -46,7 +46,8 @@ func TestStampShellQuoting(t *testing.T) {
 		batch       bool
 	}{
 		{"Bash and Git Bash", "bash", []string{"-c", `"$TRICE_STAMP_TEST_BINARY" -test.run=TestStampShellArgvHelper -- -ts16 'printf("msg:%12.3f us",unwrap(47999-ts,48000)/48)'`}, false},
-		{"PowerShell standard", "pwsh", []string{"-NoProfile", "-Command", `if ($PSVersionTable.PSVersion -lt [version]'7.3') { exit 77 }; $PSNativeCommandArgumentPassing='Standard'; & $env:TRICE_STAMP_TEST_BINARY -test.run=TestStampShellArgvHelper -- -ts16 'printf("msg:%12.3f us",unwrap(47999-ts,48000)/48)'`}, false},
+		// Quote the dotted Go test flag so PowerShell passes it as one native argument.
+		{"PowerShell standard", "pwsh", []string{"-NoProfile", "-Command", `if ($PSVersionTable.PSVersion -lt [version]'7.3') { exit 77 }; $PSNativeCommandArgumentPassing='Standard'; & $env:TRICE_STAMP_TEST_BINARY '-test.run=TestStampShellArgvHelper' -- -ts16 'printf("msg:%12.3f us",unwrap(47999-ts,48000)/48)'`}, false},
 		{"PowerShell legacy", "powershell.exe", []string{"-NoProfile", "-Command", `& $env:TRICE_STAMP_TEST_BINARY --% -test.run=TestStampShellArgvHelper -- -ts16 "printf(\"msg:%12.3f us\",unwrap(47999-ts,48000)/48)"`}, false},
 		{"cmd interactive", "cmd.exe", []string{"/D", "/Q"}, false},
 		{"cmd batch percent escaping", "cmd.exe", nil, true},
