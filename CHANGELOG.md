@@ -2,7 +2,7 @@
 
 ## v2.0.0-beta-1 (unreleased)
 
-This first v2 beta introduces new instrumentation and logging workflows for testing in real projects.
+This first v2 beta introduces new instrumentation and logging workflows for integration and compatibility testing in real projects before the stable v2 release. Review the [migration notes](docs/rm/id_management.md#migrating-1x-scripts-and-projects) before upgrading a 1.x project.
 
 ### New workflows and features
 
@@ -12,6 +12,7 @@ This first v2 beta introduces new instrumentation and logging workflows for test
 - [Tags and severity](docs/rm/tags_color_and_weights.md) gain weight-based filtering, custom weights/colors and dark, light and contrast palettes.
 - [Local deferred text logging](docs/rm/target_implementation.md#local-deferred-text-log) formats buffered records on the target without a host decoder.
 - [Visualization output](docs/rm/visualization.md#visualization-output-with--vis) sends transformed numeric measurements to files or UDP.
+- [Target-stamp expressions](docs/rm/stamp_expressions.md) add host-side `printf(...)`, `unwrap(...)` and `delta(...)` conversion. Logging raw hardware counters can avoid target-side conversion work, especially in interrupt handlers.
 - [Generation tools](docs/rm/generate.md) add source-selected C tables, readable JSON dictionary copies and read-only Bind artifact reports.
 - [Deterministic ID assignment](docs/rm/id_management.md#different-ids-for-same-trices) orders identical calls; adding, removing or moving a call can change existing IDs in its group.
 - Documentation gains a guided [User Manual](docs/TriceUserManual.md), split [Reference Manual](docs/rm/README.md), two release PDFs and F030 RTT/UART instrumentation examples.
@@ -26,9 +27,9 @@ This first v2 beta introduces new instrumentation and logging workflows for test
 
 ### Release and migration notes
 
-- Host source builds require Go 1.25; v2 uses release archives or local tag checkouts rather than versioned remote Go installation.
-- CLI flags, generated-file paths, tag/filter syntax and location paths have changed. See [migration from 1.x](docs/rm/id_management.md#migrating-1x-scripts-and-projects).
 - Template syntax now treats single braces as fields. See [firmware and dictionary compatibility](docs/rm/id_management.md#compatibility-with-firmware-and-host-tool-versions).
+- CLI flags, generated-file paths, tag/filter syntax and location paths have changed. See [migration from 1.x](docs/rm/id_management.md#migrating-1x-scripts-and-projects).
+- Host source builds require Go 1.25; v2 uses release archives or local tag checkouts rather than versioned remote Go installation.
 - Bind and CE have different compiler/macro limits; see the [workflow comparison tables](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives).
 - Release archives now include the full MIT license and the target sources retain the SEGGER license. Beta releases use explicitly selected tags and do not update the stable Homebrew tap.
 
