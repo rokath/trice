@@ -3,25 +3,21 @@
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
 * [1. Packet Classification](#packet-classification)
 * [2. The typeX0 Counted Format](#the-typex0-counted-format)
-* [3. CLI Option `-typeX0`](#cli-option--typex0)
+* [3. CLI Option -typeX0](#cli-option--typex0)
 * [4. typeX0 Target Code](#typex0-target-code)
   * [4.1. Target-side counted helper](#target-side-counted-helper)
   * [4.2. typeX0 Build Switches](#typex0-build-switches)
-  * [4.3. `typeX0` Usage in `./examples/G0B1_inst`](#typex0-usage-in-examplesg0b1_inst)
+  * [4.3. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
 * [5. Go implementation layout](#go-implementation-layout)
 * [6. Tests](#tests)
 * [7. Initial scope](#initial-scope)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -422,6 +418,4 @@ clear errors for malformed X0 packets and unsupported modes
 ```
 
 No `counted32`, `forward`, JSON descriptor, plugin interface or `user1B` / `user2B` / `user3B` handling is part of the initial scope.
-
-<p align="right">(<a href="#typex0-user-packets">back to top</a>)</p>
 

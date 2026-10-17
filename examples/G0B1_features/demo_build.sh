@@ -3,7 +3,7 @@
 # Usage: ./demo_build.sh [gcc|clang]. Requires Trice, make and Arm GNU libraries.
 # First bind generates this project's tables and headers, then make compiles.
 # Calls marked ctx: gain the current task handle through osThreadGetId().
-# Library/image details: ../../docs/rm/code_size.md
+# Library/image details: ../../docs/rm/memory_usage.md
 # SPDX-License-Identifier: MIT
 set -eu
 cd "$(dirname "$0")"

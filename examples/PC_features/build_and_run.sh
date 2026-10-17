@@ -28,7 +28,7 @@ suffix=
 case "$(uname -s)" in MINGW* | MSYS* | CYGWIN*) suffix=.exe ;; esac
 
 # Use the native linker's spelling for removing unused functions and data.
-# Details: ../../docs/rm/code_size.md
+# Details: ../../docs/rm/memory_usage.md
 link_unused=-Wl,--gc-sections
 case "$(uname -s)" in Darwin) link_unused=-Wl,-dead_strip ;; esac
 

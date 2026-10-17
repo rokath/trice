@@ -3,8 +3,6 @@
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
 * [1. For the impatient (2 possibilities)](#for-the-impatient-2-possibilities)
@@ -23,7 +21,7 @@
   * [3.3. JLinkRTTClient.exe](#jlinkrttclientexe)
   * [3.4. JLinkRTTViewer.exe](#jlinkrttviewerexe)
 * [4. Segger RTT](#segger-rtt)
-* [5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-800-eur-option)
+* [5. Segger J-Link SDK (800 EUR) Option](#segger-j-link-sdk-800-eur-option)
 * [6. Additional Notes (leftovers)](#additional-notes-leftovers)
 * [7. Further development](#further-development)
 * [8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
@@ -37,8 +35,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -99,8 +95,6 @@ Trice's optimized 32-bit writer directly accesses the RTT control block, so a fu
   ```
 * [triceDefaultConfig.h](../../src/triceDefaultConfig.h) automatically loads the selected SEGGER configuration when the RTT backend or RTT lock support is active. It derives all five `TRICE_*` buffer-size and channel-count defaults from those settings, so matching definitions in *triceConfig.h* are unnecessary. Explicit `TRICE_*` values remain supported; a mismatch with *SEGGER_RTT_Conf.h* produces a compiler error. Configure RTT itself in *SEGGER_RTT_Conf.h*, since SEGGER sources read that file independently of Trice.
 * **Possible:** Parallel usage of RTT direct mode with UART deferred mode. You can define `TRICE_UARTA_MIN_ID` and `TRICE_UARTA_MAX_ID` inside triceConfig.h to log only a specific ID range over UARTA in deferred mode for example. ([\#446](https://github.com/rokath/trice/issues/446))
-
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
 
 ## 1. <a id="for-the-impatient-2-possibilities"></a>For the impatient (2 possibilities)
 
@@ -319,8 +313,6 @@ tmux kill-session -t "tricerttlog"
 
 * **Hint:** If you use *RTTLogTmux.sh* with Darwin (macOS), the "control-C" key combination seems not to work immediately. That is simply because the keyboard focus switches away after script start. Simply click into the terminal window again and then use "control-C" to terminate the Trice logging.
 
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
-
 ## 2. <a id="segger-real-time-transfer-rtt"></a>Segger Real Time Transfer (RTT)
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
@@ -359,8 +351,6 @@ tmux kill-session -t "tricerttlog"
         port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
          (default "default")
  ```
-
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
 
 ## 3. <a id="j-link-option"></a>J-Link option
 
@@ -479,8 +469,6 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 -->
 
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
-
 ## 4. <a id="segger-rtt"></a>Segger RTT
 
 * The main advantages are:
@@ -493,8 +481,6 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
   ![triceBlockDiagramWithSeggerRTT.svg](../ref/triceBlockDiagramWithSeggerRTTD.svg)
 
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
-
 ## 5. <a id="segger-j-link-sdk-800-eur-option"></a>Segger J-Link SDK (~800 EUR) Option
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
@@ -503,16 +489,12 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
   * "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
 * The main [Segger J-Link SDK](https://www.segger.com/products/debug-probes/j-link/tools/j-link-sdk/) disadvantage beside closed source and payment is: **One is not allowed to distribute binaries written with the SDK.** That makes it only interesting for company internal automatization.
 
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
-
 ## 6. <a id="additional-notes-leftovers"></a>Additional Notes (leftovers)
 
 * `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 * Read the manual [UM08001_JLink.pdf](../../third_party/segger.com/UM08001_JLink.pdf).
-* The current RTT target sources are included in [`src`](../../src); their origin and configuration are described in [Trice over RTT](#trice-over-rtt). The stored [SEGGER_RTT_V812a.zip](../../third_party/segger.com/SEGGER_RTT_V812a.zip) is an older reference snapshot, not the current library.
+* The current RTT target sources are included in [`src`](../../src); their origin and configuration are described in [Trice over RTT](rtt.md). The stored [SEGGER_RTT_V812a.zip](../../third_party/segger.com/SEGGER_RTT_V812a.zip) is an older reference snapshot, not the current library.
 * Add `SEGGER_RTTI.c` to target project
-
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
 
 ## 7. <a id="further-development"></a>Further development
 
@@ -549,8 +531,6 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 * In this case `1366:0105 (bus 2, device 10) path: 5` is missing, so `vid=1366`, `did=0105` as example
 * On Windows install WSL2. The real Linux kernel is needed for full USB access.
 
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
-
 ## 8. <a id="nucleo-f030r8-example"></a>NUCLEO-F030R8 example
 
 Info: [https://www.st.com/en/evaluation-tools/nucleo-F030r8.html](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html)
@@ -574,16 +554,12 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-F030r8.html](https://www.st
   * When restarting the Trice tool, a target reset occurs.
   * Other channel numbers than `0` seam not to work for some reason.
 
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
-
 ## 9. <a id="possible-issues"></a>Possible issues
 
 * These boards seem not to work reliable with RTT over J-Link on-board firmware.
   * NUCLEO-G071RB
   * NUCLEO_G031K8
 * After flashing back the ST-LINK OB firmware with the SEGGER tool, it is recommended to use the ST tool to update the ST-LINK OB firmware. Otherwise issues could occur.
-
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
 
 ## 10. <a id="openocd-with-darwin-macos"></a>OpenOCD with Darwin (macOS)
 
@@ -665,6 +641,4 @@ TODO: Working example with SEGGER_RTT J-Link and Open OCD
 * [USB over WSL2?](https://twitter.com/beriberikix/status/1487127732190212102?s=20&t=NQVa27qvOqPi2uGz6pJNRA) (Maybe intersting for OpenOCD)
 * https://kickstartembedded.com/2024/03/26/openocd-one-software-to-rule-debug-them-all/?amp=1
 * https://mcuoneclipse.com/2021/10/03/visual-studio-code-for-c-c-with-arm-cortex-m-part-9-rtt/
-
-<p align="right">(<a href="#trice-over-rtt">back to top</a>)</p>
 

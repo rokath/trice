@@ -1,31 +1,52 @@
-# Testing the Trice Target Library
+# Testing Trice
 
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
-* [1. General info](#general-info)
-* [2. How to run the tests](#how-to-run-the-tests)
-  * [2.1. CLion review build](#clion-review-build)
-* [3. Tests Details](#tests-details)
-* [4. How to add new test cases](#how-to-add-new-test-cases)
-* [5. Test Internals](#test-internals)
-* [6. Test Results](#test-results)
-* [7. Special tests](#special-tests)
+* [1. What the tests prove](#what-the-tests-prove)
+* [2. General info](#general-info)
+* [3. How to run the tests](#how-to-run-the-tests)
+  * [3.1. CLion review build](#clion-review-build)
+* [4. Tests Details](#tests-details)
+* [5. How to add new test cases](#how-to-add-new-test-cases)
+* [6. Test Internals](#test-internals)
+  * [6.1. Comparing test duration between computers](#comparing-test-duration-between-computers)
+* [7. Test Results](#test-results)
 * [8. Test Cases](#test-cases)
   * [8.1. Folder Naming Convention](#folder-naming-convention)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
----
-
 </details>
 
-## 1. <a id="general-info"></a>General info
+## 1. <a id="what-the-tests-prove"></a>What the tests prove
+
+CGO is Go's interface to compiled C. These tests compile the real Trice C library with a host C compiler, call it from Go and pass the resulting bytes through the real host decoder.
+
+```text
+triceCheck.c + triceConfig.h + Trice library
+                    │ host C compiler / CGO
+                    ▼
+            real binary records
+                    │ host logger + matching TIL
+                    ▼
+             decoded log text
+                    │ compare with //exp: on each test site
+                    ▼
+              PASS or mismatch
+```
+
+| Layer | Evidence | Boundary |
+| --- | --- | --- |
+| Go unit tests | Parser, dictionary, decoder and host behavior. | Not target timing or C coverage. |
+| PC/CGO matrix | Actual C records decoded under many configurations. | Host execution, not MCU peripheral behavior. |
+| Firmware build matrix | Code compiles/links for target configurations. | Does not flash or execute a board. |
+| Hardware checks | Actual transport, interrupt behavior and timing. | Require the corresponding board and setup. |
+
+## 2. <a id="general-info"></a>General info
 
 This folder is per default named to `_test` to avoid VS Code slow down. Also, when running `go test ./...`,  the tests in the `_test` folder are excluded, because they take a long time. Run `./scripts/testAll.sh` to include them.
 
@@ -88,7 +109,7 @@ The matrix reports each configuration's result, prints compiler error excerpts a
 
 For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go` if no close match in the `examples` folder was found.
 
-## 2. <a id="how-to-run-the-tests"></a>How to run the tests
+## 3. <a id="how-to-run-the-tests"></a>How to run the tests
 
 * Host compiler prerequisites:
   * CGO and host-side target-code tests need a working host C compiler, not only a compiler executable in `PATH`.
@@ -106,7 +127,7 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 * A script name beginning with `_` marks an internal helper or an individually runnable test step. Its three-digit prefix groups the flat `scripts` folder: `100`--`250` are shared workflow helpers, `260`--`330` are maintenance helpers, and `400`--`640` are tests ordered broadly from short checks to long compiler matrices.
 * It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
 
-### 2.1. <a id="clion-review-build"></a>CLion review build
+### 3.1. <a id="clion-review-build"></a>CLion review build
 
 The [CMake review project](../../_test/clion-review/CMakeLists.txt) builds a host executable for indexing and inspections. With `trice`, CMake and a host C compiler available:
 
@@ -119,23 +140,11 @@ If needed, select the tool with `-DTRICE_EXECUTABLE=path/to/trice`. CMake copies
 
 Step `_515` checks the real CLion build and all nine ABC nodes with both ID workflows in isolated checkout paths containing spaces. To run just this check, use `TRICE_BIND_INTEGRATION=1 go test ./scripts -run '^TestBindEntrypointIntegration$' -count=1`. Ordinary script tests use tool doubles; the GCC example matrix additionally exercises the two small F030 entry points and the G0B1 Clang entry. Step `_515` builds the G0B1 feature tour through its public GCC entry, and also through its Clang entry in `full` mode.
 
-## 3. <a id="tests-details"></a>Tests Details
+## 4. <a id="tests-details"></a>Tests Details
 
-All folders despite `testdata` are test folders and the name `tf` is used as a place holder for them in this document.
+The `_test` tree contains independent configuration packages and shared `testdata`. A folder beginning with `_` is omitted from recursive Go package discovery. Use the managed wrappers for normal selection rather than renaming test folders during a run.
 
-To exclude a specific folder temporary, simply rename it to start with an underscore `_tf`.
-
-The `tf` are serving for target code testing in different configuration variants on the host machine. The file [./testdata/triceCheck.c](../../_test/testdata/triceCheck.c) is the main file for most tests and serves also as example usage.
-
-[_test/testdata/cgoPackage.go](../../_test/testdata/cgoPackage.go) is the common main for the `generated_cgoPackage.go` files and contains the common test code. 
-
-The folders `tf` are Go packages just for tests. They all have the same package name `cgot` and are not included into the trice tool. The different `cgot` packages are independent and could have any names. They do not see each other and are used for target code testing independently. When the tests are executed for each package, a separate test binary is build and these run parallel.
-
-The `tf/triceConfig.h` files differ and correspondent to the `tf/cgo_test.go` files in the same folder. On test execution, the `./testdata/*.c` files are compiled into the trice test executable together with the trice sources `../src` using the `tf/triceConfig.h` file.
-
-The individual tests collect the expected results (`//exp: result`) together with the line numbers into a slice to execute the test loop on it. The `triceLogTest` function gets the `triceLog` function as parameter.
-
-`triceLogTest` iterates over the results slice and calls for each line the C-function `triceCheck`. Then the line specific binary data buffer is passed to the `triceLog` parameter function which "logs" the passed buffer into an actual result string which in turn is compared with the expected result.
+[TriceCheck.c](../../_test/testdata/triceCheck.c) supplies the C sites and their expected text. [Test Internals](#test-internals) describes the bridge and comparison loop; this section covers execution strategy, diagnostics and cache handling.
 
 The bulk path still executes each C test site. It collects binary output and starts the host logger once per output channel, then compares every expected text range with its source line. This avoids repeated logger initialization. Finite replay inputs finish when their buffered records are drained; they do not wait for a fixed timeout after each expectation.
 
@@ -151,34 +160,45 @@ The behavioral checks in [pc_cache_overlay_test.go](../../scripts/pc_cache_overl
 
 The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which limits the amount of performed trices for each test case to `n`. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
 
-## 4. <a id="how-to-add-new-test-cases"></a>How to add new test cases
+## 5. <a id="how-to-add-new-test-cases"></a>How to add new test cases
 
 - Choose a test folder similar to the intended test and copy it under a new descriptive name like `newTest`.
 - Add the new package to the test-folder list in `scripts/_330_renew_ids_and_refresh_tests.sh` if it should receive refreshed generated test files.
 - Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
-- Run `go test ./_test/newTest` from the repository root.
+- Use the managed PC wrapper with the new configuration selected; direct `go test ./_test/newTest` requires the ID/include/overlay preparation described above.
 
-## 5. <a id="test-internals"></a>Test Internals
+## 6. <a id="test-internals"></a>Test Internals
 
-The `./trice/_test/testdata/*.c` and `./trice/src/*.c` are compiled together with the actual cgot package into one single Trice test binary, resulting in as many test binaries as there are test folders. Calling its TeCEFunction(s) causes the activation of the Trice statement(s) inside *triceCheck.c*. The ususally into an embedded device compiled Trice code generates a few bytes according to the configuration into a buffer. These bytes are transmitted usually in real life over a (serial) port or RTT. In the tests here, this buffer is then read out by the Trice tool handler function according to the used CLI switches and processed to a log string using the *til.json* file. This string is then compared to the expected string for the activated line.
+Each configuration is an independent `cgot` package. Its `triceConfig.h` selects the C behavior; `cgo_test.go` supplies matching host decoder options. The shared [cgoPackage.go](../../_test/testdata/cgoPackage.go) contains the CGO bridge and test loop. Normal workers overlay it rather than rewriting all generated copies.
 
-Each `tf` is a **Go** package, which is not part of any **Go** application. They are all named `cgot` and are only used independently for testing different configurations. The `tf/generated_cgoPackage.go` file is identical in all `tf`. Its master is `_test/testdata/cgoPackage.go`. The test worker overlays the master during normal test runs. The maintenance script `./scripts/_330_renew_ids_and_refresh_tests.sh` copies the master into the listed packages, but also renews IDs and clears ID history by default; use `keepHistory` only when you deliberately run that wider maintenance workflow.
+The harness finds `//exp:` expectations and their source line numbers in [triceCheck.c](../../_test/testdata/triceCheck.c). It calls the C switch case for each site, collects direct and deferred output through the test writers, decodes it, then compares the text. The capture supports multiple records; the old claim that its shared buffer allowed only one Trice per line no longer describes this harness. Bind's separate [source-site limits](bind.md#bind-limits) still apply.
 
-The test specific target code configuration is inside `tf/trice.Config.h` and the appropriate Trice tool CLI switches are in `tf/cgo_test.go`.
+| Mode | C execution | Host decoding |
+| --- | --- | --- |
+| Bulk | Execute every selected site and retain its expected output boundary. | Start the logger once per output channel. |
+| Line by line | Execute one expectation at a time. | Decode separately; useful for unframed inputs and diagnosis. |
+| Auto | Choose according to the configuration. | Bulk where framing permits it, otherwise line by line. |
 
-When running `go test ./tf`, a Trice tool test executable is build, using the Trice tool packages and the `tf` package `cgot`, and the function `TestLogs` is executed. Its internal closure `triceLog` contains the Trice tool CLI switches and is passed to the `ccgot` package function `triceLogTest` together with the number of testLines and the trice mode (`directTransfer` or `deferrerdTransfer`).
+A passing diagnostic rerun does not erase a bulk failure. Both modes must preserve the configured transfer schedule and test coverage. See the cache and artifact details above.
 
-During the test, the file `triceCheck.c` is scanned for lines like
+### 6.1. <a id="comparing-test-duration-between-computers"></a>Comparing test duration between computers
 
-```C
-break; case __LINE__: TRice( iD(3537), "info:This is a message without values and a 32-bit stamp.\n" ); //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
-```
+Compare the same commit, workflow, configuration count, compiler versions and job limits. Keep the distinction between cold compilation, warm compilation and actual test execution:
 
-Some C-code lines contain Trice statements and comments starting with `//exp: ` followed by the expected Trice tool output for that specific line. The **Go** teCEFunction collects these outputs in a slice together with the line numbers. Then for each found line number the execution of the **Go** function `func triceCheck(n int)` takes part, which in turn calls the CGO compiled C-function `TriceCheck(n)`. The now activated Trice C-code writes the generated trice bytes in a between **C** and **Go** shared buffer using the C-function `TriceWriteDeviceCgo`. After returning from the **Go** function `func triceCheck(n int)` and optionally calling `TriceTransfer` in deferred mode the Trice tool `triceLog()` function converts the Trice buffer bytes to the log string and compares the result with the expected data. The between **Go** and **C** shared buffer limits the executed Trices per line to one, because they use the same buffer from the beginning. This could be done better with an increment to allow several trices in one single line.
+| Observation | Check |
+| --- | --- |
+| First run slower | Go/tool downloads, compiler setup and empty build caches. |
+| Every warm run slow | Verify cache directory reuse and overlay input signatures. |
+| One platform much slower | Compare per-step times, compiler processes, storage and antivirus scanning; do not infer a C/Go defect from total time alone. |
+| Line mode slower than bulk | Repeated logger initialization is deliberate diagnostic overhead. |
+| High parallelism slower | Reduce `TRICE_PC_TEST_JOBS` or `TRICE_L432_TEST_JOBS` and compare memory/CPU pressure. |
 
-Because each test runs a different configuration, all possible combinations are testable.
+Keep `-count=1` and all expectations enabled. A cached test result is not evidence that this run executed the tests. The Insert/Clean `-cache` option is unrelated to Go's compiled-artifact cache.
 
-## 6. <a id="test-results"></a>Test Results
+## 7. <a id="test-results"></a>Test Results
+
+The following is a **historical December 2024 run**, not a current acceptance result or a duration target. The current runner, bulk path and cache handling differ.
+
 
 ```bash
 ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
@@ -325,8 +345,6 @@ ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
 $
 ```
 
-## 7. <a id="special-tests"></a>Special tests
-
 ## 8. <a id="test-cases"></a>Test Cases
 
 ### 8.1. <a id="folder-naming-convention"></a>Folder Naming Convention
@@ -351,6 +369,4 @@ Folder Name Part | Meaning
 `_nopf`      | no package framing
 `_multi_`     | Usually each Trice is handled separately. In multi mode, groups of available Trices are framed together.
 `_ua`       | simulated UART A output (for deferred modes)
-
-<p align="right">(<a href="#testing-the-trice-target-library">back to top</a>)</p>
 

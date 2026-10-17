@@ -1,9 +1,7 @@
-# Trice Compared with `printf`
+# Writing Trice Messages
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -13,43 +11,49 @@
 * [4. Many value parameters](#many-value-parameters)
 * [5. Floating Point Values](#floating-point-values)
 * [6. Runtime Generated 0-terminated Strings Transfer with triceS](#runtime-generated-0-terminated-strings-transfer-with-trices)
-* [7. Runtime Generated counted Strings Transfer with  triceN](#runtime-generated-counted-strings-transfer-with--tricen)
+* [7. Runtime Generated counted Strings Transfer with triceN](#runtime-generated-counted-strings-transfer-with--tricen)
 * [8. Runtime Generated Buffer Transfer with triceB](#runtime-generated-buffer-transfer-with-triceb)
 * [9. Extended format specifier possibilities](#extended-format-specifier-possibilities)
   * [9.1. Trice format specifier](#trice-format-specifier)
   * [9.2. Length modifier support](#length-modifier-support)
   * [9.3. Overview Table](#overview-table)
-* [10. Unsupported `printf` format features](#unsupported-printf-format-features)
-  * [10.1. Dynamic field width with `*`](#dynamic-field-width-with-)
-  * [10.2. Dynamic precision with `*`](#dynamic-precision-with-)
+* [10. Unsupported printf format features](#unsupported-printf-format-features)
+  * [10.1. Dynamic field width with *](#dynamic-field-width-with-)
+  * [10.2. Dynamic precision with *](#dynamic-precision-with-)
   * [10.3. Dynamic width and precision together](#dynamic-width-and-precision-together)
-  * [10.4. Wide character and wide string formats: `%lc` and `%ls`](#wide-character-and-wide-string-formats-lc-and-ls)
-  * [10.5. The special `%n` conversion specifier](#the-special-n-conversion-specifier)
-  * [10.6. Security implications of `%n`](#security-implications-of-n)
-  * [10.7. Why Trice does not support `%n`](#why-trice-does-not-support-n)
+  * [10.4. Wide character and wide string formats: %lc and %ls](#wide-character-and-wide-string-formats-lc-and-ls)
+  * [10.5. The special %n conversion specifier](#the-special-n-conversion-specifier)
+  * [10.6. Security implications of %n](#security-implications-of-n)
+  * [10.7. Why Trice does not support %n](#why-trice-does-not-support-n)
 * [11. UTF-8 Support](#utf-8-support)
 * [12. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
 * [13. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
+* [14. Target Macros](#target-macros)
+* [15. Trice Parameter Bit Widths](#trice-parameter-bit-widths)
+* [16. Buffer Macros](#buffer-macros)
+* [17. Adapting printf calls](#adapting-printf-calls)
+  * [17.1. User Code Adaptation](#user-code-adaptation)
+* [18. Special Care Demands](#special-care-demands)
+  * [18.1. More than 12 printf parameters](#more-than-12-printf-parameters)
+  * [18.2. Float Numbers](#float-numbers)
+  * [18.3. Double numbers](#double-numbers)
+  * [18.4. Runtime Generated Strings](#runtime-generated-strings)
+* [19. UTF-8 example](#utf-8-example)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
 ## 1. <a id="printf-like-functions"></a>Printf-like functions
 
- ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and processing time and several open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
-The *trice* calls are usable inside interrupts, because they only need a few MCU clocks for execution. Porting legacy code to use it with the Trice library, means mainly to replace Printf-like function calls with `trice` function calls. See also chapter [Legacy User Code Option Print Buffer Wrapping and Framing](legacy_user_code.md#legacy-user-code-option-print-buffer-wrapping-and-framing).
+Printf formats text on the target; Trice transfers an ID and values and formats them on the host. This reduces target work and keeps format strings out of the firmware. For timing-sensitive code, choose the [buffer and output mode](performance.md) carefully and configure [critical sections](target_configuration.md#critical-sections-and-checks) for concurrent calls.
+
+For existing logging wrappers, see [Integrating Existing Logging Macros](legacy_user_code.md).
 
 ## 2. <a id="trice-ids"></a>Trice IDs
 
-* Each Trice caries a 14-bit nuber ID as replacement for the format string.
-* This ID is automatically generated (controllable) and in the source code it is the first parameter inside the Trice macro followed by the format string and optional values.
-* The user can decide not to spoil the code by having the IDs permanently in its source code, by just inserting them as a pre-compile step with `trice insert` and removing them as a post-compile step with `trice clean`.
-  * The Trice cache makes this invisible to the build system, allowing full translation speed.
-* The format string is **not** compiled into the target code. It goes together with the ID into a project specific reference list file [til.json](../../demoTIL.json) (example).
+Write calls without numeric IDs, for example `trice("ready\n");`. [Bind](bind.md) assigns the 14-bit IDs and generates compiler headers before compilation. The format string and ID are stored in the [dictionary](id_management.md), not in the firmware.
 
 ## 3. <a id="trice-values-bit-width"></a>Trice values bit width
 
@@ -66,7 +70,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
-  * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
+  * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));
   * The long count field can encode up to 32767 payload bytes, but the current target buffer macros impose a lower limit; see [Binary Encoding](binary_encoding.md). Supporting more than 12 values per Trice macro would require extending the target and host code.
 * Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to intense compile time checks.
   * This length code extension can be done automatically using `trice u -addParamCount`. This is not needed anymore:
@@ -75,7 +79,7 @@ The *trice* calls are usable inside interrupts, because they only need a few MCU
 
 ## 5. <a id="floating-point-values"></a>Floating Point Values
 
-These types are mixable with integer types but need to be covered by converter function.
+Use `aFloat()` with 32-bit calls and `aDouble()` with 64-bit calls. All values in a call share the selected width; convert a float to double as well when placing it in a 64-bit call. Integers can share either call.
 
 * *float* types use the `aFloat()` function and need a minimal value bit width of 32, to secure correct data transfer.
   * Example:
@@ -90,7 +94,7 @@ These types are mixable with integer types but need to be covered by converter f
 
   ```c
    double y = 7.2;
-   trice64( "float %f and double %f", aFloat(x), aDouble(y));
+   trice64( "float %f and double %f", aDouble(x), aDouble(y));
   ```
 
 * Both functions are simple and fast:
@@ -161,7 +165,7 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 ## 7. <a id="runtime-generated-counted-strings-transfer-with--tricen"></a>Runtime Generated counted Strings Transfer with  triceN
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` (or `triceN`, `TriceN`, `TRiceN`) macro.
-* This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );`
+* This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `triceN( "msg: FLASH string is %s", addr, 16 );
 * There are also specific macros like `trice32B` or `trice16F`. Please look into [triceCheck.c](../../_test/testdata/triceCheck.c) for usage or see the following.
 
 ## 8. <a id="runtime-generated-buffer-transfer-with-triceb"></a>Runtime Generated Buffer Transfer with triceB
@@ -463,5 +467,187 @@ This syntax is supported: `%[flags][width][.precision][length]`
   * `%e`
   * `%9.f`
 
-<p align="right">(<a href="#trice-compared-with-printf">back to top</a>)</p>
+## 14. <a id="target-macros"></a>Target Macros
 
+Macro spelling selects the timestamp; parameter widths follow the rules above:
+
+```C
+trice("Hello world!"); // without     timestamp
+Trice("Hello world!"); // with 16-bit timestamp
+TRice("Hello world!"); // with 32-bit timestamp
+```
+
+See [Stamps](stamps.md) for the clock definitions and host display.
+
+The additional macros
+
+* `trice8`, `trice16`, `trice32`, `trice64`
+* `Trice8`, `Trice16`, `Trice32`, `Trice64`
+* `TRice8`, `TRice16`, `TRice32`, `TRice64`
+
+are always usable and the number 8, 16, 32, 64 specifies the parameter width, which is equal for all values within one macro. Trice macros are partially disabled, when the value TRICE_SINGLE_MAX_SIZE is defined to be smaller than 104. For example with TRICE_SINGLE_MAX_SIZE == 8, `TRice32` can have no parameter value (4 byte Trice header, 4 byte stamp) and `trice8` can have up to 4 parameter values (4 byte Trice header, 4 byte values) That's mainly to get compiler errors rather than runtime errors.
+
+More examples:
+
+Trice     | Header | Stamp | max. Values  | Trice Size
+-----------|--------|-------|--------------|------------
+`trice8`  | 4      | 0     | 0 \*1 byte   | 4
+...       | ...    | ...   | ...          | ...
+`trice8`  | 4      | 0     | 12 \*1 byte  | 16
+`Trice8`  | 4      | 2     | 0 \*1 byte   | 6
+...       | ...    | ...   | ...          | ...
+`Trice8`  | 4      | 2     | 12 \*1 byte  | 18
+`TRice8`  | 4      | 4     | 0  \*1 byte  | 8
+...       | ...    | ...   | ...          | ...
+`TRice8`  | 4      | 4     | 12 \*1 byte  | 20
+`trice16` | 4      | 0     | 2  \*2 byte  | 8
+`Trice16` | 4      | 2     | 1  \*2 byte  | 8
+`trice32` | 4      | 0     | 1  \*4 byte  | 8
+`Trice32` | 4      | 2     | 1  \*4 byte  | 10
+`TRice32` | 4      | 4     | 2  \*4 byte  | 16
+`trice64` | 4      | 0     | 1  \*8 byte  | 12
+`TRice64` | 4      | 4     | 1  \*8 byte  | 16
+...       | ...    | ...   | ...          | ...
+`TRice64` | 4      | 4     | 12  \*8 byte | 104
+
+On smaller machines, a 16-bit default can reduce payload size; match the host default-width setting.
+
+The fully uppercase `TRICE` macros use inline code. Because the main design aim was speed, this was the original design. Then it became clear, that several hundred of Trice macros increase the needed code amount too much and that it is better to have just a function call instead of having inline macros. If speed matters use `TRICE(id(0)`, `TRICE(Id(0)`, `TRICE(ID(0)` else use `trice(iD(0)`, `Trice(iD(0)`, `TRice(iD(0)` or mix usage as you like. The lower case macros internally use Trice like code but each is only a function call and therefore needs less space.
+
+## 15. <a id="trice-parameter-bit-widths"></a>Trice Parameter Bit Widths
+
+* The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside [src/triceDefaultConfig.h](../../src/triceDefaultConfig.h) to change that.
+* If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
+
+  ```C
+  char b[8] = {1,2,3,4,5,6,7,8};
+
+  // 36 bytes: 4 bytes plus 32 (8 times 4) bytes payload
+  trice( "%02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
+
+  // 12 bytes: 4 bytes plus 8 (8 times 1) bytes payload
+  trice8( " %02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
+
+  // 12 bytes: 4 bytes plus 8 (8 times 1) bytes payload in short notation.
+  triceB( "deb: %02x\n", &b, sizeof(b) );
+  ```
+
+Hint: With the default TCOBS framing 8-bit values as 32-bit parameters typically occupy only 2-bytes during transmission.
+
+## 16. <a id="buffer-macros"></a>Buffer Macros
+
+(Examples in [../_test/testdata/triceCheck.c](../../_test/testdata/triceCheck.c))
+
+Macro Name                                      | Description
+-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`triceS`  \|`TriceS`  \|`TRiceS`  \|`TRICE_S`   | Output of runtime generated 0-terminated strings.
+`triceN`  \|`TriceN`  \|`TRiceN`  \|`TRICE_N`   | Is for byte buffer output as string until the specified size. It allows limiting the string size to a specific value and does not rely on a terminating 0. If for example len = 7 is given and "Hello\0World\n" is in the buffer, the byte sequence "Hello\0W" is transmitted but the trice tool probably shows only "Hello".
+`triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_B TRICE8_B`.
+`trice8B` \|`Trice8B` \|`TRice8B` \|`TRICE8_B`  | Is for byte buffer output according to the given format specifier for a single byte.
+`trice16B`\|`Trice16B`\|`TRice16B`\|`TRICE16_B` | Is for 16-bit buffer output according to the given format specifier for a 16-bit value.
+`trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.
+|                                                 | See chapter [Trice ABC - Asynchronous Broadcast Commands](abc_asynchronous_broadcast_commands.md) for the following lines.
+`triceC`  \|`TriceC`  \|`TRiceC`  \|`TRICE_C`   | Is for ABC buffer output according to the given function handler for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_C TRICE8_C`.
+`trice8C` \|`Trice8C` \|`TRice8C` \|`TRICE8_C`  | Is for ABC byte buffer output according to the given function handler.
+`trice16C`\|`Trice16C`\|`TRice16C`\|`TRICE16_C` | Is for ABC 16-bit buffer output according to the given function handler for a 16-bit wide buffer.
+`trice32C`\|`Trice32C`\|`TRice32C`\|`TRICE32_C` | Is for ABC 32-bit buffer output according to the given function handler for a 32-bit wide buffer.
+
+## 17. <a id="adapting-printf-calls"></a>Adapting printf calls
+
+### 17.1. <a id="user-code-adaptation"></a>User Code Adaptation
+
+* Replace all strings `puts` with the string `trice`, when the string follows immediately. For runtime generated strings see `triceS`.
+* Replace all strings `printf` with the string `trice`, when the format string follows immediately.
+* Check for float and double format specifiers in the format strings. The appropriate parameters need to be covered with `aFloat()` or `aDouble()`. Example:
+
+    ```c
+    printf( "%d, %3.2f EUR, %g rate\n", i, price, change );
+    ```
+
+    ```c
+    trice64( "%d, %3.2f EUR, %g rate\n", i, aDouble(price), aDouble(change) );
+    ```
+
+  * Because double needs 8 bytes the trice macro in this case needs to be trice64 (see <a href="printf_comparison.md#trice-parameter-bit-widths">Trice Parameter Bit Widths</a>).
+
+* Check for string format specifiers in the format strings. Put each in a separate trice message. Example:
+
+    ```c
+    printf( "name: %16s, surname: %32s, birthday: %4u-%02u-%02u\n", n, s, y, m, d);
+    ```
+
+    ```c
+    triceS( "name: %16s, ", n);
+    triceS( "surname: %32s, ", s );
+    trice( "birthday: %4u-%02u-%02u\n", y, m, d);
+    ```
+
+The Trice macros are designed for maximal execution speed and therefore we have to pay the price for their limited capabilities.
+
+* Optionally add tags to get color. Example:
+
+    ```c
+    puts( "A message");
+    ```
+
+    ```c
+   trice( "msg:A message");
+    ```
+
+* Add `#include "trice.h"` to all user files using trice.
+
+## 18. <a id="special-care-demands"></a>Special Care Demands
+
+### 18.1. <a id="more-than-12-printf-parameters"></a>More than 12 printf parameters
+
+* Split the values across several Trice calls.
+* Use triceB and its relatives
+
+### 18.2. <a id="float-numbers"></a>Float Numbers
+
+* surround each with `aFloat()`
+
+### 18.3. <a id="double-numbers"></a>Double numbers
+
+* surround each with `aDouble()` and use the `trice64` macro and relatives
+
+### 18.4. <a id="runtime-generated-strings"></a>Runtime Generated Strings
+
+* Each needs its own `triceS` macro, example:
+  * Legacy code:
+
+    ```C
+    printf( "Entered name is %20s %30s, favorite numbers %d, %f\n", "Paul", "Luap", 42, 3.14159 );
+    ```
+
+  * Trice code:
+
+    ```C
+    name = "Paul"; triceS( "Entered name is %20s", name );
+    surname = "Luap";  triceS( " %30s, ", surname );
+    trice( "favorite numbers %d, %f\n", 42, aFloat(3.14159) );
+    ```
+
+The `triceS` macro is ment to be used with strings not known at compile time.
+
+*Usage intention and recommendation:* (given by [@escherstair](https://github.com/escherstair))
+
+```C
+char runtime_string[50];
+fillRuntimeStringFromSomewhere(runtime_string); // the content of runtime_string is filled at run time
+triceS( "msg:This part of the string is known at compile time. This part is dynamic: %s\n", runtime_string);
+```
+
+All the string literals (i.e. compile-time known strings) should be put inside the format string.
+Only the runtime strings should be used as variables in triceS macro for best performance.
+
+## 19. <a id="utf-8-example"></a>UTF-8 example
+
+```c
+trice("Hello! 👋🙂");
+int a = -4;
+float x = 3.14159265f;
+trice("info:π/%d is %f with the bit pattern %032b\n", a, aFloat(x / a), aFloat(x));
+const char *s = "world";
+triceS("msg:A runtime generated string: %s", s);
+```

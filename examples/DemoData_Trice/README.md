@@ -1,2 +1,2 @@
-- [Trice signal producer: build, timestamps, capture, and CSV forwarding](../../docs/rm/cli.md#examplesdemodata_trice)
-- [Live visualization and LabPlot setup](../../docs/rm/cli.md#setting-up-the-labplot-demo)
+- [Trice signal producer: build, timestamps, capture, and CSV forwarding](../../docs/rm/visualization.md#examplesdemodatatrice)
+- [Live visualization and LabPlot setup](../../docs/rm/visualization.md#setting-up-the-labplot-demo)

@@ -1,9 +1,7 @@
-# Trice Generate
+# Generating Supporting Files
 
 <details markdown="1">
 <summary>Contents</summary>
-
----
 
 <!-- mdtoc -->
 
@@ -15,8 +13,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -98,8 +94,4 @@ trice generate -i til.json -abc=deviceX
 ```
 
 Run from the project directory. This creates `generated/deviceX.h` if it does not exist, otherwise uses it as the user-edited selection input. It always regenerates `generated/deviceX.c` from `til.json` and the active declarations in `generated/deviceX.h`. `-genDir` changes the generated directory; an explicit target path such as `-abc=custom/deviceX` keeps that path. For the workflow and examples see [Trice ABC - Asynchronous Broadcast Commands](abc_asynchronous_broadcast_commands.md).
-
-
-
-<p align="right">(<a href="#trice-generate">back to top</a>)</p>
 

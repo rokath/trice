@@ -3,8 +3,6 @@
 <details markdown="1">
 <summary>Contents</summary>
 
----
-
 <!-- mdtoc -->
 
 - [1. Common Information](#common-information)
@@ -18,7 +16,7 @@
   - [4.5. Gitkraken (or other GUI for git)](#gitkraken-or-other-gui-for-git)
   - [4.6. arm-none-eabi toolchain (or other target system compiler)](#arm-none-eabi-toolchain-or-other-target-system-compiler)
     - [4.6.1. Recommended complete Arm GNU Toolchain](#recommended-complete-arm-gnu-toolchain)
-    - [4.6.2. GNU assembler `unable to rebuffer file` warning](#gnu-assembler-unable-to-rebuffer-file-warning)
+    - [4.6.2. GNU assembler unable to rebuffer file warning](#gnu-assembler-unable-to-rebuffer-file-warning)
   - [4.7. J-Link (if needed)](#j-link-if-needed)
   - [4.8. Beyond Compare (if no other diff tool)](#beyond-compare-if-no-other-diff-tool)
 - [5. Setup Windows PC Example](#setup-windows-pc-example)
@@ -50,8 +48,6 @@
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
-
----
 
 </details>
 
@@ -404,7 +400,7 @@ export PATH="$toolchain_dir/bin:$PATH"
 
 On Windows, keep versioned installations side by side and prepend the selected
 `bin` directory for the current terminal. See
-[Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions).
+[Inventory, select, and remove compiler versions](development_environment_setup.md#inventory-select-and-remove-compiler-versions).
 Make the selection persistent only after it passes the tests. Do not combine
 GCC, `as`, libraries, or specifications from different toolchain installations.
 
@@ -502,10 +498,10 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
   - `go test ./...` should succeed in a terminal window.
   - Some Go tests use CGO and therefore additionally need a Windows host C
     compiler. This is not the ARM compiler used for the embedded examples.
-    See [Choose the right Windows compiler](#choose-the-right-windows-compiler).
+    See [Choose the right Windows compiler](development_environment_setup.md#choose-the-right-windows-compiler).
 - Setup J-Link if you use this debug probe as hardware or software (see below).
   - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
-- Install [Make for Windows](#install-make) and add its installation bin folder location to the PATH variable.
+- Install [Make for Windows](development_environment_setup.md#install-make) and add its installation bin folder location to the PATH variable.
 
 ### 5.1. <a id="choose-the-right-windows-compiler"></a>Choose the right Windows compiler
 
@@ -544,7 +540,7 @@ At the time of writing, GCC 16.1 is the newest upstream GCC major release and
 WinLibs offers it as its current Windows host build. The current official Arm
 GNU Toolchain version can differ because Arm publishes an integrated
 cross-toolchain on its own release schedule. Use the version identified as
-tested in [Recommended complete Arm GNU Toolchain](#recommended-complete-arm-gnu-toolchain)
+tested in [Recommended complete Arm GNU Toolchain](development_environment_setup.md#recommended-complete-arm-gnu-toolchain)
 for the ARM examples; do not select a host GCC merely because its GCC number
 is higher.
 
@@ -622,7 +618,7 @@ There is NO WARRANTY, to the extent permitted by law.
   package.
 - Do not uninstall the previous working version before the new version passes
   the tests. Select one version for the current terminal as described in
-  [Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions).
+  [Inventory, select, and remove compiler versions](development_environment_setup.md#inventory-select-and-remove-compiler-versions).
 - Keep `C_INCLUDE_PATH` unset globally. The repository setup derives the ARM
   headers needed by Clang from the selected `arm-none-eabi-gcc`; a global ARM
   include path can break CGO and other host builds.
@@ -963,7 +959,7 @@ Prefer a temporary terminal selection while comparing versions. If the
 selection is made persistent, place it before other directories containing the
 same command and verify it from a new terminal with `where.exe` or `type -a`.
 See
-[Inventory, select, and remove compiler versions](#inventory-select-and-remove-compiler-versions).
+[Inventory, select, and remove compiler versions](development_environment_setup.md#inventory-select-and-remove-compiler-versions).
 
 The debugger path can be added independently, for example
 `C:\Program Files\SEGGER\JLink` or a versioned `JLink_V...` directory.
@@ -1000,8 +996,6 @@ Select the preview to open the full animation.
 - Compare the relevant files like `main.c` with the starting project and edit accordingly.
 - Adapt `.vscode/launch.json` to the used MCU.
 - Than the awesome new project should be ready to go for development.
-
-<p align="right">(<a href="#development-environment-setup">back to top</a>)</p>
 
 ## 14. <a id="third-party-packages-and-retained-versions"></a>Third-party packages and retained versions
 
