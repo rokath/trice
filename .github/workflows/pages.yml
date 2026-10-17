@@ -155,6 +155,12 @@ jobs:
         uses: actions/configure-pages@v6
         # Prepares the environment (paths, tokens, etc.) for the Pages build.
 
+      - name: Prepare writable site output directory
+        # Keep the output root owned by the runner so statistics can be added
+        # after the Jekyll container creates the documentation files.
+        shell: bash
+        run: mkdir -p _site
+
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
