@@ -12,8 +12,6 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 --- | --- | --- | ---: | --- | ---
 [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Windows lokal geprüft; Release-Abnahme offen | Veröffentlichte Beta-Assets und endgültige Downloadziele abnehmen | 5 | Rest S–M | Lokaler Snapshot geprüft; tatsächlicher Tag/Release und native Plattformnachweise stehen aus
 [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; Abnahme und lokaler Metadatenbefund | Kandidaten und veröffentlichte Artefakte abnehmen; Windows-GUI nachprüfen | 5 | M; lange Laufzeit | Mac-Full vom 17. Oktober: 25/26 PASS; nur Schritt 420 wegen zweier .DS_Store-Dateien FAIL
-[R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Teilweise erledigt; Rest nach Beta-1 | Aktuelle Kapitel gezielt straffen und veraltete Statusaussagen korrigieren | 4 | Rest M | 34 Fachkapitel; Gruppierung und RPC-Dokubereinigung bereits umgesetzt; UM nur auf ausdrücklichen Auftrag
-[R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Teilweise abgenommen; Rest nach Beta-1 | Doppelten Einstieg und tatsächlichen Veröffentlichungsumfang prüfen | 4 | Rest S–M | Pages und Statistikberichte laufen; vollständige Prüfung des Site-Baums bleibt offen
 [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Optional; später | Fuzz-/Race-Prüfungen für Parser und Recordpfade | 3 | M | Kein zusätzlicher Release-Umfang ohne Auswahl
 [R38](#rtt-nachweis-auf-macos-vervollständigen) | Zurückgestellt; nach Beta-1 | Offenen macOS-RTT-Hardware-Nachweis einordnen und gegebenenfalls ergänzen | 2 | S–M | Passende Hardware und konkreten J-Link-/OpenOCD-Weg auswählen; keine Beta-1-Pflicht
 [F03](#frühe-hostfilterung-messen) | Optional; später | Frühe Hostfilterung und Template-Caching messen | 2 | M–L | Zuerst Messung; frühere A11/M17
@@ -30,6 +28,8 @@ Die Implementierungen sind abgeschlossen; ausdrücklich verbleibende Release- od
 ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 --- | --- | --- | ---: | --- | ---
 [R15 lokal](#release-archive-und-handbücher-lokal-abnehmen) | Umsetzung und Windows-Teilabnahme abgeschlossen | Snapshot, zehn Host-Archive, Target-Quellen, Lizenzen, amd64/386-Feature-Audits und beide PDFs geprüft. Veröffentlichte Assets und Downloadziele bleiben oben bei R15 offen. | — | — | Details im verlinkten Abschnitt
+[R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Erledigt; lokal geprüft | RM gezielt gestrafft, Status- und Shellbeispiele korrigiert; Inhalte und beide PDFs geprüft | — | — | Details im verlinkten Abschnitt
+[R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Erledigt; lokal abgenommen, noch nicht veröffentlicht | Ein Pages-Einstieg und gemeinsamer begrenzter Build-Baum; echter Jekyll-Build und Links geprüft | — | — | Details im verlinkten Abschnitt
 [R14](#checkout-binary-installationswege-für-v2-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | GOPATH-/Überschreibschutz korrigiert; echter Checkout-CI-Schritt, 380 Skripttests und Snapshot-Archive geprüft. CI laut Nutzer PASS; Paketinstallation und finale Artefakte bei R16 offen. | — | — | Details im verlinkten Abschnitt
 [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | Echter Go-Installationsbuild, frischer PDF-/Snapshot-Lauf und beide Linkcheck-Modi bestanden; CI und Mac-Full vom 15. Oktober PASS; finale Abnahme bleibt R16. | — | — | Details im verlinkten Abschnitt
 [R26](#windows-testfehler-vollständig-beheben) | Umsetzung und Windows-Abnahme abgeschlossen | 99 gezielte Tests sowie 540/550 bestanden; CI und Mac-Full vom 15. Oktober PASS; finale Abnahme bleibt R16. | — | — | Details im verlinkten Abschnitt
@@ -125,53 +125,6 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 ## Arbeiten nach Beta-1
 
 Die folgenden Arbeiten sind ausdrücklich zurückgestellt. Für Beta-1 bleiben die aktuellen F-Aufrufe und die Bibliothek unverändert. Veröffentlichung und Artefaktabnahme gehören weiter zu R15/R16; redaktionelle Pflege, neue Hardware-Nachweise und optionale Optimierungen werden dadurch nicht zu zusätzlichen Beta-1-Hürden. Die alten Vorschläge unten sind vor einem späteren Auftrag gegen den dann aktuellen Stand zu prüfen.
-
-### RM inhaltserhaltend kürzen und leicht ordnen
-
-**R29 · Gewicht 4 · Restaufwand M · Teilweise erledigt; redaktioneller Rest nach Beta-1**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die frühere Inventur umfasste 52 Hauptkapitel. Am 17. Oktober enthält die manuelle README **34 Fachkapitel plus HEADER/FOOTER**; frühere Kapitel sind teils zusammengeführt oder archiviert. Die Gruppen **Normal use / Advanced features / Appendices** sind in README und Gesamt-PDF vorhanden, einschließlich größerer Gruppenüberschriften. Das ist erledigt und kein erneuter Strukturauftrag. Die verbleibenden Kürzungsvorschläge betreffen inhaltliche Überschneidungen und ausführliche Allgemeinerklärungen; eine vollständige technische Nachabnahme jedes Satzes ist damit nicht behauptet.
-
-**Grundsatz:** Aussagen knapper formulieren, gemeinsame Erklärung einmal vollständig pflegen und von weiteren Einstiegen mit einem kurzen Kontextsatz verlinken. Kein Beispiel, Compilerlimit, Parameter, Messwert, Bild, Codeblock oder ausdrücklich gewünschter CE-PoC-Anhang verschwindet. Rein sprachliche Straffung und fachliche Aktualisierung getrennt reviewen. Das UM bleibt nutzergepflegt und wird ohne ausdrücklichen Auftrag nicht geändert.
-
-**Erledigter Zusatzbefund aus R32:** Die Projektdatei-Tabelle in `maintenance.md` ist inzwischen repariert und gehört nicht mehr zum offenen Umfang von R29.
-
-**Erledigte RPC-Dokubereinigung vom 17. Oktober:** Commit `90c01f85` entfernt den beiläufigen `trice16F`-Verweis und ersetzt zehn alte RPC-Ausgabezeilen durch Auslassungszeichen. Vier RM-Kapitel, beide frisch erzeugten PDFs, Markdown, Inhaltsverzeichnisse und lokale Links sind geprüft. Der ausdrücklich obsolete RM-Hinweis bleibt korrekt erhalten; die gesonderten Quelltextreste sind am 18. Oktober unter R37 bereinigt.
-
-Kapitel / Befund | Sinnvolle begrenzte Änderung
---- | ---
-[Quickstarts](../rm/quickstarts.md), [Examples](../rm/examples.md) und [Repository Workflow](../rm/repository_workflow.md) | Vorhandene Einstiege auf konkrete Wiederholungen prüfen und gemeinsame Voraussetzungen verlinken. Konkrete Erstläufe, Ausgabe und eindeutig beschriebene Insert-Wege behalten; keinen früheren Getting-Started-Umbau erneut beauftragen.
-[Bind](../rm/bind.md) und [Generate](../rm/generate.md) | Nur noch nachgewiesene Wiederholungen zu Dateien, Ownern und Rebase zusammenführen. Vorhandenen Lesepfad und Diagnosebericht nutzen; Beispiele, Counter-/Headergrenzen und Anhänge vollständig behalten.
-[Context Enrichment](../rm/context_enrichment.md) und [Structured Logging](../rm/structured_logging.md) | Regeln, Tabellen und Beispiele als maßgebliche Erklärung erhalten. Gemeinsame Buildvoraussetzungen verlinken; Bind-/CE-Grenzen nicht gleichsetzen. Den ausdrücklich gewünschten CE-PoC-Anhang behalten.
-[Development Environment Setup](../rm/development_environment_setup.md) | Einstieg nach Host, Firmware und CGO prüfen; wiederholte Toolchain-Grundlagen verlinken. Betriebssystem-, Transport-, Treiber- und Lizenzhinweise erhalten.
-[Maintenance](../rm/maintenance.md) und [Tool Build/Release](../rm/tool_build_release.md) | Konkreter Rest: Aussagen „a successful authenticated run is still needed“ und „Pages integration ... is not live yet“ sind überholt. Statistiklauf `39048591733` und Pages-Lauf `39048670054` bestanden am 17. Oktober; Dashboard, Downloadbericht und beide SVGs lieferten HTTP 200. Diese Statussätze später korrigieren; Release-Befehle weiterhin zentral pflegen.
-[Target Tests](../rm/target_tests.md) und [Troubleshooting](../rm/troubleshooting.md) | Aktuellen Bind-/Full-/Diagnose-Einstieg von historischen PASS-Ausgaben unterscheiden. Übernommene Entwickler- und Pufferhinweise auf konkrete Dopplungen prüfen; keine alten Kapitel neu anlegen.
-[RTT](../rm/rtt.md) und [Integration Notes](../rm/integration_notes.md) | Entscheidungshilfe und Setup nur bei belegter Dopplung straffen. Native macOS-Hardware-Abnahme bleibt separat R38; keine zusätzlichen Funktionszusagen aus einem Textumbau ableiten.
-[Overview](../rm/overview.md) | Nutzenübersicht und Architekturprinzip erhalten, ausführliche Features verlinken. Frühere Zusammenführungen von Features/How It Works nicht erneut einplanen.
-[Memory Usage](../rm/memory_usage.md) und [Performance](../rm/performance.md) | Keine pauschalen Text-/Seitenquoten: Messbedingungen und Zahlen erhalten. Alte Code-Size-/Messkapitel sind keine erneut zusammenzuführenden aktiven Dateien.
-Übrige Fachkapitel | Binary Encoding, Framing, Endianness, Stamps, IDs/Dictionaries, Parseralgorithmus, X0, Ausgaben, Tags, Verschlüsselung, ABC, Legacy-Integration, Ressourcen und Historie am fachlich passenden Ort erhalten. Hier ist aus der Inventur kein pauschaler Kürzungsbedarf abzuleiten. Kleine sprachliche Straffungen nur mit Aussage-/Beispielvergleich.
-
-**Strukturentscheidung bereits umgesetzt:** Die drei README-Gruppen werden auch im PDF abgebildet; Commit `ca992353` hebt sie dort deutlicher hervor. Keine weitere Sortierdatei, neue Gruppenstruktur oder zweite Kapitelquelle einplanen.
-
-**Weitere Inhaltsverschiebungen klein halten:** Zuerst prüfen, ob der frühere Vorschlag bereits umgesetzt oder durch die Kapitelkonsolidierung entfallen ist. Für jede noch notwendige Verschiebung Ausgang, Ziel und eingehende Links erfassen. Keine weitere große Kapitelzusammenlegung oder neue Anhangsdateien allein zur kosmetischen Seitenverkürzung.
-
-**Spätere Abnahme:** Fachinhalte, Code/Kommentare, Bilder, Messwerte und Grenzen nachweislich erhalten; aktive Kapitel-/Fragmentlinks angepasst, Archive unangetastet. mdtoc nur für betroffene Quellen regenerieren; ToCs/Anker und README-Reihenfolge prüfen. Beide PDFs anschließend frisch erzeugen und Tabellen, Nummerierung, Querverweise und Seitenanfänge ansehen. Kein Sprach-/Format-Commit mit funktionalen Skriptänderungen vermischen.
-
-### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
-
-**R22 · Gewicht 4 · Restaufwand S–M · Teilweise abgenommen; verbleibende Pflege nach Beta-1**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-**Bereits belegt:** Der Pages-Lauf `39048670054` vom 17. Oktober bestand nach dem erfolgreichen Statistiklauf `39048591733`. Dashboard, Downloadbericht und beide SVGs waren öffentlich mit HTTP 200 erreichbar. Der Statistik-Datenbranch ist unabhängig von `main`/`wip`, besitzt einen sichtbaren Hinweis und Lösch-/Force-Push-Schutz; seine alte Historie ist unter `stats-history-before-isolation-20261017` geschützt. Diese Umsetzung und die Downloadstatistik sind keine offenen Einrichtungsaufgaben mehr.
-
-**Verbleibender Befund:** Es gibt zwei Implementierungen des Website-Einstiegs: Die versionierte `index.md` bindet die README per Liquid ein; `pages.yml` überschreibt sie beim Build mit einer zweiten, per `sed` erzeugten Variante und behauptet im Kommentar, die Datei sei nicht versioniert. Nach Beta-1 einen einzigen nachvollziehbaren Erzeugungsweg auswählen und lokale Vorschau sowie CI darauf ausrichten. Die erfolgreiche Veröffentlichung ersetzt keine vollständige Einzelprüfung aller Manual-, Bild- und Quellcode-Links.
-
-Der Workflow baut vom Repo-Root; `_config.yml` enthält bislang nur Theme und Markdown-Engine. Ein ausdrücklicher fachlicher Veröffentlichungsumfang ist nicht erkennbar. Das ist noch kein Nachweis, welche Dateien Jekyll tatsächlich ausliefert. Den erzeugten Site-Baum prüfen und dann gezielt auf Einstieg, Handbücher, benötigte Bilder und bewusst verlinkte Inhalte begrenzen. Scratchpad, Entwicklerzustand und Fremdsoftware-Archive sollen nicht versehentlich Teil des Anwender-Einstiegs werden. Bestehende Archive dafür nicht verändern; die Auswahl gehört in den Veröffentlichungsweg.
-
-**Abnahme:** Site-Build ohne Deployment prüfen; erzeugter Einstieg, beide Handbücher, Bilder und Querverweise funktionieren. Liste der ausgelieferten Dateigruppen passt zur beabsichtigten Website. Keine widersprüchliche zweite `index.md`-Erzeugung, kein unbeabsichtigter Verlust bewusst angebotener Downloads. Deployment und Publish bleiben gesonderte Aufträge.
 
 ### RTT-Nachweis auf macOS vervollständigen
 
@@ -1404,3 +1357,43 @@ Der Kommentar zu `XTEA_DECRYPT` beschreibt jetzt die lokale Entschlüsselung bei
 Die tatsächlichen F-Implementierungen, die Go-RPC-basierte Remote-Anzeige, aktuelle ABC-Protokollerklärungen, generierter Code und Archive bleiben unverändert. Kein alter RPC-Generator oder CLI-Schalter wurde wieder eingeführt.
 
 **Prüfung am 18. Oktober:** `go test -count=1 ./internal/args ./cmd/generate-helpall-doc` besteht. Der vorhandene Vergleichstest bestätigt die CLI-Gesamthilfe bytegenau gegen `docs/ref/trice-help-all.txt`; die Referenzdatei wurde nicht neu erzeugt. gofmt, C-Formatprüfung, Markdownlint für diese sonst ausgeschlossene Plan-Datei und `git diff --check` bestehen. Die verschobenen Überschriften und ihre lokalen Dateilinks sind geprüft. Kein vollständiger Gesamtlauf wurde gestartet.
+
+### RM inhaltserhaltend kürzen und leicht ordnen
+
+**R29 · Erledigt am 18. Oktober; lokale Änderungen noch nicht committed**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die 34 Fachkapitel plus HEADER/FOOTER und die Gruppen **Normal use / Advanced features / Appendices** bleiben erhalten. Gruppierung und größere PDF-Überschriften waren bereits umgesetzt (`ca992353`); die RPC-Dokubereinigung vom 17. Oktober (`90c01f85`) und die Projektdatei-Tabelle aus R32 bleiben abgeschlossen. Dieser Auftrag ergänzt die begrenzte redaktionelle Pflege, keine neue Kapitelstruktur oder vollständige technische Nachabnahme jedes historischen Satzes.
+
+Bereich | Ergebnis
+--- | ---
+Quickstarts und Examples | Gemeinsame Include-Reihenfolge und F030-Build-/Dateiregeln einmal erklärt und von weiteren Einstiegen verlinkt; konkrete Erstläufe, Ausgaben und Konfigurationsgrenzen erhalten.
+Bind, Context Enrichment und Structured Logging | Wiederholte Zusammenfassungen gekürzt, Setup und Buildintegration verlinkt. Generate brauchte keine weitere Zusammenlegung; Owner-/Rebase-Grenzen und der CE-PoC-Anhang bleiben vollständig erhalten.
+Development Environment Setup, Target Tests und Tool Build/Release | Windows-Hostcompiler und Runtime-Prüfungen zentral erklärt; andere Einstiege verlinken dorthin. Historische Testausgabe bleibt erkennbar historisch.
+Maintenance | Überholte Aussagen zur noch ausstehenden Statistikfreigabe korrigiert: Sammlung und Pages waren am 17. Oktober erfolgreich. Der neue lokale Pages-Weg steht bei R22.
+Repository Workflow und Release-Beispiele | Nach ausdrücklicher Nutzerfreigabe zusammengezogene Git-/Shell-Befehle getrennt, Release-Prüfpfade konsistent gemacht und eine API-Schlüssel-Präsenzprüfung ohne Ausgabe des Schlüssels beschrieben. Snapshot-Abnahme ohne unbelegte Prozentzusage erklärt.
+Memory Usage und Troubleshooting | Wiederholte RTT-Konfiguration verlinkt und die Erklärung verschachtelter Trice-Aufrufe gestrafft. Messwerte und Messbedingungen bleiben erhalten.
+Übrige Fachkapitel | Inhalte ohne belegte Dopplung unverändert belassen, insbesondere RTT-/Integrationsgrenzen, Performance und die bereits kompakte Übersicht. Keine pauschale Kürzungsquote.
+
+**Inhaltsschutz:** Der Vergleich erfasst 478 Codeblöcke, 76 Bilder und 121 HTML-Kommentare. Nur die zwei ausdrücklich freigegebenen Release-Shellblöcke ändern sich; die übrigen Blöcke, alle Bilder und Kommentare bleiben erhalten. Zusätzlich sind die freigegebenen Inline-Shellbeispiele berichtigt. Das nutzergepflegte UM bleibt bytegenau unverändert; Archive, Bibliothek und generierter Target-Code sind unberührt.
+
+**Abnahme:** Markdownlint, Inhaltsverzeichnisprüfung und lokale Kapitel-/Fragmentlinks bestehen (639 Linkvorkommen, keine Fehler; externe Ziele dabei ausgeschlossen). Beide PDFs sind frisch erzeugt: UM 9 Seiten, RM 436 Seiten. Der Generator prüft 816 interne PDF-Links und 1.193 eindeutige Anker. Repräsentative Seiten mit Gruppen, Tabellen, geändertem Text, Code, Bildern und Seitenübergängen sind visuell geprüft. Sprachliche Änderungen und Pages-Skripte bei einem späteren Commit thematisch trennen. Keine neue Full-Matrix oder Hardwareprüfung; diese bleiben bei R15/R16/R38.
+
+### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
+
+**R22 · Erledigt am 18. Oktober; lokal abgenommen, noch nicht veröffentlicht**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Entscheidung und Umsetzung:** Die versionierte [index.md](../../index.md) bleibt unverändert der einzige Homepage-Einstieg mit README-Einbindung. [pages.yml](../../.github/workflows/pages.yml) überschreibt sie nicht mehr. Lokal und in CI bereitet [scripts/_prepare_pages.py](../../scripts/_prepare_pages.py) denselben begrenzten Baum unter `temp/pages-source` vor; Jekyll baut ausschließlich daraus. Die [lokale Anleitung](../rm/maintenance.md#repository-integration) beschreibt Installation und Build ohne Deployment.
+
+**Veröffentlichungsumfang:** Einstieg, Dokumentationsindex, UM, Guide, aktive flache RM-Markdownquellen sowie tatsächlich eingebundene Bilder und Animationen. Jekyll liefert HTML und Ressourcen aus, keine zusätzlichen Markdownkopien. Quellcode, andere Repositorydateien und bewusst verlinkte Downloads bleiben über die GitHub-Dateiansicht erreichbar. Scratchpad, Entwicklerzustand, unbenutzte Bilder, Buildverzeichnisse und Fremdsoftware-Archive gelangen nicht beiläufig ins Site-Artefakt. Vorbereitungsfehler nennen den fehlenden Pfad; Quelldateien bleiben unverändert.
+
+Der echte vorherige Pages-Upload aus Lauf `39048670054` enthält 1.755 Dateien mit 151.326.047 Bytes, darunter 1.220 Dateien aus `examples/`, Quellbäume und Fremdsoftware. Davon gehören neun Dateien mit 333.811 Bytes zur Statistik. Der neue lokale Dokumentationsbuild enthält **124 Dateien mit 20.935.198 Bytes**: 42 HTML-Seiten, 81 Bild-/Animationsdateien und ein Stylesheet. Die neun Statistikdateien sind in diesem lokalen Dokumentationsvergleich nicht enthalten.
+
+**Zusätzliche Buildbefunde behoben:** GitHub Pages erzeugt für Dokumentations-READMEs `index.html`, nicht `README.html`; die vorbereiteten Links berücksichtigen das. Liquid darf dokumentierte Doppelklammern und Vorlagentags nicht auswerten; nur im Build-Baum werden die öffnenden Zeichen geschützt. Beispiele wie `{{1,2}}` bleiben dadurch im gerenderten HTML erhalten. Die Handbuchquellen benötigen keine Liquid-Markierungen.
+
+**Abnahme:** Echter lokaler Build mit Ruby 3.3 und `github-pages 232` bestanden, ohne Liquid-Warnungen. Alle **1.193 lokalen HTML-Link-/Ressourcenverweise einschließlich Fragmente** in 42 Seiten geprüft: keine Fehler. Browserprüfung von Homepage, UM, RM-Einstieg und Structured Logging bestätigt geladene lokale Bilder/CSS und erhaltene Doppelklammern; externe Badge-/Fontdienste sind dabei ausgenommen. Die gesamte Skript-Testsuite besteht (165,717 s), danach auch die gezielten Pages-/Statistikintegrationstests auf dem endgültigen Stand. Die Verhaltenstests decken LF/CRLF, UTF-8, unveränderte Quellen, fehlende Pflichtquellen/Bilder, leere Bilder, ausbrechende Pfade, wiederholte Vorbereitung, veröffentlichte Dateigruppen, verlinkte Vorschauen und Literalvorlagen ab. Actionlint, Markdownlint, Inhaltsverzeichnisse und `git diff --check` bestehen.
+
+**Statistik und Veröffentlichungsgrenze:** Der bestehende Statistik-Anhängeschritt bleibt unverändert; seine Fixturetests bestehen. Sammlung und Veröffentlichung vom 17. Oktober (Statistiklauf `39048591733`, Pages-Lauf `39048670054`) sowie die geschützte unabhängige Datenbranch-Historie bleiben bestehende Nachweise. Der aktuelle Auftrag hat weder deployt noch Branchschutz geändert, committed oder gepusht. Der neue Website-Baum wird erst nach Übernahme auf `main` durch den bestehenden Pages-Workflow veröffentlicht.
