@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: **17. Oktober 2026**. Diese Sammlung enthält die offenen Aufgaben, verbindlichen Entscheidungen und dauerhaften Testnachweise. Künftige Übergaben verlinken hierher und ergänzen nur den aktuellen Arbeitsstand. Eine aufgeführte Aufgabe ist kein Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
+Stand: **18. Oktober 2026**. Diese Sammlung enthält die offenen Aufgaben, verbindlichen Entscheidungen und dauerhaften Testnachweise. Künftige Übergaben verlinken hierher und ergänzen nur den aktuellen Arbeitsstand. Eine aufgeführte Aufgabe ist kein Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
 
 ## Aufgabenübersicht
 
@@ -14,9 +14,7 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 [R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; Abnahme und lokaler Metadatenbefund | Kandidaten und veröffentlichte Artefakte abnehmen; Windows-GUI nachprüfen | 5 | M; lange Laufzeit | Mac-Full vom 17. Oktober: 25/26 PASS; nur Schritt 420 wegen zweier .DS_Store-Dateien FAIL
 [R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Teilweise erledigt; Rest nach Beta-1 | Aktuelle Kapitel gezielt straffen und veraltete Statusaussagen korrigieren | 4 | Rest M | 34 Fachkapitel; Gruppierung und RPC-Dokubereinigung bereits umgesetzt; UM nur auf ausdrücklichen Auftrag
 [R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Teilweise abgenommen; Rest nach Beta-1 | Doppelten Einstieg und tatsächlichen Veröffentlichungsumfang prüfen | 4 | Rest S–M | Pages und Statistikberichte laufen; vollständige Prüfung des Site-Baums bleibt offen
-[R36](#legacy-f-makros-in-beispielen-und-tests-einordnen) | Zurückgestellt; nach Beta-1; jetzt unverändert lassen | Normale Beispiele von gezielten F-Kompatibilitätstests trennen | 3 | S–M | Kein pauschales F→C; keine Bibliotheksänderung; Empfehlung und 35 Fundstellen unten
 [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Optional; später | Fuzz-/Race-Prüfungen für Parser und Recordpfade | 3 | M | Kein zusätzlicher Release-Umfang ohne Auswahl
-[R37](#verbliebene-rpc-beschreibungen-in-quelltexten-prüfen) | Zurückgestellt; nach Beta-1 | Veraltete RPC-Kommentare und ungenutzte Hilfetext-Ersetzungen gezielt bereinigen | 2 | S | Eigener Änderungsauftrag nötig; src bleibt bislang einschließlich Kommentaren unverändert
 [R38](#rtt-nachweis-auf-macos-vervollständigen) | Zurückgestellt; nach Beta-1 | Offenen macOS-RTT-Hardware-Nachweis einordnen und gegebenenfalls ergänzen | 2 | S–M | Passende Hardware und konkreten J-Link-/OpenOCD-Weg auswählen; keine Beta-1-Pflicht
 [F03](#frühe-hostfilterung-messen) | Optional; später | Frühe Hostfilterung und Template-Caching messen | 2 | M–L | Zuerst Messung; frühere A11/M17
 [F04](#benannte-felder-besser-weiterverwenden) | Optional; später | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Konkreten Anwenderfall festlegen
@@ -73,6 +71,8 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 [R35](#markdown-tabellen-ohne-äußere-randstriche) | Erledigt; Format und Darstellung geprüft | Äußere Tabellenränder in aktiven Markdown-Dateien entfernen; notwendige Ausnahmen erhalten | 2 | S | Fünf linke und sechs rechte Randstriche ausdrücklich bestätigt; Details am Dateiende
 [R30](#alte-rm-spezifikation-und-suchoptionen-einordnen) | Erledigt; Archiv und aktuelle Regeln vorhanden | Alte RM-Spezifikation historisch abgelegt; kein zusätzlicher Index oder Suchbuild beauftragt | — | — | Details am Dateiende
 [R31](#utf-8-zeichen-gezielt-statt-flächig-einsetzen) | Erledigt; vereinbarte Doku-Symbole umgesetzt | Überschriften ohne Emojis; gemeinsame Legende und eindeutige Tabellenzeichen in UM/RM | — | — | Commit 206101e9; keine Änderung an Maschinenkanälen oder Skriptstatus
+[R36](#legacy-f-makros-in-beispielen-und-tests-einordnen) | Erledigt; optionale Folgearbeit nicht beauftragt | Drei F-Gruppen und Einzelbeispiel als Legacy gekennzeichnet; alle 35 Aufrufe erhalten | — | — | Bibliotheksverhalten und generierter Code unverändert; spätere Beispielumstellung nur bei konkretem Nutzen
+[R37](#verbliebene-rpc-beschreibungen-in-quelltexten-prüfen) | Erledigt | Legacy-Schalter als deprecated dokumentiert, alten XTEA-RPC-Hinweis und zwei ungenutzte Hilfetext-Ersetzungen bereinigt | — | — | F-Implementierungen, aktuelle ABC-Protokolle und Archive erhalten
 
 **Aktuelle Testlage vom 15. Oktober:** Alle CI-Skripte sind laut Nutzermeldung PASS; Run-IDs liegen hier nicht vor. Der native Mac-Lauf mit Formatierung und allen 26 Full-Schritten ist anhand des Summary-Logs bestätigt: **1850 s (30:50)**. Windows: **25/26 Schritte PASS**, ABC mit Bind in Schritt 515 FAIL, insgesamt **6727 s (1:52:07)**. Die zwischenzeitlichen Nutzeränderungen an `docs/rm/examples.md` und `examples/F030_inst_rtt/til.json` verhindern eine eindeutige Bewertung des abschließenden Dateivergleichs; sie werden nicht zurückgesetzt. Die Korrekturen für Bind und TCP sowie ihre gezielten Nachprüfungen stehen bei R33/R34. Diese Prüfungen sind kein neuer vollständiger Kandidatenlauf.
 
@@ -138,7 +138,7 @@ Die frühere Inventur umfasste 52 Hauptkapitel. Am 17. Oktober enthält die manu
 
 **Erledigter Zusatzbefund aus R32:** Die Projektdatei-Tabelle in `maintenance.md` ist inzwischen repariert und gehört nicht mehr zum offenen Umfang von R29.
 
-**Erledigte RPC-Dokubereinigung vom 17. Oktober:** Commit `90c01f85` entfernt den beiläufigen `trice16F`-Verweis und ersetzt zehn alte RPC-Ausgabezeilen durch Auslassungszeichen. Vier RM-Kapitel, beide frisch erzeugten PDFs, Markdown, Inhaltsverzeichnisse und lokale Links sind geprüft. Der ausdrücklich obsolete RM-Hinweis bleibt korrekt erhalten; Quelltextreste sind gesondert unter R37 erfasst.
+**Erledigte RPC-Dokubereinigung vom 17. Oktober:** Commit `90c01f85` entfernt den beiläufigen `trice16F`-Verweis und ersetzt zehn alte RPC-Ausgabezeilen durch Auslassungszeichen. Vier RM-Kapitel, beide frisch erzeugten PDFs, Markdown, Inhaltsverzeichnisse und lokale Links sind geprüft. Der ausdrücklich obsolete RM-Hinweis bleibt korrekt erhalten; die gesonderten Quelltextreste sind am 18. Oktober unter R37 bereinigt.
 
 Kapitel / Befund | Sinnvolle begrenzte Änderung
 --- | ---
@@ -172,35 +172,6 @@ Kapitel / Befund | Sinnvolle begrenzte Änderung
 Der Workflow baut vom Repo-Root; `_config.yml` enthält bislang nur Theme und Markdown-Engine. Ein ausdrücklicher fachlicher Veröffentlichungsumfang ist nicht erkennbar. Das ist noch kein Nachweis, welche Dateien Jekyll tatsächlich ausliefert. Den erzeugten Site-Baum prüfen und dann gezielt auf Einstieg, Handbücher, benötigte Bilder und bewusst verlinkte Inhalte begrenzen. Scratchpad, Entwicklerzustand und Fremdsoftware-Archive sollen nicht versehentlich Teil des Anwender-Einstiegs werden. Bestehende Archive dafür nicht verändern; die Auswahl gehört in den Veröffentlichungsweg.
 
 **Abnahme:** Site-Build ohne Deployment prüfen; erzeugter Einstieg, beide Handbücher, Bilder und Querverweise funktionieren. Liste der ausgelieferten Dateigruppen passt zur beabsichtigten Website. Keine widersprüchliche zweite `index.md`-Erzeugung, kein unbeabsichtigter Verlust bewusst angebotener Downloads. Deployment und Publish bleiben gesonderte Aufträge.
-
-### Legacy-F-Makros in Beispielen und Tests einordnen
-
-**R36 · Gewicht 3 · Aufwand S–M · Nach Beta-1; nur Vorschlag, derzeit unverändert lassen**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-**Befund der statischen Prüfung vom 17. Oktober:** Außerhalb der Bibliothek stehen 35 F-Aufrufe in drei C-Dateien: 18 in [triceCheck.c](../../_test/testdata/triceCheck.c), einer in [triceExamples.c](../../examples/exampleData/triceExamples.c) und 16 in [TargetActivity.c](../../_test/stackB_di_nopf_aux32_specific/TargetActivity.c). Von den 18 zentralen Aufrufen bilden 16 den gezielten F-Testblock; zwei gehören zu Serialisierungsbeispielen. Generierte Sidecars enthalten weitere abgeleitete F-Verweise. Go-Fixtures prüfen unter anderem Parser, ID-Verwaltung, Dekodierung, Structured Logging und den ausdrücklichen Ausschluss von F aus ABC.
-
-**Verbindliche Entscheidung:** Jetzt alles so lassen. Die F-Unterstützung der Bibliothek wird weder entfernt noch umgebaut; auch Host-Implementierungen bleiben unverändert. Dieser Eintrag ist kein Auftrag, die 35 Aufrufe oder sämtliche F-Strings zu ersetzen.
-
-**Empfohlener späterer Umgang:**
-
-1. Die 16 zentralen F-Fälle, die 16 Spezialfälle und gezielte Go-Kompatibilitätstests erhalten. Sie prüfen weiterhin unterstützte Legacy-Schnittstellen; eine pauschale Ersetzung würde diese Abdeckung entfernen oder beispielsweise den ABC-Ausschlusstest fachlich umkehren. Die vorhandenen Legacy-Testblöcke klar als solche einordnen; keine neue Testablage allein aus kosmetischen Gründen.
-2. Nur normale Anwendungsbeispiele getrennt betrachten: den einen Aufruf in `triceExamples.c` und gegebenenfalls die zwei Serialisierungsbeispiele in `triceCheck.c`. Wenn deren Umstellung einen konkreten Nutzen hat, die vorhandenen C-/ABC-Makros verwenden. Alte Namen wie `rpc:` und `ARemoteFunctionName` verschwinden nicht durch den Makrowechsel; ihre Bezeichnung gesondert prüfen, nicht sämtliche Testtexte umbenennen.
-3. Kein reiner Buchstabentausch: `trice16F(fmt, buf, n)` kann durch `trice16C(fmt, buf, n)` ersetzt werden; `Trice16F` benötigt bei C zusätzlich `TriceStamp16`, `TRice16F` zusätzlich `TriceStamp32`. Bei expliziten ID-Aufrufen die passende C-Schreibweise und `iD(...)` wählen. Elementbreite und Elementanzahl erhalten. C gehört zu ABC und erhält seinen Stempel ausdrücklich; die gestempelten F-Varianten lesen ihn automatisch.
-4. Nur für ausgewählte umgestellte Stellen Freigaben auf `TRICE_TX_ABC_SUPPORT` abstimmen; Ausschlüsse für lokale Textausgabe erhalten. Bind-Sidecars und TIL/LI auf dem regulären Weg konsistent erzeugen. Generierte Dateien nicht von Hand umschreiben, historische Wörterbucheinträge und andere Dateien nicht pauschal bereinigen. Die Legacy-Freigabe bleibt für die beibehaltenen F-Tests nötig.
-
-**Spätere Abnahme:** Umgestellte Beispiele mit Insert und Bind prüfen, Payload und Stempel vergleichen und ihre Ausgabe gezielt abnehmen. F-Kompatibilitätstests müssen weiterhin tatsächlich F ausführen; ABC-Auswahl und lokale Logging-Ausschlüsse behalten ihre bisherige Bedeutung. Keine Bibliotheksänderung und keine verringerte Legacy-Abdeckung als beiläufige Aufräumfolge akzeptieren. Ein vollständiger C-Gesamtlauf bleibt eine manuelle abschließende Nutzerprüfung.
-
-### Verbliebene RPC-Beschreibungen in Quelltexten prüfen
-
-**R37 · Gewicht 2 · Aufwand S · Nach Beta-1; separater Änderungsauftrag erforderlich**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die aktive RPC-Anleitung ist bereits bereinigt, aber die ausdrücklich ausgenommenen Quelltextreste bleiben: [triceDefaultConfig.h](../../src/triceDefaultConfig.h) nennt den nicht mehr vorhandenen CLI-Schalter `-legacyRPCSupport` und beschreibt bei `XTEA_DECRYPT` noch den alten, aus F erzeugten Funktionstabellenweg. [helptext.go](../../internal/args/helptext.go) enthält zwei ungenutzte Textersetzungen für `til_rpc.c`/`til_rpc.h`; diese stehen nicht mehr in der aktuellen CLI-Hilfe.
-
-**Vorschlag:** Später eine kleine, getrennte Kommentarpflege beziehungsweise Entfernung nachweislich ungenutzter Hilfetext-Ersetzungen auswählen. Keinen alten RPC-Generator oder CLI-Schalter wieder einführen. Änderungen an Bibliotheksdateien einschließlich Kommentaren benötigen wegen des ausdrücklichen Ausschlusses einen eigenen Auftrag; R36 hebt diesen Ausschluss nicht auf. Die tatsächlichen F-Implementierungen, die Go-RPC-basierte Remote-Anzeige, aktuelle ABC-Protokollerklärungen und Archive bleiben erhalten. Bestehende Hilfe-/Dokumentationsprüfungen verwenden; keine neue Testinfrastruktur für reine Textkorrekturen.
 
 ### RTT-Nachweis auf macOS vervollständigen
 
@@ -387,7 +358,7 @@ R33/R34 sind korrigiert und auf Windows gezielt abgenommen; die Nachweise stehen
 
 Für Beta-1 bleiben R15/R16: den konkreten `.DS_Store`-Befund des letzten Mac-Laufs behandeln, aktuelle PR-Ergebnisse zuordnen und die tatsächlich veröffentlichten Beta-Assets einschließlich Tag-/Downloadlinks abnehmen. Eine frühere Snapshot-Prüfung ersetzt diese Artefaktabnahme nicht. Große Gesamtläufe übernimmt weiterhin der Nutzer manuell.
 
-**Nach Beta-1 empfohlen:** Zuerst kleine belegte Doku-Reste unter R29 und den getrennt freizugebenden R37 bearbeiten. Dann bei Bedarf die normale F-Beispielnutzung unter R36 auf C/ABC umstellen, während Legacy-Tests und Bibliothek erhalten bleiben. Den macOS-Hardware-Nachweis R38 nur mit passender Hardware aufnehmen. R22 bleibt die begrenzte Pages-Einstiegs-/Veröffentlichungsprüfung; Statistik und Downloads sind bereits veröffentlicht. R30 und R31 sind erledigt. P05/P06 sowie F02–F06 bleiben optionale Analysen oder Erweiterungen ohne aktuellen Auftrag; neue Vorabpflichten entstehen daraus nicht.
+**Nach Beta-1 empfohlen:** Zuerst kleine belegte Doku-Reste unter R29 bearbeiten. R36 und R37 sind abgeschlossen; die mögliche spätere Umstellung dreier F-Beispielaufrufe auf C/ABC bleibt lediglich eine optionale Folgearbeit ohne Auftrag. Legacy-Tests und Bibliotheksverhalten bleiben erhalten. Den macOS-Hardware-Nachweis R38 nur mit passender Hardware aufnehmen. R22 bleibt die begrenzte Pages-Einstiegs-/Veröffentlichungsprüfung; Statistik und Downloads sind bereits veröffentlicht. R30 und R31 sind erledigt. P05/P06 sowie F02–F06 bleiben optionale Analysen oder Erweiterungen ohne aktuellen Auftrag; neue Vorabpflichten entstehen daraus nicht.
 
 Merge, Commit, Push, Tag und Veröffentlichung benötigen ihren jeweiligen ausdrücklichen Auftrag; ein Eintrag in dieser Sammlung erteilt ihn nicht. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
 
@@ -1397,3 +1368,39 @@ Die alte [RM_Documentation_Spec.md](obsolete/RM_Documentation_Spec.md) liegt ber
 Die vereinbarte Gestaltung ist umgesetzt: keine Emojis in Überschriften, sparsame Symbole mit Textlabel im UM/RM und eine [gemeinsame Legende](../rm/HEADER.md#symbols-and-table-results). Tabellen unterscheiden Ja/Nein, teilweise Unterstützung, nicht anwendbar, unbekannt und gemessene Null. Die Symbolsammlung im auskommentierten Footer bleibt erhalten. Die [Wartungsregeln](../rm/maintenance.md#trice-reference-manual-maintenance) halten diese Entscheidung fest.
 
 `PASS`/`FAIL`/`SKIP`, Maschinenkanäle, JSON/KV, Befehle und zitierte Toolausgaben bleiben unverändert. Kein Terminal-Framework, Encoding-Umbau oder flächiger weiterer Emoji-Einsatz ist beauftragt. Die am 17. Oktober neu erzeugten Handbuch-PDFs sind geprüft; frühere CRLF-/Windows-Fehler gehören zu den bereits abgeschlossenen Plattformkorrekturen und nicht zu einem offenen Symbolauftrag.
+
+### Legacy-F-Makros in Beispielen und Tests einordnen
+
+**R36 · Erledigt am 18. Oktober; optionale Beispielumstellung nicht beauftragt**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Befund der statischen Prüfung vom 17. Oktober:** Außerhalb der Bibliothek stehen 35 F-Aufrufe in drei C-Dateien: 18 in [triceCheck.c](../../_test/testdata/triceCheck.c), einer in [triceExamples.c](../../examples/exampleData/triceExamples.c) und 16 in [TargetActivity.c](../../_test/stackB_di_nopf_aux32_specific/TargetActivity.c). Von den 18 zentralen Aufrufen bilden 16 den gezielten F-Testblock; zwei gehören zu Serialisierungsbeispielen. Generierte Sidecars enthalten weitere abgeleitete F-Verweise. Go-Fixtures prüfen unter anderem Parser, ID-Verwaltung, Dekodierung, Structured Logging und den ausdrücklichen Ausschluss von F aus ABC.
+
+**Umgesetzt:** Drei zusammenhängende F-Gruppen und das einzelne Legacy-Beispiel tragen kurze, kontextbezogene Kommentare. Die 16 zentralen F-Fälle, die 16 Spezialfälle und gezielte Go-Kompatibilitätstests bleiben erhalten. Sie prüfen weiterhin unterstützte Legacy-Schnittstellen; eine pauschale Ersetzung würde diese Abdeckung entfernen oder beispielsweise den ABC-Ausschlusstest fachlich umkehren. Die ausführliche Deprecation-Begründung steht einmal am Schalter `TRICE_LEGACY_RPC_SUPPORT`, siehe R37.
+
+**Verbindliche Entscheidung:** F-Unterstützung und Bibliotheksverhalten bleiben aus Kompatibilitätsgründen erhalten. Alle 35 Aufrufe einschließlich ihrer Zeilennummern sowie der generierte Code bleiben unverändert. Kein pauschales F→C und keine neue Testablage aus kosmetischen Gründen. Damit ist die vereinbarte Einordnung abgeschlossen.
+
+**Prüfung am 18. Oktober:** Vergleich mit HEAD bestätigt unveränderte C-Tokens in allen vier betroffenen C-/Headerdateien und unveränderte Zeilennummern aller 35 F-Aufrufe. Der Hashvergleich der 283 erfassten generierten Dateien ist identisch zum Ausgangsstand. Die C-Formatprüfung besteht.
+
+**Optionale Folgearbeit nach Beta-1, nur bei konkretem Nutzen und eigenem Auftrag:**
+
+1. Nur normale Anwendungsbeispiele getrennt betrachten: den einen Aufruf in `triceExamples.c` und gegebenenfalls die zwei Serialisierungsbeispiele in `triceCheck.c`. Wenn deren Umstellung einen konkreten Nutzen hat, die vorhandenen C-/ABC-Makros verwenden. Alte Namen wie `rpc:` und `ARemoteFunctionName` verschwinden nicht durch den Makrowechsel; ihre Bezeichnung gesondert prüfen, nicht sämtliche Testtexte umbenennen.
+2. Kein reiner Buchstabentausch: `trice16F(fmt, buf, n)` kann durch `trice16C(fmt, buf, n)` ersetzt werden; `Trice16F` benötigt bei C zusätzlich `TriceStamp16`, `TRice16F` zusätzlich `TriceStamp32`. Bei expliziten ID-Aufrufen die passende C-Schreibweise und `iD(...)` wählen. Elementbreite und Elementanzahl erhalten. C gehört zu ABC und erhält seinen Stempel ausdrücklich; die gestempelten F-Varianten lesen ihn automatisch.
+3. Nur für ausgewählte umgestellte Stellen Freigaben auf `TRICE_TX_ABC_SUPPORT` abstimmen; Ausschlüsse für lokale Textausgabe erhalten. Bind-Sidecars und TIL/LI auf dem regulären Weg konsistent erzeugen. Generierte Dateien nicht von Hand umschreiben, historische Wörterbucheinträge und andere Dateien nicht pauschal bereinigen. Die Legacy-Freigabe bleibt für die beibehaltenen F-Tests nötig.
+
+**Abnahme nur bei späterer Umstellung:** Umgestellte Beispiele mit Insert und Bind prüfen, Payload und Stempel vergleichen und ihre Ausgabe gezielt abnehmen. F-Kompatibilitätstests müssen weiterhin tatsächlich F ausführen; ABC-Auswahl und lokale Logging-Ausschlüsse behalten ihre bisherige Bedeutung. Keine Bibliotheksänderung und keine verringerte Legacy-Abdeckung als beiläufige Aufräumfolge akzeptieren. Ein vollständiger C-Gesamtlauf bleibt eine manuelle abschließende Nutzerprüfung.
+
+### Verbliebene RPC-Beschreibungen in Quelltexten prüfen
+
+**R37 · Erledigt am 18. Oktober**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+In [triceDefaultConfig.h](../../src/triceDefaultConfig.h) ist `TRICE_LEGACY_RPC_SUPPORT` mit Doxygen als deprecated gekennzeichnet: Der alte RPC-Generator und die Hostoption `-legacyRPCSupport` sind entfernt; neue Befehlsprotokolle verwenden C/ABC. Die F-Implementierungen bleiben für Quelltext- und Wire-Kompatibilität erhalten. Der Kommentar warnt vor einem bloßen Umbenennen gestempelter F-Aufrufe, weil C explizite Stempelargumente benötigt.
+
+Der Kommentar zu `XTEA_DECRYPT` beschreibt jetzt die lokale Entschlüsselung bei Wert 1 und ihre Verwendung für Prüfungen oder Target-Empfänger. Der überholte Verweis auf eine aus F generierte Funktionstabelle entfällt. In [helptext.go](../../internal/args/helptext.go) sind die beiden ungenutzten Textersetzungen für `til_rpc.c`/`til_rpc.h` entfernt; die aktuelle CLI-Hilfe benötigt sie nicht.
+
+Die tatsächlichen F-Implementierungen, die Go-RPC-basierte Remote-Anzeige, aktuelle ABC-Protokollerklärungen, generierter Code und Archive bleiben unverändert. Kein alter RPC-Generator oder CLI-Schalter wurde wieder eingeführt.
+
+**Prüfung am 18. Oktober:** `go test -count=1 ./internal/args ./cmd/generate-helpall-doc` besteht. Der vorhandene Vergleichstest bestätigt die CLI-Gesamthilfe bytegenau gegen `docs/ref/trice-help-all.txt`; die Referenzdatei wurde nicht neu erzeugt. gofmt, C-Formatprüfung, Markdownlint für diese sonst ausgeschlossene Plan-Datei und `git diff --check` bestehen. Die verschobenen Überschriften und ihre lokalen Dateilinks sind geprüft. Kein vollständiger Gesamtlauf wurde gestartet.
