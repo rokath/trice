@@ -48,9 +48,9 @@ triceCheck.c + triceConfig.h + Trice library
 
 ## 2. <a id="general-info"></a>General info
 
-This folder is per default named to `_test` to avoid VS Code slow down. Also, when running `go test ./...`,  the tests in the `_test` folder are excluded, because they take a long time. Run `./scripts/testAll.sh` to include them.
+The `_test` directory reduces VS Code indexing work and excludes the slow C matrices from `go test ./...`. Run `./scripts/testAll.sh` to include them.
 
-The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way. 
+The matrices compile and run target code under different compiler switches, automating configuration checks.
 
 `scripts/testAll.sh quick` performs the standard Bind compiler matrices and focused CE/SL checks for both Bind and Insert/Clean. `scripts/testAll.sh full` also runs the complete legacy Insert/Clean and extended compiler matrices; its duration depends strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
 
@@ -111,11 +111,7 @@ For the user it could be helpful to start with a `triceConfig.h`file from here a
 
 ## 3. <a id="how-to-run-the-tests"></a>How to run the tests
 
-* Host compiler prerequisites:
-  * CGO and host-side target-code tests need a working host C compiler, not only a compiler executable in `PATH`.
-  * On Windows, TDM-GCC or another matching MinGW-w64 GCC installation can provide the host compiler and C runtime.
-  * Some Go regression tests execute every supported compiler found in `PATH`, including `clang`. If Clang is visible, verify it first with `printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -`.
-  * Keep `C_INCLUDE_PATH` unset globally so ARM cross-compiler headers do not leak into host and CGO builds.
+* CGO requires a working host C compiler and runtime. Follow the [Windows compiler selection and runtime checks](development_environment_setup.md#choose-the-right-windows-compiler), including checks for visible Clang installations. On every platform, keep `C_INCLUDE_PATH` unset globally so ARM headers do not leak into host and CGO builds.
 * For direct `go test` calls outside the managed PC worker, execute `go clean -cache` from the repository root after editing externally included C files if CGO appears to reuse precompiled files. The managed PC workflows described below handle these repository inputs automatically.
 * Normal tests use an overlay for the shared CGO test files. For ordinary Bind maintenance use `./trice_bindIDs_in_examples_and_test_folder.sh`; it retains ID history. `./scripts/_330_renew_ids_and_refresh_tests.sh` is deliberate legacy maintenance: it runs Clean/Insert/Clean, copies the canonical CGO harness files and cleans example build outputs. Without `keepHistory` it discards the shared TIL/LI history and reseeds IDs. Do not run either maintenance command alongside tests.
 * To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.

@@ -175,8 +175,7 @@ See [Convert Evaluation Board onboard ST-Link to J-Link](rtt.md#convert-evaluati
 
 ### 2.2. <a id="add-target-sources"></a>Add target sources
 
-Add the complete [`src`](../../src) folder to your target project unchanged, including its `default_conf` subdirectory.
-Search project and generated header directories first, followed by `src` and finally `src/default_conf`, for example `-Iproject -Ibuild/sidecars -Isrc -Isrc/default_conf`.
+Use the [source layout and include order from the first recipe](#add-trice-target-sources), with `src/default_conf` last.
 
 ### 2.3. <a id="configure-direct-rtt"></a>Configure direct RTT
 

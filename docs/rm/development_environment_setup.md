@@ -522,6 +522,10 @@ choose its Win64 `x86_64` build for a 64-bit Go installation; a Win32 package
 reports `i686-w64-mingw32`. Use `go env GOARCH` to check the Go architecture;
 `amd64` normally needs the Win64 host compiler.
 
+CGO needs a working host C compiler and C runtime. [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) is another MinGW-w64 option; its minimal online installation is sufficient for host tests. Match the compiler architecture to Go and put the selected host compiler first in `PATH`.
+
+Some regression tests also run Clang when it is in `PATH`. A GNU-target Clang can reuse the MinGW-w64 runtime; an MSVC-target Clang needs the Visual Studio C++ Build Tools and a Windows SDK. Verify that every visible host compiler can include `string.h` before running `go test ./...`. For Clang, use `printf '#include <string.h>\n' | clang -std=c99 -fsyntax-only -x c -`. Keep `C_INCLUDE_PATH` unset globally so ARM headers do not leak into host and CGO builds.
+
 Do not infer the compiler target from the download page, folder name, or
 `--version` alone. Check it explicitly:
 

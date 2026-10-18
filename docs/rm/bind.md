@@ -79,7 +79,7 @@ For example, the user code remains:
 trice("msg:module initialized\n");
 ```
 
-`trice bind` scans the project sources, uses the existing ID management with `til.json` and `li.json`, and generates one temporary sidecar header for each bind-managed source or header file. The compiler still compiles the original sources directly.
+`trice bind` scans sources, manages IDs through `til.json` and `li.json`, and generates one temporary sidecar header per bind-managed source or header file. The compiler builds the original sources directly.
 
 The normal workflow is:
 
@@ -799,7 +799,7 @@ The build is using outdated or manually modified generator artifacts, or an addi
 
 ## 19. <a id="result"></a>Result
 
-With `trice bind`, bind-managed user Trice calls remain free of numeric IDs. The stable ID truth remains in `til.json` and `li.json`; a reproducible sidecar passes the ID as a compile-time constant to the existing Trice transport path. Unambiguous sites continue to use the existing line path, while only ambiguous regions are locally rebased and checked at compile time.
+Bind keeps calls ID-free and passes stable IDs to the existing transport as compile-time constants. See [persistent metadata and sidecars](#persistent-and-generated-files) for ID ownership and [local counter rebasing](#automatic-local-counter-rebase) for the distinction between line-selected sites and ambiguous regions checked at compile time.
 
 ---
 

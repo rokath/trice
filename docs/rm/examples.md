@@ -275,7 +275,7 @@ The C files under [examples/exampleData](../../examples/exampleData/) are shared
 
 Use [F030_bare](../../examples/F030_bare/) as the uninstrumented baseline and compare it with [F030_inst_rtt](examples.md#f030instrtt) or [F030_inst_uart](examples.md#f030instuart) for the first instrumentation steps. The three `build.sh` scripts change to their own project directory and pass their arguments to `make`; the instrumented variants additionally run `trice bind`. Put `make` and the Arm GNU tools on PATH, plus `trice` and `tlog` for the instrumented variants. Use `./build.sh -j2` for two compiler jobs. These scripts build firmware without flashing it.
 
-The instrumented variants keep the persistent ID-to-format dictionary `til.json` in version control. Their build scripts create the local `li.json` location index and regenerable headers in `out/sidecars`; these outputs are ignored by Git. `li.json` records current source paths and line numbers, so it is regenerated rather than committed. [F030_inst](examples.md#f030inst) is the larger parallel RTT/UART example and retains its existing build workflow.
+The instrumented variants keep `triceConfig.h` and the persistent ID-to-format dictionary `til.json` in version control. Their build scripts run `trice bind` and `make`, producing firmware in `out/`, regenerable headers in `out/sidecars` and the local `li.json` location index. Sidecars and `li.json` are ignored by Git; the latter records current source paths and line numbers. [F030_inst](examples.md#f030inst) is the larger parallel RTT/UART example and retains its existing build workflow.
 
 ### 6.1. <a id="f030bare"></a>F030_bare
 
@@ -387,7 +387,7 @@ cd examples/F030_inst_rtt
 ./build.sh
 ```
 
-[build.sh](../../examples/F030_inst_rtt/build.sh) runs `trice bind` and `make`. Keep `til.json` and `triceConfig.h` in version control. Sidecars and firmware are created in `out/`; `li.json` contains the current source locations as described above.
+[build.sh](../../examples/F030_inst_rtt/build.sh) follows the [shared F030 Bind workflow and file-ownership rules](#nucleo-f030r8-examples).
 
 No project-specific `SEGGER_RTT_Conf.h` is needed. The include path ends with [src/default_conf](../../src/default_conf/), which supplies the shared fallback. When RTT is enabled, Trice automatically loads the selected SEGGER configuration and inherits its buffer sizes and channel counts. The example needs neither a SEGGER include nor matching aliases in `triceConfig.h`. Explicit `TRICE_*` overrides remain possible, but `trice.c` rejects values that disagree with the SEGGER configuration. The fallback's down-buffer and printf-buffer sizes remain `16` and `64`.
 
@@ -422,7 +422,7 @@ cd examples/F030_inst_uart
 ./build.sh
 ```
 
-[build.sh](../../examples/F030_inst_uart/build.sh) runs `trice bind` and `make`. Keep `til.json` and `triceConfig.h` in version control. Sidecars and firmware are created in `out/`; `li.json` contains the current source locations as described above.
+[build.sh](../../examples/F030_inst_uart/build.sh) follows the [shared F030 Bind workflow and file-ownership rules](#nucleo-f030r8-examples).
 
 Flash `out/F030_inst_uart.elf` onto a NUCLEO-F030R8 board using your debugger. USART2 TX is PA2, connected to the board's ST-LINK virtual COM port. Run [log.sh](../../examples/F030_inst_uart/log.sh), then reset the board. The default port is COM7; select another port with the normal `tlog` switch `-p`:
 

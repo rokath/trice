@@ -47,7 +47,7 @@ You can compile the complete `src/*.c` library instead of maintaining a list of 
 
 The PC example scripts enable this explicitly: `-ffunction-sections -fdata-sections` separates functions and data, then `-Wl,--gc-sections` removes unused sections with GCC/Clang on Linux and MinGW on Windows. On macOS they use `-Wl,-dead_strip` instead. For MSVC, use `/Gy /Gw` and `/OPT:REF`. Embedded examples use the corresponding section-removal settings in their build configuration. The minimal demos omit these optional flags to keep their build commands simple. Without these settings, compiling `src/*.c` alone does **not** guarantee that unused code disappears.
 
-Search project and generated header directories first, then `src`, then `src/default_conf` last. The last directory supplies a fallback `SEGGER_RTT_Conf.h`, so PC demos need no additional RTT header or J-Link installation. A project-specific RTT header takes precedence and remains appropriate for boards that need different buffer sizes or locking. If RTT is enabled, Trice inherits the selected SEGGER buffer sizes and channel counts automatically; explicit `TRICE_*` overrides must still agree with them. See [Trice over RTT](rtt.md).
+Follow the [RTT include-order and configuration rules](rtt.md). The fallback lets PC demos compile without an additional RTT header or J-Link installation; boards can provide their own buffer and locking settings.
 
 ## 2. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 

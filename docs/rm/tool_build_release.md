@@ -64,15 +64,8 @@
   * `tlog` is a separate binary for the `trice log` runtime path. It accepts the log flags directly, for example `tlog -port HEX ...`, and release archives/packages ship it next to `trice`.
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
   * Use GoReleaser if you wish to create releases on your forked Trice repository.
-  * On Windows, install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) or another compatible MinGW-w64 GCC distribution if you wish to execute the CGO and host C-code tests.
-    * Match the compiler architecture to Go, normally 64-bit Go with a 64-bit host compiler.
-    * The minimal TDM-GCC online installation is sufficient for these host tests.
-    * Put the selected host compiler first in `PATH` when several GCC variants are installed.
-    * If `clang` is also in `PATH`, the regression tests can execute it in addition to GCC. Clang must therefore have a usable host C runtime configuration; merely finding `clang.exe` is not enough.
-    * A Windows Clang using the GNU target can reuse the installed MinGW-w64 runtime. A Clang using the MSVC target instead requires the Visual Studio C++ Build Tools and a Windows SDK.
-    * Verify each visible host compiler can include `string.h` before running `go test ./...`.
-  * Open a console inside the Trice directory, recommended is the git-bash, when using Windows.
-  * Tests:
+  * For Windows CGO and host C tests, follow the [compiler selection and runtime checks](development_environment_setup.md#choose-the-right-windows-compiler). Run the commands from the Trice directory in Git Bash.
+  * Historical test transcript; package names and results describe the recorded checkout. Use the current test entry points below:
 
   ```b
   ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
@@ -123,22 +116,22 @@ Prerequisite: Installed `goreleaser`.
 
 ### 2.1. <a id="check-a-goreleaser-release-before-publishing"></a>Check a GoReleaser Release before Publishing
 
-By cloning the Trice repo into an empty folder, you make sure no other files exist in the Trice folder.
+From the repository root, clone into a new disposable directory. The clone command stops if `temp/release-check` already contains files; choose another empty directory for a later run.
 
 ```bash
-mkdir ./tmp
-cd /tmp
-git clone https://github.com/rokath/trice.git
-cd trice
+mkdir -p temp &&
+git clone https://github.com/rokath/trice.git temp/release-check &&
+cd temp/release-check &&
 goreleaser release --clean --snapshot --skip=publish
 ```
 
-This just generates the artifacts locally in `/tmp/trice/dist` using the [./trice/.goreleaser.yaml](../../.goreleaser.yaml) copy in `./temp/trice`.
+This generates artifacts locally in `temp/release-check/dist`, using the clone's [.goreleaser.yaml](../../.goreleaser.yaml). Check out the intended candidate in that clone before building if it differs from the default branch.
 
-Alternatively you can do in your local Trice clone directly, by removing everything not a part of the Trice repo, if you are sure not to loose any data:
+Alternatively, clean an existing disposable clone first. `git clean -xfd` deletes all untracked and ignored files, including local configuration and build data. Preview with `git clean -xfdn` and continue only when that list can be deleted:
 
 ```bash
 git status
+git clean -xfdn
 git clean -xfd
 goreleaser release --clean --snapshot --skip=publish
 ```
@@ -157,8 +150,8 @@ What you should see:
 * Generating checksums.
 * No attempts to call the GitHub API for a real release.
 
-If this **succeeds**, you’ve already tested 90% of what CI will do for a real release.
-If it **fails**, fix the problem locally first (missing files, bad paths, etc.) – it would fail the same way in CI.
+A successful snapshot checks local builds and packaging. It does not check publication credentials, remote uploads or installation on other hosts; those are covered by the release and audit workflows below.
+If it fails, fix the reported local problem before proceeding.
 
 ## 3. <a id="publish-a-release-manually-from-a-selected-tag"></a>Publish a Release Manually from a Selected Tag
 
