@@ -47,7 +47,7 @@ void SomeExampleTrices(int burstCount) {
 	Trice("info:A Buffer:\n");
 	Trice8B("msg:%02x \n", aString, strlen(aString));
 	Trice32B("msg:%08x  \n", aString, strlen(aString) >> 2);
-	Trice16F("att:ARemoteFunctionName", aString, strlen(aString) >> 1);
+	Trice16F("att:ARemoteFunctionName", aString, strlen(aString) >> 1); // Deprecated legacy RPC example; Trice16C requires an explicit 16-bit stamp.
 	trice("info:%d times a 16 byte long Trice messages, which may not be written all if the buffer is too small:\n", burstCount);
 	for (int i = 0; i < burstCount; i++) {
 		Trice("i=%x %x\n", 0x44444400 + i, 0xaaaaaa00 + i);

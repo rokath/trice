@@ -83,7 +83,12 @@ extern "C" {
 #endif
 
 #ifndef TRICE_LEGACY_RPC_SUPPORT
-#define TRICE_LEGACY_RPC_SUPPORT 0 //!< TRICE_LEGACY_RPC_SUPPORT enables the legacy RPC support with triceF macros and the related trice tool CLI switch -legacyRPCSupport.
+//! \brief Enable deprecated legacy RPC support through F macros.
+//! \deprecated The legacy RPC generator and -legacyRPCSupport host option have been removed.
+//! Use Trice ABC commands (C macros) for new command protocols.
+//! Existing F implementations remain unchanged for source and wire compatibility.
+//! Stamped C macros require explicit stamp arguments; F calls cannot simply be renamed.
+#define TRICE_LEGACY_RPC_SUPPORT 0
 #endif
 
 #ifndef TRICE_DIRECT_OUTPUT_IS_WITH_ROUTING
@@ -339,9 +344,8 @@ extern "C" {
 #endif
 
 #ifndef XTEA_DECRYPT
-//! XTEA_DECRYPT, when defined, enables device local decryption. Usable for checks or if you use a trice reception capable node to read XTEA encrypted messages.
-//! One possible application is, receiving trices, decoding them, finding an ID match in a (from triceF generated) function pointer list and executing the dedicated function.
-//! This allows kind of RPC (without immediate return) also with encryption.
+//! XTEA_DECRYPT enables device-local XTEA decryption when set to 1.
+//! Use it for encryption checks or to decrypt messages in a Trice receiver on the target.
 #define XTEA_DECRYPT 0
 #endif
 

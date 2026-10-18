@@ -591,7 +591,7 @@ void TriceCheck(int index) {
         break; case __LINE__: trice64C("RPC:FunctionNameZd",                      b64,                           3 );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)\n"
         break; case __LINE__: trice64C("RPC:FunctionNameZd",                      b64, sizeof(b64)/sizeof(int64_t) );   //exp: "time:        default: RPC:FunctionNameZd(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)\n"
 #endif // #if TRICE_TX_ABC_SUPPORT == 1
-#if TRICE_LEGACY_RPC_SUPPORT == 1
+#if TRICE_LEGACY_RPC_SUPPORT == 1 // Deprecated F API: retain this block for legacy RPC compatibility tests; use C/ABC for new commands.
         break; case __LINE__: TRICE8_F(ID(0), "info:FunctionNameWa", b8,  sizeof(b8) /sizeof(int8_t) );    //exp: "time:feed3322default: info:FunctionNameWa(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: TRice8F("call:FunctionNameWb", b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:feed3322default: call:FunctionNameWb(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
         break; case __LINE__: Trice8F("call:FunctionNameWc", b8,  sizeof(b8) /sizeof(int8_t) );            //exp: "time:    be16default: call:FunctionNameWc(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)\n"
@@ -3029,7 +3029,7 @@ static void exampleOfManualSerialization(void) {
 
 	TRICE(Id(0), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len);
 
-#if TRICE_LEGACY_RPC_SUPPORT == 1
+#if TRICE_LEGACY_RPC_SUPPORT == 1 // Deprecated F API: retained for the original serialization example.
 #if TRICE_LOCAL_LOG == 0
 	// Function/RPC records are dispatched by a receiver and have no local text
 	// representation. The surrounding serialization log remains enabled.

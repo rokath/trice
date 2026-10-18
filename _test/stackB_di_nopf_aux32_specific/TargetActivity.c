@@ -8,7 +8,7 @@
 
 void TriceCheckSpecial( int n ) {
 
-#if TRICE_LEGACY_RPC_SUPPORT == 1
+#if TRICE_LEGACY_RPC_SUPPORT == 1 // Deprecated F API: preserve these legacy wire-format regression cases.
 
         static int8_t b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
         static int16_t b16[] = { 0, -1, -2, 0x3344 };
