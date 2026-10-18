@@ -1441,7 +1441,7 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 	return strings.ReplaceAll(match[1], "\n          ", "\n")[10:]
 }
 
-// TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow steps
+// TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow step
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 	for _, tc := range []struct{ name, newline string }{{"LF", "\n"}, {"CRLF", "\r\n"}} {
@@ -1456,8 +1456,10 @@ func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 func checkManualPagesLinks(t *testing.T, newline string) {
 	t.Helper()
 	lineEndings := func(text string) string { return strings.ReplaceAll(text, "\n", newline) }
-	root := t.TempDir()
+	root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
 	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/performance.md)\n")
+	writeFixture(t, root, "docs/ref/example.png", "image bytes")
+	writeFixture(t, root, "docs/ref/example.gif", "animation bytes")
 	writeFixture(t, root, "docs/README.md", lineEndings("[Guide](TriceGuide.md#entry-points)\n"))
 	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
 		writeFixture(t, root, "docs/"+manual+".md", lineEndings("[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n"))
@@ -1469,17 +1471,16 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 	chapter = lineEndings(chapter + "UTF-8: café, µs.\n")
 	writeFixture(t, root, "docs/rm/bind.md", chapter)
 	writeFixture(t, root, "docs/rm/performance.md", lineEndings("# Trice Performance\n"))
-	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare documentation for GitHub Pages"} {
-		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
-		assert.NoError(t, err, out)
-	}
-	index, err := os.ReadFile(filepath.Join(root, "index.md"))
+	out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+	assert.NoError(t, err, out)
+	site := filepath.Join(root, "temp", "pages-source")
+	index, err := os.ReadFile(filepath.Join(site, "README.md"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(index), "./docs/TriceUserManual.html#see-your-first-log")
-	assert.Contains(t, string(index), "./docs/rm/README.html")
+	assert.Contains(t, string(index), "./docs/rm/index.html")
 	assert.Contains(t, string(index), "docs/rm/performance.html")
 	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
-		data, err := os.ReadFile(filepath.Join(root, "docs", manual+".md"))
+		data, err := os.ReadFile(filepath.Join(site, "docs", manual+".md"))
 		assert.NoError(t, err)
 		assert.Contains(t, string(data), "[Guide](./TriceUserManual.html#see-your-first-log)")
 		assert.Contains(t, string(data), "[Reference](./rm/bind.html#bind-limits)")
@@ -1488,7 +1489,7 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 		assert.Contains(t, string(data), "![Image](./ref/example.png)")
 		assert.Contains(t, string(data), "[Local](#local)")
 	}
-	data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
+	data, err := os.ReadFile(filepath.Join(site, "docs/rm/bind.md"))
 	assert.NoError(t, err)
 	for _, expected := range []string{
 		"[User](../TriceUserManual.html#see-your-first-log)",
@@ -1510,15 +1511,25 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 	assert.Equal(t, strings.Count(chapter, "\n"), strings.Count(string(data), "\n"), "link rewriting must retain line boundaries")
 	assert.Equal(t, strings.Count(chapter, "\r\n"), strings.Count(string(data), "\r\n"), "authored line endings must survive on every host")
 	assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"))
+	original, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
+	assert.NoError(t, err)
+	assert.Equal(t, chapter, string(original), "the checkout remains authored Markdown")
+	for _, path := range []string{"index.md", "_config.yml", "docs/ref/example.png", "docs/ref/example.gif"} {
+		source, err := os.ReadFile(filepath.Join(root, path))
+		assert.NoError(t, err)
+		staged, err := os.ReadFile(filepath.Join(site, path))
+		assert.NoError(t, err)
+		assert.Equal(t, source, staged, path)
+	}
 }
 
 // TestManualPagesRequiresActiveSources verifies missing inputs are reported
 // before the workflow can partially rewrite its remaining documentation.
 func TestManualPagesRequiresActiveSources(t *testing.T) {
-	paths := []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
+	paths := []string{"index.md", "_config.yml", "README.md", "docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
 	for _, missing := range paths {
 		t.Run(missing, func(t *testing.T) {
-			root := t.TempDir()
+			root := scriptFixture(t, "scripts/_prepare_pages.py")
 			for _, path := range paths {
 				if path != missing {
 					writeFixture(t, root, path, "[Reference](./rm/bind.md#bind-limits)\n")
@@ -1529,10 +1540,79 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 			writeFixture(t, root, "docs/rm/bind.md", chapter)
 			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
 			assert.Error(t, err, out)
-			assert.Contains(t, out, "ERROR: missing documentation source: "+missing)
+			assert.Contains(t, out, "ERROR: missing or empty Pages source: "+missing)
 			data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
 			assert.NoError(t, err)
 			assert.Equal(t, chapter, string(data), "preflight failure must not rewrite surviving chapters")
+		})
+	}
+}
+
+// TestManualPagesPublicationScope checks observable staging boundaries and links,
+// including repeat builds after a resource disappears from the documentation.
+func TestManualPagesPublicationScope(t *testing.T) {
+	root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+	for _, path := range []string{"README.md", "docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"} {
+		writeFixture(t, root, path, "# Documentation\n")
+	}
+	readme := "[![License](https://example.com/badge.svg)](LICENSE.md)\n[![Animation](docs/ref/preview.png)](docs/ref/demo.gif)\n<img src=\"docs/ref/space%20image.png\" alt=\"Image\">\n[Manual](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md?q=1#start)\n[Download](third_party/package.zip)\n[Archive](docs/obsolete/old.md)\n"
+	writeFixture(t, root, "README.md", readme)
+	writeFixture(t, root, "docs/rm/templates.md", "# Templates\n\n`{{name}}` and `{{1,2}}`\n```text\n{% endraw %}\n```\n")
+	for _, path := range []string{"docs/ref/preview.png", "docs/ref/demo.gif", "docs/ref/space image.png", "docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md"} {
+		writeFixture(t, root, path, "original bytes")
+	}
+	out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+	assert.NoError(t, err, out)
+	site := filepath.Join(root, "temp/pages-source")
+	data, err := os.ReadFile(filepath.Join(site, "README.md"))
+	assert.NoError(t, err)
+	assert.Contains(t, string(data), "](https://github.com/rokath/trice/blob/main/LICENSE.md)")
+	assert.Contains(t, string(data), "[Manual](docs/TriceUserManual.html?q=1#start)")
+	assert.Contains(t, string(data), "[Download](https://github.com/rokath/trice/blob/main/third_party/package.zip)")
+	assert.Contains(t, string(data), "[Archive](https://github.com/rokath/trice/blob/main/docs/obsolete/old.md)")
+	templates, err := os.ReadFile(filepath.Join(site, "docs/rm/templates.md"))
+	assert.NoError(t, err)
+	assert.Contains(t, string(templates), "`{% raw %}{{{% endraw %}name}}` and `{% raw %}{{{% endraw %}1,2}}`")
+	assert.Contains(t, string(templates), "```text\n{% raw %}{%{% endraw %} endraw %}\n```", "even literal Liquid delimiters remain documentation")
+	for _, path := range []string{"docs/ref/preview.png", "docs/ref/demo.gif", "docs/ref/space image.png"} {
+		copied, err := os.ReadFile(filepath.Join(site, path))
+		assert.NoError(t, err)
+		assert.Equal(t, "original bytes", string(copied), "referenced image bytes must survive")
+	}
+	for _, path := range []string{"docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md", "scripts/_prepare_pages.py"} {
+		assert.NoFileExists(t, filepath.Join(site, path), "unselected files must not be published")
+	}
+	writeFixture(t, root, "README.md", "# Updated homepage\n")
+	out, err = runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+	assert.NoError(t, err, out)
+	assert.NoFileExists(t, filepath.Join(site, "docs/ref/demo.gif"), "a repeat build removes stale staged resources")
+	assert.FileExists(t, filepath.Join(root, "docs/ref/demo.gif"), "source assets are never deleted")
+}
+
+// TestManualPagesRejectsBrokenResources requires a useful diagnostic and keeps
+// the previous staging tree intact when a new input cannot be published.
+func TestManualPagesRejectsBrokenResources(t *testing.T) {
+	for _, tc := range []struct{ name, link, resource, diagnostic string }{
+		{"missing_image", "![Missing](docs/ref/missing.png)", "", "missing or empty Pages source: docs/ref/missing.png"},
+		{"empty_image", "![Empty](docs/ref/empty.png)", "docs/ref/empty.png", "missing or empty Pages source: docs/ref/empty.png"},
+		{"escaping_link", "[Outside](../outside.md)", "", "link escapes repository in README.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+			for _, path := range []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"} {
+				writeFixture(t, root, path, "# Documentation\n")
+			}
+			writeFixture(t, root, "README.md", tc.link)
+			writeFixture(t, root, "temp/pages-source/previous.txt", "previous build")
+			if tc.resource != "" {
+				writeFixture(t, root, tc.resource, "")
+			}
+			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.diagnostic)
+			previous, err := os.ReadFile(filepath.Join(root, "temp/pages-source/previous.txt"))
+			assert.NoError(t, err)
+			assert.Equal(t, "previous build", string(previous))
 		})
 	}
 }

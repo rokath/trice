@@ -56,7 +56,7 @@ The workflow files are the authority for current triggers. Local checks use the 
 | [link-check.yml](../../.github/workflows/link-check.yml) | Links, including source-file links handled by the local wrapper. |
 | [install-checks.yml](../../.github/workflows/install-checks.yml) | Build and exercise checkout installations and release-shaped packages. |
 | [goreleaser.yml](../../.github/workflows/goreleaser.yml), [release-audit.yml](../../.github/workflows/release-audit.yml) | Publish/audit release artifacts; see [Building and Releasing](tool_build_release.md). |
-| [pages.yml](../../.github/workflows/pages.yml) | Build and deploy the documentation website, with prepared statistics integration below. |
+| [pages.yml](../../.github/workflows/pages.yml) | Build and deploy the documentation website and the statistics reports described below. |
 | [label.yml](../../.github/workflows/label.yml), [stale.yml](../../.github/workflows/stale.yml) | Repository labeling and inactive-issue handling. |
 | [statistics.yml](../../.github/workflows/statistics.yml) | Repository activity reports; not a Trice logging feature. |
 
@@ -131,9 +131,9 @@ possible later work; it does not expand this initial scope.
 The action is pinned to **v1.4.2**, commit
 `306db38ad131cab2aa5f2cd3062bf6f8aa78c1aa`, under the
 [Apache-2.0 license](https://github.com/jgehrcke/github-repo-stats/blob/306db38ad131cab2aa5f2cd3062bf6f8aa78c1aa/LICENSE).
-The published release is old (December 2022). The pin avoids automatic upstream
-changes; a successful authenticated run is still needed to confirm operation
-with GitHub's current API and the upstream container.
+The published release dates from December 2022. The pin avoids automatic upstream
+changes. Authenticated collection and Pages publication succeeded on 17 October
+2026; check later workflow results for continued operation.
 
 ### 5.2. <a id="repository-integration"></a>Repository integration
 
@@ -178,10 +178,46 @@ SVG charts and a separate HTML report under `rokath/trice/downloads/report/`.
 The job uses the normal read-only `GITHUB_TOKEN` for release counts and the
 existing `GHRS_GITHUB_API_TOKEN` for data-branch writes; no new secret is needed.
 
-The existing [Pages workflow](../../.github/workflows/pages.yml) builds the
-documentation from the repository root with Jekyll and deploys one `_site`
-artifact. The root `_config.yml` uses the Cayman theme. **Pages integration is
-prepared locally and is not live yet.** The workflow adds the report under
+The [Pages workflow](../../.github/workflows/pages.yml) uses
+[the shared preparation script](../../scripts/_prepare_pages.py) to assemble
+`temp/pages-source`, then builds it with Jekyll and deploys one `_site` artifact.
+The versioned [index.md](../../index.md) is the only homepage; it includes the
+prepared README. The root [_config.yml](../../_config.yml) selects the Cayman
+theme and excludes a separate root README page.
+
+The prepared tree contains the homepage, documentation index, UM, Guide, all
+active `docs/rm/*.md` pages and their referenced images and animations. Links
+between those pages become HTML links. Other repository links, including
+source files, PDFs and third-party downloads, open the GitHub file view.
+Unreferenced assets, source trees, archives, developer notes and local build
+files are not copied into the website. Preparation changes only the disposable
+tree; the authored Markdown stays unchanged.
+
+For a local build without deployment, use Python 3.9 or newer and Ruby 3.3.
+Install the same top-level gems as `actions/jekyll-build-pages@v1` once, from
+the repository root:
+
+```sh
+GEM_HOME="$PWD/temp/pages-gems" GEM_PATH="$PWD/temp/pages-gems" \
+  gem install --minimal-deps --no-document github-pages:232 jekyll-include-cache:0.2.1 'jekyll-octicons:~>14.2'
+```
+
+Then prepare and build the site:
+
+```sh
+python3 scripts/_prepare_pages.py
+GEM_HOME="$PWD/temp/pages-gems" GEM_PATH="$PWD/temp/pages-gems" \
+  JEKYLL_ENV=production PAGES_ENV=dotcom PAGES_REPO_NWO=rokath/trice \
+  ruby temp/pages-gems/bin/github-pages build --source temp/pages-source --destination temp/pages-site
+```
+
+Inspect `temp/pages-site/index.html` and its `docs/` pages. This local command
+builds the documentation only; CI adds the current statistics below. A local
+HTTP server can mount `temp/pages-site` at `/trice/` for browser checks; the
+generated asset URLs use that repository prefix. `PAGES_ENV=dotcom` selects the
+public GitHub Pages URL scheme when building without a CI token.
+
+The published integration adds the report under
 `_site/stats/` after Jekyll finishes, before the existing artifact upload.
 Successful statistics runs on `main` request the same Pages build/deployment.
 There is no second deployment, and existing documentation files are retained.
@@ -193,14 +229,14 @@ The public dashboard is at `/trice/stats/`; the unchanged upstream report
 is embedded below a short explanation of its limits. The separate download
 report is linked at `/trice/stats/downloads/` after its first collection.
 Before then, Pages shows a notice; incomplete download reports fail with the
-missing artifact's path. No README, Trice source,
-build or release configuration is changed. GitHub confirms `main` as the
+missing artifact's path. Statistics collection changes only the data branch.
+GitHub confirms `main` as the
 default branch and GitHub Actions as the existing Pages build type. The Pages
 statistics trigger is deliberately limited to `main`.
 
 ### 5.3. <a id="one-time-github-setup"></a>One-time GitHub setup
 
-Review both workflows before activating collection and publication.
+The initial setup is complete. Use this checklist to review or restore collection and publication.
 
 1. Create a **fine-grained personal access token** from an account with the
    required repository access. Select resource owner `rokath` and **only**
@@ -211,9 +247,8 @@ Review both workflows before activating collection and publication.
 2. In the repository, open **Settings > Secrets and variables > Actions > New
    repository secret**. Name it **`GHRS_GITHUB_API_TOKEN`** and enter the token
    there. Never put the token in chat, files, reports or command arguments.
-3. Have the reviewed changes merged into the actual default branch when the
-   release preparation allows it. No merge, push or deployment is performed by
-   preparing these files locally.
+3. Ensure the reviewed collection and Pages workflows are available on the
+   actual default branch.
 4. Verify **Settings > Pages > Build and deployment > Source** is **GitHub
    Actions**. Keep the existing Pages deployment.
 5. Open **Actions > Repository statistics > Run workflow**, select the default
@@ -234,8 +269,8 @@ fast-forward writes when enabling the deletion and force-push protection
 described above; do not require PRs or CI checks on the data branch itself.
 
 GitHub's [stargazer access restrictions](https://docs.github.com/en/rest/activity/starring)
-also apply. Authentication and account access must be verified in the first
-run. No authenticated run or container execution has been performed locally.
+also apply. After changing token permissions or renewing the secret, verify the
+next authenticated workflow run; local formatting checks do not verify API access.
 
 ### 5.4. <a id="reading-the-standard-report"></a>Reading the standard report
 
