@@ -156,6 +156,17 @@ Die Datei umfasst rund 1.880 Zeilen.
 - [31. Akzeptanzkriterien der finalen Funktion](#akzeptanzkriterien-der-finalen-funktion)
 - [32. Quellen / geprüfte Basis](#quellen--geprüfte-basis)
 - [33. Abschließende Arbeitsanweisung an Codex](#abschließende-arbeitsanweisung-an-codex)
+- [34. Designnachtrag: Tag-Transport und kompakte Location-Historie](#designnachtrag-tag-transport-und-kompakte-location-historie)
+  - [34.1. Empfehlung und gewünschte Zuständigkeiten](#empfehlung-und-gewünschte-zuständigkeiten)
+  - [34.2. Warum die Tag-Information den Build überleben muss](#warum-die-tag-information-den-build-überleben-muss)
+  - [34.3. Vergleich der Transportwege](#vergleich-der-transportwege)
+  - [34.4. Vorschlag für eine erweiterbare TIL](#vorschlag-für-eine-erweiterbare-til)
+  - [34.5. Custom-Tags, Gewichte und ein verständlicher Ablauf](#custom-tags-gewichte-und-ein-verständlicher-ablauf)
+  - [34.6. Historische Identität und gemeinsame Auswertung](#historische-identität-und-gemeinsame-auswertung)
+  - [34.7. Kompatibilität: Lesen, Bedeutung und Schreiben unterscheiden](#kompatibilität-lesen-bedeutung-und-schreiben-unterscheiden)
+  - [34.8. LI sammelt bereits IDs, aber keine vollständige Positionshistorie](#li-sammelt-bereits-ids-aber-keine-vollständige-positionshistorie)
+  - [34.9. Platzsparende LI: kleiner Schritt und spätere Historie](#platzsparende-li-kleiner-schritt-und-spätere-historie)
+  - [34.10. Konkreter Entscheidungsstand für die Weiterarbeit](#konkreter-entscheidungsstand-für-die-weiterarbeit)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -2019,3 +2030,229 @@ Trice soll daraus liefern:
 - keine Aliasnamens-Heuristik.
 
 Implementierung fokussiert halten. **Nicht** daraus eine allgemeine Metadatensprache oder Runtime-String-Neugestaltung machen, solange keine konkrete Anforderung das erzwingt.
+
+---
+
+## 34. <a id="designnachtrag-tag-transport-und-kompakte-location-historie"></a>Designnachtrag: Tag-Transport und kompakte Location-Historie
+
+**Arbeitsstand:** Analyse auf `wip`, Commit `bdda0a9d` (`alias tag mapping ideas added DE`). Dieser Nachtrag enthält Empfehlungen zur nächsten Designentscheidung, keine freigegebene Implementierung. Der Auftrag beschränkt sich auf diesen Anhang und die ToC-Aktualisierung. Die älteren Abschnitte bleiben als Diskussionsstand erhalten; insbesondere ihre Vorschläge zu `-ulabel` bei Bind sind zusammen mit der folgenden Präzisierung zu lesen.
+
+### 34.1. <a id="empfehlung-und-gewünschte-zuständigkeiten"></a>Empfehlung und gewünschte Zuständigkeiten
+
+**Empfehlung:** Bind speichert den zugeordneten Ereignis-Tag je ID in der TIL. `tlog` beziehungsweise `trice log` liest diese Identität automatisch. Farben, Gewichte und Filter bleiben Host-Konfiguration. Für Alias-Tags ist weder eine zweite Zuordnungsdatei noch eine Änderung des Target-Datenstroms erforderlich. Eine echte LI-Historie sollte unabhängig davon entschieden werden.
+
+| Information | Zuständigkeit | Zum späteren Logger übertragen? |
+|---|---|---|
+| Aliasname und seine Erkennung im Quelltext | Bind; entsprechend bestehende Insert-/Clean-Wege | Nein, der aufgelöste Tag reicht. |
+| Ereignis gehört zur Warning-Gruppe oder zur Kategorie `sensor` | Instrumentierung legt die Identität fest | Ja, pro ID im Dictionary. |
+| Tag-spezifischer ID-Bereich | Bind-/ID-Policy | Für Host-Filter nicht nötig. Der Tag wird nicht aus dem Bereich rekonstruiert. |
+| Gewicht, Farbe, Auswahl durch `-loglevel`, `-pick`, `-ban` | Host-Auswertung | Kein Rücktransport von Bind; bei Bedarf gemeinsames Logging-Skript archivieren. |
+| Datei und Zeile | Instrumentierung, abhängig vom Quellstand | Optional über passende LI; Tag-Filter müssen auch mit `-li off` funktionieren. |
+
+Die gewünschte Trennung ist sinnvoll. **Im aktuellen Code ist `-ulabel` allerdings noch nicht ausschließlich Präsentation:** Es registriert auch Namen, wird bei Bind/Insert/Clean angeboten und beeinflusst über Gewichte den strukturierten Level sowie Filter. `-ulabel` ist die derzeitige Schreibweise; `-logLevel` und `-loglevel` sind beide registriert. Siehe [CLI-Registrierung](../../internal/args/init.go), [Kommandoinitialisierung](../../internal/args/handler.go) und [Tag-Registry](../../internal/emitter/lineTransformerANSI.go).
+
+Für das Zielmodell ist deshalb genauer: **Ereignisidentität gehört zum Build; ihre Bewertung und Darstellung gehören zum Host.** Neue explizite Alias-Tags sollten keine Farbangabe oder Gewichtsregistrierung bei Bind benötigen. Bestehende Bind-Aufrufe mit `-ulabel` bleiben aus Kompatibilitätsgründen gültig; ihr Entfernen ist kein Bestandteil dieses Vorschlags.
+
+### 34.2. <a id="warum-die-tag-information-den-build-überleben-muss"></a>Warum die Tag-Information den Build überleben muss
+
+Angenommen, zwei Aliase verwenden denselben effektiven Typ und denselben Meldungstext, einer mit `wrn`, einer mit `err`. Im Binärrecord steht die ID, aber kein Aliasname. Die heutige TIL speichert `Type` und `Strg`; `Alias` trägt ausdrücklich `json:"-"`. Ohne weitere Zuordnung kann der Logger diese beiden Klassifikationen nicht aus dem Meldungstext ableiten. Siehe [persistente Typen](../../internal/id/id.go).
+
+Auch identische CLI-Einstellungen auf beiden Seiten lösen das allein nicht: `MyAlarm -> wrn` beantwortet noch nicht `empfangene ID -> MyAlarm`. Ein Skript müsste zusätzlich diese Zuordnung erzeugen und bewahren. Damit hätte es faktisch bereits ein weiteres Dictionary gebaut.
+
+```text
+Bind: Alias + Quellaufruf -> ID + effektives Format + Ereignis-Tag -> TIL
+Target:                     ID + Laufzeitwerte                 -> Datenstrom
+Host: Datenstrom + TIL -> Ereignis-Tag -> Host-Gewicht -> Filter und Ausgabe
+```
+
+Keine zusätzliche Information ist nötig, wenn der Tag bereits eindeutig im gespeicherten Format steht und diese bisherige Präfixsemantik gewünscht ist. Für einen unabhängig vom Format zugeordneten Alias-Tag ist die persistente Zuordnung dagegen notwendig. Sie kostet keine zusätzlichen Target-Bytes und keine Tag-Berechnung im Interrupt.
+
+### 34.3. <a id="vergleich-der-transportwege"></a>Vergleich der Transportwege
+
+| Variante | Benutzung und Historie | Bewertung |
+|---|---|---|
+| Gleiche Alias-CLI oder gemeinsames Skript | Gut für reproduzierbare Build-Eingaben, aber ohne ID-Zuordnung unzureichend zum Dekodieren. Spätere Skriptänderungen dürfen alte Captures nicht umdeuten. | Ergänzung für Konfiguration, kein Metadatentransport. |
+| Optionale Metadaten je TIL-Eintrag | Der Benutzer übergibt weiterhin dieselbe TIL. Historische ID und Tag bleiben zusammen. | Bevorzugt. |
+| Zusätzliche Tag-JSON, indiziert nach ID | Bestehende TIL bleibt unverändert; neue und alte Werkzeuge können getrennte Dateien verwenden. Zusätzlicher Pfad, Archivierung und Konsistenzprüfung werden nötig. | Sinnvoll, falls unveränderte TIL zwingend ist; sonst mehr Fehlerquellen. |
+| Tag in LI | Erspart eine weitere Datei, koppelt aber Filter an optionale und buildabhängige Quellpositionen. | Nicht empfehlen. |
+| Synthetisches Tag-Präfix in `Strg` | Alte Logger verstehen bekannte Tags bereits. Unter `-color off` wird das Präfix sichtbar; Formattext und Klassifikation bleiben gekoppelt. | Möglicher Legacy-Export, nicht bevorzugtes Hauptformat. |
+| Neues Gesamtformat mit Version, TIL, LI und gemeinsamen Tabellen | Gut für globale Metadaten und Kompression. Alte Leser erwarten aber eine ID-Map und scheitern. | Erst bei einem eigenständigen Bedarf an einem neuen Archivformat. |
+| ID-Bereiche, erneutes Quellscannen oder zusätzliche Target-Felder | Benötigt historische Policy/Quellen oder erhöht den Target-Aufwand. Bereiche können sich ändern. | Keine einfachere Lösung. |
+
+Falls eine separate Tag-Datei gewählt würde, müsste sie automatisch und gemeinsam mit der TIL entstehen. Sie sollte einen überprüfbaren Bezug auf deren ID-/Schema-Zuordnungen haben; ein bloß gleicher Dateiname genügt nicht. Fehlende oder widersprüchliche Tag-Daten dürften bei angeforderter Alias-Filterung nicht still als `untagged` gelten. Diese Zusatzarbeit entfällt weitgehend, wenn die Informationen im selben TIL-Eintrag liegen.
+
+### 34.4. <a id="vorschlag-für-eine-erweiterbare-til"></a>Vorschlag für eine erweiterbare TIL
+
+Die äußere Struktur bleibt `ID -> Eintrag`. `Type` und `Strg` behalten Namen, Datentyp und bisherige Bedeutung. Hinzu kommt nur bei Bedarf ein optionales, versioniertes `Meta`-Objekt. Folgende Schreibweise ist ein **Schema-Vorschlag**, noch keine implementierte Schnittstelle:
+
+```json
+{
+  "1234": {
+    "Type": "trice",
+    "Strg": "Temperature too high: %d degrees",
+    "Meta": {
+      "Version": 1,
+      "Tag": {"Kind": "builtin", "Name": "WARNING"}
+    }
+  },
+  "1235": {
+    "Type": "trice",
+    "Strg": "Voltage: %d mV",
+    "Meta": {
+      "Version": 1,
+      "Tag": {"Kind": "user", "Name": "sensor"}
+    }
+  },
+  "1236": {
+    "Type": "trice",
+    "Strg": "inf:Existing format-prefix behavior"
+  }
+}
+```
+
+Ein flaches optionales `Tag`-Stringfeld wäre die kleinste Änderung. Das kleine `Meta`-Objekt ist meine Empfehlung für die ausdrücklich gewünschte Zukunftsoffenheit: Es bietet einen abgegrenzten Erweiterungsbereich und eine Versionsgrenze für neue Leser. `Kind` unterscheidet eingebaute von benutzerdefinierten Namen, damit ein später neu eingeführter Built-in-Name keine historische Custom-Kategorie übernimmt. Dies bleibt ein Dateidetail; die CLI bleibt `-alias MyAlarm:wrn`.
+
+Der Preis sind zusätzliche Host-Dateibytes und mehr Reader-/Writer-Arbeit. Das rechtfertigt weder eine globale Tag-Tabelle noch weitere vorsorgliche Metadatenfelder. Der Target-Record bleibt gleich groß.
+
+Vorgeschlagener Vertrag:
+
+1. **Ohne `Meta.Tag`:** bisherige Klassifikation aus dem gespeicherten Präfix, sonst `untagged`. Keine automatische Umschreibung alter Einträge.
+2. **Mit `Meta.Tag`:** diese Identität ist maßgeblich, auch bei einem abweichenden Präfix in `Strg`. Das Format wird allein deshalb weder ergänzt noch gekürzt. Explizites `untagged` unterscheidet sich von fehlenden Metadaten.
+3. **Kanonisierung:** Built-in-Aliase wie `wrn`, `warn` und `WARNING` werden vor der ID-Vergabe zu derselben Identität. Custom-Namen behalten ihre exakte Schreibweise. Aliasnamen selbst brauchen nicht in die TIL.
+4. **Keine Host-Policy im Eintrag:** keine Farbe, kein CLI-Filter, kein aus dem aktuellen Gewicht abgeleiteter `Level`. Ein Tagwechsel ist eine Build-Änderung; ein anderes Host-Gewicht ist es nicht.
+5. **Version:** `Meta.Version` bezeichnet das Metadatenschema, nicht die Toolversion. Unbekannte optionale Informationen innerhalb einer unterstützten Version dürfen ignoriert, müssen bei erneutem Schreiben aber erhalten werden. Neue Pflichtsemantik erfordert eine neue Version. Nicht unterstützte Versionen dürfen neue Tools nicht still falsch klassifizieren oder umschreiben.
+6. **Keine Sonderobjekte auf Dateiebene:** weder `_meta`, `Version`, `Tags` noch ein künstlicher ID-0-Eintrag neben echten IDs. Die alten Reader erwarten numerische IDs; Bind erkennt Sekundärdateien zusätzlich anhand positiver ID-Schlüssel und ihrer Eintragsfelder. Siehe [JSON-Leser](../../internal/id/manage.go) und `classifyBindMetadataJSON` in [Bind-Metadaten](../../internal/id/bindMetadata.go).
+7. **Unbekannte Felder bewahren:** Künftige Writer müssen Erweiterungen verlustfrei durchreichen, soweit sie deren Version sicher bearbeiten können. Erst normalisieren und dann nur bekannte Struct-Felder zurückschreiben genügt nicht. Bei unklarer Pflichtsemantik ist ein verständlicher Abbruch besser als Datenverlust.
+
+Diese Regeln machen additive Erweiterungen möglich. Sie garantieren ausdrücklich nicht, dass ein altes Werkzeug beliebige neue Semantik versteht.
+
+### 34.5. <a id="custom-tags-gewichte-und-ein-verständlicher-ablauf"></a>Custom-Tags, Gewichte und ein verständlicher Ablauf
+
+Für Built-in-Tags genügt später die TIL: `WARNING` hat am Host sein bestehendes Standardgewicht. Ein Benutzer kann dieses dort mit `-ulabel` ändern. Für Custom-Tags braucht es eine explizite Defaultregel, weil der Name `sensor` allein keinen Schweregrad festlegt.
+
+**Empfehlung für Custom-Tags:** Ein ausdrücklich in TIL gespeicherter Custom-Tag ist ohne erneute Registrierung benutzbar. Ohne Host-Override erhält er das finale INFO-Gewicht, entsprechend dem heutigen Verhalten eines gewichtslos registrierten User Labels. `-ulabel sensor:650` ändert am Host seine Bewertung, nicht die in TIL gespeicherte Identität. Das sollte auch für `-pick sensor`, Statistik und JSON/KV gelten.
+
+Konzeptioneller Zielablauf; die `Name:Tag`-Alias-Erweiterung ist noch nicht implementiert:
+
+```sh
+trice bind -alias MyAlarm:wrn -src app -til til.json -li li.json
+tlog -til til.json -loglevel wrn
+```
+
+Für eine eigene Kategorie:
+
+```sh
+trice bind -alias SensorAlarm:sensor -src app -til til.json -li li.json
+tlog -til til.json -ulabel sensor:650 -loglevel 600
+```
+
+Die üblichen Eingabe-/Portoptionen kommen beim Logging hinzu. Der zweite Logger braucht keine Alias-Einstellung. Ohne `-ulabel sensor:650` gilt der dokumentierte INFO-Default; unter einer Warning-Schwelle kann das Ereignis dann ausgeblendet sein. Eine projektspezifische historische Gewichtung ist nur mit archivierter Host-Konfiguration reproduzierbar. Falls stattdessen jeder Firmwarestand einen unveränderlichen Custom-Schweregrad garantieren soll, wäre dessen Speicherung eine **zusätzliche semantische Designentscheidung**.
+
+Zwei Fallstricke für die spätere Umsetzung:
+
+- TIL-Tags müssen für Filter verfügbar sein, bevor ein Eingabekanal geöffnet wird. Heute validiert `runLog` die Filter vor dem eigentlichen Log-Loop. Auch beim automatischen Nachladen der TIL müssen neue Tags, Gewichte und Filter konsistent aktualisiert werden; siehe [Initialisierung](../../internal/args/handler.go) und [Datei-Watcher](../../internal/id/fileWatcher.go).
+- Das Bekanntwerden eines expliziten Custom-Tags darf alte Einträge ohne Metadaten nicht nachträglich anders interpretieren. Ein bislang gewöhnlicher Text `sensor:ready` darf nicht allein durch einen neuen Alias-Eintrag zum Tag werden. Explizite Tag-Auflösung und Legacy-Präfixerkennung brauchen diese Unterscheidung, auch wenn sie dieselbe Registry verwenden.
+
+### 34.6. <a id="historische-identität-und-gemeinsame-auswertung"></a>Historische Identität und gemeinsame Auswertung
+
+Ein Wechsel von Warning zu Error darf eine bereits gespeicherte ID nicht umdeuten. Bind muss dafür eine passende andere historische ID verwenden oder eine neue vergeben. Ein bloßer Schreibweisenwechsel `wrn -> WARNING` darf dagegen keinen Wechsel erzwingen. Dasselbe gilt bei zwei gleichlautenden Meldungen mit verschiedenen expliziten Tags.
+
+Die Vergleichsidentität muss deshalb effektiven Typ, effektives Format und die Tag-Semantik enthalten. Dabei ist auch der Modus **Legacy-Präfix versus explizite Zuordnung** relevant: Derselbe sichtbare Tag kann unterschiedliche Behandlung des Meldungstexts bedeuten. Farbe, Host-Gewicht, Aliasname, Dateizeile und JSON-Feldreihenfolge gehören nicht in diesen Schlüssel.
+
+Heute wird `TriceFmt` selbst als Go-Map-Schlüssel verwendet. Ein verschachteltes persistentes Metadatenobjekt darf nicht einfach samt Maps, Zeigern oder unbekannten Feldern zum neuen Gleichheitsmaß werden. Ein kleiner, ausdrücklich definierter semantischer Vergleichsschlüssel ist nötig. Prüfen muss man neben Allocation auch Bind-Reuse, Sekundär-TILs und die Umsortierung identischer Aufrufe; siehe [Reverse-Lookup](../../internal/id/manage.go), [Bind-Metadaten](../../internal/id/bindMetadata.go) und [ID-Reihenfolge](../../internal/id/orderedIDs.go).
+
+Der Decoder sollte danach eine eindeutige Tag-Identität und getrennt die Information liefern, ob überhaupt ein entfernbares Textpräfix vorliegt. Nur `record.Tag` anders zu setzen reicht nicht: [Structured Output](../../internal/translator/structured.go) und [Textausgabe](../../internal/translator/translator.go) entfernen beziehungsweise interpretieren bislang Präfixe. Filter, Statistik, Farben und JSON/KV müssen dieselbe Identität verwenden, ohne echten Meldungstext versehentlich zu entfernen.
+
+### 34.7. <a id="kompatibilität-lesen-bedeutung-und-schreiben-unterscheiden"></a>Kompatibilität: Lesen, Bedeutung und Schreiben unterscheiden
+
+Die folgende Einschätzung beruht auf den gelesenen aktuellen Reader-/Writer-Pfaden, **nicht auf ausgeführten Tests verschiedener Release-Binaries**. Bei strukturell unveränderten `Type`-/`Strg`-Einträgen ignoriert der verwendete Go-JSON-Decoder unbekannte Struct-Felder; siehe [Go-Dokumentation zu Unmarshal](https://pkg.go.dev/encoding/json#Unmarshal). Ein altes Tool erhält dadurch aber keine Kenntnis ihrer Bedeutung.
+
+| Kombination | Erwartbares Verhalten und Grenze |
+|---|---|
+| Neues Tool, alte TIL ohne Metadaten | Bisherige Präfix-/`untagged`-Semantik bleibt erhalten. Diese Erweiterung hebt sonstige historische Template-Grenzen nicht auf. |
+| Neues Tool, erweiterte TIL | Explizite Tags steuern Filter, Statistik und Ausgabe; Host-Policy ergänzt Gewichte und Farben. |
+| Bisheriger Logger, erweiterte TIL | `Type` und `Strg` bleiben lesbar. Alias-Tag wird ignoriert: das Ereignis gilt als `untagged` oder sogar als die andere Gruppe aus einem echten Textpräfix. Korrekte Filterung ist nicht zugesichert. |
+| Bisheriger Bind-/Insert-/Generate-Writer, erweiterte TIL | Bei erneutem Serialisieren gehen unbekannte Felder verloren. Auch ID-Wiederverwendung kann verschiedene Tag-Semantiken zusammenfassen. Nicht auf der maßgeblichen erweiterten TIL arbeiten lassen. |
+| Bisheriger Logger, ausdrücklich erzeugte Legacy-Kopie | Bekannte Tag-Präfixe können die Klassifikation vermitteln. Sichtbarer Text, Custom-Labels und Präfixkonflikte brauchen dokumentierte Grenzen. |
+
+**Die entscheidende Grenze:** Unverändertes `Strg`, unveränderter alter Logger und volle neue Alias-Semantik lassen sich nicht gleichzeitig garantieren. Ein zusätzliches JSON-Feld kann einem alten Programm kein neues Filterverhalten beibringen. Auch ein Versionsfeld innerhalb von `Meta` kann alte Writer nicht am Ignorieren hindern.
+
+Falls alte Logger weiter zuverlässig filtern müssen, ist ein **bewusster Legacy-Export** die verständlichste Ausweichmöglichkeit: Für eine separate Kopie ein passendes synthetisches Präfix vor das effektive Format setzen. Die maßgebliche TIL und die IDs bleiben dabei unverändert. Built-in-Tags sind am einfachsten; Custom-Tags benötigen im alten Host weiter passende `-ulabel`-Einstellungen. Unter `-color off` erscheint das zusätzliche Präfix. Reine Alias-Metadaten dürfen durch diesen Export keine neue Payload-Semantik erhalten.
+
+Diese Kopie ist ein verlustbehaftetes Ausgabeformat für alte Logger, keine neue Arbeits-TIL. Sie gehört in ein separates Export-/Releaseverzeichnis außerhalb der Bind-Metadatensuche, damit zwei verschiedene `Strg`-Darstellungen derselben ID nicht als konkurrierende Build-Dictionaries eingelesen werden. Ein Exportbefehl wird hier weder implementiert noch endgültig benannt.
+
+Wenn dauerhaft **alte und neue schreibende Werkzeuge** dieselben Arbeitsdateien bearbeiten müssen, ist das eine stärkere Anforderung als alte Dateien lesen zu können. Dann wären getrennte Arbeitsstände oder eine zusätzliche Metadatendatei erneut abzuwägen; auch eine solche Datei müsste gegen veraltete ID-Zuordnungen abgesichert werden.
+
+### 34.8. <a id="li-sammelt-bereits-ids-aber-keine-vollständige-positionshistorie"></a>LI sammelt bereits IDs, aber keine vollständige Positionshistorie
+
+Im aktuellen Code werden neu ermittelte Positionen in die vorhandene LI eingetragen. Nicht erneut gefundene IDs bleiben dabei grundsätzlich erhalten; für dieselbe ID wird die bisherige Position ersetzt. Das gilt für [Bind](../../internal/id/bindIDs.go) und die [gemeinsame Nachverarbeitung](../../internal/id/switchIDs.go). Die [Bind-Dokumentation](../rm/bind.md#hierarchical-metadata-reuse) beschreibt ausdrücklich eine Position je ID.
+
+Deshalb müssen zwei Wünsche unterschieden werden:
+
+| Gewünschte Akkumulation | Heutiger Stand / Konsequenz |
+|---|---|
+| Alte IDs mit ihrer zuletzt bekannten Position aufbewahren | Bereits grundsätzlich vorhanden. Kompaktere Speicherung ist davon unabhängig. |
+| Jede frühere Position derselben ID je Firmwarestand wiederfinden | Noch nicht abgebildet. Benötigt eine Zuordnung zum Build oder zur Aufnahme. |
+
+Beispiel: ID `1234` gehört in Firmware A zu `motor.c:42`, in Firmware B nach eingefügten Quellzeilen zu `motor.c:55`. Eine Liste beider Positionen sagt dem Logger noch nicht, welche richtig ist. Eine Zeitangabe oder „zuletzt gesehen“ löst das bei parallelen Branches und alten Geräten nicht. Auch identische Aufrufe können durch die vorhandenen ID-Regeln neu zugeordnet werden.
+
+**Keine neue Trice-ID allein für jede Zeilenverschiebung vergeben.** Das würde Format-/Ereignisidentität mit Quellposition koppeln und den begrenzten ID-Raum schneller verbrauchen. Für exakte historische Locations stattdessen den passenden Build auswählen. Das kann ohne neue Target-Payload durch die Wahl des archivierten Metadatensatzes oder durch einen Aufnahmebegleiter geschehen. Gemischte Firmwarestände in einer Aufnahme benötigen entsprechend getrennte Sitzungen oder eine zusätzliche eindeutige Zuordnung.
+
+### 34.9. <a id="platzsparende-li-kleiner-schritt-und-spätere-historie"></a>Platzsparende LI: kleiner Schritt und spätere Historie
+
+**Kleiner Schritt ohne Schemaänderung:** ein kompakter Eintrag pro Zeile, weiterhin mit `File` und `Line`. Dafür existiert bereits `generate -onelineJSON`; es erzeugt abgeleitete Dateien und stellt die maßgebliche LI nicht automatisch auf ein anderes Schreibformat um. Siehe [Generator](../../internal/id/generate.go). Das ist eine Formatierungsfrage, noch keine neue Historienfunktion.
+
+Ein reiner Größenvergleich im Speicher für [`_test/testdata/testLI.json`](../../_test/testdata/testLI.json), mit 2.329 IDs und 16 verschiedenen Pfaden:
+
+| Darstellung | Bytes | Aussage |
+|---|---:|---|
+| Vorliegende Datei | 168.499 | Ausgangspunkt im geprüften Checkout. |
+| Ein kompakter Eintrag pro Zeile, nach dem Layout des vorhandenen Generators | 145.209 | Etwa 13,8 % kleiner; gleiches JSON-Schema. |
+| Vollständig kompaktes JSON | 138.221 | Weniger angenehm für Diffs. |
+| Experimentelle gemeinsame Pfadtabelle plus `ID -> [Pfadindex, Zeile]` | 39.474 | Etwa 76,6 % kleiner, aber inkompatibles Schema und noch ohne Build-Historie. |
+
+Diese Zahlen sind eine Layoutrechnung an einer Fixture, kein implementierter Kompressor und keine allgemeine Einspargarantie. Sie zeigen: Das größere Potenzial liegt in den wiederholten Pfaden. Git-/Archivkompression kann diese Wiederholung ebenfalls reduzieren, ohne das Arbeitsformat zu ändern.
+
+**Falls eine echte Historie gewünscht wird:** vorzugsweise ein optionales, versioniertes Host-Archiv, vorläufig `li-history.json` genannt. Die gewöhnliche LI bleibt die einfache Sicht eines ausgewählten Builds für vorhandene Tools. Ein mögliches logisches Schema:
+
+```json
+{
+  "Format": "trice-li-history",
+  "Version": 1,
+  "Files": ["src/motor.c"],
+  "Locations": [[0, 42], [0, 55]],
+  "Snapshots": {
+    "firmware-a": {"1234": 0},
+    "firmware-b": {"1234": 1}
+  }
+}
+```
+
+Hier enthalten `Locations` Paare aus Pfadindex und Zeile; die Werte in `Snapshots` verweisen auf diese Positionen. Es handelt sich ausschließlich um Host-Dateiindizes, nicht um neue File-IDs im Target-Protokoll. Dateinamen und Schema sind noch nicht festgelegt.
+
+Für eine spätere Spezifikation sind folgende Regeln wichtiger als ein möglichst kurzes JSON-Beispiel:
+
+- Jeder Pfad und jedes Positionspaar wird nur einmal gespeichert. Gleiche vollständige Zuordnungen können von mehreren Builds gemeinsam genutzt werden. Stabile Indizes vermeiden eine Neunummerierung des gesamten Archivs bei jeder Ergänzung.
+- Ein Snapshot enthält die tatsächliche aktive Zuordnung des Builds. Die kumulative Arbeits-LI kann auch alte, inzwischen inaktive IDs enthalten und ist dafür allein kein verlässliches Aktivitätsverzeichnis. Partielle Bind-Scans dürfen nicht als vollständiger neuer Build ausgegeben werden.
+- Ein unveränderlicher Build-Bezug muss Firmware und relevante Metadaten zusammenführen. Ein Git-Commit allein reicht bei lokalen Änderungen oder verschiedenen Build-Optionen nicht. Da Bind vor dem Linken läuft, wird ein fertiger Firmware-Hash erst im abschließenden Build-/Archivschritt zugeordnet.
+- Ohne passenden Build darf der Logger bei mehreren möglichen Positionen nicht einfach die neueste als historisch korrekt ausgeben. Eindeutige Auswahl verlangen oder die Location mit verständlichem Hinweis weglassen.
+- Unabhängige ID-Dictionaries beziehungsweise kollidierende Branch-Historien müssen getrennte Namensräume behalten. Dieselbe Zahl ist nicht projektübergreifend dieselbe Trice-ID.
+- Historische Snapshots bleiben unverändert. Pfadwurzeln und Normalisierung müssen festgelegt sein; ein Rechnerwechsel darf keine neuen Hostpfade in dieselbe Historie hineinmischen.
+- Ein gewählter Snapshot lässt sich wieder in eine gewöhnliche `li.json` mit `File` und `Line` exportieren. Alte Tools können diese Sicht weiterhin nutzen; sie können das kompakte Archiv nicht direkt lesen.
+- Delta-Ketten über viele Builds, automatische Bereinigung und ein kombiniertes TIL-/LI-Archiv zunächst zurückstellen. Vollständige logische Snapshots mit geteilten Tabellen sind verständlicher; weitere Verdichtung erst anhand echter Archivgrößen entscheiden.
+
+Ein solcher Host-Archivpfad eröffnet später Platz für Build-bezogene Metadaten, ohne die einfache TIL-Erweiterung oder Alias-Tags davon abhängig zu machen. Falls hingegen ausdrücklich **eine einzige kompakte neue `li.json`** statt einer zusätzlichen Archivdatei gewünscht wird, ist das ein bewusster Formatwechsel: neue Tools brauchen beide Reader, alte Tools eine exportierte Legacy-Sicht. Beides gleichzeitig in einer alten ID-Map unterzubringen würde Daten duplizieren oder alte Leser täuschen.
+
+### 34.10. <a id="konkreter-entscheidungsstand-für-die-weiterarbeit"></a>Konkreter Entscheidungsstand für die Weiterarbeit
+
+Die derzeitige Empfehlung lautet:
+
+1. Alias-Tags explizit und historisch stabil pro ID in einer optional erweiterten TIL erhalten; keine Wiederholung der Bind-Alias-CLI beim Logging verlangen.
+2. Die vorhandene äußere TIL-Struktur erhalten; den kleinen versionierten `Meta`-Bereich als bevorzugten Schemaentwurf prüfen. Bestehende Einträge ohne Metadaten behalten ihre Semantik.
+3. Gewicht und Farbe bleiben Host-Policy. Explizite Custom-Tags erhalten ohne Override den dokumentierten INFO-Default. Für identische historische Ausgabe die Host-Konfiguration mit archivieren.
+4. Neue Tools müssen alte Dateien weiter akzeptieren. Alte Logger können neue Zusatzfelder ignorieren, aber die neue Semantik nur über einen gesonderten Legacy-Export erhalten. Alte Writer dürfen erweiterte Arbeitsdateien nicht still zerstören; deren tatsächlicher weiterer Einsatz muss vor Implementierung geklärt werden.
+5. LI-Kompaktheit und vollständige LI-Historie getrennt entscheiden. Für Alias-Tags ist beides keine Voraussetzung. Bei echter Historie ein optionales Host-Archiv mit Build-Auswahl und exportierbarer klassischer LI bevorzugen.
+
+**Vor Implementierung am anderen Rechner noch mit dem Nutzer entscheiden:** Reicht alte Tools weiterhin zum Lesen einzusetzen, oder müssen sie die neuen Arbeitsdateien auch schreiben können? Ist der vorgeschlagene `Meta`-Bereich gegenüber dem flachen `Tag`-Feld erwünscht? Bedeutet „akkumulierende LI“ nur kompaktere letzte Positionen je ID oder exakte Positionen über mehrere Builds? Diese Analyse legt dafür eine Empfehlung vor und ersetzt die Zustimmung zu diesen wesentlichen Entscheidungen nicht.
+
+Danach zuerst kleine Kompatibilitäts- und Verhaltenstests planen: alte/neue Reader und Writer, Alias-Tagwechsel, gleichlautende Formate verschiedener Tags, kollidierende Textpräfixe, Custom-Default und Host-Override, TIL-Nachladen, unbekannte Metadaten, Sekundär-Dictionaries sowie unveränderte Legacy-Einträge. Für eine separat beauftragte LI-Historie zusätzlich zwei Builds mit gleicher ID an verschiedenen Zeilen und die Rückgabe einer alten LI testen. Aktuell wurden nur Code und Dokumentation gelesen sowie die genannten Größen im Speicher berechnet; kein Laufzeitcode, kein Dictionary und kein Buildskript wurde geändert.
