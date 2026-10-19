@@ -5,11 +5,11 @@
 
 <!-- mdtoc -->
 
-* [1. Visualization output with -vis](#visualization-output-with--vis)
+* [1. Visualization output with `-vis`](#visualization-output-with--vis)
 * [2. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
   * [2.1. The common live-data format](#the-common-live-data-format)
-  * [2.2. ./examples/DemoDataCSV](#examplesdemodatacsv)
-  * [2.3. ./examples/DemoDataTrice](#examplesdemodatatrice)
+  * [2.2. ./examples/DemoData_CSV](#examplesdemodata_csv)
+  * [2.3. ./examples/DemoData_Trice](#examplesdemodata_trice)
   * [2.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
   * [2.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
   * [2.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
@@ -154,7 +154,7 @@ Trice records to `tlog`; `tlog` decodes them and sends the same CSV format
 onward. This separation means that one LabPlot project works for both
 examples.
 
-### 2.2. <a id="examplesdemodatacsv"></a>./examples/DemoData_CSV
+### 2.2. <a id="examplesdemodata_csv"></a>./examples/DemoData_CSV
 
 The [CSV producer](../../examples/DemoData_CSV/src/main.c) is a small C11 program
 for Windows, macOS, and Linux. Each newline-terminated record contains
@@ -232,7 +232,7 @@ time_s,x,y,z
 th@Thomass-MacBook-Pro-7 bin % 
 ```
 
-### 2.3. <a id="examplesdemodatatrice"></a>./examples/DemoData_Trice
+### 2.3. <a id="examplesdemodata_trice"></a>./examples/DemoData_Trice
 
 The [Trice producer](../../examples/DemoData_Trice/src/main.c) transports the
 same signals as binary Trice records. Keep it inside the repository: its

@@ -15,23 +15,23 @@
   - [4.2. G0B1 FreeRTOS Local Logging](#g0b1-freertos-local-logging)
 - [5. Shared Example Producers](#shared-example-producers)
 - [6. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
-  - [6.1. F030bare](#f030bare)
+  - [6.1. F030_bare](#f030_bare)
     - [6.1.1. Steps performed as potential guide:](#steps-performed-as-potential-guide)
     - [6.1.2. Hint](#hint)
-  - [6.2. F030instrtt](#f030instrtt)
-  - [6.3. F030instuart](#f030instuart)
-  - [6.4. F030inst](#f030inst)
+  - [6.2. F030_inst_rtt](#f030_inst_rtt)
+  - [6.3. F030_inst_uart](#f030_inst_uart)
+  - [6.4. F030_inst](#f030_inst)
     - [6.4.1. Intrumenting:](#intrumenting)
 - [7. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
-  - [7.1. G0B1bare](#g0b1bare)
-    - [7.1.1. G0B1bare Description](#g0b1bare-description)
-    - [7.1.2. Setting Up G0B1bare](#setting-up-g0b1bare)
-  - [7.2. G0B1inst](#g0b1inst)
+  - [7.1. G0B1_bare](#g0b1_bare)
+    - [7.1.1. G0B1_bare Description](#g0b1_bare-description)
+    - [7.1.2. Setting Up G0B1_bare](#setting-up-g0b1_bare)
+  - [7.2. G0B1_inst](#g0b1_inst)
     - [7.2.1. Setting Up](#setting-up)
     - [7.2.2. Instrumenting](#instrumenting)
 - [8. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
-  - [8.1. L432bare](#l432bare)
-  - [8.2. L432inst](#l432inst)
+  - [8.1. L432_bare](#l432_bare)
+  - [8.2. L432_inst](#l432_inst)
     - [8.2.1. Build:](#build)
     - [8.2.2. "Hardware" Changes](#hardware-changes)
     - [8.2.3. Using RTT with on-board J-Link and JLinkRTTLogger](#using-rtt-with-on-board-j-link-and-jlinkrttlogger)
@@ -277,7 +277,7 @@ Use [F030_bare](../../examples/F030_bare/) as the uninstrumented baseline and co
 
 The instrumented variants keep `triceConfig.h` and the persistent ID-to-format dictionary `til.json` in version control. Their build scripts run `trice bind` and `make`, producing firmware in `out/`, regenerable headers in `out/sidecars` and the local `li.json` location index. Sidecars and `li.json` are ignored by Git; the latter records current source paths and line numbers. [F030_inst](examples.md#f030inst) is the larger parallel RTT/UART example and retains its existing build workflow.
 
-### 6.1. <a id="f030bare"></a>F030_bare
+### 6.1. <a id="f030_bare"></a>F030_bare
 
 Folder: [../examples/F030_bare/](../../examples/F030_bare/)
 
@@ -374,7 +374,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-### 6.2. <a id="f030instrtt"></a>F030_inst_rtt
+### 6.2. <a id="f030_inst_rtt"></a>F030_inst_rtt
 
 If you have a STM F030 evaluation board or something similar [changing the onboard STLINK to an onboard JLINK](https://github.com/rokath/trice/blob/main/docs/rm/rtt.md#convert-evaluation-board-onboard-st-link-to-j-link) is recommended. That allows easy debugging together with direct Trice output.
 
@@ -407,7 +407,7 @@ The startup records print `Firmware init start...`, `Firmware init done.` and `V
 
 For the corresponding UART steps, compare [F030_inst_uart](examples.md#f030instuart). [F030_inst](examples.md#f030inst) demonstrates RTT and UART in parallel.
 
-### 6.3. <a id="f030instuart"></a>F030_inst_uart
+### 6.3. <a id="f030_inst_uart"></a>F030_inst_uart
 
 Folder: [../examples/F030_inst_uart/](../../examples/F030_inst_uart/)
 
@@ -438,7 +438,7 @@ The startup records print `Firmware init start...`, `Firmware init done.` and `V
 
 For the corresponding RTT steps, compare [F030_inst_rtt](examples.md#f030instrtt). [F030_inst](examples.md#f030inst) demonstrates RTT and UART in parallel.
 
-### 6.4. <a id="f030inst"></a>F030_inst
+### 6.4. <a id="f030_inst"></a>F030_inst
 
 Folder: [../examples/F030_inst/](../../examples/F030_inst/)
 
@@ -469,22 +469,22 @@ The project-specific [SEGGER_RTT_Conf.h](../../examples/F030_inst/Core/Inc/SEGGE
 
 <img src="https://docs.zephyrproject.org/latest/_images/nucleo_g0b1re.jpg">
 
-### 7.1. <a id="g0b1bare"></a>G0B1_bare
+### 7.1. <a id="g0b1_bare"></a>G0B1_bare
 
 Folder: [../examples/G0B1_bare/](../../examples/G0B1_bare/)
 
-#### 7.1.1. <a id="g0b1bare-description"></a>G0B1_bare Description
+#### 7.1.1. <a id="g0b1_bare-description"></a>G0B1_bare Description
 
 - This is a working example with CLang and also GCC.
 - This is a STMCubeMX generated project. It was then manually adapted to Clang.
 - It is without TRICE instrumentation for easy compare with [../G0B1_inst](../../examples/G0B1_inst) to figure out the needed changes to set up trice.
 
-#### 7.1.2. <a id="setting-up-g0b1bare"></a>Setting Up G0B1_bare
+#### 7.1.2. <a id="setting-up-g0b1_bare"></a>Setting Up G0B1_bare
 
 - See and adapt steps from [F030_bare](examples.md#f030bare).
 - Then add/modify the files to reach this folder layot.
 
-### 7.2. <a id="g0b1inst"></a>G0B1_inst
+### 7.2. <a id="g0b1_inst"></a>G0B1_inst
 
 Folder: [../examples/G0B1_inst/](../../examples/G0B1_inst/)
 
@@ -505,7 +505,7 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/A300/NUCLEO_L432KC_01.png" width=400>
 
-### 8.1. <a id="l432bare"></a>L432_bare
+### 8.1. <a id="l432_bare"></a>L432_bare
 
 Folder: [../examples/L432_bare/](../../examples/L432_bare/)
 
@@ -516,7 +516,7 @@ Folder: [../examples/L432_bare/](../../examples/L432_bare/)
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
-### 8.2. <a id="l432inst"></a>L432_inst
+### 8.2. <a id="l432_inst"></a>L432_inst
 
 Folder: [../examples/L432_inst/](../../examples/L432_inst/)
 

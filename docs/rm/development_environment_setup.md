@@ -16,7 +16,7 @@
   - [4.5. Gitkraken (or other GUI for git)](#gitkraken-or-other-gui-for-git)
   - [4.6. arm-none-eabi toolchain (or other target system compiler)](#arm-none-eabi-toolchain-or-other-target-system-compiler)
     - [4.6.1. Recommended complete Arm GNU Toolchain](#recommended-complete-arm-gnu-toolchain)
-    - [4.6.2. GNU assembler unable to rebuffer file warning](#gnu-assembler-unable-to-rebuffer-file-warning)
+    - [4.6.2. GNU assembler `unable to rebuffer file` warning](#gnu-assembler-unable-to-rebuffer-file-warning)
   - [4.7. J-Link (if needed)](#j-link-if-needed)
   - [4.8. Beyond Compare (if no other diff tool)](#beyond-compare-if-no-other-diff-tool)
 - [5. Setup Windows PC Example](#setup-windows-pc-example)

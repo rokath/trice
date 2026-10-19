@@ -13,7 +13,7 @@
 - [6. Handler payload handling](#handler-payload-handling)
 - [7. Responses](#responses)
 - [8. What ABC is not](#what-abc-is-not)
-- [9. Example: examples/TriceAbc](#example-examplestriceabc)
+- [9. Example: `examples/TriceAbc`](#example-examplestriceabc)
   - [9.1. ABC Demo Layout, Startup, and Runtime Policy](#abc-demo-layout-startup-and-runtime-policy)
 - [10. BcSim Broadcast Byte-Stream Simulator](#bcsim-broadcast-byte-stream-simulator)
 - [11. Host tests](#host-tests)
