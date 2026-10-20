@@ -37,11 +37,65 @@ If this directory contains independent projects or verification sources,
 restrict the selection with one or more -src or -exclude options.
 =========================================================================`
 
+// cliUsageError identifies invalid arguments without treating runtime failures
+// as usage errors. Public entry points add the help command for their executable.
+type cliUsageError struct {
+	command string // canonical subcommand, or empty when no command was selected
+	cause   error  // original diagnostic, retained for errors.Is and errors.As
+}
+
+// Error preserves the underlying diagnostic until the public entry point adds its hint.
+func (e *cliUsageError) Error() string { return e.cause.Error() }
+
+// Unwrap retains the original error for callers inspecting a failed invocation.
+func (e *cliUsageError) Unwrap() error { return e.cause }
+
+// withCLIHelp adds exactly one actionable hint to usage errors. Runtime errors
+// pass through unchanged, and tlog never advertises unavailable trice subcommands.
+func withCLIHelp(err error, loggingOnly bool) error {
+	var usage *cliUsageError
+	if !errors.As(err, &usage) {
+		return err
+	}
+	helpCommand := "trice help"
+	if loggingOnly {
+		helpCommand = "tlog help"
+	} else if usage.command != "" {
+		helpCommand += " -" + strings.ToLower(usage.command)
+	}
+	return fmt.Errorf("%w\nUse %s for CLI documentation.", err, helpCommand)
+}
+
+// parseCommandFlags reports errors through the caller instead of printing the
+// flag package's automatic usage dump. Explicit help prints full usage and stops
+// successfully; errors and unexpected positional arguments stop before any work.
+func parseCommandFlags(w io.Writer, flags *flag.FlagSet, arguments []string) (stop bool, err error) {
+	// Help renderers also use these flag sets, so restore their output after parsing.
+	previousOutput := flags.Output()
+	flags.SetOutput(io.Discard)
+	defer flags.SetOutput(previousOutput)
+	err = flags.Parse(arguments)
+	if errors.Is(err, flag.ErrHelp) {
+		flags.SetOutput(w)
+		flags.Usage()
+		return true, nil
+	}
+	if err != nil {
+		return true, &cliUsageError{command: flags.Name(), cause: err}
+	}
+	if flags.NArg() != 0 {
+		return true, &cliUsageError{command: flags.Name(), cause: fmt.Errorf("unexpected argument %q", flags.Arg(0))}
+	}
+	return false, nil
+}
+
 // Handler parses args and executes the selected sub-command.
 //
 // args is expected in os.Args form where args[0] is the executable name and
 // args[1] is the sub-command.
-func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
+func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
+	defer func() { err = withCLIHelp(err, false) }()
+
 	// Trim leading and trailing whitespace
 	//for i := range args {
 	//	args[i] = strings.TrimSpace(args[i])
@@ -51,8 +105,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 
 	// Verify that a sub-command has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the sub-command.
 	if len(args) < 2 {
-		m := "no args, try: '" + args[0] + " help'"
-		return errors.New(m)
+		return &cliUsageError{cause: errors.New("no sub-command provided")}
 	}
 	if isVersionSwitch(args[1]) {
 		return versionHandler(w, fSys, args[2:])
@@ -65,27 +118,40 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 	subArgs := args[2:]
 	switch subCmd { // Check which sub-command is invoked.
 	default:
-		return fmt.Errorf("unknown sub-command '%s'. try: '%s help|h'", subCmd, args[0])
+		return &cliUsageError{cause: fmt.Errorf("unknown sub-command '%s'", subCmd)}
+	case "-h", "-help", "--help":
+		if len(subArgs) != 0 {
+			return &cliUsageError{cause: fmt.Errorf("unexpected argument %q", subArgs[0])}
+		}
+		return helpInfo(w)
 	case "h", "help":
-		msg.OnErr(fsScHelp.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScHelp, subArgs); stop {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return scHelp(w)
 	case "s", "scan":
-		msg.OnErr(fsScScan.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScScan, subArgs); stop {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		return versionHandler(w, fSys, subArgs)
 	case "a", "add":
-		msg.OnErr(fsScAdd.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScAdd, subArgs); stop {
+			return err
+		}
 		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
-		msg.OnErr(fsScGenerate.Parse(normalizeGenerateArgs(subArgs)))
+		if stop, err := parseCommandFlags(w, fsScGenerate, normalizeGenerateArgs(subArgs)); stop {
+			return err
+		}
 		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
@@ -97,16 +163,18 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdGenerate(w, fSys)
 	case "i", "insert":
-		msg.OnErr(fsScInsert.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScInsert, subArgs); stop {
+			return err
+		}
 		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
 		if err := emitter.AddUserLabels(); err != nil {
-			return err
+			return &cliUsageError{command: "insert", cause: err}
 		}
 		err := id.EvaluateIDRangeStrings()
 		if err != nil {
-			return err
+			return &cliUsageError{command: "insert", cause: err}
 		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		//fmt.Println(id.StructuredLoggingFormatString)
@@ -114,11 +182,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		//return err
 		return id.SubCmdIdInsert(w, fSys)
 	case "b", "bind":
-		fsScBind.SetOutput(w)
-		if err := fsScBind.Parse(subArgs); err != nil {
-			if errors.Is(err, flag.ErrHelp) {
-				return nil
-			}
+		if stop, err := parseCommandFlags(w, fsScBind, subArgs); stop {
 			return err
 		}
 		id.Verbose = Verbose
@@ -128,10 +192,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		id.CompactSrcs()
 		id.ProcessAliases()
 		if err := emitter.AddUserLabels(); err != nil {
-			return err
+			return &cliUsageError{command: "bind", cause: err}
 		}
 		if err := id.EvaluateIDRangeStrings(); err != nil {
-			return err
+			return &cliUsageError{command: "bind", cause: err}
 		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		err := id.SubCmdIdBind(w, fSys)
@@ -140,28 +204,34 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		}
 		return err
 	case "c", "clean":
-		msg.OnErr(fsScClean.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScClean, subArgs); stop {
+			return err
+		}
 		id.CompactSrcs()
 		id.ProcessAliases()
 		if err := emitter.AddUserLabels(); err != nil {
-			return err
+			return &cliUsageError{command: "clean", cause: err}
 		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdClean(w, fSys)
 	case "sd", "shutdown":
-		msg.OnErr(fsScSdSv.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScSdSv, subArgs); stop {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
-		msg.OnErr(fsScSv.Parse(subArgs))
+		if stop, err := parseCommandFlags(w, fsScSv, subArgs); stop {
+			return err
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		// The server applies its own palette to incoming, uncolored log fragments.
 		if err := emitter.AddUserLabels(); err != nil {
-			return err
+			return &cliUsageError{command: "displayServer", cause: err}
 		}
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
-		return LogHandler(w, fSys, append([]string{args[0]}, subArgs...))
+		return handleLog(w, fSys, append([]string{args[0]}, subArgs...))
 	}
 }
 
@@ -171,6 +241,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 // args[1:] are the log command flags. This makes `tlog ...` use the same code
 // path as `trice log ...` without exposing the other trice sub-commands.
 func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
+	return withCLIHelp(handleLog(w, fSys, args), true)
+}
+
+// handleLog shares log, help and version handling without choosing an executable's help hint.
+func handleLog(w io.Writer, fSys *afero.Afero, args []string) error {
 	ensureDate(fSys)
 	if len(args) == 0 {
 		args = []string{"tlog"}
@@ -180,6 +255,9 @@ func LogHandler(w io.Writer, fSys *afero.Afero, args []string) error {
 		case "ver", "version":
 			return versionHandler(w, fSys, args[2:])
 		case "h", "help":
+			if len(args) > 2 {
+				return &cliUsageError{command: "log", cause: fmt.Errorf("unexpected argument %q", args[2])}
+			}
 			return logInfo(w)
 		default:
 			if isVersionSwitch(args[1]) {
@@ -208,7 +286,9 @@ func isVersionSwitch(arg string) bool {
 }
 
 func versionHandler(w io.Writer, fSys *afero.Afero, subArgs []string) error {
-	msg.OnErr(fsScVersion.Parse(subArgs))
+	if stop, err := parseCommandFlags(w, fsScVersion, subArgs); stop {
+		return err
+	}
 	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 	if Verbose {
 		bi, ok := debug.ReadBuildInfo()
@@ -241,7 +321,9 @@ func ensureDate(fSys *afero.Afero) {
 func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	// A later invocation in the same process starts with the documented default.
 	decoder.LogFormat = "text"
-	msg.OnErr(fsScLog.Parse(subArgs))
+	if stop, err := parseCommandFlags(w, fsScLog, subArgs); stop {
+		return err
+	}
 	// Downstream presentation uses canonical names for its format comparisons.
 	switch strings.ToLower(decoder.LogFormat) {
 	case "text", "json", "kv":
@@ -249,24 +331,24 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	case "key-value":
 		decoder.LogFormat = "kv"
 	default:
-		return fmt.Errorf("invalid -logFormat %q: expected text, json, kv, or key-value", decoder.LogFormat)
+		return &cliUsageError{command: "log", cause: fmt.Errorf("invalid -logFormat %q: expected text, json, kv, or key-value", decoder.LogFormat)}
 	}
 	if decoder.LogFormat != "text" && !strings.EqualFold(translator.Encoding, "TREX") {
-		return fmt.Errorf("-logFormat %s requires -encoding TREX because CHAR/DUMP have no event boundaries", decoder.LogFormat)
+		return &cliUsageError{command: "log", cause: fmt.Errorf("-logFormat %s requires -encoding TREX because CHAR/DUMP have no event boundaries", decoder.LogFormat)}
 	}
 	if decoder.LogFormat != "text" && (emitter.DisplayRemote || decoder.TestTableMode) {
-		return fmt.Errorf("-logFormat %s cannot use the text-only remote display or test-table output", decoder.LogFormat)
+		return &cliUsageError{command: "log", cause: fmt.Errorf("-logFormat %s cannot use the text-only remote display or test-table output", decoder.LogFormat)}
 	}
 	if isLogFlagPassed("pick") && isLogFlagPassed("ban") {
-		return errors.New("switches -pick and -ban cannot be used together")
+		return &cliUsageError{command: "log", cause: errors.New("switches -pick and -ban cannot be used together")}
 	}
 	id.Logging = true
 	id.ProcessAliases()
 	if err := emitter.AddUserLabels(); err != nil {
-		return err
+		return &cliUsageError{command: "log", cause: err}
 	}
 	if err := emitter.ResolveFilterSelectors(); err != nil {
-		return err
+		return &cliUsageError{command: "log", cause: err}
 	}
 	decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
 	decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
@@ -276,7 +358,7 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	decoder.ShowTargetStamp16DeltaPassed = isLogFlagPassed("ts16delta")
 	decoder.ShowTargetStamp0DeltaPassed = isLogFlagPassed("ts0delta")
 	if err := translator.PrepareTargetStampFormats(); err != nil {
-		return err
+		return &cliUsageError{command: "log", cause: err}
 	}
 	w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 	return startLogLoop(w, fSys) // endless loop until EOF or a returned failure

@@ -22,21 +22,24 @@ Example 'trice h -help': Print help for help.
 // TestXyz verifies the expected behavior.
 func TestXyz(t *testing.T) {
 	args := []string{"trice", "xyz"}
-	expect := `unknown sub-command 'xyz'. try: 'trice help|h'`
+	expect := `unknown sub-command 'xyz'
+Use trice help for CLI documentation.`
 	execHelper(t, args, expect)
 }
 
 // TestXyzStim verifies the expected behavior.
 func TestXyzStim(t *testing.T) {
 	args := []string{"stim", "xyz"}
-	expect := `unknown sub-command 'xyz'. try: 'stim help|h'`
+	expect := `unknown sub-command 'xyz'
+Use trice help for CLI documentation.`
 	execHelper(t, args, expect)
 }
 
 // TestNoArgs verifies the expected behavior.
 func TestNoArgs(t *testing.T) {
 	args := []string{"trice"}
-	expect := `no args, try: 'trice help'`
+	expect := `no sub-command provided
+Use trice help for CLI documentation.`
 	execHelper(t, args, expect)
 }
 

@@ -909,3 +909,146 @@ func TestHandlerBindHelp(t *testing.T) {
 		}
 	}
 }
+
+// TestCLIUsageErrors checks the public entry points so hints cannot depend on
+// the invoked alias, print duplicate diagnostics, or start a log input.
+func TestCLIUsageErrors(t *testing.T) {
+	previousLogLoop := startLogLoop
+	t.Cleanup(func() {
+		startLogLoop = previousLogLoop
+		FlagsInit()
+	})
+	logStarted := false
+	startLogLoop = func(io.Writer, *afero.Afero) error {
+		logStarted = true
+		return io.ErrClosedPipe
+	}
+
+	tests := []struct {
+		name        string
+		arguments   []string
+		loggingOnly bool
+		diagnostic  string
+		helpCommand string
+	}{
+		{"empty argument list", nil, false, "no sub-command provided", "trice help"},
+		{"missing command", []string{"trice"}, false, "no sub-command provided", "trice help"},
+		{"unknown command", []string{"trice", "wrong"}, false, "unknown sub-command 'wrong'", "trice help"},
+		{"root help extra argument", []string{"trice", "--help", "wrong"}, false, `unexpected argument "wrong"`, "trice help"},
+		{"bind missing source", []string{"trice", "bind", "-src"}, false, "flag needs an argument: -src", "trice help -bind"},
+		{"bind positional argument", []string{"trice", "bind", "project"}, false, `unexpected argument "project"`, "trice help -bind"},
+		{"invalid boolean", []string{"trice", "bind", "-v=maybe"}, false, `invalid boolean value "maybe"`, "trice help -bind"},
+		{"trice log missing value", []string{"trice", "log", "-port"}, false, "flag needs an argument: -port", "trice help -log"},
+		{"trice log invalid format", []string{"trice", "log", "-logFormat", "invalid"}, false, "invalid -logFormat", "trice help -log"},
+		{"version switch unknown flag", []string{"trice", "--version", "-unknown-option"}, false, "flag provided but not defined: -unknown-option", "trice help -version"},
+		{"tlog unknown flag", []string{"tlog", "-unknown-option"}, true, "flag provided but not defined: -unknown-option", "tlog help"},
+		{"tlog missing value", []string{"tlog", "-port"}, true, "flag needs an argument: -port", "tlog help"},
+		{"tlog invalid number", []string{"tlog", "-baud", "invalid"}, true, `invalid value "invalid" for flag -baud`, "tlog help"},
+		{"tlog invalid format", []string{"tlog", "-logFormat", "invalid"}, true, "invalid -logFormat", "tlog help"},
+		{"tlog invalid command", []string{"tlog", "bind"}, true, `unexpected argument "bind"`, "tlog help"},
+		{"tlog trailing argument", []string{"tlog", "-port", "DEC", "wrong"}, true, `unexpected argument "wrong"`, "tlog help"},
+		{"tlog help extra argument", []string{"tlog", "help", "-unknown-option"}, true, `unexpected argument "-unknown-option"`, "tlog help"},
+		{"tlog version unknown flag", []string{"tlog", "version", "-unknown-option"}, true, "flag provided but not defined: -unknown-option", "tlog help"},
+	}
+	for _, command := range []struct{ spelling, helpTopic string }{
+		{"help", "help"}, {"h", "help"}, {"scan", "scan"}, {"s", "scan"},
+		{"version", "version"}, {"ver", "version"}, {"add", "add"}, {"a", "add"},
+		{"generate", "generate"}, {"insert", "insert"}, {"i", "insert"},
+		{"bind", "bind"}, {"b", "bind"}, {"clean", "clean"}, {"c", "clean"},
+		{"shutdown", "shutdown"}, {"sd", "shutdown"},
+		{"displayServer", "displayserver"}, {"ds", "displayserver"},
+		{"log", "log"}, {"l", "log"},
+	} {
+		tests = append(tests, struct {
+			name        string
+			arguments   []string
+			loggingOnly bool
+			diagnostic  string
+			helpCommand string
+		}{
+			name:        command.spelling + " unknown flag",
+			arguments:   []string{"trice", command.spelling, "-unknown-option"},
+			diagnostic:  "flag provided but not defined: -unknown-option",
+			helpCommand: "trice help -" + command.helpTopic,
+		})
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			FlagsInit()
+			logStarted = false
+			fSys := &afero.Afero{Fs: afero.NewReadOnlyFs(afero.NewMemMapFs())}
+			var output bytes.Buffer
+			handler := Handler
+			if test.loggingOnly {
+				handler = LogHandler
+			}
+			err := handler(&output, fSys, test.arguments)
+			require.Error(t, err)
+			lines := strings.Split(err.Error(), "\n")
+			require.Len(t, lines, 2)
+			assert.Contains(t, lines[0], test.diagnostic)
+			assert.Equal(t, "Use "+test.helpCommand+" for CLI documentation.", lines[1])
+			assert.NotErrorIs(t, err, flag.ErrHelp)
+			assert.Empty(t, output.String(), "the caller must print the error exactly once")
+			assert.False(t, logStarted, "invalid usage must not open the input")
+		})
+	}
+}
+
+// TestCLIExplicitHelpStillAvailable proves help paths return successfully with
+// detailed options, without requiring dictionaries or opening an input channel.
+func TestCLIExplicitHelpStillAvailable(t *testing.T) {
+	previousLogLoop := startLogLoop
+	t.Cleanup(func() {
+		startLogLoop = previousLogLoop
+		FlagsInit()
+	})
+	startLogLoop = func(io.Writer, *afero.Afero) error {
+		t.Fatal("help must not open the input")
+		return nil
+	}
+	tests := []struct {
+		name        string
+		arguments   []string
+		loggingOnly bool
+		want        string
+	}{
+		{"root short help", []string{"trice", "-h"}, false, "sub-command 'h|help'"},
+		{"root long help", []string{"trice", "--help"}, false, "sub-command 'h|help'"},
+		{"help topic", []string{"trice", "help", "-bind"}, false, "sub-command 'b|bind'"},
+		{"all help", []string{"trice", "help", "-all"}, false, "sub-command 'l|log'"},
+		{"log help command", []string{"trice", "log", "help"}, false, "sub-command 'l|log'"},
+		{"tlog help command", []string{"tlog", "help"}, true, "sub-command 'l|log'"},
+		{"tlog short help", []string{"tlog", "-h"}, true, "Usage of log:"},
+		{"tlog long help", []string{"tlog", "--help"}, true, "Usage of log:"},
+	}
+	for _, command := range []string{"add", "generate", "insert", "bind", "clean", "version", "displayServer", "scan", "shutdown", "log"} {
+		for _, option := range []string{"-h", "--help"} {
+			tests = append(tests, struct {
+				name        string
+				arguments   []string
+				loggingOnly bool
+				want        string
+			}{
+				name:      command + " " + option,
+				arguments: []string{"trice", command, option},
+				want:      "Usage of " + command + ":",
+			})
+		}
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			FlagsInit()
+			fSys := &afero.Afero{Fs: afero.NewReadOnlyFs(afero.NewMemMapFs())}
+			var output bytes.Buffer
+			handler := Handler
+			if test.loggingOnly {
+				handler = LogHandler
+			}
+			require.NoError(t, handler(&output, fSys, test.arguments))
+			assert.Contains(t, output.String(), test.want)
+			assert.Contains(t, output.String(), "\n  -", "explicit help must list options")
+			assert.NotContains(t, output.String(), "for CLI documentation.")
+		})
+	}
+}
