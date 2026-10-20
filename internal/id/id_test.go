@@ -5,10 +5,42 @@ package id
 
 import (
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// TestTriceIDSet verifies successful updates and rejects malformed or overflowing
+// values without exiting the process or replacing the previous flag value.
+func TestTriceIDSet(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		input   string
+		want    TriceID
+		wantErr error
+	}{
+		{name: "zero", input: "0", want: 0},
+		{name: "decimal", input: "1234", want: 1234},
+		{name: "maximum target ID", input: "65535", want: 65535},
+		{name: "signed integer", input: "-1", want: -1},
+		{name: "empty", input: "", want: 42, wantErr: strconv.ErrSyntax},
+		{name: "invalid text", input: "invalid", want: 42, wantErr: strconv.ErrSyntax},
+		{name: "fraction", input: "1.5", want: 42, wantErr: strconv.ErrSyntax},
+		{name: "overflow", input: "999999999999999999999", want: 42, wantErr: strconv.ErrRange},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			value := TriceID(42)
+			err := value.Set(test.input)
+			if test.wantErr != nil {
+				assert.ErrorIs(t, err, test.wantErr)
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Equal(t, test.want, value)
+		})
+	}
+}
 
 // TestFformatSpecifierCount verifies the expected behavior.
 func TestFformatSpecifierCount(t *testing.T) {

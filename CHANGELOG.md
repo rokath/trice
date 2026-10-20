@@ -24,6 +24,7 @@ This first v2 beta introduces new instrumentation and logging workflows for inte
 - [Deferred ID routing](docs/rm/target_routing.md#id-routing) includes both range endpoints, validates bounds and requires single-pack transfer when ID selection is active.
 - Dictionary live reload handles file replacement; finite `FILEBUFFER` replay exits promptly and releases resources.
 - Filters handle complete log events and their metadata; diagnostics remain visible, and statistics count decoded events before filtering.
+- Invalid CLI usage now prints the error and one [help hint](docs/rm/cli.md#common-information) instead of a full option list; explicit help remains available.
 
 ### Release and migration notes
 

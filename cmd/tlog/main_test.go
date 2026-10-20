@@ -4,8 +4,12 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"os"
+	"os/exec"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/spf13/afero"
@@ -159,4 +163,68 @@ func TestDoitAcceptsHelpAndVersionWithoutTIL(t *testing.T) {
 			assert.Contains(t, out.String(), tc.expected)
 		})
 	}
+}
+
+// TestMainCLIOutput verifies stderr and exit status through tlog's real main,
+// including help requests that must succeed without a dictionary or input.
+func TestMainCLIOutput(t *testing.T) {
+	for _, test := range []struct {
+		name       string
+		arguments  []string
+		diagnostic string
+		helpText   string
+	}{
+		{name: "unknown option", arguments: []string{"-unknown-option"}, diagnostic: "flag provided but not defined: -unknown-option"},
+		{name: "missing value", arguments: []string{"-port"}, diagnostic: "flag needs an argument: -port"},
+		{name: "invalid number", arguments: []string{"-baud", "invalid"}, diagnostic: `invalid value "invalid" for flag -baud`},
+		{name: "invalid format", arguments: []string{"-logFormat", "invalid"}, diagnostic: `invalid -logFormat "invalid"`},
+		{name: "invalid command", arguments: []string{"bind"}, diagnostic: `unexpected argument "bind"`},
+		{name: "trailing argument", arguments: []string{"-port", "DEC", "wrong"}, diagnostic: `unexpected argument "wrong"`},
+		{name: "unknown version option", arguments: []string{"version", "-unknown-option"}, diagnostic: "flag provided but not defined: -unknown-option"},
+		{name: "help command", arguments: []string{"help"}, helpText: "sub-command 'l|log'"},
+		{name: "short help", arguments: []string{"-h"}, helpText: "Usage of log:"},
+		{name: "long help", arguments: []string{"--help"}, helpText: "Usage of log:"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			// A parser regression must fail promptly instead of opening an input.
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			commandArgs := append([]string{"-test.run=^TestHelperProcessTlogMain$", "--"}, test.arguments...)
+			cmd := exec.CommandContext(ctx, os.Args[0], commandArgs...)
+			cmd.Env = append(os.Environ(), "GO_WANT_TLOG_HELPER_PROCESS=1")
+			cmd.Dir = t.TempDir()
+			var stdout, stderr bytes.Buffer
+			cmd.Stdout, cmd.Stderr = &stdout, &stderr
+			err := cmd.Run()
+			require.NoError(t, ctx.Err(), "CLI must stop without starting work")
+			if test.helpText != "" {
+				require.NoError(t, err, stderr.String())
+				assert.Contains(t, stdout.String(), test.helpText)
+				assert.Contains(t, stdout.String(), "\n  -")
+				assert.NotContains(t, stdout.String(), "for CLI documentation.")
+				assert.Empty(t, stderr.String())
+				return
+			}
+			var exitErr *exec.ExitError
+			require.ErrorAs(t, err, &exitErr)
+			assert.Equal(t, 1, exitErr.ExitCode())
+			assert.Empty(t, stdout.String())
+			lines := strings.Split(strings.TrimSuffix(stderr.String(), "\n"), "\n")
+			require.Len(t, lines, 2, stderr.String())
+			assert.Contains(t, lines[0], test.diagnostic)
+			assert.Equal(t, "Use tlog help for CLI documentation.", lines[1])
+		})
+	}
+}
+
+// TestHelperProcessTlogMain isolates main's os.Exit behavior from the test runner.
+func TestHelperProcessTlogMain(t *testing.T) {
+	if os.Getenv("GO_WANT_TLOG_HELPER_PROCESS") != "1" {
+		return
+	}
+	previousArgs := os.Args
+	defer func() { os.Args = previousArgs }()
+	// The parent passes one test selector, then "--", then the CLI arguments.
+	os.Args = append([]string{"tlog"}, os.Args[3:]...)
+	main()
 }

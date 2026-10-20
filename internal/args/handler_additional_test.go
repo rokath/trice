@@ -938,13 +938,18 @@ func TestCLIUsageErrors(t *testing.T) {
 		{"bind missing source", []string{"trice", "bind", "-src"}, false, "flag needs an argument: -src", "trice help -bind"},
 		{"bind positional argument", []string{"trice", "bind", "project"}, false, `unexpected argument "project"`, "trice help -bind"},
 		{"invalid boolean", []string{"trice", "bind", "-v=maybe"}, false, `invalid boolean value "maybe"`, "trice help -bind"},
+		{"invalid custom value", []string{"trice", "bind", "-IDMin", "invalid"}, false, `invalid value "invalid" for flag -IDMin`, "trice help -bind"},
 		{"trice log missing value", []string{"trice", "log", "-port"}, false, "flag needs an argument: -port", "trice help -log"},
 		{"trice log invalid format", []string{"trice", "log", "-logFormat", "invalid"}, false, "invalid -logFormat", "trice help -log"},
+		{"trice log incompatible encoding", []string{"trice", "log", "-logFormat", "json", "-encoding", "CHAR"}, false, "-logFormat json requires -encoding TREX", "trice help -log"},
+		{"trice log conflicting filters", []string{"trice", "log", "-pick", "err", "-ban", "dbg"}, false, "switches -pick and -ban cannot be used together", "trice help -log"},
+		{"trice log argument after terminator", []string{"trice", "log", "--", "-port"}, false, `unexpected argument "-port"`, "trice help -log"},
 		{"version switch unknown flag", []string{"trice", "--version", "-unknown-option"}, false, "flag provided but not defined: -unknown-option", "trice help -version"},
 		{"tlog unknown flag", []string{"tlog", "-unknown-option"}, true, "flag provided but not defined: -unknown-option", "tlog help"},
 		{"tlog missing value", []string{"tlog", "-port"}, true, "flag needs an argument: -port", "tlog help"},
 		{"tlog invalid number", []string{"tlog", "-baud", "invalid"}, true, `invalid value "invalid" for flag -baud`, "tlog help"},
 		{"tlog invalid format", []string{"tlog", "-logFormat", "invalid"}, true, "invalid -logFormat", "tlog help"},
+		{"tlog conflicting filters", []string{"tlog", "-pick", "err", "-ban", "dbg"}, true, "switches -pick and -ban cannot be used together", "tlog help"},
 		{"tlog invalid command", []string{"tlog", "bind"}, true, `unexpected argument "bind"`, "tlog help"},
 		{"tlog trailing argument", []string{"tlog", "-port", "DEC", "wrong"}, true, `unexpected argument "wrong"`, "tlog help"},
 		{"tlog help extra argument", []string{"tlog", "help", "-unknown-option"}, true, `unexpected argument "-unknown-option"`, "tlog help"},
@@ -995,6 +1000,34 @@ func TestCLIUsageErrors(t *testing.T) {
 	}
 }
 
+// TestCLIRuntimeErrorsStayUnchanged keeps input failures distinct from invalid
+// arguments: callers retain the original error and do not receive a usage hint.
+func TestCLIRuntimeErrorsStayUnchanged(t *testing.T) {
+	previousLogLoop := startLogLoop
+	t.Cleanup(func() {
+		startLogLoop = previousLogLoop
+		FlagsInit()
+	})
+	startLogLoop = func(io.Writer, *afero.Afero) error { return io.ErrClosedPipe }
+
+	for _, loggingOnly := range []bool{false, true} {
+		FlagsInit()
+		handler := Handler
+		arguments := []string{"trice", "log"}
+		if loggingOnly {
+			handler = LogHandler
+			arguments = []string{"tlog"}
+		}
+		t.Run(arguments[0], func(t *testing.T) {
+			var output bytes.Buffer
+			fSys := &afero.Afero{Fs: afero.NewReadOnlyFs(afero.NewMemMapFs())}
+			err := handler(&output, fSys, arguments)
+			assert.Same(t, io.ErrClosedPipe, err)
+			assert.Empty(t, output.String())
+		})
+	}
+}
+
 // TestCLIExplicitHelpStillAvailable proves help paths return successfully with
 // detailed options, without requiring dictionaries or opening an input channel.
 func TestCLIExplicitHelpStillAvailable(t *testing.T) {
@@ -1015,6 +1048,7 @@ func TestCLIExplicitHelpStillAvailable(t *testing.T) {
 	}{
 		{"root short help", []string{"trice", "-h"}, false, "sub-command 'h|help'"},
 		{"root long help", []string{"trice", "--help"}, false, "sub-command 'h|help'"},
+		{"help command", []string{"trice", "help"}, false, "Example 'trice h -help'"},
 		{"help topic", []string{"trice", "help", "-bind"}, false, "sub-command 'b|bind'"},
 		{"all help", []string{"trice", "help", "-all"}, false, "sub-command 'l|log'"},
 		{"log help command", []string{"trice", "log", "help"}, false, "sub-command 'l|log'"},
@@ -1047,7 +1081,16 @@ func TestCLIExplicitHelpStillAvailable(t *testing.T) {
 			}
 			require.NoError(t, handler(&output, fSys, test.arguments))
 			assert.Contains(t, output.String(), test.want)
-			assert.Contains(t, output.String(), "\n  -", "explicit help must list options")
+			switch test.want {
+			case "Usage of scan:":
+				// Scan has no flags; its complete flag usage is only the heading.
+				assert.Equal(t, "Usage of scan:\n", output.String())
+			case "Example 'trice h -help'":
+				// Bare help retains the short overview; topic help lists options.
+				assert.Contains(t, output.String(), "syntax: 'trice sub-command' [params]")
+			default:
+				assert.Contains(t, output.String(), "\n  -", "explicit help must list options")
+			}
 			assert.NotContains(t, output.String(), "for CLI documentation.")
 		})
 	}
