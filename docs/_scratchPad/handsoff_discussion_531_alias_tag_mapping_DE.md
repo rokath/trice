@@ -53,7 +53,7 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [5.3. MODULE-/PROCESS-Automatisierung bleibt anwendungsspezifisch](#module-process-automatisierung-bleibt-anwendungsspezifisch)
 - [6. Bevorzugte CLI-Richtung](#bevorzugte-cli-richtung)
   - [6.1. Bestehende Option erweitern, keine Namensheuristik](#bestehende-option-erweitern-keine-namensheuristik)
-  - [6.2. Bedeutung von Name:Tag](#bedeutung-von-nametag)
+  - [6.2. Bedeutung von `Name:Tag`](#bedeutung-von-nametag)
   - [6.3. Keine Semantik aus Aliasnamen ableiten](#keine-semantik-aus-aliasnamen-ableiten)
   - [6.4. Formatstrings bleiben Eigentum des Quellcodes und werden durch Alias-Tag-Zuordnung nicht umgeschrieben](#formatstrings-bleiben-eigentum-des-quellcodes-und-werden-durch-alias-tag-zuordnung-nicht-umgeschrieben)
 - [7. Alias-Tag und CE-Selektor sind getrennte Dimensionen](#alias-tag-und-ce-selektor-sind-getrennte-dimensionen)
@@ -63,7 +63,7 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [8.1. Zu analysierendes Warnverhalten](#zu-analysierendes-warnverhalten)
 - [9. Zentrale offene Architekturfrage: Wo lebt der zugeordnete Tag?](#zentrale-offene-architekturfrage-wo-lebt-der-zugeordnete-tag)
   - [9.1. Warum Persistenz nötig ist](#warum-persistenz-nötig-ist)
-  - [9.2. Variante A: optionales Tag-Metadatum in til.json](#variante-a-optionales-tag-metadatum-in-tiljson)
+  - [9.2. Variante A: optionales Tag-Metadatum in `til.json`](#variante-a-optionales-tag-metadatum-in-tiljson)
     - [9.2.1. Vorteile](#vorteile)
     - [9.2.2. Nachteile / notwendige Arbeit](#nachteile--notwendige-arbeit)
     - [9.2.3. Kritische ID-Historienregel](#kritische-id-historienregel)
@@ -73,7 +73,7 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [9.4. Variante C: dieselbe Alias-/Tag-CLI auch beim Logging verlangen](#variante-c-dieselbe-alias-tag-cli-auch-beim-logging-verlangen)
     - [9.4.1. Vorteil](#vorteil)
     - [9.4.2. Nachteile](#nachteile)
-  - [9.5. Variante D: -ulabel / untagged ohne explizite neue Metadaten wiederverwenden](#variante-d--ulabel--untagged-ohne-explizite-neue-metadaten-wiederverwenden)
+  - [9.5. Variante D: `-ulabel` / `untagged` ohne explizite neue Metadaten wiederverwenden](#variante-d--ulabel--untagged-ohne-explizite-neue-metadaten-wiederverwenden)
   - [9.6. Variante E: Tag aus ID-Bereichen ableiten](#variante-e-tag-aus-id-bereichen-ableiten)
 - [10. Empfohlenes internes Modell zur Prüfung](#empfohlenes-internes-modell-zur-prüfung)
   - [10.1. Doppelte bzw. widersprüchliche CLI-Definitionen](#doppelte-bzw-widersprüchliche-cli-definitionen)
@@ -84,11 +84,11 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [11.3. Clean](#clean)
   - [11.4. Generate / generierte Lookup-Daten](#generate--generierte-lookup-daten)
 - [12. Logging-Seite: einheitliches Verhalten erzwingen](#logging-seite-einheitliches-verhalten-erzwingen)
-  - [12.1. Rückwärtskompatibilität für untagged](#rückwärtskompatibilität-für-untagged)
+  - [12.1. Rückwärtskompatibilität für `untagged`](#rückwärtskompatibilität-für-untagged)
 - [13. Location Information: kein neuer File-ID-Mechanismus](#location-information-kein-neuer-file-id-mechanismus)
-  - [13.1. Separates files.json](#separates-filesjson)
+  - [13.1. Separates `files.json`](#separates-filesjson)
   - [13.2. Bind-Sidecar-File-Keys übertragen](#bind-sidecar-file-keys-übertragen)
-  - [13.3. __FILE__ in mehrere Integerwerte packen](#__file__-in-mehrere-integerwerte-packen)
+  - [13.3. `__FILE__` in mehrere Integerwerte packen](#__file__-in-mehrere-integerwerte-packen)
 - [14. Caller-Location: Alias vs. Helper-Funktion vs. Wrapper](#caller-location-alias-vs-helper-funktion-vs-wrapper)
   - [14.1. Direkter Trice-Aufruf oder registrierter Alias](#direkter-trice-aufruf-oder-registrierter-alias)
   - [14.2. Normale Hilfsfunktion](#normale-hilfsfunktion)
@@ -98,16 +98,16 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [15.2. Timestamp](#timestamp)
   - [15.3. MODULE / PROCESS](#module--process)
 - [16. Runtime-Strings: ausdrückliches Nicht-Ziel](#runtime-strings-ausdrückliches-nicht-ziel)
-- [17. Mögliche Verhaltensmatrix für -alias Name:Tag](#mögliche-verhaltensmatrix-für--alias-nametag)
+- [17. Mögliche Verhaltensmatrix für `-alias Name:Tag`](#mögliche-verhaltensmatrix-für--alias-nametag)
 - [18. Kompatibilitäts- und Migrationsanforderungen](#kompatibilitäts--und-migrationsanforderungen)
   - [18.1. Bestehende CLI muss unverändert funktionieren](#bestehende-cli-muss-unverändert-funktionieren)
   - [18.2. Alte TIL -> neues Tool](#alte-til---neues-tool)
   - [18.3. Neue TIL -> altes Tool](#neue-til---altes-tool)
   - [18.4. Historische kumulative TIL](#historische-kumulative-til)
   - [18.5. ID-Änderungen](#id-änderungen)
-- [19. Wechselwirkung mit -ulabel](#wechselwirkung-mit--ulabel)
+- [19. Wechselwirkung mit `-ulabel`](#wechselwirkung-mit--ulabel)
 - [20. Wechselwirkung mit tag-spezifischen ID-Ranges / Target Routing](#wechselwirkung-mit-tag-spezifischen-id-ranges--target-routing)
-- [21. Präsentation und -color](#präsentation-und--color)
+- [21. Präsentation und `-color`](#präsentation-und--color)
 - [22. Anforderungen an Structured Output](#anforderungen-an-structured-output)
 - [23. Selektive Datei-/Zeilenanzeige bei Errors: für #531 wahrscheinlich keine Implementierung nötig](#selektive-datei-zeilenanzeige-bei-errors-für-531-wahrscheinlich-keine-implementierung-nötig)
 - [24. Testplan](#testplan)
@@ -122,10 +122,10 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [24.9. Structured Output](#structured-output)
   - [24.10. Textausgabe und Farben](#textausgabe-und-farben)
   - [24.11. Filtering und Statistik](#filtering-und-statistik)
-  - [24.12. -ulabel](#-ulabel)
+  - [24.12. `-ulabel`](#-ulabel)
   - [24.13. ID Range / Routing](#id-range--routing)
   - [24.14. Rückwärtskompatibilität](#rückwärtskompatibilität)
-  - [24.15. -salias](#-salias)
+  - [24.15. `-salias`](#-salias)
 - [25. Voraussichtlich relevante Implementierungsbereiche](#voraussichtlich-relevante-implementierungsbereiche)
 - [26. Designfragen, die Codex vor größerer Implementierung explizit beantworten muss](#designfragen-die-codex-vor-größerer-implementierung-explizit-beantworten-muss)
 - [27. Empfohlene stufenweise Implementierungsstrategie](#empfohlene-stufenweise-implementierungsstrategie)
@@ -146,11 +146,11 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [28.7. Runtime-Strings sind keine Context-Enrichment-Werte](#runtime-strings-sind-keine-context-enrichment-werte)
 - [29. Mögliche spätere Antwort auf Discussion #531 — Entwurf](#mögliche-spätere-antwort-auf-discussion-531--entwurf)
 - [30. Verworfene bzw. zurückgestellte Lösungsansätze](#verworfene-bzw-zurückgestellte-lösungsansätze)
-  - [30.1. Separate stabile Source-File-IDs / files.json](#separate-stabile-source-file-ids--filesjson)
+  - [30.1. Separate stabile Source-File-IDs / `files.json`](#separate-stabile-source-file-ids--filesjson)
   - [30.2. Bind-Sidecar-File-Keys übertragen](#bind-sidecar-file-keys-übertragen-1)
-  - [30.3. Dateinamen-Zeichen in uint64_t-CE-Werte packen](#dateinamen-zeichen-in-uint64_t-ce-werte-packen)
+  - [30.3. Dateinamen-Zeichen in `uint64_t`-CE-Werte packen](#dateinamen-zeichen-in-uint64_t-ce-werte-packen)
   - [30.4. Severity automatisch aus Aliasnamen ableiten](#severity-automatisch-aus-aliasnamen-ableiten)
-  - [30.5. Allgemeine log_error()-Hilfsfunktion als Hauptlösung](#allgemeine-log_error-hilfsfunktion-als-hauptlösung)
+  - [30.5. Allgemeine `log_error()`-Hilfsfunktion als Hauptlösung](#allgemeine-log_error-hilfsfunktion-als-hauptlösung)
   - [30.6. Mehrere Trice-Aufrufe für Kontext + Meldung](#mehrere-trice-aufrufe-für-kontext--meldung)
   - [30.7. Runtime-String + beliebige skalare CE jetzt lösen](#runtime-string--beliebige-skalare-ce-jetzt-lösen)
 - [31. Akzeptanzkriterien der finalen Funktion](#akzeptanzkriterien-der-finalen-funktion)
@@ -177,6 +177,53 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [37.5. Host-Auswertung und Kompatibilität](#host-auswertung-und-kompatibilität)
   - [37.6. Dokumentation und Umfang](#dokumentation-und-umfang)
   - [37.7. Abnahmekriterien](#abnahmekriterien)
+- [38. Rückfragen](#rückfragen)
+- [39. Antworten auf die Rückfragen](#antworten-auf-die-rückfragen)
+  - [39.1. Alter von `-ulabel` und vollständige Umbenennung](#alter-von--ulabel-und-vollständige-umbenennung)
+  - [39.2. Neue User-Tags direkt durch `-alias`](#neue-user-tags-direkt-durch--alias)
+  - [39.3. Zusätzliche CE-Selektoren an einem Alias](#zusätzliche-ce-selektoren-an-einem-alias)
+  - [39.4. `-alias Name` gegenüber `-alias Name:untagged`](#-alias-name-gegenüber--alias-nameuntagged)
+  - [39.5. Gewicht und Farbe bei Build-Kommandos](#gewicht-und-farbe-bei-build-kommandos)
+  - [39.6. Englischer Feldname `SchemaVersion`](#englischer-feldname-schemaversion)
+  - [39.7. Automatische Tag-Erkennung im Aliasnamen](#automatische-tag-erkennung-im-aliasnamen)
+  - [39.8. Aliasname oder Tag in `Type` statt `Meta`](#aliasname-oder-tag-in-type-statt-meta)
+  - [39.9. Wann die TIL-Erweiterung tatsächlich entsteht](#wann-die-til-erweiterung-tatsächlich-entsteht)
+- [40. Feedback](#feedback)
+- [41. Bewertung des Feedbacks](#bewertung-des-feedbacks)
+  - [41.1. Groß- und Kleinschreibung bei CLI-Optionen](#groß--und-kleinschreibung-bei-cli-optionen)
+  - [41.2. Empfehlung für die weitere CLI-Gestaltung](#empfehlung-für-die-weitere-cli-gestaltung)
+  - [41.3. Warum auch automatische Alias-Tags übertragen werden müssen](#warum-auch-automatische-alias-tags-übertragen-werden-müssen)
+  - [41.4. Konkrete Teilwort-Treffer aus der vorhandenen Tag-Tabelle](#konkrete-teilwort-treffer-aus-der-vorhandenen-tag-tabelle)
+  - [41.5. Eine einfache Namenskonvention ist vertretbar](#eine-einfache-namenskonvention-ist-vertretbar)
+  - [41.6. Separate `aliasTags.json` oder Vertagung](#separate-aliastagsjson-oder-vertagung)
+- [42. Names-Heuristik](#names-heuristik)
+- [43. Bewertung der Namens-Heuristik](#bewertung-der-namens-heuristik)
+  - [43.1. Der Aliasname genügt als gespeicherte Grundlage](#der-aliasname-genügt-als-gespeicherte-grundlage)
+  - [43.2. Die Unterscheidung zwischen skalarem Alias und String-Alias](#die-unterscheidung-zwischen-skalarem-alias-und-string-alias)
+  - [43.3. Was „unbekannter Type“ künftig bedeutet](#was-unbekannter-type-künftig-bedeutet)
+  - [43.4. Die wichtigste zusätzliche Schwachstelle ist die Versionsstabilität](#die-wichtigste-zusätzliche-schwachstelle-ist-die-versionsstabilität)
+  - [43.5. Der Aliasname wird bei einfacher Umsetzung Teil der ID-Identität](#der-aliasname-wird-bei-einfacher-umsetzung-teil-der-id-identität)
+  - [43.6. Deine Regel für `MyWrn("err:bla")` ist richtig](#deine-regel-für-mywrnerrbla-ist-richtig)
+  - [43.7. Auswirkungen auf die vorhandene Verarbeitung](#auswirkungen-auf-die-vorhandene-verarbeitung)
+- [44. Implementationsspezifikation für Alias-Namensheuristik und CLI](#implementationsspezifikation-für-alias-namensheuristik-und-cli)
+  - [44.1. Umfang und Ergebnis aus Anwendersicht](#umfang-und-ergebnis-aus-anwendersicht)
+  - [44.2. Begriffe und getrennte Zuständigkeiten](#begriffe-und-getrennte-zuständigkeiten)
+  - [44.3. CLI-Namen und Groß-/Kleinschreibung](#cli-namen-und-groß-kleinschreibung)
+  - [44.4. Zulässige Werte von `-utag`](#zulässige-werte-von--utag)
+  - [44.5. Registrierung und Prüfung der Aliasnamen](#registrierung-und-prüfung-der-aliasnamen)
+  - [44.6. Vollständig festgelegte Namensheuristik](#vollständig-festgelegte-namensheuristik)
+  - [44.7. TIL-Darstellung und interne Darstellung](#til-darstellung-und-interne-darstellung)
+  - [44.8. `trice` und `triceS`: zuerst beim Instrumentieren unterscheiden](#trice-und-trices-zuerst-beim-instrumentieren-unterscheiden)
+  - [44.9. `trice` und `triceS`: später aus der TIL unterscheiden](#trice-und-trices-später-aus-der-til-unterscheiden)
+  - [44.10. Grenzen der Typunterscheidung](#grenzen-der-typunterscheidung)
+  - [44.11. Verarbeitung in Bind, Insert, Clean und Generate](#verarbeitung-in-bind-insert-clean-und-generate)
+  - [44.12. ID-Identität, Historie und alte Dateien](#id-identität-historie-und-alte-dateien)
+  - [44.13. CE-Auswahl und ihre Grenze bei String-Aliasen](#ce-auswahl-und-ihre-grenze-bei-string-aliasen)
+  - [44.14. Host-Klassifikation und unveränderter Meldungstext](#host-klassifikation-und-unveränderter-meldungstext)
+  - [44.15. Diagnostik](#diagnostik)
+  - [44.16. Verbindliche Verhaltenstests](#verbindliche-verhaltenstests)
+  - [44.17. Verbindliche Dokumentation](#verbindliche-dokumentation)
+  - [44.18. Noch zu prüfende Detailentscheidungen](#noch-zu-prüfende-detailentscheidungen)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -2432,3 +2479,871 @@ Die Umsetzung ist freigabefähig, wenn beschreibende Verhaltenstests folgende Er
 | Dokumentation und Beispiel | CLI-Hilfe passt zum Kommando; das hardwarefreie Beispiel zeigt die beschriebenen Ergebnisse; ToC und Links stimmen. |
 
 Vor Abschluss folgen die üblichen projektbezogenen Tests und die für geänderten Go-Code vorgeschriebene Coverage-Prüfung. Diese Spezifikation dokumentiert Soll-Ergebnisse; Implementierung und deren Tests stehen noch aus.
+
+## 38. <a id="rückfragen"></a>Rückfragen
+
+- Seit wie lange existiert -uLabel? Ist es vielleicht sauberer es im Zuge des v2.0.0 Releases ganz durch -uTag zu ersetzen?
+- -alias MyAlarm:neu geht auch für in diesem Moment neu angelegte User-Tags?
+- Ist es sinnvoll Aliasen zusätzliche CE Tags mitgeben zu können, etwa -alias MyAlarm:neu:ctx7:ctx2? Oder ist das over-Design? Wie aufwändig ware das für die Implementation einerseits und für die Dokumentation andererseits?
+- -alias Name und -alias Name:untagged --- Wie damit umgehen? Ich bin für die einfachste Lösung.
+- "Historisch akzeptierte Gewicht-/Farbangaben bei ID-Kommandos bleiben gültig, erzeugen aber keine neuen Build-Metadaten." --- Was meinst Du damit genau? Diese Angaben z.B. in Skripten bei build würde ich als Fehler zuückweisen.
+- Ist "SchemaVersion" sauberes Englisch?
+- Soll für vereinfachstes Handling der Aliasname auf standard-Tags geparst werden und diese werden implizit zugewiesen? Etwa -alias Log_Error würde dann ausreichen und nicht verlangen -alias Log_Error:err. Allerdings könnte ein anderer Tag zugewiesen werden  -alias Log_Error:warning.
+- Ist es sinnvoll den Aliasnamen in der TIL abzulegen, vielleicht sogar als "Alias": "Log_Error:warning"? Oder vielleicht gar als erweiterte "Type": "TRice:Log_Error:warning" ? Dann würde das "Meta" Feld verzichtbar. Dass dann alte Trice Versionen neue TILs nicht verstehen wäre akzeptabel, da wir an der Schwelle zu 2.0 stehen. Wichtig: Es soll einfach bleiben und gut verständlich.
+- Im Augenblick ist es anscheinend so, dass nur, wenn -alias Log_Error:warning eine TIL-Erweiterung nötig ist, oder?
+
+## 39. <a id="antworten-auf-die-rückfragen"></a>Antworten auf die Rückfragen
+
+**Analysebasis:** aktueller Checkout `wip`, Commit `6815a9e3`, lokale Git-Historie und die unten verlinkten Implementierungsstellen. `-utag` und die Alias-Tag-Syntax sind noch nicht implementiert. Die Beispiele beschreiben das vorgeschlagene Ergebnis. Die folgenden Empfehlungen ergänzen die Diskussion; sie sind keine Implementierungsfreigabe. Dein Wunsch, Gewicht und Farbe bei Build-Kommandos zurückzuweisen, korrigiert den entsprechenden Kompatibilitätsvorschlag in Abschnitt 37.2.
+
+### 39.1. <a id="alter-von--ulabel-und-vollständige-umbenennung"></a>Alter von `-ulabel` und vollständige Umbenennung
+
+`-ulabel` wurde am **1. Juli 2025** mit Commit `d735a528282e803f53d42b17cc5c78d461175fee` (`experimental: user labels`) eingeführt. Veröffentlicht ist die Option mindestens seit **v1.1.0 vom 19. Dezember 2025**; der [Changelog zu v1.1.0](../../CHANGELOG.md#v1.1.0-changes) führt sie ausdrücklich als neuen CLI-Schalter auf. Es handelt sich damit bereits um eine veröffentlichte Schnittstelle. Die tatsächliche Schreibweise ist `-ulabel`, nicht `-uLabel`; siehe [CLI-Registrierung](../../internal/args/init.go).
+
+**Für den von dir gewünschten klaren Schnitt empfehle ich, in v2 nur `-utag` anzubieten und `-ulabel` zu entfernen.** Ein Hauptversionswechsel ist der passende Zeitpunkt für eine solche inkompatible Schnittstellenänderung, entsprechend dem Prinzip von [Semantic Versioning](https://semver.org/#spec-item-8). Betroffene Skripte müssen den Optionsnamen ändern; bei Build-Kommandos müssen zusätzlich Gewicht und Farbe entfallen. Das sollte kurz im Changelog mit Verweis auf die ausführliche CLI-Dokumentation stehen.
+
+Der bisher vorgeschlagene Kompatibilitätsalias war eine Abwägung zugunsten bestehender Skripte, keine technische Notwendigkeit. Er wäre im Code billig, ließe aber beide Begriffe dauerhaft bestehen. Die vollständige Umbenennung vereinfacht die öffentliche Sprache: Ein Ereignis hat einen Tag, benutzerdefinierte Tags werden mit `-utag` registriert. Ich würde die Kleinschreibung beibehalten und keine zusätzlichen Schreibvarianten einführen.
+
+### 39.2. <a id="neue-user-tags-direkt-durch--alias"></a>Neue User-Tags direkt durch `-alias`
+
+**Ja, `-alias MyAlarm:neu` soll einen bisher unbekannten gültigen Namen `neu` unmittelbar als User-Tag registrieren und dem Alias zuordnen.** Ein vorheriges `-utag neu` ist dafür unnötig. Die Registrierung muss vor CE-Auswahl und Auflösung der ID-Bereiche erfolgen, unabhängig von der Reihenfolge der CLI-Optionen.
+
+`neu` bleibt ein eigener, schreibungsabhängiger Tag. Eine bereits bekannte Built-in-Schreibweise wie `warning` wird dagegen als `WARNING` aufgelöst. Im vorgeschlagenen TIL-Schema steht für `neu` entsprechend `{"Kind":"user","Name":"neu"}`. Der spätere Logger kennt diesen expliziten Tag aus der TIL; ein Host-Override wie `-utag neu:650` ist nur für eine gewünschte Gewichtung erforderlich. Ohne Override gilt das finale INFO-Gewicht.
+
+Das bedeutet zugleich: Ein syntaktisch gültiger Tippfehler wie `warnng` würde einen User-Tag erzeugen. Automatische Registrierung kann nicht zugleich jeden unbekannten Namen als Fehler behandeln. Die tatsächliche Zuordnung sollte deshalb bei `-verbose` nachvollziehbar sein.
+
+### 39.3. <a id="zusätzliche-ce-selektoren-an-einem-alias"></a>Zusätzliche CE-Selektoren an einem Alias
+
+**Das ist sinnvoll, wenn mehrere Aliase denselben Ereignis-Tag, aber unterschiedliche wiederverwendbare Kontextgruppen bekommen sollen. Für den bisherigen Anwendungsfall würde ich es zunächst zurückstellen.** Es ist keine grundsätzlich übertriebene Idee, aber eine zusätzliche Funktion über die bereits vorgesehene CE-Auswahl durch den Alias-Tag hinaus.
+
+Für `MyAlarm:neu` lassen sich bereits im bisherigen Entwurf mehrere Erweiterungen an dieselbe Gruppe hängen:
+
+```sh
+-alias MyAlarm:neu \
+-ce 'neu:", ctx7={ctx7:%u}", ctx7Value' \
+-ce 'neu:", ctx2={ctx2:%u}", ctx2Value'
+```
+
+Beide Werte müssen an den ausgewählten Aufrufstellen verfügbar sein. Die Regeln wirken in CLI-Reihenfolge. Für einzelne Aufrufstellen können weiterhin Quellpräfixe wie `MyAlarm("ctx7:ctx2:Ready");` mit passenden `-ce`-Regeln verwendet werden.
+
+Die zusätzliche Form `-alias MyAlarm:neu:ctx7:ctx2` hätte vor allem diesen Nutzen: Die Definitionen von `ctx7` und `ctx2` könnten von mehreren Aliasgruppen gemeinsam verwendet werden, ohne sie unter jedem Ereignis-Tag erneut zu konfigurieren oder Präfixe in die Quelle zu schreiben.
+
+Falls diese Erweiterung später gewünscht wird, wäre die verständliche Regel: **erster Wert nach dem Alias = Ereignis-Tag; weitere Werte = reine CE-Selektoren.** Die Reihenfolge wäre `neu`, `ctx7`, `ctx2`, danach die Quellselektoren. Jede kanonische Gruppe würde insgesamt einmal angewendet. Die zusätzlichen Selektoren dürften nicht automatisch als Ereignis-Tags registriert werden, weil eine solche Registrierung die vorhandene Präfixbehandlung beeinflusst.
+
+Qualitative Aufwandsschätzung **zusätzlich zur ohnehin geplanten Alias-Tag-Funktion**:
+
+| Bereich | Aufwand und Grund |
+|---|---|
+| Syntax und Speicherung der Selektorliste | Klein: geordnete Liste einlesen und ungültige/leere Bestandteile abweisen. |
+| CE-Integration und Verhaltenstests | Mittel: gemeinsame Reihenfolge und Duplikaterkennung über Alias und Quelle, wiederholtes Insert, Clean-Rückweg, Argumentgrenzen und String-Aliase prüfen. |
+| Dokumentation | Klein bis mittel: ein zusätzlicher Abschnitt mit Beispielen; die Unterscheidung zwischen einem Ereignis-Tag und mehreren CE-Selektoren muss in CLI-Hilfe und RM eindeutig sein. |
+
+Die bestehende [CE-Auswahl](../../internal/id/contextEnrichment.go) gruppiert und entdoppelt Regeln bereits. Der Aufwand liegt daher vor allem in der Integration und Absicherung der verschiedenen Arbeitsabläufe, weniger im Zerlegen der CLI-Zeichenkette. Zusätzliche TIL-Felder für die CE-Selektorliste wären nicht nötig: Das wirksame Format und der Typ werden bereits nach der CE-Transformation gespeichert.
+
+### 39.4. <a id="-alias-name-gegenüber--alias-nameuntagged"></a>`-alias Name` gegenüber `-alias Name:untagged`
+
+**Ich empfehle, beide Formen zu erlauben und ihre Bedeutung klar zu unterscheiden.** Dafür ist kein besonderer dritter Modus nötig: Es gibt nur „kein Tag zugeordnet“ und „Tag ausdrücklich zugeordnet“. `untagged` ist im zweiten Fall ein gewöhnlicher Wert der vorhandenen Tag-Registry.
+
+| Konfiguration | Format `Ready` | Format `err:Ready` | Zusätzliche Tag-Metadaten |
+|---|---|---|---|
+| `-alias Name` | `untagged` | `ERROR`, bisherige Präfixbehandlung | Nein |
+| `-alias Name:untagged` | `untagged` | `untagged`, `err:` bleibt Meldungstext | Ja |
+
+Die Tabelle gilt ohne passende CE-Transformation. Die beiden Formen gleichzusetzen würde entweder das bestehende Verhalten von `-alias Name` verändern oder die ausdrückliche Zuordnung wirkungslos machen. Die Unterscheidung ergibt sich bereits aus dem optionalen Tag-Feld und braucht keinen zusätzlichen CLI-Schalter.
+
+Für denselben Alias beide Formen gleichzeitig anzugeben, sollte wie jeder andere widersprüchliche Alias-Eintrag vor Änderungen als Fehler enden. Identische Wiederholungen bleiben zulässig. So hängt das Ergebnis nicht von der Reihenfolge ab.
+
+### 39.5. <a id="gewicht-und-farbe-bei-build-kommandos"></a>Gewicht und Farbe bei Build-Kommandos
+
+Der beanstandete Satz sollte bedeuten: Ein bisher akzeptiertes `bind -ulabel sensor:650` registriert weiterhin `sensor`, aber die `650` wird weder in die TIL übernommen noch zur ID-Vergabe oder CE-Auswahl verwendet. Der heutige gemeinsame [Parser](../../internal/emitter/lineTransformerANSI.go) akzeptiert Gewicht und Farbe auch dort, weil [Bind, Insert, Clean und Log](../../internal/args/handler.go) dieselbe Registrierung aufrufen.
+
+**Dein Vorschlag ist klarer: Bei `bind`, `insert` und `clean` nur Namen zulassen und Gewicht-/Farbangaben als Fehler zurückweisen.** Diese Vorgabe ersetzt für die weitere Planung den Satz aus Abschnitt 37.2.
+
+| Kommando | `-utag sensor` | `-utag sensor:650` / `-utag sensor:red:blue` |
+|---|---|---|
+| `bind`, `insert`, `clean` | Zulässige Namensregistrierung | Fehler vor Dateiänderungen |
+| `log`, `tlog` | Zulässige Namensregistrierung | Zulässige Gewichtung beziehungsweise Farbe |
+
+Die Fehlermeldung sollte den betroffenen Wert nennen und erklären, dass Gewicht und Farbe beim Logging gesetzt werden. Die Hilfe beschreibt jeweils die tatsächlich zulässige Syntax. Ein Alias mit explizitem Custom-Tag benötigt bei Bind weiterhin überhaupt kein zusätzliches `-utag`.
+
+Das ist eine bewusste Änderung gegenüber bislang akzeptierten Build-Aufrufen. Sie gilt unabhängig davon, ob der alte Optionsname letztlich entfernt oder als Alias behalten wird. Einen neuen Build-Schalter für Gewichte oder Farben brauchen wir dafür nicht.
+
+### 39.6. <a id="englischer-feldname-schemaversion"></a>Englischer Feldname `SchemaVersion`
+
+**Ja, „schema version“ ist korrektes Englisch und bedeutet „Version des Datenschemas“.** `SchemaVersion` ist die dazu passende Schreibweise eines Feldnamens und passt zu `Type`, `Strg` und `Meta`. `SchemeVersion` wäre hier der falsche Begriff.
+
+Der Feldname bezeichnet in diesem Entwurf das Format des `Meta`-Objekts. Eine kurze englische Erklärung genügt: „Version of the metadata schema.“ Dafür bleibt eine ganze Zahl wie `1` ausreichend; eine Toolversion oder Mindestversion wird damit nicht behauptet.
+
+### 39.7. <a id="automatische-tag-erkennung-im-aliasnamen"></a>Automatische Tag-Erkennung im Aliasnamen
+
+**Ich empfehle weiterhin eine explizite Zuordnung wie `-alias Log_Error:err`.** Sie ist kurz und erlaubt jeden Projektnamen, ohne dass dessen Schreibweise zusätzliche Regeln erfüllen muss.
+
+Eine automatische Erkennung wäre implementierbar, bräuchte aber einen eigenen Vertrag: Genügt ein Teilwort, muss es ein durch `_` getrenntes Wort sein oder das letzte Wort? Was bedeutet `Log_Error_Count`, was `Log_Error_Warning`? Sollen auch Kategorie-Tags wie `READ` oder `TIME` erkannt werden? Neue Built-ins könnten später bisher neutrale Aliasnamen anders interpretieren. Ein Alias-Rename könnte dadurch sogar Klassifikation, CE-Auswahl und ID-Bereich verändern.
+
+Ein explizites `:warning` müsste bei einer solchen Lösung immer Vorrang haben. Das löst aber nur den Override-Fall, nicht die übrigen Erkennungsregeln. Für die eingesparten vier Zeichen `:err` würde ich diese zusätzliche Semantik nicht einführen. Die gewünschte Zuordnung steht einmal in der Build-Konfiguration, nicht an jeder Log-Stelle.
+
+### 39.8. <a id="aliasname-oder-tag-in-type-statt-meta"></a>Aliasname oder Tag in `Type` statt `Meta`
+
+**Den Aliasnamen würde ich für diese Funktion nicht in der TIL speichern und `Type` nicht mit Alias-/Tag-Text erweitern.** Das gilt auch unter deiner nun gelockerten Bedingung, dass alte Tools eine neue TIL gegebenenfalls nicht mehr verstehen müssen.
+
+Der Logger benötigt `ID -> effektiver Typ, effektives Format, Ereignis-Tag`. Er benötigt nicht den Namen des Quellmakros. Heute wird dieser Name in [`TriceFmt.Alias`](../../internal/id/id.go) nur vorübergehend gehalten und mit `json:"-"` bewusst nicht gespeichert.
+
+| Darstellung | Bewertung |
+|---|---|
+| `"Alias": "Log_Error"` | Reicht nicht: Die historische Zuordnung zu `WARNING` fehlt weiterhin. |
+| `"Alias": "Log_Error:warning"` | Enthält den Tag, vermischt aber Quellname und Ereignisidentität. Erfordert Zerlegung, Kanonisierung und Regeln für Alias-Renames; die Unterscheidung Built-in/User fehlt. |
+| `"Type": "TRice:Log_Error:warning"` | Vermischt zusätzlich den Dekodiertyp mit diesen Angaben. Bestehende Typauswertung in Decoder, Validierung und Generator benötigt einen vorgeschalteten Parser oder entsprechende Anpassungen. |
+| Separates Tag-Metadatum | Enthält unmittelbar die Information, die der Logger braucht, und hält Typauswertung und Quellnamen davon unabhängig. |
+
+`Type` ist bereits funktional belegt: Beispielsweise rekonstruieren [`ConstructFullTriceInfo` und der Generator](../../internal/id/generate.go) daraus Argumentanzahl und Bitbreite; der [Decoder](../../internal/trexDecoder/trexDecoder.go) wählt darüber die passende Verarbeitung. Die gepackte Schreibweise spart JSON-Felder, vereinfacht diese Verarbeitung aber nicht. Auch mit einem zentralen Parser blieben Tag-Validierung, historische ID-Vergleiche und einheitliche Host-Klassifikation notwendig.
+
+Ein Alias-Rename bei unverändertem Typ, Format und Tag sollte für sich keinen ID-Wechsel erzwingen. Ebenso sollten `Log_Error:wrn` und `OtherName:WARNING` dieselbe semantische Vergleichsidentität haben; die bestehenden Regeln für mehrere Aufrufstellen bleiben davon getrennt. Ein gespeicherter Aliasname müsste aus dieser Identität ausdrücklich herausgehalten werden. Ohne konkreten Bedarf an Herkunftsinformation ist sein Weglassen einfacher.
+
+**Meine Empfehlung bleibt deshalb der bereits akzeptierte optionale `Meta`-Bereich:**
+
+```json
+{
+  "Type": "trice",
+  "Strg": "Ready",
+  "Meta": {
+    "SchemaVersion": 1,
+    "Tag": {"Kind": "builtin", "Name": "WARNING"}
+  }
+}
+```
+
+Ein flaches `"Tag": "WARNING"` wäre die kleinste reine Tag-Lösung, falls du den Versions- und Built-in/User-Vertrag bewusst vereinfachen möchtest. Das wäre eine neue Schemaentscheidung. `Alias` oder ein erweiterter `Type` ersetzen diesen Vertrag hingegen nicht; sie verpacken dieselben Fragen nur in einer Zeichenkette. Die Metadatenversion bleibt auch bei akzeptierter Inkompatibilität mit alten Tools nützlich, um spätere, noch unbekannte Metadatensemantik zu erkennen.
+
+### 39.9. <a id="wann-die-til-erweiterung-tatsächlich-entsteht"></a>Wann die TIL-Erweiterung tatsächlich entsteht
+
+**Ja: Im derzeitigen Entwurf entstehen neue Tag-Metadaten nur für tatsächlich verarbeitete Aufrufstellen mit ausdrücklich zugeordnetem Alias-Tag.** Das betrifft nicht nur `Log_Error:warning` und nicht nur Bind:
+
+| Verwendung | Neue Tag-Metadaten für die betroffenen Einträge? |
+|---|---|
+| Gewöhnliche Trice-Aufrufe, auch mit bekanntem Formatpräfix | Nein |
+| `-alias Name` oder `-salias Name` ohne Tag | Nein |
+| `-alias Name:warning` oder `-alias Name:neu` | Ja |
+| `-alias Name:untagged` | Ja, weil das Präfixverhalten ausdrücklich übersteuert wird |
+| `-salias Name:warning` | Ja, unabhängig von der Grenze für zusätzliche skalare CE-Werte |
+| Nur CE ohne ausdrücklichen Alias-Tag | Nein; CE verändert wie bisher den effektiven Typ beziehungsweise das Format |
+| Alias-Option angegeben, aber keine passende Aufrufstelle verarbeitet | Allein dadurch entstehen keine neuen TIL-Einträge |
+
+Dies gilt entsprechend für Insert. Generate muss bereits vorhandene Metadaten in JSON-Sichten erhalten. Auch wenn der zugeordnete Tag zufällig zu einem Quellpräfix passt, bleibt die explizite Zuordnung gespeichert: Sie legt fest, dass dieses Präfix Meldungstext und nicht die Quelle der Klassifikation ist.
+
+Eine kumulative TIL kann solche Einträge weiterhin enthalten, nachdem ein späterer Build ohne getaggte Aliase erfolgt. Historische Einträge werden dadurch nicht gelöscht oder ihrer Metadaten beraubt. Wer die neue Alias-Tag-Funktion nicht verwendet und keine entsprechenden historischen Einträge hat, sieht für diese Erweiterung weiterhin nur das bisherige `Type`-/`Strg`-Schema.
+
+
+## 40. <a id="feedback"></a>Feedback
+
+- Wie ist es generell bei der Groß-Klein Schreibung bei CLI Switches 1) im Allgemeinen 2) beim Trice Tool 3) Sollte eine generelle Case-Toleranz eingeführt werden für trice 4) Einige CLI Switches anpassen? 5) alles im Wesentliches so lassen?
+- Die TIL Formatänderung ist also ausschließlich erforderlich für -alias name:tag bzw. -salias:tag, richtig? Ist es dann nicht klüger, entweder ":tag" als Erweiterung vorerst nicht anzubieten oder für solche Fälle eine dritte aliasTags.json vorzusehen? Außerdem sehe ich bei den begrenzen LogLeveln, wie Err, warning, Info, Debug, ... keine Unlösbarkeit, diese anhand der Aliasnamen zuzuordnen, wenn es bei nicht Zuzuordnenden Namen ein Detault-Tag gibt. bind könnte Partial-Matches nutzen, diese Zuordnung bei -verbose auch anzeigen. Das halte ich aktuell für am anwenderfreundlichsten. die ":tag" Erweiterungsoption würde dann erst bei nachgewiedsenenm Bedarf angegangen werden und damit kann die Entscheidung, wie die bind Tag Info übermittelt wird verztagt werden. Die Fest eingebaute Tag-Tabelle sollte gute Match-Möglichkeiten liefern, Bittze prüfe das und zeige, wo missverständliche Zuordnungen möglich sind.
+
+## 41. <a id="bewertung-des-feedbacks"></a>Bewertung des Feedbacks
+
+**Eine dokumentierte Namenskonvention kann die Alias-Konfiguration vereinfachen. Die Übermittlung des daraus ermittelten Tags an den Logger muss trotzdem gelöst werden.** Meine vorige Antwort war in diesem Punkt zu eng: Nicht die Schreibweise `:tag` erzeugt den Informationsbedarf, sondern jede Tag-Zuordnung, die sich nicht aus dem gespeicherten Format ergibt. Bei der CLI empfehle ich, bestehende Namen im Wesentlichen zu erhalten und neue Namen einheitlich zu wählen.
+
+Die Bewertung beruht weiterhin auf `6815a9e3`. Für die folgenden Match-Beispiele habe ich die tatsächlich eingetragenen Namen aus der Tag-Tabelle ausgelesen und im Speicher verglichen. Das ist eine Analyse des vorgeschlagenen Verhaltens, kein Test einer bereits implementierten Alias-Erkennung.
+
+### 41.1. <a id="groß--und-kleinschreibung-bei-cli-optionen"></a>Groß- und Kleinschreibung bei CLI-Optionen
+
+**Im Allgemeinen gibt es keine für alle Programme geltende Regel.** Viele klassische CLI-Werkzeuge unterscheiden die Schreibweise. Beispielsweise sind bei curl `-o` und `-O` unterschiedliche Optionen: einmal mit vorgegebenem Ausgabedateinamen, einmal mit einem aus der URL übernommenen Namen. [curl-Handbuch](https://curl.se/docs/manpage.html)
+
+PowerShell behandelt dagegen die Parameternamen seiner eigenen Befehle ohne Unterscheidung der Groß-/Kleinschreibung. Diese Regel überträgt sich nicht automatisch auf die Argumentauswertung eines externen Programms wie Trice. Entscheidend ist dessen Parser, nicht die Shell, aus der es gestartet wird. [PowerShell-Dokumentation](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_case-sensitivity?view=powershell-7.5)
+
+**Trice unterscheidet Optionsnamen grundsätzlich exakt.** Die [CLI-Registrierung](../../internal/args/init.go) verwendet Go-FlagSets; der [Handler](../../internal/args/handler.go) führt keine allgemeine Normalisierung der Namen durch. Zusätzliche Schreibweisen gelten nur, wenn sie eigens registriert sind.
+
+| Gegenstand | Heutiges Verhalten |
+|---|---|
+| `-ulabel` / `-uLabel` | Nur `-ulabel` ist registriert. |
+| `-logLevel` / `-loglevel` | Beide sind ausdrücklich registriert und setzen dieselbe Variable. `-LogLevel` ist keine weitere gültige Variante. |
+| `-logFormat` / `-logformat` | Nur `-logFormat` ist registriert. |
+| `-IDMin` / `-idmin`, `-genDir` / `-gendir` | Jeweils nur die erste Schreibweise ist registriert. |
+| Unterkommandos wie `bind` | Ebenfalls exakte Erkennung; `BIND` ist kein Alias. |
+| Built-in-Tag als Optionswert, etwa `-pick WrN` | Schreibweise wird bereits tolerant erkannt. |
+| User-Tag als Optionswert | Schreibweise bleibt relevant; `sensor` und `Sensor` können verschiedene Tags sein. |
+| Wert von `-logFormat`, etwa `JSON` | Wird bereits unabhängig von der Schreibweise ausgewertet. |
+
+Optionsnamen und Optionswerte sind somit getrennte Fragen. Eine tolerante Erkennung von `-alias` dürfte beispielsweise weder den C-Makronamen `Log_Error` noch Dateipfade, Formatstrings oder CE-Ausdrücke in Kleinbuchstaben umwandeln.
+
+### 41.2. <a id="empfehlung-für-die-weitere-cli-gestaltung"></a>Empfehlung für die weitere CLI-Gestaltung
+
+**Ich würde zunächst Variante 5 wählen: im Wesentlichen so lassen, mit gezielten Ergänzungen aus Variante 4.** Für neue Optionsnamen eine kleingeschriebene Hauptform verwenden, etwa `-utag`; bei längeren neuen Namen sind durch Bindestriche getrennte Wörter gut lesbar. Die vorhandene Mischung aus `-IDMin`, `-logFormat` und `-dry-run` rechtfertigt für sich keine allgemeine Umbenennung.
+
+Ein zusätzlicher Alias wie `-logformat` wäre eine kleine, kompatible Erleichterung, falls gerade diese Schreibweise häufig Schwierigkeiten macht. Eine flächendeckende Sammlung neuer Schreibvarianten würde dagegen Hilfe und Dokumentation verlängern. Die begriffliche Änderung `-ulabel` zu `-utag` ist davon unabhängig: Sie vereinheitlicht die Begriffe „Tag“ und „Label“, nicht bloß die Großschreibung.
+
+**Allgemeine Case-Toleranz wäre technisch möglich und bei Trice nicht offensichtlich durch bestehende Namenskollisionen verhindert.** In den geprüften Registrierungen ist `logLevel`/`loglevel` die vorhandene Gruppe unterschiedlich geschriebener, beim Kleinschreiben gleicher Namen; beide haben bereits dieselbe Bedeutung. Es wäre daher übertrieben, diese Option als grundsätzlich problematisch abzulehnen.
+
+Sie wäre aber eine eigene CLI-Änderung mit Prüfbedarf: Namensauflösung je Unterkommando, gleiche Behandlung von `-name value` und `-name=value`, unveränderte Werte, Hilfe und Erkennung ausdrücklich gesetzter Optionen. Auch die Sonderbehandlung von `generate -logC path` müsste mitziehen. Bloß sämtliche Argumente kleinzuschreiben wäre falsch. Falls diese Erleichterung gewünscht wird, würde ich sie auf lange Optionsnamen begrenzen, kurze Optionen weiterhin exakt behandeln und Unterkommandos ausdrücklich separat entscheiden.
+
+### 41.3. <a id="warum-auch-automatische-alias-tags-übertragen-werden-müssen"></a>Warum auch automatische Alias-Tags übertragen werden müssen
+
+Im bisherigen Entwurf wäre `-alias Name:Tag` beziehungsweise **`-salias Name:Tag`** der Auslöser für neue Tag-Metadaten. Daraus folgt aber nicht, dass das Weglassen von `:Tag` die Metadaten überflüssig macht.
+
+Angenommen, Bind erkennt aus den registrierten Namen automatisch:
+
+```c
+Log_Error("Ready");
+Log_Info("Ready");
+```
+
+Der heutige [Alias-Resolver](../../internal/id/helper.go) macht aus beiden skalaren Aliasnamen den Typ `trice`. Der [Bind-Vergleichseintrag](../../internal/id/bindMetadata.go) entfernt den vorübergehenden Aliasnamen; außerdem wird [`TriceFmt.Alias`](../../internal/id/id.go) nicht nach JSON geschrieben. Bei zwei vergebenen IDs könnte die TIL deshalb schematisch so aussehen:
+
+```json
+{
+  "1234": {"Type": "trice", "Strg": "Ready"},
+  "1235": {"Type": "trice", "Strg": "Ready"}
+}
+```
+
+Der Logger sieht unterschiedliche IDs, aber keine Information darüber, welche ERROR und welche INFO bedeutet. Er erhält weder den ursprünglichen Aliasnamen noch die Bind-Kommandozeile. Eine perfekte Namensheuristik beim Bind ändert daran nichts. Auch eine Ausgabe unter `-verbose` ist noch keine vom Logger verwendbare Zuordnung.
+
+**Die Entscheidung über den Transport lässt sich deshalb nur zusammen mit der eigentlichen Host-Klassifikation vertagen.** Ein zunächst rein diagnostischer Bind-Hinweis auf vermutete Tags wäre möglich, erfüllte aber noch nicht das Ziel, danach mit `-pick`, `-loglevel`, Farben und JSON dieselben Tags zu verwenden.
+
+Eine TIL-**Schemaänderung** ist dabei nicht zwingend: Eine zusätzliche Datei oder ein geeignetes Formatpräfix können die Information ebenfalls tragen. Irgendeine dauerhafte Zuordnung bleibt erforderlich. Fest vereinbarte ID-Bereiche wären auch eine solche Zuordnung und müssten dem Logger samt historischer Bedeutung bekannt sein; sie entstehen nicht automatisch aus den Zahlen.
+
+### 41.4. <a id="konkrete-teilwort-treffer-aus-der-vorhandenen-tag-tabelle"></a>Konkrete Teilwort-Treffer aus der vorhandenen Tag-Tabelle
+
+**Dein Einwand ist berechtigt: Für übliche Namen ist die Zuordnung einfach und keineswegs unlösbar.** `Log_Error`, `LOG_ERR`, `LogWarning`, `Log_Info` und `Log_Debug` liefern mit der vorhandenen Tabelle die naheliegenden Gruppen.
+
+Die Tabelle enthält jedoch mehr als die acht Level-Gruppen `FATAL`, `CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `TRACE` und `VERBOSE`. Hinzu kommen Kategorien wie `ALARM`, `READ`, `WRITE` und `INTERRUPT` sowie kurze Alternativnamen wie `db`, `em`, `wr` und `int`. Siehe [`defaultTags` und `levelTags`](../../internal/emitter/lineTransformerANSI.go). Die heutige Tag-Erkennung vergleicht **ganze Namen**; ihre Eindeutigkeit lässt sich nicht ohne Weiteres auf Teilwortsuche übertragen.
+
+Für die Prüfung bedeutet „Partial-Match“ konkret: Ein Tabellenname kommt irgendwo im Aliasnamen vor, ohne Beachtung der Groß-/Kleinschreibung. Mehrere Schreibweisen derselben Gruppe zählen als ein Treffer. Die folgenden Aliasnamen sind gezielte Analysebeispiele:
+
+| Aliasname | Treffer nur in den acht Level-Gruppen | Zusätzliche Treffer aus der übrigen Anwendungstag-Tabelle | Bewertung |
+|---|---|---|---|
+| `Log_Error`, `LOG_ERR` | ERROR | Keine | Üblicher, eindeutiger Fall; `err` und `error` gehören zur selben Gruppe. |
+| `LogWarning` | WARNING | Keine | Üblicher, eindeutiger Fall. |
+| `Log_Error_Warning` | ERROR und WARNING | Keine | Ein Default für fehlende Treffer löst diese Mehrdeutigkeit nicht. |
+| `Log_Infrared` | INFO durch `inf` | Keine | Ein Wort für Infrarot enthält zufällig einen Level-Kurznamen. |
+| `Log_Readback` | DEBUG durch `db` | READ durch `read` | Auch die Beschränkung auf Level-Gruppen verhindert den zufälligen DEBUG-Treffer nicht. |
+| `Log_ErrorCount` | ERROR | Keine | Kann absichtlich Error bedeuten oder nur einen Fehlerzähler ausgeben; der Name allein klärt die Absicht nicht. |
+| `LOG_WRN` | WARNING | WRITE durch `wr` | Die gesamte Tabelle erzeugt hier eine zusätzliche, unerwünschte Alternative. |
+| `Log_Temperature` | Keine | EMERGENCY durch `em` | Besonders deutliche Fehlzuordnung bei Nutzung aller kurzen Tabellenaliase. |
+| `PrintError` | ERROR | INTERRUPT durch `int` | Ein sinnvoller Error-Name wird durch die vollständige Tabelle mehrdeutig. |
+| `MyAlarm` | Keine | ALARM | ALARM hat standardmäßig Level ERROR; das frühere Beispiel wollte hingegen WARNING. |
+
+Die Beschränkung auf die acht Level-Gruppen beseitigt also viele Probleme, aber nicht alle. „Längster Treffer gewinnt“ oder „höchstes Gewicht gewinnt“ wäre zwar deterministisch, würde jedoch die beabsichtigte Bedeutung bei `Log_Error_Warning` oder `Log_ErrorCount` weiterhin nicht erkennen.
+
+**Ein konkreter Bedarf für eine explizite Zuordnung steckt bereits im bisherigen Beispiel `MyAlarm:wrn`, sofern diese Zuordnung beibehalten werden soll.** Die vollständige Tabelle ergibt ALARM mit Level ERROR; die reine Level-Tabelle findet nichts. Ohne Override müsste der Anwender den Alias passend zur Konvention benennen oder sich mit dem Fallback begnügen. Wenn das Beispiel nur illustrativ war und alle echten Projekte passende Namen wählen können, kann `:tag` dagegen durchaus warten.
+
+### 41.5. <a id="eine-einfache-namenskonvention-ist-vertretbar"></a>Eine einfache Namenskonvention ist vertretbar
+
+Ich würde meine frühere pauschale Ablehnung deshalb präzisieren: **Eine bewusst begrenzte Namenskonvention kann anwenderfreundlich sein; beliebige Teilwortsuche über die gesamte Tag-Tabelle würde ich nicht empfehlen.**
+
+Eine kleine Variante könnte die vorhandenen Schreibweisen der acht Level-Gruppen als **vollständige, durch `_` getrennte Namensbestandteile** erkennen. Damit funktionieren etwa `Log_Error`, `LOG_ERR` und `Log_Error_S`, während `Log_Infrared` und `Log_Readback` nicht zufällig klassifiziert werden. `LogError` würde bei dieser bewusst einfachen Regel noch nicht erkannt; CamelCase könnte später ausdrücklich hinzukommen. Die Regel müsste nicht den eigentlichen C-Identifier verändern.
+
+Für fehlende oder mehrere Treffer sind zwei verschiedene Fälle zu behandeln:
+
+| Fall | Meine Empfehlung |
+|---|---|
+| Genau eine kanonische Gruppe erkannt | Diese Gruppe verwenden; unter `-verbose` Alias, Treffer und aufgelösten Tag anzeigen. Die Priorität gegenüber einem abweichenden Quellpräfix muss ausdrücklich festgelegt sein. |
+| Keine Gruppe erkannt | Bisherige Präfixklassifikation beibehalten; ohne erkanntes Präfix bleibt das Ereignis `untagged`. Unter `-verbose` den Fallback erklären. |
+| Mehrere verschiedene Gruppen erkannt | Verständlicher Konfigurationsfehler vor Änderungen, statt die Tabellenreihenfolge entscheiden zu lassen. Ohne expliziten Override muss der Aliasname dann eindeutiger gewählt werden. |
+
+Ein erzwungener Default wie INFO wäre ebenfalls definierbar, könnte aber bestehendes `LegacyLog("err:...")` zu INFO machen. `untagged`, INFO und DEFAULT sind zudem unterschiedliche Tag-Gruppen, auch wenn ihre Standardgewichte derzeit gleich sind. Der Fallback sollte deshalb eine genaue Regel bekommen und nicht nur „Default-Tag“ heißen.
+
+`-verbose` hilft bei der Kontrolle, verhindert aber keine Fehlzuordnung in normalen Builds. Außerdem wäre automatische Klassifikation eine Verhaltensänderung des bisherigen `-alias Name`: Ein zuvor ungetaggtes `Log_Error("Ready")` würde künftig ERROR. Das müsste für v2 bewusst beschlossen und dokumentiert werden. Wenn sich die Erkennungsregel später ändert, dürfen alte IDs nicht nachträglich einen anderen Tag erhalten.
+
+### 41.6. <a id="separate-aliastagsjson-oder-vertagung"></a>Separate `aliasTags.json` oder Vertagung
+
+**Eine dritte Datei ist technisch möglich. Einfacher wird der Gesamtworkflow dadurch nur, wenn das unveränderte TIL-Schema eine wichtige eigenständige Anforderung ist.** Die Datei müsste die empfangene ID auf den aufgelösten Tag abbilden, beispielsweise:
+
+```json
+{
+  "1234": "ERROR",
+  "1235": "INFO"
+}
+```
+
+Eine bloße Tabelle `Log_Error -> ERROR` genügt nicht, weil dem Logger weiterhin die Verbindung von der ID zum Aliasnamen fehlen würde.
+
+Auch bei einer separaten Datei muss die ID-Vergabe den Tag berücksichtigen. Bei einem Wechsel von ERROR zu WARNING darf nicht einfach der bisherige Eintrag für dieselbe ID überschrieben werden. Hinzu kommen gemeinsames Speichern, Archivieren und konsistentes Nachladen von TIL und Tag-Datei. Fehlende oder veraltete Tag-Daten dürfen nicht unbemerkt falsche Filterergebnisse erzeugen. Bei vollständig unveränderter TIL kann der Logger allein an ihr nicht erkennen, ob eine zusätzliche Tag-Datei fehlt; die Erwartung an diese Datei müsste daher anderweitig feststehen.
+
+| Weg | TIL-Schema erweitern? | Konsequenz |
+|---|---|---|
+| Alias-Klassifikation vollständig vertagen | Nein | Bestehende Aliase bleiben nutzbar; Tags kommen weiterhin aus dem Format. |
+| Automatische Erkennung und separate `aliasTags.json` | Nein | Vollständige Host-Funktion möglich, aber zusätzlicher Dateivertrag und dieselben Anforderungen an historische IDs. |
+| Automatische Erkennung und optionales Tag-Metadatum in TIL | Ja | Name und Syntax können einfach bleiben; die ID und ihre Bedeutung stehen zusammen in einer Datei. |
+| Ermittelten Tag als Präfix in `Strg` speichern | Nein, aber der gespeicherte Formatinhalt ändert sich | Für skalare Aliase denkbar; bewusst andere Präfixdarstellung und Anpassungen der ID-/CE-Verarbeitung nötig. |
+
+Beim letzten Weg könnte die Quelle `Log_Error("Ready")` unverändert bleiben und die TIL `err:Ready` enthalten. Das wäre der kleinste Ansatz mit dem bisherigen Dateischema, **wenn ein sichtbares `err:` bei `-color off` akzeptiert wird**. Er weicht damit vom bisher gewünschten Meldungstext-Vertrag ab. Für String-Aliase ist er außerdem keine unmittelbare allgemeine Lösung: Der [Decoder](../../internal/trexDecoder/trexDecoder.go) erkennt deren besondere `SAlias_Strg(...)`-Darstellung an Anfang und Ende und ersetzt sie durch `%s`. Einfach einen Tag davorzusetzen würde diese Erkennung verändern.
+
+**Meine Empfehlung für die weitere Entscheidung:** Die Namenskonvention unabhängig vom Speicherformat bewerten. Wenn automatische Tags jetzt bis zur Host-Ausgabe funktionieren sollen, den aufgelösten Tag bereits jetzt persistent speichern; dafür bleibt die optionale TIL-Erweiterung mein bevorzugter Weg. Falls auch diese Speicherentscheidung warten soll, die Alias-Klassifikation insgesamt vertagen. Nur `:tag` wegzulassen verschiebt die notwendige Entscheidung nicht.
+
+## 42. <a id="names-heuristik"></a>Names-Heuristik
+
+Die Beschränkung auf die acht Level-Gruppen ist ok. Erweitern mit deterministischen Zusatzregeln passt. Fehlzuordnungsfälle wie bei LogErrorCount sind sehr speziell und damit akzeptabel. Diese potentiellen Fehlzuordnungsfälle als hingenommen allgemein im RM dokumentieren und zusammen mit der späteren (nächste Trice Version) Erweiterungsoption -alias name:tag und dem dann notwenigen Erfordernis tag von bind an log zu übergeben und dafür noch eine Lösung zu finden. 
+
+-alias Zuordnungen sind immer auf trice und -salias Zuordnungen immer auf triceS. Dann könnten Aliasnamen im TIL "Type" stehen. Wenn tlog dort einen unbekannten Type findet kann es nur trice oder triceS sein. Und diese Unterscheidung ist anhand des Formatstrings einfach zu machen. Das wäre dann zwar auch eine TIL-Änderung und alte Versionen könnte Probleme haben diese auszuwerten, aber aus meiner Sicht ein kleinerer Eingriff.
+Zusammen mit einer heuristischen Tag-Zuordnung wäre damit das "Meta" Feld vorest unnötig. Wenn dieser Weg gegangen wird, muss noch klar sein, dass Formatstrings entsprechend -color und dem zugewiesenem Tag eingefärbt werden, auch wenn sie selbst keinen Tag oder einen (dann nicht validen) Tag haben, etwa MyWrn("err:bla"). Die heuristische Tag-Zuordnung ist hier WARNING, aber im Formatsting steht "err:" Die Einfärbung ist dann entsprechend WARNING und "err:" darf nicht entfernt werden, da es in einem Alias steht. Ich denke das ist wasserdicht.
+
+Wenn dann also der Aliasname unter "Type" abgelegt wird, wie hier vorgeschlagen, kann log mit der gleichen Funktion den Tag rekonstruieren.
+Wo ist hier eine Schwachstelle außer der genannten? Es wird damit insgesamt einfacher für den Nutzer und die Logik auf den Tag zu schließen aus dem Alias-Namen ist begrenzter Aufwand. Bitte bewerten.
+
+## 43. <a id="bewertung-der-namens-heuristik"></a>Bewertung der Namens-Heuristik
+
+**Ja: Für den jetzt eingegrenzten Funktionsumfang halte ich diesen Ansatz für sinnvoll. Der Aliasname in `Type` schließt die bisherige Informationslücke; zusätzliche Tag-Metadaten in `Meta` sind damit vorerst entbehrlich.** Die akzeptierten Fehlzuordnungen durch Teilworttreffer sind eine dokumentierbare Grenze der Namenskonvention. Sie sind kein Grund, den Ansatz erneut abzulehnen.
+
+Meine vorige Empfehlung ging davon aus, dass die TIL weiterhin nur den normalisierten Typ `trice` beziehungsweise `triceS` enthält. Dein neuer Vorschlag ändert genau diese Voraussetzung. Damit kann Log den Tag tatsächlich selbst bestimmen, ohne die Bind-Kommandozeile oder eine zusätzliche Datei zu benötigen. Noch nicht vollständig festgelegt sind die Typunterscheidung, die Stabilität der Heuristik über Versionen und einige Folgen für ID-Vergabe und Ausgabe.
+
+Die folgenden Aussagen zum heutigen Code beziehen sich auf `6815a9e3`. Die vorgeschlagene Funktion ist damit noch nicht implementiert oder getestet.
+
+### 43.1. <a id="der-aliasname-genügt-als-gespeicherte-grundlage"></a>Der Aliasname genügt als gespeicherte Grundlage
+
+Mit dem vorgeschlagenen Vertrag wären diese Einträge ausreichend:
+
+```json
+{
+  "1234": {"Type": "Log_Error", "Strg": "Ready"},
+  "1235": {"Type": "Log_Info", "Strg": "Ready"}
+}
+```
+
+Log kann aus `Log_Error` ERROR und aus `Log_Info` INFO ableiten. Anders als im Beispiel meines vorigen Kapitels bleibt die Verbindung zwischen ID und Alias erhalten. Bind und Log können dafür dieselbe Funktion verwenden. Das gilt entsprechend für Insert.
+
+Dein Vorschlag überträgt die Information schon in der ersten Ausbaustufe von Bind an Log: **über den Aliasnamen, aus dem der Tag eindeutig nach der vereinbarten Regel folgt.** Erst eine spätere freie Zuordnung wie `-alias MyAlarm:warning` benötigt zusätzliche Information, weil `warning` dann nicht zwingend aus `MyAlarm` ableitbar ist. Deren Speicherform kann tatsächlich bis zu dieser Erweiterung warten.
+
+Auch der Target-Datenstrom muss dafür nicht erweitert werden. Die ID verweist weiterhin auf einen TIL-Eintrag; dessen zusätzliche Bedeutung wird auf dem Host ausgewertet.
+
+### 43.2. <a id="die-unterscheidung-zwischen-skalarem-alias-und-string-alias"></a>Die Unterscheidung zwischen skalarem Alias und String-Alias
+
+**Die Unterscheidung ist möglich, sollte aber ausdrücklich an der vorhandenen String-Alias-Kennzeichnung hängen.** Sie sollte nicht durch Zählen oder Suchen von `%s` neu geraten werden.
+
+Heute speichern [Bind](../../internal/id/bindParse.go) und [Insert](../../internal/id/insertIDs.go) die Quellargumente eines String-Alias in der Sonderform `SAlias_Strg('...')SAlias_Strg`. Der [Decoder](../../internal/trexDecoder/trexDecoder.go) erkennt diese Hülle und verwendet für die empfangene Zeichenkette `%s`. Die vorhandenen [Alias-Tests](../../internal/id/insertIDs_test.go) enthalten beispielsweise `SAlias_NO_MESSAGE(42)` und String-Aliase mit einem `%d` im Quelltext. Ein gewöhnlicher Formatstring ist deren gespeicherter `Strg`-Inhalt somit nicht immer.
+
+Für einen bereits als Alias eingeordneten `Type` ergibt sich ein kleiner Vertrag:
+
+| TIL-Eintrag | Abgeleiteter Grundtyp |
+|---|---|
+| `Strg` trägt vollständig die vorhandene String-Alias-Hülle | `triceS` |
+| `Strg` trägt diese Hülle nicht | `trice` |
+| Aliasname endet auf `S`, enthält `32` oder das Wort `Assert` | Daraus folgt kein Grundtyp und keine Bitbreite. Entscheidend bleibt die Hülle. |
+
+Eine reale Grenze bleibt: Ein skalarer Alias könnte als normalen Meldungstext exakt `SAlias_Strg('abc')SAlias_Strg` verwenden. Die Hülle wird schon heute besonders behandelt; in deinem Modell wäre sie zusätzlich die einzige gespeicherte Unterscheidung der beiden Aliasarten. **Diese Form muss deshalb reserviert sein.** Für die kleine Lösung würde ich einen solchen skalaren Meldungstext bei Bind/Insert mit einer verständlichen Fehlermeldung ablehnen. Das benötigt kein neues JSON-Feld.
+
+Die Unterscheidung ist damit belastbar, sofern alle Schreibpfade diese Hülle erhalten. Auch eine Bearbeitung des Formats durch CE darf sie nicht versehentlich entfernen oder durch angehängten Text unkenntlich machen.
+
+### 43.3. <a id="was-unbekannter-type-künftig-bedeutet"></a>Was „unbekannter Type“ künftig bedeutet
+
+„Unbekannt“ ist zunächst nur eine Aussage über den Leser. Es beweist nicht, dass der Eintrag ein gültiger Alias ist. Auch ein beschädigter Typname oder ein erst in einer späteren Version eingeführter nativer Typ kann unbekannt sein.
+
+Dein Ansatz kann daraus aber bewusst eine neue Formatregel machen: **Ein gültiger Alias-Identifier außerhalb des reservierten Trice-Typnamensraums bezeichnet einen Alias; sein Grundtyp folgt aus der String-Alias-Hülle.** Native Typnamen müssen Vorrang haben und für Alias-Registrierungen ausgeschlossen sein. Für künftige native Typen sollte außerdem ein eindeutiger Namensraum reserviert bleiben, beispielsweise Namen, die unabhängig von der Großschreibung mit `trice` beginnen.
+
+Damit würde ein Leser einen ihm unbekannten nativen Typ weiterhin als nicht unterstützt melden, statt ihn als skalaren Alias zu dekodieren. Ein Tippfehler in einem ansonsten gültigen Alias-Identifier wäre dagegen nicht zuverlässig von einem absichtlich gewählten Namen unterscheidbar. Das ist eine Grenze dieses kompakten Formats, aber kein zwingender Grund für `Meta`.
+
+Die von dir akzeptierte Einschränkung für alte Tools bleibt bestehen. JSON bleibt syntaktisch gleich, die Bedeutung von `Type` ändert sich jedoch. Alte Leser können daraus weder den ursprünglichen Typ noch den Tag nach dem neuen Vertrag ableiten.
+
+### 43.4. <a id="die-wichtigste-zusätzliche-schwachstelle-ist-die-versionsstabilität"></a>Die wichtigste zusätzliche Schwachstelle ist die Versionsstabilität
+
+**Dieselbe Funktion in Bind und Log genügt innerhalb einer Version. Für alte Aufzeichnungen muss auch eine spätere Version dieselbe Zuordnung liefern.**
+
+Wenn eine spätere Version neue Suchwörter ergänzt, die Trefferpriorität verändert oder einen anderen Default wählt, kann derselbe unveränderte TIL-Eintrag plötzlich einen anderen Tag erhalten. Dann ändern sich beispielsweise `-pick` und `-loglevel` für eine historische ID, obwohl weder die Firmware noch die TIL geändert wurde.
+
+Für die kleine Lösung lässt sich das ohne Zusatzfeld lösen: Die erste veröffentlichte Heuristik wird Teil des TIL-Vertrags und bleibt für diese Einträge stabil. Das umfasst:
+
+- die acht zugelassenen Level-Gruppen und ihre verwendeten Suchwörter;
+- Groß-/Kleinschreibung und Art der Teilwortsuche;
+- die Priorität bei mehreren Treffern;
+- den Tag bei keinem Treffer.
+
+Neue Namen in der allgemeinen Tag-Tabelle dürfen dadurch nicht automatisch neue Heuristik-Treffer erzeugen. Ebenso dürfen konfigurierbare Gewichte und Farben die Namenszuordnung nicht verändern.
+
+Eine einfache deterministische Regel wäre beispielsweise: längster gefundener Suchname gewinnt; bei gleich langen Treffern verschiedener Gruppen entscheidet eine fest dokumentierte Reihenfolge. Das ist ein Vorschlag zur noch offenen Detailregel, keine bereits getroffene Entscheidung. Die Laufzeitgewichte aus `-ulabel` wären dafür ungeeignet, weil sie die gleiche TIL je nach Log-Aufruf unterschiedlich klassifizieren könnten.
+
+Wenn die Heuristik später absichtlich geändert werden soll, braucht es dann einen Weg, die bisherige Bedeutung alter Einträge zu erhalten, etwa eine explizit gespeicherte Zuordnung oder eine erkennbare Version. **Diese Erweiterung muss heute nicht vorweggenommen werden; die bestehende Regel darf dann nur nicht stillschweigend ersetzt werden.**
+
+### 43.5. <a id="der-aliasname-wird-bei-einfacher-umsetzung-teil-der-id-identität"></a>Der Aliasname wird bei einfacher Umsetzung Teil der ID-Identität
+
+Die heutige [Rückwärtssuche für IDs](../../internal/id/manage.go) vergleicht `TriceFmt` einschließlich `Type` und `Strg`. Bleibt dieses Prinzip bestehen, unterscheiden sich künftig auch diese beiden Einträge:
+
+```json
+{
+  "1234": {"Type": "Log_Error", "Strg": "Ready"},
+  "1235": {"Type": "Report_Error", "Strg": "Ready"}
+}
+```
+
+Beide ergeben ERROR und denselben Grundtyp. Trotzdem verändert eine Alias-Umbenennung den Vergleichsschlüssel und kann eine neue ID erforderlich machen. Auch eine bloße Änderung der Schreibweise des Aliasnamens kann das bewirken.
+
+**Für die einfache Variante halte ich diese Folge für vertretbar.** Sie weicht von meiner früheren Empfehlung ab, reine Alias-Umbenennungen bei unverändertem Typ, Format und Tag von der ID-Identität auszunehmen. Diese zusätzliche Optimierung würde ich hier nicht zur Voraussetzung machen. Ein historischer Eintrag darf allerdings nicht unter derselben ID auf einen Alias mit anderer Tag-Bedeutung umgeschrieben werden.
+
+Bereits vorhandene Einträge mit normalisiertem `Type: "trice"` oder `Type: "triceS"` enthalten ihren früheren Aliasnamen nicht. Log kann ihn nachträglich nicht rekonstruieren. Solche Einträge behalten ihre bisherige Interpretation; die neue Heuristik greift für Einträge, in denen der Alias tatsächlich gespeichert ist. Daraus folgt keine Notwendigkeit, hier zusätzlich eine Migration zu entwerfen.
+
+### 43.6. <a id="deine-regel-für-mywrnerrbla-ist-richtig"></a>Deine Regel für `MyWrn("err:bla")` ist richtig
+
+**WARNING bestimmt Klassifikation und Darstellung; `err:` gehört vollständig zum Meldungstext.** Dass `err` in anderen Zusammenhängen ein gültiger Tag ist, spielt für diese Aliasstelle keine Rolle.
+
+| Ausgabe beziehungsweise Funktion | Erwartetes Ergebnis |
+|---|---|
+| Text mit aktiver Farbpalette | Sichtbarer Text `err:bla`, gestaltet nach WARNING |
+| `-color none` | Sichtbarer Text `err:bla`, ohne Farbsequenzen |
+| `-color off` | Sichtbarer Text `err:bla`, ohne Farbsequenzen |
+| JSON beziehungsweise andere strukturierte Ausgabe | Tag WARNING und Meldung `err:bla` |
+| Filter und Tag-Statistik | Zuordnung zu WARNING, nicht zu ERROR |
+
+Das muss genauso für `MyWrn("bla")` und `MyWrn("wrn:bla")` gelten: kein künstlich sichtbares `wrn:` hinzufügen und auch ein zufällig passendes `wrn:` nicht entfernen. Bei String-Aliasen und mehrzeiligen Meldungen muss diese Regel den gesamten ausgegebenen Text erfassen.
+
+**Allein `record.Tag = "WARNING"` zu setzen, würde im heutigen Code noch nicht reichen.** Die [Textdarstellung](../../internal/emitter/lineTransformerANSI.go) wertet Textpräfixe selbst aus; auch die [strukturierte Ausgabe](../../internal/translator/structured.go) enthält eigene Regeln zum Entfernen eines Präfixes. Diese Stellen müssen erfahren, dass die Klassifikation aus dem Alias stammt und ein Präfix im Meldungstext deshalb unangetastet bleibt. Diese Herkunft ist aus `Type` ableitbar und kann intern weitergereicht werden; dafür ist kein zusätzliches TIL-Feld erforderlich.
+
+Noch festzulegen ist der Fall ohne Namenstreffer. Wenn „ein Präfix in einem Alias ist Meldungstext“ für alle Aliase gelten soll, darf `LegacyLog("err:bla")` nicht doch wieder ERROR aus dem Text ableiten. **Ich empfehle dafür `untagged`, bei unverändertem Text `err:bla`.** Ein fester Default wie INFO wäre ebenfalls möglich, hätte aber eine andere Filterbedeutung. Meine vorige Empfehlung, bei fehlendem Namenstreffer auf die Präfixklassifikation zurückzufallen, würde ich für diesen einheitlichen Alias-Vertrag verwerfen.
+
+### 43.7. <a id="auswirkungen-auf-die-vorhandene-verarbeitung"></a>Auswirkungen auf die vorhandene Verarbeitung
+
+Der Umfang der eigentlichen Namensheuristik ist begrenzt. Dein Vorschlag vermeidet zusätzliche JSON-Felder und eine weitere Datei. Im vorhandenen Code ist `Type` allerdings an mehreren Stellen ein auswertbarer Trice-Typ; dort darf künftig nicht ungeprüft der Aliasname hineingereicht werden.
+
+| Bereich | Erforderliche Konsequenz des Vorschlags |
+|---|---|
+| Bind und Insert | Originalen Aliasnamen für TIL und ID-Vergleich erhalten; für Prüfung und Codeerzeugung den Grundtyp verwenden. |
+| CE | Aliasname zusätzlich zum effektiv bearbeiteten Format erhalten. [`enrichBindSite`](../../internal/id/contextEnrichment.go) übernimmt heute den normalisierten Typ zurück in `site.macro`. |
+| TIL-Lesen und erneutes Schreiben | Für die Verarbeitung aufgelösten Typ und gespeicherten Alias auseinanderhalten, damit ein Schreibvorgang den Alias nicht wieder verliert. |
+| Typprüfung, Decoder und Generatoren | Alias vor den bestehenden Typoperationen auflösen. Beispielsweise erwartet [`ConstructFullTriceInfo`](../../internal/id/generate.go) einen Namen mit `trice` am Anfang und greift auf dessen erste fünf Zeichen zu. Ein kurzer Alias wie `Wrn` ist dafür kein gültiger direkter Eingang. |
+| Ausgabe, Filter und Statistik | Den einmal abgeleiteten Tag verwenden und den Alias-Meldungstext vor erneuter Präfixauswertung schützen. |
+
+Das ist überschaubare, aber nicht auf eine Suchfunktion beschränkte Arbeit. Die Trennung von Tag und sichtbarem Text wäre bei einer `Meta`-Lösung ebenfalls erforderlich; sie ist kein besonderer Nachteil des vorgeschlagenen Speicherorts.
+
+**Ich würde den Ansatz für die erste Ausbaustufe weiterverfolgen:** Aliasname in `Type`, vorhandene reservierte String-Alias-Hülle, eine festgelegte und versionsstabile Heuristik sowie unveränderter Alias-Meldungstext. Für diesen Umfang sehe ich keine grundsätzliche Informationslücke mehr. Vor der Implementierung sollten vor allem Default und Mehrfachtrefferregel sowie die Folgen von Alias-Umbenennungen ausdrücklich festgehalten werden. Die freie Zuordnung mit `:tag` und ihre zusätzliche Speicherung können wie vorgeschlagen einer späteren Version vorbehalten bleiben.
+
+## 44. <a id="implementationsspezifikation-für-alias-namensheuristik-und-cli"></a>Implementationsspezifikation für Alias-Namensheuristik und CLI
+
+**Ziel:** Registrierte Aliasnamen bestimmen automatisch den Ereignis-Tag. Die TIL speichert den Aliasnamen in `Type`; Log rekonstruiert daraus den Tag und aus `Strg` den benötigten Grundtyp `trice` oder `triceS`. Zusätzliche TIL-Felder und eine separate Tag-Datei werden für diese Ausbaustufe nicht benötigt.
+
+Dieses Kapitel beschreibt die spätere Implementierung einschließlich Tests und Dokumentation. Es ersetzt für diese Funktion widersprechende Vorgaben früherer Kapitel, insbesondere die Spezifikation aus Kapitel 37. Die bisher noch offenen Detailregeln werden hier konkret vorgeschlagen und am Kapitelende zur Prüfung zusammengefasst. Das Schreiben dieser Spezifikation führt noch keine Implementierung aus.
+
+### 44.1. <a id="umfang-und-ergebnis-aus-anwendersicht"></a>Umfang und Ergebnis aus Anwendersicht
+
+Ein Projekt registriert beispielsweise:
+
+```sh
+trice bind -src app -til til.json -li li.json -alias MyWrn
+```
+
+Die erkannte Quellstelle lautet:
+
+```c
+MyWrn("err:code=%u", code);
+```
+
+Bei `code == 7` entsteht ein Ereignis mit Tag WARNING und Meldungstext `err:code=7`. Bei Standardgewichten ist sein Level ebenfalls WARNING. Der Logger benötigt weder `-alias MyWrn` noch die ursprüngliche Bind-Kommandozeile. Er kann die Meldung beispielsweise mit `-pick wrn` auswählen. Text, JSON/KV, Filter und Statistik verwenden denselben Ereignis-Tag.
+
+Diese Ausbaustufe umfasst:
+
+- automatische Tag-Zuordnung für `-alias` und `-salias`;
+- Speicherung und erneute Auflösung der Aliasnamen über `Type`;
+- konsistente ID-Vergabe, tag-spezifische ID-Bereiche und CE-Auswahl;
+- korrekte Typverarbeitung in den betroffenen Lesern und Generatoren;
+- die unten festgelegten CLI-Anpassungen, Verhaltenstests und Dokumentation.
+
+Die freie Zuordnung `Name:Tag`, zusätzliche Alias-CE-Selektoren wie `Name:Tag:ctx7`, implizite Custom-Tags aus solchen Angaben, `Meta`, `SchemaVersion`, `Created`, `Used` und automatische Datenbereinigung bleiben zurückgestellt. Dasselbe gilt für eine neue Kombination aus Laufzeitstring und zusätzlichen skalaren Payload-Werten. Die Alias-Klassifikation selbst fügt keine Target-Payload-Bytes hinzu. Ausdrücklich konfigurierte skalare CE-Werte benötigen weiterhin ihre normalen Payload-Bytes.
+
+### 44.2. <a id="begriffe-und-getrennte-zuständigkeiten"></a>Begriffe und getrennte Zuständigkeiten
+
+| Begriff | Bedeutung |
+|---|---|
+| Aliasname | Exakter Name des registrierten C/C++-Makros, beispielsweise `MyWrn`. |
+| Grundtyp | Für die Verarbeitung aufgelöstes `trice` oder `triceS`. Er legt die Art der Nutzdaten fest. |
+| Ereignis-Tag | Aus dem Aliasnamen abgeleitete Gruppe, beispielsweise WARNING. Pro Ereignis gibt es einen Tag. |
+| Level | Aus dem Tag und der bestehenden Host-Gewichtung abgeleitete Prioritätsstufe. |
+| CE-Selektor | Wählt konfigurierte Kontextregeln aus. Mehrere Selektoren sind keine mehreren Ereignis-Tags. |
+| String-Alias-Hülle | Die bereits verwendete Kennzeichnung `SAlias_Strg('...')SAlias_Strg` in `Strg`. Sie kennzeichnet gespeicherte Quellargumente eines String-Alias. |
+
+**Die Tag-Heuristik bestimmt niemals den Grundtyp.** Beispielsweise ergibt `LogError` den Tag ERROR, aber weder eine bestimmte Bitbreite noch einen skalaren oder einen String-Datensatz. Umgekehrt enthält die String-Alias-Hülle keine Tag-Zuordnung.
+
+### 44.3. <a id="cli-namen-und-groß-kleinschreibung"></a>CLI-Namen und Groß-/Kleinschreibung
+
+Es wird keine allgemeine Case-Toleranz eingeführt. Optionsnamen und Unterkommandos bleiben grundsätzlich exakt; vorhandene ausdrücklich registrierte Schreibvarianten bleiben gültig.
+
+| Gegenstand | Festlegung dieser Spezifikation |
+|---|---|
+| Neue Optionsnamen | Kleingeschriebene Hauptform; bei künftig neu eingeführten längeren Namen gegebenenfalls Wörter mit Bindestrichen trennen. |
+| `-utag` | Ersetzt `-ulabel` bei den Kommandos, die diese Option heute anbieten. |
+| `-ulabel` | Entfällt in dieser v2-Ausbaustufe. Ein Aufruf damit scheitert mit einem Hinweis auf `-utag`. |
+| `-uTag`, `-uLabel`, `-Utag` | Keine zusätzlichen Schreibvarianten. |
+| `-loglevel` und `-logLevel` | Beide bleiben gültig. Neue Beispiele bevorzugen `-loglevel`. |
+| `-logformat` | Neue, ausdrücklich registrierte Schreibvariante von `-logFormat`; neue Beispiele bevorzugen die kleingeschriebene Form. |
+| `-logFormat` | Bleibt gültig und verwendet denselben Wert wie `-logformat`. |
+| Andere bestehende Namen, etwa `-IDRange`, `-IDMin`, `-genDir`, `-logC` | Unverändert; keine flächendeckende Ergänzung weiterer Schreibvarianten. |
+| `-a`, `-sa` | Bleiben Kurzformen von `-alias`, `-salias` mit identischer Wertauswertung. |
+
+Für beide Logformat-Schreibweisen funktionieren `-name value` und `-name=value`. Bei mehrfacher Zuweisung über beide Namen gilt wie bei `-loglevel`/`-logLevel` die letzte Zuweisung. Prüfungen auf ausdrücklich gesetzte Optionen müssen beide Schreibweisen berücksichtigen.
+
+**Optionswerte werden nicht pauschal kleingeschrieben.** Aliasnamen, Dateipfade, Formatstrings, C-Ausdrücke und schreibungsabhängige Custom-Tags behalten ihre Schreibweise. Die bestehenden Regeln für einzelne Werte gelten weiter: Built-in-Tag-Namen und Logformat-Werte werden tolerant erkannt, Custom-Tag-Namen bleiben exakt. Die Heuristik darf den Aliasnamen intern zum Vergleichen kleinschreiben, muss ihn aber unverändert speichern.
+
+Die gezielte Ergänzung `-logformat` benötigt keine allgemeine Vorverarbeitung der Kommandozeile. Insbesondere bleibt die Sonderbehandlung des optionalen Pfads bei `generate -logC` unberührt.
+
+### 44.4. <a id="zulässige-werte-von--utag"></a>Zulässige Werte von `-utag`
+
+Die Umbenennung wird mit der bereits gewünschten Trennung zwischen Instrumentierung und Darstellung verbunden:
+
+| Kommando | Zulässige Werte | Aufgabe |
+|---|---|---|
+| `bind`, `insert` | `name` | Namen für die bestehende Präfix-/CE-Behandlung und tag-spezifische ID-Bereiche registrieren. |
+| `clean` | `name` | Bei CE dieselbe Namensregistrierung wie Insert ermöglichen. Zum bloßen Entfernen von IDs ist sie nicht erforderlich. |
+| `log`, `tlog` | `name`, `name:weight`, `name:color` in der bisherigen Wertesyntax | Namen registrieren und Host-Gewicht beziehungsweise Farbe einstellen. |
+
+Bei `bind`, `insert` und `clean` werden Gewicht-/Farbangaben vor Dateiänderungen zurückgewiesen. Die Fehlermeldung nennt den Wert und erklärt, dass Gewicht und Farbe beim Logging angegeben werden. Die jeweilige CLI-Hilfe darf nur die für das Kommando gültige Syntax zeigen.
+
+Die bestehende Bedeutung wiederholter Gewicht-/Farbzuweisungen beim Logging bleibt erhalten. Namensregistrierung erfolgt weiterhin vor der Validierung von Filtern, CE-Auswahl und ID-Bereichen, soweit das jeweilige Kommando diese verwendet.
+
+`-utag sensor` macht `sensor` nicht zu einem Suchwort der Alias-Heuristik. In dieser Ausbaustufe kann ein Alias nur eine der acht Level-Gruppen oder `untagged` erhalten. Custom-Tags über normale Formatpräfixe bleiben davon unabhängig nutzbar. Der spätere Alias-Override `:tag` wird jetzt weder akzeptiert noch stillschweigend ignoriert.
+
+### 44.5. <a id="registrierung-und-prüfung-der-aliasnamen"></a>Registrierung und Prüfung der Aliasnamen
+
+Ein Aliasname muss dem Muster `[A-Za-z_][A-Za-z0-9_]*` entsprechen. Er wird bei der Erkennung von Quellstellen exakt verglichen. Leere Namen, Leerzeichen, Doppelpunkte und andere Zeichen außerhalb dieses Musters sind Fehler.
+
+Der gesamte mit `trice` beginnende Namensraum ist unabhängig von der Großschreibung für native Trice-Typen reserviert. Beispielsweise sind `trice`, `TRICE8_2` und `TriceWarning` keine neu registrierbaren Aliasnamen. Dadurch kann ein späterer Leser einen unbekannten nativen Typ von einem grundsätzlich zulässigen Aliasnamen unterscheiden. Dies ist eine bewusst eingeschränkte Namenswahl; vorhandene Projekte mit einem solchen Alias benötigen eine andere Projektbenennung, keine automatische Umbenennung durch Trice.
+
+Identische Wiederholungen derselben Aliasoption sind zulässig und dürfen keine mehrfachen Effekte erzeugen. Für einen Namen, der unter beiden Aliasarten angegeben wird, bleibt die bestehende Sonderregel aus [`resolveTriceAlias`](../../internal/id/helper.go) erhalten: Endet er auf `s` oder `S`, gilt er als String-Alias, sonst als skalarer Alias. Die Reihenfolge der Optionen ändert das Ergebnis nicht. Für neue Konfigurationen wird empfohlen, jeden Namen nur unter der tatsächlich benötigten Aliasart anzugeben.
+
+Diese Sonderregel gilt ausschließlich bei doppelter Registrierung. Ein allein mit `-alias StatusS` registrierter Name bleibt skalar; ein allein mit `-salias LogErr` registrierter Name bleibt ein String-Alias.
+
+Alle Aliasdefinitionen werden vor Quelländerungen validiert, auch wenn kein entsprechender Aufruf gefunden wird. Für `Name:Tag` erklärt die Fehlermeldung ausdrücklich, dass freie Alias-Tag-Zuordnungen in dieser Ausbaustufe noch nicht unterstützt werden.
+
+### 44.6. <a id="vollständig-festgelegte-namensheuristik"></a>Vollständig festgelegte Namensheuristik
+
+Die gemeinsame Funktion wird von Instrumentierung und Host-Auswertung verwendet. Sie arbeitet allein auf dem Aliasnamen und der folgenden festen Tabelle. Sie hängt weder vom Meldungstext noch von der aktuellen Tag-Registry, Farbe, Gewichtung oder Reihenfolge der CLI-Optionen ab.
+
+| Vorrang bei gleich langen Treffern | Ergebnis | Suchwörter nach Kleinschreibung |
+|---|---|---|
+| 1 | FATAL | `fatal` |
+| 2 | CRITICAL | `critical`, `crit` |
+| 3 | ERROR | `error`, `err` |
+| 4 | WARNING | `warning`, `warn`, `wrn` |
+| 5 | INFO | `informal`, `info`, `inf` |
+| 6 | DEBUG | `debug`, `dbg`, `deb`, `db` |
+| 7 | TRACE | `trace`, `tr` |
+| 8 | VERBOSE | `verbose` |
+
+Die Auswertung erfolgt in dieser Reihenfolge:
+
+1. Für den Vergleich eine kleingeschriebene Kopie des Aliasnamens verwenden.
+2. Alle Suchwörter ermitteln, die irgendwo zusammenhängend im Namen vorkommen. Unterstriche oder Wortgrenzen sind nicht erforderlich; CamelCase braucht keine eigene Zerlegung.
+3. Die Länge des längsten gefundenen Suchworts bestimmen.
+4. Wenn mehrere Gruppen einen Treffer dieser maximalen Länge besitzen, die zuerst genannte Gruppe der Tabelle wählen.
+5. Wenn kein Suchwort vorkommt, `untagged` zurückgeben.
+
+Mehrere Treffer derselben Gruppe ändern deren Ergebnis nicht. Es werden weder eine Warnung noch ein Fehler allein wegen mehrerer Treffer erzeugt. Die längste Schreibweise hat Vorrang vor einer kürzeren Schreibweise einer höheren Level-Gruppe; erst bei gleicher Länge entscheidet die feste Reihenfolge.
+
+| Aliasname | Ergebnis | Grund |
+|---|---|---|
+| `MyWrn` | WARNING | `wrn` |
+| `LOG_ERROR` | ERROR | `error`, unabhängig von Großschreibung |
+| `LogErrorCount` | ERROR | Akzeptierter Teilworttreffer |
+| `Log_Error_Warning` | WARNING | `warning` ist länger als `error`. |
+| `LogErrWrn` | ERROR | Gleich lange Treffer; ERROR steht vor WARNING. |
+| `LogDebugTrace` | DEBUG | Gleich lange Treffer; DEBUG steht vor TRACE. |
+| `Log_Infrared` | INFO | Akzeptierter zufälliger Treffer durch `inf` |
+| `Log_Readback` | DEBUG | Akzeptierter zufälliger Treffer durch `db` |
+| `MyAlarm`, `LegacyLog` | `untagged` | Kein Suchwort dieser Tabelle |
+
+Die Tabelle entspricht den gegenwärtigen Schreibweisen der acht Level-Gruppen aus der [Tag-Registry](../../internal/emitter/lineTransformerANSI.go), wird für die Heuristik aber als fester Vertrag behandelt. Neue allgemeine Tag-Aliase dürfen die Heuristik nicht automatisch erweitern. Die genannten Zufallstreffer müssen ausdrücklich im RM erklärt werden.
+
+**Dieser Vertrag bleibt für damit geschriebene TIL-Einträge versionsstabil.** Eine spätere Verbesserung darf historische IDs nicht anders klassifizieren. Soll die Heuristik später geändert werden, ist dafür zunächst eine erkennbare Unterscheidung alter und neuer Bedeutung oder eine gespeicherte explizite Zuordnung zu spezifizieren. Eine gemeinsame Funktion allein löst diese Frage nicht, wenn Bind und Log aus unterschiedlichen Versionen stammen.
+
+### 44.7. <a id="til-darstellung-und-interne-darstellung"></a>TIL-Darstellung und interne Darstellung
+
+Die TIL bleibt eine Map von IDs auf Einträge mit `Type` und `Strg`.
+
+| Eintrag | Persistiertes `Type` | Persistiertes `Strg` |
+|---|---|---|
+| Nativer Trice-Aufruf | Bisheriger Trice-Typ | Bisheriges effektives Format |
+| Skalarer Alias | Originaler Aliasname | Effektives Format nach den zulässigen CE-Transformationen |
+| String-Alias | Originaler Aliasname | Vorhandene String-Alias-Hülle mit den gespeicherten Quellargumenten |
+
+Tag, Grundtyp, Gewicht, Farbe und Level werden für Alias-Einträge nicht zusätzlich gespeichert. Es gibt keine künstlichen ID-Einträge, keine Versionszeile und keine neue Begleitdatei.
+
+Intern müssen mindestens folgende Informationen auseinandergehalten werden:
+
+- die unveränderten Daten für erneutes Schreiben und ID-Vergleich;
+- ob der Eintrag ein Alias ist und welcher Grundtyp benötigt wird;
+- der daraus abgeleitete Ereignis-Tag;
+- das tatsächlich für die Dekodierung benötigte Format.
+
+Konkrete Struct- und Funktionsnamen bleiben Implementierungsdetails. Entscheidend ist, dass temporäre Typauflösung keinen Aliasnamen in der TIL überschreibt. Ebenso darf aus `MyWrn` beim Ermitteln der Argumentzahl weder in der Quelle noch in der TIL ein erfundener Alias `MyWrn_1` werden. Vorhandene Optionen zur Erweiterung nativer Makronamen um die Argumentzahl dürfen nicht ungeprüft auf Aliasnamen angewendet werden.
+
+### 44.8. <a id="trice-und-trices-zuerst-beim-instrumentieren-unterscheiden"></a>`trice` und `triceS`: zuerst beim Instrumentieren unterscheiden
+
+**Beim Lesen des C/C++-Quellcodes bestimmt die Aliasoption den Grundtyp. Hier muss das Tool nichts aus dem Formatstring erraten.**
+
+| Registrierung | Grundtyp | Erwartete Target-Nutzdaten |
+|---|---|---|
+| Nur `-alias Name` | `trice` | Die skalaren Werte der Meldung |
+| Nur `-salias Name` | `triceS` | Eine zur Laufzeit übertragene Zeichenkette |
+| Beide Optionen für denselben Namen | Bestehende Sonderregel anhand des letzten Buchstabens | Entsprechend dem so gewählten Grundtyp |
+
+Die Registrierung erzeugt keine C-Funktion und keine Laufzeitformatierung. Das Projekt muss das Makro so definieren, dass es den angegebenen Grundtyp tatsächlich verwendet. Ein Alias auf einen beliebigen anderen Trice-Typ wird durch diese Funktion nicht automatisch unterstützt.
+
+Ein einfaches skalares Beispiel ist:
+
+```c
+#define MyWrn trice
+
+MyWrn("err:code=%u", code);
+```
+
+Das Tool kennt `MyWrn` durch `-alias MyWrn`. Der Wert von `code` wird übertragen; der Host formatiert ihn später anhand von `err:code=%u`.
+
+Ein einfaches String-Beispiel ist:
+
+```c
+#define MyWrnText triceS
+
+MyWrnText("%s", text);
+```
+
+Das Tool kennt `MyWrnText` durch `-salias MyWrnText`. In diesem Beispiel enthält `text` bereits die gewünschte Meldung, etwa `err:code=7`. Der Target überträgt diese Zeichenkette. Der Host gibt sie über `%s` aus.
+
+String-Aliase dürfen im Rahmen der bestehenden Erkennung auch projektspezifische Wrapper mit anderer Argumentliste bezeichnen. Die vorhandenen [Tests](../../internal/id/insertIDs_test.go) enthalten beispielsweise `SAlias_NO_MESSAGE(42)`. Ein solcher Wrapper muss selbst für eine gültige String-Übertragung sorgen. Das Tool kann deshalb nicht voraussetzen, dass in seinen Quellargumenten überhaupt ein `%s` steht.
+
+### 44.9. <a id="trice-und-trices-später-aus-der-til-unterscheiden"></a>`trice` und `triceS`: später aus der TIL unterscheiden
+
+Beim Logging fehlen die Aliasoptionen. Deshalb muss die beim Instrumentieren bekannte Unterscheidung in der TIL erhalten bleiben. Dafür dient die bereits existierende String-Alias-Hülle.
+
+Für die beiden vorigen Beispiele ergibt sich schematisch:
+
+```json
+{
+  "1234": {
+    "Type": "MyWrn",
+    "Strg": "err:code=%u"
+  },
+  "1235": {
+    "Type": "MyWrnText",
+    "Strg": "SAlias_Strg('\"%s\", text')SAlias_Strg"
+  }
+}
+```
+
+Nach dem JSON-Lesen ist der zweite `Strg`-Wert wörtlich:
+
+```text
+SAlias_Strg('"%s", text')SAlias_Strg
+```
+
+Er besteht aus drei Teilen:
+
+| Teil | Inhalt im Beispiel |
+|---|---|
+| Fester Anfang | `SAlias_Strg('` |
+| Gespeicherte Quellargumente ohne eingefügte ID | `"%s", text` |
+| Festes Ende | `')SAlias_Strg` |
+
+**Die Hülle ist eine Kennzeichnung, kein auszugebender Text.** Der Logger wertet die darin stehende C-Argumentliste nicht aus. Insbesondere sucht er keine Host-Variable `text` und formatiert nicht mit dieser Argumentliste. Er erkennt an der Hülle den Grundtyp `triceS`, verwendet für die Dekodierung `%s` und gibt damit die vom Target empfangene Zeichenkette aus.
+
+Die ursprünglichen Quellargumente bleiben für die ID-Zuordnung gespeichert. Sie werden nicht in der TIL durch `%s` ersetzt, denn dann gingen Unterschiede zwischen Quellstellen verloren.
+
+Der gemeinsame Leser arbeitet in dieser Reihenfolge:
+
+1. Ist `Type` ein unterstützter nativer Trice-Typ, gilt die bisherige native Verarbeitung einschließlich der bisherigen String-Alias-Sonderform alter Einträge.
+2. Beginnt ein nicht unterstützter `Type` unabhängig von Großschreibung mit `trice`, wird er als unbekannter oder ungültiger nativer Typ gemeldet. Er wird nicht als Alias behandelt.
+3. Jeder andere `Type` muss ein gültiger Alias-Identifier nach der oben festgelegten Syntax sein.
+4. Für einen solchen Alias wird die Hülle im JSON-dekodierten `Strg` geprüft, vor der Auswertung von Formatplatzhaltern und ohne Leerzeichen abzuschneiden:
+
+| Zustand von `Strg` bei einem Alias | Ergebnis |
+|---|---|
+| Exakter fester Anfang und exaktes festes Ende vorhanden, ohne Überlappung der Randmarker | Grundtyp `triceS`; Dekodierformat `%s` |
+| Weder fester Anfang noch festes Ende vorhanden | Grundtyp `trice`; gespeichertes Format verwenden |
+| Nur ein Randmarker vorhanden oder beide überlappen sich wegen zu kurzer Zeichenkette | Fehler wegen unvollständiger oder unzulässiger String-Alias-Kennzeichnung |
+
+Die vollständige Hülle muss mindestens so lang wie ihre beiden Randmarker zusammen sein. Diese Prüfung erfolgt vor jedem Zugriff auf ihren inneren Teil. Danach wird unabhängig davon der Ereignis-Tag aus dem Aliasnamen ermittelt.
+
+Somit kann `StatusS` trotz des letzten `S` ein skalarer Alias sein, und `LogErr` ohne letztes `S` ein String-Alias. Der Logger entscheidet anhand der gespeicherten Hülle. Er wiederholt nicht die CLI-Sonderregel für doppelte Registrierung.
+
+### 44.10. <a id="grenzen-der-typunterscheidung"></a>Grenzen der Typunterscheidung
+
+| Grenze | Konsequenz und erforderliches Verhalten |
+|---|---|
+| Ein skalarer Meldungstext könnte die Hülle nachahmen. | Für neue skalare Alias-Einträge sind der feste Anfang am Stringanfang und das feste Ende am Stringende reserviert. Bind/Insert müssen solche Texte vor Änderungen ablehnen, auch wenn nur einer der beiden Randmarker vorkommt. |
+| Eine beschädigte String-Alias-TIL könnte beide Randmarker vollständig verlieren. | Ohne zusätzliche Information ist das nicht sicher von einem skalaren Alias zu unterscheiden. Ein solcher Eintrag wird zunächst als skalar eingeordnet; bestehende Format-/Payload-Prüfungen können Fehler erkennen, garantieren dies aber nicht für jede Beschädigung. |
+| Ein beliebiger unbekannter Identifier könnte aus einem Tippfehler stammen. | Der Leser kann seine Herkunft nicht beweisen. Ein syntaktisch gültiger Name außerhalb des reservierten Namensraums gilt laut Dateivertrag als Alias. |
+| Ein Name enthält `8`, `16`, `32`, `64`, `Assert` oder endet auf `S`. | Diese Bestandteile bestimmen beim Lesen eines Alias weder Bitbreite noch Grundtyp. Vorhandene native Typoperationen dürfen sie nicht versehentlich auswerten. |
+| Ein Projektmakro sendet etwas anderes als den registrierten Grundtyp. | Die Aliasoption repariert das nicht. Grundtyp und tatsächliches Makroverhalten müssen zusammenpassen; die normale Abstimmung der Trice-Bitbreite zwischen Target und Tool bleibt erforderlich. |
+| Ein beliebiger Wrapper verdeckt mehrere Aufrufstellen oder erzeugt mehrere Datensätze. | Die bestehenden Parser-, Bind- und Location-Grenzen bleiben bestehen. Die Erweiterung ist kein allgemeiner C-Präprozessor. |
+
+Das Verfahren ist damit für korrekt erzeugte TIL-Einträge eindeutig, aber keine selbstprüfende Kodierung gegen jede manuelle Beschädigung. Die Garantie beruht auf der reservierten Hülle und dem Vertrag, dass registrierte Makros wirklich `trice` beziehungsweise `triceS` verwenden.
+
+Das Erhalten der Hülle ist zwingend. Weder CE noch JSON-Export, temporäre Normalisierung oder ein späterer Schreibvorgang dürfen Text außerhalb der Hülle anhängen oder einen ihrer Randmarker verlieren.
+
+### 44.11. <a id="verarbeitung-in-bind-insert-clean-und-generate"></a>Verarbeitung in Bind, Insert, Clean und Generate
+
+Für Bind und Insert muss die Verarbeitung folgende Reihenfolge einhalten:
+
+1. CLI und Aliasnamen validieren; benötigte Tag-Namen registrieren.
+2. Quellstellen erkennen und Alias-Grundtyp nach der Registrierung bestimmen.
+3. Originalen Aliasnamen behalten und den Ereignis-Tag auflösen.
+4. Zulässige CE-Regeln auswählen und das effektive Format bestimmen.
+5. Format, Argumente, String-Alias-Kennzeichnung und geltende Aufrufgrenzen prüfen.
+6. Die endgültige Vergleichsidentität bilden und IDs innerhalb der passenden Bereiche auswählen.
+7. Alle geplanten Änderungen prüfen und über die bestehenden Schreib-/Rollback-Verfahren veröffentlichen.
+
+Ein Fehler darf keine teilweise aktualisierten Quellen, TIL-, LI- oder Bind-Dateien zurücklassen. Ein ungenutzter gültiger Alias erzeugt für sich keinen TIL-Eintrag. Clean und Generate verwenden dieselbe Typ- und Identitätsauflösung innerhalb ihrer bisherigen Aufgaben; daraus entsteht keine zusätzliche ID-Vergabe durch diese Kommandos.
+
+| Bereich | Implementierungsanforderung |
+|---|---|
+| Aliasauflösung und `bindSiteFormat` | Originalname und aufgelösten Grundtyp getrennt erhalten; den Alias nicht vor dem ID-Vergleich verwerfen. |
+| Typprüfung, Parameterzählung und `ConstructFullTriceInfo` | Nur den aufgelösten Typ prüfen. Kurze Namen wie `Wrn` dürfen keinen Zugriff außerhalb ihrer Zeichenkettenlänge auslösen. |
+| CE und Bind-Sidecars | Die Aliasidentität auch nach Änderung des effektiven Formats und beim Wiederlesen bestehender generierter Metadaten erhalten. |
+| ID-Bereiche | Für Aliasstellen den abgeleiteten Tag verwenden. `MyWrn("err:...")` gehört in einen konfigurierten WARNING-Bereich, nicht in den ERROR-Bereich. |
+| Clean | Mit den entsprechenden Alias-/CE-Einstellungen die vorgesehenen Quellergänzungen entfernen; historische TIL-Einträge erhalten. |
+| Generate mit Quellscan | Dieselbe Aliasregistrierung und dieselbe Vergleichsidentität verwenden wie Bind/Insert; nicht nur den normalisierten Typ mit dem gespeicherten Alias vergleichen. |
+| JSON-Dictionary-Exporte | Aliasname und `Strg` einschließlich Hülle semantisch unverändert erhalten. |
+| Generierte typabhängige Tabellen | Grundtyp und Format korrekt auflösen, bevor Bitbreite oder Parameterzahl abgeleitet werden. Die neuen Host-Tags erweitern nicht automatisch die lokalen Filter-/Farbfunktionen generierter C-Logger. |
+
+Betroffene Stellen sind unter anderem [Aliasauflösung](../../internal/id/helper.go), [Bind-Metadaten](../../internal/id/bindMetadata.go), [ID-Verwaltung](../../internal/id/manage.go), [ID-Bereiche](../../internal/id/switchIDs.go), [CE](../../internal/id/contextEnrichment.go) und [Generatoren](../../internal/id/generate.go). Die Tabelle beschreibt erforderliche Ergebnisse, keine Aufforderung zu einem allgemeinen Refactoring dieser Bereiche.
+
+### 44.12. <a id="id-identität-historie-und-alte-dateien"></a>ID-Identität, Historie und alte Dateien
+
+Für neue Alias-Einträge besteht der Vergleichsschlüssel aus dem exakt gespeicherten Aliasnamen und dem effektiven `Strg` einschließlich einer gegebenenfalls vorhandenen String-Alias-Hülle. Interne Cachefelder, Farben, Gewichte und Anzeigeoptionen sind kein zusätzlicher Schlüsselbestandteil. Der Tag muss nicht zusätzlich in den Schlüssel, weil er nach dem eingefrorenen Vertrag aus dem Namen folgt.
+
+Es gelten folgende Regeln:
+
+- Wiederholtes Bind/Insert ohne fachliche Änderung hält IDs und erzeugte Inhalte stabil.
+- Eine Umbenennung oder Änderung der Groß-/Kleinschreibung des Alias verändert den Schlüssel. Es wird eine passende historische oder eine neue ID verwendet, auch wenn der Tag gleich bleibt.
+- Ein Wechsel zwischen skalarem und String-Alias verändert die gespeicherte Darstellung und darf die bisherige ID nicht umdeuten.
+- Änderungen des wirksamen Formats oder der CE-Erweiterung werden nach den bestehenden Regeln für eine andere Meldungsidentität behandelt.
+- Eine bestehende ID wird nicht mit einer anderen Alias-/Formatbedeutung überschrieben. Die bisherigen Regeln für mehrere identische Aufrufstellen, Teilscans und reservierte IDs bleiben bestehen.
+- Ein Alias und ein nativer Aufruf mit gleichem sichtbarem Text bleiben unterscheidbar, weil ihre Präfix- und Tag-Bedeutung verschieden sein kann.
+
+Alte Einträge mit `Type: "trice"` oder `Type: "triceS"` besitzen keinen rekonstruierbaren Aliasnamen. Das neue Tool liest sie nach ihren bisherigen Regeln. Bei erneuter Instrumentierung einer nun nach dem neuen Vertrag gespeicherten Aliasstelle darf es deren bisherige native TIL-Zeile nicht einfach auf den Aliasnamen umschreiben. Die neue Identität erhält eine dazu passende andere ID; der alte Eintrag bleibt für historische Daten erhalten.
+
+Es wird keine automatische Migration, Rekonstruktion alter Aliasnamen oder Bereinigung historischer Einträge implementiert. Eine gemischte TIL mit alten nativen und neuen Alias-Einträgen ist zulässig.
+
+Alte Toolversionen müssen neue Alias-TILs nicht korrekt lesen können. Die frühere Anforderung, dass alte Leser neue Metadaten lediglich ignorieren können, gilt für diese neue `Type`-Bedeutung nicht mehr. Die Dokumentation muss diesen Versionsbruch ausdrücklich benennen.
+
+### 44.13. <a id="ce-auswahl-und-ihre-grenze-bei-string-aliasen"></a>CE-Auswahl und ihre Grenze bei String-Aliasen
+
+Für skalare Aliase bleibt die bereits festgehaltene Auswahl über den Alias-Tag Bestandteil der Funktion:
+
+1. Zuerst die CE-Regelgruppe des abgeleiteten Ereignis-Tags auswählen, einschließlich `untagged`, wenn dafür Regeln vorhanden sind.
+2. Danach die Gruppen aus der zusammenhängenden Präfixfolge im Quellformat in deren Reihenfolge auswählen.
+3. Jede kanonische Gruppe insgesamt nur einmal anwenden. Innerhalb einer Gruppe bleibt die CLI-Reihenfolge der Regeln erhalten.
+4. Die vorhandenen Prüfungen auf zulässige Argumente, sichtbare C-Ausdrücke, Parametergrenzen und direkte Bind-Aufrufstellen beibehalten.
+
+Ein Formatpräfix ist bei einem Alias keine Quelle des Ereignis-Tags. Es kann trotzdem ein ausdrücklich konfigurierter CE-Selektor sein. Die bestehende Unterscheidung bleibt dabei wichtig: Passende freie, vollständig kleingeschriebene Selektoren werden aus dem effektiven Format entfernt; bekannte Tag-Präfixe bleiben stehen. Ohne passende CE-Regel wird deshalb kein Präfix als vermeintlicher Kontext entfernt.
+
+Beispiel mit `-alias MyWrn`:
+
+```c
+MyWrn("err:ctx:code={code:%u}", code);
+```
+
+```sh
+-ce 'wrn:", task={task:%u}", taskId' \
+-ce 'ctx:", run={run:%u}", runId'
+```
+
+Die WARNING-Gruppe liefert zuerst `task`, danach liefert `ctx` den Wert `run`. `ctx:` wird als passender freier Selektor entfernt, `err:` bleibt Text. Bei den Werten 7, 2 und 3 lautet die Meldung `err:code=7, task=2, run=3`; ihr Tag bleibt WARNING. Eine zusätzliche passende ERROR-Regel könnte über das Quellpräfix ebenfalls Kontext hinzufügen, ohne den Ereignis-Tag zu ändern.
+
+**Für String-Aliase wird in dieser Ausbaustufe nur die Tag-Zuordnung unterstützt. Eine über ihren Tag ausgewählte CE-Regel wird vor Änderungen abgewiesen, auch wenn sie nur Text anhängen würde.** Ihre gespeicherte Hülle enthält eine Quellargumentliste; sie enthält kein allgemeines Host-Ausgabeformat, an das die bestehende CE-Verarbeitung gefahrlos Text oder Werte anhängen könnte. Laufzeitinhalte und die Argumentliste innerhalb der Hülle werden nicht nach CE-Selektoren durchsucht.
+
+Dies grenzt die neue automatische CE-Auswahl für String-Aliase ausdrücklich ein. Die bestehende Möglichkeit einer zulässigen reinen Texterweiterung an einem nativen `triceS` bleibt davon getrennt. Eine entsprechende Erweiterung für `-salias` würde einen eigenen Format- und Darstellungsvertrag benötigen.
+
+Enthält ein Projekt skalare und String-Aliase mit WARNING, würde `-ce 'wrn:...'` daher auch die nicht unterstützten String-Aliasstellen auswählen und den Lauf ablehnen. Soll nur den skalaren Stellen Kontext hinzugefügt werden, kann dort ein eigener Quellselektor wie `ctx:` mit einer passenden CE-Regel verwendet werden. Nicht unterstützte Stellen werden nicht stillschweigend übersprungen.
+
+### 44.14. <a id="host-klassifikation-und-unveränderter-meldungstext"></a>Host-Klassifikation und unveränderter Meldungstext
+
+Der Leser muss für jedes neue Alias-Ereignis Tag und Herkunft der Klassifikation bis zur Darstellung weitergeben. Die Herkunft kann aus dem gespeicherten Alias abgeleitet werden; sie benötigt kein zusätzliches TIL-Feld.
+
+Für Alias-Ereignisse gilt nach einer ausdrücklich konfigurierten CE-Transformation:
+
+| Meldung | Ereignis-Tag | Sichtbarer Text |
+|---|---|---|
+| `MyWrn("bla")` | WARNING | `bla` |
+| `MyWrn("err:bla")` | WARNING | `err:bla` |
+| `MyWrn("wrn:bla")` | WARNING | `wrn:bla` |
+| `LegacyLog("err:bla")` ohne Namenstreffer | `untagged` | `err:bla` |
+| String-Alias `MyWrnText` empfängt `err:bla` | WARNING | `err:bla` |
+
+Bei einer aktiven Farbpalette wird die Meldung nach ihrem zugeordneten Tag gestaltet. Bei `-color none` und `-color off` enthält die Ausgabe keine Farbsequenzen; alle genannten Textpräfixe bleiben trotzdem erhalten. JSON/KV enthalten ebenfalls die vollständige Meldung und den gleichen Tag, ohne ANSI-Farbe.
+
+Es wird kein sichtbares Tag-Präfix künstlich eingefügt. Auch gleichlautende Präfixe, Texte nach einem Zeilenumbruch und aus Parametern oder Laufzeitstrings stammender Text werden nicht erneut als Tag ausgewertet. Kommen mehrere Ereignisse in einer Textzeile zusammen, bleibt die Klassifikation pro Ereignis erhalten.
+
+Ein bloßes Setzen von `ApplicationRecord.Tag` reicht nicht: Auch [Textdarstellung](../../internal/emitter/lineTransformerANSI.go), [strukturierte Ausgabe](../../internal/translator/structured.go) und gegebenenfalls die Darstellung von Formaten in Statistiken müssen Aliastext vor erneuter Präfixauswertung schützen.
+
+`-pick`, `-ban`, `-loglevel`, Tag-Statistik und die vorhandene Visualisierungsverarbeitung müssen dieselbe Ereigniszuordnung verwenden. Die bestehende Statistik zählt erfolgreich dekodierte Ereignisse vor der Filterung; Tooldiagnosen werden dabei nicht als Alias-Ereignisse mitgezählt. Gewicht und Farbe sind Host-Einstellungen: Sie dürfen den abgeleiteten Tag oder die TIL nicht ändern, können aber Filterergebnis und abgeleiteten Level beeinflussen.
+
+Die Funktion arbeitet mit `-li off`. Location Information bestimmt weiterhin die Quellposition und ist keine Voraussetzung für Tag oder Grundtyp. Beim TIL-Nachladen werden die gespeicherten Einträge und ihre aufgelöste Verarbeitung gemeinsam aktualisiert. Ein ungültiges Update wird diagnostiziert; die letzte gültige Sicht bleibt nutzbar. Beim initialen Laden muss ein erkennbar ungültiger Eintrag vor dem Öffnen des Log-Eingangs abgewiesen werden.
+
+### 44.15. <a id="diagnostik"></a>Diagnostik
+
+Mit `-verbose` müssen Bind/Insert je registriertem Alias den gewählten Grundtyp, den aufgelösten Tag und den Grund der Zuordnung zeigen. Dazu gehören längster Treffer, Entscheidung bei Gleichstand oder Fallback auf `untagged`. Die Ausgabe muss für dieselbe Konfiguration reproduzierbar sein.
+
+Ein bekanntes abweichendes Tag-Präfix im Quellformat erzeugt ausschließlich mit `-verbose` einen Hinweis mit Aufrufstelle, Alias-Tag und Präfix-Tag. Ein gleichwertiges Präfix oder ein freier CE-Selektor erzeugt keinen solchen Konflikthinweis. Inhalt von Laufzeitstrings wird dafür nicht untersucht. Die bisherigen sonstigen CE-Diagnosen bleiben erhalten.
+
+Ungültige CLI-Werte, reservierte Namen, unvollständige Hüllen und nicht unterstützte CE-Kombinationen sind dagegen echte Fehler und werden auch ohne `-verbose` gemeldet. Sie nennen Option beziehungsweise Datei, ID oder Aufrufstelle und erklären die verletzte Regel. Es gibt keinen zusätzlichen Warnschalter.
+
+### 44.16. <a id="verbindliche-verhaltenstests"></a>Verbindliche Verhaltenstests
+
+Die Implementierung muss Tests mit unabhängigen Soll-Ergebnissen erhalten. Ein Test, der nur dieselbe Hilfsfunktion erneut zur Erzeugung seines Erwartungswerts aufruft, genügt nicht.
+
+| Testbereich | Zu prüfende Ergebnisse |
+|---|---|
+| CLI-Schreibweisen | `-logformat` und `-logFormat` liefern für beide Argumentformen denselben Wert; letzte Zuweisung gewinnt. `-loglevel`/`-logLevel` bleiben gültig. Nicht registrierte Varianten bleiben Fehler. |
+| `-utag` | Neue Schreibweise in allen vorgesehenen Kommandos; alter Name mit hilfreicher Fehlermeldung; Namen bei Build-Kommandos zulässig, Gewicht/Farbe dort vor Änderungen abgewiesen; Host-Overrides funktionieren weiter. |
+| Unveränderte Werte | Aliasnamen, Custom-Tags mit unterschiedlicher Großschreibung, Pfade und C-Ausdrücke werden nicht durch die CLI-Anpassung verändert. |
+| Aliasregistrierung | Beide Kurzformen, identische Wiederholungen, fehlende/leere Werte, ungültige Zeichen, reservierte Namen und abgewiesenes `Name:Tag`; bestehende Doppelregistrierungsregel in beiden Optionsreihenfolgen. |
+| Heuristik | Alle Suchwörter, gemischte Schreibweisen, sämtliche Beispiele der Ergebnistabelle, Mehrfachtreffer derselben Gruppe, längster Treffer, Gleichstand und `untagged`. |
+| Fester Heuristikvertrag | Zusätzliche Custom-Tags, geänderte Gewichte/Farben und Änderungen der allgemeinen Registry beeinflussen die festgelegten Namenszuordnungen nicht. |
+| Grundtyp | `-alias StatusS` bleibt skalar; `-salias LogErr` bleibt String. Namen wie `Wrn` und `Motor32AssertError` werden nicht als native Typen zerlegt. |
+| Hülle | Vollständige Hülle, nur Anfang, nur Ende, überlappende Randmarker, leere normale Meldung, Anführungszeichen, Backslashes und markerähnlicher Text mitten in der Meldung. Reservierte Randmarker in skalaren Aliasformaten scheitern vor Änderungen. |
+| String-Argumentlisten | Bestehende Sonderfälle ohne `%s` und mit anderem Formatplatzhalter bleiben erfassbar; der Host verwendet die empfangene Zeichenkette, nicht die gespeicherte C-Argumentliste. |
+| Bind/Insert | Originalname wird in `Type` geschrieben; Wiederholung hält IDs und Inhalte stabil; ungenutzte Aliasoption erzeugt keinen TIL-Eintrag. |
+| Historische IDs | Alias-Rename, reine Schreibweisenänderung, Typwechsel und CE-Änderung deuten keine alte ID um; gleiche sichtbare Texte mit verschiedenen Aliasnamen bleiben getrennt. |
+| Alte und gemischte TIL | Native Einträge behalten ihr Verhalten; neue Alias-Einträge werden ohne Alias-CLI gelesen; erneute Instrumentierung überschreibt keine alte normalisierte Aliaszeile. |
+| ID-Bereiche | Alias-Tag schlägt abweichendes Formatpräfix; Bereichsgrenzen, erschöpfte Bereiche und die bestehenden Regeln für Teilscans bleiben korrekt. |
+| Skalare CE | Aliasgruppe zuerst, Quellgruppen danach, jede Gruppe einmal, mehrere Regeln in CLI-Reihenfolge; freie Selektoren werden gezielt entfernt, Tag-Präfixe bleiben Text. |
+| String-Alias und CE | Kein passender Selektor: normale Tag-Funktion. Passende CE-Gruppe: verständlicher Fehler, auch bei reiner Texterweiterung; keine Teiländerungen. Native `triceS`-Fälle bleiben separat abgedeckt. |
+| Clean und Generatoren | Insert/Clean mit denselben Einstellungen funktioniert; Bind-Metadaten erhalten Aliasidentität; JSON-Export erhält Hülle und Namen; typabhängige Ausgaben verwenden den Grundtyp. |
+| Text/JSON/KV | Die Meldungstabelle stimmt für aktive Paletten, `none` und `off`; kein verlorenes oder künstliches Präfix. Auch mehrzeilige Meldungen, mehrere Ereignisse pro Zeile und tag-artiger Parametertext sind abgedeckt. |
+| Filter und Statistik | `-pick wrn` zeigt `MyWrn("err:bla")`, `-pick err` zeigt es nicht. Bei Standardgewichten zeigt `-loglevel wrn` das Ereignis, `-loglevel err` nicht. `LegacyLog("err:bla")` bleibt `untagged`. Ausgefilterte erfolgreiche Ereignisse zählen weiter gemäß bestehender Statistikregel. |
+| Location und Nachladen | Tag-Auswertung mit `-li off`; richtige Alias-Aufrufposition mit LI; gültiger Reload übernimmt eine konsistente Sicht, ungültiger Reload erhält die letzte gültige Sicht. |
+| Fehler und Wiederherstellung | Ungültige Definitionen, Formate und Schreibfehler hinterlassen keine teilweisen Quellen-/Dictionary-/Sidecar-Änderungen. Kurze oder fehlerhafte `Type`-Werte führen nicht zu Panics. |
+
+Zusätzlich ist ein hardwarefreier Integrationstest erforderlich: Ein vorhandenes C-Testgerüst erzeugt tatsächlich einen skalaren Alias-Datensatz und einen String-Alias-Datensatz. Der Host dekodiert beide über die neue TIL in Text und JSON/KV. Damit wird geprüft, dass die angenommene Typauflösung auch zu den tatsächlich übertragenen Bytes passt. Das Testgerüst verwendet die vorhandenen Toolchains und führt keine neue Laufzeitbibliothek oder Abhängigkeit ein.
+
+Nach den fokussierten Tests ist `./scripts/testAll.sh` ohne Argumente auszuführen. `./scripts/testAll.sh full` ist eine abschließende Prüfung bei dafür relevanten C-/Compileränderungen, kein Pflichtlauf für jeden Zwischenschritt.
+
+Für geänderten Go-Code ist außerdem die Paket- und Coverage-Auswahl aus der [Coverage-Workflowdatei](../../.github/workflows/coverage.yml) einzuhalten; derzeit:
+
+```sh
+mkdir -p ./temp/log
+go test -count=1 ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
+```
+
+Die Coveralls-artige abgedeckte Zeilenzahl ist mit dem Zielbranch zu vergleichen. Ein Rückgang muss mit genauer Ursache ausgewiesen werden; die gerundete Go-Statement-Prozentzahl genügt nicht. Go-Coverage ersetzt den C-Integrationstest nicht. Die spätere Abschlussmeldung muss ausgeführte, bestandene, fehlgeschlagene und ausgelassene Prüfungen eindeutig unterscheiden.
+
+### 44.17. <a id="verbindliche-dokumentation"></a>Verbindliche Dokumentation
+
+Die spätere Implementierung muss CLI-Hilfe und aktive Referenzdokumentation zusammen aktualisieren. Vorhandene Kapitel sollen erweitert werden; ein weiterer paralleler Gesamtentwurf ist nicht erforderlich.
+
+| Dokumentationsbereich | Erforderlicher Inhalt |
+|---|---|
+| [Integration vorhandener Logging-Makros](../rm/legacy_user_code.md) | Zwei verständliche Beispiele für `-alias` und `-salias`; Projektverantwortung für den tatsächlichen Grundtyp; TIL-Beispiel mit Erklärung der Hülle; Doppelregistrierung und Namensgrenzen. |
+| [Tags, Farben, Filter und Statistik](../rm/tags_color_and_weights.md) | Feste Suchworttabelle, längster Treffer, Gleichstand, Fallback, akzeptierte Fehlzuordnungen und unveränderter Alias-Meldungstext. |
+| [IDs und Dictionaries](../rm/id_management.md) | Neue Bedeutung von `Type`, Unterschied gespeicherter Name/Grundtyp, ID-Wechsel bei Renames, gemischte TIL, Grenzen alter Tools und Versionsstabilität. |
+| [CLI und Logging](../rm/cli.md) | `-utag`, Wegfall von `-ulabel`, zusätzliche Schreibweise `-logformat`, weiterhin exakte Optionsnamen sowie kommandospezifische Werteformen. |
+| [Bind](../rm/bind.md) und [CE](../rm/context_enrichment.md) | Reihenfolge der Auswahl, ID-Bereiche, unveränderte Aufrufgrenzen und ausdrücklicher Ausschluss von CE-Änderungen an String-Aliasen. |
+| [Structured Logging](../rm/structured_logging.md) und [Generate](../rm/generate.md) | Gleicher Tag in JSON/KV, vollständiger Meldungstext, korrekte Verwendung des Grundtyps und Grenze zur lokalen C-Logdarstellung. |
+| [Changelog](../../CHANGELOG.md) | Kurzer Hinweis auf automatische Alias-Tags, inkompatible `Type`-Bedeutung, `-utag` und relevante Grenzen; Details über relative RM-Links. |
+
+Ein kleines ausführbares Beispiel muss ohne Hardware die skalare Aliasvariante, einen String-Alias und skalare CE zeigen. Es verwendet die neue Syntax und dokumentiert die erwarteten Tags und Meldungen. Freie `Name:Tag`-Zuordnungen dürfen nicht als bereits verfügbare Funktion erscheinen; sie werden nur als mögliche Erweiterung einer späteren Version genannt.
+
+Der bereits vorgeschlagene kurze RM-Abschnitt zur LI-Archivierung bleibt Teil der Dokumentationsarbeit: finale LI über einen Inhalts-Hash identifizieren, unverändert extern archivieren, passenden Datensatz extern auswählen und über `-li` verwenden. ZIP-Dateien werden extern entpackt. Dafür werden weder Hash-Erzeugung noch Archivverwaltung oder LI-Historienfelder in Trice implementiert.
+
+Aktive Beispiele, Inhaltsverzeichnisse und Links sind auf Konsistenz zu prüfen. Archivierte Dokumente bleiben unverändert. Neue Codekommentare und öffentliche CLI-Hilfetexte werden auf Englisch geschrieben; diese Diskussionsspezifikation bleibt deutsch.
+
+### 44.18. <a id="noch-zu-prüfende-detailentscheidungen"></a>Noch zu prüfende Detailentscheidungen
+
+Die folgende Tabelle trennt neu konkretisierte Vorschläge von der bereits beschriebenen Grundidee. Die vorherigen Abschnitte verwenden jeweils die hier genannte Variante, sodass daraus nach der inhaltlichen Prüfung eine eindeutige Implementierungsaufgabe entsteht.
+
+| Punkt | In dieser Spezifikation verwendeter Vorschlag | Bedeutung für die Prüfung |
+|---|---|---|
+| Kein Namenstreffer | `untagged`, kein Rückgriff auf das Meldungspräfix | Auch `LegacyLog("err:...")` wird als Alias nicht ERROR. |
+| Mehrere Namenstreffer | Längster Treffer, danach feste Tabellenreihenfolge | Beispielsweise wird `Log_Error_Warning` WARNING. |
+| Alias-Renames | Exakter Name ist Teil der ID-Identität | Auch ein Rename ohne Tag-Wechsel kann eine andere ID erfordern. |
+| Reservierte Formen | `trice*` für native Namen; Randmarker der String-Alias-Hülle für String-Aliase | Manche bisher möglichen Projektnamen beziehungsweise skalaren Texte werden abgewiesen. |
+| String-Alias und CE | Passende CE-Regeln ablehnen, einschließlich reiner Texterweiterungen | Vermeidet eine nicht definierte Änderung der Hülle; gemischte Gruppen benötigen gezielte skalare Quellselektoren. |
+| CLI-Vereinfachung | `-utag` ohne alten Kompatibilitätsnamen; zusätzlich `-logformat`; sonst keine allgemeine Case-Toleranz | Klar benannter v2-Bruch und eine gezielte kompatible Ergänzung. |
+
+Die bestehende Doppelregistrierungsregel wird bewusst erhalten, obwohl eine künftig strengere Ablehnung derselben Namen unter beiden Aliasarten einfacher zu erklären wäre. Eine solche zusätzliche Änderung ist in dieser Spezifikation nicht enthalten.
+
+Die früheren Meta-Entwürfe, Alias-Overrides und automatischen LI-/TIL-Historienfunktionen sind keine offenen Pflichtpunkte dieser Umsetzung. Prüfpflichtig bleiben dagegen die genaue Heuristik, die hier erklärte Typunterscheidung, die String-Alias-CE-Grenze sowie die Konsistenz von Instrumentierung, Historie und Host-Ausgabe.

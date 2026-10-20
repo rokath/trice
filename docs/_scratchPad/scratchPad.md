@@ -8,14 +8,14 @@ TODO:
 
 - -sl Beispiele
 - -ce Beispiele
-- Trice Fretures
+- Trice Features
   - speed, space, tags, selection, routing, level, id, history, rtt, abc, vis, sl, ce, COBS/TCOBS, encryption, hs, ts, tsdelta, endianness, X0, li, small on wire, multi-targets, serial, udp in, tcp io, protection, bind, insert-cache, aliases, assert, self-contained
 
 
 RM Demo Text zu lang
 HW Tests
 
-Trice16F vs C in triceExamples Zeile 50
+
 
 
 --- Nur antworten nichts machen!
