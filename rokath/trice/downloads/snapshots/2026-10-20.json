@@ -1,0 +1,1019 @@
+{
+  "observed_at": "2026-10-20T02:05:35Z",
+  "releases": [
+    {
+      "id": 416045555,
+      "tag": "v2.0.0-beta-1",
+      "published_at": "2026-10-17T20:37:56Z",
+      "downloads": 10
+    },
+    {
+      "id": 350132285,
+      "tag": "v1.3.0",
+      "published_at": "2026-07-07T09:18:39Z",
+      "downloads": 975
+    },
+    {
+      "id": 336564655,
+      "tag": "v1.2.5",
+      "published_at": "2026-06-09T12:29:44Z",
+      "downloads": 325
+    },
+    {
+      "id": 333275180,
+      "tag": "v1.2.4",
+      "published_at": "2026-06-02T17:45:27Z",
+      "downloads": 134
+    },
+    {
+      "id": 328581737,
+      "tag": "v1.2.3",
+      "published_at": "2026-05-24T21:18:07Z",
+      "downloads": 179
+    },
+    {
+      "id": 327999129,
+      "tag": "v1.2.2",
+      "published_at": "2026-05-22T15:59:11Z",
+      "downloads": 86
+    },
+    {
+      "id": 308037514,
+      "tag": "v1.2.1",
+      "published_at": "2026-04-12T15:45:59Z",
+      "downloads": 345
+    },
+    {
+      "id": 302090733,
+      "tag": "v1.2.0",
+      "published_at": "2026-03-26T20:44:12Z",
+      "downloads": 82
+    },
+    {
+      "id": 279993201,
+      "tag": "v1.1.1",
+      "published_at": "2026-01-26T16:48:23Z",
+      "downloads": 236
+    },
+    {
+      "id": 271776426,
+      "tag": "v1.1.0",
+      "published_at": "2025-12-19T14:44:16Z",
+      "downloads": 172
+    },
+    {
+      "id": 214820560,
+      "tag": "v1.0.0",
+      "published_at": "2025-04-25T15:21:52Z",
+      "downloads": 1944
+    },
+    {
+      "id": 214816645,
+      "tag": "0.74.0",
+      "published_at": "2025-04-25T15:08:39Z",
+      "downloads": 99
+    },
+    {
+      "id": 196824174,
+      "tag": "v0.73.1",
+      "published_at": "2025-01-26T14:13:50Z",
+      "downloads": 3047
+    },
+    {
+      "id": 195532338,
+      "tag": "v0.73.0",
+      "published_at": "2025-01-19T21:30:20Z",
+      "downloads": 76
+    },
+    {
+      "id": 191534014,
+      "tag": "v0.72.5",
+      "published_at": "2024-12-18T20:51:36Z",
+      "downloads": 155
+    },
+    {
+      "id": 190481480,
+      "tag": "v0.72.4",
+      "published_at": "2024-12-12T17:00:08Z",
+      "downloads": 65
+    },
+    {
+      "id": 187343460,
+      "tag": "v0.72.3",
+      "published_at": "2024-11-25T16:49:43Z",
+      "downloads": 89
+    },
+    {
+      "id": 186735209,
+      "tag": "v0.72.2",
+      "published_at": "2024-11-21T20:37:39Z",
+      "downloads": 67
+    },
+    {
+      "id": 183829645,
+      "tag": "v0.72.1",
+      "published_at": "2024-11-05T23:46:08Z",
+      "downloads": 76
+    },
+    {
+      "id": 183011643,
+      "tag": "v0.72.0",
+      "published_at": "2024-10-31T21:35:10Z",
+      "downloads": 65
+    },
+    {
+      "id": 180457664,
+      "tag": "v0.71.0",
+      "published_at": "2024-10-17T13:54:04Z",
+      "downloads": 77
+    },
+    {
+      "id": 179155054,
+      "tag": "v0.70.0",
+      "published_at": "2024-10-09T16:39:14Z",
+      "downloads": 64
+    },
+    {
+      "id": 175691578,
+      "tag": "v0.69.0",
+      "published_at": "2024-09-18T14:59:54Z",
+      "downloads": 92
+    },
+    {
+      "id": 172809171,
+      "tag": "v0.68.0",
+      "published_at": "2024-08-30T16:33:36Z",
+      "downloads": 83
+    },
+    {
+      "id": 171748688,
+      "tag": "v0.67.0",
+      "published_at": "2024-08-23T21:45:23Z",
+      "downloads": 73
+    },
+    {
+      "id": 170769346,
+      "tag": "v0.66.1",
+      "published_at": "2024-08-18T19:00:02Z",
+      "downloads": 63
+    },
+    {
+      "id": 170707006,
+      "tag": "v0.66.0",
+      "published_at": "2024-08-17T08:16:00Z",
+      "downloads": 63
+    },
+    {
+      "id": 169350791,
+      "tag": "v0.65.0",
+      "published_at": "2024-08-08T15:03:21Z",
+      "downloads": 79
+    },
+    {
+      "id": 167480079,
+      "tag": "v0.64.3",
+      "published_at": "2024-07-27T14:32:12Z",
+      "downloads": 81
+    },
+    {
+      "id": 167430381,
+      "tag": "v0.64.2",
+      "published_at": "2024-07-26T21:05:10Z",
+      "downloads": 69
+    },
+    {
+      "id": 167358859,
+      "tag": "v0.64.1",
+      "published_at": "2024-07-26T12:46:20Z",
+      "downloads": 67
+    },
+    {
+      "id": 165998441,
+      "tag": "v0.64.0",
+      "published_at": "2024-07-18T08:39:40Z",
+      "downloads": 79
+    },
+    {
+      "id": 146944550,
+      "tag": "v0.63.0",
+      "published_at": "2024-03-17T21:16:24Z",
+      "downloads": 250
+    },
+    {
+      "id": 122178696,
+      "tag": "v0.62.3",
+      "published_at": "2023-09-22T09:53:36Z",
+      "downloads": 1596
+    },
+    {
+      "id": 120546870,
+      "tag": "v0.62.2",
+      "published_at": "2023-09-10T10:41:47Z",
+      "downloads": 119
+    },
+    {
+      "id": 115443735,
+      "tag": "v0.62.1",
+      "published_at": "2023-08-07T10:50:02Z",
+      "downloads": 591
+    },
+    {
+      "id": 115380340,
+      "tag": "v0.62.0",
+      "published_at": "2023-08-06T15:22:00Z",
+      "downloads": 96
+    },
+    {
+      "id": 114408259,
+      "tag": "v0.61.2",
+      "published_at": "2023-07-30T18:44:30Z",
+      "downloads": 110
+    },
+    {
+      "id": 114084504,
+      "tag": "v0.61.1",
+      "published_at": "2023-07-29T09:40:23Z",
+      "downloads": 96
+    },
+    {
+      "id": 113298434,
+      "tag": "v0.61.0",
+      "published_at": "2023-07-24T10:55:38Z",
+      "downloads": 102
+    },
+    {
+      "id": 107950385,
+      "tag": "v0.60.3",
+      "published_at": "2023-06-09T08:41:40Z",
+      "downloads": 134
+    },
+    {
+      "id": 103112830,
+      "tag": "v0.60.2",
+      "published_at": "2023-05-16T08:31:13Z",
+      "downloads": 122
+    },
+    {
+      "id": 102935818,
+      "tag": "v0.60.1",
+      "published_at": "2023-05-15T06:37:49Z",
+      "downloads": 103
+    },
+    {
+      "id": 102914523,
+      "tag": "v0.60.0",
+      "published_at": "2023-05-14T21:31:03Z",
+      "downloads": 100
+    },
+    {
+      "id": 102505130,
+      "tag": "v0.59.0",
+      "published_at": "2023-05-10T14:40:50Z",
+      "downloads": 112
+    },
+    {
+      "id": 102106637,
+      "tag": "v0.58.0",
+      "published_at": "2023-05-06T21:38:24Z",
+      "downloads": 114
+    },
+    {
+      "id": 101939860,
+      "tag": "v0.57.0",
+      "published_at": "2023-05-04T21:31:58Z",
+      "downloads": 110
+    },
+    {
+      "id": 94558929,
+      "tag": "v0.56.4",
+      "published_at": "2023-03-05T16:50:59Z",
+      "downloads": 3586
+    },
+    {
+      "id": 93167924,
+      "tag": "v0.56.3",
+      "published_at": "2023-02-21T14:25:38Z",
+      "downloads": 122
+    },
+    {
+      "id": 93137904,
+      "tag": "v0.56.2",
+      "published_at": "2023-02-21T10:07:17Z",
+      "downloads": 101
+    },
+    {
+      "id": 93004324,
+      "tag": "v0.56.0",
+      "published_at": "2023-02-20T10:01:56Z",
+      "downloads": 112
+    },
+    {
+      "id": 75390911,
+      "tag": "v0.55.1",
+      "published_at": "2022-08-25T20:02:25Z",
+      "downloads": 261
+    },
+    {
+      "id": 71462490,
+      "tag": "v0.54.1",
+      "published_at": "2022-07-07T11:22:55Z",
+      "downloads": 201
+    },
+    {
+      "id": 71412549,
+      "tag": "v0.54.0",
+      "published_at": "2022-07-06T20:49:40Z",
+      "downloads": 100
+    },
+    {
+      "id": 69423491,
+      "tag": "v0.53.0",
+      "published_at": "2022-06-14T16:34:55Z",
+      "downloads": 97
+    },
+    {
+      "id": 68695314,
+      "tag": "v0.52.0",
+      "published_at": "2022-06-06T09:09:11Z",
+      "downloads": 127
+    },
+    {
+      "id": 67496922,
+      "tag": "v0.51.1",
+      "published_at": "2022-05-22T21:34:00Z",
+      "downloads": 154
+    },
+    {
+      "id": 67119523,
+      "tag": "v0.51.0",
+      "published_at": "2022-05-17T21:14:11Z",
+      "downloads": 132
+    },
+    {
+      "id": 67012985,
+      "tag": "v0.50.0",
+      "published_at": "2022-05-16T20:55:38Z",
+      "downloads": 125
+    },
+    {
+      "id": 66882956,
+      "tag": "v0.49.2",
+      "published_at": "2022-05-14T18:03:15Z",
+      "downloads": 132
+    },
+    {
+      "id": 65407003,
+      "tag": "v0.49.1",
+      "published_at": "2022-04-26T21:18:04Z",
+      "downloads": 136
+    },
+    {
+      "id": 65406284,
+      "tag": "v0.49.0",
+      "published_at": "2022-04-26T21:06:04Z",
+      "downloads": 48
+    },
+    {
+      "id": 58997214,
+      "tag": "v0.48.0",
+      "published_at": "2022-02-08T11:08:30Z",
+      "downloads": 223
+    },
+    {
+      "id": 58781519,
+      "tag": "v0.47.0",
+      "published_at": "2022-02-05T20:12:44Z",
+      "downloads": 40
+    },
+    {
+      "id": 56277293,
+      "tag": "v0.46.0",
+      "published_at": "2022-01-02T17:43:29Z",
+      "downloads": 96
+    },
+    {
+      "id": 56230959,
+      "tag": "v0.45.0",
+      "published_at": "2021-12-31T13:50:18Z",
+      "downloads": 46
+    },
+    {
+      "id": 55893411,
+      "tag": "v0.44.1",
+      "published_at": "2021-12-23T12:26:40Z",
+      "downloads": 52
+    },
+    {
+      "id": 55845249,
+      "tag": "v0.44.0",
+      "published_at": "2021-12-22T17:59:36Z",
+      "downloads": 50
+    },
+    {
+      "id": 54201440,
+      "tag": "v0.43.0",
+      "published_at": "2021-11-28T21:15:28Z",
+      "downloads": 43
+    },
+    {
+      "id": 53800866,
+      "tag": "v0.42.0",
+      "published_at": "2021-11-21T20:08:42Z",
+      "downloads": 39
+    },
+    {
+      "id": 53343054,
+      "tag": "v0.41.0",
+      "published_at": "2021-11-14T22:52:40Z",
+      "downloads": 42
+    },
+    {
+      "id": 52894710,
+      "tag": "v0.40.0",
+      "published_at": "2021-11-08T07:39:20Z",
+      "downloads": 42
+    },
+    {
+      "id": 52876971,
+      "tag": "v0.39.0",
+      "published_at": "2021-11-07T20:05:54Z",
+      "downloads": 41
+    },
+    {
+      "id": 52742578,
+      "tag": "v0.38.0",
+      "published_at": "2021-11-04T22:48:32Z",
+      "downloads": 39
+    },
+    {
+      "id": 52555679,
+      "tag": "v0.37.0",
+      "published_at": "2021-11-02T21:55:42Z",
+      "downloads": 38
+    },
+    {
+      "id": 52479719,
+      "tag": "v0.36.0",
+      "published_at": "2021-11-01T22:26:38Z",
+      "downloads": 44
+    },
+    {
+      "id": 52477201,
+      "tag": "v0.35.0",
+      "published_at": "2021-11-01T21:26:59Z",
+      "downloads": 44
+    },
+    {
+      "id": 52275461,
+      "tag": "v0.34.0",
+      "published_at": "2021-10-28T22:07:37Z",
+      "downloads": 25
+    },
+    {
+      "id": 50168174,
+      "tag": "v0.33.0",
+      "published_at": "2021-09-23T21:43:33Z",
+      "downloads": 44
+    },
+    {
+      "id": 48621515,
+      "tag": "v0.32.0",
+      "published_at": "2021-08-28T22:58:03Z",
+      "downloads": 41
+    },
+    {
+      "id": 41613019,
+      "tag": "v0.31.1",
+      "published_at": "2021-04-18T21:00:37Z",
+      "downloads": 47
+    },
+    {
+      "id": 41609118,
+      "tag": "v0.31.0",
+      "published_at": "2021-04-18T16:57:46Z",
+      "downloads": 35
+    },
+    {
+      "id": 41382740,
+      "tag": "v0.30.1",
+      "published_at": "2021-04-13T22:17:43Z",
+      "downloads": 32
+    },
+    {
+      "id": 41247287,
+      "tag": "v0.30.0",
+      "published_at": "2021-04-11T20:11:09Z",
+      "downloads": 34
+    },
+    {
+      "id": 40940317,
+      "tag": "v0.29.3",
+      "published_at": "2021-04-05T11:59:36Z",
+      "downloads": 32
+    },
+    {
+      "id": 40906600,
+      "tag": "v0.29.2",
+      "published_at": "2021-04-03T22:46:05Z",
+      "downloads": 32
+    },
+    {
+      "id": 40850220,
+      "tag": "v0.29.1",
+      "published_at": "2021-04-01T22:09:40Z",
+      "downloads": 35
+    },
+    {
+      "id": 40803199,
+      "tag": "v0.29.0",
+      "published_at": "2021-04-01T07:33:27Z",
+      "downloads": 29
+    },
+    {
+      "id": 40724048,
+      "tag": "v0.28.3",
+      "published_at": "2021-03-30T21:34:01Z",
+      "downloads": 27
+    },
+    {
+      "id": 40663909,
+      "tag": "v0.28.2",
+      "published_at": "2021-03-29T23:02:57Z",
+      "downloads": 18
+    },
+    {
+      "id": 40656758,
+      "tag": "v0.28.1",
+      "published_at": "2021-03-29T20:08:17Z",
+      "downloads": 26
+    },
+    {
+      "id": 40634894,
+      "tag": "v0.28.0",
+      "published_at": "2021-03-29T13:28:52Z",
+      "downloads": 28
+    },
+    {
+      "id": 40604970,
+      "tag": "v0.27.8",
+      "published_at": "2021-03-28T20:57:52Z",
+      "downloads": 20
+    },
+    {
+      "id": 40578341,
+      "tag": "v0.27.7",
+      "published_at": "2021-03-27T13:03:04Z",
+      "downloads": 27
+    },
+    {
+      "id": 40577006,
+      "tag": "v0.27.6",
+      "published_at": "2021-03-27T11:26:43Z",
+      "downloads": 26
+    },
+    {
+      "id": 40576615,
+      "tag": "v0.27.5",
+      "published_at": "2021-03-27T10:54:56Z",
+      "downloads": 26
+    },
+    {
+      "id": 40576396,
+      "tag": "v0.27.4",
+      "published_at": "2021-03-27T10:35:05Z",
+      "downloads": 26
+    },
+    {
+      "id": 40564932,
+      "tag": "v0.27.3",
+      "published_at": "2021-03-26T21:20:09Z",
+      "downloads": 28
+    },
+    {
+      "id": 40444802,
+      "tag": "v0.27.2",
+      "published_at": "2021-03-25T21:50:00Z",
+      "downloads": 26
+    },
+    {
+      "id": 40408899,
+      "tag": "v0.27.1",
+      "published_at": "2021-03-25T11:34:53Z",
+      "downloads": 26
+    },
+    {
+      "id": 40406172,
+      "tag": "v0.27.0",
+      "published_at": "2021-03-25T10:40:11Z",
+      "downloads": 27
+    },
+    {
+      "id": 40335277,
+      "tag": "v0.26.1",
+      "published_at": "2021-03-24T16:26:30Z",
+      "downloads": 27
+    },
+    {
+      "id": 40310562,
+      "tag": "v0.26.0",
+      "published_at": "2021-03-24T15:33:53Z",
+      "downloads": 27
+    },
+    {
+      "id": 39803102,
+      "tag": "v0.25.6",
+      "published_at": "2021-03-15T08:28:51Z",
+      "downloads": 10
+    },
+    {
+      "id": 39792301,
+      "tag": "v0.25.4",
+      "published_at": "2021-03-15T00:25:33Z",
+      "downloads": 19
+    },
+    {
+      "id": 39791133,
+      "tag": "v0.25.2",
+      "published_at": "2021-03-14T23:10:44Z",
+      "downloads": 18
+    },
+    {
+      "id": 39781812,
+      "tag": "v0.25.1",
+      "published_at": "2021-03-14T13:51:36Z",
+      "downloads": 15
+    },
+    {
+      "id": 39780626,
+      "tag": "v0.25.0",
+      "published_at": "2021-03-14T12:34:17Z",
+      "downloads": 18
+    },
+    {
+      "id": 39769851,
+      "tag": "v0.24.10",
+      "published_at": "2021-03-13T22:48:49Z",
+      "downloads": 14
+    },
+    {
+      "id": 39769393,
+      "tag": "v0.24.9",
+      "published_at": "2021-03-13T22:24:16Z",
+      "downloads": 18
+    },
+    {
+      "id": 39761425,
+      "tag": "v0.24.8",
+      "published_at": "2021-03-13T14:35:50Z",
+      "downloads": 20
+    },
+    {
+      "id": 39760369,
+      "tag": "v0.24.7",
+      "published_at": "2021-03-13T13:31:46Z",
+      "downloads": 17
+    },
+    {
+      "id": 39759863,
+      "tag": "v0.24.6",
+      "published_at": "2021-03-13T12:59:14Z",
+      "downloads": 14
+    },
+    {
+      "id": 39759550,
+      "tag": "v0.24.5",
+      "published_at": "2021-03-13T12:34:11Z",
+      "downloads": 14
+    },
+    {
+      "id": 39758791,
+      "tag": "v0.24.4",
+      "published_at": "2021-03-13T11:38:53Z",
+      "downloads": 18
+    },
+    {
+      "id": 39658466,
+      "tag": "v0.24.3",
+      "published_at": "2021-03-11T14:33:16Z",
+      "downloads": 17
+    },
+    {
+      "id": 39655916,
+      "tag": "v0.24.2",
+      "published_at": "2021-03-11T13:55:53Z",
+      "downloads": 20
+    },
+    {
+      "id": 39648803,
+      "tag": "v0.24.1",
+      "published_at": "2021-03-11T11:50:31Z",
+      "downloads": 20
+    },
+    {
+      "id": 39549941,
+      "tag": "v0.24.0",
+      "published_at": "2021-03-09T22:05:59Z",
+      "downloads": 20
+    },
+    {
+      "id": 39406630,
+      "tag": "v0.23.0",
+      "published_at": "2021-03-07T22:41:39Z",
+      "downloads": 18
+    },
+    {
+      "id": 39304206,
+      "tag": "v0.22.3",
+      "published_at": "2021-03-04T21:04:48Z",
+      "downloads": 18
+    },
+    {
+      "id": 39258435,
+      "tag": "v0.22.2",
+      "published_at": "2021-03-04T07:51:52Z",
+      "downloads": 18
+    },
+    {
+      "id": 39145920,
+      "tag": "v0.21.2",
+      "published_at": "2021-03-02T21:53:12Z",
+      "downloads": 21
+    },
+    {
+      "id": 39114570,
+      "tag": "v0.21.1",
+      "published_at": "2021-03-02T12:43:02Z",
+      "downloads": 18
+    },
+    {
+      "id": 39022530,
+      "tag": "v0.21.0",
+      "published_at": "2021-02-28T21:24:39Z",
+      "downloads": 18
+    },
+    {
+      "id": 38791424,
+      "tag": "v0.20.4",
+      "published_at": "2021-02-26T10:23:38Z",
+      "downloads": 19
+    },
+    {
+      "id": 38738170,
+      "tag": "v0.20.3",
+      "published_at": "2021-02-25T13:26:59Z",
+      "downloads": 18
+    },
+    {
+      "id": 38413988,
+      "tag": "v0.20.2",
+      "published_at": "2021-02-22T09:44:56Z",
+      "downloads": 20
+    },
+    {
+      "id": 38396402,
+      "tag": "v0.20.1",
+      "published_at": "2021-02-21T20:06:33Z",
+      "downloads": 18
+    },
+    {
+      "id": 38396335,
+      "tag": "0.20.1",
+      "published_at": "2021-02-21T20:02:26Z",
+      "downloads": 20
+    },
+    {
+      "id": 38314750,
+      "tag": "v0.20.0",
+      "published_at": "2021-02-19T14:52:14Z",
+      "downloads": 20
+    },
+    {
+      "id": 38311159,
+      "tag": "v0.19.1",
+      "published_at": "2021-02-19T13:52:19Z",
+      "downloads": 18
+    },
+    {
+      "id": 37854085,
+      "tag": "v0.18.4",
+      "published_at": "2021-02-10T11:07:02Z",
+      "downloads": 20
+    },
+    {
+      "id": 37378722,
+      "tag": "0.18.1",
+      "published_at": "2021-02-04T21:34:04Z",
+      "downloads": 10
+    },
+    {
+      "id": 37353085,
+      "tag": "0.18.0",
+      "published_at": "2021-02-04T13:32:07Z",
+      "downloads": 10
+    },
+    {
+      "id": 37262125,
+      "tag": "0.17.0",
+      "published_at": "2021-02-02T21:13:46Z",
+      "downloads": 10
+    },
+    {
+      "id": 36832069,
+      "tag": "0.16.0",
+      "published_at": "2021-01-24T22:06:39Z",
+      "downloads": 12
+    },
+    {
+      "id": 36568939,
+      "tag": "0.15.0",
+      "published_at": "2021-01-18T20:55:19Z",
+      "downloads": 10
+    },
+    {
+      "id": 36201169,
+      "tag": "0.14.0",
+      "published_at": "2021-01-10T20:18:08Z",
+      "downloads": 10
+    },
+    {
+      "id": 36183519,
+      "tag": "0.13.0",
+      "published_at": "2021-01-09T19:47:19Z",
+      "downloads": 11
+    },
+    {
+      "id": 35916271,
+      "tag": "0.12.1",
+      "published_at": "2021-01-02T23:30:04Z",
+      "downloads": 10
+    },
+    {
+      "id": 35901625,
+      "tag": "0.12.0",
+      "published_at": "2021-01-01T22:44:02Z",
+      "downloads": 10
+    },
+    {
+      "id": 35820889,
+      "tag": "0.11.0",
+      "published_at": "2020-12-29T20:09:44Z",
+      "downloads": 10
+    },
+    {
+      "id": 35546407,
+      "tag": "0.10.5",
+      "published_at": "2020-12-20T22:01:51Z",
+      "downloads": 10
+    },
+    {
+      "id": 35545932,
+      "tag": "0.10.3",
+      "published_at": "2020-12-20T21:24:24Z",
+      "downloads": 10
+    },
+    {
+      "id": 35383258,
+      "tag": "0.10.2",
+      "published_at": "2020-12-16T21:49:42Z",
+      "downloads": 10
+    },
+    {
+      "id": 35254747,
+      "tag": "0.10.1",
+      "published_at": "2020-12-14T19:39:04Z",
+      "downloads": 10
+    },
+    {
+      "id": 35252535,
+      "tag": "v0.10.0",
+      "published_at": "2020-12-14T18:51:37Z",
+      "downloads": 16
+    },
+    {
+      "id": 28029170,
+      "tag": "v0.9.2",
+      "published_at": "2020-06-29T15:30:30Z",
+      "downloads": 20
+    },
+    {
+      "id": 26415192,
+      "tag": "v0.9.1",
+      "published_at": "2020-05-12T09:22:29Z",
+      "downloads": 15
+    },
+    {
+      "id": 25772915,
+      "tag": "v0.9.0",
+      "published_at": "2020-04-22T16:17:38Z",
+      "downloads": 18
+    },
+    {
+      "id": 25256340,
+      "tag": "v0.8.2",
+      "published_at": "2020-04-06T22:38:40Z",
+      "downloads": 17
+    },
+    {
+      "id": 24979914,
+      "tag": "v0.8.1",
+      "published_at": "2020-03-29T21:51:40Z",
+      "downloads": 18
+    },
+    {
+      "id": 24535916,
+      "tag": "v0.7.1",
+      "published_at": "2020-03-15T10:35:32Z",
+      "downloads": 16
+    },
+    {
+      "id": 24474910,
+      "tag": "v0.7.0",
+      "published_at": "2020-03-12T18:21:46Z",
+      "downloads": 17
+    },
+    {
+      "id": 24135060,
+      "tag": "v0.6.2",
+      "published_at": "2020-03-02T15:14:53Z",
+      "downloads": 16
+    },
+    {
+      "id": 24113796,
+      "tag": "v0.6.1",
+      "published_at": "2020-03-01T21:09:54Z",
+      "downloads": 18
+    },
+    {
+      "id": 23933286,
+      "tag": "v0.5.0",
+      "published_at": "2020-02-24T15:12:55Z",
+      "downloads": 16
+    },
+    {
+      "id": 23892098,
+      "tag": "v0.4.3",
+      "published_at": "2020-02-21T21:53:36Z",
+      "downloads": 15
+    },
+    {
+      "id": 23836785,
+      "tag": "v0.4.2",
+      "published_at": "2020-02-20T11:16:07Z",
+      "downloads": 20
+    },
+    {
+      "id": 23834421,
+      "tag": "v0.4.1",
+      "published_at": "2020-02-20T10:08:53Z",
+      "downloads": 0
+    },
+    {
+      "id": 23831570,
+      "tag": "v0.4.0",
+      "published_at": "2020-02-20T08:35:26Z",
+      "downloads": 9
+    },
+    {
+      "id": 23768214,
+      "tag": "v0.3.1",
+      "published_at": "2020-02-18T14:18:16Z",
+      "downloads": 10
+    },
+    {
+      "id": 23758270,
+      "tag": "v0.3.00",
+      "published_at": "2020-02-18T09:17:46Z",
+      "downloads": 9
+    },
+    {
+      "id": 23672006,
+      "tag": "v0.2.00",
+      "published_at": "2020-02-14T08:59:46Z",
+      "downloads": 11
+    },
+    {
+      "id": 23615508,
+      "tag": "v0.1.09",
+      "published_at": "2020-02-12T17:58:43Z",
+      "downloads": 9
+    },
+    {
+      "id": 23597906,
+      "tag": "v0.1.08",
+      "published_at": "2020-02-12T09:51:08Z",
+      "downloads": 9
+    },
+    {
+      "id": 23596415,
+      "tag": "v0.1.07",
+      "published_at": "2020-02-12T09:03:34Z",
+      "downloads": 9
+    },
+    {
+      "id": 23596264,
+      "tag": "v0.1.05",
+      "published_at": "2020-02-12T08:58:04Z",
+      "downloads": 11
+    }
+  ]
+}
