@@ -167,6 +167,16 @@ Die Datei umfasst rund 1.880 Zeilen.
   - [34.8. LI sammelt bereits IDs, aber keine vollständige Positionshistorie](#li-sammelt-bereits-ids-aber-keine-vollständige-positionshistorie)
   - [34.9. Platzsparende LI: kleiner Schritt und spätere Historie](#platzsparende-li-kleiner-schritt-und-spätere-historie)
   - [34.10. Konkreter Entscheidungsstand für die Weiterarbeit](#konkreter-entscheidungsstand-für-die-weiterarbeit)
+- [35. Fragen und Notizen](#fragen-und-notizen)
+- [36. Antworten auf Fragen und Notizen](#antworten-auf-fragen-und-notizen)
+- [37. Umsetzungsspezifikation zur Freigabe](#umsetzungsspezifikation-zur-freigabe)
+  - [37.1. Ergebnis aus Benutzersicht](#ergebnis-aus-benutzersicht)
+  - [37.2. CLI und Tag-Begriffe](#cli-und-tag-begriffe)
+  - [37.3. CE, Meldungstext und Hinweise](#ce-meldungstext-und-hinweise)
+  - [37.4. TIL-Schema und historische IDs](#til-schema-und-historische-ids)
+  - [37.5. Host-Auswertung und Kompatibilität](#host-auswertung-und-kompatibilität)
+  - [37.6. Dokumentation und Umfang](#dokumentation-und-umfang)
+  - [37.7. Abnahmekriterien](#abnahmekriterien)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -2257,7 +2267,7 @@ Die derzeitige Empfehlung lautet:
 
 Danach zuerst kleine Kompatibilitäts- und Verhaltenstests planen: alte/neue Reader und Writer, Alias-Tagwechsel, gleichlautende Formate verschiedener Tags, kollidierende Textpräfixe, Custom-Default und Host-Override, TIL-Nachladen, unbekannte Metadaten, Sekundär-Dictionaries sowie unveränderte Legacy-Einträge. Für eine separat beauftragte LI-Historie zusätzlich zwei Builds mit gleicher ID an verschiedenen Zeilen und die Rückgabe einer alten LI testen. Aktuell wurden nur Code und Dokumentation gelesen sowie die genannten Größen im Speicher berechnet; kein Laufzeitcode, kein Dictionary und kein Buildskript wurde geändert.
 
-## Fragen und Notizen
+## 35. <a id="fragen-und-notizen"></a>Fragen und Notizen
 
 - Vorschlag für das Reference Manual
 Ich würde im Kapitel Location Information lediglich einen kurzen Abschnitt ergänzen:
@@ -2272,3 +2282,153 @@ Trice itself requires no special support for this workflow. The selected file ca
 - Die "Meta": Option ließe auch zu, etwa "Created", und/oder "Used" Zeiten mitzuführen um til.json ggf später mit einem Tool von Altlasten zu befreien, etwa "Alles was 1 Jahr nicht benutzt wurde entfernen". Würde ich aber jetzt noch nicht einbauen.
 - Version in Meta hat nichts der aktuellen Toolversion zu tun, das ist klar. Aber vielleicht sollte mit 2 oder sogar 2.0.0 angefangen werden um Missverständnisse zu vermeiden. Dann würde hier die Mindestversion stehen um das jeweilige Meta Feld schreibend zu supporten.
 - Alte Tools sollen nur lesen und ignorieren können. Die neuen Versionen sind immer frei verfügbar, nur ggf. noch nicht installiert, etwa auf einem Server.
+
+## 36. <a id="antworten-auf-fragen-und-notizen"></a>Antworten auf Fragen und Notizen
+
+**LI-Archivierung:** Dein kurzer RM-Abschnitt reicht. Das vorgeschlagene Trice-eigene Historienarchiv würde ich damit zurückstellen. Wichtig ist nur: den Hash nach dem letzten Bind-/Insert-Lauf aus genau der archivierten LI bilden und beim Einbetten keine erneute LI-Änderung verursachen. Eine ZIP-Datei muss vor Verwendung mit `-li` entpackt werden.
+
+**Wozu `-ulabel` außerhalb von Log?** Die Registrierung eines Namens hat heute folgende Aufgaben; Gewicht und Farbe werden für ID-Vergabe und CE nicht benötigt:
+
+| Kommando | Verwendung des registrierten Namens |
+|---|---|
+| `bind` / `insert` | Tag-spezifische ID-Bereiche **und CE-Präfixbehandlung**. Ein registrierter Tag bleibt im effektiven Format erhalten; ein passender freier lowercase CE-Selektor wird entfernt. |
+| `clean` | Bei `-ce` dieselbe Interpretation wie Insert, damit der TIL-Abgleich stimmt. Ohne CE ist `-ulabel` zum bloßen Entfernen der IDs nicht nötig. |
+| `log` | Tag-Erkennung, Gewicht, Filter, Level und Farbe. |
+
+Das ist in [CE-Auswahl](../../internal/id/contextEnrichment.go) und [Clean](../../internal/id/cleanIDs.go) nachvollziehbar. Die gemeinsame Hilfe sollte deshalb je Kommando präzisiert werden.
+
+**Name und Begriffe:** Ich empfehle `-utag` als einheitlichen Hauptnamen und `-ulabel` als weiterhin gültigen Alias. Das wäre vor 2.0 sinnvoll; unterschiedliche Namen je Kommando würden die Sache nicht vereinfachen. Aktuell hat eine Meldung **einen Ereignis-Tag**. „User Label“ bezeichnet einen registrierten Tag-Namen, keine eigene Kategorie. Mehrere CE-Präfixe sind Selektoren, keine mehreren Ereignis-Tags.
+
+**Implizite Registrierung durch Alias:** Ja: `-alias SensorAlarm:sensor` sollte `sensor` selbst bekannt machen, sodass dafür bei Bind kein zusätzliches `-ulabel` nötig ist. Dabei entsteht eine Tag-Zuordnung, **kein eingefügter Text `sensor:`**. Normale Aufrufe mit Custom-Präfixen ohne Alias brauchen für tag-spezifische ID-Bereiche weiterhin eine Registrierung.
+
+**TIL-Erweiterung:** Als angenommen festgehalten. Für diese Funktion wird `Meta.Tag` nur bei Aliasen mit expliziter Tag-Zuordnung gebraucht. `-alias Name` und bisherige normale Aufrufe bleiben ohne diesen Zusatz. Das gilt entsprechend auch für Insert; Bind allein ist nicht die Grenze.
+
+**`Created` / `Used`:** Zurückgestellt. Solche Angaben dürfen später die ID-Identität nicht verändern. „Beim Bind zuletzt gesehen“ bedeutet außerdem nicht „auf Geräten nicht mehr benutzt“; Alter allein wäre kein sicherer Löschgrund.
+
+**Metadatenversion:** Ich würde das Feld zur Klarheit `SchemaVersion` nennen und mit `1` beginnen. `2` wäre möglich, aber nur eine andere Startnummer. Eine Tool-Mindestversion ist eine getrennte Angabe, etwa `MinWriterVersion`, falls später nötig. `2.0.0` dafür erst verwenden, wenn diese Toolversion das Schema tatsächlich unterstützt. Eine Schemaänderung soll keinen Tool-Versionswechsel vortäuschen und umgekehrt.
+
+**Alte Tools:** Als Entscheidung festgehalten: Lesen und Ignorieren genügt; Schreiben neuer Dateien ist nicht gefordert. Damit entfällt ein verpflichtender Legacy-Export. Die bereits beschriebenen [Filtergrenzen alter Logger](#kompatibilität-lesen-bedeutung-und-schreiben-unterscheiden) bleiben bestehen.
+
+## 37. <a id="umsetzungsspezifikation-zur-freigabe"></a>Umsetzungsspezifikation zur Freigabe
+
+**Status:** vollständiger Entwurf des geplanten Ergebnisses, noch keine Freigabe zur Implementierung. Dieser Abschnitt führt die Entscheidungen zusammen und ersetzt abweichende Vorschläge und offene Alternativen der vorherigen Abschnitte. Bestätigt sind insbesondere CE-Auswahl über den Alias-Tag, getaggte String-Aliase und Konflikthinweise ausschließlich bei `-verbose`.
+
+### 37.1. <a id="ergebnis-aus-benutzersicht"></a>Ergebnis aus Benutzersicht
+
+Ein Projekt kann einen Alias einem Ereignis-Tag zuordnen, ohne den Formatstring entsprechend zu ändern:
+
+```c
+MyAlarm("Temperature too high: %d degrees", temperature);
+```
+
+```sh
+trice bind -alias MyAlarm:wrn -src app -til til.json -li li.json
+tlog -til til.json -li li.json -loglevel wrn -logFormat json
+```
+
+Die üblichen Eingabe-/Portoptionen kommen hinzu. Bei Standardgewichten und `temperature == 85` erhält der Host `tag=WARNING`, `level=WARNING` und `message="Temperature too high: 85 degrees"`; die Location bezeichnet die Alias-Aufrufstelle. Der Logger benötigt die Alias-CLI nicht. Es entstehen keine zusätzlichen Target-Payload-Bytes.
+
+### 37.2. <a id="cli-und-tag-begriffe"></a>CLI und Tag-Begriffe
+
+| Option | Festgelegtes Verhalten |
+|---|---|
+| `-alias Name` / `-salias Name` | Bisheriges Verhalten ohne explizite Tag-Zuordnung. |
+| `-alias Name:Tag` / `-salias Name:Tag` | Explizite Tag-Zuordnung für skalare beziehungsweise String-Aliase. Entsprechende Kurzoptionen `-a` / `-sa` akzeptieren dieselbe Syntax. |
+| `-utag` | Neuer Hauptname überall dort, wo bisher `-ulabel` angeboten wird; bestehende Werteformen `name`, `name:weight`, `name:color` bleiben erhalten. |
+| `-ulabel` | Weiterhin gültiger Alias für `-utag`; beide Schreibweisen lassen sich gemeinsam wiederholen. |
+
+- Eine Meldung besitzt einen Ereignis-Tag. Mehrere CE-Selektoren sind keine zusätzlichen Ereignis-Tags. Aliasnamen erhalten keine Bedeutung durch Namensheuristiken.
+- Built-in-Schreibweisen werden kanonisiert (`wrn`, `warn`, `WARNING` ergeben `WARNING`). Custom-Namen bleiben schreibungsabhängig. Ein gültiger neuer Name in `Name:Tag` wird implizit registriert; ein zusätzliches `-utag` ist dafür nicht nötig. Explizites `untagged` ist zulässig.
+- Leere Namen/Tags, ungültige Syntax und widersprüchliche Mehrfachdefinitionen je Alias-Art werden vor Änderungen abgewiesen. Identische, kanonisch gleichwertige Definitionen sind zulässig; `Name` und `Name:Tag` für dieselbe Alias-Art gelten als widersprüchlich. Die bestehende Unterscheidung zwischen skalarem und String-Alias bei gleichem Namen bleibt erhalten.
+- Registrierung und Auflösung erfolgen vor CE und ID-Vergabe. Die Reihenfolge von Alias-, Tag- und ID-Bereichsoptionen darf ihre Zuordnung nicht beeinflussen; die bestehende Reihenfolge expliziter Gewicht-/Farb-Overrides bleibt erhalten.
+
+Die CLI-Hilfe wird nach Aufgabe getrennt:
+
+| Kommando | Erklärung zu `-utag` |
+|---|---|
+| `log` / `tlog` | Namen registrieren, Gewichte/Farben setzen; Auswirkung auf Filter und Level erklären. |
+| `bind` / `insert` | Namen für ID-Bereiche und CE-Präfixbehandlung registrieren. Gewicht/Farbe steuern dabei weder IDs noch CE. |
+| `clean` | Bei CE dieselbe Namensregistrierung wie Insert verwenden; für reines ID-Entfernen nicht nötig. |
+
+Historisch akzeptierte Gewicht-/Farbangaben bei ID-Kommandos bleiben gültig, erzeugen aber keine neuen Build-Metadaten. Die neue Alias-Syntax gilt auch für die entsprechenden Alias-Optionen von `generate`.
+
+### 37.3. <a id="ce-meldungstext-und-hinweise"></a>CE, Meldungstext und Hinweise
+
+1. Zuerst werden passende CE-Regeln des expliziten Alias-Tags ausgewählt, danach die Regeln der Quellpräfixe in deren bisheriger Reihenfolge.
+2. Jede kanonische Selektorgruppe wird höchstens einmal angewendet. Innerhalb einer Gruppe bleibt die CLI-Reihenfolge der Regeln erhalten. Wird dieselbe Gruppe über Alias und Quellpräfix erreicht, entstehen keine doppelten Kontextwerte.
+3. Bestehende CE-Regeln zur Präfixbehandlung und Argumentprüfung bleiben gültig. Ein Alias-Tag wird nicht als Textpräfix eingefügt. Die Erweiterung beseitigt keine bisherigen Wrapper-, Record- oder Argumentgrenzen.
+4. `-salias Name:Tag` unterstützt die Klassifikation. Zusätzliche skalare CE-Werte an Laufzeitstrings bleiben ausgeschlossen; unzulässige Kombinationen werden nach den bestehenden CE-Regeln abgewiesen.
+5. Ein abweichendes erkanntes Tag-Präfix im Quellformat überschreibt den Alias-Tag nicht. Nur mit `-verbose` erscheint ein Hinweis mit Aufrufstelle und beiden Tags. Gleichwertige Tags und freie CE-Selektoren erzeugen keinen Konflikthinweis. Es gibt keinen neuen Warnschalter.
+
+Ohne passende CE-Transformation gilt für `-alias MyAlarm:wrn`:
+
+| Format im Quellaufruf | Ereignis-Tag | Meldungstext nach Formatierung |
+|---|---|---|
+| `Too hot %d` | `WARNING` | `Too hot 85` |
+| `err:Too hot %d` | `WARNING` | `err:Too hot 85` |
+| `wrn:Too hot %d` | `WARNING` | `wrn:Too hot 85` |
+
+Diese echten Textpräfixe bleiben bei expliziter Tag-Zuordnung auch unter `-color default`, `none` und `off` erhalten. Farbe und Klassifikation richten sich nach dem zugeordneten Tag. Bei alten Einträgen ohne explizite Zuordnung gilt weiterhin die bisherige Präfixdarstellung. Bei String-Aliasen wird die Klassifikation ebenfalls nicht aus dem Inhalt des Laufzeitstrings abgeleitet.
+
+### 37.4. <a id="til-schema-und-historische-ids"></a>TIL-Schema und historische IDs
+
+Die TIL bleibt eine Map numerischer IDs. `Type` und `Strg` behalten ihre bisherige Bedeutung. Für explizit getaggte Aliase kommt folgendes optionales Objekt hinzu:
+
+```json
+{
+  "1234": {
+    "Type": "trice",
+    "Strg": "Temperature too high: %d degrees",
+    "Meta": {
+      "SchemaVersion": 1,
+      "Tag": {"Kind": "builtin", "Name": "WARNING"}
+    }
+  }
+}
+```
+
+Für einen Custom-Tag lautet `Tag` beispielsweise `{"Kind":"user","Name":"sensor"}`. Die Unterscheidung verhindert eine spätere Umdeutung gespeicherter Custom-Namen zu neu eingeführten Built-ins.
+
+- Neue Metadaten werden für diese Funktion nur bei Aliasen mit expliziter Tag-Zuordnung erzeugt. Normale Aufrufe und ungetaggte Aliase erhalten keinen solchen Zusatz; vorhandene historische Einträge werden nicht pauschal umgeschrieben.
+- Ohne `Meta.Tag` gilt die bisherige Präfixklassifikation, sonst `untagged`. Ein vorhandener Tag ist maßgeblich; explizites `untagged` unterdrückt ebenfalls die Präfixklassifikation.
+- Wenn `Meta` vorhanden ist, muss seine Schemaversion unterstützt werden. Bekannte Felder werden auf Struktur und zulässige Werte geprüft. Ungültige oder nicht unterstützte Metadaten führen beim initialen Laden zu einer verständlichen Fehlermeldung vor Quellenänderungen beziehungsweise vor Öffnen des Log-Eingangs.
+- Unbekannte optionale Felder einer unterstützten Version bleiben beim Schreiben erhalten, auch in JSON-Exporten. Neue verpflichtende Semantik benötigt eine neue Schemaversion. Es gibt keine Versions-/Tag-Sonderobjekte auf Dateiebene und keine künstlichen ID-Einträge.
+- Farbe, Gewicht, abgeleiteter Level, Aliasname und Tool-Mindestversion werden nicht gespeichert. `Created`, `Used` und automatische Bereinigung bleiben zurückgestellt.
+- Die semantische Vergleichsidentität besteht aus effektivem Typ, effektivem Format und Tag-Zuordnung einschließlich des Unterschieds zwischen expliziter Zuordnung und Legacy-Präfixverhalten. Unbekannte optionale Metadaten und deren JSON-Reihenfolge sind kein zusätzlicher ID-Schlüssel.
+- Ein Tag-Wechsel verwendet eine passende andere historische ID oder eine neue ID; bestehende ID-Einträge werden nicht umgedeutet. Kanonisch gleiche Tag-Schreibweisen, Farben und Gewichte verursachen keinen ID-Wechsel. Tag-spezifische ID-Bereiche berücksichtigen den zugeordneten Tag.
+
+Diese Regeln gelten für Bind/Insert/Clean, Wiederverwendung aus Sekundär-Dictionaries und die vorhandene Ordnung identischer Aufrufe. Clean mit denselben Alias-/CE-Einstellungen erhält die historische TIL-Semantik und entfernt die vorgesehenen ID-/CE-Quellergänzungen.
+
+### 37.5. <a id="host-auswertung-und-kompatibilität"></a>Host-Auswertung und Kompatibilität
+
+- Text, JSON/KV, Filter, Tag-Statistik und Visualisierung verwenden dieselbe aufgelöste Ereignisidentität. Die Tag-Zuordnung funktioniert auch mit `-li off`.
+- Built-in-Tags verwenden die bestehende Host-Registry. Ein expliziter Custom-Tag aus TIL ist ohne weitere CLI-Registrierung nutzbar und erhält ohne Override das finale INFO-Gewicht. `-utag sensor:650` überschreibt dieses Gewicht am Host. Gewicht und daraus abgeleiteter Level sind weiterhin Host-Policy.
+- Implizit aus TIL bekannte Custom-Tags ändern die Präfixinterpretation alter Einträge nicht. Eine ausdrückliche Registrierung durch `-utag` behält dagegen ihre bisherige Wirkung auf Präfixe.
+- TIL-Tags stehen vor der Filtervalidierung und dem Öffnen des Eingangs bereit. Beim Nachladen werden Dictionary und davon abhängige Tag-Auflösung konsistent aktualisiert. Ein ungültiges Update wird diagnostiziert; die letzte gültige Sicht bleibt erhalten.
+- Neue Tools akzeptieren alte Dateien mit ihrem bestehenden Verhalten. Diese Erweiterung beseitigt keine anderweitigen historischen Formatgrenzen.
+- Alte Tools dürfen neue Felder beim Lesen ignorieren. Korrekte Alias-Filterung durch alte Logger und das Schreiben neuer Dateien mit alten Tools sind nicht zugesichert. Ein Legacy-Export ist kein Bestandteil der Umsetzung.
+- Generierte JSON-Dictionary-Sichten erhalten die Metadaten. Generierte C-Logtabellen verwenden weiterhin ihr bestehendes Typ-/Formatmodell; die neue Host-Tag-Zuordnung erweitert weder die Target-Library noch deren lokale Filter-/Farbfunktionen.
+
+### 37.6. <a id="dokumentation-und-umfang"></a>Dokumentation und Umfang
+
+UM/RM und CLI-Hilfe dokumentieren `-utag` mit dem kompatiblen Namen `-ulabel`, die neuen Aliasformen, CE-Reihenfolge, ID-/Tag-Historie und die Grenzen alter Logger. Ein kleines hardwarefreies Beispiel zeigt skalaren Alias, String-Alias, Custom-Tag und Alias-CE. Der Changelog enthält einen kurzen Hinweis mit Verweis auf die ausführliche Dokumentation.
+
+Im RM-Kapitel zur Location Information wird der vorgeschlagene kurze Abschnitt zur externen Archivierung ergänzt: finale LI per Inhalts-Hash identifizieren, unverändert archivieren, passenden Datensatz extern auswählen und mit `-li` verwenden. ZIP-Archive werden extern entpackt. Trice erhält weder Hash-Erzeugung noch Archivverwaltung oder eine neue LI-Struktur. Zusätzliche Target-Protokollfelder, Laufzeitstring-CE, TIL-Zeitstempel und automatische Datenbereinigung gehören nicht zu dieser Umsetzung.
+
+### 37.7. <a id="abnahmekriterien"></a>Abnahmekriterien
+
+Die Umsetzung ist freigabefähig, wenn beschreibende Verhaltenstests folgende Ergebnisse belegen:
+
+| Prüfung | Erwartetes Ergebnis |
+|---|---|
+| Bestehende CLI und Dictionaries | Ungetaggte Aliase, normale Aufrufe, alte TIL/LI und `-ulabel` behalten ihr Verhalten. |
+| Aliasformen und Registrierung | `-alias` und `-salias` mit Built-in-, Custom- und explizitem `untagged`-Tag funktionieren; ungültige/konfligierende Definitionen scheitern ohne Teiländerungen. |
+| CE | Alias-Gruppe zuerst, Quellgruppen danach, gemeinsame Gruppe einmal; Insert/Clean-Roundtrip und unveränderte String-/Wrapper-Grenzen. |
+| Text und Klassifikation | Die obige Präfixmatrix stimmt für Text und JSON/KV in allen drei Farbmodi; Konflikthinweise erscheinen ausschließlich mit `-verbose`. |
+| Historie und ID-Policy | Gleichlautende Meldungen mit verschiedenen Tags bleiben unterscheidbar; Tagwechsel bewahrt alte Captures; kanonisch gleiche Schreibweisen behalten IDs; passende ID-Bereiche werden eingehalten. |
+| Host-Funktionen | Filter, Level, Statistik und Visualisierung stimmen überein; Custom-Default/Override, `-li off`, echte Aufrufposition und TIL-Nachladen funktionieren. |
+| Dateivertrag | Alte und neue Einträge können gemischt werden; unbekannte optionale Felder überstehen Schreiben/JSON-Export; ungültige Schemata werden verständlich behandelt. |
+| Alte Leser | Eine gezielt geprüfte bisherige Toolversion liest Typ/Format einer erweiterten TIL weiter; die dokumentierte fehlende Alias-Klassifikation wird ausdrücklich nachgewiesen. |
+| Dokumentation und Beispiel | CLI-Hilfe passt zum Kommando; das hardwarefreie Beispiel zeigt die beschriebenen Ergebnisse; ToC und Links stimmen. |
+
+Vor Abschluss folgen die üblichen projektbezogenen Tests und die für geänderten Go-Code vorgeschriebene Coverage-Prüfung. Diese Spezifikation dokumentiert Soll-Ergebnisse; Implementierung und deren Tests stehen noch aus.
