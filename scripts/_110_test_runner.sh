@@ -224,6 +224,15 @@ run_step() {
   else
     printf 'FAIL\n' >>"$SUMMARY_LOG"
     printf '%sFAIL%s\n' "$FAIL_COLOR" "$RESET_COLOR"
+    step_log="$LOG_DIR/$(basename "$step" .sh).log"
+    summary_line "  Details: $step_log"
+    if [ -f "$step_log" ]; then
+      # Show actionable failure evidence even when the actual step ran quietly.
+      # Complete logs remain available; cap the summary rather than hiding it.
+      while IFS= read -r detail; do
+        summary_line "  $detail"
+      done < <(awk '/PC FAIL|EXPECTATION FAILURE|Error Trace:|error:|panic:|fatal error:|FAIL:/ { if (!shown) remaining=28; shown=1 } remaining>0 { print; remaining-- }' "$step_log")
+    fi
   fi
   return "$rc"
 }
@@ -280,12 +289,11 @@ build_test_plan() {
 
 # expected_step_weight assigns deliberately coarse, hardware-independent work
 # units. They only make progress through very uneven test steps visible; they
-# are not durations or an ETA. The full-mode weights reflect the observed fact
-# that the two PC matrices and the L432 matrix dominate that selection.
+# are not durations or an ETA. L432 now dominates after removing per-record
+# replay delays and batching/parallelizing the PC matrices.
 expected_step_weight() {
   case "$TEST_ALL_SELECTED:$1" in
-    full:_630_test_pc_targets_insert.sh) printf '390\n' ;;
-    full:_640_test_pc_targets_bind.sh) printf '400\n' ;;
+    full:_630_test_pc_targets_insert.sh | full:_640_test_pc_targets_bind.sh) printf '35\n' ;;
     full:_620_test_l432_configs.sh) printf '170\n' ;;
     full:_610_test_goreleaser_snapshot.sh) printf '15\n' ;;
     full:_580_test_gcc_off.sh | full:_590_test_gcc_insert.sh | full:_600_test_gcc_bind.sh) printf '4\n' ;;

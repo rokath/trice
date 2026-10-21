@@ -117,6 +117,9 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				writeFixture(t, root, "temp/log/"+name, "retain")
 			}
 			writeFixture(t, root, "scripts/_410_test_first.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog 'SKIP: unsupported tool version'\nexit "+tc.status+"\n")
+			if tc.status == "1" {
+				writeFixture(t, root, "scripts/_410_test_first.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog 'EXPECTATION FAILURE triceCheck.c:123 channel=direct'\nlog 'want: hello; got: wrong'\nexit 1\n")
+			}
 			writeFixture(t, root, "scripts/_430_test_later.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog executed\n")
 			out, err := runFixture(t, root, "source scripts/_110_test_runner.sh; build_test_plan() { add_plan_step _410_test_first.sh; add_plan_step _430_test_later.sh; }; main "+tc.args, nil)
 			if tc.status == "0" {
@@ -127,6 +130,12 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				assert.Error(t, err, out)
 			}
 			assert.Contains(t, out, "Result: "+tc.result)
+			if tc.status == "1" {
+				assert.Contains(t, out, "Details:")
+				assert.Contains(t, out, "_410_test_first.log")
+				assert.Contains(t, out, "EXPECTATION FAILURE triceCheck.c:123 channel=direct")
+				assert.Contains(t, out, "want: hello; got: wrong")
+			}
 			_, err = os.Stat(filepath.Join(root, "temp/log/_430_test_later.log"))
 			assert.Equal(t, tc.later, err == nil, out)
 			for _, name := range []string{"_testAll_07_GoCoverage.log", "_640_test_pc_targets_bind.log", "_600_test_gcc_bind.log.standalone.PC_log", "coverage.out"} {
