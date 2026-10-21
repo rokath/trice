@@ -168,6 +168,26 @@ func TestPinnedToolConfirmation(t *testing.T) {
 	}
 }
 
+// TestCppcheckPinnedVersion verifies that the exact analyzer version is accepted
+// and an older version requires consent instead of silently reducing checks.
+func TestCppcheckPinnedVersion(t *testing.T) {
+	t.Run("pinned_version_is_accepted", func(t *testing.T) {
+		root := scriptFixture(t)
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\n'\n")
+		output, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool", nil)
+		assert.NoError(t, err, output)
+		assert.NotContains(t, output, "Install Cppcheck")
+	})
+	t.Run("older_version_requires_confirmation", func(t *testing.T) {
+		root := scriptFixture(t)
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.10\\n'\n")
+		output, err := runFixture(t, root, "printf 'no\\n'; source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool", map[string]string{"CI": "false"})
+		assert.Error(t, err, output)
+		assert.Contains(t, output, "Install Cppcheck 2.22.0 locally under temp/tools?")
+		assert.Contains(t, output, "Cppcheck 2.22.0 is required")
+	})
+}
+
 // TestPinnedFormatterCheckInstallation proves that an approved check installs
 // the exact version into a disposable cache and then checks unchanged sources.
 func TestPinnedFormatterCheckInstallation(t *testing.T) {

@@ -310,42 +310,18 @@ run_cppcheck() {
   local cppcheck_bin
   local cppcheck_args=()
   local cppcheck_help
-  local full_sigil_line
   if ! cppcheck_bin="$(find_cppcheck)"; then
     echo "cppcheck is not installed" >&2
     exit 1
   fi
 
-  # Older cppcheck releases do not know --check-level. Keep the lint run
-  # compatible while making the reduced analysis depth visible in the log.
-  # Capture the complete help text first: short-circuiting grep pipelines can
-  # mis-detect the option when a parent shell exports pipefail.
+  # Require exhaustive mode so a reduced analysis cannot report a passing lint.
   cppcheck_help="$("$cppcheck_bin" --help 2>&1 || true)"
   case "$cppcheck_help" in
     *--check-level*) cppcheck_args+=(--check-level=exhaustive) ;;
     *)
-      if [ "${TRICE_CPPCHECK_CHECK_LEVEL_HINT_SHOWN:-0}" != "1" ]; then
-        echo "Hint: cppcheck does not support --check-level; running without exhaustive checking." >&2
-      fi
-      # Cppcheck 2.10 reports this macro-use path as unreadVariable, while the
-      # counter value is part of the selected OUT_fullSigil expansion.
-      # Resolve the marked macro use so unrelated source edits cannot move the
-      # suppression away from the known false positive or hide another warning.
-      full_sigil_line="$(awk '/^[[:space:]]*OUT_fullSigil[[:space:]]*\/\/ F3, FF FF\./ { print NR }' src/tcobsv1Encode.c)"
-      case "$full_sigil_line" in
-        '' | *[!0-9]*)
-          echo "Cannot locate the known Cppcheck 2.10 OUT_fullSigil false positive in src/tcobsv1Encode.c." >&2
-          return 1
-          ;;
-      esac
-      cppcheck_args+=("--suppress=unreadVariable:src/tcobsv1Encode.c:$full_sigil_line")
-      # Cppcheck 2.10 also reports the stack-buffer direct-output macros as
-      # danglingLifetime even though the generated write sequence is synchronous.
-      cppcheck_args+=(--suppress=danglingLifetime:src/trice.c)
-      cppcheck_args+=(--suppress=danglingLifetime:src/trice8.c)
-      cppcheck_args+=(--suppress=danglingLifetime:src/trice16.c)
-      cppcheck_args+=(--suppress=danglingLifetime:src/trice32.c)
-      cppcheck_args+=(--suppress=danglingLifetime:src/trice64.c)
+      echo "Cppcheck does not support --check-level; install the required version 2.22.0." >&2
+      return 1
       ;;
   esac
 
