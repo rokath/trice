@@ -10399,7 +10399,18 @@ This folder is per default named to `_test` to avoid VS Code slow down. Also, wh
 
 The main aim of these tests is to automatic compile and run the target code in different compiler switch variants avoiding manual testing this way. 
 
-`scripts/testAll.sh quick` performs the standard Bind-only selection. `scripts/testAll.sh full` also runs the legacy Insert/Clean and extended compiler matrices and can take many hours, depending strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
+`scripts/testAll.sh quick` performs the standard Bind-only selection. `scripts/testAll.sh full` also runs the legacy Insert/Clean and extended compiler matrices; its duration depends strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
+
+The PC matrix uses four independent configuration processes by default. Set `TRICE_PC_TEST_JOBS=1` for serial execution or choose another positive limit. ID preparation and source restoration remain sequential. A failing configuration stops at its first mismatch; `--no-stop` lets the other configurations continue. Failure summaries include source references, expected/actual output and the detailed log path.
+
+For example, from the repository root:
+
+```bash
+TRICE_PC_TEST_JOBS=4 ./scripts/_640_test_pc_targets_bind.sh full
+TRICE_PC_TEST_JOBS=1 TRICE_PC_TEST_MODE=line-by-line ./scripts/_630_test_pc_targets_insert.sh full
+```
+
+The second command explicitly selects the diagnostic single-expectation path. Normal runs use `TRICE_PC_TEST_MODE=auto`: bulk where packet boundaries are preserved, single-expectation decoding for unframed or special configurations. All expectations remain enabled.
 
 * Partial tests:
   * In `./examples` you can build the target examples with `./buildAllTargets_TRICE_ON.sh` or `./buildAllTargets_TRICE_OFF.sh`.
@@ -10441,7 +10452,11 @@ The individual tests collect the expected results (`//exp: result`) together wit
 
 `triceLogTest` iterates over the results slice and calls for each line the C-function `triceCheck`. Then the line specific binary data buffer is passed to the `triceLog` parameter function which "logs" the passed buffer into an actual result string which in turn is compared with the expected result.
 
-The whole process is relatively slow because of the often passed Go - C barrier, but allows automated tests in different configuration variants in one shot.
+The bulk path still executes each C test site. It collects binary output and starts the host logger once per output channel, then compares every expected text range with its source line. This avoids repeated logger initialization. Finite replay inputs finish when their buffered records are drained; they do not wait for a fixed timeout after each expectation.
+
+Framed direct and deferred channels are collected separately. Configurations that previously transferred after every test site retain that transfer schedule, so small target buffers cannot overflow merely because host decoding is batched. Existing deferred bulk tests retain their multi-site transfer schedule to exercise buffering. Unframed configurations keep the single-expectation path because concatenation can lose packet boundaries or change padding interpretation. Successful bulk runs are not repeated completely line by line.
+
+Each configuration has its own `output.log` below `temp/log/pc-<workflow>.<run>/`. On a bulk mismatch, the original binary and text output are saved there, and the worker reruns that configuration line by line. A passing diagnostic rerun does not clear the bulk failure: it points to an interaction involving framing, buffering or state. The reported source line is the first divergent expectation, which may follow the actual cause. Expected and actual strings show escaped control characters; nearby text helps identify shifts. The failure report also gives a reproduction command, which requires the same prepared ID state and compiler include paths. Run directories are retained for diagnosis; subsequent runs use a new directory.
 
 The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which limits the amount of performed trices for each test case to `n`. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
 
