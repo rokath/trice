@@ -310,6 +310,7 @@ run_cppcheck() {
   local cppcheck_bin
   local cppcheck_args=()
   local cppcheck_help
+  local full_sigil_line
   if ! cppcheck_bin="$(find_cppcheck)"; then
     echo "cppcheck is not installed" >&2
     exit 1
@@ -328,7 +329,16 @@ run_cppcheck() {
       fi
       # Cppcheck 2.10 reports this macro-use path as unreadVariable, while the
       # counter value is part of the selected OUT_fullSigil expansion.
-      cppcheck_args+=(--suppress=unreadVariable:src/tcobsv1Encode.c:313)
+      # Resolve the marked macro use so unrelated source edits cannot move the
+      # suppression away from the known false positive or hide another warning.
+      full_sigil_line="$(awk '/^[[:space:]]*OUT_fullSigil[[:space:]]*\/\/ F3, FF FF\./ { print NR }' src/tcobsv1Encode.c)"
+      case "$full_sigil_line" in
+        '' | *[!0-9]*)
+          echo "Cannot locate the known Cppcheck 2.10 OUT_fullSigil false positive in src/tcobsv1Encode.c." >&2
+          return 1
+          ;;
+      esac
+      cppcheck_args+=("--suppress=unreadVariable:src/tcobsv1Encode.c:$full_sigil_line")
       # Cppcheck 2.10 also reports the stack-buffer direct-output macros as
       # danglingLifetime even though the generated write sequence is synchronous.
       cppcheck_args+=(--suppress=danglingLifetime:src/trice.c)
