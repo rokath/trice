@@ -208,7 +208,7 @@ The [build script](../../examples/G0B1_features/demo_build.sh) binds this copy a
 
 Three scopes matter here: the files selected by Bind, the files compiled by the Makefile, and the functions actually called at runtime. A shared producer can need a sidecar because it is scanned or compiled even when the feature tour never calls its demo function. The current `demo_build.sh` selects `Core/Src` and `../exampleData`; it does not select `_test/testdata/triceCheck.c`. A `trice_triceCheck_c_...` header in a generation directory may therefore come from another or earlier repository-wide Bind run. Its presence alone does not show that this tour runs `TriceCheck`. Use [`generate -bindReport`](generate.md#bind-artifact-report) with the relevant source selection to inspect references; an absent scan reference is not proof that another build no longer needs the file.
 
-Flash `out.gcc/G0B1.elf` using the [original board setup](examples.md#g0b1inst). In a separate terminal capture RTT channel 0 with J-Link:
+Flash `out.gcc/G0B1.elf` using the [original board setup](examples.md#g0b1_inst). In a separate terminal capture RTT channel 0 with J-Link:
 
 ```sh
 mkdir -p temp
@@ -273,9 +273,9 @@ The C files under [examples/exampleData](../../examples/exampleData/) are shared
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
-Use [F030_bare](../../examples/F030_bare/) as the uninstrumented baseline and compare it with [F030_inst_rtt](examples.md#f030instrtt) or [F030_inst_uart](examples.md#f030instuart) for the first instrumentation steps. The three `build.sh` scripts change to their own project directory and pass their arguments to `make`; the instrumented variants additionally run `trice bind`. Put `make` and the Arm GNU tools on PATH, plus `trice` and `tlog` for the instrumented variants. Use `./build.sh -j2` for two compiler jobs. These scripts build firmware without flashing it.
+Use [F030_bare](../../examples/F030_bare/) as the uninstrumented baseline and compare it with [F030_inst_rtt](examples.md#f030_inst_rtt) or [F030_inst_uart](examples.md#f030_inst_uart) for the first instrumentation steps. The three `build.sh` scripts change to their own project directory and pass their arguments to `make`; the instrumented variants additionally run `trice bind`. Put `make` and the Arm GNU tools on PATH, plus `trice` and `tlog` for the instrumented variants. Use `./build.sh -j2` for two compiler jobs. These scripts build firmware without flashing it.
 
-The instrumented variants keep `triceConfig.h` and the persistent ID-to-format dictionary `til.json` in version control. Their build scripts run `trice bind` and `make`, producing firmware in `out/`, regenerable headers in `out/sidecars` and the local `li.json` location index. Sidecars and `li.json` are ignored by Git; the latter records current source paths and line numbers. [F030_inst](examples.md#f030inst) is the larger parallel RTT/UART example and retains its existing build workflow.
+The instrumented variants keep `triceConfig.h` and the persistent ID-to-format dictionary `til.json` in version control. Their build scripts run `trice bind` and `make`, producing firmware in `out/`, regenerable headers in `out/sidecars` and the local `li.json` location index. Sidecars and `li.json` are ignored by Git; the latter records current source paths and line numbers. [F030_inst](examples.md#f030_inst) is the larger parallel RTT/UART example and retains its existing build workflow.
 
 ### 6.1. <a id="f030_bare"></a>F030_bare
 
@@ -405,7 +405,7 @@ With the SEGGER J-Link tools installed and a J-Link connection to the board, run
 
 The startup records print `Firmware init start...`, `Firmware init done.` and `Value=42`. `TriceInit` runs at the beginning of `main`, allowing logging during peripheral initialization. RTT writes directly to its RAM buffer; no transfer call or UART interrupt is needed. Since this example logs only from `main`, it does not define its own critical-section macros.
 
-For the corresponding UART steps, compare [F030_inst_uart](examples.md#f030instuart). [F030_inst](examples.md#f030inst) demonstrates RTT and UART in parallel.
+For the corresponding UART steps, compare [F030_inst_uart](examples.md#f030_inst_uart). [F030_inst](examples.md#f030_inst) demonstrates RTT and UART in parallel.
 
 ### 6.3. <a id="f030_inst_uart"></a>F030_inst_uart
 
@@ -436,7 +436,7 @@ Flash `out/F030_inst_uart.elf` onto a NUCLEO-F030R8 board using your debugger. U
 
 The startup records print `Firmware init start...`, `Firmware init done.` and `Value=42`. `TriceInit` runs at the beginning of `main`; records generated before USART initialization stay in RAM until the loop calls `TriceTransfer`. The UART then sends asynchronously through TX-empty interrupts.
 
-For the corresponding RTT steps, compare [F030_inst_rtt](examples.md#f030instrtt). [F030_inst](examples.md#f030inst) demonstrates RTT and UART in parallel.
+For the corresponding RTT steps, compare [F030_inst_rtt](examples.md#f030_inst_rtt). [F030_inst](examples.md#f030_inst) demonstrates RTT and UART in parallel.
 
 ### 6.4. <a id="f030_inst"></a>F030_inst
 
@@ -481,7 +481,7 @@ Folder: [../examples/G0B1_bare/](../../examples/G0B1_bare/)
 
 #### 7.1.2. <a id="setting-up-g0b1_bare"></a>Setting Up G0B1_bare
 
-- See and adapt steps from [F030_bare](examples.md#f030bare).
+- See and adapt steps from [F030_bare](examples.md#f030_bare).
 - Then add/modify the files to reach this folder layot.
 
 ### 7.2. <a id="g0b1_inst"></a>G0B1_inst
@@ -492,11 +492,11 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 #### 7.2.1. <a id="setting-up"></a>Setting Up
 
-- See and adapt steps from [G0B1_bare](examples.md#g0b1bare).
+- See and adapt steps from [G0B1_bare](examples.md#g0b1_bare).
 
 #### 7.2.2. <a id="instrumenting"></a>Instrumenting
 
-- The steps are similar to the steps in [F030_bare](examples.md#f030bare).
+- The steps are similar to the steps in [F030_bare](examples.md#f030_bare).
 - See comments in [triceConfig.h](../../examples/G0B1_inst/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
 <img src="../ref/G0B1_inst_Screenshot.png" width="1000">

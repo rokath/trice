@@ -125,6 +125,9 @@ exclude = [
   "^https://libopencm3\\.org/.*",
   "^https://libusb\\.info/.*",
 
+  # SEGGER's knowledge base intermittently returns HTTP 504 to automated checks.
+  "^https://kb\\.segger\\.com/J-Link_RTT_TELNET_Channel(#.*)?$",
+
   # htmlpreview.github.io is convenient for rendering checked-in HTML exports,
   # but it intermittently answers CI checks with HTTP 503.
   "^https://htmlpreview\\.github\\.io/.*",

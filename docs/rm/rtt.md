@@ -485,8 +485,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 * The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
-* Question: [How-to-access-multiple-RTT-channels](https://forum.segger.com/thread/6688-solved-how-to-access-multiple-rtt-channels-from-telnet/)
-  * "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
+* To select another RTT channel over TELNET, use the [`RTTCh` configuration string](https://kb.segger.com/J-Link_RTT_TELNET_Channel#RTTCh).
 * The main [Segger J-Link SDK](https://www.segger.com/products/debug-probes/j-link/tools/j-link-sdk/) disadvantage beside closed source and payment is: **One is not allowed to distribute binaries written with the SDK.** That makes it only interesting for company internal automatization.
 
 ## 6. <a id="additional-notes-leftovers"></a>Additional Notes (leftovers)
