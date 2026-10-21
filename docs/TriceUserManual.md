@@ -165,11 +165,11 @@ details.toc[open] .toc-hide {
     * [12.2.9. Stimulate target with a user command over UART](#stimulate-target-with-a-user-command-over-uart)
     * [12.2.10. Explore and modify tags and their colors](#explore-and-modify-tags-and-their-colors)
     * [12.2.11. Location Information](#location-information)
-  * [12.3. Visualization output with -vis](#visualization-output-with--vis)
+  * [12.3. Visualization output with `-vis`](#visualization-output-with--vis)
   * [12.4. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
     * [12.4.1. The common live-data format](#the-common-live-data-format)
-    * [12.4.2. ./examples/DemoDataCSV](#examplesdemodatacsv)
-    * [12.4.3. ./examples/DemoDataTrice](#examplesdemodatatrice)
+    * [12.4.2. ./examples/DemoData_CSV](#examplesdemodata_csv)
+    * [12.4.3. ./examples/DemoData_Trice](#examplesdemodata_trice)
     * [12.4.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
     * [12.4.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
     * [12.4.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
@@ -189,11 +189,11 @@ details.toc[open] .toc-hide {
   * [14.6. Logfile viewing](#logfile-viewing)
   * [14.7. Using the Trice tool with 3rd party tools](#using-the-trice-tool-with-3rd-party-tools)
   * [14.8. Several targets at the same time](#several-targets-at-the-same-time)
-  * [14.9. Executing go test -race -count 100 ./...](#executing-go-test--race--count-100-)
-  * [14.10. TRICESTACKBUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization)
+  * [14.9. Executing `go test -race -count 100 ./...`](#executing-go-test--race--count-100-)
+  * [14.10. TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
   * [14.11. Cycle Counter](#cycle-counter)
 * [15. Switching Trice ON and OFF](#switching-trice-on-and-off)
-  * [15.1. Target side compile-time Trice On-Off](#target-side-compile-time--trice-on-off)
+  * [15.1. Target side compile-time  Trice On-Off](#target-side-compile-time--trice-on-off)
   * [15.2. Host side Trice On-Off](#host-side-trice-on-off)
 * [16. Framing](#framing)
 * [17. Endianness](#endianness)
@@ -203,10 +203,10 @@ details.toc[open] .toc-hide {
     * [18.2.1. Purpose](#purpose)
     * [18.2.2. General Behavior](#general-behavior)
     * [18.2.3. Column Order](#column-order)
-    * [18.2.4. Independence from -ts](#independence-from--ts)
+    * [18.2.4. Independence from `-ts`](#independence-from--ts)
     * [18.2.5. Formatting Rules](#formatting-rules)
-    * [18.2.6. Special Case: -ts32 epoch](#special-case--ts32-epoch)
-    * [18.2.7. Automatic -ts0delta Placeholder](#automatic--ts0delta-placeholder)
+    * [18.2.6. Special Case: `-ts32 epoch`](#special-case--ts32-epoch)
+    * [18.2.7. Automatic `-ts0delta` Placeholder](#automatic--ts0delta-placeholder)
     * [18.2.8. Typical Use Cases](#typical-use-cases)
     * [18.2.9. Example Screenshots](#example-screenshots)
     * [18.2.10. Summary](#summary)
@@ -218,11 +218,11 @@ details.toc[open] .toc-hide {
 * [20. typeX0 User Packets](#typex0-user-packets)
   * [20.1. Packet Classification](#packet-classification)
   * [20.2. The typeX0 Counted Format](#the-typex0-counted-format)
-  * [20.3. CLI Option -typeX0](#cli-option--typex0)
+  * [20.3. CLI Option `-typeX0`](#cli-option--typex0)
   * [20.4. typeX0 Target Code](#typex0-target-code)
     * [20.4.1. Target-side counted helper](#target-side-counted-helper)
     * [20.4.2. typeX0 Build Switches](#typex0-build-switches)
-    * [20.4.3. typeX0 Usage in ./examples/G0B1_inst](#typex0-usage-in-examplesg0b1_inst)
+    * [20.4.3. `typeX0` Usage in `./examples/G0B1_inst`](#typex0-usage-in-examplesg0b1_inst)
   * [20.5. Go implementation layout](#go-implementation-layout)
   * [20.6. Tests](#tests)
   * [20.7. Initial scope](#initial-scope)
@@ -247,13 +247,13 @@ details.toc[open] .toc-hide {
   * [24.2. Requirements](#requirements)
   * [24.3. Quick Start](#quick-start)
     * [24.3.1. New ID-Free Project](#new-id-free-project)
-    * [24.3.2. Migration from trice insert](#migration-from-trice-insert)
+    * [24.3.2. Migration from `trice insert`](#migration-from-trice-insert)
   * [24.4. Persistent and Generated Files](#persistent-and-generated-files)
   * [24.5. Hierarchical Metadata Reuse](#hierarchical-metadata-reuse)
   * [24.6. File Key and Sidecar Name](#file-key-and-sidecar-name)
   * [24.7. Sidecar Contents](#sidecar-contents)
   * [24.8. Why the Sidecar Include Is File-Local](#why-the-sidecar-include-is-file-local)
-  * [24.9. Headers and static inline](#headers-and-static-inline)
+  * [24.9. Headers and `static inline`](#headers-and-static-inline)
   * [24.10. Automatic Include Position](#automatic-include-position)
   * [24.11. File Classification and Mixed Projects](#file-classification-and-mixed-projects)
     * [24.11.1. Insert-Owned](#insert-owned)
@@ -266,27 +266,27 @@ details.toc[open] .toc-hide {
     * [24.13.2. Zero Placeholders](#zero-placeholders)
   * [24.14. Command Line](#command-line)
   * [24.15. Build Integration](#build-integration)
-  * [24.16. TRICE_CLEAN](#trice_clean)
-    * [24.16.1. trice clean After trice bind](#trice-clean-after-trice-bind)
-  * [24.17. Re-Migration to trice insert](#re-migration-to-trice-insert)
+  * [24.16. `TRICE_CLEAN`](#trice_clean)
+    * [24.16.1. `trice clean` After `trice bind`](#trice-clean-after-trice-bind)
+  * [24.17. Re-Migration to `trice insert`](#re-migration-to-trice-insert)
   * [24.18. Automatic Local Counter Rebase](#automatic-local-counter-rebase)
     * [24.18.1. When the Normal Line Path Is Sufficient](#when-the-normal-line-path-is-sufficient)
-    * [24.18.2. When trice bind Rebases Locally](#when-trice-bind-rebases-locally)
+    * [24.18.2. When `trice bind` Rebases Locally](#when-trice-bind-rebases-locally)
     * [24.18.3. Concrete Wrapper Example](#concrete-wrapper-example)
-    * [24.18.4. Preferred Form: Normal or static inline Function](#preferred-form-normal-or-static-inline-function)
+    * [24.18.4. Preferred Form: Normal or `static inline` Function](#preferred-form-normal-or-static-inline-function)
     * [24.18.5. Headers and Translation Units](#headers-and-translation-units)
     * [24.18.6. Compact Source Boundaries and Generated Helper Headers](#compact-source-boundaries-and-generated-helper-headers)
-    * [24.18.7. Missing &#95;&#95;COUNTER&#95;&#95;](#missing-9595counter9595)
+    * [24.18.7. Missing &#95;&#95;COUNTER&#95;&#95;](#missing-__counter__)
     * [24.18.8. Unchanged Interfaces](#unchanged-interfaces)
   * [24.19. Supported Boundaries and Remaining Limitations](#supported-boundaries-and-remaining-limitations)
     * [24.19.1. bind-limits](#bind-limits)
   * [24.20. Diagnostics and Troubleshooting](#diagnostics-and-troubleshooting)
     * [24.20.1. Sidecar Not Found](#sidecar-not-found)
     * [24.20.2. File-Key Conflict](#file-key-conflict)
-    * [24.20.3. File Is mixed](#file-is-mixed)
+    * [24.20.3. File Is `mixed`](#file-is-mixed)
     * [24.20.4. Bind Include Is in the Wrong Place](#bind-include-is-in-the-wrong-place)
     * [24.20.5. Unexpected Message After a Source Change](#unexpected-message-after-a-source-change)
-    * [24.20.6. Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;](#advanced-construct-requires-9595counter9595)
+    * [24.20.6. Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;](#advanced-construct-requires-__counter__)
     * [24.20.7. Counter Count or Rebase Descriptor Does Not Match](#counter-count-or-rebase-descriptor-does-not-match)
   * [24.21. Result](#result)
   * [24.22. Appendix: Preprocessor Fundamentals](#appendix-preprocessor-fundamentals)
@@ -297,12 +297,12 @@ details.toc[open] .toc-hide {
     * [24.23.2. Transfer into the Target Code](#transfer-into-the-target-code)
     * [24.23.3. Why the Source Scan Remains Authoritative](#why-the-source-scan-remains-authoritative)
     * [24.23.4. Requirements Met by the Sidecar Approach](#requirements-met-by-the-sidecar-approach)
-  * [24.24. Appendix: TRICE_CLEAN States at a Glance](#appendix-trice_clean-states-at-a-glance)
+  * [24.24. Appendix: `TRICE_CLEAN` States at a Glance](#appendix-trice_clean-states-at-a-glance)
   * [24.25. Appendix: Retained Architecture Decision Against ELF Patching](#appendix-retained-architecture-decision-against-elf-patching)
-  * [24.26. Architecture Decision: trice bind Instead of an ELF-Patching Solution](#architecture-decision-trice-bind-instead-of-an-elf-patching-solution)
+  * [24.26. Architecture Decision: `trice bind` Instead of an ELF-Patching Solution](#architecture-decision-trice-bind-instead-of-an-elf-patching-solution)
     * [24.26.1. Purpose of This Document](#purpose-of-this-document)
     * [24.26.2. Requirements](#requirements-1)
-    * [24.26.3. MVP of trice bind](#mvp-of-trice-bind)
+    * [24.26.3. MVP of `trice bind`](#mvp-of-trice-bind)
     * [24.26.4. Investigated ELF-Patching Solution](#investigated-elf-patching-solution)
     * [24.26.5. Comparison of the Two Approaches](#comparison-of-the-two-approaches)
     * [24.26.6. Examination of the Apparent ELF Advantages](#examination-of-the-apparent-elf-advantages)
@@ -331,18 +331,18 @@ details.toc[open] .toc-hide {
     * [27.8.3. Option Cleaning on Repository Check-In](#option-cleaning-on-repository-check-in)
 * [28. Trice Speed](#trice-speed)
   * [28.1. Target Implementation Options](#target-implementation-options)
-    * [28.1.1. Trice Use Cases TRICESTATICBUFFER and TRICESTACKBUFFER - direct mode only](#trice-use-cases-tricestaticbuffer-and-tricestackbuffer---direct-mode-only)
-    * [28.1.2. Trice Use Case TRICEDOUBLEBUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-tricedoublebuffer---deferred-mode-fastest-trice-execution-more-ram-needed)
-    * [28.1.3. Trice Use Case TRICERINGBUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-triceringbuffer---deferred-mode-balanced-trice-execution-time-and-needed-ram)
-  * [28.2. A configuration for maximum Trice execution speed with the L432inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432inst-example)
-  * [28.3. A configuration for normal Trice execution speed with the G0B1inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1inst-example)
+    * [28.1.1. Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only](#trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only)
+    * [28.1.2. Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-trice_double_buffer---deferred-mode-fastest-trice-execution-more-ram-needed)
+    * [28.1.3. Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-trice_ring_buffer---deferred-mode-balanced-trice-execution-time-and-needed-ram)
+  * [28.2. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
+  * [28.3. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
 * [29. Trice memory needs](#trice-memory-needs)
-  * [29.1. F030bare Size](#f030bare-size)
-  * [29.2. F030inst Size with TRICEOFF=1](#f030inst-size-with-triceoff1)
-  * [29.3. F030inst with ring buffer](#f030inst-with-ring-buffer)
-  * [29.4. F030inst with ring buffer](#f030inst-with-ring-buffer-1)
-  * [29.5. A developer setting, only enabling SEGGERRTT](#a-developer-setting-only-enabling-seggerrtt)
-  * [29.6. A developer setting, only enabling SEGGERRTT and without deferred output gives after running ./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0:](#a-developer-setting-only-enabling-seggerrtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
+  * [29.1. F030_bare Size](#f030_bare-size)
+  * [29.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off1)
+  * [29.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
+  * [29.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
+  * [29.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting-only-enabling-segger_rtt)
+  * [29.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
   * [29.7. Settings Conclusion](#settings-conclusion)
   * [29.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-old-version)
   * [29.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
@@ -409,7 +409,7 @@ details.toc[open] .toc-hide {
     * [35.3.3. JLinkRTTClient.exe](#jlinkrttclientexe)
     * [35.3.4. JLinkRTTViewer.exe](#jlinkrttviewerexe)
   * [35.4. Segger RTT](#segger-rtt)
-  * [35.5. Segger J-Link SDK (800 EUR) Option](#segger-j-link-sdk-800-eur-option)
+  * [35.5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-800-eur-option)
   * [35.6. Additional Notes (leftovers)](#additional-notes-leftovers)
   * [35.7. Further development](#further-development)
   * [35.8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
@@ -423,13 +423,13 @@ details.toc[open] .toc-hide {
 * [36. Writing the Trice logs into an SD-card (or a user specific output)](#writing-the-trice-logs-into-an-sd-card-or-a-user-specific-output)
 * [37. Trice Target Code Implementation](#trice-target-code-implementation)
   * [37.1. TRICE Macro structure](#trice-macro-structure)
-    * [37.1.1. TRICEENTER](#triceenter)
-    * [37.1.2. TRICEPUT](#triceput)
-    * [37.1.3. TRICELEAVE](#triceleave)
-  * [37.2. TRICESTACKBUFFER](#tricestackbuffer)
-  * [37.3. TRICESTATICBUFFER](#tricestaticbuffer)
-  * [37.4. TRICEDOUBLEBUFFER](#tricedoublebuffer)
-  * [37.5. TRICERINGBUFFER](#triceringbuffer)
+    * [37.1.1. TRICE_ENTER](#trice_enter)
+    * [37.1.2. TRICE_PUT](#trice_put)
+    * [37.1.3. TRICE_LEAVE](#trice_leave)
+  * [37.2. TRICE_STACK_BUFFER](#trice_stack_buffer)
+  * [37.3. TRICE_STATIC_BUFFER](#trice_static_buffer)
+  * [37.4. TRICE_DOUBLE_BUFFER](#trice_double_buffer)
+  * [37.5. TRICE_RING_BUFFER](#trice_ring_buffer)
   * [37.6. Deferred Out](#deferred-out)
     * [37.6.1. Double Buffer](#double-buffer)
     * [37.6.2. Ring Buffer](#ring-buffer)
@@ -443,20 +443,20 @@ details.toc[open] .toc-hide {
   * [38.4. Many value parameters](#many-value-parameters)
   * [38.5. Floating Point Values](#floating-point-values)
   * [38.6. Runtime Generated 0-terminated Strings Transfer with triceS](#runtime-generated-0-terminated-strings-transfer-with-trices)
-  * [38.7. Runtime Generated counted Strings Transfer with triceN](#runtime-generated-counted-strings-transfer-with--tricen)
+  * [38.7. Runtime Generated counted Strings Transfer with  triceN](#runtime-generated-counted-strings-transfer-with--tricen)
   * [38.8. Runtime Generated Buffer Transfer with triceB](#runtime-generated-buffer-transfer-with-triceb)
   * [38.9. Extended format specifier possibilities](#extended-format-specifier-possibilities)
     * [38.9.1. Trice format specifier](#trice-format-specifier)
     * [38.9.2. Length modifier support](#length-modifier-support)
     * [38.9.3. Overview Table](#overview-table)
-  * [38.10. Unsupported printf format features](#unsupported-printf-format-features)
-    * [38.10.1. Dynamic field width with *](#dynamic-field-width-with-)
-    * [38.10.2. Dynamic precision with *](#dynamic-precision-with-)
+  * [38.10. Unsupported `printf` format features](#unsupported-printf-format-features)
+    * [38.10.1. Dynamic field width with `*`](#dynamic-field-width-with-)
+    * [38.10.2. Dynamic precision with `*`](#dynamic-precision-with-)
     * [38.10.3. Dynamic width and precision together](#dynamic-width-and-precision-together)
-    * [38.10.4. Wide character and wide string formats: %lc and %ls](#wide-character-and-wide-string-formats-lc-and-ls)
-    * [38.10.5. The special %n conversion specifier](#the-special-n-conversion-specifier)
-    * [38.10.6. Security implications of %n](#security-implications-of-n)
-    * [38.10.7. Why Trice does not support %n](#why-trice-does-not-support-n)
+    * [38.10.4. Wide character and wide string formats: `%lc` and `%ls`](#wide-character-and-wide-string-formats-lc-and-ls)
+    * [38.10.5. The special `%n` conversion specifier](#the-special-n-conversion-specifier)
+    * [38.10.6. Security implications of `%n`](#security-implications-of-n)
+    * [38.10.7. Why Trice does not support `%n`](#why-trice-does-not-support-n)
   * [38.11. UTF-8 Support](#utf-8-support)
   * [38.12. Switch the language without changing a bit inside the target code](#switch-the-language-without-changing-a-bit-inside-the-target-code)
   * [38.13. Format tags prototype specifier examples](#format-tags-prototype-specifier-examples)
@@ -469,7 +469,7 @@ details.toc[open] .toc-hide {
   * [39.6. Handler payload handling](#handler-payload-handling)
   * [39.7. Responses](#responses)
   * [39.8. What ABC is not](#what-abc-is-not)
-  * [39.9. Example: examples/TriceAbc](#example-examplestriceabc)
+  * [39.9. Example: `examples/TriceAbc`](#example-examplestriceabc)
   * [39.10. Host tests](#host-tests)
   * [39.11. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
   * [39.12. Security boundary](#security-boundary)
@@ -507,14 +507,14 @@ details.toc[open] .toc-hide {
   * [40.13. Setting up a new project](#setting-up-a-new-project)
 * [41. Example Projects without and with Trice Instrumentation](#example-projects-without-and-with-trice-instrumentation)
   * [41.1. Nucleo-F030R8 Examples](#nucleo-f030r8-examples)
-    * [41.1.1. F030bare](#f030bare)
-    * [41.1.2. F030inst](#f030inst)
+    * [41.1.1. F030_bare](#f030_bare)
+    * [41.1.2. F030_inst](#f030_inst)
   * [41.2. Nucleo-G0B1 Examples](#nucleo-g0b1-examples)
-    * [41.2.1. G0B1bare](#g0b1bare)
-    * [41.2.2. G0B1inst](#g0b1inst)
+    * [41.2.1. G0B1_bare](#g0b1_bare)
+    * [41.2.2. G0B1_inst](#g0b1_inst)
   * [41.3. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
-    * [41.3.1. L432bare](#l432bare)
-    * [41.3.2. L432inst](#l432inst)
+    * [41.3.1. L432_bare](#l432_bare)
+    * [41.3.2. L432_inst](#l432_inst)
 * [42. Trice Generate](#trice-generate)
   * [42.1. Colors](#colors)
   * [42.2. C-Code](#c-code)
@@ -560,13 +560,13 @@ details.toc[open] .toc-hide {
     * [47.2.1. Trice Internal Log Code Short Description](#trice-internal-log-code-short-description)
   * [47.3. Using Trice on Servers](#using-trice-on-servers)
 * [48. Working with the Trice Git Repository](#working-with-the-trice-git-repository)
-  * [48.1. Install opencommit on macOS](#install-opencommit-on-macos)
-  * [48.2. Install opencommit on Windows](#install-opencommit-on-windows)
+  * [48.1. Install `opencommit` on macOS](#install-opencommit-on-macos)
+  * [48.2. Install `opencommit` on Windows](#install-opencommit-on-windows)
 * [49. Trice Maintenance](#trice-maintenance)
   * [49.1. Trice Project structure (Files and Folders)](#trice-project-structure-files-and-folders)
   * [49.2. 📁 The .github Folder — Purpose and Contents](#the-github-folder--purpose-and-contents)
-    * [49.2.1. 📁 .github Root](#github-root)
-    * [49.2.2. 📂 .github/workflows — GitHub Actions Workflows](#githubworkflows--github-actions-workflows)
+    * [49.2.1. 📁 `.github` Root](#github-root)
+    * [49.2.2. 📂 `.github/workflows` — GitHub Actions Workflows](#githubworkflows--github-actions-workflows)
     * [49.2.3. GitHub Action clang-format.yml - Check C Code Formatting](#github-action-clang-formatyml---check-c-code-formatting)
     * [49.2.4. GitHub Action codeql.yml - Static Code Analysis](#github-action-codeqlyml---static-code-analysis)
     * [49.2.5. GitHub Action coverage.yml - Test Coverage and Coveralls Integration](#github-action-coverageyml---test-coverage-and-coveralls-integration)
@@ -580,27 +580,27 @@ details.toc[open] .toc-hide {
     * [49.2.13. GitHub Action stale.yml - Automatic Stale Issue Handling](#github-action-staleyml---automatic-stale-issue-handling)
     * [49.2.14. GitHub Action superlinter.yml - Ensure Consistent YAML and Markdown Formatting](#github-action-superlinteryml---ensure-consistent-yaml-and-markdown-formatting)
     * [49.2.15. GitHub Action pages.yml - Creates The Trice GitHub Pages](#github-action-pagesyml---creates-the-trice-github-pages)
-  * [49.3. Trice User Manual Maintenance (or any *.md file)](#trice-user-manual-maintenance-or-any-md-file)
+  * [49.3. Trice User Manual Maintenance (or any `*.md` file)](#trice-user-manual-maintenance-or-any-md-file)
   * [49.4. Cleaning the Sources](#cleaning-the-sources)
 * [50. Build and Release the Trice Tool](#build-and-release-the-trice-tool)
   * [50.1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
   * [50.2. Prepare A Release](#prepare-a-release)
     * [50.2.1. Check a GoReleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
-  * [50.3. Trigger a real Trice release via CI (with git tag)](#trigger-a-real-trice-release-via-ci-with-git-tag)
+  * [50.3. Trigger a **real** Trice release via CI (with `git tag`)](#trigger-a-real-trice-release-via-ci-with-git-tag)
     * [50.3.1. Make sure your workflow reacts to tags](#make-sure-your-workflow-reacts-to-tags)
     * [50.3.2. Final checks before tagging](#final-checks-before-tagging)
-    * [50.3.3. Choose a version and create a git tag](#choose-a-version-and-create-a-git-tag)
+    * [50.3.3. Choose a version and create a `git tag`](#choose-a-version-and-create-a-git-tag)
     * [50.3.4. Push the tag to GitHub (this triggers CI)](#push-the-tag-to-github-this-triggers-ci)
     * [50.3.5. Watch the CI release run on GitHub](#watch-the-ci-release-run-on-github)
     * [50.3.6. Check the GitHub Release](#check-the-github-release)
-* [51. Ctrl-C robust use of trice insert and trice clean](#ctrl-c-robust-use-of-trice-insert-and-trice-clean)
+* [51. Ctrl-C robust use of `trice insert` and `trice clean`](#ctrl-c-robust-use-of-trice-insert-and-trice-clean)
   * [51.1. Background: GitHub issue #658](#background-github-issue-658)
   * [51.2. What Bash scripts can and cannot protect against](#what-bash-scripts-can-and-cannot-protect-against)
   * [51.3. Recommended build-script ownership rule](#recommended-build-script-ownership-rule)
   * [51.4. Recommended Bash pattern](#recommended-bash-pattern)
   * [51.5. Preserve the build exit code](#preserve-the-build-exit-code)
   * [51.6. Be careful with current working directory changes](#be-careful-with-current-working-directory-changes)
-  * [51.7. Prefer Makefile clean targets when available](#prefer-makefile-clean-targets-when-available)
+  * [51.7. Prefer Makefile `clean` targets when available](#prefer-makefile-clean-targets-when-available)
   * [51.8. Example scripts](#example-scripts)
   * [51.9. Summary](#summary-2)
 * [52. Scratch Pad](#scratch-pad)
@@ -2339,7 +2339,7 @@ Trice records to `tlog`; `tlog` decodes them and sends the same CSV format
 onward. This separation means that one LabPlot project works for both
 examples.
 
-#### 12.4.2. <a id="examplesdemodatacsv"></a>./examples/DemoData_CSV
+#### 12.4.2. <a id="examplesdemodata_csv"></a>./examples/DemoData_CSV
 
 After running `build.sh` inside `./examples/DemoData_CSV/`, the executable is
 installed in the local `bin/` folder. You can run it there:
@@ -2361,7 +2361,7 @@ time_s,x,y,z
 th@Thomass-MacBook-Pro-7 bin % 
 ```
 
-#### 12.4.3. <a id="examplesdemodatatrice"></a>./examples/DemoData_Trice
+#### 12.4.3. <a id="examplesdemodata_trice"></a>./examples/DemoData_Trice
 
 After running `build.sh` inside `./examples/DemoData_Trice/`, the executable is
 installed in the local `bin/` folder. You can run it there:
@@ -2669,7 +2669,7 @@ You can connect each target over its transmit channel with an own Trice instance
 
 The C-code is executed during some tests. Prerequisite is an installed GCC.
 
-### 14.10. <a id="tricestackbuffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
+### 14.10. <a id="trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
@@ -4402,7 +4402,7 @@ Older multiline rebase blocks from a previous generator version are still recogn
 
 <a id="missing-__counter__"></a>
 <!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
-#### 24.18.7. <a id="missing-9595counter9595"></a>Missing &#95;&#95;COUNTER&#95;&#95;
+#### 24.18.7. <a id="missing-__counter__"></a>Missing &#95;&#95;COUNTER&#95;&#95;
 
 Only the affected rebase region contains a capability guard. If `__COUNTER__` is unavailable, the target compiler stops with a message explicitly stating that normal bind sites are unaffected.
 
@@ -4510,7 +4510,7 @@ Run `trice bind` again. The line number is part of the build-local site name.
 
 <a id="advanced-construct-requires-__counter__"></a>
 <!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
-#### 24.20.6. <a id="advanced-construct-requires-9595counter9595"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
+#### 24.20.6. <a id="advanced-construct-requires-__counter__"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
 
 The compiler is processing a generated rebase region but does not provide `__COUNTER__`. Only this source construct is affected. Use one of the alternatives described under [Missing `__COUNTER__`](#missing-__counter__) or a target compiler with local counter support.
 
@@ -5316,7 +5316,7 @@ All trice macros use internally this sub-macro:
 
 The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWritePosition` points to a buffer, which is codified and used with the Trice framing sub-macros `TRICE_ENTER` and `TRICE_LEAVE` depending on the use case.
 
-#### 28.1.1. <a id="trice-use-cases-tricestaticbuffer-and-tricestackbuffer---direct-mode-only"></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
+#### 28.1.1. <a id="trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only"></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
 
 1. Each single Trice is build inside a common buffer and finally copied inside the sub-macro `TRICE_LEAVE`.
 2. Disabled relevant interrupts between `TRICE_ENTER` and `TRICE_LEAVE` are mantadory for `TRICE_STATIC_BUFFER`.
@@ -5329,7 +5329,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
   * AUX without extra copy.
   * Not (yet) supported UART transfer loop with polling. With 1MBit baud rate, 4-12 bytes would last 40-120 µs.
 
-#### 28.1.2. <a id="trice-use-case-tricedoublebuffer---deferred-mode-fastest-trice-execution-more-ram-needed"></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
+#### 28.1.2. <a id="trice-use-case-trice_double_buffer---deferred-mode-fastest-trice-execution-more-ram-needed"></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
 
 1. Several *trices* are build in a half buffer.
 1. No stack used.
@@ -5337,7 +5337,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. Usable for multiple blocking and non-blocking physical Trice channels.
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 
-#### 28.1.3. <a id="trice-use-case-triceringbuffer---deferred-mode-balanced-trice-execution-time-and-needed-ram"></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
+#### 28.1.3. <a id="trice-use-case-trice_ring_buffer---deferred-mode-balanced-trice-execution-time-and-needed-ram"></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
 
 1. Each single *trices* is build in a ring buffer segment.
 1. No stack used.
@@ -5346,7 +5346,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 1. Allocation call inside `TRICE_ENTER`
 
-### 28.2. <a id="a-configuration-for-maximum-trice-execution-speed-with-the-l432inst-example"></a>A configuration for maximum Trice execution speed with the L432_inst example
+### 28.2. <a id="a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example"></a>A configuration for maximum Trice execution speed with the L432_inst example
 
 * To not loose any clocks, the function `SomeExampleTrices` in [triceExamples.c](../examples/exampleData/triceExamples.c) uses the upper case macro `TRICE` for the first "🐁 Speedy Gonzales" Trices.
 
@@ -5533,7 +5533,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../../src/trice.h:741
 
 As you can see in the highlighted blue timestamp bar, typical 8-10 clocks are needed for one Trice macro. One clock duration @64MHz is 15.625 ns, so we need about 150 ns for a Trice. Light can travel about 50 meter in that time.
 
-### 28.3. <a id="a-configuration-for-normal-trice-execution-speed-with-the-g0b1inst-example"></a>A configuration for normal Trice execution speed with the G0B1_inst example
+### 28.3. <a id="a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example"></a>A configuration for normal Trice execution speed with the G0B1_inst example
 
 * The `triceConfig.h` settings are
 
@@ -5586,7 +5586,7 @@ Still fast enough for many cases but you hopefully have a good knowledge now how
 
 Depending on your target configuration the needed space can differ:
 
-### 29.1. <a id="f030bare-size"></a>F030_bare Size
+### 29.1. <a id="f030_bare-size"></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -5598,7 +5598,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-### 29.2. <a id="f030inst-size-with-triceoff1"></a>F030_inst Size with TRICE_OFF=1
+### 29.2. <a id="f030_inst-size-with-trice_off1"></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -5610,7 +5610,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-### 29.3. <a id="f030inst-with-ring-buffer"></a>F030_inst with ring buffer
+### 29.3. <a id="f030_inst-with-ring-buffer"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -5686,7 +5686,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-### 29.4. <a id="f030inst-with-ring-buffer-1"></a>F030_inst with ring buffer
+### 29.4. <a id="f030_inst-with-ring-buffer-1"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -5761,7 +5761,7 @@ com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-### 29.5. <a id="a-developer-setting-only-enabling-seggerrtt"></a>A developer setting, only enabling SEGGER_RTT
+### 29.5. <a id="a-developer-setting-only-enabling-segger_rtt"></a>A developer setting, only enabling SEGGER_RTT
 
 * `./build.sh`:
 
@@ -5839,7 +5839,7 @@ Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 �
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
 
-### 29.6. <a id="a-developer-setting-only-enabling-seggerrtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
+### 29.6. <a id="a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
 
 ```bash
 arm-none-eabi-size out/F030_inst.elf
@@ -5944,7 +5944,7 @@ Modern compilers are optimizing out unused code automatically, but you can help 
 ### 30.1. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
 For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
-[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization).
+[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization).
 
 
 ### 30.2. <a id="compiler-independent-setting-a-bit-outdated"></a>Compiler Independent Setting (a bit outdated)
@@ -7546,37 +7546,37 @@ Related issues/discussions:
 
 ### 37.1. <a id="trice-macro-structure"></a>TRICE Macro structure
 
-#### 37.1.1. <a id="triceenter"></a>TRICE_ENTER
+#### 37.1.1. <a id="trice_enter"></a>TRICE_ENTER
 
 * Optionally disable interrupts.
 * Prepare `TriceBufferWritePosition` and keep its initial value.
 
-#### 37.1.2. <a id="triceput"></a>TRICE_PUT
+#### 37.1.2. <a id="trice_put"></a>TRICE_PUT
 
 * Use and increment `TriceBufferWritePosition`.
 
-#### 37.1.3. <a id="triceleave"></a>TRICE_LEAVE
+#### 37.1.3. <a id="trice_leave"></a>TRICE_LEAVE
 
 * Use `TriceBufferWritePosition` and its initial value for data transfer
 * Optionally restore interrupt state.
 
-### 37.2. <a id="tricestackbuffer"></a>TRICE_STACK_BUFFER
+### 37.2. <a id="trice_stack_buffer"></a>TRICE_STACK_BUFFER
 
 * `TRICE_ENTER`: Allocate stack
 * `TRICE_LEAVE`: Call TriceDirectOut()
 
-### 37.3. <a id="tricestaticbuffer"></a>TRICE_STATIC_BUFFER
+### 37.3. <a id="trice_static_buffer"></a>TRICE_STATIC_BUFFER
 
 * This is like `TRICE_STACK_BUFFER` but avoids stack allocation, what is better for many stacks.
 * `TRICE_ENTER`: Set TriceBufferWritePosition to buffer start.
 * `TRICE_LEAVE`: Call TriceDirectOut().
 
-### 37.4. <a id="tricedoublebuffer"></a>TRICE_DOUBLE_BUFFER
+### 37.4. <a id="trice_double_buffer"></a>TRICE_DOUBLE_BUFFER
 
 * `TRICE_ENTER`: Keep TriceBufferWritePosition.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
 
-### 37.5. <a id="triceringbuffer"></a>TRICE_RING_BUFFER
+### 37.5. <a id="trice_ring_buffer"></a>TRICE_RING_BUFFER
 
 * `TRICE_ENTER`: Keep or wrap TriceBufferWritePosition and add offset.
 * `TRICE_LEAVE`: Optionally call TriceDirectOut().
@@ -9883,7 +9883,7 @@ The debugger path can be added independently, for example
 
 <img src="https://cdn1.botland.de/67242-pdt_540/stm32-nucleo-F030r8-stm32F030r8t6-arm-cortex-m0.jpg">
 
-#### 41.1.1. <a id="f030bare"></a>F030_bare
+#### 41.1.1. <a id="f030_bare"></a>F030_bare
 
 Folder: [../examples/F030_bare/](../examples/F030_bare/)
 
@@ -9971,7 +9971,7 @@ PS E:\repos\trice\examples\F030_bare>
   __weak int _write(void) { return -1; }
   ```
 
-#### 41.1.2. <a id="f030inst"></a>F030_inst
+#### 41.1.2. <a id="f030_inst"></a>F030_inst
 
 Folder: [../examples/F030_inst/](../examples/F030_inst/)
 
@@ -10001,7 +10001,7 @@ This is a working example with deferred encrypted out over UART. By uncommenting
 
 <img src="https://docs.zephyrproject.org/latest/_images/nucleo_g0b1re.jpg">
 
-#### 41.2.1. <a id="g0b1bare"></a>G0B1_bare
+#### 41.2.1. <a id="g0b1_bare"></a>G0B1_bare
 
 Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
@@ -10013,10 +10013,10 @@ Folder: [../examples/G0B1_bare/](../examples/G0B1_bare/)
 
 <a id='setting-up-g0b1_gen'></a><h5>Setting Up G0B1_bare</h5>
 
-- See and adapt steps from [F030_bare](#f030bare).
+- See and adapt steps from [F030_bare](#f030_bare).
 - Then add/modify the files to reach this folder layot.
 
-#### 41.2.2. <a id="g0b1inst"></a>G0B1_inst
+#### 41.2.2. <a id="g0b1_inst"></a>G0B1_inst
 
 Folder: [../examples/G0B1_inst/](../examples/G0B1_inst/)
 
@@ -10024,11 +10024,11 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <a id='setting-up-1'></a><h5>Setting Up</h5>
 
-- See and adapt steps from [G0B1_bare](#g0b1bare).
+- See and adapt steps from [G0B1_bare](#g0b1_bare).
 
 <a id='instrumenting'></a><h5>Instrumenting</h5>
 
-- The steps are similar to the steps in [F030_bare](#f030bare).
+- The steps are similar to the steps in [F030_bare](#f030_bare).
 - See comments in [triceConfig.h](../examples/G0B1_inst/Core/Inc/triceConfig.h) and commandlines in screenshot.
 
 <img src="./ref/2024-07-22.png" width="1000">
@@ -10039,7 +10039,7 @@ This is an example with direct out without framing over RTT and deferred out in 
 
 <img src="https://cdn-reichelt.de/bilder/web/xxl_ws/A300/NUCLEO_L432KC_01.png" width=400>
 
-#### 41.3.1. <a id="l432bare"></a>L432_bare
+#### 41.3.1. <a id="l432_bare"></a>L432_bare
 
 Folder: [../examples/L432_bare/](../examples/L432_bare/)
 
@@ -10050,7 +10050,7 @@ Folder: [../examples/L432_bare/](../examples/L432_bare/)
 * It was then manually adapted additionally to Clang.
 * It was additionally configured for FreeRTOS.
 
-#### 41.3.2. <a id="l432inst"></a>L432_inst
+#### 41.3.2. <a id="l432_inst"></a>L432_inst
 
 Folder: [../examples/L432_inst/](../examples/L432_inst/)
 
