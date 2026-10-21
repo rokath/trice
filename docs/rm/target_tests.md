@@ -54,6 +54,8 @@ The matrices compile and run target code under different compiler switches, auto
 
 `scripts/testAll.sh quick` performs the standard Bind compiler matrices and focused CE/SL checks for both Bind and Insert/Clean. `scripts/testAll.sh full` also runs the complete legacy Insert/Clean and extended compiler matrices; its duration depends strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
 
+When `shfmt`, `clang-format`, `mdtoc v1.0.3`, or `stitchmd` has no suitable version, the relevant check asks before installing the pinned tool under `temp/tools`. Without confirmation, the manual check fails and the release snapshot still requires `stitchmd`.
+
 Each result line shows the elapsed time for that script before its name, with right-aligned minutes and seconds: `[24/26 | ~ 76.7%] (  4m 30s) _620_test_l432_configs.sh: PASS`. The format is `(%3dm%3ds)`; four hours appear as `(240m  0s)`. This measures elapsed time including any preparation and restoration performed by the script, not accumulated CPU time or time since the entire suite started. The same column appears for `WARN`, `FAIL` and `ABORTED`, and is saved in `temp/log/testAll_summary.log`. The interactive spinner updates the current script's elapsed time in place.
 
 Both selections include [step 515](../../scripts/_515_test_logging_features.sh), which runs the existing compiler-to-decoder CE/SL checks and the feature examples:

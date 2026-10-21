@@ -107,7 +107,7 @@ VS Code Markdown previews, table formatting and paste extensions can help editin
 
 ## 4. <a id="cleaning-the-sources"></a>Cleaning the Sources
 
-* `./scripts/format_repo.sh check` checks manual, shell, Go and C formatting. It preserves sources, ID metadata, example build outputs and `.DS_Store` files; it does not install formatters.
+* `./scripts/format_repo.sh check` checks manual, shell, Go and C formatting. It preserves sources, ID metadata, example build outputs and `.DS_Store` files. If a pinned formatter is missing, it asks before installing it under `temp/tools`.
 * `./scripts/format_repo.sh format` also refreshes Bind headers, cleans example build outputs and removes `.DS_Store` files. Run it separately from `testAll.sh`.
 * `docs/_scratchPad/` contains notes and historical sources. It is excluded from repository-wide Go discovery, formatting, linting and link checks; no `go.mod` is needed there.
 * [`_300_clean_dsstore.sh`](../../scripts/_300_clean_dsstore.sh) removes macOS folder metadata when explicitly requested. Tests report it without deleting it.

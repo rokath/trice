@@ -23,9 +23,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT"
+# shellcheck source=./_105_setup_test_tools.sh
+source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 MODE="format"
 VERBOSE=0
+MDTOC_REQUIRED_VERSION="1.0.3"
 # Keep the User Manual first; managed RM chapters are discovered before any writes.
 MANUAL_FILES=("docs/TriceUserManual.md")
 
@@ -164,10 +167,57 @@ collect_reference_chapters() {
   fi
 }
 
-require_mdtoc() {
+# A Go-installed mdtoc reports "dev" without release linker flags. Accept it
+# only when Go metadata identifies the exact tagged module and main package.
+mdtoc_has_required_version() {
+  local mdtoc_binary
+  local mdtoc_build
+  local mdtoc_version
   if ! command -v mdtoc >/dev/null 2>&1; then
-    die "required formatter 'mdtoc' is not installed or not in PATH"
+    MDTOC_VERSION_OUTPUT="not installed"
+    return 1
   fi
+  mdtoc_binary="$(command -v mdtoc)"
+  if ! MDTOC_VERSION_OUTPUT="$(mdtoc --version 2>&1)"; then
+    return 1
+  fi
+  mdtoc_version="$(printf '%s\n' "$MDTOC_VERSION_OUTPUT" | tr -d '\r' | sed -n '1p')"
+  case "$mdtoc_version" in
+    "mdtoc $MDTOC_REQUIRED_VERSION") return 0 ;;
+    "mdtoc dev")
+      case "${OSTYPE:-}" in
+        msys* | cygwin*)
+          if [[ -f "$mdtoc_binary.exe" ]]; then mdtoc_binary="$mdtoc_binary.exe"; fi
+          ;;
+      esac
+      if ! command -v go >/dev/null 2>&1 || ! mdtoc_build="$(go version -m "$mdtoc_binary" 2>&1)"; then
+        return 1
+      fi
+      printf '%s\n' "$mdtoc_build" | tr -d '\r' | awk \
+        -v package=github.com/rokath/mdtoc/cmd/mdtoc \
+        -v module=github.com/rokath/mdtoc \
+        -v version="v$MDTOC_REQUIRED_VERSION" '
+          $1 == "path" { package_ok = ($2 == package && NF == 2) }
+          $1 == "mod" { module_ok = ($2 == module && $3 == version) }
+          $1 == "=>" { replaced = 1 }
+          END { exit !(package_ok && module_ok && !replaced) }
+        '
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+# Check identity before any managed file can be changed. A declined or failed
+# local installation is an error rather than an unverified formatting skip.
+require_mdtoc() {
+  if mdtoc_has_required_version; then
+    return 0
+  fi
+  if ! confirm_tool_install "mdtoc v$MDTOC_REQUIRED_VERSION"; then
+    die "mdtoc v$MDTOC_REQUIRED_VERSION is required; detected $MDTOC_VERSION_OUTPUT. Install with: go install github.com/rokath/mdtoc/cmd/mdtoc@v$MDTOC_REQUIRED_VERSION"
+  fi
+  install_go_test_tool "github.com/rokath/mdtoc/cmd/mdtoc@v$MDTOC_REQUIRED_VERSION" || die "mdtoc v$MDTOC_REQUIRED_VERSION installation failed"
+  mdtoc_has_required_version || die "mdtoc v$MDTOC_REQUIRED_VERSION installation did not produce a matching executable; detected $MDTOC_VERSION_OUTPUT"
 }
 
 main() {

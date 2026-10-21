@@ -90,6 +90,8 @@ func TestIDWorkflowsInitializeLocalLI(t *testing.T) {
 func scriptFixture(t *testing.T, scripts ...string) string {
 	t.Helper()
 	root := t.TempDir()
+	// Tool setup is shared by standalone checks as well as suite entry points.
+	scripts = append(scripts, "scripts/_105_setup_test_tools.sh")
 	for _, name := range scripts {
 		data, err := os.ReadFile(filepath.Join("..", name))
 		if !assert.NoError(t, err) {
@@ -137,6 +139,68 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 	}
 	output, err := cmd.CombinedOutput()
 	return string(output), err
+}
+
+// TestPinnedToolConfirmation checks explicit consent, refusal and CI behavior
+// without downloading packages or changing the developer's toolchain.
+func TestPinnedToolConfirmation(t *testing.T) {
+	for _, tc := range []struct {
+		name, input, ci string
+		accepted        bool
+	}{
+		{"yes", "yes", "false", true},
+		{"no", "no", "false", false},
+		{"empty", "", "false", false},
+		{"ci", "yes", "true", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t)
+			command := "printf '" + tc.input + "\\n' | { source scripts/_105_setup_test_tools.sh; confirm_tool_install 'shfmt v3.8.0'; }"
+			out, err := runFixture(t, root, command, map[string]string{"CI": tc.ci})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			if tc.ci == "true" {
+				assert.Contains(t, out, "CI cannot prompt")
+			} else {
+				assert.Contains(t, out, "Install shfmt v3.8.0 locally under temp/tools?")
+			}
+			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+		})
+	}
+}
+
+// TestPinnedFormatterCheckInstallation proves that an approved check installs
+// the exact version into a disposable cache and then checks unchanged sources.
+func TestPinnedFormatterCheckInstallation(t *testing.T) {
+	t.Run("clang-format", func(t *testing.T) {
+		root, env := clangBootstrapFixture(t, "Linux")
+		env["CI"] = "false"
+		out, err := runFixture(t, root, "printf 'yes\\n' | bash scripts/_280_format_c_code.sh check", env)
+		assert.NoError(t, err, out)
+		assert.Contains(t, out, "Using clang-format version 23.1.2")
+		setup, readErr := os.ReadFile(filepath.Join(root, "setup.log"))
+		assert.NoError(t, readErr)
+		assert.Contains(t, string(setup), "clang-format==23.1.2")
+		source, readErr := os.ReadFile(filepath.Join(root, "sample.c"))
+		assert.NoError(t, readErr)
+		assert.Equal(t, "int value=1;\n", string(source))
+	})
+	t.Run("shfmt", func(t *testing.T) {
+		root := scriptFixture(t, "scripts/_260_format_shell_scripts.sh")
+		writeFixture(t, root, "sample.sh", "#!/bin/sh\nexit 0\n")
+		writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf 'sample.sh\\n'\n")
+		writeFixture(t, root, "bin/shfmt", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo v3.12.0; fi\n")
+		writeFixture(t, root, "seed/shfmt", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo v3.8.0; fi\n")
+		writeFixture(t, root, "bin/go", "#!/bin/sh\nprintf '%s\\n' \"$*\" > installed-package.txt\ncp seed/shfmt \"$GOBIN/shfmt\"\n")
+		out, err := runFixture(t, root, "printf 'yes\\n' | bash scripts/_260_format_shell_scripts.sh check", map[string]string{"CI": "false"})
+		assert.NoError(t, err, out)
+		installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
+		assert.NoError(t, readErr)
+		assert.Equal(t, "install mvdan.cc/sh/v3/cmd/shfmt@v3.8.0\n", string(installed))
+		assert.FileExists(t, filepath.Join(root, "temp/tools/shfmt"))
+		source, readErr := os.ReadFile(filepath.Join(root, "sample.sh"))
+		assert.NoError(t, readErr)
+		assert.Equal(t, "#!/bin/sh\nexit 0\n", string(source))
+	})
 }
 
 // initGitFixture gives runner tests a real index while keeping every Git write
@@ -979,7 +1043,7 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 // records actual arguments and never rewrites the documentation sources.
 func manualMaintenanceFixture(t *testing.T) string {
 	t.Helper()
-	root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_310_refresh_trice_user_manual.sh", "scripts/_440_test_manual_format.sh")
 	for _, path := range []string{
 		"docs/TriceUserManual.md",
 		"docs/rm/README.md", "docs/rm/HEADER.md", "docs/rm/FOOTER.md", "docs/rm/INDEX.md",
@@ -992,6 +1056,7 @@ func manualMaintenanceFixture(t *testing.T) string {
 	writeFixture(t, root, "docs/rm/short.md", "# Short chapter\n\n```md\n## Example heading\n```\n\n<!--\n## Retired heading\n-->\n")
 	writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Overview](overview.md)\n- [Encoding](binary encoding.md)\n- [RTT](rtt.md)\n- [Short](short.md)\n- [Introduction](HEADER.md)\n- [Footer](FOOTER.md)\n")
 	writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+if [ "$1" = --version ]; then printf 'mdtoc 1.0.3\n'; exit 0; fi
 [ "$#" -eq 3 ] || exit 91
 printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
 if [ "$3" = "$REJECTED" ]; then
@@ -1000,6 +1065,67 @@ if [ "$3" = "$REJECTED" ]; then
 fi
 `)
 	return root
+}
+
+// TestManualPinnedMdtoc rejects an incompatible formatter before processing a
+// chapter and accepts a tagged Go install only after explicit consent.
+func TestManualPinnedMdtoc(t *testing.T) {
+	for _, tc := range []struct {
+		name, version, moduleVersion, answer string
+		accepted, installed                  bool
+	}{
+		{"release", "mdtoc 1.0.3", "", "", true, false},
+		{"old_release_declined", "mdtoc 0.3.3", "", "no", false, false},
+		{"unverified_dev_declined", "mdtoc dev", "v0.3.3", "no", false, false},
+		{"pinned_dev", "mdtoc dev", "v1.0.3", "", true, false},
+		{"old_release_approved", "mdtoc 0.3.3", "v1.0.3", "yes", true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+if [ "$1" = --version ]; then printf '%s\n' "$MDTOC_FIXTURE_VERSION"; exit 0; fi
+printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
+`)
+			writeFixture(t, root, "seed/mdtoc", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo 'mdtoc dev'; else printf '%s --file %s\\n' \"$1\" \"$3\" >> mdtoc.calls; fi\n")
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+if [ "$1" = install ]; then
+  printf '%s\n' "$2" > installed-package.txt
+  cp seed/mdtoc "$GOBIN/mdtoc"
+  exit 0
+fi
+[ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v mdtoc)" ] || exit 91
+printf 'fixture: go1.25\n\tpath\tgithub.com/rokath/mdtoc/cmd/mdtoc\n\tmod\tgithub.com/rokath/mdtoc\t%s\th1:fixture\n' "$MDTOC_MODULE_VERSION"
+`)
+			command := "bash scripts/_310_refresh_trice_user_manual.sh check"
+			if tc.answer != "" {
+				command = "printf '" + tc.answer + "\\n' | " + command
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"MDTOC_FIXTURE_VERSION": tc.version, "MDTOC_MODULE_VERSION": tc.moduleVersion, "CI": "false",
+			})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "mdtoc.calls"))
+			if tc.accepted {
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(calls), "check --file docs/rm/rtt.md")
+			} else {
+				assert.True(t, os.IsNotExist(readErr), out)
+				assert.Contains(t, out, "mdtoc v1.0.3 is required")
+			}
+			installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
+			if tc.installed {
+				assert.NoError(t, readErr)
+				assert.Equal(t, "github.com/rokath/mdtoc/cmd/mdtoc@v1.0.3\n", string(installed))
+			} else {
+				assert.True(t, os.IsNotExist(readErr), out)
+			}
+			if tc.name == "old_release_declined" {
+				out, err = runFixture(t, root, "bash scripts/_440_test_manual_format.sh", map[string]string{"MDTOC_FIXTURE_VERSION": tc.version, "CI": "true"})
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "FAIL: _310_refresh_trice_user_manual.sh check failed")
+			}
+		})
+	}
 }
 
 // TestManualMaintenanceIncludesChapters verifies check/format dispatch, automatic
@@ -1140,6 +1266,7 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual", "", ""},
 		{"pinned_go_install_dev_build", "", "", "", "pinned", ""},
 		{"pinned_go_install_crlf_metadata", "", "", "", "crlf", ""},
+		{"approved_missing_stitcher", "", "", "", "install_missing", ""},
 		{"missing_stitcher", "", "", "", "missing", "stitchmd 0.9.0 is required; install with:"},
 		{"wrong_release", "", "", "", "wrong_release", "stitchmd 0.9.0 is required for reproducible PDF assembly"},
 		{"failed_version_command", "", "", "", "failed_version", "cannot read stitchmd version"},
@@ -1183,6 +1310,11 @@ printf '# Reference\n' > temp/manual-pdf/TriceReferenceManual.md
 			// Metadata doubles model go install and reject nearby but unpinned
 			// identities. The selected binary must be the one inspected by Go.
 			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" != install ] || {
+  printf '%s\n' "$2" > installed-package.txt
+  cp bin/stitchmd "$GOBIN/stitchmd"
+  exit 0
+}
 [ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v stitchmd)" ] || exit 93
 case "$STITCHMD_FIXTURE" in
   failed_metadata) echo 'unreadable executable'; exit 18 ;;
@@ -1235,9 +1367,17 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				}
 				command = "command() { if [ \"$1\" = -v ] && [ \"$2\" = " + hidden + " ]; then return 1; fi; builtin command \"$@\"; }; source scripts/_320_generate_trice_user_manual_pdf.sh"
 			}
+			if tc.stitcher == "install_missing" {
+				command = "printf 'yes\\n' | { command() { if [ \"$1\" = -v ] && [ \"$2\" = stitchmd ] && [ ! -f temp/tools/bin/stitchmd ]; then return 1; fi; builtin command \"$@\"; }; source scripts/_320_generate_trice_user_manual_pdf.sh; }"
+			}
 			out, err := runFixture(t, root, command, map[string]string{
-				"FAILED": tc.failed, "EMPTY": tc.empty, "STITCHMD_FIXTURE": tc.stitcher,
+				"FAILED": tc.failed, "EMPTY": tc.empty, "STITCHMD_FIXTURE": tc.stitcher, "CI": "false",
 			})
+			if tc.stitcher == "install_missing" {
+				installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "go.abhg.dev/stitchmd@v0.9.0\n", string(installed))
+			}
 			if tc.missing != "" {
 				assert.Error(t, err, out)
 				missing := "docs/TriceUserManual.md"

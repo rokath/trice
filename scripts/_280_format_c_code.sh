@@ -31,8 +31,8 @@
 #   not named `clang-format` on the current platform. An explicit selection is
 #   respected; unset it to enable automatic setup.
 #   FORMAT and SETUP install a missing canonical formatter into ./temp/tools using
-#   Python 3's venv and pip, just like CI. CHECK mode only reuses available tools
-#   and never downloads them. The system Python/clang-format are not modified.
+#   Python 3's venv and pip, just like CI. CHECK mode asks before installing a
+#   missing version. The system Python/clang-format are not modified.
 #
 
 set -euo pipefail
@@ -40,6 +40,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
+# shellcheck source=./_105_setup_test_tools.sh
+source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 ###############################################################################
 # Decide which mode to run: FORMAT, CHECK, or tool-only SETUP.
@@ -109,7 +111,7 @@ find_cached_clang_format() {
 }
 
 # ensure_clang_format prefers a compatible selected/system binary, then a local
-# cache. Only format/setup may bootstrap that cache; failed setup stops
+# cache. Checks require confirmation before bootstrapping; failed setup stops
 # before any source is formatted. Separate platform/architecture directories
 # avoid reusing native binaries across dual-boot systems or shared checkouts.
 ensure_clang_format() {
@@ -136,7 +138,7 @@ ensure_clang_format() {
     return 0
   fi
 
-  if [ "$MODE" = "check" ]; then
+  if [ "$MODE" = "check" ] && { [ -n "${CLANG_FORMAT_BIN:-}" ] || ! confirm_tool_install "clang-format $CLANG_FORMAT_REQUIRED_VERSION"; }; then
     # Without the canonical formatter there is no reliable formatting verdict.
     if ! command -v "$requested" >/dev/null 2>&1; then
       echo "MISSING TOOL: $requested"
