@@ -137,7 +137,7 @@ func TestTREXVisRecordCapture(t *testing.T) {
 
 	dec.SetInput(bytes.NewReader(nil))
 	count, err = dec.Read(buffer)
-	require.NoError(t, err)
+	require.ErrorIs(t, err, io.EOF)
 	assert.Zero(t, count)
 	_, available = dec.VisRecord()
 	assert.False(t, available)
@@ -1179,7 +1179,7 @@ func TestReadNoneFramingConsumesCompactPayload(t *testing.T) {
 	assert.Empty(t, dec.B)
 
 	n, err = dec.Read(buf)
-	assert.NoError(t, err)
+	assert.ErrorIs(t, err, io.EOF)
 	assert.Equal(t, 0, n)
 }
 
@@ -1612,7 +1612,8 @@ func TestReadNoneFramingTooShortForHeader(t *testing.T) {
 	assert.Equal(t, 1, len(dec.B))
 }
 
-// TestReadNoneFramingResyncWhenTriceSizeExceedsPackage verifies the expected behavior.
+// TestReadNoneFramingResyncWhenTriceSizeExceedsPackage preserves byte-wise
+// recovery when a one-byte scalar claims an impossible 127-byte payload.
 func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
 	oldFraming := decoder.PackageFraming
 	oldVerbose := decoder.Verbose
@@ -1639,8 +1640,7 @@ func TestReadNoneFramingResyncWhenTriceSizeExceedsPackage(t *testing.T) {
 	n, err := dec.Read(buf)
 	assert.NoError(t, err)
 	assert.Equal(t, 0, n)
-	// none-mode resync drops first byte from the preserved buffer.
-	assert.Equal(t, 3, len(dec.B))
+	assert.Equal(t, []byte{0x40, 0xff, 0x7f}, dec.B, "corruption must not be mistaken for an incomplete valid record")
 }
 
 // TestReadFramedPackageTooSmallVerboseError verifies the framed-package error

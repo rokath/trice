@@ -3,7 +3,9 @@
 package translator
 
 import (
+	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -1673,18 +1675,18 @@ func TestTranslateInvalidEndiannessExits(t *testing.T) {
 	assert.NotZero(t, exitErr.ExitCode())
 }
 
-type closeRecorder struct {
-	closed bool
-}
+// closeRecorder reports ownership release across the subprocess boundary.
+type closeRecorder struct{}
 
 func (c *closeRecorder) Read([]byte) (int, error) { return 0, io.EOF }
 
 func (c *closeRecorder) Close() error {
-	c.closed = true
+	fmt.Fprintln(os.Stdout, "input closed")
 	return nil
 }
 
-// TestHandleSIGTERMExitsAndCloses verifies the shutdown path in a subprocess.
+// TestHandleSIGTERMExitsAndCloses verifies both supported shutdown signals in a
+// subprocess. Readiness is acknowledged after registration, without a sleep.
 func TestHandleSIGTERMExitsAndCloses(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("syscall.SIGTERM subprocess signaling is not supported on Windows")
@@ -1692,14 +1694,31 @@ func TestHandleSIGTERMExitsAndCloses(t *testing.T) {
 
 	if os.Getenv("TRICE_HANDLE_SIGTERM") == "1" {
 		Verbose = true
-		handleSIGTERM(io.Discard, &closeRecorder{}, nil)
-		return
+		stop := startSignalHandler(os.Stdout, &closeRecorder{}, nil)
+		defer stop()
+		fmt.Fprintln(os.Stdout, "signal handler ready")
+		select {}
 	}
 
-	cmd := exec.Command(os.Args[0], "-test.run=TestHandleSIGTERMExitsAndCloses")
-	cmd.Env = append(os.Environ(), "TRICE_HANDLE_SIGTERM=1")
-	require.NoError(t, cmd.Start())
-	time.Sleep(150 * time.Millisecond)
-	require.NoError(t, cmd.Process.Signal(syscall.SIGTERM))
-	require.NoError(t, cmd.Wait())
+	for _, sig := range []os.Signal{os.Interrupt, syscall.SIGTERM} {
+		t.Run(sig.String(), func(t *testing.T) {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestHandleSIGTERMExitsAndCloses$")
+			cmd.Env = append(os.Environ(), "TRICE_HANDLE_SIGTERM=1")
+			stdout, err := cmd.StdoutPipe()
+			require.NoError(t, err)
+			require.NoError(t, cmd.Start())
+			output := bufio.NewReader(stdout)
+			ready, err := output.ReadString('\n')
+			require.NoError(t, err)
+			require.Equal(t, "signal handler ready\n", ready)
+			require.NoError(t, cmd.Process.Signal(sig))
+			remaining, err := io.ReadAll(output)
+			require.NoError(t, err)
+			require.NoError(t, cmd.Wait())
+			assert.Equal(t, 1, strings.Count(string(remaining), "input closed\n"))
+			assert.Contains(t, string(remaining), "####################################")
+		})
+	}
 }

@@ -69,6 +69,8 @@ func init() {
 // trexDec is the decoder instance for TREX-encoded Trices.
 type trexDec struct {
 	decoder.DecoderData
+	inputErr           error  // Latest input result; EOF is returned only after buffered work stops progressing.
+	inputBytes         uint64 // Counts received bytes so consuming a frame and refilling it still counts as progress.
 	cycle              uint8  // cycle date: c0...bf
 	pFmt               string // modified trice format string: %u -> %d
 	u                  []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
@@ -191,9 +193,8 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 func (p *trexDec) nextData() {
 	m, err := p.In.Read(p.InnerBuffer)      // use p.InnerBuffer as destination read buffer
 	p.B = append(p.B, p.InnerBuffer[:m]...) // merge with leftovers
-	if err != nil && err != io.EOF {        // some serious error
-		log.Fatal("ERROR:internal reader error\a", err) // exit
-	}
+	p.inputErr = err
+	p.inputBytes += uint64(m)
 }
 
 // nextPackage reads with an inner reader a TCOBSv1 encoded byte stream.
@@ -214,9 +215,8 @@ func (p *trexDec) nextPackage() string {
 		if index == -1 {                   // p.IBuf has no complete COBS data, so try to read more input
 			m, err := p.In.Read(p.InnerBuffer)            // use p.InnerBuffer as bytes read buffer
 			p.IBuf = append(p.IBuf, p.InnerBuffer[:m]...) // merge with leftovers
-			if err != nil && err != io.EOF {              // some serious error
-				log.Fatal("ERROR:internal reader error\a", err) // exit
-			}
+			p.inputErr = err
+			p.inputBytes += uint64(m)
 			index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
 			if index == -1 {                   // p.IBuf has no complete COBS data, so leave
 				// Even err could be io.EOF, some valid data possibly in p.iBUf.
@@ -357,12 +357,23 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 // trice strings, each ending with a newline despite the last one, when messages added.
 // Read does not process all internally read complete trice packages to be able later to
 // separate Trices within one line to keep them separated for color processing.
-// Therefore, Read needs to be called cyclically even after returning io.EOF to process internal data.
-// When Read returns n=0, all processable complete trice packages are done,
-// but the start of a following trice package can be already inside the internal buffer.
+// An empty read can still represent progress through a filtered or empty record.
+// EOF is returned only when input is exhausted and no buffered progress remains.
+// A partial final packet is retained, allowing live file readers to resume later.
 // In case of a non-matching cycle, a diagnostic is prefixed to valid application text.
 // Invalid package data produces only diagnostics and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
+	// Buffer lengths alone are insufficient: a read can refill exactly what the
+	// decoder consumes. Include received bytes and empty application records.
+	beforeB, beforeIBuf, beforeBytes := len(p.B), len(p.IBuf), p.inputBytes
+	defer func() {
+		if p.inputErr != nil && p.inputErr != io.EOF {
+			err = p.inputErr
+		} else if n == 0 && !p.recordValid && p.inputErr == io.EOF &&
+			beforeB == len(p.B) && beforeIBuf == len(p.IBuf) && beforeBytes == p.inputBytes {
+			err = io.EOF
+		}
+	}()
 	p.record = decoder.ApplicationRecord{}
 	p.recordValid = false
 	p.recordMessageReady = false
@@ -409,6 +420,32 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 	packed := p.B
 	tyId := p.ReadU16(p.B)
+	// Unframed reads can stop in the header or payload. Keep the complete
+	// prefix until another read supplies the missing bytes, instead of treating
+	// a transport fragment as a malformed record and losing synchronization.
+	if p.packageFraming == packageFramingNone && tyId>>decoder.IDBits != typeX0 {
+		headerSize := tyIdSize + ncSize
+		switch int(tyId >> decoder.IDBits) {
+		case typeS2:
+			headerSize += 2
+			if Doubled16BitID {
+				headerSize += tyIdSize
+			}
+		case typeS4:
+			headerSize += 4
+		}
+		if len(p.B) < headerSize {
+			return
+		}
+		nc := p.ReadU16(p.B[headerSize-ncSize:])
+		payloadSize := int(nc >> 8)
+		if nc&0x8000 != 0 {
+			payloadSize = int(nc & 0x7fff)
+		}
+		if len(p.B) < headerSize+payloadSize && p.plausibleIncompletePayload(id.TriceID(tyId&0x3fff), payloadSize) {
+			return
+		}
+	}
 	p.B = p.B[tyIdSize:]
 
 	triceType := int(tyId >> decoder.IDBits) // most significant bit are the triceType
@@ -669,6 +706,26 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		}
 	}
 	return
+}
+
+// plausibleIncompletePayload distinguishes a split record from a corrupt
+// unframed length. Unknown IDs and impossible fixed-size payloads must continue
+// through the established byte-wise resynchronization path. Variable-length
+// records and types without an exact table entry retain their partial bytes.
+func (p *trexDec) plausibleIncompletePayload(tid id.TriceID, payloadSize int) bool {
+	p.LutMutex.RLock()
+	tf, known := p.Lut[tid]
+	p.LutMutex.RUnlock()
+	if !known {
+		return false
+	}
+	kind := strings.ToUpper(tf.Type)
+	for _, entry := range cobsFunctionPtrList {
+		if entry.triceType == kind && !isSpecialCaseTriceType(kind) {
+			return payloadSize == (entry.bitWidth>>3)*entry.paramCount
+		}
+	}
+	return true
 }
 
 // isSingleVisLine mirrors the line composer's escaped-newline interpretation.

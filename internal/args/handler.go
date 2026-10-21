@@ -379,7 +379,6 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 			counter++
 			continue
 		}
-		defer func() { msg.OnErr(rwc.Close()) }()
 		interrupted = true
 		if receiver.ShowInputBytes {
 			rwc = receiver.NewBytesViewer(w, rwc)
@@ -388,6 +387,15 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
 		e = translator.Translate(applicationOutput, sw, ilu, m, li, rwc, visRouter)
+		// Close the final wrapper chain before retrying or returning; a defer in
+		// this loop retained every previous input and never closed wrapper files.
+		closeErr := rwc.Close()
+		if closeErr != nil {
+			if e == io.EOF {
+				e = nil
+			}
+			return errors.Join(e, closeErr)
+		}
 		if io.EOF == e {
 			return nil // end of predefined buffer
 		}
