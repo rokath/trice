@@ -115,6 +115,9 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"LOG_DIR": filepath.Join(root, "temp", "log"), "TRICE_TMP_DIR": filepath.Join(root, "temp"),
 		"TRICE_BIN_DIR": filepath.Join(root, "bin"), "PATH": filepath.Join(root, "bin") + string(os.PathListSeparator) + os.Getenv("PATH"),
 		"GOCACHE": filepath.Join(root, "cache"), "NO_COLOR": "1",
+		// A surrounding testAll full run must not silently enable recovery or
+		// compiler matrices in fixtures. Full-mode cases opt in via overrides.
+		"SELECTED": "quick",
 	}
 	for key, value := range overrides {
 		env[key] = value
@@ -230,6 +233,11 @@ func TestCppcheckLocalCache(t *testing.T) {
 			root := scriptFixture(t)
 			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
 			writeFixture(t, root, "temp/tools/cppcheck/2.22.0/"+layout, "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\r\\n'\n")
+			// Unix shells do not resolve `cppcheck` to `cppcheck.exe`. Emulate
+			// Windows executable lookup beside the Windows-layout tool double.
+			if runtime.GOOS != "windows" && strings.HasSuffix(layout, ".exe") {
+				writeFixture(t, root, "temp/tools/cppcheck/2.22.0/"+strings.TrimSuffix(layout, ".exe"), "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\r\\n'\n")
+			}
 			out, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool && bash -c 'cppcheck --version'", map[string]string{"CI": "true"})
 			assert.NoError(t, err, out)
 			assert.Contains(t, out, "Cppcheck 2.22.0")
@@ -249,6 +257,12 @@ func TestCppcheckWindowsSetup(t *testing.T) {
 			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
 			writeFixture(t, root, "bin/cygpath", "#!/bin/sh\nprintf '%s\\n' \"$2\"\n")
 			writeFixture(t, root, "bin/cmake", "#!/bin/sh\necho unexpected-cmake; exit 91\n")
+			// Native Windows supplies this extension lookup itself; only Unix
+			// hosts need a second name for the extracted shell tool double.
+			unixAlias := ""
+			if runtime.GOOS != "windows" {
+				unixAlias = "cp seed/cppcheck temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/cppcheck\n"
+			}
 			writeFixture(t, root, "bin/msiexec.exe", `#!/bin/sh
 printf '%s\n' "$*" >> extract.calls
 [ "$MSYS_NO_PATHCONV" = 1 ] || exit 91
@@ -260,7 +274,7 @@ if [ "${NATIVE_FAIL:-}" != runtime_missing ]; then
   mkdir -p temp/tools/cppcheck/2.22.0/PFiles/System64
   for dll in vcruntime140.dll msvcp140.dll; do printf 'bundled runtime\n' > "temp/tools/cppcheck/2.22.0/PFiles/System64/$dll"; done
 fi
-`)
+`+unixAlias)
 			writeFixture(t, root, "seed/cppcheck", `#!/bin/sh
 [ -f "${0%/*}/vcruntime140.dll" ] && [ -f "${0%/*}/msvcp140.dll" ] || exit 91
 if [ "$1" = --help ]; then echo --check-level; else printf 'Cppcheck %s\r\n' "$INSTALLED_VERSION"; fi
@@ -1072,7 +1086,11 @@ func hostCompilerFixture(t *testing.T, root string) {
 	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
 		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-compiler; exit 0; fi
-if [ "$1" = -dM ]; then echo '#define __GNUC__ 14'; exit 0; fi
+if [ "$1" = -dM ]; then
+  echo '#define __GNUC__ 14'
+  if [ "${GCC_IS_CLANG:-0}" = 1 ]; then echo '#define __clang__ 1'; fi
+  exit 0
+fi
 printf '%s %s\n' "${0##*/}" "$*" >> compiler.calls
 cat > probe-source.txt
 if [ "${GCC_IS_CLANG:-0}" = 1 ] && grep -q 'full requires genuine GCC' probe-source.txt; then
@@ -1098,6 +1116,9 @@ exit 91
 // TestRuntimePreparationChecksHostCompilers detects a broken C or C++ frontend
 // before any ID workflow and reports linker/runtime failures with setup hints.
 func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
+	// Reproduce testAll's exported mode even when this test is run directly.
+	// Basic probe cases must remain isolated while explicit full cases retain it.
+	t.Setenv("SELECTED", "full")
 	for _, failure := range []string{"", "clang", "clang++", "runtime"} {
 		t.Run("failure_"+failure, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_490_test_runtime_prepare.sh")
@@ -1128,6 +1149,7 @@ func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
 	}
 	t.Run("full_requirements", testFullHostCompilerRequirements)
 	t.Run("versioned_GCC", testVersionedHostGCC)
+	t.Run("Homebrew_GCC", testHomebrewHostGCC)
 	t.Run("local_Windows_bundle", testWindowsHostCompilerBundle)
 }
 
@@ -1139,6 +1161,8 @@ func hostPreparationFixture(t *testing.T, platform string) string {
 	hostCompilerFixture(t, root)
 	writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo '"+platform+"'; else echo x86_64; fi\n")
 	writeFixture(t, root, "bin/go", "#!/bin/sh\nif [ \"$1\" = env ]; then echo \"${HOST_GOARCH:-amd64}\"; else echo fixture-go; fi\n")
+	// Never inspect or mutate the real Homebrew installation from a fixture.
+	writeFixture(t, root, "bin/brew", "#!/bin/sh\nexit 23\n")
 	writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
 	writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
 	return root
@@ -1218,6 +1242,132 @@ func testVersionedHostGCC(t *testing.T) {
 			assert.NoError(t, err, out)
 			assert.Contains(t, out, "/temp/tools/host-gcc/bin/gcc")
 			assert.Contains(t, out, "/temp/tools/host-gcc/bin/g++")
+		})
+	}
+}
+
+// testHomebrewHostGCC exercises system-install consent and post-install probes
+// in a disposable prefix containing spaces, without invoking real Homebrew.
+func testHomebrewHostGCC(t *testing.T) {
+	for _, tc := range []struct {
+		name, answer, ci, failure           string
+		installed, wantInstall, wantSuccess bool
+	}{
+		{name: "install", answer: "yes", wantInstall: true, wantSuccess: true},
+		{name: "installed_unlinked", installed: true, wantSuccess: true},
+		{name: "declined", answer: "no"},
+		{name: "empty_answer", answer: ""},
+		{name: "EOF", failure: "eof"},
+		{name: "CI", answer: "yes", ci: "true"},
+		{name: "install_failure", answer: "yes", failure: "install", wantInstall: true},
+		{name: "missing_pair", answer: "yes", failure: "pair", wantInstall: true},
+		{name: "broken_CXX", answer: "yes", failure: "g++", wantInstall: true},
+		{name: "broken_runtime", answer: "yes", failure: "runtime", wantInstall: true},
+		{name: "broken_installed", installed: true, failure: "g++"},
+		{name: "Clang_failure_does_not_install_GCC", answer: "yes", failure: "clang"},
+		{name: "no_Homebrew", answer: "yes", failure: "no_brew"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := hostPreparationFixture(t, "Darwin")
+			for _, compiler := range []string{"gcc", "g++"} {
+				source, err := os.ReadFile(filepath.Join(root, "bin", compiler))
+				assert.NoError(t, err)
+				installed := strings.ReplaceAll(string(source), "${GCC_IS_CLANG:-0}", "0")
+				// An unknown future version must work without updating the script.
+				writeFixture(t, root, "brew seed/"+compiler+"-99", installed)
+			}
+			writeFixture(t, root, "bin/brew", `#!/bin/sh
+case "$*" in
+  '--prefix --installed gcc')
+    [ -f brew.installed ] || exit 1
+    printf '%s/brew prefix\n' "$PWD"
+    ;;
+  'install gcc')
+    printf '%s\n' "$*" >> brew.calls
+    [ "$HOMEBREW_NO_INSTALL_UPGRADE:$HOMEBREW_NO_INSTALL_CLEANUP:$HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK" = 1:1:1 ] || exit 92
+    echo 'fixture installation progress'
+    [ "$BREW_FAILURE" != install ] || exit 23
+    mkdir -p 'brew prefix/bin'
+    cp 'brew seed/'* 'brew prefix/bin/'
+    if [ "$BREW_FAILURE" = pair ]; then rm 'brew prefix/bin/g++-99'; fi
+    touch brew.installed
+    ;;
+  *) exit 91 ;;
+esac
+`)
+			if tc.installed {
+				writeFixture(t, root, "brew.installed", "")
+				// A previous successful run cannot keep a now-broken selection
+				// marked as ready for the independently started child steps.
+				writeFixture(t, root, "temp/tools/host-gcc/.ready", "")
+				for _, compiler := range []string{"gcc", "g++"} {
+					source, err := os.ReadFile(filepath.Join(root, "brew seed", compiler+"-99"))
+					assert.NoError(t, err)
+					writeFixture(t, root, "brew prefix/bin/"+compiler+"-99", string(source))
+				}
+			}
+			// Suppress unrelated versioned compilers from the machine running the
+			// test, but allow the selected fixture pair to create its local aliases.
+			command := `ln() {
+  case "$2" in *'brew prefix/'*) command ln "$@" ;; *) return 1 ;; esac
+}
+export -f ln
+`
+			if tc.failure == "no_brew" {
+				command += `command() {
+  if [ "$1:$2" = '-v:brew' ]; then return 1; fi
+  builtin command "$@"
+}
+export -f command
+`
+			}
+			if tc.failure == "eof" {
+				command += "bash scripts/_490_test_runtime_prepare.sh --quiet </dev/null"
+			} else {
+				command += "printf '" + tc.answer + "\\n' | bash scripts/_490_test_runtime_prepare.sh --quiet"
+			}
+			env := map[string]string{"SELECTED": "full", "CI": "false", "GCC_IS_CLANG": "1", "BREW_FAILURE": tc.failure}
+			if tc.ci != "" {
+				env["CI"] = tc.ci
+			}
+			if tc.failure == "g++" {
+				env["FAILED_COMPILER"] = "g++"
+			}
+			if tc.failure == "runtime" {
+				env["RUNTIME_STATUS"] = "23"
+			}
+			if tc.failure == "clang" {
+				env["GCC_IS_CLANG"] = "0"
+				env["FAILED_COMPILER"] = "clang"
+			}
+			out, err := runFixture(t, root, command, env)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, tc.wantSuccess, err == nil, out+string(logBytes))
+			if tc.wantInstall {
+				calls, readErr := os.ReadFile(filepath.Join(root, "brew.calls"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "install gcc\n", string(calls))
+				assert.Contains(t, out, "outside this checkout")
+				assert.Contains(t, out, "fixture installation progress")
+				assert.NotContains(t, out, "locally under temp/tools?")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "brew.calls"))
+			}
+			if tc.wantSuccess {
+				assert.FileExists(t, filepath.Join(root, "workflow.called"))
+				assert.FileExists(t, filepath.Join(root, "temp/tools/host-gcc/.ready"))
+				out, err = runFixture(t, root, "source scripts/_100_test_common.sh; command -v gcc; command -v g++", nil)
+				assert.NoError(t, err, out)
+				assert.Contains(t, out, "/temp/tools/host-gcc/bin/gcc")
+				assert.Contains(t, out, "/temp/tools/host-gcc/bin/g++")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				assert.NoFileExists(t, filepath.Join(root, "temp/tools/host-gcc/.ready"))
+				if tc.failure == "install" {
+					assert.Contains(t, string(logBytes), "brew install gcc exited with status 23")
+				}
+			}
 		})
 	}
 }
