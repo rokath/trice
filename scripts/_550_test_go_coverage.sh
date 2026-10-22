@@ -157,7 +157,8 @@ main() {
     exit 1
   fi
   # Coverage must represent a fresh execution while retaining compiled inputs.
-  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test -count=1 "${packages[@]}" -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
+  # Keep the same per-package timeout as normal tests and script portability CI.
+  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test -count=1 "${packages[@]}" -timeout=15m -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
     log "FAIL: go coverage test failed"
     exit 1
   }

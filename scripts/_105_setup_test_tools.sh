@@ -71,6 +71,116 @@ download_pinned_test_tool() {
   fi
 }
 
+# Select Python's official standard-library-only Windows runtime. Its private
+# executable is never exposed as a general-purpose pip/venv installation.
+# Checksums: https://www.python.org/downloads/release/python-31317/
+select_windows_python_test_package() {
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*) ;;
+    *) return 1 ;;
+  esac
+  case "$(uname -m)" in
+    x86_64 | amd64)
+      TRICE_PYTHON_ARCH=amd64
+      TRICE_PYTHON_SHA256=9e35319bffedab8b36ad44d8f377cb4f1733bcec257a0b6d04d94f01486ddb38
+      ;;
+    i686 | i386)
+      TRICE_PYTHON_ARCH=win32
+      TRICE_PYTHON_SHA256=4afd37bc88ed1391209a4c58deb902cd0741a476692412b23d340aff6e9285e7
+      ;;
+    aarch64 | arm64)
+      TRICE_PYTHON_ARCH=arm64
+      TRICE_PYTHON_SHA256=7b58787a047b400edbfcb539aa3cdb4e2ed77bf0f22cae42b7c01cedd7dd6614
+      ;;
+    *)
+      printf 'FAIL: No local Python runtime for Windows architecture %s; install Python 3.9+ and rerun.\n' "$(uname -m)" >&2
+      return 1
+      ;;
+  esac
+  TRICE_PYTHON_PACKAGE="python-3.13.17-embed-$TRICE_PYTHON_ARCH.zip"
+  TRICE_PYTHON_DIR="./temp/tools/python/3.13.17-$TRICE_PYTHON_ARCH"
+}
+
+# Prove that the interpreter starts and provides the standard library used by
+# the reports. Redirect stdin so Store aliases cannot consume a consent reply.
+python_test_tool_works() {
+  "$@" -c 'import sys, json, html, pathlib, urllib.parse; sys.exit(0 if sys.version_info.major == 3 and sys.version_info >= (3, 9) and pathlib.Path(".").is_relative_to(".") else 1)' </dev/null >/dev/null 2>&1
+}
+
+# Reuse existing Python first, including launcher-only Windows installations.
+find_python_test_tool() {
+  local candidate
+  if [ -n "${TRICE_TEST_PYTHON:-}" ] && python_test_tool_works "$TRICE_TEST_PYTHON"; then
+    return 0
+  fi
+  if [ -n "${TRICE_TEST_PYTHON:-}" ]; then
+    # Do not reselect a damaged private cache in the next independently run step.
+    unset TRICE_TEST_PYTHON
+    if [ -n "${TRICE_PYTHON_DIR:-}" ]; then
+      rm -f "$TRICE_PYTHON_DIR/.ready" || return 1
+    fi
+  fi
+  for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1 && python_test_tool_works "$candidate"; then
+      return 0
+    fi
+  done
+  command -v py >/dev/null 2>&1 && python_test_tool_works py -3
+}
+
+# A separate test-runtime variable avoids shadowing a complete Python install.
+# Every suite child loads this verified cache independently, without downloads.
+activate_cached_python_test_tool() {
+  [ -d ./temp/tools/python ] || return 0
+  select_windows_python_test_package || return 0
+  if [ -f "$TRICE_PYTHON_DIR/.ready" ] && [ -x "$TRICE_PYTHON_DIR/python.exe" ]; then
+    TRICE_TEST_PYTHON="$(cd "$TRICE_PYTHON_DIR" && pwd)/python.exe"
+    # Go subprocesses on Windows cannot execute Git Bash's /c/... paths.
+    if command -v cygpath >/dev/null 2>&1; then
+      TRICE_TEST_PYTHON="$(cygpath -am "$TRICE_TEST_PYTHON")" || return 1
+    fi
+    export TRICE_TEST_PYTHON
+  fi
+}
+
+# Install only after consent. An interrupted, corrupt or unrunnable extraction
+# has no ready marker and cannot become a later step's interpreter.
+ensure_python_test_tool() {
+  local archive
+  if find_python_test_tool; then
+    return 0
+  fi
+  if ! select_windows_python_test_package; then
+    printf 'FAIL: Python 3.9+ is required for full script tests; install it with its standard library and rerun.\n' >&2
+    return 1
+  fi
+  rm -f "$TRICE_PYTHON_DIR/.ready" || return 1
+  if ! confirm_tool_install "Python 3.13.17 standard-library runtime (about 11 MB download)"; then
+    printf 'FAIL: Python script tests require a working interpreter; local setup was not approved.\n' >&2
+    return 1
+  fi
+  if ! command -v unzip >/dev/null 2>&1; then
+    printf 'FAIL: Local Python setup requires unzip (included with Git Bash).\n' >&2
+    return 1
+  fi
+  archive="./temp/tools/downloads/$TRICE_PYTHON_PACKAGE"
+  download_pinned_test_tool "https://www.python.org/ftp/python/3.13.17/$TRICE_PYTHON_PACKAGE" \
+    "$archive" "$TRICE_PYTHON_SHA256" || return 1
+  mkdir -p "$TRICE_PYTHON_DIR" || return 1
+  if ! unzip -q -o "$archive" -d "$TRICE_PYTHON_DIR"; then
+    printf 'FAIL: Cannot extract %s into %s.\n' "$archive" "$TRICE_PYTHON_DIR" >&2
+    return 1
+  fi
+  if ! python_test_tool_works "$TRICE_PYTHON_DIR/python.exe" ||
+    ! "$TRICE_PYTHON_DIR/python.exe" -c 'import sys; sys.exit(0 if sys.version_info[:3] == (3, 13, 17) else 1)' </dev/null; then
+    printf 'FAIL: Extracted Python runtime cannot run with the required version and standard library: %s/python.exe.\n' "$TRICE_PYTHON_DIR" >&2
+    return 1
+  fi
+  touch "$TRICE_PYTHON_DIR/.ready" || return 1
+  activate_cached_python_test_tool
+  printf 'INFO: verified checkout-local Python: %s\n' "$TRICE_TEST_PYTHON"
+}
+
 # Select a complete native Windows compiler bundle, never an ARM cross-toolchain.
 # Match Go's target architecture when available so the same GCC also serves CGO.
 # Release URLs and SHA-256 values come from the publisher's pinned release:
@@ -118,6 +228,7 @@ activate_cached_host_test_tools() {
       [ -d ./temp/tools/host ] || return 0
       select_windows_host_test_package || return 0
       if [ -f "$TRICE_HOST_PACKAGE_DIR/.ready" ]; then
+        ensure_windows_host_test_aliases || return 1
         bin="$TRICE_HOST_PACKAGE_BIN"
       fi
       ;;
@@ -139,7 +250,7 @@ activate_cached_host_test_tools() {
 # Extraction is local, needs no administrator rights, and leaves an incomplete
 # cache inactive until the caller has successfully run the host compiler probes.
 install_windows_host_test_tools() {
-  local archive compiler alias_name
+  local archive compiler
   select_windows_host_test_package || return 1
   if ! command -v unzip >/dev/null 2>&1; then
     printf 'FAIL: Local GCC/Clang setup requires unzip (included with Git Bash).\n' >&2
@@ -161,11 +272,25 @@ install_windows_host_test_tools() {
       return 1
     fi
   done
-  # Native Go subprocesses cannot execute shell aliases on Windows. Keep the
-  # generic frontends in the same bin directory as the packaged GCC drivers.
-  for alias_name in cc c++; do
-    compiler=gcc
-    [ "$alias_name" != c++ ] || compiler=g++
+  ensure_windows_host_test_aliases
+}
+
+# Native subprocesses need executable names, not shell aliases. Reuse the
+# bundle's current Make instead of an unrelated legacy make.exe later in PATH.
+# Applying this to verified caches also repairs bundles extracted before Make
+# was included in the generic-name mapping, without another download.
+ensure_windows_host_test_aliases() {
+  local alias_name compiler
+  for alias_name in cc c++ make; do
+    case "$alias_name" in
+      cc) compiler=gcc ;;
+      c++) compiler=g++ ;;
+      make) compiler=mingw32-make ;;
+    esac
+    if [ ! -x "$TRICE_HOST_PACKAGE_BIN/$compiler.exe" ]; then
+      printf 'FAIL: Compiler bundle is missing %s/%s.exe for %s.\n' "$TRICE_HOST_PACKAGE_BIN" "$compiler" "$alias_name" >&2
+      return 1
+    fi
     if [ ! -x "$TRICE_HOST_PACKAGE_BIN/$alias_name.exe" ]; then
       cp "$TRICE_HOST_PACKAGE_BIN/$compiler.exe" "$TRICE_HOST_PACKAGE_BIN/$alias_name.exe" || return 1
     fi
@@ -341,3 +466,6 @@ ensure_cppcheck_test_tool() {
     return 1
   fi
 }
+
+# Only verified private Python runtimes are inherited by subsequent test steps.
+activate_cached_python_test_tool

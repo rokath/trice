@@ -253,6 +253,13 @@ main() {
   init_logfile
   log_runtime_context
   prepare_host_compilers || return 1
+  # Full mode must execute Python report/Pages checks, not silently skip them.
+  if [ "$SELECTED" = full ]; then
+    if ! ensure_python_test_tool >>"$LOGFILE" 2>&1; then
+      log "FAIL: Python preparation failed; inspect the setup diagnostics in $LOGFILE"
+      return 1
+    fi
+  fi
   if has_command trice; then
     run_cmd which trice || true
     run_cmd trice version -v || {

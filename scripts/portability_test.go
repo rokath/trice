@@ -118,6 +118,8 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		// A surrounding testAll full run must not silently enable recovery or
 		// compiler matrices in fixtures. Full-mode cases opt in via overrides.
 		"SELECTED": "quick",
+		// A private runtime from the outer suite must not bypass tool doubles.
+		"TRICE_TEST_PYTHON": "",
 	}
 	for key, value := range overrides {
 		env[key] = value
@@ -1079,10 +1081,151 @@ func TestRuntimePreparationIsTransactional(t *testing.T) {
 	}
 }
 
+// TestRuntimePreparationChecksPython exercises the actual full-mode entry point.
+// Installation, checksums and runtimes are isolated doubles; no download or
+// system Python installation can make a missing-prerequisite case pass.
+func TestRuntimePreparationChecksPython(t *testing.T) {
+	for _, tc := range []struct {
+		name, failure, answer, machine  string
+		installed, launcher, cached, ci bool
+	}{
+		{name: "installed", installed: true},
+		{name: "launcher_only", launcher: true},
+		{name: "install_amd64", answer: "yes\n"},
+		{name: "install_win32", answer: "yes\n", machine: "i686"},
+		{name: "install_arm64", answer: "yes\n", machine: "aarch64"},
+		{name: "cached", cached: true},
+		{name: "damaged_cache_with_system_fallback", cached: true, installed: true, failure: "version"},
+		{name: "refused", answer: "no\n", failure: "refused"},
+		{name: "no_input", failure: "refused"},
+		{name: "ci", answer: "yes\n", ci: true, failure: "refused"},
+		{name: "download", answer: "yes\n", failure: "download"},
+		{name: "checksum", answer: "yes\n", failure: "checksum"},
+		{name: "extract", answer: "yes\n", failure: "extract"},
+		{name: "wrong_version", answer: "yes\n", failure: "version"},
+		{name: "missing_runtime", answer: "yes\n", failure: "missing_runtime"},
+		{name: "unsupported_arch", answer: "yes\n", machine: "armv7", failure: "architecture"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := hostPreparationFixture(t, "MINGW64_NT-10.0")
+			nativeDownloadFixture(t, root)
+			machine := tc.machine
+			if machine == "" {
+				machine = "x86_64"
+			}
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo MINGW64_NT-10.0; else echo "+machine+"; fi\n")
+			for _, name := range []string{"python3", "python", "py"} {
+				writeFixture(t, root, "bin/"+name, "#!/bin/sh\nexit 23\n")
+			}
+			if tc.installed {
+				writeFixture(t, root, "bin/python3", "#!/bin/sh\nexit 0\n")
+			}
+			if tc.launcher {
+				writeFixture(t, root, "bin/py", "#!/bin/sh\n[ \"$1\" = -3 ] && [ \"$2\" = -c ]\n")
+			}
+			writeFixture(t, root, "seed/python.exe", "#!/bin/sh\n[ \"${NATIVE_FAIL:-}\" != version ]\n")
+			writeFixture(t, root, "bin/unzip", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -d ]; then
+    mkdir -p "$2" || exit 23
+    [ "${NATIVE_FAIL:-}" != missing_runtime ] || exit 0
+    cp seed/python.exe "$2/python.exe"
+    exit $?
+  fi
+  shift
+done
+exit 91
+`)
+			arch := "amd64"
+			digest := "9e35319bffedab8b36ad44d8f377cb4f1733bcec257a0b6d04d94f01486ddb38"
+			if machine == "i686" {
+				arch, digest = "win32", "4afd37bc88ed1391209a4c58deb902cd0741a476692412b23d340aff6e9285e7"
+			} else if machine == "aarch64" {
+				arch, digest = "arm64", "7b58787a047b400edbfcb539aa3cdb4e2ed77bf0f22cae42b7c01cedd7dd6614"
+			}
+			cache := "temp/tools/python/3.13.17-" + arch
+			if tc.cached {
+				data, err := os.ReadFile(filepath.Join(root, "seed/python.exe"))
+				assert.NoError(t, err)
+				writeFixture(t, root, cache+"/python.exe", string(data))
+				writeFixture(t, root, cache+"/.ready", "")
+			}
+			env := map[string]string{"SELECTED": "full", "CI": booleanText(tc.ci), "TOOL_REPLY": tc.answer, "NATIVE_FAIL": tc.failure, "PINNED_DIGEST": digest}
+			out, err := runFixture(t, root, "printf '%s' \"$TOOL_REPLY\" | bash scripts/_490_test_runtime_prepare.sh --quiet", env)
+			success := tc.failure == "" || tc.installed
+			assert.Equal(t, success, err == nil, out)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			if !success {
+				assert.NoFileExists(t, filepath.Join(root, cache, ".ready"))
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				assert.Contains(t, string(logBytes), "FAIL: Python preparation failed")
+				assert.Contains(t, string(logBytes), "FAIL:")
+				return
+			}
+			assert.FileExists(t, filepath.Join(root, "workflow.called"))
+			if tc.installed || tc.launcher {
+				assert.NoFileExists(t, filepath.Join(root, "download.calls"))
+				assert.NoFileExists(t, filepath.Join(root, cache, ".ready"))
+				return
+			}
+			assert.FileExists(t, filepath.Join(root, cache, ".ready"))
+			if !tc.cached {
+				downloads, err := os.ReadFile(filepath.Join(root, "download.calls"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(downloads), "https://www.python.org/ftp/python/3.13.17/python-3.13.17-embed-"+arch+".zip")
+				assert.Equal(t, 1, strings.Count(string(downloads), "\n"))
+			}
+			// A separately started step must use the private runtime, without
+			// exposing the embeddable package as a general Python/venv provider.
+			out, err = runFixture(t, root, `source scripts/_100_test_common.sh
+python_test_tool_works "$TRICE_TEST_PYTHON"
+command -v python3
+`, map[string]string{"CI": "true", "NATIVE_FAIL": tc.failure})
+			assert.NoError(t, err, out)
+			assert.Contains(t, filepath.ToSlash(out), "/bin/python3")
+			assert.NotContains(t, out, "Install Python")
+		})
+	}
+}
+
+// TestGoStepsAllowSlowNativeScriptFixtures checks the real command paths,
+// including coverage, without compiling packages or invoking compiler matrices.
+func TestGoStepsAllowSlowNativeScriptFixtures(t *testing.T) {
+	for _, step := range []string{"_540_test_go.sh", "_550_test_go_coverage.sh"} {
+		t.Run(step, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/"+step)
+			writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "bin/gofmt", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+printf '%s\n' "$*" >> go.calls
+case "$1" in
+  env) [ "$2" != GOVERSION ] || echo go1.25.0 ;;
+  list) echo github.com/rokath/trice/scripts ;;
+  test)
+    mkdir -p temp/log
+    printf 'mode: atomic\ngithub.com/rokath/trice/scripts/fixture.go:1.1,1.2 1 1\n' > temp/log/coverage.out
+    ;;
+esac
+`)
+			out, err := runFixture(t, root, "bash scripts/"+step, nil)
+			assert.NoError(t, err, out)
+			calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
+			assert.NoError(t, err)
+			assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts -timeout=15m")
+		})
+	}
+}
+
 // hostCompilerFixture isolates compiler probes from every host frontend in PATH.
 // Its output can independently simulate a compile, link or runtime failure.
 func hostCompilerFixture(t *testing.T, root string) {
 	t.Helper()
+	// Compiler-specific fixtures already satisfy the independent Python check.
+	writeFixture(t, root, "bin/python3", "#!/bin/sh\nexit 0\n")
 	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
 		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-compiler; exit 0; fi
@@ -1398,6 +1541,7 @@ func testWindowsHostCompilerBundle(t *testing.T) {
 				writeFixture(t, root, "seed/"+compiler+".exe", installed)
 			}
 			writeFixture(t, root, "seed/clangd.exe", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "seed/mingw32-make.exe", "#!/bin/sh\necho 'GNU Make 4.4.1'\n")
 			writeFixture(t, root, "bin/unzip", `#!/bin/sh
 printf '%s\n' "$*" >> extract.calls
 [ "${NATIVE_FAIL:-}" != extract ] || exit 23
@@ -1442,6 +1586,7 @@ exit 91
 				return
 			}
 			assert.FileExists(t, filepath.Join(root, packageDir, ".ready"))
+			assert.FileExists(t, filepath.Join(root, packageDir, packageRoot, "bin/make.exe"))
 			assert.FileExists(t, filepath.Join(root, "workflow.called"))
 			downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
 			assert.NoError(t, readErr)
@@ -2121,6 +2266,19 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 	return strings.ReplaceAll(match[1], "\n          ", "\n")[10:]
 }
 
+// runPagesFixture keeps the actual workflow command while supplying the same
+// verified interpreter used by download tests, including Windows' py -3.
+func runPagesFixture(t *testing.T, root string) (string, error) {
+	t.Helper()
+	python := python3Command(t)
+	quoted := make([]string, len(python))
+	for index, arg := range python {
+		quoted[index] = "'" + strings.ReplaceAll(filepath.ToSlash(arg), "'", "'\"'\"'") + "'"
+	}
+	writeFixture(t, root, "bin/python3", "#!/bin/sh\nexec "+strings.Join(quoted, " ")+" \"$@\"\n")
+	return runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+}
+
 // TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow step
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
@@ -2151,7 +2309,7 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 	chapter = lineEndings(chapter + "UTF-8: café, µs.\n")
 	writeFixture(t, root, "docs/rm/bind.md", chapter)
 	writeFixture(t, root, "docs/rm/performance.md", lineEndings("# Trice Performance\n"))
-	out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+	out, err := runPagesFixture(t, root)
 	assert.NoError(t, err, out)
 	site := filepath.Join(root, "temp", "pages-source")
 	index, err := os.ReadFile(filepath.Join(site, "README.md"))
@@ -2218,7 +2376,7 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 			// Even byte-sensitive input must survive a failed preflight unchanged.
 			chapter := "\xef\xbb\xbf[User](../TriceUserManual.md)\r\n"
 			writeFixture(t, root, "docs/rm/bind.md", chapter)
-			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+			out, err := runPagesFixture(t, root)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, "ERROR: missing or empty Pages source: "+missing)
 			data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
@@ -2241,7 +2399,7 @@ func TestManualPagesPublicationScope(t *testing.T) {
 	for _, path := range []string{"docs/ref/preview.png", "docs/ref/demo.gif", "docs/ref/space image.png", "docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md"} {
 		writeFixture(t, root, path, "original bytes")
 	}
-	out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+	out, err := runPagesFixture(t, root)
 	assert.NoError(t, err, out)
 	site := filepath.Join(root, "temp/pages-source")
 	data, err := os.ReadFile(filepath.Join(site, "README.md"))
@@ -2263,7 +2421,7 @@ func TestManualPagesPublicationScope(t *testing.T) {
 		assert.NoFileExists(t, filepath.Join(site, path), "unselected files must not be published")
 	}
 	writeFixture(t, root, "README.md", "# Updated homepage\n")
-	out, err = runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+	out, err = runPagesFixture(t, root)
 	assert.NoError(t, err, out)
 	assert.NoFileExists(t, filepath.Join(site, "docs/ref/demo.gif"), "a repeat build removes stale staged resources")
 	assert.FileExists(t, filepath.Join(root, "docs/ref/demo.gif"), "source assets are never deleted")
@@ -2287,7 +2445,7 @@ func TestManualPagesRejectsBrokenResources(t *testing.T) {
 			if tc.resource != "" {
 				writeFixture(t, root, tc.resource, "")
 			}
-			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+			out, err := runPagesFixture(t, root)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, tc.diagnostic)
 			previous, err := os.ReadFile(filepath.Join(root, "temp/pages-source/previous.txt"))
