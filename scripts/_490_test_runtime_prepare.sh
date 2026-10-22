@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Test 490: Writes environment information and validates canonical Bind preparation.
+# Test 490: Checks host compilers, logs the environment and validates Bind preparation.
 #
 # Direct invocation:
 # - ./scripts/_490_test_runtime_prepare.sh
@@ -32,9 +32,59 @@ log_runtime_context() {
   fi
 }
 
+# Exercise the standard headers, linker and executable runtime of every visible
+# frontend used by the Go integration tests. Presence in PATH alone is insufficient,
+# particularly when clang and clang++ select different Windows runtime families.
+check_host_compilers() {
+  local probe_dir compiler language standard source failed=0
+  probe_dir="$(mktemp -d "$LOG_DIR/host-compilers.XXXXXX")" || {
+    log "FAIL: cannot create a host-compiler probe directory in $LOG_DIR"
+    return 1
+  }
+  for compiler in cc gcc clang c++ g++ clang++; do
+    has_command "$compiler" || continue
+    case "$compiler" in
+      c++ | g++ | clang++)
+        language=c++
+        standard=c++11
+        source='#include <string.h>
+#include <string>
+int main() { return std::string("trice").size() == strlen("trice") ? 0 : 1; }'
+        ;;
+      *)
+        language=c
+        standard=c11
+        source='#include <string.h>
+int main(void) { return strlen("trice") == 5 ? 0 : 1; }'
+        ;;
+    esac
+    log "INFO: checking host $language compiler: $(command -v "$compiler")"
+    run_cmd "$compiler" --version || true
+    if ! printf '%s\n' "$source" | run_cmd "$compiler" "-std=$standard" -O0 -Wall -Wextra -Werror \
+      -x "$language" - -o "$probe_dir/host.exe"; then
+      log "FAIL: $compiler cannot compile and link a native $language program with standard headers and libraries"
+      failed=1
+    elif ! run_cmd "$probe_dir/host.exe"; then
+      log "FAIL: $compiler produced a host executable that cannot run successfully"
+      failed=1
+    fi
+    # Remove only this probe's output; other diagnostic artifacts can remain.
+    rm -f -- "$probe_dir/host.exe"
+  done
+  rmdir "$probe_dir" 2>/dev/null || true
+  if [ "$failed" -ne 0 ]; then
+    log "FAIL: repair the host compiler installation before rerunning compiler-dependent tests"
+    log "Hint: use a complete native GCC/Clang toolchain with matching C/C++ headers and libraries, and put its bin directory first in PATH."
+    log "Hint: on Windows, check both clang and clang++; a GNU target needs a compatible MinGW-w64 runtime, an MSVC target needs Visual Studio C++ Build Tools and a Windows SDK."
+    log "Hint: see docs/rm/development_environment_setup.md (Choose the right Windows compiler)."
+    return 1
+  fi
+}
+
 main() {
   init_logfile
   log_runtime_context
+  check_host_compilers || return 1
   if has_command trice; then
     run_cmd which trice || true
     run_cmd trice version -v || {

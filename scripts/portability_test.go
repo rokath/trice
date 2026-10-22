@@ -1033,6 +1033,7 @@ func TestRuntimePreparationIsTransactional(t *testing.T) {
 				writeFixture(t, root, path, contents)
 			}
 			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+			hostCompilerFixture(t, root)
 			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/sh\nprintf 'changed source\\n' > sample.c\nprintf 'changed TIL\\n' > demoTIL.json\nprintf 'changed LI\\n' > demoLI.json\nprintf 'changed selection\\n' > generated/selection.h\nexit "+tc.bindExit+"\n")
 			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
 			if tc.bindExit == "0" {
@@ -1046,6 +1047,62 @@ func TestRuntimePreparationIsTransactional(t *testing.T) {
 				data, readErr := os.ReadFile(filepath.Join(root, path))
 				assert.NoError(t, readErr, path)
 				assert.Equal(t, contents, string(data), path)
+			}
+		})
+	}
+}
+
+// hostCompilerFixture isolates compiler probes from every host frontend in PATH.
+// Its output can independently simulate a compile, link or runtime failure.
+func hostCompilerFixture(t *testing.T, root string) {
+	t.Helper()
+	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
+		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
+if [ "$1" = --version ]; then echo fixture-compiler; exit 0; fi
+printf '%s %s\n' "${0##*/}" "$*" >> compiler.calls
+cat > probe-source.txt
+if [ "${0##*/}" = "${FAILED_COMPILER:-}" ]; then echo 'missing host header or library' >&2; exit 23; fi
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -o ]; then
+    printf '#!/bin/sh\nexit %s\n' "${RUNTIME_STATUS:-0}" > "$2"
+    chmod +x "$2"
+    exit 0
+  fi
+  shift
+done
+exit 91
+`)
+	}
+}
+
+// TestRuntimePreparationChecksHostCompilers detects a broken C or C++ frontend
+// before any ID workflow and reports linker/runtime failures with setup hints.
+func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
+	for _, failure := range []string{"", "clang", "clang++", "runtime"} {
+		t.Run("failure_"+failure, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_490_test_runtime_prepare.sh")
+			hostCompilerFixture(t, root)
+			writeFixture(t, root, "bin/go", "#!/bin/sh\necho fixture-go\n")
+			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
+			env := map[string]string{"FAILED_COMPILER": failure}
+			if failure == "runtime" {
+				env["RUNTIME_STATUS"] = "23"
+			}
+			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh --quiet", env)
+			assert.Equal(t, failure != "", err != nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "compiler.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, 6, strings.Count(string(calls), "\n"))
+			assert.Contains(t, string(calls), "clang++ -std=c++11")
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			if failure == "" {
+				assert.FileExists(t, filepath.Join(root, "workflow.called"))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				assert.Contains(t, string(logBytes), "FAIL:")
+				assert.Contains(t, string(logBytes), "Hint: on Windows, check both clang and clang++")
 			}
 		})
 	}
