@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -97,12 +98,42 @@ func compileBindFixture(t *testing.T, compiler, standard, source, object string,
 	compileBindFixtureWithPedantry(t, compiler, standard, source, object, true, includeDirs...)
 }
 
+// bindCounterPolicyCache avoids repeated compiler probes across the matrix.
+var bindCounterPolicyCache sync.Map
+
+// bindCounterWarningPolicy retains warnings for the extension required by MVP2.
+// New Clang releases diagnose it under -pedantic. Prefer the dedicated warning
+// group; older releases expose only the broader C2y group. Neither disables the
+// warnings, and other diagnostic groups remain errors. GCC needs no exception.
+func bindCounterWarningPolicy(compiler string) []string {
+	if cached, ok := bindCounterPolicyCache.Load(compiler); ok {
+		return cached.([]string)
+	}
+	var selected []string
+	for _, flags := range [][]string{nil, {"-Wno-error=counter-extension"}, {"-Wno-error=c2y-extensions"}} {
+		args := []string{"-std=c99", "-pedantic", "-Werror", "-fsyntax-only", "-x", "c", "-"}
+		if len(flags) != 0 {
+			args = append(args, "-Werror=unknown-warning-option")
+		}
+		args = append(args, flags...)
+		command := exec.Command(compiler, args...)
+		command.Stdin = strings.NewReader("enum { counter = __COUNTER__ };\n")
+		if _, err := command.CombinedOutput(); err == nil {
+			selected = flags
+			break
+		}
+	}
+	bindCounterPolicyCache.Store(compiler, selected)
+	return selected
+}
+
 // compileBindFixtureWithPedantry optionally tolerates the established pre-C23 empty variadic slot in triceOff.h.
 func compileBindFixtureWithPedantry(t *testing.T, compiler, standard, source, object string, pedantic bool, includeDirs ...string) {
 	t.Helper()
 	args := []string{"-std=" + standard, "-Wall", "-Wextra", "-Werror"}
 	if pedantic {
 		args = append(args, "-pedantic")
+		args = append(args, bindCounterWarningPolicy(compiler)...)
 	}
 	for _, includeDir := range includeDirs {
 		args = append(args, "-I", includeDir)
@@ -117,6 +148,7 @@ func compileBindFixtureWithPedantry(t *testing.T, compiler, standard, source, ob
 func compileBindFixtureOptimized(t *testing.T, compiler, standard, optimization, source, object string, includeDirs ...string) {
 	t.Helper()
 	args := []string{"-std=" + standard, optimization, "-Wall", "-Wextra", "-Werror", "-pedantic"}
+	args = append(args, bindCounterWarningPolicy(compiler)...)
 	for _, includeDir := range includeDirs {
 		args = append(args, "-I", includeDir)
 	}
@@ -130,6 +162,7 @@ func compileBindFixtureOptimized(t *testing.T, compiler, standard, optimization,
 // generated-invariant tests while retaining the normal warning policy.
 func runBindFixtureCompiler(compiler, standard, source, object string, extraFlags []string, includeDirs ...string) ([]byte, error) {
 	args := []string{"-std=" + standard, "-O0", "-Wall", "-Wextra", "-Werror", "-pedantic"}
+	args = append(args, bindCounterWarningPolicy(compiler)...)
 	args = append(args, extraFlags...)
 	for _, includeDir := range includeDirs {
 		args = append(args, "-I", includeDir)
@@ -160,6 +193,38 @@ func assertBindRebaseConstructorCoverage(t *testing.T, root string) {
 			expected = "iD"
 		}
 		assert.Equal(t, expected, mappings[string(match[2])], name)
+	}
+}
+
+// checkBindCounterPedanticDiagnostics permits the intentional counter extension
+// while retaining errors for other standard violations in the compiled fixture.
+func checkBindCounterPedanticDiagnostics(t *testing.T) {
+	t.Helper()
+	root := bindRepositoryRoot(t)
+	project := t.TempDir()
+	for _, standard := range []string{"c99", "c++11"} {
+		candidates := []string{"gcc", "clang", "cc"}
+		extension := ".c"
+		if standard == "c++11" {
+			candidates = []string{"g++", "clang++", "c++"}
+			extension = ".cpp"
+		}
+		compilers := availableBindCompilers(candidates...)
+		require.NotEmpty(t, compilers, "counter checks require a native %s compiler", standard)
+		for index, compiler := range compilers {
+			t.Run(standard+"/"+filepath.Base(compiler), func(t *testing.T) {
+				// Prescanned arguments must keep consecutive constant captures too.
+				source := "#define CAPTURE(value) (value)\nenum { first = __COUNTER__, second = CAPTURE(__COUNTER__) };\nenum { consecutive = 1 / (second == first + 1) };\n"
+				path := writeBindIntegrationFile(t, project, fmt.Sprintf("counter_%s_%d%s", standard, index, extension), source)
+				object := path + ".o"
+				compileBindFixture(t, compiler, standard, path, object, filepath.Join(root, "src"))
+				// A zero-length array is still rejected under the same warning policy.
+				require.NoError(t, os.WriteFile(path, []byte(source+"int invalidArray[0];\n"), 0o644))
+				output, err := runBindFixtureCompiler(compiler, standard, path, object, nil, filepath.Join(root, "src"))
+				require.Error(t, err, string(output))
+				assert.Contains(t, string(output), "array")
+			})
+		}
 	}
 }
 
@@ -270,6 +335,7 @@ void bind_hybrid(void) {
 // same-line, source, and header regions against the production target macros.
 func TestBindMVP2RebaseCompilesCAndCPP(t *testing.T) {
 	bindIntegrationEnabled(t)
+	t.Run("counter_warning_policy", checkBindCounterPedanticDiagnostics)
 	root := bindRepositoryRoot(t)
 	assertBindRebaseConstructorCoverage(t, root)
 	project := t.TempDir()
@@ -575,6 +641,7 @@ int main(void) {
 			executable += ".exe"
 		}
 		args := []string{"-std=c99", optimization, "-Wall", "-Wextra", "-Werror", "-pedantic", "-I", BindDir, "-I", project, "-I", filepath.Join(root, "src"), "-I", filepath.Join(root, "src", "default_conf"), sourcePath, "-o", executable}
+		args = append(args, bindCounterWarningPolicy(compiler)...)
 		output, err := exec.Command(compiler, args...).CombinedOutput()
 		require.NoErrorf(t, err, "%s %s\n%s", compiler, strings.Join(args, " "), output)
 		output, err = exec.Command(executable).CombinedOutput()
