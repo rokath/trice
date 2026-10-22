@@ -116,6 +116,11 @@ select_versioned_host_gcc() {
   local directory candidate companion macros
   local search_dirs=()
   IFS=: read -r -a search_dirs <<<"$PATH"
+  # Homebrew can have an installed, unlinked formula outside PATH. Discover
+  # that location through brew itself, without assuming Intel or ARM prefixes.
+  if [ -n "${1:-}" ]; then
+    search_dirs=("$1" "${search_dirs[@]}")
+  fi
   for directory in "${search_dirs[@]}"; do
     [ -n "$directory" ] || directory=.
     for candidate in "$directory"/gcc-[0-9]*; do
@@ -142,15 +147,67 @@ select_versioned_host_gcc() {
   return 1
 }
 
+# Reuse Homebrew's installed formula before offering an explicit system-level
+# install. CI, refusal and EOF never run the package manager's write operation.
+# Installation success alone is insufficient: all frontend probes still run.
+prepare_macos_host_gcc() {
+  local prefix compiler macros install_status
+  local needs_gcc=0
+  for compiler in gcc g++; do
+    macros="$("$compiler" -dM -E -x c - </dev/null 2>/dev/null)" || macros=""
+    if ! printf '%s\n' "$macros" | grep -q '^#define __GNUC__ ' ||
+      printf '%s\n' "$macros" | grep -q '^#define __clang__ '; then
+      needs_gcc=1
+    fi
+  done
+  # Installing GCC does not repair broken SDK headers, Clang or runtime libraries
+  # when both GCC frontends are already present and identified correctly.
+  if [ "$needs_gcc" -eq 0 ]; then
+    log "Hint: genuine GCC is already selected; inspect the compiler/linker/runtime errors above."
+    return 1
+  fi
+  if ! has_command brew; then
+    log "FAIL: full requires genuine GCC; Homebrew is unavailable. Install native GCC/g++ and add their bin directory to PATH, or install Homebrew and rerun."
+    return 1
+  fi
+  prefix="$(brew --prefix --installed gcc 2>>"$LOGFILE")" || prefix=""
+  if [ -z "$prefix" ]; then
+    if ! confirm_tool_install "native GCC and G++ (command: brew install gcc)" "in the Homebrew prefix, outside this checkout"; then
+      log "FAIL: genuine GCC is missing; Homebrew installation was not approved. Install it with 'brew install gcc' and rerun full."
+      return 1
+    fi
+    # Leave unrelated packages and caches alone; never use sudo or force-link
+    # GCC over Apple's system frontends. Print progress even in a quiet suite.
+    env HOMEBREW_NO_INSTALL_UPGRADE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 \
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 brew install gcc 2>&1 | tee -a "$LOGFILE"
+    # PIPESTATUS must be captured directly after the pipeline, before any test.
+    install_status=${PIPESTATUS[0]}
+    if [ "$install_status" -ne 0 ]; then
+      log "FAIL: brew install gcc exited with status $install_status; inspect the installation output in $LOGFILE and rerun."
+      return 1
+    fi
+    prefix="$(brew --prefix --installed gcc 2>>"$LOGFILE")" || prefix=""
+  fi
+  if [ -z "$prefix" ] || ! select_versioned_host_gcc "$prefix/bin"; then
+    log "FAIL: Homebrew GCC has no usable versioned gcc/g++ pair under ${prefix:-<missing prefix>}/bin. Inspect 'brew info gcc' and the installation output."
+    return 1
+  fi
+  check_host_compilers || return 1
+  touch ./temp/tools/host-gcc/.ready || return 1
+  log "Hint: using verified Homebrew GCC through checkout-local aliases; shell profiles and system compiler names are unchanged."
+}
+
 # Preserve working installations. When preparation fails, a supported Windows
 # host can use a complete verified bundle instead of mixing compiler runtimes.
-# Other platforms retain explicit prerequisite failures; system package managers
-# and SDK installers are never run implicitly or with elevated privileges.
+# macOS can install Homebrew GCC with explicit consent; Linux retains explicit
+# prerequisite failures. SDK installers and elevated privileges are never used.
 prepare_host_compilers() {
   local previous_path="$PATH"
   if check_host_compilers; then
     return 0
   fi
+  # A failed cached selection must not stay active in later independent steps.
+  rm -f ./temp/tools/host-gcc/.ready || return 1
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*)
       select_windows_host_test_package || return 1
@@ -176,6 +233,9 @@ prepare_host_compilers() {
       if [ "$SELECTED" = full ] && select_versioned_host_gcc && check_host_compilers; then
         touch ./temp/tools/host-gcc/.ready || return 1
         log "Hint: using checkout-local aliases for versioned GCC; system settings are unchanged."
+        return 0
+      fi
+      if [ "$SELECTED" = full ] && [ "$(uname -s)" = Darwin ] && prepare_macos_host_gcc; then
         return 0
       fi
       log "Hint: Linux needs native GCC/g++ and Clang with development headers; install the matching packages for your distribution."

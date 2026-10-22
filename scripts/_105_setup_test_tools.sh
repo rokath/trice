@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Shared consent and checkout-local installation for pinned test tools.
+# Shared consent and installation helpers for test tools.
 # Callers resolve their repository root before sourcing this helper.
 
 # Keep installed tools visible to child processes, including release hooks.
@@ -11,15 +11,18 @@ export PATH="$TRICE_TOOL_BIN_DIR:$PATH"
 # installation. A terminal stays visible even when the caller redirects logs.
 confirm_tool_install() {
   local description="$1"
+  # System package managers must name their destination instead of promising
+  # a checkout-local installation. Existing tool callers keep their default.
+  local destination="${2:-locally under temp/tools}"
   local answer=""
   if [ -n "${CI:-}" ] && [ "${CI:-}" != "false" ]; then
     printf 'SKIP: %s installation needs confirmation; CI cannot prompt.\n' "$description" >&2
     return 1
   fi
   if [ -t 0 ] && { true >/dev/tty; } 2>/dev/null; then
-    printf '\nInstall %s locally under temp/tools? [y/N] ' "$description" >/dev/tty
+    printf '\nInstall %s %s? [y/N] ' "$description" "$destination" >/dev/tty
   else
-    printf 'Install %s locally under temp/tools? [y/N] ' "$description" >&2
+    printf 'Install %s %s? [y/N] ' "$description" "$destination" >&2
   fi
   # Read the caller's input descriptor, not a reopened Git Bash terminal.
   # Keep EOF distinct from an explicit refusal so quiet logs explain failures.
