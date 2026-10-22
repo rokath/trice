@@ -24,7 +24,9 @@ main() {
   done
 
   init_logfile
-  if ! ensure_cppcheck_test_tool; then
+  # Keep setup diagnostics beside lint output even during quiet aggregate runs.
+  # The shared installer still sends interactive confirmation to the terminal.
+  if ! ensure_cppcheck_test_tool >>"$LOGFILE" 2>&1; then
     log "FAIL: required Cppcheck version 2.22.0 is unavailable"
     exit 1
   fi

@@ -149,6 +149,7 @@ func TestPinnedToolConfirmation(t *testing.T) {
 		accepted        bool
 	}{
 		{"yes", "yes", "false", true},
+		{"windows_yes", "yes\\r", "false", true},
 		{"no", "no", "false", false},
 		{"empty", "", "false", false},
 		{"ci", "yes", "true", false},
@@ -171,13 +172,15 @@ func TestPinnedToolConfirmation(t *testing.T) {
 // TestCppcheckPinnedVersion verifies that the exact analyzer version is accepted
 // and an older version requires consent instead of silently reducing checks.
 func TestCppcheckPinnedVersion(t *testing.T) {
-	t.Run("pinned_version_is_accepted", func(t *testing.T) {
-		root := scriptFixture(t)
-		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\n'\n")
-		output, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool", nil)
-		assert.NoError(t, err, output)
-		assert.NotContains(t, output, "Install Cppcheck")
-	})
+	for _, ending := range []string{"\\n", "\\r\\n"} {
+		t.Run("pinned_version_"+ending, func(t *testing.T) {
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.22.0"+ending+"'\n")
+			output, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool", nil)
+			assert.NoError(t, err, output)
+			assert.NotContains(t, output, "Install Cppcheck")
+		})
+	}
 	t.Run("older_version_requires_confirmation", func(t *testing.T) {
 		root := scriptFixture(t)
 		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.10\\n'\n")
@@ -186,6 +189,116 @@ func TestCppcheckPinnedVersion(t *testing.T) {
 		assert.Contains(t, output, "Install Cppcheck 2.22.0 locally under temp/tools?")
 		assert.Contains(t, output, "Cppcheck 2.22.0 is required")
 	})
+}
+
+// nativeDownloadFixture records downloads and substitutes archive verification.
+// Failure cases cannot reach the network or extract unverified fixture bytes.
+func nativeDownloadFixture(t *testing.T, root string) {
+	t.Helper()
+	writeFixture(t, root, "bin/curl", `#!/bin/sh
+printf '%s\n' "$*" >> download.calls
+[ "${NATIVE_FAIL:-}" != download ] || exit 23
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -o ]; then printf 'fixture archive\n' > "$2"; exit 0; fi
+  shift
+done
+exit 91
+`)
+	writeFixture(t, root, "bin/sha256sum", `#!/bin/sh
+if [ "${NATIVE_FAIL:-}" = checksum ]; then echo 'invalid archive hash'; else printf '%s  %s\n' "$PINNED_DIGEST" "$1"; fi
+`)
+}
+
+// TestCppcheckLocalCache checks both installation layouts with an older system
+// version first in PATH. Cached tools must also be available to child profiles.
+func TestCppcheckLocalCache(t *testing.T) {
+	for _, layout := range []string{"bin/cppcheck", "PFiles/Cppcheck/cppcheck.exe"} {
+		t.Run(layout, func(t *testing.T) {
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
+			writeFixture(t, root, "temp/tools/cppcheck/2.22.0/"+layout, "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\r\\n'\n")
+			out, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool && bash -c 'cppcheck --version'", map[string]string{"CI": "true"})
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "Cppcheck 2.22.0")
+			assert.NotContains(t, out, "Install Cppcheck")
+		})
+	}
+}
+
+// TestCppcheckWindowsSetup verifies local MSI extraction, exact-version and hash
+// rejection, quiet setup logs and reuse without asking or downloading again.
+func TestCppcheckWindowsSetup(t *testing.T) {
+	for _, failure := range []string{"", "download", "checksum", "extract", "runtime_missing", "version"} {
+		t.Run("failure_"+failure, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_520_test_target_code_lint.sh")
+			nativeDownloadFixture(t, root)
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo MINGW64_NT-10.0; else echo x86_64; fi\n")
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
+			writeFixture(t, root, "bin/cygpath", "#!/bin/sh\nprintf '%s\\n' \"$2\"\n")
+			writeFixture(t, root, "bin/cmake", "#!/bin/sh\necho unexpected-cmake; exit 91\n")
+			writeFixture(t, root, "bin/msiexec.exe", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "$MSYS_NO_PATHCONV" = 1 ] || exit 91
+echo native-msi-extraction
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+mkdir -p temp/tools/cppcheck/2.22.0/PFiles/Cppcheck
+cp seed/cppcheck temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/cppcheck.exe
+if [ "${NATIVE_FAIL:-}" != runtime_missing ]; then
+  mkdir -p temp/tools/cppcheck/2.22.0/PFiles/System64
+  for dll in vcruntime140.dll msvcp140.dll; do printf 'bundled runtime\n' > "temp/tools/cppcheck/2.22.0/PFiles/System64/$dll"; done
+fi
+`)
+			writeFixture(t, root, "seed/cppcheck", `#!/bin/sh
+[ -f "${0%/*}/vcruntime140.dll" ] && [ -f "${0%/*}/msvcp140.dll" ] || exit 91
+if [ "$1" = --help ]; then echo --check-level; else printf 'Cppcheck %s\r\n' "$INSTALLED_VERSION"; fi
+`)
+			writeFixture(t, root, "scripts/_290_lint_c_code.sh", "#!/bin/sh\ncppcheck --version | tr -d '\\r' | grep -qx 'Cppcheck 2.22.0' || exit 91\necho profile >> profiles.calls\n")
+			env := map[string]string{
+				"CI": "false", "NATIVE_FAIL": failure, "INSTALLED_VERSION": "2.22.0",
+				"PINNED_DIGEST": "3929162bab7e71d1b9b18708ec054fb0188bfc8ea1660979ed95837f5a9f547b",
+			}
+			if failure == "version" {
+				env["INSTALLED_VERSION"] = "2.21.0"
+			}
+			out, err := runFixture(t, root, "printf 'yes\\r\\n' | bash scripts/_520_test_target_code_lint.sh --quiet", env)
+			assert.Equal(t, failure != "", err != nil, out)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_520_test_target_code_lint.log"))
+			assert.NoError(t, readErr)
+			logText := string(logBytes)
+			assert.NotContains(t, logText, "unexpected-cmake")
+			if failure == "download" || failure == "checksum" {
+				assert.NoFileExists(t, filepath.Join(root, "extract.calls"))
+			} else {
+				calls, readErr := os.ReadFile(filepath.Join(root, "extract.calls"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(calls), "/a ")
+				assert.Contains(t, string(calls), " /qn TARGETDIR=")
+				assert.Contains(t, string(calls), "/L*v ")
+				assert.Contains(t, logText, "native-msi-extraction")
+			}
+			if failure != "" {
+				assert.Contains(t, logText, "FAIL:")
+				assert.NoFileExists(t, filepath.Join(root, "profiles.calls"))
+				if failure == "checksum" {
+					assert.Contains(t, logText, "SHA-256 mismatch")
+				}
+				return
+			}
+			profiles, readErr := os.ReadFile(filepath.Join(root, "profiles.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, 10, strings.Count(string(profiles), "profile\n"))
+			assert.FileExists(t, filepath.Join(root, "temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/vcruntime140.dll"))
+			assert.FileExists(t, filepath.Join(root, "temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/msvcp140.dll"))
+			downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			env["CI"], env["NATIVE_FAIL"] = "true", "download"
+			out, err = runFixture(t, root, "bash scripts/_520_test_target_code_lint.sh --quiet", env)
+			assert.NoError(t, err, out)
+			after, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, string(downloads), string(after))
+		})
+	}
 }
 
 // TestPinnedFormatterCheckInstallation proves that an approved check installs
@@ -2081,6 +2194,63 @@ func TestClangFormatAutomaticSetup(t *testing.T) {
 			assert.Error(t, err, out)
 			assert.Contains(t, out, "Explicit CLANG_FORMAT_BIN")
 		})
+	}
+}
+
+// TestClangFormatWindowsWithoutPython exercises the verified native wheel path,
+// failure boundaries, CRLF version output, architectures and offline cache reuse.
+func TestClangFormatWindowsWithoutPython(t *testing.T) {
+	for _, machine := range []string{"x86_64", "aarch64"} {
+		for _, failure := range []string{"", "download", "checksum", "extract", "version"} {
+			t.Run(machine+"/failure_"+failure, func(t *testing.T) {
+				root, env := clangBootstrapFixture(t, "MINGW64_NT-10.0")
+				nativeDownloadFixture(t, root)
+				env["CI"], env["FAIL_STAGE"], env["NATIVE_FAIL"], env["MACHINE"] = "false", "python", failure, machine
+				env["PINNED_DIGEST"] = "955dd1c09c60a69645e4a21be514d5153b29b9e6f159d7501ad566d7d0dd64bc"
+				wheelPlatform := "win_amd64"
+				if machine == "aarch64" {
+					env["PINNED_DIGEST"] = "bcb607957977ea1504cc1424170a8bb2caaf1b7c8d30b03fbac7e11260cba067"
+					wheelPlatform = "win_arm64"
+				}
+				writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo \"$PLATFORM\"; else echo \"$MACHINE\"; fi\n")
+				writeFixture(t, root, "bin/unzip", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+mkdir -p "$5/clang_format/data/bin"
+cp "$SEED_FORMATTER" "$5/clang_format/data/bin/clang-format.exe"
+`)
+				writeFixture(t, root, "seed/formatter", `#!/bin/sh
+if [ "$1" = --version ]; then printf 'clang-format version %s\r\n' "${INSTALLED_VERSION:-23.1.2}"; fi
+`)
+				if failure == "version" {
+					env["INSTALLED_VERSION"] = "23.1.20"
+				}
+				out, err := runFixture(t, root, "printf 'yes\\r\\n' | bash scripts/_280_format_c_code.sh check", env)
+				assert.Equal(t, failure != "", err != nil, out)
+				assert.NoFileExists(t, filepath.Join(root, "setup.log"), "Python setup must not run")
+				data, readErr := os.ReadFile(filepath.Join(root, "sample.c"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "int value=1;\n", string(data))
+				if failure == "download" || failure == "checksum" {
+					assert.NoFileExists(t, filepath.Join(root, "extract.calls"))
+				}
+				if failure != "" {
+					assert.Contains(t, out, "FAIL:")
+					return
+				}
+				assert.Contains(t, out, "Using clang-format version 23.1.2")
+				downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(downloads), "clang_format-23.1.2-py2.py3-none-"+wheelPlatform+".whl")
+				env["CI"], env["NATIVE_FAIL"] = "true", "download"
+				out, err = runFixture(t, root, "bash scripts/_280_format_c_code.sh check", env)
+				assert.NoError(t, err, out)
+				assert.NotContains(t, out, "SKIP:")
+				after, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, string(downloads), string(after))
+			})
+		}
 	}
 }
 
