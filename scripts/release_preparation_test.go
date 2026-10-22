@@ -113,11 +113,14 @@ func TestCheckoutBuildProtectsBothTools(t *testing.T) {
 // Its GH double refuses an omitted/different tag, so latest fallback cannot pass.
 func TestReleaseAuditSelectsRequestedTag(t *testing.T) {
 	for _, tc := range []struct {
-		name, requested, published string
-		prerelease, draft, missing bool
+		name, requested, published, missingAsset    string
+		prerelease, draft, missing, extraAssets, ok bool
 	}{
-		{name: "beta_selected_explicitly", requested: "v2.0.0-beta-1", published: "v2.0.0-beta-1", prerelease: true},
-		{name: "stable_selected_explicitly", requested: "v2.0.0", published: "v2.0.0"},
+		{name: "beta_selected_explicitly", requested: "v2.0.0-beta-1", published: "v2.0.0-beta-1", prerelease: true, ok: true},
+		{name: "stable_selected_explicitly", requested: "v2.0.0", published: "v2.0.0", ok: true},
+		{name: "multiple_assets_with_spaces", requested: "v2.0.0", published: "v2.0.0", extraAssets: true, ok: true},
+		{name: "missing_downloaded_sources", requested: "v2.0.0", published: "v2.0.0", missingAsset: "trice_target_sources_*.zip"},
+		{name: "missing_downloaded_manual", requested: "v2.0.0", published: "v2.0.0", missingAsset: "TriceUserManual.pdf"},
 		{name: "missing_tag_stops_before_api"},
 		{name: "invalid_tag_stops_before_api", requested: "bad tag"},
 		{name: "missing_release_stops_before_downloads", requested: "v2.0.0-beta-1", missing: true},
@@ -149,8 +152,13 @@ case "$1 $2" in
       esac
     done
     mkdir -p "$directory"
+    # Simulate an incomplete successful download so validation must catch it.
+    [ "$pattern" != "$MISSING_ASSET" ] || exit 0
     filename=$(printf '%s' "$pattern" | sed 's/\*/fixture/g')
     printf 'artifact\n' > "$directory/$filename"
+    if [ "$EXTRA_ASSETS" = true ] && [ "$pattern" = 'trice_target_sources_*.zip' ]; then
+      printf 'artifact\n' > "$directory/trice_target_sources_fixture extra.zip"
+    fi
     ;;
   *) exit 98 ;;
 esac
@@ -159,10 +167,13 @@ esac
 			env := map[string]string{
 				"RELEASE_TAG": tc.requested, "PUBLISHED_TAG": tc.published,
 				"PRERELEASE": booleanText(tc.prerelease), "DRAFT": booleanText(tc.draft), "MISSING_RELEASE": booleanText(tc.missing),
+				"MISSING_ASSET": tc.missingAsset, "EXTRA_ASSETS": booleanText(tc.extraAssets),
 				"GITHUB_OUTPUT": outputFile, "GITHUB_REPOSITORY": "fixture/trice",
 			}
-			out, err := runFixture(t, root, workflowShellStep(t, "release-audit.yml", "Resolve and download selected release assets"), env)
-			if tc.name == "beta_selected_explicitly" || tc.name == "stable_selected_explicitly" {
+			// Keep the macOS Bash 3.2 regression observable on newer Bash hosts too.
+			command := "enable -n mapfile 2>/dev/null || true\n" + workflowShellStep(t, "release-audit.yml", "Resolve and download selected release assets")
+			out, err := runFixture(t, root, command, env)
+			if tc.ok {
 				assert.NoError(t, err, out)
 				outputs, readErr := os.ReadFile(outputFile)
 				assert.NoError(t, readErr)
@@ -171,6 +182,15 @@ esac
 				assert.NoError(t, readErr)
 				assert.Contains(t, string(calls), "release view "+tc.requested+" --repo fixture/trice")
 				assert.Equal(t, 9, strings.Count(string(calls), "release download "+tc.requested+" "))
+				assert.Contains(t, out, "OK downloaded: trice_target_sources_*.zip")
+				if tc.extraAssets {
+					assert.Contains(t, out, "  release-assets/trice_target_sources_fixture.zip\n")
+					assert.Contains(t, out, "  release-assets/trice_target_sources_fixture extra.zip\n")
+				}
+			} else if tc.missingAsset != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "::error::no downloaded release asset matches: "+tc.missingAsset)
+				assert.Contains(t, out, "release-assets/trice_tool_linux_amd64.tar.gz", "list nearby downloaded assets on failure")
 			} else {
 				assert.Error(t, err, out)
 				assert.Contains(t, out, "::error::")
@@ -182,6 +202,130 @@ esac
 			}
 		})
 	}
+}
+
+// releasePDFSetupFixture isolates the real setup and snapshot scripts. Tool
+// doubles refuse rendering and stop the release after checking a captured hook.
+func releasePDFSetupFixture(t *testing.T, installed bool) string {
+	t.Helper()
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_610_test_goreleaser_snapshot.sh")
+	writeFixture(t, root, "docs/TriceUserManual.md", "# User Manual\n")
+	writeFixture(t, root, "docs/rm/README.md", "# Reference Manual\n")
+	writeFixture(t, root, "docs/ref/fixture.txt", "reference\n")
+	writeFixture(t, root, "docs/TriceUserManual.pdf", "existing user PDF\n")
+	writeFixture(t, root, "docs/TriceReferenceManual.pdf", "existing reference PDF\n")
+	writeFixture(t, root, "fixture-stitchmd", "#!/bin/sh\n[ \"$1\" = -version ] || { touch render-called; exit 96; }\necho 'stitchmd 0.9.0'\n")
+	if installed {
+		writeFixture(t, root, "bin/stitchmd", "#!/bin/sh\n[ \"$1\" = -version ] || { touch render-called; exit 96; }\necho 'stitchmd 0.9.0'\n")
+	} else {
+		// Shadow any host installation so a version mismatch always needs consent.
+		writeFixture(t, root, "bin/stitchmd", "#!/bin/sh\necho 'stitchmd 0.8.0'\n")
+	}
+	writeFixture(t, root, "bin/npx", "#!/bin/sh\n[ \"$1\" = --version ] && { echo fixture; exit 0; }\ntouch render-called\nexit 96\n")
+	for _, tool := range []string{"node", "tar", "unzip"} {
+		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho fixture\n")
+	}
+	writeFixture(t, root, "bin/go", `#!/bin/sh
+set -eu
+[ "$1" = install ] || exit 97
+printf '%s\n' "$2" > go-installed
+[ "${FAIL_INSTALL:-0}" = 0 ] || exit 23
+cp fixture-stitchmd "$GOBIN/stitchmd"
+chmod +x "$GOBIN/stitchmd"
+`)
+	writeFixture(t, root, "bin/goreleaser", `#!/bin/sh
+set -eu
+if [ "$1" = --version ]; then echo 'GitVersion: 2.18.3'; exit 0; fi
+[ "$*" = 'release --snapshot --clean' ] || exit 98
+touch release-called
+# A captured hook has no stdin; the caller must already have prepared its tools.
+bash scripts/_320_generate_trice_user_manual_pdf.sh setup </dev/null
+echo 'captured hook found prepared PDF tools'
+exit 23
+`)
+	return root
+}
+
+// TestReleasePDFSetupPreservesOutputs verifies that preflight never assembles
+// or renders either manual and rejects invalid modes before changing artifacts.
+func TestReleasePDFSetupPreservesOutputs(t *testing.T) {
+	for _, mode := range []string{"setup", "unexpected"} {
+		t.Run(mode, func(t *testing.T) {
+			root := releasePDFSetupFixture(t, true)
+			out, err := runFixture(t, root, "bash scripts/_320_generate_trice_user_manual_pdf.sh "+mode, nil)
+			if mode == "setup" {
+				assert.NoError(t, err, out)
+				assert.Contains(t, out, "Manual PDF prerequisites ready: stitchmd 0.9.0 and npx.")
+			} else {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "Usage:")
+			}
+			for name, want := range map[string]string{"TriceUserManual": "existing user PDF\n", "TriceReferenceManual": "existing reference PDF\n"} {
+				data, readErr := os.ReadFile(filepath.Join(root, "docs", name+".pdf"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, want, string(data))
+			}
+			assert.NoFileExists(t, filepath.Join(root, "render-called"))
+			assert.NoFileExists(t, filepath.Join(root, "go-installed"))
+		})
+	}
+}
+
+// TestReleaseSnapshotPreparesToolsBeforeHooks covers existing tools, consent,
+// EOF, CI refusal and install failure before any release hooks can mutate sources.
+func TestReleaseSnapshotPreparesToolsBeforeHooks(t *testing.T) {
+	for _, tc := range []struct {
+		name, answer, failInstall string
+		installed, ci, proceeds   bool
+	}{
+		{name: "already_installed", installed: true, proceeds: true},
+		{name: "approved_local_install", answer: "yes\n", proceeds: true},
+		{name: "declined_install", answer: "no\n"},
+		{name: "no_input"},
+		{name: "failed_install", answer: "yes\n", failInstall: "1"},
+		{name: "ci_does_not_install", answer: "yes\n", ci: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := releasePDFSetupFixture(t, tc.installed)
+			out, err := runFixture(t, root, "printf '%s' \"$TOOL_REPLY\" | bash scripts/_610_test_goreleaser_snapshot.sh", map[string]string{
+				"TOOL_REPLY": tc.answer, "CI": booleanText(tc.ci), "FAIL_INSTALL": tc.failInstall,
+			})
+			assert.Error(t, err, "the release double deliberately stops before building artifacts: %s", out)
+			if tc.proceeds {
+				assert.FileExists(t, filepath.Join(root, "release-called"))
+				assert.Contains(t, out, "captured hook found prepared PDF tools")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "release-called"))
+				assert.Contains(t, out, "FAIL: manual PDF prerequisites unavailable; snapshot build was not started")
+			}
+			if tc.answer == "yes\n" && !tc.ci {
+				data, readErr := os.ReadFile(filepath.Join(root, "go-installed"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "go.abhg.dev/stitchmd@v0.9.0\n", string(data))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "go-installed"))
+			}
+			assert.NoFileExists(t, filepath.Join(root, "render-called"))
+		})
+	}
+}
+
+// TestReleaseSnapshotKeepsSetupPromptVisible exercises the interactive runner
+// with a child awaiting consent. Spinner carriage returns must not erase it.
+func TestReleaseSnapshotKeepsSetupPromptVisible(t *testing.T) {
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+	writeFixture(t, root, "scripts/_610_test_goreleaser_snapshot.sh", "#!/bin/sh\nprintf 'Install fixture? [y/N] '\nsleep 1\nIFS= read -r answer\nprintf 'Received: %s\\n' \"$answer\"\n")
+	out, err := runFixture(t, root, `printf 'yes\n' | {
+source scripts/_110_test_runner.sh
+SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
+TEST_ALL_INTERACTIVE=1
+TEST_ALL_STEP_NUMBER=1 TEST_ALL_STEP_COUNT=1 TEST_ALL_STEP_END_TENTHS=1000
+run_step _610_test_goreleaser_snapshot.sh
+}`, nil)
+	assert.NoError(t, err, out)
+	assert.Contains(t, out, "Install fixture? [y/N] Received: yes\n")
+	assert.NotContains(t, out, "\r", "no spinner frame may overwrite the prompt")
+	assert.Contains(t, out, "_610_test_goreleaser_snapshot.sh: PASS")
 }
 
 // TestSelectedReleaseNotes keeps beta-1 separate from beta-10 and rejects missing
