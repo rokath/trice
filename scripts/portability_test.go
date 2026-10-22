@@ -172,6 +172,19 @@ func TestPinnedToolConfirmation(t *testing.T) {
 // TestCppcheckPinnedVersion verifies that the exact analyzer version is accepted
 // and an older version requires consent instead of silently reducing checks.
 func TestCppcheckPinnedVersion(t *testing.T) {
+	t.Run("version_probe_preserves_installation_answer", func(t *testing.T) {
+		root := scriptFixture(t)
+		// Native tools must not consume the input reserved for the consent prompt.
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nread -r ignored || true\necho 'Cppcheck 2.21.0'\n")
+		command := `printf 'yes\n' | {
+source scripts/_105_setup_test_tools.sh
+install_cppcheck_test_tool() { echo installation-reached; return 23; }
+ensure_cppcheck_test_tool
+}`
+		out, err := runFixture(t, root, command, map[string]string{"CI": "false"})
+		assert.Error(t, err)
+		assert.Contains(t, out, "installation-reached")
+	})
 	for _, ending := range []string{"\\n", "\\r\\n"} {
 		t.Run("pinned_version_"+ending, func(t *testing.T) {
 			root := scriptFixture(t)

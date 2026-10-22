@@ -18,10 +18,14 @@ confirm_tool_install() {
   fi
   if [ -t 0 ] && { true >/dev/tty; } 2>/dev/null; then
     printf '\nInstall %s locally under temp/tools? [y/N] ' "$description" >/dev/tty
-    IFS= read -r answer </dev/tty || return 1
   else
     printf 'Install %s locally under temp/tools? [y/N] ' "$description" >&2
-    IFS= read -r answer || return 1
+  fi
+  # Read the caller's input descriptor, not a reopened Git Bash terminal.
+  # Keep EOF distinct from an explicit refusal so quiet logs explain failures.
+  if ! IFS= read -r answer; then
+    printf 'FAIL: Cannot read confirmation for %s; rerun from an interactive terminal.\n' "$description" >&2
+    return 1
   fi
   # Native Windows terminals can leave CR at the end of an otherwise valid reply.
   answer="${answer%$'\r'}"
@@ -179,7 +183,7 @@ install_cppcheck_test_tool() {
 cppcheck_test_tool_has_required_version() {
   local version_output
   [ -x "$1" ] || return 1
-  version_output="$("$1" --version 2>/dev/null)" || return 1
+  version_output="$("$1" --version </dev/null 2>/dev/null)" || return 1
   [ "${version_output%$'\r'}" = "Cppcheck 2.22.0" ]
 }
 
