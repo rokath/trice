@@ -1072,8 +1072,15 @@ func hostCompilerFixture(t *testing.T, root string) {
 	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
 		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-compiler; exit 0; fi
+if [ "$1" = -dM ]; then echo '#define __GNUC__ 14'; exit 0; fi
 printf '%s %s\n' "${0##*/}" "$*" >> compiler.calls
 cat > probe-source.txt
+if [ "${GCC_IS_CLANG:-0}" = 1 ] && grep -q 'full requires genuine GCC' probe-source.txt; then
+  echo 'full requires genuine GCC, not a Clang compatibility alias' >&2; exit 23
+fi
+if [ "${CLANG_IS_GCC:-0}" = 1 ] && grep -q 'full requires genuine Clang' probe-source.txt; then
+  echo 'full requires genuine Clang' >&2; exit 23
+fi
 if [ "${0##*/}" = "${FAILED_COMPILER:-}" ]; then echo 'missing host header or library' >&2; exit 23; fi
 while [ "$#" -gt 0 ]; do
   if [ "$1" = -o ]; then
@@ -1098,7 +1105,7 @@ func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
 			writeFixture(t, root, "bin/go", "#!/bin/sh\necho fixture-go\n")
 			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
 			writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
-			env := map[string]string{"FAILED_COMPILER": failure}
+			env := map[string]string{"FAILED_COMPILER": failure, "CI": "true"}
 			if failure == "runtime" {
 				env["RUNTIME_STATUS"] = "23"
 			}
@@ -1117,6 +1124,186 @@ func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
 				assert.Contains(t, string(logBytes), "FAIL:")
 				assert.Contains(t, string(logBytes), "Hint: on Windows, check both clang and clang++")
 			}
+		})
+	}
+	t.Run("full_requirements", testFullHostCompilerRequirements)
+	t.Run("versioned_GCC", testVersionedHostGCC)
+	t.Run("local_Windows_bundle", testWindowsHostCompilerBundle)
+}
+
+// hostPreparationFixture isolates the real preparation step from ID workflows,
+// downloads and the developer's installed tools on every test host OS.
+func hostPreparationFixture(t *testing.T, platform string) string {
+	t.Helper()
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_490_test_runtime_prepare.sh")
+	hostCompilerFixture(t, root)
+	writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo '"+platform+"'; else echo x86_64; fi\n")
+	writeFixture(t, root, "bin/go", "#!/bin/sh\nif [ \"$1\" = env ]; then echo \"${HOST_GOARCH:-amd64}\"; else echo fixture-go; fi\n")
+	writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+	writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
+	return root
+}
+
+// testFullHostCompilerRequirements ensures a full run cannot pass through a
+// missing family, a missing C++ frontend, or Apple's GCC-compatible Clang name.
+func testFullHostCompilerRequirements(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT-10.0"} {
+		for _, missing := range []string{"", "gcc", "g++", "clang", "clang++"} {
+			t.Run(platform+"/missing_"+missing, func(t *testing.T) {
+				root := hostPreparationFixture(t, platform)
+				command := `command() {
+  if [ "$1:$2" = "-v:$MISSING_COMPILER" ]; then return 1; fi
+  builtin command "$@"
+}
+export -f command
+bash scripts/_490_test_runtime_prepare.sh --quiet`
+				out, err := runFixture(t, root, command, map[string]string{
+					"SELECTED": "full", "CI": "true", "MISSING_COMPILER": missing,
+				})
+				assert.Equal(t, missing != "", err != nil, out)
+				logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+				assert.NoError(t, readErr)
+				if missing == "" {
+					assert.FileExists(t, filepath.Join(root, "workflow.called"))
+				} else {
+					assert.Contains(t, string(logBytes), "full requires the native "+missing+" frontend")
+					assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				}
+				assert.NoFileExists(t, filepath.Join(root, "download.calls"))
+			})
+		}
+	}
+	t.Run("Clang_alias_is_not_GCC", func(t *testing.T) {
+		root := hostPreparationFixture(t, "Darwin")
+		// The test must still reject the aliases on Linux hosts with a real
+		// versioned GCC in PATH; that installation is not part of this fixture.
+		writeFixture(t, root, "bin/ln", "#!/bin/sh\nexit 23\n")
+		out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{
+			"SELECTED": "full", "CI": "true", "GCC_IS_CLANG": "1",
+		})
+		assert.Error(t, err)
+		assert.Contains(t, out, "full requires genuine GCC")
+		assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+	})
+	t.Run("GCC_alias_is_not_Clang", func(t *testing.T) {
+		root := hostPreparationFixture(t, "Linux")
+		writeFixture(t, root, "bin/ln", "#!/bin/sh\nexit 23\n")
+		out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{
+			"SELECTED": "full", "CI": "true", "CLANG_IS_GCC": "1",
+		})
+		assert.Error(t, err)
+		assert.Contains(t, out, "full requires genuine Clang")
+		assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+	})
+}
+
+// testVersionedHostGCC verifies discovery and child-step reuse without assuming
+// a package-manager prefix. Shell tool doubles keep this portable to Windows CI.
+func testVersionedHostGCC(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin"} {
+		t.Run(platform, func(t *testing.T) {
+			root := hostPreparationFixture(t, platform)
+			for _, compiler := range []string{"gcc", "g++"} {
+				source, err := os.ReadFile(filepath.Join(root, "bin", compiler))
+				assert.NoError(t, err)
+				writeFixture(t, root, "bin/"+compiler+"-14", strings.ReplaceAll(string(source), "${GCC_IS_CLANG:-0}", "0"))
+			}
+			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{
+				"SELECTED": "full", "CI": "true", "GCC_IS_CLANG": "1",
+			})
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "using checkout-local aliases for versioned GCC")
+			assert.FileExists(t, filepath.Join(root, "temp/tools/host-gcc/.ready"))
+			out, err = runFixture(t, root, "source scripts/_100_test_common.sh; command -v gcc; command -v g++", nil)
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "/temp/tools/host-gcc/bin/gcc")
+			assert.Contains(t, out, "/temp/tools/host-gcc/bin/g++")
+		})
+	}
+}
+
+// testWindowsHostCompilerBundle validates architecture selection, verified
+// downloads, refusal/failure handling and reuse in independently started steps.
+// The archive and compilers are doubles; these tests never install a real SDK.
+func testWindowsHostCompilerBundle(t *testing.T) {
+	for _, tc := range []struct{ name, arch, failure, answer string }{
+		{"amd64", "amd64", "", "yes"}, {"386", "386", "", "yes"},
+		{"unsupported_arch", "arm64", "architecture", "yes"},
+		{"declined", "amd64", "declined", "no"},
+		{"download", "amd64", "download", "yes"},
+		{"checksum", "amd64", "checksum", "yes"},
+		{"extract", "amd64", "extract", "yes"},
+		{"missing_frontend", "amd64", "missing_frontend", "yes"},
+		{"broken_bundle", "amd64", "probe", "yes"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := hostPreparationFixture(t, "MINGW64_NT-10.0")
+			nativeDownloadFixture(t, root)
+			// Installed tools are separate from the intentionally broken system Clang.
+			for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
+				source, err := os.ReadFile(filepath.Join(root, "bin", compiler))
+				assert.NoError(t, err)
+				installed := strings.ReplaceAll(string(source), "${FAILED_COMPILER:-}", "${INSTALLED_FAILED_COMPILER:-}")
+				writeFixture(t, root, "seed/"+compiler, installed)
+				writeFixture(t, root, "seed/"+compiler+".exe", installed)
+			}
+			writeFixture(t, root, "seed/clangd.exe", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "bin/unzip", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -d ]; then
+    mkdir -p "$2/$PACKAGE_ROOT/bin"
+    cp seed/* "$2/$PACKAGE_ROOT/bin/" || exit 23
+    if [ "${NATIVE_FAIL:-}" = missing_frontend ]; then rm "$2/$PACKAGE_ROOT/bin/clang++.exe"; fi
+    exit 0
+  fi
+  shift
+done
+exit 91
+`)
+			packageRoot, packageArch := "mingw64", "x86_64-posix-seh"
+			digest := "1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f"
+			if tc.arch == "386" {
+				packageRoot, packageArch = "mingw32", "i686-posix-dwarf"
+				digest = "9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b"
+			}
+			packageDir := "temp/tools/host/winlibs-" + packageArch + "-gcc-16.2.0-llvm-23.1.3-mingw-w64ucrt-14.0.0-r3"
+			env := map[string]string{
+				"SELECTED": "full", "CI": "false", "FAILED_COMPILER": "clang", "HOST_GOARCH": tc.arch,
+				"PINNED_DIGEST": digest, "NATIVE_FAIL": tc.failure, "PACKAGE_ROOT": packageRoot,
+			}
+			if tc.failure == "probe" {
+				env["INSTALLED_FAILED_COMPILER"] = "clang"
+			}
+			out, err := runFixture(t, root, "printf '"+tc.answer+"\\n' | bash scripts/_490_test_runtime_prepare.sh --quiet", env)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, tc.failure != "", err != nil, out+string(logBytes))
+			if tc.failure != "" {
+				assert.NoFileExists(t, filepath.Join(root, packageDir, ".ready"))
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				if tc.failure == "declined" || tc.failure == "architecture" {
+					assert.NoFileExists(t, filepath.Join(root, "download.calls"))
+				}
+				if tc.failure == "checksum" || tc.failure == "download" {
+					assert.NoFileExists(t, filepath.Join(root, "extract.calls"))
+				}
+				return
+			}
+			assert.FileExists(t, filepath.Join(root, packageDir, ".ready"))
+			assert.FileExists(t, filepath.Join(root, "workflow.called"))
+			downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			assert.Contains(t, string(downloads), "winlibs-"+packageArch)
+			env["CI"] = "true"
+			out, err = runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh --quiet && source scripts/_100_test_common.sh && command -v clang", env)
+			assert.NoError(t, err, out)
+			assert.NotContains(t, out, "Install native GCC")
+			assert.Contains(t, out, "/"+packageDir+"/"+packageRoot+"/bin/clang")
+			after, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, string(downloads), string(after), "a verified cache requires neither confirmation nor another download")
 		})
 	}
 }

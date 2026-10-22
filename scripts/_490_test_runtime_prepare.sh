@@ -42,7 +42,17 @@ check_host_compilers() {
     return 1
   }
   for compiler in cc gcc clang c++ g++ clang++; do
-    has_command "$compiler" || continue
+    if ! has_command "$compiler"; then
+      if [ "$SELECTED" = full ]; then
+        case "$compiler" in
+          gcc | g++ | clang | clang++)
+            log "FAIL: full requires the native $compiler frontend; it is missing from PATH"
+            failed=1
+            ;;
+        esac
+      fi
+      continue
+    fi
     case "$compiler" in
       c++ | g++ | clang++)
         language=c++
@@ -58,8 +68,26 @@ int main() { return std::string("trice").size() == strlen("trice") ? 0 : 1; }'
 int main(void) { return strlen("trice") == 5 ? 0 : 1; }'
         ;;
     esac
+    # On macOS, commands named gcc/g++ may actually be Apple Clang. Full mode
+    # requires two real compiler families, not two names for the same frontend.
+    if [ "$SELECTED" = full ]; then
+      case "$compiler" in
+        gcc | g++)
+          source='#if !defined(__GNUC__) || defined(__clang__)
+#error full requires genuine GCC, not a Clang compatibility alias
+#endif
+'"$source"
+          ;;
+        clang | clang++)
+          source='#ifndef __clang__
+#error full requires genuine Clang
+#endif
+'"$source"
+          ;;
+      esac
+    fi
     log "INFO: checking host $language compiler: $(command -v "$compiler")"
-    run_cmd "$compiler" --version || true
+    run_cmd "$compiler" --version </dev/null || true
     if ! printf '%s\n' "$source" | run_cmd "$compiler" "-std=$standard" -O0 -Wall -Wextra -Werror \
       -x "$language" - -o "$probe_dir/host.exe"; then
       log "FAIL: $compiler cannot compile and link a native $language program with standard headers and libraries"
@@ -81,10 +109,90 @@ int main(void) { return strlen("trice") == 5 ? 0 : 1; }'
   fi
 }
 
+# Unix package managers often expose genuine GCC only under versioned names.
+# Discover those in PATH without assuming a Homebrew prefix or a GCC version;
+# aliases stay checkout-local and are activated for child steps only after probes.
+select_versioned_host_gcc() {
+  local directory candidate companion macros
+  local search_dirs=()
+  IFS=: read -r -a search_dirs <<<"$PATH"
+  for directory in "${search_dirs[@]}"; do
+    [ -n "$directory" ] || directory=.
+    for candidate in "$directory"/gcc-[0-9]*; do
+      [ -x "$candidate" ] || continue
+      companion="${candidate%/gcc-*}/g++-${candidate##*/gcc-}"
+      [ -x "$companion" ] || continue
+      macros="$("$candidate" -dM -E -x c - </dev/null 2>/dev/null)" || continue
+      printf '%s\n' "$macros" | grep -q '^#define __GNUC__ ' || continue
+      if printf '%s\n' "$macros" | grep -q '^#define __clang__ '; then
+        continue
+      fi
+      directory="$(cd "$directory" && pwd)" || return 1
+      mkdir -p ./temp/tools/host-gcc/bin || return 1
+      rm -f ./temp/tools/host-gcc/.ready || return 1
+      ln -sf "$directory/${candidate##*/}" ./temp/tools/host-gcc/bin/gcc || return 1
+      ln -sf "$directory/${companion##*/}" ./temp/tools/host-gcc/bin/g++ || return 1
+      PATH="$(pwd)/temp/tools/host-gcc/bin:$PATH"
+      export PATH
+      hash -r
+      log "INFO: checking versioned GCC from $candidate and $companion"
+      return 0
+    done
+  done
+  return 1
+}
+
+# Preserve working installations. When preparation fails, a supported Windows
+# host can use a complete verified bundle instead of mixing compiler runtimes.
+# Other platforms retain explicit prerequisite failures; system package managers
+# and SDK installers are never run implicitly or with elevated privileges.
+prepare_host_compilers() {
+  local previous_path="$PATH"
+  if check_host_compilers; then
+    return 0
+  fi
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*)
+      select_windows_host_test_package || return 1
+      rm -f "$TRICE_HOST_PACKAGE_DIR/.ready" || return 1
+      if ! confirm_tool_install "native GCC 16.2.0 and Clang 23.1.3 with MinGW-w64 runtime (about 400 MB download)"; then
+        log "FAIL: full compiler coverage is unavailable; local GCC/Clang setup was not approved"
+        return 1
+      fi
+      if ! install_windows_host_test_tools >>"$LOGFILE" 2>&1; then
+        log "FAIL: checkout-local GCC/Clang setup failed; inspect the download/extraction diagnostics in $LOGFILE"
+        return 1
+      fi
+      PATH="$(cd "$TRICE_HOST_PACKAGE_BIN" && pwd):$PATH"
+      export PATH
+      hash -r
+      if check_host_compilers; then
+        touch "$TRICE_HOST_PACKAGE_DIR/.ready" || return 1
+        log "Hint: using checkout-local GCC and Clang from $TRICE_HOST_PACKAGE_BIN; system settings are unchanged."
+        return 0
+      fi
+      ;;
+    *)
+      if [ "$SELECTED" = full ] && select_versioned_host_gcc && check_host_compilers; then
+        touch ./temp/tools/host-gcc/.ready || return 1
+        log "Hint: using checkout-local aliases for versioned GCC; system settings are unchanged."
+        return 0
+      fi
+      log "Hint: Linux needs native GCC/g++ and Clang with development headers; install the matching packages for your distribution."
+      log "Hint: macOS needs Xcode Command Line Tools/SDK and genuine GCC (for example Homebrew gcc); put its bin directory in PATH."
+      ;;
+  esac
+  PATH="$previous_path"
+  export PATH
+  hash -r
+  log "FAIL: native GCC/Clang preparation is incomplete; no compiler tests were replaced or counted as passed"
+  return 1
+}
+
 main() {
   init_logfile
   log_runtime_context
-  check_host_compilers || return 1
+  prepare_host_compilers || return 1
   if has_command trice; then
     run_cmd which trice || true
     run_cmd trice version -v || {

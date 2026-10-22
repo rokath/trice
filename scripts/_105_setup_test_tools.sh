@@ -68,6 +68,107 @@ download_pinned_test_tool() {
   fi
 }
 
+# Select a complete native Windows compiler bundle, never an ARM cross-toolchain.
+# Match Go's target architecture when available so the same GCC also serves CGO.
+# Release URLs and SHA-256 values come from the publisher's pinned release:
+# https://github.com/brechtsanders/winlibs_mingw/releases/tag/16.2.0posix-23.1.3-14.0.0-ucrt-r3
+select_windows_host_test_package() {
+  local architecture go_architecture=""
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*) ;;
+    *) return 1 ;;
+  esac
+  architecture="$(uname -m)"
+  if command -v go >/dev/null 2>&1; then
+    go_architecture="$(go env GOARCH </dev/null 2>/dev/null)" || return 1
+    architecture="${go_architecture%$'\r'}"
+  fi
+  case "$architecture" in
+    amd64 | x86_64)
+      TRICE_HOST_PACKAGE_ARCH=x86_64-posix-seh
+      TRICE_HOST_PACKAGE_ROOT=mingw64
+      TRICE_HOST_PACKAGE_SHA256=1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f
+      ;;
+    386 | i686 | i386)
+      TRICE_HOST_PACKAGE_ARCH=i686-posix-dwarf
+      TRICE_HOST_PACKAGE_ROOT=mingw32
+      TRICE_HOST_PACKAGE_SHA256=9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b
+      ;;
+    *)
+      printf 'FAIL: No bundled Windows GCC/Clang toolchain for architecture %s. Provide matching native compilers in PATH.\n' "$architecture" >&2
+      return 1
+      ;;
+  esac
+  TRICE_HOST_PACKAGE="winlibs-$TRICE_HOST_PACKAGE_ARCH-gcc-16.2.0-llvm-23.1.3-mingw-w64ucrt-14.0.0-r3"
+  TRICE_HOST_PACKAGE_DIR="./temp/tools/host/$TRICE_HOST_PACKAGE"
+  TRICE_HOST_PACKAGE_BIN="$TRICE_HOST_PACKAGE_DIR/$TRICE_HOST_PACKAGE_ROOT/bin"
+}
+
+# Reuse only an installation whose compiler/linker/runtime probes succeeded.
+# Each test step loads this selection independently; a child's PATH changes do
+# not propagate back into the runner. No shell code is read from the cache.
+activate_cached_host_test_tools() {
+  local bin=""
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*)
+      # A fresh checkout needs no package/Go architecture lookup at this point.
+      [ -d ./temp/tools/host ] || return 0
+      select_windows_host_test_package || return 0
+      if [ -f "$TRICE_HOST_PACKAGE_DIR/.ready" ]; then
+        bin="$TRICE_HOST_PACKAGE_BIN"
+      fi
+      ;;
+    *)
+      if [ -f ./temp/tools/host-gcc/.ready ]; then
+        bin=./temp/tools/host-gcc/bin
+      fi
+      ;;
+  esac
+  [ -n "$bin" ] || return 0
+  { [ -x "$bin/gcc" ] || [ -x "$bin/gcc.exe" ]; } || return 0
+  { [ -x "$bin/g++" ] || [ -x "$bin/g++.exe" ]; } || return 0
+  PATH="$(cd "$bin" && pwd):$PATH"
+  export PATH
+  hash -r
+}
+
+# Unpack GCC, Clang, their headers and runtime libraries as one verified unit.
+# Extraction is local, needs no administrator rights, and leaves an incomplete
+# cache inactive until the caller has successfully run the host compiler probes.
+install_windows_host_test_tools() {
+  local archive compiler alias_name
+  select_windows_host_test_package || return 1
+  if ! command -v unzip >/dev/null 2>&1; then
+    printf 'FAIL: Local GCC/Clang setup requires unzip (included with Git Bash).\n' >&2
+    return 1
+  fi
+  archive="./temp/tools/downloads/$TRICE_HOST_PACKAGE.zip"
+  download_pinned_test_tool \
+    "https://github.com/brechtsanders/winlibs_mingw/releases/download/16.2.0posix-23.1.3-14.0.0-ucrt-r3/$TRICE_HOST_PACKAGE.zip" \
+    "$archive" "$TRICE_HOST_PACKAGE_SHA256" || return 1
+  mkdir -p "$TRICE_HOST_PACKAGE_DIR" || return 1
+  if ! unzip -q -o "$archive" -d "$TRICE_HOST_PACKAGE_DIR"; then
+    printf 'FAIL: Cannot extract %s into %s; check free disk space and archive diagnostics.\n' "$archive" "$TRICE_HOST_PACKAGE_DIR" >&2
+    return 1
+  fi
+  for compiler in gcc g++ clang clang++ clangd; do
+    if [ ! -x "$TRICE_HOST_PACKAGE_BIN/$compiler.exe" ]; then
+      printf 'FAIL: Compiler bundle is missing %s/%s.exe.\n' "$TRICE_HOST_PACKAGE_BIN" "$compiler" >&2
+      ls -l "$TRICE_HOST_PACKAGE_BIN" >&2 || true
+      return 1
+    fi
+  done
+  # Native Go subprocesses cannot execute shell aliases on Windows. Keep the
+  # generic frontends in the same bin directory as the packaged GCC drivers.
+  for alias_name in cc c++; do
+    compiler=gcc
+    [ "$alias_name" != c++ ] || compiler=g++
+    if [ ! -x "$TRICE_HOST_PACKAGE_BIN/$alias_name.exe" ]; then
+      cp "$TRICE_HOST_PACKAGE_BIN/$compiler.exe" "$TRICE_HOST_PACKAGE_BIN/$alias_name.exe" || return 1
+    fi
+  done
+}
+
 # Install only the requested pinned Go package; never overwrite system tools.
 # The caller checks the resulting executable's identity before using it.
 install_go_test_tool() {

@@ -263,7 +263,7 @@ stop_progress_spinner() {
 # runner's in-place spinner, leaving the user unable to see what needs input.
 step_may_prompt_for_tools() {
   case "$1" in
-    _400_test_shell_format.sh | _430_test_clang_format.sh | _440_test_manual_format.sh | _520_test_target_code_lint.sh | _610_test_goreleaser_snapshot.sh)
+    _400_test_shell_format.sh | _430_test_clang_format.sh | _440_test_manual_format.sh | _490_test_runtime_prepare.sh | _520_test_target_code_lint.sh | _610_test_goreleaser_snapshot.sh)
       return 0
       ;;
     *)

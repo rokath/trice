@@ -190,3 +190,9 @@ export TRICE_BIN_DIR="${TRICE_BIN_DIR:-$(cd "./temp" && pwd)/bin}"
 mkdir -p "$TRICE_TMP_DIR" "$TRICE_BIN_DIR"
 export PATH="$TRICE_BIN_DIR:$PATH"
 export GOCACHE="${GOCACHE:-$(cd "./.gocache" && pwd)}"
+
+# Host tools selected by preparation must also reach every later child step.
+# Loading a verified cache never downloads tools or changes the caller's system.
+# shellcheck source=./_105_setup_test_tools.sh
+source "$SCRIPTS_DIR/_105_setup_test_tools.sh"
+activate_cached_host_test_tools
