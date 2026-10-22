@@ -258,6 +258,20 @@ stop_progress_spinner() {
   fi
 }
 
+# step_may_prompt_for_tools identifies checks that can ask before installing
+# pinned local tools. Their prompts use /dev/tty and would be overwritten by the
+# runner's in-place spinner, leaving the user unable to see what needs input.
+step_may_prompt_for_tools() {
+  case "$1" in
+    _400_test_shell_format.sh | _430_test_clang_format.sh | _440_test_manual_format.sh | _520_test_target_code_lint.sh | _610_test_goreleaser_snapshot.sh)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 run_step() {
   local step="$1"
   shift
@@ -270,7 +284,7 @@ run_step() {
   local step_started=$SECONDS
   local step_elapsed
 
-  if [ "$TEST_ALL_INTERACTIVE" -eq 1 ]; then
+  if [ "$TEST_ALL_INTERACTIVE" -eq 1 ] && ! step_may_prompt_for_tools "$step"; then
     progress_spinner "$step" "$step_started" &
     TEST_ALL_SPINNER_PID=$!
   else

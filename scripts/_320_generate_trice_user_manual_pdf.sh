@@ -5,6 +5,7 @@
 # This is the single PDF generation entry point used by developers, CI, and
 # GoReleaser. It does not require VS Code and writes the PDF where the manual
 # belongs: in docs/. Disposable RM inputs are rebuilt under temp/manual-pdf/.
+# Use `setup` to validate inputs and prepare pinned tools without rendering PDFs.
 
 set -euo pipefail
 
@@ -21,6 +22,14 @@ STITCHMD_VERSION="0.9.0"
 cd "$REPO_ROOT"
 # shellcheck source=./_105_setup_test_tools.sh
 source "$SCRIPT_DIR/_105_setup_test_tools.sh"
+
+# Resolve setup separately so callers can obtain installation consent before
+# launching a release tool whose captured hooks cannot read interactive input.
+MODE="${1:-generate}"
+if [[ "$#" -gt 1 ]] || [[ "$MODE" != generate && "$MODE" != setup ]]; then
+  echo "Usage: $0 [generate|setup]" >&2
+  exit 2
+fi
 
 die() {
   echo "ERROR: $*" >&2
@@ -156,6 +165,11 @@ if ! validate_stitchmd; then
     show_context
     die "$stitchmd_error"
   fi
+fi
+
+if [[ "$MODE" == setup ]]; then
+  echo "Manual PDF prerequisites ready: stitchmd $STITCHMD_VERSION and npx."
+  exit 0
 fi
 
 # Preparation and verification run inside the renderer's npx environment so they
