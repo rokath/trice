@@ -92,7 +92,9 @@ run_feature_example() {
   local relative="$1" status
   shift
   create_feature_copy || return 1
-  run_cmd "$FEATURE_COPY_DIR/project/$relative" "$@" || {
+  # Isolated builds are noninteractive too; native Make must not inherit the
+  # Git Bash terminal even though these copies do not use the managed worker.
+  run_cmd "$FEATURE_COPY_DIR/project/$relative" "$@" </dev/null || {
     status=$?
     log "FAIL: $relative; isolated sources and outputs retained in $FEATURE_COPY_DIR"
     return "$status"

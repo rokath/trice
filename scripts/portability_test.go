@@ -865,14 +865,23 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 			worker, err := os.ReadFile(filepath.Join(root, "worker.sh"))
 			assert.NoError(t, err)
 			localChanges := "printf 'bound RTT source\\n' > examples/F030_inst_rtt/Core/Src/main.c\nprintf 'updated RTT TIL\\n' > examples/F030_inst_rtt/til.json\nprintf 'updated RTT LI\\n' > examples/F030_inst_rtt/li.json\nprintf 'overwrite\\n' > examples/F030_inst_rtt/out/user.o\nprintf 'bound UART header\\n' > examples/F030_inst_uart/Core/Inc/conf.h\nprintf 'updated UART TIL\\n' > examples/F030_inst_uart/til.json\nprintf 'new UART LI\\n' > examples/F030_inst_uart/li.json\nmkdir -p examples/F030_inst_uart/out/sidecars\nprintf 'new UART sidecar\\n' > examples/F030_inst_uart/out/sidecars/generated.h\n"
+			// Preparation may read caller input, but the build worker must receive EOF.
+			writeFixture(t, root, "worker.sh", strings.Replace(string(worker), "#!/bin/bash\n", "#!/bin/bash\nif IFS= read -r unexpected; then echo unexpected-worker-input; exit 91; fi\necho worker-input-is-EOF\n", 1))
+			worker, err = os.ReadFile(filepath.Join(root, "worker.sh"))
+			assert.NoError(t, err)
 			writeFixture(t, root, "worker.sh", strings.Replace(string(worker), tc.workerEnd, localChanges+tc.workerEnd, 1))
-			out, err := runFixture(t, root, "source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
+			preparation, err := os.ReadFile(filepath.Join(root, "trice_bindIDs_in_examples_and_test_folder.sh"))
+			assert.NoError(t, err)
+			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", strings.Replace(string(preparation), "#!/bin/bash\n", "#!/bin/bash\nIFS= read -r answer\n[ \"$answer\" = preparation-input ] || exit 92\necho preparation-received-input\n", 1))
+			out, err := runFixture(t, root, "printf '%s\\n' preparation-input reserved-input | (source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh)", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
 			if tc.name == "success" {
 				assert.NoError(t, err, out)
 			} else {
 				assert.Error(t, err, out)
 			}
 			assert.Contains(t, out, tc.wantStatus)
+			assert.Contains(t, out, "preparation-received-input")
+			assert.Contains(t, out, "worker-input-is-EOF")
 			assert.Contains(t, out, "exact initial files restored")
 			for path, contents := range initial {
 				data, readErr := os.ReadFile(filepath.Join(root, path))
@@ -885,6 +894,154 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestExampleMatricesStopOnCancellation checks both signal exit codes and actual
+// signals while preserving the documented continuation after ordinary failures.
+func TestExampleMatricesStopOnCancellation(t *testing.T) {
+	for _, mode := range []string{"ON", "OFF"} {
+		for _, outcome := range []string{"0", "7", "130", "143", "INT", "TERM"} {
+			t.Run(mode+"/"+outcome, func(t *testing.T) {
+				script := "examples/buildAllTargets_TRICE_" + mode + ".sh"
+				root := scriptFixture(t, script)
+				writeFixture(t, root, "examples/prepareTriceBind.sh", "prepare_trice_bind_build() { :; }\n")
+				first := "F030_bare"
+				if mode == "ON" {
+					first = "DemoData_CSV"
+				}
+				for _, target := range []string{"F030_bare", "G0B1_bare", "L432_bare", "F030_inst", "G0B1_inst", "L432_inst", "DemoData_CSV", "DemoData_Trice"} {
+					writeFixture(t, root, "examples/"+target+"/build.sh", `#!/bin/bash
+name=${PWD##*/}
+printf '%s\n' "$name" >> "$FIXTURE_ROOT/build.calls"
+if [ "$name" = "$FIRST_TARGET" ]; then
+  case "$OUTCOME" in
+    INT | TERM) kill -s "$OUTCOME" "$PPID"; exit 0 ;;
+    *) exit "$OUTCOME" ;;
+  esac
+fi
+`)
+				}
+				out, err := runFixture(t, root, "bash "+script, map[string]string{"FIXTURE_ROOT": root, "FIRST_TARGET": first, "OUTCOME": outcome})
+				want := outcome
+				switch outcome {
+				case "7":
+					want = "1"
+				case "INT":
+					want = "130"
+				case "TERM":
+					want = "143"
+				}
+				if want == "0" {
+					assert.NoError(t, err, out)
+				} else if assert.Error(t, err, out) {
+					assert.Equal(t, "exit status "+want, err.Error(), out)
+				}
+				calls, readErr := os.ReadFile(filepath.Join(root, "build.calls"))
+				assert.NoError(t, readErr)
+				if want == "130" || want == "143" {
+					assert.Equal(t, first+"\n", string(calls), "cancellation must not start another target")
+				} else {
+					assert.Contains(t, string(calls), "L432_inst\n", "ordinary failure must still test later targets")
+				}
+			})
+		}
+	}
+}
+
+// TestBatchWorkersPropagateCancellation prevents --no-stop from swallowing an
+// interrupted child or diagnostic and starting another PC/L432 configuration.
+func TestBatchWorkersPropagateCancellation(t *testing.T) {
+	for _, status := range []string{"130", "143"} {
+		for _, phase := range []string{"pc", "diagnostic", "l432"} {
+			t.Run(phase+"/"+status, func(t *testing.T) {
+				var root, command string
+				env := map[string]string{"TRICE_TEST_NO_STOP": "1", "CANCEL_STATUS": status}
+				if phase == "l432" {
+					root = l432Fixture(t)
+					writeFixture(t, root, "bin/make", "#!/bin/sh\necho called >> ../../events/build.calls\nexit \"$CANCEL_STATUS\"\n")
+					command = "bash examples/L432_inst/all_configs_build.sh"
+					env["TRICE_L432_TEST_JOBS"] = "1"
+				} else {
+					root = pcWorkerFixture(t)
+					data, err := os.ReadFile(filepath.Join(root, "bin/go"))
+					assert.NoError(t, err)
+					// Keep real package discovery and overlay setup; only test execution
+					// returns a controlled cancellation code at the selected phase.
+					writeFixture(t, root, "bin/go", strings.Replace(string(data), "for package; do :; done", `if [ "$CANCEL_PHASE" = pc ]; then exit "$CANCEL_STATUS"; fi
+if [ "$TRICE_PC_TEST_MODE" = line-by-line ]; then exit "$CANCEL_STATUS"; fi
+for package; do :; done`, 1))
+					command = "mkdir -p temp/log; bash scripts/_160_pc_target_test_worker.sh full"
+					env["TRICE_PC_TEST_JOBS"] = "1"
+					env["TRICE_PC_TEST_MODE"] = "auto"
+					env["CANCEL_PHASE"] = phase
+					env["FAIL_B"] = "1"
+				}
+				out, err := runFixture(t, root, command, env)
+				if assert.Error(t, err, out) {
+					assert.Equal(t, "exit status "+status, err.Error(), out)
+				}
+				assert.NoFileExists(t, filepath.Join(root, "events/c.auto.args"))
+				if phase == "l432" {
+					calls, readErr := os.ReadFile(filepath.Join(root, "events/build.calls"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "called\n", string(calls))
+				}
+			})
+		}
+	}
+}
+
+// TestBatchCancellationEscalatesBeforeWaiting models an uncooperative child:
+// waiting is allowed only after KILL, so a blocked wait cannot hide the fallback.
+func TestBatchCancellationEscalatesBeforeWaiting(t *testing.T) {
+	for _, tc := range []struct{ script, setup, cancel string }{
+		{"scripts/_160_pc_target_test_worker.sh", "PC_PIDS=(424242)", "cancel_pc_jobs"},
+		{"examples/L432_inst/all_configs_build.sh", "L432_PIDS=(424242); L432_RUN_DIR=fixture", "cancel_l432_jobs"},
+	} {
+		t.Run(tc.cancel, func(t *testing.T) {
+			root := scriptFixture(t, tc.script)
+			data, err := os.ReadFile(filepath.Join(root, tc.script))
+			assert.NoError(t, err)
+			// Load the actual cancellation function without launching a build matrix.
+			writeFixture(t, root, tc.script, strings.Replace(string(data), "\nmain \"$@\"\n", "\n", 1))
+			out, err := runFixture(t, root, "source "+tc.script+"\n"+tc.setup+`
+terminated=0
+kill() {
+  case "$1" in
+    -TERM) echo TERM; return 0 ;;
+    -0) [ "$terminated" -eq 0 ]; return $? ;;
+    -KILL) echo KILL; terminated=1; return 0 ;;
+    *) exit 93 ;;
+  esac
+}
+sleep() { :; }
+wait() {
+  [ "$terminated" -eq 1 ] || { echo premature-wait; exit 94; }
+  echo reaped
+}
+`+tc.cancel+" 143", nil)
+			if assert.Error(t, err, out) {
+				assert.Equal(t, "exit status 143", err.Error(), out)
+			}
+			assert.Contains(t, out, "TERM\nKILL\nreaped\n")
+			assert.NotContains(t, out, "premature-wait")
+		})
+	}
+}
+
+// TestFeatureBuildsDetachInput covers the isolated feature-build path, which
+// intentionally does not use the managed ID-workflow worker boundary.
+func TestFeatureBuildsDetachInput(t *testing.T) {
+	root, _ := loggingFeatureFixture(t)
+	for _, script := range []string{"examples/PC_features/check_output.sh", "examples/G0B1_features/check_build.sh"} {
+		data, err := os.ReadFile(filepath.Join(root, script))
+		assert.NoError(t, err)
+		writeFixture(t, root, script, strings.Replace(string(data), "set -eu\n", "set -eu\nif IFS= read -r unexpected; then echo unexpected-build-input; exit 91; fi\necho feature-input-is-EOF\n", 1))
+	}
+	out, err := runFixture(t, root, "printf '%s\\n' caller-input | ./scripts/_515_test_logging_features.sh full", nil)
+	assert.NoError(t, err, out)
+	assert.Equal(t, 3, strings.Count(out, "feature-input-is-EOF"), "PC, GCC and Clang builds must each see EOF")
+	assert.NotContains(t, out, "unexpected-build-input")
 }
 
 // TestManagedWorkflowRepeatedInterrupts signals the complete test process group,
@@ -3165,6 +3322,16 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			// also contains warnings that are intentionally no longer fatal.
 			out, err = runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on quick", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log"), "BUILD_STATUS": "23"})
 			assert.Error(t, err, out)
+			if workflow == "bind" {
+				for _, status := range []string{"130", "143"} {
+					out, err = runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log"), "BUILD_STATUS": status})
+					if assert.Error(t, err, out) {
+						assert.Equal(t, "exit status "+status, err.Error(), out)
+					}
+					assert.NotContains(t, out, "standalone examples/PC_log", "cancellation must stop before the second standalone entry")
+					assert.NotContains(t, out, "matrix-bind")
+				}
+			}
 		})
 	}
 }

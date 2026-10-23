@@ -98,6 +98,10 @@ run_standalone_bind_examples() {
       status=$?
     fi
     cat "$entry_log"
+    # Cancellation stops the complete matrix, even with continue-on-failure.
+    case "$status" in
+      130 | 143) return "$status" ;;
+    esac
     printf 'FAIL: standalone examples/%s exited with status %d\n' "$entry" "$status" >&2
     failed=1
   done
@@ -160,6 +164,7 @@ run_off_matrix() {
 main() {
   local mode="${1:-}"
   local selected="${2:-full}"
+  local status
 
   : "${LOGFILE:?LOGFILE must be exported by the GCC workflow wrapper}"
   case "$selected" in
@@ -173,9 +178,12 @@ main() {
   # run while the outer transaction owns Inserted sources with numeric IDs.
   if [ "$mode" = "on" ] && [ "$selected" = "full" ] && [ "${TRICE_ID_WORKFLOW:-}" = "bind" ]; then
     clean_all_targets
-    if ! run_standalone_bind_examples; then
+    if run_standalone_bind_examples; then
+      :
+    else
+      status=$?
       clean_all_targets
-      return 2
+      return "$status"
     fi
     clean_all_targets
   fi

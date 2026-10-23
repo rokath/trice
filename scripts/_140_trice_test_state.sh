@@ -554,7 +554,11 @@ trice_test_run_managed_workflow() {
   trice_test_prepare_workflow "$workflow" || return 1
   trice_test_configure_include_path "$workflow" "$include_mode" || return 1
   trice_state_log "Build/test worker: $worker $*"
-  trice_state_run_command "$worker" "$@" || return $?
+  # All managed workers are noninteractive, including GCC/Clang, PC tests and
+  # configuration matrices. Native Windows Make must not pass a Git Bash terminal
+  # to MSYS recipe shells, which can remain stuck after their compiler exits.
+  # Limit EOF to the worker: preparation and tool-installation prompts retain input.
+  trice_state_run_command "$worker" "$@" </dev/null || return $?
   trice_test_finish 0
 }
 

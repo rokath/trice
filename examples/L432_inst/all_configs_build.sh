@@ -38,6 +38,9 @@ finish_l432_batch() {
     directory="$L432_RUN_DIR/config-$configuration"
     status=0
     wait "${L432_PIDS[index]}" || status=$?
+    case "$status" in
+      130 | 143) cancel_l432_jobs "$status" ;;
+    esac
     L432_FINISHED=$((L432_FINISHED + 1))
     printf '\n--- CONFIGURATION=%s ---\n' "$configuration"
     if [ "$status" -eq 0 ]; then
@@ -71,7 +74,6 @@ cancel_l432_jobs() {
   for pid in "${L432_PIDS[@]}"; do
     kill -TERM -- "-$pid" 2>/dev/null || true
   done
-  for pid in "${L432_PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
   for pid in "${L432_PIDS[@]}"; do
     attempts=0
     while kill -0 -- "-$pid" 2>/dev/null; do
@@ -83,6 +85,9 @@ cancel_l432_jobs() {
       attempts=$((attempts + 1))
     done
   done
+  # Reap only after the bounded grace period; waiting first can block forever
+  # on a child that ignores TERM and prevent the KILL fallback from running.
+  for pid in "${L432_PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
   printf 'L432 matrix cancelled; logs and partial outputs: %s\n' "$L432_RUN_DIR"
   exit "$status"
 }
