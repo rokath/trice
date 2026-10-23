@@ -1603,6 +1603,74 @@ exit 91
 	}
 }
 
+// TestClangWorkerDetachesBuildInput keeps noninteractive Make recipes away from
+// the caller's terminal while preserving build failures and compiler diagnostics.
+func TestClangWorkerDetachesBuildInput(t *testing.T) {
+	for _, tc := range []struct {
+		name                     string
+		cleanStatus, buildStatus int
+		warning                  bool
+	}{
+		{name: "successful_build"},
+		{name: "compiler_warning", warning: true},
+		{name: "clean_failure", cleanStatus: 17},
+		{name: "build_failure", buildStatus: 23},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_180_clang_translation_worker.sh")
+			writeFixture(t, root, "scripts/_150_setup_build_environment.sh", ":\n")
+			writeFixture(t, root, "bin/clang", "#!/bin/sh\necho fixture-clang\n")
+			writeFixture(t, root, "bin/make", `#!/bin/sh
+# Any readable caller input means the worker failed to detach this build phase.
+if IFS= read -r unexpected; then
+  echo "unexpected build input: $unexpected"
+  exit 91
+fi
+echo "EOF for $1"
+case "$1" in
+  clean) exit "$CLEAN_STATUS" ;;
+  probe-build) exit "$BUILD_STATUS" ;;
+  *) exit 92 ;;
+esac
+`)
+			writeFixture(t, root, "examples/G0B1_inst/build_with_clang.sh", "#!/bin/sh\nexec make probe-build\n")
+			logText := ""
+			if tc.warning {
+				logText = "warning: fixture compiler diagnostic\n"
+			}
+			writeFixture(t, root, "worker.log", logText)
+			// The sentinel remains available to the caller even if either build fails.
+			out, err := runFixture(t, root, `export LOGFILE="$PWD/worker.log"
+printf '%s\n' caller-input | (
+  bash scripts/_180_clang_translation_worker.sh
+  status=$?
+  IFS= read -r remaining
+  printf 'remaining input: %s\n' "$remaining"
+  exit "$status"
+)
+`, map[string]string{"CLEAN_STATUS": strconv.Itoa(tc.cleanStatus), "BUILD_STATUS": strconv.Itoa(tc.buildStatus)})
+			wantStatus := tc.cleanStatus
+			if wantStatus == 0 {
+				wantStatus = tc.buildStatus
+			}
+			if wantStatus == 0 {
+				assert.NoError(t, err, out)
+			} else if assert.Error(t, err, out) {
+				assert.Equal(t, "exit status "+strconv.Itoa(wantStatus), err.Error(), out)
+			}
+			assert.Contains(t, out, "EOF for clean")
+			assert.Contains(t, out, "remaining input: caller-input")
+			assert.NotContains(t, out, "unexpected build input")
+			if tc.cleanStatus == 0 {
+				assert.Contains(t, out, "EOF for probe-build")
+			} else {
+				assert.NotContains(t, out, "EOF for probe-build")
+			}
+			assert.Equal(t, tc.warning, strings.Contains(out, "Hint: clang translation completed with compiler warnings"), out)
+		})
+	}
+}
+
 // TestExampleCleanupPreservesFailureStatus executes each affected build script
 // in a disposable checkout. The fake build and ID helpers fail independently,
 // making it observable whether clean errors replace success or mask the
