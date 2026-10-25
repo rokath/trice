@@ -187,7 +187,11 @@ run_go_tests() {
   local audit_command=("$TRICE_TEST_REPORT_BIN" audit "$evidence")
   for name in ${TRICE_REQUIRED_TESTS:-}; do audit_command+=("$name"); done
   log "+ go test -json $*"
-  go test -json "$@" >"$evidence" 2>&1 || status=$?
+  # Setup consent must not change the behavior of tests that exercise prompts.
+  (
+    unset TRICE_TEST_SETUP_APPROVED
+    go test -json "$@"
+  ) >"$evidence" 2>&1 || status=$?
   "${audit_command[@]}" >>"$LOGFILE" 2>&1 || audit_status=$?
   if [ "$QUIET" -eq 0 ]; then
     "${audit_command[@]}" || true
