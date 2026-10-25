@@ -146,6 +146,10 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_BIND_INTEGRATION": "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
 	}
+	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
+	if _, err := os.Stat(reportTool); err == nil {
+		env["TRICE_TEST_REPORT_BIN"] = reportTool
+	}
 	for key, value := range overrides {
 		env[key] = value
 	}
@@ -1457,7 +1461,10 @@ func hostCompilerFixture(t *testing.T, root string) {
 	writeFixture(t, root, "bin/python3", "#!/bin/sh\nexit 0\n")
 	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
 		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
-if [ "$1" = --version ]; then echo fixture-compiler; exit 0; fi
+if [ "$1" = --version ]; then
+  case "${0##*/}" in clang|clang++) echo 'clang version 20.1.7' ;; *) echo fixture-compiler ;; esac
+  exit 0
+fi
 if [ "$1" = -dM ]; then
   echo '#define __GNUC__ 14'
   if [ "${GCC_IS_CLANG:-0}" = 1 ]; then echo '#define __clang__ 1'; fi
@@ -1483,6 +1490,17 @@ done
 exit 91
 `)
 	}
+	// Linux full-mode preparation checks the language server version too.
+	writeFixture(t, root, "bin/clangd", "#!/bin/sh\necho 'clangd version 20.1.7'\n")
+	// The runtime uses testcheck to validate the host Clang identity.
+	writeFixture(t, root, "bin/testcheck-fixture", `#!/bin/sh
+if [ "$1" = identity ]; then
+  output="$("$2" --version 2>/dev/null)" || exit 1
+  case "$output" in *"$3"*) exit 0 ;; esac
+  exit 1
+fi
+exit 0
+`)
 }
 
 // TestRuntimePreparationChecksHostCompilers detects a broken C or C++ frontend
