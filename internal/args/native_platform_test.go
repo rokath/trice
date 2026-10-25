@@ -168,11 +168,17 @@ func TestNativeProjectPathsAndLineEndings(t *testing.T) {
 					require.NoError(t, err)
 					for _, compiler := range []string{"gcc", "clang"} {
 						t.Run(compiler, func(t *testing.T) {
-							executable := filepath.Join(project, "native-target.exe")
+							// Keep the Unicode project path in compiler inputs, but use a
+							// relative linker output: Windows GNU ld cannot reliably open
+							// this absolute Unicode path. Separate outputs also avoid
+							// overwriting a just-run executable while Windows releases it.
+							executable := filepath.Join(project, compiler+"-native-target.exe")
 							args := []string{"-std=c11", "-O0", "-Wall", "-Wextra", "-Werror", "-I", project, "-I", generated, "-I", filepath.Join(root, "src"), "-I", filepath.Join(root, "src/default_conf"), path}
 							args = append(args, library...)
-							args = append(args, "-o", executable)
-							compiled, err := exec.Command(compiler, args...).CombinedOutput()
+							args = append(args, "-o", filepath.Base(executable))
+							compile := exec.Command(compiler, args...)
+							compile.Dir = project
+							compiled, err := compile.CombinedOutput()
 							require.NoError(t, err, "%s", compiled)
 							wire, err := exec.Command(executable).Output()
 							require.NoError(t, err)
