@@ -43,6 +43,7 @@ jobs:
           #   - You can later add more patterns (e.g. './**/*.html') if needed.
           args: >
             --config lychee.toml
+            --include-fragments
             --no-progress
             --remap "https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c file://${{ github.workspace }}/_test/testdata/triceCheck.c"
             .

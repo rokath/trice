@@ -151,7 +151,7 @@ Run commands below from the repository root. Direct steps use the same shared he
 | `./scripts/_630_test_pc_targets_insert.sh full` | Managed complete CGO run with legacy Insert/Clean. |
 | `./scripts/_645_test_pc_targets_clang.sh full` | Complete PC selection with Clang, Insert and Bind. |
 | `./scripts/_620_test_l432_configs.sh` | Managed L432 firmware matrix. |
-| `./scripts/_530_test_links.sh` | Lychee links, including external servers; needs Lychee. |
+| `./scripts/_530_test_links.sh` | Lychee file/web links and their `#anchor` destinations; needs Lychee. |
 | `./scripts/_460_test_goreleaser_config.sh` | Declared GoReleaser configuration contract. |
 
 POSIX-style `NAME=value command` examples also work in Git Bash. In PowerShell set the variable first, for example `$env:TRICE_BIND_INTEGRATION = '1'`, then run the Go command. The full suite enables native integration, CGO and Windows TCP checks itself; a plain `go test` does not provide the same acceptance claim.
@@ -226,7 +226,7 @@ These jobs still serve distinct purposes. They are not all replaced by the nativ
 | [Coverage](../../.github/workflows/coverage.yml) | PR, push to `main`, monthly and manual: Go coverage artifact and Coveralls upload. |
 | [Go](../../.github/workflows/go.yml) | Manual Go build/tests and coverage integration. |
 | [Clang-Format](../../.github/workflows/clang-format.yml), [shfmt](../../.github/workflows/shfmt.yml), [ShellCheck](../../.github/workflows/shellcheck.yml), [Super-Linter](../../.github/workflows/superlinter.yml) | Source/document/configuration checks; each YAML defines its event filters. |
-| [Links](../../.github/workflows/link-check.yml) | Separate local/external link check. Server availability and rate limits can affect it; inspect the actual failing URL. `GITHUB_TOKEN`/`GH_TOKEN` can reduce GitHub throttling locally. |
+| [Links](../../.github/workflows/link-check.yml) | Separate local/external link check, including fragment destinations. Both the local script and CI enable `--include-fragments`. Server availability and rate limits can affect it; inspect the actual failing URL. `GITHUB_TOKEN`/`GH_TOKEN` can reduce GitHub throttling locally. |
 | [CodeQL](../../.github/workflows/codeql.yml) | Go/C/C++ security analysis; complements executable tests. |
 | [Future tool compatibility](../../.github/workflows/tool-compatibility.yml) | Weekly/manual: current stable Go and latest GoReleaser. A maintenance signal for future upgrades, separate from acceptance with declared versions. |
 
