@@ -7,6 +7,13 @@
 TRICE_TOOL_BIN_DIR="$(pwd)/temp/tools/bin"
 export PATH="$TRICE_TOOL_BIN_DIR:$PATH"
 
+# Keep exact versions in one tracked data file. Fixture repositories copy it
+# with this helper so standalone checks use the same contract as the suite.
+# shellcheck source=./test-tools.env
+if [ -f "./scripts/test-tools.env" ]; then
+  source "./scripts/test-tools.env"
+fi
+
 # Ask before downloading a missing version. EOF, an empty answer and CI decline
 # installation. A terminal stays visible even when the caller redirects logs.
 confirm_tool_install() {
@@ -15,6 +22,17 @@ confirm_tool_install() {
   # a checkout-local installation. Existing tool callers keep their default.
   local destination="${2:-locally under temp/tools}"
   local answer=""
+  if [ "${TRICE_TEST_SETUP_APPROVED:-0}" = 1 ] && [ "$destination" = "locally under temp/tools" ]; then
+    return 0
+  fi
+  # CI has no person available to approve a checkout-local download; its
+  # workflow provisions required host packages separately.
+  if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ]; then
+    if [ -n "${CI:-}" ] && [ "${CI:-}" != "false" ] && [ "$destination" = "locally under temp/tools" ]; then
+      printf 'INFO: Preparing %s %s.\n' "$description" "$destination" >&2
+      return 0
+    fi
+  fi
   if [ -n "${CI:-}" ] && [ "${CI:-}" != "false" ]; then
     printf 'SKIP: %s installation needs confirmation; CI cannot prompt.\n' "$description" >&2
     return 1
@@ -33,9 +51,28 @@ confirm_tool_install() {
   # Native Windows terminals can leave CR at the end of an otherwise valid reply.
   answer="${answer%$'\r'}"
   case "$answer" in
-    y | Y | yes | YES) return 0 ;;
+    y | Y | yes | YES)
+      # Reuse the first missing-tool approval for the rest of preparation.
+      # System package consent never authorizes checkout-local setup implicitly.
+      if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ] && [ "$destination" = "locally under temp/tools" ]; then
+        export TRICE_TEST_SETUP_APPROVED=1
+      fi
+      return 0
+      ;;
     *) return 1 ;;
   esac
+}
+
+# Approve one preparation phase for the missing checkout-local test tools.
+# Individual installers reuse this decision, while host package changes still
+# require their own confirmation.
+approve_pinned_test_setup() {
+  [ "${TRICE_TEST_SETUP_APPROVED:-0}" = 1 ] && return 0
+  if ! confirm_tool_install "pinned test tools and compiler bundles"; then
+    printf 'INCOMPLETE: project-local test setup was not approved.\n' >&2
+    return 1
+  fi
+  export TRICE_TEST_SETUP_APPROVED=1
 }
 
 # Download release archives only after caller consent and verify their pinned
@@ -69,6 +106,85 @@ download_pinned_test_tool() {
     printf 'FAIL: SHA-256 mismatch for %s; expected %s, got %s.\n' "$archive" "$expected" "$actual" >&2
     return 1
   fi
+}
+
+# Select the publisher archive and checksum for the pinned Node.js runtime.
+# The runtime stays inside the checkout so this setup never changes system Node.
+ensure_node_test_tool() {
+  local version="${TRICE_NODE_VERSION:?}" platform architecture archive_name archive_url archive_sha sha_var
+  local cache_dir="./temp/tools/node/$version" archive="./temp/tools/downloads"
+  local executable
+  if command -v node >/dev/null 2>&1 && [ "$(node --version 2>/dev/null)" = "v$version" ] &&
+    command -v npm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
+    return 0
+  fi
+  platform="$(uname -s)"
+  architecture="$(uname -m)"
+  case "$platform:$architecture" in
+    Linux:x86_64 | Linux:amd64) archive_name="node-v$version-linux-x64.tar.xz" ;;
+    Linux:aarch64 | Linux:arm64) archive_name="node-v$version-linux-arm64.tar.xz" ;;
+    Darwin:x86_64) archive_name="node-v$version-darwin-x64.tar.gz" ;;
+    Darwin:arm64) archive_name="node-v$version-darwin-arm64.tar.gz" ;;
+    MINGW*:x86_64 | MSYS*:x86_64 | CYGWIN*:x86_64 | MINGW*:amd64 | MSYS*:amd64 | CYGWIN*:amd64)
+      archive_name="node-v$version-win-x64.zip"
+      ;;
+    MINGW*:aarch64 | MSYS*:aarch64 | CYGWIN*:aarch64 | MINGW*:arm64 | MSYS*:arm64 | CYGWIN*:arm64)
+      archive_name="node-v$version-win-arm64.zip"
+      ;;
+    *)
+      printf 'FAIL: no pinned Node.js %s archive is available for %s/%s.\n' "$version" "$platform" "$architecture" >&2
+      return 1
+      ;;
+  esac
+  case "$archive_name" in
+    *linux-x64*) sha_var=TRICE_NODE_SHA256_LINUX_X64 ;;
+    *linux-arm64*) sha_var=TRICE_NODE_SHA256_LINUX_ARM64 ;;
+    *darwin-x64*) sha_var=TRICE_NODE_SHA256_DARWIN_X64 ;;
+    *darwin-arm64*) sha_var=TRICE_NODE_SHA256_DARWIN_ARM64 ;;
+    *win-x64*) sha_var=TRICE_NODE_SHA256_WINDOWS_X64 ;;
+    *win-arm64*) sha_var=TRICE_NODE_SHA256_WINDOWS_ARM64 ;;
+  esac
+  archive_sha="${!sha_var:?}"
+  case "$platform" in
+    MINGW* | MSYS* | CYGWIN*)
+      executable="$cache_dir/node-v$version-win-$(case "$archive_name" in *arm64*) printf arm64 ;; *) printf x64 ;; esac)/node.exe"
+      ;;
+    *)
+      executable="$cache_dir/node-v$version-$(case "$archive_name" in *linux*) printf linux ;; *) printf darwin ;; esac)-$(case "$archive_name" in *arm64*) printf arm64 ;; *x64*) printf x64 ;; esac)/bin/node"
+      ;;
+  esac
+  if [ -x "$executable" ] && [ "$("$executable" --version 2>/dev/null)" = "v$version" ]; then
+    PATH="$(dirname "$executable"):$PATH"
+    export PATH
+    hash -r
+    if command -v npm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+  if ! confirm_tool_install "Node.js $version (about 35 MB download)"; then
+    printf 'FAIL: Node.js %s setup was not approved.\n' "$version" >&2
+    return 1
+  fi
+  archive="$archive/$archive_name"
+  archive_url="https://nodejs.org/download/release/v$version/$archive_name"
+  download_pinned_test_tool "$archive_url" "$archive" "$archive_sha" || return 1
+  mkdir -p "$cache_dir" || return 1
+  case "$archive_name" in
+    *.zip) unzip -q -o "$archive" -d "$cache_dir" || return 1 ;;
+    *) tar -xf "$archive" -C "$cache_dir" || return 1 ;;
+  esac
+  if [ ! -x "$executable" ] || [ "$("$executable" --version 2>/dev/null)" != "v$version" ]; then
+    printf 'FAIL: extracted Node.js runtime did not pass its version check: %s\n' "$executable" >&2
+    return 1
+  fi
+  PATH="$(dirname "$executable"):$PATH"
+  export PATH
+  hash -r
+  if [ "$(node --version)" != "v$version" ] || ! command -v npm >/dev/null 2>&1 || ! command -v npx >/dev/null 2>&1; then
+    printf 'FAIL: checkout-local Node.js installation is missing npm or npx.\n' >&2
+    return 1
+  fi
+  printf 'INFO: selected checkout-local Node.js %s from %s.\n' "$version" "$executable" >&2
 }
 
 # Select Python's official standard-library-only Windows runtime. Its private
@@ -200,19 +316,19 @@ select_windows_host_test_package() {
     amd64 | x86_64)
       TRICE_HOST_PACKAGE_ARCH=x86_64-posix-seh
       TRICE_HOST_PACKAGE_ROOT=mingw64
-      TRICE_HOST_PACKAGE_SHA256=1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f
+      TRICE_HOST_PACKAGE_SHA256="${TRICE_WINDOWS_HOST_SHA_AMD64:-1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f}"
       ;;
     386 | i686 | i386)
       TRICE_HOST_PACKAGE_ARCH=i686-posix-dwarf
       TRICE_HOST_PACKAGE_ROOT=mingw32
-      TRICE_HOST_PACKAGE_SHA256=9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b
+      TRICE_HOST_PACKAGE_SHA256="${TRICE_WINDOWS_HOST_SHA_386:-9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b}"
       ;;
     *)
       printf 'FAIL: No bundled Windows GCC/Clang toolchain for architecture %s. Provide matching native compilers in PATH.\n' "$architecture" >&2
       return 1
       ;;
   esac
-  TRICE_HOST_PACKAGE="winlibs-$TRICE_HOST_PACKAGE_ARCH-gcc-16.2.0-llvm-23.1.3-mingw-w64ucrt-14.0.0-r3"
+  TRICE_HOST_PACKAGE="winlibs-$TRICE_HOST_PACKAGE_ARCH-gcc-${TRICE_GCC_WINDOWS_VERSION:-16.2.0}-llvm-${TRICE_CLANG_WINDOWS_VERSION:-23.1.3}-mingw-w64ucrt-14.0.0-r3"
   TRICE_HOST_PACKAGE_DIR="./temp/tools/host/$TRICE_HOST_PACKAGE"
   TRICE_HOST_PACKAGE_BIN="$TRICE_HOST_PACKAGE_DIR/$TRICE_HOST_PACKAGE_ROOT/bin"
 }
@@ -222,6 +338,9 @@ select_windows_host_test_package() {
 # not propagate back into the runner. No shell code is read from the cache.
 activate_cached_host_test_tools() {
   local bin=""
+  # A prepared native run has already frozen both compiler families. Legacy
+  # cache discovery must not override that selection in a later child step.
+  [ "${TRICE_TEST_FIXED_HOST:-0}" != 1 ] || return 0
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*)
       # A fresh checkout needs no package/Go architecture lookup at this point.
@@ -256,9 +375,12 @@ install_windows_host_test_tools() {
     printf 'FAIL: Local GCC/Clang setup requires unzip (included with Git Bash).\n' >&2
     return 1
   fi
+  if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ]; then
+    approve_pinned_test_setup || return 1
+  fi
   archive="./temp/tools/downloads/$TRICE_HOST_PACKAGE.zip"
   download_pinned_test_tool \
-    "https://github.com/brechtsanders/winlibs_mingw/releases/download/16.2.0posix-23.1.3-14.0.0-ucrt-r3/$TRICE_HOST_PACKAGE.zip" \
+    "https://github.com/brechtsanders/winlibs_mingw/releases/download/${TRICE_WINDOWS_HOST_RELEASE:-16.2.0posix-23.1.3-14.0.0-ucrt-r3}/$TRICE_HOST_PACKAGE.zip" \
     "$archive" "$TRICE_HOST_PACKAGE_SHA256" || return 1
   mkdir -p "$TRICE_HOST_PACKAGE_DIR" || return 1
   if ! unzip -q -o "$archive" -d "$TRICE_HOST_PACKAGE_DIR"; then
@@ -327,7 +449,7 @@ install_windows_cppcheck_test_tool() {
   done
   download_pinned_test_tool \
     "https://github.com/cppcheck-opensource/cppcheck/releases/download/2.22.0/cppcheck-2.22.0-x64-Setup.msi" \
-    "$archive" "3929162bab7e71d1b9b18708ec054fb0188bfc8ea1660979ed95837f5a9f547b" || return 1
+    "$archive" "$TRICE_CPPCHECK_WINDOWS_SHA" || return 1
   mkdir -p "$install_dir" || return 1
   # Disable MSYS argument rewriting only for this native command: /a and /qn
   # are installer options, while all filesystem arguments are converted explicitly.
@@ -356,7 +478,7 @@ install_windows_cppcheck_test_tool() {
 # Use official Windows binaries or build the pinned release on Unix. Both paths
 # keep tools local and independent of the system package-manager version.
 install_cppcheck_test_tool() {
-  local version="2.22.0"
+  local version="${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}"
   local tools_dir
   tools_dir="$(pwd)/temp/tools"
   local source_dir="$tools_dir/src/cppcheck-$version"
@@ -381,7 +503,7 @@ install_cppcheck_test_tool() {
 
   mkdir -p "$tools_dir/src" "$tools_dir/build" || return 1
   if [ ! -d "$source_dir" ]; then
-    if ! curl -fL --retry 3 "https://codeload.github.com/cppcheck-opensource/cppcheck/tar.gz/refs/tags/$version" -o "$archive"; then
+    if ! download_pinned_test_tool "https://codeload.github.com/cppcheck-opensource/cppcheck/tar.gz/refs/tags/$version" "$archive" "$TRICE_CPPCHECK_SOURCE_SHA"; then
       printf 'Could not download the official Cppcheck %s source archive.\n' "$version" >&2
       return 1
     fi
@@ -413,12 +535,12 @@ cppcheck_test_tool_has_required_version() {
   local version_output
   [ -x "$1" ] || return 1
   version_output="$("$1" --version </dev/null 2>/dev/null)" || return 1
-  [ "${version_output%$'\r'}" = "Cppcheck 2.22.0" ]
+  [ "${version_output%$'\r'}" = "Cppcheck ${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}" ]
 }
 
 # Ensure test 520 uses exactly the pinned analyzer, asking before any download.
 ensure_cppcheck_test_tool() {
-  local version="2.22.0"
+  local version="${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}"
   local cppcheck_bin=""
   local candidate
   if command -v cppcheck >/dev/null 2>&1; then

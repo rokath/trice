@@ -15,13 +15,13 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 # Keep both manuals in the shared developer, CI and release rendering path.
 MANUAL_FILES=("docs/TriceUserManual.md" "temp/manual-pdf/TriceReferenceManual.md")
 REF_DIR="docs/ref"
-MD_TO_PDF_PACKAGE="md-to-pdf@5.2.4"
-PUPPETEER_PACKAGE="puppeteer@24.31.0"
-STITCHMD_VERSION="0.9.0"
 
 cd "$REPO_ROOT"
 # shellcheck source=./_105_setup_test_tools.sh
 source "$SCRIPT_DIR/_105_setup_test_tools.sh"
+MD_TO_PDF_PACKAGE="md-to-pdf@${TRICE_TOOL_MD_TO_PDF_VERSION:-5.2.4}"
+PUPPETEER_PACKAGE="puppeteer@${TRICE_TOOL_PUPPETEER_VERSION:-24.31.0}"
+STITCHMD_VERSION="${TRICE_TOOL_STITCHMD_VERSION:-0.9.0}"
 
 # Resolve setup separately so callers can obtain installation consent before
 # launching a release tool whose captured hooks cannot read interactive input.

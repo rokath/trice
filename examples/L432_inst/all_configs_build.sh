@@ -16,6 +16,9 @@ L432_ROOT="$(cd -- "$L432_DIR/../.." && pwd)"
 # Code-generation options match build.sh CONFIGURATION=N. Only expensive text
 # listings are disabled; compiler diagnostics and all binary targets remain.
 build_l432_configuration() {
+  # The parent creates this job's group. Keep make and all compiler descendants
+  # in it; nested job control would create groups outside cancellation's reach.
+  set +m
   local configuration="$1" directory="$2" artifact
   mkdir -p "$directory"
   printf '+ make -j1 GCC_LISTINGS=0 GCC_BUILD=%s TRICE_FLAGS=-DCONFIGURATION=%s gcc\n' "$directory" "$configuration"
@@ -32,15 +35,23 @@ build_l432_configuration() {
 # surrounding managed workflow can restore shared source files and sidecars.
 finish_l432_batch() {
   local index configuration logfile directory status
+  local statuses=()
+  # Reap the complete batch before writing diagnostics. Apple's Bash 3.2 can
+  # interrupt a builtin printf when another short-lived worker sends SIGCHLD.
+  # Keeping collection separate also prevents restoration before all jobs end.
   for ((index = 0; index < ${#L432_PIDS[@]}; index++)); do
-    configuration="${L432_CONFIGURATIONS[index]}"
-    logfile="$L432_RUN_DIR/config-$configuration.log"
-    directory="$L432_RUN_DIR/config-$configuration"
     status=0
     wait "${L432_PIDS[index]}" || status=$?
     case "$status" in
       130 | 143) cancel_l432_jobs "$status" ;;
     esac
+    statuses[index]=$status
+  done
+  for ((index = 0; index < ${#L432_PIDS[@]}; index++)); do
+    configuration="${L432_CONFIGURATIONS[index]}"
+    logfile="$L432_RUN_DIR/config-$configuration.log"
+    directory="$L432_RUN_DIR/config-$configuration"
+    status="${statuses[index]}"
     L432_FINISHED=$((L432_FINISHED + 1))
     printf '\n--- CONFIGURATION=%s ---\n' "$configuration"
     if [ "$status" -eq 0 ]; then
@@ -151,15 +162,19 @@ main() {
   trap 'cancel_l432_jobs 143' TERM
   # An orchestration error must also drain children before the owner restores.
   trap 'finish_l432_on_exit $?' EXIT
-  set -m
   date
   printf 'L432 matrix: configurations=101 jobs=%s make-jobs=1 logs=%s\n' "$L432_JOBS" "$L432_RUN_DIR"
   # Ignore an inherited unlimited MAKEFLAGS jobserver budget. The outer limit
   # bounds the total number of concurrent compile/link commands across make jobs.
   for ((configuration = 0; configuration <= 100; configuration++)); do
     index="${#L432_PIDS[@]}"
+    # Enable job control only while creating the private worker group. On
+    # macOS, leaving it active during foreground reporting can race short jobs
+    # and interrupt builtins such as printf with SIGCHLD.
+    set -m
     build_l432_configuration "$configuration" "$L432_RUN_DIR/config-$configuration" >"$L432_RUN_DIR/config-$configuration.log" 2>&1 &
     L432_PIDS[index]=$!
+    set +m
     L432_CONFIGURATIONS[index]=$configuration
     if [ "${#L432_PIDS[@]}" -ge "$L432_JOBS" ]; then
       finish_l432_batch

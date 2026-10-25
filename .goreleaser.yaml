@@ -299,9 +299,9 @@ homebrew_casks:
       email: 41898282+github-actions[bot]@users.noreply.github.com
     hooks:
       post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/trice"]
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/trice"]
           end
 
 nfpms:

@@ -41,7 +41,7 @@ run_logging_go_checks() {
   local package="$1" name status expression=""
   shift
   for name in "$@"; do expression="${expression:+$expression|}$name"; done
-  run_cmd env TRICE_BIND_INTEGRATION=1 go test "$package" \
+  TRICE_BIND_INTEGRATION=1 TRICE_REQUIRED_TESTS="$*" run_go_tests "$package" \
     -run "^($expression)$" -count=1 -v || {
     status=$?
     log "FAIL: CE/SL integration failed in $package"
@@ -110,7 +110,7 @@ main() {
     log "INFO: productive CE/SL: Bind and Insert/Clean, C/C++, text/JSON/KV, disabled logging and single evaluation"
     run_logging_go_checks ./internal/args \
       TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder \
-      TestOrderedIDsTargetRecordsMatchSourceAndCatalog || return $?
+      TestOrderedIDsTargetRecordsMatchSourceAndCatalog TestNativeProjectPathsAndLineEndings || return $?
     log "INFO: retained CE proofs: direct callsites and the unsupported Rebase scope boundary"
     run_logging_go_checks ./internal/id \
       TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary || return $?

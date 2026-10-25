@@ -1,1 +1,1 @@
-- [L432 instrumented FreeRTOS project: setup](../../docs/rm/examples.md#l432inst)
+- [L432 instrumented FreeRTOS project: setup](../../docs/rm/examples.md#l432_inst)

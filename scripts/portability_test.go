@@ -91,13 +91,35 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 	t.Helper()
 	root := t.TempDir()
 	// Tool setup is shared by standalone checks as well as suite entry points.
-	scripts = append(scripts, "scripts/_105_setup_test_tools.sh")
+	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/test-tools.env")
+	runner := false
 	for _, name := range scripts {
+		runner = runner || name == "scripts/_110_test_runner.sh"
 		data, err := os.ReadFile(filepath.Join("..", name))
 		if !assert.NoError(t, err) {
 			t.FailNow()
 		}
 		writeFixture(t, root, name, string(data))
+		if name == "scripts/_100_test_common.sh" {
+			// These fixtures model orchestration with tool doubles. The helper's
+			// real JSON validation and pinned cache are tested in testcheck.
+			writeFixture(t, root, name, string(data)+`
+ensure_pinned_test_tools() { return 0; }
+run_go_tests() { run_cmd go test "$@"; }
+`)
+		}
+	}
+	if runner {
+		// Runner fixtures exercise orchestration only. The real bootstrap and
+		// report/audit behavior have separate tests and native integration jobs.
+		writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", `prepare_native_test_tools() {
+  export TRICE_TEST_REPORT_BIN="$ROOT/bin/testcheck-fixture"
+  printf 'fixture tool context\n'
+}
+`)
+		writeFixture(t, root, "bin/testcheck-fixture", `#!/bin/sh
+if [ "$1" = report ]; then printf '{"result":"%s"}\n' "$4" > "$2/results.json"; fi
+`)
 	}
 	return root
 }
@@ -119,7 +141,15 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		// compiler matrices in fixtures. Full-mode cases opt in via overrides.
 		"SELECTED": "quick",
 		// A private runtime from the outer suite must not bypass tool doubles.
-		"TRICE_TEST_PYTHON": "",
+		"TRICE_TEST_PYTHON":     "",
+		"TRICE_TEST_AUTO_SETUP": "0", "TRICE_TEST_REPORT_BIN": "",
+		"TRICE_TEST_SETUP_APPROVED": "0",
+		"TRICE_BIND_INTEGRATION":    "0", "TRICE_TEST_NPM_DIR": "",
+		"TRICE_TEST_FIXED_HOST": "0",
+	}
+	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
+	if _, err := os.Stat(reportTool); err == nil {
+		env["TRICE_TEST_REPORT_BIN"] = reportTool
 	}
 	for key, value := range overrides {
 		env[key] = value
@@ -157,6 +187,7 @@ func TestPinnedToolConfirmation(t *testing.T) {
 		{"windows_yes", "yes\\r", "false", true},
 		{"no", "no", "false", false},
 		{"empty", "", "false", false},
+		{"windows_empty", "\\r", "false", false},
 		{"ci", "yes", "true", false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -170,6 +201,186 @@ func TestPinnedToolConfirmation(t *testing.T) {
 				assert.Contains(t, out, "Install shfmt v3.8.0 locally under temp/tools?")
 			}
 			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+		})
+	}
+}
+
+// TestNativeToolConsentIsLazy checks the public tool-selection helper without
+// depending on installed versions or downloading any tools. Cache hits need no
+// input; missing tools share one approval, and setup errors never ask to install.
+func TestNativeToolConsentIsLazy(t *testing.T) {
+	for _, tc := range []struct {
+		name, input                string
+		warm, broken, accepted, ci bool
+		prompts                    int
+	}{
+		{name: "warm_cache_without_input", warm: true, accepted: true},
+		{name: "missing_tools_approved_once", input: "yes\\r\\n", accepted: true, prompts: 1},
+		{name: "missing_tools_declined", input: "no\\n", prompts: 1},
+		{name: "missing_tools_empty_reply", input: "\\n", prompts: 1},
+		{name: "missing_tools_without_input", prompts: 1},
+		{name: "automatic_ci_setup", accepted: true, ci: true},
+		{name: "setup_error_does_not_prompt", broken: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_115_prepare_native_tests.sh")
+			if tc.warm {
+				writeFixture(t, root, "installed-fixture", "verified cache\n")
+				writeFixture(t, root, "installed-another", "verified cache\n")
+			}
+			writeFixture(t, root, "bin/setup-helper", `#!/bin/sh
+[ "$BROKEN_SETUP" != true ] || exit 2
+shift
+probe=false
+if [ "$1" = --no-install ]; then
+  probe=true
+  shift
+fi
+shift 2
+if [ ! -f "$FIXTURE_ROOT/installed-$1" ]; then
+  [ "$probe" != true ] || exit 3
+  echo "$1" >> "$FIXTURE_ROOT/preparations"
+  touch "$FIXTURE_ROOT/installed-$1"
+fi
+printf '%s/bin\n' "$FIXTURE_ROOT"
+`)
+			command := `source scripts/_100_test_common.sh
+# Reload the real selector after the common orchestration fixture's stubs.
+source scripts/_115_prepare_native_tests.sh
+TRICE_TEST_REPORT_BIN="$PWD/bin/setup-helper"
+ensure_pinned_test_tools fixture || exit $?
+ensure_pinned_test_tools another || exit $?
+ensure_pinned_test_tools fixture
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"FIXTURE_ROOT": root, "BROKEN_SETUP": strconv.FormatBool(tc.broken), "CI": strconv.FormatBool(tc.ci),
+				"TRICE_TEST_AUTO_SETUP": "1",
+			})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			assert.Equal(t, tc.prompts, strings.Count(out, "Install pinned test tools and compiler bundles"), out)
+			if tc.accepted && !tc.warm {
+				calls, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "fixture\nanother\n", string(calls), "different missing tools share approval; warm selection installs nothing")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestNativeGoToolchainConsent models Go's launcher with a cached or missing
+// exact toolchain. The offline probe must preserve checksum verification and
+// ask before the launcher is allowed to download a missing toolchain.
+func TestNativeGoToolchainConsent(t *testing.T) {
+	for _, tc := range []struct {
+		name, input    string
+		warm, accepted bool
+	}{
+		{name: "cached_without_input", warm: true, accepted: true},
+		{name: "missing_approved_once", input: "yes\\n", accepted: true},
+		{name: "missing_declined", input: "no\\n"},
+		{name: "missing_without_input"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			if tc.warm {
+				writeFixture(t, root, "installed", "cached toolchain\n")
+			}
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" = version ] && [ "$GOTOOLCHAIN" = go1.25.0 ] || exit 91
+# Disabling checksum verification rejects even a cached Go toolchain.
+[ "${GOSUMDB:-}" != off ] || exit 92
+if [ ! -f installed ]; then
+  [ "${GOPROXY:-}" != off ] || exit 1
+  echo prepared >> preparations
+  touch installed
+fi
+echo 'go version go1.25.0'
+`)
+			command := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+ensure_native_go_toolchain || exit $?
+ensure_native_go_toolchain
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false", "GOSUMDB": "sum.golang.org"})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			prompts := 1
+			if tc.warm {
+				prompts = 0
+			}
+			assert.Equal(t, prompts, strings.Count(out, "Install pinned test tools"), out)
+			if tc.accepted && !tc.warm {
+				data, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "prepared\n", string(data))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestPinnedNpmCacheConsent verifies the separate npm cache boundary: a ready
+// lockfile cache needs no input, and npm ci cannot run before consent.
+func TestPinnedNpmCacheConsent(t *testing.T) {
+	for _, tc := range []struct {
+		name, input    string
+		warm, accepted bool
+	}{
+		{name: "cached_without_input", warm: true, accepted: true},
+		{name: "missing_approved_once", input: "yes\\n", accepted: true},
+		{name: "missing_declined", input: "no\\n"},
+		{name: "missing_without_input"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			writeFixture(t, root, "scripts/testcheck/package.json", "{}\n")
+			writeFixture(t, root, "scripts/testcheck/package-lock.json", "{}\n")
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			writeFixture(t, root, "bin/git", "#!/bin/sh\necho fixture-lock\n")
+			writeFixture(t, root, "bin/markdownlint", "#!/bin/sh\necho 0.49.1\n")
+			writeFixture(t, root, "bin/npm", `#!/bin/sh
+[ "$1" = ci ] && [ "$2" = --prefix ] || exit 91
+echo prepared >> preparations
+mkdir -p "$3/node_modules/.bin"
+cp bin/markdownlint "$3/node_modules/.bin/markdownlint"
+`)
+			if tc.warm {
+				writeFixture(t, root, "temp/tools/npm/26.12.1/fixture-lock/.ready", "fixture-lock\n")
+				writeFixture(t, root, "temp/tools/npm/26.12.1/fixture-lock/node_modules/.bin/markdownlint", "#!/bin/sh\necho 0.49.1\n")
+			}
+			command := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+# Standalone tool selection has its own cache tests; isolate the npm boundary.
+ensure_node_test_tool() { return 0; }
+prepare_pinned_test_selection() { printf -v "$1" '%s' "$PWD/bin"; }
+prepare_pinned_native_tools || exit $?
+prepare_pinned_native_tools
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false"})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			prompts := 1
+			if tc.warm {
+				prompts = 0
+			}
+			assert.Equal(t, prompts, strings.Count(out, "Install pinned test tools"), out)
+			if tc.accepted && !tc.warm {
+				data, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "prepared\n", string(data), "warm npm selection does not reinstall")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
 		})
 	}
 }
@@ -630,6 +841,7 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 		later                              bool
 	}{
 		{"no_arguments_success", "", "0", "PASS", "1", true},
+		{"no_arguments_missing_tool", "", "0", "INCOMPLETE", "1", true},
 		{"no_arguments_continue_after_failure", "", "1", "FAIL", "1", true},
 		{"quick_continues_after_failure_by_default", "quick", "1", "FAIL", "1", true},
 		{"full_continues_after_failure_by_default", "full", "1", "FAIL", "1", true},
@@ -655,28 +867,38 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			firstStep := "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog \"child continuation policy: $TRICE_TEST_NO_STOP\"\n"
 			if tc.status == "1" {
 				firstStep += "log 'EXPECTATION FAILURE triceCheck.c:123 channel=direct'\nlog 'want: hello; got: wrong'\n"
-			} else {
+			} else if strings.Contains(tc.name, "missing_tool") {
 				firstStep += "log 'SKIP: unsupported tool version'\n"
 			}
 			writeFixture(t, root, "scripts/_410_test_first.sh", firstStep+"exit "+tc.status+"\n")
 			writeFixture(t, root, "scripts/_430_test_later.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog executed\n")
 			out, err := runFixture(t, root, "source scripts/_110_test_runner.sh; build_test_plan() { add_plan_step _410_test_first.sh; add_plan_step _430_test_later.sh; }; main "+tc.args, nil)
-			if tc.status == "0" {
+			if tc.status == "0" && tc.result == "PASS" {
 				assert.NoError(t, err, out)
-				assert.Contains(t, out, "WARN")
-				assert.Contains(t, out, "SKIP: unsupported tool version")
 			} else {
 				assert.Error(t, err, out)
 				if exitErr, ok := err.(*exec.ExitError); assert.True(t, ok, out) {
-					assert.Equal(t, tc.status, strconv.Itoa(exitErr.ExitCode()), out)
+					wantStatus := tc.status
+					if tc.result == "INCOMPLETE" {
+						wantStatus = "2"
+						assert.Contains(t, out, "SKIP: unsupported tool version")
+					}
+					assert.Equal(t, wantStatus, strconv.Itoa(exitErr.ExitCode()), out)
 				}
 			}
 			assert.Contains(t, out, "Result: "+tc.result)
+			if tc.args == "" {
+				assert.Contains(t, out, "Selection: full")
+			}
 			// Every completed step, including WARN/FAIL/ABORTED, retains the
 			// same time-prefixed line in stdout and the persistent summary.
-			summary, readErr := os.ReadFile(filepath.Join(root, "temp/log/testAll_summary.log"))
+			runs, readErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*"))
+			if !assert.NoError(t, readErr) || !assert.Len(t, runs, 1) {
+				t.FailNow()
+			}
+			summary, readErr := os.ReadFile(filepath.Join(runs[0], "testAll_summary.log"))
 			assert.NoError(t, readErr)
-			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|WARN|FAIL|ABORTED)$`)
+			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|INCOMPLETE|FAIL|ABORTED)$`)
 			consoleLines := resultLines.FindAllString(out, -1)
 			wantLines := 1
 			if tc.later {
@@ -690,7 +912,7 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			} else {
 				assert.Contains(t, out, "Failure policy: stop after the first failure (--stop)")
 			}
-			firstLog, readErr := os.ReadFile(filepath.Join(root, "temp/log/_410_test_first.log"))
+			firstLog, readErr := os.ReadFile(filepath.Join(runs[0], "_410_test_first.log"))
 			assert.NoError(t, readErr)
 			assert.Contains(t, string(firstLog), "child continuation policy: "+tc.policy)
 			if tc.status == "1" {
@@ -699,11 +921,12 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				assert.Contains(t, out, "EXPECTATION FAILURE triceCheck.c:123 channel=direct")
 				assert.Contains(t, out, "want: hello; got: wrong")
 			}
-			_, err = os.Stat(filepath.Join(root, "temp/log/_430_test_later.log"))
+			_, err = os.Stat(filepath.Join(runs[0], "_430_test_later.log"))
 			assert.Equal(t, tc.later, err == nil, out)
 			for _, name := range []string{"_testAll_07_GoCoverage.log", "_640_test_pc_targets_bind.log", "_600_test_gcc_bind.log.standalone.PC_log", "coverage.out"} {
-				_, err := os.Stat(filepath.Join(root, "temp/log", name))
-				assert.True(t, os.IsNotExist(err), name)
+				data, err := os.ReadFile(filepath.Join(root, "temp/log", name))
+				assert.NoError(t, err)
+				assert.Equal(t, "stale failure", string(data), "previous logs remain independent")
 			}
 			for _, name := range []string{"notes.txt", "application.log", "trice-state.saved/recovery.tar"} {
 				data, err := os.ReadFile(filepath.Join(root, "temp/log", name))
@@ -1089,6 +1312,9 @@ fi
 exec "$REAL_TAR" "$@"
 `)
 				writeFixture(t, root, "worker.sh", `#!/usr/bin/env bash
+# The readiness marker covers signal-handler installation as well as mutation.
+trap 'exit 130' INT
+trap 'exit 143' TERM
 printf 'trice(iD(1234), "msg:hello\\n");\n' > sample.c
 printf 'changed TIL\n' > demoTIL.json
 printf 'changed LI\n' > demoLI.json
@@ -1143,6 +1369,8 @@ wait_for() {
   local attempts=0
   until [ -f "$1" ]; do
     if ! kill -0 "$job" 2>/dev/null || [ "$attempts" -ge 500 ]; then
+      printf 'FAIL: waiting for %s; available handshake files:\n' "$1"
+      find events -type f -print
       cat runner.out
       return 1
     fi
@@ -1177,7 +1405,17 @@ trap - EXIT
 					assert.NotContains(t, out, "initial state was not restored")
 				}
 				assert.NoFileExists(t, filepath.Join(root, "events/later-step"), "cancellation never starts another test")
-				log, readErr := os.ReadFile(filepath.Join(root, "temp/log/_590_test_fixture.log"))
+				logPath := filepath.Join(root, "temp/log/_590_test_fixture.log")
+				if entry != "standalone" {
+					// Aggregate runs retain their own logs, including interrupted runs.
+					matches, globErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*/_590_test_fixture.log"))
+					assert.NoError(t, globErr)
+					if !assert.Len(t, matches, 1) {
+						return
+					}
+					logPath = matches[0]
+				}
+				log, readErr := os.ReadFile(logPath)
 				assert.NoError(t, readErr)
 				assert.Contains(t, string(log), "exact initial files restored")
 				assert.Contains(t, string(log), "end status: "+wantStatus)
@@ -1363,16 +1601,35 @@ case "$1" in
   env) [ "$2" != GOVERSION ] || echo go1.25.0 ;;
   list) echo github.com/rokath/trice/scripts ;;
   test)
-    mkdir -p temp/log
-    printf 'mode: atomic\ngithub.com/rokath/trice/scripts/fixture.go:1.1,1.2 1 1\n' > temp/log/coverage.out
+    for argument; do
+      case "$argument" in
+        -coverprofile=*)
+          profile=${argument#-coverprofile=}
+          mkdir -p "$(dirname "$profile")"
+          printf 'mode: atomic\ngithub.com/rokath/trice/scripts/fixture.go:1.1,1.2 1 1\n' > "$profile"
+          ;;
+      esac
+    done
     ;;
 esac
 `)
-			out, err := runFixture(t, root, "bash scripts/"+step, nil)
+			// A new run owns its raw coverage; older evidence must survive.
+			writeFixture(t, root, "temp/log/coverage.out", "previous coverage evidence\n")
+			runDir := filepath.Join(root, "temp/log/current-run")
+			out, err := runFixture(t, root, "bash scripts/"+step, map[string]string{"LOG_DIR": runDir})
 			assert.NoError(t, err, out)
 			calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
 			assert.NoError(t, err)
-			assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts -timeout=15m")
+			assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts")
+			assert.Contains(t, string(calls), "-timeout=30m")
+			previous, err := os.ReadFile(filepath.Join(root, "temp/log/coverage.out"))
+			assert.NoError(t, err)
+			assert.Equal(t, "previous coverage evidence\n", string(previous))
+			if step == "_550_test_go_coverage.sh" {
+				profile, err := os.ReadFile(filepath.Join(runDir, "coverage.out"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(profile), "mode: atomic")
+			}
 		})
 	}
 }
@@ -1385,7 +1642,10 @@ func hostCompilerFixture(t *testing.T, root string) {
 	writeFixture(t, root, "bin/python3", "#!/bin/sh\nexit 0\n")
 	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
 		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
-if [ "$1" = --version ]; then echo fixture-compiler; exit 0; fi
+if [ "$1" = --version ]; then
+  case "${0##*/}" in clang|clang++) echo 'clang version 20.1.7' ;; *) echo fixture-compiler ;; esac
+  exit 0
+fi
 if [ "$1" = -dM ]; then
   echo '#define __GNUC__ 14'
   if [ "${GCC_IS_CLANG:-0}" = 1 ]; then echo '#define __clang__ 1'; fi
@@ -1411,6 +1671,18 @@ done
 exit 91
 `)
 	}
+	// Linux full-mode preparation checks the language server version too.
+	writeFixture(t, root, "bin/clangd", "#!/bin/sh\necho 'clangd version 20.1.7'\n")
+	// The runtime uses testcheck to validate the host Clang identity.
+	writeFixture(t, root, "bin/testcheck-fixture", `#!/bin/sh
+if [ "$1" = identity ]; then
+  printf '%s %s\n' "${2##*/}" "$3" >> identity.calls
+  output="$("$2" --version 2>/dev/null)" || exit 1
+  case "$output" in *"$3"*) exit 0 ;; esac
+  exit 1
+fi
+exit 0
+`)
 }
 
 // TestRuntimePreparationChecksHostCompilers detects a broken C or C++ frontend
@@ -1421,11 +1693,9 @@ func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
 	t.Setenv("SELECTED", "full")
 	for _, failure := range []string{"", "clang", "clang++", "runtime"} {
 		t.Run("failure_"+failure, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_490_test_runtime_prepare.sh")
-			hostCompilerFixture(t, root)
-			writeFixture(t, root, "bin/go", "#!/bin/sh\necho fixture-go\n")
-			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
+			// Exercise the generic probe diagnostics on every host. Windows
+			// bundle selection/recovery is covered by local_Windows_bundle.
+			root := hostPreparationFixture(t, "Linux")
 			env := map[string]string{"FAILED_COMPILER": failure, "CI": "true"}
 			if failure == "runtime" {
 				env["RUNTIME_STATUS"] = "23"
@@ -1484,11 +1754,16 @@ bash scripts/_490_test_runtime_prepare.sh --quiet`
 				out, err := runFixture(t, root, command, map[string]string{
 					"SELECTED": "full", "CI": "true", "MISSING_COMPILER": missing,
 				})
-				assert.Equal(t, missing != "", err != nil, out)
 				logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
 				assert.NoError(t, readErr)
+				assert.Equal(t, missing != "", err != nil, out+string(logBytes))
 				if missing == "" {
 					assert.FileExists(t, filepath.Join(root, "workflow.called"))
+					if platform == "Linux" {
+						calls, err := os.ReadFile(filepath.Join(root, "identity.calls"))
+						assert.NoError(t, err)
+						assert.Contains(t, string(calls), "clang 20.1.7\nclang++ 20.1.7\nclangd 20.1.7\n")
+					}
 				} else {
 					assert.Contains(t, string(logBytes), "full requires the native "+missing+" frontend")
 					assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
@@ -2467,7 +2742,15 @@ fs.rmSync('docs/rm/b.md');
 assert.throws(() => helper.prepare(marked,process.cwd()), /missing or empty reference source/);
 console.log('PASS: README order, cleanup, sources, code, comments, images, anchors and rejected broken inputs');
 `)
-	out, err := runFixture(t, root, "npx --offline -y --package=md-to-pdf@5.2.4 --package=puppeteer@24.31.0 -c 'node check.cjs'", nil)
+	command := "npx --offline -y --package=md-to-pdf@5.2.4 --package=puppeteer@24.31.0 -c 'node check.cjs'"
+	environment := map[string]string{}
+	if tools := os.Getenv("TRICE_TEST_NPM_DIR"); tools != "" {
+		// Native runs use the checked-in npm lock without depending on a
+		// pre-existing npx cache or performing HTTP during the actual test.
+		command = "node check.cjs"
+		environment["NODE_PATH"] = filepath.Join(tools, "node_modules")
+	}
+	out, err := runFixture(t, root, command, environment)
 	if err != nil && (strings.Contains(out, "ENOTCACHED") || strings.Contains(out, "cache mode is 'only-if-cached'")) {
 		t.Skip("pinned PDF renderer is not cached; this test never downloads npm packages")
 	}
@@ -3269,25 +3552,30 @@ trice_test_run_managed_workflow bind pc unused-worker
 	}
 }
 
-// TestGoReleaserCompatibility exercises numeric minor versions and keeps schema
-// failures distinct from unsupported tool versions, including snapshot preflight.
+// TestGoReleaserCompatibility requires pinned setup before schema validation.
+// Setup failure is incomplete, while an actual configuration error stays fatal.
 func TestGoReleaserCompatibility(t *testing.T) {
-	for _, version := range []string{"v2.9.0", "2.10.0", "v2.100.0", "3.0.0", "unknown"} {
-		t.Run(version, func(t *testing.T) {
+	for _, tc := range []struct{ name, setup, check string }{
+		{"pinned_setup_unavailable", "2", "0"},
+		{"schema_failure", "0", "17"},
+		{"valid_pinned_configuration", "0", "0"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_460_test_goreleaser_config.sh", "scripts/_610_test_goreleaser_snapshot.sh")
-			writeFixture(t, root, "bin/goreleaser", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo \"GitVersion: $VERSION\"; else echo schema-check; exit 17; fi\n")
-			out, err := runFixture(t, root, "bash scripts/_460_test_goreleaser_config.sh", map[string]string{"VERSION": version})
-			unsupported := version == "v2.9.0" || version == "unknown"
-			assert.Equal(t, !unsupported, err != nil, out)
-			if unsupported {
-				assert.Contains(t, out, "SKIP:")
+			common, err := os.ReadFile(filepath.Join(root, "scripts/_100_test_common.sh"))
+			assert.NoError(t, err)
+			writeFixture(t, root, "scripts/_100_test_common.sh", string(common)+`
+ensure_pinned_test_tools() { echo "requested pinned: $*"; return "$SETUP_STATUS"; }
+`)
+			writeFixture(t, root, "bin/goreleaser", "#!/bin/sh\necho schema-check\nexit \"$CHECK_STATUS\"\n")
+			out, err := runFixture(t, root, "bash scripts/_460_test_goreleaser_config.sh", map[string]string{"SETUP_STATUS": tc.setup, "CHECK_STATUS": tc.check})
+			assert.Equal(t, tc.setup != "0" || tc.check != "0", err != nil, out)
+			assert.Contains(t, out, "requested pinned: goreleaser")
+			assert.NotContains(t, out, "SKIP:")
+			if tc.setup != "0" {
 				assert.NotContains(t, out, "schema-check")
-				out, err = runFixture(t, root, "bash scripts/_610_test_goreleaser_snapshot.sh", map[string]string{"VERSION": version})
-				assert.NoError(t, err, out)
-				assert.Contains(t, out, "SKIP:")
 			} else {
 				assert.Contains(t, out, "schema-check")
-				assert.Contains(t, out, "FAIL:")
 			}
 		})
 	}

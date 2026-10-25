@@ -121,35 +121,11 @@ has_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# has_goreleaser_config_support shares the optional prerequisite between config
-# validation and snapshot builds. Old releases cannot read homebrew_casks; their
-# absence of schema support is not a project failure. Real check/build errors
-# from a supported release still propagate from run_cmd.
+# The config and snapshot paths both use the declared release, independent of
+# whichever GoReleaser a developer happens to have installed globally.
 has_goreleaser_config_support() {
-  local version
-  local major
-  local minor
-  if ! has_command goreleaser; then
-    log "MISSING TOOL: goreleaser"
-    log "SKIP: goreleaser not installed locally"
-    return 1
-  fi
-  version="$(goreleaser --version 2>/dev/null | awk '/GitVersion:/ { print $2; exit }')"
-  version="${version#v}"
-  major="${version%%.*}"
-  minor="${version#*.}"
-  minor="${minor%%.*}"
-  case "$major:$minor" in
-    *[!0-9:]* | :* | *:) ;;
-    *)
-      if [ "$major" -gt 2 ] || { [ "$major" -eq 2 ] && [ "$minor" -ge 10 ]; }; then
-        log "INFO: GoReleaser $version ($(command -v goreleaser))"
-        return 0
-      fi
-      ;;
-  esac
-  log "SKIP: GoReleaser >= 2.10 is needed for homebrew_casks; detected ${version:-unknown} ($(command -v goreleaser))."
-  return 1
+  ensure_pinned_test_tools goreleaser || return 2
+  log "INFO: GoReleaser $TRICE_TOOL_GORELEASER_VERSION ($(command -v goreleaser))"
 }
 
 grep_log() {
@@ -183,6 +159,7 @@ get_mode() {
 # Direct step calls default to quick mode. Callers such as _110_test_runner.sh can
 # export SELECTED beforehand to override that default for the whole run.
 export SELECTED="${SELECTED:-quick}"
+export TRICE_TEST_AUTO_SETUP="${TRICE_TEST_AUTO_SETUP:-1}"
 export TRICE_TMP_DIR="${TRICE_TMP_DIR:-$LOG_DIR}"
 export TRICE_TIL_JSON="${TRICE_TIL_JSON:-./demoTIL.json}"
 export TRICE_LI_JSON="${TRICE_LI_JSON:-./demoLI.json}"
@@ -196,3 +173,37 @@ export GOCACHE="${GOCACHE:-$(cd "./.gocache" && pwd)}"
 # shellcheck source=./_105_setup_test_tools.sh
 source "$SCRIPTS_DIR/_105_setup_test_tools.sh"
 activate_cached_host_test_tools
+
+# run_go_tests records the original JSON stream before auditing it. Diagnostics
+# remain readable in the step log, while empty selections and unexpected skips
+# cannot be mistaken for a completed integration run.
+run_go_tests() {
+  local evidence status=0 audit_status=0
+  local name
+  evidence="$(mktemp "$LOGFILE.go.XXXXXX")" || return 2
+  if [ -z "${TRICE_TEST_REPORT_BIN:-}" ]; then
+    prepare_native_test_tools >>"$LOGFILE" 2>&1 || return 2
+  fi
+  local audit_command=("$TRICE_TEST_REPORT_BIN" audit "$evidence")
+  for name in ${TRICE_REQUIRED_TESTS:-}; do audit_command+=("$name"); done
+  log "+ go test -json $*"
+  # Setup consent must not change the behavior of tests that exercise prompts.
+  (
+    unset TRICE_TEST_SETUP_APPROVED
+    go test -json "$@"
+  ) >"$evidence" 2>&1 || status=$?
+  "${audit_command[@]}" >>"$LOGFILE" 2>&1 || audit_status=$?
+  if [ "$QUIET" -eq 0 ]; then
+    "${audit_command[@]}" || true
+  fi
+  [ "$audit_status" -ne 2 ] || return 2
+  [ "$status" -eq 0 ] || return 1
+  return "$audit_status"
+}
+
+# One shared preparation function selects tools for full, quick and native CI.
+# Individual legacy steps keep their documented direct entry points too.
+# shellcheck source=./_115_prepare_native_tests.sh
+if [ -f "$SCRIPTS_DIR/_115_prepare_native_tests.sh" ]; then
+  source "$SCRIPTS_DIR/_115_prepare_native_tests.sh"
+fi

@@ -16,19 +16,9 @@ Contributions are welcome, especially:
 
 ## Tests
 
+Use [Running the Tests](docs/rm/target_tests.md) for the complete suite, focused checks and native CI. [Test Internals](docs/rm/target_test_internals.md#add-or-change-a-test) explains adding cases and maintaining the CGO harness.
+
 Use `github.com/stretchr/testify/assert` for new assertion-style Go tests to keep the test style consistent across the repository.
-
-Run the regular repository checks with:
-
-```sh
-./scripts/testAll.sh
-```
-
-Use `./scripts/testAll.sh full` before a final release-level change that
-affects target C code or compiler configurations. The regular suite already
-includes Go tests and coverage. Its logs and coverage profile are written below
-`temp/log/`; no browser-based test viewer or additional Go test framework is
-required.
 
 ## Continuing a Codex task on another computer
 

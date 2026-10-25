@@ -71,6 +71,13 @@ jobs:
           fi
           echo "Building release tag $RELEASE_TAG at $tag_commit"
 
+      - name: Read shared release tool versions
+        id: tool-versions
+        shell: bash
+        run: |
+          source scripts/test-tools.env
+          printf 'goreleaser=v%s\nnode=%s\nstitchmd=%s\n' "$TRICE_TOOL_GORELEASER_VERSION" "$TRICE_NODE_VERSION" "$TRICE_TOOL_STITCHMD_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
@@ -83,10 +90,10 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: ${{ steps.tool-versions.outputs.node }}
 
       - name: Install PDF chapter assembler
-        run: go install go.abhg.dev/stitchmd@v0.9.0
+        run: go install go.abhg.dev/stitchmd@v${{ steps.tool-versions.outputs.stitchmd }}
 
       - name: Prepare selected release notes
         env:
@@ -125,9 +132,8 @@ jobs:
         with:
           # Use the standard GoReleaser distribution.
           distribution: goreleaser
-          # Install the latest GoReleaser release.
-          # For fully reproducible builds you can pin a specific version here.
-          version: "~> v2"
+          # Use the same declared release as local configuration validation.
+          version: ${{ steps.tool-versions.outputs.goreleaser }}
           # "release --clean" is the modern equivalent of "--rm-dist":
           # it removes the dist/ directory before building, so you never
           # accidentally ship stale artifacts from a previous run.

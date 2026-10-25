@@ -33,7 +33,7 @@ case "${MOCK_GO_RESULT:-pass}" in
   skipped_child) echo '    --- SKIP: TestContextEnrichmentTargetToDecoder/c (0.00s)' ;;
 esac
 case "$2" in
-  ./internal/args) tests='TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder TestOrderedIDsTargetRecordsMatchSourceAndCatalog' ;;
+  ./internal/args) tests='TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder TestOrderedIDsTargetRecordsMatchSourceAndCatalog TestNativeProjectPathsAndLineEndings' ;;
   ./internal/id) tests='TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary' ;;
   ./scripts) tests='TestBindEntrypointIntegration' ;;
   *) echo 'FAIL: unexpected package selection'; exit 8 ;;
@@ -149,7 +149,7 @@ func TestLoggingFeaturesSelectionAndIsolation(t *testing.T) {
 			assert.NoError(t, err)
 			lines := strings.Split(strings.TrimSpace(string(calls)), "\n")
 			assert.Len(t, lines, 3, "each focused Go selection runs once")
-			assert.Contains(t, string(calls), "test ./internal/args -run ^(TestContextEnrichmentTargetToDecoder|TestContextInsertCleanTargetToDecoder|TestOrderedIDsTargetRecordsMatchSourceAndCatalog)$ -count=1 -v | integration=1")
+			assert.Contains(t, string(calls), "test ./internal/args -run ^(TestContextEnrichmentTargetToDecoder|TestContextInsertCleanTargetToDecoder|TestOrderedIDsTargetRecordsMatchSourceAndCatalog|TestNativeProjectPathsAndLineEndings)$ -count=1 -v | integration=1")
 			assert.Contains(t, string(calls), "test ./internal/id -run ^(TestContextEnrichmentPoC|TestContextEnrichmentPoCRebaseScopeBoundary)$ -count=1 -v | integration=1")
 			assert.Contains(t, string(calls), "test ./scripts -run ^(TestBindEntrypointIntegration)$ -count=1 -v | integration=1")
 			assert.NotContains(t, string(calls), "TestContextEnrichmentRebasePoC")

@@ -39,6 +39,10 @@ for d in "${targets[@]}"; do
   echo "${d} with TRICE_OFF=1"
 
   (
+    # Preserve cancellation when the build's immediate parent is this
+    # subshell rather than the outer matrix (notably with macOS Bash).
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
     cd -- "${SCRIPT_DIR}/${d}"
 
     if [[ ! -x ./build.sh ]]; then

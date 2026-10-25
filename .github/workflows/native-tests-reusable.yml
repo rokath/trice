@@ -1,0 +1,93 @@
+name: Native Trice runner
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      selection:
+        type: string
+        required: true
+      race:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Read the shared tool versions
+        id: versions
+        run: |
+          source scripts/test-tools.env
+          printf 'go=%s\nnode=%s\n' "$TRICE_GO_VERSION" "$TRICE_NODE_VERSION" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ steps.versions.outputs.go }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.versions.outputs.node }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Restore verified project tools
+        uses: actions/cache@v5
+        with:
+          path: temp/tools
+          key: native-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/test-tools.env', 'scripts/testcheck/package-lock.json') }}
+      - name: Prepare native system prerequisites
+        run: |
+          set -euo pipefail
+          case "$RUNNER_OS" in
+            Linux)
+              sudo apt-get update
+              sudo apt-get install -y gcc-13 g++-13 clang-18 clangd-18 lld-18 cmake make python3-venv
+              mkdir -p temp/tools/ci-compilers
+              for pair in gcc:gcc-13 g++:g++-13 cc:gcc-13 c++:g++-13 clang:clang-18 clang++:clang++-18 clangd:clangd-18; do
+                ln -sf "$(command -v "${pair#*:}")" "temp/tools/ci-compilers/${pair%%:*}"
+              done
+              printf '%s/temp/tools/ci-compilers\n' "$PWD" >> "$GITHUB_PATH"
+              ;;
+            macOS)
+              # The suite selects the genuine versioned GCC pair. Apple Clang
+              # and the macOS SDK stay native and are probed before all tests.
+              brew install gcc
+              printf '%s/bin\n' "$(brew --prefix gcc)" >> "$GITHUB_PATH"
+              ;;
+            Windows)
+              # testAll prepares one verified GCC/Clang/MinGW bundle when the
+              # installed frontends do not pass the complete runtime probes.
+              cmake --version
+              ;;
+          esac
+      - name: Run the native shared test plan
+        run: bash scripts/testAll.sh '${{ inputs.selection }}'
+      - name: Check concurrent host behavior
+        if: ${{ !cancelled() && inputs.race }}
+        run: |
+          set -euo pipefail
+          mkdir -p temp/log
+          LOG_DIR="$(mktemp -d "$PWD/temp/log/race.XXXXXX")"
+          export LOG_DIR
+          source scripts/_100_test_common.sh
+          init_logfile
+          prepare_native_test_tools > "$LOG_DIR/tools.log" 2>&1
+          run_go_tests -race -count=1 -timeout=20m ./internal/decoder ./internal/emitter ./internal/translator ./internal/vis
+      - name: Upload native evidence even after failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-${{ inputs.runner }}-${{ inputs.selection }}
+          path: temp/log
+          if-no-files-found: error

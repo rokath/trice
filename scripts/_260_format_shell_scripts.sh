@@ -33,7 +33,7 @@ source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 MODE="format"
 VERBOSE=0
-SHFMT_VERSION="v3.8.0"
+SHFMT_VERSION="v${TRICE_TOOL_SHFMT_VERSION:-3.8.0}"
 TOOLS_DIR="$REPO_ROOT/temp/tools"
 SHFMT_BIN="${SHFMT_BIN:-$TOOLS_DIR/shfmt}"
 
@@ -74,7 +74,7 @@ ensure_shfmt() {
       fi
       echo "shfmt check requires $SHFMT_VERSION; detected $("$SHFMT_BIN" --version 2>&1)."
     else
-      echo "MISSING TOOL: shfmt $SHFMT_VERSION"
+      echo "INFO: shfmt $SHFMT_VERSION is not cached; preparing the declared formatter."
     fi
     if ! confirm_tool_install "shfmt $SHFMT_VERSION"; then
       echo "SKIP: canonical shfmt unavailable; installation was not confirmed."

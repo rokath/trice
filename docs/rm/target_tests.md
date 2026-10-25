@@ -1,370 +1,278 @@
-# Testing Trice
+# Testing Trice — Running the Tests
+
+Run `./scripts/testAll.sh` from the repository root for the complete local test suite. It tests the current checkout on the current operating system. Use GitHub's native Windows, Linux and macOS jobs to check the same commit on all three systems.
+
+This chapter covers everyday use, GitHub Actions and release-package checks. [Test Internals](target_test_internals.md) explains the CGO bridge, every PC configuration, cache handling and adding tests.
 
 <details markdown="1">
 <summary>Contents</summary>
 
 <!-- mdtoc -->
 
-* [1. What the tests prove](#what-the-tests-prove)
-* [2. General info](#general-info)
-* [3. How to run the tests](#how-to-run-the-tests)
-  * [3.1. CLion review build](#clion-review-build)
-* [4. Tests Details](#tests-details)
-* [5. How to add new test cases](#how-to-add-new-test-cases)
-* [6. Test Internals](#test-internals)
-  * [6.1. Comparing test duration between computers](#comparing-test-duration-between-computers)
-* [7. Test Results](#test-results)
-* [8. Test Cases](#test-cases)
-  * [8.1. Folder Naming Convention](#folder-naming-convention)
+* [How to run the tests](#how-to-run-the-tests)
+  * [Prepare Windows](#prepare-windows)
+  * [Prepare Linux](#prepare-linux)
+  * [Prepare macOS](#prepare-macos)
+  * [Shared tool rules](#shared-tool-rules)
+* [What full and quick cover](#what-full-and-quick-cover)
+* [Read results and diagnose failures](#read-results-and-diagnose-failures)
+* [Run a focused local check](#run-a-focused-local-check)
+  * [Inspect Go coverage](#inspect-go-coverage)
+  * [CLion review build](#clion-review-build)
+* [GitHub Actions](#github-actions)
+  * [Native acceptance on all three systems](#native-acceptance-on-all-three-systems)
+  * [Other test workflows](#other-test-workflows)
+* [GoReleaser and release-package testing](#goreleaser-and-release-package-testing)
+  * [Check a local snapshot](#check-a-local-snapshot)
+  * [Understand the installation and release audit jobs](#understand-the-installation-and-release-audit-jobs)
+  * [Before accepting a release candidate](#before-accepting-a-release-candidate)
+* [Documentation history](#documentation-history)
 
-<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
+<!-- numbering=false min=2 max=3 slug=github anchor=false link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
 </details>
 
-## 1. <a id="what-the-tests-prove"></a>What the tests prove
+## How to run the tests
 
-CGO is Go's interface to compiled C. These tests compile the real Trice C library with a host C compiler, call it from Go and pass the resulting bytes through the real host decoder.
+Use Bash on Linux and macOS, and Git Bash on Windows:
 
-```text
-triceCheck.c + triceConfig.h + Trice library
-                    │ host C compiler / CGO
-                    ▼
-            real binary records
-                    │ host logger + matching TIL
-                    ▼
-             decoded log text
-                    │ compare with //exp: on each test site
-                    ▼
-              PASS or mismatch
+```sh
+./scripts/testAll.sh
 ```
 
-| Layer | Evidence | Boundary |
+The default is **full**. The suite checks installed tools and `temp/tools` first. If a project-local tool needs installation or repair, it asks once during preparation; later runs with valid tools need no answer. Empty input or EOF declines installation. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
+
+| Command | Use |
+| --- | --- |
+| `./scripts/testAll.sh` | Full native suite; normal final check before sharing a change. |
+| `./scripts/testAll.sh quick` | Shorter feedback while editing; still includes real C execution with GCC and Clang. |
+| `./scripts/testAll.sh full` | Explicit spelling of the default. |
+| `./scripts/testAll.sh quick --stop` | Stop after the first failed step. |
+| `./scripts/testAll.sh --no-stop` | Explicitly continue after failures; this is already the default. |
+
+From PowerShell, use `bash ./scripts/testAll.sh` to start the same runner. Direct Go commands also work in PowerShell; the compiler and runtime still need to be available to Go.
+
+Do not run two suites, ID-maintenance scripts or the repository formatter in the same checkout at the same time. The suite holds a checkout lock. Separate Git worktrees can run independently. Ctrl+C stops the active work and waits for source restoration; let that finish before starting another run.
+
+### Prepare Windows
+
+Use Git for Windows with Git Bash, native Go, Make, CMake and Python support. The suite can install the declared Node.js version into `temp/tools` after approval. Have `tar`, `unzip`, `curl` and the usual shell utilities available in Git Bash.
+
+The test environment uses a matching **GCC/Clang/MinGW-w64** compiler and runtime set. When the global compilers do not match the declared set, preparation can install the complete project-local bundle under `temp/tools`. An arbitrary `clang.exe` on `PATH` is insufficient: both C and C++ must compile, link and run with matching headers and libraries. See [Windows compiler selection](development_environment_setup.md#choose-the-right-windows-compiler) for diagnosing a mixed installation.
+
+Keep shell scripts in LF form as specified by [.gitattributes](../../.gitattributes). The tests themselves create both LF and CRLF source files, so Git cannot silently normalize away the cases being tested. Native Windows tests also exercise `/` and `\`, PowerShell/cmd argument passing, local TCP, and rollback when a source file is held open with incompatible sharing permissions.
+
+### Prepare Linux
+
+Install the basic tools listed above and a working C/C++ development environment. The suite prepares the declared native GCC archive in its project cache and can install the declared Node.js version after approval. If Clang is missing or unsupported, the suite asks before installing it through apt, dnf or pacman. Its version must still match one of the supported releases, and system headers and runtime libraries must be present. The [native CI setup](../../.github/workflows/native-tests-reusable.yml) shows the Ubuntu package prerequisites.
+
+Linux checks run as Linux processes on the native filesystem. They include shell signals, case-sensitive filenames, real compiler output, local TCP/UDP and file replacement. WSL or a Linux container supplies Linux evidence even when its host is Windows or macOS.
+
+### Prepare macOS
+
+Install the Xcode Command Line Tools with their SDK, the basic tools listed above, and the declared genuine GCC version. Apple `gcc` is normally another name for Clang and does not count as the GCC compiler family. The suite finds a matching versioned `gcc-N`/`g++-N` pair and creates run-local aliases; it does not replace Apple's tools.
+
+Apple Clang, Clang++ and clangd must match a supported SDK toolchain. Exact supported versions live in [test-tools.env](../../scripts/test-tools.env); `tools.log` records the selected SDK and executables. Missing SDKs and system packages are reported before the test steps and are not installed with administrator rights by the suite.
+
+The native filesystem test detects whether the actual volume is case-sensitive. Two spellings of the same source must retain IDs; two distinct case-sensitive files must remain separate. macOS ARM and Intel are separate execution targets. An ARM build or a cross-built Intel archive alone is not proof of an Intel run.
+
+### Shared tool rules
+
+All three systems use [test-tools.env](../../scripts/test-tools.env) for tool versions and archive checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for the existing Node tools. The suite also prepares the complete ARM cross-toolchain, formatters and analyzers. Network access is needed when a required cache entry is absent. A failed download or incompatible prerequisite makes the run INCOMPLETE.
+
+Use the preparation log's diagnosis rather than installing a random newer tool. Keep `C_INCLUDE_PATH` unset globally: ARM headers must not leak into native CGO builds. Go, Node, system SDKs and basic build utilities remain explicit prerequisites; project-local tool preparation does not make every possible host installation supported.
+
+## What full and quick cover
+
+| Check | Quick | Full |
 | --- | --- | --- |
-| Go unit tests | Parser, dictionary, decoder and host behavior. | Not target timing or C coverage. |
-| PC/CGO matrix | Actual C records decoded under many configurations. | Host execution, not MCU peripheral behavior. |
-| Firmware build matrix | Code compiles/links for target configurations. | Does not flash or execute a board. |
-| Hardware checks | Actual transport, interrupt behavior and timing. | Require the corresponding board and setup. |
+| Shell/C/Go/Markdown/manual formatting, ShellCheck, Actionlint, Cppcheck, GoReleaser configuration | Required | Required |
+| Build the current tools; probe C/C++ compilers by compiling, linking and executing | Required | Required |
+| Go package tests and Go coverage | Required | Required |
+| Native CLI paths, Unicode/spaces, LF/CRLF, filesystem aliases and platform-specific checks | Required | Required |
+| Bind behavior; CE/SL compiler-to-decoder checks; PC, ABC and firmware feature examples | Required | Required; additional G0B1 Clang build |
+| Clang firmware/example matrix | Bind | Insert and Bind |
+| GCC firmware/example matrix | Selected Bind examples | TRICE_OFF, Insert and Bind |
+| PC/CGO configurations, for **each** of GCC and Clang | Three representative packages, Bind | All 63 packages, Insert and Bind |
+| L432 firmware configurations | Not selected | All 101, numbered 0 through 100 |
+| External HTTP links and release snapshot packages | Separate checks | Separate checks |
 
-## 2. <a id="general-info"></a>General info
+Quick's PC packages are `ringB_de_multi_cobs_ua`, `abc_rx_host` and `abc_tx_host`. Quick still exercises both ID workflows in focused feature/integration checks; it does not run the complete legacy PC Insert matrix. The [runner](../../scripts/_110_test_runner.sh) owns the actual step selection.
 
-The `_test` directory reduces VS Code indexing work and excludes the slow C matrices from `go test ./...`. Run `./scripts/testAll.sh` to include them.
+| Test layer | What a pass tells you |
+| --- | --- |
+| Go tests | Host parsing, dictionaries, decoding, command behavior and script orchestration work for the exercised cases. |
+| PC/CGO | Real Trice C code emits records that the host decoder understands under the selected configuration. |
+| Firmware builds | The selected MCU code compiles and links, including the expected output artifacts. |
+| Native OS checks | The exercised file, path, process and network operations work on that runner. |
+| Hardware tests | Actual UART/RTT, interrupt timing and board behavior; require the corresponding hardware and are not supplied by a host build. |
 
-The matrices compile and run target code under different compiler switches, automating configuration checks.
+## Read results and diagnose failures
 
-`scripts/testAll.sh quick` performs the standard Bind compiler matrices and focused CE/SL checks for both Bind and Insert/Clean. `scripts/testAll.sh full` also runs the complete legacy Insert/Clean and extended compiler matrices; its duration depends strongly on the host. The runner orders short checks before long matrices and shows a hardware-independent percentage of expected relative test work. On an interactive terminal, a spinner changes in place every few seconds during a long step; it does not add repeated log lines or claim a time-based ETA.
+Each suite invocation keeps its own `temp/log/testAll.XXXXXX` directory. The console prints the exact path. Earlier logs and recovery directories are retained.
 
-When `shfmt`, `clang-format`, `mdtoc v1.0.3`, `stitchmd`, or Cppcheck 2.22.0 has no suitable version, the relevant check asks before installing the pinned tool under `temp/tools`. Cppcheck is built from its official source release and requires CMake, curl, tar, and a C++ compiler. Target-code linting requires `--check-level=exhaustive`; an older Cppcheck version cannot report a passing result. Without confirmation, the relevant test fails.
+| Result | Exit | Meaning |
+| --- | --- | --- |
+| PASS | 0 | All required checks for the selected scope ran and passed. |
+| FAIL | 1 | A check found a failure. Later successful steps do not erase it. |
+| INCOMPLETE | 2 | Preparation or required test evidence is missing. |
+| ABORTED | 130 / 143 | Interrupted by INT / TERM; inspect restoration messages before resuming work. |
 
-Each result line shows the elapsed time for that script before its name, with right-aligned minutes and seconds: `[24/26 | ~ 76.7%] (  4m 30s) _620_test_l432_configs.sh: PASS`. The format is `(%3dm%3ds)`; four hours appear as `(240m  0s)`. This measures elapsed time including any preparation and restoration performed by the script, not accumulated CPU time or time since the entire suite started. The same column appears for `WARN`, `FAIL` and `ABORTED`, and is saved in `temp/log/testAll_summary.log`. The interactive spinner updates the current script's elapsed time in place.
+Start with the first failed step and its log, rather than the last line of a long compiler trace. The displayed time belongs to that step, including its preparation and restoration. The percentage estimates relative test work, not remaining wall-clock time.
 
-Both selections include [step 515](../../scripts/_515_test_logging_features.sh), which runs the existing compiler-to-decoder CE/SL checks and the feature examples:
+| File in the run directory | Contents |
+| --- | --- |
+| `testAll_summary.log` | Selected scope, step results, duration and final state check. |
+| `tools.log` | Tool selection, versions, compiler/runtime probes, SDK and preparation errors. |
+| `results.json` | Machine-readable scope, OS/architecture, commit, dirty flag, tool context and step results/log paths. |
+| `_NNN_test_*.log` | Detailed output for one test step. |
+| `*.go.*` | Original Go JSON events used to check actual execution and skips. |
+| `coverage.out` | Go coverage profile belonging to this run. |
+| `pc-*` and `clang/pc-*` | Per-configuration PC logs, overlays and retained failure data. |
 
-Check | Evidence
---- | ---
-`TestContextEnrichmentTargetToDecoder` and `TestContextInsertCleanTargetToDecoder` | Real C/C++ records, text/JSON/KV output, structured fields, stamps, reversible Insert/Clean, disabled logging and exactly-once argument evaluation.
-`TestContextEnrichmentPoC` and `TestContextEnrichmentPoCRebaseScopeBoundary` | Retained proofs for direct callsites and the scope limitation of the existing Rebase dispatcher.
-[PC feature example](../../examples/PC_features/check_output.sh) | Runtime string, fields, stamps/deltas, CE, tag filtering and KV output from the built example.
-[G0B1 feature example](../../examples/G0B1_features/check_build.sh) | Firmware build, task-context adapter, runtime-string and structured-field metadata, nonempty ELF/HEX/BIN artifacts. This does not execute the firmware on an MCU.
+PASS is checked against Go's test events: an unknown skip or a required test that never ran prevents acceptance. A small [explicit exception list](../../scripts/testcheck/main.go) handles genuine platform differences, such as POSIX signal tests on Windows and PowerShell/cmd tests on other systems. It does not allow a missing compiler to count as success.
 
-The compiler/decoder checks require Go, Clang, Clang++ and clangd. The examples require the current repository's `trice` tool, Git and tar; the PC example needs `cc` or `gcc`, and G0B1 needs Make and ARM GNU GCC/objcopy/size with its bare-metal libraries. In `quick`, an unavailable group is explicitly skipped and the runner shows `WARN`. In `full`, missing tools make this step fail. A selected Go test that reports `SKIP`, or fails to report its named `PASS`, is also an error. This prevents an empty test selection from appearing to validate the features. The shared Library CI workflow invokes this same step in `full` mode.
+The suite restores initial source, TIL, LI and generated-header bytes and verifies the checkout at the end, including relevant new inputs. This also protects pre-existing local edits. Recovery data is retained when restoration cannot complete. A forced process kill or power loss cannot run shell cleanup; inspect the recorded recovery directory in that case.
 
-The example checks run in a fresh copy under `temp/log/logging-features.*`. It contains the current bytes of tracked sources, including uncommitted source edits, and the same relative layout as the checkout. Existing captures, generated directories and object files are not reused or modified. Successful copies are removed; failed copies remain for inspection. Details are written to `temp/log/_515_test_logging_features.log`. Run just this acceptance step from the repository root with:
+For a PC mismatch, open the configuration's `output.log`. It identifies the source expectation, expected and actual text, compiler context and reproduction command. A bulk mismatch also retains binary/text output and triggers a line-by-line diagnostic run. Even if that rerun passes, the original bulk failure remains a failure. See [CGO execution and diagnostics](target_test_internals.md#execute-and-compare-records).
 
-```bash
-./scripts/_480_test_build_trice_tool.sh
-./scripts/_515_test_logging_features.sh full
-```
+## Run a focused local check
 
-The larger experimental CE Rebase/Wrapper proof remains a separate, explicit investigation. It does not establish productive support for those constructs. To rerun it with the locally available compiler variants:
+Run commands below from the repository root. Direct steps use the same shared helpers, but do not all perform the suite's complete preparation and result audit. Read `SKIP` and `MISSING TOOL` messages; a standalone exit 0 can still mean a check was skipped.
 
-```bash
-TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentRebasePoC$' -count=1 -v
-```
+| Command | Checks |
+| --- | --- |
+| `go test -count=1 ./...` | Ordinary Go packages; `_test` is excluded by Go's directory discovery rule. Optional compiler integration remains opt-in. |
+| `TRICE_BIND_INTEGRATION=1 go test -count=1 ./internal/args ./internal/id ./scripts` | Go packages with their native compiler/integration checks enabled. |
+| `./scripts/_500_test_bind.sh` | Bind-focused behavior and generated-code checks. |
+| `./scripts/_515_test_logging_features.sh full` | CE/SL compiler-to-decoder checks and feature examples. Build the current tool with `_480_test_build_trice_tool.sh` first if needed. |
+| `./scripts/_640_test_pc_targets_bind.sh quick` | Managed representative CGO run with Bind. Use `full` for every configuration. |
+| `./scripts/_630_test_pc_targets_insert.sh full` | Managed complete CGO run with legacy Insert/Clean. |
+| `./scripts/_645_test_pc_targets_clang.sh full` | Complete PC selection with Clang, Insert and Bind. |
+| `./scripts/_620_test_l432_configs.sh` | Managed L432 firmware matrix. |
+| `./scripts/_530_test_links.sh` | Lychee file/web links and their `#anchor` destinations; needs Lychee. |
+| `./scripts/_460_test_goreleaser_config.sh` | Declared GoReleaser configuration contract. |
 
-It reports unavailable compiler variants and optional clangd evidence; missing variants are not platform acceptance. Ordinary Go unit/coverage runs continue to cover SL parser/renderer behavior; step 515 selects only the additional compiler checks instead of repeating those suites.
+POSIX-style `NAME=value command` examples also work in Git Bash. In PowerShell set the variable first, for example `$env:TRICE_BIND_INTEGRATION = '1'`, then run the Go command. The full suite enables native integration, CGO and Windows TCP checks itself; a plain `go test` does not provide the same acceptance claim.
 
-The PC matrix uses four independent configuration processes by default. Set `TRICE_PC_TEST_JOBS=1` for serial execution or choose another positive limit. ID preparation and source restoration remain sequential. A failing configuration stops at its first mismatch. `testAll.sh` continues with the remaining configurations and test steps by default (`--no-stop`), but the final result remains `FAIL` if any check failed. Use `--stop` to stop after the first failure; cancellation always stops the run. Failure summaries include source references, expected/actual output and the detailed log path.
+| Control | Default | When useful |
+| --- | --- | --- |
+| `TRICE_PC_TEST_JOBS` | 4 | Limit independent configuration processes; use 1 for serial diagnosis. |
+| `TRICE_PC_TEST_MODE` | `auto` | Use `line-by-line` to diagnose an individual expectation path. |
+| `TRICE_L432_TEST_JOBS` | Detected CPU budget; fallback 4 | Bound concurrent compiler/linker commands. Each configuration uses `make -j1`. |
+| `GOCACHE` | Existing value; otherwise suite-local `.gocache` | Reuse compiled Go/C artifacts. Tests still execute with `-count=1`. |
 
-For example, from the repository root:
+For example:
 
-```bash
-TRICE_PC_TEST_JOBS=4 ./scripts/_640_test_pc_targets_bind.sh full
-TRICE_PC_TEST_JOBS=1 TRICE_PC_TEST_MODE=line-by-line ./scripts/_630_test_pc_targets_insert.sh full
-```
-
-The second command explicitly selects the diagnostic single-expectation path. Normal runs use `TRICE_PC_TEST_MODE=auto`: bulk where packet boundaries are preserved, single-expectation decoding for unframed or special configurations. All expectations remain enabled.
-
-The L432 matrix builds all 101 configurations (`CONFIGURATION=0` through `100`). It prepares the shared Bind state once and builds configurations concurrently, each with `make -j1`. The default concurrency follows the online CPU count; on Windows it uses the bounded budget from the shared build setup, which prefers physical cores. If detection fails, the matrix uses four jobs. Set `TRICE_L432_TEST_JOBS=1` for serial execution or choose another positive limit; this limits the total number of simultaneous compiler/linker commands, even when `MAKE_JOBS` normally requests unlimited parallelism. For example, to limit a run to four jobs from the repository root:
-
-```bash
+```sh
+TRICE_PC_TEST_JOBS=1 TRICE_PC_TEST_MODE=line-by-line ./scripts/_640_test_pc_targets_bind.sh full
 TRICE_L432_TEST_JOBS=4 ./scripts/_620_test_l432_configs.sh
 ```
 
-Every invocation uses fresh, separate object directories for every configuration. All code-generation options, source files and ELF/HEX/BIN targets remain enabled; there is no reuse of potentially stale objects after a header, configuration, workflow or compiler change. The matrix skips the expensive assembler `.lst` text listings (`GCC_LISTINGS=0`); compiler warnings and errors remain enabled. Ordinary `build.sh CONFIGURATION=N` builds still generate listings for manual inspection. Existing `examples/L432_inst/out.gcc` builds remain untouched by the matrix. Full compiler logs stay in `temp/log/l432.*/config-N.log`. Successful temporary build outputs are removed to save disk space; failed or interrupted outputs are retained beside their logs.
+The managed wrappers own ID preparation and restoration. A direct `cd _test && go test ./...` requires matching IDs, Bind includes, metadata and compiler settings and lacks the worker's C-input cache overlay. Prefer the wrappers. The [internals chapter](target_test_internals.md#cgo-build-cache) explains when an explicit `go clean -cache` is needed.
 
-The matrix reports each configuration's result, prints compiler error excerpts and gives the command to reproduce a failure. Under `testAll.sh`, the selected `--no-stop` or `--stop` policy applies. A directly invoked L432 matrix stops after a failed batch by default; use `TRICE_TEST_NO_STOP=1` to finish the remaining configurations. Already started jobs finish before source restoration. Cancellation terminates the compiler processes too and prevents further configurations from starting. The managed wrapper above restores the initial source and metadata state on success, failure and cancellation; a direct `examples/L432_inst/all_configs_build.sh` invocation performs the same Bind preparation as `build.sh` and leaves sources in Bind state.
+### Inspect Go coverage
 
-* Partial tests:
-  * In `./examples` you can build the target examples with `./buildAllTargets_TRICE_ON.sh` or `./buildAllTargets_TRICE_OFF.sh`.
-  * In `./examples/L432_inst` the script `all_configs_build.sh` translates many different configurations.
+For the suite, open its `coverage.out`. To reproduce the standalone [coverage workflow](../../.github/workflows/coverage.yml):
 
-For the user it could be helpful to start with a `triceConfig.h`file from here and to adapt the Trice tool command line from the matching `cgo_test.go` if no close match in the `examples` folder was found.
+```sh
+mkdir -p temp/log
+go test -count=1 ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
+go tool cover -func=./temp/log/coverage.out
+go tool cover -html=./temp/log/coverage.out
+```
 
-## 3. <a id="how-to-run-the-tests"></a>How to run the tests
+Go coverage measures Go statements, not execution coverage of the Trice C library. Compare the same package selection and target-branch baseline. Coveralls covered-line percentages and Go's rounded statement percentage are different measures; neither replaces the C configuration matrices.
 
-* CGO requires a working host C compiler and runtime. Follow the [Windows compiler selection and runtime checks](development_environment_setup.md#choose-the-right-windows-compiler), including checks for visible Clang installations. On every platform, keep `C_INCLUDE_PATH` unset globally so ARM headers do not leak into host and CGO builds.
-* For direct `go test` calls outside the managed PC worker, execute `go clean -cache` from the repository root after editing externally included C files if CGO appears to reuse precompiled files. The managed PC workflows described below handle these repository inputs automatically.
-* Normal tests use an overlay for the shared CGO test files. For ordinary Bind maintenance use `./trice_bindIDs_in_examples_and_test_folder.sh`; it retains ID history. `./scripts/_330_renew_ids_and_refresh_tests.sh` is deliberate legacy maintenance: it runs Clean/Insert/Clean, copies the canonical CGO harness files and cleans example build outputs. Without `keepHistory` it discards the shared TIL/LI history and reseeds IDs. Do not run either maintenance command alongside tests.
-* To run direct Go tests from the repository root, use a repo-local Go cache if needed: `GOCACHE="$PWD/.gocache" go test ./...` on POSIX shells, or `$env:GOCACHE = "$PWD/.gocache"; go test ./...` in PowerShell. The `.gocache/` folder is ignored by Git.
-* Start with `./scripts/testAll.sh` from the repository root: the default checks use Bind. `./scripts/testAll.sh full` also runs Legacy-Insert/Clean and the full compiler matrices.
-* For target-code tests only, use `./scripts/_640_test_pc_targets_bind.sh quick` (representative configurations) or `./scripts/_640_test_pc_targets_bind.sh full` (all configurations). The corresponding legacy entry is `./scripts/_630_test_pc_targets_insert.sh quick` or `full`.
-* These managed wrappers own ID preparation and restore the initial sources, TIL, LI and generated-header state after success, failure or cancellation. Do not run competing preparation scripts while they are active.
-* Direct `cd _test && go test ./...` calls need preparation first. For Bind, run `./trice_bindIDs_in_examples_and_test_folder.sh` from the root and provide its generated include directory to CGO, as the [PC worker](../../scripts/_160_pc_target_test_worker.sh) does. For Legacy-Insert/Clean, use the corresponding managed wrapper; Insert skips Bind-owned files, so simply running Insert over a bound checkout is insufficient. Direct calls do not provide automatic state restoration or the worker's C-input cache overlay.
-* `scripts/testAll.sh` creates its local helper artifacts inside the ignored `./temp/log` folder. The versioned `demoTIL.json` and `demoLI.json` files in the repository root stay available as example reference files. When `GOCACHE` is unset, `scripts/testAll.sh` also uses the ignored repo-local cache folder `./.gocache`.
-* A script name beginning with `_` marks an internal helper or an individually runnable test step. Its three-digit prefix groups the flat `scripts` folder: `100`--`250` are shared workflow helpers, `260`--`330` are maintenance helpers, and `400`--`640` are tests ordered broadly from short checks to long compiler matrices.
-* It is possible to start the tests individually, but for some the default `-timeout 30s` maybe too short.
+### CLion review build
 
-### 3.1. <a id="clion-review-build"></a>CLion review build
-
-The [CMake review project](../../_test/clion-review/CMakeLists.txt) builds a host executable for indexing and inspections. With `trice`, CMake and a host C compiler available:
+With the current `trice` tool, CMake and a native C compiler available:
 
 ```sh
 cmake -S _test/clion-review -B temp/clion-review
 cmake --build temp/clion-review
 ```
 
-If needed, select the tool with `-DTRICE_EXECUTABLE=path/to/trice`. CMake copies the shared test source and TIL into the build directory, prepares private Bind headers, and refreshes them before compilation. The canonical source and shared dictionaries remain unchanged. This is a host review build, not a board test or a replacement for the CGO matrix.
+Use `-DTRICE_EXECUTABLE=path/to/trice` if tool selection is needed. This project prepares private sources, metadata and Bind headers in the build directory for indexing and inspection. Step 515 also verifies the real build. It does not replace the CGO matrix or execute an MCU board.
 
-Step `_515` checks the real CLion build and all nine ABC nodes with both ID workflows in isolated checkout paths containing spaces. To run just this check, use `TRICE_BIND_INTEGRATION=1 go test ./scripts -run '^TestBindEntrypointIntegration$' -count=1`. Ordinary script tests use tool doubles; the GCC example matrix additionally exercises the two small F030 entry points and the G0B1 Clang entry. Step `_515` builds the G0B1 feature tour through its public GCC entry, and also through its Clang entry in `full` mode.
+## GitHub Actions
 
-## 4. <a id="tests-details"></a>Tests Details
+Open the repository's **Actions** tab, choose a workflow and inspect the run's commit, OS/architecture and selection. For a manual run, select the intended branch and inputs. A workflow name alone does not tell you whether its checks were skipped or which commit its artifacts belong to.
 
-The `_test` tree contains independent configuration packages and shared `testdata`. A folder beginning with `_` is omitted from recursive Go package discovery. Use the managed wrappers for normal selection rather than renaming test folders during a run.
+### Native acceptance on all three systems
 
-[TriceCheck.c](../../_test/testdata/triceCheck.c) supplies the C sites and their expected text. [Test Internals](#test-internals) describes the bridge and comparison loop; this section covers execution strategy, diagnostics and cache handling.
+The [native workflow](../../.github/workflows/native-tests.yml) calls the [shared runner workflow](../../.github/workflows/native-tests-reusable.yml). That runner installs prerequisites, reads the central tool versions, restores project caches and invokes the same `testAll.sh` as local development.
 
-The bulk path still executes each C test site. It collects binary output and starts the host logger once per output channel, then compares every expected text range with its source line. This avoids repeated logger initialization. Finite replay inputs finish when their buffered records are drained; they do not wait for a fixed timeout after each expectation.
-
-Framed direct and deferred channels are collected separately. Configurations that previously transferred after every test site retain that transfer schedule, so small target buffers cannot overflow merely because host decoding is batched. Existing deferred bulk tests retain their multi-site transfer schedule to exercise buffering. Unframed configurations keep the single-expectation path because concatenation can lose packet boundaries or change padding interpretation. Successful bulk runs are not repeated completely line by line.
-
-Each configuration has its own `output.log` below `temp/log/pc-<workflow>.<run>/`. On a bulk mismatch, the original binary and text output are saved there, and the worker reruns that configuration line by line. A passing diagnostic rerun does not clear the bulk failure: it points to an interaction involving framing, buffering or state. The reported source line is the first divergent expectation, which may follow the actual cause. Expected and actual strings show escaped control characters; nearby text helps identify shifts. The failure report also gives a reproduction command, which requires the same prepared ID state and compiler include paths. Run directories are retained for diagnosis; subsequent runs use a new directory.
-
-The managed PC worker preserves Go's build cache between runs. Before testing, [pc_cache_overlay.go](../../scripts/pc_cache_overlay.go) hashes file names and contents in `src`, `_test/testdata`, each configuration directory and the applicable Bind sidecar directory, including a custom generation directory. It also records the ID workflow and compiler/header-search settings. The worker appends the resulting SHA-256 signature to temporary copies of the CGO Go sources and supplies them through a Go overlay. External C or header changes therefore become visible to Go's build cache without changing the original sources or discarding cached Go dependencies. Added, removed or renamed input files change the signature too; timestamps alone do not. A local configuration change rebuilds that configuration, while shared input changes rebuild all affected configurations. The ABC host bridges participate as well as the generated harnesses.
-
-Every selected test still executes with `-count=1`; only compiled build artifacts are reused. The preceding normal Go and coverage steps also preserve the build cache and use `-count=1`, so a complete `testAll.sh` invocation does not discard the PC builds from the previous run. Overlay JSON and stamped sources remain beside the logs in `overlay.json` and `cache-inputs/` for diagnosis. The temporary Go filenames start with `_`, keeping them out of ordinary package discovery. Unreadable inputs or symbolic links inside the input trees stop preparation instead of silently running a potentially stale binary. This protection covers the repository's PC input trees, not independently modified external C libraries or SDK headers at an unchanged location. After such external changes, explicitly run `go clean -cache`. Go itself accounts for compiler identity and build flags; see [Go's build-cache documentation](https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching).
-
-The behavioral checks in [pc_cache_overlay_test.go](../../scripts/pc_cache_overlay_test.go) include real cold and warm CGO builds. They verify current C runtime values after source, header, sidecar, configuration and compiler-option changes, verify that unchanged configurations avoid C recompilation, and independently count actual test executions.
-
-The `testdata\cgoPackage.go` file contains a variable `testLines = n`, which limits the amount of performed trices for each test case to `n`. Changing this value will heavily influence the test duration. The value `-1` is reserved for testing all test lines.
-
-## 5. <a id="how-to-add-new-test-cases"></a>How to add new test cases
-
-- Choose a test folder similar to the intended test and copy it under a new descriptive name like `newTest`.
-- Add the new package to the test-folder list in `scripts/_330_renew_ids_and_refresh_tests.sh` if it should receive refreshed generated test files.
-- Edit files `newTest/triceConfig.h` and `newTest/cgo_test.go` in a matching way.
-- Use the managed PC wrapper with the new configuration selected; direct `go test ./_test/newTest` requires the ID/include/overlay preparation described above.
-
-## 6. <a id="test-internals"></a>Test Internals
-
-Each configuration is an independent `cgot` package. Its `triceConfig.h` selects the C behavior; `cgo_test.go` supplies matching host decoder options. The shared [cgoPackage.go](../../_test/testdata/cgoPackage.go) contains the CGO bridge and test loop. Normal workers overlay it rather than rewriting all generated copies.
-
-The harness finds `//exp:` expectations and their source line numbers in [triceCheck.c](../../_test/testdata/triceCheck.c). It calls the C switch case for each site, collects direct and deferred output through the test writers, decodes it, then compares the text. The capture supports multiple records; the old claim that its shared buffer allowed only one Trice per line no longer describes this harness. Bind's separate [source-site limits](bind.md#bind-limits) still apply.
-
-| Mode | C execution | Host decoding |
+| Event | Native systems | Scope |
 | --- | --- | --- |
-| Bulk | Execute every selected site and retain its expected output boundary. | Start the logger once per output channel. |
-| Line by line | Execute one expectation at a time. | Decode separately; useful for unframed inputs and diagnosis. |
-| Auto | Choose according to the configuration. | Bulk where framing permits it, otherwise line by line. |
+| Pull request | `ubuntu-24.04`, `windows-2025`, `macos-26` (ARM) | Explicit `quick`. |
+| Nightly | Same three plus `macos-15-intel` | `full`, plus separate race checks. |
+| Manual | Same three; Intel always full | Chosen `full` or `quick`; default full, plus race checks. |
 
-A passing diagnostic rerun does not erase a bulk failure. Both modes must preserve the configured transfer schedule and test coverage. See the cache and artifact details above.
+Each platform runs independently; one failure does not cancel the others. Race checks cover `internal/decoder`, `internal/emitter`, `internal/translator` and `internal/vis`. The workflow attempts to upload `temp/log` even after failures, under `native-<runner>-<selection>` artifacts.
 
-### 6.1. <a id="comparing-test-duration-between-computers"></a>Comparing test duration between computers
+Use a successful native job on each required OS at the same commit as platform evidence. Linux containers help isolate Linux packages; they do not exercise Windows file locking or macOS process behavior. This matrix uses actual native runners.
 
-Compare the same commit, workflow, configuration count, compiler versions and job limits. Keep the distinction between cold compilation, warm compilation and actual test execution:
+### Other test workflows
 
-| Observation | Check |
+These jobs still serve distinct purposes. They are not all replaced by the native suite.
+
+| Workflow | Trigger and role |
 | --- | --- |
-| First run slower | Go/tool downloads, compiler setup and empty build caches. |
-| Every warm run slow | Verify cache directory reuse and overlay input signatures. |
-| One platform much slower | Compare per-step times, compiler processes, storage and antivirus scanning; do not infer a C/Go defect from total time alone. |
-| Line mode slower than bulk | Repeated logger initialization is deliberate diagnostic overhead. |
-| High parallelism slower | Reduce `TRICE_PC_TEST_JOBS` or `TRICE_L432_TEST_JOBS` and compare memory/CPU pressure. |
+| [Library Quick](../../.github/workflows/trice_lib_ci.yml) | PRs into `main`: **full** library build/configuration matrix on Linux. Nightly/manual: quick. The historical check name `Heavy CI (quick)` is retained. |
+| [Library Full](../../.github/workflows/trice_lib_ci_full.yml) | Nightly/manual complete Linux library build matrix. Both library workflows use [the reusable implementation](../../.github/workflows/trice_lib_reusable.yml), including feature checks. Only their scheduled runs may skip after 24 hours without `main` activity. |
+| [Script portability](../../.github/workflows/script-portability.yml) | Push, PR and manual: `go test ./scripts` on native Windows/Linux/macOS, mostly disposable fixtures and tool doubles. No complete firmware matrix. |
+| [Coverage](../../.github/workflows/coverage.yml) | PR, push to `main`, monthly and manual: Go coverage artifact and Coveralls upload. |
+| [Go](../../.github/workflows/go.yml) | Manual Go build/tests and coverage integration. |
+| [Clang-Format](../../.github/workflows/clang-format.yml), [shfmt](../../.github/workflows/shfmt.yml), [ShellCheck](../../.github/workflows/shellcheck.yml), [Super-Linter](../../.github/workflows/superlinter.yml) | Source/document/configuration checks; each YAML defines its event filters. |
+| [Links](../../.github/workflows/link-check.yml) | Separate local/external link check, including fragment destinations. Both the local script and CI enable `--include-fragments`. Server availability and rate limits can affect it; inspect the actual failing URL. `GITHUB_TOKEN`/`GH_TOKEN` can reduce GitHub throttling locally. |
+| [CodeQL](../../.github/workflows/codeql.yml) | Go/C/C++ security analysis; complements executable tests. |
+| [Future tool compatibility](../../.github/workflows/tool-compatibility.yml) | Weekly/manual: current stable Go and latest GoReleaser. A maintenance signal for future upgrades, separate from acceptance with declared versions. |
 
-Keep `-count=1` and all expectations enabled. A cached test result is not evidence that this run executed the tests. The Insert/Clean `-cache` option is unrelated to Go's compiled-artifact cache.
+A push to `wip` alone does not start the library PR matrix; an open PR into `main` does. Other push-triggered checks may still run. GitHub branch protection decides which checks block merging. Adding a workflow does not automatically make its jobs required; select the native platform checks explicitly in repository settings. YAML describes intended execution, not proof that a particular remote run has passed.
 
-## 7. <a id="test-results"></a>Test Results
+## GoReleaser and release-package testing
 
-The following is a **historical December 2024 run**, not a current acceptance result or a duration target. The current runner, bulk path and cache handling differ.
+There are four useful levels. Keep the distinction between checking source, constructing packages, running unpacked packages, and auditing a published release.
 
+| Level | Entry | Evidence |
+| --- | --- | --- |
+| Configuration | `_460_test_goreleaser_config.sh` | `goreleaser check` accepts [.goreleaser.yaml](../../.goreleaser.yaml) with the declared GoReleaser version. Included in quick/full; does not build packages. |
+| Local snapshot | `_610_test_goreleaser_snapshot.sh` | Builds release-shaped artifacts and performs the checks below. Separate from `testAll.sh`. |
+| CI installation | [install-checks.yml](../../.github/workflows/install-checks.yml) | PR/manual: builds snapshots and executes unpacked tools natively on Windows, Linux, macOS ARM and macOS Intel; also checks checkout installation. |
+| Published release | [release-audit.yml](../../.github/workflows/release-audit.yml) | Manual audit of one explicitly selected published tag, using downloaded assets. |
 
-```bash
-ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
-$ ./scripts/testAll.sh
-Thu, Dec 12, 2024  4:51:26 PM
-This can take several minutes ...
-?       github.com/rokath/trice/internal/decoder        [no test files]
-?       github.com/rokath/trice/internal/do     [no test files]
-?       github.com/rokath/trice/internal/translator     [no test files]
-?       github.com/rokath/trice/pkg/ant [no test files]
-ok      github.com/rokath/trice/cmd/trice       1.392s
-ok      github.com/rokath/trice/internal/args   0.415s
-ok      github.com/rokath/trice/internal/charDecoder    0.298s
-ok      github.com/rokath/trice/internal/com    15.845s
-ok      github.com/rokath/trice/internal/dumpDecoder    0.339s
-ok      github.com/rokath/trice/internal/emitter        0.326s
-ok      github.com/rokath/trice/internal/id     3.088s
-ok      github.com/rokath/trice/internal/keybcmd        0.233s
-ok      github.com/rokath/trice/internal/link   0.196s
-ok      github.com/rokath/trice/internal/receiver       0.246s
-?       github.com/rokath/trice/internal/translator     [no test files]
-?       github.com/rokath/trice/pkg/ant [no test files]
-ok      github.com/rokath/trice/cmd/trice       1.392s
-ok      github.com/rokath/trice/internal/args   0.415s
-ok      github.com/rokath/trice/internal/charDecoder    0.298s
-ok      github.com/rokath/trice/internal/com    15.845s
-ok      github.com/rokath/trice/internal/dumpDecoder    0.339s
-ok      github.com/rokath/trice/internal/emitter        0.326s
-ok      github.com/rokath/trice/internal/id     3.088s
-ok      github.com/rokath/trice/internal/keybcmd        0.233s
-ok      github.com/rokath/trice/internal/link   0.196s
-ok      github.com/rokath/trice/internal/receiver       0.246s
-ok      github.com/rokath/trice/internal/trexDecoder    0.264s
-ok      github.com/rokath/trice/pkg/cipher      0.230s
-ok      github.com/rokath/trice/pkg/endian      0.161s
-ok      github.com/rokath/trice/internal/args   0.415s
-ok      github.com/rokath/trice/internal/charDecoder    0.298s
-ok      github.com/rokath/trice/internal/com    15.845s
-ok      github.com/rokath/trice/internal/dumpDecoder    0.339s
-ok      github.com/rokath/trice/internal/emitter        0.326s
-ok      github.com/rokath/trice/internal/id     3.088s
-ok      github.com/rokath/trice/internal/keybcmd        0.233s
-ok      github.com/rokath/trice/internal/link   0.196s
-ok      github.com/rokath/trice/internal/receiver       0.246s
-ok      github.com/rokath/trice/internal/trexDecoder    0.264s
-ok      github.com/rokath/trice/pkg/cipher      0.230s
-ok      github.com/rokath/trice/pkg/endian      0.161s
-ok      github.com/rokath/trice/internal/id     3.088s
-ok      github.com/rokath/trice/internal/keybcmd        0.233s
-ok      github.com/rokath/trice/internal/link   0.196s
-ok      github.com/rokath/trice/internal/receiver       0.246s
-ok      github.com/rokath/trice/internal/trexDecoder    0.264s
-ok      github.com/rokath/trice/pkg/cipher      0.230s
-ok      github.com/rokath/trice/pkg/endian      0.161s
-ok      github.com/rokath/trice/pkg/msg 0.157s
-ok      github.com/rokath/trice/pkg/tst 0.261s
-ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
-ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
-ok      github.com/rokath/trice/internal/trexDecoder    0.264s
-ok      github.com/rokath/trice/pkg/cipher      0.230s
-ok      github.com/rokath/trice/pkg/endian      0.161s
-ok      github.com/rokath/trice/pkg/msg 0.157s
-ok      github.com/rokath/trice/pkg/tst 0.261s
-ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
-ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
-ok      github.com/rokath/trice/pkg/msg 0.157s
-ok      github.com/rokath/trice/pkg/tst 0.261s
-ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
-ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
-ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   122.964s
-ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
-ok      github.com/rokath/trice/_test/be_dblB_de_tcobs_ua       123.142s
-ok      github.com/rokath/trice/_test/be_staticB_di_xtea_cobs_rtt32     123.159s
-ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   122.964s
-ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
-ok      github.com/rokath/trice/_test/dblB_de_cobs_ua   122.964s
-ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
-ok      github.com/rokath/trice/_test/dblB_de_multi_cobs_ua     123.308s
-ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     123.244s
-ok      github.com/rokath/trice/_test/dblB_de_multi_nopf_ua     123.244s
-ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    123.109s
-ok      github.com/rokath/trice/_test/dblB_de_multi_tcobs_ua    123.109s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        123.213s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       123.001s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_cobs_ua        123.213s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       123.001s
-ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.092s
-ok      github.com/rokath/trice/_test/dblB_de_multi_xtea_tcobs_ua       123.001s
-ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.092s
-ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.324s
-ok      github.com/rokath/trice/_test/dblB_de_nopf_ua   123.092s
-ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.324s
-ok      github.com/rokath/trice/_test/dblB_de_tcobs_ua  122.324s
-ok      github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua      123.149s
-ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     122.883s
-ok      github.com/rokath/trice/_test/dblB_de_xtea_cobs_ua      123.149s
-ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     122.883s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    246.703s
-ok      github.com/rokath/trice/_test/dblB_de_xtea_tcobs_ua     122.883s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    246.703s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_cobs_ua    246.703s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_cobs_ua      247.125s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua     246.862s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_tcobs_ua   246.531s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua       247.072s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_cobs_ua     246.639s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_cobs_ua       246.599s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua      247.114s
-ok      github.com/rokath/trice/_test/dblB_di_nopf_rtt8__de_tcobs_ua    246.851s
-ok      github.com/rokath/trice/_test/ringB_de_cobs_ua  123.578s
-ok      github.com/rokath/trice/_test/ringB_de_multi_tcobs_ua   123.517s
-ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_cobs_ua       123.497s
-ok      github.com/rokath/trice/_test/ringB_de_multi_xtea_tcobs_ua      123.379s
-ok      github.com/rokath/trice/_test/ringB_de_nopf_ua  123.555s
-ok      github.com/rokath/trice/_test/ringB_de_tcobs_ua 123.300s
-ok      github.com/rokath/trice/_test/ringB_de_xtea_cobs_ua     123.487s
-ok      github.com/rokath/trice/_test/ringB_de_xtea_tcobs_ua    123.846s
-ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt32__de_tcobs_ua  247.400s
-ok      github.com/rokath/trice/_test/ringB_di_cobs_rtt8__de_tcobs_ua   247.202s
-ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_tcobs_ua  247.204s
-ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua      246.818s
-ok      github.com/rokath/trice/_test/ringB_di_nopf_rtt8__de_tcobs_ua   247.006s
-ok      github.com/rokath/trice/_test/ringB_di_tcobs_rtt32__de_tcobs_ua 247.000s
-ok      github.com/rokath/trice/_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua 246.872s
-ok      github.com/rokath/trice/_test/special_protect_dblB_de_tcobs_ua  0.444s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_aux32      123.819s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_aux8       123.830s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt32      123.912s
-ok      github.com/rokath/trice/_test/stackB_di_nopf_rtt8       123.976s
-ok      github.com/rokath/trice/_test/stackB_di_xtea_cobs_rtt8  123.719s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_aux32     123.553s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_aux8      123.551s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt32     123.596s
-ok      github.com/rokath/trice/_test/staticB_di_nopf_rtt8      123.618s
-ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt32    123.177s
-ok      github.com/rokath/trice/_test/staticB_di_tcobs_rtt8     123.353s
-ok      github.com/rokath/trice/_test/staticB_di_xtea_cobs_rtt32        123.126s
+### Check a local snapshot
 
-real    10m31.130s
-user    0m0.000s
-sys     0m0.015s
+Use a disposable checkout of the intended candidate, because snapshot hooks refresh manuals and `--clean` replaces `dist`. A local clone includes committed content, not uncommitted edits. From the repository root, choose a fresh destination:
 
-ms@DESKTOP-7POEGPB MINGW64 ~/repos/trice (main)
-$
+```sh
+git clone --no-hardlinks . temp/release-check
+cd temp/release-check
+./scripts/_610_test_goreleaser_snapshot.sh
 ```
 
-## 8. <a id="test-cases"></a>Test Cases
+Step 610 uses the pinned GoReleaser and runs its snapshot pipeline. It also needs the PDF toolchain: Node/npm, the declared manual tools and a working headless browser with the required system libraries. Its setup phase may need downloads and standalone installation input; prepare those prerequisites before leaving it unattended.
 
-### 8.1. <a id="folder-naming-convention"></a>Folder Naming Convention
+The check verifies archive/package presence, both manual PDFs, complete repository and SEGGER license notices, default configuration headers and compilation of unpacked target sources. On the current host it unpacks the matching tool archive, runs `trice`/`tlog` help and version commands, decodes a known record, then builds and decodes a feature example using the **shipped tools and shipped C sources**. Bind, Context Enrichment and structured output are therefore checked through the package contents.
 
-Folder Name Part | Meaning
-:----------------:|----------------------------------------------------------------------------------------------------------
-`testdata`    | This is no test folder. It contains data common to all tests.
-`_...`      | Folder starting with an undescore `_` are excluded when `go test ./...` is executed.
-`_di_`      | direct mode
-`_de_`      | deferred mode
-`special_`    | a test, not using `./testdata/triceCheck.c`
-`staticB_`    | static buffer, direct mode only possible
-`stackB_`     | stack buffer, direct mode only possible
-`ringB_`     | ring buffer, deferred mode and optional parallel direct mode
-`dblB_`      | double buffer, deferred mode and optional parallel direct mode
-`_rtt8_`     | (simulated) SEGGER_RTT byte transfer
-`_rtt32_`     | (simulated) SEGGER_RTT word transfer
-`__`       | direct and deferred mode together
-`_xtea_`     | with encryption, otherwise without encryption
-`_tcobs`     | TCOBS package framing
-`_cobs`      | COBS package framing
-`_nopf`      | no package framing
-`_multi_`     | Usually each Trice is handled separately. In multi mode, groups of available Trices are framed together.
-`_ua`       | simulated UART A output (for deferred modes)
+Read the final log, `temp/log/_610_test_goreleaser_snapshot.log`, and inspect `dist`. This standalone script can skip work when prerequisites are missing; a skip is not release acceptance. A raw `goreleaser release --snapshot --clean --skip=publish` builds packages without the script's additional unpack/compile/runtime checks.
 
+Snapshot builds do not publish a release. Building foreign-platform archives does not execute their contents; the native CI installation jobs provide that next level of evidence.
+
+### Understand the installation and release audit jobs
+
+`install-checks.yml` first verifies checkout installations through both `GOBIN` and `GOPATH/bin`. It builds snapshot assets on Linux, then passes the same archives to native OS jobs. These check both tools, a known decoded record, and the shipped Bind/CE/structured-logging feature example. The macOS aggregate check requires both native architecture jobs. Linux DEB/RPM/APK installation jobs check their respective package formats separately.
+
+`release-audit.yml` downloads the assets of the exact supplied tag and checks their versions against it. It audits Windows/Linux/macOS archives, Linux DEB/RPM/APK installation, target-source compilation and manual PDF presence/size. Homebrew is checked for stable releases; that route is intentionally skipped for prereleases. The current published-release audit selects the macOS AMD64 archive; the two-architecture native package check belongs to `install-checks.yml`.
+
+The [publishing workflow](../../.github/workflows/goreleaser.yml) is a separate manual operation. It checks out the selected tag, validates notes, publishes and checks generated artifacts. A successful snapshot does not prove publication credentials, package-manager availability or successful remote installation. See [Building and Releasing](tool_build_release.md#publish-a-release-manually-from-a-selected-tag) for the publication procedure.
+
+### Before accepting a release candidate
+
+Use one fixed candidate commit for the native full jobs on all required systems, the complete compiler matrices, external links, snapshot/installation checks and the release notes. Inspect retained artifacts and any skipped jobs. After publication, audit the exact release tag. Keep hardware checks separate and name the board/setup when recording their result.
+
+## Documentation history
+
+This chapter and [Test Internals](target_test_internals.md) replace the former target-test chapter, scattered test instructions and the native-test design draft. Their original texts are preserved in [the test documentation archive](../_scratchPad/obsolete/testing/README.md). Historical transcripts there describe old runs, not current acceptance or performance targets.

@@ -28,7 +28,7 @@ source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 MODE="format"
 VERBOSE=0
-MDTOC_REQUIRED_VERSION="1.0.3"
+MDTOC_REQUIRED_VERSION="${TRICE_TOOL_MDTOC_VERSION:-1.0.3}"
 # Keep the User Manual first; managed RM chapters are discovered before any writes.
 MANUAL_FILES=("docs/TriceUserManual.md")
 

@@ -317,7 +317,7 @@ tmux kill-session -t "tricerttlog"
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 * If you can use a Segger J-Link or an STM ST-Link debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use Trice without any UART or other port.
-* Detailed description can be found in document [UM08001_JLink.pdf](../../third_party/segger.com/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
+* Detailed description can be found in document [UM08001_JLink.pdf](../../third_party/segger.com/UM08001_JLink.pdf) in chapter 16 which is part of the [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/).
 * Following examples are for Windows, but should work similar also on Linux and Darwin (macOS).
 * Trice can use the Segger RTT protocol in different ways.
   * Hardware paths:
@@ -379,7 +379,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 ### 3.2. <a id="some-segger-tools-in-short"></a>Some SEGGER tools in short
 
-* Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
+* Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
 * Tested with [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html).
 * For example: Compile and flash `../examples/F030_inst` project.
