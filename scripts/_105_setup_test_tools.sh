@@ -51,7 +51,14 @@ confirm_tool_install() {
   # Native Windows terminals can leave CR at the end of an otherwise valid reply.
   answer="${answer%$'\r'}"
   case "$answer" in
-    y | Y | yes | YES) return 0 ;;
+    y | Y | yes | YES)
+      # Reuse the first missing-tool approval for the rest of preparation.
+      # System package consent never authorizes checkout-local setup implicitly.
+      if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ] && [ "$destination" = "locally under temp/tools" ]; then
+        export TRICE_TEST_SETUP_APPROVED=1
+      fi
+      return 0
+      ;;
     *) return 1 ;;
   esac
 }
@@ -367,6 +374,9 @@ install_windows_host_test_tools() {
   if ! command -v unzip >/dev/null 2>&1; then
     printf 'FAIL: Local GCC/Clang setup requires unzip (included with Git Bash).\n' >&2
     return 1
+  fi
+  if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ]; then
+    approve_pinned_test_setup || return 1
   fi
   archive="./temp/tools/downloads/$TRICE_HOST_PACKAGE.zip"
   download_pinned_test_tool \

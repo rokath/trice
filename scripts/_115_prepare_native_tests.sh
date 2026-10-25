@@ -3,6 +3,15 @@
 # Shared native test preparation. Sourced by the common test environment;
 # functions are inert until the runner (or CI setup) requests preparation.
 
+# Probe the exact Go toolchain offline first. Go's launcher may fetch a missing
+# toolchain, so that transition needs the same consent as other installations.
+ensure_native_go_toolchain() {
+  export GOTOOLCHAIN="go$TRICE_GO_VERSION"
+  if GOPROXY=off go version >/dev/null 2>&1; then return 0; fi
+  approve_pinned_test_setup || return 2
+  go version >/dev/null || return 2
+}
+
 # ensure_native_report_tool also serves directly invoked lint/test steps.
 # The exact Go toolchain builds the current helper without a global install.
 ensure_native_report_tool() {
@@ -11,19 +20,35 @@ ensure_native_report_tool() {
     printf 'INCOMPLETE: Go %s is required to prepare the declared test tools.\n' "$TRICE_GO_VERSION" >&2
     return 2
   fi
-  export GOTOOLCHAIN="go$TRICE_GO_VERSION"
+  ensure_native_go_toolchain || return 2
   TRICE_TEST_REPORT_BIN="$LOG_DIR/testcheck$(go env GOEXE)"
   export TRICE_TEST_REPORT_BIN
   go build -o "$TRICE_TEST_REPORT_BIN" ./scripts/testcheck || return 2
+}
+
+# Resolve tools before asking to install. Keep approval in this caller rather
+# than inside command substitution, so later tools reuse the same decision.
+# The result variable belongs to the calling function's Bash scope.
+prepare_pinned_test_selection() {
+  local result_variable="$1" operation="$2" cache="$3" setup_output status
+  shift 3
+  if setup_output="$("$TRICE_TEST_REPORT_BIN" "$operation" --no-install scripts/test-tools.env "$cache" "$@")"; then
+    :
+  else
+    status=$?
+    [ "$status" -eq 3 ] || return "$status"
+    approve_pinned_test_setup || return 2
+    setup_output="$("$TRICE_TEST_REPORT_BIN" "$operation" scripts/test-tools.env "$cache" "$@")" || return 2
+  fi
+  printf -v "$result_variable" '%s' "$setup_output"
 }
 
 # ensure_pinned_test_tools prepares only the named standalone tools. It shares
 # the same manifest/cache as the suite and never modifies a system installation.
 ensure_pinned_test_tools() {
   local bin
-  approve_pinned_test_setup || return 2
   ensure_native_report_tool || return 2
-  bin="$("$TRICE_TEST_REPORT_BIN" tools scripts/test-tools.env temp/tools/native "$@")" || return 2
+  prepare_pinned_test_selection bin tools temp/tools/native "$@" || return 2
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*) bin="$(cygpath -u "$bin")" ;;
   esac
@@ -44,14 +69,13 @@ prepare_native_test_tools() {
     fi
   done
   [ "$missing" -eq 0 ] || return 2
-  approve_pinned_test_setup || return 2
   ensure_node_test_tool || return 2
   if [ "$(node --version)" != "v$TRICE_NODE_VERSION" ]; then
     printf 'INCOMPLETE: Node.js %s is required; found %s. Select the declared version before running native tests.\n' "$TRICE_NODE_VERSION" "$(node --version)"
     return 2
   fi
   # The Go launcher resolves this exact supported toolchain when necessary.
-  export GOTOOLCHAIN="go$TRICE_GO_VERSION"
+  ensure_native_go_toolchain || return 2
   # The report helper is built from the current worktree before any tests.
   TRICE_TEST_REPORT_BIN="$LOG_DIR/testcheck$(go env GOEXE)"
   export TRICE_TEST_REPORT_BIN
@@ -70,7 +94,7 @@ prepare_native_test_tools() {
   export CGO_ENABLED=1 TRICE_BIND_INTEGRATION=1 TRICE_RUN_WINDOWS_TCP_TESTS=1
   if [ "$(go env GOHOSTOS)" = linux ]; then
     local native_gcc
-    native_gcc="$("$TRICE_TEST_REPORT_BIN" bundle scripts/test-tools.env temp/tools/bundles gcc)" || return 2
+    prepare_pinned_test_selection native_gcc bundle temp/tools/bundles gcc || return 2
     export PATH="$native_gcc:$PATH"
   fi
 
@@ -163,7 +187,7 @@ prepare_native_test_tools() {
     "$TRICE_TEST_REPORT_BIN" identity "$binary_path" "$selected_clang" || return 2
   done
   local arm_bin
-  arm_bin="$("$TRICE_TEST_REPORT_BIN" bundle scripts/test-tools.env temp/tools/bundles arm)" || return 2
+  prepare_pinned_test_selection arm_bin bundle temp/tools/bundles arm || return 2
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*) arm_bin="$(cygpath -u "$arm_bin")" ;;
   esac
@@ -179,10 +203,10 @@ prepare_native_test_tools() {
   done
   [ "$missing" -eq 0 ] || return 2
   ensure_python_test_tool || return 2
-  # Resolve the formatter and analyzer caches up front, outside any spinner.
-  "$SCRIPTS_DIR/_280_format_c_code.sh" setup || return 2
+  # Parent-shell installers share consent before the formatter child starts.
   ensure_cppcheck_test_tool || return 2
   prepare_pinned_native_tools || return 2
+  "$SCRIPTS_DIR/_280_format_c_code.sh" setup || return 2
 }
 
 # prepare_pinned_native_tools freezes the executable selection and prepares the
@@ -190,10 +214,9 @@ prepare_native_test_tools() {
 # an initial lock-generation run stops before running any product tests.
 prepare_pinned_native_tools() {
   local tool_bin npm_dir lock_hash installed_hash=""
-  approve_pinned_test_setup || return 2
   ensure_node_test_tool || return 2
-  tool_bin="$("$TRICE_TEST_REPORT_BIN" tools scripts/test-tools.env temp/tools/native \
-    goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd)" || return 2
+  prepare_pinned_test_selection tool_bin tools temp/tools/native \
+    goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd || return 2
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*) tool_bin="$(cygpath -u "$tool_bin")" ;;
   esac
@@ -207,6 +230,7 @@ prepare_pinned_native_tools() {
   mkdir -p "$npm_dir" || return 2
   cp scripts/testcheck/package.json "$npm_dir/package.json" || return 2
   if [ ! -f scripts/testcheck/package-lock.json ]; then
+    approve_pinned_test_setup || return 2
     PUPPETEER_SKIP_DOWNLOAD=true npm install --prefix "$npm_dir" --package-lock-only --ignore-scripts --no-audit --no-fund || return 2
     printf 'INCOMPLETE: generated initial npm lock at %s/package-lock.json; review and add it as scripts/testcheck/package-lock.json before testing.\n' "$npm_dir"
     return 2
@@ -216,6 +240,7 @@ prepare_pinned_native_tools() {
   mkdir -p "$npm_dir" || return 2
   [ ! -f "$npm_dir/.ready" ] || installed_hash="$(cat "$npm_dir/.ready")"
   if [ "$lock_hash" != "$installed_hash" ] || [ ! -x "$npm_dir/node_modules/.bin/markdownlint" ]; then
+    approve_pinned_test_setup || return 2
     (
       if ! mkdir "$npm_dir/.install-lock"; then
         printf 'INCOMPLETE: npm setup is locked at %s; inspect the owning preparation process.\n' "$npm_dir"

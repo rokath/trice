@@ -41,7 +41,7 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 ./scripts/testAll.sh
 ```
 
-The default is **full**. The first run may ask before downloading or building project-local tools; approved tools are checked and cached under `temp/tools`. Later runs reuse those caches. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
+The default is **full**. The suite checks installed tools and `temp/tools` first. If a project-local tool needs installation or repair, it asks once during preparation; later runs with valid tools need no answer. Empty input or EOF declines installation. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
 | Command | Use |
 | --- | --- |

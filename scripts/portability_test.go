@@ -143,7 +143,8 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		// A private runtime from the outer suite must not bypass tool doubles.
 		"TRICE_TEST_PYTHON":     "",
 		"TRICE_TEST_AUTO_SETUP": "0", "TRICE_TEST_REPORT_BIN": "",
-		"TRICE_BIND_INTEGRATION": "0", "TRICE_TEST_NPM_DIR": "",
+		"TRICE_TEST_SETUP_APPROVED": "0",
+		"TRICE_BIND_INTEGRATION":    "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
 	}
 	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
@@ -200,6 +201,186 @@ func TestPinnedToolConfirmation(t *testing.T) {
 				assert.Contains(t, out, "Install shfmt v3.8.0 locally under temp/tools?")
 			}
 			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+		})
+	}
+}
+
+// TestNativeToolConsentIsLazy checks the public tool-selection helper without
+// depending on installed versions or downloading any tools. Cache hits need no
+// input; missing tools share one approval, and setup errors never ask to install.
+func TestNativeToolConsentIsLazy(t *testing.T) {
+	for _, tc := range []struct {
+		name, input                string
+		warm, broken, accepted, ci bool
+		prompts                    int
+	}{
+		{name: "warm_cache_without_input", warm: true, accepted: true},
+		{name: "missing_tools_approved_once", input: "yes\\r\\n", accepted: true, prompts: 1},
+		{name: "missing_tools_declined", input: "no\\n", prompts: 1},
+		{name: "missing_tools_empty_reply", input: "\\n", prompts: 1},
+		{name: "missing_tools_without_input", prompts: 1},
+		{name: "automatic_ci_setup", accepted: true, ci: true},
+		{name: "setup_error_does_not_prompt", broken: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_115_prepare_native_tests.sh")
+			if tc.warm {
+				writeFixture(t, root, "installed-fixture", "verified cache\n")
+				writeFixture(t, root, "installed-another", "verified cache\n")
+			}
+			writeFixture(t, root, "bin/setup-helper", `#!/bin/sh
+[ "$BROKEN_SETUP" != true ] || exit 2
+shift
+probe=false
+if [ "$1" = --no-install ]; then
+  probe=true
+  shift
+fi
+shift 2
+if [ ! -f "$FIXTURE_ROOT/installed-$1" ]; then
+  [ "$probe" != true ] || exit 3
+  echo "$1" >> "$FIXTURE_ROOT/preparations"
+  touch "$FIXTURE_ROOT/installed-$1"
+fi
+printf '%s/bin\n' "$FIXTURE_ROOT"
+`)
+			command := `source scripts/_100_test_common.sh
+# Reload the real selector after the common orchestration fixture's stubs.
+source scripts/_115_prepare_native_tests.sh
+TRICE_TEST_REPORT_BIN="$PWD/bin/setup-helper"
+ensure_pinned_test_tools fixture || exit $?
+ensure_pinned_test_tools another || exit $?
+ensure_pinned_test_tools fixture
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"FIXTURE_ROOT": root, "BROKEN_SETUP": strconv.FormatBool(tc.broken), "CI": strconv.FormatBool(tc.ci),
+				"TRICE_TEST_AUTO_SETUP": "1",
+			})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			assert.Equal(t, tc.prompts, strings.Count(out, "Install pinned test tools and compiler bundles"), out)
+			if tc.accepted && !tc.warm {
+				calls, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "fixture\nanother\n", string(calls), "different missing tools share approval; warm selection installs nothing")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestNativeGoToolchainConsent models Go's launcher with a cached or missing
+// exact toolchain. The offline probe must preserve checksum verification and
+// ask before the launcher is allowed to download a missing toolchain.
+func TestNativeGoToolchainConsent(t *testing.T) {
+	for _, tc := range []struct {
+		name, input    string
+		warm, accepted bool
+	}{
+		{name: "cached_without_input", warm: true, accepted: true},
+		{name: "missing_approved_once", input: "yes\\n", accepted: true},
+		{name: "missing_declined", input: "no\\n"},
+		{name: "missing_without_input"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			if tc.warm {
+				writeFixture(t, root, "installed", "cached toolchain\n")
+			}
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" = version ] && [ "$GOTOOLCHAIN" = go1.25.0 ] || exit 91
+# Disabling checksum verification rejects even a cached Go toolchain.
+[ "${GOSUMDB:-}" != off ] || exit 92
+if [ ! -f installed ]; then
+  [ "${GOPROXY:-}" != off ] || exit 1
+  echo prepared >> preparations
+  touch installed
+fi
+echo 'go version go1.25.0'
+`)
+			command := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+ensure_native_go_toolchain || exit $?
+ensure_native_go_toolchain
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false", "GOSUMDB": "sum.golang.org"})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			prompts := 1
+			if tc.warm {
+				prompts = 0
+			}
+			assert.Equal(t, prompts, strings.Count(out, "Install pinned test tools"), out)
+			if tc.accepted && !tc.warm {
+				data, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "prepared\n", string(data))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestPinnedNpmCacheConsent verifies the separate npm cache boundary: a ready
+// lockfile cache needs no input, and npm ci cannot run before consent.
+func TestPinnedNpmCacheConsent(t *testing.T) {
+	for _, tc := range []struct {
+		name, input    string
+		warm, accepted bool
+	}{
+		{name: "cached_without_input", warm: true, accepted: true},
+		{name: "missing_approved_once", input: "yes\\n", accepted: true},
+		{name: "missing_declined", input: "no\\n"},
+		{name: "missing_without_input"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			writeFixture(t, root, "scripts/testcheck/package.json", "{}\n")
+			writeFixture(t, root, "scripts/testcheck/package-lock.json", "{}\n")
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			writeFixture(t, root, "bin/git", "#!/bin/sh\necho fixture-lock\n")
+			writeFixture(t, root, "bin/markdownlint", "#!/bin/sh\necho 0.49.1\n")
+			writeFixture(t, root, "bin/npm", `#!/bin/sh
+[ "$1" = ci ] && [ "$2" = --prefix ] || exit 91
+echo prepared >> preparations
+mkdir -p "$3/node_modules/.bin"
+cp bin/markdownlint "$3/node_modules/.bin/markdownlint"
+`)
+			if tc.warm {
+				writeFixture(t, root, "temp/tools/npm/26.12.1/fixture-lock/.ready", "fixture-lock\n")
+				writeFixture(t, root, "temp/tools/npm/26.12.1/fixture-lock/node_modules/.bin/markdownlint", "#!/bin/sh\necho 0.49.1\n")
+			}
+			command := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+# Standalone tool selection has its own cache tests; isolate the npm boundary.
+ensure_node_test_tool() { return 0; }
+prepare_pinned_test_selection() { printf -v "$1" '%s' "$PWD/bin"; }
+prepare_pinned_native_tools || exit $?
+prepare_pinned_native_tools
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false"})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			prompts := 1
+			if tc.warm {
+				prompts = 0
+			}
+			assert.Equal(t, prompts, strings.Count(out, "Install pinned test tools"), out)
+			if tc.accepted && !tc.warm {
+				data, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "prepared\n", string(data), "warm npm selection does not reinstall")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
 		})
 	}
 }
@@ -1495,6 +1676,7 @@ exit 91
 	// The runtime uses testcheck to validate the host Clang identity.
 	writeFixture(t, root, "bin/testcheck-fixture", `#!/bin/sh
 if [ "$1" = identity ]; then
+  printf '%s %s\n' "${2##*/}" "$3" >> identity.calls
   output="$("$2" --version 2>/dev/null)" || exit 1
   case "$output" in *"$3"*) exit 0 ;; esac
   exit 1
@@ -1574,11 +1756,16 @@ bash scripts/_490_test_runtime_prepare.sh --quiet`
 				out, err := runFixture(t, root, command, map[string]string{
 					"SELECTED": "full", "CI": "true", "MISSING_COMPILER": missing,
 				})
-				assert.Equal(t, missing != "", err != nil, out)
 				logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
 				assert.NoError(t, readErr)
+				assert.Equal(t, missing != "", err != nil, out+string(logBytes))
 				if missing == "" {
 					assert.FileExists(t, filepath.Join(root, "workflow.called"))
+					if platform == "Linux" {
+						calls, err := os.ReadFile(filepath.Join(root, "identity.calls"))
+						assert.NoError(t, err)
+						assert.Contains(t, string(calls), "clang 20.1.7\nclang++ 20.1.7\nclangd 20.1.7\n")
+					}
 				} else {
 					assert.Contains(t, string(logBytes), "full requires the native "+missing+" frontend")
 					assert.NoFileExists(t, filepath.Join(root, "workflow.called"))

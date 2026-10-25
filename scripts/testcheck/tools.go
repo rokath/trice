@@ -8,6 +8,7 @@ import (
 	"compress/gzip"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,6 +21,10 @@ import (
 	"strings"
 	"time"
 )
+
+// errInstallRequired distinguishes a missing installation from setup errors.
+// The shell can request consent for this case without prompting on cache hits.
+var errInstallRequired = errors.New("pinned installation required")
 
 // readToolConfig reads data-only KEY=value assignments shared with Bash. It
 // deliberately does not evaluate substitutions, shell commands or environment.
@@ -188,7 +193,7 @@ func extractTool(archive, binaryName, destination string) error {
 
 // installTools serializes publication for one manifest/host. The digest in the
 // cache path keeps version changes independent and includes all pinned hashes.
-func installTools(config, root string, names []string) (string, error) {
+func installTools(config, root string, names []string, allowInstall bool) (string, error) {
 	values, data, err := readToolConfig(config)
 	if err != nil {
 		return "", err
@@ -234,6 +239,18 @@ func installTools(config, root string, names []string) (string, error) {
 			fmt.Fprintf(os.Stderr, "Selected %s %s: %s\n", name, version, binary)
 			continue
 		}
+		// Existing matching tools can be frozen locally without installation.
+		// Reject downloads/builds here so a changed cache cannot bypass consent.
+		global, globalErr := exec.LookPath(name)
+		matchingGlobal := globalErr == nil && toolIdentity(global, version, module)
+		platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
+		url, expected := values[prefix+"_URL_"+platform], values[prefix+"_SHA_"+platform]
+		if !matchingGlobal && module == "" && (url == "" || len(expected) != 64) {
+			return "", fmt.Errorf("no verified %s package for %s", name, platform)
+		}
+		if !matchingGlobal && !allowInstall {
+			return "", fmt.Errorf("%w: %s %s", errInstallRequired, name, version)
+		}
 		staging, err := os.MkdirTemp(root, ".stage-")
 		if err != nil {
 			return "", err
@@ -241,8 +258,7 @@ func installTools(config, root string, names []string) (string, error) {
 		staged := filepath.Join(staging, filename)
 		// Reuse only a matching global executable; copy it to freeze this run's
 		// selection even if the caller subsequently changes PATH.
-		global, globalErr := exec.LookPath(name)
-		if globalErr == nil && toolIdentity(global, version, module) {
+		if matchingGlobal {
 			err = extractTool(global, filename, staged)
 		} else if module != "" {
 			cmd := exec.Command("go", "install", module+"@v"+version)
@@ -250,16 +266,10 @@ func installTools(config, root string, names []string) (string, error) {
 			cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
 			err = cmd.Run()
 		} else {
-			platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
-			url, expected := values[prefix+"_URL_"+platform], values[prefix+"_SHA_"+platform]
-			if url == "" {
-				err = fmt.Errorf("no verified %s package for %s", name, platform)
-			} else {
-				archive := filepath.Join(root, filepath.Base(url))
-				err = downloadTool(url, archive, expected)
-				if err == nil {
-					err = extractTool(archive, filename, staged)
-				}
+			archive := filepath.Join(root, filepath.Base(url))
+			err = downloadTool(url, archive, expected)
+			if err == nil {
+				err = extractTool(archive, filename, staged)
 			}
 		}
 		if err != nil || !toolIdentity(staged, version, module) {
@@ -290,7 +300,7 @@ func installTools(config, root string, names []string) (string, error) {
 // support programs. Copying its gcc executable alone would mix runtimes and
 // produce host-dependent firmware builds. Only verified publisher archives
 // are handed to the native archive tool, inside a private staging directory.
-func installBundle(config, root, name string) (string, error) {
+func installBundle(config, root, name string, allowInstall bool) (string, error) {
 	values, _, err := readToolConfig(config)
 	if err != nil {
 		return "", err
@@ -314,6 +324,9 @@ func installBundle(config, root, name string) (string, error) {
 	if marker, err := os.ReadFile(filepath.Join(root, ".ready")); err == nil && string(marker) == expected &&
 		toolIdentity(compiler, version, "") {
 		return bin, nil
+	}
+	if !allowInstall {
+		return "", fmt.Errorf("%w: complete %s compiler package %s", errInstallRequired, name, version)
 	}
 	if err := os.MkdirAll(root, 0o755); err != nil {
 		return "", err

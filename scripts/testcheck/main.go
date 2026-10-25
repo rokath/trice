@@ -221,18 +221,29 @@ func main() {
 		}
 		return
 	}
-	if len(os.Args) == 5 && os.Args[1] == "bundle" {
-		bin, err := installBundle(os.Args[2], os.Args[3], os.Args[4])
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "INCOMPLETE:", err)
+	if len(os.Args) > 1 && (os.Args[1] == "tools" || os.Args[1] == "bundle") {
+		// The first pass may reuse or freeze installed tools but cannot download,
+		// compile or unpack missing ones. Exit 3 asks the shell for one approval.
+		arguments, allowInstall := os.Args[2:], true
+		if len(arguments) > 0 && arguments[0] == "--no-install" {
+			arguments, allowInstall = arguments[1:], false
+		}
+		var bin string
+		var err error
+		switch {
+		case os.Args[1] == "tools" && len(arguments) >= 3:
+			bin, err = installTools(arguments[0], arguments[1], arguments[2:], allowInstall)
+		case os.Args[1] == "bundle" && len(arguments) == 3:
+			bin, err = installBundle(arguments[0], arguments[1], arguments[2], allowInstall)
+		default:
+			fmt.Fprintln(os.Stderr, "INCOMPLETE: tool setup needs config, cache and tool names")
 			os.Exit(2)
 		}
-		fmt.Println(bin)
-		return
-	}
-	if len(os.Args) >= 5 && os.Args[1] == "tools" {
-		bin, err := installTools(os.Args[2], os.Args[3], os.Args[4:])
 		if err != nil {
+			if errors.Is(err, errInstallRequired) {
+				fmt.Fprintln(os.Stderr, "SETUP REQUIRED:", err)
+				os.Exit(3)
+			}
 			fmt.Fprintln(os.Stderr, "INCOMPLETE:", err)
 			os.Exit(2)
 		}
@@ -259,6 +270,6 @@ func main() {
 		}
 		return
 	}
-	fmt.Fprintln(os.Stderr, "Usage: testcheck audit events.json [required-test ...] | report directory selection result started-unix | tools config cache names... | bundle config cache name | identity binary version")
+	fmt.Fprintln(os.Stderr, "Usage: testcheck audit events.json [required-test ...] | report directory selection result started-unix | tools [--no-install] config cache names... | bundle [--no-install] config cache name | identity binary version")
 	os.Exit(2)
 }
