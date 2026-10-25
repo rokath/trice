@@ -285,7 +285,7 @@ prepare_host_compilers() {
     if [ "$(uname -s)" != Linux ] || [ "$SELECTED" != full ]; then
       return 0
     fi
-    local supported_clang expected binary_path clang_supported=""
+    local expected binary_path clang_supported=""
     if [ -z "${TRICE_TEST_REPORT_BIN:-}" ]; then
       ensure_native_report_tool >>"$LOGFILE" 2>&1 || return 1
     fi

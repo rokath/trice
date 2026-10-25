@@ -119,9 +119,11 @@ ensure_node_test_tool() {
     Darwin:x86_64) archive_name="node-v$version-darwin-x64.tar.gz" ;;
     Darwin:arm64) archive_name="node-v$version-darwin-arm64.tar.gz" ;;
     MINGW*:x86_64 | MSYS*:x86_64 | CYGWIN*:x86_64 | MINGW*:amd64 | MSYS*:amd64 | CYGWIN*:amd64)
-      archive_name="node-v$version-win-x64.zip" ;;
+      archive_name="node-v$version-win-x64.zip"
+      ;;
     MINGW*:aarch64 | MSYS*:aarch64 | CYGWIN*:aarch64 | MINGW*:arm64 | MSYS*:arm64 | CYGWIN*:arm64)
-      archive_name="node-v$version-win-arm64.zip" ;;
+      archive_name="node-v$version-win-arm64.zip"
+      ;;
     *)
       printf 'FAIL: no pinned Node.js %s archive is available for %s/%s.\n' "$version" "$platform" "$architecture" >&2
       return 1
