@@ -22,7 +22,9 @@ CONSOLE_LOCK_POLL_MS=10
 console_sleep_ms() {
   local ms="$1"
   if command -v sleep >/dev/null 2>&1; then
-    sleep "$(awk "BEGIN { printf \"%.3f\", ${ms} / 1000 }")"
+    # Keep the decimal point literal: floating-point formatting follows the
+    # user's locale, but sleep needs a portable seconds argument.
+    sleep "$(printf '%d.%03d' "$((ms / 1000))" "$((ms % 1000))")"
     return
   fi
   sleep 1

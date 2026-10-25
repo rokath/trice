@@ -14,9 +14,10 @@ import (
 )
 
 // TestAbcDemoCoordinatesNodeLifetimes uses event-driven node doubles to verify
-// late TX readiness, complete draining and cleanup after startup/runtime errors.
+// late TX readiness, complete draining, locale-independent waits and cleanup
+// after startup/runtime errors.
 func TestAbcDemoCoordinatesNodeLifetimes(t *testing.T) {
-	for _, outcome := range []string{"success", "startup_failure", "receiver_failure"} {
+	for _, outcome := range []string{"success", "comma_decimal_locale", "startup_failure", "receiver_failure"} {
 		t.Run(outcome, func(t *testing.T) {
 			root := scriptFixture(t, "examples/TriceAbc/demo.sh")
 			// Shell doubles use stable executable names; the integration test
@@ -58,8 +59,21 @@ wait_marker "$TRICE_ABC_START_DIR/finish"
 echo "$name received late traffic" > "events/$name.received"
 `)
 			}
-			out, err := runFixture(t, root, "bash examples/TriceAbc/demo.sh", map[string]string{"OUTCOME": outcome})
-			if outcome == "success" {
+			env := map[string]string{"OUTCOME": outcome}
+			if outcome == "comma_decimal_locale" {
+				// Simulate awk's comma-decimal default without requiring the host
+				// to have any particular locale installed. An explicit C locale
+				// still behaves normally, as it would with the actual awk tool.
+				env["LC_ALL"], env["LC_NUMERIC"] = "", ""
+				writeFixture(t, root, "bin/awk", `#!/bin/sh
+case "${LC_ALL:-${LC_NUMERIC:-}}" in
+  C | POSIX | C.*) printf '0.010' ;;
+  *) printf '0,010' ;;
+esac
+`)
+			}
+			out, err := runFixture(t, root, "bash examples/TriceAbc/demo.sh", env)
+			if outcome == "success" || outcome == "comma_decimal_locale" {
 				assert.NoError(t, err, out)
 				assert.FileExists(t, filepath.Join(root, "examples/TriceAbc/events/N6_rx.received"))
 			} else {
