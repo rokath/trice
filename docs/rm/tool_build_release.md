@@ -7,7 +7,6 @@
 
 * [1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
 * [2. Prepare A Release](#prepare-a-release)
-  * [2.1. Check a GoReleaser Release before Publishing](#check-a-goreleaser-release-before-publishing)
 * [3. Publish a Release Manually from a Selected Tag](#publish-a-release-manually-from-a-selected-tag)
   * [3.1. Verify the Candidate Commit](#verify-the-candidate-commit)
   * [3.2. Create and Transfer the Release Tag](#create-and-transfer-the-release-tag)
@@ -65,41 +64,7 @@
   * Give each Trice binary its own name when using different images. Otherwise you always get what is found first in the **$PATH**.
   * Use GoReleaser if you wish to create releases on your forked Trice repository.
   * For Windows CGO and host C tests, follow the [compiler selection and runtime checks](development_environment_setup.md#choose-the-right-windows-compiler). Run the commands from the Trice directory in Git Bash.
-  * Historical test transcript; package names and results describe the recorded checkout. Use the current test entry points below:
-
-  ```b
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ go clean -cache
-  
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ go vet ./...
-  
-  ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
-  $ go test ./...
-  ?       github.com/rokath/trice/cmd/cui [no test files]
-  ok      github.com/rokath/trice/cmd/stim        0.227s
-  ok      github.com/rokath/trice/cmd/trice       0.577s
-  ok      github.com/rokath/trice/internal/args   0.232s
-  ok      github.com/rokath/trice/internal/charDecoder    0.407s
-  ok      github.com/rokath/trice/internal/com    1.148s
-  ok      github.com/rokath/trice/internal/decoder        0.412s [no tests to run]
-  ?       github.com/rokath/trice/internal/do     [no test files]
-  ok      github.com/rokath/trice/internal/dumpDecoder    0.388s
-  ok      github.com/rokath/trice/internal/emitter        0.431s
-  ok      github.com/rokath/trice/internal/id     0.421s
-  ok      github.com/rokath/trice/internal/keybcmd        0.431s
-  ok      github.com/rokath/trice/internal/link   0.404s
-  ok      github.com/rokath/trice/internal/receiver       0.409s
-  ok      github.com/rokath/trice/internal/tleDecoder     0.398s
-  ?       github.com/rokath/trice/internal/translator     [no test files]
-  ok      github.com/rokath/trice/internal/trexDecoder    0.391s
-  ok      github.com/rokath/trice/pkg/cipher      0.377s
-  ok      github.com/rokath/trice/pkg/endian      0.302s
-  ok      github.com/rokath/trice/pkg/msg 0.299s
-  ok      github.com/rokath/trice/pkg/tst 0.406s
-  ```
-
-Use `./scripts/testAll.sh` for the standard Bind checks. For target-code tests only, use `./scripts/_640_test_pc_targets_bind.sh quick` or `full`; `./scripts/_630_test_pc_targets_insert.sh` provides the legacy Insert/Clean variant. These wrappers prepare IDs and restore the starting source and metadata state. Direct `go test` calls inside `_test` require a matching prepared state; see [target-test instructions](target_tests.md#how-to-run-the-tests). The full matrix can take many minutes.
+  * Use [Running the Tests](target_tests.md) for native compiler prerequisites, local checks and the full/quick selections.
 
 ```bash
 ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (main)
@@ -112,46 +77,7 @@ Prefer `bash ./scripts/buildTriceTool.sh` for metadata and overwrite protection.
 
 ## 2. <a id="prepare-a-release"></a>Prepare A Release
 
-Prerequisite: Installed `goreleaser`.
-
-### 2.1. <a id="check-a-goreleaser-release-before-publishing"></a>Check a GoReleaser Release before Publishing
-
-From the repository root, clone into a new disposable directory. The clone command stops if `temp/release-check` already contains files; choose another empty directory for a later run.
-
-```bash
-mkdir -p temp &&
-git clone https://github.com/rokath/trice.git temp/release-check &&
-cd temp/release-check &&
-goreleaser release --clean --snapshot --skip=publish
-```
-
-This generates artifacts locally in `temp/release-check/dist`, using the clone's [.goreleaser.yaml](../../.goreleaser.yaml). Check out the intended candidate in that clone before building if it differs from the default branch.
-
-Alternatively, clean an existing disposable clone first. `git clean -xfd` deletes all untracked and ignored files, including local configuration and build data. Preview with `git clean -xfdn` and continue only when that list can be deleted:
-
-```bash
-git status
-git clean -xfdn
-git clean -xfd
-goreleaser release --clean --snapshot --skip=publish
-```
-
-Explanation:
-
-* `release` – run the normal release pipeline (builds, archives, checksums, changelog, etc.).
-* `--clean` – delete the `dist/` folder first so no old artefacts are reused. 
-* `--snapshot` – build as a “snapshot” version, not a real tagged release.
-* `--skip=publish` – **do not upload** anything (no GitHub Releases, no Homebrew, no Docker, etc.).
-
-What you should see:
-
-* GoReleaser building all your `builds:` targets from `.goreleaser.yaml`, including the `trice` and `tlog` host binaries.
-* Creating archives in `dist/`.
-* Generating checksums.
-* No attempts to call the GitHub API for a real release.
-
-A successful snapshot checks local builds and packaging. It does not check publication credentials, remote uploads or installation on other hosts; those are covered by the release and audit workflows below.
-If it fails, fix the reported local problem before proceeding.
+Follow [GoReleaser and release-package testing](target_tests.md#goreleaser-and-release-package-testing) for configuration checks, disposable local snapshots, native package installation and published-release audits. That chapter lists prerequisites and explains what each level proves.
 
 ## 3. <a id="publish-a-release-manually-from-a-selected-tag"></a>Publish a Release Manually from a Selected Tag
 
@@ -167,7 +93,7 @@ git status
 git status
 ```
 
-The test summary must pass, including source-state restoration. Check any skips explicitly. This run builds the local snapshot packages, verifies their licenses, and exercises Bind, Context Enrichment and structured output using the unpacked host tools and target sources. Run the [installation workflow](../../.github/workflows/install-checks.yml) on the same candidate to check Linux, macOS and Windows.
+Follow the [release-candidate checks](target_tests.md#before-accepting-a-release-candidate) on this same fixed commit, including source restoration. The full code suite does not generate snapshot packages; package construction and native installation are separate checks.
 
 ### 3.2. <a id="create-and-transfer-the-release-tag"></a>Create and Transfer the Release Tag
 

@@ -7,8 +7,6 @@
 
 * [1. Project structure and ownership](#project-structure-and-ownership)
 * [2. GitHub workflows](#github-workflows)
-  * [2.1. Coverage](#coverage)
-  * [2.2. Link checks](#link-checks)
 * [3. Trice Reference Manual Maintenance](#trice-reference-manual-maintenance)
 * [4. Cleaning the Sources](#cleaning-the-sources)
 * [5. GitHub statistics](#github-statistics)
@@ -40,44 +38,14 @@ The [Guide](../TriceGuide.md) describes the repository layout. This appendix cov
 
 ## 2. <a id="github-workflows"></a>GitHub workflows
 
-The workflow files are the authority for current triggers. Local checks use the same repository scripts where possible; [Testing Trice](target_tests.md) explains test scope and state restoration.
+The [testing chapter](target_tests.md#github-actions) owns the test workflow catalogue, coverage commands and link checks. Workflow YAML files define their current triggers; repository settings decide which checks block merging.
 
-| Workflow | Purpose |
+| Workflow | Repository maintenance role |
 | --- | --- |
-| [trice_lib_ci.yml](../../.github/workflows/trice_lib_ci.yml) | **Full** library matrix for PRs into `main`; quick nightly/manual checks. The existing check name remains “Heavy CI (quick)” even for a full PR run. |
-| [trice_lib_ci_full.yml](../../.github/workflows/trice_lib_ci_full.yml) | Full nightly/manual library matrix. |
-| [trice_lib_reusable.yml](../../.github/workflows/trice_lib_reusable.yml) | Shared library build/test implementation. |
-| [go.yml](../../.github/workflows/go.yml) | Manually triggered Go build, tests and coverage upload. |
-| [coverage.yml](../../.github/workflows/coverage.yml) | Go coverage on PRs, pushes to `main`, monthly and manual runs; upload to Coveralls. |
-| [codeql.yml](../../.github/workflows/codeql.yml) | Static analysis; separate from compiling and executing tests. |
-| [clang-format.yml](../../.github/workflows/clang-format.yml) | Check C formatting without rewriting sources. |
-| [shfmt.yml](../../.github/workflows/shfmt.yml), [shellcheck.yml](../../.github/workflows/shellcheck.yml) | Shell formatting and shell diagnostics. |
-| [superlinter.yml](../../.github/workflows/superlinter.yml) | YAML and Markdown linting. |
-| [link-check.yml](../../.github/workflows/link-check.yml) | Links, including source-file links handled by the local wrapper. |
-| [install-checks.yml](../../.github/workflows/install-checks.yml) | Build and exercise checkout installations and release-shaped packages. |
-| [goreleaser.yml](../../.github/workflows/goreleaser.yml), [release-audit.yml](../../.github/workflows/release-audit.yml) | Publish/audit release artifacts; see [Building and Releasing](tool_build_release.md). |
-| [pages.yml](../../.github/workflows/pages.yml) | Build and deploy the documentation website and the statistics reports described below. |
-| [label.yml](../../.github/workflows/label.yml), [stale.yml](../../.github/workflows/stale.yml) | Repository labeling and inactive-issue handling. |
+| [pages.yml](../../.github/workflows/pages.yml) | Build/deploy documentation and the statistics reports described below. |
+| [label.yml](../../.github/workflows/label.yml), [stale.yml](../../.github/workflows/stale.yml) | Apply labels and handle inactive issues/pull requests. |
 | [statistics.yml](../../.github/workflows/statistics.yml) | Repository activity reports; not a Trice logging feature. |
-
-A push to `wip` alone does not trigger the library matrix. Once a PR into `main` exists, a new commit updates that PR and starts the full PR checks again. The nightly activity guard applies only to scheduled runs, not PRs or explicit manual runs. Branch-protection settings determine whether a failed check blocks merging.
-
-### 2.1. <a id="coverage"></a>Coverage
-
-Use the same package selection as the coverage workflow:
-
-```sh
-mkdir -p temp/log
-go test ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
-go tool cover -func=./temp/log/coverage.out
-go tool cover -html=./temp/log/coverage.out
-```
-
-Go coverage measures Go code, not the C target library. The CGO and firmware matrices provide separate evidence for C configurations. Compare coverage with the target branch; a rounded statement percentage is not identical to Coveralls covered-line coverage.
-
-### 2.2. <a id="link-checks"></a>Link checks
-
-Run `./scripts/_530_test_links.sh`. It uses [lychee.toml](../../lychee.toml), checks source references as well as documentation and writes details to `temp/log/_530_test_links.log`. It maps the CLI-help source URL to the local checkout. Missing Lychee is reported as a skip. `GITHUB_TOKEN` or `GH_TOKEN` can reduce GitHub API throttling.
+| [statistics-branch-guard.yml](../../.github/workflows/statistics-branch-guard.yml) | Reject PRs involving the statistics branch; see [data isolation](../../.github/workflows/README.md). |
 
 ## 3. <a id="trice-reference-manual-maintenance"></a>Trice Reference Manual Maintenance
 
