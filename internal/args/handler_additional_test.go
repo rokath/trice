@@ -566,6 +566,26 @@ func TestHandlerGenerateWithoutParameters(t *testing.T) {
 	assert.Contains(t, out.String(), `The "trice generate" command needs at least one parameter.`)
 }
 
+// TestGenerateFlagsDoNotLeakAcrossInitializations exercises consecutive public
+// commands. Optional-filename flags need the same reset as ordinary bool flags.
+func TestGenerateFlagsDoNotLeakAcrossInitializations(t *testing.T) {
+	t.Cleanup(FlagsInit)
+	for _, option := range []string{"-logC", "-logC=custom-table.c"} {
+		t.Run(option, func(t *testing.T) {
+			FlagsInit()
+			require.NoError(t, fsScGenerate.Parse([]string{option}))
+			require.True(t, id.GenerateLogC)
+			FlagsInit()
+			assert.False(t, id.GenerateLogC)
+			assert.Empty(t, id.GenerateLogCPath)
+			var output bytes.Buffer
+			fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+			assert.NoError(t, Handler(&output, fs, []string{"trice", "generate"}))
+			assert.Contains(t, output.String(), `The "trice generate" command needs at least one parameter.`)
+		})
+	}
+}
+
 // TestHandlerGenerateOneLineJSON verifies that the public generate command
 // accepts both dictionary paths and writes their views under the shared default.
 func TestHandlerGenerateOneLineJSON(t *testing.T) {
