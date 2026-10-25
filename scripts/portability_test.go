@@ -1693,11 +1693,9 @@ func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
 	t.Setenv("SELECTED", "full")
 	for _, failure := range []string{"", "clang", "clang++", "runtime"} {
 		t.Run("failure_"+failure, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_490_test_runtime_prepare.sh")
-			hostCompilerFixture(t, root)
-			writeFixture(t, root, "bin/go", "#!/bin/sh\necho fixture-go\n")
-			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
+			// Exercise the generic probe diagnostics on every host. Windows
+			// bundle selection/recovery is covered by local_Windows_bundle.
+			root := hostPreparationFixture(t, "Linux")
 			env := map[string]string{"FAILED_COMPILER": failure, "CI": "true"}
 			if failure == "runtime" {
 				env["RUNTIME_STATUS"] = "23"
