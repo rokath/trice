@@ -193,14 +193,119 @@ prepare_macos_host_gcc() {
   log "Hint: using verified Homebrew GCC through checkout-local aliases; shell profiles and system compiler names are unchanged."
 }
 
+# Install a versioned Linux Clang toolchain only after explicit approval.
+# Package-manager changes are system-wide; aliases keep the suite's PATH choice local.
+prepare_linux_clang() {
+  local manager="" package_version=18 bin_dir="$LOG_DIR/compilers" clang_bin clangxx_bin clangd_bin distro_id="" expected candidate_version
+  local -a installer=()
+  if command -v apt-get >/dev/null 2>&1; then
+    manager=apt
+    if [ -r /etc/os-release ]; then
+      . /etc/os-release
+      distro_id="${ID:-}"
+    fi
+    if [ "$distro_id" = debian ]; then package_version=19; fi
+    installer=(apt-get install -y "clang-$package_version" "clangd-$package_version" "lld-$package_version")
+  elif command -v dnf >/dev/null 2>&1; then
+    manager=dnf
+    installer=(dnf install -y clang clang-tools-extra lld)
+  elif command -v pacman >/dev/null 2>&1; then
+    manager=pacman
+    installer=(pacman -S --needed --noconfirm clang lld)
+  else
+    log "FAIL: no supported Linux package manager (apt-get, dnf or pacman) is available for Clang setup"
+    return 1
+  fi
+  # Reuse an already installed supported versioned package before asking for changes.
+  for expected in $TRICE_CLANG_LINUX_SUPPORTED; do
+    candidate_version="${expected%%.*}"
+    clang_bin="$(command -v "clang-$candidate_version" || true)"
+    clangxx_bin="$(command -v "clang++-$candidate_version" || true)"
+    clangd_bin="$(command -v "clangd-$candidate_version" || true)"
+    if [ -n "$clang_bin" ] && [ -n "$clangxx_bin" ] && [ -n "$clangd_bin" ] &&
+      "$TRICE_TEST_REPORT_BIN" identity "$clang_bin" "$expected" >/dev/null 2>&1 &&
+      "$TRICE_TEST_REPORT_BIN" identity "$clangxx_bin" "$expected" >/dev/null 2>&1 &&
+      "$TRICE_TEST_REPORT_BIN" identity "$clangd_bin" "$expected" >/dev/null 2>&1; then
+      mkdir -p "$bin_dir" || return 1
+      ln -sf "$clang_bin" "$bin_dir/clang" || return 1
+      ln -sf "$clangxx_bin" "$bin_dir/clang++" || return 1
+      ln -sf "$clangd_bin" "$bin_dir/clangd" || return 1
+      PATH="$(cd "$bin_dir" && pwd):$PATH"
+      export PATH
+      hash -r
+      return 0
+    fi
+  done
+  if ! confirm_tool_install "Linux Clang and LLD through $manager (system-wide; requires administrator access)" "system package manager"; then
+    log "FAIL: Linux Clang package installation was not approved"
+    return 1
+  fi
+  if [ "$(id -u)" -ne 0 ]; then
+    if ! has_command sudo; then
+      log "FAIL: $manager needs administrator access; install sudo or run the suite from an administrator shell"
+      return 1
+    fi
+    installer=(sudo "${installer[@]}")
+  fi
+  if [ "$manager" = apt ]; then
+    local -a update=(apt-get update)
+    if [ "$(id -u)" -ne 0 ]; then update=(sudo apt-get update); fi
+    run_cmd "${update[@]}" || return 1
+  fi
+  run_cmd "${installer[@]}" || return 1
+  case "$manager" in
+    apt)
+      clang_bin="$(command -v "clang-$package_version")" || return 1
+      clangxx_bin="$(command -v "clang++-$package_version")" || return 1
+      clangd_bin="$(command -v "clangd-$package_version")" || return 1
+      ;;
+    *)
+      clang_bin="$(command -v clang)" || return 1
+      clangxx_bin="$(command -v clang++)" || return 1
+      clangd_bin="$(command -v clangd)" || return 1
+      ;;
+  esac
+  mkdir -p "$bin_dir" || return 1
+  ln -sf "$clang_bin" "$bin_dir/clang" || return 1
+  ln -sf "$clangxx_bin" "$bin_dir/clang++" || return 1
+  ln -sf "$clangd_bin" "$bin_dir/clangd" || return 1
+  PATH="$(cd "$bin_dir" && pwd):$PATH"
+  export PATH
+  hash -r
+  check_host_compilers
+}
+
 # Preserve working installations. When preparation fails, a supported Windows
 # host can use a complete verified bundle instead of mixing compiler runtimes.
-# macOS can install Homebrew GCC with explicit consent; Linux retains explicit
-# prerequisite failures. SDK installers and elevated privileges are never used.
+# macOS and Linux can install host compilers only after explicit consent.
+# SDK installers and other host changes remain outside this helper.
 prepare_host_compilers() {
-  local previous_path="$PATH"
+  local previous_path="$PATH" compiler
   if check_host_compilers; then
-    return 0
+    if [ "$(uname -s)" != Linux ] || [ "$SELECTED" != full ]; then
+      return 0
+    fi
+    local supported_clang expected binary_path clang_supported=""
+    if [ -z "${TRICE_TEST_REPORT_BIN:-}" ]; then
+      ensure_native_report_tool >>"$LOGFILE" 2>&1 || return 1
+    fi
+    binary_path="$(command -v clang)"
+    for expected in $TRICE_CLANG_LINUX_SUPPORTED; do
+      if "$TRICE_TEST_REPORT_BIN" identity "$binary_path" "$expected" >/dev/null 2>&1; then
+        clang_supported="$expected"
+        break
+      fi
+    done
+    if [ -n "$clang_supported" ]; then
+      for compiler in clang++ clangd; do
+        binary_path="$(command -v "$compiler" || true)"
+        if [ -z "$binary_path" ] || ! "$TRICE_TEST_REPORT_BIN" identity "$binary_path" "$clang_supported" >/dev/null 2>&1; then
+          clang_supported=""
+          break
+        fi
+      done
+    fi
+    [ -n "$clang_supported" ] && return 0
   fi
   # A failed cached selection must not stay active in later independent steps.
   rm -f ./temp/tools/host-gcc/.ready || return 1
@@ -232,6 +337,9 @@ prepare_host_compilers() {
         return 0
       fi
       if [ "$SELECTED" = full ] && [ "$(uname -s)" = Darwin ] && prepare_macos_host_gcc; then
+        return 0
+      fi
+      if [ "$SELECTED" = full ] && [ "$(uname -s)" = Linux ] && prepare_linux_clang; then
         return 0
       fi
       log "Hint: Linux needs native GCC/g++ and Clang with development headers; install the matching packages for your distribution."

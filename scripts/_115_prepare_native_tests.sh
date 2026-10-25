@@ -21,6 +21,7 @@ ensure_native_report_tool() {
 # the same manifest/cache as the suite and never modifies a system installation.
 ensure_pinned_test_tools() {
   local bin
+  approve_pinned_test_setup || return 2
   ensure_native_report_tool || return 2
   bin="$("$TRICE_TEST_REPORT_BIN" tools scripts/test-tools.env temp/tools/native "$@")" || return 2
   case "$(uname -s)" in
@@ -36,13 +37,15 @@ ensure_pinned_test_tools() {
 prepare_native_test_tools() {
   local tool missing=0 compiler gcc_bin="" cpp_bin="" directory candidate platform
   export TRICE_TEST_AUTO_SETUP=1
-  for tool in git go bash tar unzip make cmake node npm npx curl; do
+  for tool in git go bash tar unzip make cmake curl; do
     if ! command -v "$tool" >/dev/null 2>&1; then
       printf 'MISSING TOOL: %s; install the native prerequisite listed in docs/rm/target_tests.md\n' "$tool"
       missing=1
     fi
   done
   [ "$missing" -eq 0 ] || return 2
+  approve_pinned_test_setup || return 2
+  ensure_node_test_tool || return 2
   if [ "$(node --version)" != "v$TRICE_NODE_VERSION" ]; then
     printf 'INCOMPLETE: Node.js %s is required; found %s. Select the declared version before running native tests.\n' "$TRICE_NODE_VERSION" "$(node --version)"
     return 2
@@ -119,6 +122,10 @@ prepare_native_test_tools() {
   if ! SELECTED=full bash "$SCRIPTS_DIR/_490_test_runtime_prepare.sh" --probe; then
     return 2
   fi
+  if [ "$(uname -s)" = Linux ] && [ -d "$LOG_DIR/compilers" ]; then
+    export PATH="$LOG_DIR/compilers:$PATH"
+    hash -r
+  fi
   activate_cached_host_test_tools
   export TRICE_TEST_FIXED_HOST=1 CC=gcc CXX=g++
   platform="$(go env GOHOSTOS)"
@@ -183,6 +190,8 @@ prepare_native_test_tools() {
 # an initial lock-generation run stops before running any product tests.
 prepare_pinned_native_tools() {
   local tool_bin npm_dir lock_hash installed_hash=""
+  approve_pinned_test_setup || return 2
+  ensure_node_test_tool || return 2
   tool_bin="$("$TRICE_TEST_REPORT_BIN" tools scripts/test-tools.env temp/tools/native \
     goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd)" || return 2
   case "$(uname -s)" in

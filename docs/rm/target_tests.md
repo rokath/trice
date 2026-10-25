@@ -41,7 +41,7 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 ./scripts/testAll.sh
 ```
 
-The default is **full**. The first run may download and build tools; later runs reuse their checked caches. Preparation finishes before the test steps begin, without installation questions between steps. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
+The default is **full**. The first run may ask before downloading or building project-local tools; approved tools are checked and cached under `temp/tools`. Later runs reuse those caches. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
 | Command | Use |
 | --- | --- |
@@ -57,7 +57,7 @@ Do not run two suites, ID-maintenance scripts or the repository formatter in the
 
 ### Prepare Windows
 
-Use Git for Windows with Git Bash, native Go and Node.js, Make, CMake and Python support. Select the Go/Node versions declared in [test-tools.env](../../scripts/test-tools.env). Have `tar`, `unzip`, `curl` and the usual shell utilities available in Git Bash.
+Use Git for Windows with Git Bash, native Go, Make, CMake and Python support. The suite can install the declared Node.js version into `temp/tools` after approval. Have `tar`, `unzip`, `curl` and the usual shell utilities available in Git Bash.
 
 The test environment uses a matching **GCC/Clang/MinGW-w64** compiler and runtime set. When the global compilers do not match the declared set, preparation can install the complete project-local bundle under `temp/tools`. An arbitrary `clang.exe` on `PATH` is insufficient: both C and C++ must compile, link and run with matching headers and libraries. See [Windows compiler selection](development_environment_setup.md#choose-the-right-windows-compiler) for diagnosing a mixed installation.
 
@@ -65,7 +65,7 @@ Keep shell scripts in LF form as specified by [.gitattributes](../../.gitattribu
 
 ### Prepare Linux
 
-Install the basic tools listed above and a working C/C++ development environment. The suite prepares the declared native GCC archive in its project cache. Clang, Clang++ and clangd must come from a supported matching installation; system headers and runtime libraries must be present. The [native CI setup](../../.github/workflows/native-tests-reusable.yml) shows the Ubuntu package prerequisites.
+Install the basic tools listed above and a working C/C++ development environment. The suite prepares the declared native GCC archive in its project cache and can install the declared Node.js version after approval. If Clang is missing or unsupported, the suite asks before installing it through apt, dnf or pacman. Its version must still match one of the supported releases, and system headers and runtime libraries must be present. The [native CI setup](../../.github/workflows/native-tests-reusable.yml) shows the Ubuntu package prerequisites.
 
 Linux checks run as Linux processes on the native filesystem. They include shell signals, case-sensitive filenames, real compiler output, local TCP/UDP and file replacement. WSL or a Linux container supplies Linux evidence even when its host is Windows or macOS.
 

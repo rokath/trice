@@ -22,15 +22,16 @@ confirm_tool_install() {
   # a checkout-local installation. Existing tool callers keep their default.
   local destination="${2:-locally under temp/tools}"
   local answer=""
-  # testAll prepares the declared project tools before starting any tests.
-  # This explicit mode never authorizes a system package-manager installation.
+  if [ "${TRICE_TEST_SETUP_APPROVED:-0}" = 1 ] && [ "$destination" = "locally under temp/tools" ]; then
+    return 0
+  fi
+  # CI has no person available to approve a checkout-local download; its
+  # workflow provisions required host packages separately.
   if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ]; then
-    if [ "$destination" = "locally under temp/tools" ]; then
+    if [ -n "${CI:-}" ] && [ "${CI:-}" != "false" ] && [ "$destination" = "locally under temp/tools" ]; then
       printf 'INFO: Preparing %s %s.\n' "$description" "$destination" >&2
       return 0
     fi
-    printf 'INCOMPLETE: %s is a system prerequisite (%s); install it before the automatic test run.\n' "$description" "$destination" >&2
-    return 1
   fi
   if [ -n "${CI:-}" ] && [ "${CI:-}" != "false" ]; then
     printf 'SKIP: %s installation needs confirmation; CI cannot prompt.\n' "$description" >&2
@@ -53,6 +54,18 @@ confirm_tool_install() {
     y | Y | yes | YES) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+# Approve one preparation phase for the missing checkout-local test tools.
+# Individual installers reuse this decision, while host package changes still
+# require their own confirmation.
+approve_pinned_test_setup() {
+  [ "${TRICE_TEST_SETUP_APPROVED:-0}" = 1 ] && return 0
+  if ! confirm_tool_install "pinned test tools and compiler bundles"; then
+    printf 'INCOMPLETE: project-local test setup was not approved.\n' >&2
+    return 1
+  fi
+  export TRICE_TEST_SETUP_APPROVED=1
 }
 
 # Download release archives only after caller consent and verify their pinned
@@ -86,6 +99,83 @@ download_pinned_test_tool() {
     printf 'FAIL: SHA-256 mismatch for %s; expected %s, got %s.\n' "$archive" "$expected" "$actual" >&2
     return 1
   fi
+}
+
+# Select the publisher archive and checksum for the pinned Node.js runtime.
+# The runtime stays inside the checkout so this setup never changes system Node.
+ensure_node_test_tool() {
+  local version="${TRICE_NODE_VERSION:?}" platform architecture archive_name archive_url archive_sha sha_var
+  local cache_dir="./temp/tools/node/$version" archive="./temp/tools/downloads"
+  local executable
+  if command -v node >/dev/null 2>&1 && [ "$(node --version 2>/dev/null)" = "v$version" ] &&
+    command -v npm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
+    return 0
+  fi
+  platform="$(uname -s)"
+  architecture="$(uname -m)"
+  case "$platform:$architecture" in
+    Linux:x86_64 | Linux:amd64) archive_name="node-v$version-linux-x64.tar.xz" ;;
+    Linux:aarch64 | Linux:arm64) archive_name="node-v$version-linux-arm64.tar.xz" ;;
+    Darwin:x86_64) archive_name="node-v$version-darwin-x64.tar.gz" ;;
+    Darwin:arm64) archive_name="node-v$version-darwin-arm64.tar.gz" ;;
+    MINGW*:x86_64 | MSYS*:x86_64 | CYGWIN*:x86_64 | MINGW*:amd64 | MSYS*:amd64 | CYGWIN*:amd64)
+      archive_name="node-v$version-win-x64.zip" ;;
+    MINGW*:aarch64 | MSYS*:aarch64 | CYGWIN*:aarch64 | MINGW*:arm64 | MSYS*:arm64 | CYGWIN*:arm64)
+      archive_name="node-v$version-win-arm64.zip" ;;
+    *)
+      printf 'FAIL: no pinned Node.js %s archive is available for %s/%s.\n' "$version" "$platform" "$architecture" >&2
+      return 1
+      ;;
+  esac
+  case "$archive_name" in
+    *linux-x64*) sha_var=TRICE_NODE_SHA256_LINUX_X64 ;;
+    *linux-arm64*) sha_var=TRICE_NODE_SHA256_LINUX_ARM64 ;;
+    *darwin-x64*) sha_var=TRICE_NODE_SHA256_DARWIN_X64 ;;
+    *darwin-arm64*) sha_var=TRICE_NODE_SHA256_DARWIN_ARM64 ;;
+    *win-x64*) sha_var=TRICE_NODE_SHA256_WINDOWS_X64 ;;
+    *win-arm64*) sha_var=TRICE_NODE_SHA256_WINDOWS_ARM64 ;;
+  esac
+  archive_sha="${!sha_var:?}"
+  case "$platform" in
+    MINGW* | MSYS* | CYGWIN*)
+      executable="$cache_dir/node-v$version-win-$(case "$archive_name" in *arm64*) printf arm64 ;; *) printf x64 ;; esac)/node.exe"
+      ;;
+    *)
+      executable="$cache_dir/node-v$version-$(case "$archive_name" in *linux*) printf linux ;; *) printf darwin ;; esac)-$(case "$archive_name" in *arm64*) printf arm64 ;; *x64*) printf x64 ;; esac)/bin/node"
+      ;;
+  esac
+  if [ -x "$executable" ] && [ "$("$executable" --version 2>/dev/null)" = "v$version" ]; then
+    PATH="$(dirname "$executable"):$PATH"
+    export PATH
+    hash -r
+    if command -v npm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+  if ! confirm_tool_install "Node.js $version (about 35 MB download)"; then
+    printf 'FAIL: Node.js %s setup was not approved.\n' "$version" >&2
+    return 1
+  fi
+  archive="$archive/$archive_name"
+  archive_url="https://nodejs.org/download/release/v$version/$archive_name"
+  download_pinned_test_tool "$archive_url" "$archive" "$archive_sha" || return 1
+  mkdir -p "$cache_dir" || return 1
+  case "$archive_name" in
+    *.zip) unzip -q -o "$archive" -d "$cache_dir" || return 1 ;;
+    *) tar -xf "$archive" -C "$cache_dir" || return 1 ;;
+  esac
+  if [ ! -x "$executable" ] || [ "$("$executable" --version 2>/dev/null)" != "v$version" ]; then
+    printf 'FAIL: extracted Node.js runtime did not pass its version check: %s\n' "$executable" >&2
+    return 1
+  fi
+  PATH="$(dirname "$executable"):$PATH"
+  export PATH
+  hash -r
+  if [ "$(node --version)" != "v$version" ] || ! command -v npm >/dev/null 2>&1 || ! command -v npx >/dev/null 2>&1; then
+    printf 'FAIL: checkout-local Node.js installation is missing npm or npx.\n' >&2
+    return 1
+  fi
+  printf 'INFO: selected checkout-local Node.js %s from %s.\n' "$version" "$executable" >&2
 }
 
 # Select Python's official standard-library-only Windows runtime. Its private
