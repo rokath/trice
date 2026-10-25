@@ -470,7 +470,9 @@ Both workflows prepare private source copies under `build/source`, so switching 
 
 The layout separates [BcSim](../../examples/TriceAbc/BcSim/) (reusable protocol-neutral transport), [BcSimChk](../../examples/TriceAbc/BcSimChk/) (standalone random-byte check), [NodeLib](../../examples/TriceAbc/NodeLib/) (shared Trice runtime and generated tables), and the nine node directories. `tx`, `rx`, and `bi` describe bus capability, not command vocabulary. `N1_tx`/`N2_tx` emit logs, counted typeX0 buffers, and commands; `N3_bi` also receives and replies; `N4_rx`/`N5_rx` execute commands only; `N6_rx` adds received log presentation; `N7_bi` combines replies and log presentation; `N8_bi`/`N9_bi` reply without the normal-log printer.
 
-`demo.sh` starts receive-capable nodes first, then pure transmitters. A BcSim participant joins at the current end of the bus and does not replay earlier traffic. Runtime files are `abc.bus` (binary framed stream), `abc.log` (human hex log), and `abc.bus.lock/` (writer lock). They are separate from BcSimChk's `bc.*` files. `abc.console.lock/` keeps each complete node or shell status line together; the console lock waits rather than falling back to interleaved writes. A killed lock owner may require manual cleanup after all participants stop.
+`demo.sh` starts receive-capable nodes first, then pure transmitters. It waits until every node has joined before releasing traffic. Receivers remain active until all transmitters finish, then drain requests and replies before closing. This uses explicit completion markers instead of a fixed startup delay. Direct node runs keep their original lifetime.
+
+A BcSim participant joins at the current end of the bus and does not replay earlier traffic. Runtime files are `abc.bus` (binary framed stream), `abc.log` (human hex log), and `abc.bus.lock/` (writer lock). They are separate from BcSimChk's `bc.*` files. `abc.console.lock/` keeps each complete node or shell status line together; the console lock waits rather than falling back to interleaved writes. A killed lock owner may require manual cleanup after all participants stop.
 
 Use this map when changing the ABC example:
 

@@ -13,6 +13,69 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestAbcDemoCoordinatesNodeLifetimes uses event-driven node doubles to verify
+// late TX readiness, complete draining and cleanup after startup/runtime errors.
+func TestAbcDemoCoordinatesNodeLifetimes(t *testing.T) {
+	for _, outcome := range []string{"success", "startup_failure", "receiver_failure"} {
+		t.Run(outcome, func(t *testing.T) {
+			root := scriptFixture(t, "examples/TriceAbc/demo.sh")
+			// Shell doubles use stable executable names; the integration test
+			// below separately builds and runs each OS's actual native binaries.
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho Linux\n")
+			writeFixture(t, root, "examples/TriceAbc/build.sh", "#!/bin/sh\nmkdir -p build\n")
+			for _, name := range []string{"N1_tx", "N2_tx", "N3_bi", "N4_rx", "N5_rx", "N6_rx", "N7_bi", "N8_bi", "N9_bi"} {
+				writeFixture(t, root, "examples/TriceAbc/build/"+name, `#!/usr/bin/env bash
+set -eu
+name=${0##*/}
+mkdir -p events/active
+touch "events/active/$name"
+trap 'rm -f "events/active/$name"' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+wait_marker() { until [ -f "$1" ]; do sleep 0.01; done; }
+if [ "$OUTCOME:$name" = startup_failure:N1_tx ]; then exit 37; fi
+if [ "$name" = N1_tx ]; then
+  for peer in N2_tx N3_bi N4_rx N5_rx N6_rx N7_bi N8_bi N9_bi; do
+    wait_marker "$TRICE_ABC_START_DIR/$peer.ready"
+  done
+fi
+[ ! -f "$TRICE_ABC_START_DIR/start" ] || exit 91
+touch "$TRICE_ABC_START_DIR/$name.ready"
+wait_marker "$TRICE_ABC_START_DIR/start"
+if [ "$OUTCOME:$name" = receiver_failure:N6_rx ]; then exit 38; fi
+if [ "$name" = N1_tx ]; then
+  # The receiver's application has finished, but it must still be receiving.
+  wait_marker "$TRICE_ABC_START_DIR/N6_rx.done"
+  [ ! -f "$TRICE_ABC_START_DIR/stop" ] || exit 92
+  touch events/traffic
+fi
+touch "$TRICE_ABC_START_DIR/$name.done"
+case "$name" in N1_tx | N2_tx) exit 0 ;; esac
+wait_marker "$TRICE_ABC_START_DIR/stop"
+[ -f events/traffic ] || exit 93
+touch "$TRICE_ABC_START_DIR/$name.drained"
+wait_marker "$TRICE_ABC_START_DIR/finish"
+echo "$name received late traffic" > "events/$name.received"
+`)
+			}
+			out, err := runFixture(t, root, "bash examples/TriceAbc/demo.sh", map[string]string{"OUTCOME": outcome})
+			if outcome == "success" {
+				assert.NoError(t, err, out)
+				assert.FileExists(t, filepath.Join(root, "examples/TriceAbc/events/N6_rx.received"))
+			} else {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "error: ABC node")
+			}
+			active, readErr := os.ReadDir(filepath.Join(root, "examples/TriceAbc/events/active"))
+			assert.NoError(t, readErr)
+			assert.Empty(t, active, "every started node is reaped on success and failure")
+			markers, globErr := filepath.Glob(filepath.Join(root, "examples/TriceAbc/build/demo-start.*"))
+			assert.NoError(t, globErr)
+			assert.Empty(t, markers, "stale barriers cannot release another run")
+		})
+	}
+}
+
 // TestLocalBindBuilds checks public entry points without invoking a compiler
 // matrix. Tool doubles verify ordering, refreshed headers, and private metadata.
 func TestLocalBindBuilds(t *testing.T) {
@@ -192,14 +255,19 @@ func TestBindEntrypointIntegration(t *testing.T) {
 		}
 	}
 	// Match the public script's supported host compilers, including MinGW GCC.
-	compiler := ""
-	for _, candidate := range []string{"cc", "gcc", "clang"} {
-		if _, err := exec.LookPath(candidate); err == nil {
-			compiler = candidate
-			break
+	compiler := os.Getenv("CC")
+	if compiler == "" {
+		for _, candidate := range []string{"cc", "gcc", "clang"} {
+			if _, err := exec.LookPath(candidate); err == nil {
+				compiler = candidate
+				break
+			}
 		}
 	}
 	if !assert.NotEmpty(t, compiler, "integration requires a host C compiler") {
+		t.FailNow()
+	}
+	if _, err := exec.LookPath(compiler); !assert.NoError(t, err, "selected native compiler") {
 		t.FailNow()
 	}
 	// Build the current CLI once; no installed version or stale temp binary is used.
@@ -256,6 +324,19 @@ func TestBindEntrypointIntegration(t *testing.T) {
 					assert.NoError(t, err)
 					assert.Equal(t, want, got, file)
 				}
+			})
+			t.Run(workflow+"/missing_controller_directory", func(t *testing.T) {
+				// A malformed lifecycle setup fails before sending traffic and
+				// reports its actual marker path instead of hanging at a barrier.
+				suffix := ""
+				if runtime.GOOS == "windows" {
+					suffix = ".exe"
+				}
+				out, err := runFixture(t, root, "cd examples/TriceAbc\n./build/N6_rx"+suffix,
+					map[string]string{"TRICE_ABC_START_DIR": "build/missing-controller"})
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "ABC demo cannot write marker build/missing-controller/N6_rx.ready")
+				assert.NoDirExists(t, filepath.Join(root, "examples/TriceAbc/build/missing-controller"))
 			})
 			for _, failure := range []string{"compiler_failure", "termination"} {
 				t.Run(workflow+"/"+failure, func(t *testing.T) {
