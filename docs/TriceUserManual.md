@@ -287,8 +287,8 @@ The generated headers are needed to compile, but do not need to be kept after th
 
 What you want to try            | Project and next experiment                                                                                                                  | Full instructions
 --------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------
-First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/).                                                | [RTT integration steps](rm/examples.md#f030instrtt)
-First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](rm/examples.md#f030instuart)
+First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/).                                                | [RTT integration steps](rm/examples.md#f030_inst_rtt)
+First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](rm/examples.md#f030_inst_uart)
 Task context on an MCU          | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](rm/examples.md#g0b1-feature-tour)
 Text generated on the target    | [PC_log](../examples/PC_log/): build and run the local formatter without a host decoder.                                                     | [Local logging](rm/examples.md#pc-local-logging)
 Live plots                      | [LabPlotDemo](../examples/LabPlotDemo/): forward selected measurements to LabPlot.                                                           | [Plotting setup](rm/visualization.md#setting-up-the-labplot-demo)

@@ -310,7 +310,7 @@ If the warning occurs:
 
 ### 4.7. <a id="j-link-if-needed"></a>J-Link (if needed)
 
-* Download and install from https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+* Download and install from https://www.segger.com/downloads/jlink/
 
 ```bash
 sudo apt install ~/Downloads/JLink_Linux_V812_x86_64.deb
@@ -369,7 +369,7 @@ Setting up a PC is for Linux mostly straightforward but Windows PCs are more pro
     compiler. This is not the ARM compiler used for the embedded examples.
     See [Choose the right Windows compiler](development_environment_setup.md#choose-the-right-windows-compiler).
 - Setup J-Link if you use this debug probe as hardware or software (see below).
-  - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack)
+  - Install SEGGER [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/)
 - Install [Make for Windows](development_environment_setup.md#install-make) and add its installation bin folder location to the PATH variable.
 
 ### 5.1. <a id="choose-the-right-windows-compiler"></a>Choose the right Windows compiler

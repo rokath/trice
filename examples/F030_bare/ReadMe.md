@@ -1,1 +1,1 @@
-- [F030 bare project: setup and debugging](../../docs/rm/examples.md#f030bare)
+- [F030 bare project: setup and debugging](../../docs/rm/examples.md#f030_bare)

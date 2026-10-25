@@ -864,12 +864,12 @@ Bisherige lokale Anleitung | Zentrale Ersatzanleitung im RM
 `examples/exampleData/ReadMe.md` | [Shared example producers and generated sidecars](../rm/examples.md#shared-example-producers)
 `examples/TriceAbc/ReadMe.md` | [Trice ABC example: generator and receive integration](../rm/abc_asynchronous_broadcast_commands.md#example-examplestriceabc); [ABC nodes: layout, startup, commands, and runtime policy](../rm/abc_asynchronous_broadcast_commands.md#abc-demo-layout-startup-and-runtime-policy); [BcSim: byte-stream transport, API, check program, and limitations](../rm/abc_asynchronous_broadcast_commands.md#bcsim-broadcast-byte-stream-simulator)
 `examples/TriceAbc/BcSim/BcSim_ReadMe.md` | [BcSim: byte-stream transport, API, check program, and limitations](../rm/abc_asynchronous_broadcast_commands.md#bcsim-broadcast-byte-stream-simulator)
-`examples/F030_bare/ReadMe.md` | [F030 bare project: setup and debugging](../rm/examples.md#f030bare)
-`examples/F030_inst/ReadMe.md` | [F030 instrumented project: setup and instrumentation](../rm/examples.md#f030inst)
-`examples/G0B1_bare/ReadMe.md` | [G0B1 bare FreeRTOS project: setup](../rm/examples.md#g0b1bare)
-`examples/G0B1_inst/ReadMe.md` | [G0B1 instrumented FreeRTOS project: setup](../rm/examples.md#g0b1inst)
-`examples/L432_bare/ReadMe.md` | [L432 bare FreeRTOS project: setup](../rm/examples.md#l432bare)
-`examples/L432_inst/ReadMe.md` | [L432 instrumented FreeRTOS project: setup](../rm/examples.md#l432inst)
+`examples/F030_bare/ReadMe.md` | [F030 bare project: setup and debugging](../rm/examples.md#f030_bare)
+`examples/F030_inst/ReadMe.md` | [F030 instrumented project: setup and instrumentation](../rm/examples.md#f030_inst)
+`examples/G0B1_bare/ReadMe.md` | [G0B1 bare FreeRTOS project: setup](../rm/examples.md#g0b1_bare)
+`examples/G0B1_inst/ReadMe.md` | [G0B1 instrumented FreeRTOS project: setup](../rm/examples.md#g0b1_inst)
+`examples/L432_bare/ReadMe.md` | [L432 bare FreeRTOS project: setup](../rm/examples.md#l432_bare)
+`examples/L432_inst/ReadMe.md` | [L432 instrumented FreeRTOS project: setup](../rm/examples.md#l432_inst)
 
 **Ergebnis:** Voraussetzungen, Aufrufe, Ausgabeoptionen, erwartete Ergebnisse, Experimentierhinweise und Fehlerhilfen stehen zentral im englischen RM. Die PC-Ausgabeprüfungen und der vollständige LabPlot-Nachbau sind dort erklärt; ABC/NodeLib und BcSim behalten ihre Architektur-, API- und Limitationsbeschreibung. Bestehende Feature-Kapitel führen direkt zu diesen RM-Abschnitten statt über lokale README-Umwege. Alle eigenen Beispiel-READMEs enthalten ausschließlich relative Links ins RM. Quellen, Tests und Buildabläufe sind unverändert.
 

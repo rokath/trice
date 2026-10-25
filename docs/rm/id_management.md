@@ -103,7 +103,7 @@ For a genuinely new project, `touch til.json li.json` creates initially empty fi
 
 ## 7. <a id="exporting-decoder-metadata"></a>Exporting decoder metadata
 
-Run Bind, then `trice generate -src application -logC` to export currently referenced formats for a local or custom decoder. See [Generate](generate.md) for output paths and options. This is also useful where a Go host executable is unavailable, for example [QNX environments](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
+Run Bind, then `trice generate -src application -logC` to export currently referenced formats for a local or custom decoder. See [Generate](generate.md) for output paths and options. This is also useful where a Go host executable is unavailable, for example QNX environments. See also the [custom-decoder discussion](https://github.com/rokath/trice/discussions/263).
 
 ## 8. <a id="recovering-explicit-source-ids"></a>Recovering explicit source IDs
 

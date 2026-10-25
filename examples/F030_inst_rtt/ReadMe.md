@@ -1,1 +1,1 @@
-- [First instrumentation with RTT: setup, build and logging](../../docs/rm/examples.md#f030instrtt)
+- [First instrumentation with RTT: setup, build and logging](../../docs/rm/examples.md#f030_inst_rtt)
