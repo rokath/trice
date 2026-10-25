@@ -348,7 +348,7 @@ verify_release_pdf() {
 main() {
   init_logfile
 
-  has_goreleaser_config_support || return 0
+  has_goreleaser_config_support || return 2
 
   # These are snapshot prerequisites even when GoReleaser itself is installed.
   local tool

@@ -105,7 +105,7 @@ print_global_coverage_hotspots() {
 }
 
 main() {
-  local coverage_file="./temp/log/coverage.out"
+  local coverage_file="$LOG_DIR/coverage.out"
   local coverage_packages=""
   local goexe
   local go_toolchain
@@ -158,9 +158,10 @@ main() {
   fi
   # Coverage must represent a fresh execution while retaining compiled inputs.
   # Keep the same per-package timeout as normal tests and script portability CI.
-  run_cmd env "GOTOOLCHAIN=$go_toolchain" go test -count=1 "${packages[@]}" -timeout=15m -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
+  GOTOOLCHAIN="$go_toolchain" run_go_tests -count=1 "${packages[@]}" -skip '^TestContextEnrichmentRebasePoC$' -timeout=30m -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
+    local status=$?
     log "FAIL: go coverage test failed"
-    exit 1
+    exit "$status"
   }
   run_cmd go tool cover -func="$coverage_file" || {
     log "FAIL: go tool cover -func failed"

@@ -18,6 +18,7 @@ main() {
   local shebang
 
   init_logfile
+  ensure_pinned_test_tools shellcheck || return 2
 
   if ! has_command shellcheck; then
     log "MISSING TOOL: shellcheck"

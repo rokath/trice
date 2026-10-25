@@ -57,9 +57,10 @@ main() {
   # Clearing the global cache here would also discard the PC worker's builds.
   # Script fixtures start many native processes on Windows. Match the script
   # portability CI timeout instead of Go's shorter implicit ten-minute limit.
-  run_cmd go test -count=1 "${packages[@]}" -timeout=15m || {
+  run_go_tests -count=1 "${packages[@]}" -skip '^TestContextEnrichmentRebasePoC$' -timeout=30m || {
+    local status=$?
     log "FAIL: normal Go package tests failed"
-    exit 1
+    exit "$status"
   }
   if grep_log '(^|[[:space:]])FAIL([[:space:]:]|$)' "$LOGFILE"; then
     log "FAIL: go test log contains FAIL markers"

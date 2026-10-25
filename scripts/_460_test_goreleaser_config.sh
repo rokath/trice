@@ -15,7 +15,7 @@ source "$SCRIPT_DIR/_100_test_common.sh"
 main() {
   init_logfile
 
-  has_goreleaser_config_support || return 0
+  has_goreleaser_config_support || return 2
 
   run_cmd goreleaser check || {
     log "FAIL: goreleaser check failed"

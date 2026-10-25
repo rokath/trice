@@ -101,10 +101,6 @@ int main(void) { return strlen("trice") == 5 ? 0 : 1; }'
   done
   rmdir "$probe_dir" 2>/dev/null || true
   if [ "$failed" -ne 0 ]; then
-    log "FAIL: repair the host compiler installation before rerunning compiler-dependent tests"
-    log "Hint: use a complete native GCC/Clang toolchain with matching C/C++ headers and libraries, and put its bin directory first in PATH."
-    log "Hint: on Windows, check both clang and clang++; a GNU target needs a compatible MinGW-w64 runtime, an MSVC target needs Visual Studio C++ Build Tools and a Windows SDK."
-    log "Hint: see docs/rm/development_environment_setup.md (Choose the right Windows compiler)."
     return 1
   fi
 }
@@ -173,7 +169,7 @@ prepare_macos_host_gcc() {
   prefix="$(brew --prefix --installed gcc 2>>"$LOGFILE")" || prefix=""
   if [ -z "$prefix" ]; then
     if ! confirm_tool_install "native GCC and G++ (command: brew install gcc)" "in the Homebrew prefix, outside this checkout"; then
-      log "FAIL: genuine GCC is missing; Homebrew installation was not approved. Install it with 'brew install gcc' and rerun full."
+      log "FAIL: genuine GCC is missing; system setup is incomplete. Install it with 'brew install gcc' and rerun full."
       return 1
     fi
     # Leave unrelated packages and caches alone; never use sudo or force-link
@@ -246,6 +242,10 @@ prepare_host_compilers() {
   export PATH
   hash -r
   log "FAIL: native GCC/Clang preparation is incomplete; no compiler tests were replaced or counted as passed"
+  log "FAIL: repair the host compiler installation before rerunning compiler-dependent tests"
+  log "Hint: use a complete native GCC/Clang toolchain with matching C/C++ headers and libraries, and put its bin directory first in PATH."
+  log "Hint: on Windows, check both clang and clang++; a GNU target needs a compatible MinGW-w64 runtime, an MSVC target needs Visual Studio C++ Build Tools and a Windows SDK."
+  log "Hint: see docs/rm/development_environment_setup.md (Choose the right Windows compiler)."
   return 1
 }
 
@@ -253,6 +253,9 @@ main() {
   init_logfile
   log_runtime_context
   prepare_host_compilers || return 1
+  # The suite resolves compilers before starting checks. This probe mode never
+  # instruments shared sources or depends on a previously built Trice binary.
+  if [ "${1:-}" = --probe ]; then return 0; fi
   # Full mode must execute Python report/Pages checks, not silently skip them.
   if [ "$SELECTED" = full ]; then
     if ! ensure_python_test_tool >>"$LOGFILE" 2>&1; then

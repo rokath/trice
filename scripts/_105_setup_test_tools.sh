@@ -7,6 +7,13 @@
 TRICE_TOOL_BIN_DIR="$(pwd)/temp/tools/bin"
 export PATH="$TRICE_TOOL_BIN_DIR:$PATH"
 
+# Keep exact versions in one tracked data file. Fixture repositories copy it
+# with this helper so standalone checks use the same contract as the suite.
+# shellcheck source=./test-tools.env
+if [ -f "./scripts/test-tools.env" ]; then
+  source "./scripts/test-tools.env"
+fi
+
 # Ask before downloading a missing version. EOF, an empty answer and CI decline
 # installation. A terminal stays visible even when the caller redirects logs.
 confirm_tool_install() {
@@ -15,6 +22,16 @@ confirm_tool_install() {
   # a checkout-local installation. Existing tool callers keep their default.
   local destination="${2:-locally under temp/tools}"
   local answer=""
+  # testAll prepares the declared project tools before starting any tests.
+  # This explicit mode never authorizes a system package-manager installation.
+  if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ]; then
+    if [ "$destination" = "locally under temp/tools" ]; then
+      printf 'INFO: Preparing %s %s.\n' "$description" "$destination" >&2
+      return 0
+    fi
+    printf 'INCOMPLETE: %s is a system prerequisite (%s); install it before the automatic test run.\n' "$description" "$destination" >&2
+    return 1
+  fi
   if [ -n "${CI:-}" ] && [ "${CI:-}" != "false" ]; then
     printf 'SKIP: %s installation needs confirmation; CI cannot prompt.\n' "$description" >&2
     return 1
@@ -200,19 +217,19 @@ select_windows_host_test_package() {
     amd64 | x86_64)
       TRICE_HOST_PACKAGE_ARCH=x86_64-posix-seh
       TRICE_HOST_PACKAGE_ROOT=mingw64
-      TRICE_HOST_PACKAGE_SHA256=1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f
+      TRICE_HOST_PACKAGE_SHA256="${TRICE_WINDOWS_HOST_SHA_AMD64:-1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f}"
       ;;
     386 | i686 | i386)
       TRICE_HOST_PACKAGE_ARCH=i686-posix-dwarf
       TRICE_HOST_PACKAGE_ROOT=mingw32
-      TRICE_HOST_PACKAGE_SHA256=9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b
+      TRICE_HOST_PACKAGE_SHA256="${TRICE_WINDOWS_HOST_SHA_386:-9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b}"
       ;;
     *)
       printf 'FAIL: No bundled Windows GCC/Clang toolchain for architecture %s. Provide matching native compilers in PATH.\n' "$architecture" >&2
       return 1
       ;;
   esac
-  TRICE_HOST_PACKAGE="winlibs-$TRICE_HOST_PACKAGE_ARCH-gcc-16.2.0-llvm-23.1.3-mingw-w64ucrt-14.0.0-r3"
+  TRICE_HOST_PACKAGE="winlibs-$TRICE_HOST_PACKAGE_ARCH-gcc-${TRICE_GCC_WINDOWS_VERSION:-16.2.0}-llvm-${TRICE_CLANG_WINDOWS_VERSION:-23.1.3}-mingw-w64ucrt-14.0.0-r3"
   TRICE_HOST_PACKAGE_DIR="./temp/tools/host/$TRICE_HOST_PACKAGE"
   TRICE_HOST_PACKAGE_BIN="$TRICE_HOST_PACKAGE_DIR/$TRICE_HOST_PACKAGE_ROOT/bin"
 }
@@ -222,6 +239,9 @@ select_windows_host_test_package() {
 # not propagate back into the runner. No shell code is read from the cache.
 activate_cached_host_test_tools() {
   local bin=""
+  # A prepared native run has already frozen both compiler families. Legacy
+  # cache discovery must not override that selection in a later child step.
+  [ "${TRICE_TEST_FIXED_HOST:-0}" != 1 ] || return 0
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*)
       # A fresh checkout needs no package/Go architecture lookup at this point.
@@ -258,7 +278,7 @@ install_windows_host_test_tools() {
   fi
   archive="./temp/tools/downloads/$TRICE_HOST_PACKAGE.zip"
   download_pinned_test_tool \
-    "https://github.com/brechtsanders/winlibs_mingw/releases/download/16.2.0posix-23.1.3-14.0.0-ucrt-r3/$TRICE_HOST_PACKAGE.zip" \
+    "https://github.com/brechtsanders/winlibs_mingw/releases/download/${TRICE_WINDOWS_HOST_RELEASE:-16.2.0posix-23.1.3-14.0.0-ucrt-r3}/$TRICE_HOST_PACKAGE.zip" \
     "$archive" "$TRICE_HOST_PACKAGE_SHA256" || return 1
   mkdir -p "$TRICE_HOST_PACKAGE_DIR" || return 1
   if ! unzip -q -o "$archive" -d "$TRICE_HOST_PACKAGE_DIR"; then
@@ -327,7 +347,7 @@ install_windows_cppcheck_test_tool() {
   done
   download_pinned_test_tool \
     "https://github.com/cppcheck-opensource/cppcheck/releases/download/2.22.0/cppcheck-2.22.0-x64-Setup.msi" \
-    "$archive" "3929162bab7e71d1b9b18708ec054fb0188bfc8ea1660979ed95837f5a9f547b" || return 1
+    "$archive" "$TRICE_CPPCHECK_WINDOWS_SHA" || return 1
   mkdir -p "$install_dir" || return 1
   # Disable MSYS argument rewriting only for this native command: /a and /qn
   # are installer options, while all filesystem arguments are converted explicitly.
@@ -356,7 +376,7 @@ install_windows_cppcheck_test_tool() {
 # Use official Windows binaries or build the pinned release on Unix. Both paths
 # keep tools local and independent of the system package-manager version.
 install_cppcheck_test_tool() {
-  local version="2.22.0"
+  local version="${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}"
   local tools_dir
   tools_dir="$(pwd)/temp/tools"
   local source_dir="$tools_dir/src/cppcheck-$version"
@@ -381,7 +401,7 @@ install_cppcheck_test_tool() {
 
   mkdir -p "$tools_dir/src" "$tools_dir/build" || return 1
   if [ ! -d "$source_dir" ]; then
-    if ! curl -fL --retry 3 "https://codeload.github.com/cppcheck-opensource/cppcheck/tar.gz/refs/tags/$version" -o "$archive"; then
+    if ! download_pinned_test_tool "https://codeload.github.com/cppcheck-opensource/cppcheck/tar.gz/refs/tags/$version" "$archive" "$TRICE_CPPCHECK_SOURCE_SHA"; then
       printf 'Could not download the official Cppcheck %s source archive.\n' "$version" >&2
       return 1
     fi
@@ -413,12 +433,12 @@ cppcheck_test_tool_has_required_version() {
   local version_output
   [ -x "$1" ] || return 1
   version_output="$("$1" --version </dev/null 2>/dev/null)" || return 1
-  [ "${version_output%$'\r'}" = "Cppcheck 2.22.0" ]
+  [ "${version_output%$'\r'}" = "Cppcheck ${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}" ]
 }
 
 # Ensure test 520 uses exactly the pinned analyzer, asking before any download.
 ensure_cppcheck_test_tool() {
-  local version="2.22.0"
+  local version="${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}"
   local cppcheck_bin=""
   local candidate
   if command -v cppcheck >/dev/null 2>&1; then

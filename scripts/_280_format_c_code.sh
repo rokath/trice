@@ -74,7 +74,7 @@ done
 # repository and CI on the exact release that produced the checked-in files so
 # `format` and `check` cannot disagree merely because they run on different
 # operating systems or rolling CI images.
-CLANG_FORMAT_REQUIRED_VERSION="23.1.2"
+CLANG_FORMAT_REQUIRED_VERSION="${TRICE_TOOL_CLANG_FORMAT_VERSION:-23.1.2}"
 
 # clang_format_has_required_version validates actual executables, not just a
 # cache directory's existence. This also detects incomplete installs and venvs

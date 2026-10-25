@@ -1,0 +1,10 @@
+{
+  "name": "trice-test-tools",
+  "private": true,
+  "description": "Locked existing Markdown and PDF test tools; no application runtime dependencies",
+  "dependencies": {
+    "markdownlint-cli": "0.49.1",
+    "md-to-pdf": "5.2.4",
+    "puppeteer": "24.31.0"
+  }
+}

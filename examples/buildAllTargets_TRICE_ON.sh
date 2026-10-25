@@ -40,6 +40,11 @@ for d in "${targets[@]}"; do
   echo "${d} with TRICE_OFF=0"
 
   (
+    # Child build scripts may signal their immediate parent. Bash versions
+    # differ in whether the final command replaces this subshell, so handle
+    # cancellation here as well as in the outer matrix.
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
     cd -- "${SCRIPT_DIR}/${d}"
 
     if [[ ! -x ./build.sh ]]; then

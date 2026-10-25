@@ -4,13 +4,64 @@ package scripts_test
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// TestClangMatrixPreservesWorkflowResults verifies the second native compiler
+// uses the same selection, continuation and cancellation contract as GCC.
+func TestClangMatrixPreservesWorkflowResults(t *testing.T) {
+	for _, tc := range []struct {
+		name, selection, noStop string
+		insert, bind, want      int
+		calls                   string
+	}{
+		{"quick_runs_only_bind", "quick", "1", 7, 0, 0, "bind\n"},
+		{"full_runs_both", "full", "1", 0, 0, 0, "insert\nbind\n"},
+		{"later_success_keeps_failure", "full", "1", 1, 0, 1, "insert\nbind\n"},
+		{"later_failure_keeps_incomplete", "full", "1", 2, 1, 2, "insert\nbind\n"},
+		{"later_incomplete_prevents_acceptance", "full", "1", 1, 2, 2, "insert\nbind\n"},
+		{"stop_policy_ends_after_first_failure", "full", "0", 1, 0, 1, "insert\n"},
+		{"interrupt_never_starts_bind", "full", "1", 130, 0, 130, "insert\n"},
+		{"termination_never_starts_bind", "full", "1", 143, 0, 143, "insert\n"},
+		{"bind_failure_is_not_lost", "full", "1", 0, 1, 1, "insert\nbind\n"},
+		{"bind_cancellation_is_not_a_failure", "full", "1", 1, 130, 130, "insert\nbind\n"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_645_test_pc_targets_clang.sh")
+			// The workflow doubles reject a wrong compiler, mode or log directory
+			// before reporting their independently chosen result.
+			guard := `#!/usr/bin/env bash
+[ "$CC:$CXX" = clang:clang++ ] || exit 95
+[ "$#" = 1 ] && [ "$1" = "$EXPECTED_SELECTION" ] || exit 96
+case "$LOG_DIR" in */clang) ;; *) exit 97 ;; esac
+`
+			writeFixture(t, root, "scripts/_630_test_pc_targets_insert.sh", guard+"echo insert >> matrix.calls\nexit \"$INSERT_STATUS\"\n")
+			writeFixture(t, root, "scripts/_640_test_pc_targets_bind.sh", guard+"echo bind >> matrix.calls\nexit \"$BIND_STATUS\"\n")
+			out, err := runFixture(t, root, "bash scripts/_645_test_pc_targets_clang.sh "+tc.selection, map[string]string{
+				"TRICE_TEST_NO_STOP": tc.noStop, "EXPECTED_SELECTION": tc.selection,
+				"INSERT_STATUS": strconv.Itoa(tc.insert), "BIND_STATUS": strconv.Itoa(tc.bind),
+			})
+			if tc.want == 0 {
+				assert.NoError(t, err, out)
+			} else if assert.Error(t, err, out) {
+				exit, ok := err.(*exec.ExitError)
+				if assert.True(t, ok) {
+					assert.Equal(t, tc.want, exit.ExitCode(), out)
+				}
+			}
+			calls, readErr := os.ReadFile(filepath.Join(root, "matrix.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, tc.calls, string(calls))
+		})
+	}
+}
 
 // pcWorkerFixture replaces Go, not the worker: real shell scheduling, exit-code
 // collection, failure excerpts and diagnostic reruns execute in an isolated repo.
@@ -190,7 +241,8 @@ esac
 			assert.NotContains(t, calls, "test -count=1 fixture/normal fixture/_test/pc", "PC tests remain owned by their managed workers")
 			assert.NotContains(t, calls, "fixture/temp/", "disposable packages must not be tested or instrumented")
 			if strings.Contains(step, "coverage") {
-				assert.Contains(t, calls, "-covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=fixture/normal")
+				assert.Contains(t, calls, "-covermode=atomic -coverprofile=")
+				assert.Contains(t, calls, "coverage.out -coverpkg=fixture/normal")
 			}
 		})
 	}
