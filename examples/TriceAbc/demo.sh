@@ -112,6 +112,9 @@ wait_for_node_marker() {
   until [ -f "$marker" ]; do
     check_demo_nodes || return 1
     if ! kill -0 "${NODE_PIDS[index]}" 2>/dev/null || [ "$attempts" -ge 6000 ]; then
+      # A sender can publish its marker and exit after the loop's first check.
+      # Recheck before reporting failure; the .failed check below still applies.
+      if [ -f "$marker" ]; then break; fi
       printf 'error: ABC node %s did not reach %s; marker: %s\n' "${NODES[index]}" "$suffix" "$marker" >&2
       ls -l "$TRICE_ABC_START_DIR" >&2 || true
       return 1

@@ -14,10 +14,10 @@ import (
 )
 
 // TestAbcDemoCoordinatesNodeLifetimes uses event-driven node doubles to verify
-// late TX readiness, complete draining, locale-independent waits and cleanup
-// after startup/runtime errors.
+// late TX readiness, completion during exit checks, complete draining,
+// locale-independent waits and cleanup after startup/runtime errors.
 func TestAbcDemoCoordinatesNodeLifetimes(t *testing.T) {
-	for _, outcome := range []string{"success", "comma_decimal_locale", "startup_failure", "receiver_failure"} {
+	for _, outcome := range []string{"success", "comma_decimal_locale", "startup_failure", "receiver_failure", "sender_completion_race", "sender_failure_race", "sender_exit_without_done"} {
 		t.Run(outcome, func(t *testing.T) {
 			root := scriptFixture(t, "examples/TriceAbc/demo.sh")
 			// Shell doubles use stable executable names; the integration test
@@ -29,6 +29,7 @@ func TestAbcDemoCoordinatesNodeLifetimes(t *testing.T) {
 set -eu
 name=${0##*/}
 mkdir -p events/active
+printf '%s\n' "$$" > "events/$name.pid"
 touch "events/active/$name"
 trap 'rm -f "events/active/$name"' EXIT
 trap 'exit 130' INT
@@ -50,6 +51,14 @@ if [ "$name" = N1_tx ]; then
   [ ! -f "$TRICE_ABC_START_DIR/stop" ] || exit 92
   touch events/traffic
 fi
+# The controller's liveness double releases this sender at the precise exit
+# probe after the first marker check, without depending on scheduler timing.
+case "$OUTCOME:$name" in
+  sender_*:N1_tx)
+    wait_marker "$TRICE_ABC_START_DIR/$name.done"
+    exit 0
+    ;;
+esac
 touch "$TRICE_ABC_START_DIR/$name.done"
 case "$name" in N1_tx | N2_tx) exit 0 ;; esac
 wait_marker "$TRICE_ABC_START_DIR/stop"
@@ -72,13 +81,44 @@ case "${LC_ALL:-${LC_NUMERIC:-}}" in
 esac
 `)
 			}
-			out, err := runFixture(t, root, "bash examples/TriceAbc/demo.sh", env)
-			if outcome == "success" || outcome == "comma_decimal_locale" {
+			command := "bash examples/TriceAbc/demo.sh"
+			if strings.HasPrefix(outcome, "sender_") {
+				// Force completion between the marker lookup and the exit probe.
+				// Other process checks and cleanup signals retain their real behavior.
+				command = `kill() {
+  if [ "$1" = -0 ] && [ -f "$TRICE_ABC_START_DIR/start" ] &&
+    [ "$2" = "$(cat events/N1_tx.pid)" ] && [ ! -f "$TRICE_ABC_START_DIR/N1_tx.done" ]; then
+    if [ ! -f events/sender-probed ]; then
+      until [ -f events/traffic ]; do sleep 0.01; done
+      touch events/sender-probed
+    else
+      touch events/exit-probe
+      if [ "$OUTCOME" = sender_failure_race ]; then touch "$TRICE_ABC_START_DIR/N1_tx.failed"; fi
+      if [ "$OUTCOME" != sender_exit_without_done ]; then touch "$TRICE_ABC_START_DIR/N1_tx.done"; fi
+      return 1
+    fi
+  fi
+  builtin kill "$@"
+}
+export -f kill
+bash examples/TriceAbc/demo.sh`
+			}
+			out, err := runFixture(t, root, command, env)
+			if strings.HasPrefix(outcome, "sender_") {
+				assert.FileExists(t, filepath.Join(root, "examples/TriceAbc/events/exit-probe"))
+			}
+			if outcome == "success" || outcome == "comma_decimal_locale" || outcome == "sender_completion_race" {
 				assert.NoError(t, err, out)
 				assert.FileExists(t, filepath.Join(root, "examples/TriceAbc/events/N6_rx.received"))
 			} else {
 				assert.Error(t, err, out)
 				assert.Contains(t, out, "error: ABC node")
+				if outcome == "sender_failure_race" {
+					assert.Contains(t, out, "reported a lifecycle failure")
+				}
+				if outcome == "sender_exit_without_done" {
+					assert.Contains(t, out, "did not reach done")
+				}
 			}
 			active, readErr := os.ReadDir(filepath.Join(root, "examples/TriceAbc/events/active"))
 			assert.NoError(t, readErr)
