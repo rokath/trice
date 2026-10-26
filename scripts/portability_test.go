@@ -272,6 +272,166 @@ ensure_pinned_test_tools fixture
 	}
 }
 
+// TestNativeCMakeGenerator checks the environment inherited by native CMake
+// subprocesses, including conflicting Visual Studio settings and missing Make.
+func TestNativeCMakeGenerator(t *testing.T) {
+	for _, tc := range []struct {
+		platform string
+		missing  bool
+	}{
+		{platform: "MINGW64_NT"},
+		{platform: "MSYS_NT"},
+		{platform: "CYGWIN_NT"},
+		{platform: "MINGW64_NT", missing: true},
+		{platform: "Linux"},
+		{platform: "Darwin"},
+	} {
+		t.Run(tc.platform+"/missing_"+strconv.FormatBool(tc.missing), func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho \"$PLATFORM\"\n")
+			writeFixture(t, root, "bin/mingw32-make", "#!/bin/sh\nexit 0\n")
+			out, err := runFixture(t, root, `source scripts/_115_prepare_native_tests.sh
+command() {
+  if [ "$1:$2:$MISSING" = "-v:mingw32-make:true" ]; then return 1; fi
+  builtin command "$@"
+}
+prepare_native_cmake_environment || exit $?
+# A child process must see the same selection, not just shell-local variables.
+bash -c 'printf "generator=%s platform=%s toolset=%s instance=%s\n" "$CMAKE_GENERATOR" "${CMAKE_GENERATOR_PLATFORM:-}" "${CMAKE_GENERATOR_TOOLSET:-}" "${CMAKE_GENERATOR_INSTANCE:-}"'
+`, map[string]string{
+				"PLATFORM": tc.platform, "MISSING": strconv.FormatBool(tc.missing),
+				"CMAKE_GENERATOR": "Ninja", "CMAKE_GENERATOR_PLATFORM": "x64",
+				"CMAKE_GENERATOR_TOOLSET": "v143", "CMAKE_GENERATOR_INSTANCE": "fixture-vs",
+			})
+			if tc.missing {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "MISSING TOOL: mingw32-make")
+				assert.NotContains(t, out, "generator=")
+			} else {
+				assert.NoError(t, err, out)
+				if tc.platform == "Linux" || tc.platform == "Darwin" {
+					assert.Contains(t, out, "generator=Ninja platform=x64 toolset=v143 instance=fixture-vs")
+				} else {
+					assert.Contains(t, out, "generator=MinGW Makefiles platform= toolset= instance=")
+				}
+			}
+		})
+	}
+}
+
+// TestNativePreparationBootstrapsCMake reproduces a fresh worktree without a
+// visible system CMake. The real preparation must select a complete local
+// package before dependent tools run, while preserving consent and failures.
+func TestNativePreparationBootstrapsCMake(t *testing.T) {
+	for _, tc := range []struct {
+		name, reply                   string
+		warm, installFailure, success bool
+	}{
+		{name: "empty_cache_approved", reply: "yes", success: true},
+		{name: "warm_cache_without_input", warm: true, success: true},
+		{name: "empty_cache_declined", reply: "no"},
+		{name: "empty_cache_without_input"},
+		{name: "installation_failure", reply: "yes", installFailure: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_115_prepare_native_tests.sh")
+			for _, tool := range []string{"git", "tar", "unzip", "make", "curl", "gcc", "g++", "clang", "clang++", "clangd", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho fixture-tool\n")
+			}
+			// A Linux fixture exercises the full preparation on every host without
+			// entering system installers or depending on a macOS SDK.
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho Linux\n")
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+case "$1:$2" in
+  env:GOHOSTOS) echo linux ;;
+  env:GOHOSTARCH) echo amd64 ;;
+  env:GOVERSION) echo go1.25.0 ;;
+esac
+`)
+			writeFixture(t, root, "bin/cmake", "#!/bin/sh\necho 'unselected global CMake was used' >&2\nexit 91\n")
+			writeFixture(t, root, "scripts/_490_test_runtime_prepare.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "scripts/_280_format_c_code.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "cmake-fixture", `#!/bin/sh
+[ -f "${0%/*}/../share/cmake/module.txt" ] || exit 92
+echo 'cmake version 4.4.4'
+`)
+			writeFixture(t, root, "temp/log/testcheck", `#!/bin/sh
+if [ "$1" = identity ]; then exit 0; fi
+[ "$1" = bundle ] || exit 93
+shift
+probe=false
+if [ "$1" = --no-install ]; then probe=true; shift; fi
+shift 2
+if [ "$1" != cmake ]; then printf '%s/bin\n' "$PWD"; exit 0; fi
+if [ ! -f cmake-ready ]; then
+  [ "$probe" = false ] || exit 3
+  echo install >> cmake-installations
+  [ "$INSTALL_FAILURE" != true ] || { echo 'CMake download failed' >&2; exit 2; }
+  mkdir -p pinned-cmake/bin pinned-cmake/share/cmake
+  cp cmake-fixture pinned-cmake/bin/cmake
+  echo module > pinned-cmake/share/cmake/module.txt
+  touch cmake-ready
+fi
+printf '%s/pinned-cmake/bin\n' "$PWD"
+`)
+			if tc.warm {
+				writeFixture(t, root, "cmake-ready", "ready\n")
+				data, err := os.ReadFile(filepath.Join(root, "cmake-fixture"))
+				assert.NoError(t, err)
+				writeFixture(t, root, "pinned-cmake/bin/cmake", string(data))
+				writeFixture(t, root, "pinned-cmake/share/cmake/module.txt", "module\n")
+			}
+			command := `source scripts/_100_test_common.sh
+source scripts/_115_prepare_native_tests.sh
+# Hide external CMake until the real preparation selects its private package.
+command() {
+  if [ "$1" = -v ] && [ "$2" = cmake ]; then
+    case "$PATH" in "$PWD/pinned-cmake/bin:"*) ;; *) return 1 ;; esac
+  fi
+  builtin command "$@"
+}
+ensure_node_test_tool() { return 0; }
+ensure_native_go_toolchain() { return 0; }
+ensure_python_test_tool() { return 0; }
+ensure_cppcheck_test_tool() {
+  cmake --version || return 1
+  echo analyzer >> dependent-tools
+}
+prepare_pinned_native_tools() { return 0; }
+prepare_native_test_tools || exit $?
+cmake --version || exit $?
+echo completed
+`
+			if tc.reply != "" {
+				command = "printf '%s\\n' " + tc.reply + " | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false", "INSTALL_FAILURE": strconv.FormatBool(tc.installFailure)})
+			assert.Equal(t, tc.success, err == nil, out)
+			assert.NotContains(t, out, "MISSING TOOL: cmake")
+			assert.NotContains(t, out, "unselected global CMake was used")
+			if tc.success {
+				assert.Contains(t, out, "Selected cmake:")
+				assert.Contains(t, out, "completed")
+				assert.FileExists(t, filepath.Join(root, "dependent-tools"))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "dependent-tools"))
+				assert.NotContains(t, out, "completed")
+			}
+			if tc.warm || tc.reply != "yes" {
+				assert.NoFileExists(t, filepath.Join(root, "cmake-installations"))
+			} else {
+				calls, err := os.ReadFile(filepath.Join(root, "cmake-installations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "install\n", string(calls))
+			}
+			if tc.installFailure {
+				assert.Contains(t, out, "CMake download failed")
+			}
+		})
+	}
+}
+
 // TestNativeGoToolchainConsent models Go's launcher with a cached or missing
 // exact toolchain. The offline probe must preserve checksum verification and
 // ask before the launcher is allowed to download a missing toolchain.

@@ -296,9 +296,9 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 	return bin, nil
 }
 
-// installBundle preserves a compiler's complete headers, libraries and
-// support programs. Copying its gcc executable alone would mix runtimes and
-// produce host-dependent firmware builds. Only verified publisher archives
+// installBundle preserves complete compiler runtimes and tool resources such
+// as CMake's modules. Copying an executable alone can break these relative
+// dependencies or mix host installations. Only verified publisher archives
 // are handed to the native archive tool, inside a private staging directory.
 func installBundle(config, root, name string, allowInstall bool) (string, error) {
 	values, _, err := readToolConfig(config)
@@ -315,7 +315,17 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 	if err != nil {
 		return "", err
 	}
-	bin := filepath.Join(root, "package", "bin")
+	// Publisher layouts can differ by platform, including macOS app bundles.
+	// Existing compiler bundles retain their common directory and bin defaults.
+	directory := values[prefix+"_DIRECTORY_"+platform]
+	if directory == "" {
+		directory = values[prefix+"_DIRECTORY"]
+	}
+	binDirectory := values[prefix+"_BIN_DIRECTORY_"+platform]
+	if binDirectory == "" {
+		binDirectory = "bin"
+	}
+	bin := filepath.Join(root, "package", binDirectory)
 	compiler := filepath.Join(bin, values[prefix+"_EXECUTABLE"])
 	version := values[values[prefix+"_VERSION_KEY"]]
 	if runtime.GOOS == "windows" {
@@ -362,7 +372,7 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 	if err := os.RemoveAll(packageDir); err != nil {
 		return "", err
 	}
-	if err := os.Rename(filepath.Join(stage, values[prefix+"_DIRECTORY"]), packageDir); err != nil {
+	if err := os.Rename(filepath.Join(stage, directory), packageDir); err != nil {
 		return "", err
 	}
 	if !toolIdentity(compiler, version, "") {

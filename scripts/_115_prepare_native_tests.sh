@@ -56,13 +56,30 @@ ensure_pinned_test_tools() {
   hash -r
 }
 
+# Select the generator matching the Windows GNU runtime for every child build.
+# Official CMake otherwise defaults to NMake, which requires a different SDK.
+prepare_native_cmake_environment() {
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*)
+      if ! command -v mingw32-make >/dev/null 2>&1; then
+        printf 'MISSING TOOL: mingw32-make; the selected Windows compiler bundle must include its native Make.\n' >&2
+        return 2
+      fi
+      export CMAKE_GENERATOR='MinGW Makefiles'
+      # Platform/toolset overrides belong to Visual Studio generators.
+      unset CMAKE_GENERATOR_PLATFORM CMAKE_GENERATOR_TOOLSET CMAKE_GENERATOR_INSTANCE
+      printf 'Selected CMake generator: %s\n' "$CMAKE_GENERATOR"
+      ;;
+  esac
+}
+
 # prepare_native_test_tools fails before tests when a required prerequisite is
 # missing. System packages/SDKs remain explicit prerequisites; project tools
 # can be prepared noninteractively in their isolated caches.
 prepare_native_test_tools() {
   local tool missing=0 compiler gcc_bin="" cpp_bin="" directory candidate platform
   export TRICE_TEST_AUTO_SETUP=1
-  for tool in git go bash tar unzip make cmake curl; do
+  for tool in git go bash tar unzip make curl; do
     if ! command -v "$tool" >/dev/null 2>&1; then
       printf 'MISSING TOOL: %s; install the native prerequisite listed in docs/rm/target_tests.md\n' "$tool"
       missing=1
@@ -202,6 +219,18 @@ prepare_native_test_tools() {
     fi
   done
   [ "$missing" -eq 0 ] || return 2
+  # CMake needs its bundled modules, not just an executable from a host cache.
+  # Select it after compiler PATH changes and before analyzer builds need it.
+  local cmake_bin
+  prepare_pinned_test_selection cmake_bin bundle temp/tools/bundles cmake || return 2
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*) cmake_bin="$(cygpath -u "$cmake_bin")" ;;
+  esac
+  export PATH="$cmake_bin:$PATH"
+  hash -r
+  printf 'Selected cmake: %s\n' "$(command -v cmake)"
+  cmake --version || return 2
+  prepare_native_cmake_environment || return 2
   ensure_python_test_tool || return 2
   # Parent-shell installers share consent before the formatter child starts.
   ensure_cppcheck_test_tool || return 2

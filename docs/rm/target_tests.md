@@ -57,11 +57,13 @@ Do not run two suites, ID-maintenance scripts or the repository formatter in the
 
 ### Prepare Windows
 
-Use Git for Windows with Git Bash, native Go, Make, CMake and Python support. The suite can install the declared Node.js version into `temp/tools` after approval. Have `tar`, `unzip`, `curl` and the usual shell utilities available in Git Bash.
+Use Git for Windows with Git Bash, native Go, Make and Python support. The suite can install the declared Node.js version into `temp/tools` after approval. Have `tar`, `unzip`, `curl` and the usual shell utilities available in Git Bash.
 
 The test environment uses a matching **GCC/Clang/MinGW-w64** compiler and runtime set. When the global compilers do not match the declared set, preparation can install the complete project-local bundle under `temp/tools`. An arbitrary `clang.exe` on `PATH` is insufficient: both C and C++ must compile, link and run with matching headers and libraries. See [Windows compiler selection](development_environment_setup.md#choose-the-right-windows-compiler) for diagnosing a mixed installation.
 
 Keep shell scripts in LF form as specified by [.gitattributes](../../.gitattributes). The tests themselves create both LF and CRLF source files, so Git cannot silently normalize away the cases being tested. Native Windows tests also exercise `/` and `\`, PowerShell/cmd argument passing, local TCP, and rollback when a source file is held open with incompatible sharing permissions.
+
+The suite selects CMake's `MinGW Makefiles` generator and the compiler bundle's `mingw32-make`, so Visual Studio and NMake are not required.
 
 ### Prepare Linux
 
@@ -79,7 +81,7 @@ The native filesystem test detects whether the actual volume is case-sensitive. 
 
 ### Shared tool rules
 
-All three systems use [test-tools.env](../../scripts/test-tools.env) for tool versions and archive checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for the existing Node tools. The suite also prepares the complete ARM cross-toolchain, formatters and analyzers. Network access is needed when a required cache entry is absent. A failed download or incompatible prerequisite makes the run INCOMPLETE.
+All three systems use [test-tools.env](../../scripts/test-tools.env) for tool versions and archive checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for the existing Node tools. The suite also prepares the complete ARM cross-toolchain, formatters and analyzers. CMake is prepared as a complete pinned package under `temp/tools/bundles`; no system CMake is required. Each worktree has its own cache, so a fresh worktree may need downloads even when another checkout already passes. Network access is needed when a required cache entry is absent. A failed download or incompatible prerequisite makes the run INCOMPLETE.
 
 Use the preparation log's diagnosis rather than installing a random newer tool. Keep `C_INCLUDE_PATH` unset globally: ARM headers must not leak into native CGO builds. Go, Node, system SDKs and basic build utilities remain explicit prerequisites; project-local tool preparation does not make every possible host installation supported.
 
