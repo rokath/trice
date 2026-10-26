@@ -196,8 +196,8 @@ func assertBindRebaseConstructorCoverage(t *testing.T, root string) {
 	}
 }
 
-// checkBindCounterPedanticDiagnostics permits the intentional counter extension
-// while retaining errors for other standard violations in the compiled fixture.
+// checkBindCounterPedanticDiagnostics verifies definition and argument captures
+// without relaxing -pedantic, and proves the suppression cannot leak to callers.
 func checkBindCounterPedanticDiagnostics(t *testing.T) {
 	t.Helper()
 	root := bindRepositoryRoot(t)
@@ -213,14 +213,35 @@ func checkBindCounterPedanticDiagnostics(t *testing.T) {
 		require.NotEmpty(t, compilers, "counter checks require a native %s compiler", standard)
 		for index, compiler := range compilers {
 			t.Run(standard+"/"+filepath.Base(compiler), func(t *testing.T) {
-				// Prescanned arguments must keep consecutive constant captures too.
-				source := "#define CAPTURE(value) (value)\nenum { first = __COUNTER__, second = CAPTURE(__COUNTER__) };\nenum { consecutive = 1 / (second == first + 1) };\n"
+				// Both public routes prescan and reuse a single captured counter.
+				source := `#include "triceBind.h"
+enum { first = TRICE_BIND_COUNTER };
+#define TRICE_BIND_REBASE_ACTIVE_BASE first
+#define TRICE_BIND_REBASE_ACTIVE_COUNT 2
+#define TRICE_BIND_REBASE_ACTIVE_AUTO_APPLY(constructor, implementation, index, ...) ((void)(index))
+void capture_routes(void) {
+    TRICE_BIND_ROUTE_REBASE_AUTO(ignored, ignored, 0);
+    TRICE_BIND_REBASE_PRODUCT_ROUTE_I(ignored, ignored, 0);
+}
+enum { last = TRICE_BIND_COUNTER };
+enum { consecutive = 1 / (last == first + 3) };
+`
 				path := writeBindIntegrationFile(t, project, fmt.Sprintf("counter_%s_%d%s", standard, index, extension), source)
 				object := path + ".o"
-				compileBindFixture(t, compiler, standard, path, object, filepath.Join(root, "src"))
+				args := []string{"-std=" + standard, "-Wall", "-Wextra", "-Werror", "-pedantic", "-I", filepath.Join(root, "src"), "-c", path, "-o", object}
+				output, err := exec.Command(compiler, args...).CombinedOutput()
+				require.NoError(t, err, string(output))
+				assert.Empty(t, string(output), "Trice counter use must remain warning-free")
+				if standard == "c99" && len(bindCounterWarningPolicy(compiler)) > 0 {
+					// Raw application counters retain the compiler's extension error.
+					require.NoError(t, os.WriteFile(path, []byte(source+"enum { applicationCounter = __COUNTER__ };\n"), 0o644))
+					output, err = exec.Command(compiler, args...).CombinedOutput()
+					require.Error(t, err, string(output))
+					assert.Contains(t, string(output), "__COUNTER__")
+				}
 				// A zero-length array is still rejected under the same warning policy.
 				require.NoError(t, os.WriteFile(path, []byte(source+"int invalidArray[0];\n"), 0o644))
-				output, err := runBindFixtureCompiler(compiler, standard, path, object, nil, filepath.Join(root, "src"))
+				output, err = exec.Command(compiler, args...).CombinedOutput()
 				require.Error(t, err, string(output))
 				assert.Contains(t, string(output), "array")
 			})
