@@ -193,85 +193,23 @@ prepare_macos_host_gcc() {
   log "Hint: using verified Homebrew GCC through checkout-local aliases; shell profiles and system compiler names are unchanged."
 }
 
-# Install a versioned Linux Clang toolchain only after explicit approval.
-# Package-manager changes are system-wide; aliases keep the suite's PATH choice local.
+# Direct probes use the same private LLVM package as the full runner. A system
+# package-manager fallback could install a different release and weaken coverage.
 prepare_linux_clang() {
-  local manager="" package_version=18 bin_dir="$LOG_DIR/compilers" clang_bin clangxx_bin clangd_bin distro_id="" expected candidate_version
-  local -a installer=()
-  if command -v apt-get >/dev/null 2>&1; then
-    manager=apt
-    if [ -r /etc/os-release ]; then
-      . /etc/os-release
-      distro_id="${ID:-}"
-    fi
-    if [ "$distro_id" = debian ]; then package_version=19; fi
-    installer=(apt-get install -y "clang-$package_version" "clangd-$package_version" "lld-$package_version")
-  elif command -v dnf >/dev/null 2>&1; then
-    manager=dnf
-    installer=(dnf install -y clang clang-tools-extra lld)
-  elif command -v pacman >/dev/null 2>&1; then
-    manager=pacman
-    installer=(pacman -S --needed --noconfirm clang lld)
-  else
-    log "FAIL: no supported Linux package manager (apt-get, dnf or pacman) is available for Clang setup"
-    return 1
-  fi
-  # Reuse an already installed supported versioned package before asking for changes.
-  for expected in $TRICE_CLANG_LINUX_SUPPORTED; do
-    candidate_version="${expected%%.*}"
-    clang_bin="$(command -v "clang-$candidate_version" || true)"
-    clangxx_bin="$(command -v "clang++-$candidate_version" || true)"
-    clangd_bin="$(command -v "clangd-$candidate_version" || true)"
-    if [ -n "$clang_bin" ] && [ -n "$clangxx_bin" ] && [ -n "$clangd_bin" ] &&
-      "$TRICE_TEST_REPORT_BIN" identity "$clang_bin" "$expected" >/dev/null 2>&1 &&
-      "$TRICE_TEST_REPORT_BIN" identity "$clangxx_bin" "$expected" >/dev/null 2>&1 &&
-      "$TRICE_TEST_REPORT_BIN" identity "$clangd_bin" "$expected" >/dev/null 2>&1; then
-      mkdir -p "$bin_dir" || return 1
-      ln -sf "$clang_bin" "$bin_dir/clang" || return 1
-      ln -sf "$clangxx_bin" "$bin_dir/clang++" || return 1
-      ln -sf "$clangd_bin" "$bin_dir/clangd" || return 1
-      PATH="$(cd "$bin_dir" && pwd):$PATH"
-      export PATH
-      hash -r
-      return 0
-    fi
-  done
-  if ! confirm_tool_install "Linux Clang and LLD through $manager (system-wide; requires administrator access)" "system package manager"; then
-    log "FAIL: Linux Clang package installation was not approved"
-    return 1
-  fi
-  if [ "$(id -u)" -ne 0 ]; then
-    if ! has_command sudo; then
-      log "FAIL: $manager needs administrator access; install sudo or run the suite from an administrator shell"
-      return 1
-    fi
-    installer=(sudo "${installer[@]}")
-  fi
-  if [ "$manager" = apt ]; then
-    local -a update=(apt-get update)
-    if [ "$(id -u)" -ne 0 ]; then update=(sudo apt-get update); fi
-    run_cmd "${update[@]}" || return 1
-  fi
-  run_cmd "${installer[@]}" || return 1
-  case "$manager" in
-    apt)
-      clang_bin="$(command -v "clang-$package_version")" || return 1
-      clangxx_bin="$(command -v "clang++-$package_version")" || return 1
-      clangd_bin="$(command -v "clangd-$package_version")" || return 1
-      ;;
-    *)
-      clang_bin="$(command -v clang)" || return 1
-      clangxx_bin="$(command -v clang++)" || return 1
-      clangd_bin="$(command -v clangd)" || return 1
-      ;;
-  esac
-  mkdir -p "$bin_dir" || return 1
-  ln -sf "$clang_bin" "$bin_dir/clang" || return 1
-  ln -sf "$clangxx_bin" "$bin_dir/clang++" || return 1
-  ln -sf "$clangd_bin" "$bin_dir/clangd" || return 1
-  PATH="$(cd "$bin_dir" && pwd):$PATH"
+  local clang_bin
+  ensure_native_report_tool >>"$LOGFILE" 2>&1 || return 1
+  prepare_pinned_test_selection clang_bin bundle temp/tools/bundles clang || return 1
+  PATH="$clang_bin:$PATH"
   export PATH
   hash -r
+  local compiler binary_path
+  for compiler in clang clang++ clangd; do
+    binary_path="$(command -v "$compiler" || true)"
+    if [ -z "$binary_path" ] || ! "$TRICE_TEST_REPORT_BIN" identity "$binary_path" "$TRICE_CLANG_LINUX_VERSION"; then
+      log "FAIL: pinned LLVM must provide $compiler $TRICE_CLANG_LINUX_VERSION"
+      return 1
+    fi
+  done
   check_host_compilers
 }
 

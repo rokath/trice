@@ -296,9 +296,9 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 	return bin, nil
 }
 
-// installBundle preserves a compiler's complete headers, libraries and
-// support programs. Copying its gcc executable alone would mix runtimes and
-// produce host-dependent firmware builds. Only verified publisher archives
+// installBundle preserves complete compiler runtimes and tool resources such
+// as CMake's modules. Copying an executable alone can break these relative
+// dependencies or mix host installations. Only verified publisher archives
 // are handed to the native archive tool, inside a private staging directory.
 func installBundle(config, root, name string, allowInstall bool) (string, error) {
 	values, _, err := readToolConfig(config)
@@ -315,7 +315,17 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 	if err != nil {
 		return "", err
 	}
-	bin := filepath.Join(root, "package", "bin")
+	// Publisher layouts can differ by platform, including macOS app bundles.
+	// Existing compiler bundles retain their common directory and bin defaults.
+	directory := values[prefix+"_DIRECTORY_"+platform]
+	if directory == "" {
+		directory = values[prefix+"_DIRECTORY"]
+	}
+	binDirectory := values[prefix+"_BIN_DIRECTORY_"+platform]
+	if binDirectory == "" {
+		binDirectory = "bin"
+	}
+	bin := filepath.Join(root, "package", binDirectory)
 	compiler := filepath.Join(bin, values[prefix+"_EXECUTABLE"])
 	version := values[values[prefix+"_VERSION_KEY"]]
 	if runtime.GOOS == "windows" {
@@ -350,8 +360,9 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 		return "", err
 	}
 	defer os.RemoveAll(stage)
-	command := exec.Command("tar", "-xzf", archive, "-C", stage)
-	if runtime.GOOS == "windows" {
+	// Native tar detects gzip and xz; LLVM publishes xz archives on Unix.
+	command := exec.Command("tar", "-xf", archive, "-C", stage)
+	if strings.HasSuffix(archive, ".zip") {
 		command = exec.Command("unzip", "-q", archive, "-d", stage)
 	}
 	command.Stdout, command.Stderr = os.Stderr, os.Stderr
@@ -359,10 +370,21 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 		return "", err
 	}
 	packageDir := filepath.Join(root, "package")
+	if build := values[prefix+"_BUILD_"+platform]; build != "" {
+		if build != "llvm" {
+			return "", fmt.Errorf("unsupported %s bundle build: %s", name, build)
+		}
+		// Publish a source build through the same version check and ready marker
+		// as a binary package. Failed builds never become selectable caches.
+		if err := buildClangBundle(filepath.Join(stage, directory), filepath.Join(stage, "build"), filepath.Join(stage, "installed")); err != nil {
+			return "", err
+		}
+		directory = "installed"
+	}
 	if err := os.RemoveAll(packageDir); err != nil {
 		return "", err
 	}
-	if err := os.Rename(filepath.Join(stage, values[prefix+"_DIRECTORY"]), packageDir); err != nil {
+	if err := os.Rename(filepath.Join(stage, directory), packageDir); err != nil {
 		return "", err
 	}
 	if !toolIdentity(compiler, version, "") {
@@ -372,4 +394,38 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 		return "", err
 	}
 	return bin, nil
+}
+
+// buildClangBundle supplies native Intel macOS where upstream has no binary.
+// Apple's SDK compilers bootstrap LLVM; no package manager or system install
+// is changed. Limit parallelism to keep the one-time build's memory use bounded.
+func buildClangBundle(source, build, destination string) error {
+	var sdkTools []string
+	for _, tool := range []string{"clang", "clang++"} {
+		output, err := exec.Command("xcrun", "--find", tool).CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("locate Apple SDK %s: %w: %s", tool, err, output)
+		}
+		sdkTools = append(sdkTools, strings.TrimSpace(string(output)))
+	}
+	commands := [][]string{
+		{"-S", filepath.Join(source, "llvm"), "-B", build, "-G", "Unix Makefiles",
+			"-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_INSTALL_PREFIX=" + destination,
+			"-DCMAKE_C_COMPILER=" + sdkTools[0], "-DCMAKE_CXX_COMPILER=" + sdkTools[1],
+			"-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra;lld", "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
+			"-DLLVM_DISTRIBUTION_COMPONENTS=clang;clang-resource-headers;clangd;lld;llvm-ar;llvm-ranlib;llvm-objcopy;llvm-size",
+			"-DLLVM_INCLUDE_TESTS=OFF", "-DLLVM_INCLUDE_BENCHMARKS=OFF",
+			"-DLLVM_ENABLE_ZLIB=OFF", "-DLLVM_ENABLE_ZSTD=OFF", "-DLLVM_ENABLE_LIBXML2=OFF"},
+		{"--build", build, "--target", "distribution", "--parallel", "2"},
+		{"--build", build, "--target", "install-distribution"},
+	}
+	for _, args := range commands {
+		fmt.Fprintln(os.Stderr, "Building pinned Intel macOS LLVM: cmake", strings.Join(args, " "))
+		command := exec.Command("cmake", args...)
+		command.Stdout, command.Stderr = os.Stderr, os.Stderr
+		if err := command.Run(); err != nil {
+			return fmt.Errorf("local LLVM build failed: %w", err)
+		}
+	}
+	return nil
 }

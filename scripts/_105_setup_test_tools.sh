@@ -189,7 +189,7 @@ ensure_node_test_tool() {
 
 # Select Python's official standard-library-only Windows runtime. Its private
 # executable is never exposed as a general-purpose pip/venv installation.
-# Checksums: https://www.python.org/downloads/release/python-31317/
+# Checksums: https://www.python.org/downloads/release/python-3152/
 select_windows_python_test_package() {
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*) ;;
@@ -198,23 +198,23 @@ select_windows_python_test_package() {
   case "$(uname -m)" in
     x86_64 | amd64)
       TRICE_PYTHON_ARCH=amd64
-      TRICE_PYTHON_SHA256=9e35319bffedab8b36ad44d8f377cb4f1733bcec257a0b6d04d94f01486ddb38
+      TRICE_PYTHON_SHA256=d012f3aa29cf07436dae8aea1fec0fd195c2612a0b059b1f915ae0afb9ad1f62
       ;;
     i686 | i386)
       TRICE_PYTHON_ARCH=win32
-      TRICE_PYTHON_SHA256=4afd37bc88ed1391209a4c58deb902cd0741a476692412b23d340aff6e9285e7
+      TRICE_PYTHON_SHA256=8d20269d378040117c9cec11d1ad6c6d17c6b77774424955ee180a0f49c6b41e
       ;;
     aarch64 | arm64)
       TRICE_PYTHON_ARCH=arm64
-      TRICE_PYTHON_SHA256=7b58787a047b400edbfcb539aa3cdb4e2ed77bf0f22cae42b7c01cedd7dd6614
+      TRICE_PYTHON_SHA256=089eae5e8aba8284c2ce59df008c1dc915af46fd9e8b1227e3a7f315211567c9
       ;;
     *)
       printf 'FAIL: No local Python runtime for Windows architecture %s; install Python 3.9+ and rerun.\n' "$(uname -m)" >&2
       return 1
       ;;
   esac
-  TRICE_PYTHON_PACKAGE="python-3.13.17-embed-$TRICE_PYTHON_ARCH.zip"
-  TRICE_PYTHON_DIR="./temp/tools/python/3.13.17-$TRICE_PYTHON_ARCH"
+  TRICE_PYTHON_PACKAGE="python-${TRICE_PYTHON_VERSION:?}-embed-$TRICE_PYTHON_ARCH.zip"
+  TRICE_PYTHON_DIR="./temp/tools/python/$TRICE_PYTHON_VERSION-$TRICE_PYTHON_ARCH"
 }
 
 # Prove that the interpreter starts and provides the standard library used by
@@ -271,7 +271,7 @@ ensure_python_test_tool() {
     return 1
   fi
   rm -f "$TRICE_PYTHON_DIR/.ready" || return 1
-  if ! confirm_tool_install "Python 3.13.17 standard-library runtime (about 11 MB download)"; then
+  if ! confirm_tool_install "Python $TRICE_PYTHON_VERSION standard-library runtime (about 13 MB download)"; then
     printf 'FAIL: Python script tests require a working interpreter; local setup was not approved.\n' >&2
     return 1
   fi
@@ -280,7 +280,7 @@ ensure_python_test_tool() {
     return 1
   fi
   archive="./temp/tools/downloads/$TRICE_PYTHON_PACKAGE"
-  download_pinned_test_tool "https://www.python.org/ftp/python/3.13.17/$TRICE_PYTHON_PACKAGE" \
+  download_pinned_test_tool "https://www.python.org/ftp/python/$TRICE_PYTHON_VERSION/$TRICE_PYTHON_PACKAGE" \
     "$archive" "$TRICE_PYTHON_SHA256" || return 1
   mkdir -p "$TRICE_PYTHON_DIR" || return 1
   if ! unzip -q -o "$archive" -d "$TRICE_PYTHON_DIR"; then
@@ -288,7 +288,7 @@ ensure_python_test_tool() {
     return 1
   fi
   if ! python_test_tool_works "$TRICE_PYTHON_DIR/python.exe" ||
-    ! "$TRICE_PYTHON_DIR/python.exe" -c 'import sys; sys.exit(0 if sys.version_info[:3] == (3, 13, 17) else 1)' </dev/null; then
+    ! "$TRICE_PYTHON_DIR/python.exe" -c 'import sys; sys.exit(0 if sys.version_info[:3] == tuple(map(int, sys.argv[1].split("."))) else 1)' "$TRICE_PYTHON_VERSION" </dev/null; then
     printf 'FAIL: Extracted Python runtime cannot run with the required version and standard library: %s/python.exe.\n' "$TRICE_PYTHON_DIR" >&2
     return 1
   fi

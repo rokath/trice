@@ -74,7 +74,7 @@ done
 # repository and CI on the exact release that produced the checked-in files so
 # `format` and `check` cannot disagree merely because they run on different
 # operating systems or rolling CI images.
-CLANG_FORMAT_REQUIRED_VERSION="${TRICE_TOOL_CLANG_FORMAT_VERSION:-23.1.2}"
+CLANG_FORMAT_REQUIRED_VERSION="${TRICE_TOOL_CLANG_FORMAT_VERSION:-23.1.3}"
 
 # clang_format_has_required_version validates actual executables, not just a
 # cache directory's existence. This also detects incomplete installs and venvs
@@ -98,12 +98,12 @@ install_windows_clang_format() {
   local tool_dir="$1" url digest archive
   case "$(uname -m)" in
     x86_64)
-      url="https://files.pythonhosted.org/packages/36/2e/e05c36c47b0577d694a53636f91a967cfbec6a572c5e95a68fd703e868a8/clang_format-23.1.2-py2.py3-none-win_amd64.whl"
-      digest="955dd1c09c60a69645e4a21be514d5153b29b9e6f159d7501ad566d7d0dd64bc"
+      url="https://files.pythonhosted.org/packages/23/a6/90148f91544e3c056e78c514f0e764c1b44d50a33344c83fd03011ea97c8/clang_format-23.1.3-py2.py3-none-win_amd64.whl"
+      digest="6c2b74c3a3e942ec172d768e7b945f8e136db05a7b735d49ecfc69bda97643ad"
       ;;
     aarch64 | arm64)
-      url="https://files.pythonhosted.org/packages/70/9a/a4f32e08048b80a1a658ff5d30b1dfa6f931011fc793b2c65adf1cde87de/clang_format-23.1.2-py2.py3-none-win_arm64.whl"
-      digest="bcb607957977ea1504cc1424170a8bb2caaf1b7c8d30b03fbac7e11260cba067"
+      url="https://files.pythonhosted.org/packages/fb/ed/47bda876e360ca71f366f256939dd674e7a5f4f8deae6eddf7819ea21832/clang_format-23.1.3-py2.py3-none-win_arm64.whl"
+      digest="583af22e6593b8ea463412cf3411f55731f117546ad13e88b9ce585e7c47475f"
       ;;
     *)
       echo "FAIL: No pinned native clang-format wheel for Windows $(uname -m); install Python 3 or set CLANG_FORMAT_BIN." >&2

@@ -19,8 +19,8 @@ REF_DIR="docs/ref"
 cd "$REPO_ROOT"
 # shellcheck source=./_105_setup_test_tools.sh
 source "$SCRIPT_DIR/_105_setup_test_tools.sh"
-MD_TO_PDF_PACKAGE="md-to-pdf@${TRICE_TOOL_MD_TO_PDF_VERSION:-5.2.4}"
-PUPPETEER_PACKAGE="puppeteer@${TRICE_TOOL_PUPPETEER_VERSION:-24.31.0}"
+MD_TO_PDF_PACKAGE="md-to-pdf@${TRICE_TOOL_MD_TO_PDF_VERSION:-5.2.5}"
+PUPPETEER_PACKAGE="puppeteer@${TRICE_TOOL_PUPPETEER_VERSION:-25.16.0}"
 STITCHMD_VERSION="${TRICE_TOOL_STITCHMD_VERSION:-0.9.0}"
 
 # Resolve setup separately so callers can obtain installation consent before
@@ -93,6 +93,13 @@ done
 if [[ ! -d "$REF_DIR" ]]; then
   show_context
   die "missing manual reference directory: $REF_DIR"
+fi
+
+# The pinned renderer requires the manifest's Node runtime, including direct
+# invocations that did not inherit the native suite's prepared PATH.
+if ! ensure_node_test_tool; then
+  show_context
+  die "cannot prepare the declared Node.js runtime for PDF generation"
 fi
 
 if ! command -v npx >/dev/null 2>&1; then
@@ -248,12 +255,12 @@ EOF_JSON
   echo "Generating manual PDF from $MANUAL_FILE"
   echo "Output PDF: $OUTPUT_FILE"
 
-  # md-to-pdf 5.2.4 declares Puppeteer as an open-ended >=8 dependency. Letting
+  # md-to-pdf declares Puppeteer as an open-ended >=8 dependency. Letting
   # npx resolve that range implicitly makes an otherwise pinned release step
   # depend on the newest Puppeteer, its Node.js floor, and its Chrome revision.
   # Supplying both exact packages at the npx root keeps npm's satisfying package
-  # selection deterministic. Puppeteer 24.31.0 supports Node.js 18 and newer and
-  # installs its matching browser in Puppeteer's normal cross-platform cache.
+  # selection deterministic. Use the manifest's Node.js runtime and Puppeteer's
+  # matching browser in its normal cross-platform cache.
   if ! npx -y \
     --package="$MD_TO_PDF_PACKAGE" \
     --package="$PUPPETEER_PACKAGE" \
