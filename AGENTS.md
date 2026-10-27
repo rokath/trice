@@ -264,6 +264,16 @@
 * Use `./scripts/testAll.sh full` only as a final validation step or when C-code-relevant changes need broad compiler-switch coverage.
 * Do not run `./scripts/testAll.sh full` automatically for every step; it can take about an hour and is often better run manually by the user.
 
+## Regression Validation
+
+* Before changing shared setup, tool versions, build helpers, or test infrastructure, identify the affected callers: direct commands, `testAll.sh`, CI, and release/snapshot hooks. Include their existing behavioral tests in validation; checking only the edited entry point is insufficient.
+* Use focused tests during implementation. After the last code, configuration, or fixture change, run the complete affected Go test packages and the relevant script/build checks. A focused rerun that passes does not replace this final package validation or resolve another known failure.
+* If a later edit changes behavior covered by completed checks, rerun the affected checks against the final file contents. Report exactly which final-state checks passed, failed, were skipped, or were interrupted. Never describe a previously tested revision as validation of subsequent changes.
+* When tool selection or version checks change, inspect every affected tool double and setup fixture. Model the declared tool identity consistently while retaining tests for incompatible versions, missing tools, installation refusal, and failed setup. Fixtures must not accidentally download real tools or depend on the developer's installed version.
+* Give compiler integration cases separate output paths for executables they run, especially on Windows. Do not relink over a just-executed program or share mutable build outputs across cases or worktrees. For intermittent failures, investigate the shared state or lifecycle and repeat the affected real workflow after correction; sleeps, retries, skipped checks, or relaxed assertions are not substitutes for resolving the cause.
+* Define the supported OS/architecture and prerequisite combinations explicitly. For changed tool preparation, cover cold and warm worktree caches, failed preparation, and the platform-specific selection paths. Distinguish simulated platform tests from actual native runs. Claim support as verified only for combinations actually exercised; list remaining native acceptance runs and material limitations.
+* Preserve unrelated running tests. Do not edit a worktree while its suite owns the tracked-state snapshot, and never kill another test run to make validation easier. Complete necessary source restoration before further edits or a handoff.
+
 ## Coverage
 
 * When non-test Go code changes, run the same coverage command as `.github/workflows/coverage.yml` before pushing, or use a repository script only if it has equivalent package and `-coverpkg` selection.
