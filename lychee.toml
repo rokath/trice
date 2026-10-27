@@ -7,7 +7,7 @@
 # Key principles in this setup:
 #   1) Do NOT use regex look-ahead / look-behind (not supported by Lychee).
 #   2) Exclude unwanted directories/files via `exclude_path` (regex).
-#   3) Check only HTTP(S) links by scheme to avoid failing on local file artifacts.
+#   3) Check HTTP(S) and local file links, including their fragment destinations.
 #   4) Accept HTTP 403 (some sites block automated link checkers).
 ############################
 
@@ -46,7 +46,9 @@ max_redirects = 5
 max_retries = 4
 retry_wait_time = 3
 
-# Check web links AND local file links (including anchors in local Markdown/HTML).
+# Check web links AND local file links. Both entry points pass
+# --include-fragments to also verify anchors; that CLI flag works across the
+# supported Lychee versions, whose TOML fragment settings use different types.
 scheme = ["http", "https", "file"]
 
 # Do not enforce HTTPS globally (some sites still legitimately use HTTP).
@@ -124,6 +126,9 @@ exclude = [
   "^https://2cld\\.de/.*",
   "^https://libopencm3\\.org/.*",
   "^https://libusb\\.info/.*",
+
+  # SEGGER's knowledge base intermittently returns HTTP 504 to automated checks.
+  "^https://kb\\.segger\\.com/J-Link_RTT_TELNET_Channel(#.*)?$",
 
   # htmlpreview.github.io is convenient for rendering checked-in HTML exports,
   # but it intermittently answers CI checks with HTTP 503.

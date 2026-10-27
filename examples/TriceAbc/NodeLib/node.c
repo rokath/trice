@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #if defined(_WIN32)
@@ -321,6 +322,62 @@ void nodePrintState(const node_t* node, const char* reason) {
 	nodePrintLineF("%s: %skey=%s leds=%s\n", node->name, (reason != 0) ? reason : "", node->key, bar);
 }
 
+// Read or publish one controller marker. Only demo.sh enables this protocol;
+// standalone nodes keep their original lifetime. Fixed buffers avoid allocation.
+static int nodeDemoMarker(const char* name, const char* suffix, int create) {
+	const char* directory = getenv("TRICE_ABC_START_DIR");
+	char path[BCSIM_PATH_MAX];
+	int length;
+	FILE* file;
+	if (directory == 0 || directory[0] == '\0') {
+		return 1;
+	}
+	length = snprintf(path, sizeof(path), "%s/%s%s", directory, name, suffix);
+	if (length < 0 || (size_t)length >= sizeof(path)) {
+		fprintf(stderr, "ABC demo marker path is too long for %s%s\n", name, suffix);
+		return -1;
+	}
+	file = fopen(path, create ? "wb" : "rb");
+	if (file == 0) {
+		if (!create && errno == ENOENT) {
+			return 0;
+		}
+		fprintf(stderr, "ABC demo cannot %s marker %s: %s\n", create ? "write" : "read", path, strerror(errno));
+		return -1;
+	}
+	if (fclose(file) != 0) {
+		fprintf(stderr, "ABC demo cannot close marker %s: %s\n", path, strerror(errno));
+		return -1;
+	}
+	return 1;
+}
+
+// Wait for an explicit lifecycle phase, continuing reception when requested.
+// The bounded wait diagnoses a missing controller instead of hanging forever.
+static int nodeDemoWait(node_t* node, const char* phase, int receive) {
+	const char* directory = getenv("TRICE_ABC_START_DIR");
+	unsigned attempt;
+	if (directory == 0 || directory[0] == '\0') {
+		return BCSIM_OK;
+	}
+	for (attempt = 0u; attempt < 6000u; ++attempt) {
+		int ready = nodeDemoMarker(phase, "", 0);
+		if (ready < 0) {
+			return BCSIM_ERR_IO;
+		}
+		if (receive && nodePoll(node) < 0) {
+			fprintf(stderr, "%s: ABC demo receive failed while waiting for %s\n", node->name, phase);
+			return BCSIM_ERR_IO;
+		}
+		if (ready != 0) {
+			return BCSIM_OK;
+		}
+		nodeSleepMs(10u);
+	}
+	fprintf(stderr, "%s: ABC demo timed out waiting for %s\n", node->name, phase);
+	return BCSIM_ERR_LOCK_TIMEOUT;
+}
+
 // Open one demo node and join the shared abc.bus broadcast medium.
 int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rxLogEnabled) {
 	int e;
@@ -356,6 +413,11 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 #if TRICE_RX_SUPPORT == 1
 	(void)nodePrintIgnoredID_adapter; // fn_TricePrintIgnoredID = nodePrintIgnoredID_adapter;
 #endif
+	if (nodeDemoMarker(name, ".ready", 1) < 0 || nodeDemoWait(node, "start", 0) < 0) {
+		bcSimClose(&node->bus);
+		gNode = 0;
+		return BCSIM_ERR_IO;
+	}
 	return BCSIM_OK;
 }
 
@@ -363,6 +425,16 @@ int nodeOpen(node_t* node, const char* name, int canSend, int canReceive, int rx
 void nodeClose(node_t* node) {
 	if (node == 0) {
 		return;
+	}
+	// Completion describes application traffic, not receiver shutdown. The
+	// controller keeps all receivers alive until every sender has finished.
+	if (nodeDemoMarker(node->name, ".done", 1) < 0) {
+		(void)nodeDemoMarker(node->name, ".failed", 1);
+	} else if (node->canReceive != 0u) {
+		if (nodeDemoWait(node, "stop", 1) < 0 || nodeDemoMarker(node->name, ".drained", 1) < 0 ||
+		    nodeDemoWait(node, "finish", 1) < 0) {
+			(void)nodeDemoMarker(node->name, ".failed", 1);
+		}
 	}
 
 	bcSimClose(&node->bus);

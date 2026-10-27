@@ -300,11 +300,7 @@ The [rule and Bind tests](../../internal/id/contextEnrichment_test.go) check sel
 
 Evidence for the production implementation covers Clang in C11 and C++17, `clangd` with a real compile configuration, 8/16/32/64-bit values, different stamp types and builds without `__COUNTER__`. It checks separate local scopes, once-only evaluation, `TRICE_OFF`, `TRICE_CLEAN` and understandable compiler/editor errors for missing identifiers. Insert additionally tests two log sites in separate local blocks on the same wrapper line and their complete removal. The editor check excludes only clangd's `SwapBinaryOperands` refactoring action: Clangd 21 proposes overlapping edits within an explicit `Id(...)` for this action. Compiler diagnostics and missing-identifier errors remain checked. Other compilers are assessed separately in the PoC appendix.
 
-Repeat the focused acceptance tests from the repository root:
-
-```sh
-TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment|TestInsertCleanContext|TestSourceContext|TestContextInsertClean)' -count=1
-```
+Use [step 515 in the testing chapter](target_tests.md#run-a-focused-local-check) to repeat the productive compiler-to-decoder acceptance checks. [Test Internals](target_test_internals.md#feature-checks-and-firmware-matrices) distinguishes them from the explicit experimental proofs below.
 
 ## 8. <a id="reversible-workflow-with-insert-and-clean"></a>Reversible workflow with Insert and Clean
 

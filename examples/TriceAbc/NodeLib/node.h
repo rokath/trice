@@ -73,6 +73,8 @@ int nodeOpen(node_t* node,
              int rxLogEnabled);
 
 // Clear the local handle state and release the BcSim view.
+// In demo.sh's managed mode, keep receiving until all transmitters and the
+// two drain phases have completed. Direct node runs retain their own lifetime.
 void nodeClose(node_t* node);
 
 // Poll, frame, decode, and dispatch all currently available foreign traffic.

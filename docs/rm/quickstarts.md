@@ -262,7 +262,7 @@ It depends on J-Link/RTT infrastructure. If that hardware or closed host tooling
 
 See also [Communication Ports](custom_output.md), the example projects, and the UART-related configuration examples. This section is intentionally short because UART setup is MCU/vendor-specific.
 
-Use this path with the built-in UART backend and the required MCU UART hooks. A USB CDC/VCOM writer is normally an auxiliary byte writer; use the first recipe unless your application supplies a compatible UART adapter. See [F030 UART instrumentation](examples.md#f030instuart) for concrete peripheral and interrupt integration.
+Use this path with the built-in UART backend and the required MCU UART hooks. A USB CDC/VCOM writer is normally an auxiliary byte writer; use the first recipe unless your application supplies a compatible UART adapter. See [F030 UART instrumentation](examples.md#f030_inst_uart) for concrete peripheral and interrupt integration.
 
 Minimal shape of `triceConfig.h`:
 

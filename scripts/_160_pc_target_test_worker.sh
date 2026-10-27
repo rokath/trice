@@ -78,12 +78,18 @@ run_pc_package() {
 # that only exists in the continuous bulk stream.
 diagnose_bulk_failure() {
   local package="$1"
+  local status
 
   printf 'Bulk failure diagnostic for %s\n' "$package"
   if run_pc_package "line-by-line" "$package"; then
     printf 'DIAGNOSTIC: %s passes line by line; inspect bulk framing, padding, buffer wrap, or shared state\n' "$package"
     return 0
+  else
+    status=$?
   fi
+  case "$status" in
+    130 | 143) return "$status" ;;
+  esac
   printf 'DIAGNOSTIC: %s also fails line by line; the assertion above identifies the source line\n' "$package"
   return 1
 }
@@ -105,6 +111,9 @@ finish_pc_batch() {
   for ((index = 0; index < ${#PC_PIDS[@]}; index++)); do
     status=0
     wait "${PC_PIDS[index]}" || status=$?
+    case "$status" in
+      130 | 143) cancel_pc_jobs "$status" ;;
+    esac
     package="${PC_PACKAGES[index]}"
     logfile="${PC_LOGFILES[index]}"
     if [ "$status" -eq 0 ]; then
@@ -119,7 +128,11 @@ finish_pc_batch() {
         # reading target sources while the caller restores the ID state.
         diagnose_bulk_failure "$package" >"$logfile.diagnostic" 2>&1 &
         PC_PIDS[index]=$!
-        wait "${PC_PIDS[index]}" || true
+        status=0
+        wait "${PC_PIDS[index]}" || status=$?
+        case "$status" in
+          130 | 143) cancel_pc_jobs "$status" ;;
+        esac
         cat "$logfile.diagnostic"
       fi
     fi
@@ -135,7 +148,6 @@ cancel_pc_jobs() {
   for pid in "${PC_PIDS[@]}"; do
     kill -TERM -- "-$pid" 2>/dev/null || true
   done
-  for pid in "${PC_PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
   # A test binary may handle TERM after its go parent has already exited.
   # Wait for the whole group before the caller restores the shared ID state.
   for pid in "${PC_PIDS[@]}"; do
@@ -149,6 +161,9 @@ cancel_pc_jobs() {
       attempts=$((attempts + 1))
     done
   done
+  # Reap only after the bounded grace period; waiting first can block forever
+  # on a child that ignores TERM and prevent the KILL fallback from running.
+  for pid in "${PC_PIDS[@]}"; do wait "$pid" 2>/dev/null || true; done
   exit "$status"
 }
 

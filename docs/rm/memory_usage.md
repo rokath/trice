@@ -52,7 +52,7 @@ Follow the [RTT include-order and configuration rules](rtt.md). The fallback let
 ## 2. <a id="code-optimization--o3-or--oz-if-supported"></a>Code Optimization -o3 or -oz (if supported)
 
 For debugging it could be helpful to switch off code optimization what increases the code size. A good choice is `-o1`. See also
-[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](memory_usage.md#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization).
+[TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](memory_usage.md#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization).
 
 
 ## 3. <a id="compiler-independent-setting-a-bit-outdated"></a>Compiler Independent Setting (a bit outdated)

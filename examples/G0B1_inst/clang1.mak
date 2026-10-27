@@ -15,6 +15,9 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 $(CLANG_BUILD)/main.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8 -Wno-newline-eof
 $(CLANG_BUILD)/cmsis_os.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8 -Wno-unused-parameter
 $(CLANG_BUILD)/SEGGER_RTT.o: CLANG_SOURCE_FLAGS += -Wno-zero-length-array
+# FreeRTOS updates this debug counter even when configUSE_TRACE_FACILITY is off.
+# Keep the vendor source intact and restrict the suppression to its task unit.
+$(CLANG_BUILD)/tasks.o: CLANG_SOURCE_FLAGS += -Wno-unused-but-set-global
 
 # assembler
 $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)

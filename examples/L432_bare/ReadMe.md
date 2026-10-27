@@ -1,1 +1,1 @@
-- [L432 bare FreeRTOS project: setup](../../docs/rm/examples.md#l432bare)
+- [L432 bare FreeRTOS project: setup](../../docs/rm/examples.md#l432_bare)

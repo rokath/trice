@@ -144,6 +144,7 @@ func collectBindInputs(w io.Writer, fSys *afero.Afero) ([]bindFileInput, []bindD
 	// Absolute identity deduplicates relative/absolute aliases of overlapping
 	// roots; the original spelling remains usable by memory filesystems too.
 	seenSources := make(map[string]bool)
+	aliases := make(map[string][]sourceFileIdentity)
 	var diagnostics []bindDiagnostic
 	roots := append([]string(nil), Srcs...)
 	sort.Strings(roots)
@@ -185,7 +186,7 @@ func collectBindInputs(w io.Writer, fSys *afero.Afero) ([]bindFileInput, []bindD
 			if fileInfo.IsDir() || !isSourceFile(fileInfo) {
 				return nil
 			}
-			identity, err := filepath.Abs(path)
+			identity, err := sourceIdentity(path, fileInfo, aliases)
 			if err != nil {
 				return err
 			}

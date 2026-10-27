@@ -223,6 +223,9 @@ func addInit() {
 }
 
 func generateInit() {
+	// flag.Var does not assign a default value as BoolVar/StringVar do. Reset
+	// this optional filename explicitly when starting a new command context.
+	id.GenerateLogC, id.GenerateLogCPath = false, ""
 	fsScGenerate = flag.NewFlagSet("generate", flag.ContinueOnError) // sub-command
 	flagIDList(fsScGenerate)
 	flagLIFile(fsScGenerate)

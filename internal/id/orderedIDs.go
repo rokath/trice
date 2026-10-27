@@ -25,6 +25,32 @@ type orderedIDSite struct {
 	id           TriceID
 }
 
+// sourceFileIdentity retains native metadata for one case-folded spelling.
+// EqualFold alone cannot distinguish aliases from separate files on a volume
+// that preserves case. Memory filesystems keep their exact-path behavior.
+type sourceFileIdentity struct {
+	path string
+	info os.FileInfo
+}
+
+// sourceIdentity deduplicates relative/absolute paths and proven case aliases.
+// Different case-sensitive files and unrelated hard-link spellings stay distinct.
+// Callers serialize access to aliases while collecting concurrent source walks.
+func sourceIdentity(source string, info os.FileInfo, aliases map[string][]sourceFileIdentity) (string, error) {
+	absolute, err := filepath.Abs(source)
+	if err != nil {
+		return "", err
+	}
+	key := strings.ToLower(absolute)
+	for _, previous := range aliases[key] {
+		if previous.path == absolute || os.SameFile(previous.info, info) {
+			return previous.path, nil
+		}
+	}
+	aliases[key] = append(aliases[key], sourceFileIdentity{absolute, info})
+	return absolute, nil
+}
+
 // orderedIDPath uses the location root, never the absolute checkout prefix.
 // Go's string comparison is ordinal and does not depend on the host locale.
 func orderedIDPath(source string) string {
@@ -35,8 +61,11 @@ func orderedIDPath(source string) string {
 // selected files. Ambiguous legacy basenames are deliberately not guessed.
 func (p *idData) reserveIDsOutside(paths []string, protected map[TriceID]bool) {
 	selected := make(map[string]bool, len(paths))
+	byCase := make(map[string][]string, len(paths))
 	for _, source := range paths {
-		selected[orderedIDPath(source)] = true
+		location := orderedIDPath(source)
+		selected[location] = true
+		byCase[strings.ToLower(location)] = append(byCase[strings.ToLower(location)], source)
 		// Legacy LI may store the exact CLI-relative spelling rather than a
 		// path relative to li.json. Accept that spelling, not a basename guess.
 		selected[path.Clean(strings.ReplaceAll(source, `\`, "/"))] = true
@@ -50,7 +79,7 @@ func (p *idData) reserveIDsOutside(paths []string, protected map[TriceID]bool) {
 		if filepath.IsAbs(location.File) {
 			stored = orderedIDPath(location.File)
 		}
-		if !selected[stored] {
+		if !selected[stored] && !p.selectedLocationAlias(stored, byCase[strings.ToLower(stored)]) {
 			p.reservedIDs[id] = true
 		}
 	}
@@ -64,6 +93,26 @@ func (p *idData) reserveIDsOutside(paths []string, protected map[TriceID]bool) {
 		sort.Slice(usable, func(i, j int) bool { return usable[i] < usable[j] })
 		p.triceToId[format] = usable
 	}
+}
+
+// selectedLocationAlias permits reuse only after native metadata proves the
+// existing LI path and an active source refer to the same physical file. It
+// neither guesses basenames nor rewrites historical entries outside the scan.
+func (p *idData) selectedLocationAlias(stored string, candidates []string) bool {
+	if p.sourceFS == nil || len(candidates) == 0 {
+		return false
+	}
+	info, err := p.sourceFS.Stat(filepath.Join(locationRoot(), filepath.FromSlash(stored)))
+	if err != nil {
+		return false
+	}
+	for _, source := range candidates {
+		selected, err := p.sourceFS.Stat(source)
+		if err == nil && os.SameFile(info, selected) {
+			return true
+		}
+	}
+	return false
 }
 
 // orderIdenticalIDs permutes only interchangeable IDs. The existing allocator
@@ -149,18 +198,19 @@ func orderBindIDs(plans []bindFilePlan) error {
 func (p *idData) insertIDsInOrder(w io.Writer, fs *afero.Afero, action ant.Processing) error {
 	p.err = nil
 	inputs := make(map[string]bindFileInput)
+	aliases := make(map[string][]sourceFileIdentity)
 	admin := &ant.Admin{Trees: Srcs, ExcludeTrees: ExcludeSrcs, MatchingFileName: isSourceFile}
 	admin.Action = func(_ io.Writer, fs *afero.Afero, source string, info os.FileInfo, a *ant.Admin) error {
-		absolute, err := filepath.Abs(source)
-		if err != nil {
-			return err
-		}
 		data, err := fs.ReadFile(source)
 		if err != nil {
 			return err
 		}
 		a.Mutex.Lock()
 		defer a.Mutex.Unlock()
+		absolute, err := sourceIdentity(source, info, aliases)
+		if err != nil {
+			return err
+		}
 		// Overlapping absolute/relative roots must also choose a stable spelling
 		// for diagnostics and publication, not whichever reader finishes last.
 		spelling := filepath.Clean(source)

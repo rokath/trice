@@ -88,12 +88,21 @@ jobs:
     name: Build snapshot artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      node: ${{ steps.tool-versions.outputs.node }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+
+      - name: Read shared release tool versions
+        id: tool-versions
+        shell: bash
+        run: |
+          source scripts/test-tools.env
+          printf 'goreleaser=v%s\nnode=%s\nstitchmd=%s\n' "$TRICE_TOOL_GORELEASER_VERSION" "$TRICE_NODE_VERSION" "$TRICE_TOOL_STITCHMD_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Go
         uses: actions/setup-go@v7
@@ -104,16 +113,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: ${{ steps.tool-versions.outputs.node }}
 
       - name: Install PDF chapter assembler
-        run: go install go.abhg.dev/stitchmd@v0.9.0
+        run: go install go.abhg.dev/stitchmd@v${{ steps.tool-versions.outputs.stitchmd }}
 
       - name: Set up GoReleaser
         uses: goreleaser/goreleaser-action@v7
         with:
           distribution: goreleaser
-          version: "~> v2"
+          version: ${{ steps.tool-versions.outputs.goreleaser }}
           install-only: true
 
       - name: Build snapshot artifacts
@@ -177,6 +186,7 @@ jobs:
 
           require_file dist/trice_tool_linux_amd64.tar.gz
           require_file dist/trice_tool_darwin_amd64.tar.gz
+          require_file dist/trice_tool_darwin_arm64.tar.gz
           require_file dist/trice_tool_windows_amd64.zip
           require_file dist/TriceReferenceManual.pdf
           require_glob 'dist/trice_target_sources_*.zip'
@@ -191,6 +201,7 @@ jobs:
           path: |
             dist/trice_tool_linux_amd64.tar.gz
             dist/trice_tool_darwin_amd64.tar.gz
+            dist/trice_tool_darwin_arm64.tar.gz
             dist/trice_tool_windows_amd64.zip
             dist/trice_target_sources_*.zip
             dist/trice_*_amd64.deb
@@ -213,7 +224,7 @@ jobs:
       - name: Set up release feature checker
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: ${{ needs.build-artifacts.outputs.node }}
 
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8
@@ -258,9 +269,33 @@ jobs:
 
   install-check-macos:
     name: Install Check macOS Archive
-    runs-on: macos-latest
+    # Preserve the existing required-check name and require both native hosts.
+    runs-on: ubuntu-24.04
+    needs: install-check-macos-native
+    if: ${{ always() }}
+    steps:
+      - name: Require both native macOS package checks
+        env:
+          NATIVE_RESULT: ${{ needs.install-check-macos-native.result }}
+        run: |
+          if [ "$NATIVE_RESULT" != success ]; then
+            echo "Native macOS archive verification did not complete successfully: $NATIVE_RESULT"
+            exit 1
+          fi
+
+  install-check-macos-native:
+    name: macOS Archive (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
     needs: build-artifacts
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15-intel
+            arch: amd64
+          - os: macos-26
+            arch: arm64
 
     steps:
       - name: Checkout
@@ -269,7 +304,7 @@ jobs:
       - name: Set up release feature checker
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: ${{ needs.build-artifacts.outputs.node }}
 
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8
@@ -281,16 +316,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          tar -xzf artifacts/trice_tool_darwin_amd64.tar.gz -C artifacts
-          test -x artifacts/trice_tool_darwin_amd64/trice
-          test -x artifacts/trice_tool_darwin_amd64/tlog
+          archive=artifacts/trice_tool_darwin_${{ matrix.arch }}.tar.gz
+          if [ ! -s "$archive" ]; then
+            echo "Missing native macOS archive: $archive"
+            find artifacts -maxdepth 1 -type f -print
+            exit 1
+          fi
+          tar -xzf "$archive" -C artifacts
 
       - name: Verify binary and smoke test
         shell: bash
         run: |
           set -euo pipefail
-          trice=artifacts/trice_tool_darwin_amd64/trice
-          tlog=artifacts/trice_tool_darwin_amd64/tlog
+          trice=artifacts/trice_tool_darwin_${{ matrix.arch }}/trice
+          tlog=artifacts/trice_tool_darwin_${{ matrix.arch }}/tlog
+          uname -sm
           "$trice" version
           "$trice" help
           "$tlog" --version
@@ -310,7 +350,7 @@ jobs:
         run: |
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-          node scripts/_verify_release_features.cjs artifacts/trice_tool_darwin_amd64 "$source_zip"
+          node scripts/_verify_release_features.cjs artifacts/trice_tool_darwin_${{ matrix.arch }} "$source_zip"
 
   install-check-windows:
     name: Install Check Windows Archive
@@ -325,7 +365,7 @@ jobs:
       - name: Set up release feature checker
         uses: actions/setup-node@v7
         with:
-          node-version: "22"
+          node-version: ${{ needs.build-artifacts.outputs.node }}
 
       - name: Download snapshot artifacts
         uses: actions/download-artifact@v8

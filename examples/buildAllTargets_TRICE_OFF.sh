@@ -5,6 +5,11 @@
 # Each target runs in its own directory; failures are counted and reported.
 set -euo pipefail
 
+# A deferred terminal signal must stop the matrix once its foreground build
+# returns, rather than count that interrupted build and start another target.
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
 # Resolve this script's directory (works with symlinks as well)
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
@@ -34,6 +39,10 @@ for d in "${targets[@]}"; do
   echo "${d} with TRICE_OFF=1"
 
   (
+    # Preserve cancellation when the build's immediate parent is this
+    # subshell rather than the outer matrix (notably with macOS Bash).
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
     cd -- "${SCRIPT_DIR}/${d}"
 
     if [[ ! -x ./build.sh ]]; then
@@ -44,6 +53,9 @@ for d in "${targets[@]}"; do
     ./build.sh TRICE_OFF=1
   ) || {
     rc=$?
+    case "$rc" in
+      130 | 143) exit "$rc" ;;
+    esac
     failCount=$((failCount + 1))
     echo "FAIL: ${d} (exit code ${rc})"
   }

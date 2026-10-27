@@ -143,7 +143,9 @@ func TestOrderedIDsTargetRecordsMatchSourceAndCatalog(t *testing.T) {
 						require.NoError(t, err)
 						for _, language := range []struct{ name, standard, compiler string }{{"c", "c11", family.c}, {"c++", "c++17", family.cpp}} {
 							t.Run(language.name, func(t *testing.T) {
-								executable := filepath.Join(project, "ordered-target")
+								// Each language/phase owns its output so Windows need not
+								// reopen an executable that the preceding case just ran.
+								executable := filepath.Join(t.TempDir(), "ordered-target")
 								if runtime.GOOS == "windows" {
 									executable += ".exe"
 								}

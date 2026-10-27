@@ -668,9 +668,8 @@ The include lines and helper headers are related generator artifacts. They must 
 
 Older multiline rebase blocks from a previous generator version are still recognized. A successful new bind run replaces them with the compact include boundaries.
 
-<a id="missing-__counter__"></a>
-<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
-### 16.7. <a id="missing-9595counter9595"></a>Missing &#95;&#95;COUNTER&#95;&#95;
+<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels. -->
+### 16.7. <a id="missing-__counter__"></a>Missing &#95;&#95;COUNTER&#95;&#95;
 
 Only the affected rebase region contains a capability guard. If `__COUNTER__` is unavailable, the target compiler stops with a message explicitly stating that normal bind sites are unaffected.
 
@@ -787,9 +786,8 @@ The sidecar must be active when the direct Trice calls of the physical file are 
 
 Run `trice bind` again. The line number is part of the build-local site name.
 
-<a id="advanced-construct-requires-__counter__"></a>
-<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
-### 18.6. <a id="advanced-construct-requires-9595counter9595"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
+<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels. -->
+### 18.6. <a id="advanced-construct-requires-__counter__"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
 
 The compiler is processing a generated rebase region but does not provide `__COUNTER__`. Only this source construct is affected. Use one of the alternatives described under [Missing `__COUNTER__`](bind.md#missing-__counter__) or a target compiler with local counter support.
 

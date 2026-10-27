@@ -38,6 +38,8 @@ TEST_ALL_STATE_DIR=""
 TEST_ALL_STATE_CAPTURED=0
 TEST_ALL_STATE_VERIFIED=0
 TEST_ALL_ABORTED=0
+TEST_ALL_INCOMPLETE=0
+TEST_ALL_LOCK_OWNED=0
 
 summary_line() {
   printf '%s\n' "$1" >>"$SUMMARY_LOG"
@@ -68,6 +70,9 @@ capture_tracked_bytes() {
     summary_line "FAIL: cannot list tracked paths for the test-state check"
     return 1
   fi
+  # New task sources must also be protected before they have been staged.
+  git ls-files -z --others --exclude-standard -- '*.go' '*.c' '*.h' '*.sh' \
+    'scripts/test-tools.env' 'scripts/testcheck/package*.json' >>"$path_list" || return 1
 
   : >"$manifest" || return 1
   : >"$entries" || return 1
@@ -186,6 +191,10 @@ finish_test_runner() {
       TEST_ALL_STATE_DIR=""
     fi
   fi
+  if [ "$TEST_ALL_LOCK_OWNED" -eq 1 ]; then
+    rm -f ./temp/testAll.lock/owner
+    rmdir ./temp/testAll.lock || status=2
+  fi
   exit "$status"
 }
 
@@ -258,6 +267,20 @@ stop_progress_spinner() {
   fi
 }
 
+# step_may_prompt_for_tools identifies checks that can ask before installing
+# pinned local tools. Their prompts use /dev/tty and would be overwritten by the
+# runner's in-place spinner, leaving the user unable to see what needs input.
+step_may_prompt_for_tools() {
+  case "$1" in
+    _400_test_shell_format.sh | _430_test_clang_format.sh | _440_test_manual_format.sh | _490_test_runtime_prepare.sh | _520_test_target_code_lint.sh | _610_test_goreleaser_snapshot.sh)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 run_step() {
   local step="$1"
   shift
@@ -270,7 +293,7 @@ run_step() {
   local step_started=$SECONDS
   local step_elapsed
 
-  if [ "$TEST_ALL_INTERACTIVE" -eq 1 ]; then
+  if [ "$TEST_ALL_INTERACTIVE" -eq 1 ] && ! step_may_prompt_for_tools "$step"; then
     progress_spinner "$step" "$step_started" &
     TEST_ALL_SPINNER_PID=$!
   else
@@ -286,8 +309,9 @@ run_step() {
   if [ "$rc" -eq 0 ]; then
     step_log="$LOG_DIR/$(basename "$step" .sh).log"
     if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
-      printf 'WARN\n' >>"$SUMMARY_LOG"
-      printf '%sWARN%s\n' "$WARN_COLOR" "$RESET_COLOR"
+      printf 'INCOMPLETE\n' >>"$SUMMARY_LOG"
+      printf '%sINCOMPLETE%s\n' "$WARN_COLOR" "$RESET_COLOR"
+      rc=2
       # Surface tool-related skip details that would otherwise only be visible
       # in the per-step log during a quiet aggregate test run.
       while IFS= read -r warning; do
@@ -303,6 +327,16 @@ run_step() {
           summary_line "  $detail"
         done < <(grep -E '^Hint:' "$step_log")
       fi
+    fi
+  elif [ "$rc" -eq 2 ]; then
+    printf 'INCOMPLETE\n' >>"$SUMMARY_LOG"
+    printf '%sINCOMPLETE%s\n' "$WARN_COLOR" "$RESET_COLOR"
+    step_log="$LOG_DIR/$(basename "$step" .sh).log"
+    summary_line "  Details: $step_log"
+    if [ -f "$step_log" ]; then
+      while IFS= read -r detail; do
+        summary_line "  $detail"
+      done < <(grep -E '^(INCOMPLETE:|MISSING TOOL:|SKIP:)' "$step_log")
     fi
   elif [ "$rc" -eq 130 ] || [ "$rc" -eq 143 ]; then
     printf 'ABORTED\n' >>"$SUMMARY_LOG"
@@ -320,6 +354,16 @@ run_step() {
       done < <(awk '/PC FAIL|EXPECTATION FAILURE|Error Trace:|error:|panic:|fatal error:|FAIL:/ { if (!shown) remaining=28; shown=1 } remaining>0 { print; remaining-- }' "$step_log")
     fi
   fi
+  # Structured records belong to this run, including groups that did not pass.
+  local result=PASS
+  case "$rc" in
+    0) ;;
+    2) result=INCOMPLETE ;;
+    130 | 143) result=ABORTED ;;
+    *) result=FAIL ;;
+  esac
+  printf '%s\t%s\t%s\t%s\n' "$step" "$result" "$step_elapsed" \
+    "$(basename "$step" .sh).log" >>"$LOG_DIR/steps.tsv"
   return "$rc"
 }
 
@@ -353,7 +397,6 @@ build_test_plan() {
   fi
   add_plan_step "_515_test_logging_features.sh" "$TEST_ALL_SELECTED"
   add_plan_step "_520_test_target_code_lint.sh"
-  add_plan_step "_530_test_links.sh"
   add_plan_step "_540_test_go.sh"
   add_plan_step "_550_test_go_coverage.sh"
   if [ "$TEST_ALL_SELECTED" = "full" ]; then
@@ -365,12 +408,12 @@ build_test_plan() {
     add_plan_step "_590_test_gcc_insert.sh"
   fi
   add_plan_step "_600_test_gcc_bind.sh" "$TEST_ALL_SELECTED"
-  add_plan_step "_610_test_goreleaser_snapshot.sh"
   if [ "$TEST_ALL_SELECTED" = "full" ]; then
     add_plan_step "_620_test_l432_configs.sh"
     add_plan_step "_630_test_pc_targets_insert.sh" "$TEST_ALL_SELECTED"
   fi
   add_plan_step "_640_test_pc_targets_bind.sh" "$TEST_ALL_SELECTED"
+  add_plan_step "_645_test_pc_targets_clang.sh" "$TEST_ALL_SELECTED"
 }
 
 # expected_step_weight assigns deliberately coarse, hardware-independent work
@@ -388,7 +431,8 @@ expected_step_weight() {
     full:_515_test_logging_features.sh) printf '3\n' ;;
     full:_500_test_bind.sh | full:_510_test_bind_workflows.sh | full:_520_test_target_code_lint.sh | full:_530_test_links.sh) printf '2\n' ;;
     quick:_610_test_goreleaser_snapshot.sh) printf '55\n' ;;
-    quick:_640_test_pc_targets_bind.sh) printf '12\n' ;;
+    full:_645_test_pc_targets_clang.sh) printf '70\n' ;;
+    quick:_640_test_pc_targets_bind.sh | quick:_645_test_pc_targets_clang.sh) printf '12\n' ;;
     quick:_550_test_go_coverage.sh) printf '10\n' ;;
     quick:_540_test_go.sh) printf '8\n' ;;
     quick:_530_test_links.sh | quick:_600_test_gcc_bind.sh) printf '5\n' ;;
@@ -404,7 +448,7 @@ expected_step_weight() {
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
-  TEST_ALL_SELECTED="quick"
+  TEST_ALL_SELECTED="full"
   TEST_ALL_NO_STOP=1
   for argument in "$@"; do
     case "$argument" in
@@ -421,7 +465,7 @@ parse_test_all_arguments() {
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
         printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop]\n' >&2
-        printf 'Default: quick, continue after failures (--no-stop).\n' >&2
+        printf 'Default: full, continue after failures (--no-stop).\n' >&2
         return 2
         ;;
     esac
@@ -445,7 +489,11 @@ run_step_with_policy() {
   if [ "$rc" -eq 0 ]; then
     return 0
   fi
-  TEST_ALL_FAILED=1
+  if [ "$rc" -eq 2 ]; then
+    TEST_ALL_INCOMPLETE=1
+  else
+    TEST_ALL_FAILED=1
+  fi
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
     return 0
   fi
@@ -498,20 +546,36 @@ main() {
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
   TEST_ALL_FAILED=0
+  TEST_ALL_INCOMPLETE=0
   TEST_ALL_ABORTED=0
   export TRICE_TEST_NO_STOP="$TEST_ALL_NO_STOP"
   export SELECTED="$selected"
+  # Never delete or overwrite another run's logs or recovery evidence.
+  LOG_DIR="$(mktemp -d "$LOG_DIR/testAll.XXXXXX")" || exit 2
+  export LOG_DIR
+  export TRICE_TMP_DIR="$LOG_DIR"
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   build_test_plan
   started_at=$(date +%s)
-  clear_previous_test_logs || exit 1
   : >"$SUMMARY_LOG"
+  : >"$LOG_DIR/steps.tsv"
+  # Shared Insert/Bind state has one owner, even with separate log directories.
+  if ! mkdir ./temp/testAll.lock 2>/dev/null; then
+    summary_line "INCOMPLETE: another testAll owns ./temp/testAll.lock; inspect its owner and recovery logs before removing a stale lock."
+    [ ! -f ./temp/testAll.lock/owner ] || cat ./temp/testAll.lock/owner
+    printf '{"schema":1,"result":"INCOMPLETE","reason":"another suite owns shared test state"}\n' >"$LOG_DIR/results.json"
+    exit 2
+  fi
+  TEST_ALL_LOCK_OWNED=1
+  printf 'PID=%s\nLOG_DIR=%s\n' "$$" "$LOG_DIR" >./temp/testAll.lock/owner
   TEST_ALL_STATE_DIR="$(mktemp -d "$LOG_DIR/testAll-state.XXXXXX")" || exit 1
   summary_line "Preparing testAll: capturing tracked worktree state..."
   capture_tracked_bytes "$TEST_ALL_STATE_DIR/before" || exit 1
   TEST_ALL_STATE_CAPTURED=1
   summary_line "Starting testAll at $(date)"
   summary_line "Selection: $selected"
+  summary_line "Run directory: $LOG_DIR"
+  summary_line "Scope: native code, compiler and local consistency checks; external links and release snapshots run separately."
   if [ "$selected" = "quick" ]; then
     summary_line "ID workflows: bind (CE/SL fixtures also cover insert/clean)"
   else
@@ -523,24 +587,52 @@ main() {
     summary_line "Failure policy: stop after the first failure (--stop)"
   fi
   summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
-  run_selected_steps || true
+  # Keep declared versions visible on both cold and warm runs, before any
+  # redirected preparation or installation prompt can hide that context.
+  print_pinned_test_tools | while IFS= read -r line; do summary_line "$line"; done
+  summary_line "Preparing declared native tools; first-time downloads and builds can take several minutes. Log: $LOG_DIR/tools.log"
+  # Preparation completes before tests; its selected environment is inherited
+  # by every step. Missing prerequisites never turn into a reduced green run.
+  if ! prepare_native_test_tools >"$LOG_DIR/tools.log" 2>&1; then
+    summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
+    cat "$LOG_DIR/tools.log"
+    TEST_ALL_INCOMPLETE=1
+  else
+    run_selected_steps || true
+  fi
 
   verify_tracked_bytes || TEST_ALL_FAILED=1
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
+  local result=PASS
+  [ "$TEST_ALL_FAILED" -eq 0 ] || result=FAIL
+  [ "$TEST_ALL_INCOMPLETE" -eq 0 ] || result=INCOMPLETE
+  [ "$TEST_ALL_ABORTED" -eq 0 ] || result=ABORTED
+  # Preparation may fail before publishing a helper, or its executable may
+  # disappear. Preserve the original failure without attempting a missing file.
+  if [ -n "${TRICE_TEST_REPORT_BIN:-}" ] && [ -s "$TRICE_TEST_REPORT_BIN" ] && [ -x "$TRICE_TEST_REPORT_BIN" ]; then
+    if ! "$TRICE_TEST_REPORT_BIN" report "$LOG_DIR" "$selected" "$result" "$started_at"; then
+      TEST_ALL_INCOMPLETE=1
+      result=INCOMPLETE
+    fi
+  else
+    TEST_ALL_INCOMPLETE=1
+    result=INCOMPLETE
+    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"native test bootstrap unavailable; see tools.log"}\n' "$selected" >"$LOG_DIR/results.json" ||
+      summary_line "INCOMPLETE: cannot write $LOG_DIR/results.json; check free disk space and write permissions."
+  fi
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
     summary_line "Result: ABORTED (signal exit status $TEST_ALL_ABORTED)"
-  elif [ "$TEST_ALL_FAILED" -eq 0 ]; then
-    summary_line "Result: PASS"
   else
-    summary_line "Result: FAIL"
+    summary_line "Result: $result"
   fi
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
     exit "$TEST_ALL_ABORTED"
   fi
+  [ "$TEST_ALL_INCOMPLETE" -eq 0 ] || exit 2
   exit "$TEST_ALL_FAILED"
 }
 

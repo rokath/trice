@@ -41,7 +41,7 @@ run_logging_go_checks() {
   local package="$1" name status expression=""
   shift
   for name in "$@"; do expression="${expression:+$expression|}$name"; done
-  run_cmd env TRICE_BIND_INTEGRATION=1 go test "$package" \
+  TRICE_BIND_INTEGRATION=1 TRICE_REQUIRED_TESTS="$*" run_go_tests "$package" \
     -run "^($expression)$" -count=1 -v || {
     status=$?
     log "FAIL: CE/SL integration failed in $package"
@@ -92,7 +92,9 @@ run_feature_example() {
   local relative="$1" status
   shift
   create_feature_copy || return 1
-  run_cmd "$FEATURE_COPY_DIR/project/$relative" "$@" || {
+  # Isolated builds are noninteractive too; native Make must not inherit the
+  # Git Bash terminal even though these copies do not use the managed worker.
+  run_cmd "$FEATURE_COPY_DIR/project/$relative" "$@" </dev/null || {
     status=$?
     log "FAIL: $relative; isolated sources and outputs retained in $FEATURE_COPY_DIR"
     return "$status"
@@ -108,7 +110,7 @@ main() {
     log "INFO: productive CE/SL: Bind and Insert/Clean, C/C++, text/JSON/KV, disabled logging and single evaluation"
     run_logging_go_checks ./internal/args \
       TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder \
-      TestOrderedIDsTargetRecordsMatchSourceAndCatalog || return $?
+      TestOrderedIDsTargetRecordsMatchSourceAndCatalog TestNativeProjectPathsAndLineEndings || return $?
     log "INFO: retained CE proofs: direct callsites and the unsupported Rebase scope boundary"
     run_logging_go_checks ./internal/id \
       TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary || return $?

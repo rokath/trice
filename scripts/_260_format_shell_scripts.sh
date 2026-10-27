@@ -28,10 +28,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
+# shellcheck source=./_105_setup_test_tools.sh
+source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 MODE="format"
 VERBOSE=0
-SHFMT_VERSION="v3.8.0"
+SHFMT_VERSION="v${TRICE_TOOL_SHFMT_VERSION:-3.14.1}"
 TOOLS_DIR="$REPO_ROOT/temp/tools"
 SHFMT_BIN="${SHFMT_BIN:-$TOOLS_DIR/shfmt}"
 
@@ -60,8 +62,8 @@ ensure_shfmt() {
     return 0
   fi
 
-  # Checks never install tools or depend on network access. A differently
-  # versioned formatter cannot give a reproducible verdict on the pinned style.
+  # A differently versioned formatter cannot give a reproducible verdict.
+  # Reuse a canonical system tool before offering checkout-local installation.
   if [ "$MODE" = "check" ]; then
     if [ ! -x "$SHFMT_BIN" ] && command -v shfmt >/dev/null 2>&1; then
       SHFMT_BIN="$(command -v shfmt)"
@@ -70,12 +72,14 @@ ensure_shfmt() {
       if "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
         return 0
       fi
-      echo "SKIP: shfmt check requires $SHFMT_VERSION; detected $("$SHFMT_BIN" --version 2>&1)."
+      echo "shfmt check requires $SHFMT_VERSION; detected $("$SHFMT_BIN" --version 2>&1)."
     else
-      echo "MISSING TOOL: shfmt $SHFMT_VERSION"
-      echo "SKIP: canonical shfmt not installed; no tools are downloaded during tests."
+      echo "INFO: shfmt $SHFMT_VERSION is not cached; preparing the declared formatter."
     fi
-    exit 0
+    if ! confirm_tool_install "shfmt $SHFMT_VERSION"; then
+      echo "SKIP: canonical shfmt unavailable; installation was not confirmed."
+      exit 0
+    fi
   fi
 
   if ! command -v go >/dev/null 2>&1; then
@@ -89,7 +93,12 @@ ensure_shfmt() {
   fi
 
   mkdir -p "$TOOLS_DIR"
+  # Install into the canonical cache even when the detected system tool differs.
+  SHFMT_BIN="$TOOLS_DIR/shfmt"
   GOBIN="$TOOLS_DIR" go install "mvdan.cc/sh/v3/cmd/shfmt@$SHFMT_VERSION"
+  if [ ! -x "$SHFMT_BIN" ] && [ -x "$SHFMT_BIN.exe" ]; then
+    SHFMT_BIN="$SHFMT_BIN.exe"
+  fi
 
   if ! [ -x "$SHFMT_BIN" ]; then
     echo "Failed to install shfmt into $SHFMT_BIN" >&2

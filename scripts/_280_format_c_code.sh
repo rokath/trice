@@ -31,8 +31,9 @@
 #   not named `clang-format` on the current platform. An explicit selection is
 #   respected; unset it to enable automatic setup.
 #   FORMAT and SETUP install a missing canonical formatter into ./temp/tools using
-#   Python 3's venv and pip, just like CI. CHECK mode only reuses available tools
-#   and never downloads them. The system Python/clang-format are not modified.
+#   Python 3's venv and pip, just like CI. Windows can extract the native wheel
+#   without Python. CHECK mode asks before installing a missing version.
+#   The system Python/clang-format are not modified.
 #
 
 set -euo pipefail
@@ -40,6 +41,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
+# shellcheck source=./_105_setup_test_tools.sh
+source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 ###############################################################################
 # Decide which mode to run: FORMAT, CHECK, or tool-only SETUP.
@@ -71,7 +74,7 @@ done
 # repository and CI on the exact release that produced the checked-in files so
 # `format` and `check` cannot disagree merely because they run on different
 # operating systems or rolling CI images.
-CLANG_FORMAT_REQUIRED_VERSION="23.1.2"
+CLANG_FORMAT_REQUIRED_VERSION="${TRICE_TOOL_CLANG_FORMAT_VERSION:-23.1.3}"
 
 # clang_format_has_required_version validates actual executables, not just a
 # cache directory's existence. This also detects incomplete installs and venvs
@@ -82,10 +85,42 @@ clang_format_has_required_version() {
     return 1
   fi
   CLANG_FORMAT_VERSION_OUTPUT="$("$1" --version 2>&1)" || return 1
+  CLANG_FORMAT_VERSION_OUTPUT="${CLANG_FORMAT_VERSION_OUTPUT%$'\r'}"
   case "$CLANG_FORMAT_VERSION_OUTPUT" in
     *"version $CLANG_FORMAT_REQUIRED_VERSION" | *"version $CLANG_FORMAT_REQUIRED_VERSION "*) return 0 ;;
     *) return 1 ;;
   esac
+}
+
+# A Windows wheel contains the standalone formatter as well as Python launchers.
+# Extract only the verified release archive; Python is not needed to run the EXE.
+install_windows_clang_format() {
+  local tool_dir="$1" url digest archive
+  case "$(uname -m)" in
+    x86_64)
+      url="https://files.pythonhosted.org/packages/23/a6/90148f91544e3c056e78c514f0e764c1b44d50a33344c83fd03011ea97c8/clang_format-23.1.3-py2.py3-none-win_amd64.whl"
+      digest="6c2b74c3a3e942ec172d768e7b945f8e136db05a7b735d49ecfc69bda97643ad"
+      ;;
+    aarch64 | arm64)
+      url="https://files.pythonhosted.org/packages/fb/ed/47bda876e360ca71f366f256939dd674e7a5f4f8deae6eddf7819ea21832/clang_format-23.1.3-py2.py3-none-win_arm64.whl"
+      digest="583af22e6593b8ea463412cf3411f55731f117546ad13e88b9ce585e7c47475f"
+      ;;
+    *)
+      echo "FAIL: No pinned native clang-format wheel for Windows $(uname -m); install Python 3 or set CLANG_FORMAT_BIN." >&2
+      return 1
+      ;;
+  esac
+  if ! command -v unzip >/dev/null 2>&1; then
+    echo "FAIL: Native clang-format setup requires unzip (included with Git Bash)." >&2
+    return 1
+  fi
+  archive="./temp/tools/downloads/${url##*/}"
+  download_pinned_test_tool "$url" "$archive" "$digest" || return 1
+  mkdir -p "$tool_dir" || return 1
+  if ! unzip -q -o "$archive" -d "$tool_dir"; then
+    echo "FAIL: Cannot extract $archive into $tool_dir." >&2
+    return 1
+  fi
 }
 
 # find_cached_clang_format prefers native wheel binaries over Python launchers,
@@ -109,7 +144,7 @@ find_cached_clang_format() {
 }
 
 # ensure_clang_format prefers a compatible selected/system binary, then a local
-# cache. Only format/setup may bootstrap that cache; failed setup stops
+# cache. Checks require confirmation before bootstrapping; failed setup stops
 # before any source is formatted. Separate platform/architecture directories
 # avoid reusing native binaries across dual-boot systems or shared checkouts.
 ensure_clang_format() {
@@ -136,7 +171,7 @@ ensure_clang_format() {
     return 0
   fi
 
-  if [ "$MODE" = "check" ]; then
+  if [ "$MODE" = "check" ] && { [ -n "${CLANG_FORMAT_BIN:-}" ] || ! confirm_tool_install "clang-format $CLANG_FORMAT_REQUIRED_VERSION"; }; then
     # Without the canonical formatter there is no reliable formatting verdict.
     if ! command -v "$requested" >/dev/null 2>&1; then
       echo "MISSING TOOL: $requested"
@@ -163,6 +198,15 @@ ensure_clang_format() {
     done
   fi
   if [ "${#python_command[@]}" -eq 0 ]; then
+    if [ "$platform" = windows ]; then
+      install_windows_clang_format "$tool_dir" || return 1
+      if find_cached_clang_format "$tool_dir"; then
+        echo "clang-format: Using $CLANG_FORMAT_VERSION_OUTPUT from $CLANG_FORMAT_BIN."
+        return 0
+      fi
+      echo "FAIL: Native setup did not produce clang-format $CLANG_FORMAT_REQUIRED_VERSION in $tool_dir; detected $CLANG_FORMAT_VERSION_OUTPUT." >&2
+      return 1
+    fi
     echo "clang-format: Automatic setup requires Python 3 with venv and pip." >&2
     echo "Install Python 3, or set CLANG_FORMAT_BIN to clang-format $CLANG_FORMAT_REQUIRED_VERSION." >&2
     return 1

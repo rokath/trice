@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Test 530: Runs lychee for link checking.
+# Test 530: Runs lychee for file, web-link and fragment checking.
 #
 # Direct invocation:
 # - ./scripts/_530_test_links.sh
@@ -31,7 +31,7 @@ main() {
   esac
   # Keep the absolute URL in CLI help while validating its repository target locally.
   repository_source_remap="https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c $repository_root_uri/_test/testdata/triceCheck.c"
-  run_cmd lychee --config "$ROOT/lychee.toml" --remap "$repository_source_remap" . || {
+  run_cmd lychee --config "$ROOT/lychee.toml" --include-fragments --remap "$repository_source_remap" . || {
     log "FAIL: lychee failed"
     exit 1
   }
