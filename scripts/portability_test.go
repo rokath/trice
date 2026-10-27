@@ -528,6 +528,9 @@ func TestReportHelperPublication(t *testing.T) {
 echo report > report-called
 printf '{"result":"%s"}\n' "$4" > "$2/results.json"
 `)
+				// A successful runner must execute a real plan entry. An empty
+				// array under nounset also behaves differently in macOS Bash 3.2.
+				writeFixture(t, root, "scripts/_400_test_shell_format.sh", "#!/bin/sh\necho step > step-called\n")
 				writeFixture(t, root, "bin/go", `#!/bin/sh
 if [ "$1" != build ]; then exit 0; fi
 case "$BUILD_MODE" in
@@ -551,7 +554,7 @@ if [ "$ENTRY_POINT" = standalone ]; then
   exit "$status"
 fi
 prepare_native_test_tools() { build_native_report_tool; }
-build_test_plan() { :; }
+build_test_plan() { add_plan_step _400_test_shell_format.sh; }
 main
 `, map[string]string{"BUILD_MODE": mode, "ENTRY_POINT": entry})
 				if mode == "success" {
@@ -562,6 +565,7 @@ main
 						assert.Equal(t, 2, exitErr.ExitCode(), out)
 					}
 					assert.NoFileExists(t, filepath.Join(root, "report-called"))
+					assert.NoFileExists(t, filepath.Join(root, "step-called"))
 					assert.NotContains(t, out, "BROKEN_HELPER_RAN")
 					assert.NotContains(t, out, "No such file or directory")
 					if mode == "empty_success" {
@@ -584,6 +588,7 @@ main
 					if mode == "success" {
 						result = "PASS"
 						assert.FileExists(t, filepath.Join(root, "report-called"))
+						assert.FileExists(t, filepath.Join(root, "step-called"))
 					}
 					assert.Contains(t, string(report), `"result":"`+result+`"`)
 					assert.Contains(t, out, "Result: "+result)
