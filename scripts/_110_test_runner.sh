@@ -609,7 +609,9 @@ main() {
   [ "$TEST_ALL_FAILED" -eq 0 ] || result=FAIL
   [ "$TEST_ALL_INCOMPLETE" -eq 0 ] || result=INCOMPLETE
   [ "$TEST_ALL_ABORTED" -eq 0 ] || result=ABORTED
-  if [ -n "${TRICE_TEST_REPORT_BIN:-}" ]; then
+  # Preparation may fail before publishing a helper, or its executable may
+  # disappear. Preserve the original failure without attempting a missing file.
+  if [ -n "${TRICE_TEST_REPORT_BIN:-}" ] && [ -s "$TRICE_TEST_REPORT_BIN" ] && [ -x "$TRICE_TEST_REPORT_BIN" ]; then
     if ! "$TRICE_TEST_REPORT_BIN" report "$LOG_DIR" "$selected" "$result" "$started_at"; then
       TEST_ALL_INCOMPLETE=1
       result=INCOMPLETE
@@ -617,7 +619,8 @@ main() {
   else
     TEST_ALL_INCOMPLETE=1
     result=INCOMPLETE
-    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"native test bootstrap unavailable; see tools.log"}\n' "$selected" >"$LOG_DIR/results.json"
+    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"native test bootstrap unavailable; see tools.log"}\n' "$selected" >"$LOG_DIR/results.json" ||
+      summary_line "INCOMPLETE: cannot write $LOG_DIR/results.json; check free disk space and write permissions."
   fi
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
     summary_line "Result: ABORTED (signal exit status $TEST_ALL_ABORTED)"
