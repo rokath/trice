@@ -43,6 +43,8 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 
 The default is **full**. The suite checks installed tools and `temp/tools` first. If a project-local tool needs installation or repair, it asks once during preparation; later runs with valid tools need no answer. Empty input or EOF declines installation. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
+Every run lists the declared tool versions before preparation. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
+
 | Command | Use |
 | --- | --- |
 | `./scripts/testAll.sh` | Full native suite; normal final check before sharing a change. |

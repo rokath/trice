@@ -205,6 +205,50 @@ func TestPinnedToolConfirmation(t *testing.T) {
 	}
 }
 
+// TestPinnedToolOverview checks that listing versions remains read-only and
+// follows the manifest and host platform, even when no setup is necessary.
+func TestPinnedToolOverview(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT"} {
+		t.Run(platform, func(t *testing.T) {
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho '"+platform+"'\n")
+			out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+# Distinct versions prove that the overview reads configuration rather than
+# copying today's pinned values into its display code.
+TRICE_GO_VERSION=90.1.2
+TRICE_GCC_LINUX_VERSION=91.1.2
+TRICE_CLANG_LINUX_VERSION=92.1.2
+TRICE_GCC_DARWIN_VERSION=93.1.2
+TRICE_CLANG_DARWIN_VERSION=94.1.2
+TRICE_GCC_WINDOWS_VERSION=95.1.2
+TRICE_CLANG_WINDOWS_VERSION=96.1.2
+TRICE_PYTHON_VERSION=97.1.2
+TRICE_TOOL_JQ_VERSION=98.1.2
+print_pinned_test_tools
+print_pinned_test_tools
+`, nil)
+			assert.NoError(t, err, out)
+			assert.Equal(t, 2, strings.Count(out, "Pinned tool versions for this checkout:"))
+			assert.Contains(t, out, "Go 90.1.2")
+			assert.Contains(t, out, "jq 98.1.2")
+			switch platform {
+			case "Linux":
+				assert.Contains(t, out, "GCC/G++ 91.1.2; Clang/Clang++/clangd 92.1.2")
+			case "Darwin":
+				assert.Contains(t, out, "GCC/G++ 93.1.2; Clang/Clang++/clangd 94.1.2")
+			case "MINGW64_NT":
+				assert.Contains(t, out, "GCC/G++ 95.1.2; Clang/Clang++/clangd 96.1.2")
+				assert.Contains(t, out, "Managed Python 97.1.2")
+			}
+			if platform != "MINGW64_NT" {
+				assert.NotContains(t, out, "Managed Python")
+			}
+			assert.NotContains(t, out, "Install ")
+			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+		})
+	}
+}
+
 // TestNativeToolConsentIsLazy checks the public tool-selection helper without
 // depending on installed versions or downloading any tools. Cache hits need no
 // input; missing tools share one approval, and setup errors never ask to install.
@@ -261,6 +305,9 @@ ensure_pinned_test_tools fixture
 			})
 			assert.Equal(t, tc.accepted, err == nil, out)
 			assert.Equal(t, tc.prompts, strings.Count(out, "Install pinned test tools and compiler bundles"), out)
+			if tc.prompts != 0 {
+				assert.Contains(t, out, "tools: fixture; cache: temp/tools/native")
+			}
 			if tc.accepted && !tc.warm {
 				calls, err := os.ReadFile(filepath.Join(root, "preparations"))
 				assert.NoError(t, err)
@@ -1089,6 +1136,9 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			}
 			summary, readErr := os.ReadFile(filepath.Join(runs[0], "testAll_summary.log"))
 			assert.NoError(t, readErr)
+			assert.Contains(t, out, "Pinned tool versions for this checkout:")
+			assert.Contains(t, string(summary), "Pinned tool versions for this checkout:")
+			assert.Less(t, strings.Index(out, "Pinned tool versions for this checkout:"), strings.Index(out, "Preparing declared native tools;"))
 			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|INCOMPLETE|FAIL|ABORTED)$`)
 			consoleLines := resultLines.FindAllString(out, -1)
 			wantLines := 1

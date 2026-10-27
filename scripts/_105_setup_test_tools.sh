@@ -63,12 +63,50 @@ confirm_tool_install() {
   esac
 }
 
+# List the manifest's declared versions without probing or installing tools.
+# The runner prints this before preparation, including on fully cached runs.
+print_pinned_test_tools() {
+  local gcc_version clang_version
+  case "$(uname -s)" in
+    Linux*)
+      gcc_version="$TRICE_GCC_LINUX_VERSION"
+      clang_version="$TRICE_CLANG_LINUX_VERSION"
+      ;;
+    Darwin*)
+      gcc_version="$TRICE_GCC_DARWIN_VERSION"
+      clang_version="$TRICE_CLANG_DARWIN_VERSION"
+      ;;
+    MINGW* | MSYS* | CYGWIN*)
+      gcc_version="$TRICE_GCC_WINDOWS_VERSION"
+      clang_version="$TRICE_CLANG_WINDOWS_VERSION"
+      ;;
+    *)
+      gcc_version=undeclared
+      clang_version=undeclared
+      ;;
+  esac
+  printf 'Pinned tool versions for this checkout:\n'
+  printf '  Go %s; Node.js %s; CMake %s\n' "$TRICE_GO_VERSION" "$TRICE_NODE_VERSION" "$TRICE_CMAKE_VERSION"
+  printf '  GCC/G++ %s; Clang/Clang++/clangd %s; ARM GCC %s\n' "$gcc_version" "$clang_version" "$TRICE_ARM_GCC_VERSION"
+  printf '  clang-format %s; Cppcheck %s; shfmt %s; ShellCheck %s\n' "$TRICE_TOOL_CLANG_FORMAT_VERSION" "$TRICE_TOOL_CPPCHECK_VERSION" "$TRICE_TOOL_SHFMT_VERSION" "$TRICE_TOOL_SHELLCHECK_VERSION"
+  printf '  GoReleaser %s; actionlint %s; jq %s\n' "$TRICE_TOOL_GORELEASER_VERSION" "$TRICE_TOOL_ACTIONLINT_VERSION" "$TRICE_TOOL_JQ_VERSION"
+  printf '  markdownlint %s; mdtoc %s; stitchmd %s\n' "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MDTOC_VERSION" "$TRICE_TOOL_STITCHMD_VERSION"
+  printf '  PDF/link checks: md-to-pdf %s; Puppeteer %s; lychee %s\n' "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" "$TRICE_TOOL_LYCHEE_VERSION"
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*) printf '  Managed Python %s\n' "$TRICE_PYTHON_VERSION" ;;
+  esac
+  printf '  Valid cached tools are reused; installations stay local to this worktree.\n'
+}
+
 # Approve one preparation phase for the missing checkout-local test tools.
 # Individual installers reuse this decision, while host package changes still
-# require their own confirmation.
+# require their own confirmation. Optional context names the requesting cache
+# or tool group in the visible prompt even when diagnostics go to tools.log.
 approve_pinned_test_setup() {
   [ "${TRICE_TEST_SETUP_APPROVED:-0}" = 1 ] && return 0
-  if ! confirm_tool_install "pinned test tools and compiler bundles"; then
+  local description="pinned test tools and compiler bundles"
+  [ -z "${1:-}" ] || description="$description ($1)"
+  if ! confirm_tool_install "$description"; then
     printf 'INCOMPLETE: project-local test setup was not approved.\n' >&2
     return 1
   fi
@@ -376,7 +414,7 @@ install_windows_host_test_tools() {
     return 1
   fi
   if [ "${TRICE_TEST_AUTO_SETUP:-0}" = 1 ]; then
-    approve_pinned_test_setup || return 1
+    approve_pinned_test_setup "Windows GCC $TRICE_GCC_WINDOWS_VERSION / Clang $TRICE_CLANG_WINDOWS_VERSION bundle" || return 1
   fi
   archive="./temp/tools/downloads/$TRICE_HOST_PACKAGE.zip"
   download_pinned_test_tool \

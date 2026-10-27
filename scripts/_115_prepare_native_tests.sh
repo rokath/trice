@@ -8,7 +8,7 @@
 ensure_native_go_toolchain() {
   export GOTOOLCHAIN="go$TRICE_GO_VERSION"
   if GOPROXY=off go version >/dev/null 2>&1; then return 0; fi
-  approve_pinned_test_setup || return 2
+  approve_pinned_test_setup "Go $TRICE_GO_VERSION is not available offline" || return 2
   go version >/dev/null || return 2
 }
 
@@ -37,7 +37,7 @@ prepare_pinned_test_selection() {
   else
     status=$?
     [ "$status" -eq 3 ] || return "$status"
-    approve_pinned_test_setup || return 2
+    approve_pinned_test_setup "$operation: $*; cache: $cache" || return 2
     setup_output="$("$TRICE_TEST_REPORT_BIN" "$operation" scripts/test-tools.env "$cache" "$@")" || return 2
   fi
   printf -v "$result_variable" '%s' "$setup_output"
@@ -79,6 +79,7 @@ prepare_native_cmake_environment() {
 prepare_native_test_tools() {
   local tool missing=0 compiler gcc_bin="" cpp_bin="" directory candidate platform
   export TRICE_TEST_AUTO_SETUP=1
+  print_pinned_test_tools
   for tool in git go bash tar unzip make curl; do
     if ! command -v "$tool" >/dev/null 2>&1; then
       printf 'MISSING TOOL: %s; install the native prerequisite listed in docs/rm/target_tests.md\n' "$tool"
@@ -274,7 +275,7 @@ prepare_pinned_native_tools() {
   mkdir -p "$npm_dir" || return 2
   cp scripts/testcheck/package.json "$npm_dir/package.json" || return 2
   if [ ! -f scripts/testcheck/package-lock.json ]; then
-    approve_pinned_test_setup || return 2
+    approve_pinned_test_setup "npm lockfile generation; cache: temp/tools/npm/$TRICE_NODE_VERSION" || return 2
     PUPPETEER_SKIP_DOWNLOAD=true npm install --prefix "$npm_dir" --package-lock-only --ignore-scripts --no-audit --no-fund || return 2
     printf 'INCOMPLETE: generated initial npm lock at %s/package-lock.json; review and add it as scripts/testcheck/package-lock.json before testing.\n' "$npm_dir"
     return 2
@@ -284,7 +285,7 @@ prepare_pinned_native_tools() {
   mkdir -p "$npm_dir" || return 2
   [ ! -f "$npm_dir/.ready" ] || installed_hash="$(cat "$npm_dir/.ready")"
   if [ "$lock_hash" != "$installed_hash" ] || [ ! -x "$npm_dir/node_modules/.bin/markdownlint" ]; then
-    approve_pinned_test_setup || return 2
+    approve_pinned_test_setup "npm packages for the current lockfile; cache: $npm_dir" || return 2
     (
       if ! mkdir "$npm_dir/.install-lock"; then
         printf 'INCOMPLETE: npm setup is locked at %s; inspect the owning preparation process.\n' "$npm_dir"
