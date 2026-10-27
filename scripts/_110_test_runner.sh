@@ -587,6 +587,9 @@ main() {
     summary_line "Failure policy: stop after the first failure (--stop)"
   fi
   summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
+  # Keep declared versions visible on both cold and warm runs, before any
+  # redirected preparation or installation prompt can hide that context.
+  print_pinned_test_tools | while IFS= read -r line; do summary_line "$line"; done
   summary_line "Preparing declared native tools; first-time downloads and builds can take several minutes. Log: $LOG_DIR/tools.log"
   # Preparation completes before tests; its selected environment is inherited
   # by every step. Missing prerequisites never turn into a reduced green run.
