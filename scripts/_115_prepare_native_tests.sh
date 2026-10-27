@@ -21,9 +21,24 @@ ensure_native_report_tool() {
     return 2
   fi
   ensure_native_go_toolchain || return 2
-  TRICE_TEST_REPORT_BIN="$LOG_DIR/testcheck$(go env GOEXE)"
-  export TRICE_TEST_REPORT_BIN
-  go build -o "$TRICE_TEST_REPORT_BIN" ./scripts/testcheck || return 2
+  build_native_report_tool
+}
+
+# Publish the helper only after a successful build. Failed copies can leave a
+# missing or partial executable, especially when the worktree disk is full.
+build_native_report_tool() {
+  local report_bin
+  export TRICE_TEST_REPORT_BIN=""
+  report_bin="$LOG_DIR/testcheck$(go env GOEXE)" || return 2
+  if ! go build -o "$report_bin" ./scripts/testcheck; then
+    printf 'INCOMPLETE: cannot build test helper %s; see the Go build error above.\n' "$report_bin" >&2
+    return 2
+  fi
+  if [ ! -s "$report_bin" ] || [ ! -x "$report_bin" ]; then
+    printf 'INCOMPLETE: Go build produced no usable test helper at %s.\n' "$report_bin" >&2
+    return 2
+  fi
+  export TRICE_TEST_REPORT_BIN="$report_bin"
 }
 
 # Resolve tools before asking to install. Keep approval in this caller rather
@@ -95,9 +110,7 @@ prepare_native_test_tools() {
   # The Go launcher resolves this exact supported toolchain when necessary.
   ensure_native_go_toolchain || return 2
   # The report helper is built from the current worktree before any tests.
-  TRICE_TEST_REPORT_BIN="$LOG_DIR/testcheck$(go env GOEXE)"
-  export TRICE_TEST_REPORT_BIN
-  go build -o "$TRICE_TEST_REPORT_BIN" ./scripts/testcheck || return 2
+  build_native_report_tool || return 2
   printf 'Commit: %s\nOS: %s\n' "$(git rev-parse HEAD)" "$(uname -a)"
   printf 'Runner image: %s %s\n' "${ImageOS:-local}" "${ImageVersion:-not supplied}"
   if [ "$(uname -s)" = Darwin ]; then

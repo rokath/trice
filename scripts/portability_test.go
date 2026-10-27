@@ -510,6 +510,89 @@ echo completed
 	}
 }
 
+// TestReportHelperPublication models a failed output copy without filling a
+// real disk. Neither standalone checks nor the runner may use partial output.
+func TestReportHelperPublication(t *testing.T) {
+	for _, entry := range []string{"standalone", "runner"} {
+		for _, mode := range []string{"missing", "partial", "empty_success", "success"} {
+			t.Run(entry+"/"+mode, func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+				// Replace only the orchestration fixture's bootstrap stub with the
+				// real helper builder; other prerequisites are outside this test.
+				data, err := os.ReadFile("_115_prepare_native_tests.sh")
+				if !assert.NoError(t, err) {
+					t.FailNow()
+				}
+				writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", string(data))
+				writeFixture(t, root, "bin/ready-report", `#!/bin/sh
+echo report > report-called
+printf '{"result":"%s"}\n' "$4" > "$2/results.json"
+`)
+				writeFixture(t, root, "bin/go", `#!/bin/sh
+if [ "$1" != build ]; then exit 0; fi
+case "$BUILD_MODE" in
+  missing) echo 'fixture: not enough space on the disk' >&2; exit 1 ;;
+  partial)
+    printf '#!/bin/sh\necho BROKEN_HELPER_RAN\nexit 99\n' > "$3"
+    chmod +x "$3"
+    echo 'fixture: partial copy; not enough space on the disk' >&2
+    exit 1 ;;
+  empty_success) : > "$3" ;;
+  success) cp bin/ready-report "$3"; chmod +x "$3" ;;
+esac
+`)
+				initGitFixture(t, root)
+				out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+TRICE_TEST_REPORT_BIN=""
+if [ "$ENTRY_POINT" = standalone ]; then
+  ensure_native_report_tool
+  status=$?
+  printf 'helper=%s\n' "$TRICE_TEST_REPORT_BIN"
+  exit "$status"
+fi
+prepare_native_test_tools() { build_native_report_tool; }
+build_test_plan() { :; }
+main
+`, map[string]string{"BUILD_MODE": mode, "ENTRY_POINT": entry})
+				if mode == "success" {
+					assert.NoError(t, err, out)
+				} else {
+					assert.Error(t, err, out)
+					if exitErr, ok := err.(*exec.ExitError); assert.True(t, ok, out) {
+						assert.Equal(t, 2, exitErr.ExitCode(), out)
+					}
+					assert.NoFileExists(t, filepath.Join(root, "report-called"))
+					assert.NotContains(t, out, "BROKEN_HELPER_RAN")
+					assert.NotContains(t, out, "No such file or directory")
+					if mode == "empty_success" {
+						assert.Contains(t, out, "no usable test helper")
+					} else {
+						assert.Contains(t, out, "not enough space on the disk")
+					}
+				}
+				if entry == "standalone" && mode != "success" {
+					assert.Contains(t, out, "helper=\n", "failed builds must not publish the executable path")
+				}
+				if entry == "runner" {
+					reports, globErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*/results.json"))
+					if !assert.NoError(t, globErr) || !assert.Len(t, reports, 1) {
+						t.FailNow()
+					}
+					report, readErr := os.ReadFile(reports[0])
+					assert.NoError(t, readErr)
+					result := "INCOMPLETE"
+					if mode == "success" {
+						result = "PASS"
+						assert.FileExists(t, filepath.Join(root, "report-called"))
+					}
+					assert.Contains(t, string(report), `"result":"`+result+`"`)
+					assert.Contains(t, out, "Result: "+result)
+				}
+			})
+		}
+	}
+}
+
 // TestNativeGoToolchainConsent models Go's launcher with a cached or missing
 // exact toolchain. The offline probe must preserve checksum verification and
 // ask before the launcher is allowed to download a missing toolchain.
