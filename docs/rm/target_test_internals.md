@@ -268,6 +268,8 @@ The overlay does not hash independently changed external libraries or SDK header
 
 [testAll.sh](../../scripts/testAll.sh) starts [the runner](../../scripts/_110_test_runner.sh), using an available sleep inhibitor. The runner captures initial input bytes, takes the checkout lock, prepares declared tools, builds one ordered plan and records every result. [testcheck](../../scripts/testcheck) audits Go JSON events and writes the final report. Unknown skips, missing required tests and failed restoration prevent PASS.
 
+Preparation exposes the report helper's path only after its build succeeds and the file is nonempty and executable. A failed or partial build cannot be used by later checks. `TestReportHelperPublication` in [portability_test.go](../../scripts/portability_test.go) checks missing, partial and empty build output, plus successful publication, through both standalone preparation and the runner. Its runner success case executes one real fixture step and verifies the report; failure cases verify that neither the step nor the broken helper runs.
+
 The numbered files are stable entry points. The table maps each current suite step to its main responsibility; selection differences are listed only in [the usage chapter](target_tests.md#what-full-and-quick-cover).
 
 | Step | Responsibility |
@@ -321,3 +323,7 @@ For a new configuration:
 For harness changes, edit `testdata/cgoPackage.go` or `testdata/cgoPackage_test.go`; normal workers use them immediately through overlays. Do not edit the generated copies or run ID reseeding merely to execute tests. Ordinary Bind maintenance uses `trice_bindIDs_in_examples_and_test_folder.sh` and retains history. `_330_renew_ids_and_refresh_tests.sh` is deliberate legacy Clean/Insert/Clean maintenance; without `keepHistory` it discards shared TIL/LI history. Neither maintenance command belongs beside an active suite.
 
 For host behavior, add tests beside the relevant Go implementation. For orchestration/setup, use the isolated script fixtures so failure and interruption can be exercised without changing a developer's installed tools. Keep actual compiler/file/network integration separately identifiable, assert the result rather than just executing a line, and document any genuinely platform-specific exception in the event auditor.
+
+Shared shell helpers and their fixtures must also work with macOS Bash 3.2. For example, expanding an empty array under `set -u` can fail there while succeeding with modern Bash. Give runner success fixtures a nonempty plan and assert that its steps ran. Give compiler cases separate executable paths, so Windows never has to overwrite a just-executed program.
+
+After changing shared test infrastructure, check its direct callers, suite, CI and release hooks, then run the complete affected Go packages after the final edit. Use native Windows, Linux and macOS checks for the same revision and record each result separately. Mocked OS selection and a passing test on one host do not establish a pass on the other hosts. See [native acceptance](target_tests.md#native-acceptance-on-all-three-systems) for the CI entry points.

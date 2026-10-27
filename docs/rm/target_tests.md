@@ -75,6 +75,8 @@ Linux checks run as Linux processes on the native filesystem. They include shell
 
 ### Prepare macOS
 
+The scripts support macOS's system Bash 3.2 as well as newer Bash versions. Check `bash --version` when diagnosing a shell failure: a newer Homebrew Bash can behave differently. Changing your login shell to zsh does not change the scripts' Bash requirement.
+
 Install the Xcode Command Line Tools with their SDK, the basic tools listed above, and the declared genuine GCC version. Apple `gcc` is normally another name for Clang and does not count as the GCC compiler family. The suite finds a matching versioned `gcc-N`/`g++-N` pair and creates run-local aliases; it does not replace Apple's tools.
 
 The suite selects pinned upstream LLVM for Clang, Clang++ and clangd, while retaining Apple's SDK. Apple Silicon uses the official binary package. Upstream provides no Intel macOS binary for this release, so Intel Macs build the verified source package locally using the SDK compilers, Make, Python and pinned CMake. This first build can take many minutes or longer and needs several GB of free space. The terminal shows each build phase and a status message every 30 seconds; `tools.log` retains the full compiler output. Later runs reuse the completed compiler in this worktree's cache. A new worktree, a new LLVM version or a deleted cache can require another build. Exact versions live in [test-tools.env](../../scripts/test-tools.env); `tools.log` records the selected SDK and executables. Missing SDKs and system packages are reported before the test steps and are not installed with administrator rights by the suite.
@@ -129,6 +131,8 @@ Each suite invocation keeps its own `temp/log/testAll.XXXXXX` directory. The con
 
 Start with the first failed step and its log, rather than the last line of a long compiler trace. The displayed time belongs to that step, including its preparation and restoration. The percentage estimates relative test work, not remaining wall-clock time.
 
+Steps 540 and 550 execute the Go tests without and with coverage. The same test name failing in both logs can therefore have one cause. Start with its first error; a missing report or output file later in the log can be a consequence. Use the stable script name when comparing runs: a position such as `24/25` depends on the selected plan.
+
 | File in the run directory | Contents |
 | --- | --- |
 | `testAll_summary.log` | Selected scope, step results, duration and final state check. |
@@ -138,6 +142,8 @@ Start with the first failed step and its log, rather than the last line of a lon
 | `*.go.*` | Original Go JSON events used to check actual execution and skips. |
 | `coverage.out` | Go coverage profile belonging to this run. |
 | `pc-*` and `clang/pc-*` | Per-configuration PC logs, overlays and retained failure data. |
+
+If preparation cannot build a usable report helper, the runner stops before the test steps and writes a minimal `INCOMPLETE` report instead of the full metadata. Check `tools.log` for the original build error. If the report cannot be written either, check free disk space and write permissions; an absent report is not a PASS.
 
 PASS is checked against Go's test events: an unknown skip or a required test that never ran prevents acceptance. A small [explicit exception list](../../scripts/testcheck/main.go) handles genuine platform differences, such as POSIX signal tests on Windows and PowerShell/cmd tests on other systems. It does not allow a missing compiler to count as success.
 
@@ -180,6 +186,8 @@ TRICE_L432_TEST_JOBS=4 ./scripts/_620_test_l432_configs.sh
 
 The managed wrappers own ID preparation and restoration. A direct `cd _test && go test ./...` requires matching IDs, Bind includes, metadata and compiler settings and lacks the worker's C-input cache overlay. Prefer the wrappers. The [internals chapter](target_test_internals.md#cgo-build-cache) explains when an explicit `go clean -cache` is needed.
 
+For a useful timing comparison, repeat the same command in the same worktree with the same commit, tools and job limits, without other builds running. Keep the cache: a new worktree, changed Go/compiler version or changed shared C headers can require compilation again. Compare a cold run with a cold run, or a warm run with a warm run. Tests still execute on every run; a longer build alone does not establish slower Trice code.
+
 ### Inspect Go coverage
 
 For the suite, open its `coverage.out`. To reproduce the standalone [coverage workflow](../../.github/workflows/coverage.yml):
@@ -221,6 +229,8 @@ The [native workflow](../../.github/workflows/native-tests.yml) calls the [share
 Each platform runs independently; one failure does not cancel the others. Race checks cover `internal/decoder`, `internal/emitter`, `internal/translator` and `internal/vis`. The workflow attempts to upload `temp/log` even after failures, under `native-<runner>-<selection>` artifacts.
 
 Use a successful native job on each required OS at the same commit as platform evidence. Linux containers help isolate Linux packages; they do not exercise Windows file locking or macOS process behavior. This matrix uses actual native runners.
+
+An ordinary branch push does not start this native acceptance workflow. Use a PR for quick checks or start it manually for full checks of that branch. The separate push-triggered Script portability workflow covers the script package only. Also check the Bash version used by a macOS job: a run with modern Bash does not verify system Bash 3.2 compatibility.
 
 ### Other test workflows
 
