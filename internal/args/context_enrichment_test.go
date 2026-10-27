@@ -372,7 +372,10 @@ func testContextTargetToDecoder(t *testing.T, command string) {
 						buildOutput, err := exec.Command(language.compiler, disabledArgs...).CombinedOutput()
 						require.NoError(t, err, "%s", buildOutput)
 					}
-					executable := filepath.Join(project, "ce-target")
+					// Each language/mode gets its own executable. Windows can keep
+					// a completed process image locked briefly after Wait returns;
+					// never relink over an image that a previous case just ran.
+					executable := filepath.Join(t.TempDir(), "ce-target")
 					if runtime.GOOS == "windows" {
 						executable += ".exe"
 					}
