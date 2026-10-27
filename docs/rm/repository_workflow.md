@@ -5,7 +5,7 @@
 
 <!-- mdtoc -->
 
-* [1. Install `opencommit` on macOS](#install-opencommit-on-macos)
+* [1. Install opencommit on macOS](#install-opencommit-on-macos)
   * [1.1. Prerequisites](#prerequisites)
   * [1.2. Step 1 — Get Your OpenAI API Key](#step-1--get-your-openai-api-key)
   * [1.3. Step 2 — Install OpenCommit](#step-2--install-opencommit)
@@ -14,7 +14,7 @@
   * [1.6. Step 5 — Use OpenCommit](#step-5--use-opencommit)
   * [1.7. Step 6 — (Optional) Install Git Hook](#step-6--optional-install-git-hook)
   * [1.8. Step 7 — Troubleshooting](#step-7--troubleshooting)
-* [2. Install `opencommit` on Windows](#install-opencommit-on-windows)
+* [2. Install opencommit on Windows](#install-opencommit-on-windows)
   * [2.1. Overview](#overview)
   * [2.2. Prerequisites](#prerequisites-1)
   * [2.3. Installation Steps](#installation-steps)

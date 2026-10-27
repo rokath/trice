@@ -7,7 +7,7 @@
 
 * [1. Configuration and include order](#configuration-and-include-order)
 * [2. Critical sections and checks](#critical-sections-and-checks)
-* [3. Target side compile-time  Trice On-Off](#target-side-compile-time--trice-on-off)
+* [3. Target side compile-time Trice On-Off](#target-side-compile-time--trice-on-off)
 * [4. Buffer protection and diagnostics](#buffer-protection-and-diagnostics)
 * [5. Trice Diagnostics](#trice-diagnostics)
 * [6. Avoid buffer overruns](#avoid-buffer-overruns)

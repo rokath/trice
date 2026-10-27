@@ -17,14 +17,14 @@
   * [5.5. Other IDE´s and compilers](#other-ides-and-compilers)
 * [6. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
   * [6.1. ARMCC compiler v5](#armcc-compiler-v5)
-* [7. TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
+* [7. TRICESTACKBUFFER could cause stack overflow with -o0 optimization](#tricestackbuffer-could-cause-stack-overflow-with--o0-optimization)
 * [8. Recorded memory measurements](#recorded-memory-measurements)
-  * [8.1. F030_bare Size](#f030_bare-size)
-  * [8.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off1)
-  * [8.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
-  * [8.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
-  * [8.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting-only-enabling-segger_rtt)
-  * [8.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
+  * [8.1. F030bare Size](#f030bare-size)
+  * [8.2. F030inst Size with TRICEOFF=1](#f030inst-size-with-triceoff1)
+  * [8.3. F030inst with ring buffer](#f030inst-with-ring-buffer)
+  * [8.4. F030inst with ring buffer](#f030inst-with-ring-buffer-1)
+  * [8.5. A developer setting, only enabling SEGGERRTT](#a-developer-setting-only-enabling-seggerrtt)
+  * [8.6. A developer setting, only enabling SEGGERRTT and without deferred output gives after running ./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0:](#a-developer-setting-only-enabling-seggerrtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
   * [8.7. Settings Conclusion](#settings-conclusion)
   * [8.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-old-version)
   * [8.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
@@ -115,7 +115,7 @@ o0       | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | bu
 o1       | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower
 o3       | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image**
 
-## 7. <a id="trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
+## 7. <a id="tricestackbuffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
@@ -125,7 +125,7 @@ These measurements describe the firmware, compiler and configuration shown in ea
 
 Depending on your target configuration the needed space can differ:
 
-### 8.1. <a id="f030_bare-size"></a>F030_bare Size
+### 8.1. <a id="f030bare-size"></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -137,7 +137,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-### 8.2. <a id="f030_inst-size-with-trice_off1"></a>F030_inst Size with TRICE_OFF=1
+### 8.2. <a id="f030inst-size-with-triceoff1"></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -149,7 +149,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-### 8.3. <a id="f030_inst-with-ring-buffer"></a>F030_inst with ring buffer
+### 8.3. <a id="f030inst-with-ring-buffer"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -225,7 +225,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-### 8.4. <a id="f030_inst-with-ring-buffer-1"></a>F030_inst with ring buffer
+### 8.4. <a id="f030inst-with-ring-buffer-1"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -300,7 +300,7 @@ com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-### 8.5. <a id="a-developer-setting-only-enabling-segger_rtt"></a>A developer setting, only enabling SEGGER_RTT
+### 8.5. <a id="a-developer-setting-only-enabling-seggerrtt"></a>A developer setting, only enabling SEGGER_RTT
 
 * `./build.sh`:
 
@@ -378,7 +378,7 @@ Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 �
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
 
-### 8.6. <a id="a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
+### 8.6. <a id="a-developer-setting-only-enabling-seggerrtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
 
 ```bash
 arm-none-eabi-size out/F030_inst.elf
