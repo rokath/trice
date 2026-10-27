@@ -7,9 +7,11 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -19,6 +21,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -353,5 +356,145 @@ func TestSharedNpmPinsAgree(t *testing.T) {
 		assert.Equal(t, values[key], manifest.Dependencies[name], name)
 		assert.Equal(t, values[key], lock.Packages[""].Dependencies[name], name)
 		assert.Equal(t, values[key], lock.Packages["node_modules/"+name].Version, name)
+	}
+}
+
+// llvmProgressCapture releases a waiting fixture only after recording a live
+// status message. This avoids timing assumptions about process startup or load.
+type llvmProgressCapture struct {
+	bytes.Buffer
+	release io.Closer
+}
+
+// Write records every message and closes the fixture's stdin on the first
+// heartbeat. The build must then reap the child and report its real exit status.
+func (capture *llvmProgressCapture) Write(data []byte) (int, error) {
+	n, err := capture.Buffer.Write(data)
+	if capture.release != nil && bytes.Contains(data, []byte("still running")) {
+		closeErr := capture.release.Close()
+		capture.release = nil
+		if err == nil {
+			err = closeErr
+		}
+	}
+	return n, err
+}
+
+// TestLLVMSourceBuildStopsOnFailure exercises the native subprocess boundary
+// on every host, including spaces in SDK/build paths and failed build stages.
+func TestLLVMSourceBuildStopsOnFailure(t *testing.T) {
+	root := t.TempDir()
+	source := filepath.Join(root, "fixture.go")
+	require.NoError(t, os.WriteFile(source, []byte(`// SPDX-License-Identifier: MIT
+package main
+import ("fmt"; "io"; "os"; "path/filepath"; "strings")
+// main models SDK lookup and CMake's three independently failing stages.
+func main() {
+    // The parent releases stdin only after observing a progress heartbeat.
+    if os.Getenv("LLVM_FIXTURE_WAIT") == "1" { io.Copy(io.Discard, os.Stdin) }
+    phase := "configure"
+    if strings.HasPrefix(filepath.Base(os.Args[0]), "xcrun") {
+        phase = "locate"
+        if os.Getenv("LLVM_FIXTURE_FAIL") == phase { os.Exit(31) }
+        fmt.Println(filepath.Join(os.Getenv("LLVM_FIXTURE_ROOT"), "SDK with spaces", os.Args[2]))
+        return
+    }
+    if os.Args[1] == "--build" {
+        phase = "build"
+        if os.Args[4] == "install-distribution" { phase = "install" }
+    }
+    file, err := os.OpenFile(filepath.Join(os.Getenv("LLVM_FIXTURE_ROOT"), "calls"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+    if err != nil { os.Exit(32) }
+    fmt.Fprintln(file, phase)
+    file.Close()
+    fmt.Fprintln(os.Stderr, "fixture compiler diagnostic")
+    if os.Getenv("LLVM_FIXTURE_FAIL") == phase { os.Exit(33) }
+    if phase == "configure" {
+        // Reject broken argument boundaries: SDK paths must remain one argument.
+        expected := "-DCMAKE_C_COMPILER=" + filepath.Join(os.Getenv("LLVM_FIXTURE_ROOT"), "SDK with spaces", "clang")
+        found := false
+        for _, arg := range os.Args[1:] { if arg == expected { found = true } }
+        if !found { os.Exit(34) }
+    }
+}
+`), 0o644))
+	extension := ""
+	if runtime.GOOS == "windows" {
+		extension = ".exe"
+	}
+	binary := filepath.Join(root, "cmake"+extension)
+	output, err := exec.Command("go", "build", "-o", binary, source).CombinedOutput()
+	require.NoError(t, err, string(output))
+	data, err := os.ReadFile(binary)
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(root, "xcrun"+extension), data, 0o755))
+	t.Setenv("PATH", root+string(os.PathListSeparator)+os.Getenv("PATH"))
+	for _, tc := range []struct{ phase, calls string }{
+		{"", "configure\nbuild\ninstall\n"},
+		{"locate", ""},
+		{"configure", "configure\n"},
+		{"build", "configure\nbuild\n"},
+		{"install", "configure\nbuild\ninstall\n"},
+	} {
+		t.Run("failure_"+tc.phase, func(t *testing.T) {
+			workspace := t.TempDir()
+			t.Setenv("LLVM_FIXTURE_ROOT", workspace)
+			t.Setenv("LLVM_FIXTURE_FAIL", tc.phase)
+			var progress bytes.Buffer
+			err := buildClangBundle(filepath.Join(workspace, "source"), filepath.Join(workspace, "build with spaces"), filepath.Join(workspace, "installed"), &progress)
+			assert.Contains(t, progress.String(), "many minutes or longer")
+			assert.Contains(t, progress.String(), "reused on later runs")
+			assert.Equal(t, tc.phase == "", strings.Contains(progress.String(), "installation finished"))
+			assert.Equal(t, tc.phase == "", err == nil, "%v", err)
+			calls, readErr := os.ReadFile(filepath.Join(workspace, "calls"))
+			if tc.phase != "locate" {
+				assert.NoError(t, readErr)
+			}
+			assert.Equal(t, tc.calls, string(calls), "failed phases must stop subsequent commands")
+		})
+	}
+	// Reuse the real native process double to verify progress while a stage is
+	// quiet, its diagnostics destination, and accurate completion/error status.
+	for _, failure := range []string{"", "build", "start"} {
+		t.Run("progress_failure_"+failure, func(t *testing.T) {
+			workspace := t.TempDir()
+			t.Setenv("LLVM_FIXTURE_ROOT", workspace)
+			t.Setenv("LLVM_FIXTURE_FAIL", failure)
+			t.Setenv("LLVM_FIXTURE_WAIT", "1")
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			command := exec.CommandContext(ctx, binary, "--build", "fixture", "--target", "distribution")
+			if failure == "start" {
+				command = exec.CommandContext(ctx, filepath.Join(workspace, "missing-cmake"))
+			}
+			input, err := command.StdinPipe()
+			require.NoError(t, err)
+			defer input.Close()
+			progress := llvmProgressCapture{release: input}
+			var diagnostics bytes.Buffer
+			command.Stderr = &diagnostics
+			err = runLLVMBuildStep(command, "compilation", &progress, 10*time.Millisecond)
+			assert.Contains(t, progress.String(), "compilation started.")
+			if failure == "" {
+				assert.NoError(t, err)
+				assert.Contains(t, progress.String(), "compilation finished after")
+				assert.NotContains(t, progress.String(), "failed")
+			} else {
+				assert.Error(t, err)
+				assert.Contains(t, progress.String(), "compilation failed")
+				assert.NotContains(t, progress.String(), "finished")
+			}
+			if failure == "start" {
+				assert.NotContains(t, progress.String(), "still running")
+				assert.NoFileExists(t, filepath.Join(workspace, "calls"))
+			} else {
+				assert.Contains(t, progress.String(), "compilation still running (")
+				assert.Contains(t, progress.String(), "elapsed)")
+				assert.Contains(t, diagnostics.String(), "fixture compiler diagnostic")
+				assert.NotContains(t, progress.String(), "fixture compiler diagnostic")
+				require.NotNil(t, command.ProcessState, "the child must be reaped before returning")
+				assert.Equal(t, failure == "", command.ProcessState.Success())
+			}
+		})
 	}
 }

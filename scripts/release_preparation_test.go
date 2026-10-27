@@ -222,7 +222,10 @@ func releasePDFSetupFixture(t *testing.T, installed bool) string {
 		writeFixture(t, root, "bin/stitchmd", "#!/bin/sh\necho 'stitchmd 0.8.0'\n")
 	}
 	writeFixture(t, root, "bin/npx", "#!/bin/sh\n[ \"$1\" = --version ] && { echo fixture; exit 0; }\ntouch render-called\nexit 96\n")
-	for _, tool := range []string{"node", "tar", "unzip"} {
+	// PDF setup verifies Node before preparing captured release hooks. Model
+	// the selected runtime so this fixture never attempts a real download.
+	writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+	for _, tool := range []string{"tar", "unzip"} {
 		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho fixture\n")
 	}
 	writeFixture(t, root, "bin/go", `#!/bin/sh

@@ -360,8 +360,9 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 		return "", err
 	}
 	defer os.RemoveAll(stage)
-	command := exec.Command("tar", "-xzf", archive, "-C", stage)
-	if runtime.GOOS == "windows" {
+	// Native tar detects gzip and xz; LLVM publishes xz archives on Unix.
+	command := exec.Command("tar", "-xf", archive, "-C", stage)
+	if strings.HasSuffix(archive, ".zip") {
 		command = exec.Command("unzip", "-q", archive, "-d", stage)
 	}
 	command.Stdout, command.Stderr = os.Stderr, os.Stderr
@@ -369,6 +370,17 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 		return "", err
 	}
 	packageDir := filepath.Join(root, "package")
+	if build := values[prefix+"_BUILD_"+platform]; build != "" {
+		if build != "llvm" {
+			return "", fmt.Errorf("unsupported %s bundle build: %s", name, build)
+		}
+		// Publish a source build through the same version check and ready marker
+		// as a binary package. Failed builds never become selectable caches.
+		if err := buildClangBundle(filepath.Join(stage, directory), filepath.Join(stage, "build"), filepath.Join(stage, "installed"), nil); err != nil {
+			return "", err
+		}
+		directory = "installed"
+	}
 	if err := os.RemoveAll(packageDir); err != nil {
 		return "", err
 	}
@@ -382,4 +394,88 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 		return "", err
 	}
 	return bin, nil
+}
+
+// buildClangBundle supplies native Intel macOS where upstream has no binary.
+// Apple's SDK compilers bootstrap LLVM; no package manager or system install
+// is changed. Limit parallelism to keep the one-time build's memory use bounded.
+// A nil progress writer selects the preparation log and any available terminal;
+// an explicit writer lets tests capture status without writing to the user's TTY.
+func buildClangBundle(source, build, destination string, progress io.Writer) error {
+	// Preparation redirects stderr to tools.log. Mirror only short status lines
+	// to the controlling terminal, leaving the full compiler output in the log.
+	// Direct terminal invocations already display stderr; CI may have no terminal.
+	if progress == nil {
+		progress = os.Stderr
+		if info, err := os.Stderr.Stat(); err == nil && info.Mode()&os.ModeCharDevice == 0 && runtime.GOOS != "windows" {
+			if terminal, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0); err == nil {
+				defer terminal.Close()
+				progress = io.MultiWriter(os.Stderr, terminal)
+			}
+		}
+	}
+	fmt.Fprintln(progress, "Preparing LLVM for Intel macOS from source. This can take many minutes or longer; detailed compiler output is in the preparation log.")
+	fmt.Fprintln(progress, "The completed compiler is cached under this worktree's temp/tools and reused on later runs. A new version or a missing cache requires another build.")
+	var sdkTools []string
+	for _, tool := range []string{"clang", "clang++"} {
+		output, err := exec.Command("xcrun", "--find", tool).CombinedOutput()
+		if err != nil {
+			fmt.Fprintf(progress, "LLVM source build: locating SDK %s failed.\n", tool)
+			return fmt.Errorf("locate Apple SDK %s: %w: %s", tool, err, output)
+		}
+		sdkTools = append(sdkTools, strings.TrimSpace(string(output)))
+	}
+	commands := [][]string{
+		{"-S", filepath.Join(source, "llvm"), "-B", build, "-G", "Unix Makefiles",
+			"-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_INSTALL_PREFIX=" + destination,
+			"-DCMAKE_C_COMPILER=" + sdkTools[0], "-DCMAKE_CXX_COMPILER=" + sdkTools[1],
+			"-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra;lld", "-DLLVM_TARGETS_TO_BUILD=X86;ARM;AArch64",
+			"-DLLVM_DISTRIBUTION_COMPONENTS=clang;clang-resource-headers;clangd;lld;llvm-ar;llvm-ranlib;llvm-objcopy;llvm-size",
+			"-DLLVM_INCLUDE_TESTS=OFF", "-DLLVM_INCLUDE_BENCHMARKS=OFF",
+			"-DLLVM_ENABLE_ZLIB=OFF", "-DLLVM_ENABLE_ZSTD=OFF", "-DLLVM_ENABLE_LIBXML2=OFF"},
+		{"--build", build, "--target", "distribution", "--parallel", "2"},
+		{"--build", build, "--target", "install-distribution"},
+	}
+	// Phases describe actual work, without estimating a completion percentage.
+	phases := []string{"configuration", "compilation", "installation"}
+	for index, args := range commands {
+		fmt.Fprintln(os.Stderr, "Building pinned Intel macOS LLVM: cmake", strings.Join(args, " "))
+		command := exec.Command("cmake", args...)
+		command.Stdout, command.Stderr = os.Stderr, os.Stderr
+		if err := runLLVMBuildStep(command, phases[index], progress, 30*time.Second); err != nil {
+			return fmt.Errorf("local LLVM build failed: %w", err)
+		}
+	}
+	return nil
+}
+
+// runLLVMBuildStep keeps long native builds visibly alive even while a linker
+// is quiet. It reaps the child and stops its timer on success and failure;
+// compiler diagnostics retain the command's separate output destinations.
+func runLLVMBuildStep(command *exec.Cmd, phase string, progress io.Writer, interval time.Duration) error {
+	started := time.Now()
+	fmt.Fprintf(progress, "LLVM source build: %s started.\n", phase)
+	if err := command.Start(); err != nil {
+		fmt.Fprintf(progress, "LLVM source build: %s failed to start: %v\n", phase, err)
+		return err
+	}
+	// Waiting in one goroutine lets the caller emit periodic status without
+	// buffering the compiler output or leaving a process running after failure.
+	completed := make(chan error, 1)
+	go func() { completed <- command.Wait() }()
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case err := <-completed:
+			if err != nil {
+				fmt.Fprintf(progress, "LLVM source build: %s failed after %s: %v\n", phase, time.Since(started).Round(time.Second), err)
+			} else {
+				fmt.Fprintf(progress, "LLVM source build: %s finished after %s.\n", phase, time.Since(started).Round(time.Second))
+			}
+			return err
+		case <-ticker.C:
+			fmt.Fprintf(progress, "LLVM source build: %s still running (%s elapsed).\n", phase, time.Since(started).Round(time.Second))
+		}
+	}
 }

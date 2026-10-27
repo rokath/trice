@@ -102,13 +102,33 @@ prepare_native_test_tools() {
   if [ "$(uname -s)" = Darwin ]; then
     printf 'macOS SDK: '
     xcrun --show-sdk-version || return 2
-    xcrun --show-sdk-path || return 2
+    # Upstream Clang must use the installed SDK too, independent of the SDK
+    # path on the machine that built the downloaded LLVM distribution.
+    SDKROOT="$(xcrun --show-sdk-path)" || return 2
+    export SDKROOT
+    printf '%s\n' "$SDKROOT"
   fi
   go version
   # Freeze the selected Go toolchain so nested coverage commands agree too.
   GOTOOLCHAIN="$(go env GOVERSION)" || return 2
   export GOTOOLCHAIN
   export CGO_ENABLED=1 TRICE_BIND_INTEGRATION=1 TRICE_RUN_WINDOWS_TCP_TESTS=1
+  # LLVM's Intel macOS source package needs the pinned CMake before compilers
+  # are selected. Restore this CMake at the end after all PATH changes too.
+  local cmake_bin
+  prepare_pinned_test_selection cmake_bin bundle temp/tools/bundles cmake || return 2
+  case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*) cmake_bin="$(cygpath -u "$cmake_bin")" ;;
+  esac
+  export PATH="$cmake_bin:$PATH"
+  case "$(uname -s)" in
+    Linux | Darwin)
+      local clang_bin
+      prepare_pinned_test_selection clang_bin bundle temp/tools/bundles clang || return 2
+      export PATH="$clang_bin:$PATH"
+      hash -r
+      ;;
+  esac
   if [ "$(go env GOHOSTOS)" = linux ]; then
     local native_gcc
     prepare_pinned_test_selection native_gcc bundle temp/tools/bundles gcc || return 2
@@ -179,8 +199,8 @@ prepare_native_test_tools() {
     if [ "$platform" = WINDOWS ]; then binary_path="$(cygpath -am "$binary_path")"; fi
     "$TRICE_TEST_REPORT_BIN" identity "$binary_path" "${!gcc_key}" || return 2
   done
-  # System Clang belongs to the native SDK. Accept only the explicitly tested
-  # SDK releases, and require C, C++ and clangd to agree on one exact version.
+  # Require the selected C, C++ and clangd frontends to agree on the pinned
+  # platform version. An older SDK Clang cannot silently replace this coverage.
   local supported="${!clang_key}" selected_clang="" expected
   case "$platform" in
     DARWIN) supported="$TRICE_CLANG_DARWIN_SUPPORTED" ;;
@@ -221,11 +241,6 @@ prepare_native_test_tools() {
   [ "$missing" -eq 0 ] || return 2
   # CMake needs its bundled modules, not just an executable from a host cache.
   # Select it after compiler PATH changes and before analyzer builds need it.
-  local cmake_bin
-  prepare_pinned_test_selection cmake_bin bundle temp/tools/bundles cmake || return 2
-  case "$(uname -s)" in
-    MINGW* | MSYS* | CYGWIN*) cmake_bin="$(cygpath -u "$cmake_bin")" ;;
-  esac
   export PATH="$cmake_bin:$PATH"
   hash -r
   printf 'Selected cmake: %s\n' "$(command -v cmake)"

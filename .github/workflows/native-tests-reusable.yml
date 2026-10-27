@@ -31,7 +31,7 @@ jobs:
         id: versions
         run: |
           source scripts/test-tools.env
-          printf 'go=%s\nnode=%s\n' "$TRICE_GO_VERSION" "$TRICE_NODE_VERSION" >> "$GITHUB_OUTPUT"
+          printf 'go=%s\nnode=%s\npython=%s\n' "$TRICE_GO_VERSION" "$TRICE_NODE_VERSION" "$TRICE_PYTHON_VERSION" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.versions.outputs.go }}
@@ -40,7 +40,7 @@ jobs:
           node-version: ${{ steps.versions.outputs.node }}
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: ${{ steps.versions.outputs.python }}
       - name: Restore verified project tools
         uses: actions/cache@v5
         with:
@@ -52,23 +52,19 @@ jobs:
           case "$RUNNER_OS" in
             Linux)
               sudo apt-get update
-              sudo apt-get install -y gcc-13 g++-13 clang-18 clangd-18 lld-18 cmake make python3-venv
-              mkdir -p temp/tools/ci-compilers
-              for pair in gcc:gcc-13 g++:g++-13 cc:gcc-13 c++:g++-13 clang:clang-18 clang++:clang++-18 clangd:clangd-18; do
-                ln -sf "$(command -v "${pair#*:}")" "temp/tools/ci-compilers/${pair%%:*}"
-              done
-              printf '%s/temp/tools/ci-compilers\n' "$PWD" >> "$GITHUB_PATH"
+              # Compiler and CMake versions come from the shared manifest.
+              sudo apt-get install -y build-essential xz-utils unzip python3-venv
               ;;
             macOS)
-              # The suite selects the genuine versioned GCC pair. Apple Clang
-              # and the macOS SDK stay native and are probed before all tests.
+              # The suite selects genuine GCC and private LLVM. Apple's SDK
+              # remains the source of native system headers and libraries.
               brew install gcc
               printf '%s/bin\n' "$(brew --prefix gcc)" >> "$GITHUB_PATH"
               ;;
             Windows)
               # testAll prepares one verified GCC/Clang/MinGW bundle when the
               # installed frontends do not pass the complete runtime probes.
-              cmake --version
+              make --version
               ;;
           esac
       - name: Run the native shared test plan

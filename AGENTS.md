@@ -131,6 +131,8 @@
 
 * All read-only access is permanently pre-approved, including local files, repository history, websites, HTTP requests, APIs, and read-only `gh` operations. Never ask for additional user permission to read or to obtain live information needed for the task.
 * This rule is the complete standing read authorization. Do not ask the user to restate it, acknowledge it again, approve a different read tool, or choose an approval setting before continuing authorized work.
+* Treat read authorization as settled for the entire task. Release metadata, version checks, checksums, documentation, and dependency information are included. Do not present these routine reads as new decisions or end a turn waiting for renewed consent.
+* Choose the access path before starting a read: prefer a suitable connector or browsing tool for remote information, then an existing approved command. Do not introduce a new shell wrapper, script launcher, or execution-policy override merely to perform a read that an available tool can already complete. If a chosen client fails, reconsider the access path instead of starting a sequence of approval prompts.
 * This authorization persists across turns. A network or sandbox failure does not mean that user authorization is missing.
 * External-source verification for reviews and release-readiness assessments is included in this standing read authorization. Choosing a different HTTP client or read tool never requires renewed user consent. Before proactively requesting escalated execution, use an available browsing tool, connector, or existing approved read path; do not introduce a permission prompt merely because an optional shell command would need one.
 * Keep optional external lookups separate from required checks and test monitoring. Never request sandbox escalation or another user answer for an optional read. If it is blocked, use an already available read path or finish with the existing evidence and state what could not be verified. Do not leave an optional approval request pending while completing the task. If the runtime mandates a sandbox approval for a genuinely required operation, use only its technical approval mechanism without asking the user to reconfirm read authorization.
@@ -139,6 +141,7 @@
 * For reading issues in `rokath/trice`, use the narrowest necessary read-only `gh` command, usually `rtk gh issue view <number> --repo rokath/trice --comments`.
 * Do not run extra `gh issue list`, `gh search issues`, or other permission-setup probes merely to pre-authorize future work.
 * Reuse existing platform approvals and approved command prefixes for read access. If the platform technically requires an escalation, follow its required approval mechanism directly without an additional conversational permission question. Explain that the prompt comes from the sandbox, not from missing user consent; repository instructions cannot disable platform enforcement.
+* Before an unavoidable technical approval request, identify the required result and why the available approved paths cannot provide it. Keep the request limited to that operation and continue independent work while it is pending. Never ask the user to strengthen this file or repeat a standing authorization as a remedy for platform enforcement.
 * Do not repeat a pending platform request. Keep independent work moving and use available local documentation, repository history, web results, or cached evidence when access remains unavailable.
 * Do not stop after reporting a blocked read-only network command. Continue with local evidence and produce a qualified result unless the user explicitly asks for live external data.
 * Avoid vague wording such as "expected failure" for blocked tooling. State the observed failure concretely, for example "GitHub API access is blocked by the current network sandbox."
@@ -260,6 +263,16 @@
 * For thorough routine validation, prefer `./scripts/testAll.sh` without arguments.
 * Use `./scripts/testAll.sh full` only as a final validation step or when C-code-relevant changes need broad compiler-switch coverage.
 * Do not run `./scripts/testAll.sh full` automatically for every step; it can take about an hour and is often better run manually by the user.
+
+## Regression Validation
+
+* Before changing shared setup, tool versions, build helpers, or test infrastructure, identify the affected callers: direct commands, `testAll.sh`, CI, and release/snapshot hooks. Include their existing behavioral tests in validation; checking only the edited entry point is insufficient.
+* Use focused tests during implementation. After the last code, configuration, or fixture change, run the complete affected Go test packages and the relevant script/build checks. A focused rerun that passes does not replace this final package validation or resolve another known failure.
+* If a later edit changes behavior covered by completed checks, rerun the affected checks against the final file contents. Report exactly which final-state checks passed, failed, were skipped, or were interrupted. Never describe a previously tested revision as validation of subsequent changes.
+* When tool selection or version checks change, inspect every affected tool double and setup fixture. Model the declared tool identity consistently while retaining tests for incompatible versions, missing tools, installation refusal, and failed setup. Fixtures must not accidentally download real tools or depend on the developer's installed version.
+* Give compiler integration cases separate output paths for executables they run, especially on Windows. Do not relink over a just-executed program or share mutable build outputs across cases or worktrees. For intermittent failures, investigate the shared state or lifecycle and repeat the affected real workflow after correction; sleeps, retries, skipped checks, or relaxed assertions are not substitutes for resolving the cause.
+* Define the supported OS/architecture and prerequisite combinations explicitly. For changed tool preparation, cover cold and warm worktree caches, failed preparation, and the platform-specific selection paths. Distinguish simulated platform tests from actual native runs. Claim support as verified only for combinations actually exercised; list remaining native acceptance runs and material limitations.
+* Preserve unrelated running tests. Do not edit a worktree while its suite owns the tracked-state snapshot, and never kill another test run to make validation easier. Complete necessary source restoration before further edits or a handoff.
 
 ## Coverage
 

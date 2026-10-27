@@ -24,6 +24,18 @@
 
 // Counter-selected scopes use generated constant branch maps. The captured
 // counter value is only a local ordinal selector and is never a Trice ID.
+// Clang 22+ diagnoses the deliberate counter extension under -pedantic.
+// Scope diagnostics to each expansion so application extensions still warn.
+#if defined(__clang__) && __clang_major__ >= 22
+#define TRICE_BIND_COUNTER_DIAGNOSTIC_BEGIN \
+	_Pragma("clang diagnostic push") \
+	_Pragma("clang diagnostic ignored \"-Wc2y-extensions\"")
+#define TRICE_BIND_COUNTER_DIAGNOSTIC_END _Pragma("clang diagnostic pop")
+#else
+#define TRICE_BIND_COUNTER_DIAGNOSTIC_BEGIN
+#define TRICE_BIND_COUNTER_DIAGNOSTIC_END
+#endif
+#define TRICE_BIND_COUNTER TRICE_BIND_COUNTER_DIAGNOSTIC_BEGIN __COUNTER__ TRICE_BIND_COUNTER_DIAGNOSTIC_END
 #define TRICE_BIND_REBASE_CAT_I(left, right) left##right
 #define TRICE_BIND_REBASE_CAT(left, right) TRICE_BIND_REBASE_CAT_I(left, right)
 #define TRICE_BIND_REBASE_BASE_NAME(scope) TRICE_BIND_REBASE_CAT(triceBindRebaseBase_, scope)
@@ -62,7 +74,9 @@
 #define TRICE_BIND_REBASE_PRODUCT_ROUTE(implementation, ...) \
 	TRICE_BIND_REBASE_PRODUCT_ROUTE_I(TRICE_BIND_REBASE_CONSTRUCTOR_##implementation, implementation, __VA_ARGS__)
 #define TRICE_BIND_REBASE_PRODUCT_ROUTE_I(constructor, implementation, ...) \
-	TRICE_BIND_REBASE_AUTO_CAPTURE(constructor, implementation, __COUNTER__, __VA_ARGS__)
+	TRICE_BIND_COUNTER_DIAGNOSTIC_BEGIN \
+	TRICE_BIND_REBASE_AUTO_CAPTURE(constructor, implementation, __COUNTER__, __VA_ARGS__) \
+	TRICE_BIND_COUNTER_DIAGNOSTIC_END
 
 // Constructor-aware dispatch lets application-defined Trice aliases opt in
 // without adding a per-alias constructor mapping to this header.
@@ -74,7 +88,9 @@
 #define TRICE_BIND_ROUTE_BIND_AUTO(constructor, implementation, ...) \
 	TRICE_BIND_APPLY(TRICE_BIND_SITE_HERE(), implementation, __VA_ARGS__)
 #define TRICE_BIND_ROUTE_REBASE_AUTO(constructor, implementation, ...) \
-	TRICE_BIND_REBASE_AUTO_CAPTURE(constructor, implementation, __COUNTER__, __VA_ARGS__)
+	TRICE_BIND_COUNTER_DIAGNOSTIC_BEGIN \
+	TRICE_BIND_REBASE_AUTO_CAPTURE(constructor, implementation, __COUNTER__, __VA_ARGS__) \
+	TRICE_BIND_COUNTER_DIAGNOSTIC_END
 
 // Built-in public Trice families preserve the legacy dispatch API. This table
 // carries only their implicit TID-constructor metadata; all families share the
