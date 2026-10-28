@@ -191,7 +191,10 @@ run_go_tests() {
   (
     unset TRICE_TEST_SETUP_APPROVED
     go test -json "$@"
-  ) >"$evidence" 2>&1 || status=$?
+  ) >"$evidence" 2>"$evidence.stderr" || status=$?
+  # Module downloads and compiler diagnostics are not JSON events. Preserve
+  # them separately and in the readable log without weakening the JSON audit.
+  log_pipe <"$evidence.stderr" || return 2
   "${audit_command[@]}" >>"$LOGFILE" 2>&1 || audit_status=$?
   if [ "$QUIET" -eq 0 ]; then
     "${audit_command[@]}" || true
