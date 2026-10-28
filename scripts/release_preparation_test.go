@@ -469,6 +469,37 @@ func TestReleaseWorkflowBindings(t *testing.T) {
 	}
 }
 
+// TestLibraryWorkflowRetainsPreparationLogs keeps failed setup diagnosable even
+// before compiler artifacts exist or when their optional upload is disabled.
+func TestLibraryWorkflowRetainsPreparationLogs(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", ".github", "workflows", "trice_lib_reusable.yml"))
+	if !assert.NoError(t, err) {
+		t.FailNow()
+	}
+	var workflow struct {
+		Jobs map[string]struct {
+			Steps []struct {
+				Name, If, Uses string
+				With           map[string]string
+			}
+		}
+	}
+	if !assert.NoError(t, yaml.Unmarshal(data, &workflow)) {
+		t.FailNow()
+	}
+	found := false
+	for _, step := range workflow.Jobs["build"].Steps {
+		if step.Name == "Upload test logs" {
+			found = true
+			assert.Equal(t, "${{ always() }}", step.If)
+			assert.Equal(t, "actions/upload-artifact@v7", step.Uses)
+			assert.Equal(t, "temp/log/", step.With["path"])
+			assert.Equal(t, "trice-lib-test-logs", step.With["name"])
+		}
+	}
+	assert.True(t, found, "the reusable Library job must retain preparation logs")
+}
+
 // TestLibraryWorkflowTriggers protects the pre-merge matrix and existing check
 // identity. Ordinary branch pushes must not create a second expensive run.
 func TestLibraryWorkflowTriggers(t *testing.T) {
