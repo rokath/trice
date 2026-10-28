@@ -21,7 +21,7 @@
   * [3.3. JLinkRTTClient.exe](#jlinkrttclientexe)
   * [3.4. JLinkRTTViewer.exe](#jlinkrttviewerexe)
 * [4. Segger RTT](#segger-rtt)
-* [5. Segger J-Link SDK (800 EUR) Option](#segger-j-link-sdk-800-eur-option)
+* [5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-800-eur-option)
 * [6. Additional Notes (leftovers)](#additional-notes-leftovers)
 * [7. Further development](#further-development)
 * [8. NUCLEO-F030R8 example](#nucleo-f030r8-example)

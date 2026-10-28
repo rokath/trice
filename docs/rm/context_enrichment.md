@@ -11,8 +11,8 @@
 - [4. Using Global and Local Values](#using-global-and-local-values)
 - [5. Build, IDs and Generated Files](#build-ids-and-generated-files)
 - [6. Supported Log Sites and Alternatives](#supported-log-sites-and-alternatives)
-  - [6.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-9595counter9595-exists)
-  - [6.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-9595counter9595-macro-in-compiler)
+  - [6.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-__counter__-exists)
+  - [6.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-__counter__-macro-in-compiler)
   - [6.3. Examples and remaining limits](#examples-and-remaining-limits)
 - [7. Test Coverage](#test-coverage)
 - [8. Reversible workflow with Insert and Clean](#reversible-workflow-with-insert-and-clean)
@@ -229,7 +229,7 @@ For `-ce`, the tables describe calls receiving extra values. A single statement 
 
 Table key: ✅ Yes = supported; ❌ No = unsupported; Partial = supported only under the stated restriction.
 
-### 6.1. <a id="compiler-macro-9595counter9595-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
+### 6.1. <a id="compiler-macro-__counter__-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
 
 Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
 --- | --- | --- | ---
@@ -237,7 +237,7 @@ Insert/Clean, with or without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
 Bind without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
 Bind with `-ce` | ✅ Yes | ❌ No | ❌ No
 
-### 6.2. <a id="no-9595counter9595-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
+### 6.2. <a id="no-__counter__-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
 
 Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
 --- | --- | --- | ---
