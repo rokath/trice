@@ -258,6 +258,9 @@
 
 ## Tests
 
+* The user performs final validation. Do not start final test suites, coverage runs, or compiler/integration checks unless the user explicitly asks the agent to run them.
+* Focused tests and diagnostics needed during implementation or troubleshooting remain allowed. Writing and updating behavioral tests remains part of the implementation.
+* This rule takes precedence over final-validation and pre-push test requirements elsewhere in this file. Those requirements define the scope of validation only when the user explicitly requests agent-run final validation. Report checks not run without asking the user to reconfirm this preference.
 * Write thorough, easy-to-understand behavioral tests by default for nontrivial changes; the user need not request them separately. Use descriptive case names, readable inputs and expected outputs, and cover relevant success, rejection, and boundary cases.
 * Prefer `github.com/stretchr/testify/assert` for new assertion-style Go tests.
 * For thorough routine validation, prefer `./scripts/testAll.sh` without arguments.
@@ -267,8 +270,8 @@
 ## Regression Validation
 
 * Before changing shared setup, tool versions, build helpers, or test infrastructure, identify the affected callers: direct commands, `testAll.sh`, CI, and release/snapshot hooks. Include their existing behavioral tests in validation; checking only the edited entry point is insufficient.
-* Use focused tests during implementation. After the last code, configuration, or fixture change, run the complete affected Go test packages and the relevant script/build checks. A focused rerun that passes does not replace this final package validation or resolve another known failure.
-* If a later edit changes behavior covered by completed checks, rerun the affected checks against the final file contents. Report exactly which final-state checks passed, failed, were skipped, or were interrupted. Never describe a previously tested revision as validation of subsequent changes.
+* Use focused tests during implementation. When explicitly asked to perform final validation, run the complete affected Go test packages and the relevant script/build checks after the last code, configuration, or fixture change. A focused rerun that passes does not replace this final package validation or resolve another known failure.
+* If a later edit changes behavior covered by completed checks, treat those results as outdated; rerun them when needed for implementation or explicitly requested final validation. Report exactly which final-state checks passed, failed, were skipped, or were interrupted. Never describe a previously tested revision as validation of subsequent changes.
 * When tool selection or version checks change, inspect every affected tool double and setup fixture. Model the declared tool identity consistently while retaining tests for incompatible versions, missing tools, installation refusal, and failed setup. Fixtures must not accidentally download real tools or depend on the developer's installed version.
 * Shared shell code and shell test doubles must support the system Bash 3.2 shipped with macOS as well as modern Bash on Linux and Git Bash on Windows. Check version-sensitive behavior such as empty arrays under `set -u`; syntax checks and a passing modern-Bash run do not establish Bash 3.2 compatibility. Runner success fixtures must execute a nonempty test plan and assert that its steps ran.
 * Give compiler integration cases separate output paths for executables they run, especially on Windows. Do not relink over a just-executed program or share mutable build outputs across cases or worktrees. For intermittent failures, investigate the shared state or lifecycle and repeat the affected real workflow after correction; sleeps, retries, skipped checks, or relaxed assertions are not substitutes for resolving the cause.
