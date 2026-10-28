@@ -3353,3 +3353,8 @@ Die früheren Meta-Entwürfe, Alias-Overrides und automatischen LI-/TIL-Historie
 - Frage: 44.8.: "Bestehende Sonderregel anhand des letzten Buchstabens" - Ich sehe keinen Anwendungfall für -alias und -salias auf den gleichen Namen, Ist das nicht ein CLI Fehler?
 - Ergänzung: Ungenutzte CLI Aliase schweigend ignorieren, aber bei -verbose anzeigen.
 - Frage: 44.13.: "Für String-Aliase wird in dieser Ausbaustufe nur die Tag-Zuordnung unterstützt. Eine über ihren Tag ausgewählte CE-Regel wird vor Änderungen abgewiesen, auch wenn sie nur Text anhängen würde.” Ich verstehe diese Einschränkung nicht. Stein Aliase benutzen intern printf in einen String und sollten doch daher beliebig erweiterbar sein, wenn dabei auch der eigentliche Vorteil ID statt String verloren gent. Aber als Ausnahme-Spezialfall doch interessant. Ich möchte zunächst die Problematik genau verstehen.
+
+## KLärungbedarf
+
+- "Beide Optionen für denselben Namen" in 44.8. - Wo ist der Sinn? Sollte das nicht ein Fehler sein?
+- "String-Aliase dürfen im Rahmen der bestehenden Erkennung auch projektspezifische Wrapper mit anderer Argumentliste bezeichnen." - Das würde ich gerne genauer verstehen. Heißt das, dass zB %d und %s in -salias Funktionen mehrfach gemischt vorkommen dürfen? Vermutlich printed ein print zunächst in einen Laufzeitstring, der dann übertragen wird. Das widerspricht zwar der ID Idee, bietet aber für Spezialfälle Flexibilität.
