@@ -181,6 +181,109 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	assert.NotErrorIs(t, err, errInstallRequired, "invalid declarations are setup errors, not installation requests")
 }
 
+// TestInstallerReplacesNonportableGlobalTools models a launcher whose relative
+// target disappears when copied, as with Chocolatey shims on Windows. A native
+// executable exercises the same copy/start boundary on every supported host.
+func TestInstallerReplacesNonportableGlobalTools(t *testing.T) {
+	root := t.TempDir()
+	name := "trice-launcher-fixture"
+	filename := name
+	if runtime.GOOS == "windows" {
+		filename += ".exe"
+	}
+	source := filepath.Join(root, "fixture.go")
+	require.NoError(t, os.WriteFile(source, []byte(`// SPDX-License-Identifier: MIT
+package main
+import ("fmt"; "os"; "path/filepath")
+// companion selects the launcher build; the publisher build is standalone.
+var companion string
+// main refuses to start after its required relative target has been lost.
+func main() {
+    if companion != "" {
+        executable, err := os.Executable()
+        if err != nil { panic(err) }
+        if _, err := os.ReadFile(filepath.Join(filepath.Dir(executable), "target.txt")); err != nil {
+            fmt.Fprintln(os.Stderr, "launcher target is missing")
+            os.Exit(23)
+        }
+    }
+    fmt.Println("fixture 1.2.3")
+}
+`), 0o644))
+	globalDir := filepath.Join(root, "global")
+	require.NoError(t, os.Mkdir(globalDir, 0o755))
+	global := filepath.Join(globalDir, filename)
+	output, err := exec.Command("go", "build", "-ldflags=-X main.companion=yes", "-o", global, source).CombinedOutput()
+	require.NoError(t, err, "%s", output)
+	require.NoError(t, os.WriteFile(filepath.Join(globalDir, "target.txt"), []byte("installed target"), 0o644))
+	require.NoError(t, checkToolIdentity(global, "1.2.3", ""))
+	// Use a separate build output: the launcher has already been executed and
+	// Windows must never relink over a just-executed fixture program.
+	publisher := filepath.Join(root, "publisher", filename)
+	output, err = exec.Command("go", "build", "-o", publisher, source).CombinedOutput()
+	require.NoError(t, err, "%s", output)
+	data, err := os.ReadFile(publisher)
+	require.NoError(t, err)
+	t.Setenv("PATH", globalDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		_, _ = w.Write(data)
+	}))
+	defer server.Close()
+	platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
+	manifest := fmt.Sprintf("TRICE_TOOL_TRICE_LAUNCHER_FIXTURE_VERSION=1.2.3\nTRICE_TOOL_TRICE_LAUNCHER_FIXTURE_URL_%s=%s/tool\nTRICE_TOOL_TRICE_LAUNCHER_FIXTURE_SHA_%s=%x\n", platform, server.URL, platform, sha256.Sum256(data))
+	config := filepath.Join(root, "tools.env")
+	require.NoError(t, os.WriteFile(config, []byte(manifest), 0o644))
+	cache := filepath.Join(root, "cache")
+	_, err = installTools(config, cache, []string{name}, false)
+	assert.ErrorIs(t, err, errInstallRequired)
+	assert.ErrorContains(t, err, "launcher target is missing")
+	assert.Zero(t, requests.Load(), "a broken copied launcher cannot bypass installation consent")
+	bin, err := installTools(config, cache, []string{name}, true)
+	require.NoError(t, err)
+	selected := filepath.Join(bin, filename)
+	require.NoError(t, checkToolIdentity(selected, "1.2.3", ""))
+	got, err := os.ReadFile(selected)
+	require.NoError(t, err)
+	assert.Equal(t, data, got, "publish the verified standalone tool, not the launcher")
+	assert.Equal(t, int32(1), requests.Load())
+	warm, err := installTools(config, cache, []string{name}, false)
+	require.NoError(t, err)
+	assert.Equal(t, bin, warm)
+	assert.Equal(t, int32(1), requests.Load(), "warm selection must not download again")
+
+	// A known launcher with no publisher declaration is an actionable setup
+	// error, while a failed publisher download never creates a ready marker.
+	require.NoError(t, os.WriteFile(config, []byte("TRICE_TOOL_TRICE_LAUNCHER_FIXTURE_VERSION=1.2.3\n"), 0o644))
+	_, err = installTools(config, filepath.Join(root, "undeclared"), []string{name}, true)
+	assert.ErrorContains(t, err, "no verified trice-launcher-fixture package")
+	assert.ErrorContains(t, err, "launcher target is missing")
+	require.NoError(t, os.WriteFile(config, []byte(strings.Replace(manifest, fmt.Sprintf("%x", sha256.Sum256(data)), strings.Repeat("0", 64), 1)), 0o644))
+	failedCache := filepath.Join(root, "failed")
+	_, err = installTools(config, failedCache, []string{name}, true)
+	assert.ErrorContains(t, err, "SHA-256 mismatch")
+	ready, err := filepath.Glob(filepath.Join(failedCache, "*", "*", "bin", "*.sha256"))
+	require.NoError(t, err)
+	assert.Empty(t, ready, "failed preparation cannot publish a selected tool")
+
+	// Diagnostics distinguish startup failure, wrong version, and absence.
+	require.NoError(t, os.Remove(filepath.Join(globalDir, "target.txt")))
+	err = checkToolIdentity(global, "1.2.3", "")
+	var exit *exec.ExitError
+	require.ErrorAs(t, err, &exit)
+	assert.Equal(t, 23, exit.ExitCode())
+	assert.ErrorContains(t, err, "launcher target is missing")
+	err = checkToolIdentity(selected, "9.9.9", "")
+	assert.ErrorContains(t, err, "must report version 9.9.9")
+	assert.ErrorContains(t, err, "fixture 1.2.3")
+	assert.ErrorContains(t, checkToolIdentity(filepath.Join(root, "missing"), "1.2.3", ""), "--version failed")
+	assert.False(t, toolIdentity(selected, "9.9.9", ""), "version matching remains strict")
+	warm, err = installTools(config, cache, []string{name}, false)
+	assert.ErrorIs(t, err, errInstallRequired, "a different manifest cannot reuse the previous cache")
+	assert.Empty(t, warm)
+}
+
 // TestBundleInstallationPreservesResources exercises real archive extraction
 // for ordinary tool packages and macOS app layouts on every native test host.
 // The helper refuses to run without its adjacent modules, like a CMake install

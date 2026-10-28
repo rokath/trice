@@ -215,8 +215,8 @@ func writeReport(dir, selection, result string, started int64) error {
 // main uses stable exit codes shared by the shell runner and native CI.
 func main() {
 	if len(os.Args) == 4 && os.Args[1] == "identity" {
-		if !toolIdentity(os.Args[2], os.Args[3], "") {
-			fmt.Fprintf(os.Stderr, "INCOMPLETE: %s must report version %s\n", os.Args[2], os.Args[3])
+		if err := checkToolIdentity(os.Args[2], os.Args[3], ""); err != nil {
+			fmt.Fprintf(os.Stderr, "INCOMPLETE: %v\n", err)
 			os.Exit(2)
 		}
 		return

@@ -51,24 +51,33 @@ func readToolConfig(path string) (map[string]string, []byte, error) {
 // toolIdentity validates the executable, including Go module build identities
 // for tools whose official go install form reports a development display name.
 func toolIdentity(binary, version, module string) bool {
+	return checkToolIdentity(binary, version, module) == nil
+}
+
+// checkToolIdentity retains startup errors and version output so a failed
+// staged executable can be diagnosed before it becomes a selectable cache.
+func checkToolIdentity(binary, version, module string) error {
 	output, err := exec.Command(binary, "--version").CombinedOutput()
 	pattern := regexp.MustCompile(`(^|[\s-])v?` + regexp.QuoteMeta(version) + `(\s|$)`)
 	if err == nil && pattern.Match(output) {
-		return true
+		return nil
 	}
 	if module != "" {
-		output, err = exec.Command("go", "version", "-m", binary).CombinedOutput()
-		if err == nil && !strings.Contains(string(output), "\t=>\t") {
-			for _, line := range strings.Split(string(output), "\n") {
+		buildOutput, buildErr := exec.Command("go", "version", "-m", binary).CombinedOutput()
+		if buildErr == nil && !strings.Contains(string(buildOutput), "\t=>\t") {
+			for _, line := range strings.Split(string(buildOutput), "\n") {
 				fields := strings.Fields(line)
 				if len(fields) >= 3 && fields[0] == "mod" && fields[2] == "v"+version &&
 					(module == fields[1] || strings.HasPrefix(module, fields[1]+"/")) {
-					return true
+					return nil
 				}
 			}
 		}
 	}
-	return false
+	if err != nil {
+		return fmt.Errorf("%s --version failed: %w; output: %q", binary, err, strings.TrimSpace(string(output)))
+	}
+	return fmt.Errorf("%s must report version %s; --version output: %q", binary, version, strings.TrimSpace(string(output)))
 }
 
 // binaryDigest makes interrupted or externally modified caches ineligible.
@@ -260,20 +269,48 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 		// selection even if the caller subsequently changes PATH.
 		if matchingGlobal {
 			err = extractTool(global, filename, staged)
-		} else if module != "" {
-			cmd := exec.Command("go", "install", module+"@v"+version)
-			cmd.Env = append(os.Environ(), "GOBIN="+staging)
-			cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
-			err = cmd.Run()
-		} else {
-			archive := filepath.Join(root, filepath.Base(url))
-			err = downloadTool(url, archive, expected)
 			if err == nil {
-				err = extractTool(archive, filename, staged)
+				err = checkToolIdentity(staged, version, module)
+			}
+			if err != nil {
+				// Launchers such as Chocolatey shims can work in PATH but lose
+				// their relative target after copying. Use the pinned package.
+				fmt.Fprintf(os.Stderr, "Cannot freeze installed %s from %s: %v\n", name, global, err)
+				if module == "" && (url == "" || len(expected) != 64) {
+					return "", fmt.Errorf("no verified %s package for %s after copying failed: %w", name, platform, err)
+				}
+				if !allowInstall {
+					return "", fmt.Errorf("%w: %s %s cannot run after copying: %v", errInstallRequired, name, version, err)
+				}
+				// Keep the failed candidate for diagnostics and never overwrite
+				// a just-executed Windows program with the replacement binary.
+				prepared := filepath.Join(staging, "prepared")
+				if err := os.Mkdir(prepared, 0o755); err != nil {
+					return "", err
+				}
+				staged = filepath.Join(prepared, filename)
+				matchingGlobal = false
 			}
 		}
-		if err != nil || !toolIdentity(staged, version, module) {
-			return "", fmt.Errorf("prepare %s %s: %v; incomplete files retained in %s", name, version, err, staging)
+		if !matchingGlobal {
+			if module != "" {
+				cmd := exec.Command("go", "install", module+"@v"+version)
+				cmd.Env = append(os.Environ(), "GOBIN="+filepath.Dir(staged))
+				cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
+				err = cmd.Run()
+			} else {
+				archive := filepath.Join(root, filepath.Base(url))
+				err = downloadTool(url, archive, expected)
+				if err == nil {
+					err = extractTool(archive, filename, staged)
+				}
+			}
+		}
+		if err == nil {
+			err = checkToolIdentity(staged, version, module)
+		}
+		if err != nil {
+			return "", fmt.Errorf("prepare %s %s: %w; incomplete files retained in %s", name, version, err, staging)
 		}
 		actual, err = binaryDigest(staged)
 		if err != nil {
@@ -290,7 +327,7 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 		if err := os.WriteFile(binary+".sha256", []byte(actual), 0o644); err != nil {
 			return "", err
 		}
-		os.Remove(staging)
+		os.RemoveAll(staging)
 		fmt.Fprintf(os.Stderr, "Selected %s %s: %s\n", name, version, binary)
 	}
 	return bin, nil
