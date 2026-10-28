@@ -1,76 +1,68 @@
 # Native testing handover
 
-Updated: 2026-10-27. Continue the analysis of failing checks on PR #763, `wip` into `main`, in `rokath/trice`. The goal remains reliable native Windows, Linux and macOS tests, including fresh preparation.
+Updated: 2026-10-28. Continue PR #763 (`wip` into `main`, `rokath/trice`). The first three fixes are complete. One Library CI preparation failure remains unresolved. The user requested its correction and an explanation of two skipped checks, then prioritized an immediate computer switch. Stop here; no further corrective patch was started.
 
-## Scope and repository state
+## Repository and transfer state
 
-* The user's latest technical instruction was **analysis only, no fixes**. This handover is authorized; implementation needs a subsequent instruction. No code, workflow or AGENTS changes were made during the CI investigation.
-* Current branch: `wip`, HEAD `f34386a9714f2c56ef6d1e8379c1c9da72bfe71c`. The working tree was clean before this handover update; only this file is now uncommitted.
-* GitHub PR metadata confirmed the same head, base `12ee0c1f372a46c3d9934c2985464e410c32a4b9`, and synthetic merge commit `76d31f8e69f35d2d56cd181ffb290a1ca23562ee`. CI checked that merge commit. GitHub reported `mergeable: true`: the displayed failures are CI results, not a textual merge conflict. Required branch-protection checks were not inspected.
-* The Bash 3.2 report-publication fixture fix (`8cb5d2c8`), regression rules (`13d11b5a`) and RM documentation update (`131ab123`) are already included. Do not repeat their merge or treat them as uncommitted.
-* The local macOS full suite has finished, restored tracked sources and removed its lock. No suite was stopped for this handover.
+- Branch: `wip`; HEAD: `92a830832cdfb883d2547f4742830eb99b8ebfd1`.
+- GitHub PR metadata independently confirmed this head. The three fixes below are committed and transferred.
+- The worktree was clean before this refresh. Only this handover is now an intended uncommitted change; add, commit and push it manually.
+- The local full suite finished, verified tracked state and removed its lock. No test was cancelled, and no source restoration remains pending.
+- No local-only file is required on the next computer. Logs and downloaded CI artifacts are optional evidence and can be retrieved again.
 
-## CI findings
+## Completed fixes
 
-All IDs below belong to `rokath/trice` and the PR head above.
-
-| Check | Evidence and conclusion |
+| Commit | Result |
 | --- | --- |
-| Native Linux | Run `40491254118`, job `122145465477`: quick suite INCOMPLETE at step 500; remaining steps passed. Raw artifact confirms plain `go: downloading ...` lines before valid JSON test events. |
-| Native macOS ARM | Same run, job `122145465958`: same step-500 parser error; remaining steps passed. Its raw artifact was not inspected, so the shared download-output cause is strongly indicated, not independently confirmed. |
-| Native Windows | Same run, job `122145465686`: preparation stops before test steps with `INCOMPLETE: prepare jq 1.8.2: <nil>`. Exact reason for the identity check failure remains unknown. |
-| Library CI | Run `40491254107`, job `122145465722`: step 515 fails with the same JSON parser error on its first Go integration call; the later build orchestrator is skipped. Shared cause likely; no raw evidence file retrieved. |
-| Script portability | Run `40491253885`: native Linux, macOS and Windows jobs all PASS. These isolated tests do not establish that real cold preparation works. |
-| Coverage | Run `40491253839`, job `122145464016`: tests and upload PASS; Go reports 89.8% statement coverage. Coveralls separately fails with the screenshot's roughly 0.9 percentage-point decrease to 88.119% line coverage, displayed twice. File-level cause and comparison baseline remain unverified. |
+| `593eed24` | Separate Go JSON stdout from stderr, retaining diagnostic files and readable logs. Preserve strict JSON, required-test and exit-status checks. Regression tests include genuine cold/warm module downloads from a local proxy. |
+| `4859086b` | Detect tools that stop working after copying, such as relative launchers, and use the declared verified package. Preserve startup/version errors instead of `<nil>`. Tests cover refusal, cold/warm caches and failed preparation. |
+| `92a83083` | Regenerate TOCs and anchors in 16 RM chapters with **mdtoc v1.0.3**, restoring existing links and inline formatting. |
 
-The Link Check and install-checks workflows also passed. Intel macOS native acceptance and the Library inactivity guard were skipped as configured for this PR; do not count skipped jobs as passes.
+The older M3 PASS at `f34386a9` preceded the damaged documentation at `bda238ae`; warm Go caches also hid the mixed stderr/JSON defect. This did not establish a CPU-specific problem. The global mdtoc was an old development build; the project-cache binary was verified through Go build metadata as `github.com/rokath/mdtoc v1.0.3`, without replacements.
 
-### Confirmed JSON evidence defect
+## Validation already completed
 
-`run_go_tests` in `scripts/_100_test_common.sh` redirects both stdout and stderr from `go test -json` into one evidence file with `>"$evidence" 2>&1`. The strict JSON decoder in `scripts/testcheck/main.go` stops at the first non-JSON line.
-
-The Linux raw file `testAll.b533pT/_500_test_bind.log.go.JxSfvi` begins with downloads of testify, equalfile, go-difflib and go-spew, followed by valid JSON events including passing tests. The auditor instead reports `invalid character 'g' looking for beginning of value`, then missing package/test evidence. Those missing-test messages are consequences of the parser abort, not proof that the tests never ran. The complete event stream was not independently re-audited during analysis.
-
-A warm module cache hides this defect because it emits no download messages. Proposed correction, **not implemented**: preserve diagnostics separately from the JSON stream while retaining exit status, required-test checks and strict rejection of invalid/incomplete evidence. Do not merely discard arbitrary non-JSON lines or weaken acceptance.
-
-### Windows tool identity gap
-
-`scripts/testcheck/tools.go` reports `prepare ...: <nil>` when download/copy has no recorded error but `toolIdentity` returns false. That function discards the actual `--version` output and execution error. Consequently the log does not distinguish a version mismatch from an executable/startup problem.
-
-The earlier messages rejecting globally installed compiler versions lead into bundle preparation; the final observed blocker is jq. Inspect the pinned Windows jq binary and its actual output/start status before changing versions or matching rules. Test native Windows cold and warm paths; do not infer success from mocked tools.
-
-### Coverage uncertainty
-
-Coveralls build: [82630620](https://coveralls.io/builds/82630620); uploaded job: [190350873](https://coveralls.io/jobs/190350873). Its web details could not be fetched during analysis. The Actions coverage log was available. Several testcheck functions have partial coverage, but this alone does not prove the cause of the total decrease. Compare covered lines by file with the actual target baseline; Go's rounded statement percentage is a different measure.
-
-## Evidence retrieval and relevant files
-
-Use the GitHub connector for PR/jobs/logs when available. The Linux ZIP was read with `gh api repos/rokath/trice/actions/artifacts/12729059306/zip` and decoded in memory; it was not saved locally. No signed download URL, credential or local helper is needed for continuation.
-
-Native run `40491254118` retains these artifacts:
-
-| Artifact | ID |
+| Check | Exact outcome |
 | --- | --- |
-| `native-ubuntu-24.04-quick` | `12729059306` |
-| `native-macos-26-quick` | `12730041974` |
-| `native-windows-2025-quick` | `12729112968` |
+| User full suite, current committed head | **PASS, 25/25**, 3227 seconds. `temp/log/testAll.gmlEKL/results.json` records `92a83083`, clean worktree, selection `full`. Finished 2026-10-28 09:09:57 CET; state verification passed, lock removed. |
+| Earlier `./scripts/testAll.sh quick` | **PASS, 19/19**, 1772 seconds. `temp/log/testAll.tMTbDn/results.json`; fixes were then uncommitted on `bda238ae`. Includes complete Go tests, coverage and compiler/example checks. |
+| Complete `scripts` package under Bash 3.2 | **PASS**, 624.857 seconds, with prepared pinned Node/npm tools and `TRICE_TEST_NPM_DIR`. |
+| `go test ./scripts/testcheck -count=1 -timeout=10m` | **PASS**, 13.774 seconds through the approved path supporting local TCP test servers. |
+| Manual format and markdownlint | **PASS**, using verified mdtoc v1.0.3 and pinned npm tools. |
+| `./scripts/_530_test_links.sh` | **PASS**, 1950 links, zero errors. |
+| Reference-PDF preparation, stitchmd assembly and `node scripts/_prepare_reference_manual.cjs --verify` | **PASS**, 37 sources, 850 internal links, 1199 unique anchors. The local check did not render PDFs; the new CI release-PDF check passed. |
 
-Relevant code: `scripts/_100_test_common.sh`, `scripts/_500_test_bind.sh`, `scripts/_515_test_logging_features.sh`, `scripts/testcheck/main.go`, `scripts/testcheck/main_test.go`, `scripts/testcheck/tools.go`, its tool tests, `scripts/portability_test.go` and `scripts/test-tools.env`. The general script fixture replaces `run_go_tests` with a simpler command runner, which helps explain why passing fixture tests did not catch the real JSON capture problem.
+The quick coverage step reported **90.0% Go statements**, a different measure from Coveralls line coverage. Earlier standalone attempts encountered stale npx offline metadata or sandbox denial of a local TCP listener; complete package checks subsequently passed with the prepared environment/approved execution path. Do not relax tests to hide these prerequisite failures.
 
-Relevant workflows: `.github/workflows/native-tests.yml`, `native-tests-reusable.yml`, `trice_lib_reusable.yml`, `script-portability.yml` and `coverage.yml`. User documentation remains in [Running the Tests](../rm/target_tests.md) and [Test Internals](../rm/target_test_internals.md).
+## CI at the current head
 
-## Local validation
+PR head `92a83083`; synthetic merge `2a4810db4b1ec60845d6d805ae57195445eef28c`. Recheck live status when continuing.
 
-* The user's macOS ARM full run `temp/log/testAll.hfXsK4` ended **PASS**, 2503 seconds, at 2026-10-27 12:55:36 CET. All 25 steps passed and tracked-state verification completed. This was an existing user run, not a new agent-started test. Its warm local environment does not resolve the cold CI defect.
-* Step 24, `_640_test_pc_targets_bind.sh`, took 140 seconds in that run, versus 391 seconds in the previous run. This supports a cache/build-cost explanation for the reported slowdown; no controlled benchmark or performance fix was performed.
-* Earlier Bash 3.2 fix validation: complete `scripts` package PASS in 378.574 seconds using Go 1.27.3 on native macOS; five focused repetitions also passed. These checks preceded the current CI diagnosis.
-* The CI investigation performed only reads. No corrective patch, new runtime test, CI rerun, commit or push was performed.
+- **PASS:** Native Linux, Windows and macOS ARM, run `40649696464`. Jobs: Linux `122686630822`, Windows `122686631194`, macOS `122686630688`.
+- **PASS:** Script portability on all three OS (`40649696541`), install/snapshot checks including release PDFs (`40649696602`), Link Check (`40649696543`), Super Linter (`40649696397`), Go Coverage (`40649696531`), CodeQL, ShellCheck, shfmt and clang-format.
+- **PASS:** [Coveralls build 82654874](https://coveralls.io/builds/82654874). The old red Coveralls result is not a current failure.
+- **FAIL:** Library CI `40649696566`, job `122686631122`, described below.
 
-## Binding decisions and next steps
+The two skipped checks are intentional, not substitutes for passing tests:
 
-* Keep native execution on all three OS, Bash 3.2 compatibility, separate worktree caches and strict test-evidence checks. No Linux-container substitute, sleeps/retries, relaxed assertions, or coverage-threshold reduction to manufacture green checks.
-* Universal read permission already exists in AGENTS.md and was explicitly reaffirmed. Do not ask for it again or expand AGENTS merely to address sandbox enforcement. Technical platform approval may still be unavoidable; do not duplicate pending requests.
-* Plain `commit` means copyable commands only. Do not execute Git writes without explicit execution authorization. Never edit a checkout while its suite owns the state snapshot; preserve archived material.
-* On the other PC, load this handover, verify checkout/HEAD and running tests, then wait for the user's next instruction. The previous analysis-only limit remains binding.
-* Once implementation is requested: address stdout/stderr capture with cold-cache regression cases; expose and diagnose Windows jq identity failures; investigate Coveralls against its baseline as a separate concern. Validate affected direct commands, suite, CI and release hooks, complete affected Go packages and native OS jobs on the same final revision.
-* Commit and transfer this handover before switching computers. Local logs/caches are optional evidence and need not be copied; retain the run/artifact IDs above.
+- `Native macOS Intel`: `.github/workflows/native-tests.yml` uses `if: github.event_name != 'pull_request'`. Intel runs on schedule/manual dispatch; PRs run the three-OS matrix above.
+- `Guard - skip if no commits in last 24h`: `trice_lib_ci.yml` runs this guard only for `schedule`. PR/manual runs bypass the activity gate. The heavy job explicitly runs despite the skipped dependency; its actual failure is visible.
+
+## Remaining Library failure
+
+- Failed step: `Verify productive CE/SL and feature examples`, executing `./scripts/_515_test_logging_features.sh full`.
+- Public log: `FAIL: CE/SL integration failed in ./internal/args`, exit **2**, after about 7m37s. There is no `+ go test` line.
+- Source flow indicates failure in `prepare_native_test_tools` before the Go invocation: `run_go_tests` redirects preparation output into `temp/log/_515_test_logging_features.log`. **The underlying failing prerequisite is not known.** Do not describe this as recurrence of the corrected JSON parser bug.
+- Artifact upload was skipped after failure; the run has no artifacts. The build orchestrator never ran.
+- The successful native Linux artifact `12799795356` contains `testAll.5GyTJR/tools.log`, including cold compiler/Cppcheck preparation. It selected Python 3.15.2 and runner image `20261023.334.3`; Library used image `20261012.334.1` and system Python 3.12.3. These differences are evidence, not a proven cause.
+- Do not blindly add venv as the assumed fix: the Library runner image's upstream Python installer already installs `python3-venv`.
+
+## Next steps and constraints
+
+1. Make the Library preparation failure visible and retain its setup log even when the job fails; inspect the actual prerequisite error before choosing a functional correction. Relevant files: `.github/workflows/trice_lib_reusable.yml`, `scripts/_515_test_logging_features.sh`, `scripts/_100_test_common.sh`, `scripts/_115_prepare_native_tests.sh`, `scripts/_105_setup_test_tools.sh`.
+2. Use the GitHub connector for current jobs/logs/artifacts. No new workflow, helper or test changes were made for this remaining failure.
+3. Add focused regression coverage in the existing script tests as needed, then validate the complete affected packages and relevant workflow checks. Existing guard tests are in `scripts/release_preparation_test.go`.
+4. Keep mdtoc **v1.0.3**, native three-OS checks, Bash 3.2 compatibility and strict evidence checks. Do not manufacture PASS through retries, sleeps, skips or weakened assertions.
+5. Separate observation, unchanged: explicit `mdtoc generate` in `_310` can replace stored chapter options with defaults. Incidental edits to `target_tests.md` and `target_test_internals.md` were reverted before validation; preserve their settings.
+6. Do not edit a worktree owned by a running suite. Plain `commit` means copyable commands; no actual commit or push without explicit execution authorization.
+7. On `handson testing`, verify branch, HEAD, worktree and relevant files, then wait for the next instruction.
