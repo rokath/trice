@@ -182,7 +182,14 @@ run_go_tests() {
   local name
   evidence="$(mktemp "$LOGFILE.go.XXXXXX")" || return 2
   if [ -z "${TRICE_TEST_REPORT_BIN:-}" ]; then
-    prepare_native_test_tools >>"$LOGFILE" 2>&1 || return 2
+    # Keep setup in this shell so selected tools reach the tests. Replay its
+    # separate log even on failure; a pipeline would lose environment changes.
+    prepare_native_test_tools >"$evidence.setup" 2>&1 || status=$?
+    log_pipe <"$evidence.setup" || return 2
+    if [ "$status" -ne 0 ]; then
+      log "INCOMPLETE: native test preparation failed (exit $status); see $evidence.setup"
+      return 2
+    fi
   fi
   local audit_command=("$TRICE_TEST_REPORT_BIN" audit "$evidence")
   for name in ${TRICE_REQUIRED_TESTS:-}; do audit_command+=("$name"); done
