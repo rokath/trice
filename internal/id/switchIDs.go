@@ -30,8 +30,10 @@ type idData struct {
 	preparedInsert map[string][]byte
 	// reservedIDs protects locations outside the current writable source scope.
 	reservedIDs map[TriceID]bool
-	TagList     []TagEntry // IDSpace contains the tag specific unused IDs.
-	err         error
+	// sourceFS proves native case aliases without changing stored reference data.
+	sourceFS afero.Fs
+	TagList  []TagEntry // IDSpace contains the tag specific unused IDs.
+	err      error
 }
 
 // TagEntry is a Trice tag specific ID space, specified with the -IDTag CLI switch.
@@ -197,7 +199,7 @@ func locationInformationNeedsRewrite(fSys *afero.Afero) bool {
 // PreProcessing reads til.json and li.json and converts the data for processing.
 // Also the ID space for new trice IDs is created.
 func (p *idData) PreProcessing(w io.Writer, fSys *afero.Afero) {
-
+	p.sourceFS = fSys.Fs
 	p.GetIDStateFromJSONFiles(w, fSys)
 
 	// Rebuild all free-ID slices for every command invocation. Tag-specific

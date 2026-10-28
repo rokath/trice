@@ -5,7 +5,7 @@
 
 <!-- mdtoc -->
 
-* [1. Install opencommit on macOS](#install-opencommit-on-macos)
+* [1. Install `opencommit` on macOS](#install-opencommit-on-macos)
   * [1.1. Prerequisites](#prerequisites)
   * [1.2. Step 1 — Get Your OpenAI API Key](#step-1--get-your-openai-api-key)
   * [1.3. Step 2 — Install OpenCommit](#step-2--install-opencommit)
@@ -14,7 +14,7 @@
   * [1.6. Step 5 — Use OpenCommit](#step-5--use-opencommit)
   * [1.7. Step 6 — (Optional) Install Git Hook](#step-6--optional-install-git-hook)
   * [1.8. Step 7 — Troubleshooting](#step-7--troubleshooting)
-* [2. Install opencommit on Windows](#install-opencommit-on-windows)
+* [2. Install `opencommit` on Windows](#install-opencommit-on-windows)
   * [2.1. Overview](#overview)
   * [2.2. Prerequisites](#prerequisites-1)
   * [2.3. Installation Steps](#installation-steps)
@@ -110,9 +110,10 @@ If not, install the Xcode Command Line Tools:
 
 * Add your key as an environment variable: `export OPENAI_API_KEY="sk-proj-your-key-here"`
 * To make it **permanent**, add it to your shell configuration file (`~/.zshrc`):
-  `echo 'export OPENAI_API_KEY="sk-proj-your-key-here"' >> ~/.zshrc source ~/.zshrc`
-* Verify that it’s active: `echo $OPENAI_API_KEY`
-  If it prints your key (or the beginning of it), you’re good.
+  `echo 'export OPENAI_API_KEY="sk-proj-your-key-here"' >> ~/.zshrc`
+  Then reload the configuration with `source ~/.zshrc`.
+* Check presence without displaying the key: `test -n "$OPENAI_API_KEY" && echo "API key is set"`
+  This checks that the variable is nonempty, not that the service accepts it.
 
 * * *
 
@@ -153,7 +154,7 @@ Add these to your `~/.zshrc` for persistence.
 
 If OpenCommit says:
 
-* **“Missing API key”** → Check that `$OPENAI_API_KEY` is set (`echo $OPENAI_API_KEY`).
+* **“Missing API key”** → Repeat the [presence check](#step-3--set-up-your-api-key-on-macos).
 * **“Unauthorized”** → Verify your key is valid or not expired.
 * **“Cannot find opencommit command”** → Reinstall globally with `npm install -g opencommit`.
 
@@ -302,7 +303,7 @@ Check remotes:
 
 **6\. Keep your fork updated**
 
-`git fetch upstream git merge upstream/main`
+Run `git fetch upstream`, then `git merge upstream/main` on the branch you want to update.
 
 Or:
 

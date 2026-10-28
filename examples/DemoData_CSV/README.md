@@ -1,2 +1,2 @@
-- [CSV signal producer: build, files, UDP, and signal model](../../docs/rm/visualization.md#examplesdemodatacsv)
+- [CSV signal producer: build, files, UDP, and signal model](../../docs/rm/visualization.md#examplesdemodata_csv)
 - [Live visualization and LabPlot setup](../../docs/rm/visualization.md#setting-up-the-labplot-demo)

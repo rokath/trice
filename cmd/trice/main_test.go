@@ -133,7 +133,7 @@ func TestTriceWrong1(t *testing.T) {
 	var b bytes.Buffer
 	e := args.Handler(&b, fSys, []string{"trice", "wrong"})
 	assert.Equal(t, "", b.String())
-	assert.Equal(t, "unknown sub-command 'wrong'. try: 'trice help|h'\n", fmt.Sprintln(e))
+	assert.Equal(t, "unknown sub-command 'wrong'\nUse trice help for CLI documentation.\n", fmt.Sprintln(e))
 }
 
 // TestDisplayServerStartAndShutdownLegacy fails with -race

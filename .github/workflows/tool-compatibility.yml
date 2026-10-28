@@ -1,0 +1,44 @@
+name: Future tool compatibility
+
+# Maintenance evidence is separate from acceptance with the declared versions.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - name: Check host code with the current Go release
+        run: |
+          mkdir -p temp/log
+          set -o pipefail
+          go version | tee temp/log/future-go-version.log
+          go test -count=1 ./cmd/... ./internal/... ./pkg/... 2>&1 | tee temp/log/future-go.log
+      - uses: goreleaser/goreleaser-action@v7
+        if: ${{ !cancelled() }}
+        with:
+          distribution: goreleaser
+          version: latest
+          install-only: true
+      - name: Check the next GoReleaser configuration contract
+        if: ${{ !cancelled() }}
+        run: |
+          set -o pipefail
+          goreleaser --version | tee temp/log/future-goreleaser-version.log
+          goreleaser check 2>&1 | tee temp/log/future-goreleaser.log
+      - uses: actions/upload-artifact@v7
+        if: ${{ always() }}
+        with:
+          name: future-tool-compatibility
+          path: temp/log
+          if-no-files-found: error

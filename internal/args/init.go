@@ -100,7 +100,7 @@ func logInit() {
 	emitter.Ban = nil
 	emitter.Pick = nil
 	emitter.UserLabel = nil
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
+	fsScLog = flag.NewFlagSet("log", flag.ContinueOnError) // sub-command
 	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr.")
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
@@ -218,12 +218,15 @@ Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses,
 }
 
 func addInit() {
-	fsScAdd = flag.NewFlagSet("add", flag.ExitOnError) // sub-command
+	fsScAdd = flag.NewFlagSet("add", flag.ContinueOnError) // sub-command
 	flagsRefreshAndUpdate(fsScAdd)
 }
 
 func generateInit() {
-	fsScGenerate = flag.NewFlagSet("generate", flag.ExitOnError) // sub-command
+	// flag.Var does not assign a default value as BoolVar/StringVar do. Reset
+	// this optional filename explicitly when starting a new command context.
+	id.GenerateLogC, id.GenerateLogCPath = false, ""
+	fsScGenerate = flag.NewFlagSet("generate", flag.ContinueOnError) // sub-command
 	flagIDList(fsScGenerate)
 	flagLIFile(fsScGenerate)
 	flagGenerateSrcs(fsScGenerate)
@@ -253,7 +256,7 @@ If omitted, the current directory is inspected. Globs such as "-src *.c" are not
 
 func insertIDsInit() {
 	id.ContextEnrichment = nil
-	fsScInsert = flag.NewFlagSet("insert", flag.ExitOnError) // sub-command
+	fsScInsert = flag.NewFlagSet("insert", flag.ContinueOnError) // sub-command
 	fsScInsert.StringVar(&id.FieldsDir, "genDir", id.DefaultGenDir, "Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
 	flagsInsertAndBind(fsScInsert)
 	fsScInsert.Var(&id.ContextEnrichment, "ce", `Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
@@ -310,7 +313,7 @@ func versionInit() {
 }
 
 func dsInit() {
-	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)         // sub-command
+	fsScSv = flag.NewFlagSet("displayServer", flag.ContinueOnError)     // sub-command
 	fsScSv.StringVar(&emitter.ColorPalette, "color", "dark", colorInfo) // flag
 	flagLogfile(fsScSv)
 	flagIPAddress(fsScSv)
@@ -321,7 +324,7 @@ func scanInit() {
 }
 
 func sdInit() {
-	fsScSdSv = flag.NewFlagSet("shutdown", flag.ExitOnError) // sub-command
+	fsScSdSv = flag.NewFlagSet("shutdown", flag.ContinueOnError) // sub-command
 	flagIPAddress(fsScSdSv)
 }
 

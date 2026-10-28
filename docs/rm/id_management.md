@@ -103,7 +103,7 @@ For a genuinely new project, `touch til.json li.json` creates initially empty fi
 
 ## 7. <a id="exporting-decoder-metadata"></a>Exporting decoder metadata
 
-Run Bind, then `trice generate -src application -logC` to export currently referenced formats for a local or custom decoder. See [Generate](generate.md) for output paths and options. This is also useful where a Go host executable is unavailable, for example [QNX environments](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
+Run Bind, then `trice generate -src application -logC` to export currently referenced formats for a local or custom decoder. See [Generate](generate.md) for output paths and options. This is also useful where a Go host executable is unavailable, for example QNX environments. See also the [custom-decoder discussion](https://github.com/rokath/trice/discussions/263).
 
 ## 8. <a id="recovering-explicit-source-ids"></a>Recovering explicit source IDs
 
@@ -157,7 +157,7 @@ Further changes can affect builds and automated checks:
 - **RTT builds:** put project and generated header directories first, then `src`, then `src/default_conf` on the include path. Update the three SEGGER source/header files together and retain the license and your project-specific configuration; see [RTT integration](rtt.md).
 - **Custom encoding calls:** if `TriceEncode()` uses a framing format not selected by an active output, enable `TRICE_COBS_ENCODE_SUPPORT` or `TRICE_TCOBS_ENCODE_SUPPORT` and link that encoder. Unavailable framing returns `0`; see [encoder selection](memory_usage.md).
 - **Output parsing:** statistics include messages hidden by host filters. For JSON/KV, read application records from standard output and diagnostics from standard error; see [Structured Logging](structured_logging.md) and [event statistics](tags_color_and_weights.md#event-statistics).
-- **Repository automation:** helper/test scripts use numbered filenames, for example `scripts/_530_test_links.sh` replaces `_testAll_06_LinkCheck.sh`. Update hard-coded helper and documentation paths. `./scripts/testAll.sh` defaults to the quick Bind workflow; use `full` for broad Insert/Clean coverage and `--stop` for early exit. See [target tests](target_tests.md).
+- **Repository automation:** helper/test scripts use numbered filenames, for example `scripts/_530_test_links.sh` replaces `_testAll_06_LinkCheck.sh`. Update hard-coded helper and documentation paths. See [Running the Tests](target_tests.md) for the current default, selections and failure policy.
 - **Installation:** source builds require Go 1.25 or later. Install v2 from its release archive or build a checkout of its tag; remote `go install` with a v2 version tag is not supported because the module path has no `/v2` suffix. Betas do not update the stable Homebrew tap; see [beta installation](tool_build_release.md#install-a-beta-or-a-stable-release).
 
 ## 11. <a id="long-time-availability"></a>Long Time Availability

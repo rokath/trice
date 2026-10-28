@@ -7,11 +7,11 @@
 
 * [1. Choose the buffer and output mode](#choose-the-buffer-and-output-mode)
 * [2. Target Implementation Options](#target-implementation-options)
-  * [2.1. Trice Use Cases TRICESTATICBUFFER and TRICESTACKBUFFER - direct mode only](#trice-use-cases-tricestaticbuffer-and-tricestackbuffer---direct-mode-only)
-  * [2.2. Trice Use Case TRICEDOUBLEBUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-tricedoublebuffer---deferred-mode-fastest-trice-execution-more-ram-needed)
-  * [2.3. Trice Use Case TRICERINGBUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-triceringbuffer---deferred-mode-balanced-trice-execution-time-and-needed-ram)
-* [3. A configuration for maximum Trice execution speed with the L432inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432inst-example)
-* [4. A configuration for normal Trice execution speed with the G0B1inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1inst-example)
+  * [2.1. Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only](#trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only)
+  * [2.2. Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-trice_double_buffer---deferred-mode-fastest-trice-execution-more-ram-needed)
+  * [2.3. Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-trice_ring_buffer---deferred-mode-balanced-trice-execution-time-and-needed-ram)
+* [3. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
+* [4. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -54,7 +54,7 @@ All trice macros use internally this sub-macro:
 
 The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWritePosition` points to a buffer, which is codified and used with the Trice framing sub-macros `TRICE_ENTER` and `TRICE_LEAVE` depending on the use case.
 
-### 2.1. <a id="trice-use-cases-tricestaticbuffer-and-tricestackbuffer---direct-mode-only"></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
+### 2.1. <a id="trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only"></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
 
 1. Each single Trice is build inside a common buffer and finally copied inside the sub-macro `TRICE_LEAVE`.
 2. Disabled relevant interrupts between `TRICE_ENTER` and `TRICE_LEAVE` are mantadory for `TRICE_STATIC_BUFFER`.
@@ -67,7 +67,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
   * AUX without extra copy.
   * Not (yet) supported UART transfer loop with polling. With 1MBit baud rate, 4-12 bytes would last 40-120 µs.
 
-### 2.2. <a id="trice-use-case-tricedoublebuffer---deferred-mode-fastest-trice-execution-more-ram-needed"></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
+### 2.2. <a id="trice-use-case-trice_double_buffer---deferred-mode-fastest-trice-execution-more-ram-needed"></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
 
 1. Several *trices* are build in a half buffer.
 1. No stack used.
@@ -75,7 +75,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. Usable for multiple blocking and non-blocking physical Trice channels.
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 
-### 2.3. <a id="trice-use-case-triceringbuffer---deferred-mode-balanced-trice-execution-time-and-needed-ram"></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
+### 2.3. <a id="trice-use-case-trice_ring_buffer---deferred-mode-balanced-trice-execution-time-and-needed-ram"></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
 
 1. Each single *trices* is build in a ring buffer segment.
 1. No stack used.
@@ -84,7 +84,7 @@ The usual case is `#define TRICE_HTOTL(x) (x)`. The `uint32_t* TriceBufferWriteP
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 1. Allocation call inside `TRICE_ENTER`
 
-## 3. <a id="a-configuration-for-maximum-trice-execution-speed-with-the-l432inst-example"></a>A configuration for maximum Trice execution speed with the L432_inst example
+## 3. <a id="a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example"></a>A configuration for maximum Trice execution speed with the L432_inst example
 
 * To not loose any clocks, the function `SomeExampleTrices` in [triceExamples.c](../../examples/exampleData/triceExamples.c) uses the upper case macro `TRICE` for the first "🐁 Speedy Gonzales" Trices.
 
@@ -271,7 +271,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../../src/trice.h:741
 
 As you can see in the highlighted blue timestamp bar, typical 8-10 clocks are needed for one Trice macro. One clock duration @64MHz is 15.625 ns, so we need about 150 ns for a Trice. Light can travel about 50 meter in that time.
 
-## 4. <a id="a-configuration-for-normal-trice-execution-speed-with-the-g0b1inst-example"></a>A configuration for normal Trice execution speed with the G0B1_inst example
+## 4. <a id="a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example"></a>A configuration for normal Trice execution speed with the G0B1_inst example
 
 * The `triceConfig.h` settings are
 

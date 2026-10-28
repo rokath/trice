@@ -189,6 +189,7 @@ func TestL432MatrixFailureKeepsDiagnosticsAndHonorsStopPolicy(t *testing.T) {
 			assert.Contains(t, out, tc.expected)
 			assert.Contains(t, out, "./build.sh CONFIGURATION=1")
 			assert.Contains(t, out, fmt.Sprintf("%d/101 configurations; failed=1", tc.count))
+			assert.NotContains(t, out, "Interrupted system call")
 			logs, err := filepath.Glob(filepath.Join(root, "temp/log/l432.*/*.log"))
 			assert.NoError(t, err)
 			assert.Len(t, logs, tc.count)

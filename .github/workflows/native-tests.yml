@@ -1,0 +1,43 @@
+name: Native Trice tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      selection:
+        description: Native test scope
+        type: choice
+        options: [full, quick]
+        default: full
+  schedule:
+    - cron: '30 1 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  native:
+    name: Native (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025, macos-26]
+    uses: ./.github/workflows/native-tests-reusable.yml
+    with:
+      runner: ${{ matrix.os }}
+      # Developer commands default to full; PRs explicitly request quick.
+      selection: ${{ github.event_name == 'pull_request' && 'quick' || inputs.selection || 'full' }}
+      race: ${{ github.event_name != 'pull_request' }}
+
+  macos-intel:
+    name: Native macOS Intel
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/native-tests-reusable.yml
+    with:
+      runner: macos-15-intel
+      selection: full
+      race: true

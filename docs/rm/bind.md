@@ -9,13 +9,13 @@
 - [2. Requirements](#requirements)
 - [3. Quick Start](#quick-start)
   - [3.1. New ID-Free Project](#new-id-free-project)
-  - [3.2. Migration from trice insert](#migration-from-trice-insert)
+  - [3.2. Migration from `trice insert`](#migration-from-trice-insert)
 - [4. Persistent and Generated Files](#persistent-and-generated-files)
 - [5. Hierarchical Metadata Reuse](#hierarchical-metadata-reuse)
 - [6. File Key and Sidecar Name](#file-key-and-sidecar-name)
 - [7. Sidecar Contents](#sidecar-contents)
 - [8. Why the Sidecar Include Is File-Local](#why-the-sidecar-include-is-file-local)
-- [9. Headers and static inline](#headers-and-static-inline)
+- [9. Headers and `static inline`](#headers-and-static-inline)
 - [10. Automatic Include Position](#automatic-include-position)
 - [11. File Classification and Mixed Projects](#file-classification-and-mixed-projects)
   - [11.1. Insert-Owned](#insert-owned)
@@ -30,22 +30,22 @@
 - [15. Build Integration](#build-integration)
 - [16. Automatic Local Counter Rebase](#automatic-local-counter-rebase)
   - [16.1. When the Normal Line Path Is Sufficient](#when-the-normal-line-path-is-sufficient)
-  - [16.2. When trice bind Rebases Locally](#when-trice-bind-rebases-locally)
+  - [16.2. When `trice bind` Rebases Locally](#when-trice-bind-rebases-locally)
   - [16.3. Concrete Wrapper Example](#concrete-wrapper-example)
-  - [16.4. Preferred Form: Normal or static inline Function](#preferred-form-normal-or-static-inline-function)
+  - [16.4. Preferred Form: Normal or `static inline` Function](#preferred-form-normal-or-static-inline-function)
   - [16.5. Headers and Translation Units](#headers-and-translation-units)
   - [16.6. Compact Source Boundaries and Generated Helper Headers](#compact-source-boundaries-and-generated-helper-headers)
-  - [16.7. Missing &#95;&#95;COUNTER&#95;&#95;](#missing-9595counter9595)
+  - [16.7. Missing &#95;&#95;COUNTER&#95;&#95;](#missing-__counter__)
   - [16.8. Unchanged Interfaces](#unchanged-interfaces)
 - [17. Supported Boundaries and Remaining Limitations](#supported-boundaries-and-remaining-limitations)
   - [17.1. bind-limits](#bind-limits)
 - [18. Diagnostics and Troubleshooting](#diagnostics-and-troubleshooting)
   - [18.1. Sidecar Not Found](#sidecar-not-found)
   - [18.2. File-Key Conflict](#file-key-conflict)
-  - [18.3. File Is mixed](#file-is-mixed)
+  - [18.3. File Is `mixed`](#file-is-mixed)
   - [18.4. Bind Include Is in the Wrong Place](#bind-include-is-in-the-wrong-place)
   - [18.5. Unexpected Message After a Source Change](#unexpected-message-after-a-source-change)
-  - [18.6. Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;](#advanced-construct-requires-9595counter9595)
+  - [18.6. Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;](#advanced-construct-requires-__counter__)
   - [18.7. Counter Count or Rebase Descriptor Does Not Match](#counter-count-or-rebase-descriptor-does-not-match)
 - [19. Result](#result)
 - [20. Appendix: Preprocessor Fundamentals](#appendix-preprocessor-fundamentals)
@@ -79,7 +79,7 @@ For example, the user code remains:
 trice("msg:module initialized\n");
 ```
 
-`trice bind` scans the project sources, uses the existing ID management with `til.json` and `li.json`, and generates one temporary sidecar header for each bind-managed source or header file. The compiler still compiles the original sources directly.
+`trice bind` scans sources, manages IDs through `til.json` and `li.json`, and generates one temporary sidecar header per bind-managed source or header file. The compiler builds the original sources directly.
 
 The normal workflow is:
 
@@ -668,9 +668,8 @@ The include lines and helper headers are related generator artifacts. They must 
 
 Older multiline rebase blocks from a previous generator version are still recognized. A successful new bind run replaces them with the compact include boundaries.
 
-<a id="missing-__counter__"></a>
-<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
-### 16.7. <a id="missing-9595counter9595"></a>Missing &#95;&#95;COUNTER&#95;&#95;
+<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels. -->
+### 16.7. <a id="missing-__counter__"></a>Missing &#95;&#95;COUNTER&#95;&#95;
 
 Only the affected rebase region contains a capability guard. If `__COUNTER__` is unavailable, the target compiler stops with a message explicitly stating that normal bind sites are unaffected.
 
@@ -787,9 +786,8 @@ The sidecar must be active when the direct Trice calls of the physical file are 
 
 Run `trice bind` again. The line number is part of the build-local site name.
 
-<a id="advanced-construct-requires-__counter__"></a>
-<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels; the preceding alias preserves existing links. -->
-### 18.6. <a id="advanced-construct-requires-9595counter9595"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
+<!-- Keep __COUNTER__ HTML-encoded because mdtoc strips code-span markers from generated ToC labels. -->
+### 18.6. <a id="advanced-construct-requires-__counter__"></a>Advanced Construct Requires &#95;&#95;COUNTER&#95;&#95;
 
 The compiler is processing a generated rebase region but does not provide `__COUNTER__`. Only this source construct is affected. Use one of the alternatives described under [Missing `__COUNTER__`](bind.md#missing-__counter__) or a target compiler with local counter support.
 
@@ -799,7 +797,7 @@ The build is using outdated or manually modified generator artifacts, or an addi
 
 ## 19. <a id="result"></a>Result
 
-With `trice bind`, bind-managed user Trice calls remain free of numeric IDs. The stable ID truth remains in `til.json` and `li.json`; a reproducible sidecar passes the ID as a compile-time constant to the existing Trice transport path. Unambiguous sites continue to use the existing line path, while only ambiguous regions are locally rebased and checked at compile time.
+Bind keeps calls ID-free and passes stable IDs to the existing transport as compile-time constants. See [persistent metadata and sidecars](#persistent-and-generated-files) for ID ownership and [local counter rebasing](#automatic-local-counter-rebase) for the distinction between line-selected sites and ambiguous regions checked at compile time.
 
 ---
 

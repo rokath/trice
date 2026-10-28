@@ -21,7 +21,7 @@
   * [3.3. JLinkRTTClient.exe](#jlinkrttclientexe)
   * [3.4. JLinkRTTViewer.exe](#jlinkrttviewerexe)
 * [4. Segger RTT](#segger-rtt)
-* [5. Segger J-Link SDK (800 EUR) Option](#segger-j-link-sdk-800-eur-option)
+* [5. Segger J-Link SDK (~800 EUR) Option](#segger-j-link-sdk-800-eur-option)
 * [6. Additional Notes (leftovers)](#additional-notes-leftovers)
 * [7. Further development](#further-development)
 * [8. NUCLEO-F030R8 example](#nucleo-f030r8-example)
@@ -317,7 +317,7 @@ tmux kill-session -t "tricerttlog"
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 * If you can use a Segger J-Link or an STM ST-Link debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use Trice without any UART or other port.
-* Detailed description can be found in document [UM08001_JLink.pdf](../../third_party/segger.com/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
+* Detailed description can be found in document [UM08001_JLink.pdf](../../third_party/segger.com/UM08001_JLink.pdf) in chapter 16 which is part of the [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/).
 * Following examples are for Windows, but should work similar also on Linux and Darwin (macOS).
 * Trice can use the Segger RTT protocol in different ways.
   * Hardware paths:
@@ -379,7 +379,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 ### 3.2. <a id="some-segger-tools-in-short"></a>Some SEGGER tools in short
 
-* Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
+* Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/) and install.
   * You may need to add `C:\Program Files\SEGGER\JLink` to the %PATH% variable.
 * Tested with [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-F030r8.html).
 * For example: Compile and flash `../examples/F030_inst` project.
@@ -485,8 +485,7 @@ See also [https://github.com/stlink-org/stlink](https://github.com/stlink-org/st
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 * The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
-* Question: [How-to-access-multiple-RTT-channels](https://forum.segger.com/thread/6688-solved-how-to-access-multiple-rtt-channels-from-telnet/)
-  * "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
+* To select another RTT channel over TELNET, use the [`RTTCh` configuration string](https://kb.segger.com/J-Link_RTT_TELNET_Channel#RTTCh).
 * The main [Segger J-Link SDK](https://www.segger.com/products/debug-probes/j-link/tools/j-link-sdk/) disadvantage beside closed source and payment is: **One is not allowed to distribute binaries written with the SDK.** That makes it only interesting for company internal automatization.
 
 ## 6. <a id="additional-notes-leftovers"></a>Additional Notes (leftovers)

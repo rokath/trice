@@ -14,6 +14,7 @@ source "$SCRIPT_DIR/_100_test_common.sh"
 
 main() {
   init_logfile
+  ensure_pinned_test_tools actionlint || return 2
 
   if has_command actionlint; then
     run_cmd actionlint "$ROOT/.github/workflows/"*.yml || {

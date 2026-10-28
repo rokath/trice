@@ -19,10 +19,17 @@ jobs:
         # This makes the full repository (including all Markdown files)
         # available in the GitHub Actions workspace.
 
+      - name: Read shared link checker version
+        id: versions
+        run: |
+          source scripts/test-tools.env
+          echo "lychee=$TRICE_TOOL_LYCHEE_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Run lychee link checker on all Markdown files
         id: lychee
         uses: lycheeverse/lychee-action@v2
         with:
+          lycheeVersion: v${{ steps.versions.outputs.lychee }}
           # args are passed directly to the lychee CLI.
           # Here we:
           #   - enable verbose logging
@@ -36,6 +43,7 @@ jobs:
           #   - You can later add more patterns (e.g. './**/*.html') if needed.
           args: >
             --config lychee.toml
+            --include-fragments
             --no-progress
             --remap "https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c file://${{ github.workspace }}/_test/testdata/triceCheck.c"
             .

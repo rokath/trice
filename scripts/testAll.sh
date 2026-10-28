@@ -2,7 +2,7 @@
 #
 # Public entry point for test orchestration.
 #
-# The historical interface intentionally remains unchanged:
+# Full is the default; quick explicitly selects the shorter native matrix:
 # - ./scripts/testAll.sh
 # - ./scripts/testAll.sh quick
 # - ./scripts/testAll.sh full
@@ -12,9 +12,9 @@
 #
 # Selection:
 # - quick
-#   Standard Bind-only run. It does not transition repository sources through
+#   Shorter Bind run. It does not transition repository sources through
 #   the legacy Insert/Clean workflow.
-# - full
+# - full (default)
 #   Also validates legacy Insert/Clean, the TRICE_OFF builds, the complete PC
 #   target matrix, and the L432 configuration loop.
 # - Failures are recorded and later recoverable checks continue by default.
@@ -32,8 +32,8 @@
 #   - ./scripts/_170_pc_target_tests_all_workflows.sh full
 #
 # Logging:
-# - Each step writes to ./temp/log/<scriptname>.log
-# - The runner writes a compact summary to ./temp/log/testAll_summary.log.
+# - Each run owns ./temp/log/testAll.XXXXXX with per-step logs and results.json.
+# - The runner prints the run directory and a compact summary.
 # - Percentages represent expected relative test work, not a clock-based ETA.
 # - Interactive terminals get one in-place spinner frame every two seconds.
 #
@@ -50,7 +50,10 @@ trap ':' INT TERM
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 run_with_inhibit_linux() {
   local rc
-  if command -v systemd-inhibit >/dev/null 2>&1; then
+  # An installed inhibitor may lack a system bus or permission in CI. Probe
+  # acquisition without running tests, then execute the test runner once.
+  if command -v systemd-inhibit >/dev/null 2>&1 &&
+    systemd-inhibit --what=sleep:shutdown --who="$(whoami)" --why="Checking test sleep inhibition" --mode=block true >/dev/null 2>&1; then
     systemd-inhibit --what=sleep:shutdown --who="$(whoami)" --why="Running testAll.sh" --mode=block \
       bash "$SCRIPT_DIR/_110_test_runner.sh" "$@"
     rc=$?

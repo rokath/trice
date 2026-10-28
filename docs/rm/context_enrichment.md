@@ -11,8 +11,8 @@
 - [4. Using Global and Local Values](#using-global-and-local-values)
 - [5. Build, IDs and Generated Files](#build-ids-and-generated-files)
 - [6. Supported Log Sites and Alternatives](#supported-log-sites-and-alternatives)
-  - [6.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-9595counter9595-exists)
-  - [6.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-9595counter9595-macro-in-compiler)
+  - [6.1. Compiler macro &#95;&#95;COUNTER&#95;&#95; exists](#compiler-macro-__counter__-exists)
+  - [6.2. No &#95;&#95;COUNTER&#95;&#95; macro in compiler](#no-__counter__-macro-in-compiler)
   - [6.3. Examples and remaining limits](#examples-and-remaining-limits)
 - [7. Test Coverage](#test-coverage)
 - [8. Reversible workflow with Insert and Clean](#reversible-workflow-with-insert-and-clean)
@@ -211,7 +211,7 @@ CE is applied before schema and ID determination. The ID follows the final Trice
 
 After every source or CE configuration change, rerun `bind` with the complete desired rule list and rebuild the firmware. Without `-ce`, the next Bind run produces normal schemas without CE again. Rules are not carried forward from earlier runs. The dictionary and generated firmware must belong together; changing only `til.json` cannot create additional target values.
 
-Normal Bind setup steps, such as the initial sidecar include, still apply. CE itself writes neither the extension nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
+Use the normal [Bind setup](bind.md#quick-start) and [build integration](bind.md#build-integration), including the initial sidecar include. CE writes neither extensions nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
 
 `generate -logC` uses the final CE schemas from TIL. Bind sidecars provide the mapping; Insert uses explicit IDs in the source. Rules need not be supplied again:
 
@@ -229,7 +229,7 @@ For `-ce`, the tables describe calls receiving extra values. A single statement 
 
 Table key: ✅ Yes = supported; ❌ No = unsupported; Partial = supported only under the stated restriction.
 
-### 6.1. <a id="compiler-macro-9595counter9595-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
+### 6.1. <a id="compiler-macro-__counter__-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
 
 Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
 --- | --- | --- | ---
@@ -237,7 +237,7 @@ Insert/Clean, with or without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
 Bind without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
 Bind with `-ce` | ✅ Yes | ❌ No | ❌ No
 
-### 6.2. <a id="no-9595counter9595-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
+### 6.2. <a id="no-__counter__-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
 
 Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
 --- | --- | --- | ---
@@ -300,11 +300,7 @@ The [rule and Bind tests](../../internal/id/contextEnrichment_test.go) check sel
 
 Evidence for the production implementation covers Clang in C11 and C++17, `clangd` with a real compile configuration, 8/16/32/64-bit values, different stamp types and builds without `__COUNTER__`. It checks separate local scopes, once-only evaluation, `TRICE_OFF`, `TRICE_CLEAN` and understandable compiler/editor errors for missing identifiers. Insert additionally tests two log sites in separate local blocks on the same wrapper line and their complete removal. The editor check excludes only clangd's `SwapBinaryOperands` refactoring action: Clangd 21 proposes overlapping edits within an explicit `Id(...)` for this action. Compiler diagnostics and missing-identifier errors remain checked. Other compilers are assessed separately in the PoC appendix.
 
-Repeat the focused acceptance tests from the repository root:
-
-```sh
-TRICE_BIND_INTEGRATION=1 go test ./internal/id ./internal/args -run '^(TestBindContext|TestContextEnrichment|TestInsertCleanContext|TestSourceContext|TestContextInsertClean)' -count=1
-```
+Use [step 515 in the testing chapter](target_tests.md#run-a-focused-local-check) to repeat the productive compiler-to-decoder acceptance checks. [Test Internals](target_test_internals.md#feature-checks-and-firmware-matrices) distinguishes them from the explicit experimental proofs below.
 
 ## 8. <a id="reversible-workflow-with-insert-and-clean"></a>Reversible workflow with Insert and Clean
 

@@ -90,12 +90,36 @@ func TestIDWorkflowsInitializeLocalLI(t *testing.T) {
 func scriptFixture(t *testing.T, scripts ...string) string {
 	t.Helper()
 	root := t.TempDir()
+	// Tool setup is shared by standalone checks as well as suite entry points.
+	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/test-tools.env")
+	runner := false
 	for _, name := range scripts {
+		runner = runner || name == "scripts/_110_test_runner.sh"
 		data, err := os.ReadFile(filepath.Join("..", name))
 		if !assert.NoError(t, err) {
 			t.FailNow()
 		}
 		writeFixture(t, root, name, string(data))
+		if name == "scripts/_100_test_common.sh" {
+			// These fixtures model orchestration with tool doubles. The helper's
+			// real JSON validation and pinned cache are tested in testcheck.
+			writeFixture(t, root, name, string(data)+`
+ensure_pinned_test_tools() { return 0; }
+run_go_tests() { run_cmd go test "$@"; }
+`)
+		}
+	}
+	if runner {
+		// Runner fixtures exercise orchestration only. The real bootstrap and
+		// report/audit behavior have separate tests and native integration jobs.
+		writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", `prepare_native_test_tools() {
+  export TRICE_TEST_REPORT_BIN="$ROOT/bin/testcheck-fixture"
+  printf 'fixture tool context\n'
+}
+`)
+		writeFixture(t, root, "bin/testcheck-fixture", `#!/bin/sh
+if [ "$1" = report ]; then printf '{"result":"%s"}\n' "$4" > "$2/results.json"; fi
+`)
 	}
 	return root
 }
@@ -113,6 +137,19 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"LOG_DIR": filepath.Join(root, "temp", "log"), "TRICE_TMP_DIR": filepath.Join(root, "temp"),
 		"TRICE_BIN_DIR": filepath.Join(root, "bin"), "PATH": filepath.Join(root, "bin") + string(os.PathListSeparator) + os.Getenv("PATH"),
 		"GOCACHE": filepath.Join(root, "cache"), "NO_COLOR": "1",
+		// A surrounding testAll full run must not silently enable recovery or
+		// compiler matrices in fixtures. Full-mode cases opt in via overrides.
+		"SELECTED": "quick",
+		// A private runtime from the outer suite must not bypass tool doubles.
+		"TRICE_TEST_PYTHON":     "",
+		"TRICE_TEST_AUTO_SETUP": "0", "TRICE_TEST_REPORT_BIN": "",
+		"TRICE_TEST_SETUP_APPROVED": "0",
+		"TRICE_BIND_INTEGRATION":    "0", "TRICE_TEST_NPM_DIR": "",
+		"TRICE_TEST_FIXED_HOST": "0",
+	}
+	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
+	if _, err := os.Stat(reportTool); err == nil {
+		env["TRICE_TEST_REPORT_BIN"] = reportTool
 	}
 	for key, value := range overrides {
 		env[key] = value
@@ -137,6 +174,732 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 	}
 	output, err := cmd.CombinedOutput()
 	return string(output), err
+}
+
+// TestPinnedToolConfirmation checks explicit consent, refusal and CI behavior
+// without downloading packages or changing the developer's toolchain.
+func TestPinnedToolConfirmation(t *testing.T) {
+	for _, tc := range []struct {
+		name, input, ci string
+		accepted        bool
+	}{
+		{"yes", "yes", "false", true},
+		{"windows_yes", "yes\\r", "false", true},
+		{"no", "no", "false", false},
+		{"empty", "", "false", false},
+		{"windows_empty", "\\r", "false", false},
+		{"ci", "yes", "true", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t)
+			command := "printf '" + tc.input + "\\n' | { source scripts/_105_setup_test_tools.sh; confirm_tool_install 'shfmt v3.14.1'; }"
+			out, err := runFixture(t, root, command, map[string]string{"CI": tc.ci})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			if tc.ci == "true" {
+				assert.Contains(t, out, "CI cannot prompt")
+			} else {
+				assert.Contains(t, out, "Install shfmt v3.14.1 locally under temp/tools?")
+			}
+			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+		})
+	}
+}
+
+// TestPinnedToolOverview checks that listing versions remains read-only and
+// follows the manifest and host platform, even when no setup is necessary.
+func TestPinnedToolOverview(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT"} {
+		t.Run(platform, func(t *testing.T) {
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho '"+platform+"'\n")
+			out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+# Distinct versions prove that the overview reads configuration rather than
+# copying today's pinned values into its display code.
+TRICE_GO_VERSION=90.1.2
+TRICE_GCC_LINUX_VERSION=91.1.2
+TRICE_CLANG_LINUX_VERSION=92.1.2
+TRICE_GCC_DARWIN_VERSION=93.1.2
+TRICE_CLANG_DARWIN_VERSION=94.1.2
+TRICE_GCC_WINDOWS_VERSION=95.1.2
+TRICE_CLANG_WINDOWS_VERSION=96.1.2
+TRICE_PYTHON_VERSION=97.1.2
+TRICE_TOOL_JQ_VERSION=98.1.2
+print_pinned_test_tools
+print_pinned_test_tools
+`, nil)
+			assert.NoError(t, err, out)
+			assert.Equal(t, 2, strings.Count(out, "Pinned tool versions for this checkout:"))
+			assert.Contains(t, out, "Go 90.1.2")
+			assert.Contains(t, out, "jq 98.1.2")
+			switch platform {
+			case "Linux":
+				assert.Contains(t, out, "GCC/G++ 91.1.2; Clang/Clang++/clangd 92.1.2")
+			case "Darwin":
+				assert.Contains(t, out, "GCC/G++ 93.1.2; Clang/Clang++/clangd 94.1.2")
+			case "MINGW64_NT":
+				assert.Contains(t, out, "GCC/G++ 95.1.2; Clang/Clang++/clangd 96.1.2")
+				assert.Contains(t, out, "Managed Python 97.1.2")
+			}
+			if platform != "MINGW64_NT" {
+				assert.NotContains(t, out, "Managed Python")
+			}
+			assert.NotContains(t, out, "Install ")
+			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+		})
+	}
+}
+
+// TestNativeToolConsentIsLazy checks the public tool-selection helper without
+// depending on installed versions or downloading any tools. Cache hits need no
+// input; missing tools share one approval, and setup errors never ask to install.
+func TestNativeToolConsentIsLazy(t *testing.T) {
+	for _, tc := range []struct {
+		name, input                string
+		warm, broken, accepted, ci bool
+		prompts                    int
+	}{
+		{name: "warm_cache_without_input", warm: true, accepted: true},
+		{name: "missing_tools_approved_once", input: "yes\\r\\n", accepted: true, prompts: 1},
+		{name: "missing_tools_declined", input: "no\\n", prompts: 1},
+		{name: "missing_tools_empty_reply", input: "\\n", prompts: 1},
+		{name: "missing_tools_without_input", prompts: 1},
+		{name: "automatic_ci_setup", accepted: true, ci: true},
+		{name: "setup_error_does_not_prompt", broken: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_115_prepare_native_tests.sh")
+			if tc.warm {
+				writeFixture(t, root, "installed-fixture", "verified cache\n")
+				writeFixture(t, root, "installed-another", "verified cache\n")
+			}
+			writeFixture(t, root, "bin/setup-helper", `#!/bin/sh
+[ "$BROKEN_SETUP" != true ] || exit 2
+shift
+probe=false
+if [ "$1" = --no-install ]; then
+  probe=true
+  shift
+fi
+shift 2
+if [ ! -f "$FIXTURE_ROOT/installed-$1" ]; then
+  [ "$probe" != true ] || exit 3
+  echo "$1" >> "$FIXTURE_ROOT/preparations"
+  touch "$FIXTURE_ROOT/installed-$1"
+fi
+printf '%s/bin\n' "$FIXTURE_ROOT"
+`)
+			command := `source scripts/_100_test_common.sh
+# Reload the real selector after the common orchestration fixture's stubs.
+source scripts/_115_prepare_native_tests.sh
+TRICE_TEST_REPORT_BIN="$PWD/bin/setup-helper"
+ensure_pinned_test_tools fixture || exit $?
+ensure_pinned_test_tools another || exit $?
+ensure_pinned_test_tools fixture
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"FIXTURE_ROOT": root, "BROKEN_SETUP": strconv.FormatBool(tc.broken), "CI": strconv.FormatBool(tc.ci),
+				"TRICE_TEST_AUTO_SETUP": "1",
+			})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			assert.Equal(t, tc.prompts, strings.Count(out, "Install pinned test tools and compiler bundles"), out)
+			if tc.prompts != 0 {
+				assert.Contains(t, out, "tools: fixture; cache: temp/tools/native")
+			}
+			if tc.accepted && !tc.warm {
+				calls, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "fixture\nanother\n", string(calls), "different missing tools share approval; warm selection installs nothing")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestNativeCMakeGenerator checks the environment inherited by native CMake
+// subprocesses, including conflicting Visual Studio settings and missing Make.
+func TestNativeCMakeGenerator(t *testing.T) {
+	for _, tc := range []struct {
+		platform string
+		missing  bool
+	}{
+		{platform: "MINGW64_NT"},
+		{platform: "MSYS_NT"},
+		{platform: "CYGWIN_NT"},
+		{platform: "MINGW64_NT", missing: true},
+		{platform: "Linux"},
+		{platform: "Darwin"},
+	} {
+		t.Run(tc.platform+"/missing_"+strconv.FormatBool(tc.missing), func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho \"$PLATFORM\"\n")
+			writeFixture(t, root, "bin/mingw32-make", "#!/bin/sh\nexit 0\n")
+			out, err := runFixture(t, root, `source scripts/_115_prepare_native_tests.sh
+command() {
+  if [ "$1:$2:$MISSING" = "-v:mingw32-make:true" ]; then return 1; fi
+  builtin command "$@"
+}
+prepare_native_cmake_environment || exit $?
+# A child process must see the same selection, not just shell-local variables.
+bash -c 'printf "generator=%s platform=%s toolset=%s instance=%s\n" "$CMAKE_GENERATOR" "${CMAKE_GENERATOR_PLATFORM:-}" "${CMAKE_GENERATOR_TOOLSET:-}" "${CMAKE_GENERATOR_INSTANCE:-}"'
+`, map[string]string{
+				"PLATFORM": tc.platform, "MISSING": strconv.FormatBool(tc.missing),
+				"CMAKE_GENERATOR": "Ninja", "CMAKE_GENERATOR_PLATFORM": "x64",
+				"CMAKE_GENERATOR_TOOLSET": "v143", "CMAKE_GENERATOR_INSTANCE": "fixture-vs",
+			})
+			if tc.missing {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "MISSING TOOL: mingw32-make")
+				assert.NotContains(t, out, "generator=")
+			} else {
+				assert.NoError(t, err, out)
+				if tc.platform == "Linux" || tc.platform == "Darwin" {
+					assert.Contains(t, out, "generator=Ninja platform=x64 toolset=v143 instance=fixture-vs")
+				} else {
+					assert.Contains(t, out, "generator=MinGW Makefiles platform= toolset= instance=")
+				}
+			}
+		})
+	}
+}
+
+// TestNativePreparationBootstrapsCMake reproduces a fresh worktree without a
+// visible system CMake. The real preparation must select a complete local
+// package before dependent tools run, while preserving consent and failures.
+func TestNativePreparationBootstrapsCMake(t *testing.T) {
+	for _, tc := range []struct {
+		name, reply, platform, architecture         string
+		warm, installFailure, clangFailure, success bool
+	}{
+		{name: "empty_cache_approved", reply: "yes", success: true},
+		{name: "warm_cache_without_input", warm: true, success: true},
+		{name: "empty_cache_declined", reply: "no"},
+		{name: "empty_cache_without_input"},
+		{name: "installation_failure", reply: "yes", installFailure: true},
+		{name: "LLVM_failure_never_falls_back", reply: "yes", clangFailure: true},
+		{name: "Intel_macOS_uses_pinned_LLVM", reply: "yes", platform: "Darwin", architecture: "amd64", success: true},
+		{name: "Apple_Silicon_uses_pinned_LLVM", reply: "yes", platform: "Darwin", architecture: "arm64", success: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_115_prepare_native_tests.sh")
+			for _, tool := range []string{"git", "tar", "unzip", "make", "curl", "gcc", "g++", "clang", "clang++", "clangd", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho fixture-tool\n")
+			}
+			// A Linux fixture exercises the full preparation on every host without
+			// entering system installers or depending on a macOS SDK.
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\necho \"${PLATFORM:-Linux}\"\n")
+			writeFixture(t, root, "bin/xcrun", "#!/bin/sh\necho fixture-sdk\n")
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+case "$1:$2" in
+  env:GOHOSTOS) if [ "$PLATFORM" = Darwin ]; then echo darwin; else echo linux; fi ;;
+  env:GOHOSTARCH) echo "${ARCHITECTURE:-amd64}" ;;
+  env:GOVERSION) echo go1.27.3 ;;
+esac
+`)
+			writeFixture(t, root, "bin/cmake", "#!/bin/sh\necho 'unselected global CMake was used' >&2\nexit 91\n")
+			writeFixture(t, root, "scripts/_490_test_runtime_prepare.sh", `#!/bin/sh
+# The runtime probe must see the complete pinned family before any tests run.
+for compiler in clang clang++ clangd; do
+  [ "$(command -v "$compiler")" = "$PWD/pinned-clang/bin/$compiler" ] || exit 94
+done
+echo probed > compiler-probe
+`)
+			writeFixture(t, root, "scripts/_280_format_c_code.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "cmake-fixture", `#!/bin/sh
+[ -f "${0%/*}/../share/cmake/module.txt" ] || exit 92
+echo 'cmake version 4.4.4'
+`)
+			writeFixture(t, root, "temp/log/testcheck", `#!/bin/sh
+if [ "$1" = identity ]; then exit 0; fi
+[ "$1" = bundle ] || exit 93
+shift
+probe=false
+if [ "$1" = --no-install ]; then probe=true; shift; fi
+shift 2
+if [ "$1" = clang ]; then
+  [ "$CLANG_FAILURE" != true ] || { echo 'LLVM download failed' >&2; exit 2; }
+  mkdir -p pinned-clang/bin
+  for compiler in clang clang++ clangd; do cp "bin/$compiler" "pinned-clang/bin/$compiler"; done
+  printf '%s/pinned-clang/bin\n' "$PWD"
+  exit 0
+fi
+if [ "$1" != cmake ]; then
+  mkdir -p "pinned-$1/bin"
+  case "$1" in gcc) names='gcc g++' ;; arm) names='arm-none-eabi-gcc arm-none-eabi-objcopy arm-none-eabi-size' ;; *) exit 95 ;; esac
+  for compiler in $names; do cp "bin/$compiler" "pinned-$1/bin/$compiler"; done
+  printf '%s/pinned-%s/bin\n' "$PWD" "$1"
+  exit 0
+fi
+if [ ! -f cmake-ready ]; then
+  [ "$probe" = false ] || exit 3
+  echo install >> cmake-installations
+  [ "$INSTALL_FAILURE" != true ] || { echo 'CMake download failed' >&2; exit 2; }
+  mkdir -p pinned-cmake/bin pinned-cmake/share/cmake
+  cp cmake-fixture pinned-cmake/bin/cmake
+  echo module > pinned-cmake/share/cmake/module.txt
+  touch cmake-ready
+fi
+printf '%s/pinned-cmake/bin\n' "$PWD"
+`)
+			if tc.warm {
+				writeFixture(t, root, "cmake-ready", "ready\n")
+				data, err := os.ReadFile(filepath.Join(root, "cmake-fixture"))
+				assert.NoError(t, err)
+				writeFixture(t, root, "pinned-cmake/bin/cmake", string(data))
+				writeFixture(t, root, "pinned-cmake/share/cmake/module.txt", "module\n")
+			}
+			command := `source scripts/_100_test_common.sh
+source scripts/_115_prepare_native_tests.sh
+# Hide external CMake until the real preparation selects its private package.
+command() {
+  if [ "$1" = -v ] && [ "$2" = cmake ]; then
+    case "$PATH" in "$PWD/pinned-cmake/bin:"*) ;; *) return 1 ;; esac
+  fi
+  builtin command "$@"
+}
+ensure_node_test_tool() { return 0; }
+ensure_native_go_toolchain() { return 0; }
+ensure_python_test_tool() { return 0; }
+ensure_cppcheck_test_tool() {
+  cmake --version || return 1
+  echo analyzer >> dependent-tools
+}
+prepare_pinned_native_tools() { return 0; }
+prepare_native_test_tools || exit $?
+cmake --version || exit $?
+echo completed
+`
+			if tc.reply != "" {
+				command = "printf '%s\\n' " + tc.reply + " | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"CI": "false", "INSTALL_FAILURE": strconv.FormatBool(tc.installFailure),
+				"CLANG_FAILURE": strconv.FormatBool(tc.clangFailure), "PLATFORM": tc.platform, "ARCHITECTURE": tc.architecture,
+			})
+			assert.Equal(t, tc.success, err == nil, out)
+			assert.NotContains(t, out, "MISSING TOOL: cmake")
+			assert.NotContains(t, out, "unselected global CMake was used")
+			if tc.success {
+				assert.Contains(t, out, "Selected cmake:")
+				assert.Contains(t, out, "completed")
+				assert.FileExists(t, filepath.Join(root, "dependent-tools"))
+				assert.FileExists(t, filepath.Join(root, "compiler-probe"))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "dependent-tools"))
+				assert.NotContains(t, out, "completed")
+			}
+			if tc.warm || tc.reply != "yes" {
+				assert.NoFileExists(t, filepath.Join(root, "cmake-installations"))
+			} else {
+				calls, err := os.ReadFile(filepath.Join(root, "cmake-installations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "install\n", string(calls))
+			}
+			if tc.installFailure {
+				assert.Contains(t, out, "CMake download failed")
+			}
+			if tc.clangFailure {
+				assert.Contains(t, out, "LLVM download failed")
+				assert.NoFileExists(t, filepath.Join(root, "compiler-probe"))
+			}
+		})
+	}
+}
+
+// TestReportHelperPublication models a failed output copy without filling a
+// real disk. Neither standalone checks nor the runner may use partial output.
+func TestReportHelperPublication(t *testing.T) {
+	for _, entry := range []string{"standalone", "runner"} {
+		for _, mode := range []string{"missing", "partial", "empty_success", "success"} {
+			t.Run(entry+"/"+mode, func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+				// Replace only the orchestration fixture's bootstrap stub with the
+				// real helper builder; other prerequisites are outside this test.
+				data, err := os.ReadFile("_115_prepare_native_tests.sh")
+				if !assert.NoError(t, err) {
+					t.FailNow()
+				}
+				writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", string(data))
+				writeFixture(t, root, "bin/ready-report", `#!/bin/sh
+echo report > report-called
+printf '{"result":"%s"}\n' "$4" > "$2/results.json"
+`)
+				// A successful runner must execute a real plan entry. An empty
+				// array under nounset also behaves differently in macOS Bash 3.2.
+				writeFixture(t, root, "scripts/_400_test_shell_format.sh", "#!/bin/sh\necho step > step-called\n")
+				writeFixture(t, root, "bin/go", `#!/bin/sh
+if [ "$1" != build ]; then exit 0; fi
+case "$BUILD_MODE" in
+  missing) echo 'fixture: not enough space on the disk' >&2; exit 1 ;;
+  partial)
+    printf '#!/bin/sh\necho BROKEN_HELPER_RAN\nexit 99\n' > "$3"
+    chmod +x "$3"
+    echo 'fixture: partial copy; not enough space on the disk' >&2
+    exit 1 ;;
+  empty_success) : > "$3" ;;
+  success) cp bin/ready-report "$3"; chmod +x "$3" ;;
+esac
+`)
+				initGitFixture(t, root)
+				out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+TRICE_TEST_REPORT_BIN=""
+if [ "$ENTRY_POINT" = standalone ]; then
+  ensure_native_report_tool
+  status=$?
+  printf 'helper=%s\n' "$TRICE_TEST_REPORT_BIN"
+  exit "$status"
+fi
+prepare_native_test_tools() { build_native_report_tool; }
+build_test_plan() { add_plan_step _400_test_shell_format.sh; }
+main
+`, map[string]string{"BUILD_MODE": mode, "ENTRY_POINT": entry})
+				if mode == "success" {
+					assert.NoError(t, err, out)
+				} else {
+					assert.Error(t, err, out)
+					if exitErr, ok := err.(*exec.ExitError); assert.True(t, ok, out) {
+						assert.Equal(t, 2, exitErr.ExitCode(), out)
+					}
+					assert.NoFileExists(t, filepath.Join(root, "report-called"))
+					assert.NoFileExists(t, filepath.Join(root, "step-called"))
+					assert.NotContains(t, out, "BROKEN_HELPER_RAN")
+					assert.NotContains(t, out, "No such file or directory")
+					if mode == "empty_success" {
+						assert.Contains(t, out, "no usable test helper")
+					} else {
+						assert.Contains(t, out, "not enough space on the disk")
+					}
+				}
+				if entry == "standalone" && mode != "success" {
+					assert.Contains(t, out, "helper=\n", "failed builds must not publish the executable path")
+				}
+				if entry == "runner" {
+					reports, globErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*/results.json"))
+					if !assert.NoError(t, globErr) || !assert.Len(t, reports, 1) {
+						t.FailNow()
+					}
+					report, readErr := os.ReadFile(reports[0])
+					assert.NoError(t, readErr)
+					result := "INCOMPLETE"
+					if mode == "success" {
+						result = "PASS"
+						assert.FileExists(t, filepath.Join(root, "report-called"))
+						assert.FileExists(t, filepath.Join(root, "step-called"))
+					}
+					assert.Contains(t, string(report), `"result":"`+result+`"`)
+					assert.Contains(t, out, "Result: "+result)
+				}
+			})
+		}
+	}
+}
+
+// TestNativeGoToolchainConsent models Go's launcher with a cached or missing
+// exact toolchain. The offline probe must preserve checksum verification and
+// ask before the launcher is allowed to download a missing toolchain.
+func TestNativeGoToolchainConsent(t *testing.T) {
+	for _, tc := range []struct {
+		name, input    string
+		warm, accepted bool
+	}{
+		{name: "cached_without_input", warm: true, accepted: true},
+		{name: "missing_approved_once", input: "yes\\n", accepted: true},
+		{name: "missing_declined", input: "no\\n"},
+		{name: "missing_without_input"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			if tc.warm {
+				writeFixture(t, root, "installed", "cached toolchain\n")
+			}
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" = version ] && [ "$GOTOOLCHAIN" = go1.27.3 ] || exit 91
+# Disabling checksum verification rejects even a cached Go toolchain.
+[ "${GOSUMDB:-}" != off ] || exit 92
+if [ ! -f installed ]; then
+  [ "${GOPROXY:-}" != off ] || exit 1
+  echo prepared >> preparations
+  touch installed
+fi
+echo 'go version go1.27.3'
+`)
+			command := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+ensure_native_go_toolchain || exit $?
+ensure_native_go_toolchain
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false", "GOSUMDB": "sum.golang.org"})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			prompts := 1
+			if tc.warm {
+				prompts = 0
+			}
+			assert.Equal(t, prompts, strings.Count(out, "Install pinned test tools"), out)
+			if tc.accepted && !tc.warm {
+				data, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "prepared\n", string(data))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestPinnedNpmCacheConsent verifies the separate npm cache boundary: a ready
+// lockfile cache needs no input, and npm ci cannot run before consent.
+func TestPinnedNpmCacheConsent(t *testing.T) {
+	for _, tc := range []struct {
+		name, input    string
+		warm, accepted bool
+	}{
+		{name: "cached_without_input", warm: true, accepted: true},
+		{name: "missing_approved_once", input: "yes\\n", accepted: true},
+		{name: "missing_declined", input: "no\\n"},
+		{name: "missing_without_input"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			writeFixture(t, root, "scripts/testcheck/package.json", "{}\n")
+			writeFixture(t, root, "scripts/testcheck/package-lock.json", "{}\n")
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			writeFixture(t, root, "bin/git", "#!/bin/sh\necho fixture-lock\n")
+			writeFixture(t, root, "bin/markdownlint", "#!/bin/sh\necho 0.50.0\n")
+			writeFixture(t, root, "bin/npm", `#!/bin/sh
+[ "$1" = ci ] && [ "$2" = --prefix ] || exit 91
+echo prepared >> preparations
+mkdir -p "$3/node_modules/.bin"
+cp bin/markdownlint "$3/node_modules/.bin/markdownlint"
+`)
+			if tc.warm {
+				writeFixture(t, root, "temp/tools/npm/26.12.1/fixture-lock/.ready", "fixture-lock\n")
+				writeFixture(t, root, "temp/tools/npm/26.12.1/fixture-lock/node_modules/.bin/markdownlint", "#!/bin/sh\necho 0.50.0\n")
+			}
+			command := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+# Standalone tool selection has its own cache tests; isolate the npm boundary.
+ensure_node_test_tool() { return 0; }
+prepare_pinned_test_selection() { printf -v "$1" '%s' "$PWD/bin"; }
+prepare_pinned_native_tools || exit $?
+prepare_pinned_native_tools
+`
+			if tc.input != "" {
+				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
+			}
+			out, err := runFixture(t, root, command, map[string]string{"CI": "false"})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			prompts := 1
+			if tc.warm {
+				prompts = 0
+			}
+			assert.Equal(t, prompts, strings.Count(out, "Install pinned test tools"), out)
+			if tc.accepted && !tc.warm {
+				data, err := os.ReadFile(filepath.Join(root, "preparations"))
+				assert.NoError(t, err)
+				assert.Equal(t, "prepared\n", string(data), "warm npm selection does not reinstall")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "preparations"))
+			}
+		})
+	}
+}
+
+// TestCppcheckPinnedVersion verifies that the exact analyzer version is accepted
+// and an older version requires consent instead of silently reducing checks.
+func TestCppcheckPinnedVersion(t *testing.T) {
+	t.Run("version_probe_preserves_installation_answer", func(t *testing.T) {
+		root := scriptFixture(t)
+		// Native tools must not consume the input reserved for the consent prompt.
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nread -r ignored || true\necho 'Cppcheck 2.21.0'\n")
+		command := `printf 'yes\n' | {
+source scripts/_105_setup_test_tools.sh
+install_cppcheck_test_tool() { echo installation-reached; return 23; }
+ensure_cppcheck_test_tool
+}`
+		out, err := runFixture(t, root, command, map[string]string{"CI": "false"})
+		assert.Error(t, err)
+		assert.Contains(t, out, "installation-reached")
+	})
+	for _, ending := range []string{"\\n", "\\r\\n"} {
+		t.Run("pinned_version_"+ending, func(t *testing.T) {
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.22.0"+ending+"'\n")
+			output, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool", nil)
+			assert.NoError(t, err, output)
+			assert.NotContains(t, output, "Install Cppcheck")
+		})
+	}
+	t.Run("older_version_requires_confirmation", func(t *testing.T) {
+		root := scriptFixture(t)
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\nprintf 'Cppcheck 2.10\\n'\n")
+		output, err := runFixture(t, root, "printf 'no\\n'; source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool", map[string]string{"CI": "false"})
+		assert.Error(t, err, output)
+		assert.Contains(t, output, "Install Cppcheck 2.22.0 locally under temp/tools?")
+		assert.Contains(t, output, "Cppcheck 2.22.0 is required")
+	})
+}
+
+// nativeDownloadFixture records downloads and substitutes archive verification.
+// Failure cases cannot reach the network or extract unverified fixture bytes.
+func nativeDownloadFixture(t *testing.T, root string) {
+	t.Helper()
+	writeFixture(t, root, "bin/curl", `#!/bin/sh
+printf '%s\n' "$*" >> download.calls
+[ "${NATIVE_FAIL:-}" != download ] || exit 23
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -o ]; then printf 'fixture archive\n' > "$2"; exit 0; fi
+  shift
+done
+exit 91
+`)
+	writeFixture(t, root, "bin/sha256sum", `#!/bin/sh
+if [ "${NATIVE_FAIL:-}" = checksum ]; then echo 'invalid archive hash'; else printf '%s  %s\n' "$PINNED_DIGEST" "$1"; fi
+`)
+}
+
+// TestCppcheckLocalCache checks both installation layouts with an older system
+// version first in PATH. Cached tools must also be available to child profiles.
+func TestCppcheckLocalCache(t *testing.T) {
+	for _, layout := range []string{"bin/cppcheck", "PFiles/Cppcheck/cppcheck.exe"} {
+		t.Run(layout, func(t *testing.T) {
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
+			writeFixture(t, root, "temp/tools/cppcheck/2.22.0/"+layout, "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\r\\n'\n")
+			// Unix shells do not resolve `cppcheck` to `cppcheck.exe`. Emulate
+			// Windows executable lookup beside the Windows-layout tool double.
+			if runtime.GOOS != "windows" && strings.HasSuffix(layout, ".exe") {
+				writeFixture(t, root, "temp/tools/cppcheck/2.22.0/"+strings.TrimSuffix(layout, ".exe"), "#!/bin/sh\nprintf 'Cppcheck 2.22.0\\r\\n'\n")
+			}
+			out, err := runFixture(t, root, "source scripts/_105_setup_test_tools.sh; ensure_cppcheck_test_tool && bash -c 'cppcheck --version'", map[string]string{"CI": "true"})
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "Cppcheck 2.22.0")
+			assert.NotContains(t, out, "Install Cppcheck")
+		})
+	}
+}
+
+// TestCppcheckWindowsSetup verifies local MSI extraction, exact-version and hash
+// rejection, quiet setup logs and reuse without asking or downloading again.
+func TestCppcheckWindowsSetup(t *testing.T) {
+	for _, failure := range []string{"", "download", "checksum", "extract", "runtime_missing", "version"} {
+		t.Run("failure_"+failure, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_520_test_target_code_lint.sh")
+			nativeDownloadFixture(t, root)
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo MINGW64_NT-10.0; else echo x86_64; fi\n")
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
+			writeFixture(t, root, "bin/cygpath", "#!/bin/sh\nprintf '%s\\n' \"$2\"\n")
+			writeFixture(t, root, "bin/cmake", "#!/bin/sh\necho unexpected-cmake; exit 91\n")
+			// Native Windows supplies this extension lookup itself; only Unix
+			// hosts need a second name for the extracted shell tool double.
+			unixAlias := ""
+			if runtime.GOOS != "windows" {
+				unixAlias = "cp seed/cppcheck temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/cppcheck\n"
+			}
+			writeFixture(t, root, "bin/msiexec.exe", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "$MSYS_NO_PATHCONV" = 1 ] || exit 91
+echo native-msi-extraction
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+mkdir -p temp/tools/cppcheck/2.22.0/PFiles/Cppcheck
+cp seed/cppcheck temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/cppcheck.exe
+if [ "${NATIVE_FAIL:-}" != runtime_missing ]; then
+  mkdir -p temp/tools/cppcheck/2.22.0/PFiles/System64
+  for dll in vcruntime140.dll msvcp140.dll; do printf 'bundled runtime\n' > "temp/tools/cppcheck/2.22.0/PFiles/System64/$dll"; done
+fi
+`+unixAlias)
+			writeFixture(t, root, "seed/cppcheck", `#!/bin/sh
+[ -f "${0%/*}/vcruntime140.dll" ] && [ -f "${0%/*}/msvcp140.dll" ] || exit 91
+if [ "$1" = --help ]; then echo --check-level; else printf 'Cppcheck %s\r\n' "$INSTALLED_VERSION"; fi
+`)
+			writeFixture(t, root, "scripts/_290_lint_c_code.sh", "#!/bin/sh\ncppcheck --version | tr -d '\\r' | grep -qx 'Cppcheck 2.22.0' || exit 91\necho profile >> profiles.calls\n")
+			env := map[string]string{
+				"CI": "false", "NATIVE_FAIL": failure, "INSTALLED_VERSION": "2.22.0",
+				"PINNED_DIGEST": "3929162bab7e71d1b9b18708ec054fb0188bfc8ea1660979ed95837f5a9f547b",
+			}
+			if failure == "version" {
+				env["INSTALLED_VERSION"] = "2.21.0"
+			}
+			out, err := runFixture(t, root, "printf 'yes\\r\\n' | bash scripts/_520_test_target_code_lint.sh --quiet", env)
+			assert.Equal(t, failure != "", err != nil, out)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_520_test_target_code_lint.log"))
+			assert.NoError(t, readErr)
+			logText := string(logBytes)
+			assert.NotContains(t, logText, "unexpected-cmake")
+			if failure == "download" || failure == "checksum" {
+				assert.NoFileExists(t, filepath.Join(root, "extract.calls"))
+			} else {
+				calls, readErr := os.ReadFile(filepath.Join(root, "extract.calls"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(calls), "/a ")
+				assert.Contains(t, string(calls), " /qn TARGETDIR=")
+				assert.Contains(t, string(calls), "/L*v ")
+				assert.Contains(t, logText, "native-msi-extraction")
+			}
+			if failure != "" {
+				assert.Contains(t, logText, "FAIL:")
+				assert.NoFileExists(t, filepath.Join(root, "profiles.calls"))
+				if failure == "checksum" {
+					assert.Contains(t, logText, "SHA-256 mismatch")
+				}
+				return
+			}
+			profiles, readErr := os.ReadFile(filepath.Join(root, "profiles.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, 10, strings.Count(string(profiles), "profile\n"))
+			assert.FileExists(t, filepath.Join(root, "temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/vcruntime140.dll"))
+			assert.FileExists(t, filepath.Join(root, "temp/tools/cppcheck/2.22.0/PFiles/Cppcheck/msvcp140.dll"))
+			downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			env["CI"], env["NATIVE_FAIL"] = "true", "download"
+			out, err = runFixture(t, root, "bash scripts/_520_test_target_code_lint.sh --quiet", env)
+			assert.NoError(t, err, out)
+			after, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, string(downloads), string(after))
+		})
+	}
+}
+
+// TestPinnedFormatterCheckInstallation proves that an approved check installs
+// the exact version into a disposable cache and then checks unchanged sources.
+func TestPinnedFormatterCheckInstallation(t *testing.T) {
+	t.Run("clang-format", func(t *testing.T) {
+		root, env := clangBootstrapFixture(t, "Linux")
+		env["CI"] = "false"
+		out, err := runFixture(t, root, "printf 'yes\\n' | bash scripts/_280_format_c_code.sh check", env)
+		assert.NoError(t, err, out)
+		assert.Contains(t, out, "Using clang-format version 23.1.3")
+		setup, readErr := os.ReadFile(filepath.Join(root, "setup.log"))
+		assert.NoError(t, readErr)
+		assert.Contains(t, string(setup), "clang-format==23.1.3")
+		source, readErr := os.ReadFile(filepath.Join(root, "sample.c"))
+		assert.NoError(t, readErr)
+		assert.Equal(t, "int value=1;\n", string(source))
+	})
+	t.Run("shfmt", func(t *testing.T) {
+		root := scriptFixture(t, "scripts/_260_format_shell_scripts.sh")
+		writeFixture(t, root, "sample.sh", "#!/bin/sh\nexit 0\n")
+		writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf 'sample.sh\\n'\n")
+		writeFixture(t, root, "bin/shfmt", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo v3.12.0; fi\n")
+		writeFixture(t, root, "seed/shfmt", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo v3.14.1; fi\n")
+		writeFixture(t, root, "bin/go", "#!/bin/sh\nprintf '%s\\n' \"$*\" > installed-package.txt\ncp seed/shfmt \"$GOBIN/shfmt\"\n")
+		out, err := runFixture(t, root, "printf 'yes\\n' | bash scripts/_260_format_shell_scripts.sh check", map[string]string{"CI": "false"})
+		assert.NoError(t, err, out)
+		installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
+		assert.NoError(t, readErr)
+		assert.Equal(t, "install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1\n", string(installed))
+		assert.FileExists(t, filepath.Join(root, "temp/tools/shfmt"))
+		source, readErr := os.ReadFile(filepath.Join(root, "sample.sh"))
+		assert.NoError(t, readErr)
+		assert.Equal(t, "#!/bin/sh\nexit 0\n", string(source))
+	})
 }
 
 // initGitFixture gives runner tests a real index while keeping every Git write
@@ -375,7 +1138,7 @@ func TestSourceChecksExcludeScratchpad(t *testing.T) {
 			writeFixture(t, root, archived, "deliberately invalid historical source\n")
 			writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf '%s\\n' '"+tc.file+"' '"+archived+"'\n")
 			writeFixture(t, root, "bin/"+tc.tool, `#!/bin/sh
-if [ "$1" = --version ]; then echo v3.8.0; exit 0; fi
+if [ "$1" = --version ]; then echo v3.14.1; exit 0; fi
 printf '%s\n' "$@" >> tool.calls
 for arg; do case "$arg" in docs/_scratchPad/*) exit 19 ;; esac; done
 `)
@@ -404,6 +1167,7 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 		later                              bool
 	}{
 		{"no_arguments_success", "", "0", "PASS", "1", true},
+		{"no_arguments_missing_tool", "", "0", "INCOMPLETE", "1", true},
 		{"no_arguments_continue_after_failure", "", "1", "FAIL", "1", true},
 		{"quick_continues_after_failure_by_default", "quick", "1", "FAIL", "1", true},
 		{"full_continues_after_failure_by_default", "full", "1", "FAIL", "1", true},
@@ -429,28 +1193,41 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			firstStep := "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog \"child continuation policy: $TRICE_TEST_NO_STOP\"\n"
 			if tc.status == "1" {
 				firstStep += "log 'EXPECTATION FAILURE triceCheck.c:123 channel=direct'\nlog 'want: hello; got: wrong'\n"
-			} else {
+			} else if strings.Contains(tc.name, "missing_tool") {
 				firstStep += "log 'SKIP: unsupported tool version'\n"
 			}
 			writeFixture(t, root, "scripts/_410_test_first.sh", firstStep+"exit "+tc.status+"\n")
 			writeFixture(t, root, "scripts/_430_test_later.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\nlog executed\n")
 			out, err := runFixture(t, root, "source scripts/_110_test_runner.sh; build_test_plan() { add_plan_step _410_test_first.sh; add_plan_step _430_test_later.sh; }; main "+tc.args, nil)
-			if tc.status == "0" {
+			if tc.status == "0" && tc.result == "PASS" {
 				assert.NoError(t, err, out)
-				assert.Contains(t, out, "WARN")
-				assert.Contains(t, out, "SKIP: unsupported tool version")
 			} else {
 				assert.Error(t, err, out)
 				if exitErr, ok := err.(*exec.ExitError); assert.True(t, ok, out) {
-					assert.Equal(t, tc.status, strconv.Itoa(exitErr.ExitCode()), out)
+					wantStatus := tc.status
+					if tc.result == "INCOMPLETE" {
+						wantStatus = "2"
+						assert.Contains(t, out, "SKIP: unsupported tool version")
+					}
+					assert.Equal(t, wantStatus, strconv.Itoa(exitErr.ExitCode()), out)
 				}
 			}
 			assert.Contains(t, out, "Result: "+tc.result)
+			if tc.args == "" {
+				assert.Contains(t, out, "Selection: full")
+			}
 			// Every completed step, including WARN/FAIL/ABORTED, retains the
 			// same time-prefixed line in stdout and the persistent summary.
-			summary, readErr := os.ReadFile(filepath.Join(root, "temp/log/testAll_summary.log"))
+			runs, readErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*"))
+			if !assert.NoError(t, readErr) || !assert.Len(t, runs, 1) {
+				t.FailNow()
+			}
+			summary, readErr := os.ReadFile(filepath.Join(runs[0], "testAll_summary.log"))
 			assert.NoError(t, readErr)
-			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|WARN|FAIL|ABORTED)$`)
+			assert.Contains(t, out, "Pinned tool versions for this checkout:")
+			assert.Contains(t, string(summary), "Pinned tool versions for this checkout:")
+			assert.Less(t, strings.Index(out, "Pinned tool versions for this checkout:"), strings.Index(out, "Preparing declared native tools;"))
+			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|INCOMPLETE|FAIL|ABORTED)$`)
 			consoleLines := resultLines.FindAllString(out, -1)
 			wantLines := 1
 			if tc.later {
@@ -464,7 +1241,7 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			} else {
 				assert.Contains(t, out, "Failure policy: stop after the first failure (--stop)")
 			}
-			firstLog, readErr := os.ReadFile(filepath.Join(root, "temp/log/_410_test_first.log"))
+			firstLog, readErr := os.ReadFile(filepath.Join(runs[0], "_410_test_first.log"))
 			assert.NoError(t, readErr)
 			assert.Contains(t, string(firstLog), "child continuation policy: "+tc.policy)
 			if tc.status == "1" {
@@ -473,11 +1250,12 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				assert.Contains(t, out, "EXPECTATION FAILURE triceCheck.c:123 channel=direct")
 				assert.Contains(t, out, "want: hello; got: wrong")
 			}
-			_, err = os.Stat(filepath.Join(root, "temp/log/_430_test_later.log"))
+			_, err = os.Stat(filepath.Join(runs[0], "_430_test_later.log"))
 			assert.Equal(t, tc.later, err == nil, out)
 			for _, name := range []string{"_testAll_07_GoCoverage.log", "_640_test_pc_targets_bind.log", "_600_test_gcc_bind.log.standalone.PC_log", "coverage.out"} {
-				_, err := os.Stat(filepath.Join(root, "temp/log", name))
-				assert.True(t, os.IsNotExist(err), name)
+				data, err := os.ReadFile(filepath.Join(root, "temp/log", name))
+				assert.NoError(t, err)
+				assert.Equal(t, "stale failure", string(data), "previous logs remain independent")
 			}
 			for _, name := range []string{"notes.txt", "application.log", "trice-state.saved/recovery.tar"} {
 				data, err := os.ReadFile(filepath.Join(root, "temp/log", name))
@@ -639,14 +1417,23 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 			worker, err := os.ReadFile(filepath.Join(root, "worker.sh"))
 			assert.NoError(t, err)
 			localChanges := "printf 'bound RTT source\\n' > examples/F030_inst_rtt/Core/Src/main.c\nprintf 'updated RTT TIL\\n' > examples/F030_inst_rtt/til.json\nprintf 'updated RTT LI\\n' > examples/F030_inst_rtt/li.json\nprintf 'overwrite\\n' > examples/F030_inst_rtt/out/user.o\nprintf 'bound UART header\\n' > examples/F030_inst_uart/Core/Inc/conf.h\nprintf 'updated UART TIL\\n' > examples/F030_inst_uart/til.json\nprintf 'new UART LI\\n' > examples/F030_inst_uart/li.json\nmkdir -p examples/F030_inst_uart/out/sidecars\nprintf 'new UART sidecar\\n' > examples/F030_inst_uart/out/sidecars/generated.h\n"
+			// Preparation may read caller input, but the build worker must receive EOF.
+			writeFixture(t, root, "worker.sh", strings.Replace(string(worker), "#!/bin/bash\n", "#!/bin/bash\nif IFS= read -r unexpected; then echo unexpected-worker-input; exit 91; fi\necho worker-input-is-EOF\n", 1))
+			worker, err = os.ReadFile(filepath.Join(root, "worker.sh"))
+			assert.NoError(t, err)
 			writeFixture(t, root, "worker.sh", strings.Replace(string(worker), tc.workerEnd, localChanges+tc.workerEnd, 1))
-			out, err := runFixture(t, root, "source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
+			preparation, err := os.ReadFile(filepath.Join(root, "trice_bindIDs_in_examples_and_test_folder.sh"))
+			assert.NoError(t, err)
+			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", strings.Replace(string(preparation), "#!/bin/bash\n", "#!/bin/bash\nIFS= read -r answer\n[ \"$answer\" = preparation-input ] || exit 92\necho preparation-received-input\n", 1))
+			out, err := runFixture(t, root, "printf '%s\\n' preparation-input reserved-input | (source scripts/_140_trice_test_state.sh; trice_test_run_managed_workflow bind example ./worker.sh)", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
 			if tc.name == "success" {
 				assert.NoError(t, err, out)
 			} else {
 				assert.Error(t, err, out)
 			}
 			assert.Contains(t, out, tc.wantStatus)
+			assert.Contains(t, out, "preparation-received-input")
+			assert.Contains(t, out, "worker-input-is-EOF")
 			assert.Contains(t, out, "exact initial files restored")
 			for path, contents := range initial {
 				data, readErr := os.ReadFile(filepath.Join(root, path))
@@ -659,6 +1446,154 @@ func TestManagedExampleStateRestoration(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestExampleMatricesStopOnCancellation checks both signal exit codes and actual
+// signals while preserving the documented continuation after ordinary failures.
+func TestExampleMatricesStopOnCancellation(t *testing.T) {
+	for _, mode := range []string{"ON", "OFF"} {
+		for _, outcome := range []string{"0", "7", "130", "143", "INT", "TERM"} {
+			t.Run(mode+"/"+outcome, func(t *testing.T) {
+				script := "examples/buildAllTargets_TRICE_" + mode + ".sh"
+				root := scriptFixture(t, script)
+				writeFixture(t, root, "examples/prepareTriceBind.sh", "prepare_trice_bind_build() { :; }\n")
+				first := "F030_bare"
+				if mode == "ON" {
+					first = "DemoData_CSV"
+				}
+				for _, target := range []string{"F030_bare", "G0B1_bare", "L432_bare", "F030_inst", "G0B1_inst", "L432_inst", "DemoData_CSV", "DemoData_Trice"} {
+					writeFixture(t, root, "examples/"+target+"/build.sh", `#!/bin/bash
+name=${PWD##*/}
+printf '%s\n' "$name" >> "$FIXTURE_ROOT/build.calls"
+if [ "$name" = "$FIRST_TARGET" ]; then
+  case "$OUTCOME" in
+    INT | TERM) kill -s "$OUTCOME" "$PPID"; exit 0 ;;
+    *) exit "$OUTCOME" ;;
+  esac
+fi
+`)
+				}
+				out, err := runFixture(t, root, "bash "+script, map[string]string{"FIXTURE_ROOT": root, "FIRST_TARGET": first, "OUTCOME": outcome})
+				want := outcome
+				switch outcome {
+				case "7":
+					want = "1"
+				case "INT":
+					want = "130"
+				case "TERM":
+					want = "143"
+				}
+				if want == "0" {
+					assert.NoError(t, err, out)
+				} else if assert.Error(t, err, out) {
+					assert.Equal(t, "exit status "+want, err.Error(), out)
+				}
+				calls, readErr := os.ReadFile(filepath.Join(root, "build.calls"))
+				assert.NoError(t, readErr)
+				if want == "130" || want == "143" {
+					assert.Equal(t, first+"\n", string(calls), "cancellation must not start another target")
+				} else {
+					assert.Contains(t, string(calls), "L432_inst\n", "ordinary failure must still test later targets")
+				}
+			})
+		}
+	}
+}
+
+// TestBatchWorkersPropagateCancellation prevents --no-stop from swallowing an
+// interrupted child or diagnostic and starting another PC/L432 configuration.
+func TestBatchWorkersPropagateCancellation(t *testing.T) {
+	for _, status := range []string{"130", "143"} {
+		for _, phase := range []string{"pc", "diagnostic", "l432"} {
+			t.Run(phase+"/"+status, func(t *testing.T) {
+				var root, command string
+				env := map[string]string{"TRICE_TEST_NO_STOP": "1", "CANCEL_STATUS": status}
+				if phase == "l432" {
+					root = l432Fixture(t)
+					writeFixture(t, root, "bin/make", "#!/bin/sh\necho called >> ../../events/build.calls\nexit \"$CANCEL_STATUS\"\n")
+					command = "bash examples/L432_inst/all_configs_build.sh"
+					env["TRICE_L432_TEST_JOBS"] = "1"
+				} else {
+					root = pcWorkerFixture(t)
+					data, err := os.ReadFile(filepath.Join(root, "bin/go"))
+					assert.NoError(t, err)
+					// Keep real package discovery and overlay setup; only test execution
+					// returns a controlled cancellation code at the selected phase.
+					writeFixture(t, root, "bin/go", strings.Replace(string(data), "for package; do :; done", `if [ "$CANCEL_PHASE" = pc ]; then exit "$CANCEL_STATUS"; fi
+if [ "$TRICE_PC_TEST_MODE" = line-by-line ]; then exit "$CANCEL_STATUS"; fi
+for package; do :; done`, 1))
+					command = "mkdir -p temp/log; bash scripts/_160_pc_target_test_worker.sh full"
+					env["TRICE_PC_TEST_JOBS"] = "1"
+					env["TRICE_PC_TEST_MODE"] = "auto"
+					env["CANCEL_PHASE"] = phase
+					env["FAIL_B"] = "1"
+				}
+				out, err := runFixture(t, root, command, env)
+				if assert.Error(t, err, out) {
+					assert.Equal(t, "exit status "+status, err.Error(), out)
+				}
+				assert.NoFileExists(t, filepath.Join(root, "events/c.auto.args"))
+				if phase == "l432" {
+					calls, readErr := os.ReadFile(filepath.Join(root, "events/build.calls"))
+					assert.NoError(t, readErr)
+					assert.Equal(t, "called\n", string(calls))
+				}
+			})
+		}
+	}
+}
+
+// TestBatchCancellationEscalatesBeforeWaiting models an uncooperative child:
+// waiting is allowed only after KILL, so a blocked wait cannot hide the fallback.
+func TestBatchCancellationEscalatesBeforeWaiting(t *testing.T) {
+	for _, tc := range []struct{ script, setup, cancel string }{
+		{"scripts/_160_pc_target_test_worker.sh", "PC_PIDS=(424242)", "cancel_pc_jobs"},
+		{"examples/L432_inst/all_configs_build.sh", "L432_PIDS=(424242); L432_RUN_DIR=fixture", "cancel_l432_jobs"},
+	} {
+		t.Run(tc.cancel, func(t *testing.T) {
+			root := scriptFixture(t, tc.script)
+			data, err := os.ReadFile(filepath.Join(root, tc.script))
+			assert.NoError(t, err)
+			// Load the actual cancellation function without launching a build matrix.
+			writeFixture(t, root, tc.script, strings.Replace(string(data), "\nmain \"$@\"\n", "\n", 1))
+			out, err := runFixture(t, root, "source "+tc.script+"\n"+tc.setup+`
+terminated=0
+kill() {
+  case "$1" in
+    -TERM) echo TERM; return 0 ;;
+    -0) [ "$terminated" -eq 0 ]; return $? ;;
+    -KILL) echo KILL; terminated=1; return 0 ;;
+    *) exit 93 ;;
+  esac
+}
+sleep() { :; }
+wait() {
+  [ "$terminated" -eq 1 ] || { echo premature-wait; exit 94; }
+  echo reaped
+}
+`+tc.cancel+" 143", nil)
+			if assert.Error(t, err, out) {
+				assert.Equal(t, "exit status 143", err.Error(), out)
+			}
+			assert.Contains(t, out, "TERM\nKILL\nreaped\n")
+			assert.NotContains(t, out, "premature-wait")
+		})
+	}
+}
+
+// TestFeatureBuildsDetachInput covers the isolated feature-build path, which
+// intentionally does not use the managed ID-workflow worker boundary.
+func TestFeatureBuildsDetachInput(t *testing.T) {
+	root, _ := loggingFeatureFixture(t)
+	for _, script := range []string{"examples/PC_features/check_output.sh", "examples/G0B1_features/check_build.sh"} {
+		data, err := os.ReadFile(filepath.Join(root, script))
+		assert.NoError(t, err)
+		writeFixture(t, root, script, strings.Replace(string(data), "set -eu\n", "set -eu\nif IFS= read -r unexpected; then echo unexpected-build-input; exit 91; fi\necho feature-input-is-EOF\n", 1))
+	}
+	out, err := runFixture(t, root, "printf '%s\\n' caller-input | ./scripts/_515_test_logging_features.sh full", nil)
+	assert.NoError(t, err, out)
+	assert.Equal(t, 3, strings.Count(out, "feature-input-is-EOF"), "PC, GCC and Clang builds must each see EOF")
+	assert.NotContains(t, out, "unexpected-build-input")
 }
 
 // TestManagedWorkflowRepeatedInterrupts signals the complete test process group,
@@ -706,6 +1641,9 @@ fi
 exec "$REAL_TAR" "$@"
 `)
 				writeFixture(t, root, "worker.sh", `#!/usr/bin/env bash
+# The readiness marker covers signal-handler installation as well as mutation.
+trap 'exit 130' INT
+trap 'exit 143' TERM
 printf 'trice(iD(1234), "msg:hello\\n");\n' > sample.c
 printf 'changed TIL\n' > demoTIL.json
 printf 'changed LI\n' > demoLI.json
@@ -760,6 +1698,8 @@ wait_for() {
   local attempts=0
   until [ -f "$1" ]; do
     if ! kill -0 "$job" 2>/dev/null || [ "$attempts" -ge 500 ]; then
+      printf 'FAIL: waiting for %s; available handshake files:\n' "$1"
+      find events -type f -print
       cat runner.out
       return 1
     fi
@@ -794,7 +1734,17 @@ trap - EXIT
 					assert.NotContains(t, out, "initial state was not restored")
 				}
 				assert.NoFileExists(t, filepath.Join(root, "events/later-step"), "cancellation never starts another test")
-				log, readErr := os.ReadFile(filepath.Join(root, "temp/log/_590_test_fixture.log"))
+				logPath := filepath.Join(root, "temp/log/_590_test_fixture.log")
+				if entry != "standalone" {
+					// Aggregate runs retain their own logs, including interrupted runs.
+					matches, globErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*/_590_test_fixture.log"))
+					assert.NoError(t, globErr)
+					if !assert.Len(t, matches, 1) {
+						return
+					}
+					logPath = matches[0]
+				}
+				log, readErr := os.ReadFile(logPath)
 				assert.NoError(t, readErr)
 				assert.Contains(t, string(log), "exact initial files restored")
 				assert.Contains(t, string(log), "end status: "+wantStatus)
@@ -836,6 +1786,7 @@ func TestRuntimePreparationIsTransactional(t *testing.T) {
 				writeFixture(t, root, path, contents)
 			}
 			writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+			hostCompilerFixture(t, root)
 			writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", "#!/bin/sh\nprintf 'changed source\\n' > sample.c\nprintf 'changed TIL\\n' > demoTIL.json\nprintf 'changed LI\\n' > demoLI.json\nprintf 'changed selection\\n' > generated/selection.h\nexit "+tc.bindExit+"\n")
 			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{"TRICE_PRJ_FILES": "-src ./sample.c"})
 			if tc.bindExit == "0" {
@@ -850,6 +1801,633 @@ func TestRuntimePreparationIsTransactional(t *testing.T) {
 				assert.NoError(t, readErr, path)
 				assert.Equal(t, contents, string(data), path)
 			}
+		})
+	}
+}
+
+// TestRuntimePreparationChecksPython exercises the actual full-mode entry point.
+// Installation, checksums and runtimes are isolated doubles; no download or
+// system Python installation can make a missing-prerequisite case pass.
+func TestRuntimePreparationChecksPython(t *testing.T) {
+	for _, tc := range []struct {
+		name, failure, answer, machine  string
+		installed, launcher, cached, ci bool
+	}{
+		{name: "installed", installed: true},
+		{name: "launcher_only", launcher: true},
+		{name: "install_amd64", answer: "yes\n"},
+		{name: "install_win32", answer: "yes\n", machine: "i686"},
+		{name: "install_arm64", answer: "yes\n", machine: "aarch64"},
+		{name: "cached", cached: true},
+		{name: "damaged_cache_with_system_fallback", cached: true, installed: true, failure: "version"},
+		{name: "refused", answer: "no\n", failure: "refused"},
+		{name: "no_input", failure: "refused"},
+		{name: "ci", answer: "yes\n", ci: true, failure: "refused"},
+		{name: "download", answer: "yes\n", failure: "download"},
+		{name: "checksum", answer: "yes\n", failure: "checksum"},
+		{name: "extract", answer: "yes\n", failure: "extract"},
+		{name: "wrong_version", answer: "yes\n", failure: "version"},
+		{name: "missing_runtime", answer: "yes\n", failure: "missing_runtime"},
+		{name: "unsupported_arch", answer: "yes\n", machine: "armv7", failure: "architecture"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := hostPreparationFixture(t, "MINGW64_NT-10.0")
+			nativeDownloadFixture(t, root)
+			machine := tc.machine
+			if machine == "" {
+				machine = "x86_64"
+			}
+			writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo MINGW64_NT-10.0; else echo "+machine+"; fi\n")
+			for _, name := range []string{"python3", "python", "py"} {
+				writeFixture(t, root, "bin/"+name, "#!/bin/sh\nexit 23\n")
+			}
+			if tc.installed {
+				writeFixture(t, root, "bin/python3", "#!/bin/sh\nexit 0\n")
+			}
+			if tc.launcher {
+				writeFixture(t, root, "bin/py", "#!/bin/sh\n[ \"$1\" = -3 ] && [ \"$2\" = -c ]\n")
+			}
+			writeFixture(t, root, "seed/python.exe", "#!/bin/sh\n[ \"${NATIVE_FAIL:-}\" != version ]\n")
+			writeFixture(t, root, "bin/unzip", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -d ]; then
+    mkdir -p "$2" || exit 23
+    [ "${NATIVE_FAIL:-}" != missing_runtime ] || exit 0
+    cp seed/python.exe "$2/python.exe"
+    exit $?
+  fi
+  shift
+done
+exit 91
+`)
+			arch := "amd64"
+			digest := "d012f3aa29cf07436dae8aea1fec0fd195c2612a0b059b1f915ae0afb9ad1f62"
+			if machine == "i686" {
+				arch, digest = "win32", "8d20269d378040117c9cec11d1ad6c6d17c6b77774424955ee180a0f49c6b41e"
+			} else if machine == "aarch64" {
+				arch, digest = "arm64", "089eae5e8aba8284c2ce59df008c1dc915af46fd9e8b1227e3a7f315211567c9"
+			}
+			cache := "temp/tools/python/3.15.2-" + arch
+			if tc.cached {
+				data, err := os.ReadFile(filepath.Join(root, "seed/python.exe"))
+				assert.NoError(t, err)
+				writeFixture(t, root, cache+"/python.exe", string(data))
+				writeFixture(t, root, cache+"/.ready", "")
+			}
+			env := map[string]string{"SELECTED": "full", "CI": booleanText(tc.ci), "TOOL_REPLY": tc.answer, "NATIVE_FAIL": tc.failure, "PINNED_DIGEST": digest}
+			out, err := runFixture(t, root, "printf '%s' \"$TOOL_REPLY\" | bash scripts/_490_test_runtime_prepare.sh --quiet", env)
+			success := tc.failure == "" || tc.installed
+			assert.Equal(t, success, err == nil, out)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			if !success {
+				assert.NoFileExists(t, filepath.Join(root, cache, ".ready"))
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				assert.Contains(t, string(logBytes), "FAIL: Python preparation failed")
+				assert.Contains(t, string(logBytes), "FAIL:")
+				return
+			}
+			assert.FileExists(t, filepath.Join(root, "workflow.called"))
+			if tc.installed || tc.launcher {
+				assert.NoFileExists(t, filepath.Join(root, "download.calls"))
+				assert.NoFileExists(t, filepath.Join(root, cache, ".ready"))
+				return
+			}
+			assert.FileExists(t, filepath.Join(root, cache, ".ready"))
+			if !tc.cached {
+				downloads, err := os.ReadFile(filepath.Join(root, "download.calls"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(downloads), "https://www.python.org/ftp/python/3.15.2/python-3.15.2-embed-"+arch+".zip")
+				assert.Equal(t, 1, strings.Count(string(downloads), "\n"))
+			}
+			// A separately started step must use the private runtime, without
+			// exposing the embeddable package as a general Python/venv provider.
+			out, err = runFixture(t, root, `source scripts/_100_test_common.sh
+python_test_tool_works "$TRICE_TEST_PYTHON"
+command -v python3
+`, map[string]string{"CI": "true", "NATIVE_FAIL": tc.failure})
+			assert.NoError(t, err, out)
+			assert.Contains(t, filepath.ToSlash(out), "/bin/python3")
+			assert.NotContains(t, out, "Install Python")
+		})
+	}
+}
+
+// TestGoStepsAllowSlowNativeScriptFixtures checks the real command paths,
+// including coverage, without compiling packages or invoking compiler matrices.
+func TestGoStepsAllowSlowNativeScriptFixtures(t *testing.T) {
+	for _, step := range []string{"_540_test_go.sh", "_550_test_go_coverage.sh"} {
+		t.Run(step, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/"+step)
+			writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "bin/gofmt", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+printf '%s\n' "$*" >> go.calls
+case "$1" in
+  env) [ "$2" != GOVERSION ] || echo go1.27.3 ;;
+  list) echo github.com/rokath/trice/scripts ;;
+  test)
+    for argument; do
+      case "$argument" in
+        -coverprofile=*)
+          profile=${argument#-coverprofile=}
+          mkdir -p "$(dirname "$profile")"
+          printf 'mode: atomic\ngithub.com/rokath/trice/scripts/fixture.go:1.1,1.2 1 1\n' > "$profile"
+          ;;
+      esac
+    done
+    ;;
+esac
+`)
+			// A new run owns its raw coverage; older evidence must survive.
+			writeFixture(t, root, "temp/log/coverage.out", "previous coverage evidence\n")
+			runDir := filepath.Join(root, "temp/log/current-run")
+			out, err := runFixture(t, root, "bash scripts/"+step, map[string]string{"LOG_DIR": runDir})
+			assert.NoError(t, err, out)
+			calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
+			assert.NoError(t, err)
+			assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts")
+			assert.Contains(t, string(calls), "-timeout=30m")
+			previous, err := os.ReadFile(filepath.Join(root, "temp/log/coverage.out"))
+			assert.NoError(t, err)
+			assert.Equal(t, "previous coverage evidence\n", string(previous))
+			if step == "_550_test_go_coverage.sh" {
+				profile, err := os.ReadFile(filepath.Join(runDir, "coverage.out"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(profile), "mode: atomic")
+			}
+		})
+	}
+}
+
+// hostCompilerFixture isolates compiler probes from every host frontend in PATH.
+// Its output can independently simulate a compile, link or runtime failure.
+func hostCompilerFixture(t *testing.T, root string) {
+	t.Helper()
+	// Compiler-specific fixtures already satisfy the independent Python check.
+	writeFixture(t, root, "bin/python3", "#!/bin/sh\nexit 0\n")
+	for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
+		writeFixture(t, root, "bin/"+compiler, `#!/bin/sh
+if [ "$1" = --version ]; then
+  case "${0##*/}" in clang|clang++) echo 'clang version 23.1.4' ;; *) echo fixture-compiler ;; esac
+  exit 0
+fi
+if [ "$1" = -dM ]; then
+  echo '#define __GNUC__ 14'
+  if [ "${GCC_IS_CLANG:-0}" = 1 ]; then echo '#define __clang__ 1'; fi
+  exit 0
+fi
+printf '%s %s\n' "${0##*/}" "$*" >> compiler.calls
+cat > probe-source.txt
+if [ "${GCC_IS_CLANG:-0}" = 1 ] && grep -q 'full requires genuine GCC' probe-source.txt; then
+  echo 'full requires genuine GCC, not a Clang compatibility alias' >&2; exit 23
+fi
+if [ "${CLANG_IS_GCC:-0}" = 1 ] && grep -q 'full requires genuine Clang' probe-source.txt; then
+  echo 'full requires genuine Clang' >&2; exit 23
+fi
+if [ "${0##*/}" = "${FAILED_COMPILER:-}" ]; then echo 'missing host header or library' >&2; exit 23; fi
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -o ]; then
+    printf '#!/bin/sh\nexit %s\n' "${RUNTIME_STATUS:-0}" > "$2"
+    chmod +x "$2"
+    exit 0
+  fi
+  shift
+done
+exit 91
+`)
+	}
+	// Linux full-mode preparation checks the language server version too.
+	writeFixture(t, root, "bin/clangd", "#!/bin/sh\necho 'clangd version 23.1.4'\n")
+	// The runtime uses testcheck to validate the host Clang identity.
+	writeFixture(t, root, "bin/testcheck-fixture", `#!/bin/sh
+if [ "$1" = identity ]; then
+  printf '%s %s\n' "${2##*/}" "$3" >> identity.calls
+  output="$("$2" --version 2>/dev/null)" || exit 1
+  case "$output" in *"$3"*) exit 0 ;; esac
+  exit 1
+fi
+exit 0
+`)
+}
+
+// TestRuntimePreparationChecksHostCompilers detects a broken C or C++ frontend
+// before any ID workflow and reports linker/runtime failures with setup hints.
+func TestRuntimePreparationChecksHostCompilers(t *testing.T) {
+	// Reproduce testAll's exported mode even when this test is run directly.
+	// Basic probe cases must remain isolated while explicit full cases retain it.
+	t.Setenv("SELECTED", "full")
+	for _, failure := range []string{"", "clang", "clang++", "runtime"} {
+		t.Run("failure_"+failure, func(t *testing.T) {
+			// Exercise the generic probe diagnostics on every host. Windows
+			// bundle selection/recovery is covered by local_Windows_bundle.
+			root := hostPreparationFixture(t, "Linux")
+			env := map[string]string{"FAILED_COMPILER": failure, "CI": "true"}
+			if failure == "runtime" {
+				env["RUNTIME_STATUS"] = "23"
+			}
+			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh --quiet", env)
+			assert.Equal(t, failure != "", err != nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "compiler.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, 6, strings.Count(string(calls), "\n"))
+			assert.Contains(t, string(calls), "clang++ -std=c++11")
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			if failure == "" {
+				assert.FileExists(t, filepath.Join(root, "workflow.called"))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				assert.Contains(t, string(logBytes), "FAIL:")
+				assert.Contains(t, string(logBytes), "Hint: on Windows, check both clang and clang++")
+			}
+		})
+	}
+	t.Run("full_requirements", testFullHostCompilerRequirements)
+	t.Run("versioned_GCC", testVersionedHostGCC)
+	t.Run("Homebrew_GCC", testHomebrewHostGCC)
+	t.Run("local_Windows_bundle", testWindowsHostCompilerBundle)
+}
+
+// hostPreparationFixture isolates the real preparation step from ID workflows,
+// downloads and the developer's installed tools on every test host OS.
+func hostPreparationFixture(t *testing.T, platform string) string {
+	t.Helper()
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_490_test_runtime_prepare.sh")
+	hostCompilerFixture(t, root)
+	writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo '"+platform+"'; else echo x86_64; fi\n")
+	writeFixture(t, root, "bin/go", "#!/bin/sh\nif [ \"$1\" = env ]; then echo \"${HOST_GOARCH:-amd64}\"; else echo fixture-go; fi\n")
+	// Never inspect or mutate the real Homebrew installation from a fixture.
+	writeFixture(t, root, "bin/brew", "#!/bin/sh\nexit 23\n")
+	writeFixture(t, root, "bin/trice", "#!/bin/sh\nexit 0\n")
+	writeFixture(t, root, "scripts/_140_trice_test_state.sh", "trice_test_run_managed_workflow() { touch workflow.called; }\n")
+	return root
+}
+
+// testFullHostCompilerRequirements ensures a full run cannot pass through a
+// missing family, a missing C++ frontend, or Apple's GCC-compatible Clang name.
+func testFullHostCompilerRequirements(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT-10.0"} {
+		for _, missing := range []string{"", "gcc", "g++", "clang", "clang++"} {
+			t.Run(platform+"/missing_"+missing, func(t *testing.T) {
+				root := hostPreparationFixture(t, platform)
+				command := `command() {
+  if [ "$1:$2" = "-v:$MISSING_COMPILER" ]; then return 1; fi
+  builtin command "$@"
+}
+export -f command
+bash scripts/_490_test_runtime_prepare.sh --quiet`
+				out, err := runFixture(t, root, command, map[string]string{
+					"SELECTED": "full", "CI": "true", "MISSING_COMPILER": missing,
+				})
+				logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, missing != "", err != nil, out+string(logBytes))
+				if missing == "" {
+					assert.FileExists(t, filepath.Join(root, "workflow.called"))
+					if platform == "Linux" {
+						calls, err := os.ReadFile(filepath.Join(root, "identity.calls"))
+						assert.NoError(t, err)
+						assert.Contains(t, string(calls), "clang 23.1.4\nclang++ 23.1.4\nclangd 23.1.4\n")
+					}
+				} else {
+					assert.Contains(t, string(logBytes), "full requires the native "+missing+" frontend")
+					assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				}
+				assert.NoFileExists(t, filepath.Join(root, "download.calls"))
+			})
+		}
+	}
+	t.Run("Clang_alias_is_not_GCC", func(t *testing.T) {
+		root := hostPreparationFixture(t, "Darwin")
+		// The test must still reject the aliases on Linux hosts with a real
+		// versioned GCC in PATH; that installation is not part of this fixture.
+		writeFixture(t, root, "bin/ln", "#!/bin/sh\nexit 23\n")
+		out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{
+			"SELECTED": "full", "CI": "true", "GCC_IS_CLANG": "1",
+		})
+		assert.Error(t, err)
+		assert.Contains(t, out, "full requires genuine GCC")
+		assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+	})
+	t.Run("GCC_alias_is_not_Clang", func(t *testing.T) {
+		root := hostPreparationFixture(t, "Linux")
+		writeFixture(t, root, "bin/ln", "#!/bin/sh\nexit 23\n")
+		out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{
+			"SELECTED": "full", "CI": "true", "CLANG_IS_GCC": "1",
+		})
+		assert.Error(t, err)
+		assert.Contains(t, out, "full requires genuine Clang")
+		assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+	})
+}
+
+// testVersionedHostGCC verifies discovery and child-step reuse without assuming
+// a package-manager prefix. Shell tool doubles keep this portable to Windows CI.
+func testVersionedHostGCC(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin"} {
+		t.Run(platform, func(t *testing.T) {
+			root := hostPreparationFixture(t, platform)
+			for _, compiler := range []string{"gcc", "g++"} {
+				source, err := os.ReadFile(filepath.Join(root, "bin", compiler))
+				assert.NoError(t, err)
+				writeFixture(t, root, "bin/"+compiler+"-14", strings.ReplaceAll(string(source), "${GCC_IS_CLANG:-0}", "0"))
+			}
+			out, err := runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh", map[string]string{
+				"SELECTED": "full", "CI": "true", "GCC_IS_CLANG": "1",
+			})
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "using checkout-local aliases for versioned GCC")
+			assert.FileExists(t, filepath.Join(root, "temp/tools/host-gcc/.ready"))
+			out, err = runFixture(t, root, "source scripts/_100_test_common.sh; command -v gcc; command -v g++", nil)
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "/temp/tools/host-gcc/bin/gcc")
+			assert.Contains(t, out, "/temp/tools/host-gcc/bin/g++")
+		})
+	}
+}
+
+// testHomebrewHostGCC exercises system-install consent and post-install probes
+// in a disposable prefix containing spaces, without invoking real Homebrew.
+func testHomebrewHostGCC(t *testing.T) {
+	for _, tc := range []struct {
+		name, answer, ci, failure           string
+		installed, wantInstall, wantSuccess bool
+	}{
+		{name: "install", answer: "yes", wantInstall: true, wantSuccess: true},
+		{name: "installed_unlinked", installed: true, wantSuccess: true},
+		{name: "declined", answer: "no"},
+		{name: "empty_answer", answer: ""},
+		{name: "EOF", failure: "eof"},
+		{name: "CI", answer: "yes", ci: "true"},
+		{name: "install_failure", answer: "yes", failure: "install", wantInstall: true},
+		{name: "missing_pair", answer: "yes", failure: "pair", wantInstall: true},
+		{name: "broken_CXX", answer: "yes", failure: "g++", wantInstall: true},
+		{name: "broken_runtime", answer: "yes", failure: "runtime", wantInstall: true},
+		{name: "broken_installed", installed: true, failure: "g++"},
+		{name: "Clang_failure_does_not_install_GCC", answer: "yes", failure: "clang"},
+		{name: "no_Homebrew", answer: "yes", failure: "no_brew"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := hostPreparationFixture(t, "Darwin")
+			for _, compiler := range []string{"gcc", "g++"} {
+				source, err := os.ReadFile(filepath.Join(root, "bin", compiler))
+				assert.NoError(t, err)
+				installed := strings.ReplaceAll(string(source), "${GCC_IS_CLANG:-0}", "0")
+				// An unknown future version must work without updating the script.
+				writeFixture(t, root, "brew seed/"+compiler+"-99", installed)
+			}
+			writeFixture(t, root, "bin/brew", `#!/bin/sh
+case "$*" in
+  '--prefix --installed gcc')
+    [ -f brew.installed ] || exit 1
+    printf '%s/brew prefix\n' "$PWD"
+    ;;
+  'install gcc')
+    printf '%s\n' "$*" >> brew.calls
+    [ "$HOMEBREW_NO_INSTALL_UPGRADE:$HOMEBREW_NO_INSTALL_CLEANUP:$HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK" = 1:1:1 ] || exit 92
+    echo 'fixture installation progress'
+    [ "$BREW_FAILURE" != install ] || exit 23
+    mkdir -p 'brew prefix/bin'
+    cp 'brew seed/'* 'brew prefix/bin/'
+    if [ "$BREW_FAILURE" = pair ]; then rm 'brew prefix/bin/g++-99'; fi
+    touch brew.installed
+    ;;
+  *) exit 91 ;;
+esac
+`)
+			if tc.installed {
+				writeFixture(t, root, "brew.installed", "")
+				// A previous successful run cannot keep a now-broken selection
+				// marked as ready for the independently started child steps.
+				writeFixture(t, root, "temp/tools/host-gcc/.ready", "")
+				for _, compiler := range []string{"gcc", "g++"} {
+					source, err := os.ReadFile(filepath.Join(root, "brew seed", compiler+"-99"))
+					assert.NoError(t, err)
+					writeFixture(t, root, "brew prefix/bin/"+compiler+"-99", string(source))
+				}
+			}
+			// Suppress unrelated versioned compilers from the machine running the
+			// test, but allow the selected fixture pair to create its local aliases.
+			command := `ln() {
+  case "$2" in *'brew prefix/'*) command ln "$@" ;; *) return 1 ;; esac
+}
+export -f ln
+`
+			if tc.failure == "no_brew" {
+				command += `command() {
+  if [ "$1:$2" = '-v:brew' ]; then return 1; fi
+  builtin command "$@"
+}
+export -f command
+`
+			}
+			if tc.failure == "eof" {
+				command += "bash scripts/_490_test_runtime_prepare.sh --quiet </dev/null"
+			} else {
+				command += "printf '" + tc.answer + "\\n' | bash scripts/_490_test_runtime_prepare.sh --quiet"
+			}
+			env := map[string]string{"SELECTED": "full", "CI": "false", "GCC_IS_CLANG": "1", "BREW_FAILURE": tc.failure}
+			if tc.ci != "" {
+				env["CI"] = tc.ci
+			}
+			if tc.failure == "g++" {
+				env["FAILED_COMPILER"] = "g++"
+			}
+			if tc.failure == "runtime" {
+				env["RUNTIME_STATUS"] = "23"
+			}
+			if tc.failure == "clang" {
+				env["GCC_IS_CLANG"] = "0"
+				env["FAILED_COMPILER"] = "clang"
+			}
+			out, err := runFixture(t, root, command, env)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, tc.wantSuccess, err == nil, out+string(logBytes))
+			if tc.wantInstall {
+				calls, readErr := os.ReadFile(filepath.Join(root, "brew.calls"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "install gcc\n", string(calls))
+				assert.Contains(t, out, "outside this checkout")
+				assert.Contains(t, out, "fixture installation progress")
+				assert.NotContains(t, out, "locally under temp/tools?")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "brew.calls"))
+			}
+			if tc.wantSuccess {
+				assert.FileExists(t, filepath.Join(root, "workflow.called"))
+				assert.FileExists(t, filepath.Join(root, "temp/tools/host-gcc/.ready"))
+				out, err = runFixture(t, root, "source scripts/_100_test_common.sh; command -v gcc; command -v g++", nil)
+				assert.NoError(t, err, out)
+				assert.Contains(t, out, "/temp/tools/host-gcc/bin/gcc")
+				assert.Contains(t, out, "/temp/tools/host-gcc/bin/g++")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				assert.NoFileExists(t, filepath.Join(root, "temp/tools/host-gcc/.ready"))
+				if tc.failure == "install" {
+					assert.Contains(t, string(logBytes), "brew install gcc exited with status 23")
+				}
+			}
+		})
+	}
+}
+
+// testWindowsHostCompilerBundle validates architecture selection, verified
+// downloads, refusal/failure handling and reuse in independently started steps.
+// The archive and compilers are doubles; these tests never install a real SDK.
+func testWindowsHostCompilerBundle(t *testing.T) {
+	for _, tc := range []struct{ name, arch, failure, answer string }{
+		{"amd64", "amd64", "", "yes"}, {"386", "386", "", "yes"},
+		{"unsupported_arch", "arm64", "architecture", "yes"},
+		{"declined", "amd64", "declined", "no"},
+		{"download", "amd64", "download", "yes"},
+		{"checksum", "amd64", "checksum", "yes"},
+		{"extract", "amd64", "extract", "yes"},
+		{"missing_frontend", "amd64", "missing_frontend", "yes"},
+		{"broken_bundle", "amd64", "probe", "yes"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := hostPreparationFixture(t, "MINGW64_NT-10.0")
+			nativeDownloadFixture(t, root)
+			// Installed tools are separate from the intentionally broken system Clang.
+			for _, compiler := range []string{"cc", "gcc", "clang", "c++", "g++", "clang++"} {
+				source, err := os.ReadFile(filepath.Join(root, "bin", compiler))
+				assert.NoError(t, err)
+				installed := strings.ReplaceAll(string(source), "${FAILED_COMPILER:-}", "${INSTALLED_FAILED_COMPILER:-}")
+				writeFixture(t, root, "seed/"+compiler, installed)
+				writeFixture(t, root, "seed/"+compiler+".exe", installed)
+			}
+			writeFixture(t, root, "seed/clangd.exe", "#!/bin/sh\nexit 0\n")
+			writeFixture(t, root, "seed/mingw32-make.exe", "#!/bin/sh\necho 'GNU Make 4.4.1'\n")
+			writeFixture(t, root, "bin/unzip", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -d ]; then
+    mkdir -p "$2/$PACKAGE_ROOT/bin"
+    cp seed/* "$2/$PACKAGE_ROOT/bin/" || exit 23
+    if [ "${NATIVE_FAIL:-}" = missing_frontend ]; then rm "$2/$PACKAGE_ROOT/bin/clang++.exe"; fi
+    exit 0
+  fi
+  shift
+done
+exit 91
+`)
+			packageRoot, packageArch := "mingw64", "x86_64-posix-seh"
+			digest := "1f04e482797dc5f71fe2875cf2b743bfb9f5fd1de0955fdd3118438c0432ba5f"
+			if tc.arch == "386" {
+				packageRoot, packageArch = "mingw32", "i686-posix-dwarf"
+				digest = "9353f386f7a678ab41b0746db43211c4b6b8ab2811d2edb289f0496711fb1c9b"
+			}
+			packageDir := "temp/tools/host/winlibs-" + packageArch + "-gcc-16.2.0-llvm-23.1.3-mingw-w64ucrt-14.0.0-r3"
+			env := map[string]string{
+				"SELECTED": "full", "CI": "false", "FAILED_COMPILER": "clang", "HOST_GOARCH": tc.arch,
+				"PINNED_DIGEST": digest, "NATIVE_FAIL": tc.failure, "PACKAGE_ROOT": packageRoot,
+			}
+			if tc.failure == "probe" {
+				env["INSTALLED_FAILED_COMPILER"] = "clang"
+			}
+			out, err := runFixture(t, root, "printf '"+tc.answer+"\\n' | bash scripts/_490_test_runtime_prepare.sh --quiet", env)
+			logBytes, readErr := os.ReadFile(filepath.Join(root, "temp/log/_490_test_runtime_prepare.log"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, tc.failure != "", err != nil, out+string(logBytes))
+			if tc.failure != "" {
+				assert.NoFileExists(t, filepath.Join(root, packageDir, ".ready"))
+				assert.NoFileExists(t, filepath.Join(root, "workflow.called"))
+				if tc.failure == "declined" || tc.failure == "architecture" {
+					assert.NoFileExists(t, filepath.Join(root, "download.calls"))
+				}
+				if tc.failure == "checksum" || tc.failure == "download" {
+					assert.NoFileExists(t, filepath.Join(root, "extract.calls"))
+				}
+				return
+			}
+			assert.FileExists(t, filepath.Join(root, packageDir, ".ready"))
+			assert.FileExists(t, filepath.Join(root, packageDir, packageRoot, "bin/make.exe"))
+			assert.FileExists(t, filepath.Join(root, "workflow.called"))
+			downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			assert.Contains(t, string(downloads), "winlibs-"+packageArch)
+			env["CI"] = "true"
+			out, err = runFixture(t, root, "bash scripts/_490_test_runtime_prepare.sh --quiet && source scripts/_100_test_common.sh && command -v clang", env)
+			assert.NoError(t, err, out)
+			assert.NotContains(t, out, "Install native GCC")
+			assert.Contains(t, out, "/"+packageDir+"/"+packageRoot+"/bin/clang")
+			after, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, string(downloads), string(after), "a verified cache requires neither confirmation nor another download")
+		})
+	}
+}
+
+// TestClangWorkerDetachesBuildInput keeps noninteractive Make recipes away from
+// the caller's terminal while preserving build failures and compiler diagnostics.
+func TestClangWorkerDetachesBuildInput(t *testing.T) {
+	for _, tc := range []struct {
+		name                     string
+		cleanStatus, buildStatus int
+		warning                  bool
+	}{
+		{name: "successful_build"},
+		{name: "compiler_warning", warning: true},
+		{name: "clean_failure", cleanStatus: 17},
+		{name: "build_failure", buildStatus: 23},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_180_clang_translation_worker.sh")
+			writeFixture(t, root, "scripts/_150_setup_build_environment.sh", ":\n")
+			writeFixture(t, root, "bin/clang", "#!/bin/sh\necho fixture-clang\n")
+			writeFixture(t, root, "bin/make", `#!/bin/sh
+# Any readable caller input means the worker failed to detach this build phase.
+if IFS= read -r unexpected; then
+  echo "unexpected build input: $unexpected"
+  exit 91
+fi
+echo "EOF for $1"
+case "$1" in
+  clean) exit "$CLEAN_STATUS" ;;
+  probe-build) exit "$BUILD_STATUS" ;;
+  *) exit 92 ;;
+esac
+`)
+			writeFixture(t, root, "examples/G0B1_inst/build_with_clang.sh", "#!/bin/sh\nexec make probe-build\n")
+			logText := ""
+			if tc.warning {
+				logText = "warning: fixture compiler diagnostic\n"
+			}
+			writeFixture(t, root, "worker.log", logText)
+			// The sentinel remains available to the caller even if either build fails.
+			out, err := runFixture(t, root, `export LOGFILE="$PWD/worker.log"
+printf '%s\n' caller-input | (
+  bash scripts/_180_clang_translation_worker.sh
+  status=$?
+  IFS= read -r remaining
+  printf 'remaining input: %s\n' "$remaining"
+  exit "$status"
+)
+`, map[string]string{"CLEAN_STATUS": strconv.Itoa(tc.cleanStatus), "BUILD_STATUS": strconv.Itoa(tc.buildStatus)})
+			wantStatus := tc.cleanStatus
+			if wantStatus == 0 {
+				wantStatus = tc.buildStatus
+			}
+			if wantStatus == 0 {
+				assert.NoError(t, err, out)
+			} else if assert.Error(t, err, out) {
+				assert.Equal(t, "exit status "+strconv.Itoa(wantStatus), err.Error(), out)
+			}
+			assert.Contains(t, out, "EOF for clean")
+			assert.Contains(t, out, "remaining input: caller-input")
+			assert.NotContains(t, out, "unexpected build input")
+			if tc.cleanStatus == 0 {
+				assert.Contains(t, out, "EOF for probe-build")
+			} else {
+				assert.NotContains(t, out, "EOF for probe-build")
+			}
+			assert.Equal(t, tc.warning, strings.Contains(out, "Hint: clang translation completed with compiler warnings"), out)
 		})
 	}
 }
@@ -979,7 +2557,7 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 // records actual arguments and never rewrites the documentation sources.
 func manualMaintenanceFixture(t *testing.T) string {
 	t.Helper()
-	root := scriptFixture(t, "scripts/_310_refresh_trice_user_manual.sh")
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_310_refresh_trice_user_manual.sh", "scripts/_440_test_manual_format.sh")
 	for _, path := range []string{
 		"docs/TriceUserManual.md",
 		"docs/rm/README.md", "docs/rm/HEADER.md", "docs/rm/FOOTER.md", "docs/rm/INDEX.md",
@@ -992,6 +2570,7 @@ func manualMaintenanceFixture(t *testing.T) string {
 	writeFixture(t, root, "docs/rm/short.md", "# Short chapter\n\n```md\n## Example heading\n```\n\n<!--\n## Retired heading\n-->\n")
 	writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Overview](overview.md)\n- [Encoding](binary encoding.md)\n- [RTT](rtt.md)\n- [Short](short.md)\n- [Introduction](HEADER.md)\n- [Footer](FOOTER.md)\n")
 	writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+if [ "$1" = --version ]; then printf 'mdtoc 1.0.3\n'; exit 0; fi
 [ "$#" -eq 3 ] || exit 91
 printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
 if [ "$3" = "$REJECTED" ]; then
@@ -1000,6 +2579,67 @@ if [ "$3" = "$REJECTED" ]; then
 fi
 `)
 	return root
+}
+
+// TestManualPinnedMdtoc rejects an incompatible formatter before processing a
+// chapter and accepts a tagged Go install only after explicit consent.
+func TestManualPinnedMdtoc(t *testing.T) {
+	for _, tc := range []struct {
+		name, version, moduleVersion, answer string
+		accepted, installed                  bool
+	}{
+		{"release", "mdtoc 1.0.3", "", "", true, false},
+		{"old_release_declined", "mdtoc 0.3.3", "", "no", false, false},
+		{"unverified_dev_declined", "mdtoc dev", "v0.3.3", "no", false, false},
+		{"pinned_dev", "mdtoc dev", "v1.0.3", "", true, false},
+		{"old_release_approved", "mdtoc 0.3.3", "v1.0.3", "yes", true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := manualMaintenanceFixture(t)
+			writeFixture(t, root, "bin/mdtoc", `#!/bin/sh
+if [ "$1" = --version ]; then printf '%s\n' "$MDTOC_FIXTURE_VERSION"; exit 0; fi
+printf '%s --file %s\n' "$1" "$3" >> mdtoc.calls
+`)
+			writeFixture(t, root, "seed/mdtoc", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo 'mdtoc dev'; else printf '%s --file %s\\n' \"$1\" \"$3\" >> mdtoc.calls; fi\n")
+			writeFixture(t, root, "bin/go", `#!/bin/sh
+if [ "$1" = install ]; then
+  printf '%s\n' "$2" > installed-package.txt
+  cp seed/mdtoc "$GOBIN/mdtoc"
+  exit 0
+fi
+[ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v mdtoc)" ] || exit 91
+printf 'fixture: go1.25\n\tpath\tgithub.com/rokath/mdtoc/cmd/mdtoc\n\tmod\tgithub.com/rokath/mdtoc\t%s\th1:fixture\n' "$MDTOC_MODULE_VERSION"
+`)
+			command := "bash scripts/_310_refresh_trice_user_manual.sh check"
+			if tc.answer != "" {
+				command = "printf '" + tc.answer + "\\n' | " + command
+			}
+			out, err := runFixture(t, root, command, map[string]string{
+				"MDTOC_FIXTURE_VERSION": tc.version, "MDTOC_MODULE_VERSION": tc.moduleVersion, "CI": "false",
+			})
+			assert.Equal(t, tc.accepted, err == nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "mdtoc.calls"))
+			if tc.accepted {
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(calls), "check --file docs/rm/rtt.md")
+			} else {
+				assert.True(t, os.IsNotExist(readErr), out)
+				assert.Contains(t, out, "mdtoc v1.0.3 is required")
+			}
+			installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
+			if tc.installed {
+				assert.NoError(t, readErr)
+				assert.Equal(t, "github.com/rokath/mdtoc/cmd/mdtoc@v1.0.3\n", string(installed))
+			} else {
+				assert.True(t, os.IsNotExist(readErr), out)
+			}
+			if tc.name == "old_release_declined" {
+				out, err = runFixture(t, root, "bash scripts/_440_test_manual_format.sh", map[string]string{"MDTOC_FIXTURE_VERSION": tc.version, "CI": "true"})
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "FAIL: _310_refresh_trice_user_manual.sh check failed")
+			}
+		})
+	}
 }
 
 // TestManualMaintenanceIncludesChapters verifies check/format dispatch, automatic
@@ -1140,6 +2780,7 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 		{"empty_reference_output_is_not_success", "", "", "TriceReferenceManual", "", ""},
 		{"pinned_go_install_dev_build", "", "", "", "pinned", ""},
 		{"pinned_go_install_crlf_metadata", "", "", "", "crlf", ""},
+		{"approved_missing_stitcher", "", "", "", "install_missing", ""},
 		{"missing_stitcher", "", "", "", "missing", "stitchmd 0.9.0 is required; install with:"},
 		{"wrong_release", "", "", "", "wrong_release", "stitchmd 0.9.0 is required for reproducible PDF assembly"},
 		{"failed_version_command", "", "", "", "failed_version", "cannot read stitchmd version"},
@@ -1166,7 +2807,7 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 				}
 				writeFixture(t, root, "docs/"+manual+".pdf", "previous "+manual)
 			}
-			writeFixture(t, root, "bin/node", "#!/bin/sh\necho fixture-node\n")
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
 			writeFixture(t, root, "bin/npm", "#!/bin/sh\necho fixture-npm\n")
 			writeFixture(t, root, "bin/stitchmd", `#!/bin/sh
 if [ "$1" = -version ]; then
@@ -1183,6 +2824,11 @@ printf '# Reference\n' > temp/manual-pdf/TriceReferenceManual.md
 			// Metadata doubles model go install and reject nearby but unpinned
 			// identities. The selected binary must be the one inspected by Go.
 			writeFixture(t, root, "bin/go", `#!/bin/sh
+[ "$1" != install ] || {
+  printf '%s\n' "$2" > installed-package.txt
+  cp bin/stitchmd "$GOBIN/stitchmd"
+  exit 0
+}
 [ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v stitchmd)" ] || exit 93
 case "$STITCHMD_FIXTURE" in
   failed_metadata) echo 'unreadable executable'; exit 18 ;;
@@ -1235,9 +2881,17 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 				}
 				command = "command() { if [ \"$1\" = -v ] && [ \"$2\" = " + hidden + " ]; then return 1; fi; builtin command \"$@\"; }; source scripts/_320_generate_trice_user_manual_pdf.sh"
 			}
+			if tc.stitcher == "install_missing" {
+				command = "printf 'yes\\n' | { command() { if [ \"$1\" = -v ] && [ \"$2\" = stitchmd ] && [ ! -f temp/tools/bin/stitchmd ]; then return 1; fi; builtin command \"$@\"; }; source scripts/_320_generate_trice_user_manual_pdf.sh; }"
+			}
 			out, err := runFixture(t, root, command, map[string]string{
-				"FAILED": tc.failed, "EMPTY": tc.empty, "STITCHMD_FIXTURE": tc.stitcher,
+				"FAILED": tc.failed, "EMPTY": tc.empty, "STITCHMD_FIXTURE": tc.stitcher, "CI": "false",
 			})
+			if tc.stitcher == "install_missing" {
+				installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "go.abhg.dev/stitchmd@v0.9.0\n", string(installed))
+			}
 			if tc.missing != "" {
 				assert.Error(t, err, out)
 				missing := "docs/TriceUserManual.md"
@@ -1417,7 +3071,15 @@ fs.rmSync('docs/rm/b.md');
 assert.throws(() => helper.prepare(marked,process.cwd()), /missing or empty reference source/);
 console.log('PASS: README order, cleanup, sources, code, comments, images, anchors and rejected broken inputs');
 `)
-	out, err := runFixture(t, root, "npx --offline -y --package=md-to-pdf@5.2.4 --package=puppeteer@24.31.0 -c 'node check.cjs'", nil)
+	command := "npx --offline -y --package=md-to-pdf@5.2.5 --package=puppeteer@25.16.0 -c 'node check.cjs'"
+	environment := map[string]string{}
+	if tools := os.Getenv("TRICE_TEST_NPM_DIR"); tools != "" {
+		// Native runs use the checked-in npm lock without depending on a
+		// pre-existing npx cache or performing HTTP during the actual test.
+		command = "node check.cjs"
+		environment["NODE_PATH"] = filepath.Join(tools, "node_modules")
+	}
+	out, err := runFixture(t, root, command, environment)
 	if err != nil && (strings.Contains(out, "ENOTCACHED") || strings.Contains(out, "cache mode is 'only-if-cached'")) {
 		t.Skip("pinned PDF renderer is not cached; this test never downloads npm packages")
 	}
@@ -1441,7 +3103,20 @@ func workflowShellStep(t *testing.T, workflow, step string) string {
 	return strings.ReplaceAll(match[1], "\n          ", "\n")[10:]
 }
 
-// TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow steps
+// runPagesFixture keeps the actual workflow command while supplying the same
+// verified interpreter used by download tests, including Windows' py -3.
+func runPagesFixture(t *testing.T, root string) (string, error) {
+	t.Helper()
+	python := python3Command(t)
+	quoted := make([]string, len(python))
+	for index, arg := range python {
+		quoted[index] = "'" + strings.ReplaceAll(filepath.ToSlash(arg), "'", "'\"'\"'") + "'"
+	}
+	writeFixture(t, root, "bin/python3", "#!/bin/sh\nexec "+strings.Join(quoted, " ")+" \"$@\"\n")
+	return runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+}
+
+// TestManualPagesLinksKeepReadersOnTheSite executes the actual workflow step
 // on tiny documents. Source links and images must retain their distinct roles.
 func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 	for _, tc := range []struct{ name, newline string }{{"LF", "\n"}, {"CRLF", "\r\n"}} {
@@ -1456,8 +3131,10 @@ func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 func checkManualPagesLinks(t *testing.T, newline string) {
 	t.Helper()
 	lineEndings := func(text string) string { return strings.ReplaceAll(text, "\n", newline) }
-	root := t.TempDir()
+	root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
 	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/performance.md)\n")
+	writeFixture(t, root, "docs/ref/example.png", "image bytes")
+	writeFixture(t, root, "docs/ref/example.gif", "animation bytes")
 	writeFixture(t, root, "docs/README.md", lineEndings("[Guide](TriceGuide.md#entry-points)\n"))
 	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
 		writeFixture(t, root, "docs/"+manual+".md", lineEndings("[Guide](./TriceUserManual.md#see-your-first-log)\n[Reference](./rm/bind.md#bind-limits)\n[Code](../src/trice.h)\n[Help](./ref/trice-help-all.txt)\n![Image](./ref/example.png)\n[Local](#local)\n"))
@@ -1469,17 +3146,16 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 	chapter = lineEndings(chapter + "UTF-8: café, µs.\n")
 	writeFixture(t, root, "docs/rm/bind.md", chapter)
 	writeFixture(t, root, "docs/rm/performance.md", lineEndings("# Trice Performance\n"))
-	for _, step := range []string{"Generate index.md from README.md for GitHub Pages", "Prepare documentation for GitHub Pages"} {
-		out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", step), nil)
-		assert.NoError(t, err, out)
-	}
-	index, err := os.ReadFile(filepath.Join(root, "index.md"))
+	out, err := runPagesFixture(t, root)
+	assert.NoError(t, err, out)
+	site := filepath.Join(root, "temp", "pages-source")
+	index, err := os.ReadFile(filepath.Join(site, "README.md"))
 	assert.NoError(t, err)
 	assert.Contains(t, string(index), "./docs/TriceUserManual.html#see-your-first-log")
-	assert.Contains(t, string(index), "./docs/rm/README.html")
+	assert.Contains(t, string(index), "./docs/rm/index.html")
 	assert.Contains(t, string(index), "docs/rm/performance.html")
 	for _, manual := range []string{"TriceUserManual", "TriceGuide"} {
-		data, err := os.ReadFile(filepath.Join(root, "docs", manual+".md"))
+		data, err := os.ReadFile(filepath.Join(site, "docs", manual+".md"))
 		assert.NoError(t, err)
 		assert.Contains(t, string(data), "[Guide](./TriceUserManual.html#see-your-first-log)")
 		assert.Contains(t, string(data), "[Reference](./rm/bind.html#bind-limits)")
@@ -1488,7 +3164,7 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 		assert.Contains(t, string(data), "![Image](./ref/example.png)")
 		assert.Contains(t, string(data), "[Local](#local)")
 	}
-	data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
+	data, err := os.ReadFile(filepath.Join(site, "docs/rm/bind.md"))
 	assert.NoError(t, err)
 	for _, expected := range []string{
 		"[User](../TriceUserManual.html#see-your-first-log)",
@@ -1510,15 +3186,25 @@ func checkManualPagesLinks(t *testing.T, newline string) {
 	assert.Equal(t, strings.Count(chapter, "\n"), strings.Count(string(data), "\n"), "link rewriting must retain line boundaries")
 	assert.Equal(t, strings.Count(chapter, "\r\n"), strings.Count(string(data), "\r\n"), "authored line endings must survive on every host")
 	assert.NoFileExists(t, filepath.Join(root, "docs/TriceReferenceManual.md"))
+	original, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
+	assert.NoError(t, err)
+	assert.Equal(t, chapter, string(original), "the checkout remains authored Markdown")
+	for _, path := range []string{"index.md", "_config.yml", "docs/ref/example.png", "docs/ref/example.gif"} {
+		source, err := os.ReadFile(filepath.Join(root, path))
+		assert.NoError(t, err)
+		staged, err := os.ReadFile(filepath.Join(site, path))
+		assert.NoError(t, err)
+		assert.Equal(t, source, staged, path)
+	}
 }
 
 // TestManualPagesRequiresActiveSources verifies missing inputs are reported
 // before the workflow can partially rewrite its remaining documentation.
 func TestManualPagesRequiresActiveSources(t *testing.T) {
-	paths := []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
+	paths := []string{"index.md", "_config.yml", "README.md", "docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
 	for _, missing := range paths {
 		t.Run(missing, func(t *testing.T) {
-			root := t.TempDir()
+			root := scriptFixture(t, "scripts/_prepare_pages.py")
 			for _, path := range paths {
 				if path != missing {
 					writeFixture(t, root, path, "[Reference](./rm/bind.md#bind-limits)\n")
@@ -1527,12 +3213,81 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 			// Even byte-sensitive input must survive a failed preflight unchanged.
 			chapter := "\xef\xbb\xbf[User](../TriceUserManual.md)\r\n"
 			writeFixture(t, root, "docs/rm/bind.md", chapter)
-			out, err := runFixture(t, root, workflowShellStep(t, "pages.yml", "Prepare documentation for GitHub Pages"), nil)
+			out, err := runPagesFixture(t, root)
 			assert.Error(t, err, out)
-			assert.Contains(t, out, "ERROR: missing documentation source: "+missing)
+			assert.Contains(t, out, "ERROR: missing or empty Pages source: "+missing)
 			data, err := os.ReadFile(filepath.Join(root, "docs/rm/bind.md"))
 			assert.NoError(t, err)
 			assert.Equal(t, chapter, string(data), "preflight failure must not rewrite surviving chapters")
+		})
+	}
+}
+
+// TestManualPagesPublicationScope checks observable staging boundaries and links,
+// including repeat builds after a resource disappears from the documentation.
+func TestManualPagesPublicationScope(t *testing.T) {
+	root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+	for _, path := range []string{"README.md", "docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"} {
+		writeFixture(t, root, path, "# Documentation\n")
+	}
+	readme := "[![License](https://example.com/badge.svg)](LICENSE.md)\n[![Animation](docs/ref/preview.png)](docs/ref/demo.gif)\n<img src=\"docs/ref/space%20image.png\" alt=\"Image\">\n[Manual](https://github.com/rokath/trice/blob/main/docs/TriceUserManual.md?q=1#start)\n[Download](third_party/package.zip)\n[Archive](docs/obsolete/old.md)\n"
+	writeFixture(t, root, "README.md", readme)
+	writeFixture(t, root, "docs/rm/templates.md", "# Templates\n\n`{{name}}` and `{{1,2}}`\n```text\n{% endraw %}\n```\n")
+	for _, path := range []string{"docs/ref/preview.png", "docs/ref/demo.gif", "docs/ref/space image.png", "docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md"} {
+		writeFixture(t, root, path, "original bytes")
+	}
+	out, err := runPagesFixture(t, root)
+	assert.NoError(t, err, out)
+	site := filepath.Join(root, "temp/pages-source")
+	data, err := os.ReadFile(filepath.Join(site, "README.md"))
+	assert.NoError(t, err)
+	assert.Contains(t, string(data), "](https://github.com/rokath/trice/blob/main/LICENSE.md)")
+	assert.Contains(t, string(data), "[Manual](docs/TriceUserManual.html?q=1#start)")
+	assert.Contains(t, string(data), "[Download](https://github.com/rokath/trice/blob/main/third_party/package.zip)")
+	assert.Contains(t, string(data), "[Archive](https://github.com/rokath/trice/blob/main/docs/obsolete/old.md)")
+	templates, err := os.ReadFile(filepath.Join(site, "docs/rm/templates.md"))
+	assert.NoError(t, err)
+	assert.Contains(t, string(templates), "`{% raw %}{{{% endraw %}name}}` and `{% raw %}{{{% endraw %}1,2}}`")
+	assert.Contains(t, string(templates), "```text\n{% raw %}{%{% endraw %} endraw %}\n```", "even literal Liquid delimiters remain documentation")
+	for _, path := range []string{"docs/ref/preview.png", "docs/ref/demo.gif", "docs/ref/space image.png"} {
+		copied, err := os.ReadFile(filepath.Join(site, path))
+		assert.NoError(t, err)
+		assert.Equal(t, "original bytes", string(copied), "referenced image bytes must survive")
+	}
+	for _, path := range []string{"docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md", "scripts/_prepare_pages.py"} {
+		assert.NoFileExists(t, filepath.Join(site, path), "unselected files must not be published")
+	}
+	writeFixture(t, root, "README.md", "# Updated homepage\n")
+	out, err = runPagesFixture(t, root)
+	assert.NoError(t, err, out)
+	assert.NoFileExists(t, filepath.Join(site, "docs/ref/demo.gif"), "a repeat build removes stale staged resources")
+	assert.FileExists(t, filepath.Join(root, "docs/ref/demo.gif"), "source assets are never deleted")
+}
+
+// TestManualPagesRejectsBrokenResources requires a useful diagnostic and keeps
+// the previous staging tree intact when a new input cannot be published.
+func TestManualPagesRejectsBrokenResources(t *testing.T) {
+	for _, tc := range []struct{ name, link, resource, diagnostic string }{
+		{"missing_image", "![Missing](docs/ref/missing.png)", "", "missing or empty Pages source: docs/ref/missing.png"},
+		{"empty_image", "![Empty](docs/ref/empty.png)", "docs/ref/empty.png", "missing or empty Pages source: docs/ref/empty.png"},
+		{"escaping_link", "[Outside](../outside.md)", "", "link escapes repository in README.md"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+			for _, path := range []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"} {
+				writeFixture(t, root, path, "# Documentation\n")
+			}
+			writeFixture(t, root, "README.md", tc.link)
+			writeFixture(t, root, "temp/pages-source/previous.txt", "previous build")
+			if tc.resource != "" {
+				writeFixture(t, root, tc.resource, "")
+			}
+			out, err := runPagesFixture(t, root)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.diagnostic)
+			previous, err := os.ReadFile(filepath.Join(root, "temp/pages-source/previous.txt"))
+			assert.NoError(t, err)
+			assert.Equal(t, "previous build", string(previous))
 		})
 	}
 }
@@ -1674,7 +3429,7 @@ func TestClangFormatSkipsDeletedPaths(t *testing.T) {
 				root := scriptFixture(t, "scripts/_280_format_c_code.sh")
 				writeFixture(t, root, "bin/git", "#!/bin/sh\nprintf '%s\\n' 'active file.c' removed.c\n")
 				writeFixture(t, root, "bin/formatter", `#!/bin/sh
-if [ "$1" = --version ]; then echo 'clang-format version 23.1.2'; exit 0; fi
+if [ "$1" = --version ]; then echo 'clang-format version 23.1.3'; exit 0; fi
 for arg; do
   case "$arg" in
     --files=*)
@@ -1716,8 +3471,8 @@ func TestClangFormatCompatibility(t *testing.T) {
 		version, replacements string
 		failure               bool
 	}{
-		{"19.1.7", "1", false}, {"23.1.20", "1", false}, {"24.1.0", "1", false}, {"unknown", "1", false},
-		{"23.1.2", "0", false}, {"23.1.2", "1", true}, {"missing", "0", false},
+		{"19.1.7", "1", false}, {"23.1.30", "1", false}, {"24.1.0", "1", false}, {"unknown", "1", false},
+		{"23.1.3", "0", false}, {"23.1.3", "1", true}, {"missing", "0", false},
 	} {
 		t.Run(tc.version+"_"+tc.replacements, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_430_test_clang_format.sh", "scripts/_280_format_c_code.sh")
@@ -1739,7 +3494,7 @@ fi
 			out, err := runFixture(t, root, "bash scripts/_430_test_clang_format.sh", map[string]string{"CLANG_FORMAT_BIN": formatter, "VERSION": tc.version, "REPLACEMENTS": tc.replacements})
 			assert.Equal(t, tc.failure, err != nil, out)
 			assert.NotContains(t, out, "unexpected-go")
-			if tc.version != "23.1.2" {
+			if tc.version != "23.1.3" {
 				assert.Contains(t, out, "SKIP:")
 			}
 			if tc.failure {
@@ -1766,7 +3521,7 @@ func clangBootstrapFixture(t *testing.T, platform string) (string, map[string]st
 	writeFixture(t, root, "sample.c", "int value=1;\n")
 	writeFixture(t, root, "seed/formatter", `#!/bin/sh
 if [ "$1" = --version ]; then
-  echo "clang-format version ${INSTALLED_VERSION:-23.1.2}"
+  echo "clang-format version ${INSTALLED_VERSION:-23.1.3}"
 else
   if [ "$1" = -i ]; then echo 'int value = 1;' > sample.c; fi
 fi
@@ -1809,14 +3564,14 @@ func TestClangFormatAutomaticSetup(t *testing.T) {
 			root, env := clangBootstrapFixture(t, platform)
 			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh format", env)
 			assert.NoError(t, err, out)
-			assert.Contains(t, out, "Using clang-format version 23.1.2")
+			assert.Contains(t, out, "Using clang-format version 23.1.3")
 			data, err := os.ReadFile(filepath.Join(root, "sample.c"))
 			assert.NoError(t, err)
 			assert.Equal(t, "int value = 1;\n", string(data))
 			setup, err := os.ReadFile(filepath.Join(root, "setup.log"))
 			assert.NoError(t, err)
 			assert.Equal(t, 1, strings.Count(string(setup), "pip -m pip install "))
-			assert.Contains(t, string(setup), "clang-format==23.1.2")
+			assert.Contains(t, string(setup), "clang-format==23.1.3")
 			assert.Contains(t, string(setup), "--only-binary=:all:")
 			assert.Contains(t, string(setup), "--no-input")
 			if env["VENV_BIN"] == "Scripts" {
@@ -1844,13 +3599,70 @@ func TestClangFormatAutomaticSetup(t *testing.T) {
 	}
 }
 
+// TestClangFormatWindowsWithoutPython exercises the verified native wheel path,
+// failure boundaries, CRLF version output, architectures and offline cache reuse.
+func TestClangFormatWindowsWithoutPython(t *testing.T) {
+	for _, machine := range []string{"x86_64", "aarch64"} {
+		for _, failure := range []string{"", "download", "checksum", "extract", "version"} {
+			t.Run(machine+"/failure_"+failure, func(t *testing.T) {
+				root, env := clangBootstrapFixture(t, "MINGW64_NT-10.0")
+				nativeDownloadFixture(t, root)
+				env["CI"], env["FAIL_STAGE"], env["NATIVE_FAIL"], env["MACHINE"] = "false", "python", failure, machine
+				env["PINNED_DIGEST"] = "6c2b74c3a3e942ec172d768e7b945f8e136db05a7b735d49ecfc69bda97643ad"
+				wheelPlatform := "win_amd64"
+				if machine == "aarch64" {
+					env["PINNED_DIGEST"] = "583af22e6593b8ea463412cf3411f55731f117546ad13e88b9ce585e7c47475f"
+					wheelPlatform = "win_arm64"
+				}
+				writeFixture(t, root, "bin/uname", "#!/bin/sh\nif [ \"$1\" = -s ]; then echo \"$PLATFORM\"; else echo \"$MACHINE\"; fi\n")
+				writeFixture(t, root, "bin/unzip", `#!/bin/sh
+printf '%s\n' "$*" >> extract.calls
+[ "${NATIVE_FAIL:-}" != extract ] || exit 23
+mkdir -p "$5/clang_format/data/bin"
+cp "$SEED_FORMATTER" "$5/clang_format/data/bin/clang-format.exe"
+`)
+				writeFixture(t, root, "seed/formatter", `#!/bin/sh
+if [ "$1" = --version ]; then printf 'clang-format version %s\r\n' "${INSTALLED_VERSION:-23.1.3}"; fi
+`)
+				if failure == "version" {
+					env["INSTALLED_VERSION"] = "23.1.30"
+				}
+				out, err := runFixture(t, root, "printf 'yes\\r\\n' | bash scripts/_280_format_c_code.sh check", env)
+				assert.Equal(t, failure != "", err != nil, out)
+				assert.NoFileExists(t, filepath.Join(root, "setup.log"), "Python setup must not run")
+				data, readErr := os.ReadFile(filepath.Join(root, "sample.c"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "int value=1;\n", string(data))
+				if failure == "download" || failure == "checksum" {
+					assert.NoFileExists(t, filepath.Join(root, "extract.calls"))
+				}
+				if failure != "" {
+					assert.Contains(t, out, "FAIL:")
+					return
+				}
+				assert.Contains(t, out, "Using clang-format version 23.1.3")
+				downloads, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(downloads), "clang_format-23.1.3-py2.py3-none-"+wheelPlatform+".whl")
+				env["CI"], env["NATIVE_FAIL"] = "true", "download"
+				out, err = runFixture(t, root, "bash scripts/_280_format_c_code.sh check", env)
+				assert.NoError(t, err, out)
+				assert.NotContains(t, out, "SKIP:")
+				after, readErr := os.ReadFile(filepath.Join(root, "download.calls"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, string(downloads), string(after))
+			})
+		}
+	}
+}
+
 // TestClangFormatSetupOnly ensures CI can bootstrap without normalizing sources
 // before the check, which would otherwise hide a formatting regression.
 func TestClangFormatSetupOnly(t *testing.T) {
 	root, env := clangBootstrapFixture(t, "Linux")
 	out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh setup", env)
 	assert.NoError(t, err, out)
-	assert.Contains(t, out, "Ready: clang-format version 23.1.2")
+	assert.Contains(t, out, "Ready: clang-format version 23.1.3")
 	data, err := os.ReadFile(filepath.Join(root, "sample.c"))
 	assert.NoError(t, err)
 	assert.Equal(t, "int value=1;\n", string(data))
@@ -1874,8 +3686,8 @@ func TestClangFormatNativeCache(t *testing.T) {
 			// never substitute for this native tool, even when Python is absent.
 			env["NATIVE_FORMATTER_LOG"] = filepath.Join(root, "native-formatter.log")
 			native := strings.Replace(string(data), "#!/bin/sh\n", "#!/bin/sh\nprintf '%s\\n' \"$*\" >> \"$NATIVE_FORMATTER_LOG\"\n", 1)
-			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.native, native)
-			writeFixture(t, root, "temp/tools/clang-format-23.1.2/"+layout.launcher, "#!/bin/sh\necho broken-launcher; exit 99\n")
+			writeFixture(t, root, "temp/tools/clang-format-23.1.3/"+layout.native, native)
+			writeFixture(t, root, "temp/tools/clang-format-23.1.3/"+layout.launcher, "#!/bin/sh\necho broken-launcher; exit 99\n")
 			env["FAIL_STAGE"] = "python"
 			out, err := runFixture(t, root, "bash scripts/_280_format_c_code.sh setup", env)
 			assert.NoError(t, err, out)
@@ -1906,7 +3718,7 @@ esac
 printf 'sample.c\npath with spaces/ü.hpp\n'
 `)
 			writeFixture(t, root, "bin/formatter", `#!/bin/sh
-if [ "$1" = --version ]; then echo 'clang-format version 23.1.2'; exit 0; fi
+if [ "$1" = --version ]; then echo 'clang-format version 23.1.3'; exit 0; fi
 case "$*" in
   *-dump-config*) [ "$SCENARIO" != config-failure ]; exit $? ;;
 esac
@@ -1990,8 +3802,8 @@ func TestShfmtCompatibility(t *testing.T) {
 		version, suffix, needs string
 		failure                bool
 	}{
-		{"v3.8.0", "", "0", false}, {"v3.8.0", ".exe", "0", false},
-		{"v3.8.0", "", "1", true}, {"v3.12.0", "", "1", false},
+		{"v3.14.1", "", "0", false}, {"v3.14.1", ".exe", "0", false},
+		{"v3.14.1", "", "1", true}, {"v3.12.0", "", "1", false},
 	} {
 		t.Run(tc.version+tc.suffix+"_"+tc.needs, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_400_test_shell_format.sh", "scripts/_260_format_shell_scripts.sh")
@@ -2002,7 +3814,7 @@ func TestShfmtCompatibility(t *testing.T) {
 			out, err := runFixture(t, root, "bash scripts/_400_test_shell_format.sh", map[string]string{"SHFMT_BIN": "./bin/shfmt", "VERSION": tc.version, "NEEDS": tc.needs})
 			assert.Equal(t, tc.failure, err != nil, out)
 			assert.NotContains(t, out, "unexpected-install")
-			if tc.version != "v3.8.0" {
+			if tc.version != "v3.14.1" {
 				assert.Contains(t, out, "SKIP:")
 			}
 			data, err := os.ReadFile(filepath.Join(root, "temp/log/_400_test_shell_format.log"))
@@ -2069,25 +3881,30 @@ trice_test_run_managed_workflow bind pc unused-worker
 	}
 }
 
-// TestGoReleaserCompatibility exercises numeric minor versions and keeps schema
-// failures distinct from unsupported tool versions, including snapshot preflight.
+// TestGoReleaserCompatibility requires pinned setup before schema validation.
+// Setup failure is incomplete, while an actual configuration error stays fatal.
 func TestGoReleaserCompatibility(t *testing.T) {
-	for _, version := range []string{"v2.9.0", "2.10.0", "v2.100.0", "3.0.0", "unknown"} {
-		t.Run(version, func(t *testing.T) {
+	for _, tc := range []struct{ name, setup, check string }{
+		{"pinned_setup_unavailable", "2", "0"},
+		{"schema_failure", "0", "17"},
+		{"valid_pinned_configuration", "0", "0"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_460_test_goreleaser_config.sh", "scripts/_610_test_goreleaser_snapshot.sh")
-			writeFixture(t, root, "bin/goreleaser", "#!/bin/sh\nif [ \"$1\" = --version ]; then echo \"GitVersion: $VERSION\"; else echo schema-check; exit 17; fi\n")
-			out, err := runFixture(t, root, "bash scripts/_460_test_goreleaser_config.sh", map[string]string{"VERSION": version})
-			unsupported := version == "v2.9.0" || version == "unknown"
-			assert.Equal(t, !unsupported, err != nil, out)
-			if unsupported {
-				assert.Contains(t, out, "SKIP:")
+			common, err := os.ReadFile(filepath.Join(root, "scripts/_100_test_common.sh"))
+			assert.NoError(t, err)
+			writeFixture(t, root, "scripts/_100_test_common.sh", string(common)+`
+ensure_pinned_test_tools() { echo "requested pinned: $*"; return "$SETUP_STATUS"; }
+`)
+			writeFixture(t, root, "bin/goreleaser", "#!/bin/sh\necho schema-check\nexit \"$CHECK_STATUS\"\n")
+			out, err := runFixture(t, root, "bash scripts/_460_test_goreleaser_config.sh", map[string]string{"SETUP_STATUS": tc.setup, "CHECK_STATUS": tc.check})
+			assert.Equal(t, tc.setup != "0" || tc.check != "0", err != nil, out)
+			assert.Contains(t, out, "requested pinned: goreleaser")
+			assert.NotContains(t, out, "SKIP:")
+			if tc.setup != "0" {
 				assert.NotContains(t, out, "schema-check")
-				out, err = runFixture(t, root, "bash scripts/_610_test_goreleaser_snapshot.sh", map[string]string{"VERSION": version})
-				assert.NoError(t, err, out)
-				assert.Contains(t, out, "SKIP:")
 			} else {
 				assert.Contains(t, out, "schema-check")
-				assert.Contains(t, out, "FAIL:")
 			}
 		})
 	}
@@ -2122,6 +3939,16 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			// also contains warnings that are intentionally no longer fatal.
 			out, err = runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on quick", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log"), "BUILD_STATUS": "23"})
 			assert.Error(t, err, out)
+			if workflow == "bind" {
+				for _, status := range []string{"130", "143"} {
+					out, err = runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log"), "BUILD_STATUS": status})
+					if assert.Error(t, err, out) {
+						assert.Equal(t, "exit status "+status, err.Error(), out)
+					}
+					assert.NotContains(t, out, "standalone examples/PC_log", "cancellation must stop before the second standalone entry")
+					assert.NotContains(t, out, "matrix-bind")
+				}
+			}
 		})
 	}
 }

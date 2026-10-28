@@ -16,6 +16,94 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// sourceCaseAliasFS models either a native case alias or a distinct file while
+// retaining real FileInfo identities. This runs on both kinds of host volume.
+type sourceCaseAliasFS struct {
+	afero.Fs
+	alias, target string
+}
+
+// Stat changes only the selected source spelling; ordinary paths remain real.
+func (fs sourceCaseAliasFS) Stat(name string) (os.FileInfo, error) {
+	if filepath.Clean(name) == fs.alias {
+		name = fs.target
+	}
+	return fs.Fs.Stat(name)
+}
+
+// TestSourceCaseIdentityRequiresNativeProof prevents blanket case-folding from
+// merging distinct files, while accepting genuine aliases and overlapping roots.
+func TestSourceCaseIdentityRequiresNativeProof(t *testing.T) {
+	root := t.TempDir()
+	main, other := filepath.Join(root, "main.c"), filepath.Join(root, "other.c")
+	require.NoError(t, os.WriteFile(main, []byte("first\n"), 0o644))
+	require.NoError(t, os.WriteFile(other, []byte("second\n"), 0o644))
+	firstInfo, err := os.Stat(main)
+	require.NoError(t, err)
+	otherInfo, err := os.Stat(other)
+	require.NoError(t, err)
+	upper := filepath.Join(root, "MAIN.c")
+	for _, tc := range []struct {
+		name string
+		info os.FileInfo
+		want string
+	}{
+		{"same_native_file", firstInfo, main},
+		{"separate_case_sensitive_file", otherInfo, upper},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			aliases := make(map[string][]sourceFileIdentity)
+			identity, err := sourceIdentity(main, firstInfo, aliases)
+			require.NoError(t, err)
+			assert.Equal(t, main, identity)
+			identity, err = sourceIdentity(upper, tc.info, aliases)
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, identity)
+		})
+	}
+}
+
+// TestReservedIDsRespectNativeCaseAliases checks reuse, rejection and missing
+// source boundaries without modifying historical LI data or unrelated IDs.
+func TestReservedIDsRespectNativeCaseAliases(t *testing.T) {
+	previousRoot := LIRoot
+	t.Cleanup(func() { LIRoot = previousRoot })
+	LIRoot = t.TempDir()
+	main, other := filepath.Join(LIRoot, "main.c"), filepath.Join(LIRoot, "other.c")
+	require.NoError(t, os.WriteFile(main, []byte("first\n"), 0o644))
+	require.NoError(t, os.WriteFile(other, []byte("second\n"), 0o644))
+	upper := filepath.Join(LIRoot, "MAIN.c")
+	for _, tc := range []struct {
+		name, target        string
+		reserved, protected bool
+	}{
+		{"same_native_file_reuses_its_ID", main, false, false},
+		{"separate_file_keeps_the_other_ID_reserved", other, true, false},
+		{"missing_source_cannot_claim_an_ID", filepath.Join(LIRoot, "absent.c"), true, false},
+		{"explicitly_protected_site_stays_reserved", main, true, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			format := TriceFmt{Type: "trice", Strg: "same"}
+			locations := TriceIDLookUpLI{100: {File: "main.c", Line: 1}, 200: {File: "outside.c", Line: 1}}
+			p := idData{idToLocRef: locations, triceToId: triceFmtLookUp{format: {100, 200}},
+				sourceFS: sourceCaseAliasFS{afero.NewOsFs(), upper, tc.target}}
+			var protected map[TriceID]bool
+			if tc.protected {
+				protected = map[TriceID]bool{100: true}
+			}
+			p.reserveIDsOutside([]string{upper}, protected)
+			assert.Equal(t, tc.reserved, p.reservedIDs[100])
+			assert.True(t, p.reservedIDs[200], "unselected ownership remains protected")
+			assert.Equal(t, "main.c", locations[100].File, "reference metadata stays unchanged")
+			if tc.reserved {
+				assert.Empty(t, p.triceToId[format])
+			} else {
+				assert.Equal(t, TriceIDs{100}, p.triceToId[format])
+			}
+		})
+	}
+}
+
 // orderedReadFs changes parallel read completion order without changing bytes.
 // The delay is small and affects only the selected source's Open calls.
 type orderedReadFs struct {

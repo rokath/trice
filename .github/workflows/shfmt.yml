@@ -22,12 +22,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Install shfmt
+      - name: Read shared Go version
+        id: versions
         run: |
-          sudo apt-get update
-          sudo apt-get install -y shfmt
+          source scripts/test-tools.env
+          echo "go=$TRICE_GO_VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ steps.versions.outputs.go }}
 
       - name: Run shfmt in check mode
         run: |
+          export TRICE_TEST_AUTO_SETUP=1
           chmod +x ./scripts/_260_format_shell_scripts.sh
           ./scripts/_260_format_shell_scripts.sh check

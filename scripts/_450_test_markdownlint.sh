@@ -16,6 +16,10 @@ source "$SCRIPT_DIR/_100_test_common.sh"
 
 main() {
   init_logfile
+  if [ -z "${TRICE_TEST_NPM_DIR:-}" ]; then
+    ensure_native_report_tool || return 2
+    prepare_pinned_native_tools || return 2
+  fi
   if ! has_command markdownlint; then
     log "MISSING TOOL: markdownlint"
     log "SKIP: markdownlint not installed"

@@ -40,6 +40,10 @@
 * `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value. This is possible also on a remote device, lets say with ip address 192.168.1.200.
 * `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 
+Invalid command-line arguments print the error and one help hint on stderr, then exit with a nonzero status. The hint points to `trice help` for general command errors, to the relevant topic such as `trice help -bind` for a known subcommand, or to `tlog help` for the logging-only executable.
+
+Request detailed help explicitly with `trice help -bind`, `trice bind -h`, or `tlog help`. Help requests exit successfully; `trice help -all` lists all command options.
+
 ## 2. <a id="automatic-dictionary-reload"></a>Automatic dictionary reload
 
 Making it facile for a user to use Trice was the driving point just to have

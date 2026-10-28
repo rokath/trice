@@ -23,13 +23,17 @@ This first v2 beta introduces new instrumentation and logging workflows for inte
 - Calls without value arguments compile in strict C99 and later. Disabled backends and unused encoders no longer add unnecessary link dependencies.
 - [Deferred ID routing](docs/rm/target_routing.md#id-routing) includes both range endpoints, validates bounds and requires single-pack transfer when ID selection is active.
 - Dictionary live reload handles file replacement; finite `FILEBUFFER` replay exits promptly and releases resources.
+- Bind and Insert preserve IDs when different path spellings address the same source on a case-insensitive volume; distinct case-sensitive files stay separate.
+- The native ABC demo coordinates node startup and completion so busy hosts do not lose messages through early receiver shutdown.
 - Filters handle complete log events and their metadata; diagnostics remain visible, and statistics count decoded events before filtering.
+- Invalid CLI usage now prints the error and one [help hint](docs/rm/cli.md#common-information) instead of a full option list; explicit help remains available.
 
 ### Release and migration notes
 
 - Template syntax now treats single braces as fields. See [firmware and dictionary compatibility](docs/rm/id_management.md#compatibility-with-firmware-and-host-tool-versions).
 - CLI flags, generated-file paths, tag/filter syntax and location paths have changed. See [migration from 1.x](docs/rm/id_management.md#migrating-1x-scripts-and-projects).
 - Host source builds require Go 1.25; v2 uses release archives or local tag checkouts rather than versioned remote Go installation.
+- [Developer tests](docs/rm/target_tests.md) default to full and use declared tools with native Windows, Linux and macOS CI. External links and release artifacts have separate checks.
 - Bind and CE have different compiler/macro limits; see the [workflow comparison tables](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives).
 - Release archives now include the full MIT license and the target sources retain the SEGGER license. Beta releases use explicitly selected tags and do not update the stable Homebrew tap.
 

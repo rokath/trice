@@ -162,7 +162,7 @@ trice insert -src app -genDir generated -til til.json -li li.json
 trice clean -src app -til til.json -li li.json
 ```
 
-Like the existing workflows, these examples require an initialized TIL. The usual build integration of Bind sidecars is still required.
+Initialize the TIL as in the [Bind quick start](bind.md#quick-start) and follow its [sidecar build integration](bind.md#build-integration).
 
 The [C test examples](../../_test/testdata/triceCheck.c) also demonstrate 8-, 16-, 32- and 64-bit values, different stamps, `triceS`/`triceN`, mixed placeholders and the `aFloat()`/`aDouble()` wrappers. Their integration tests verify text output after `bind` and `insert`, using the same CLI settings as the PC target tests. Names from `motor.state` and `motorPtr->rpm` appear canonically in the field registry as `motor.state` and `motorPtr.rpm`.
 

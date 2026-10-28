@@ -11,6 +11,7 @@
 set -u
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/_100_test_common.sh"
+source "$SCRIPT_DIR/_105_setup_test_tools.sh"
 
 main() {
   local cppcheck_bin
@@ -23,10 +24,11 @@ main() {
   done
 
   init_logfile
-  if ! has_command cppcheck && [ ! -x "/c/Program Files/Cppcheck/cppcheck.exe" ]; then
-    log "MISSING TOOL: cppcheck"
-    log "SKIP: cppcheck not installed"
-    exit 0
+  # Keep setup diagnostics beside lint output even during quiet aggregate runs.
+  # The shared installer still sends interactive confirmation to the terminal.
+  if ! ensure_cppcheck_test_tool >>"$LOGFILE" 2>&1; then
+    log "FAIL: required Cppcheck version 2.22.0 is unavailable"
+    exit 1
   fi
 
   # Resolve the same cppcheck executable shape that _290_lint_c_code.sh accepts so
@@ -37,16 +39,13 @@ main() {
     cppcheck_bin="/c/Program Files/Cppcheck/cppcheck.exe"
   fi
 
-  # Older cppcheck releases lack --check-level. The helper keeps running without
-  # it; this exported flag prevents one duplicate hint per lint profile. Avoid
-  # a short-circuiting grep pipeline so an inherited pipefail cannot invert the
-  # feature result on Linux, macOS, or Windows Bash environments.
+  # Verify exhaustive-check support once, before launching the profile matrix.
   cppcheck_help="$("$cppcheck_bin" --help 2>&1 || true)"
   case "$cppcheck_help" in
     *--check-level*) ;;
     *)
-      log "Hint: cppcheck does not support --check-level; running without exhaustive checking."
-      export TRICE_CPPCHECK_CHECK_LEVEL_HINT_SHOWN=1
+      log "FAIL: Cppcheck 2.22.0 does not advertise --check-level; exhaustive checking cannot run"
+      exit 1
       ;;
   esac
 

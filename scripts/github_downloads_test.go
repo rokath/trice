@@ -3,6 +3,7 @@
 package scripts_test
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"io"
@@ -11,11 +12,83 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
+
+// selectPython3 rejects unusable commands, including Windows Store aliases and
+// Python 2, before considering another interpreter or the Windows launcher.
+func selectPython3(probe func([]string) bool) []string {
+	for _, candidate := range [][]string{{"python3"}, {"python"}, {"py", "-3"}} {
+		if probe(candidate) {
+			return candidate
+		}
+	}
+	return nil
+}
+
+// python3Command shares the optional Python prerequisite across real script
+// tests. A runnable Python 3.9+ is needed for pathlib's is_relative_to method.
+func python3Command(t *testing.T) []string {
+	t.Helper()
+	probe := func(candidate []string) bool {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		args := append(append([]string{}, candidate[1:]...), "-c", "import sys; sys.exit(0 if sys.version_info >= (3, 9) and sys.version_info.major == 3 else 1)")
+		command := exec.CommandContext(ctx, candidate[0], args...)
+		command.WaitDelay = time.Second
+		return command.Run() == nil
+	}
+	if configured := os.Getenv("TRICE_TEST_PYTHON"); configured != "" {
+		python := []string{configured}
+		require.True(t, probe(python), "configured test Python cannot run: %s", configured)
+		return python
+	}
+	python := selectPython3(probe)
+	if python == nil {
+		if os.Getenv("SELECTED") == "full" {
+			t.Fatal("full requires working Python 3.9+; runtime preparation should provide it before script tests")
+		}
+		t.Skip("working Python 3.9+ not installed; Python script tests require its standard library (Windows Store aliases do not provide Python)")
+	}
+	// Keep the verified executable when a fixture later prepends its own bin.
+	path, err := exec.LookPath(python[0])
+	require.NoError(t, err)
+	python[0] = path
+	return python
+}
+
+// TestPython3Selection covers unusable aliases, a working alternate interpreter,
+// launcher-only installs and absent/old interpreters without invoking the Store.
+func TestPython3Selection(t *testing.T) {
+	for _, tc := range []struct {
+		name, working string
+		want          []string
+	}{
+		{"python3", "python3", []string{"python3"}},
+		{"Store_alias_then_python", "python", []string{"python"}},
+		{"launcher_only", "py -3", []string{"py", "-3"}},
+		{"missing_or_unsupported", "", nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var tried []string
+			selected := selectPython3(func(candidate []string) bool {
+				name := strings.Join(candidate, " ")
+				tried = append(tried, name)
+				return name == tc.working
+			})
+			assert.Equal(t, tc.want, selected)
+			if tc.working == "" {
+				assert.Equal(t, []string{"python3", "python", "py -3"}, tried)
+			} else {
+				assert.Equal(t, tc.working, tried[len(tried)-1], "stop after the first working interpreter")
+			}
+		})
+	}
+}
 
 // downloadRelease models public release metadata without user identities or API tokens.
 func downloadRelease(id int, tag, published string, counts ...int) map[string]any {
@@ -37,16 +110,11 @@ func downloadJSON(t *testing.T, pages ...[]map[string]any) string {
 // runDownloadReport executes the production generator without network access or Git writes.
 func runDownloadReport(t *testing.T, input, directory, observedAt string) (string, error) {
 	t.Helper()
-	python, err := exec.LookPath("python3")
-	if err != nil {
-		python, err = exec.LookPath("python")
-	}
-	if err != nil {
-		t.Skip("Python 3 is not installed; download charts use its standard library")
-	}
+	python := python3Command(t)
 	file := filepath.Join(t.TempDir(), "releases.json")
 	require.NoError(t, os.WriteFile(file, []byte(input), 0600))
-	command := exec.Command(python, "github_downloads.py", file, directory, "--observed-at", observedAt)
+	args := append(append([]string{}, python[1:]...), "github_downloads.py", file, directory, "--observed-at", observedAt)
+	command := exec.Command(python[0], args...)
 	output, err := command.CombinedOutput()
 	return string(output), err
 }

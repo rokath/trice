@@ -22,12 +22,16 @@ if(MSVC)
         _CRT_SECURE_NO_WARNINGS
         WIN32_LEAN_AND_MEAN
     )
-    target_link_libraries(DemoData_CSV PRIVATE ws2_32)
 else()
     target_compile_options(DemoData_CSV PRIVATE
         -Wall -Wextra -Wpedantic
     )
     target_link_libraries(DemoData_CSV PRIVATE m)
+endif()
+
+# The Windows UDP implementation needs Winsock with MinGW as well as MSVC.
+if(WIN32)
+    target_link_libraries(DemoData_CSV PRIVATE ws2_32)
 endif()
 
 # Keep the runnable demo separate from CMake's intermediate build tree. The

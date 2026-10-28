@@ -348,7 +348,7 @@ verify_release_pdf() {
 main() {
   init_logfile
 
-  has_goreleaser_config_support || return 0
+  has_goreleaser_config_support || return 2
 
   # These are snapshot prerequisites even when GoReleaser itself is installed.
   local tool
@@ -365,6 +365,13 @@ main() {
     log "INFO: The local GoReleaser snapshot needs Node.js because the manual PDF is generated headlessly."
     exit 0
   fi
+
+  # Resolve installation consent before GoReleaser captures hook input/output.
+  # The setup mode shares the renderer's exact tool checks without generating PDFs.
+  run_cmd bash "$SCRIPTS_DIR/_320_generate_trice_user_manual_pdf.sh" setup || {
+    log "FAIL: manual PDF prerequisites unavailable; snapshot build was not started"
+    exit 1
+  }
 
   run_cmd goreleaser release --snapshot --clean || {
     log "FAIL: local GoReleaser snapshot build failed"

@@ -20,18 +20,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      # Install and run ShellCheck using a maintained GitHub Action.
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@2.0.0
-        with:
-          # Optional: you can configure which paths to scan. By default,
-          # the action will look for *.sh files in the repository.
+      - name: Read shared Go version
+        id: versions
+        run: |
+          source scripts/test-tools.env
+          echo "go=$TRICE_GO_VERSION" >> "$GITHUB_OUTPUT"
 
-          # minimum severity to report: error, warning, info, style
-          severity: warning
-          ignore_paths: "docs/_scratchPad"
-          # optional extras you *could* add:
-          # scandir: .                # where to search for scripts (default ".")
-          # ignore_paths: "vendor"    # space-separated paths to ignore
-          # ignore_names: "*.tmpl"    # ignore by filename pattern
-          # version: stable           # ShellCheck version (default: stable)
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ steps.versions.outputs.go }}
+
+      # The local entry point selects the declared ShellCheck release and
+      # retains the warning threshold and scratch-pad exclusion.
+      - name: Run ShellCheck
+        run: bash scripts/_410_test_shellcheck.sh

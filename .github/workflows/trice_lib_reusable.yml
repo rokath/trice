@@ -193,6 +193,16 @@ jobs:
 
           fi
 
+      # Setup can fail before any build output exists. Retain its diagnostics
+      # independently of the optional compiler artifacts, including on failure.
+      - name: Upload test logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: trice-lib-test-logs
+          path: temp/log/
+          if-no-files-found: warn
+
       - name: Upload build artifacts
         if: ${{ inputs.upload_artifacts }}
         uses: actions/upload-artifact@v7

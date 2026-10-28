@@ -103,7 +103,7 @@ void f1( void ){ TRICE( "No; %d", f0() ); }
 
 * This will compile normally but corrupt TRICE output.
 
-The reason is: When f1() gets active, the "No" Trice header is created, than the f0() Trice is executed and afterwards the "No" Trice tail is written. This works well during compile time but causes a mismatch during runtime.
+`f1()` creates the "No" record header, then evaluates `f0()`, which emits another record before the "No" tail is written. The interleaved records corrupt the output despite successful compilation.
 
 * Workaround:
 

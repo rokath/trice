@@ -32,124 +32,9 @@ jobs:
         # This checks out the repository so subsequent steps can read README.md,
         # the UM, Guide and RM chapters in docs/, etc.
 
-      - name: Generate index.md from README.md for GitHub Pages
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          # Create index.md with Jekyll front matter.
-          # This file is NOT committed; it only exists in the build workspace
-          # and becomes the site homepage on GitHub Pages.
-          {
-            echo '---'
-            echo 'layout: default'
-            echo '---'
-            echo
-
-            # Copy README.md, but rewrite documentation links under docs/
-            # (with or without the ./ prefix and anchors) so they
-            # target the rendered HTML page instead.
-            #
-            # Examples in README.md:
-            #   [Manual](./docs/rm/README.md)
-            #   [Speed](docs/rm/performance.md)
-            #
-            # All become (in index.md for Pages):
-            #   ...](docs/rm/performance.html)
-            sed -E 's@(\]\((\./)?docs/[^)]*)\.md([#?][^)]*)?\)@\1.html\3)@g' README.md
-          } > index.md
-
       - name: Prepare documentation for GitHub Pages
-        shell: bash
         run: |
-          set -euo pipefail
-
-          # Documentation remains GitHub-friendly in the repo
-          # with relative links like:
-          #   [freedom](../internal/emitter/lineTransformerANSI.go)
-          #   [Reference](./rm/structured_logging.md)
-          #
-          # Source links open the GitHub file view, with syntax highlighting and
-          # blame. Links between documentation pages stay on the rendered site.
-          #
-          # Strategy:
-          #   1. Resolve links relative to each source document's directory.
-          #   2. Render docs/*.md destinations as HTML links.
-          #   3. Open other repository destinations on GitHub.
-          #
-          # Notes:
-          #   - Images and linked image previews keep their local resource paths.
-          #   - Code examples and comments are preserved as authored.
-          #   - Fragments and query strings survive the destination rewrite.
-          python3 - <<'PY'
-          from pathlib import Path
-          import posixpath
-          import re
-          from urllib.parse import urlsplit
-
-          # Require the active entry points before modifying any build copy.
-          entry_points = [Path("docs/README.md"), Path("docs/TriceUserManual.md"), Path("docs/TriceGuide.md")]
-          chapters = sorted(Path("docs/rm").glob("*.md"))
-          missing = [path.as_posix() for path in [*entry_points, Path("docs/rm/README.md")] if not path.is_file()]
-          if missing:
-              raise SystemExit("ERROR: missing documentation source: " + ", ".join(missing))
-
-          # Excluding nested labels prevents image previews from being mistaken
-          # for ordinary links. Both the image and its surrounding link stay local.
-          markdown_link = re.compile(r"(?<!!)\[[^\[\]\n]+\]\(([^)\n]+)\)")
-          html_link = re.compile(r"\bhref\s*=\s*([\"'])(.*?)\1")
-
-          def destination(value, document):
-              # Local fragments and external URLs already have their final meaning.
-              parsed = urlsplit(value)
-              if not parsed.path or parsed.scheme or parsed.netloc or parsed.path.startswith("/"):
-                  return value
-              target = posixpath.normpath(posixpath.join(document.parent.as_posix(), parsed.path))
-              if target.startswith("docs/") and target.endswith(".md"):
-                  result = parsed.path[:-3] + ".html"
-              else:
-                  result = "https://github.com/rokath/trice/blob/main/" + target
-              return result + ("?" + parsed.query if parsed.query else "") + ("#" + parsed.fragment if parsed.fragment else "")
-
-          def rewrite(text, document):
-              # Preserve fenced examples and complete commented test sections.
-              lines = []
-              fence = None
-              in_comment = False
-              for line in text.splitlines(keepends=True):
-                  stripped = line.strip()
-                  marker = re.match(r"(`{3,}|~{3,})", stripped)
-                  if in_comment:
-                      in_comment = "-->" not in line
-                  elif fence:
-                      if re.fullmatch(re.escape(fence[0]) + "{" + str(len(fence)) + ",}", stripped):
-                          fence = None
-                  elif marker:
-                      fence = marker[1]
-                  elif "<!--" in line:
-                      in_comment = "-->" not in line[line.index("<!--") + 4:]
-                  else:
-                      # Inline code is excluded without excluding code-formatted
-                      # link labels: only the link's starting position matters.
-                      inline_code = [match.span() for match in re.finditer(r"(`+)(.*?)\1", line)]
-                      def replace(match, group):
-                          if any(start <= match.start() < end for start, end in inline_code):
-                              return match[0]
-                          start, end = match.span(group)
-                          return match[0][:start - match.start()] + destination(match[group], document) + match[0][end - match.start():]
-                      line = markdown_link.sub(lambda match: replace(match, 1), line)
-                      # Recompute positions after Markdown destination lengths change.
-                      inline_code = [match.span() for match in re.finditer(r"(`+)(.*?)\1", line)]
-                      line = html_link.sub(lambda match: replace(match, 2), line)
-                  lines.append(line)
-              return "".join(lines)
-
-          for document in [*entry_points, *chapters]:
-              # Byte I/O preserves authored LF/CRLF and UTF-8, including a BOM.
-              # Only link destinations may change in the disposable build copy.
-              text = document.read_bytes().decode("utf-8")
-              document.write_bytes(rewrite(text, document).encode("utf-8"))
-          PY
+          python3 scripts/_prepare_pages.py
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
@@ -164,13 +49,13 @@ jobs:
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
-          source: ./             # Build from the repository root
+          source: ./temp/pages-source # Same prepared tree as the local build
           destination: ./_site   # Generated static site output
 
         # Jekyll will:
-        # - Use _config.yml in the repository root.
-        # - Use index.md (generated above) as the homepage.
-        # - Render the UM, Guide and RM chapters (modified above) as separate pages.
+        # - Use the staged _config.yml and unchanged, versioned index.md.
+        # - Include the staged README as the homepage, without a second entry.
+        # - Render staged documentation; authored files remain untouched.
 
       - name: Include repository statistics in the existing site
         shell: bash

@@ -1,2 +1,10 @@
 theme: jekyll-theme-cayman
 markdown: kramdown
+# README is included by the versioned index.md, never a second landing page.
+exclude:
+  - README.md
+# Publish rendered documentation, without duplicate staged Markdown downloads.
+optional_front_matter:
+  remove_originals: true
+readme_index:
+  remove_originals: true

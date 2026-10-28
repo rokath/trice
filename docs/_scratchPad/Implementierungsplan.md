@@ -1,6 +1,6 @@
 # Release-Vorbereitung und weiterer Arbeitsplan
 
-Stand: **15. Oktober 2026**. Diese Sammlung enthält die offenen Aufgaben, verbindlichen Entscheidungen und dauerhaften Testnachweise. Künftige Übergaben verlinken hierher und ergänzen nur den aktuellen Arbeitsstand. Eine aufgeführte Aufgabe ist kein Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
+Stand: **18. Oktober 2026**. Diese Sammlung enthält die offenen Aufgaben, verbindlichen Entscheidungen und dauerhaften Testnachweise. Künftige Übergaben verlinken hierher und ergänzen nur den aktuellen Arbeitsstand. Eine aufgeführte Aufgabe ist kein Implementierungs-, Commit-, Tag- oder Publish-Auftrag.
 
 ## Aufgabenübersicht
 
@@ -11,12 +11,9 @@ Die Übersicht ist in **offen** und **erledigt** geteilt. Offene Aufgaben stehen
 ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 --- | --- | --- | ---: | --- | ---
 [R15](#release-notes-und-ausgelieferte-dateien-prüfen) | Windows lokal geprüft; Release-Abnahme offen | Veröffentlichte Beta-Assets und endgültige Downloadziele abnehmen | 5 | Rest S–M | Lokaler Snapshot geprüft; tatsächlicher Tag/Release und native Plattformnachweise stehen aus
-[R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; finaler Kandidat und Windows-Nachprüfung | Aktuellen Kandidaten und veröffentlichte Artefakte abnehmen; Windows-Firewallmeldung manuell nachprüfen | 5 | M; lange Laufzeit | CI und Mac-Full PASS am 15. Oktober; Windows 25/26 PASS vor R33/R34
-[R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Zurückgestellt; nach Beta-1 | Veraltete Einstiegsaussagen korrigieren, Wiederholungen verlinken, kleine Inhaltsverschiebungen | 4 | M | Kapitelquellen bleiben maßgeblich; UM nur auf ausdrücklichen Auftrag
-[R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Offen | Pages-Einstieg und tatsächlichen Veröffentlichungsumfang abnehmen | 4 | M | Beide Manuals/Kapitelpfade vorbereitet; Site-Build noch gesondert prüfen
-[R30](#alte-rm-spezifikation-und-suchoptionen-einordnen) | Zurückgestellt; nach Beta-1 | Überholte RM-Spezifikation aus aktiver Planung nehmen; vorerst kein INDEX.md | 3 | S | Gültige Strukturentscheidungen erhalten; Gesamt-RM-PDF für Suche beachten
+[R16](#release-abnahme-auf-einem-feststehenden-stand) | Offen; Abnahme und lokaler Metadatenbefund | Kandidaten und veröffentlichte Artefakte abnehmen; Windows-GUI nachprüfen | 5 | M; lange Laufzeit | Mac-Full vom 17. Oktober: 25/26 PASS; nur Schritt 420 wegen zweier .DS_Store-Dateien FAIL
 [F02](#parser-und-recordpfade-systematisch-auf-unerwartete-eingaben-prüfen) | Optional; später | Fuzz-/Race-Prüfungen für Parser und Recordpfade | 3 | M | Kein zusätzlicher Release-Umfang ohne Auswahl
-[R31](#utf-8-zeichen-gezielt-statt-flächig-einsetzen) | Optional; später | Lesbare Doku-Symbole bewerten; stabile ASCII-Status- und Maschinenkanäle erhalten | 2 | S | Kein Encoding-Umbau; erst funktionale Plattformfehler beheben
+[R38](#rtt-nachweis-auf-macos-vervollständigen) | Zurückgestellt; nach Beta-1 | Offenen macOS-RTT-Hardware-Nachweis einordnen und gegebenenfalls ergänzen | 2 | S–M | Passende Hardware und konkreten J-Link-/OpenOCD-Weg auswählen; keine Beta-1-Pflicht
 [F03](#frühe-hostfilterung-messen) | Optional; später | Frühe Hostfilterung und Template-Caching messen | 2 | M–L | Zuerst Messung; frühere A11/M17
 [F04](#benannte-felder-besser-weiterverwenden) | Optional; später | Benannte SL-Felder für Visualisierung oder Schemaübersicht | 2 | M | Konkreten Anwenderfall festlegen
 [F05](#kleine-wrapper-erweiterung-getrennt-bewerten) | Optional; später | CE für eindeutig zuordenbare Ein-Logstellen-Wrapper | 2 | M | Eigener Auftrag auf Basis des vorhandenen PoC
@@ -31,6 +28,8 @@ Die Implementierungen sind abgeschlossen; ausdrücklich verbleibende Release- od
 ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 --- | --- | --- | ---: | --- | ---
 [R15 lokal](#release-archive-und-handbücher-lokal-abnehmen) | Umsetzung und Windows-Teilabnahme abgeschlossen | Snapshot, zehn Host-Archive, Target-Quellen, Lizenzen, amd64/386-Feature-Audits und beide PDFs geprüft. Veröffentlichte Assets und Downloadziele bleiben oben bei R15 offen. | — | — | Details im verlinkten Abschnitt
+[R29](#rm-inhaltserhaltend-kürzen-und-leicht-ordnen) | Erledigt; lokal geprüft | RM gezielt gestrafft, Status- und Shellbeispiele korrigiert; Inhalte und beide PDFs geprüft | — | — | Details im verlinkten Abschnitt
+[R22](#github-pages-mit-eindeutigem-einstieg-und-veröffentlichungsumfang) | Erledigt; lokal abgenommen, noch nicht veröffentlicht | Ein Pages-Einstieg und gemeinsamer begrenzter Build-Baum; echter Jekyll-Build und Links geprüft | — | — | Details im verlinkten Abschnitt
 [R14](#checkout-binary-installationswege-für-v2-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | GOPATH-/Überschreibschutz korrigiert; echter Checkout-CI-Schritt, 380 Skripttests und Snapshot-Archive geprüft. CI laut Nutzer PASS; Paketinstallation und finale Artefakte bei R16 offen. | — | — | Details im verlinkten Abschnitt
 [R32](#ci-pdf-build-und-links-ohne-lokale-artefakte-absichern) | Umsetzung und lokale Windows-Prüfung abgeschlossen | Echter Go-Installationsbuild, frischer PDF-/Snapshot-Lauf und beide Linkcheck-Modi bestanden; CI und Mac-Full vom 15. Oktober PASS; finale Abnahme bleibt R16. | — | — | Details im verlinkten Abschnitt
 [R26](#windows-testfehler-vollständig-beheben) | Umsetzung und Windows-Abnahme abgeschlossen | 99 gezielte Tests sowie 540/550 bestanden; CI und Mac-Full vom 15. Oktober PASS; finale Abnahme bleibt R16. | — | — | Details im verlinkten Abschnitt
@@ -70,14 +69,20 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 [F01](#generierte-dateien-verständlich-zuordnen) | Erledigt | Lesender `generate -bindReport` mit Zuordnung und Fehlerdiagnosen; kein Pruning | — | — | Details im verlinkten Abschnitt
 [P02](#cache-nutzen-ohne-veralteten-c-code-zu-testen) | Erledigt; macOS-Abnahme | Go-/CGO-Buildcache mit Inhaltsnachweisen nutzen | 3 | M–L | R06 und R13; neue Windows-Messbasis unter P05
 [R35](#markdown-tabellen-ohne-äußere-randstriche) | Erledigt; Format und Darstellung geprüft | Äußere Tabellenränder in aktiven Markdown-Dateien entfernen; notwendige Ausnahmen erhalten | 2 | S | Fünf linke und sechs rechte Randstriche ausdrücklich bestätigt; Details am Dateiende
+[R30](#alte-rm-spezifikation-und-suchoptionen-einordnen) | Erledigt; Archiv und aktuelle Regeln vorhanden | Alte RM-Spezifikation historisch abgelegt; kein zusätzlicher Index oder Suchbuild beauftragt | — | — | Details am Dateiende
+[R31](#utf-8-zeichen-gezielt-statt-flächig-einsetzen) | Erledigt; vereinbarte Doku-Symbole umgesetzt | Überschriften ohne Emojis; gemeinsame Legende und eindeutige Tabellenzeichen in UM/RM | — | — | Commit 206101e9; keine Änderung an Maschinenkanälen oder Skriptstatus
+[R36](#legacy-f-makros-in-beispielen-und-tests-einordnen) | Erledigt; optionale Folgearbeit nicht beauftragt | Drei F-Gruppen und Einzelbeispiel als Legacy gekennzeichnet; alle 35 Aufrufe erhalten | — | — | Bibliotheksverhalten und generierter Code unverändert; spätere Beispielumstellung nur bei konkretem Nutzen
+[R37](#verbliebene-rpc-beschreibungen-in-quelltexten-prüfen) | Erledigt | Legacy-Schalter als deprecated dokumentiert, alten XTEA-RPC-Hinweis und zwei ungenutzte Hilfetext-Ersetzungen bereinigt | — | — | F-Implementierungen, aktuelle ABC-Protokolle und Archive erhalten
 
 **Aktuelle Testlage vom 15. Oktober:** Alle CI-Skripte sind laut Nutzermeldung PASS; Run-IDs liegen hier nicht vor. Der native Mac-Lauf mit Formatierung und allen 26 Full-Schritten ist anhand des Summary-Logs bestätigt: **1850 s (30:50)**. Windows: **25/26 Schritte PASS**, ABC mit Bind in Schritt 515 FAIL, insgesamt **6727 s (1:52:07)**. Die zwischenzeitlichen Nutzeränderungen an `docs/rm/examples.md` und `examples/F030_inst_rtt/til.json` verhindern eine eindeutige Bewertung des abschließenden Dateivergleichs; sie werden nicht zurückgesetzt. Die Korrekturen für Bind und TCP sowie ihre gezielten Nachprüfungen stehen bei R33/R34. Diese Prüfungen sind kein neuer vollständiger Kandidatenlauf.
+
+**Neuerer lokaler Nachweis vom 17. Oktober:** `temp/log/testAll_summary.log` enthält einen Mac-Full-Lauf von 20:42:46 bis 21:11:33 CEST, **1728 s (28:48), 25/26 Schritte PASS**. Ausschließlich Schritt 420 scheitert an `.DS_Store` im Repo-Root und unter `docs`; die übrigen 25 Schritte einschließlich Go/Coverage, Snapshot und vollständigen C-Matrizen bestehen. Gesamtstatus **FAIL** korrekt beibehalten; das Protokoll meldet keine Abweichung versionierter Quellen. Keine neue Produktkorrektur daraus ableiten und in diesem Planpflegeauftrag weder Dateien löschen noch Tests wiederholen. Aktuelle PR-Ergebnisse und veröffentlichte Beta-Assets sind damit nicht abgenommen.
 
 **Verbindliche Grenzen:** Inhaltliche Dokumentationsarbeiten und einzelne Hardwareprüfungen erst **nach Beta-1**. Kein `/v2`-Modulumbau, keine zusätzlichen Abhängigkeiten, Archivänderungen oder automatische Umsetzung weiterer Planpunkte. Das UM bleibt nutzergepflegt. Große Gesamtläufe führt der Nutzer manuell aus; keine konkurrierenden zustandsverändernden Tests oder Formatläufe. Commit, Push, Tag und Veröffentlichung nur auf ausdrücklichen Auftrag. CI und der Mac-Full-Lauf dürfen nicht erneut als fehlender PASS aufgeführt werden; veröffentlichte Beta-Assets, endgültige Taglinks und gegebenenfalls Paketinstallationen bleiben offen.
 
 **Dauerhafte Messbasis:** [P05](#windows-testzeiten-gezielt-untersuchen) enthält sämtliche Full-Schrittzeiten, tatsächliche Joblimits und Paketzeiten. [P06](#bind-und-insert-zeiten-vergleichbar-erklären) hält die offene Bind-/Insert-Frage fest. Die lokalen Rohlogs unter `temp/log/` werden beim nächsten Gesamtlauf teilweise ersetzt; vor einer Wiederholung bei Bedarf sichern. Künftige Übergaben sollen diese Tabellen verlinken statt kopieren.
 
-[Offene Release-Aufgaben](#konkrete-aufgaben-vor-dem-release) · [Zurückgestellte Laufzeitanalysen](#zurückgestellte-laufzeitanalysen) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Hintergrund](#hintergrund-und-vorbemerkungen) · [Erledigte Aufgaben](#erledigte-korrekturen)
+[Offene Release-Aufgaben](#konkrete-aufgaben-vor-dem-release) · [Arbeiten nach Beta-1](#arbeiten-nach-beta-1) · [Zurückgestellte Laufzeitanalysen](#zurückgestellte-laufzeitanalysen) · [Optionale Erweiterungen](#sinnvolle-erweiterungen-zur-späteren-diskussion) · [Hintergrund](#hintergrund-und-vorbemerkungen) · [Erledigte Aufgaben](#erledigte-korrekturen)
 
 ## Konkrete Aufgaben vor dem Release
 
@@ -108,6 +113,7 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 
 **Verbleibende Abnahme:**
 
+- Den konkreten Metadatenbefund aus dem Mac-Lauf vom 17. Oktober ausdrücklich behandeln: `.DS_Store` und `docs/.DS_Store` wurden von Schritt 420 gemeldet. Erst auf gesonderten Auftrag bereinigen und den betroffenen Check prüfen; daraus keine pauschale Wiederholung der bereits bestandenen 25 Schritte oder Produktänderung ableiten.
 - Den nach Review/Commit gewählten Kandidaten mit den neuen Korrekturen prüfen. Große Gesamtläufe bleiben manuell; Logs vor einem neuen `testAll` sichern. Keine konkurrierenden zustandsverändernden Läufe.
 - Windows: das früher auffällige TCP-Testpaar und später `./scripts/testAll.sh full` manuell starten und auch kurz nach Prozessende auf eine Firewallmeldung achten. Automatische Wiederholungstests belegen keine Abwesenheit eines GUI-Dialogs. Keine Firewallregeln oder Betriebssystemänderungen als Lösung.
 - Full-Matrix mit Bind und Insert/Clean ohne ungeklärte Fehler; keine intern übersprungenen Pflichtprüfungen und keine unbeabsichtigten Source-/Metadatenänderungen.
@@ -116,65 +122,19 @@ ID | Status | Aufgabe | Gewicht | Aufwand | Voraussetzung
 - Inhaltliche Dokuüberarbeitung und einzelne Hardwareprüfungen bleiben nach ausdrücklicher Nutzerentscheidung **nach Beta-1**. Ältere Planformulierungen dürfen sie nicht als neue Vorabpflicht wieder einführen. Das UM nur auf ausdrücklichen Auftrag bearbeiten.
 - Versionsentscheidung, bekannte Grenzen und ausdrücklich akzeptierte Abweichungen dokumentieren. Noch kein Auftrag für Merge, Tag oder Veröffentlichung.
 
+## Arbeiten nach Beta-1
 
-### RM inhaltserhaltend kürzen und leicht ordnen
+Die folgenden Arbeiten sind ausdrücklich zurückgestellt. Für Beta-1 bleiben die aktuellen F-Aufrufe und die Bibliothek unverändert. Veröffentlichung und Artefaktabnahme gehören weiter zu R15/R16; redaktionelle Pflege, neue Hardware-Nachweise und optionale Optimierungen werden dadurch nicht zu zusätzlichen Beta-1-Hürden. Die alten Vorschläge unten sind vor einem späteren Auftrag gegen den dann aktuellen Stand zu prüfen.
 
-**R29 · Gewicht 4 · Aufwand M · Offen; redaktionelle Vorschläge, keine Umstrukturierung ausgeführt**
+### RTT-Nachweis auf macOS vervollständigen
 
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die README-Reihenfolge und die Überschriften-/Umfangsstruktur aller **52 Hauptkapitel plus HEADER/FOOTER** wurden inventarisiert; alle Kapiteldateien sind in der README verlinkt. Vertieft gesichtet wurden die langen Einstiegs-, Bind-/CE-, Beispiel-, Test-, Entwicklungs- und Wartungskapitel. Eine Suche nach längeren wortgleichen Absätzen über Kapitel hinweg ergab keine einfachen Kopierduplikate. Die Kürzungsmöglichkeiten sind vor allem **inhaltliche Überschneidungen und ausführliche Allgemeinerklärungen**, keine nachgewiesenen wortgleichen Textblöcke. Eine vollständige technische Nachabnahme jedes Satzes ist damit nicht behauptet.
-
-**Grundsatz:** Aussagen knapper formulieren, gemeinsame Erklärung einmal vollständig pflegen und von weiteren Einstiegen mit einem kurzen Kontextsatz verlinken. Kein Beispiel, Compilerlimit, Parameter, Messwert, Bild, Codeblock oder ausdrücklich gewünschter CE-PoC-Anhang verschwindet. Rein sprachliche Straffung und fachliche Aktualisierung getrennt reviewen. Das UM bleibt nutzergepflegt und wird ohne ausdrücklichen Auftrag nicht geändert.
-
-**Erledigter Zusatzbefund aus R32:** Die Projektdatei-Tabelle in `maintenance.md` ist inzwischen repariert und gehört nicht mehr zum offenen Umfang von R29.
-
-Kapitel / Befund | Sinnvolle begrenzte Änderung
---- | ---
-[Getting Started](../rm/getting_started.md), 573 Zeilen | Den Insert-zentrierten Einstieg anhand des aktuellen Bind-Vertrags korrigieren. Allgemeine Fork-/Clone-Anleitung in [Repository Workflow](../rm/repository_workflow.md) einordnen; Target-Portierung, Stempel, Parameterbreiten und Parsergrenzen kurz einführen und auf ihre bestehenden Fachkapitel verweisen. Sämtliche einzigartigen Hinweise zuerst am Ziel zuordnen.
-[Quickstarts](../rm/quickstarts.md) und [Examples](../rm/examples.md), 320/691 Zeilen | Konkrete Erstläufe und erwartete Ausgabe behalten. Wiederholte Umgebungsvoraussetzungen auf einen gemeinsamen Abschnitt verlinken. Den ausdrücklich beschriebenen Insert-Weg als solchen kennzeichnen; nicht jedes historische Beispiel zwangsweise auf Bind umschreiben.
-[Bind](../rm/bind.md), 1.068 Zeilen | Quickstart → normale Build-Integration → Grenzen/Fehlerhilfe → vertiefende Interna als erkennbaren Lesepfad verwenden. Wiederholte Datei-/Owner-/Rebase-Erklärungen zusammenführen und auf [Generate](../rm/generate.md) für den Diagnosebericht verlinken. Eigene Beispiele, Counter-/Headergrenzen und Anhänge vollständig behalten.
-[Context Enrichment](../rm/context_enrichment.md), 558 Zeilen; [Structured Logging](../rm/structured_logging.md) | Regeln, Tabellen und Beispiele als maßgebliche Erklärung erhalten. Aufrufe/Buildvoraussetzungen zentral verlinken; ähnliche Grenzen zwischen Bind und CE nicht gleichsetzen. Den ausdrücklich gewünschten CE-PoC-Anhang im Kapitel behalten.
-[Usage Tips](../rm/usage_tips.md) | Entwicklerhinweise zu `go test -race -count 100 ./...` nach [Target Tests](../rm/target_tests.md) verschieben. Erste-Verbindung-/Puffer-Hinweise kurz halten und auf Troubleshooting, Target-Konfiguration beziehungsweise Target-Implementierung verlinken; konkrete Sonderfälle wie Stacküberlauf und Cycle Counter erhalten.
-[Development Environment Setup](../rm/development_environment_setup.md), 1.052 Zeilen | Einstiegstabelle „Was brauche ich für Host, Firmware, CGO?“; vorhandene Windows-Host-/ARM-/Clang-Hinweise daran ausrichten. Betriebssystemspezifische Installationsschritte darunter gruppieren. Wiederholte Toolchain-Grundlagen verlinken; Transport-/Treiber-/Lizenzhinweise erhalten.
-[Maintenance](../rm/maintenance.md), 403 Zeilen; [Tool Build/Release](../rm/tool_build_release.md) | Workflowbeschreibungen auf Zweck, Auslöser, prüfbare Ausgabe und Besonderheiten konzentrieren. Wiederholte allgemeine GitHub-Actions-Erklärungen straffen. Release-/Artefaktbefehle an einer Stelle im Release-Kapitel, mdtoc-/PDF-Pflege an einer Stelle im Wartungskapitel; konkrete Workflownamen/Versionen mit den Dateien abgleichen.
-[Target Tests](../rm/target_tests.md) und [Test Issues](../rm/test_issues.md) | Den heutigen Bind-/Full-/Diagnose-Einstieg sichtbar vor die Interna setzen. Alte komplette PASS-Ausgaben als historische Beispiele vom aktuellen Vertrag trennen und gegebenenfalls innerhalb des Kapitels nach hinten verschieben. Erwartungsregeln und Fehlersuche nicht kürzen. Test Issues kann als kleiner Wegweiser bleiben; kein neues Kapitel nötig.
-[RTT](../rm/rtt.md), 670 Zeilen; [Without UART](../rm/without_uart.md) | Einen kurzen Entscheidungsweg zum passenden vorhandenen RTT-/Logger-Einstieg, danach Setup und Fehlerfälle. Allgemeine Toolinstallation auf die Entwicklungsumgebung verlinken; board- und transportbezogene Besonderheiten behalten.
-[Features](../rm/features.md), [Overview](../rm/overview.md), [How It Works](../rm/how_it_works.md) | Nutzenübersicht kurz halten und auf ausführliche Fachkapitel verweisen. Architekturprinzip und belegte Ressourcen-/Geschwindigkeitsaussagen erhalten; fehlende Plattformnachweise nicht durch kürzere pauschale Zusagen ersetzen.
-[Memory Usage](../rm/memory_usage.md), [Performance](../rm/performance.md), [Code Size](../rm/code_size.md) | Keine pauschalen Text-/Seitenquoten: viele Zeilen sind Messprotokolle oder Konfigurationen. Messbedingungen und sämtliche Zahlen erhalten; Vergleichsübersicht vor die unveränderten Detail-/Legacy-Beispiele stellen.
-Übrige Fachkapitel | Binary Encoding, Framing, Endianness, Stamps, IDs/Dictionaries, Parseralgorithmus, X0, Ausgaben, Tags, Verschlüsselung, ABC, Legacy-Integration, Ressourcen und Historie am fachlich passenden Ort erhalten. Hier ist aus der Inventur kein pauschaler Kürzungsbedarf abzuleiten. Kleine sprachliche Straffungen nur mit Aussage-/Beispielvergleich.
-
-**Leichte Strukturänderung als Vorschlag:** Dateinamen und Hauptkapitelbestand zunächst beibehalten; ausschließlich die manuellen Linkzeilen in `docs/rm/README.md` in wenige verständliche Gruppen ordnen. Beispielsweise Einstieg/Quickstarts/Examples → Bind und IDs → Target/Transporte → Ausgabe und Features → Protokoll/Implementierung/Messungen → Tests/Entwicklung/Wartung/Ressourcen. History/Future und Spezial-/Legacy-Themen aus dem unmittelbaren Erstlesepfad nehmen, aber weiterhin sichtbar verlinken. Das ist keine zweite Sortierdatei und keine neue Kapitelnummerierung in Quellen. Vor einer Umsetzung die konkrete Reihenfolge zeigen; der PDF-Build übernimmt dann dieselbe Reihenfolge.
-
-**Inhaltliche Verschiebungen zuerst klein halten:** Fork/Clone nach Repository Workflow; Entwickler-Testtipps nach Target Tests; zusammenhängende Release-Anweisungen nach Tool Build/Release. Für jede verschobene einzigartige Aussage vorher Ausgang, Ziel und eingehende Links erfassen. Keine große Zusammenlegung der 52 Dateien und keine neuen Anhangsdateien allein zur kosmetischen Seitenverkürzung.
-
-**Spätere Abnahme:** Fachinhalte, Code/Kommentare, Bilder, Messwerte und Grenzen nachweislich erhalten; aktive Kapitel-/Fragmentlinks angepasst, Archive unangetastet. mdtoc nur für betroffene Quellen regenerieren; ToCs/Anker und README-Reihenfolge prüfen. Beide PDFs anschließend frisch erzeugen und Tabellen, Nummerierung, Querverweise und Seitenanfänge ansehen. Kein Sprach-/Format-Commit mit funktionalen Skriptänderungen vermischen.
-
-### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
-
-**R22 · Gewicht 4 · Aufwand M · Offen; Dokumentationspfade vorbereitet, tatsächliche Site-Abnahme ausstehend**
+**R38 · Gewicht 2 · Aufwand S–M · Einzelne Hardwareprüfung nach Beta-1**
 
 [Zur Aufgabenübersicht](#aufgabenübersicht)
 
-Es gibt zwei Implementierungen des Website-Einstiegs: Die versionierte `index.md` bindet die README per Liquid ein; `pages.yml` überschreibt sie beim Build mit einer zweiten, per `sed` erzeugten Variante und behauptet im Kommentar, die Datei sei nicht versioniert. Einen einzigen nachvollziehbaren Erzeugungsweg wählen und lokale Vorschau sowie CI darauf ausrichten. Beide Handbücher und ihre gegenseitigen Links müssen auf Pages richtig dargestellt werden; Quellcode-Links dürfen weiterhin zur passenden Repo-Ansicht führen.
+Im [RTT-Kapitel](../rm/rtt.md#segger-j-link-on-darwin-macos) steht noch `TODO: Working example with SEGGER_RTT J-Link and Open OCD`. Das ist ein offener nativer Hardware-Nachweis, kein Anlass für eine Bibliotheksänderung oder eine zusätzliche Beta-1-Pflicht.
 
-Der Workflow baut vom Repo-Root; `_config.yml` enthält bislang nur Theme und Markdown-Engine. Ein ausdrücklicher fachlicher Veröffentlichungsumfang ist nicht erkennbar. Das ist noch kein Nachweis, welche Dateien Jekyll tatsächlich ausliefert. Den erzeugten Site-Baum prüfen und dann gezielt auf Einstieg, Handbücher, benötigte Bilder und bewusst verlinkte Inhalte begrenzen. Scratchpad, Entwicklerzustand und Fremdsoftware-Archive sollen nicht versehentlich Teil des Anwender-Einstiegs werden. Bestehende Archive dafür nicht verändern; die Auswahl gehört in den Veröffentlichungsweg.
-
-**Abnahme:** Site-Build ohne Deployment prüfen; erzeugter Einstieg, beide Handbücher, Bilder und Querverweise funktionieren. Liste der ausgelieferten Dateigruppen passt zur beabsichtigten Website. Keine widersprüchliche zweite `index.md`-Erzeugung, kein unbeabsichtigter Verlust bewusst angebotener Downloads. Deployment und Publish bleiben gesonderte Aufträge.
-
-### Alte RM-Spezifikation und Suchoptionen einordnen
-
-**R30 · Gewicht 3 · Aufwand S · Offen; Konsolidierungsvorschlag**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-[RM_Documentation_Spec.md](RM_Documentation_Spec.md) ist als **aktive Umsetzungsspezifikation weitgehend überholt**. Sie behauptet noch, `docs/rm/` existiere nicht, `_310`/PDF/Pages müssten erst migriert werden, stitchmd sei nie ausgeführt und die PDF-Erzeugung sei vertagt. Sie verlangt zudem einen initialen INDEX als Abnahmekriterium. Tatsächlich sind Kapitelquellen, README, mdtoc-Pflege, stitchmd-Gesamt-PDF, globale PDF-Nummerierung und Release-Artefaktpfade bereits vorhanden.
-
-**Vorschlag:** Die weiterhin gültigen Regeln hier und in der vorhandenen RM-Wartungsanleitung knapp maßgeblich machen: Kapitelquellen als Wahrheit, manuelle README-Reihenfolge, lokale mdtoc-Navigation, ausschließlich temporärer Monolith, PDFs als generierte Artefakte, keine Archivlink-Reparatur. Danach die alte Spezifikation ausdrücklich als historische Planung kennzeichnen oder nach gesondertem Auftrag archivieren; aktive Verweise auf den aktuellen Stand führen. Nicht ihre überholten Pflichtaufgaben erneut implementieren. Die Spezifikationsdatei selbst wird in diesem Planpflegeauftrag nicht verändert.
-
-**`docs/rm/INDEX.md` als Stichwortindex vorerst nicht einplanen.** Eine zusätzliche Index-Pflege ist ohne nachgewiesene Suchlücke nicht gerechtfertigt. Das UM-PDF ist der kurze Einstieg; für die Suche über **alle RM-Inhalte** ist das bereits generierte `TriceReferenceManual.pdf` maßgeblich, nicht allein das UM. Lokal bleibt die Editorsuche über `docs/rm/` möglich. Auch `RM-search.txt` und ein zusätzlicher mdBook-/HTML-Suchbuild erhalten vorerst keinen Implementierungsauftrag. Ein später belegter Bedarf kann als eigener kleiner Auftrag konkretisiert werden.
-
-**Spätere Abnahme:** Nur eine erkennbare aktuelle Planungsquelle; keine aktive Zusage für den entfallenen Index oder für noch nicht beschlossene Zusatzoutputs. Gültige Strukturentscheidungen und historische Nachweise bleiben erhalten. Kein erneutes Zerlegen, keine Re-Migration und kein Eingriff in vorhandene Archive.
+**Vorschlag:** Zuerst den konkret benötigten J-Link- oder OpenOCD-Weg und ein vorhandenes Board auswählen. Danach den tatsächlichen macOS-Lauf mit Werkzeugversionen, Transport und beobachteter Ausgabe dokumentieren. Bereits belegte F030-/G0B1-Anleitungen nicht pauschal wiederholen; Compile- und CI-Nachweise nicht als ausgeführte Hardwareprüfung ausgeben. Ohne Hardwarebeleg die Einschränkung klar benennen statt Funktionsfähigkeit zu behaupten.
 
 ## Zurückgestellte Laufzeitanalysen
 
@@ -259,18 +219,6 @@ Die folgenden Punkte sind Vorschläge, keine Zusage für das nächste Release. I
 
 Nicht jede Testfunktion parallelisieren. Relevante Invarianten sind unter anderem: kein Panic bei abgewiesener Eingabe, keine Teilveröffentlichung, stabiler kanonischer Template-Roundtrip, kein Diagnosetext im JSON-Kanal und keine Datenrennen bei echten nebenläufigen Pfaden. Gefundene Fälle als lesbare Regressionstests erhalten. Ein begrenzter Fuzz-Lauf verspricht keine vollständige Sicherheit.
 
-### UTF-8-Zeichen gezielt statt flächig einsetzen
-
-**R31 · Gewicht 2 · Aufwand S · Optional; keine Release-Voraussetzung**
-
-[Zur Aufgabenübersicht](#aufgabenübersicht)
-
-Die Doku enthält bereits UTF-8, beispielsweise typografische Zeichen und einzelne Emojis. **Empfehlung:** Verständliche Überschriften, kurze Absätze, Tabellen und Links zuerst verbessern. Einzelne Symbole können die Orientierung unterstützen, sollten aber keine Information allein tragen und keine unruhige flächige Dekoration erzeugen. Mathematische Symbole oder Einheiten sind sinnvoll, wenn sie präziser sind; Befehle, Pfade, Quellbeispiele und Anker müssen zuverlässig kopierbar bleiben.
-
-Skriptausgaben verwenden weiterhin klare `PASS`/`FAIL`/`SKIP` und lesbare Fehlertexte. Maschinenkanäle, JSON/KV und von Tests/Tools ausgewertete Statuszeilen nicht mit Emojis oder typografischen Ersatzzeichen verändern. Ein später ausdrücklich gewünschter interaktiver Zusatz wäre nur bei passendem Terminal und mit ASCII-Rückfall zu prüfen; Farbausgabe und Statuswort bleiben unabhängig. Kein neues Terminal-Framework und keine Encoding-Umstellung nötig.
-
-CRLF/LF ist eine getrennte Frage: Der aktuelle `U+000D`-Fehler wird in R26 behoben, nicht durch dekorative Unicode-Zeichen. Vor optionaler Änderung GitHub-, PDF- und Terminaldarstellung einschließlich Schriftabdeckung prüfen. Bestehende Unicode-Nutzdaten und ihre Regressionstests erhalten.
-
 ### Frühe Hostfilterung messen
 
 **F03 übernimmt die offene A11, zuvor M17.** Replay mit 0, 50, 90 und 100 Prozent verworfenen Ereignissen vergleichen; CPU, Allokationen und Durchsatz für Text, JSON und KV erfassen. Im [TREX-Decoder](../../internal/trexDecoder/trexDecoder.go) werden Templates momentan pro Ereignis geparst und validiert; ein Cache ist ein weiterer Kandidat, aber noch keine beschlossene Umsetzung.
@@ -347,7 +295,7 @@ Dokument | Aufgabe im aktuellen Aufbau
 Eigene `README.md`/`ReadMe.md` unter `demo` und `examples` | Ausschließlich relative Links auf die passende zentrale Anleitung im UM/RM; keine eigenständigen Anleitungsabsätze oder Kommandos.
 `docs/README.md` | Kurzer Dokumentationswegweiser mit Zielgruppe und Zweck der verbleibenden aktiven Dokumente; keine bloße Weiterleitungsdatei.
 
-Die abgeschlossenen Arbeiten R10–R12, R17–R21 und R23 bleiben im hinteren Teil nachvollziehbar. Für neue Dokuarbeiten gelten R29/R30: kein zweites RM, keine ungefragte UM-Überarbeitung, kein INDEX und keine Archivbereinigung. Beispiel-READMEs bleiben Links auf zentrale Anleitungen.
+Die abgeschlossenen Arbeiten R10–R12, R17–R21, R23 und R30/R31 bleiben im hinteren Teil nachvollziehbar. Für verbleibende Dokuarbeiten gilt R29: kein zweites RM, keine ungefragte UM-Überarbeitung, kein INDEX und keine Archivbereinigung. Beispiel-READMEs bleiben Links auf zentrale Anleitungen.
 
 ## Gewichtung und Planungshinweise
 
@@ -355,13 +303,17 @@ Die abgeschlossenen Arbeiten R10–R12, R17–R21 und R23 bleiben im hinteren Te
 
 **Aufwand:** S = kleine, abgegrenzte Änderung; M = mehrere zusammenhängende Änderungen mit Verhaltenstests; L = Architektur-/Buildänderung oder breiter Plattformnachweis. Das sind Schätzungen, keine Zeitversprechen. Fehlersuche kann eine Aufgabe vergrößern.
 
-Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung berücksichtigt Abhängigkeiten. Die aktuellen funktionalen Fehler R33/R34 stehen vor den zurückgestellten Laufzeitanalysen P05/P06. Eine abschließende Abnahme wie R16 kann deshalb hoch priorisiert und zugleich bis nach ihren Voraussetzungen blockiert sein. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. R17 ist als lesende Bestandsprüfung abgeschlossen, nicht als Repo-Bereinigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
+Die Aufgabenübersicht sortiert nach Wichtigkeit; die tatsächliche Umsetzung berücksichtigt Abhängigkeiten. R33/R34 sind behoben; ihre Nachweise stehen bei den erledigten Aufgaben. R15/R16 bleiben vor den zurückgestellten Aufräumarbeiten und Laufzeitanalysen. Eine abschließende Abnahme wie R16 kann hoch priorisiert und zugleich bis nach ihren Voraussetzungen blockiert sein. R01–R09, R11, R13 und P01/P04 sind umgesetzt; ihre Nachweise stehen unter den erledigten Korrekturen. P03 ist ebenfalls abgeschlossen; der Nachweis steht bei der L432-Beschleunigung. R17 ist als lesende Bestandsprüfung abgeschlossen, nicht als Repo-Bereinigung. Die abschließende Release-Abnahme bleibt bei R16. Die vorhandenen IDs bleiben für Verweise erhalten. Unabhängige Dokumentationsarbeit kann während langer Tests erfolgen. Für Gewicht 5 reicht kein stilles Vertagen: Vor Release muss entweder die Korrektur abgenommen oder eine konkrete Einschränkung ausdrücklich entschieden und dokumentiert sein.
 
 ## Vorschlag für die nächsten Aufträge
 
 R33/R34 sind korrigiert und auf Windows gezielt abgenommen; die Nachweise stehen bei den erledigten Aufgaben. Als Nächstes bleiben die manuelle Windows-GUI-Nachprüfung und spätere Kandidatenabnahme unter R16. CI und Mac-Full vom 15. Oktober sind bereits PASS; die dauerhafte Zeitbasis steht bei P05. P05/P06 bleiben ohne Priorität und werden jetzt nicht bearbeitet. Inhaltliche Dokumentation und einzelne Hardwareprüfungen bleiben nach Beta-1; ältere Vorschläge ändern diese Entscheidung nicht.
 
-R15 bleibt die Abnahme veröffentlichter Beta-Assets und endgültiger Links, R22 die tatsächliche Pages-Abnahme. Große Gesamtläufe übernimmt der Nutzer manuell. Merge, Commit, Push, Tag und Veröffentlichung benötigen ihren jeweiligen ausdrücklichen Auftrag; ein Eintrag in dieser Sammlung erteilt ihn nicht. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
+Für Beta-1 bleiben R15/R16: den konkreten `.DS_Store`-Befund des letzten Mac-Laufs behandeln, aktuelle PR-Ergebnisse zuordnen und die tatsächlich veröffentlichten Beta-Assets einschließlich Tag-/Downloadlinks abnehmen. Eine frühere Snapshot-Prüfung ersetzt diese Artefaktabnahme nicht. Große Gesamtläufe übernimmt weiterhin der Nutzer manuell.
+
+**Nach Beta-1 empfohlen:** Zuerst kleine belegte Doku-Reste unter R29 bearbeiten. R36 und R37 sind abgeschlossen; die mögliche spätere Umstellung dreier F-Beispielaufrufe auf C/ABC bleibt lediglich eine optionale Folgearbeit ohne Auftrag. Legacy-Tests und Bibliotheksverhalten bleiben erhalten. Den macOS-Hardware-Nachweis R38 nur mit passender Hardware aufnehmen. R22 bleibt die begrenzte Pages-Einstiegs-/Veröffentlichungsprüfung; Statistik und Downloads sind bereits veröffentlicht. R30 und R31 sind erledigt. P05/P06 sowie F02–F06 bleiben optionale Analysen oder Erweiterungen ohne aktuellen Auftrag; neue Vorabpflichten entstehen daraus nicht.
+
+Merge, Commit, Push, Tag und Veröffentlichung benötigen ihren jeweiligen ausdrücklichen Auftrag; ein Eintrag in dieser Sammlung erteilt ihn nicht. Die deutsche Planung bleibt außerhalb der englischen Anwenderdokumentation.
 
 ## Erledigte Korrekturen
 
@@ -912,12 +864,12 @@ Bisherige lokale Anleitung | Zentrale Ersatzanleitung im RM
 `examples/exampleData/ReadMe.md` | [Shared example producers and generated sidecars](../rm/examples.md#shared-example-producers)
 `examples/TriceAbc/ReadMe.md` | [Trice ABC example: generator and receive integration](../rm/abc_asynchronous_broadcast_commands.md#example-examplestriceabc); [ABC nodes: layout, startup, commands, and runtime policy](../rm/abc_asynchronous_broadcast_commands.md#abc-demo-layout-startup-and-runtime-policy); [BcSim: byte-stream transport, API, check program, and limitations](../rm/abc_asynchronous_broadcast_commands.md#bcsim-broadcast-byte-stream-simulator)
 `examples/TriceAbc/BcSim/BcSim_ReadMe.md` | [BcSim: byte-stream transport, API, check program, and limitations](../rm/abc_asynchronous_broadcast_commands.md#bcsim-broadcast-byte-stream-simulator)
-`examples/F030_bare/ReadMe.md` | [F030 bare project: setup and debugging](../rm/examples.md#f030bare)
-`examples/F030_inst/ReadMe.md` | [F030 instrumented project: setup and instrumentation](../rm/examples.md#f030inst)
-`examples/G0B1_bare/ReadMe.md` | [G0B1 bare FreeRTOS project: setup](../rm/examples.md#g0b1bare)
-`examples/G0B1_inst/ReadMe.md` | [G0B1 instrumented FreeRTOS project: setup](../rm/examples.md#g0b1inst)
-`examples/L432_bare/ReadMe.md` | [L432 bare FreeRTOS project: setup](../rm/examples.md#l432bare)
-`examples/L432_inst/ReadMe.md` | [L432 instrumented FreeRTOS project: setup](../rm/examples.md#l432inst)
+`examples/F030_bare/ReadMe.md` | [F030 bare project: setup and debugging](../rm/examples.md#f030_bare)
+`examples/F030_inst/ReadMe.md` | [F030 instrumented project: setup and instrumentation](../rm/examples.md#f030_inst)
+`examples/G0B1_bare/ReadMe.md` | [G0B1 bare FreeRTOS project: setup](../rm/examples.md#g0b1_bare)
+`examples/G0B1_inst/ReadMe.md` | [G0B1 instrumented FreeRTOS project: setup](../rm/examples.md#g0b1_inst)
+`examples/L432_bare/ReadMe.md` | [L432 bare FreeRTOS project: setup](../rm/examples.md#l432_bare)
+`examples/L432_inst/ReadMe.md` | [L432 instrumented FreeRTOS project: setup](../rm/examples.md#l432_inst)
 
 **Ergebnis:** Voraussetzungen, Aufrufe, Ausgabeoptionen, erwartete Ergebnisse, Experimentierhinweise und Fehlerhilfen stehen zentral im englischen RM. Die PC-Ausgabeprüfungen und der vollständige LabPlot-Nachbau sind dort erklärt; ABC/NodeLib und BcSim behalten ihre Architektur-, API- und Limitationsbeschreibung. Bestehende Feature-Kapitel führen direkt zu diesen RM-Abschnitten statt über lokale README-Umwege. Alle eigenen Beispiel-READMEs enthalten ausschließlich relative Links ins RM. Quellen, Tests und Buildabläufe sind unverändert.
 
@@ -1170,7 +1122,7 @@ R08/R09, P04, P01, P02 und P03 sind umgesetzt. Alle Erwartungen, Konfigurationen
 
 **Umsetzung:** Der PC-Worker löscht den globalen Build- und Testcache nicht mehr. [pc_cache_overlay.go](../../scripts/pc_cache_overlay.go) erstellt stattdessen temporäre CGO-Quellen mit SHA-256-Signaturen über Dateinamen und Inhalte: `src`, `_test/testdata`, jeweilige Konfiguration und das tatsächlich verwendete Bind-Sidecar-Verzeichnis. Neue, gelöschte oder umbenannte Dateien werden erfasst; reine Zeitstempeländerungen lösen keinen Neubau aus. Workflow und Compiler-/Include-Einstellungen gehen ebenfalls ein. Alle 61 Harness-Konfigurationen und die beiden ABC-Bridges werden berücksichtigt, ohne die Originalquellen zu verändern. Eine lokale Konfigurationsänderung invalidiert nur ihr Paket; gemeinsame Änderungen alle betroffenen Konfigurationen.
 
-**Ausführung und Grenzen:** `-count=1` bleibt im PC-Worker unverändert: Jeder ausgewählte Test wird tatsächlich ausgeführt, wiederverwendet werden nur kompilierte Artefakte. Auch Schritt 540 löscht den globalen Cache nicht mehr; normale Go-Tests und Coverage verwenden ausdrücklich `-count=1`. Andernfalls hätte jeder Full-Lauf die PC-Builds aus dem vorherigen Lauf trotzdem verworfen. Overlay und signierte Quellen bleiben zur Diagnose bei den Laufprotokollen erhalten. Temporäre Go-Dateinamen beginnen mit `_`, damit die normale Paketsuche keine zusätzlichen Pakete in `temp/log` findet. Fehlende beziehungsweise unlesbare Eingaben und symbolische Links innerhalb der erfassten Bäume führen zum Abbruch vor der Testausführung. Externe C-Bibliotheken oder SDK-Header, deren Inhalt sich am gleichen externen Pfad ändert, sind nicht durch die Repository-Signatur abgedeckt; dafür bleibt ein ausdrückliches `go clean -cache` erforderlich. Direktes `go test` ohne Worker erhält diese Zusatzabsicherung nicht. Die Grenze ist im [RM](../rm/target_tests.md#tests-details) erklärt und entspricht der [Go-Dokumentation zum Buildcache](https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching).
+**Ausführung und Grenzen:** `-count=1` bleibt im PC-Worker unverändert: Jeder ausgewählte Test wird tatsächlich ausgeführt, wiederverwendet werden nur kompilierte Artefakte. Auch Schritt 540 löscht den globalen Cache nicht mehr; normale Go-Tests und Coverage verwenden ausdrücklich `-count=1`. Andernfalls hätte jeder Full-Lauf die PC-Builds aus dem vorherigen Lauf trotzdem verworfen. Overlay und signierte Quellen bleiben zur Diagnose bei den Laufprotokollen erhalten. Temporäre Go-Dateinamen beginnen mit `_`, damit die normale Paketsuche keine zusätzlichen Pakete in `temp/log` findet. Fehlende beziehungsweise unlesbare Eingaben und symbolische Links innerhalb der erfassten Bäume führen zum Abbruch vor der Testausführung. Externe C-Bibliotheken oder SDK-Header, deren Inhalt sich am gleichen externen Pfad ändert, sind nicht durch die Repository-Signatur abgedeckt; dafür bleibt ein ausdrückliches `go clean -cache` erforderlich. Direktes `go test` ohne Worker erhält diese Zusatzabsicherung nicht. Die Grenze ist im [RM](../rm/target_test_internals.md#cgo-build-cache) erklärt und entspricht der [Go-Dokumentation zum Buildcache](https://pkg.go.dev/cmd/go#hdr-Build_and_test_caching).
 
 **Verhaltenstests:** [pc_cache_overlay_test.go](../../scripts/pc_cache_overlay_test.go) prüft stabile Inhalte über wechselnde temporäre Pfade, Zeitstempel, hinzugefügte und entfernte Dateien, gezielte Konfigurationsinvalidierung, ein abweichendes Generierungsverzeichnis mit Leerzeichen und verständliche Abbrüche bei fehlenden Eingaben. Echte CGO-Builds mit frischem Cache prüfen Compileraufrufe und aktuelle C-Laufzeitwerte nach Änderungen an `triceCheck.c`, transitiven Headern, Sidecars und Konfiguration trotz beibehaltener Zeitstempel. Compileroptionen und Workflowwechsel erzwingen Neubauten; unveränderte warme Läufe sparen die C-Kompilierung. Ein unabhängig fortgeschriebenes Ausführungsprotokoll beweist, dass dabei jedes Testprogramm erneut läuft. Worker-Tests sichern weiterhin Parallelität, Fehlerdiagnose und Abbruch ab.
 
@@ -1349,3 +1301,99 @@ In 32 aktiven Markdown-Dateien wurden die äußeren Randstriche von 1058 vorhand
 In der bereitgestellten `handsoff_tcp.md` sind außerdem nach ausdrücklicher Bestätigung vier Regex-Operatoren in drei Tabellenzeilen maskiert. Die Befehle erscheinen dadurch vollständig in ihrer jeweiligen Zelle; ihre Trennzeichen zwischen Testnamen bleiben als Befehlsinhalt sichtbar.
 
 **Prüfung:** Vor jedem Tabellenpatch identische Markdown-Struktur und identische HTML-Ausgabe nachgewiesen; die nachträglich bestätigten Rand-Ausnahmen erhalten dieselben Zellen. Die separate TCP-Tabellenkorrektur repariert zuvor verlorene Befehlsbestandteile. Markdownlint mit Repository-Konfiguration besteht für alle 32 Dateien einschließlich der sonst ausgeschlossenen Scratchpad-Dateien. `./scripts/_310_refresh_trice_user_manual.sh check`, gofmt und `git diff --check` bestehen. Keine PDF-Neuerzeugung, da die gerenderten Handbuchtabellen unverändert sind.
+
+### Alte RM-Spezifikation und Suchoptionen einordnen
+
+**R30 · Erledigt; Stand am 17. Oktober gegen den Checkout geprüft**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die alte [RM_Documentation_Spec.md](obsolete/RM_Documentation_Spec.md) liegt bereits im Archiv. Die maßgeblichen Regeln stehen in der [RM-Wartungsanleitung](../rm/maintenance.md#trice-reference-manual-maintenance): Kapitelquellen als Wahrheit, manuelle README-Reihenfolge, lokale mdtoc-Navigation, ausschließlich temporärer Gesamttext und PDFs als generierte Artefakte. Commit `a1f9302a` archiviert außerdem die übrigen alten RM-Planungen, `rm1` und ausgediente Übergaben. Daraus entsteht kein weiterer Archivierungs- oder Reparaturauftrag.
+
+**Gültige Entscheidung beibehalten:** Kein `docs/rm/INDEX.md`, `RM-search.txt` oder zusätzlicher mdBook-/HTML-Suchbuild ohne belegten Suchbedarf und eigenen Auftrag. Für die Suche über alle RM-Inhalte gibt es bereits das Gesamt-PDF sowie die lokale Editorsuche. Die frühere Forderung nach einem initialen Index ist keine offene Release-Anforderung. Historische Texte und ihre alten Links bleiben unverändert.
+
+### UTF-8-Zeichen gezielt statt flächig einsetzen
+
+**R31 · Erledigt; Commit 206101e9, am 17. Oktober gegen den Checkout geprüft**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die vereinbarte Gestaltung ist umgesetzt: keine Emojis in Überschriften, sparsame Symbole mit Textlabel im UM/RM und eine [gemeinsame Legende](../rm/HEADER.md#symbols-and-table-results). Tabellen unterscheiden Ja/Nein, teilweise Unterstützung, nicht anwendbar, unbekannt und gemessene Null. Die Symbolsammlung im auskommentierten Footer bleibt erhalten. Die [Wartungsregeln](../rm/maintenance.md#trice-reference-manual-maintenance) halten diese Entscheidung fest.
+
+`PASS`/`FAIL`/`SKIP`, Maschinenkanäle, JSON/KV, Befehle und zitierte Toolausgaben bleiben unverändert. Kein Terminal-Framework, Encoding-Umbau oder flächiger weiterer Emoji-Einsatz ist beauftragt. Die am 17. Oktober neu erzeugten Handbuch-PDFs sind geprüft; frühere CRLF-/Windows-Fehler gehören zu den bereits abgeschlossenen Plattformkorrekturen und nicht zu einem offenen Symbolauftrag.
+
+### Legacy-F-Makros in Beispielen und Tests einordnen
+
+**R36 · Erledigt am 18. Oktober; optionale Beispielumstellung nicht beauftragt**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Befund der statischen Prüfung vom 17. Oktober:** Außerhalb der Bibliothek stehen 35 F-Aufrufe in drei C-Dateien: 18 in [triceCheck.c](../../_test/testdata/triceCheck.c), einer in [triceExamples.c](../../examples/exampleData/triceExamples.c) und 16 in [TargetActivity.c](../../_test/stackB_di_nopf_aux32_specific/TargetActivity.c). Von den 18 zentralen Aufrufen bilden 16 den gezielten F-Testblock; zwei gehören zu Serialisierungsbeispielen. Generierte Sidecars enthalten weitere abgeleitete F-Verweise. Go-Fixtures prüfen unter anderem Parser, ID-Verwaltung, Dekodierung, Structured Logging und den ausdrücklichen Ausschluss von F aus ABC.
+
+**Umgesetzt:** Drei zusammenhängende F-Gruppen und das einzelne Legacy-Beispiel tragen kurze, kontextbezogene Kommentare. Die 16 zentralen F-Fälle, die 16 Spezialfälle und gezielte Go-Kompatibilitätstests bleiben erhalten. Sie prüfen weiterhin unterstützte Legacy-Schnittstellen; eine pauschale Ersetzung würde diese Abdeckung entfernen oder beispielsweise den ABC-Ausschlusstest fachlich umkehren. Die ausführliche Deprecation-Begründung steht einmal am Schalter `TRICE_LEGACY_RPC_SUPPORT`, siehe R37.
+
+**Verbindliche Entscheidung:** F-Unterstützung und Bibliotheksverhalten bleiben aus Kompatibilitätsgründen erhalten. Alle 35 Aufrufe einschließlich ihrer Zeilennummern sowie der generierte Code bleiben unverändert. Kein pauschales F→C und keine neue Testablage aus kosmetischen Gründen. Damit ist die vereinbarte Einordnung abgeschlossen.
+
+**Prüfung am 18. Oktober:** Vergleich mit HEAD bestätigt unveränderte C-Tokens in allen vier betroffenen C-/Headerdateien und unveränderte Zeilennummern aller 35 F-Aufrufe. Der Hashvergleich der 283 erfassten generierten Dateien ist identisch zum Ausgangsstand. Die C-Formatprüfung besteht.
+
+**Optionale Folgearbeit nach Beta-1, nur bei konkretem Nutzen und eigenem Auftrag:**
+
+1. Nur normale Anwendungsbeispiele getrennt betrachten: den einen Aufruf in `triceExamples.c` und gegebenenfalls die zwei Serialisierungsbeispiele in `triceCheck.c`. Wenn deren Umstellung einen konkreten Nutzen hat, die vorhandenen C-/ABC-Makros verwenden. Alte Namen wie `rpc:` und `ARemoteFunctionName` verschwinden nicht durch den Makrowechsel; ihre Bezeichnung gesondert prüfen, nicht sämtliche Testtexte umbenennen.
+2. Kein reiner Buchstabentausch: `trice16F(fmt, buf, n)` kann durch `trice16C(fmt, buf, n)` ersetzt werden; `Trice16F` benötigt bei C zusätzlich `TriceStamp16`, `TRice16F` zusätzlich `TriceStamp32`. Bei expliziten ID-Aufrufen die passende C-Schreibweise und `iD(...)` wählen. Elementbreite und Elementanzahl erhalten. C gehört zu ABC und erhält seinen Stempel ausdrücklich; die gestempelten F-Varianten lesen ihn automatisch.
+3. Nur für ausgewählte umgestellte Stellen Freigaben auf `TRICE_TX_ABC_SUPPORT` abstimmen; Ausschlüsse für lokale Textausgabe erhalten. Bind-Sidecars und TIL/LI auf dem regulären Weg konsistent erzeugen. Generierte Dateien nicht von Hand umschreiben, historische Wörterbucheinträge und andere Dateien nicht pauschal bereinigen. Die Legacy-Freigabe bleibt für die beibehaltenen F-Tests nötig.
+
+**Abnahme nur bei späterer Umstellung:** Umgestellte Beispiele mit Insert und Bind prüfen, Payload und Stempel vergleichen und ihre Ausgabe gezielt abnehmen. F-Kompatibilitätstests müssen weiterhin tatsächlich F ausführen; ABC-Auswahl und lokale Logging-Ausschlüsse behalten ihre bisherige Bedeutung. Keine Bibliotheksänderung und keine verringerte Legacy-Abdeckung als beiläufige Aufräumfolge akzeptieren. Ein vollständiger C-Gesamtlauf bleibt eine manuelle abschließende Nutzerprüfung.
+
+### Verbliebene RPC-Beschreibungen in Quelltexten prüfen
+
+**R37 · Erledigt am 18. Oktober**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+In [triceDefaultConfig.h](../../src/triceDefaultConfig.h) ist `TRICE_LEGACY_RPC_SUPPORT` mit Doxygen als deprecated gekennzeichnet: Der alte RPC-Generator und die Hostoption `-legacyRPCSupport` sind entfernt; neue Befehlsprotokolle verwenden C/ABC. Die F-Implementierungen bleiben für Quelltext- und Wire-Kompatibilität erhalten. Der Kommentar warnt vor einem bloßen Umbenennen gestempelter F-Aufrufe, weil C explizite Stempelargumente benötigt.
+
+Der Kommentar zu `XTEA_DECRYPT` beschreibt jetzt die lokale Entschlüsselung bei Wert 1 und ihre Verwendung für Prüfungen oder Target-Empfänger. Der überholte Verweis auf eine aus F generierte Funktionstabelle entfällt. In [helptext.go](../../internal/args/helptext.go) sind die beiden ungenutzten Textersetzungen für `til_rpc.c`/`til_rpc.h` entfernt; die aktuelle CLI-Hilfe benötigt sie nicht.
+
+Die tatsächlichen F-Implementierungen, die Go-RPC-basierte Remote-Anzeige, aktuelle ABC-Protokollerklärungen, generierter Code und Archive bleiben unverändert. Kein alter RPC-Generator oder CLI-Schalter wurde wieder eingeführt.
+
+**Prüfung am 18. Oktober:** `go test -count=1 ./internal/args ./cmd/generate-helpall-doc` besteht. Der vorhandene Vergleichstest bestätigt die CLI-Gesamthilfe bytegenau gegen `docs/ref/trice-help-all.txt`; die Referenzdatei wurde nicht neu erzeugt. gofmt, C-Formatprüfung, Markdownlint für diese sonst ausgeschlossene Plan-Datei und `git diff --check` bestehen. Die verschobenen Überschriften und ihre lokalen Dateilinks sind geprüft. Kein vollständiger Gesamtlauf wurde gestartet.
+
+### RM inhaltserhaltend kürzen und leicht ordnen
+
+**R29 · Erledigt am 18. Oktober; lokale Änderungen noch nicht committed**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+Die 34 Fachkapitel plus HEADER/FOOTER und die Gruppen **Normal use / Advanced features / Appendices** bleiben erhalten. Gruppierung und größere PDF-Überschriften waren bereits umgesetzt (`ca992353`); die RPC-Dokubereinigung vom 17. Oktober (`90c01f85`) und die Projektdatei-Tabelle aus R32 bleiben abgeschlossen. Dieser Auftrag ergänzt die begrenzte redaktionelle Pflege, keine neue Kapitelstruktur oder vollständige technische Nachabnahme jedes historischen Satzes.
+
+Bereich | Ergebnis
+--- | ---
+Quickstarts und Examples | Gemeinsame Include-Reihenfolge und F030-Build-/Dateiregeln einmal erklärt und von weiteren Einstiegen verlinkt; konkrete Erstläufe, Ausgaben und Konfigurationsgrenzen erhalten.
+Bind, Context Enrichment und Structured Logging | Wiederholte Zusammenfassungen gekürzt, Setup und Buildintegration verlinkt. Generate brauchte keine weitere Zusammenlegung; Owner-/Rebase-Grenzen und der CE-PoC-Anhang bleiben vollständig erhalten.
+Development Environment Setup, Target Tests und Tool Build/Release | Windows-Hostcompiler und Runtime-Prüfungen zentral erklärt; andere Einstiege verlinken dorthin. Historische Testausgabe bleibt erkennbar historisch.
+Maintenance | Überholte Aussagen zur noch ausstehenden Statistikfreigabe korrigiert: Sammlung und Pages waren am 17. Oktober erfolgreich. Der neue lokale Pages-Weg steht bei R22.
+Repository Workflow und Release-Beispiele | Nach ausdrücklicher Nutzerfreigabe zusammengezogene Git-/Shell-Befehle getrennt, Release-Prüfpfade konsistent gemacht und eine API-Schlüssel-Präsenzprüfung ohne Ausgabe des Schlüssels beschrieben. Snapshot-Abnahme ohne unbelegte Prozentzusage erklärt.
+Memory Usage und Troubleshooting | Wiederholte RTT-Konfiguration verlinkt und die Erklärung verschachtelter Trice-Aufrufe gestrafft. Messwerte und Messbedingungen bleiben erhalten.
+Übrige Fachkapitel | Inhalte ohne belegte Dopplung unverändert belassen, insbesondere RTT-/Integrationsgrenzen, Performance und die bereits kompakte Übersicht. Keine pauschale Kürzungsquote.
+
+**Inhaltsschutz:** Der Vergleich erfasst 478 Codeblöcke, 76 Bilder und 121 HTML-Kommentare. Nur die zwei ausdrücklich freigegebenen Release-Shellblöcke ändern sich; die übrigen Blöcke, alle Bilder und Kommentare bleiben erhalten. Zusätzlich sind die freigegebenen Inline-Shellbeispiele berichtigt. Das nutzergepflegte UM bleibt bytegenau unverändert; Archive, Bibliothek und generierter Target-Code sind unberührt.
+
+**Abnahme:** Markdownlint, Inhaltsverzeichnisprüfung und lokale Kapitel-/Fragmentlinks bestehen (639 Linkvorkommen, keine Fehler; externe Ziele dabei ausgeschlossen). Beide PDFs sind frisch erzeugt: UM 9 Seiten, RM 436 Seiten. Der Generator prüft 816 interne PDF-Links und 1.193 eindeutige Anker. Repräsentative Seiten mit Gruppen, Tabellen, geändertem Text, Code, Bildern und Seitenübergängen sind visuell geprüft. Sprachliche Änderungen und Pages-Skripte bei einem späteren Commit thematisch trennen. Keine neue Full-Matrix oder Hardwareprüfung; diese bleiben bei R15/R16/R38.
+
+### GitHub Pages mit eindeutigem Einstieg und Veröffentlichungsumfang
+
+**R22 · Erledigt am 18. Oktober; lokal abgenommen, noch nicht veröffentlicht**
+
+[Zur Aufgabenübersicht](#aufgabenübersicht)
+
+**Entscheidung und Umsetzung:** Die versionierte [index.md](../../index.md) bleibt unverändert der einzige Homepage-Einstieg mit README-Einbindung. [pages.yml](../../.github/workflows/pages.yml) überschreibt sie nicht mehr. Lokal und in CI bereitet [scripts/_prepare_pages.py](../../scripts/_prepare_pages.py) denselben begrenzten Baum unter `temp/pages-source` vor; Jekyll baut ausschließlich daraus. Die [lokale Anleitung](../rm/maintenance.md#repository-integration) beschreibt Installation und Build ohne Deployment.
+
+**Veröffentlichungsumfang:** Einstieg, Dokumentationsindex, UM, Guide, aktive flache RM-Markdownquellen sowie tatsächlich eingebundene Bilder und Animationen. Jekyll liefert HTML und Ressourcen aus, keine zusätzlichen Markdownkopien. Quellcode, andere Repositorydateien und bewusst verlinkte Downloads bleiben über die GitHub-Dateiansicht erreichbar. Scratchpad, Entwicklerzustand, unbenutzte Bilder, Buildverzeichnisse und Fremdsoftware-Archive gelangen nicht beiläufig ins Site-Artefakt. Vorbereitungsfehler nennen den fehlenden Pfad; Quelldateien bleiben unverändert.
+
+Der echte vorherige Pages-Upload aus Lauf `39048670054` enthält 1.755 Dateien mit 151.326.047 Bytes, darunter 1.220 Dateien aus `examples/`, Quellbäume und Fremdsoftware. Davon gehören neun Dateien mit 333.811 Bytes zur Statistik. Der neue lokale Dokumentationsbuild enthält **124 Dateien mit 20.935.198 Bytes**: 42 HTML-Seiten, 81 Bild-/Animationsdateien und ein Stylesheet. Die neun Statistikdateien sind in diesem lokalen Dokumentationsvergleich nicht enthalten.
+
+**Zusätzliche Buildbefunde behoben:** GitHub Pages erzeugt für Dokumentations-READMEs `index.html`, nicht `README.html`; die vorbereiteten Links berücksichtigen das. Liquid darf dokumentierte Doppelklammern und Vorlagentags nicht auswerten; nur im Build-Baum werden die öffnenden Zeichen geschützt. Beispiele wie `{{1,2}}` bleiben dadurch im gerenderten HTML erhalten. Die Handbuchquellen benötigen keine Liquid-Markierungen.
+
+**Abnahme:** Echter lokaler Build mit Ruby 3.3 und `github-pages 232` bestanden, ohne Liquid-Warnungen. Alle **1.193 lokalen HTML-Link-/Ressourcenverweise einschließlich Fragmente** in 42 Seiten geprüft: keine Fehler. Browserprüfung von Homepage, UM, RM-Einstieg und Structured Logging bestätigt geladene lokale Bilder/CSS und erhaltene Doppelklammern; externe Badge-/Fontdienste sind dabei ausgenommen. Die gesamte Skript-Testsuite besteht (165,717 s), danach auch die gezielten Pages-/Statistikintegrationstests auf dem endgültigen Stand. Die Verhaltenstests decken LF/CRLF, UTF-8, unveränderte Quellen, fehlende Pflichtquellen/Bilder, leere Bilder, ausbrechende Pfade, wiederholte Vorbereitung, veröffentlichte Dateigruppen, verlinkte Vorschauen und Literalvorlagen ab. Actionlint, Markdownlint, Inhaltsverzeichnisse und `git diff --check` bestehen.
+
+**Statistik und Veröffentlichungsgrenze:** Der bestehende Statistik-Anhängeschritt bleibt unverändert; seine Fixturetests bestehen. Sammlung und Veröffentlichung vom 17. Oktober (Statistiklauf `39048591733`, Pages-Lauf `39048670054`) sowie die geschützte unabhängige Datenbranch-Historie bleiben bestehende Nachweise. Der aktuelle Auftrag hat weder deployt noch Branchschutz geändert, committed oder gepusht. Der neue Website-Baum wird erst nach Übernahme auf `main` durch den bestehenden Pages-Workflow veröffentlicht.

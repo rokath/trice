@@ -1,0 +1,89 @@
+name: Native Trice runner
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      selection:
+        type: string
+        required: true
+      race:
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Read the shared tool versions
+        id: versions
+        run: |
+          source scripts/test-tools.env
+          printf 'go=%s\nnode=%s\npython=%s\n' "$TRICE_GO_VERSION" "$TRICE_NODE_VERSION" "$TRICE_PYTHON_VERSION" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ steps.versions.outputs.go }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.versions.outputs.node }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ steps.versions.outputs.python }}
+      - name: Restore verified project tools
+        uses: actions/cache@v5
+        with:
+          path: temp/tools
+          key: native-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/test-tools.env', 'scripts/testcheck/package-lock.json') }}
+      - name: Prepare native system prerequisites
+        run: |
+          set -euo pipefail
+          case "$RUNNER_OS" in
+            Linux)
+              sudo apt-get update
+              # Compiler and CMake versions come from the shared manifest.
+              sudo apt-get install -y build-essential xz-utils unzip python3-venv
+              ;;
+            macOS)
+              # The suite selects genuine GCC and private LLVM. Apple's SDK
+              # remains the source of native system headers and libraries.
+              brew install gcc
+              printf '%s/bin\n' "$(brew --prefix gcc)" >> "$GITHUB_PATH"
+              ;;
+            Windows)
+              # testAll prepares one verified GCC/Clang/MinGW bundle when the
+              # installed frontends do not pass the complete runtime probes.
+              make --version
+              ;;
+          esac
+      - name: Run the native shared test plan
+        run: bash scripts/testAll.sh '${{ inputs.selection }}'
+      - name: Check concurrent host behavior
+        if: ${{ !cancelled() && inputs.race }}
+        run: |
+          set -euo pipefail
+          mkdir -p temp/log
+          LOG_DIR="$(mktemp -d "$PWD/temp/log/race.XXXXXX")"
+          export LOG_DIR
+          source scripts/_100_test_common.sh
+          init_logfile
+          prepare_native_test_tools > "$LOG_DIR/tools.log" 2>&1
+          run_go_tests -race -count=1 -timeout=20m ./internal/decoder ./internal/emitter ./internal/translator ./internal/vis
+      - name: Upload native evidence even after failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-${{ inputs.runner }}-${{ inputs.selection }}
+          path: temp/log
+          if-no-files-found: error

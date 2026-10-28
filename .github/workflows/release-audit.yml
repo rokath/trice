@@ -65,15 +65,22 @@ jobs:
 
           require_glob() {
             local pattern="$1"
-            local matches=()
-            mapfile -t matches < <(compgen -G "release-assets/$pattern" || true)
-            if [ "${#matches[@]}" -eq 0 ]; then
+            local match
+            local matched=0
+            # Read in this shell so Bash 3.2 retains the match state; quoted
+            # output preserves asset names containing spaces.
+            while IFS= read -r match; do
+              if [ "$matched" -eq 0 ]; then
+                printf 'OK downloaded: %s\n' "$pattern"
+              fi
+              matched=1
+              printf '  %s\n' "$match"
+            done < <(compgen -G "release-assets/$pattern" || true)
+            if [ "$matched" -eq 0 ]; then
               echo "::error::no downloaded release asset matches: $pattern"
-              find release-assets -maxdepth 1 -type f -printf '%s %p\n' | sort || true
+              find release-assets -maxdepth 1 -type f -exec wc -c {} + | sort || true
               exit 1
             fi
-            printf 'OK downloaded: %s\n' "$pattern"
-            printf '  %s\n' "${matches[@]}"
           }
 
           download_required 'trice_tool_linux_amd64.tar.gz'

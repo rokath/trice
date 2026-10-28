@@ -46,11 +46,12 @@ main() {
     exit 0
   fi
 
-  run_cmd env TRICE_BIND_INTEGRATION=1 go test ./internal/id \
+  TRICE_BIND_INTEGRATION=1 TRICE_REQUIRED_TESTS="TestBindGeneratedTargetCompilesCAndCPP TestBindCanonicalTriceCheckGeneratesCompleteSidecar TestBindMVP2RebaseCompilesCAndCPP TestBindMVP2CounterGuardsAndGeneratedInvariants TestBindMVP2RebaseEmitsStableRuntimeIDs" run_go_tests ./internal/id \
     -run '^TestBind(GeneratedTargetCompilesCAndCPP|CanonicalTriceCheckGeneratesCompleteSidecar|MVP2RebaseCompilesCAndCPP|MVP2CounterGuardsAndGeneratedInvariants|MVP2RebaseEmitsStableRuntimeIDs)$' \
     -count=1 || {
+    local status=$?
     log "FAIL: Trice bind integration failed; inspect the Go test diagnostics above"
-    exit 1
+    exit "$status"
   }
 
   log "PASS: Bind generation, C/C++ compilation, counter guards and runtime IDs"

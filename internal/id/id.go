@@ -6,8 +6,6 @@ package id
 import (
 	"fmt"
 	"strconv"
-
-	"github.com/rokath/trice/pkg/msg"
 )
 
 // TriceID is the trice ID referencing to Fmt.
@@ -21,12 +19,15 @@ func (id *TriceID) String() string {
 	return fmt.Sprintf("%d", *id)
 }
 
-// Set implements part of flag.Value interface. It initializes id from the partial command line string
+// Set implements part of flag.Value interface. Invalid input leaves id unchanged
+// and returns the parse error so the CLI can report it with the relevant help hint.
 func (id *TriceID) Set(value string) error {
 	n, err := strconv.Atoi(value)
-	msg.FatalOnErr(err)
+	if err != nil {
+		return err
+	}
 	*id = TriceID(n)
-	return err
+	return nil
 }
 
 // TriceFmt is the trice format information assigned to a trice ID.

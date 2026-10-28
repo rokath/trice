@@ -15,9 +15,12 @@ main() {
   printf '+ clang --version\n'
   clang --version
   printf '+ make clean\n'
-  make clean
+  # These builds never read input. Do not pass a Git Bash terminal through native
+  # Make to MSYS recipe shells: that combination can leave shell children stuck.
+  # Keep the redirection local so outer tool-installation prompts still work.
+  make clean </dev/null
   printf '+ ./build_with_clang.sh\n'
-  ./build_with_clang.sh
+  ./build_with_clang.sh </dev/null
 
   # Warning sets vary by compiler release. Keep their text visible but use the
   # build command's failure status, not a search for words in its output.

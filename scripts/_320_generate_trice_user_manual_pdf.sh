@@ -5,6 +5,7 @@
 # This is the single PDF generation entry point used by developers, CI, and
 # GoReleaser. It does not require VS Code and writes the PDF where the manual
 # belongs: in docs/. Disposable RM inputs are rebuilt under temp/manual-pdf/.
+# Use `setup` to validate inputs and prepare pinned tools without rendering PDFs.
 
 set -euo pipefail
 
@@ -14,11 +15,21 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 # Keep both manuals in the shared developer, CI and release rendering path.
 MANUAL_FILES=("docs/TriceUserManual.md" "temp/manual-pdf/TriceReferenceManual.md")
 REF_DIR="docs/ref"
-MD_TO_PDF_PACKAGE="md-to-pdf@5.2.4"
-PUPPETEER_PACKAGE="puppeteer@24.31.0"
-STITCHMD_VERSION="0.9.0"
 
 cd "$REPO_ROOT"
+# shellcheck source=./_105_setup_test_tools.sh
+source "$SCRIPT_DIR/_105_setup_test_tools.sh"
+MD_TO_PDF_PACKAGE="md-to-pdf@${TRICE_TOOL_MD_TO_PDF_VERSION:-5.2.5}"
+PUPPETEER_PACKAGE="puppeteer@${TRICE_TOOL_PUPPETEER_VERSION:-25.16.0}"
+STITCHMD_VERSION="${TRICE_TOOL_STITCHMD_VERSION:-0.9.0}"
+
+# Resolve setup separately so callers can obtain installation consent before
+# launching a release tool whose captured hooks cannot read interactive input.
+MODE="${1:-generate}"
+if [[ "$#" -gt 1 ]] || [[ "$MODE" != generate && "$MODE" != setup ]]; then
+  echo "Usage: $0 [generate|setup]" >&2
+  exit 2
+fi
 
 die() {
   echo "ERROR: $*" >&2
@@ -84,61 +95,89 @@ if [[ ! -d "$REF_DIR" ]]; then
   die "missing manual reference directory: $REF_DIR"
 fi
 
+# The pinned renderer requires the manifest's Node runtime, including direct
+# invocations that did not inherit the native suite's prepared PATH.
+if ! ensure_node_test_tool; then
+  show_context
+  die "cannot prepare the declared Node.js runtime for PDF generation"
+fi
+
 if ! command -v npx >/dev/null 2>&1; then
   show_context
   die "npx is required. Install Node.js/npm."
 fi
 
 # Use the same pinned stitcher locally and in the GitHub release/snapshot jobs.
-if ! command -v stitchmd >/dev/null 2>&1; then
-  show_context
-  die "stitchmd $STITCHMD_VERSION is required; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
-fi
-if ! stitchmd_identity="$(stitchmd -version 2>&1)"; then
-  show_context
-  die "cannot read stitchmd version: $stitchmd_identity"
-fi
-case "$(printf '%s\n' "$stitchmd_identity" | tr -d '\r' | sed -n '1p')" in
-  "stitchmd $STITCHMD_VERSION") ;;
-  "stitchmd dev")
-    # go install preserves the pinned module version in build information, but
-    # stitchmd's display version is only populated by its release linker flags.
-    # Inspect the selected executable, including MSYS's implicit .exe suffix.
-    stitchmd_binary="$(command -v stitchmd)"
-    case "${OSTYPE:-}" in
-      msys* | cygwin*)
-        # MSYS's -f also accepts an implicit suffix; Go needs it explicitly.
-        if [[ -f "$stitchmd_binary.exe" ]]; then stitchmd_binary="$stitchmd_binary.exe"; fi
-        ;;
-    esac
-    if ! command -v go >/dev/null 2>&1; then
-      show_context
-      die "Go is required to verify stitchmd dev; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
-    fi
-    if ! stitchmd_build="$(go version -m "$stitchmd_binary" 2>&1)"; then
-      show_context
-      die "cannot read stitchmd build information for $stitchmd_binary: $stitchmd_build"
-    fi
-    # A matching dependency is insufficient: both the main package and module
-    # must match, and replacements would invalidate the pinned source identity.
-    if ! printf '%s\n' "$stitchmd_build" | tr -d '\r' | awk \
-      -v module=go.abhg.dev/stitchmd -v version="v$STITCHMD_VERSION" '
-        $1 == "path" { package_ok = ($2 == module && NF == 2) }
-        $1 == "mod" { module_ok = ($2 == module && $3 == version) }
-        $1 == "=>" { replaced = 1 }
-        END { exit !(package_ok && module_ok && !replaced) }
-      '; then
-      show_context
-      printf '%s\n' "$stitchmd_build" >&2
-      die "stitchmd dev must be built from go.abhg.dev/stitchmd@v$STITCHMD_VERSION without replacements; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
-    fi
-    echo "Verified stitchmd v$STITCHMD_VERSION from Go build information: $stitchmd_binary"
-    ;;
-  *)
+# Keep the existing build-information check for Go-installed dev binaries.
+validate_stitchmd() {
+  if ! command -v stitchmd >/dev/null 2>&1; then
+    stitchmd_error="stitchmd $STITCHMD_VERSION is required; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
+    return 1
+  fi
+  if ! stitchmd_identity="$(stitchmd -version 2>&1)"; then
+    stitchmd_error="cannot read stitchmd version: $stitchmd_identity"
+    return 1
+  fi
+  case "$(printf '%s\n' "$stitchmd_identity" | tr -d '\r' | sed -n '1p')" in
+    "stitchmd $STITCHMD_VERSION") return 0 ;;
+    "stitchmd dev")
+      # go install preserves the pinned module version in build information, but
+      # stitchmd's display version is only populated by its release linker flags.
+      # Inspect the selected executable, including MSYS's implicit .exe suffix.
+      stitchmd_binary="$(command -v stitchmd)"
+      case "${OSTYPE:-}" in
+        msys* | cygwin*)
+          # MSYS's -f also accepts an implicit suffix; Go needs it explicitly.
+          if [[ -f "$stitchmd_binary.exe" ]]; then stitchmd_binary="$stitchmd_binary.exe"; fi
+          ;;
+      esac
+      if ! command -v go >/dev/null 2>&1; then
+        stitchmd_error="Go is required to verify stitchmd dev; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
+        return 1
+      fi
+      if ! stitchmd_build="$(go version -m "$stitchmd_binary" 2>&1)"; then
+        stitchmd_error="cannot read stitchmd build information for $stitchmd_binary: $stitchmd_build"
+        return 1
+      fi
+      # A matching dependency is insufficient: both the main package and module
+      # must match, and replacements would invalidate the pinned source identity.
+      if ! printf '%s\n' "$stitchmd_build" | tr -d '\r' | awk \
+        -v module=go.abhg.dev/stitchmd -v version="v$STITCHMD_VERSION" '
+          $1 == "path" { package_ok = ($2 == module && NF == 2) }
+          $1 == "mod" { module_ok = ($2 == module && $3 == version) }
+          $1 == "=>" { replaced = 1 }
+          END { exit !(package_ok && module_ok && !replaced) }
+        '; then
+        printf '%s\n' "$stitchmd_build" >&2
+        stitchmd_error="stitchmd dev must be built from go.abhg.dev/stitchmd@v$STITCHMD_VERSION without replacements; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
+        return 1
+      fi
+      echo "Verified stitchmd v$STITCHMD_VERSION from Go build information: $stitchmd_binary"
+      return 0
+      ;;
+    *)
+      stitchmd_error="stitchmd $STITCHMD_VERSION is required for reproducible PDF assembly; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
+      return 1
+      ;;
+  esac
+}
+
+if ! validate_stitchmd; then
+  if ! confirm_tool_install "stitchmd $STITCHMD_VERSION"; then
     show_context
-    die "stitchmd $STITCHMD_VERSION is required for reproducible PDF assembly; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
-    ;;
-esac
+    die "$stitchmd_error"
+  fi
+  install_go_test_tool "go.abhg.dev/stitchmd@v$STITCHMD_VERSION" || die "stitchmd installation failed"
+  if ! validate_stitchmd; then
+    show_context
+    die "$stitchmd_error"
+  fi
+fi
+
+if [[ "$MODE" == setup ]]; then
+  echo "Manual PDF prerequisites ready: stitchmd $STITCHMD_VERSION and npx."
+  exit 0
+fi
 
 # Preparation and verification run inside the renderer's npx environment so they
 # reuse its Markdown parser/highlighter. Only the fixed staging tree is reset.
@@ -216,12 +255,12 @@ EOF_JSON
   echo "Generating manual PDF from $MANUAL_FILE"
   echo "Output PDF: $OUTPUT_FILE"
 
-  # md-to-pdf 5.2.4 declares Puppeteer as an open-ended >=8 dependency. Letting
+  # md-to-pdf declares Puppeteer as an open-ended >=8 dependency. Letting
   # npx resolve that range implicitly makes an otherwise pinned release step
   # depend on the newest Puppeteer, its Node.js floor, and its Chrome revision.
   # Supplying both exact packages at the npx root keeps npm's satisfying package
-  # selection deterministic. Puppeteer 24.31.0 supports Node.js 18 and newer and
-  # installs its matching browser in Puppeteer's normal cross-platform cache.
+  # selection deterministic. Use the manifest's Node.js runtime and Puppeteer's
+  # matching browser in its normal cross-platform cache.
   if ! npx -y \
     --package="$MD_TO_PDF_PACKAGE" \
     --package="$PUPPETEER_PACKAGE" \

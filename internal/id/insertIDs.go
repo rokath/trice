@@ -295,6 +295,11 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 			if !filenameMatch && filepath.Base(filepath.FromSlash(li.File)) == li.File {
 				filenameMatch = filepath.Base(filepath.FromSlash(liFile)) == li.File
 			}
+			// Case-folded strings are only candidates: native metadata must
+			// prove identity before an existing ID can cross a spelling change.
+			if !filenameMatch && strings.EqualFold(liFile, normalizeLocationPath(li.File)) {
+				filenameMatch = p.selectedLocationAlias(normalizeLocationPath(li.File), []string{sourcePath})
+			}
 
 			if !filenameMatch {
 				if Verbose {

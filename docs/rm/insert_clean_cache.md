@@ -37,10 +37,10 @@
     * [15.8.1. Option Cleaning in a Post-build process](#option-cleaning-in-a-post-build-process)
     * [15.8.2. Option Let the inserted Trice ID be a Part of the User Code](#option-let-the-inserted-trice-id-be-a-part-of-the-user-code)
     * [15.8.3. Option Cleaning on Repository Check-In](#option-cleaning-on-repository-check-in)
-* [16. TRICE_CLEAN](#trice_clean)
-  * [16.1. trice clean After trice bind](#trice-clean-after-trice-bind)
-* [17. Re-Migration to trice insert](#re-migration-to-trice-insert)
-* [18. Appendix: TRICE_CLEAN States at a Glance](#appendix-trice_clean-states-at-a-glance)
+* [16. `TRICE_CLEAN`](#trice_clean)
+  * [16.1. `trice clean` After `trice bind`](#trice-clean-after-trice-bind)
+* [17. Re-Migration to `trice insert`](#re-migration-to-trice-insert)
+* [18. Appendix: `TRICE_CLEAN` States at a Glance](#appendix-trice_clean-states-at-a-glance)
 * [19. Automated pre-build insert command example](#automated-pre-build-insert-command-example)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->

@@ -1,1 +1,1 @@
-- [First instrumentation with UART: setup, build and logging](../../docs/rm/examples.md#f030instuart)
+- [First instrumentation with UART: setup, build and logging](../../docs/rm/examples.md#f030_inst_uart)
