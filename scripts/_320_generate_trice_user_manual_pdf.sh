@@ -97,15 +97,42 @@ fi
 
 # The pinned renderer requires the manifest's Node runtime, including direct
 # invocations that did not inherit the native suite's prepared PATH.
+if declare -F trice_test_tool_plan >/dev/null; then
+  trice_test_tool_plan pdf || exit 2
+fi
 if ! ensure_node_test_tool; then
   show_context
   die "cannot prepare the declared Node.js runtime for PDF generation"
 fi
 
-if ! command -v npx >/dev/null 2>&1; then
+PDF_USE_SELECTED=0
+if [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
+  prepare_selected_npm_tools || die "cannot prepare the selected PDF toolchain"
+  PDF_USE_SELECTED=1
+fi
+
+# An exported selection reuses complete global or locked local installations.
+# Legacy callers without a selection retain their explicitly pinned npx path.
+if [[ "$PDF_USE_SELECTED" == 0 ]] && ! command -v npx >/dev/null 2>&1; then
   show_context
   die "npx is required. Install Node.js/npm."
 fi
+
+run_pdf_prepare() {
+  if [[ "$PDF_USE_SELECTED" == 1 ]]; then
+    node scripts/_prepare_reference_manual.cjs "$@"
+  else
+    npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_prepare_reference_manual.cjs $*"
+  fi
+}
+
+run_pdf_renderer() {
+  if [[ "$PDF_USE_SELECTED" == 1 ]]; then
+    node "$TRICE_TEST_PDF_CLI" "$@"
+  else
+    npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" md-to-pdf "$@"
+  fi
+}
 
 # Use the same pinned stitcher locally and in the GitHub release/snapshot jobs.
 # Keep the existing build-information check for Go-installed dev binaries.
@@ -135,7 +162,7 @@ validate_stitchmd() {
         stitchmd_error="Go is required to verify stitchmd dev; install with: go install go.abhg.dev/stitchmd@v$STITCHMD_VERSION"
         return 1
       fi
-      if ! stitchmd_build="$(go version -m "$stitchmd_binary" 2>&1)"; then
+      if ! stitchmd_build="$(GOTOOLCHAIN=local go version -m "$stitchmd_binary" 2>&1)"; then
         stitchmd_error="cannot read stitchmd build information for $stitchmd_binary: $stitchmd_build"
         return 1
       fi
@@ -181,8 +208,7 @@ fi
 
 # Preparation and verification run inside the renderer's npx environment so they
 # reuse its Markdown parser/highlighter. Only the fixed staging tree is reset.
-if ! npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" \
-  -c 'node scripts/_prepare_reference_manual.cjs'; then
+if ! run_pdf_prepare; then
   show_context
   die "reference manual preparation failed"
 fi
@@ -190,8 +216,7 @@ if ! stitchmd -no-toc -o temp/manual-pdf/TriceReferenceManual.md temp/manual-pdf
   show_context
   die "stitchmd failed to assemble temp/manual-pdf/TriceReferenceManual.md"
 fi
-if ! npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" \
-  -c 'node scripts/_prepare_reference_manual.cjs --verify'; then
+if ! run_pdf_prepare --verify; then
   show_context
   die "reference manual link/anchor verification failed"
 fi
@@ -261,10 +286,7 @@ EOF_JSON
   # Supplying both exact packages at the npx root keeps npm's satisfying package
   # selection deterministic. Use the manifest's Node.js runtime and Puppeteer's
   # matching browser in its normal cross-platform cache.
-  if ! npx -y \
-    --package="$MD_TO_PDF_PACKAGE" \
-    --package="$PUPPETEER_PACKAGE" \
-    md-to-pdf \
+  if ! run_pdf_renderer \
     "$MANUAL_FILE" \
     --config-file scripts/_manual_pdf_config.cjs \
     --basedir "$REPO_ROOT" \

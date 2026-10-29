@@ -91,7 +91,7 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 	t.Helper()
 	root := t.TempDir()
 	// Tool setup is shared by standalone checks as well as suite entry points.
-	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/test-tools.env")
+	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/_116_test_tool_plan.sh", "scripts/_117_system_test_tools.sh", "scripts/_test_npm_tools.cjs", "scripts/test-tools.env")
 	runner := false
 	for _, name := range scripts {
 		runner = runner || name == "scripts/_110_test_runner.sh"
@@ -100,6 +100,16 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 			t.FailNow()
 		}
 		writeFixture(t, root, name, string(data))
+		if name == "scripts/_105_setup_test_tools.sh" {
+			// Legacy installer/orchestrator cases isolate their own consent.
+			// Startup-plan tests explicitly reload the real planner afterwards.
+			writeFixture(t, root, name, string(data)+"\ntrice_test_tool_plan() { return 0; }\n")
+		}
+		if name == "scripts/_115_prepare_native_tests.sh" {
+			// Installer/orchestration fixtures provide their own Go double. The
+			// dedicated Go-consent test restores the real runtime selector.
+			writeFixture(t, root, name, string(data)+"\nensure_native_go_toolchain() { return 0; }\n")
+		}
 		if name == "scripts/_100_test_common.sh" {
 			// These fixtures model orchestration with tool doubles. The helper's
 			// real JSON validation and pinned cache are tested in testcheck.
@@ -146,6 +156,12 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_TEST_SETUP_APPROVED": "0",
 		"TRICE_BIND_INTEGRATION":    "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
+		// Outer preparation must not lend a plan, browser or formatter selection
+		// to disposable tool doubles or silently authorize real installations.
+		"TRICE_TEST_NPM_PLAN": "", "TRICE_TEST_NPM_MISSING": "", "TRICE_TEST_PDF_CLI": "",
+		"TRICE_TEST_PLAN_SCOPES": "", "TRICE_TEST_PLAN_ACTIVE": "0", "TRICE_TEST_SETUP_ONLY": "0",
+		"CLANG_FORMAT_BIN": "", "NODE_PATH": "",
+		"TRICE_PLAN_FILE": "", "TRICE_FORMAT_PYTHON": "", "PUPPETEER_CACHE_DIR": "",
 	}
 	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
 	if _, err := os.Stat(reportTool); err == nil {
@@ -598,9 +614,9 @@ main
 	}
 }
 
-// TestNativeGoToolchainConsent models Go's launcher with a cached or missing
-// exact toolchain. The offline probe must preserve checksum verification and
-// ask before the launcher is allowed to download a missing toolchain.
+// TestNativeGoToolchainConsent models offline discovery and the worktree-local
+// binary fallback. A missing toolchain needs approval and its pinned release
+// checksum; Go's launcher must never download behind the startup plan.
 func TestNativeGoToolchainConsent(t *testing.T) {
 	for _, tc := range []struct {
 		name, input    string
@@ -613,22 +629,42 @@ func TestNativeGoToolchainConsent(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			selector, err := os.ReadFile(filepath.Join("..", "scripts", "_115_prepare_native_tests.sh"))
+			if !assert.NoError(t, err) {
+				t.FailNow()
+			}
+			writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", string(selector))
+			runtimeScript := "#!/bin/sh\n[ \"$1\" = version ] || exit 91\necho 'go version go1.27.3 linux/amd64'\n"
+			writeFixture(t, root, "runtime-fixture", runtimeScript)
 			if tc.warm {
 				writeFixture(t, root, "installed", "cached toolchain\n")
+				writeFixture(t, root, "temp/tools/go/1.27.3/go/bin/go", runtimeScript)
 			}
 			writeFixture(t, root, "bin/go", `#!/bin/sh
-[ "$1" = version ] && [ "$GOTOOLCHAIN" = go1.27.3 ] || exit 91
-# Disabling checksum verification rejects even a cached Go toolchain.
-[ "${GOSUMDB:-}" != off ] || exit 92
-if [ ! -f installed ]; then
-  [ "${GOPROXY:-}" != off ] || exit 1
-  echo prepared >> preparations
-  touch installed
-fi
-echo 'go version go1.27.3'
+[ "$1" = env ] && [ "$2" = GOROOT ] && [ "$GOTOOLCHAIN" = go1.27.3 ] && [ "$GOPROXY" = off ] || exit 91
+[ -f installed ] || exit 1
+printf '%s/temp/tools/go/1.27.3/go\n' "$PWD"
 `)
+			writeFixture(t, root, "bin/dpkg", "#!/bin/sh\nexit 1\n")
 			command := `source scripts/_105_setup_test_tools.sh
 source scripts/_115_prepare_native_tests.sh
+# Isolate the installer from the separately tested startup table.
+trice_test_tool_plan() {
+  TRICE_PLAN_OS=linux TRICE_PLAN_HOST=linux/amd64 TRICE_PLAN_PLATFORM=LINUX_AMD64
+  if [ ! -f installed ]; then approve_pinned_test_setup 'Go runtime' || return 2; fi
+  export TRICE_TEST_PLAN_ACTIVE=1
+}
+download_pinned_test_tool() {
+  [ "${TRICE_TEST_SETUP_APPROVED:-0}" = 1 ] || return 92
+  [ "$1" = https://go.dev/dl/go1.27.3.linux-amd64.tar.gz ] && [ "$3" = "$TRICE_GO_SHA_LINUX_AMD64" ] || return 93
+  echo prepared >> preparations
+}
+tar() {
+  [ "$1" = -xf ] && [ "$3" = -C ] || return 94
+  mkdir -p "$4/go/bin"
+  cp runtime-fixture "$4/go/bin/go"
+  touch installed
+}
 ensure_native_go_toolchain || exit $?
 ensure_native_go_toolchain
 `
@@ -714,6 +750,34 @@ prepare_pinned_native_tools
 // TestCppcheckPinnedVersion verifies that the exact analyzer version is accepted
 // and an older version requires consent instead of silently reducing checks.
 func TestCppcheckPinnedVersion(t *testing.T) {
+	t.Run("reuse_analyzer_from_complete_host_cache", func(t *testing.T) {
+		root := scriptFixture(t)
+		writeFixture(t, root, "bin/uname", "#!/bin/sh\ncase \"$1\" in -s) echo MINGW64_NT-10.0 ;; -m) echo x86_64 ;; esac\n")
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.20.0'\n")
+		writeFixture(t, root, "seed/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.22.0'\n")
+		out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+cppcheck_system_test_tool() { return 1; }
+select_windows_host_test_package || exit
+mkdir -p "$TRICE_HOST_PACKAGE_BIN"
+cp seed/cppcheck "$TRICE_HOST_PACKAGE_BIN/cppcheck"
+ensure_cppcheck_test_tool && cppcheck --version`, nil)
+		assert.NoError(t, err, out)
+		assert.Contains(t, out, "Cppcheck 2.22.0")
+		assert.NotContains(t, out, "Install Cppcheck")
+		assert.NoDirExists(t, filepath.Join(root, "temp", "tools", "cppcheck"))
+	})
+	t.Run("matching_system_package_behind_old_path_entry", func(t *testing.T) {
+		root := scriptFixture(t)
+		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.20.0'\n")
+		writeFixture(t, root, "System Programs/Cppcheck/cppcheck.exe", "#!/bin/sh\necho 'Cppcheck 2.22.0'\n")
+		out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+cygpath() { printf '%s\n' "$2"; }
+PROGRAMFILES="$PWD/System Programs"
+ensure_cppcheck_test_tool && test "$(command -v cppcheck)" != "$PWD/bin/cppcheck"`, nil)
+		assert.NoError(t, err, out)
+		assert.NotContains(t, out, "Install Cppcheck")
+		assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
+	})
 	t.Run("version_probe_preserves_installation_answer", func(t *testing.T) {
 		root := scriptFixture(t)
 		// Native tools must not consume the input reserved for the consent prompt.
@@ -895,7 +959,7 @@ func TestPinnedFormatterCheckInstallation(t *testing.T) {
 		installed, readErr := os.ReadFile(filepath.Join(root, "installed-package.txt"))
 		assert.NoError(t, readErr)
 		assert.Equal(t, "install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1\n", string(installed))
-		assert.FileExists(t, filepath.Join(root, "temp/tools/shfmt"))
+		assert.FileExists(t, filepath.Join(root, "temp/tools/bin/shfmt"))
 		source, readErr := os.ReadFile(filepath.Join(root, "sample.sh"))
 		assert.NoError(t, readErr)
 		assert.Equal(t, "#!/bin/sh\nexit 0\n", string(source))
@@ -1214,7 +1278,7 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			}
 			assert.Contains(t, out, "Result: "+tc.result)
 			if tc.args == "" {
-				assert.Contains(t, out, "Selection: full")
+				assert.Contains(t, out, "testAll | full |")
 			}
 			// Every completed step, including WARN/FAIL/ABORTED, retains the
 			// same time-prefixed line in stdout and the persistent summary.
@@ -1224,9 +1288,10 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			}
 			summary, readErr := os.ReadFile(filepath.Join(runs[0], "testAll_summary.log"))
 			assert.NoError(t, readErr)
-			assert.Contains(t, out, "Pinned tool versions for this checkout:")
-			assert.Contains(t, string(summary), "Pinned tool versions for this checkout:")
-			assert.Less(t, strings.Index(out, "Pinned tool versions for this checkout:"), strings.Index(out, "Preparing declared native tools;"))
+			assert.Contains(t, out, "Log:")
+			assert.NotContains(t, out, "Preparing declared native tools;")
+			assert.Contains(t, string(summary), "Preparing declared native tools;")
+			assert.NotContains(t, out, "Pinned tool versions for this checkout:", "the runner must not duplicate the preparation inventory")
 			resultLines := regexp.MustCompile(`(?m)^\[ *\d+/ *\d+ \| ~ *\d+\.\d%\] \( *\d+m *\d+s\) _\w+\.sh: (PASS|INCOMPLETE|FAIL|ABORTED)$`)
 			consoleLines := resultLines.FindAllString(out, -1)
 			wantLines := 1
@@ -1237,9 +1302,9 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 			assert.Equal(t, consoleLines, resultLines.FindAllString(string(summary), -1))
 			assert.NotContains(t, string(summary), ": running")
 			if tc.policy == "1" {
-				assert.Contains(t, out, "Failure policy: continue after failures (--no-stop, default)")
+				assert.Contains(t, string(summary), "Failure policy: continue after failures (--no-stop, default)")
 			} else {
-				assert.Contains(t, out, "Failure policy: stop after the first failure (--stop)")
+				assert.Contains(t, string(summary), "Failure policy: stop after the first failure (--stop)")
 			}
 			firstLog, readErr := os.ReadFile(filepath.Join(runs[0], "_410_test_first.log"))
 			assert.NoError(t, readErr)
@@ -2589,6 +2654,8 @@ func TestManualPinnedMdtoc(t *testing.T) {
 		accepted, installed                  bool
 	}{
 		{"release", "mdtoc 1.0.3", "", "", true, false},
+		{"release_with_v_and_metadata", "mdtoc v1.0.3\ncommit: unknown\ndate: 2026-10-15T15:21:24Z", "", "", true, false},
+		{"different_v_release_declined", "mdtoc v1.0.30", "", "no", false, false},
 		{"old_release_declined", "mdtoc 0.3.3", "", "no", false, false},
 		{"unverified_dev_declined", "mdtoc dev", "v0.3.3", "no", false, false},
 		{"pinned_dev", "mdtoc dev", "v1.0.3", "", true, false},

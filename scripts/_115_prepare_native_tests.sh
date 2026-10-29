@@ -6,17 +6,32 @@
 # Probe the exact Go toolchain offline first. Go's launcher may fetch a missing
 # toolchain, so that transition needs the same consent as other installations.
 ensure_native_go_toolchain() {
-  export GOTOOLCHAIN="go$TRICE_GO_VERSION"
-  if GOPROXY=off go version >/dev/null 2>&1; then return 0; fi
-  approve_pinned_test_setup "Go $TRICE_GO_VERSION is not available offline" || return 2
-  go version >/dev/null || return 2
+  [ "${TRICE_TEST_PLAN_ACTIVE:-0}" = 1 ] || trice_test_tool_plan cli || return 2
+  local executable archive directory key extension=tar.gz
+  executable="$(trice_find_go || true)"
+  if [ -z "$executable" ]; then
+    trice_plan_allows_install Go || return 2
+    [ "$TRICE_PLAN_OS" != windows ] || extension=zip
+    archive="temp/tools/downloads/go$TRICE_GO_VERSION.${TRICE_PLAN_HOST//\//-}.$extension"
+    key="TRICE_GO_SHA_$TRICE_PLAN_PLATFORM"
+    download_pinned_test_tool "https://go.dev/dl/$(basename "$archive")" "$archive" "${!key:?}" || return 2
+    directory="temp/tools/go/$TRICE_GO_VERSION"
+    mkdir -p "$directory" || return 2
+    case "$extension" in zip) unzip -q -o "$archive" -d "$directory" || return 2 ;; *) tar -xf "$archive" -C "$directory" || return 2 ;; esac
+    executable="$(trice_find_go)" || return 2
+  fi
+  PATH="$(cd "$(dirname "$executable")" && pwd):$PATH"
+  export PATH GOTOOLCHAIN=local
+  # GOROOT from another installation must not redirect the selected runtime.
+  unset GOROOT
+  hash -r
 }
 
 # ensure_native_report_tool also serves directly invoked lint/test steps.
 # The exact Go toolchain builds the current helper without a global install.
 ensure_native_report_tool() {
   if [ -n "${TRICE_TEST_REPORT_BIN:-}" ] && [ -x "$TRICE_TEST_REPORT_BIN" ]; then return 0; fi
-  if ! command -v go >/dev/null 2>&1; then
+  if ! command -v go >/dev/null 2>&1 && ! declare -F trice_test_tool_plan >/dev/null; then
     printf 'INCOMPLETE: Go %s is required to prepare the declared test tools.\n' "$TRICE_GO_VERSION" >&2
     return 2
   fi
@@ -30,7 +45,9 @@ build_native_report_tool() {
   local report_bin
   export TRICE_TEST_REPORT_BIN=""
   report_bin="$LOG_DIR/testcheck$(go env GOEXE)" || return 2
-  if ! go build -o "$report_bin" ./scripts/testcheck; then
+  # This standard-library helper must bootstrap before any C compiler fallback
+  # is installed; native application tests still explicitly enable CGO below.
+  if ! CGO_ENABLED=0 go build -o "$report_bin" ./scripts/testcheck; then
     printf 'INCOMPLETE: cannot build test helper %s; see the Go build error above.\n' "$report_bin" >&2
     return 2
   fi
@@ -47,6 +64,26 @@ build_native_report_tool() {
 prepare_pinned_test_selection() {
   local result_variable="$1" operation="$2" cache="$3" setup_output status
   shift 3
+  # Reusable tools can disappear while the user reviews the startup table.
+  # Never install a replacement that was absent from their approved plan.
+  if [ -f "${TRICE_PLAN_FILE:-}" ]; then
+    local planned_name planned_action inspected actual_action
+    for planned_name in "$@"; do
+      planned_action="$(awk -F '\t' -v name="$planned_name" '$1==name {print $4; exit}' "$TRICE_PLAN_FILE")"
+      if [ -z "$planned_action" ]; then
+        printf 'INCOMPLETE: %s was not included in the approved tool plan; restart with the complete selection.\n' "$planned_name" >&2
+        return 2
+      fi
+      if [ "$planned_action" = reuse ]; then
+        inspected="$("$TRICE_TEST_REPORT_BIN" inspect scripts/test-tools.env "$cache" "$operation" "$planned_name")" || return 2
+        actual_action="$(printf '%s\n' "$inspected" | awk -F '\t' 'NR==1 {print $4}')"
+        if [ "$actual_action" != reuse ]; then
+          printf 'INCOMPLETE: %s changed since startup; rerun the tool plan before installing it.\n' "$planned_name" >&2
+          return 2
+        fi
+      fi
+    done
+  fi
   if setup_output="$("$TRICE_TEST_REPORT_BIN" "$operation" --no-install scripts/test-tools.env "$cache" "$@")"; then
     :
   else
@@ -62,10 +99,11 @@ prepare_pinned_test_selection() {
 # the same manifest/cache as the suite and never modifies a system installation.
 ensure_pinned_test_tools() {
   local bin
+  if declare -F trice_test_tool_plan >/dev/null && [ "${TRICE_TEST_PLAN_ACTIVE:-0}" != 1 ]; then trice_test_tool_plan "cli:$*" || return 2; fi
   ensure_native_report_tool || return 2
   prepare_pinned_test_selection bin tools temp/tools/native "$@" || return 2
   case "$(uname -s)" in
-    MINGW* | MSYS* | CYGWIN*) bin="$(cygpath -u "$bin")" ;;
+    MINGW* | MSYS* | CYGWIN*) bin="$(cygpath -up "$bin")" ;;
   esac
   export PATH="$bin:$PATH"
   hash -r
@@ -94,8 +132,10 @@ prepare_native_cmake_environment() {
 prepare_native_test_tools() {
   local tool missing=0 compiler gcc_bin="" cpp_bin="" directory candidate platform
   export TRICE_TEST_AUTO_SETUP=1
-  print_pinned_test_tools
-  for tool in git go bash tar unzip make curl; do
+  # The inventory below is the single startup overview. Keep the compact pin
+  # banner available for explicit diagnostic callers without duplicating it here.
+  if declare -F trice_test_tool_plan >/dev/null; then trice_test_tool_plan native || return 2; fi
+  for tool in git bash tar unzip make curl; do
     if ! command -v "$tool" >/dev/null 2>&1; then
       printf 'MISSING TOOL: %s; install the native prerequisite listed in docs/rm/target_tests.md\n' "$tool"
       missing=1
@@ -107,7 +147,7 @@ prepare_native_test_tools() {
     printf 'INCOMPLETE: Node.js %s is required; found %s. Select the declared version before running native tests.\n' "$TRICE_NODE_VERSION" "$(node --version)"
     return 2
   fi
-  # The Go launcher resolves this exact supported toolchain when necessary.
+  # Reuse the exact offline runtime or the approved local release archive.
   ensure_native_go_toolchain || return 2
   # The report helper is built from the current worktree before any tests.
   build_native_report_tool || return 2
@@ -135,6 +175,28 @@ prepare_native_test_tools() {
     MINGW* | MSYS* | CYGWIN*) cmake_bin="$(cygpath -u "$cmake_bin")" ;;
   esac
   export PATH="$cmake_bin:$PATH"
+  # Versioned package-manager GCC commands can coexist with an older default.
+  # Pair them through run-local aliases, keeping the host's alternatives intact.
+  if declare -F trice_find_versioned_gcc >/dev/null; then
+    local wanted_gcc='' versioned_gcc
+    case "$(go env GOHOSTOS)" in linux) wanted_gcc="$TRICE_GCC_LINUX_VERSION" ;; darwin) wanted_gcc="$TRICE_GCC_DARWIN_VERSION" ;; esac
+    if [ -n "$wanted_gcc" ] && ! trice_tool_matches gcc "$wanted_gcc"; then
+      versioned_gcc="$(trice_find_versioned_gcc "$wanted_gcc" || true)"
+      if [ -n "$versioned_gcc" ]; then
+        if [ "$(go env GOHOSTOS)" = darwin ]; then
+          # The existing macOS selection below owns alias publication.
+          PATH="$(dirname "$versioned_gcc"):$PATH"
+          export PATH
+        else
+          mkdir -p "$LOG_DIR/compilers" || return 2
+          ln -sf "$versioned_gcc" "$LOG_DIR/compilers/gcc" || return 2
+          ln -sf "$(dirname "$versioned_gcc")/g++-${wanted_gcc%%.*}" "$LOG_DIR/compilers/g++" || return 2
+          PATH="$(cd "$LOG_DIR/compilers" && pwd):$PATH"
+          export PATH
+        fi
+      fi
+    fi
+  fi
   case "$(uname -s)" in
     Linux | Darwin)
       local clang_bin
@@ -175,6 +237,13 @@ prepare_native_test_tools() {
       # A functional but differently versioned global compiler must not choose
       # the test environment. Select the complete declared runtime first.
       local host_matches=1 host_version host_path
+      # The planner can select a later PATH installation. Activate precisely
+      # those complete roots before considering a bundled fallback.
+      if [ -n "${TRICE_PLAN_WINDOWS_GCC:-}" ] && [ -n "${TRICE_PLAN_WINDOWS_CLANG:-}" ]; then
+        PATH="$TRICE_PLAN_WINDOWS_GCC:$TRICE_PLAN_WINDOWS_CLANG:$PATH"
+        export PATH
+        hash -r
+      fi
       for compiler in gcc g++ clang clang++ clangd; do
         host_version="$TRICE_CLANG_WINDOWS_VERSION"
         case "$compiler" in gcc | g++) host_version="$TRICE_GCC_WINDOWS_VERSION" ;; esac
@@ -184,7 +253,20 @@ prepare_native_test_tools() {
         fi
       done
       if [ "$host_matches" -eq 0 ]; then
-        install_windows_host_test_tools || return 2
+        if [ -n "${TRICE_PLAN_WINDOWS_GCC:-}" ] && [ -n "${TRICE_PLAN_WINDOWS_CLANG:-}" ]; then
+          printf 'INCOMPLETE: planned Windows compilers changed; rerun the startup plan.\n' >&2
+          return 2
+        fi
+        select_windows_host_test_package || return 2
+        # A valid complete cache can be reused before a runtime probe has
+        # published its marker. Do not re-extract several GiB on every run.
+        if ! declare -F trice_tool_matches >/dev/null || ! trice_tool_matches "$TRICE_HOST_PACKAGE_BIN/gcc" "$TRICE_GCC_WINDOWS_VERSION" ||
+          ! trice_bundle_complete gcc "$TRICE_HOST_PACKAGE_BIN/gcc" "$TRICE_GCC_WINDOWS_VERSION" ||
+          ! trice_tool_matches "$TRICE_HOST_PACKAGE_BIN/clang" "$TRICE_CLANG_WINDOWS_VERSION" ||
+          ! trice_bundle_complete clang "$TRICE_HOST_PACKAGE_BIN/clang" "$TRICE_CLANG_WINDOWS_VERSION"; then
+          trice_plan_allows_install WinLibs || return 2
+          install_windows_host_test_tools || return 2
+        fi
         PATH="$(cd "$TRICE_HOST_PACKAGE_BIN" && pwd):$PATH" || return 2
         export PATH
         hash -r
@@ -276,13 +358,19 @@ prepare_pinned_native_tools() {
   prepare_pinned_test_selection tool_bin tools temp/tools/native \
     goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd || return 2
   case "$(uname -s)" in
-    MINGW* | MSYS* | CYGWIN*) tool_bin="$(cygpath -u "$tool_bin")" ;;
+    MINGW* | MSYS* | CYGWIN*) tool_bin="$(cygpath -up "$tool_bin")" ;;
   esac
   export PATH="$tool_bin:$PATH"
   hash -r
   if [ "$(node --version)" != "v$TRICE_NODE_VERSION" ]; then
     printf 'INCOMPLETE: Node.js %s is required; found %s. Select the declared version before running native tests.\n' "$TRICE_NODE_VERSION" "$(node --version)"
     return 2
+  fi
+  if [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
+    prepare_selected_npm_tools || return 2
+    # Npm's global prefix must not override the verified Go CLI selection.
+    export PATH="$tool_bin:$PATH"
+    return 0
   fi
   npm_dir="$(pwd)/temp/tools/npm/$TRICE_NODE_VERSION"
   mkdir -p "$npm_dir" || return 2

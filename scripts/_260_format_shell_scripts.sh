@@ -61,6 +61,11 @@ ensure_shfmt() {
   if [ -x "$SHFMT_BIN" ] && "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
     return 0
   fi
+  # Formatting and checking share the same reuse policy for a matching host tool.
+  if command -v shfmt >/dev/null 2>&1 && shfmt --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
+    SHFMT_BIN="$(command -v shfmt)"
+    return 0
+  fi
 
   # A differently versioned formatter cannot give a reproducible verdict.
   # Reuse a canonical system tool before offering checkout-local installation.
@@ -76,26 +81,15 @@ ensure_shfmt() {
     else
       echo "INFO: shfmt $SHFMT_VERSION is not cached; preparing the declared formatter."
     fi
-    if ! confirm_tool_install "shfmt $SHFMT_VERSION"; then
-      echo "SKIP: canonical shfmt unavailable; installation was not confirmed."
-      exit 0
-    fi
-  fi
-
-  if ! command -v go >/dev/null 2>&1; then
-    echo "go is required to install pinned shfmt $SHFMT_VERSION." >&2
-    echo "Install Go first, then rerun: ./scripts/_260_format_shell_scripts.sh $MODE" >&2
-    exit 127
   fi
 
   if [ "$VERBOSE" -eq 1 ]; then
     echo "Installing pinned shfmt $SHFMT_VERSION into $TOOLS_DIR"
   fi
 
-  mkdir -p "$TOOLS_DIR"
-  # Install into the canonical cache even when the detected system tool differs.
-  SHFMT_BIN="$TOOLS_DIR/shfmt"
-  GOBIN="$TOOLS_DIR" go install "mvdan.cc/sh/v3/cmd/shfmt@$SHFMT_VERSION"
+  # Share release-first preparation and disk planning with suite entry points.
+  install_go_test_tool "mvdan.cc/sh/v3/cmd/shfmt@$SHFMT_VERSION" || exit 2
+  SHFMT_BIN="$(command -v shfmt)"
   if [ ! -x "$SHFMT_BIN" ] && [ -x "$SHFMT_BIN.exe" ]; then
     SHFMT_BIN="$SHFMT_BIN.exe"
   fi

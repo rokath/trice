@@ -183,7 +183,7 @@ mdtoc_has_required_version() {
   fi
   mdtoc_version="$(printf '%s\n' "$MDTOC_VERSION_OUTPUT" | tr -d '\r' | sed -n '1p')"
   case "$mdtoc_version" in
-    "mdtoc $MDTOC_REQUIRED_VERSION") return 0 ;;
+    "mdtoc $MDTOC_REQUIRED_VERSION" | "mdtoc v$MDTOC_REQUIRED_VERSION") return 0 ;;
     "mdtoc dev")
       case "${OSTYPE:-}" in
         msys* | cygwin*)

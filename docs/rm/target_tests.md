@@ -69,7 +69,7 @@ The suite selects CMake's `MinGW Makefiles` generator and the compiler bundle's 
 
 ### Prepare Linux
 
-Install the basic tools listed above and a working C/C++ development environment, including `xz` support for archive extraction. The suite prepares the declared native GCC and LLVM packages in its project cache and can install the declared Node.js version after approval. System headers and runtime libraries must be present. The [native CI setup](../../.github/workflows/native-tests-reusable.yml) shows the Ubuntu package prerequisites.
+Install the basic tools listed above and a working C/C++ development environment, including `xz` support for archive extraction. The suite reuses complete GCC and LLVM installations at the declared versions. Missing versions can be prepared after the startup review. System headers and runtime libraries must be present. The [native CI setup](../../.github/workflows/native-tests-reusable.yml) shows the Ubuntu package prerequisites.
 
 Linux checks run as Linux processes on the native filesystem. They include shell signals, case-sensitive filenames, real compiler output, local TCP/UDP and file replacement. WSL or a Linux container supplies Linux evidence even when its host is Windows or macOS.
 
@@ -85,7 +85,23 @@ The native filesystem test detects whether the actual volume is case-sensitive. 
 
 ### Shared tool rules
 
-All three systems use [test-tools.env](../../scripts/test-tools.env) for tool versions and archive checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for the existing Node tools. The suite also prepares the complete ARM cross-toolchain, formatters and analyzers. CMake is prepared as a complete pinned package under `temp/tools/bundles`; no system CMake is required. Each worktree has its own cache, so a fresh worktree may need downloads even when another checkout already passes. Network access is needed when a required cache entry is absent. A failed download or incompatible prerequisite makes the run INCOMPLETE.
+All three systems use [test-tools.env](../../scripts/test-tools.env) for exact tool versions and release checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for Node dependencies. Before downloading anything, startup shows the active versions, required pins, reusable installations/caches, and additional installations. Complete matching CMake, GCC, LLVM and ARM packages stay at their existing locations; large toolchains are not copied into the checkout.
+
+The startup table shows required, system and cached versions. `Location` is the selected or planned source; `Size` estimates additional installed space in MB/GB. Missing prerequisites also appear in the table. Shared WinLibs packages are budgeted once. Detailed paths remain in the run's tool-plan file.
+
+| Startup choice | Result |
+| --- | --- |
+| `a` or empty input | Abort before installation. Change the local setup and rerun. |
+| `c` | Continue: reuse matching tools and install the displayed missing packages under `temp/tools/`. Prefer verified release binaries; build sources only when a required binary package is unavailable. |
+| `s` | Look for the exact pins in the configured apt, Homebrew or winget catalog. Review package versions, commands, destinations and space again before approving a system installation. Unavailable tools stay unchanged. No checkout fallback starts automatically. Rerun startup afterwards, using a new shell if PATH changed. |
+
+System setup does not add repositories/taps, update package catalogs, choose a newer version, or force package removals/downgrades. Required SDKs and other prerequisites without a supported package mapping remain manual setup. CI uses the declared checkout-local preparation without interactive system changes.
+
+Disk checks include downloads, staging and a reserve of 1024 MiB per filesystem; set `TRICE_TEST_DISK_RESERVE_MIB` to change the reserve. Normal output shows only free capacity and whether setup fits. Space requirements are conservative estimates and exclude later test outputs. The `c/a/s` menu stays the same when prerequisites are missing: `c` explains the blocker and returns to the menu without installing tools. `s` can still review available system packages.
+
+Matching standalone tools and compatible verified caches are reused in place, including caches from an unrelated manifest revision. Changed tool versions or publisher checksums still require verification. Local npm setup can reuse global Markdownlint and a complete matching PDF renderer/Puppeteer pair. Only missing dependency groups use a subset of the checked-in lockfile; CI retains the complete locked tree. Global installations are checked for pinned direct versions and working required dependencies, rather than identical transitive lockfile versions. If Node is not yet usable, npm requirements are estimated conservatively and rechecked after Node setup before any npm installation. Browsers are prepared only for PDF generation, with the revision required by the selected Puppeteer.
+
+Preparation is outside the test duration and progress steps. Aborted, failed or incomplete setup starts no tests and reports INCOMPLETE; it cannot produce a reduced PASS. The tracked-worktree guard still covers preparation and testing. Network access is needed only for missing packages; existing valid tools and caches support offline reuse.
 
 Use the preparation log's diagnosis rather than installing a random newer tool. Keep `C_INCLUDE_PATH` unset globally: ARM headers must not leak into native CGO builds. Go, Node, system SDKs and basic build utilities remain explicit prerequisites; project-local tool preparation does not make every possible host installation supported.
 

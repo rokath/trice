@@ -171,7 +171,7 @@ export GOCACHE="${GOCACHE:-$(cd "./.gocache" && pwd)}"
 # Host tools selected by preparation must also reach every later child step.
 # Loading a verified cache never downloads tools or changes the caller's system.
 # shellcheck source=./_105_setup_test_tools.sh
-source "$SCRIPTS_DIR/_105_setup_test_tools.sh"
+source "$SCRIPTS_DIR/_105_setup_test_tools.sh" || return 2
 activate_cached_host_test_tools
 
 # run_go_tests records the original JSON stream before auditing it. Diagnostics

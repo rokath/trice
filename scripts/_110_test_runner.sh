@@ -72,7 +72,7 @@ capture_tracked_bytes() {
   fi
   # New task sources must also be protected before they have been staged.
   git ls-files -z --others --exclude-standard -- '*.go' '*.c' '*.h' '*.sh' \
-    'scripts/test-tools.env' 'scripts/testcheck/package*.json' >>"$path_list" || return 1
+    'scripts/test-tools.env' 'scripts/testcheck/package*.json' 'scripts/_test_npm_tools.cjs' >>"$path_list" || return 1
 
   : >"$manifest" || return 1
   : >"$entries" || return 1
@@ -543,6 +543,7 @@ main() {
   local started_at
   local finished_at
   local duration
+  local preparation_started_at
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
   TEST_ALL_FAILED=0
@@ -557,6 +558,7 @@ main() {
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   build_test_plan
   started_at=$(date +%s)
+  preparation_started_at="$started_at"
   : >"$SUMMARY_LOG"
   : >"$LOG_DIR/steps.tsv"
   # Shared Insert/Bind state has one owner, even with separate log directories.
@@ -569,39 +571,47 @@ main() {
   TEST_ALL_LOCK_OWNED=1
   printf 'PID=%s\nLOG_DIR=%s\n' "$$" "$LOG_DIR" >./temp/testAll.lock/owner
   TEST_ALL_STATE_DIR="$(mktemp -d "$LOG_DIR/testAll-state.XXXXXX")" || exit 1
-  summary_line "Preparing testAll: capturing tracked worktree state..."
+  printf '%s\n' 'Preparing testAll: capturing tracked worktree state...' >>"$SUMMARY_LOG"
   capture_tracked_bytes "$TEST_ALL_STATE_DIR/before" || exit 1
   TEST_ALL_STATE_CAPTURED=1
-  summary_line "Starting testAll at $(date)"
-  summary_line "Selection: $selected"
-  summary_line "Run directory: $LOG_DIR"
-  summary_line "Scope: native code, compiler and local consistency checks; external links and release snapshots run separately."
+  # Preserve detailed run context in the summary without making the user read
+  # it before the tool table. Startup needs only selection, platform and log.
+  printf '%s\n' "Starting testAll at $(date)" "Selection: $selected" "Run directory: $LOG_DIR" \
+    'Scope: native code, compiler and local consistency checks; external links and release snapshots run separately.' >>"$SUMMARY_LOG"
   if [ "$selected" = "quick" ]; then
-    summary_line "ID workflows: bind (CE/SL fixtures also cover insert/clean)"
+    printf '%s\n' 'ID workflows: bind (CE/SL fixtures also cover insert/clean)' >>"$SUMMARY_LOG"
   else
-    summary_line "ID workflows: bind plus legacy insert/clean"
+    printf '%s\n' 'ID workflows: bind plus legacy insert/clean' >>"$SUMMARY_LOG"
   fi
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
-    summary_line "Failure policy: continue after failures (--no-stop, default)"
+    printf '%s\n' 'Failure policy: continue after failures (--no-stop, default)' >>"$SUMMARY_LOG"
   else
-    summary_line "Failure policy: stop after the first failure (--stop)"
+    printf '%s\n' 'Failure policy: stop after the first failure (--stop)' >>"$SUMMARY_LOG"
   fi
-  summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
-  # Keep declared versions visible on both cold and warm runs, before any
-  # redirected preparation or installation prompt can hide that context.
-  print_pinned_test_tools | while IFS= read -r line; do summary_line "$line"; done
-  summary_line "Preparing declared native tools; first-time downloads and builds can take several minutes. Log: $LOG_DIR/tools.log"
+  printf '%s\n' 'Progress scale: expected relative test work (hardware-independent; no ETA)' >>"$SUMMARY_LOG"
+  # Preparation mirrors the complete system/cache inventory to the terminal;
+  # a separate pin-only banner would repeat it without explaining availability.
+  printf '%s\n' 'Preparing declared native tools; first-time downloads and builds can take several minutes.' >>"$SUMMARY_LOG"
+  local display_os
+  display_os="$(uname -s)"
+  case "$display_os" in MINGW* | MSYS* | CYGWIN*) display_os=Windows ;; Darwin) display_os=macOS ;; esac
+  summary_line "testAll | $selected | $display_os $(uname -m)"
+  summary_line "Log: ${LOG_DIR#"$(pwd)/"}/tools.log"
   # Preparation completes before tests; its selected environment is inherited
   # by every step. Missing prerequisites never turn into a reduced green run.
   if ! prepare_native_test_tools >"$LOG_DIR/tools.log" 2>&1; then
     summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
     cat "$LOG_DIR/tools.log"
     TEST_ALL_INCOMPLETE=1
+    started_at=$(date +%s)
   else
+    started_at=$(date +%s)
+    summary_line "Tool preparation finished in $((started_at - preparation_started_at))s; preparation is outside the test duration."
+    summary_line "Starting tests at $(date)"
     run_selected_steps || true
   fi
 
-  verify_tracked_bytes || TEST_ALL_FAILED=1
+  if [ "$TEST_ALL_STATE_CAPTURED" -eq 1 ]; then verify_tracked_bytes || TEST_ALL_FAILED=1; fi
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
@@ -619,7 +629,9 @@ main() {
   else
     TEST_ALL_INCOMPLETE=1
     result=INCOMPLETE
-    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"native test bootstrap unavailable; see tools.log"}\n' "$selected" >"$LOG_DIR/results.json" ||
+    local preparation_reason='native test bootstrap unavailable; see tools.log'
+    if [ "${TRICE_TEST_SETUP_ONLY:-0}" = 1 ]; then preparation_reason='system tool setup finished; rerun the startup check before testing'; fi
+    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"%s"}\n' "$selected" "$preparation_reason" >"$LOG_DIR/results.json" ||
       summary_line "INCOMPLETE: cannot write $LOG_DIR/results.json; check free disk space and write permissions."
   fi
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then

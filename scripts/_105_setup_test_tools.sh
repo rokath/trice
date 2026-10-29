@@ -149,7 +149,19 @@ download_pinned_test_tool() {
 # Select the publisher archive and checksum for the pinned Node.js runtime.
 # The runtime stays inside the checkout so this setup never changes system Node.
 ensure_node_test_tool() {
+  if declare -F trice_test_tool_plan >/dev/null && [ "${TRICE_TEST_PLAN_ACTIVE:-0}" != 1 ]; then trice_test_tool_plan node || return 2; fi
+  if declare -F trice_find_node >/dev/null; then
+    local selected_node
+    selected_node="$(trice_find_node || true)"
+    if [ -n "$selected_node" ]; then
+      PATH="$(cd "$(dirname "$selected_node")" && pwd):$PATH"
+      export PATH
+      hash -r
+      return 0
+    fi
+  fi
   local version="${TRICE_NODE_VERSION:?}" platform architecture archive_name archive_url archive_sha sha_var
+  trice_plan_allows_install Node.js || return 2
   local cache_dir="./temp/tools/node/$version" archive="./temp/tools/downloads"
   local executable
   if command -v node >/dev/null 2>&1 && [ "$(node --version 2>/dev/null)" = "v$version" ] &&
@@ -192,7 +204,7 @@ ensure_node_test_tool() {
       ;;
   esac
   if [ -x "$executable" ] && [ "$("$executable" --version 2>/dev/null)" = "v$version" ]; then
-    PATH="$(dirname "$executable"):$PATH"
+    PATH="$(cd "$(dirname "$executable")" && pwd):$PATH"
     export PATH
     hash -r
     if command -v npm >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
@@ -215,7 +227,7 @@ ensure_node_test_tool() {
     printf 'FAIL: extracted Node.js runtime did not pass its version check: %s\n' "$executable" >&2
     return 1
   fi
-  PATH="$(dirname "$executable"):$PATH"
+  PATH="$(cd "$(dirname "$executable")" && pwd):$PATH"
   export PATH
   hash -r
   if [ "$(node --version)" != "v$version" ] || ! command -v npm >/dev/null 2>&1 || ! command -v npx >/dev/null 2>&1; then
@@ -461,6 +473,22 @@ ensure_windows_host_test_aliases() {
 # The caller checks the resulting executable's identity before using it.
 install_go_test_tool() {
   local package="$1"
+  local name=''
+  case "$package" in
+    "$TRICE_TOOL_SHFMT_MODULE@v$TRICE_TOOL_SHFMT_VERSION") name=shfmt ;;
+    "$TRICE_TOOL_MDTOC_MODULE@v$TRICE_TOOL_MDTOC_VERSION") name=mdtoc ;;
+    "$TRICE_TOOL_STITCHMD_MODULE@v$TRICE_TOOL_STITCHMD_VERSION") name=stitchmd ;;
+  esac
+  if [ -n "$name" ] && [ -f ./scripts/_115_prepare_native_tests.sh ]; then
+    # Reuse the verified release-first installer for the legacy direct callers.
+    # shellcheck source=./_115_prepare_native_tests.sh
+    source ./scripts/_115_prepare_native_tests.sh
+    SCRIPTS_DIR="${SCRIPTS_DIR:-$(pwd)/scripts}"
+    LOG_DIR="${LOG_DIR:-$(pwd)/temp/log}"
+    mkdir -p "$LOG_DIR" || return 2
+    ensure_pinned_test_tools "$name"
+    return $?
+  fi
   if ! command -v go >/dev/null 2>&1; then
     printf 'Cannot install %s: Go is required. Install Go and rerun.\n' "$package" >&2
     return 1
@@ -576,18 +604,46 @@ cppcheck_test_tool_has_required_version() {
   [ "${version_output%$'\r'}" = "Cppcheck ${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}" ]
 }
 
+# Find the standard Windows package without assuming a drive or install prefix.
+cppcheck_system_test_tool() {
+  local prefix="${PROGRAMFILES:-${ProgramFiles:-}}"
+  [ -n "$prefix" ] || return 1
+  prefix="$(cygpath -u "$prefix")" || return 1
+  printf '%s/Cppcheck/cppcheck.exe\n' "$prefix"
+}
+
+# WinLibs already includes the analyzer and its adjacent resources. Reusing that
+# complete native cache avoids extracting a second Windows Cppcheck package.
+cppcheck_host_cache_test_tool() {
+  select_windows_host_test_package >/dev/null 2>&1 || return 1
+  cppcheck_test_tool_has_required_version "$TRICE_HOST_PACKAGE_BIN/cppcheck" || return 1
+  printf '%s/cppcheck\n' "$TRICE_HOST_PACKAGE_BIN"
+}
+
 # Ensure test 520 uses exactly the pinned analyzer, asking before any download.
 ensure_cppcheck_test_tool() {
+  if declare -F trice_test_tool_plan >/dev/null && [ "${TRICE_TEST_PLAN_ACTIVE:-0}" != 1 ]; then trice_test_tool_plan analyzer || return 2; fi
   local version="${TRICE_TOOL_CPPCHECK_VERSION:-2.22.0}"
   local cppcheck_bin=""
   local candidate
   if command -v cppcheck >/dev/null 2>&1; then
     cppcheck_bin="$(command -v cppcheck)"
-  elif [ -x "/c/Program Files/Cppcheck/cppcheck.exe" ]; then
-    cppcheck_bin="/c/Program Files/Cppcheck/cppcheck.exe"
+  fi
+  if ! cppcheck_test_tool_has_required_version "$cppcheck_bin"; then
+    candidate="$(cppcheck_system_test_tool || true)"
+    if cppcheck_test_tool_has_required_version "$candidate"; then cppcheck_bin="$candidate"; fi
+  fi
+  if ! cppcheck_test_tool_has_required_version "$cppcheck_bin"; then
+    candidate="$(cppcheck_host_cache_test_tool || true)"
+    if [ -n "$candidate" ]; then cppcheck_bin="$candidate"; fi
   fi
 
   if [ -n "$cppcheck_bin" ] && cppcheck_test_tool_has_required_version "$cppcheck_bin"; then
+    if [ "$(command -v cppcheck || true)" != "$cppcheck_bin" ]; then
+      PATH="$(cd "$(dirname "$cppcheck_bin")" && pwd):$PATH"
+      export PATH
+      hash -r
+    fi
     return 0
   fi
 
@@ -603,9 +659,26 @@ ensure_cppcheck_test_tool() {
     fi
   done
 
+  trice_plan_allows_install cppcheck || return 2
   if ! confirm_tool_install "Cppcheck $version"; then
     printf 'Cppcheck %s is required for exhaustive target-code linting.\n' "$version" >&2
     return 1
+  fi
+  # The standalone analyzer entry point must execute its advertised CMake plan,
+  # too. Native-suite preparation has already selected the same package.
+  if [ -f "${TRICE_PLAN_FILE:-}" ]; then
+    case "$(uname -s)" in
+      Linux | Darwin)
+        source ./scripts/_115_prepare_native_tests.sh || return 2
+        LOG_DIR="${LOG_DIR:-$(pwd)/temp/log}"
+        mkdir -p "$LOG_DIR" || return 2
+        ensure_native_report_tool || return 2
+        local analyzer_cmake
+        prepare_pinned_test_selection analyzer_cmake bundle temp/tools/bundles cmake || return 2
+        PATH="$analyzer_cmake:$PATH"
+        export PATH
+        ;;
+    esac
   fi
   if ! install_cppcheck_test_tool; then
     return 1
@@ -629,3 +702,10 @@ ensure_cppcheck_test_tool() {
 
 # Only verified private Python runtimes are inherited by subsequent test steps.
 activate_cached_python_test_tool
+
+# Shared planning is inert until an entry point requests setup. Missing helper
+# files stop startup rather than silently bypassing the inventory/consent step.
+# shellcheck source=./_116_test_tool_plan.sh
+source ./scripts/_116_test_tool_plan.sh || return 2
+# shellcheck source=./_117_system_test_tools.sh
+source ./scripts/_117_system_test_tools.sh || return 2
