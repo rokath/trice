@@ -131,6 +131,58 @@ run_go_tests ./example
 			})
 		}
 	}
+	// Preparation must preserve its diagnostics and shell environment without
+	// starting a Go test after failure, even when the caller requests quiet logs.
+	for _, setupStatus := range []int{0, 7} {
+		for _, quiet := range []int{0, 1} {
+			t.Run(fmt.Sprintf("preparation_%d/quiet_%d", setupStatus, quiet), func(t *testing.T) {
+				root := newFixture(t)
+				body := `QUIET="$EVIDENCE_QUIET"
+prepare_native_test_tools() {
+  printf 'fixture setup stdout\n'
+  printf 'fixture setup stderr\n' >&2
+  export TRICE_TEST_REPORT_BIN="$EVIDENCE_AUDITOR" EVIDENCE_SELECTED=prepared
+  return "$EVIDENCE_SETUP_STATUS"
+}
+go() {
+  [ "${EVIDENCE_SELECTED:-}" = prepared ] || return 91
+  touch go-started
+  printf '%s' "$EVIDENCE_EVENTS"
+}
+run_go_tests ./example
+`
+				out, err := run(root, body, "TRICE_TEST_REPORT_BIN=", "EVIDENCE_AUDITOR="+auditor,
+					"EVIDENCE_EVENTS="+passed, fmt.Sprintf("EVIDENCE_SETUP_STATUS=%d", setupStatus),
+					fmt.Sprintf("EVIDENCE_QUIET=%d", quiet))
+				if setupStatus == 0 {
+					assert.NoError(t, err, out)
+					assert.FileExists(t, filepath.Join(root, "go-started"))
+				} else {
+					var exit *exec.ExitError
+					require.ErrorAs(t, err, &exit, out)
+					assert.Equal(t, 2, exit.ExitCode(), out)
+					assert.NoFileExists(t, filepath.Join(root, "go-started"))
+				}
+				files, err := filepath.Glob(filepath.Join(root, "log", "evidence.log.go.*.setup"))
+				require.NoError(t, err)
+				require.Len(t, files, 1)
+				setup, err := os.ReadFile(files[0])
+				require.NoError(t, err)
+				assert.Equal(t, "fixture setup stdout\nfixture setup stderr\n", string(setup))
+				log, err := os.ReadFile(filepath.Join(root, "log", "evidence.log"))
+				require.NoError(t, err)
+				assert.Contains(t, string(log), string(setup))
+				if setupStatus != 0 {
+					assert.Contains(t, string(log), "INCOMPLETE: native test preparation failed (exit 7)")
+				}
+				if quiet == 0 {
+					assert.Contains(t, out, string(setup))
+				} else {
+					assert.Empty(t, out)
+				}
+			})
+		}
+	}
 	t.Run("real_cold_and_warm_module_cache", func(t *testing.T) {
 		root := newFixture(t)
 		module := "module example.com/evidencevalue\ngo 1.20\n"
