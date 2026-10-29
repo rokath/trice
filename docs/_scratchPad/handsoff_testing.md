@@ -1,53 +1,58 @@
-# Native testing handover
+# Testing handover
 
-Updated: 2026-10-28. Native testing work is complete. GitHub CI and the user's full Windows run pass. PR #763 is merged. No further implementation is pending for the previously failing Library setup.
+Updated: 2026-10-29. Current release: v2.0.0-beta-2.
 
-## Repository and transfer state
+## Goal and repository state
 
-- Branch: `wip`; HEAD: `b7002d6c0d785968c7b31cfec052fd96e4a6845e`.
-- Worktree was clean before this refresh. Only this handover is now an intended uncommitted change.
-- GitHub confirms PR #763 merged at `e0881a6bb2e5ba5ae3b0594677b249e33559e1b8`; merge commit: `69ad733c479f3da90ba264e963fcf6b4ed9a3383`.
-- Local commits after that tested code revision change only discussion notes and the recorded Windows test log. They are already committed locally; their remote transfer was not independently verified.
-- No testAll lock remains. The agent-started tests have finished successfully; no cancellation or source restoration is pending.
-- No local-only file is required to continue. Logs and tool caches under `temp/` are optional evidence; the user's Windows console log is committed in [scratchPad.md](scratchPad.md).
+- Make pinned tool preparation practical on Linux, macOS and Windows: reuse complete installations, plan missing tools and space before setup, and keep the startup display short.
+- Branch: `wip`; HEAD at refresh: `6ea7c794abf086cb74ea8c8c37cf690ad875d502`. This is the starting revision, not a commit containing the new work.
+- Implementation and this handover are uncommitted. No commit or push was executed by the agent. New helper/test files are still untracked and must be included.
+- This is the sole active testing handover. The former second file was consolidated here and removed at the user's request. Earlier full-suite/CI PASS results predate this redesign.
+- The user's last testAll owner and lock were gone before the final edits. No agent-run check or source restoration is pending.
 
-## Completed work
+## Implemented work
 
-- Earlier committed fixes separate Go JSON stdout from stderr, replace copied tools that cannot execute with verified pinned packages, and regenerate manual anchors/TOCs using **mdtoc v1.0.3**.
-- `run_go_tests` now retains setup stdout/stderr in a separate `.setup` log and replays it into the readable step log, including on failure. Preparation stays in the caller shell so selected tool paths reach the tests.
-- Library CI now uploads `temp/log/` through an independent `always()` step, even when preparation fails before compiler artifacts exist.
-- Regression tests cover setup success/failure, quiet/visible output, retained shell environment, and refusing to start Go tests after failed setup.
-- `AGENTS.md` now records the binding user preference: the user runs final validation. Do not automatically start final suites, coverage, or compiler/integration checks; run them only on explicit request. Focused implementation/debugging checks and writing behavioral tests remain allowed.
+- Complete CMake/GCC/LLVM/ARM installations and compatible verified CLI caches are reused in place, including caches from unrelated manifest revisions. No toolchain copying or cache migration is required.
+- Missing tools use verified release binaries first; source builds remain only where no declared suitable binary exists. Go bootstrap uses an offline runtime or an approved official archive.
+- Local npm setup reuses working global tools and cached dependency groups. Only missing groups use subsets of the existing lockfile; CI keeps the full locked graph. Renderer/Puppeteer resolution and the browser cache are checked consistently.
+- Plans cover direct Markdownlint and analyzer entry points. Unlisted tools or disappearing reusable installations cannot silently expand approval. Windows activates the compiler roots found during planning.
+- Windows reuses Cppcheck 2.22.0 already in WinLibs. mdtoc validation accepts both `mdtoc 1.0.3` and `mdtoc v1.0.3`, with following metadata lines; other versions remain rejected.
+- Preparation is outside test duration. The tracked-worktree guard covers preparation/testing. Failed setup starts no tests.
 
-Relevant files: `scripts/_100_test_common.sh`, `.github/workflows/trice_lib_reusable.yml`, `scripts/testcheck/main_test.go`, `scripts/release_preparation_test.go`, `AGENTS.md`.
+## Binding decisions
 
-## Confirmed validation
+- The user performs final validation. Do not automatically launch testAll, coverage or compiler/integration suites. Focused implementation checks and behavioral tests are allowed.
+- Use the existing `temp/tools` directory. The original `test/tools` wording was informal.
+- Startup has two short introductory lines, then `Tool / Required / System / Cache / Location / Size`, with a continuous horizontal separator below the header.
+- No path paragraph after Go, `external`/`Use`, legends for `--`, repeated `available` list, or zero-size/peak columns. Coexisting system versions go in the System cell.
+- Size is approximate additional installed space, e.g. `~150 MB` or `~4.4 GB`; existing tools show `--`. Disk checks still include staging and the configurable reserve per filesystem. Normal output shows free space/sufficiency; only shortages need another message. Estimates are not guarantees.
+- Missing prerequisites appear in the table. Always offer `[c] Continue [a] Abort [s] System setup`, default `a`. Blocked `c` names the prerequisite and repeats the same menu without installing or testing. Invalid answers also repeat it.
+- `s` means real apt/Homebrew/winget packages, with sudo/admin when needed, only for supported mappings with the exact available pin. Show commands/versions/space and ask again before changes. No silent newer version or checkout fallback. Successful system setup stops for a fresh startup check.
+- Preserve strict evidence checks, exact pins and Bash 3.2 compatibility. No unrelated product features, broad cleanup, archive edits or blind ZIP application.
+- Avoid interactive PTY/ConPTY previews on this Windows setup. The user reported control characters entering the text input and had to kill the shell after the earlier interactive preview. The cause is not established; use noninteractive diagnostics and inspect saved output instead.
 
-| Check | Outcome and evidence |
-| --- | --- |
-| User `./scripts/testAll.sh` on Windows amd64 | **PASS, 25/25**, selection `full`, 9592 seconds. `temp/log/testAll.cQDHeg/results.json` records clean revision `e0881a6b`. Summary confirms tracked-state verification and completion. Console log is committed in `scratchPad.md`. |
-| GitHub CI at `e0881a6b` | Connector independently confirms all 11 returned PR workflows completed successfully, including Native Trice tests, Library CI, Script portability, install-checks, coverage, links, CodeQL and linters. |
-| Native Trice tests | **PASS**, run `40670589530`. |
-| Library CI | **PASS**, run `40670589535`; the earlier preparation failure is no longer an active failing check. |
-| Script portability | **PASS**, run `40670589498`. |
-| Agent `go test ./scripts/testcheck -count=1 -timeout=10m` | **PASS** under Windows after the diagnostic patch. |
-| Agent `go test ./scripts -count=1 -timeout=15m` | **PASS** under Windows; started before the user changed the final-testing preference. |
-| Agent `./scripts/_515_test_logging_features.sh full` | **PASS** under Windows, including CE/SL integration, Bind entry points, PC output and G0B1 builds with GCC/Clang. Started before the preference change. |
-| Pinned actionlint, ShellCheck warning/error level, shfmt, shell syntax and diff whitespace | **PASS** for the changed workflow/helper before the preference change. |
+## Relevant files and transfer
 
-The current HEAD adds documentation only after `e0881a6b`; do not describe those later documentation commits as the revision tested by the full suite. The result file's embedded preparation context still names older commit `b1aeabae`; its top-level commit field records `e0881a6b`. This is an observed metadata discrepancy, not a requested repair.
+- Planning: `scripts/_116_test_tool_plan.sh`, `scripts/_117_system_test_tools.sh`.
+- Selection: `scripts/_105_setup_test_tools.sh`, `scripts/_115_prepare_native_tests.sh`, `scripts/testcheck/tools.go`, `scripts/test-tools.env`.
+- Integration: `_100`, `_110`, `_260`, `_280`, `_310`, `_320`, `_450`, `_490` scripts; `scripts/_test_npm_tools.cjs`, `scripts/_prepare_reference_manual.cjs`.
+- Tests: `scripts/tool_plan_test.go`, `scripts/portability_test.go`, `scripts/testcheck/tools_test.go`, `scripts/testcheck/main_test.go`. The `inspect` CLI was added in `scripts/testcheck/main.go`.
+- Documentation: [target_tests.md](../rm/target_tests.md).
+- Unrelated user edits in `scratchPad.md` are excluded. The untracked `trice-test-changes.zip` is historical input, not a runtime/continuation prerequisite. No local log or cache must be transferred.
 
-## Findings and limits
+## Validation and limits
 
-- The initial Windows ARM setup failed while renaming the extracted package with "Access is denied." The same archive installed successfully through unchanged code, and warm selection plus the later full suite passed. The original cause was not established; no retry, sleep or speculative installer workaround was added.
-- The earlier Library failure occurred during preparation before Go tests. Improved diagnostics were implemented; subsequent CI passes. The exact original failing prerequisite remains unknown. Do not attribute it to the already corrected JSON parser issue or invent a Python/venv cause.
-- Two skipped CI jobs are intentional: macOS Intel runs on schedule/manual dispatch rather than PRs; the 24-hour activity guard applies only to scheduled Library runs. The Library job runs after a skipped guard for PR/manual events.
-- Preserve mdtoc **v1.0.3**, strict evidence checks, native platform coverage and Bash 3.2 compatibility. Do not weaken assertions or skip failures to manufacture PASS.
-- Deferred observation only: explicit `mdtoc generate` in `_310` can replace stored chapter options with defaults. Preserve existing chapter settings; no change was authorized for this observation.
-- G0B1 firmware was compiled; real MCU execution remains a separate board test.
+- PASS on Windows: `rtk go test ./scripts -run '^(TestMissingPrerequisiteKeepsMenu|TestToolPlanInventorySeparatesSystemAndCache|TestToolPlanConsentAndSpace|TestToolPlanListsOnlyMissingTools|TestToolPlanChecksEachFilesystem|TestRunnerLogsAndCancellation|TestExactSystemPackageSetup)$' -count=1 -timeout=5m` — 66 cases including parent tests. This preceded the last small change hiding the no-install message when a prerequisite is missing.
+- PASS after that change: `rtk go test ./scripts -run '^(TestMissingPrerequisiteKeepsMenu|TestToolPlanSizeLabels)$' -count=1 -timeout=2m` — 2 tests. The updated missing-prerequisite case covers the final change.
+- PASS: `shellcheck --severity=warning scripts/_116_test_tool_plan.sh scripts/_110_test_runner.sh`; pinned shfmt for those files and diff whitespace checks passed before this handover refresh. Earlier focused mdtoc, npm, resource/cache and setup fixtures passed, but are not a complete final-suite result.
+- Windows preview only: source `scripts/_105_setup_test_tools.sh`, set `LOG_DIR=temp/log`, then pipe `a` to `trice_test_tool_plan native`. Expected exit 2, all required tools reusable, no installation, about 66.8 GB free. Terminal mirroring with redirected logs was also verified. Optional evidence: `temp/log/tool-inventory-preview.log`.
+- User run `testAll.tp0g7w` was interrupted after step 440 failed on mdtoc's `v` prefix. That identity mismatch is fixed with focused coverage; do not claim the full manual check or current full suite passed.
+- User run `testAll.jI7KG4` was stopped before the final layout edits. No complete final testAll result exists for this worktree.
+- Linux/macOS branches were simulated in fixtures, not natively accepted. No real apt/Homebrew/winget installation was performed. Historical CI/Windows PASS evidence belongs to older code.
+- After the reported terminal problem, a read-only integrity review found no ESC/ANSI controls, NUL bytes, invalid UTF-8, replacement/bidi control characters, changed BOMs or changed line-ending styles in the intended changed text files. `bash -n` passed for all 12 changed shell scripts; `node --check` passed for both changed helpers; `gofmt -l` parsed all six changed Go files without reporting changes. No full suite was run for this review.
 
 ## Next steps
 
-- Add and commit this handover manually, then transfer the commit to the other computer, normally by pushing. Ensure the two existing local documentation commits are transferred too.
-- On `handson testing`, compare the recorded branch, HEAD, worktree and relevant files with the actual checkout, restore this context, and wait for the next user instruction.
-- No new testing fix or final validation run is currently required. Do not turn unrelated discussion notes into an implementation task.
+- Manually commit the implementation and this handover, then transfer those commits to the other computer, normally with a push. Proposed commands exclude unrelated notes and the input ZIP. The removed second handover was untracked, so it needs no staging/deletion command.
+- The user runs `./scripts/testAll.sh`. Inspect failures when results are provided; native Linux/macOS acceptance also remains for the user/CI. Do not launch final validation automatically.
+- On `handson testing`, verify branch, HEAD, worktree and relevant files, restore context and wait. Commits containing this work are an expected difference from the starting HEAD recorded above.
