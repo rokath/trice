@@ -1,68 +1,53 @@
 # Native testing handover
 
-Updated: 2026-10-28. Continue PR #763 (`wip` into `main`, `rokath/trice`). The first three fixes are complete. One Library CI preparation failure remains unresolved. The user requested its correction and an explanation of two skipped checks, then prioritized an immediate computer switch. Stop here; no further corrective patch was started.
+Updated: 2026-10-28. Native testing work is complete. GitHub CI and the user's full Windows run pass. PR #763 is merged. No further implementation is pending for the previously failing Library setup.
 
 ## Repository and transfer state
 
-- Branch: `wip`; HEAD: `92a830832cdfb883d2547f4742830eb99b8ebfd1`.
-- GitHub PR metadata independently confirmed this head. The three fixes below are committed and transferred.
-- The worktree was clean before this refresh. Only this handover is now an intended uncommitted change; add, commit and push it manually.
-- The local full suite finished, verified tracked state and removed its lock. No test was cancelled, and no source restoration remains pending.
-- No local-only file is required on the next computer. Logs and downloaded CI artifacts are optional evidence and can be retrieved again.
+- Branch: `wip`; HEAD: `b7002d6c0d785968c7b31cfec052fd96e4a6845e`.
+- Worktree was clean before this refresh. Only this handover is now an intended uncommitted change.
+- GitHub confirms PR #763 merged at `e0881a6bb2e5ba5ae3b0594677b249e33559e1b8`; merge commit: `69ad733c479f3da90ba264e963fcf6b4ed9a3383`.
+- Local commits after that tested code revision change only discussion notes and the recorded Windows test log. They are already committed locally; their remote transfer was not independently verified.
+- No testAll lock remains. The agent-started tests have finished successfully; no cancellation or source restoration is pending.
+- No local-only file is required to continue. Logs and tool caches under `temp/` are optional evidence; the user's Windows console log is committed in [scratchPad.md](scratchPad.md).
 
-## Completed fixes
+## Completed work
 
-| Commit | Result |
+- Earlier committed fixes separate Go JSON stdout from stderr, replace copied tools that cannot execute with verified pinned packages, and regenerate manual anchors/TOCs using **mdtoc v1.0.3**.
+- `run_go_tests` now retains setup stdout/stderr in a separate `.setup` log and replays it into the readable step log, including on failure. Preparation stays in the caller shell so selected tool paths reach the tests.
+- Library CI now uploads `temp/log/` through an independent `always()` step, even when preparation fails before compiler artifacts exist.
+- Regression tests cover setup success/failure, quiet/visible output, retained shell environment, and refusing to start Go tests after failed setup.
+- `AGENTS.md` now records the binding user preference: the user runs final validation. Do not automatically start final suites, coverage, or compiler/integration checks; run them only on explicit request. Focused implementation/debugging checks and writing behavioral tests remain allowed.
+
+Relevant files: `scripts/_100_test_common.sh`, `.github/workflows/trice_lib_reusable.yml`, `scripts/testcheck/main_test.go`, `scripts/release_preparation_test.go`, `AGENTS.md`.
+
+## Confirmed validation
+
+| Check | Outcome and evidence |
 | --- | --- |
-| `593eed24` | Separate Go JSON stdout from stderr, retaining diagnostic files and readable logs. Preserve strict JSON, required-test and exit-status checks. Regression tests include genuine cold/warm module downloads from a local proxy. |
-| `4859086b` | Detect tools that stop working after copying, such as relative launchers, and use the declared verified package. Preserve startup/version errors instead of `<nil>`. Tests cover refusal, cold/warm caches and failed preparation. |
-| `92a83083` | Regenerate TOCs and anchors in 16 RM chapters with **mdtoc v1.0.3**, restoring existing links and inline formatting. |
+| User `./scripts/testAll.sh` on Windows amd64 | **PASS, 25/25**, selection `full`, 9592 seconds. `temp/log/testAll.cQDHeg/results.json` records clean revision `e0881a6b`. Summary confirms tracked-state verification and completion. Console log is committed in `scratchPad.md`. |
+| GitHub CI at `e0881a6b` | Connector independently confirms all 11 returned PR workflows completed successfully, including Native Trice tests, Library CI, Script portability, install-checks, coverage, links, CodeQL and linters. |
+| Native Trice tests | **PASS**, run `40670589530`. |
+| Library CI | **PASS**, run `40670589535`; the earlier preparation failure is no longer an active failing check. |
+| Script portability | **PASS**, run `40670589498`. |
+| Agent `go test ./scripts/testcheck -count=1 -timeout=10m` | **PASS** under Windows after the diagnostic patch. |
+| Agent `go test ./scripts -count=1 -timeout=15m` | **PASS** under Windows; started before the user changed the final-testing preference. |
+| Agent `./scripts/_515_test_logging_features.sh full` | **PASS** under Windows, including CE/SL integration, Bind entry points, PC output and G0B1 builds with GCC/Clang. Started before the preference change. |
+| Pinned actionlint, ShellCheck warning/error level, shfmt, shell syntax and diff whitespace | **PASS** for the changed workflow/helper before the preference change. |
 
-The older M3 PASS at `f34386a9` preceded the damaged documentation at `bda238ae`; warm Go caches also hid the mixed stderr/JSON defect. This did not establish a CPU-specific problem. The global mdtoc was an old development build; the project-cache binary was verified through Go build metadata as `github.com/rokath/mdtoc v1.0.3`, without replacements.
+The current HEAD adds documentation only after `e0881a6b`; do not describe those later documentation commits as the revision tested by the full suite. The result file's embedded preparation context still names older commit `b1aeabae`; its top-level commit field records `e0881a6b`. This is an observed metadata discrepancy, not a requested repair.
 
-## Validation already completed
+## Findings and limits
 
-| Check | Exact outcome |
-| --- | --- |
-| User full suite, current committed head | **PASS, 25/25**, 3227 seconds. `temp/log/testAll.gmlEKL/results.json` records `92a83083`, clean worktree, selection `full`. Finished 2026-10-28 09:09:57 CET; state verification passed, lock removed. |
-| Earlier `./scripts/testAll.sh quick` | **PASS, 19/19**, 1772 seconds. `temp/log/testAll.tMTbDn/results.json`; fixes were then uncommitted on `bda238ae`. Includes complete Go tests, coverage and compiler/example checks. |
-| Complete `scripts` package under Bash 3.2 | **PASS**, 624.857 seconds, with prepared pinned Node/npm tools and `TRICE_TEST_NPM_DIR`. |
-| `go test ./scripts/testcheck -count=1 -timeout=10m` | **PASS**, 13.774 seconds through the approved path supporting local TCP test servers. |
-| Manual format and markdownlint | **PASS**, using verified mdtoc v1.0.3 and pinned npm tools. |
-| `./scripts/_530_test_links.sh` | **PASS**, 1950 links, zero errors. |
-| Reference-PDF preparation, stitchmd assembly and `node scripts/_prepare_reference_manual.cjs --verify` | **PASS**, 37 sources, 850 internal links, 1199 unique anchors. The local check did not render PDFs; the new CI release-PDF check passed. |
+- The initial Windows ARM setup failed while renaming the extracted package with "Access is denied." The same archive installed successfully through unchanged code, and warm selection plus the later full suite passed. The original cause was not established; no retry, sleep or speculative installer workaround was added.
+- The earlier Library failure occurred during preparation before Go tests. Improved diagnostics were implemented; subsequent CI passes. The exact original failing prerequisite remains unknown. Do not attribute it to the already corrected JSON parser issue or invent a Python/venv cause.
+- Two skipped CI jobs are intentional: macOS Intel runs on schedule/manual dispatch rather than PRs; the 24-hour activity guard applies only to scheduled Library runs. The Library job runs after a skipped guard for PR/manual events.
+- Preserve mdtoc **v1.0.3**, strict evidence checks, native platform coverage and Bash 3.2 compatibility. Do not weaken assertions or skip failures to manufacture PASS.
+- Deferred observation only: explicit `mdtoc generate` in `_310` can replace stored chapter options with defaults. Preserve existing chapter settings; no change was authorized for this observation.
+- G0B1 firmware was compiled; real MCU execution remains a separate board test.
 
-The quick coverage step reported **90.0% Go statements**, a different measure from Coveralls line coverage. Earlier standalone attempts encountered stale npx offline metadata or sandbox denial of a local TCP listener; complete package checks subsequently passed with the prepared environment/approved execution path. Do not relax tests to hide these prerequisite failures.
+## Next steps
 
-## CI at the current head
-
-PR head `92a83083`; synthetic merge `2a4810db4b1ec60845d6d805ae57195445eef28c`. Recheck live status when continuing.
-
-- **PASS:** Native Linux, Windows and macOS ARM, run `40649696464`. Jobs: Linux `122686630822`, Windows `122686631194`, macOS `122686630688`.
-- **PASS:** Script portability on all three OS (`40649696541`), install/snapshot checks including release PDFs (`40649696602`), Link Check (`40649696543`), Super Linter (`40649696397`), Go Coverage (`40649696531`), CodeQL, ShellCheck, shfmt and clang-format.
-- **PASS:** [Coveralls build 82654874](https://coveralls.io/builds/82654874). The old red Coveralls result is not a current failure.
-- **FAIL:** Library CI `40649696566`, job `122686631122`, described below.
-
-The two skipped checks are intentional, not substitutes for passing tests:
-
-- `Native macOS Intel`: `.github/workflows/native-tests.yml` uses `if: github.event_name != 'pull_request'`. Intel runs on schedule/manual dispatch; PRs run the three-OS matrix above.
-- `Guard - skip if no commits in last 24h`: `trice_lib_ci.yml` runs this guard only for `schedule`. PR/manual runs bypass the activity gate. The heavy job explicitly runs despite the skipped dependency; its actual failure is visible.
-
-## Remaining Library failure
-
-- Failed step: `Verify productive CE/SL and feature examples`, executing `./scripts/_515_test_logging_features.sh full`.
-- Public log: `FAIL: CE/SL integration failed in ./internal/args`, exit **2**, after about 7m37s. There is no `+ go test` line.
-- Source flow indicates failure in `prepare_native_test_tools` before the Go invocation: `run_go_tests` redirects preparation output into `temp/log/_515_test_logging_features.log`. **The underlying failing prerequisite is not known.** Do not describe this as recurrence of the corrected JSON parser bug.
-- Artifact upload was skipped after failure; the run has no artifacts. The build orchestrator never ran.
-- The successful native Linux artifact `12799795356` contains `testAll.5GyTJR/tools.log`, including cold compiler/Cppcheck preparation. It selected Python 3.15.2 and runner image `20261023.334.3`; Library used image `20261012.334.1` and system Python 3.12.3. These differences are evidence, not a proven cause.
-- Do not blindly add venv as the assumed fix: the Library runner image's upstream Python installer already installs `python3-venv`.
-
-## Next steps and constraints
-
-1. Make the Library preparation failure visible and retain its setup log even when the job fails; inspect the actual prerequisite error before choosing a functional correction. Relevant files: `.github/workflows/trice_lib_reusable.yml`, `scripts/_515_test_logging_features.sh`, `scripts/_100_test_common.sh`, `scripts/_115_prepare_native_tests.sh`, `scripts/_105_setup_test_tools.sh`.
-2. Use the GitHub connector for current jobs/logs/artifacts. No new workflow, helper or test changes were made for this remaining failure.
-3. Add focused regression coverage in the existing script tests as needed, then validate the complete affected packages and relevant workflow checks. Existing guard tests are in `scripts/release_preparation_test.go`.
-4. Keep mdtoc **v1.0.3**, native three-OS checks, Bash 3.2 compatibility and strict evidence checks. Do not manufacture PASS through retries, sleeps, skips or weakened assertions.
-5. Separate observation, unchanged: explicit `mdtoc generate` in `_310` can replace stored chapter options with defaults. Incidental edits to `target_tests.md` and `target_test_internals.md` were reverted before validation; preserve their settings.
-6. Do not edit a worktree owned by a running suite. Plain `commit` means copyable commands; no actual commit or push without explicit execution authorization.
-7. On `handson testing`, verify branch, HEAD, worktree and relevant files, then wait for the next instruction.
+- Add and commit this handover manually, then transfer the commit to the other computer, normally by pushing. Ensure the two existing local documentation commits are transferred too.
+- On `handson testing`, compare the recorded branch, HEAD, worktree and relevant files with the actual checkout, restore this context, and wait for the next user instruction.
+- No new testing fix or final validation run is currently required. Do not turn unrelated discussion notes into an implementation task.
