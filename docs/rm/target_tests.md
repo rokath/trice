@@ -90,6 +90,10 @@ All three systems use [test-tools.env](../../scripts/test-tools.env) for exact t
 
 The startup table shows required, system and cached versions. `Location` is the selected or planned source; `Size` estimates additional installed space in MB/GB. Missing prerequisites also appear in the table. Shared WinLibs packages are budgeted once. Detailed paths remain in the run's tool-plan file.
 
+A complete package can bring additional tools. For example, Windows WinLibs supplies GCC and Clang together with CMake and Cppcheck. Installing it for missing compiler versions also places these extra tools in `temp/tools`, even if matching system versions already exist. The installer keeps the complete package rather than removing those files. "Install only missing tools" therefore means installing only the required packages, not filtering every executable inside them.
+
+`System` and `Cache` show what is present independently; `Location` shows what will be used. Thus `cmake / 4.4.4 / 4.4.4 / 4.4.4 / System / --` means both locations contain CMake 4.4.4, the system copy is selected, and no additional installation is needed at this startup. The cache copy may have arrived inside WinLibs without a separate CMake download. Its space is included in the WinLibs package estimate, not charged again on the CMake row.
+
 | Startup choice | Result |
 | --- | --- |
 | `a` or empty input | Abort before installation. Change the local setup and rerun. |
@@ -99,6 +103,8 @@ The startup table shows required, system and cached versions. `Location` is the 
 System updates never exceed the pinned tool versions, add repositories/taps, update package catalogs, or force package removals/downgrades. Tools absent from the package manager, with unknown versions, or without an available exact pin use local preparation instead. Declining the system upgrades returns to the menu; an upgrade failure stops preparation. Required SDKs and other prerequisites without a supported package mapping remain manual setup. CI uses the declared checkout-local preparation without interactive system changes.
 
 The inventory appears once. System-update previews list only actual upgrades; skipped packages, commands and size details remain in the saved tool plan's `.system.details` file. Each installation reports its start and completion or failure. Long installations print a status line every 30 seconds; command output remains in `tools.log` for suite runs.
+
+Choosing `a`, empty input or EOF cancels preparation without repeating the inventory or reporting an installation failure. No tests run; the result remains INCOMPLETE with exit status 2. Genuine preparation failures still show their diagnostics and retain the complete `tools.log`.
 
 After tool preparation, local runs ask `Format repo? [y/N]`. Enter `y` to run the existing [repository formatter](maintenance.md#cleaning-the-sources) before testing, including manual refresh, Bind IDs and example cleanup. Empty input, EOF or `n` continues without formatting. `--no-format` suppresses the question and formatting; CI also skips the question. Formatting output goes to `format_repo.log` in the run directory. A formatting failure starts no tests. Approved formatting changes become the test baseline, so the final worktree check still detects changes made by tests.
 

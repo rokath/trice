@@ -637,9 +637,18 @@ main() {
   summary_line "Log: ${LOG_DIR#"$(pwd)/"}/tools.log"
   # Preparation completes before tests; its selected environment is inherited
   # by every step. Missing prerequisites never turn into a reduced green run.
+  TRICE_TEST_SETUP_CANCELLED=0
   if ! prepare_native_test_tools >"$LOG_DIR/tools.log" 2>&1; then
-    summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
-    cat "$LOG_DIR/tools.log"
+    if [ "${TRICE_TEST_SETUP_CANCELLED:-0}" = 1 ]; then
+      # Interactive planning already displayed both inventory and cancellation.
+      # Captured/noninteractive output still needs one replay, but no failure
+      # banner: deliberate cancellation is not a failed tool installation.
+      printf '%s\n' 'Cancelled.' >>"$SUMMARY_LOG"
+      if [ "${TRICE_TEST_PROGRESS_TTY:-0}" != 1 ]; then cat "$LOG_DIR/tools.log"; fi
+    else
+      summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
+      cat "$LOG_DIR/tools.log"
+    fi
     TEST_ALL_INCOMPLETE=1
     started_at=$(date +%s)
   elif ! offer_repository_format; then
@@ -671,6 +680,7 @@ main() {
     TEST_ALL_INCOMPLETE=1
     result=INCOMPLETE
     local preparation_reason='native test bootstrap unavailable; see tools.log'
+    if [ "${TRICE_TEST_SETUP_CANCELLED:-0}" = 1 ]; then preparation_reason='tool preparation cancelled before testing'; fi
     if [ "${TRICE_TEST_SETUP_ONLY:-0}" = 1 ]; then preparation_reason='system tool setup finished; rerun the startup check before testing'; fi
     printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"%s"}\n' "$selected" "$preparation_reason" >"$LOG_DIR/results.json" ||
       summary_line "INCOMPLETE: cannot write $LOG_DIR/results.json; check free disk space and write permissions."

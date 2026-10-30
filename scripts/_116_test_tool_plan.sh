@@ -726,6 +726,9 @@ trice_plan_space() {
 trice_test_tool_plan() {
   local scope="${1:-native}" os architecture selected found tool version action target installed peak answer='' blocked=0 checkout_space_ok=1 system_status
   local after_updates="${2:-0}"
+  # Exit 2 also describes real setup failures. Keep explicit refusal distinct
+  # so the suite can avoid replaying an inventory already mirrored to the user.
+  export TRICE_TEST_SETUP_CANCELLED=0
   # Capture interactive output once, before table and disk loops redirect stdin.
   local TRICE_PLAN_MIRROR_TTY=0
   if [ ! -t 1 ] && [ -t 0 ] && { true >/dev/tty; } 2>/dev/null; then TRICE_PLAN_MIRROR_TTY=1; fi
@@ -954,7 +957,8 @@ trice_test_tool_plan() {
           break
           ;;
         a | A | '')
-          trice_plan_print 'INCOMPLETE: preparation cancelled before tool installation; change the local setup and rerun.'
+          TRICE_TEST_SETUP_CANCELLED=1
+          trice_plan_print 'Cancelled.'
           return 2
           ;;
         *) trice_plan_print 'Please enter c, u, or a.' ;;

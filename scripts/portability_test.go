@@ -153,8 +153,9 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		// A private runtime from the outer suite must not bypass tool doubles.
 		"TRICE_TEST_PYTHON":     "",
 		"TRICE_TEST_AUTO_SETUP": "0", "TRICE_TEST_REPORT_BIN": "",
-		"TRICE_TEST_SETUP_APPROVED": "0",
-		"TRICE_BIND_INTEGRATION":    "0", "TRICE_TEST_NPM_DIR": "",
+		"TRICE_TEST_SETUP_APPROVED":  "0",
+		"TRICE_TEST_SETUP_CANCELLED": "0",
+		"TRICE_BIND_INTEGRATION":     "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
 		// Outer preparation must not lend a plan, browser or formatter selection
 		// to disposable tool doubles or silently authorize real installations.
@@ -163,15 +164,26 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_TEST_PROGRESS_TTY": "0", "TRICE_TEST_PROGRESS_INTERVAL_SECONDS": "30",
 		"CLANG_FORMAT_BIN": "", "NODE_PATH": "",
 		"TRICE_PLAN_FILE": "", "TRICE_FORMAT_PYTHON": "", "PUPPETEER_CACHE_DIR": "",
+		// Native Windows package discovery must not bypass fixture tools through
+		// an installed host Cppcheck. Case-folded filtering below also removes
+		// inherited ProgramFiles aliases on Unix; discovery cases opt in explicitly.
+		"PROGRAMFILES": "",
 	}
 	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
 	if _, err := os.Stat(reportTool); err == nil {
 		env["TRICE_TEST_REPORT_BIN"] = reportTool
 	}
 	for key, value := range overrides {
+		if strings.EqualFold(key, "PROGRAMFILES") {
+			key = "PROGRAMFILES"
+		}
 		env[key] = value
 	}
-	cmd := exec.Command(bash, "-c", command)
+	// Git for Windows can repopulate PROGRAMFILES while launching Bash, even
+	// when cmd.Env supplies an empty value. Apply the fixture's explicit value
+	// after shell startup; quoted expansion preserves paths without evaluating them.
+	env["TRICE_FIXTURE_PROGRAMFILES"] = env["PROGRAMFILES"]
+	cmd := exec.Command(bash, "-c", "unset ProgramFiles\nexport PROGRAMFILES=\"$TRICE_FIXTURE_PROGRAMFILES\"\n"+command)
 	cmd.Dir = root
 	for _, entry := range os.Environ() {
 		key := strings.SplitN(entry, "=", 2)[0]
@@ -792,6 +804,41 @@ stitchmd -version
 	}
 }
 
+// TestCppcheckFixturesIgnoreHostPackages models a matching analyzer outside the
+// fixture on every OS. Neither Windows spelling may bypass the fixture's older
+// tool and its explicit installer, even when the host package has the exact pin.
+func TestCppcheckFixturesIgnoreHostPackages(t *testing.T) {
+	for _, variable := range []string{"ProgramFiles", "PROGRAMFILES"} {
+		t.Run(variable, func(t *testing.T) {
+			system := filepath.Join(t.TempDir(), "System Programs")
+			writeFixture(t, system, "Cppcheck/cppcheck.exe", "#!/bin/sh\necho 'Cppcheck 2.22.0'\n")
+			t.Setenv(variable, system)
+			root := scriptFixture(t)
+			writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.21.0'\n")
+			out, err := runFixture(t, root, `printf 'yes\n' | {
+source scripts/_105_setup_test_tools.sh
+# Exercise Windows package lookup on Unix without requiring cygpath there.
+cygpath() { printf '%s\n' "$2"; }
+install_cppcheck_test_tool() { echo fixture-installation-reached; return 23; }
+ensure_cppcheck_test_tool
+}`, map[string]string{"CI": "false"})
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "fixture-installation-reached")
+			assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
+			// Explicit system discovery still works for either spelling, using
+			// a fixture-owned path with spaces instead of the developer's package.
+			out, err = runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+cygpath() { printf '%s\n' "$2"; }
+install_cppcheck_test_tool() { echo unexpected-installation; return 23; }
+ensure_cppcheck_test_tool
+`, map[string]string{"CI": "false", variable: system})
+			assert.NoError(t, err, out)
+			assert.NotContains(t, out, "unexpected-installation")
+			assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
+		})
+	}
+}
+
 // TestCppcheckPinnedVersion verifies that the exact analyzer version is accepted
 // and an older version requires consent instead of silently reducing checks.
 func TestCppcheckPinnedVersion(t *testing.T) {
@@ -1375,6 +1422,92 @@ func TestRunnerLogsAndCancellation(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, "retain", string(data))
 			}
+		})
+	}
+}
+
+// TestRunnerSetupCancellation uses the real planner and runner with tool doubles.
+// A separate descriptor models terminal mirroring without an interactive PTY.
+// Explicit cancellation prints once; real setup errors keep their diagnostics.
+func TestRunnerSetupCancellation(t *testing.T) {
+	for _, tc := range []struct {
+		name, input           string
+		mirror, proceed, fail bool
+	}{
+		{name: "abort_captured", input: "a\\n"},
+		{name: "abort_mirrored", input: "a\\n", mirror: true},
+		{name: "empty_captured", input: "\\n"},
+		{name: "empty_mirrored", input: "\\n", mirror: true},
+		{name: "EOF_captured"},
+		{name: "EOF_mirrored", mirror: true},
+		{name: "continue_runs_step", input: "c\\n", mirror: true, proceed: true},
+		{name: "genuine_preparation_failure", fail: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			initGitFixture(t, root)
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			for _, tool := range []string{"npm", "npx"} {
+				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 92\n")
+			}
+			writeFixture(t, root, "bin/df", "#!/bin/sh\nprintf 'Filesystem 1024-blocks Used Available Capacity Mounted\\nfixture 99999999 1 9999999 1%% /\\n'\n")
+			writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", `prepare_native_test_tools() {
+  TRICE_TEST_REPORT_BIN=''
+  if [ "$FIXTURE_SETUP_FAILURE" = true ]; then echo fixture-preparation-failed; return 2; fi
+  source scripts/_116_test_tool_plan.sh
+  if [ "$FIXTURE_MIRROR" = true ]; then
+    trice_plan_print() {
+      TRICE_TEST_PROGRESS_TTY=1
+      printf '%s\n' "$*"
+      printf '%s\n' "$*" >&9
+    }
+  fi
+  trice_test_tool_plan node || return $?
+  TRICE_TEST_REPORT_BIN="$ROOT/bin/testcheck-fixture"
+}
+`)
+			writeFixture(t, root, "scripts/_410_test_sentinel.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\necho executed > step-called\nlog executed\n")
+			command := "printf '" + tc.input + "' | {\nexec 9>&1\nsource scripts/_110_test_runner.sh\nbuild_test_plan() { add_plan_step _410_test_sentinel.sh; }\nmain --no-format\n}"
+			out, err := runFixture(t, root, command, map[string]string{
+				"CI": "false", "FIXTURE_MIRROR": strconv.FormatBool(tc.mirror),
+				"FIXTURE_SETUP_FAILURE": strconv.FormatBool(tc.fail), "TRICE_TEST_SETUP_CANCELLED": "1",
+			})
+			if tc.proceed {
+				assert.NoError(t, err, out)
+				assert.FileExists(t, filepath.Join(root, "step-called"))
+				assert.Contains(t, out, "Result: PASS")
+			} else {
+				if exitErr, ok := err.(*exec.ExitError); assert.True(t, ok, out) {
+					assert.Equal(t, 2, exitErr.ExitCode(), out)
+				}
+				assert.NoFileExists(t, filepath.Join(root, "step-called"))
+				assert.Contains(t, out, "Result: INCOMPLETE")
+			}
+			runs, readErr := filepath.Glob(filepath.Join(root, "temp/log/testAll.*"))
+			if !assert.NoError(t, readErr) || !assert.Len(t, runs, 1) {
+				t.FailNow()
+			}
+			tools, readErr := os.ReadFile(filepath.Join(runs[0], "tools.log"))
+			assert.NoError(t, readErr)
+			if tc.fail {
+				assert.Contains(t, out, "native test preparation failed")
+				assert.Contains(t, out, "fixture-preparation-failed")
+				assert.NotContains(t, out, "Cancelled.")
+			} else {
+				header := regexp.MustCompile(`(?m)^Tool +Required +System +Cache +Location +Size$`)
+				assert.Len(t, header.FindAllString(out, -1), 1, out)
+				assert.Len(t, header.FindAllString(string(tools), -1), 1)
+				assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
+				assert.NotContains(t, out, "native test preparation failed")
+				if !tc.proceed {
+					assert.Equal(t, 1, strings.Count(out, "Cancelled."), out)
+					assert.Contains(t, string(tools), "Cancelled.")
+					data, readErr := os.ReadFile(filepath.Join(runs[0], "results.json"))
+					assert.NoError(t, readErr)
+					assert.Contains(t, string(data), "tool preparation cancelled before testing")
+				}
+			}
+			assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
 		})
 	}
 }
