@@ -4,59 +4,69 @@ Updated: 2026-10-30. Release context: v2.0.0-beta-2.
 
 ## Goal and Git state
 
-- Continue native testing on the next computer with practical, reproducible pinned-tool preparation.
-- Branch: `wip`; HEAD: `9ce21052c1c28c53797228b42a54fdd4f340b72c`.
-- Implementation is committed, including `94f04992` (Clang selection), `257c2fd5` (test preparation/reporting) and `9ce21052` (documentation).
-- Worktree was clean before this refresh. Only this handover is now uncommitted. No add, commit or push was executed by the agent.
-- No active testAll lock, running agent check or pending source restoration remains. This is the sole active testing handover.
+- Continue native testing with reproducible pinned-tool preparation and a compact startup inventory.
+- Branch: `wip`; HEAD at refresh: `808fe4e9c1fa44036856f6f4b6217c757cca7e46`.
+- The tool-preparation redesign and macOS Clang fixes are committed through `9ce21052`; `808fe4e9` only refreshed this handover.
+- Four implementation/documentation files are now uncommitted: `scripts/portability_test.go`, `scripts/_110_test_runner.sh`, `scripts/_116_test_tool_plan.sh`, `docs/rm/target_tests.md`. This handover is a fifth change. No staging, commit or push was executed by the agent.
+- No active testAll lock, agent check or pending restoration remains. This is the sole active testing handover. No local cache, log, ZIP or personal profile is required for transfer.
 
-## Completed work
+## Committed behavior to preserve
 
-- Preparation reuses matching installations and verified worktree caches. Missing versions use pinned release packages where available. Node/npm, complete compiler packages and setup budgets share the startup plan.
-- Setup reports installation start, completion/failure and a heartbeat every 30 seconds. Skipped system-package details stay in the saved plan's `.system.details` file. Rechecking after updates does not repeat the inventory table.
-- shfmt accepts `3.14.1` and `v3.14.1`. Node reuse preserves already selected CLI tools; new local tools take precedence over older system versions. Go publication and Windows Cppcheck fixtures no longer leak host runtime/architecture choices.
-- Homebrew-only scenarios are selected before creating subtests, avoiding inappropriate apt/winget skips. NUL bytes remain in raw logs but no longer hide diagnostic lines behind grep's binary-file notice. Strict JSON auditing was retained.
-- macOS build setup appends Xcode tools instead of replacing the selected Clang. The G0B1 Insert/Bind checks now use Clang 23.1.4 without warnings.
+- Reuse matching installations and verified worktree caches. Missing versions use pinned release packages where available; source builds are fallback only where required.
+- The inventory appears once. Rechecking after system updates does not repeat it. Installation start/completion/failure and a 30-second heartbeat stay visible; detailed command output remains in logs.
+- Node reuse preserves selected CLI precedence. shfmt accepts the pinned version with or without a `v` prefix. CMake/GCC/LLVM/ARM packages retain complete resources.
+- macOS build setup appends Xcode tools rather than replacing the selected Clang. Homebrew-only fixture cases are selected before creating subtests. NUL bytes remain in raw logs without hiding readable failure diagnostics.
 
-## Binding behavior and constraints
+## New uncommitted fixes
 
-- The user performs final validation. Do not automatically launch testAll, coverage or compiler/integration suites. Focused implementation checks are allowed.
-- Use `temp/tools`, not `test/tools`. Keep exact pins; mdtoc must remain v1.0.3. Do not add dependencies or change pins without a request.
-- Show the compact `Tool / Required / System / Cache / Location / Size` inventory once. Keep additional paths/details in logs. Sizes are approximate extra installed space; disk checks also include staging and reserve.
-- `c`: reuse matching tools and install missing pinned tool versions into `temp/tools`; never change system packages.
-- `u`: offer confirmed upgrades of older managed system tools to available exact pins, never above the pin and never downgrade newer versions. Then recheck and prepare remaining missing pins locally. Declining upgrades returns to the menu; actual upgrade failures stop preparation.
-- `a` or empty startup input aborts. Missing host prerequisites block continuation with a concrete explanation.
-- After preparation, local runs ask `Format repo? [y/N]`. Yes runs the existing formatter, including manual refresh, Bind IDs and example cleanup. Empty input, EOF or `n` skips formatting. `--no-format` suppresses the question and formatting; CI also skips the question. Format failures start no tests. Authorized formatting becomes the test baseline; subsequent test mutations still fail the state guard.
-- Preserve strict evidence checks, compiler warnings and Bash 3.2 compatibility. Do not hide failures with retries, new skip exceptions or broad warning suppression.
-- Avoid interactive PTY/ConPTY previews on Windows: an earlier preview caused terminal input problems. Use noninteractive fixtures and saved output.
-- On `handson testing`, verify this handover against the checkout, restore context and wait for instructions.
+- Windows Cppcheck fixtures inherited a real 2.22.0 installation through ProgramFiles, bypassing their older doubles and expected installer/refusal paths. Git Bash repopulated PROGRAMFILES even when Go supplied an empty value.
+- `runFixture` now removes inherited aliases, normalizes explicit ProgramFiles overrides and reapplies the controlled value after Bash starts using `TRICE_FIXTURE_PROGRAMFILES`. Production Cppcheck discovery/pins are unchanged. Regression cases cover both spellings, a matching host installation and explicitly enabled fixture paths with spaces.
+- Setup refusal is distinct from real preparation failure via `TRICE_TEST_SETUP_CANCELLED`. Choosing `a`, empty input or EOF prints `Cancelled.` once. The runner does not replay an already mirrored inventory or call refusal a preparation failure.
+- Captured/noninteractive cancellation still replays its log once, while genuine setup failures keep their full diagnostics. Cancellation starts no tests, remains INCOMPLETE/exit 2 and records a specific reason in results.json.
+- New runner tests use the real planner and runner with doubles, including mirrored/captured output, explicit/empty/EOF cancellation, successful continuation and genuine failure. Descriptor 9 models terminal output; descriptor 3 belongs to tracked-state hashing. No real PTY is used.
+- The test manual explains package-level reuse: WinLibs needed for GCC/Clang also brings CMake/Cppcheck. System and Cache show independent presence; Location selects the used copy. A cached CMake 4.4.4 alongside system CMake 4.4.4 is valid, not a separate CMake download. Its space is counted with WinLibs.
+
+## Binding user decisions
+
+- The user performs final validation. Do not automatically run testAll, coverage or compiler/integration suites. Focused implementation checks are allowed.
+- Use `temp/tools`; retain exact pins, including mdtoc v1.0.3. No unrequested dependencies, pin changes or cache cleanup/migration.
+- Startup: two short introductory lines; `Tool / Required / System / Cache / Location / Size` table with a continuous horizontal separator. No Go path paragraph, `external`/`Use`, legends, repeated `available` list or zero-size/peak columns.
+- Approximate Size is extra installed space in MB/GB; existing tools show `--`. Staging/reserve checks stay internal. Normal disk output shows free space/sufficiency; shortages name the additional space needed.
+- `c`: reuse matching tools and install missing pinned versions locally, without system changes.
+- `u`: offer confirmed upgrades of older managed system tools to available exact pins; never exceed pins or downgrade newer versions. Recheck afterwards and prepare remaining pins locally. Declining returns to the menu; real upgrade failures stop preparation.
+- `a` or empty input aborts. The c/u/a menu remains unchanged when prerequisites are missing; blocked continuation explains the reason.
+- After preparation, `Format repo? [y/N]` offers the existing formatter. Empty input, EOF or n skips it; `--no-format` and CI suppress it. Format failures start no tests. Authorized formatting becomes the test baseline; later mutations still fail the tracked-state guard.
+- Preserve Bash 3.2 compatibility, compiler warnings and strict evidence. Do not manufacture PASS with retries, new skip exceptions or relaxed checks.
+- Avoid interactive PTY/ConPTY previews on Windows: an earlier preview caused terminal-input problems. Use noninteractive fixtures and saved output.
 
 ## Validation
 
-- **PASS, native macOS arm64:** the user's full suite at clean commit `9ce21052`, run `temp/log/testAll.hsoJtQ`, finished 2026-10-30 09:26:22 CET. All 25 steps passed, including Go tests, coverage and compiler matrices; tracked-state verification passed. Reported duration: 28,916 seconds. Entry point: `./scripts/testAll.sh`; saved selection is `full`, but optional CLI flags are not recorded in the report.
-- Steps 560/570 in that run explicitly report Homebrew Clang 23.1.4 and contain zero compiler warnings. Their earlier Apple Clang 21 / unknown-warning-option problem is resolved.
-- **PASS, focused macOS checks:** 90 named tests under modern Bash and 71 under Bash 3.2, with zero failures/skips; both JSON streams passed the strict audit. This preceded the final Clang-path patch; the full-suite PASS above covers the final code.
-- **PASS after the Clang-path patch:** the following portable core commands were executed through rtk with a writable local Go-cache override. Platform cases inside fixtures are simulations, not native Windows/Linux acceptance:
+- Historical **PASS, native macOS arm64**, reported by the user: clean `9ce21052`, `temp/log/testAll.hsoJtQ`, all 25 steps, 28,916 seconds, finished 2026-10-30 09:26:22 CET. Steps 560/570 used Homebrew Clang 23.1.4 without warnings. This predates the new uncommitted fixes.
+- Earlier focused macOS checks passed under modern Bash and Bash 3.2. These are not native acceptance of the new Windows-fixture/cancellation changes.
+- Windows `testAll.NXYY7D` was interrupted after step 540 failed on Cppcheck fixtures; step 520 passed. The fixture defect is corrected locally, but no new complete Windows PASS has been supplied.
+- Windows `testAll.7pkKW1` was cancelled at startup. Its duplicate table exposed the corrected refusal path; it performed no tests.
+- **PASS, focused Windows checks**, run through rtk, without real installations or compiler matrices:
 
 ```sh
-go test ./scripts -run '^(TestClangWorkerPreservesSelectedCompiler|TestClangWorkerDetachesBuildInput|TestExampleCleanupPreservesFailureStatus|TestL432.*)$' -count=1 -timeout=2m
-go test ./scripts -run '^(TestClangWorkerPreservesSelectedCompiler|TestClangWorkerDetachesBuildInput|TestExampleCleanupPreservesFailureStatus)$' -count=1 -timeout=2m
+rtk go test ./scripts -run '^(TestCppcheckFixturesIgnoreHostPackages|TestCppcheckPinnedVersion|TestCppcheckLocalCache|TestCppcheckWindowsSetup)$' -count=1 -timeout=2m
+rtk go test ./scripts -run '^(TestCppcheckFixturesIgnoreHostPackages|TestPinnedSystemToolUpdates|TestSystemUpgradeVersionBounds|TestToolPlanInventorySeparatesSystemAndCache|TestToolPlanListsOnlyMissingTools)$' -count=1 -timeout=3m
+rtk go test ./scripts -run '^(TestRunnerSetupCancellation|TestRunnerLogsAndCancellation|TestRunnerDiagnosticsWithNUL|TestRunnerOffersRepositoryFormatting|TestToolPlanConsentAndSpace|TestMissingPrerequisiteKeepsMenu)$' -count=1 -timeout=4m
 ```
 
-- The second command used system Bash 3.2 for fixtures. ShellCheck, pinned shfmt, gofmt and diff whitespace checks passed. A read-only environment probe also retained the real Clang 23.1.4 after sourcing build setup.
-- Earlier runs `testAll.Q5hqx0` (INCOMPLETE) and `testAll.doWzey` (ABORTED) predate the final successful run; do not treat them as current failures.
+- Outcomes respectively: 20, 55 and 59 passing cases including parent tests. The first two validate the fixture fix; the third is the latest cancellation/runner check. Platform branches inside Windows fixtures are simulations, not native macOS/Linux runs.
+- PASS: ShellCheck at warning severity and pinned shfmt for both changed shell files; gofmt for the changed Go file; diff whitespace checks. No full suite, real apt/Homebrew/winget upgrade or interactive terminal preview was run for these fixes.
+- Initial attempts failed because clearing the environment alone did not survive Git-Bash startup, and because the first mirror fixture reused descriptor 3. Both causes were corrected; the passing runs above supersede those attempts.
 
 ## Open limits and next steps
 
-- Native Windows, Linux and Intel macOS acceptance of this revision remains unverified in this session. Latest PR #763 / remote CI status was not rechecked. No real apt/Homebrew/winget upgrade was executed by the agent.
-- Known older-cache edge case remains uncorrected: a valid jq can share an old native `bin` directory with unverified actionlint/shellcheck entries, causing `compatibleToolCaches` to reject the directory although individual planning reports jq reusable. The user deleted `temp` before later runs. Final PASS verifies rebuilt/reused current caches, not that mixed-cache scenario; investigate only if it recurs or is requested.
-- Commit this handover manually and transfer the commit, normally by pushing. The implementation has no remaining uncommitted files. No local cache, log, input ZIP or personal profile is required for transfer.
-- On the next computer, load `handson testing` and verify checkout/tools. The user can then run `./scripts/testAll.sh` or `./scripts/testAll.sh --no-format`; inspect any reported failure before making further changes.
+- The user should run `./scripts/testAll.sh` or `./scripts/testAll.sh --no-format` next. Inspect reported failures before further edits. Current uncommitted changes have no complete native acceptance on Windows, Linux, Intel macOS or Apple Silicon.
+- Preserve the historical macOS PASS, but do not attribute it to these subsequent edits. Remote CI was not rechecked.
+- Deferred mixed-cache edge: an old native bin directory containing valid jq plus unverified actionlint/shellcheck can be rejected by `compatibleToolCaches` despite individual jq planning reporting reuse. Investigate only if it recurs or is requested; do not silently repair/migrate caches.
+- Manually commit the four changed files and this handover, then transfer those commits, normally with a push. New commits are an expected difference from the HEAD recorded above.
+- On `handson testing`, compare branch, HEAD, worktree and relevant files, restore context and wait for the next instruction.
 
 ## Relevant files
 
-- Planning/progress: `scripts/_105_setup_test_tools.sh`, `scripts/_116_test_tool_plan.sh`, `scripts/_117_system_test_tools.sh`.
-- Runner/selection: `scripts/_110_test_runner.sh`, `scripts/_115_prepare_native_tests.sh`, `scripts/_150_setup_build_environment.sh`, `scripts/_260_format_shell_scripts.sh`.
-- Pins/cache audit: `scripts/test-tools.env`, `scripts/testcheck/tools.go`, `scripts/testcheck/main.go`.
-- Regression fixtures: `scripts/portability_test.go`, `scripts/tool_plan_test.go`, `scripts/release_preparation_test.go`.
-- Usage: [Running the Tests](../rm/target_tests.md), [Maintenance](../rm/maintenance.md).
+- Current fixes: `scripts/portability_test.go`, `scripts/_110_test_runner.sh`, `scripts/_116_test_tool_plan.sh`, [target_tests.md](../rm/target_tests.md).
+- Shared preparation: `scripts/_105_setup_test_tools.sh`, `scripts/_115_prepare_native_tests.sh`, `scripts/_117_system_test_tools.sh`.
+- Compiler/cache behavior: `scripts/_150_setup_build_environment.sh`, `scripts/testcheck/tools.go`, `scripts/test-tools.env`.
