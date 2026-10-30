@@ -7,29 +7,29 @@ Use [Running the Tests](target_tests.md) for commands, prerequisites, GitHub Act
 
 <!-- mdtoc -->
 
-* [Where the tests live](#where-the-tests-live)
-* [From C call to checked text](#from-c-call-to-checked-text)
-  * [Execute and compare records](#execute-and-compare-records)
-  * [Shared and additional Go test entry points](#shared-and-additional-go-test-entry-points)
-* [CGO configuration catalogue](#cgo-configuration-catalogue)
-  * [Deferred double buffer](#deferred-double-buffer)
-  * [Double buffer with simultaneous direct and deferred output](#double-buffer-with-simultaneous-direct-and-deferred-output)
-  * [Deferred ring buffer](#deferred-ring-buffer)
-  * [Ring buffer with simultaneous direct and deferred output](#ring-buffer-with-simultaneous-direct-and-deferred-output)
-  * [Direct stack and static buffers](#direct-stack-and-static-buffers)
-  * [Special configurations](#special-configurations)
-  * [ABC case details](#abc-case-details)
-* [CGO build cache](#cgo-build-cache)
-* [How the suite is assembled](#how-the-suite-is-assembled)
-  * [Feature checks and firmware matrices](#feature-checks-and-firmware-matrices)
-* [Add or change a test](#add-or-change-a-test)
+* [1. Where the tests live](#where-the-tests-live)
+* [2. From C call to checked text](#from-c-call-to-checked-text)
+  * [2.1. Execute and compare records](#execute-and-compare-records)
+  * [2.2. Shared and additional Go test entry points](#shared-and-additional-go-test-entry-points)
+* [3. CGO configuration catalogue](#cgo-configuration-catalogue)
+  * [3.1. Deferred double buffer](#deferred-double-buffer)
+  * [3.2. Double buffer with simultaneous direct and deferred output](#double-buffer-with-simultaneous-direct-and-deferred-output)
+  * [3.3. Deferred ring buffer](#deferred-ring-buffer)
+  * [3.4. Ring buffer with simultaneous direct and deferred output](#ring-buffer-with-simultaneous-direct-and-deferred-output)
+  * [3.5. Direct stack and static buffers](#direct-stack-and-static-buffers)
+  * [3.6. Special configurations](#special-configurations)
+  * [3.7. ABC case details](#abc-case-details)
+* [4. CGO build cache](#cgo-build-cache)
+* [5. How the suite is assembled](#how-the-suite-is-assembled)
+  * [5.1. Feature checks and firmware matrices](#feature-checks-and-firmware-matrices)
+* [6. Add or change a test](#add-or-change-a-test)
 
-<!-- numbering=false min=2 max=3 slug=github anchor=false link=true toc=true bullets=auto -->
+<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
 </details>
 
-## Where the tests live
+## 1. <a id="where-the-tests-live"></a>Where the tests live
 
 | Location | Responsibility |
 | --- | --- |
@@ -41,7 +41,7 @@ Use [Running the Tests](target_tests.md) for commands, prerequisites, GitHub Act
 
 The native CLI tests in [native_platform_test.go](../../internal/args/native_platform_test.go) build the current tools in temporary paths with spaces and Unicode. They check LF/CRLF, LI lines, relative paths, Bind byte preservation, Insert/Clean round trips, filesystem case aliases, and C records decoded with both compiler families. [The Windows test](../../internal/args/native_platform_windows_test.go) adds a real sharing-lock failure and checks preservation/retry. These are additional integration tests, not substitutes for the configuration matrix.
 
-## From C call to checked text
+## 2. <a id="from-c-call-to-checked-text"></a>From C call to checked text
 
 CGO is Go's interface to compiled C. A PC configuration compiles the real Trice sources for the current host and calls them from Go. UART/RTT writers are simulated; the record creation and host decoding are real.
 
@@ -72,7 +72,7 @@ Each ordinary configuration uses these pieces:
 
 The bridge includes the C implementation files directly, so each package receives its own compile-time configuration. Its CGO include order is the configuration directory, `src`, then `src/default_conf`; Bind preparation adds the generated sidecar include paths. Each configuration runs in a separate process, keeping its C state and Go decoder globals separate from other configurations.
 
-### Execute and compare records
+### 2.1. <a id="execute-and-compare-records"></a>Execute and compare records
 
 The harness reads the `//exp:` markers in `triceCheck.c`, remembers their line numbers and calls `TriceCheck(line)` for each selected site. C uses `case __LINE__` to select the corresponding code. The expected string therefore stays beside the call that produces it. The file covers stamped and unstamped calls, integer widths, numeric formats, floats/doubles, strings and buffers, assertions, structured calls, legacy F calls and counted X0 payloads. Exact expected output belongs in the source rather than in a second prose list.
 
@@ -88,7 +88,7 @@ Batched **decoding** does not mean changing every target's transfer schedule. Co
 
 The first mismatch stops that configuration's comparison loop, avoiding thousands of follow-on errors. Bulk diagnostics show the first divergent expectation, channel, escaped expected/actual text and nearby output. That line may follow the original cause of a corrupted stream. Original `.bin`/`.txt` files remain in the configuration's artifact directory. The worker may rerun line by line, but it never clears the original failure.
 
-### Shared and additional Go test entry points
+### 2.2. <a id="shared-and-additional-go-test-entry-points"></a>Shared and additional Go test entry points
 
 | Test | What it checks |
 | --- | --- |
@@ -102,13 +102,13 @@ The first mismatch stops that configuration's comparison loop, avoiding thousand
 
 `TestMain` and per-test setup save/restore shared Go settings. They are lifecycle helpers, not extra C coverage claims.
 
-## CGO configuration catalogue
+## 3. <a id="cgo-configuration-catalogue"></a>CGO configuration catalogue
 
 Every independently selected package appears once below. A row describes its compile-time variation; ordinary rows run the common expectation list just explained. Follow the package link for `triceConfig.h`, decoder options and any custom fixture.
 
 Read names as a guide, not as a replacement for the configuration: `di` means direct, `de` deferred, `__` joins two output paths, `rtt8`/`rtt32` are byte/word RTT writer simulations, and `ua` is simulated UART A. `aux8`/`aux32` use the auxiliary writer. COBS/TCOBS frame records; `nopf` means unframed; XTEA adds encryption. Single-pack frames individual records; multi-pack frames groups. Double/ring buffers support deferred output; stack/static buffers serve direct output.
 
-### Deferred double buffer
+### 3.1. <a id="deferred-double-buffer"></a>Deferred double buffer
 
 All these packages use simulated UART A. The single/multi difference remains active even when the host decoder batches input.
 
@@ -125,7 +125,7 @@ All these packages use simulated UART A. The single/multi difference remains act
 | [dblB_de_single_xtea_cobs_ua](../../_test/dblB_de_single_xtea_cobs_ua) | Single-pack XTEA + COBS. |
 | [dblB_de_single_xtea_tcobs_ua](../../_test/dblB_de_single_xtea_tcobs_ua) | Single-pack XTEA + TCOBS. |
 
-### Double buffer with simultaneous direct and deferred output
+### 3.2. <a id="double-buffer-with-simultaneous-direct-and-deferred-output"></a>Double buffer with simultaneous direct and deferred output
 
 Each site must decode correctly on both paths. Deferred output uses UART A; the columns distinguish only what changes between configurations. “None” means no framing, not no output.
 
@@ -144,7 +144,7 @@ Each site must decode correctly on both paths. Deferred output uses UART A; the 
 
 Unspecified deferred transfer mode currently defaults to multi-pack. The explicitly named multi-pack packages retain that setting in their own header; both sets remain independently selected.
 
-### Deferred ring buffer
+### 3.3. <a id="deferred-ring-buffer"></a>Deferred ring buffer
 
 These use UART A, like the deferred double-buffer cases, but exercise the ring-buffer implementation and wrap/transfer behavior.
 
@@ -161,7 +161,7 @@ These use UART A, like the deferred double-buffer cases, but exercise the ring-b
 | [ringB_de_single_xtea_cobs_ua](../../_test/ringB_de_single_xtea_cobs_ua) | Single-pack XTEA + COBS. |
 | [ringB_de_single_xtea_tcobs_ua](../../_test/ringB_de_single_xtea_tcobs_ua) | Single-pack XTEA + TCOBS. |
 
-### Ring buffer with simultaneous direct and deferred output
+### 3.4. <a id="ring-buffer-with-simultaneous-direct-and-deferred-output"></a>Ring buffer with simultaneous direct and deferred output
 
 Deferred output again uses UART A and the default multi-pack mode.
 
@@ -178,7 +178,7 @@ Deferred output again uses UART A and the default multi-pack mode.
 | [ringB_di_xtea_cobs_rtt32__de_tcobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua) | RTT32, XTEA + COBS | TCOBS |
 | [ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua) | RTT32, XTEA + COBS | XTEA + COBS |
 
-### Direct stack and static buffers
+### 3.5. <a id="direct-stack-and-static-buffers"></a>Direct stack and static buffers
 
 These have no deferred UART path. “Big-endian” selects wire transfer order on the native host; it does not turn the machine into a big-endian CPU.
 
@@ -198,7 +198,7 @@ These have no deferred UART path. “Big-endian” selects wire transfer order o
 | [staticB_di_xtea_cobs_rtt32](../../_test/staticB_di_xtea_cobs_rtt32) | Static buffer, XTEA + COBS, RTT word writer. |
 | [be_staticB_di_xtea_cobs_rtt32](../../_test/be_staticB_di_xtea_cobs_rtt32) | Same encrypted static-buffer path with big-endian transfer order. |
 
-### Special configurations
+### 3.6. <a id="special-configurations"></a>Special configurations
 
 These use custom assertions or add an important independent variation. Some folder names are historical: the alias/user-print headers actually select **stack, direct, unframed auxiliary32**, not the double-buffer/deferred/TCOBS combination suggested by their names.
 
@@ -215,7 +215,7 @@ These use custom assertions or add an important independent variation. Some fold
 | [abc_rx_host](../../_test/abc_rx_host) | Real C ABC parser, resolver and dispatch behavior, with synthetic input records. |
 | [abc_tx_host](../../_test/abc_tx_host) | ABC transmit macro wire bytes, captured by custom write hooks; no receiver table or full Trice runtime is needed. |
 
-### ABC case details
+### 3.7. <a id="abc-case-details"></a>ABC case details
 
 The receiver's [C fixture](../../_test/abc_rx_host/triceAbcReceiveTest.c) returns a failure count to Go for each case:
 
@@ -250,7 +250,7 @@ The transmitter's [C fixture](../../_test/abc_tx_host/triceAbcTransmitTest.c) co
 
 The nine-node [ABC demo](../../examples/TriceAbc/demo.sh) supplies separate process-level integration evidence in step 515: all receivers become ready before transmission, remain alive until requests/replies are drained, and are reaped on failure or interruption. Its start markers are private to each run. The CGO receiver/transmitter cases isolate wire/runtime behavior without that process orchestration.
 
-## CGO build cache
+## 4. <a id="cgo-build-cache"></a>CGO build cache
 
 Go's build cache does not reliably notice arbitrary C files included from outside a CGO package. [pc_cache_overlay.go](../../scripts/pc_cache_overlay.go) makes those inputs visible without flushing cached Go dependencies.
 
@@ -264,7 +264,7 @@ The overlay does not hash independently changed external libraries or SDK header
 
 [pc_cache_overlay_test.go](../../scripts/pc_cache_overlay_test.go) verifies cold/warm **real CGO builds**, changed source/header/sidecar/configuration/compiler settings, unchanged-package reuse, and actual test-execution counts. When comparing machines, use the same commit, compiler, selection and job limits, and distinguish tool setup, cold compilation, warm compilation and execution time.
 
-## How the suite is assembled
+## 5. <a id="how-the-suite-is-assembled"></a>How the suite is assembled
 
 [testAll.sh](../../scripts/testAll.sh) starts [the runner](../../scripts/_110_test_runner.sh), using an available sleep inhibitor. The runner captures initial input bytes, takes the checkout lock, prepares declared tools, builds one ordered plan and records every result. [testcheck](../../scripts/testcheck) audits Go JSON events and writes the final report. Unknown skips, missing required tests and failed restoration prevent PASS.
 
@@ -298,7 +298,7 @@ The numbered files are stable entry points. The table maps each current suite st
 
 Step 530 (links) and 610 (snapshot packages) remain separately runnable checks, as explained in [release testing](target_tests.md#goreleaser-and-release-package-testing).
 
-### Feature checks and firmware matrices
+### 5.1. <a id="feature-checks-and-firmware-matrices"></a>Feature checks and firmware matrices
 
 Step 515 selects the compiler-to-decoder CE/SL tests for C/C++, text/JSON/KV, structured fields, stamps, exactly-once argument evaluation, disabled logging and reversible Insert/Clean. It also checks the PC feature tour, G0B1 firmware artifacts, ABC demo and CLion build through public scripts. Its isolated checkout copies contain current tracked source bytes, including uncommitted edits; existing build directories and captures are not reused. Failed copies remain under `temp/log/logging-features.*`.
 
@@ -308,7 +308,7 @@ The L432 wrapper prepares Bind once, then builds configurations 0–100 in separ
 
 Compiler warnings/errors and `temp/log/l432.*/config-N.log` are retained. Successful temporary build outputs are removed; failed/interrupted outputs remain next to the logs. Started jobs finish or are terminated before source restoration. The managed wrapper restores initial state; directly running `examples/L432_inst/all_configs_build.sh` leaves its prepared Bind state in place.
 
-## Add or change a test
+## 6. <a id="add-or-change-a-test"></a>Add or change a test
 
 For a shared C behavior case, add a call and `//exp:` expectation in [triceCheck.c](../../_test/testdata/triceCheck.c). Keep the source expression and expected decoded value easy to compare. Include the relevant boundary/error case, then run a representative managed matrix followed by the affected full configuration set.
 

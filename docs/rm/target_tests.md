@@ -9,31 +9,31 @@ This chapter covers everyday use, GitHub Actions and release-package checks. [Te
 
 <!-- mdtoc -->
 
-* [How to run the tests](#how-to-run-the-tests)
-  * [Prepare Windows](#prepare-windows)
-  * [Prepare Linux](#prepare-linux)
-  * [Prepare macOS](#prepare-macos)
-  * [Shared tool rules](#shared-tool-rules)
-* [What full and quick cover](#what-full-and-quick-cover)
-* [Read results and diagnose failures](#read-results-and-diagnose-failures)
-* [Run a focused local check](#run-a-focused-local-check)
-  * [Inspect Go coverage](#inspect-go-coverage)
-  * [CLion review build](#clion-review-build)
-* [GitHub Actions](#github-actions)
-  * [Native acceptance on all three systems](#native-acceptance-on-all-three-systems)
-  * [Other test workflows](#other-test-workflows)
-* [GoReleaser and release-package testing](#goreleaser-and-release-package-testing)
-  * [Check a local snapshot](#check-a-local-snapshot)
-  * [Understand the installation and release audit jobs](#understand-the-installation-and-release-audit-jobs)
-  * [Before accepting a release candidate](#before-accepting-a-release-candidate)
-* [Documentation history](#documentation-history)
+* [1. How to run the tests](#how-to-run-the-tests)
+  * [1.1. Prepare Windows](#prepare-windows)
+  * [1.2. Prepare Linux](#prepare-linux)
+  * [1.3. Prepare macOS](#prepare-macos)
+  * [1.4. Shared tool rules](#shared-tool-rules)
+* [2. What full and quick cover](#what-full-and-quick-cover)
+* [3. Read results and diagnose failures](#read-results-and-diagnose-failures)
+* [4. Run a focused local check](#run-a-focused-local-check)
+  * [4.1. Inspect Go coverage](#inspect-go-coverage)
+  * [4.2. CLion review build](#clion-review-build)
+* [5. GitHub Actions](#github-actions)
+  * [5.1. Native acceptance on all three systems](#native-acceptance-on-all-three-systems)
+  * [5.2. Other test workflows](#other-test-workflows)
+* [6. GoReleaser and release-package testing](#goreleaser-and-release-package-testing)
+  * [6.1. Check a local snapshot](#check-a-local-snapshot)
+  * [6.2. Understand the installation and release audit jobs](#understand-the-installation-and-release-audit-jobs)
+  * [6.3. Before accepting a release candidate](#before-accepting-a-release-candidate)
+* [7. Documentation history](#documentation-history)
 
-<!-- numbering=false min=2 max=3 slug=github anchor=false link=true toc=true bullets=auto -->
+<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
 </details>
 
-## How to run the tests
+## 1. <a id="how-to-run-the-tests"></a>How to run the tests
 
 Use Bash on Linux and macOS, and Git Bash on Windows:
 
@@ -52,12 +52,13 @@ Every run lists the declared tool versions before preparation. Installation ques
 | `./scripts/testAll.sh full` | Explicit spelling of the default. |
 | `./scripts/testAll.sh quick --stop` | Stop after the first failed step. |
 | `./scripts/testAll.sh --no-stop` | Explicitly continue after failures; this is already the default. |
+| `./scripts/testAll.sh --no-format` | Skip the optional repository-formatting question and leave formatting to the checks. Works with `quick` or `full`. |
 
 From PowerShell, use `bash ./scripts/testAll.sh` to start the same runner. Direct Go commands also work in PowerShell; the compiler and runtime still need to be available to Go.
 
 Do not run two suites, ID-maintenance scripts or the repository formatter in the same checkout at the same time. The suite holds a checkout lock. Separate Git worktrees can run independently. Ctrl+C stops the active work and waits for source restoration; let that finish before starting another run.
 
-### Prepare Windows
+### 1.1. <a id="prepare-windows"></a>Prepare Windows
 
 Use Git for Windows with Git Bash, native Go, Make and Python support. The suite can install the declared Node.js version into `temp/tools` after approval. Have `tar`, `unzip`, `curl` and the usual shell utilities available in Git Bash.
 
@@ -67,13 +68,13 @@ Keep shell scripts in LF form as specified by [.gitattributes](../../.gitattribu
 
 The suite selects CMake's `MinGW Makefiles` generator and the compiler bundle's `mingw32-make`, so Visual Studio and NMake are not required.
 
-### Prepare Linux
+### 1.2. <a id="prepare-linux"></a>Prepare Linux
 
 Install the basic tools listed above and a working C/C++ development environment, including `xz` support for archive extraction. The suite reuses complete GCC and LLVM installations at the declared versions. Missing versions can be prepared after the startup review. System headers and runtime libraries must be present. The [native CI setup](../../.github/workflows/native-tests-reusable.yml) shows the Ubuntu package prerequisites.
 
 Linux checks run as Linux processes on the native filesystem. They include shell signals, case-sensitive filenames, real compiler output, local TCP/UDP and file replacement. WSL or a Linux container supplies Linux evidence even when its host is Windows or macOS.
 
-### Prepare macOS
+### 1.3. <a id="prepare-macos"></a>Prepare macOS
 
 The scripts support macOS's system Bash 3.2 as well as newer Bash versions. Check `bash --version` when diagnosing a shell failure: a newer Homebrew Bash can behave differently. Changing your login shell to zsh does not change the scripts' Bash requirement.
 
@@ -83,7 +84,7 @@ The suite selects pinned upstream LLVM for Clang, Clang++ and clangd, while reta
 
 The native filesystem test detects whether the actual volume is case-sensitive. Two spellings of the same source must retain IDs; two distinct case-sensitive files must remain separate. macOS ARM and Intel are separate execution targets. An ARM build or a cross-built Intel archive alone is not proof of an Intel run.
 
-### Shared tool rules
+### 1.4. <a id="shared-tool-rules"></a>Shared tool rules
 
 All three systems use [test-tools.env](../../scripts/test-tools.env) for exact tool versions and release checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for Node dependencies. Before downloading anything, startup shows the active versions, required pins, reusable installations/caches, and additional installations. Complete matching CMake, GCC, LLVM and ARM packages stay at their existing locations; large toolchains are not copied into the checkout.
 
@@ -93,11 +94,15 @@ The startup table shows required, system and cached versions. `Location` is the 
 | --- | --- |
 | `a` or empty input | Abort before installation. Change the local setup and rerun. |
 | `c` | Continue: reuse matching tools and install the displayed missing packages under `temp/tools/`. Prefer verified release binaries; build sources only when a required binary package is unavailable. |
-| `s` | Look for the exact pins in the configured apt, Homebrew or winget catalog. Review package versions, commands, destinations and space again before approving a system installation. Unavailable tools stay unchanged. No checkout fallback starts automatically. Rerun startup afterwards, using a new shell if PATH changed. |
+| `u` | Update system tools (up to pinned versions). Review and confirm upgrades of older installed tools to the exact pins available through apt, Homebrew or winget. Leave newer system versions unchanged. Recheck tools, then install remaining missing pinned tool versions into `temp/tools/`. |
 
-System setup does not add repositories/taps, update package catalogs, choose a newer version, or force package removals/downgrades. Required SDKs and other prerequisites without a supported package mapping remain manual setup. CI uses the declared checkout-local preparation without interactive system changes.
+System updates never exceed the pinned tool versions, add repositories/taps, update package catalogs, or force package removals/downgrades. Tools absent from the package manager, with unknown versions, or without an available exact pin use local preparation instead. Declining the system upgrades returns to the menu; an upgrade failure stops preparation. Required SDKs and other prerequisites without a supported package mapping remain manual setup. CI uses the declared checkout-local preparation without interactive system changes.
 
-Disk checks include downloads, staging and a reserve of 1024 MiB per filesystem; set `TRICE_TEST_DISK_RESERVE_MIB` to change the reserve. Normal output shows only free capacity and whether setup fits. Space requirements are conservative estimates and exclude later test outputs. The `c/a/s` menu stays the same when prerequisites are missing: `c` explains the blocker and returns to the menu without installing tools. `s` can still review available system packages.
+The inventory appears once. System-update previews list only actual upgrades; skipped packages, commands and size details remain in the saved tool plan's `.system.details` file. Each installation reports its start and completion or failure. Long installations print a status line every 30 seconds; command output remains in `tools.log` for suite runs.
+
+After tool preparation, local runs ask `Format repo? [y/N]`. Enter `y` to run the existing [repository formatter](maintenance.md#cleaning-the-sources) before testing, including manual refresh, Bind IDs and example cleanup. Empty input, EOF or `n` continues without formatting. `--no-format` suppresses the question and formatting; CI also skips the question. Formatting output goes to `format_repo.log` in the run directory. A formatting failure starts no tests. Approved formatting changes become the test baseline, so the final worktree check still detects changes made by tests.
+
+Disk checks include downloads, staging and a reserve of 1024 MiB per filesystem; set `TRICE_TEST_DISK_RESERVE_MIB` to change the reserve. Normal output shows only free capacity and whether setup fits. Space requirements are conservative estimates and exclude later test outputs. The `c/u/a` menu stays the same when prerequisites are missing: `c` explains the blocker and returns to the menu without installing tools. `u` can still review supported system upgrades, but local preparation remains blocked until the prerequisites are available.
 
 Matching standalone tools and compatible verified caches are reused in place, including caches from an unrelated manifest revision. Changed tool versions or publisher checksums still require verification. Local npm setup can reuse global Markdownlint and a complete matching PDF renderer/Puppeteer pair. Only missing dependency groups use a subset of the checked-in lockfile; CI retains the complete locked tree. Global installations are checked for pinned direct versions and working required dependencies, rather than identical transitive lockfile versions. If Node is not yet usable, npm requirements are estimated conservatively and rechecked after Node setup before any npm installation. Browsers are prepared only for PDF generation, with the revision required by the selected Puppeteer.
 
@@ -109,7 +114,7 @@ The October 2026 tool refresh uses LLVM 23.1.4 on Linux/macOS and the latest com
 
 Clang diagnostics remain enabled. Trice suppresses the intentional `__COUNTER__` extension only during its own counter expansion. The G0B1 example suppresses `unused-but-set-global` only for FreeRTOS `tasks.c`, whose trace counter is updated even when tracing is disabled; vendor sources remain unchanged.
 
-## What full and quick cover
+## 2. <a id="what-full-and-quick-cover"></a>What full and quick cover
 
 | Check | Quick | Full |
 | --- | --- | --- |
@@ -134,7 +139,7 @@ Quick's PC packages are `ringB_de_multi_cobs_ua`, `abc_rx_host` and `abc_tx_host
 | Native OS checks | The exercised file, path, process and network operations work on that runner. |
 | Hardware tests | Actual UART/RTT, interrupt timing and board behavior; require the corresponding hardware and are not supplied by a host build. |
 
-## Read results and diagnose failures
+## 3. <a id="read-results-and-diagnose-failures"></a>Read results and diagnose failures
 
 Each suite invocation keeps its own `temp/log/testAll.XXXXXX` directory. The console prints the exact path. Earlier logs and recovery directories are retained.
 
@@ -167,7 +172,7 @@ The suite restores initial source, TIL, LI and generated-header bytes and verifi
 
 For a PC mismatch, open the configuration's `output.log`. It identifies the source expectation, expected and actual text, compiler context and reproduction command. A bulk mismatch also retains binary/text output and triggers a line-by-line diagnostic run. Even if that rerun passes, the original bulk failure remains a failure. See [CGO execution and diagnostics](target_test_internals.md#execute-and-compare-records).
 
-## Run a focused local check
+## 4. <a id="run-a-focused-local-check"></a>Run a focused local check
 
 Run commands below from the repository root. Direct steps use the same shared helpers, but do not all perform the suite's complete preparation and result audit. Read `SKIP` and `MISSING TOOL` messages; a standalone exit 0 can still mean a check was skipped.
 
@@ -204,7 +209,7 @@ The managed wrappers own ID preparation and restoration. A direct `cd _test && g
 
 For a useful timing comparison, repeat the same command in the same worktree with the same commit, tools and job limits, without other builds running. Keep the cache: a new worktree, changed Go/compiler version or changed shared C headers can require compilation again. Compare a cold run with a cold run, or a warm run with a warm run. Tests still execute on every run; a longer build alone does not establish slower Trice code.
 
-### Inspect Go coverage
+### 4.1. <a id="inspect-go-coverage"></a>Inspect Go coverage
 
 For the suite, open its `coverage.out`. To reproduce the standalone [coverage workflow](../../.github/workflows/coverage.yml):
 
@@ -217,7 +222,7 @@ go tool cover -html=./temp/log/coverage.out
 
 Go coverage measures Go statements, not execution coverage of the Trice C library. Compare the same package selection and target-branch baseline. Coveralls covered-line percentages and Go's rounded statement percentage are different measures; neither replaces the C configuration matrices.
 
-### CLion review build
+### 4.2. <a id="clion-review-build"></a>CLion review build
 
 With the current `trice` tool, CMake and a native C compiler available:
 
@@ -228,11 +233,11 @@ cmake --build temp/clion-review
 
 Use `-DTRICE_EXECUTABLE=path/to/trice` if tool selection is needed. This project prepares private sources, metadata and Bind headers in the build directory for indexing and inspection. Step 515 also verifies the real build. It does not replace the CGO matrix or execute an MCU board.
 
-## GitHub Actions
+## 5. <a id="github-actions"></a>GitHub Actions
 
 Open the repository's **Actions** tab, choose a workflow and inspect the run's commit, OS/architecture and selection. For a manual run, select the intended branch and inputs. A workflow name alone does not tell you whether its checks were skipped or which commit its artifacts belong to.
 
-### Native acceptance on all three systems
+### 5.1. <a id="native-acceptance-on-all-three-systems"></a>Native acceptance on all three systems
 
 The [native workflow](../../.github/workflows/native-tests.yml) calls the [shared runner workflow](../../.github/workflows/native-tests-reusable.yml). That runner installs prerequisites, reads the central tool versions, restores project caches and invokes the same `testAll.sh` as local development.
 
@@ -248,7 +253,7 @@ Use a successful native job on each required OS at the same commit as platform e
 
 An ordinary branch push does not start this native acceptance workflow. Use a PR for quick checks or start it manually for full checks of that branch. The separate push-triggered Script portability workflow covers the script package only. Also check the Bash version used by a macOS job: a run with modern Bash does not verify system Bash 3.2 compatibility.
 
-### Other test workflows
+### 5.2. <a id="other-test-workflows"></a>Other test workflows
 
 These jobs still serve distinct purposes. They are not all replaced by the native suite.
 
@@ -266,7 +271,7 @@ These jobs still serve distinct purposes. They are not all replaced by the nativ
 
 A push to `wip` alone does not start the library PR matrix; an open PR into `main` does. Other push-triggered checks may still run. GitHub branch protection decides which checks block merging. Adding a workflow does not automatically make its jobs required; select the native platform checks explicitly in repository settings. YAML describes intended execution, not proof that a particular remote run has passed.
 
-## GoReleaser and release-package testing
+## 6. <a id="goreleaser-and-release-package-testing"></a>GoReleaser and release-package testing
 
 There are four useful levels. Keep the distinction between checking source, constructing packages, running unpacked packages, and auditing a published release.
 
@@ -277,7 +282,7 @@ There are four useful levels. Keep the distinction between checking source, cons
 | CI installation | [install-checks.yml](../../.github/workflows/install-checks.yml) | PR/manual: builds snapshots and executes unpacked tools natively on Windows, Linux, macOS ARM and macOS Intel; also checks checkout installation. |
 | Published release | [release-audit.yml](../../.github/workflows/release-audit.yml) | Manual audit of one explicitly selected published tag, using downloaded assets. |
 
-### Check a local snapshot
+### 6.1. <a id="check-a-local-snapshot"></a>Check a local snapshot
 
 Use a disposable checkout of the intended candidate, because snapshot hooks refresh manuals and `--clean` replaces `dist`. A local clone includes committed content, not uncommitted edits. From the repository root, choose a fresh destination:
 
@@ -295,7 +300,7 @@ Read the final log, `temp/log/_610_test_goreleaser_snapshot.log`, and inspect `d
 
 Snapshot builds do not publish a release. Building foreign-platform archives does not execute their contents; the native CI installation jobs provide that next level of evidence.
 
-### Understand the installation and release audit jobs
+### 6.2. <a id="understand-the-installation-and-release-audit-jobs"></a>Understand the installation and release audit jobs
 
 `install-checks.yml` first verifies checkout installations through both `GOBIN` and `GOPATH/bin`. It builds snapshot assets on Linux, then passes the same archives to native OS jobs. These check both tools, a known decoded record, and the shipped Bind/CE/structured-logging feature example. The macOS aggregate check requires both native architecture jobs. Linux DEB/RPM/APK installation jobs check their respective package formats separately.
 
@@ -303,10 +308,10 @@ Snapshot builds do not publish a release. Building foreign-platform archives doe
 
 The [publishing workflow](../../.github/workflows/goreleaser.yml) is a separate manual operation. It checks out the selected tag, validates notes, publishes and checks generated artifacts. A successful snapshot does not prove publication credentials, package-manager availability or successful remote installation. See [Building and Releasing](tool_build_release.md#publish-a-release-manually-from-a-selected-tag) for the publication procedure.
 
-### Before accepting a release candidate
+### 6.3. <a id="before-accepting-a-release-candidate"></a>Before accepting a release candidate
 
 Use one fixed candidate commit for the native full jobs on all required systems, the complete compiler matrices, external links, snapshot/installation checks and the release notes. Inspect retained artifacts and any skipped jobs. After publication, audit the exact release tag. Keep hardware checks separate and name the board/setup when recording their result.
 
-## Documentation history
+## 7. <a id="documentation-history"></a>Documentation history
 
 This chapter and [Test Internals](target_test_internals.md) replace the former target-test chapter, scattered test instructions and the native-test design draft. Their original texts are preserved in [the test documentation archive](../_scratchPad/obsolete/testing/README.md). Historical transcripts there describe old runs, not current acceptance or performance targets.
