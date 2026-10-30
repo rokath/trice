@@ -2,6 +2,7 @@
 #
 # Usage: ./build.sh                    (normal firmware build)
 #        ./build.sh TRICE_OFF=1        (compile without Trice logging)
+#        ./build.sh 98                 (fast clock-count benchmark)
 # Build the firmware; this script does not flash the board.
 # Requires Bash, make, Trice and the Arm GNU toolchain in PATH.
 # Library/image details: ../../docs/rm/memory_usage.md
@@ -12,6 +13,14 @@
 # The helpers below handle that cleanup. The actual build commands follow them.
 
 set -euo pipefail
+
+# Keep configuration selection optional so existing automation and --x0-matrix
+# retain the original configuration 0. Details and prerequisites live in the RM.
+if [ "$#" -eq 1 ] && { [ "$1" = --help ] || [ "$1" = -h ]; }; then
+  printf 'Usage: ./build.sh [0|98|CONFIGURATION=0|CONFIGURATION=98] [compiler defines...]\n'
+  printf '       ./build.sh --x0-matrix\nSee docs/rm/examples.md#g0b1-clock-benchmark (from the repository root).\n'
+  exit 0
+fi
 
 # ------------------------------------------------------------------------------
 # 1) Resolve stable directories
@@ -197,6 +206,17 @@ triceOFF="0"
 #
 # and arbitrary other arguments become -D... as before.
 for arg in "$@"; do
+  # A bare number is a convenience spelling of the existing -D define interface.
+  # Reject unsupported profiles before source preparation or compiler execution.
+  case "$arg" in
+    0 | 98) arg="CONFIGURATION=$arg" ;;
+    CONFIGURATION=0 | CONFIGURATION=98) ;;
+    CONFIGURATION=* | [0-9]*)
+      printf 'error: G0B1_inst supports configuration 0 or 98; received: %s\n' "$arg" >&2
+      printf 'See docs/rm/examples.md#g0b1-clock-benchmark (from the repository root).\n' >&2
+      exit 2
+      ;;
+  esac
   if [ "${arg}" = "TRICE_OFF=1" ]; then
     triceOFF="1"
 

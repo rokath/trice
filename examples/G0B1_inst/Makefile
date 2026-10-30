@@ -32,6 +32,7 @@ DEBUG = 1
 # C sources
 C_SOURCES =  \
 Core/Src/main.c \
+Core/Src/triceFast.c \
 Core/Src/app_freertos.c \
 Core/Src/stm32g0xx_it.c \
 Core/Src/stm32g0xx_hal_msp.c \
@@ -112,6 +113,7 @@ AS_INCLUDES =  \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
+$(if $(TRICE_BIND_INCLUDE_DIR),-I"$(TRICE_BIND_INCLUDE_DIR)") \
 -IDrivers/STM32G0xx_HAL_Driver/Inc \
 -IDrivers/STM32G0xx_HAL_Driver/Inc/Legacy \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \

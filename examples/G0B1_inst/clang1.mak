@@ -34,7 +34,7 @@ $(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 # linker # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 $(CLANG_BUILD)/$(TARGET).elf: $(CLANG_OBJECTS) $(BUILDFILES)
 	@echo linking...
-	@$(GCC_CC) $(CLANG_OBJECTS) $(MCU) $(CLANG_LDFLAGS) $(VERBOSE) -o $@ 2> gccLinksClangWarning.txt
+	@$(GCC_CC) $(CLANG_OBJECTS) $(MCU) $(CLANG_LDFLAGS) $(VERBOSE) -o $@ 2> gccLinksClangWarning.txt || { status=$$?; cat gccLinksClangWarning.txt >&2; exit $$status; }
 	@#echo -e
 	@$(CLANG_SZ) $@
 

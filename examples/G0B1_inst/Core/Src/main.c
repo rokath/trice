@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
@@ -79,6 +80,7 @@ int main(void) {
 	/* USER CODE BEGIN 1 */
 #if !TRICE_OFF
 	TriceInit();                 // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
+#if CONFIGURATION == 0
 	trice("Fun %x!\n", 0xadded); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
 	TriceHeadLine("  NUCLEO-G0B1RE   ");
 	LogTriceConfiguration();
@@ -88,6 +90,7 @@ int main(void) {
 			triceX0(buf, i);
 		}
 	}
+#endif // CONFIGURATION == 0
 #endif
 	/* USER CODE END 1 */
 
@@ -112,9 +115,13 @@ int main(void) {
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 
+#if CONFIGURATION == 98 && !TRICE_OFF
+	G0B1FastInit(); // Start the private clock counter after the clock/UART setup.
+#endif
+
 	// Skip these custom aliases in disabled builds: their printf fallback expects
 	// ID-free arguments, whereas insert-owned calls can still contain IDs.
-#if TRICE_OFF == 0
+#if TRICE_OFF == 0 && CONFIGURATION == 0
 
 	/* Some Custom Trice Alias Examples */
 	const int theRightAnswer = 42;
@@ -192,15 +199,39 @@ void SystemClock_Config(void) {
 	/* Set AHB prescaler*/
 	LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
 
+#if CONFIGURATION == 98
+	// Raise voltage range and Flash latency before increasing the clock. The PLL
+	// uses the internal oscillator: 16 MHz / 1 * 8 / 2 = 64 MHz, with no crystal.
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+	LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
+	while (LL_PWR_IsActiveFlag_VOS() != 0) {
+	}
+	LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+	while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2) {
+	}
+	LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
+	LL_RCC_PLL_EnableDomain_SYS();
+	LL_RCC_PLL_Enable();
+	while (LL_RCC_PLL_IsReady() != 1) {
+	}
+	LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+	while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {
+	}
+#else
 	/* Sysclk activation on the HSI */
 	LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
 	while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI) {
 	}
+#endif
 
 	/* Set APB1 prescaler*/
 	LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
 	/* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
+#if CONFIGURATION == 98
+	LL_SetSystemCoreClock(64000000);
+#else
 	LL_SetSystemCoreClock(16000000);
+#endif
 
 	/* Update the time base */
 	if (HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK) {
@@ -327,6 +358,17 @@ static void MX_GPIO_Init(void) {
 void StartDefaultTask(void const* argument) {
 	/* USER CODE BEGIN 5 */
 	TRICE_UNUSED(argument)
+#if CONFIGURATION == 98
+#if !TRICE_OFF
+	G0B1FastMeasure(); // No transport is started until all measured records exist.
+#endif
+	for (;;) {
+#if !TRICE_OFF
+		TriceTransfer(); // The only producer also owns buffer swaps and transfer.
+#endif
+		osDelay(10);
+	}
+#else
 	TRice("msg:StartDefaultTask\n");
 #if !TRICE_OFF
 	SomeExampleTrices(3);
@@ -342,6 +384,7 @@ void StartDefaultTask(void const* argument) {
 #endif
 		osDelay(50);
 	}
+#endif
 	/* USER CODE END 5 */
 }
 
@@ -355,6 +398,12 @@ void StartDefaultTask(void const* argument) {
 void StartTask02(void const* argument) {
 	/* USER CODE BEGIN StartTask02 */
 	TRICE_UNUSED(argument)
+#if CONFIGURATION == 98
+	// Keep the RTOS setup intact, but leave logging and transfer to one task.
+	for (;;) {
+		osDelay(100);
+	}
+#else
 	TRice("msg:StartTask02:Diagnostics and TriceTransfer\n");
 	/* Infinite loop */
 	for (;;) {
@@ -377,6 +426,7 @@ void StartTask02(void const* argument) {
 
 #endif // #if !TRICE_OFF
 	}
+#endif
 	/* USER CODE END StartTask02 */
 }
 

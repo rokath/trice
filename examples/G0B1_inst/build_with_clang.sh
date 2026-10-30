@@ -1,12 +1,34 @@
 #!/usr/bin/env bash
 #
-# Usage: ./build_with_clang.sh. Build the firmware with Clang; do not flash it.
+# Usage: ./build_with_clang.sh [0|98]. Build with Clang; do not flash the board.
 # Requires Bash, make, Clang, Trice and Arm GNU libraries in PATH.
 # A standalone run prepares Bind headers; managed tests may use Insert/Clean.
 # Repository tests may already own that preparation. Cleanup preserves failures
 # and also runs on Ctrl-C; the helper functions implement these safeguards.
 
 set -euo pipefail
+
+# Match build.sh: no argument keeps configuration 0, while explicit profiles and
+# existing compiler defines are passed through TRICE_FLAGS. Parse before Bind so
+# a typo cannot change source state. Installation help stays in the RM.
+if [ "$#" -eq 1 ] && { [ "$1" = --help ] || [ "$1" = -h ]; }; then
+  printf 'Usage: ./build_with_clang.sh [0|98|CONFIGURATION=0|CONFIGURATION=98] [compiler defines...]\n'
+  printf 'See docs/rm/examples.md#g0b1-clock-benchmark (from the repository root).\n'
+  exit 0
+fi
+flags=""
+for arg in "$@"; do
+  case "$arg" in
+    0 | 98) arg="CONFIGURATION=$arg" ;;
+    CONFIGURATION=0 | CONFIGURATION=98) ;;
+    CONFIGURATION=* | [0-9]*)
+      printf 'error: G0B1_inst supports configuration 0 or 98; received: %s\n' "$arg" >&2
+      printf 'See docs/rm/examples.md#g0b1-clock-benchmark (from the repository root).\n' >&2
+      exit 2
+      ;;
+  esac
+  flags="${flags}-D${arg} "
+done
 
 # ------------------------------------------------------------------------------
 # 1) Resolve stable directories
@@ -139,7 +161,7 @@ cd "${SCRIPT_DIR}"
 # matrix entry.
 make clean
 
-make ${MAKE_JOBS} clang
+make ${MAKE_JOBS} TRICE_FLAGS="${flags}" clang
 
 # ------------------------------------------------------------------------------
 # 5) Post-build cleanup
