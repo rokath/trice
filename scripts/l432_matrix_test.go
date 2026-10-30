@@ -312,3 +312,423 @@ printf 'MatrixExit:%s\n' "$status"
 	_, err = os.Stat(filepath.Join(root, "events/1.args"))
 	assert.True(t, os.IsNotExist(err), "cancellation must not schedule the next configuration")
 }
+
+// l432ClangFixture supplies complete tool doubles, including a toolchain path
+// containing spaces. These tests never invoke a host compiler or modify sources.
+func l432ClangFixture(t *testing.T) string {
+	t.Helper()
+	root := scriptFixture(t, "examples/L432_inst/build_with_clang.sh", "examples/prepareTriceBind.sh")
+	writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", `#!/bin/sh
+echo prepared >> preparation.calls
+[ "${PREPARATION_FAIL:-0}" = 0 ] || exit 9
+mkdir -p generated
+`)
+	writeFixture(t, root, "tool chain/gcc/include/stdint.h", "/* fixture GCC headers */\n")
+	writeFixture(t, root, "tool chain/arm-none-eabi/include/stdlib.h", "/* fixture Newlib headers */\n")
+	for _, name := range []string{"libc.a", "libc_nano.a", "libm.a", "libnosys.a", "libgcc.a", "nano.specs"} {
+		writeFixture(t, root, "tool chain/arm-none-eabi/lib/"+name, "fixture runtime file\n")
+	}
+	writeFixture(t, root, "examples/L432_inst/out.gcc/user-object.o", "keep GCC output\n")
+	writeFixture(t, root, "bin/arm-none-eabi-gcc", `#!/bin/sh
+root=$(cd "$(dirname "$0")/.." && pwd)
+# Queries must use the firmware ABI and ignore unrelated host include variables.
+case " $* " in *' -mfloat-abi=hard '*) ;; *) exit 98 ;; esac
+[ -z "${CPATH:-}${C_INCLUDE_PATH:-}" ] || exit 97
+query=
+for argument; do
+  case "$argument" in -dumpmachine | -print-file-name=* | -E) query=$argument ;; esac
+done
+runtime_dir="$root/tool chain/arm-none-eabi/lib"
+header_dir="$root/tool chain/arm-none-eabi/include"
+case "${FIXTURE_LAYOUT:-default}" in
+  bundled) runtime_dir="$root/tool chain/gcc" ;;
+  multilib) runtime_dir="$root/tool chain/arm-none-eabi/lib/thumb/v7e-m+fp/hard" ;;
+  distribution) header_dir="$root/distribution/usr/include/newlib" ;;
+  relocated) header_dir="$root/relocated sdk/sysroot/usr/include" ;;
+esac
+case "$query" in
+  -dumpmachine) printf '%s\r\n' "${GCC_TARGET:-arm-none-eabi}" ;;
+  -print-file-name=include) printf '%s\r\n' "$root/tool chain/gcc/include" ;;
+  -print-file-name=*)
+    name=${query#-print-file-name=}
+    if [ "$name" = "${RUNTIME_MISSING:-none}" ]; then printf '%s\n' "$name"
+    else printf '%s\r\n' "$runtime_dir/$name"; fi
+    ;;
+  -E)
+    [ "${HEADER_SEARCH_STATUS:-0}" = 0 ] || { echo 'fixture preprocessor failure' >&2; exit 23; }
+    printf '#include <...> search starts here:\r\n %s\r\n %s\r\nEnd of search list.\r\n' "$root/tool chain/gcc/include" "$header_dir" >&2
+    ;;
+  *) echo unexpected-GCC-invocation >&2; exit 99 ;;
+esac
+`)
+	for _, tool := range []string{"trice", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho unexpected-tool-execution >&2\nexit 99\n")
+	}
+	writeFixture(t, root, "bin/clang", `#!/bin/sh
+[ "$1" = --print-targets ] || exit 99
+printf 'Registered Targets:\n    aarch64 - AArch64\n'
+[ "${CLANG_NO_ARM:-0}" = 1 ] || printf '    arm - ARM\n    thumb - Thumb\n'
+`)
+	writeFixture(t, root, "bin/uname", "#!/bin/sh\nprintf '%s\\n' \"${FIXTURE_PLATFORM:-Linux}\"\n")
+	// Conversion is simulated so every native host can exercise the Windows
+	// selection path; the real Make tests below exercise native argument quoting.
+	writeFixture(t, root, "bin/cygpath", "#!/bin/sh\necho converted >> ../../conversion.calls\nprintf '%s\\n' \"$2\"\n")
+	writeFixture(t, root, "bin/make", `#!/bin/sh
+if [ "${1:-}" = --version ]; then printf '%s\n' "${MAKE_VERSION:-GNU Make 4.4.1}"; exit 0; fi
+printf '%s\n' "$@" > ../../make.calls
+[ "${BUILD_STATUS:-0}" = 0 ] || { echo 'fixture compiler failure' >&2; exit "$BUILD_STATUS"; }
+mkdir -p out.clang
+for artifact in elf hex bin; do
+  [ "$artifact" != "${MISSING_ARTIFACT:-none}" ] || continue
+  printf '%s\n' "$@" > "out.clang/L432KC.$artifact"
+done
+`)
+	return root
+}
+
+// TestL432ClangCLIHasNoPreparationSideEffects checks help and rejected arguments
+// before header generation, including boundaries and accidental extra arguments.
+func TestL432ClangCLIHasNoPreparationSideEffects(t *testing.T) {
+	for _, tc := range []struct {
+		arguments string
+		help      bool
+	}{
+		{"--help", true}, {"-h", true}, {"", false}, {"-1", false},
+		{"101", false}, {"098", false}, {"abc", false}, {"1 2", false},
+	} {
+		t.Run(tc.arguments, func(t *testing.T) {
+			root := l432ClangFixture(t)
+			out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh "+tc.arguments, nil)
+			assert.Equal(t, !tc.help, err != nil, out)
+			if tc.help || tc.arguments == "" || tc.arguments == "1 2" {
+				assert.Contains(t, out, "Usage:")
+			} else {
+				assert.Contains(t, out, "from 0 through 100")
+			}
+			_, err = os.Stat(filepath.Join(root, "preparation.calls"))
+			assert.True(t, os.IsNotExist(err), "help and invalid arguments must not prepare sources")
+			_, err = os.Stat(filepath.Join(root, "make.calls"))
+			assert.True(t, os.IsNotExist(err), "help and invalid arguments must not build")
+		})
+	}
+}
+
+// TestL432ClangBuildsSelectedConfiguration covers all accepted number boundaries,
+// cold/warm runs and simulated OS branches. Forced compilation must survive a
+// configuration change while unrelated GCC artifacts remain byte-for-byte intact.
+func TestL432ClangBuildsSelectedConfiguration(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT-10.0"} {
+		t.Run(platform, func(t *testing.T) {
+			root := l432ClangFixture(t)
+			for _, configuration := range []string{"98", "1", "0", "100", "CONFIGURATION=98"} {
+				out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh "+configuration, map[string]string{
+					"FIXTURE_PLATFORM": platform, "TRICE_ID_WORKFLOW_OWNER": "0", "MAKE_JOBS": "-j3", "CLANG_LIBC_INCLUDE": "",
+				})
+				assert.NoError(t, err, out)
+				assert.Contains(t, out, "Build complete:")
+				args, err := os.ReadFile(filepath.Join(root, "make.calls"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(args), "-B\n-j3\nTRICE_FLAGS=-DCONFIGURATION="+strings.TrimPrefix(configuration, "CONFIGURATION=")+"\n")
+				assert.Contains(t, string(args), "tool chain/gcc/include\n")
+				assert.Contains(t, string(args), "tool chain/arm-none-eabi/include\n")
+				assert.Contains(t, string(args), "TRICE_BIND_INCLUDE_DIR=")
+				assert.True(t, strings.HasSuffix(string(args), "\nclang\n"), string(args))
+				for _, extension := range []string{"elf", "hex", "bin"} {
+					image, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out.clang/L432KC."+extension))
+					assert.NoError(t, err)
+					assert.Equal(t, string(args), string(image), "image must belong to this configuration")
+				}
+			}
+			gcc, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out.gcc/user-object.o"))
+			assert.NoError(t, err)
+			assert.Equal(t, "keep GCC output\n", string(gcc))
+			_, err = os.Stat(filepath.Join(root, "conversion.calls"))
+			assert.Equal(t, strings.HasPrefix(platform, "MINGW"), err == nil, "only Windows needs native-path conversion")
+		})
+	}
+}
+
+// TestL432ClangFailuresRemainActionable ensures missing prerequisites fail before
+// preparation, and preparation/compiler/image failures never report success.
+func TestL432ClangFailuresRemainActionable(t *testing.T) {
+	for _, tc := range []struct {
+		name, remove, message string
+		env                   map[string]string
+	}{
+		{"missing_library", "tool chain/arm-none-eabi/lib/libc.a", "ARM runtime file is unavailable", nil},
+		{"missing_specs", "tool chain/arm-none-eabi/lib/nano.specs", "ARM runtime file is unavailable", nil},
+		{"missing_headers", "tool chain/arm-none-eabi/include/stdlib.h", "stdlib.h was not found", nil},
+		{"preparation_failure", "", "", map[string]string{"PREPARATION_FAIL": "1"}},
+		{"compiler_failure", "", "fixture compiler failure", map[string]string{"BUILD_STATUS": "17"}},
+		{"missing_image", "", "expected nonempty firmware image: out.clang/L432KC.bin", map[string]string{"MISSING_ARTIFACT": "bin"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := l432ClangFixture(t)
+			if tc.remove != "" {
+				assert.NoError(t, os.Remove(filepath.Join(root, tc.remove)))
+			}
+			// Explicit workflow ownership keeps the test independent of the caller.
+			env := map[string]string{"TRICE_ID_WORKFLOW_OWNER": "0", "CLANG_LIBC_INCLUDE": ""}
+			for key, value := range tc.env {
+				env[key] = value
+			}
+			out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh 98", env)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.message)
+			assert.NotContains(t, out, "Build complete:")
+			assert.Contains(t, out, "docs/rm/examples.md#l432-clang-prerequisites")
+			if tc.remove != "" {
+				_, err = os.Stat(filepath.Join(root, "preparation.calls"))
+				assert.True(t, os.IsNotExist(err), "missing dependencies must not change source state")
+			}
+		})
+	}
+}
+
+// TestL432ClangManagedWorkflowAndMissingTools verifies that an outer Insert
+// workflow remains the owner and missing executables produce a useful error.
+func TestL432ClangManagedWorkflowAndMissingTools(t *testing.T) {
+	root := l432ClangFixture(t)
+	out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh 98", map[string]string{
+		"TRICE_ID_WORKFLOW_OWNER": "1", "TRICE_ID_WORKFLOW": "insert", "TRICE_BIND_INCLUDE_DIR": "", "CLANG_LIBC_INCLUDE": "",
+	})
+	assert.NoError(t, err, out)
+	_, err = os.Stat(filepath.Join(root, "preparation.calls"))
+	assert.True(t, os.IsNotExist(err), "managed Insert sources must not be rebound")
+	for _, tool := range []string{"make", "clang", "trice", "cygpath", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+		t.Run(tool, func(t *testing.T) {
+			root := l432ClangFixture(t)
+			// Hide one tool without relying on what is installed on the native host.
+			out, err := runFixture(t, root, `command() {
+  if [ "$1" = -v ] && [ "$2" = "$MISSING_TOOL" ]; then return 1; fi
+  builtin command "$@"
+}
+export -f command
+bash examples/L432_inst/build_with_clang.sh 98`, map[string]string{
+				"MISSING_TOOL": tool, "TRICE_ID_WORKFLOW_OWNER": "0", "FIXTURE_PLATFORM": "MINGW64_NT-10.0",
+			})
+			assert.Error(t, err, out)
+			assert.Contains(t, out, "not found on PATH: "+tool)
+			assert.Contains(t, out, "PATH")
+			assert.Contains(t, out, "docs/rm/examples.md#l432-clang-prerequisites")
+		})
+	}
+}
+
+// TestL432ClangDiscoversHeadersIndependentlyOfLibraryLayout reproduces the real
+// Arm GNU failure: libc.a can be in GCC's own directory or a multilib subtree,
+// while Newlib headers are elsewhere. Distribution/relocated layouts also use
+// the reported search list rather than a hard-coded installation prefix.
+func TestL432ClangDiscoversHeadersIndependentlyOfLibraryLayout(t *testing.T) {
+	for _, layout := range []string{"default", "bundled", "multilib", "distribution", "relocated"} {
+		t.Run(layout, func(t *testing.T) {
+			root := l432ClangFixture(t)
+			headerDir := "tool chain/arm-none-eabi/include"
+			switch layout {
+			case "bundled", "multilib":
+				runtimeDir := "tool chain/gcc"
+				if layout == "multilib" {
+					runtimeDir = "tool chain/arm-none-eabi/lib/thumb/v7e-m+fp/hard"
+				}
+				for _, name := range []string{"libc.a", "libc_nano.a", "libm.a", "libnosys.a", "libgcc.a", "nano.specs"} {
+					writeFixture(t, root, runtimeDir+"/"+name, "fixture runtime file\n")
+				}
+			case "distribution":
+				headerDir = "distribution/usr/include/newlib"
+			case "relocated":
+				headerDir = "relocated sdk/sysroot/usr/include"
+			}
+			writeFixture(t, root, headerDir+"/stdlib.h", "/* fixture Newlib header */\n")
+			out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh --check", map[string]string{
+				"FIXTURE_LAYOUT": layout, "CLANG_LIBC_INCLUDE": "", "TRICE_ID_WORKFLOW_OWNER": "0",
+				"CPATH": "unrelated host headers", "C_INCLUDE_PATH": "unrelated generated headers",
+			})
+			assert.NoError(t, err, out)
+			assert.Contains(t, out, "Prerequisites OK.")
+			assert.Contains(t, out, "/"+headerDir+"\n")
+			for _, marker := range []string{"preparation.calls", "make.calls"} {
+				_, err := os.Stat(filepath.Join(root, marker))
+				assert.True(t, os.IsNotExist(err), "--check must not prepare sources or build")
+			}
+		})
+	}
+}
+
+// TestL432ClangPrerequisiteFailuresPointToManual covers capabilities as well as
+// missing files. Every failure names the cause, links the central instructions,
+// and stops before source preparation or a firmware build.
+func TestL432ClangPrerequisiteFailuresPointToManual(t *testing.T) {
+	for _, tc := range []struct {
+		name, variable, value, message string
+	}{
+		{"wrong_make", "MAKE_VERSION", "BSD make", "not GNU make"},
+		{"host_only_clang", "CLANG_NO_ARM", "1", "Thumb backend"},
+		{"wrong_gcc_target", "GCC_TARGET", "x86_64-linux-gnu", "incompatible target"},
+		{"missing_nano_library", "RUNTIME_MISSING", "libc_nano.a", "libc_nano.a"},
+		{"missing_math_library", "RUNTIME_MISSING", "libm.a", "libm.a"},
+		{"missing_syscall_stubs", "RUNTIME_MISSING", "libnosys.a", "libnosys.a"},
+		{"missing_compiler_runtime", "RUNTIME_MISSING", "libgcc.a", "libgcc.a"},
+		{"failed_header_query", "HEADER_SEARCH_STATUS", "23", "fixture preprocessor failure"},
+		{"invalid_header_override", "CLANG_LIBC_INCLUDE", "missing headers", "CLANG_LIBC_INCLUDE does not contain stdlib.h"},
+		{"unsupported_platform", "FIXTURE_PLATFORM", "FreeBSD", "unsupported build host"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := l432ClangFixture(t)
+			env := map[string]string{"CLANG_LIBC_INCLUDE": "", "TRICE_ID_WORKFLOW_OWNER": "0"}
+			env[tc.variable] = tc.value
+			out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh --check", env)
+			assert.Error(t, err, out)
+			assert.Contains(t, out, tc.message)
+			assert.Contains(t, out, "docs/rm/examples.md#l432-clang-prerequisites")
+			assert.NotContains(t, out, "Prerequisites OK.")
+			for _, marker := range []string{"preparation.calls", "make.calls"} {
+				_, err := os.Stat(filepath.Join(root, marker))
+				assert.True(t, os.IsNotExist(err), "prerequisite failures must not prepare sources or build")
+			}
+		})
+	}
+}
+
+// TestL432ClangExplicitHeadersBypassDiscovery retains an escape hatch for a
+// custom SDK whose ARM headers are deliberately outside GCC's search list.
+func TestL432ClangExplicitHeadersBypassDiscovery(t *testing.T) {
+	root := l432ClangFixture(t)
+	writeFixture(t, root, "custom headers/stdlib.h", "/* custom ARM Newlib headers */\n")
+	out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh --check", map[string]string{
+		"CLANG_LIBC_INCLUDE":   filepath.ToSlash(filepath.Join(root, "custom headers")),
+		"HEADER_SEARCH_STATUS": "23", "TRICE_ID_WORKFLOW_OWNER": "0",
+	})
+	assert.NoError(t, err, out)
+	assert.Contains(t, out, "Prerequisites OK.")
+	assert.Contains(t, out, "/custom headers\n")
+	assert.NotContains(t, out, "fixture preprocessor failure")
+}
+
+// TestL432ClangMakeRules also exercises the GCC caller of the changed include
+// list. Real Make expands the actual rules; tool doubles record argument boundaries
+// and simulate images, so quoted paths and linker diagnostics are observable.
+func TestL432ClangMakeRules(t *testing.T) {
+	if _, err := exec.LookPath("make"); err != nil {
+		t.Skip("GNU make is needed to evaluate the actual build rules")
+	}
+	for _, target := range []string{"clang", "gcc"} {
+		for _, fail := range []string{"0", "1"} {
+			t.Run(target+"/link_failure="+fail, func(t *testing.T) {
+				root := scriptFixture(t, "examples/L432_inst/Makefile", "examples/L432_inst/flags.mak", "examples/L432_inst/mcu.mak",
+					"examples/L432_inst/gcc0.mak", "examples/L432_inst/gcc1.mak", "examples/L432_inst/clang0.mak", "examples/L432_inst/clang1.mak")
+				writeFixture(t, root, "examples/L432_inst/build.sh", "# unused by Make\n")
+				writeFixture(t, root, "examples/L432_inst/probe.c", "/* fixture C input */\n")
+				writeFixture(t, root, "examples/L432_inst/startup.s", "/* fixture assembly input */\n")
+				// One tool double handles compilation, linking and binary conversion
+				// without ever running a native ARM compiler or an ARM executable.
+				toolDouble := `#!/bin/sh
+case "$0" in
+  *objcopy) for destination; do :; done; printf 'image\n' > "$destination"; exit 0 ;;
+  *size) echo 'fixture size'; exit 0 ;;
+esac
+output= source= next=0
+for argument; do
+  if [ "$next" = 1 ]; then output=$argument; next=0; fi
+  [ "$argument" != -o ] || next=1
+  case "$argument" in *.c | *.s) source=$argument ;; esac
+done
+if [ -n "$source" ]; then
+  printf '%s\n' "$@" > "$output.args"
+  printf '%s\n' "$source" >> "$output.calls"
+  printf 'object\n' > "$output"
+else
+  printf '%s\n' "$@" > "$output.args"
+  echo 'fixture linker diagnostic' >&2
+  [ "$LINK_FAIL" = 0 ] || exit 17
+  printf 'ELF\n' > "$output"
+fi
+`
+				for _, tool := range []string{"clang", "arm-none-eabi-gcc", "arm-none-eabi-objcopy", "arm-none-eabi-size"} {
+					writeFixture(t, root, "bin/"+tool, toolDouble)
+				}
+				// Windows Make can directly execute a host .exe before trying a
+				// script on PATH. Explicit Bash commands keep every tool isolated.
+				command := `cd examples/L432_inst && make -B -j1 GCC_LISTINGS=0 C_SOURCES=probe.c ASM_SOURCES=startup.s TARGET=probe TRICE_FLAGS=-DCONFIGURATION=98 \
+  'CLANG_CC=bash ../../bin/clang' 'CLANG_AS=bash ../../bin/clang -x assembler-with-cpp' \
+  'GCC_CC=bash ../../bin/arm-none-eabi-gcc' 'GCC_AS=bash ../../bin/arm-none-eabi-gcc -x assembler-with-cpp' \
+  'GCC_CP=bash ../../bin/arm-none-eabi-objcopy' 'GCC_SZ=bash ../../bin/arm-none-eabi-size' ` + target
+				env := map[string]string{
+					"LINK_FAIL": fail, "TRICE_BIND_INCLUDE_DIR": "generated headers", "CLANG_GCC_INCLUDE": "GCC headers",
+					"CLANG_LIBC_INCLUDE": "Newlib headers", "CLANG_SYS_INCLUDES": "-isystem 'extra headers'", "CLANG_GCC_TOOLCHAIN": "",
+				}
+				out, err := runFixture(t, root, command, env)
+				assert.Equal(t, fail != "0", err != nil, out)
+				assert.Contains(t, out, "fixture linker diagnostic", "linker errors/warnings must be visible")
+				linkArgs, readErr := os.ReadFile(filepath.Join(root, "examples/L432_inst/out."+target+"/probe.elf.args"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(linkArgs), "-Wl,--no-warn-execstack\n")
+				args, readErr := os.ReadFile(filepath.Join(root, "examples/L432_inst/out."+target+"/probe.o.args"))
+				assert.NoError(t, readErr)
+				assert.Contains(t, string(args), "-O3\n")
+				assert.Contains(t, string(args), "-mcpu=cortex-m4\n")
+				assert.Contains(t, string(args), "-mfloat-abi=hard\n")
+				assert.Contains(t, string(args), "-ICore/Inc\n-Igenerated headers\n")
+				assert.True(t, strings.Index(string(args), "-Igenerated headers\n") < strings.Index(string(args), "-I../../src\n"), string(args))
+				assert.Contains(t, string(args), "-I../../src\n-I../../src/default_conf\n")
+				// Both language paths must omit unsupported Clang switches while
+				// retaining GCC-only options and the remaining enabled warnings.
+				for _, object := range []string{"probe", "startup"} {
+					data, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out."+target+"/"+object+".o.args"))
+					if !assert.NoError(t, err) {
+						continue
+					}
+					options := "\n" + string(data)
+					for _, option := range []string{
+						"-funsafe-loop-optimizations", "-Wno-builtin-declaration-mismatch", "-Wstack-usage=400",
+						"-Wunsafe-loop-optimizations", "-Wlogical-op", "-Wnormalized=nfc",
+						"-Wno-discarded-qualifiers", "-Wno-suggest-attribute=noreturn",
+					} {
+						assert.Equal(t, target == "gcc", strings.Contains(options, "\n"+option+"\n"), object+": "+option)
+					}
+					assert.Contains(t, options, "\n-O3\n")
+					assert.NotContains(t, options, "\n-Wmissing-noreturn\n")
+					assert.NotContains(t, options, "\n-Wwrite-strings\n")
+					assert.Contains(t, options, "\n-Wall\n")
+					assert.Contains(t, options, "\n-Wextra\n")
+					assert.NotContains(t, options, "\n-Wno-unknown-warning-option\n")
+					assert.NotContains(t, options, "\n-Wno-ignored-optimization-argument\n")
+				}
+				if target == "clang" {
+					assert.Contains(t, string(args), "--target=arm-none-eabi\n")
+					assert.Contains(t, string(args), "-isystem\nGCC headers\n-isystem\nNewlib headers\n-isystem\nextra headers\n")
+					log, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/gccLinksClangWarning.txt"))
+					assert.NoError(t, err)
+					assert.Contains(t, string(log), "fixture linker diagnostic")
+				}
+				if target == "clang" && fail == "0" {
+					// Real Make must succeed with an existing directory, both for
+					// the same configuration and after a configuration change.
+					// Keep a sentinel to catch a workaround that deletes outputs.
+					writeFixture(t, root, "examples/L432_inst/out.clang/keep.txt", "preserve existing output\n")
+					for _, configuration := range []string{"98", "1"} {
+						warmCommand := strings.Replace(command, "CONFIGURATION=98", "CONFIGURATION="+configuration, 1)
+						out, err := runFixture(t, root, warmCommand, env)
+						assert.NoError(t, err, out)
+						assert.NotContains(t, out, "File exists")
+						args, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out.clang/probe.o.args"))
+						assert.NoError(t, err)
+						assert.Contains(t, string(args), "-DCONFIGURATION="+configuration+"\n")
+					}
+					for _, object := range []string{"probe", "startup"} {
+						calls, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out.clang/"+object+".o.calls"))
+						assert.NoError(t, err)
+						assert.Equal(t, 3, strings.Count(string(calls), "\n"), "each invocation must recompile "+object)
+					}
+					sentinel, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out.clang/keep.txt"))
+					assert.NoError(t, err)
+					assert.Equal(t, "preserve existing output\n", string(sentinel))
+					for _, extension := range []string{"elf", "hex", "bin"} {
+						image, err := os.ReadFile(filepath.Join(root, "examples/L432_inst/out.clang/probe."+extension))
+						assert.NoError(t, err)
+						assert.NotEmpty(t, image)
+					}
+				}
+			})
+		}
+	}
+}

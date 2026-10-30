@@ -112,6 +112,7 @@ AS_INCLUDES =  \
 # C includes
 C_INCLUDES =  \
 -ICore/Inc \
+$(if $(TRICE_BIND_INCLUDE_DIR),-I"$(TRICE_BIND_INCLUDE_DIR)") \
 -IDrivers/STM32L4xx_HAL_Driver/Inc \
 -IDrivers/STM32L4xx_HAL_Driver/Inc/Legacy \
 -IMiddlewares/Third_Party/FreeRTOS/Source/include \
@@ -126,7 +127,7 @@ C_INCLUDES += \
 
 include flags.mak
 
-.PHONY: all gcc clean log version
+.PHONY: all gcc clang clean log version
 
 all: gcc # gcc clang
 

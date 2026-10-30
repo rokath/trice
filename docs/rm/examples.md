@@ -529,6 +529,93 @@ Folder: [../examples/L432_inst/](../../examples/L432_inst/)
 
 Run `./build.sh` for configuration 0 or `./build.sh CONFIGURATION=34` for example.
 
+For Clang, open a terminal in `examples/L432_inst` and run:
+
+```bash
+bash ./build_with_clang.sh 98
+bash ./build_with_clang.sh --help
+```
+
+Choose a number from 0 through 100. `CONFIGURATION=98` is also accepted. The
+number selects this build only; the default in `Core/Inc/triceConfig.h` stays unchanged.
+Configuration 98 uses deferred double buffering without protection, diagnostics,
+the message cycle counter or encryption. It is suitable for measuring minimum log
+call overhead when the buffer has enough space and writers do not overlap.
+
+Clang compiles with `-O3`; Arm GNU tools link and create the images. See
+[L432 Clang prerequisites](#l432-clang-prerequisites) for setup and troubleshooting.
+
+Each run prepares the Trice Bind headers and rebuilds the Clang objects, including
+after a configuration change. An outer repository test can own Bind/Insert preparation.
+GCC outputs are preserved. The firmware images are `out.clang/L432KC.elf`, `.hex`
+and `.bin`; the script does not flash the board. Linker diagnostics appear in the
+terminal and remain in `gccLinksClangWarning.txt`.
+To change parallelism, use `MAKE_JOBS=-j4 bash ./build_with_clang.sh 98`.
+
+The example includes four parameterless messages without timestamps, in addition
+to the 16-bit and 32-bit timestamp examples. DWT timestamps count MCU clocks at
+64 MHz. The older timings below are recorded measurements; use disassembly and
+new board measurements to determine the clock count of the current build.
+
+##### L432 Clang prerequisites
+
+Run `bash ./build_with_clang.sh --check` from `examples/L432_inst` before the first
+build. It checks installed tools, the Cortex-M4 hard-float runtime and GCC header
+search paths. It preprocesses empty input to inspect the compiler's configuration;
+it creates no source, Bind, object or firmware files. No tools are installed automatically.
+A successful check establishes prerequisites; a native firmware build and board
+measurement are separate validation steps.
+
+Use tools built for your host OS and CPU architecture. Put their executable
+directories on `PATH` so all commands below are available in the same terminal.
+
+| Host | Shell and tools |
+| --- | --- |
+| Windows | Git Bash and native Windows compiler/toolchain executables. Git Bash supplies `cygpath` for native path conversion. |
+| Linux, including WSL | Bash and Linux compiler/toolchain executables. |
+| macOS | System Bash 3.2 or newer, and macOS compiler/toolchain executables. Clang must include the Thumb backend. |
+
+| Required component | Purpose and check |
+| --- | --- |
+| Bash 3.2 or newer | Runs the script; common POSIX utilities such as `awk`, `tr` and `uname` must also be available. |
+| GNU make | Runs the Makefile. `make --version` must identify GNU Make. |
+| Clang | Compiles for Cortex-M4. `clang --print-targets` must list `thumb`; a compiler built only for the host is insufficient. |
+| Arm GNU bare-metal toolchain | Supplies `arm-none-eabi-gcc`, `arm-none-eabi-objcopy` and `arm-none-eabi-size`. GCC must report `arm-none-eabi` as its target. |
+| Matching Newlib headers and runtime | Supplies `stdlib.h`, `libc.a`, `libc_nano.a`, `libm.a`, `libnosys.a` and `nano.specs`; GCC also supplies `libgcc.a`. The runtime must include Cortex-M4 hard-float variants. |
+| Trice from this checkout | Generates current Bind headers. A managed repository test may already own Bind/Insert preparation. |
+
+Distribution packages sometimes split the compiler, binutils, Newlib headers and
+nano runtime into separate packages. Install the matching components from the
+same toolchain release. Separate LLVM `objcopy` and `size` programs are unnecessary.
+
+Header discovery uses [GCC's actual include search list](https://gcc.gnu.org/onlinedocs/cpp/Search-Path.html).
+It supports headers installed separately from libraries, versioned GCC directories,
+multilib subdirectories, relocated toolchains and paths containing spaces. It makes
+no assumption that `include` is next to the selected `libc.a`.
+
+| Reported problem | Action |
+| --- | --- |
+| Required tool missing from `PATH`, or tool cannot run | Install the component for your host OS/CPU, reopen the terminal and check its executable directory on `PATH`. |
+| `make` is not GNU Make | Select GNU make on `PATH`. |
+| Clang has no Thumb backend | Select a Clang installation that includes ARM/Thumb support. |
+| GCC reports an incompatible target | Select the Arm GNU bare-metal compiler named `arm-none-eabi-gcc`. |
+| ARM runtime file unavailable | Install the matching Newlib/nano and GCC runtime packages with Cortex-M4 hard-float support. The message names the missing file and GCC's reported path. |
+| `stdlib.h` not found in GCC search paths | Install the matching ARM Newlib headers and check the listed directories. Host C library headers cannot replace ARM headers. |
+| Header search query fails | Read the GCC diagnostics above the message; check that the complete compiler installation is executable and supports the selected Cortex-M4/FPU options. |
+| Invalid `CLANG_LIBC_INCLUDE` | Correct or unset the override. It must name the ARM header directory containing `stdlib.h`. Relative paths start at `examples/L432_inst`. |
+| Bind or firmware build fails | Read the original diagnostics above the final message. Linker diagnostics also remain in `gccLinksClangWarning.txt`. |
+
+For a custom header installation outside GCC's search paths, set
+`CLANG_LIBC_INCLUDE` to its ARM Newlib header directory, then run `--check` again.
+This override selects headers only; GCC must still locate the matching runtime.
+
+Clang receives the shared options with GCC-only switches removed. The optional
+`-Wwrite-strings` and `-Wmissing-noreturn` checks, plus the GNU-stack warning from
+the Arm GNU runtime (such as `crtn.o`), are currently disabled for L432 while working
+on logging performance. Other compiler and linker diagnostics remain visible.
+To keep diagnostics from parallel compiler jobs separate while
+troubleshooting, run `MAKE_JOBS=-j1 bash ./build_with_clang.sh 98`.
+
 ##### Deferred Mode for max Speed
 
 The stamps are MCU clocks here, so `🐁 Speedy Gonzales` lasts 9 processor clocks here.
