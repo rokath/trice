@@ -35,10 +35,10 @@ void SomeExampleTrices(int burstCount) {
 	Trice("att:🐁 Speedy Gonzales f  16-bit time stamp\n");
 	Trice("att:🐁 Speedy Gonzales g  16-bit time stamp\n");
 	Trice("att:🐁 Speedy Gonzales h  16-bit time stamp\n");
-	// trice("att:🐁 Speedy Gonzales i without time stamp\n");
-	// trice("att:🐁 Speedy Gonzales j without time stamp\n");
-	// trice("att:🐁 Speedy Gonzales k without time stamp\n");
-	// trice("att:🐁 Speedy Gonzales l without time stamp\n");
+	trice("att:🐁 Speedy Gonzales i without time stamp\n");
+	trice("att:🐁 Speedy Gonzales j without time stamp\n");
+	trice("att:🐁 Speedy Gonzales k without time stamp\n");
+	trice("att:🐁 Speedy Gonzales l without time stamp\n");
 	char* aString = "2.71828182845904523536";
 	TriceS("rd:%s <- float number as string\n", aString);
 	Trice64("msg:%.20f (double with more ciphers than precision)\n", aDouble(2.71828182845904523536));
