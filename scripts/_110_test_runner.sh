@@ -308,7 +308,8 @@ run_step() {
   step_progress_prefix "$step" "$step_elapsed"
   if [ "$rc" -eq 0 ]; then
     step_log="$LOG_DIR/$(basename "$step" .sh).log"
-    if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
+    # Raw test payloads may contain NUL bytes; diagnostics are still text.
+    if [ -f "$step_log" ] && grep -aEq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
       printf 'INCOMPLETE\n' >>"$SUMMARY_LOG"
       printf '%sINCOMPLETE%s\n' "$WARN_COLOR" "$RESET_COLOR"
       rc=2
@@ -316,7 +317,7 @@ run_step() {
       # in the per-step log during a quiet aggregate test run.
       while IFS= read -r warning; do
         summary_line "  $warning"
-      done < <(grep -E '^(MISSING TOOL:|SKIP:)' "$step_log")
+      done < <(grep -aE '^(MISSING TOOL:|SKIP:)' "$step_log")
     else
       printf 'PASS\n' >>"$SUMMARY_LOG"
       printf '%sPASS%s\n' "$PASS_COLOR" "$RESET_COLOR"
@@ -325,7 +326,7 @@ run_step() {
       if [ -f "$step_log" ]; then
         while IFS= read -r detail; do
           summary_line "  $detail"
-        done < <(grep -E '^Hint:' "$step_log")
+        done < <(grep -aE '^Hint:' "$step_log")
       fi
     fi
   elif [ "$rc" -eq 2 ]; then
@@ -336,7 +337,7 @@ run_step() {
     if [ -f "$step_log" ]; then
       while IFS= read -r detail; do
         summary_line "  $detail"
-      done < <(grep -E '^(INCOMPLETE:|MISSING TOOL:|SKIP:)' "$step_log")
+      done < <(grep -aE '^(INCOMPLETE:|MISSING TOOL:|SKIP:)' "$step_log")
     fi
   elif [ "$rc" -eq 130 ] || [ "$rc" -eq 143 ]; then
     printf 'ABORTED\n' >>"$SUMMARY_LOG"
@@ -444,12 +445,13 @@ expected_step_weight() {
 }
 
 # parse_test_all_arguments accepts the historical selection plus the optional
-# failure policy in either order. Continue after failures unless --stop is set.
+# failure policy and format-prompt suppression in either order.
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
   TEST_ALL_SELECTED="full"
   TEST_ALL_NO_STOP=1
+  TEST_ALL_NO_FORMAT=0
   for argument in "$@"; do
     case "$argument" in
       quick | full)
@@ -462,9 +464,10 @@ parse_test_all_arguments() {
         ;;
       --no-stop) TEST_ALL_NO_STOP=1 ;;
       --stop) TEST_ALL_NO_STOP=0 ;;
+      --no-format) TEST_ALL_NO_FORMAT=1 ;;
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
-        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop]\n' >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop] [--no-format]\n' >&2
         printf 'Default: full, continue after failures (--no-stop).\n' >&2
         return 2
         ;;
@@ -538,6 +541,41 @@ run_selected_steps() {
   done
 }
 
+# Preserve formatter diagnostics while the shared progress helper reports long
+# work. Formatting is an explicit maintenance action, before the test baseline.
+run_repository_formatter() {
+  "$SCRIPTS_DIR/format_repo.sh" format >"$LOG_DIR/format_repo.log" 2>&1
+}
+
+# Local users may opt into the existing complete formatter. EOF/default and CI
+# leave sources alone. Capture its intentional changes even on partial failure;
+# later test mutations must still be detected against the resulting baseline.
+offer_repository_format() {
+  local answer='' status=0
+  if [ "${TEST_ALL_NO_FORMAT:-0}" = 1 ]; then return 0; fi
+  if [ -n "${CI:-}" ] && [ "$CI" != false ]; then return 0; fi
+  printf 'Format repo? [y/N] '
+  IFS= read -r answer || answer=''
+  printf '\n'
+  answer="${answer%$'\r'}"
+  case "$answer" in y | Y | yes | YES) ;; *) return 0 ;; esac
+
+  # Do not hide unexpected preparation edits by refreshing the baseline.
+  if ! capture_tracked_bytes "$TEST_ALL_STATE_DIR/prepared" || ! cmp -s "$TEST_ALL_STATE_DIR/before" "$TEST_ALL_STATE_DIR/prepared"; then
+    summary_line 'INCOMPLETE: worktree changed during preparation; formatting and tests were not started.'
+    return 2
+  fi
+  trice_setup_with_progress 'Formatting repository' run_repository_formatter || status=$?
+  if ! capture_tracked_bytes "$TEST_ALL_STATE_DIR/formatted" || ! mv "$TEST_ALL_STATE_DIR/formatted" "$TEST_ALL_STATE_DIR/before"; then
+    summary_line 'INCOMPLETE: cannot capture the worktree after formatting; tests were not started.'
+    return 2
+  fi
+  if [ "$status" -ne 0 ]; then
+    summary_line "INCOMPLETE: repository formatting failed; no tests started. See $LOG_DIR/format_repo.log"
+    return 2
+  fi
+}
+
 main() {
   local selected
   local started_at
@@ -602,6 +640,9 @@ main() {
   if ! prepare_native_test_tools >"$LOG_DIR/tools.log" 2>&1; then
     summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
     cat "$LOG_DIR/tools.log"
+    TEST_ALL_INCOMPLETE=1
+    started_at=$(date +%s)
+  elif ! offer_repository_format; then
     TEST_ALL_INCOMPLETE=1
     started_at=$(date +%s)
   else

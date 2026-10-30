@@ -14,6 +14,56 @@ if [ -f "./scripts/test-tools.env" ]; then
   source "./scripts/test-tools.env"
 fi
 
+# Keep setup status visible while command output remains in tools.log. Status
+# uses stderr so installers may still return selected paths through stdout.
+trice_setup_message() {
+  printf '%s\n' "$*" >&2
+  if [ "${TRICE_TEST_PROGRESS_TTY:-0}" = 1 ] && [ ! -t 2 ]; then printf '%s\n' "$*" >/dev/tty; fi
+}
+
+# Run in the calling shell so installers retain PATH and other selections.
+# The heartbeat owns only its sleep child and removes it when setup finishes.
+trice_setup_with_progress() {
+  local description="$1" started status=0 timer delay="${TRICE_TEST_PROGRESS_INTERVAL_SECONDS:-30}"
+  shift
+  case "$delay" in '' | *[!0-9]* | 0) delay=30 ;; esac
+  started="$(date +%s)"
+  trice_setup_message "$description..."
+  (
+    sleeper=''
+    trap '[ -z "$sleeper" ] || kill "$sleeper" 2>/dev/null; exit 0' INT TERM
+    while true; do
+      sleep "$delay" &
+      sleeper=$!
+      wait "$sleeper" || exit 0
+      sleeper=''
+      trice_setup_message "Still working: $description ($(($(date +%s) - started))s)"
+    done
+  ) &
+  timer=$!
+  "$@" || status=$?
+  kill "$timer" 2>/dev/null || true
+  wait "$timer" 2>/dev/null || true
+  if [ "$status" -eq 0 ]; then
+    trice_setup_message "$description... done ($(($(date +%s) - started))s)"
+  else
+    trice_setup_message "$description... FAILED (exit $status)"
+    if [ -f "${LOG_DIR:-temp/log}/tools.log" ]; then trice_setup_message "See ${LOG_DIR:-temp/log}/tools.log"; fi
+  fi
+  return "$status"
+}
+
+# Cached tools stay quiet; only a planned installation receives progress lines.
+trice_prepare_local_tool() {
+  local tool="$1" version="$2"
+  shift 2
+  if [ -f "${TRICE_PLAN_FILE:-}" ] && awk -F '\t' -v tool="$tool" '$1==tool && $4=="install" {found=1} END {exit !found}' "$TRICE_PLAN_FILE"; then
+    trice_setup_with_progress "Installing $tool $version into temp/tools" "$@"
+  else
+    "$@"
+  fi
+}
+
 # Ask before downloading a missing version. EOF, an empty answer and CI decline
 # installation. A terminal stays visible even when the caller redirects logs.
 confirm_tool_install() {
@@ -154,7 +204,11 @@ ensure_node_test_tool() {
     local selected_node
     selected_node="$(trice_find_node || true)"
     if [ -n "$selected_node" ]; then
-      PATH="$(cd "$(dirname "$selected_node")" && pwd):$PATH"
+      # Reusing the active Node must not move its whole directory ahead of
+      # already selected pinned tools (for example a local stitchmd).
+      if [ "$selected_node" != "$(command -v node || true)" ]; then
+        PATH="$(cd "$(dirname "$selected_node")" && pwd):$PATH"
+      fi
       export PATH
       hash -r
       return 0
@@ -498,6 +552,9 @@ install_go_test_tool() {
     printf 'Installation failed: %s into %s. Check the output above and rerun.\n' "$package" "$TRICE_TOOL_BIN_DIR" >&2
     return 1
   fi
+  # A preceding runtime selection may have changed PATH since this helper was
+  # loaded. Prefer the newly installed pin over an older host executable.
+  export PATH="$TRICE_TOOL_BIN_DIR:$PATH"
   hash -r
 }
 

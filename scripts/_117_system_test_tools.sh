@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Optional, explicitly selected system setup. Package catalog reads never run
+# Optional, explicitly selected system upgrades. Package catalog reads never run
 # updates, add repositories/taps, or substitute a newer version for a missing pin.
 # No function in this file is called merely by sourcing the test environment.
 
@@ -45,9 +45,61 @@ trice_apt_package_version() {
       if(upstream==wanted) {print version; exit} }'
 }
 
-# Build a concrete, exact-version command list before requesting installation.
-# Unsupported/missing pins stay unchanged. Available complete package groups can
-# be installed after review, but never trigger a silent checkout fallback.
+# Read package-manager ownership rather than a possibly unrelated PATH command
+# (for example Apple's gcc alias or a checkout-local executable).
+trice_system_installed_versions() {
+  local package="$1"
+  case "$TRICE_SYSTEM_MANAGER" in
+    apt)
+      dpkg-query -W -f='${Status}\t${Version}\n' "$package" 2>/dev/null |
+        awk -F '\t' '$1=="install ok installed" {print $2}'
+      ;;
+    brew)
+      HOMEBREW_NO_AUTO_UPDATE=1 brew list --versions --formula "$package" 2>/dev/null |
+        awk -v package="$package" '$1==package {for(i=2;i<=NF;i++) print $i}'
+      ;;
+    winget)
+      winget list --id "$package" --exact --source winget --accept-source-agreements --disable-interactivity 2>/dev/null |
+        awk -v package="$package" '{for(i=1;i<NF;i++) if($i==package) print $(i+1)}'
+      ;;
+  esac
+}
+
+# Compare numeric releases without GNU sort -V or a prepared runtime. Unknown
+# identities stay untouched. Distribution revisions do not change upstream pins.
+trice_system_version_is_older() {
+  awk -v current="$1" -v pin="$2" 'BEGIN {
+    sub(/^[0-9]+:/,"",current); sub(/[-+_].*$/,"",current);
+    if(current !~ /^[0-9]+([.][0-9]+)+$/ || pin !~ /^[0-9]+([.][0-9]+)+$/) exit 1;
+    n=split(current,a,"."); m=split(pin,b,".");
+    for(i=1;i<=n || i<=m;i++) {
+      if(a[i]+0 < b[i]+0) exit 0;
+      if(a[i]+0 > b[i]+0) exit 1;
+    }
+    exit 1;
+  }'
+}
+
+# Every installed copy must be older: an inactive newer Homebrew keg must never
+# be replaced just because an older executable happens to appear first in PATH.
+trice_system_package_is_older() {
+  local versions current
+  versions="$(trice_system_installed_versions "$1")" || return 1
+  [ -n "$versions" ] || return 1
+  while IFS= read -r current; do
+    trice_system_version_is_older "$current" "$2" || return 1
+  done <<<"$versions"
+}
+
+# Keep skipped packages and full commands available without filling the menu.
+# This file is beside the saved plan and does not share tools.log's file offset.
+trice_system_detail() {
+  printf '%s\n' "$*" >>"$TRICE_PLAN_FILE.system.details"
+}
+
+# Prepare upgrades only to exact available pins, never to a newer catalog
+# release. Unsupported, absent and newer system tools use local preparation.
+# Return 3 when no upgrade is available, 4 on refusal, and 2 on an actual failure.
 trice_system_tool_setup() {
   local tool version found action installed peak packages package catalog info escaped
   local missing=0 unsupported=0 total=0 prefix cache answer='' group_available
@@ -81,19 +133,26 @@ trice_system_tool_setup() {
   esac
   : >"$plan"
   : >"$commands"
-  trice_plan_print "Checking exact system packages with $TRICE_SYSTEM_MANAGER (no repository update or installation)."
+  : >"$plan.details"
+  trice_system_detail "Checking exact system packages with $TRICE_SYSTEM_MANAGER (no repository update or installation)."
   while IFS=$'\t' read -r tool version found action _ _ installed peak; do
-    case "$action" in install | manual) ;; *) continue ;; esac
+    case "$action" in install | manual | reuse) ;; *) continue ;; esac
+    [[ "$version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || continue
     case "$tool" in Go-build-cache | Go-module-cache) continue ;; esac
     missing=$((missing + 1))
     if ! packages="$(trice_system_package_names "$tool" "$version")"; then
-      trice_plan_print "  $tool $version: no verified complete system-package mapping; use checkout setup or install it manually."
+      trice_system_detail "  $tool: no supported system upgrade; use temp/tools if needed."
       unsupported=1
       continue
     fi
     group_available=1
     : >"$commands.group"
     for package in $packages; do
+      if ! trice_system_package_is_older "$package" "$version"; then
+        trice_system_detail "  $package: not installed, not older, or version unknown; leave unchanged."
+        group_available=0
+        continue
+      fi
       catalog=''
       case "$TRICE_SYSTEM_MANAGER" in
         apt) catalog="$(trice_apt_package_version "$package" "$version")" ;;
@@ -107,13 +166,13 @@ trice_system_tool_setup() {
           ;;
       esac
       if [ -z "$catalog" ]; then
-        trice_plan_print "  $package: exact upstream version $version is not available in the configured package catalog."
+        trice_system_detail "  $package: exact upstream version $version is not available in the configured package catalog."
         unsupported=1
         group_available=0
         continue
       fi
       printf '%s\t%s\n' "$package" "$catalog" >>"$commands.group"
-      trice_plan_print "  $package = $catalog"
+      trice_plan_print "  System upgrade: $package -> $catalog"
     done
     [ "$group_available" -eq 1 ] || continue
     cat "$commands.group" >>"$commands" || return 2
@@ -161,52 +220,64 @@ trice_system_tool_setup() {
         peak=$((installed * 2 + size_download))
       fi
     fi
-    trice_plan_print "  $tool: approximately $installed MiB additional installed data, $peak MiB setup peak at $prefix."
+    trice_system_detail "  $tool: approximately $installed MiB additional installed data, $peak MiB setup peak at $prefix."
     printf '%s\t%s\t%s\tinstall\t%s package\t%s\t%s\t%s\n' "$tool" "$version" "$found" "$TRICE_SYSTEM_MANAGER" "$prefix" "$installed" "$peak" >>"$plan"
     total=$((total + peak))
   done <"$TRICE_PLAN_FILE"
   if [ "$missing" -eq 0 ]; then
-    trice_plan_print 'No system packages need installation.'
-    return 0
-  fi
-  if [ ! -s "$commands" ]; then
-    trice_plan_print 'No complete exact system-package group is available. No package will be installed.'
+    trice_plan_print 'No system tools need an upgrade.'
     return 3
   fi
-  if [ "$unsupported" -ne 0 ]; then trice_plan_print 'Only the available exact package groups listed below can be installed. Unavailable tools stay unchanged; no checkout fallback is started automatically.'; fi
+  if [ ! -s "$commands" ]; then
+    trice_plan_print 'No system upgrades available. Missing pinned tool versions will use temp/tools.'
+    return 3
+  fi
+  if [ "$unsupported" -ne 0 ]; then trice_plan_print 'Only the listed system tools will be upgraded. Remaining missing pinned tool versions will use temp/tools.'; fi
   # Package-manager dependencies and cache/staging consumption vary by host.
   # Keep a conservative allowance on their actual destination filesystem too.
   printf 'Package-cache\tallowance\tmanager-dependent\tinstall\tpackage cache/dependencies\t%s\t0\t%s\n' "$cache" "$((total / 2 + 512))" >>"$plan"
   printf 'System-dependencies\tallowance\tmanager-dependent\tinstall\tdependency estimate\t%s\t0\t%s\n' "$prefix" "$((total + 512))" >>"$plan"
-  trice_plan_print 'System sizes are conservative estimates, including separate dependency and package-cache allowances; package managers may require additional space.'
-  trice_plan_print "System destination: $prefix; package cache/staging: $cache. Estimates include a conservative dependency allowance."
+  trice_system_detail 'System sizes are conservative estimates, including separate dependency and package-cache allowances; package managers may require additional space.'
+  trice_system_detail "System destination: $prefix; package cache/staging: $cache. Estimates include a conservative dependency allowance."
   (
     TRICE_PLAN_FILE="$plan"
     trice_plan_space
   ) || return 2
-  trice_plan_print 'Exact system-install commands (the package manager may require administrator credentials):'
+  trice_system_detail 'System-upgrade commands (the package manager may require administrator credentials):'
   while IFS=$'\t' read -r package catalog; do
     case "$TRICE_SYSTEM_MANAGER" in
-      apt) trice_plan_print "  apt-get install --yes --no-remove --no-install-recommends $package=$catalog" ;;
-      brew) trice_plan_print "  HOMEBREW_NO_AUTO_UPDATE=1 brew install --formula $package (catalog version $catalog)" ;;
-      winget) trice_plan_print "  winget install --id $package --exact --version $catalog --source winget" ;;
+      apt) trice_system_detail "  apt-get install --only-upgrade --yes --no-remove --no-install-recommends $package=$catalog" ;;
+      brew) trice_system_detail "  HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew upgrade --formula $package (catalog version $catalog)" ;;
+      winget) trice_system_detail "  winget upgrade --id $package --exact --version $catalog --source winget" ;;
     esac
   done <"$commands"
-  trice_plan_print 'Install these exact system packages? [y/N]'
+  trice_plan_print "Upgrade details: $plan.details"
+  trice_plan_print 'Upgrade these system tools to the pinned versions? [y/N]'
   IFS= read -r answer || answer=''
   answer="${answer%$'\r'}"
   case "$answer" in y | Y | yes | YES) ;; *)
-    trice_plan_print 'System installation cancelled before any package change.'
-    return 2
+    trice_plan_print 'System upgrades cancelled before any package change. Returning to the menu.'
+    return 4
     ;;
   esac
+  # Recheck after confirmation before the first package change. Another setup
+  # process may have upgraded a tool while the user was reviewing the plan.
+  while IFS=$'\t' read -r package catalog; do
+    local upstream="$catalog"
+    upstream="${upstream#*:}"
+    upstream="${upstream%%[-+_]*}"
+    if ! trice_system_package_is_older "$package" "$upstream"; then
+      trice_plan_print "INCOMPLETE: $package changed since the upgrade plan; rerun startup."
+      return 2
+    fi
+  done <"$commands"
   if [ "$TRICE_SYSTEM_MANAGER" = apt ]; then
     local apt_arguments=()
     while IFS=$'\t' read -r package catalog; do apt_arguments+=("$package=$catalog"); done <"$commands"
     if [ "$(id -u)" = 0 ]; then
-      apt-get install --yes --no-remove --no-install-recommends "${apt_arguments[@]}" || return 2
+      trice_setup_with_progress 'Updating system tools' apt-get install --only-upgrade --yes --no-remove --no-install-recommends "${apt_arguments[@]}" || return 2
     elif command -v sudo >/dev/null 2>&1; then
-      sudo apt-get install --yes --no-remove --no-install-recommends "${apt_arguments[@]}" || return 2
+      trice_setup_with_progress 'Updating system tools' sudo apt-get install --only-upgrade --yes --no-remove --no-install-recommends "${apt_arguments[@]}" || return 2
     else
       trice_plan_print 'INCOMPLETE: sudo is required for the displayed apt installation; no checkout fallback was started.'
       return 2
@@ -223,12 +294,12 @@ trice_system_tool_setup() {
             trice_plan_print "INCOMPLETE: $package catalog changed; rerun the plan."
             return 2
           }
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install --formula "$package" || return 2
+          HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1 HOMEBREW_NO_INSTALL_CLEANUP=1 trice_setup_with_progress "Updating system $package to $catalog" brew upgrade --formula "$package" || return 2
           ;;
-        winget) winget install --id "$package" --exact --version "$catalog" --source winget --accept-source-agreements --accept-package-agreements || return 2 ;;
+        winget) trice_setup_with_progress "Updating system $package to $catalog" winget upgrade --id "$package" --exact --version "$catalog" --source winget --accept-source-agreements --accept-package-agreements || return 2 ;;
       esac
     done <"$commands"
   fi
-  trice_plan_print 'System package setup finished. Open a fresh shell if PATH changed, then rerun the startup check. No tests were started.'
-  export TRICE_TEST_SETUP_ONLY=1
+  hash -r
+  trice_plan_print 'System upgrades finished. Rechecking tools before installing remaining missing pinned tool versions into temp/tools.'
 }

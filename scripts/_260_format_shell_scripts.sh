@@ -58,11 +58,11 @@ ensure_shfmt() {
   if [ ! -x "$SHFMT_BIN" ] && [ -x "$SHFMT_BIN.exe" ]; then
     SHFMT_BIN="$SHFMT_BIN.exe"
   fi
-  if [ -x "$SHFMT_BIN" ] && "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
+  if [ -x "$SHFMT_BIN" ] && trice_tool_matches "$SHFMT_BIN" "${SHFMT_VERSION#v}"; then
     return 0
   fi
   # Formatting and checking share the same reuse policy for a matching host tool.
-  if command -v shfmt >/dev/null 2>&1 && shfmt --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
+  if command -v shfmt >/dev/null 2>&1 && trice_tool_matches shfmt "${SHFMT_VERSION#v}"; then
     SHFMT_BIN="$(command -v shfmt)"
     return 0
   fi
@@ -74,7 +74,7 @@ ensure_shfmt() {
       SHFMT_BIN="$(command -v shfmt)"
     fi
     if [ -x "$SHFMT_BIN" ]; then
-      if "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
+      if trice_tool_matches "$SHFMT_BIN" "${SHFMT_VERSION#v}"; then
         return 0
       fi
       echo "shfmt check requires $SHFMT_VERSION; detected $("$SHFMT_BIN" --version 2>&1)."
@@ -99,7 +99,7 @@ ensure_shfmt() {
     exit 1
   fi
 
-  if ! "$SHFMT_BIN" --version 2>/dev/null | grep -qx "$SHFMT_VERSION"; then
+  if ! trice_tool_matches "$SHFMT_BIN" "${SHFMT_VERSION#v}"; then
     echo "Installed shfmt version mismatch. Expected $SHFMT_VERSION." >&2
     "$SHFMT_BIN" --version >&2 || true
     exit 1

@@ -250,7 +250,7 @@ trice_plan_can_continue() {
   missing="$(awk -F '\t' '$4=="manual" {printf "%s%s",separator,$1; separator=", "}' "$TRICE_PLAN_FILE")"
   if [ -n "$missing" ]; then
     trice_plan_print "Cannot continue: $missing is missing or needs setup."
-    trice_plan_print 'Install it yourself or choose system setup.'
+    trice_plan_print 'Install it yourself or choose u to check supported system upgrades.'
     return 2
   fi
 }
@@ -614,7 +614,7 @@ prepare_selected_npm_tools() {
         # shellcheck disable=SC2086
         node scripts/_test_npm_tools.cjs lock scripts/testcheck/package-lock.json "$subset" $names || exit 2
       fi
-      PUPPETEER_SKIP_DOWNLOAD=true npm ci --prefix "$subset" --cache "$(pwd)/temp/tools/npm-cache" --ignore-scripts --no-audit --no-fund || exit 2
+      PUPPETEER_SKIP_DOWNLOAD=true trice_setup_with_progress "Installing npm tools ($names) into temp/tools" npm ci --prefix "$subset" --cache "$(pwd)/temp/tools/npm-cache" --ignore-scripts --no-audit --no-fund || exit 2
       printf '%s\n' "$lock" >"$subset/.ready" || exit 2
     ) || return 2
   fi
@@ -666,7 +666,7 @@ prepare_selected_npm_tools() {
   if [ "${TRICE_PLAN_SCOPE:-native}" = pdf ] && ! node scripts/_test_npm_tools.cjs browser "$renderer_root" >/dev/null 2>&1; then
     export PUPPETEER_CACHE_DIR="${PUPPETEER_CACHE_DIR:-$(pwd)/temp/tools/puppeteer}"
     owner="$(node scripts/_test_npm_tools.cjs puppeteer-root "$renderer_root")" || return 2
-    PUPPETEER_SKIP_DOWNLOAD=false node "$owner/install.mjs" || return 2
+    PUPPETEER_SKIP_DOWNLOAD=false trice_setup_with_progress 'Installing Puppeteer browser into temp/tools' node "$owner/install.mjs" || return 2
     node scripts/_test_npm_tools.cjs browser "$renderer_root" || return 2
   fi
 }
@@ -720,13 +720,17 @@ trice_plan_space() {
   [ "$failed" -eq 0 ]
 }
 
-# Display every selection before asking once. The approved plan authorizes only
-# checkout-local fallbacks; missing SDK/system prerequisites remain manual.
+# Display every selection before asking once. Continue authorizes checkout-local
+# preparation; update additionally offers confirmed, version-bounded upgrades.
+# An internal recheck after updates retains consent for remaining local tools.
 trice_test_tool_plan() {
   local scope="${1:-native}" os architecture selected found tool version action target installed peak answer='' blocked=0 checkout_space_ok=1 system_status
+  local after_updates="${2:-0}"
   # Capture interactive output once, before table and disk loops redirect stdin.
   local TRICE_PLAN_MIRROR_TTY=0
   if [ ! -t 1 ] && [ -t 0 ] && { true >/dev/tty; } 2>/dev/null; then TRICE_PLAN_MIRROR_TTY=1; fi
+  # Later installers inherit this terminal selection after planning returns.
+  export TRICE_TEST_PROGRESS_TTY="$TRICE_PLAN_MIRROR_TTY"
   case " ${TRICE_TEST_PLAN_SCOPES:-} " in *" $scope "*) return 0 ;; esac
   TRICE_PLAN_SCOPE="$scope"
   os="$(uname -s)"
@@ -907,31 +911,39 @@ trice_test_tool_plan() {
     trice_plan_row Go-build-cache shared 'source fallback' install 'build-cache allowance' "$(trice_tool_path "$build_cache")" 0 768
     trice_plan_row Go-module-cache shared 'source fallback' install 'module-cache allowance' "$(trice_tool_path "$module_cache")" 0 512
   fi
-  trice_plan_table
+  if [ "$after_updates" != 1 ]; then trice_plan_table; fi
   while IFS=$'\t' read -r tool version found action selected target installed peak; do
     [ "$action" != manual ] || blocked=1
   done <"$TRICE_PLAN_FILE"
   trice_plan_space || checkout_space_ok=0
   if [ "$blocked" -ne 0 ]; then trice_plan_can_continue || true; fi
-  if [ "${TRICE_TEST_SETUP_APPROVED:-0}" != 1 ] && { [ -z "${CI:-}" ] || [ "${CI:-}" = false ]; }; then
+  if [ "$after_updates" != 1 ] && [ "${TRICE_TEST_SETUP_APPROVED:-0}" != 1 ] && { [ -z "${CI:-}" ] || [ "${CI:-}" = false ]; }; then
     while true; do
       trice_plan_print ''
-      trice_plan_print '[c] Continue   [a] Abort   [s] System setup'
-      trice_plan_print 'Choose [c/a/s] (default: a):'
+      trice_plan_print '[c] Continue'
+      trice_plan_print '    Install missing pinned tool versions into temp/tools.'
+      trice_plan_print '[u] Update system tools (up to pinned versions)'
+      trice_plan_print '    Leave newer system versions unchanged.'
+      trice_plan_print '    Install remaining missing pinned tool versions into temp/tools.'
+      trice_plan_print '[a] Abort'
+      trice_plan_print 'Choose [c/u/a] (default: a):'
       IFS= read -r answer || answer=''
       answer="${answer%$'\r'}"
       case "$answer" in
-        s | S)
+        u | U)
           if ! declare -F trice_system_tool_setup >/dev/null; then
-            trice_plan_print 'INCOMPLETE: system setup helper is missing from this checkout.'
+            trice_plan_print 'INCOMPLETE: system upgrade helper is missing from this checkout.'
             return 2
           fi
           system_status=0
           trice_system_tool_setup || system_status=$?
-          if [ "$system_status" -eq 3 ]; then continue; fi
-          # System changes are deliberately outside testing. A fresh startup
-          # rechecks actual executables after package managers update PATH.
-          return 2
+          if [ "$system_status" -eq 4 ]; then continue; fi
+          case "$system_status" in 0 | 3) ;; *) return 2 ;; esac
+          # Rebuild the local plan, including blockers and disk checks. This
+          # avoids installing a duplicate pin after a successful system update.
+          hash -r
+          trice_test_tool_plan "$scope" 1
+          return $?
           ;;
         c | C)
           if ! trice_plan_can_continue; then continue; fi
@@ -945,7 +957,7 @@ trice_test_tool_plan() {
           trice_plan_print 'INCOMPLETE: preparation cancelled before tool installation; change the local setup and rerun.'
           return 2
           ;;
-        *) trice_plan_print 'Please enter c, a, or s.' ;;
+        *) trice_plan_print 'Please enter c, u, or a.' ;;
       esac
     done
   fi

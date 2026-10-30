@@ -90,7 +90,11 @@ prepare_pinned_test_selection() {
     status=$?
     [ "$status" -eq 3 ] || return "$status"
     approve_pinned_test_setup "$operation: $*; cache: $cache" || return 2
-    setup_output="$("$TRICE_TEST_REPORT_BIN" "$operation" scripts/test-tools.env "$cache" "$@")" || return 2
+    local description="$*"
+    if [ -f "${TRICE_PLAN_FILE:-}" ]; then
+      description="$(awk -F '\t' -v names=" $* " 'index(names," " $1 " ") && $4=="install" {printf "%s%s %s",sep,$1,$2; sep=", "}' "$TRICE_PLAN_FILE")"
+    fi
+    setup_output="$(trice_setup_with_progress "Installing ${description:-$*} into temp/tools" "$TRICE_TEST_REPORT_BIN" "$operation" scripts/test-tools.env "$cache" "$@")" || return 2
   fi
   printf -v "$result_variable" '%s' "$setup_output"
 }
@@ -142,13 +146,13 @@ prepare_native_test_tools() {
     fi
   done
   [ "$missing" -eq 0 ] || return 2
-  ensure_node_test_tool || return 2
+  trice_prepare_local_tool Node.js "$TRICE_NODE_VERSION" ensure_node_test_tool || return 2
   if [ "$(node --version)" != "v$TRICE_NODE_VERSION" ]; then
     printf 'INCOMPLETE: Node.js %s is required; found %s. Select the declared version before running native tests.\n' "$TRICE_NODE_VERSION" "$(node --version)"
     return 2
   fi
   # Reuse the exact offline runtime or the approved local release archive.
-  ensure_native_go_toolchain || return 2
+  trice_prepare_local_tool Go "$TRICE_GO_VERSION" ensure_native_go_toolchain || return 2
   # The report helper is built from the current worktree before any tests.
   build_native_report_tool || return 2
   printf 'Commit: %s\nOS: %s\n' "$(git rev-parse HEAD)" "$(uname -a)"
@@ -265,7 +269,7 @@ prepare_native_test_tools() {
           ! trice_tool_matches "$TRICE_HOST_PACKAGE_BIN/clang" "$TRICE_CLANG_WINDOWS_VERSION" ||
           ! trice_bundle_complete clang "$TRICE_HOST_PACKAGE_BIN/clang" "$TRICE_CLANG_WINDOWS_VERSION"; then
           trice_plan_allows_install WinLibs || return 2
-          install_windows_host_test_tools || return 2
+          trice_prepare_local_tool WinLibs "$TRICE_GCC_WINDOWS_VERSION/$TRICE_CLANG_WINDOWS_VERSION" install_windows_host_test_tools || return 2
         fi
         PATH="$(cd "$TRICE_HOST_PACKAGE_BIN" && pwd):$PATH" || return 2
         export PATH
@@ -342,11 +346,11 @@ prepare_native_test_tools() {
   printf 'Selected cmake: %s\n' "$(command -v cmake)"
   cmake --version || return 2
   prepare_native_cmake_environment || return 2
-  ensure_python_test_tool || return 2
+  trice_prepare_local_tool Python "${TRICE_PYTHON_VERSION:-3}" ensure_python_test_tool || return 2
   # Parent-shell installers share consent before the formatter child starts.
-  ensure_cppcheck_test_tool || return 2
+  trice_prepare_local_tool cppcheck "$TRICE_TOOL_CPPCHECK_VERSION" ensure_cppcheck_test_tool || return 2
   prepare_pinned_native_tools || return 2
-  "$SCRIPTS_DIR/_280_format_c_code.sh" setup || return 2
+  trice_prepare_local_tool clang-format "$TRICE_TOOL_CLANG_FORMAT_VERSION" "$SCRIPTS_DIR/_280_format_c_code.sh" setup || return 2
 }
 
 # prepare_pinned_native_tools freezes the executable selection and prepares the
