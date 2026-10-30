@@ -12,7 +12,7 @@
 </div>
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
 
-**Log and trace in as few as 6 CPU clocks per call.**<sup>[1](#note-speed)</sup><br>
+**Log C-code in 3 or 4 Assembler instructions (~10 clocks) per call.**<sup>[1](#note-speed)</sup><br>
 Printf-like calls.<sup>[2](#note-calls)</sup> Compact records.<sup>[3](#note-records)</sup> Even from interrupt handlers.<sup>[4](#note-interrupts)</sup><br>
 Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#note-ids)</sup> Aliases for legacy code.<sup>[7](#note-aliases)</sup>
 

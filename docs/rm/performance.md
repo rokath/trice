@@ -36,6 +36,9 @@ A Trice macro execution can be as cheap like **3 Assembler instructions or 6 pro
 * Disassembly: ![./ref/MEASURE_executionCode.PNG](../ref/MEASURE_executionCode.PNG)
 * Measurement: The blue SYSTICK clock counts backwards 6 clocks for each Trice macro (on an ARM M0+), what is less than 100 ns @64 MHz MCU clock: ![./ref/MEASURE_executionClocks.PNG](../ref/MEASURE_executionClocks.PNG)
 
+To be honest, that was reached with an older Trice version, which allowed identical IDs to be used on several places with identical Trice messages. Nowadays the Trice IDs are forced to be different even on identical messages to secure valid location information. With Trice v2 that is realistic: ![G0B1_inst_fastest.png](../ref/G0B1_inst_fastest.png)
+The yellow row shows the processor clocks between 2 Trices. The uppercase-only Trices are executed in about 10 clocks! But they have a price: Their code is inserted and not a function call. So using plenty of them demands more flash memory for the code. The normal Trices need over 50 clocks already but need as function calls less space in the code section. As general recommendation use lowercase Trice macros for normal logs and switch to uppercase-only Trice macros when speed really matters and you need to squeeze out the last nanosecond.
+
 A more realistic (typical) timing with target location and µs timestamps, critical section and parameters is shown here with the STM32F030 M0 core:
 
 ![./ref/F030FullTiming.PNG](../ref/F030FullTiming.PNG)
