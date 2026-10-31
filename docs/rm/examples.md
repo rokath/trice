@@ -29,7 +29,7 @@
   - [7.2. G0B1_inst](#g0b1_inst)
     - [7.2.1. Setting Up](#setting-up)
     - [7.2.2. Instrumenting](#instrumenting)
-    - [G0B1 clock benchmark](#g0b1-clock-benchmark)
+    - [7.2.3. G0B1 clock benchmark](#g0b1-clock-benchmark)
 - [8. Nucleo-L432KC Examples](#nucleo-l432kc-examples)
   - [8.1. L432_bare](#l432_bare)
   - [8.2. L432_inst](#l432_inst)
@@ -502,7 +502,7 @@ The default configuration logs directly over RTT without framing and sends encry
 
 <img src="../ref/G0B1_inst_Screenshot.png" width="1000">
 
-#### G0B1 clock benchmark
+#### 7.2.3. <a id="g0b1-clock-benchmark"></a>G0B1 clock benchmark
 
 Use `G0B1_inst` to compare GCC and Clang on the same board. Configuration 0 remains
 the default; configuration 98 selects the bounded logging benchmark. No CubeMX

@@ -7,17 +7,17 @@
 
 * [1. Choose the buffer and output mode](#choose-the-buffer-and-output-mode)
 * [2. Clock Measurements and Disassembly for fastest configurations](#clock-measurements-and-disassembly-for-fastest-configurations)
-  * [2.1. Example Project L432inst Performance Measurements: Clocks and Disassembly](#example-project-l432inst-performance-measurements-clocks-and-disassembly)
-  * [2.2. Example Project G0B1inst Performance Measurements: Clocks and Disassembly](#example-project-g0b1inst-performance-measurements-clocks-and-disassembly)
-  * [GCC and Clang code generation](#gcc-and-clang-code-generation)
-  * [2.3. Legacy Measurements (slower)](#legacy-measurements-slower)
-  * [2.4. HINT: Trice v2 supports CLI Target stamp transformations, so only the raw clock is sufficient as stamp](#hint-trice-v2-supports-cli-target-stamp-transformations-so-only-the-raw-clock-is-sufficient-as-stamp)
+  * [2.1. Example Project L432_inst Performance Measurements: Clocks and Disassembly](#example-project-l432_inst-performance-measurements-clocks-and-disassembly)
+  * [2.2. Example Project G0B1_inst Performance Measurements: Clocks and Disassembly](#example-project-g0b1_inst-performance-measurements-clocks-and-disassembly)
+  * [2.3. GCC and Clang code generation](#gcc-and-clang-code-generation)
+  * [2.4. Legacy Measurements (slower)](#legacy-measurements-slower)
+  * [2.5. HINT: Trice v2 supports CLI Target stamp transformations, so only the raw clock is sufficient as stamp](#hint-trice-v2-supports-cli-target-stamp-transformations-so-only-the-raw-clock-is-sufficient-as-stamp)
 * [3. Target Implementation Options](#target-implementation-options)
-  * [3.1. Trice Use Cases TRICESTATICBUFFER and TRICESTACKBUFFER - direct mode only](#trice-use-cases-tricestaticbuffer-and-tricestackbuffer---direct-mode-only)
-  * [3.2. Trice Use Case TRICEDOUBLEBUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-tricedoublebuffer---deferred-mode-fastest-trice-execution-more-ram-needed)
-  * [3.3. Trice Use Case TRICERINGBUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-triceringbuffer---deferred-mode-balanced-trice-execution-time-and-needed-ram)
-* [4. A configuration for maximum Trice execution speed with the L432inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432inst-example)
-* [5. A configuration for normal Trice execution speed with the G0B1inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1inst-example)
+  * [3.1. Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only](#trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only)
+  * [3.2. Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed](#trice-use-case-trice_double_buffer---deferred-mode-fastest-trice-execution-more-ram-needed)
+  * [3.3. Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM](#trice-use-case-trice_ring_buffer---deferred-mode-balanced-trice-execution-time-and-needed-ram)
+* [4. A configuration for maximum Trice execution speed with the L432_inst example](#a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example)
+* [5. A configuration for normal Trice execution speed with the G0B1_inst example](#a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -48,7 +48,7 @@ A Trice macro execution can be as cheap like **3 Assembler instructions or 6 pro
 
 To be honest, that was reached with an older Trice version, which allowed identical IDs to be used on several places with identical Trice messages. Nowadays the Trice IDs are forced to be different even on identical messages to secure valid location information. With Trice v2 that is realistic: 
 
-### 2.1. <a id="example-project-l432inst-performance-measurements-clocks-and-disassembly"></a>Example Project L432_inst Performance Measurements: Clocks and Disassembly
+### 2.1. <a id="example-project-l432_inst-performance-measurements-clocks-and-disassembly"></a>Example Project L432_inst Performance Measurements: Clocks and Disassembly
 
 * `./build_with_clang.sh 98` and flash for example with VS Code Cortex Debug Extension.
 * `th@Mac L432_inst % tlog -hs off -prefix off -i ../../demoTIL.json -port /dev/tty.usbmodem0007701629111 -li ../../demoLI.json -liFmt "%40s%4d" -liMaxDirs 2 -ts16delta "note:%9d" -ts32delta "note:%9d" -ts32 "sig: %08x" -ts16 "wr:     %04x" -ts0 "         " -typeX0 "% x"`:
@@ -67,6 +67,7 @@ To be honest, that was reached with an older Trice version, which allowed identi
     examples/exampleData/triceExamples.c 129                    TRICE_DOUBLE_BUFFER, TRICE_MULTI_PACK_MODE
     examples/exampleData/triceExamples.c 138                    _CYCLE == 0, _PROTECT == 0, _DIAG == 0, XTEA == 0
     examples/exampleData/triceExamples.c 139                    _SINGLE_MAX_SIZE=512, _BUFFER_SIZE=580, _DEFERRED_BUFFER_SIZE=4096
+...
     examples/exampleData/triceExamples.c  35 00000d5e         - 🐁 Speedy Gonzales 0 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp
     examples/exampleData/triceExamples.c  36 00000d73        21 🐁 Speedy Gonzales 1 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp
     examples/exampleData/triceExamples.c  37 00000d80        13 🐁 Speedy Gonzales 2 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp
@@ -129,7 +130,7 @@ The L432 Disasembly generated with `arm-none-eabi-objdump -d -S --disassemble=So
 ...
 ```
 
-### 2.2. <a id="example-project-g0b1inst-performance-measurements-clocks-and-disassembly"></a>Example Project G0B1_inst Performance Measurements: Clocks and Disassembly
+### 2.2. <a id="example-project-g0b1_inst-performance-measurements-clocks-and-disassembly"></a>Example Project G0B1_inst Performance Measurements: Clocks and Disassembly
 
 Comparing the same code on the G0B1_inst example project:
 
@@ -223,7 +224,7 @@ The yellow column shows intervals between stamp reads. In the disassembly above,
 
 Uppercase-only `TRICE(...)` expands inline and can avoid function-call overhead. Lowercase and mixed-case forms call shared functions and can save flash when used at many sites. Choose the form for the required stamp width and call overhead; compare complete timed blocks when evaluating throughput.
 
-### GCC and Clang code generation
+### 2.3. <a id="gcc-and-clang-code-generation"></a>GCC and Clang code generation
 
 **Prefer Clang for speed-focused inline `TRICE(...)` builds of these examples.** The inspected G0B1 code shows more efficient address calculations with Clang. The L432 measurements above also use Clang. This recommendation applies to the examined configurations; it is not a guarantee that every Trice form or MCU is faster with Clang.
 
@@ -268,7 +269,7 @@ arm-none-eabi-objdump -d -S --disassemble=SomeExampleTrices examples/G0B1_inst/o
 arm-none-eabi-objdump -d -S --disassemble=SomeExampleTrices examples/G0B1_inst/out.clang/G0B1.elf
 ```
 
-### 2.3. <a id="legacy-measurements-slower"></a>Legacy Measurements (slower)
+### 2.4. <a id="legacy-measurements-slower"></a>Legacy Measurements (slower)
 
 A more realistic (typical) timing with target location and µs timestamps, critical section and parameters is shown here with the STM32F030 M0 core:
 
@@ -278,7 +279,7 @@ The MCU is clocked with 48 MHz and a Trice duration is about 2 µs, where alone 
 
 ![./ref/ReadUsF030.PNG](../ref/ReadUsF030.PNG)
 
-### 2.4. <a id="hint-trice-v2-supports-cli-target-stamp-transformations-so-only-the-raw-clock-is-sufficient-as-stamp"></a>HINT: Trice v2 supports CLI Target stamp transformations, so only the raw clock is sufficient as stamp
+### 2.5. <a id="hint-trice-v2-supports-cli-target-stamp-transformations-so-only-the-raw-clock-is-sufficient-as-stamp"></a>HINT: Trice v2 supports CLI Target stamp transformations, so only the raw clock is sufficient as stamp
 
 - [CLI examples for target stamp conversion](./stamp_expressions.md)
 - [48 MHz down-counter → microseconds](./stamp_expressions.md#a-48-mhz-down-counter)
@@ -294,7 +295,7 @@ The 32-bit buffer write primitive is:
 
 `TRICE_PUT` itself does not convert byte order; its caller supplies the required order. Record headers and stamps can also use 16-bit writes. The `uint32_t* TriceBufferWritePosition` points to the active buffer; `TRICE_ENTER` and `TRICE_LEAVE` manage the surrounding record operation for the selected buffer and output mode.
 
-### 3.1. <a id="trice-use-cases-tricestaticbuffer-and-tricestackbuffer---direct-mode-only"></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
+### 3.1. <a id="trice-use-cases-trice_static_buffer-and-trice_stack_buffer---direct-mode-only"></a>Trice Use Cases TRICE_STATIC_BUFFER and TRICE_STACK_BUFFER - direct mode only
 
 1. Each single Trice is build inside a common buffer and finally copied inside the sub-macro `TRICE_LEAVE`.
 2. Disabled relevant interrupts between `TRICE_ENTER` and `TRICE_LEAVE` are mantadory for `TRICE_STATIC_BUFFER`.
@@ -307,7 +308,7 @@ The 32-bit buffer write primitive is:
   * AUX without extra copy.
   * Not (yet) supported UART transfer loop with polling. With 1MBit baud rate, 4-12 bytes would last 40-120 µs.
 
-### 3.2. <a id="trice-use-case-tricedoublebuffer---deferred-mode-fastest-trice-execution-more-ram-needed"></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
+### 3.2. <a id="trice-use-case-trice_double_buffer---deferred-mode-fastest-trice-execution-more-ram-needed"></a>Trice Use Case TRICE_DOUBLE_BUFFER - deferred mode, fastest Trice execution, more RAM needed
 
 1. Several *trices* are build in a half buffer.
 1. Records use the shared buffer; generated code can still use the stack for calls or spills.
@@ -315,7 +316,7 @@ The 32-bit buffer write primitive is:
 1. Usable for multiple blocking and non-blocking physical Trice channels.
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 
-### 3.3. <a id="trice-use-case-triceringbuffer---deferred-mode-balanced-trice-execution-time-and-needed-ram"></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
+### 3.3. <a id="trice-use-case-trice_ring_buffer---deferred-mode-balanced-trice-execution-time-and-needed-ram"></a>Trice Use Case TRICE_RING_BUFFER - deferred mode, balanced Trice execution time and needed RAM
 
 1. Each single *trices* is build in a ring buffer segment.
 1. Records use the shared buffer; generated code can still use the stack for calls or spills.
@@ -324,7 +325,7 @@ The 32-bit buffer write primitive is:
 1. No copy call inside `TRICE_LEAVE` but optionally an additional direct mode is supported.
 1. Record space is reserved inside `TRICE_ENTER`; this is not heap allocation.
 
-## 4. <a id="a-configuration-for-maximum-trice-execution-speed-with-the-l432inst-example"></a>A configuration for maximum Trice execution speed with the L432_inst example
+## 4. <a id="a-configuration-for-maximum-trice-execution-speed-with-the-l432_inst-example"></a>A configuration for maximum Trice execution speed with the L432_inst example
 
 The disassembly and screenshot in this section are historical. The current configuration 98 still uses raw DWT stamps and deferred double buffering; rebuild and measure the current image before relying on the old intervals.
 
@@ -513,7 +514,7 @@ C:\Users\ms\repos\trice_wt_devel\examples\L432_inst/../../src/trice.h:741
 
 The highlighted blue bar records stamp intervals of about 8-10 clocks. At 64 MHz this is 125-156.25 ns. As with the newer examples, stamp intervals alone do not establish the complete execution time of one macro.
 
-## 5. <a id="a-configuration-for-normal-trice-execution-speed-with-the-g0b1inst-example"></a>A configuration for normal Trice execution speed with the G0B1_inst example
+## 5. <a id="a-configuration-for-normal-trice-execution-speed-with-the-g0b1_inst-example"></a>A configuration for normal Trice execution speed with the G0B1_inst example
 
 * The `triceConfig.h` settings are
 
