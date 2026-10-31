@@ -358,7 +358,7 @@ void StartDefaultTask(void const* argument) {
 	TRICE_UNUSED(argument)
 #if CONFIGURATION == 98
 #if !TRICE_OFF
-	G0B1FastMeasure(); // No transport is started until all measured records exist.
+	G0B1FastMeasure();    // No transport is started until all measured records exist.
 	SomeExampleTrices(3); // This produces a bounded burst of trices, which is transferred afterwards.
 #endif
 	for (;;) {

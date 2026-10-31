@@ -68,16 +68,16 @@ build_signature="feature-bind;flags=${TRICE_FLAGS:-}"
 build_signature_file="out.$build_target/.trice-build-signature"
 previous_build_signature=""
 if [ -f "$build_signature_file" ]; then
-  IFS= read -r previous_build_signature < "$build_signature_file" || true
+  IFS= read -r previous_build_signature <"$build_signature_file" || true
 fi
 set -- "$build_target"
 if [ "$previous_build_signature" != "$build_signature" ]; then
   set -- -B "$@"
   mkdir -p "out.$build_target"
-  printf 'incomplete\n' > "$build_signature_file"
+  printf 'incomplete\n' >"$build_signature_file"
 fi
 # This environment assignment applies only to make and the compilers it starts.
 C_INCLUDE_PATH="$include_path" make "$@"
 mkdir -p "out.$build_target"
-printf '%s\n' "$build_signature" > "$build_signature_file"
+printf '%s\n' "$build_signature" >"$build_signature_file"
 printf 'Built %s\n' "out.${build_target}/G0B1.elf"

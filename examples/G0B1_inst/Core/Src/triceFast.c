@@ -8,7 +8,8 @@
 
 // Sixteen straight-line calls expose burst throughput without loop overhead.
 // Eight samples plus all reports need less than 1 KiB of the active buffer half.
-enum { FAST_RECORDS = 16, FAST_SAMPLES = 8 };
+enum { FAST_RECORDS = 16,
+       FAST_SAMPLES = 8 };
 _Static_assert(TRICE_DEFERRED_BUFFER_SIZE / 2 >= 1024 + TRICE_DATA_OFFSET + 4,
                "G0B1 fast records and reports must fit in one double-buffer half");
 
@@ -107,14 +108,14 @@ void G0B1FastMeasure(void) {
 	TRice("msg:G0B1 TRice 6\n");
 
 	trice("deb:trice function call macros with 16-bit timestamp need ~52 clocks (reference)\n");
-	Trice( "msg:G0B1 Trice 0\n");
-	Trice( "msg:G0B1 Trice 1\n");
-	Trice( "msg:G0B1 Trice 2\n");
-	Trice( "msg:G0B1 Trice 3\n");
-	Trice( "msg:G0B1 Trice 4\n");
-	Trice( "msg:G0B1 Trice 5\n");
-	Trice( "msg:G0B1 Trice 6\n");
-	
+	Trice("msg:G0B1 Trice 0\n");
+	Trice("msg:G0B1 Trice 1\n");
+	Trice("msg:G0B1 Trice 2\n");
+	Trice("msg:G0B1 Trice 3\n");
+	Trice("msg:G0B1 Trice 4\n");
+	Trice("msg:G0B1 Trice 5\n");
+	Trice("msg:G0B1 Trice 6\n");
+
 	trice("deb:trice insert macros with 32-bit timestamp need down to ~9 clocks (fastest)\n");
 	TRICE(ID(0), "time:G0B1 TRICE(ID(0)... 0\n");
 	TRICE(ID(0), "time:G0B1 TRICE(ID(0)... 1\n");
@@ -132,7 +133,6 @@ void G0B1FastMeasure(void) {
 	TRICE(Id(0), "time:G0B1 TRICE(Id(0)... 4\n");
 	TRICE(Id(0), "time:G0B1 TRICE(Id(0)... 5\n");
 	TRICE(Id(0), "time:G0B1 TRICE(Id(0)... 6\n");
-
 }
 
 #endif
