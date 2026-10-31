@@ -24,6 +24,10 @@ import (
 func configureStampExpressions(t *testing.T, format string) {
 	t.Helper()
 	configureStructuredTest(t, format)
+	// Runtime stamp diagnostics are opt-in; keep each case's verbosity isolated.
+	oldVerbose := Verbose
+	t.Cleanup(func() { Verbose = oldVerbose })
+	Verbose = false
 	decoder.TargetStamp16 = `printf("time:%.3f us",unwrap(47999-ts,48000)/48)`
 	decoder.TargetStamp16Delta = `printf("dt:%.3f us",delta(unwrap(47999-ts,48000))/48)`
 	decoder.ShowTargetStamp16Passed, decoder.ShowTargetStamp16DeltaPassed = true, true
@@ -177,26 +181,68 @@ func TestStampExpressionsMissingRecordsAndWidths(t *testing.T) {
 func TestStampExpressionErrorsRetainApplicationAndDeltaBaseline(t *testing.T) {
 	for _, format := range []string{"text", "json", "kv"} {
 		t.Run(format, func(t *testing.T) {
-			configureStampExpressions(t, format)
+			// Exercise both the compact default and opt-in diagnostic details.
+			for _, mode := range []struct {
+				name    string
+				verbose bool
+			}{{"compact", false}, {"verbose", true}} {
+				t.Run(mode.name, func(t *testing.T) {
+					configureStampExpressions(t, format)
+					Verbose = mode.verbose
+					decoder.TargetStamp16 = ""
+					decoder.TargetStamp16Delta = `printf("dt:%d",delta(unwrap(ts,10))/(ts-2))`
+					lut := id.TriceIDLookUp{1: {Type: "TRICE0", Strg: "msg:retained\n"}}
+					var input []byte
+					for _, raw := range []uint64{0, 1, 2, 3} {
+						input = append(input, structuredStampedPacket(1, 16, raw)...)
+					}
+					output, diagnostics := runStampWire(t, lut, input, nil)
+					assert.Equal(t, 4, strings.Count(output, "retained"))
+					if mode.verbose {
+						assert.Contains(t, diagnostics, "-ts16delta unavailable:")
+						assert.Contains(t, diagnostics, "division by zero")
+					} else {
+						assert.Empty(t, diagnostics)
+					}
+					if format == "text" {
+						assert.Equal(t, "- retained\n-1 retained\n? retained\n2 retained\n", output)
+					} else {
+						lines := strings.Split(strings.TrimSpace(output), "\n")
+						require.Len(t, lines, 4)
+						assert.NotContains(t, lines[0], "ts16Delta")
+						assert.Contains(t, lines[2], "?")
+						assert.Contains(t, lines[3], "2")
+					}
+				})
+			}
+		})
+	}
+}
+
+// TestStampOutOfRangeMarkers keeps repeated invalid phases compact and aligned.
+// Rejected test stamps must not replace the last usable phase or delta baseline.
+func TestStampOutOfRangeMarkers(t *testing.T) {
+	for _, verbose := range []bool{false, true} {
+		name := "compact"
+		if verbose {
+			name = "verbose"
+		}
+		t.Run(name, func(t *testing.T) {
+			configureStampExpressions(t, "text")
+			Verbose = verbose
 			decoder.TargetStamp16 = ""
-			decoder.TargetStamp16Delta = `printf("dt:%d",delta(unwrap(ts,10))/(ts-2))`
+			decoder.TargetStamp16Delta = `printf("dt:%6d us",delta(unwrap(ts,1000)))`
 			lut := id.TriceIDLookUp{1: {Type: "TRICE0", Strg: "msg:retained\n"}}
 			var input []byte
-			for _, raw := range []uint64{0, 1, 2, 3} {
+			for _, raw := range []uint64{989, 24, 24854, 24854, 59} {
 				input = append(input, structuredStampedPacket(1, 16, raw)...)
 			}
 			output, diagnostics := runStampWire(t, lut, input, nil)
-			assert.Equal(t, 4, strings.Count(output, "retained"))
-			assert.Contains(t, diagnostics, "-ts16delta unavailable:")
-			assert.Contains(t, diagnostics, "division by zero")
-			if format == "text" {
-				assert.Equal(t, "- retained\n-1 retained\n? retained\n2 retained\n", output)
+			assert.Equal(t, "     - us retained\n    35 us retained\n     ? us retained\n     ? us retained\n    35 us retained\n", output)
+			if verbose {
+				assert.Equal(t, 2, strings.Count(diagnostics, "-ts16delta unavailable: unwrap phase 24854 is outside 0..999"))
 			} else {
-				lines := strings.Split(strings.TrimSpace(output), "\n")
-				require.Len(t, lines, 4)
-				assert.NotContains(t, lines[0], "ts16Delta")
-				assert.Contains(t, lines[2], "?")
-				assert.Contains(t, lines[3], "2")
+				assert.Empty(t, diagnostics)
 			}
 		})
 	}

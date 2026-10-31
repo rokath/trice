@@ -82,9 +82,10 @@ func (state *targetStampState) observeStamp(record decoder.ApplicationRecord, av
 	}
 }
 
-// stampDiagnostic keeps errors off structured application sinks.
+// stampDiagnostic adds optional detail to the aligned invalid-field marker.
+// Verbose diagnostics remain separate from structured application sinks.
 func (state *targetStampState) stampDiagnostic(field stampField, err error) {
-	if state.diagnostics != nil {
+	if Verbose && state.diagnostics != nil {
 		fmt.Fprintf(state.diagnostics, "%s unavailable: %v\n", field.switchName(), err)
 	}
 }
