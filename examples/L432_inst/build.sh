@@ -14,6 +14,7 @@
 set -euo pipefail
 
 # Parse the same public CLI as the Clang entry before preparing sources.
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=../buildCLI.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
 parse_example_build_cli "$0" '0 through 100' l432-clang-prerequisites "$@"

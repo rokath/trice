@@ -17,6 +17,7 @@ fail() {
 }
 
 # Keep argument validation identical to GCC and independent of installed tools.
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=../buildCLI.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
 parse_example_build_cli "$0" '0 through 100' l432-clang-prerequisites "$@"
@@ -115,7 +116,7 @@ if [ -z "$libc_include" ]; then
       libc_include=$candidate
       break
     fi
-  done <<< "$header_dirs"
+  done <<<"$header_dirs"
   [ -n "$libc_include" ] || fail 1 'ARM C library header stdlib.h was not found in the GCC search paths.' "Searched directories:" "$header_dirs"
 elif [ ! -f "$libc_include/stdlib.h" ]; then
   fail 1 "CLANG_LIBC_INCLUDE does not contain stdlib.h: $libc_include"

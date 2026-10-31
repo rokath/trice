@@ -15,6 +15,7 @@
 set -euo pipefail
 
 # Use one CLI for both compilers before any source preparation or build setup.
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=../buildCLI.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
 parse_example_build_cli "$0" '0 or 98' g0b1-clock-benchmark "$@"

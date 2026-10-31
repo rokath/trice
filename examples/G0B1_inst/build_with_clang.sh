@@ -9,6 +9,7 @@
 set -euo pipefail
 
 # Match the GCC CLI before Bind, tool setup or compiler execution.
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=../buildCLI.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
 parse_example_build_cli "$0" '0 or 98' g0b1-clock-benchmark "$@"

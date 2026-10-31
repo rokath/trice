@@ -14,6 +14,7 @@
 set -euo pipefail
 
 # Both compiler wrappers expose the same CLI without preparing feature sources.
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=../buildCLI.sh
 source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
 parse_example_build_cli "$0" none g0b1-feature-tour "$@"

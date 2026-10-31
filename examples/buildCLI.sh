@@ -37,8 +37,16 @@ parse_example_build_cli() {
   # Control options stand alone, so a misspelled build cannot prepare sources.
   if [ "$#" -eq 1 ]; then
     case "$1" in
-      --help | -h) example_build_usage; exit 0 ;;
-      --check) check_only=1; return 0 ;;
+      --help | -h)
+        example_build_usage
+        exit 0
+        ;;
+      --check)
+        # This result is read by the sourcing build entry point.
+        # shellcheck disable=SC2034
+        check_only=1
+        return 0
+        ;;
       --x0-matrix)
         # Re-enter the same compiler script with ordinary define arguments.
         for example_build_off in 0 1; do
@@ -56,35 +64,52 @@ parse_example_build_cli() {
     case "$example_build_argument" in
       CONFIGURATION=* | [0-9]* | -[0-9]*)
         if [ -n "$configuration" ]; then
-          example_build_error 'select only one configuration.'; return 2
+          example_build_error 'select only one configuration.'
+          return 2
         fi
         configuration=${example_build_argument#CONFIGURATION=}
         case "$configuration" in
           0 | [1-9] | [1-9][0-9] | 100) ;;
-          *) example_build_error "configuration must be a decimal number from 0 through 100; received: $configuration"; return 2 ;;
+          *)
+            example_build_error "configuration must be a decimal number from 0 through 100; received: $configuration"
+            return 2
+            ;;
         esac
         case "$example_build_profiles" in
           '0 through 100') ;;
           '0 or 98')
             case "$configuration" in
               0 | 98) ;;
-              *) example_build_error "this project supports configuration 0 or 98; received: $configuration"; return 2 ;;
+              *)
+                example_build_error "this project supports configuration 0 or 98; received: $configuration"
+                return 2
+                ;;
             esac
             ;;
-          *) example_build_error 'this project has no selectable configurations.'; return 2 ;;
+          *)
+            example_build_error 'this project has no selectable configurations.'
+            return 2
+            ;;
         esac
         example_build_argument="CONFIGURATION=$configuration"
         ;;
-      -*) example_build_error "unknown or combined control option: $example_build_argument"; return 2 ;;
+      -*)
+        example_build_error "unknown or combined control option: $example_build_argument"
+        return 2
+        ;;
       *)
         # Validate the macro name, leaving the existing define value untouched.
         example_build_name=${example_build_argument%%=*}
         case "$example_build_name" in
           '' | [!a-zA-Z_]* | *[!a-zA-Z0-9_]*)
-            example_build_error "expected NAME or NAME=VALUE; received: $example_build_argument"; return 2 ;;
+            example_build_error "expected NAME or NAME=VALUE; received: $example_build_argument"
+            return 2
+            ;;
         esac
         ;;
     esac
+    # GCC entry points use this additional parser result for their ID workflow.
+    # shellcheck disable=SC2034
     [ "$example_build_argument" != TRICE_OFF=1 ] || triceOFF=1
     flags="${flags}-D${example_build_argument} "
   done
@@ -95,31 +120,39 @@ parse_example_build_cli() {
 check_example_build_tools() {
   for example_build_tool in make arm-none-eabi-gcc arm-none-eabi-objcopy arm-none-eabi-size; do
     command -v "$example_build_tool" >/dev/null 2>&1 || {
-      example_build_error "required tool not found on PATH: $example_build_tool"; return 1
+      example_build_error "required tool not found on PATH: $example_build_tool"
+      return 1
     }
   done
   if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" != 1 ]; then
     command -v trice >/dev/null 2>&1 || {
-      example_build_error 'required tool not found on PATH: trice'; return 1
+      example_build_error 'required tool not found on PATH: trice'
+      return 1
     }
   fi
   example_build_make_version=$(make --version) || return $?
   case "$example_build_make_version" in
     *'GNU Make '*) ;;
-    *) example_build_error 'the make command is not GNU make.'; return 1 ;;
+    *)
+      example_build_error 'the make command is not GNU make.'
+      return 1
+      ;;
   esac
   if [ "$1" = clang ]; then
     command -v clang >/dev/null 2>&1 || {
-      example_build_error 'required tool not found on PATH: clang'; return 1
+      example_build_error 'required tool not found on PATH: clang'
+      return 1
     }
     example_build_targets=$(clang --print-targets) || return $?
     printf '%s\n' "$example_build_targets" | awk '$1 == "thumb" { found=1 } END { exit !found }' || {
-      example_build_error 'Clang does not provide the required Thumb backend.'; return 1
+      example_build_error 'Clang does not provide the required Thumb backend.'
+      return 1
     }
     # Both G0B1 Makefiles use the size utility selected by the Clang driver.
     example_build_size=$(clang --print-prog-name=llvm-size) || return $?
     command -v "$example_build_size" >/dev/null 2>&1 || {
-      example_build_error "required Clang size utility not found: $example_build_size"; return 1
+      example_build_error "required Clang size utility not found: $example_build_size"
+      return 1
     }
   fi
   printf 'Prerequisites OK.\n'
