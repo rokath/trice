@@ -66,7 +66,9 @@ extern "C" {
 // One task produces a bounded burst and transfers it afterwards. No other task
 // or interrupt may write records in this profile, so no per-record locks/checks
 // are needed. The complete burst and its reports fit in one buffer half.
-//  tlog -p com5 -i ../../demoTIL.json -li ../../demoLI.json -ts16delta "wr:%4d" -ts32delta "wr:%4d"
+// tlog -p com5 -i ../../demoTIL.json -li ../../demoLI.json -ts16delta "wr:%4d" -ts32delta "wr:%4d"
+// tlog -hs off -prefix off -i ../../demoTIL.json -port /dev/tty.usbmodem0007792202061 -li ../../demoLI.json -liFmt "%32s%4d" -liMaxDirs 2 -ts16delta "note:%9d" -ts32delta "note:%9d" -ts32 "att: %08x" -ts16 "att:     %04x" -ts0 "         " -typeX0 "% x"
+
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER
 #define TRICE_DEFERRED_BUFFER_SIZE 4096
 #define TRICE_DEFERRED_OUTPUT 1

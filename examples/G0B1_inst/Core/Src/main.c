@@ -80,7 +80,6 @@ int main(void) {
 	/* USER CODE BEGIN 1 */
 #if !TRICE_OFF
 	TriceInit();                 // This so early, to allow trice logs inside interrupts from the beginning. Only needed for RTT.
-#if CONFIGURATION == 0
 	trice("Fun %x!\n", 0xadded); // with "fixed" iD(255), 32-bit stamp,  and with `\n`
 	TriceHeadLine("  NUCLEO-G0B1RE   ");
 	LogTriceConfiguration();
@@ -90,7 +89,6 @@ int main(void) {
 			triceX0(buf, i);
 		}
 	}
-#endif // CONFIGURATION == 0
 #endif
 	/* USER CODE END 1 */
 
@@ -361,6 +359,7 @@ void StartDefaultTask(void const* argument) {
 #if CONFIGURATION == 98
 #if !TRICE_OFF
 	G0B1FastMeasure(); // No transport is started until all measured records exist.
+	SomeExampleTrices(3); // This produces a bounded burst of trices, which is transferred afterwards.
 #endif
 	for (;;) {
 #if !TRICE_OFF
