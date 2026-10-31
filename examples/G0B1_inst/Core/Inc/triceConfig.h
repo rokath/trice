@@ -40,6 +40,19 @@ extern "C" {
 
 // Windows: trice log -p com4         -prefix off -hs off -pw MySecret -pf COBS -ts16 us -ts32 ms -i ../../demoTIL.json -li ../../demoLI.json -typeX0 "att:% x\n"
 // Unix:    trice log -p /dev/ttyACM0 -prefix off -hs off -pw MySecret -pf COBS -ts16 us -ts32 ms -i ../../demoTIL.json -li ../../demoLI.json -typeX0 "att:% x\n"
+/* Darwin: 
+tlog -hs off -prefix off -port /dev/tty.usbmodem0007792202061 \
+-til ../../demoTIL.json \
+-li ../../demoLI.json -liFmt "%40s%4d" -liMaxDirs 2 \
+-pw MySecret -pf COBS \
+-typeX0 "counted:msg:% x" \
+-ts0 "            " \
+-ts32 'att:%9d ms' \
+-ts32delta 'note:%6d ms' \
+-ts16 'att:   %6d us' \
+-ts16delta 'printf("note:%6d us",delta(unwrap(ts,1000)))' \
+-stat
+*/
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_DEFERRED_XTEA_ENCRYPT 1
 #define TRICE_DEFERRED_OUT_FRAMING TRICE_FRAMING_COBS
