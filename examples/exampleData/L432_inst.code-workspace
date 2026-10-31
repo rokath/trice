@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "../L432_inst"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"stdint.h": "c"
+		}
+	}
+}
