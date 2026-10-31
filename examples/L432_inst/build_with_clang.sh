@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the L432 firmware with Clang on Linux, macOS or Windows (Git Bash).
 # Run bash ./build_with_clang.sh 98 for the minimum-overhead configuration.
-# The number is required: this script never changes the default in triceConfig.h.
+# Omitting the number keeps the default in triceConfig.h.
 set -euo pipefail
 
 # Keep installation and recovery instructions in one place. Every script-level
@@ -16,45 +16,10 @@ fail() {
   exit "$status"
 }
 
-# Keep help independent of installed compilers and generated Trice headers.
-usage() {
-  cat <<'HELP'
-Usage: bash ./build_with_clang.sh <configuration>
-       bash ./build_with_clang.sh --help
-       bash ./build_with_clang.sh --check
-
-Choose a configuration from 0 through 100, for example:
-  bash ./build_with_clang.sh 1
-  bash ./build_with_clang.sh 98
-CONFIGURATION=98 is also accepted, like the GCC build.sh argument.
-
---check checks prerequisites without preparing sources or building firmware.
-The build uses -O3 and writes out.clang/L432KC.{elf,hex,bin}; it does not flash.
-Prerequisites and troubleshooting: docs/rm/examples.md#l432-clang-prerequisites
-(from the repository root).
-HELP
-}
-
-# Reject invalid numbers before running any preparation that can write files.
-if [ "$#" -eq 1 ] && { [ "$1" = --help ] || [ "$1" = -h ]; }; then
-  usage
-  exit 0
-fi
-if [ "$#" -ne 1 ]; then
-  usage >&2
-  exit 2
-fi
-# A prerequisite-only run needs no configuration and exits before Bind or Make.
-check_only=0
-if [ "$1" = --check ]; then
-  check_only=1
-else
-  configuration=${1#CONFIGURATION=}
-  case "$configuration" in
-    0 | [1-9] | [1-9][0-9] | 100) ;;
-    *) fail 2 "configuration must be a decimal number from 0 through 100; received: $1" ;;
-  esac
-fi
+# Keep argument validation identical to GCC and independent of installed tools.
+# shellcheck source=../buildCLI.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+parse_example_build_cli "$0" '0 through 100' l432-clang-prerequisites "$@"
 
 # All later project paths are relative to this directory, even when the caller
 # starts the script from the repository root or a different working directory.
@@ -191,9 +156,9 @@ fi
 # can supply MAKE_JOBS (for example -j4); splitting this option list is intended.
 # -B rebuilds only the selected Clang target and avoids deleting GCC outputs or
 # tracking configuration signatures that could survive an interrupted build.
-printf 'Building L432_inst with Clang, CONFIGURATION=%s, optimization=-O3\n' "$configuration"
+printf 'Building L432_inst with Clang, CONFIGURATION=%s, optimization=-O3\n' "${configuration:-project default}"
 # shellcheck disable=SC2086
-if make -B ${MAKE_JOBS:--j2} "TRICE_FLAGS=-DCONFIGURATION=$configuration" \
+if make -B ${MAKE_JOBS:--j2} "TRICE_FLAGS=$flags" \
   "CLANG_GCC_INCLUDE=$gcc_include" "CLANG_LIBC_INCLUDE=$libc_include" \
   "TRICE_BIND_INCLUDE_DIR=$bind_include" clang; then
   :

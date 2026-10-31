@@ -533,7 +533,7 @@ bash ./build_with_clang.sh 98
 
 `CONFIGURATION=98` is accepted as an alternative to `98`. Use `0` or omit the
 configuration to restore the original example. Other numbers are rejected. Existing
-defines such as `TRICE_OFF=1` and the GCC `--x0-matrix` check remain available.
+defines such as `TRICE_OFF=1` and the `--x0-matrix` check remain available with both compilers.
 `TRICE_OFF=1` disables the measurement as well. Build scripts rebuild when changing
 configuration; direct Make users must clean before changing `TRICE_FLAGS`.
 The firmware images remain in `out.gcc` or `out.clang`; building does not flash the board.
@@ -599,7 +599,26 @@ Folder: [../examples/L432_inst/](../../examples/L432_inst/)
 
 #### 8.2.1. <a id="build"></a>Build:
 
-Run `./build.sh` for configuration 0 or `./build.sh CONFIGURATION=34` for example.
+The GCC and Clang entry points in `G0B1_inst`, `L432_inst` and `G0B1_features`
+accept the same argument forms and control options:
+
+| Arguments | Effect |
+| --- | --- |
+| None | Keep the project default. `G0B1_features` runs its private feature tour. |
+| `98` or `CONFIGURATION=98` | Select a supported configuration for this build. |
+| `NAME` or `NAME=VALUE` | Pass an extra compiler define; may follow the configuration. |
+| `-h` or `--help` | Show usage without preparing sources or building. |
+| `--check` | Check the selected compiler's prerequisites without preparing sources or building. |
+| `--x0-matrix` | Build the four logging/typeX0 combinations with the selected compiler. |
+
+Use control options alone. Select at most one configuration: `G0B1_inst` supports
+0 and 98; `L432_inst` supports 0 through 100. `G0B1_features` has no selectable
+configuration profiles. Its standalone builds retain the private feature-tour
+preparation, including when extra defines are passed.
+
+For L432, run `./build.sh` for configuration 0, `./build.sh 34` or
+`./build.sh CONFIGURATION=34` for example. Extra defines work with either compiler,
+such as `bash ./build_with_clang.sh 98 TRICE_OFF=1`.
 
 For Clang, open a terminal in `examples/L432_inst` and run:
 

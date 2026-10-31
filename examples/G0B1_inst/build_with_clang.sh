@@ -8,27 +8,14 @@
 
 set -euo pipefail
 
-# Match build.sh: no argument keeps configuration 0, while explicit profiles and
-# existing compiler defines are passed through TRICE_FLAGS. Parse before Bind so
-# a typo cannot change source state. Installation help stays in the RM.
-if [ "$#" -eq 1 ] && { [ "$1" = --help ] || [ "$1" = -h ]; }; then
-  printf 'Usage: ./build_with_clang.sh [0|98|CONFIGURATION=0|CONFIGURATION=98] [compiler defines...]\n'
-  printf 'See docs/rm/examples.md#g0b1-clock-benchmark (from the repository root).\n'
+# Match the GCC CLI before Bind, tool setup or compiler execution.
+# shellcheck source=../buildCLI.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+parse_example_build_cli "$0" '0 or 98' g0b1-clock-benchmark "$@"
+if [ "$check_only" -eq 1 ]; then
+  check_example_build_tools clang
   exit 0
 fi
-flags=""
-for arg in "$@"; do
-  case "$arg" in
-    0 | 98) arg="CONFIGURATION=$arg" ;;
-    CONFIGURATION=0 | CONFIGURATION=98) ;;
-    CONFIGURATION=* | [0-9]*)
-      printf 'error: G0B1_inst supports configuration 0 or 98; received: %s\n' "$arg" >&2
-      printf 'See docs/rm/examples.md#g0b1-clock-benchmark (from the repository root).\n' >&2
-      exit 2
-      ;;
-  esac
-  flags="${flags}-D${arg} "
-done
 
 # ------------------------------------------------------------------------------
 # 1) Resolve stable directories

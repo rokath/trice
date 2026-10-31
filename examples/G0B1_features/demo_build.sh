@@ -60,6 +60,24 @@ include_path=generated
 if [ -n "${C_INCLUDE_PATH:-}" ]; then
   include_path="${include_path}${path_separator}${C_INCLUDE_PATH}"
 fi
+# Make does not track defines supplied through the environment. Rebuild the
+# selected compiler when those inputs change, including the return to defaults.
+# Mark a changed configuration incomplete before Make. A failed build must force
+# a rebuild even when the next invocation returns to the previous defines.
+build_signature="feature-bind;flags=${TRICE_FLAGS:-}"
+build_signature_file="out.$build_target/.trice-build-signature"
+previous_build_signature=""
+if [ -f "$build_signature_file" ]; then
+  IFS= read -r previous_build_signature < "$build_signature_file" || true
+fi
+set -- "$build_target"
+if [ "$previous_build_signature" != "$build_signature" ]; then
+  set -- -B "$@"
+  mkdir -p "out.$build_target"
+  printf 'incomplete\n' > "$build_signature_file"
+fi
 # This environment assignment applies only to make and the compilers it starts.
-C_INCLUDE_PATH="$include_path" make "$build_target"
+C_INCLUDE_PATH="$include_path" make "$@"
+mkdir -p "out.$build_target"
+printf '%s\n' "$build_signature" > "$build_signature_file"
 printf 'Built %s\n' "out.${build_target}/G0B1.elf"

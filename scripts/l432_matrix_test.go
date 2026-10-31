@@ -317,7 +317,8 @@ printf 'MatrixExit:%s\n' "$status"
 // containing spaces. These tests never invoke a host compiler or modify sources.
 func l432ClangFixture(t *testing.T) string {
 	t.Helper()
-	root := scriptFixture(t, "examples/L432_inst/build_with_clang.sh", "examples/prepareTriceBind.sh")
+	root := scriptFixture(t, "examples/L432_inst/build.sh", "examples/L432_inst/build_with_clang.sh", "examples/prepareTriceBind.sh")
+	writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "MAKE_JOBS=-j1\n")
 	writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", `#!/bin/sh
 echo prepared >> preparation.calls
 [ "${PREPARATION_FAIL:-0}" = 0 ] || exit 9
@@ -393,14 +394,15 @@ func TestL432ClangCLIHasNoPreparationSideEffects(t *testing.T) {
 		arguments string
 		help      bool
 	}{
-		{"--help", true}, {"-h", true}, {"", false}, {"-1", false},
-		{"101", false}, {"098", false}, {"abc", false}, {"1 2", false},
+		{"--help", true}, {"-h", true}, {"-1", false},
+		{"101", false}, {"098", false}, {"1 2", false},
+		{"--unknown", false}, {"98 CONFIGURATION=98", false}, {"bad-name=1", false},
 	} {
 		t.Run(tc.arguments, func(t *testing.T) {
 			root := l432ClangFixture(t)
 			out, err := runFixture(t, root, "bash examples/L432_inst/build_with_clang.sh "+tc.arguments, nil)
 			assert.Equal(t, !tc.help, err != nil, out)
-			if tc.help || tc.arguments == "" || tc.arguments == "1 2" {
+			if tc.help || tc.arguments == "1 2" || strings.HasPrefix(tc.arguments, "--") || strings.Contains(tc.arguments, " ") || tc.arguments == "bad-name=1" {
 				assert.Contains(t, out, "Usage:")
 			} else {
 				assert.Contains(t, out, "from 0 through 100")
@@ -428,7 +430,7 @@ func TestL432ClangBuildsSelectedConfiguration(t *testing.T) {
 				assert.Contains(t, out, "Build complete:")
 				args, err := os.ReadFile(filepath.Join(root, "make.calls"))
 				assert.NoError(t, err)
-				assert.Contains(t, string(args), "-B\n-j3\nTRICE_FLAGS=-DCONFIGURATION="+strings.TrimPrefix(configuration, "CONFIGURATION=")+"\n")
+				assert.Contains(t, string(args), "-B\n-j3\nTRICE_FLAGS=-DCONFIGURATION="+strings.TrimPrefix(configuration, "CONFIGURATION=")+" \n")
 				assert.Contains(t, string(args), "tool chain/gcc/include\n")
 				assert.Contains(t, string(args), "tool chain/arm-none-eabi/include\n")
 				assert.Contains(t, string(args), "TRICE_BIND_INCLUDE_DIR=")

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # Usage: ./build.sh                    (normal firmware build)
+#        ./build.sh 98                 (select configuration 98)
 #        ./build.sh TRICE_OFF=1        (compile without Trice logging)
 # Build the firmware; this script does not flash the board.
 # Requires Bash, make, Trice and the Arm GNU toolchain in PATH.
@@ -11,6 +12,15 @@
 # The helpers below handle that cleanup. The actual build commands follow them.
 
 set -euo pipefail
+
+# Parse the same public CLI as the Clang entry before preparing sources.
+# shellcheck source=../buildCLI.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+parse_example_build_cli "$0" '0 through 100' l432-clang-prerequisites "$@"
+if [ "$check_only" -eq 1 ]; then
+  check_example_build_tools gcc
+  exit 0
+fi
 
 # ------------------------------------------------------------------------------
 # 1) Resolve stable directories
@@ -129,18 +139,7 @@ trap 'cleanup_and_exit 143' TERM
 # 3) Build TRICE_FLAGS
 # ------------------------------------------------------------------------------
 
-# Initialize an empty string for the compiler defines passed to make.
-flags=""
-
-# Loop through all arguments.
-#
-# Keep the original pattern-preserving behavior:
-#   SOME_FLAG
-# becomes:
-#   -DSOME_FLAG
-for arg in "$@"; do
-  flags="${flags}-D${arg} "
-done
+# The shared CLI has already normalized the configuration and compiler defines.
 
 # ------------------------------------------------------------------------------
 # 4) Run TRICE scripts

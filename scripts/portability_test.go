@@ -92,6 +92,8 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 	root := t.TempDir()
 	// Tool setup is shared by standalone checks as well as suite entry points.
 	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/test-tools.env")
+	// Paired example entry points share their public argument parser.
+	scripts = append(scripts, "examples/buildCLI.sh")
 	runner := false
 	for _, name := range scripts {
 		runner = runner || name == "scripts/_110_test_runner.sh"
