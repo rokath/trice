@@ -105,6 +105,9 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	require.NoError(t, err, string(output))
 	data, err := os.ReadFile(compiled)
 	require.NoError(t, err)
+	// A regression to source builds must fail offline instead of trying a real
+	// dependency download from this deliberately invalid module declaration.
+	t.Setenv("GOPROXY", "off")
 	globalDir := filepath.Join(root, "global")
 	require.NoError(t, os.Mkdir(globalDir, 0o755))
 	// The test executable rejects --version, unlike the declared tool.
@@ -122,7 +125,8 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	defer server.Close()
 	platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
 	config := filepath.Join(root, "tools.env")
-	manifest := fmt.Sprintf("TRICE_TOOL_TRICE_FIXTURE_TOOL_VERSION=1.2.3\nTRICE_TOOL_TRICE_FIXTURE_TOOL_URL_%s=%s/tool\nTRICE_TOOL_TRICE_FIXTURE_TOOL_SHA_%s=%x\n", platform, server.URL, platform, sha256.Sum256(data))
+	// A module fallback must never override an available verified release.
+	manifest := fmt.Sprintf("TRICE_TOOL_TRICE_FIXTURE_TOOL_VERSION=1.2.3\nTRICE_TOOL_TRICE_FIXTURE_TOOL_MODULE=example.invalid/never-build\nTRICE_TOOL_TRICE_FIXTURE_TOOL_URL_%s=%s/tool\nTRICE_TOOL_TRICE_FIXTURE_TOOL_SHA_%s=%x\n", platform, server.URL, platform, sha256.Sum256(data))
 	require.NoError(t, os.WriteFile(config, []byte(manifest), 0o644))
 	cache := filepath.Join(root, "cache")
 	_, err = installTools(config, cache, []string{name}, false)
@@ -147,11 +151,24 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	assert.Equal(t, bin, repaired)
 	assert.True(t, toolIdentity(selected, "1.2.3", ""))
 	assert.Equal(t, int32(1), requests.Load(), "repair uses the retained verified archive")
-	// Matching installed executables can be frozen without a new installation.
+	// A compiler-only manifest change must not duplicate an unchanged verified
+	// CLI release. A changed publisher checksum must still invalidate that tool.
+	unrelated := manifest + "TRICE_CMAKE_VERSION=99.0.0\n"
+	require.NoError(t, os.WriteFile(config, []byte(unrelated), 0o644))
+	reused, err := installTools(config, cache, []string{name}, false)
+	require.NoError(t, err)
+	assert.Equal(t, bin, reused)
+	assert.Equal(t, int32(1), requests.Load())
+	require.NoError(t, os.WriteFile(config, []byte(strings.Replace(unrelated, fmt.Sprintf("%x", sha256.Sum256(data)), strings.Repeat("0", 64), 1)), 0o644))
+	_, err = installTools(config, cache, []string{name}, false)
+	assert.ErrorIs(t, err, errInstallRequired, "an unrelated pin is reusable; a changed artifact checksum is not")
+	require.NoError(t, os.WriteFile(config, []byte(unrelated), 0o644))
+	// Matching installed executables are used in place without creating a cache.
 	require.NoError(t, os.WriteFile(filepath.Join(globalDir, filename), data, 0o755))
 	frozen, err := installTools(config, filepath.Join(root, "fresh-cache"), []string{name}, false)
 	require.NoError(t, err)
-	assert.True(t, toolIdentity(filepath.Join(frozen, filename), "1.2.3", ""))
+	assert.Equal(t, os.Getenv("PATH"), frozen)
+	assert.NoDirExists(t, filepath.Join(root, "fresh-cache"))
 	assert.Equal(t, int32(1), requests.Load())
 
 	// Complete compiler packages need consent only when the verified package
@@ -181,10 +198,10 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	assert.NotErrorIs(t, err, errInstallRequired, "invalid declarations are setup errors, not installation requests")
 }
 
-// TestInstallerReplacesNonportableGlobalTools models a launcher whose relative
-// target disappears when copied, as with Chocolatey shims on Windows. A native
-// executable exercises the same copy/start boundary on every supported host.
-func TestInstallerReplacesNonportableGlobalTools(t *testing.T) {
+// TestInstallerReusesWorkingLaunchers models relative launchers such as
+// Chocolatey shims. Working installs stay in place; broken ones require consent
+// and a verified release, without copying their missing relative resources.
+func TestInstallerReusesWorkingLaunchers(t *testing.T) {
 	root := t.TempDir()
 	name := "trice-launcher-fixture"
 	filename := name
@@ -236,10 +253,15 @@ func main() {
 	config := filepath.Join(root, "tools.env")
 	require.NoError(t, os.WriteFile(config, []byte(manifest), 0o644))
 	cache := filepath.Join(root, "cache")
+	paths, err := installTools(config, cache, []string{name}, false)
+	require.NoError(t, err)
+	assert.Equal(t, os.Getenv("PATH"), paths)
+	assert.NoDirExists(t, cache, "a working relative launcher needs no copy or installation")
+	assert.Zero(t, requests.Load())
+	require.NoError(t, os.Remove(filepath.Join(globalDir, "target.txt")))
 	_, err = installTools(config, cache, []string{name}, false)
 	assert.ErrorIs(t, err, errInstallRequired)
-	assert.ErrorContains(t, err, "launcher target is missing")
-	assert.Zero(t, requests.Load(), "a broken copied launcher cannot bypass installation consent")
+	assert.Zero(t, requests.Load(), "a broken installed launcher cannot bypass installation consent")
 	bin, err := installTools(config, cache, []string{name}, true)
 	require.NoError(t, err)
 	selected := filepath.Join(bin, filename)
@@ -253,12 +275,11 @@ func main() {
 	assert.Equal(t, bin, warm)
 	assert.Equal(t, int32(1), requests.Load(), "warm selection must not download again")
 
-	// A known launcher with no publisher declaration is an actionable setup
+	// A broken launcher with no publisher declaration is an actionable setup
 	// error, while a failed publisher download never creates a ready marker.
 	require.NoError(t, os.WriteFile(config, []byte("TRICE_TOOL_TRICE_LAUNCHER_FIXTURE_VERSION=1.2.3\n"), 0o644))
 	_, err = installTools(config, filepath.Join(root, "undeclared"), []string{name}, true)
 	assert.ErrorContains(t, err, "no verified trice-launcher-fixture package")
-	assert.ErrorContains(t, err, "launcher target is missing")
 	require.NoError(t, os.WriteFile(config, []byte(strings.Replace(manifest, fmt.Sprintf("%x", sha256.Sum256(data)), strings.Repeat("0", 64), 1)), 0o644))
 	failedCache := filepath.Join(root, "failed")
 	_, err = installTools(config, failedCache, []string{name}, true)
@@ -268,7 +289,6 @@ func main() {
 	assert.Empty(t, ready, "failed preparation cannot publish a selected tool")
 
 	// Diagnostics distinguish startup failure, wrong version, and absence.
-	require.NoError(t, os.Remove(filepath.Join(globalDir, "target.txt")))
 	err = checkToolIdentity(global, "1.2.3", "")
 	var exit *exec.ExitError
 	require.ErrorAs(t, err, &exit)
@@ -282,6 +302,93 @@ func main() {
 	warm, err = installTools(config, cache, []string{name}, false)
 	assert.ErrorIs(t, err, errInstallRequired, "a different manifest cannot reuse the previous cache")
 	assert.Empty(t, warm)
+}
+
+// TestInstalledBundlesAreReused checks full installations without downloading,
+// copying their resources, or creating a cache. Removing one runtime resource
+// must make the same installation ineligible before any installation begins.
+func TestInstalledBundlesAreReused(t *testing.T) {
+	root := t.TempDir()
+	source := filepath.Join(root, "fixture.go")
+	require.NoError(t, os.WriteFile(source, []byte(`// SPDX-License-Identifier: MIT
+package main
+import ("fmt"; "os"; "path/filepath")
+// main models the read-only resource queries made by the tool selector.
+func main() {
+    executable, err := os.Executable()
+    if err != nil { os.Exit(2) }
+    root := filepath.Dir(filepath.Dir(executable))
+    if len(os.Args) != 2 { os.Exit(2) }
+    switch os.Args[1] {
+    case "--version": fmt.Println("fixture 1.2.3")
+    case "--help-module-list":
+        if _, err := os.Stat(filepath.Join(root,"share","module.txt")); err != nil { os.Exit(2) }
+        fmt.Println("FixtureModule")
+    case "-print-resource-dir": fmt.Println(filepath.Join(root,"lib","clang","1.2.3"))
+    case "-dumpmachine": fmt.Println("x86_64-w64-windows-gnu")
+    case "-print-libgcc-file-name": fmt.Println(filepath.Join(root,"lib","libgcc.a"))
+    case "-print-file-name=libstdc++.a": fmt.Println(filepath.Join(root,"lib","libstdc++.a"))
+    case "-print-file-name=libc.a": fmt.Println(filepath.Join(root,"lib","libc.a"))
+    default: os.Exit(2)
+    }
+}
+`), 0o644))
+	compiled := filepath.Join(root, "fixture")
+	if runtime.GOOS == "windows" {
+		compiled += ".exe"
+	}
+	output, err := exec.Command("go", "build", "-o", compiled, source).CombinedOutput()
+	require.NoError(t, err, "%s", output)
+	data, err := os.ReadFile(compiled)
+	require.NoError(t, err)
+	for _, tc := range []struct {
+		name, executable, requiredResource string
+		companions                         []string
+	}{
+		{"cmake", "cmake", "share/module.txt", []string{"ctest", "cpack"}},
+		{"clang", "clang", "lib/clang/1.2.3/include/stddef.h", []string{"clang++", "clangd"}},
+		{"gcc", "gcc", "lib/libstdc++.a", []string{"g++"}},
+		{"arm", "arm-none-eabi-gcc", "lib/libc.a", []string{"arm-none-eabi-g++", "arm-none-eabi-objcopy", "arm-none-eabi-size"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			host := t.TempDir()
+			bin := filepath.Join(host, "complete install", "bin")
+			require.NoError(t, os.MkdirAll(bin, 0o755))
+			for _, name := range append([]string{tc.executable}, tc.companions...) {
+				if runtime.GOOS == "windows" {
+					name += ".exe"
+				}
+				require.NoError(t, os.WriteFile(filepath.Join(bin, name), data, 0o755))
+			}
+			for _, resource := range []string{tc.requiredResource, "lib/libgcc.a"} {
+				file := filepath.Join(filepath.Dir(bin), resource)
+				require.NoError(t, os.MkdirAll(filepath.Dir(file), 0o755))
+				require.NoError(t, os.WriteFile(file, []byte("required resource"), 0o644))
+			}
+			t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+			platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
+			prefix := "TRICE_BUNDLE_" + strings.ToUpper(tc.name)
+			manifest := fmt.Sprintf("%s_URL_%s=https://example.invalid/package.zip\n%s_SHA_%s=%s\n%s_EXECUTABLE=%s\n%s_VERSION_KEY=FIXTURE_VERSION\nFIXTURE_VERSION=1.2.3\n", prefix, platform, prefix, platform, strings.Repeat("0", 64), prefix, tc.executable, prefix)
+			config := filepath.Join(host, "tools.env")
+			require.NoError(t, os.WriteFile(config, []byte(manifest), 0o644))
+			cache := filepath.Join(host, "absent-cache")
+			selected, err := installBundle(config, cache, tc.name, false)
+			require.NoError(t, err)
+			assert.Equal(t, bin, selected)
+			assert.NoDirExists(t, cache)
+			var inventory bytes.Buffer
+			require.NoError(t, inspectTool(config, cache, "bundle", tc.name, &inventory))
+			assert.Contains(t, inventory.String(), "\treuse\tcomplete package\t"+bin)
+			assert.NoDirExists(t, cache, "inspection must not create a cache either")
+			require.NoError(t, os.Remove(filepath.Join(filepath.Dir(bin), tc.requiredResource)))
+			_, err = installBundle(config, cache, tc.name, false)
+			assert.ErrorIs(t, err, errInstallRequired)
+			inventory.Reset()
+			require.NoError(t, inspectTool(config, cache, "bundle", tc.name, &inventory))
+			assert.Contains(t, inventory.String(), "\tinstall\trelease\t-\n")
+			assert.NoDirExists(t, cache)
+		})
+	}
 }
 
 // TestBundleInstallationPreservesResources exercises real archive extraction

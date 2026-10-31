@@ -1,53 +1,72 @@
-# Native testing handover
+# Testing handover
 
-Updated: 2026-10-28. Native testing work is complete. GitHub CI and the user's full Windows run pass. PR #763 is merged. No further implementation is pending for the previously failing Library setup.
+Updated: 2026-10-30. Release context: v2.0.0-beta-2.
 
-## Repository and transfer state
+## Goal and Git state
 
-- Branch: `wip`; HEAD: `b7002d6c0d785968c7b31cfec052fd96e4a6845e`.
-- Worktree was clean before this refresh. Only this handover is now an intended uncommitted change.
-- GitHub confirms PR #763 merged at `e0881a6bb2e5ba5ae3b0594677b249e33559e1b8`; merge commit: `69ad733c479f3da90ba264e963fcf6b4ed9a3383`.
-- Local commits after that tested code revision change only discussion notes and the recorded Windows test log. They are already committed locally; their remote transfer was not independently verified.
-- No testAll lock remains. The agent-started tests have finished successfully; no cancellation or source restoration is pending.
-- No local-only file is required to continue. Logs and tool caches under `temp/` are optional evidence; the user's Windows console log is committed in [scratchPad.md](scratchPad.md).
+- Continue native testing with reproducible pinned-tool preparation and a compact startup inventory.
+- Branch: `wip`; HEAD at refresh: `808fe4e9c1fa44036856f6f4b6217c757cca7e46`.
+- The tool-preparation redesign and macOS Clang fixes are committed through `9ce21052`; `808fe4e9` only refreshed this handover.
+- Four implementation/documentation files are now uncommitted: `scripts/portability_test.go`, `scripts/_110_test_runner.sh`, `scripts/_116_test_tool_plan.sh`, `docs/rm/target_tests.md`. This handover is a fifth change. No staging, commit or push was executed by the agent.
+- No active testAll lock, agent check or pending restoration remains. This is the sole active testing handover. No local cache, log, ZIP or personal profile is required for transfer.
 
-## Completed work
+## Committed behavior to preserve
 
-- Earlier committed fixes separate Go JSON stdout from stderr, replace copied tools that cannot execute with verified pinned packages, and regenerate manual anchors/TOCs using **mdtoc v1.0.3**.
-- `run_go_tests` now retains setup stdout/stderr in a separate `.setup` log and replays it into the readable step log, including on failure. Preparation stays in the caller shell so selected tool paths reach the tests.
-- Library CI now uploads `temp/log/` through an independent `always()` step, even when preparation fails before compiler artifacts exist.
-- Regression tests cover setup success/failure, quiet/visible output, retained shell environment, and refusing to start Go tests after failed setup.
-- `AGENTS.md` now records the binding user preference: the user runs final validation. Do not automatically start final suites, coverage, or compiler/integration checks; run them only on explicit request. Focused implementation/debugging checks and writing behavioral tests remain allowed.
+- Reuse matching installations and verified worktree caches. Missing versions use pinned release packages where available; source builds are fallback only where required.
+- The inventory appears once. Rechecking after system updates does not repeat it. Installation start/completion/failure and a 30-second heartbeat stay visible; detailed command output remains in logs.
+- Node reuse preserves selected CLI precedence. shfmt accepts the pinned version with or without a `v` prefix. CMake/GCC/LLVM/ARM packages retain complete resources.
+- macOS build setup appends Xcode tools rather than replacing the selected Clang. Homebrew-only fixture cases are selected before creating subtests. NUL bytes remain in raw logs without hiding readable failure diagnostics.
 
-Relevant files: `scripts/_100_test_common.sh`, `.github/workflows/trice_lib_reusable.yml`, `scripts/testcheck/main_test.go`, `scripts/release_preparation_test.go`, `AGENTS.md`.
+## New uncommitted fixes
 
-## Confirmed validation
+- Windows Cppcheck fixtures inherited a real 2.22.0 installation through ProgramFiles, bypassing their older doubles and expected installer/refusal paths. Git Bash repopulated PROGRAMFILES even when Go supplied an empty value.
+- `runFixture` now removes inherited aliases, normalizes explicit ProgramFiles overrides and reapplies the controlled value after Bash starts using `TRICE_FIXTURE_PROGRAMFILES`. Production Cppcheck discovery/pins are unchanged. Regression cases cover both spellings, a matching host installation and explicitly enabled fixture paths with spaces.
+- Setup refusal is distinct from real preparation failure via `TRICE_TEST_SETUP_CANCELLED`. Choosing `a`, empty input or EOF prints `Cancelled.` once. The runner does not replay an already mirrored inventory or call refusal a preparation failure.
+- Captured/noninteractive cancellation still replays its log once, while genuine setup failures keep their full diagnostics. Cancellation starts no tests, remains INCOMPLETE/exit 2 and records a specific reason in results.json.
+- New runner tests use the real planner and runner with doubles, including mirrored/captured output, explicit/empty/EOF cancellation, successful continuation and genuine failure. Descriptor 9 models terminal output; descriptor 3 belongs to tracked-state hashing. No real PTY is used.
+- The test manual explains package-level reuse: WinLibs needed for GCC/Clang also brings CMake/Cppcheck. System and Cache show independent presence; Location selects the used copy. A cached CMake 4.4.4 alongside system CMake 4.4.4 is valid, not a separate CMake download. Its space is counted with WinLibs.
 
-| Check | Outcome and evidence |
-| --- | --- |
-| User `./scripts/testAll.sh` on Windows amd64 | **PASS, 25/25**, selection `full`, 9592 seconds. `temp/log/testAll.cQDHeg/results.json` records clean revision `e0881a6b`. Summary confirms tracked-state verification and completion. Console log is committed in `scratchPad.md`. |
-| GitHub CI at `e0881a6b` | Connector independently confirms all 11 returned PR workflows completed successfully, including Native Trice tests, Library CI, Script portability, install-checks, coverage, links, CodeQL and linters. |
-| Native Trice tests | **PASS**, run `40670589530`. |
-| Library CI | **PASS**, run `40670589535`; the earlier preparation failure is no longer an active failing check. |
-| Script portability | **PASS**, run `40670589498`. |
-| Agent `go test ./scripts/testcheck -count=1 -timeout=10m` | **PASS** under Windows after the diagnostic patch. |
-| Agent `go test ./scripts -count=1 -timeout=15m` | **PASS** under Windows; started before the user changed the final-testing preference. |
-| Agent `./scripts/_515_test_logging_features.sh full` | **PASS** under Windows, including CE/SL integration, Bind entry points, PC output and G0B1 builds with GCC/Clang. Started before the preference change. |
-| Pinned actionlint, ShellCheck warning/error level, shfmt, shell syntax and diff whitespace | **PASS** for the changed workflow/helper before the preference change. |
+## Binding user decisions
 
-The current HEAD adds documentation only after `e0881a6b`; do not describe those later documentation commits as the revision tested by the full suite. The result file's embedded preparation context still names older commit `b1aeabae`; its top-level commit field records `e0881a6b`. This is an observed metadata discrepancy, not a requested repair.
+- The user performs final validation. Do not automatically run testAll, coverage or compiler/integration suites. Focused implementation checks are allowed.
+- Use `temp/tools`; retain exact pins, including mdtoc v1.0.3. No unrequested dependencies, pin changes or cache cleanup/migration.
+- Startup: two short introductory lines; `Tool / Required / System / Cache / Location / Size` table with a continuous horizontal separator. No Go path paragraph, `external`/`Use`, legends, repeated `available` list or zero-size/peak columns.
+- Approximate Size is extra installed space in MB/GB; existing tools show `--`. Staging/reserve checks stay internal. Normal disk output shows free space/sufficiency; shortages name the additional space needed.
+- `c`: reuse matching tools and install missing pinned versions locally, without system changes.
+- `u`: offer confirmed upgrades of older managed system tools to available exact pins; never exceed pins or downgrade newer versions. Recheck afterwards and prepare remaining pins locally. Declining returns to the menu; real upgrade failures stop preparation.
+- `a` or empty input aborts. The c/u/a menu remains unchanged when prerequisites are missing; blocked continuation explains the reason.
+- After preparation, `Format repo? [y/N]` offers the existing formatter. Empty input, EOF or n skips it; `--no-format` and CI suppress it. Format failures start no tests. Authorized formatting becomes the test baseline; later mutations still fail the tracked-state guard.
+- Preserve Bash 3.2 compatibility, compiler warnings and strict evidence. Do not manufacture PASS with retries, new skip exceptions or relaxed checks.
+- Avoid interactive PTY/ConPTY previews on Windows: an earlier preview caused terminal-input problems. Use noninteractive fixtures and saved output.
 
-## Findings and limits
+## Validation
 
-- The initial Windows ARM setup failed while renaming the extracted package with "Access is denied." The same archive installed successfully through unchanged code, and warm selection plus the later full suite passed. The original cause was not established; no retry, sleep or speculative installer workaround was added.
-- The earlier Library failure occurred during preparation before Go tests. Improved diagnostics were implemented; subsequent CI passes. The exact original failing prerequisite remains unknown. Do not attribute it to the already corrected JSON parser issue or invent a Python/venv cause.
-- Two skipped CI jobs are intentional: macOS Intel runs on schedule/manual dispatch rather than PRs; the 24-hour activity guard applies only to scheduled Library runs. The Library job runs after a skipped guard for PR/manual events.
-- Preserve mdtoc **v1.0.3**, strict evidence checks, native platform coverage and Bash 3.2 compatibility. Do not weaken assertions or skip failures to manufacture PASS.
-- Deferred observation only: explicit `mdtoc generate` in `_310` can replace stored chapter options with defaults. Preserve existing chapter settings; no change was authorized for this observation.
-- G0B1 firmware was compiled; real MCU execution remains a separate board test.
+- Historical **PASS, native macOS arm64**, reported by the user: clean `9ce21052`, `temp/log/testAll.hsoJtQ`, all 25 steps, 28,916 seconds, finished 2026-10-30 09:26:22 CET. Steps 560/570 used Homebrew Clang 23.1.4 without warnings. This predates the new uncommitted fixes.
+- Earlier focused macOS checks passed under modern Bash and Bash 3.2. These are not native acceptance of the new Windows-fixture/cancellation changes.
+- Windows `testAll.NXYY7D` was interrupted after step 540 failed on Cppcheck fixtures; step 520 passed. The fixture defect is corrected locally, but no new complete Windows PASS has been supplied.
+- Windows `testAll.7pkKW1` was cancelled at startup. Its duplicate table exposed the corrected refusal path; it performed no tests.
+- **PASS, focused Windows checks**, run through rtk, without real installations or compiler matrices:
 
-## Next steps
+```sh
+rtk go test ./scripts -run '^(TestCppcheckFixturesIgnoreHostPackages|TestCppcheckPinnedVersion|TestCppcheckLocalCache|TestCppcheckWindowsSetup)$' -count=1 -timeout=2m
+rtk go test ./scripts -run '^(TestCppcheckFixturesIgnoreHostPackages|TestPinnedSystemToolUpdates|TestSystemUpgradeVersionBounds|TestToolPlanInventorySeparatesSystemAndCache|TestToolPlanListsOnlyMissingTools)$' -count=1 -timeout=3m
+rtk go test ./scripts -run '^(TestRunnerSetupCancellation|TestRunnerLogsAndCancellation|TestRunnerDiagnosticsWithNUL|TestRunnerOffersRepositoryFormatting|TestToolPlanConsentAndSpace|TestMissingPrerequisiteKeepsMenu)$' -count=1 -timeout=4m
+```
 
-- Add and commit this handover manually, then transfer the commit to the other computer, normally by pushing. Ensure the two existing local documentation commits are transferred too.
-- On `handson testing`, compare the recorded branch, HEAD, worktree and relevant files with the actual checkout, restore this context, and wait for the next user instruction.
-- No new testing fix or final validation run is currently required. Do not turn unrelated discussion notes into an implementation task.
+- Outcomes respectively: 20, 55 and 59 passing cases including parent tests. The first two validate the fixture fix; the third is the latest cancellation/runner check. Platform branches inside Windows fixtures are simulations, not native macOS/Linux runs.
+- PASS: ShellCheck at warning severity and pinned shfmt for both changed shell files; gofmt for the changed Go file; diff whitespace checks. No full suite, real apt/Homebrew/winget upgrade or interactive terminal preview was run for these fixes.
+- Initial attempts failed because clearing the environment alone did not survive Git-Bash startup, and because the first mirror fixture reused descriptor 3. Both causes were corrected; the passing runs above supersede those attempts.
+
+## Open limits and next steps
+
+- The user should run `./scripts/testAll.sh` or `./scripts/testAll.sh --no-format` next. Inspect reported failures before further edits. Current uncommitted changes have no complete native acceptance on Windows, Linux, Intel macOS or Apple Silicon.
+- Preserve the historical macOS PASS, but do not attribute it to these subsequent edits. Remote CI was not rechecked.
+- Deferred mixed-cache edge: an old native bin directory containing valid jq plus unverified actionlint/shellcheck can be rejected by `compatibleToolCaches` despite individual jq planning reporting reuse. Investigate only if it recurs or is requested; do not silently repair/migrate caches.
+- Manually commit the four changed files and this handover, then transfer those commits, normally with a push. New commits are an expected difference from the HEAD recorded above.
+- On `handson testing`, compare branch, HEAD, worktree and relevant files, restore context and wait for the next instruction.
+
+## Relevant files
+
+- Current fixes: `scripts/portability_test.go`, `scripts/_110_test_runner.sh`, `scripts/_116_test_tool_plan.sh`, [target_tests.md](../rm/target_tests.md).
+- Shared preparation: `scripts/_105_setup_test_tools.sh`, `scripts/_115_prepare_native_tests.sh`, `scripts/_117_system_test_tools.sh`.
+- Compiler/cache behavior: `scripts/_150_setup_build_environment.sh`, `scripts/testcheck/tools.go`, `scripts/test-tools.env`.

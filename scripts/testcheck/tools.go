@@ -5,8 +5,10 @@ package main
 import (
 	"archive/tar"
 	"archive/zip"
+	"bytes"
 	"compress/gzip"
 	"crypto/sha256"
+	"debug/buildinfo"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -63,7 +65,9 @@ func checkToolIdentity(binary, version, module string) error {
 		return nil
 	}
 	if module != "" {
-		buildOutput, buildErr := exec.Command("go", "version", "-m", binary).CombinedOutput()
+		command := exec.Command("go", "version", "-m", binary)
+		command.Env = append(os.Environ(), "GOTOOLCHAIN=local", "GOPROXY=off")
+		buildOutput, buildErr := command.CombinedOutput()
 		if buildErr == nil && !strings.Contains(string(buildOutput), "\t=>\t") {
 			for _, line := range strings.Split(string(buildOutput), "\n") {
 				fields := strings.Fields(line)
@@ -200,10 +204,190 @@ func extractTool(archive, binaryName, destination string) error {
 	return fmt.Errorf("archive %s lacks executable %s", archive, binaryName)
 }
 
+// inspectTool reports a read-only selection using the same version, resource
+// and cache checks as installation. Tab-separated fields have nonempty values
+// so Bash 3.2 can consume the plan without losing empty columns.
+func inspectTool(config, cache, kind, name string, output io.Writer) error {
+	values, data, err := readToolConfig(config)
+	if err != nil {
+		return err
+	}
+	prefix := "TRICE_TOOL_" + strings.ToUpper(strings.ReplaceAll(name, "-", "_"))
+	version, executable := values[prefix+"_VERSION"], name
+	if kind == "bundle" {
+		prefix = "TRICE_BUNDLE_" + strings.ToUpper(name)
+		version, executable = values[values[prefix+"_VERSION_KEY"]], values[prefix+"_EXECUTABLE"]
+	}
+	if version == "" || executable == "" || (kind != "tools" && kind != "bundle") {
+		return fmt.Errorf("no pinned %s declaration for %s", kind, name)
+	}
+	// Display the first host version even when selection chooses a later PATH
+	// entry or a valid checkout cache. Flatten diagnostics for the TSV protocol.
+	found, selected, action, method := "missing", "-", "install", "release"
+	global, lookupErr := exec.LookPath(executable)
+	if lookupErr == nil {
+		result, runErr := exec.Command(global, "--version").CombinedOutput()
+		if runErr != nil {
+			found = "cannot execute"
+		} else if lines := strings.Split(strings.TrimSpace(string(result)), "\n"); len(lines) > 0 {
+			found = strings.TrimSpace(lines[0])
+		}
+	}
+	if kind == "bundle" {
+		selected, err = installBundle(config, cache, name, false)
+		if err != nil && !errors.Is(err, errInstallRequired) {
+			return err
+		}
+		if err == nil {
+			action, method = "reuse", "complete package"
+		} else {
+			selected = "-"
+		}
+	} else {
+		if lookupErr == nil && toolIdentity(global, version, values[prefix+"_MODULE"]) {
+			selected, action, method = global, "reuse", "installed"
+		} else {
+			digest := sha256.Sum256(data)
+			filename := name
+			if runtime.GOOS == "windows" {
+				filename += ".exe"
+			}
+			current, absErr := filepath.Abs(filepath.Join(cache, runtime.GOOS+"-"+runtime.GOARCH, fmt.Sprintf("%x", digest[:8]), "bin"))
+			if absErr != nil {
+				return absErr
+			}
+			candidates, _ := filepath.Glob(filepath.Join(cache, runtime.GOOS+"-"+runtime.GOARCH, "*", "bin", filename))
+			for _, candidate := range candidates {
+				candidate, absErr = filepath.Abs(candidate)
+				if absErr == nil && cachedToolMatches(candidate, current, name, values) {
+					selected, action, method = candidate, "reuse", "verified cache"
+					break
+				}
+			}
+		}
+	}
+	platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
+	if action == "install" && (values[prefix+"_BUILD_"+platform] != "" || values[prefix+"_URL_"+platform] == "") {
+		method = "source build"
+	}
+	for _, field := range []string{found, selected, cache} {
+		if strings.ContainsAny(field, "\t\r\n") {
+			return fmt.Errorf("tool paths and version lines cannot contain tabs or newlines: %q", field)
+		}
+	}
+	_, err = fmt.Fprintf(output, "%s\t%s\t%s\t%s\t%s\t%s\n", name, version, found, action, method, selected)
+	return err
+}
+
+// goToolModuleMatches verifies the declared main package and source tag without
+// invoking Go's launcher or downloading a toolchain merely to read metadata.
+func goToolModuleMatches(binary, module, version string) bool {
+	info, err := buildinfo.ReadFile(binary)
+	if err != nil || info.Path != module || info.Main.Replace != nil || info.Main.Version != "v"+version ||
+		(info.Main.Path != module && !strings.HasPrefix(module, info.Main.Path+"/")) {
+		return false
+	}
+	for _, dependency := range info.Deps {
+		if dependency.Replace != nil {
+			return false
+		}
+	}
+	return true
+}
+
+// cachedToolMatches allows read-only reuse across unrelated manifest changes.
+// Current caches keep their digest contract. Older caches additionally need
+// either the exact Go source identity or the still-matching publisher archive.
+func cachedToolMatches(binary, currentBin, name string, values map[string]string) bool {
+	prefix := "TRICE_TOOL_" + strings.ToUpper(strings.ReplaceAll(name, "-", "_"))
+	version, module := values[prefix+"_VERSION"], values[prefix+"_MODULE"]
+	marker, err := os.ReadFile(binary + ".sha256")
+	digest, hashErr := binaryDigest(binary)
+	if err != nil || hashErr != nil || string(marker) != digest || !toolIdentity(binary, version, module) {
+		return false
+	}
+	if filepath.Dir(binary) == currentBin || (module != "" && goToolModuleMatches(binary, module, version)) {
+		return true
+	}
+	platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
+	url, expected := values[prefix+"_URL_"+platform], values[prefix+"_SHA_"+platform]
+	if url == "" || len(expected) != 64 {
+		return false
+	}
+	archive, err := binaryDigest(filepath.Join(filepath.Dir(filepath.Dir(binary)), filepath.Base(url)))
+	return err == nil && archive == expected
+}
+
+// compatibleToolCaches returns only directories that cannot shadow another
+// requested, already available pin. Missing versions will be installed into a
+// higher-priority new bin directory, so obsolete copies of those are harmless.
+func compatibleToolCaches(root, currentBin string, names []string, values map[string]string) ([]string, map[string]bool) {
+	directories, _ := filepath.Glob(filepath.Join(root, runtime.GOOS+"-"+runtime.GOARCH, "*", "bin"))
+	missing := make(map[string]bool)
+	for _, name := range names {
+		prefix := "TRICE_TOOL_" + strings.ToUpper(strings.ReplaceAll(name, "-", "_"))
+		global, err := exec.LookPath(name)
+		if err == nil && toolIdentity(global, values[prefix+"_VERSION"], values[prefix+"_MODULE"]) {
+			continue
+		}
+		missing[name] = true
+		for _, directory := range directories {
+			filename := name
+			if runtime.GOOS == "windows" {
+				filename += ".exe"
+			}
+			if cachedToolMatches(filepath.Join(directory, filename), currentBin, name, values) {
+				missing[name] = false
+				break
+			}
+		}
+	}
+	var compatible []string
+	for _, directory := range directories {
+		valid := true
+		useful := false
+		for _, name := range names {
+			filename := name
+			if runtime.GOOS == "windows" {
+				filename += ".exe"
+			}
+			binary := filepath.Join(directory, filename)
+			matches := cachedToolMatches(binary, currentBin, name, values)
+			useful = useful || matches
+			if _, err := os.Stat(binary); err == nil && !missing[name] && !matches {
+				valid = false
+				break
+			}
+		}
+		if valid && useful {
+			compatible = append(compatible, directory)
+		}
+	}
+	return compatible, missing
+}
+
 // installTools serializes publication for one manifest/host. The digest in the
 // cache path keeps version changes independent and includes all pinned hashes.
 func installTools(config, root string, names []string, allowInstall bool) (string, error) {
 	values, data, err := readToolConfig(config)
+	if err != nil {
+		return "", err
+	}
+	// Preserve the original PATH and relative launcher resources when the host
+	// already supplies every requested version. This fast path writes nothing.
+	installed := true
+	for _, name := range names {
+		prefix := "TRICE_TOOL_" + strings.ToUpper(strings.ReplaceAll(name, "-", "_"))
+		global, lookupErr := exec.LookPath(name)
+		if lookupErr != nil || values[prefix+"_VERSION"] == "" || !toolIdentity(global, values[prefix+"_VERSION"], values[prefix+"_MODULE"]) {
+			installed = false
+			break
+		}
+	}
+	if installed && len(names) > 0 {
+		return os.Getenv("PATH"), nil
+	}
+	cacheRoot, err := filepath.Abs(root)
 	if err != nil {
 		return "", err
 	}
@@ -213,6 +397,34 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 		return "", err
 	}
 	bin := filepath.Join(root, "bin")
+	compatible, missing := compatibleToolCaches(cacheRoot, bin, names, values)
+	// Reuse complete prior selections in place; neither cache migration nor
+	// copying large standalone binaries is necessary for an unrelated pin change.
+	allReady := len(names) > 0
+	for _, name := range names {
+		prefix := "TRICE_TOOL_" + strings.ToUpper(strings.ReplaceAll(name, "-", "_"))
+		global, lookupErr := exec.LookPath(name)
+		covered := lookupErr == nil && toolIdentity(global, values[prefix+"_VERSION"], values[prefix+"_MODULE"])
+		filename := name
+		if runtime.GOOS == "windows" {
+			filename += ".exe"
+		}
+		for _, directory := range compatible {
+			if cachedToolMatches(filepath.Join(directory, filename), bin, name, values) {
+				covered = true
+				break
+			}
+		}
+		if !covered && !missing[name] {
+			return "", fmt.Errorf("cached %s conflicts with another selected pin in PATH; adjust the local tool selection and rerun", name)
+		}
+		if !covered {
+			allReady = false
+		}
+	}
+	if allReady && len(compatible) > 0 {
+		return strings.Join(compatible, string(os.PathListSeparator)), nil
+	}
 	if err := os.MkdirAll(bin, 0o755); err != nil {
 		return "", err
 	}
@@ -248,6 +460,23 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 			fmt.Fprintf(os.Stderr, "Selected %s %s: %s\n", name, version, binary)
 			continue
 		}
+		cached := false
+		for _, directory := range compatible {
+			if directory != bin && cachedToolMatches(filepath.Join(directory, filename), bin, name, values) {
+				cached = true
+				break
+			}
+		}
+		if cached {
+			// Remove only an invalid shadow in this manifest's own publication.
+			if err := os.Remove(binary); err != nil && !os.IsNotExist(err) {
+				return "", err
+			}
+			if err := os.Remove(binary + ".sha256"); err != nil && !os.IsNotExist(err) {
+				return "", err
+			}
+			continue
+		}
 		// Existing matching tools can be frozen locally without installation.
 		// Reject downloads/builds here so a changed cache cannot bypass consent.
 		global, globalErr := exec.LookPath(name)
@@ -260,51 +489,34 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 		if !matchingGlobal && !allowInstall {
 			return "", fmt.Errorf("%w: %s %s", errInstallRequired, name, version)
 		}
+		if matchingGlobal {
+			// An invalid cached executable must not shadow a working host tool
+			// after the cache's bin directory is prepended for another tool.
+			if err := os.Remove(binary); err != nil && !os.IsNotExist(err) {
+				return "", err
+			}
+			if err := os.Remove(binary + ".sha256"); err != nil && !os.IsNotExist(err) {
+				return "", err
+			}
+			fmt.Fprintf(os.Stderr, "Reusing installed %s %s: %s\n", name, version, global)
+			continue
+		}
 		staging, err := os.MkdirTemp(root, ".stage-")
 		if err != nil {
 			return "", err
 		}
 		staged := filepath.Join(staging, filename)
-		// Reuse only a matching global executable; copy it to freeze this run's
-		// selection even if the caller subsequently changes PATH.
-		if matchingGlobal {
-			err = extractTool(global, filename, staged)
+		if url != "" && len(expected) == 64 {
+			archive := filepath.Join(root, filepath.Base(url))
+			err = downloadTool(url, archive, expected)
 			if err == nil {
-				err = checkToolIdentity(staged, version, module)
+				err = extractTool(archive, filename, staged)
 			}
-			if err != nil {
-				// Launchers such as Chocolatey shims can work in PATH but lose
-				// their relative target after copying. Use the pinned package.
-				fmt.Fprintf(os.Stderr, "Cannot freeze installed %s from %s: %v\n", name, global, err)
-				if module == "" && (url == "" || len(expected) != 64) {
-					return "", fmt.Errorf("no verified %s package for %s after copying failed: %w", name, platform, err)
-				}
-				if !allowInstall {
-					return "", fmt.Errorf("%w: %s %s cannot run after copying: %v", errInstallRequired, name, version, err)
-				}
-				// Keep the failed candidate for diagnostics and never overwrite
-				// a just-executed Windows program with the replacement binary.
-				prepared := filepath.Join(staging, "prepared")
-				if err := os.Mkdir(prepared, 0o755); err != nil {
-					return "", err
-				}
-				staged = filepath.Join(prepared, filename)
-				matchingGlobal = false
-			}
-		}
-		if !matchingGlobal {
-			if module != "" {
-				cmd := exec.Command("go", "install", module+"@v"+version)
-				cmd.Env = append(os.Environ(), "GOBIN="+filepath.Dir(staged))
-				cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
-				err = cmd.Run()
-			} else {
-				archive := filepath.Join(root, filepath.Base(url))
-				err = downloadTool(url, archive, expected)
-				if err == nil {
-					err = extractTool(archive, filename, staged)
-				}
-			}
+		} else if module != "" {
+			cmd := exec.Command("go", "install", module+"@v"+version)
+			cmd.Env = append(os.Environ(), "GOBIN="+filepath.Dir(staged))
+			cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
+			err = cmd.Run()
 		}
 		if err == nil {
 			err = checkToolIdentity(staged, version, module)
@@ -330,7 +542,136 @@ func installTools(config, root string, names []string, allowInstall bool) (strin
 		os.RemoveAll(staging)
 		fmt.Fprintf(os.Stderr, "Selected %s %s: %s\n", name, version, binary)
 	}
-	return bin, nil
+	selected := []string{bin}
+	for _, directory := range compatible {
+		if directory != bin {
+			selected = append(selected, directory)
+		}
+	}
+	return strings.Join(selected, string(os.PathListSeparator)), nil
+}
+
+// findInstalledBundle selects a complete, matching toolchain in place, resolving
+// symlinks before finding its companions. It never copies or installs resources.
+func findInstalledBundle(name, executable, version string) (string, bool) {
+	if executable == "" || version == "" {
+		return "", false
+	}
+	switch name {
+	case "cmake", "clang", "gcc", "arm":
+	default:
+		return "", false
+	}
+	if runtime.GOOS == "windows" {
+		executable += ".exe"
+	}
+	// Distribution Clang packages and keg-only Homebrew LLVM installations need
+	// not replace the host's default command. Their own executable/resource tree
+	// can still satisfy this exact pin without a checkout-local download.
+	directories := filepath.SplitList(os.Getenv("PATH"))
+	if runtime.GOOS == "linux" && name == "clang" {
+		if candidate, err := exec.LookPath("clang-" + strings.Split(version, ".")[0]); err == nil {
+			if resolved, err := filepath.EvalSymlinks(candidate); err == nil {
+				directories = append(directories, filepath.Dir(resolved))
+			}
+		}
+	}
+	if runtime.GOOS == "darwin" {
+		formula := name
+		switch name {
+		case "clang":
+			formula = "llvm"
+		case "arm":
+			formula = "arm-none-eabi-gcc"
+		}
+		command := exec.Command("brew", "--prefix", formula)
+		command.Env = append(os.Environ(), "HOMEBREW_NO_AUTO_UPDATE=1")
+		if output, err := command.Output(); err == nil {
+			directories = append(directories, filepath.Join(strings.TrimSpace(string(output)), "bin"))
+		}
+	}
+	for _, directory := range directories {
+		if directory == "" {
+			continue
+		}
+		original := filepath.Join(directory, executable)
+		candidate, err := filepath.EvalSymlinks(original)
+		if err != nil {
+			continue
+		}
+		candidate, err = filepath.Abs(candidate)
+		if err == nil && toolIdentity(candidate, version, "") {
+			// Run-local aliases deliberately pair versioned GCC/g++ commands.
+			// Prefer that complete pair before trying the resolved package root.
+			for _, bin := range []string{filepath.Dir(original), filepath.Dir(candidate)} {
+				if installedBundleIsComplete(name, bin, candidate, version) {
+					bin, err = filepath.Abs(bin)
+					return bin, err == nil
+				}
+			}
+		}
+	}
+	return "", false
+}
+
+// installedBundleIsComplete checks resources as well as frontend identities.
+// These are read-only setup checks; actual compilation remains test work.
+func installedBundleIsComplete(name, bin, executable, version string) bool {
+	// Companions must live beside the resolved executable, not elsewhere in PATH.
+	companion := func(name string) string {
+		if runtime.GOOS == "windows" {
+			name += ".exe"
+		}
+		return filepath.Join(bin, name)
+	}
+	matching := func(name string) bool { return toolIdentity(companion(name), version, "") }
+	present := func(name string) bool {
+		info, err := os.Stat(companion(name))
+		return err == nil && !info.IsDir()
+	}
+	// Compiler-reported paths must point at real resources. A bare filename
+	// means GCC did not find its runtime and cannot represent a complete install.
+	resource := func(arguments ...string) bool {
+		output, err := exec.Command(executable, arguments...).Output()
+		file := strings.TrimSpace(string(output))
+		if err != nil || !filepath.IsAbs(file) {
+			return false
+		}
+		info, err := os.Stat(file)
+		return err == nil && !info.IsDir()
+	}
+	switch name {
+	case "cmake":
+		if !matching("ctest") || !matching("cpack") {
+			return false
+		}
+		output, err := exec.Command(executable, "--help-module-list").Output()
+		return err == nil && len(bytes.TrimSpace(output)) > 0
+	case "clang":
+		if !matching("clang++") || !matching("clangd") {
+			return false
+		}
+		if runtime.GOOS == "windows" {
+			target, err := exec.Command(executable, "-dumpmachine").Output()
+			if err != nil || (!strings.Contains(string(target), "windows-gnu") && !strings.Contains(string(target), "mingw")) {
+				return false
+			}
+		}
+		output, err := exec.Command(executable, "-print-resource-dir").Output()
+		directory := strings.TrimSpace(string(output))
+		if err != nil || !filepath.IsAbs(directory) {
+			return false
+		}
+		info, err := os.Stat(filepath.Join(directory, "include", "stddef.h"))
+		return err == nil && !info.IsDir()
+	case "gcc":
+		return matching("g++") && resource("-print-libgcc-file-name") && resource("-print-file-name=libstdc++.a")
+	case "arm":
+		return matching("arm-none-eabi-g++") && present("arm-none-eabi-objcopy") && present("arm-none-eabi-size") &&
+			resource("-print-libgcc-file-name") && resource("-print-file-name=libc.a")
+	}
+	// Private fixture/custom bundles have no additional declared resource query.
+	return true
 }
 
 // installBundle preserves complete compiler runtimes and tool resources such
@@ -344,6 +685,11 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 	}
 	platform := strings.ToUpper(runtime.GOOS + "_" + runtime.GOARCH)
 	prefix := "TRICE_BUNDLE_" + strings.ToUpper(name)
+	version := values[values[prefix+"_VERSION_KEY"]]
+	if installed, ok := findInstalledBundle(name, values[prefix+"_EXECUTABLE"], version); ok {
+		fmt.Fprintf(os.Stderr, "Reusing installed complete %s %s: %s\n", name, version, installed)
+		return installed, nil
+	}
 	url, expected := values[prefix+"_URL_"+platform], values[prefix+"_SHA_"+platform]
 	if url == "" || len(expected) != 64 {
 		return "", fmt.Errorf("no pinned %s package for %s", name, platform)
@@ -364,12 +710,11 @@ func installBundle(config, root, name string, allowInstall bool) (string, error)
 	}
 	bin := filepath.Join(root, "package", binDirectory)
 	compiler := filepath.Join(bin, values[prefix+"_EXECUTABLE"])
-	version := values[values[prefix+"_VERSION_KEY"]]
 	if runtime.GOOS == "windows" {
 		compiler += ".exe"
 	}
 	if marker, err := os.ReadFile(filepath.Join(root, ".ready")); err == nil && string(marker) == expected &&
-		toolIdentity(compiler, version, "") {
+		toolIdentity(compiler, version, "") && installedBundleIsComplete(name, bin, compiler, version) {
 		return bin, nil
 	}
 	if !allowInstall {

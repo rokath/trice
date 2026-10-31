@@ -47,7 +47,7 @@ func TestGoTestEvidenceKeepsDiagnosticsSeparate(t *testing.T) {
 		t.Helper()
 		root := t.TempDir()
 		require.NoError(t, os.Mkdir(filepath.Join(root, "scripts"), 0o755))
-		for _, name := range []string{"_100_test_common.sh", "_105_setup_test_tools.sh", "test-tools.env"} {
+		for _, name := range []string{"_100_test_common.sh", "_105_setup_test_tools.sh", "_116_test_tool_plan.sh", "_117_system_test_tools.sh", "_test_npm_tools.cjs", "test-tools.env"} {
 			data, err := os.ReadFile(filepath.Join("..", name))
 			require.NoError(t, err)
 			require.NoError(t, os.WriteFile(filepath.Join(root, "scripts", name), data, 0o644))

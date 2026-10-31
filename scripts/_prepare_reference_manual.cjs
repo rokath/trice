@@ -5,9 +5,16 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-// Reuse the packages selected by npx instead of adding another parser dependency.
+// Reuse the explicitly selected renderer before considering legacy npx paths;
+// preparation and rendering must load the same parser/highlighter dependency.
 function loadRenderer() {
-  for (const directory of process.env.PATH.split(path.delimiter)) {
+  const selected = process.env.TRICE_TEST_NPM_DIR;
+  const directories = [
+    ...(selected ? [path.join(selected, 'node_modules', '.bin')] : []),
+    ...(process.env.NODE_PATH || '').split(path.delimiter).filter(Boolean).map(root => path.join(root, '.bin')),
+    ...process.env.PATH.split(path.delimiter),
+  ];
+  for (const directory of directories) {
     try {
       const entry = require.resolve('md-to-pdf', { paths: [path.resolve(directory, '..')] });
       return require(path.join(path.dirname(entry), 'lib/get-marked-with-highlighter.js')).getMarked({}, []);
