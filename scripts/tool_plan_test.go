@@ -311,6 +311,109 @@ printf 'Filesystem 1024-blocks Used Available Capacity Mounted\n%s 999999999 1 %
 	assert.Contains(t, out, "Free another ~59 MB before setup.")
 }
 
+// TestNodeRuntimeRestoresStartupSelection simulates compiler setup shadowing a
+// previously approved Node. Lost or incomplete selections must not authorize downloads.
+func TestNodeRuntimeRestoresStartupSelection(t *testing.T) {
+	for _, platform := range []string{"linux", "darwin", "windows"} {
+		for _, state := range []string{"usable", "changed_version", "missing_node", "missing_npm", "missing_npx"} {
+			t.Run(platform+"/"+state, func(t *testing.T) {
+				root := scriptFixture(t)
+				writeFixture(t, root, "bin/brew", "#!/bin/sh\nexit 1\n")
+				writeFixture(t, root, "bin/node", "#!/bin/sh\necho v25.0.0\n")
+				for _, launcher := range []string{"npm", "npx"} {
+					writeFixture(t, root, "bin/"+launcher, "#!/bin/sh\nexit 0\n")
+					if state != "missing_"+launcher {
+						writeFixture(t, root, "setup node/bin/"+launcher, "#!/bin/sh\nexit 0\n")
+					}
+				}
+				version := "26.12.1"
+				if state == "changed_version" {
+					version = "26.12.0"
+				}
+				if state != "missing_node" {
+					writeFixture(t, root, "setup node/bin/node", "#!/bin/sh\necho v"+version+"\n")
+				}
+				writeFixture(t, root, "plan.tsv", "Node.js\t26.12.1\t26.12.1\treuse\tinstalled\ttemp/tools\t0\t0\n")
+				out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+source scripts/_116_test_tool_plan.sh
+TRICE_PLAN_OS="$FIXTURE_PLATFORM"
+TRICE_PLAN_NODE="$PWD/setup node/bin/node"
+TRICE_PLAN_FILE="$PWD/plan.tsv"
+TRICE_TEST_PLAN_ACTIVE=1
+ensure_node_test_tool || exit $?
+node --version
+`, map[string]string{"FIXTURE_PLATFORM": platform, "CI": "true"})
+				if state == "usable" {
+					assert.NoError(t, err, out)
+					assert.Equal(t, "v26.12.1\n", out)
+				} else {
+					assert.Error(t, err, out)
+					assert.Contains(t, out, "INCOMPLETE: installation of Node.js was not in the approved plan")
+				}
+				assert.NoDirExists(t, filepath.Join(root, "temp", "tools"), "rediscovery must not install another runtime")
+			})
+		}
+	}
+}
+
+// TestNpmBrowserProbe waits for the pinned asynchronous Puppeteer API and keeps
+// missing browsers, wrong revisions and rejected lookups as explicit failures.
+func TestNpmBrowserProbe(t *testing.T) {
+	node, err := exec.LookPath("node")
+	require.NoError(t, err, "browser discovery checks require the existing Node runtime")
+	// Node supplies a portable --version executable; no real browser is needed.
+	nodePath, err := exec.Command(node, "-p", "process.execPath").CombinedOutput()
+	require.NoError(t, err, string(nodePath))
+	for _, tc := range []struct {
+		name, message string
+	}{
+		{"matching_revision", ""},
+		{"missing_browser", "missing Puppeteer browser"},
+		{"wrong_revision", "browser must match Puppeteer revision 0.0.0"},
+		{"path_rejected", "fixture path lookup failed"},
+		{"revision_rejected", "fixture revision lookup failed"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_test_npm_tools.cjs")
+			// Resolve the renderer's nested dependency, including a path with spaces.
+			renderer := "installed tools/node_modules/md-to-pdf"
+			writeFixture(t, root, renderer+"/package.json", `{"name":"md-to-pdf","version":"5.2.5","main":"index.cjs"}`)
+			dependency := renderer + "/node_modules/puppeteer"
+			writeFixture(t, root, dependency+"/package.json", `{"name":"puppeteer","version":"25.16.0","main":"index.cjs"}`)
+			writeFixture(t, root, dependency+"/index.cjs", `const path = require('node:path');
+const mode = `+strconv.Quote(tc.name)+`;
+// Both methods deliberately resolve asynchronously, matching Puppeteer 25.
+module.exports = {
+  executablePath: async () => {
+    await Promise.resolve();
+    if (mode === 'path_rejected') throw new Error('fixture path lookup failed');
+    return mode === 'missing_browser' ? path.join(__dirname, 'absent-browser') : process.execPath;
+  },
+  browserVersion: async () => {
+    await Promise.resolve();
+    if (mode === 'revision_rejected') throw new Error('fixture revision lookup failed');
+    return mode === 'wrong_revision' ? '0.0.0' : process.version;
+  },
+};
+`)
+			command := exec.Command(node, "scripts/_test_npm_tools.cjs", "browser", filepath.Join(root, "installed tools"))
+			command.Dir = root
+			output, err := command.CombinedOutput()
+			if tc.message == "" {
+				assert.NoError(t, err, string(output))
+				assert.Equal(t, strings.TrimSpace(string(nodePath)), strings.TrimSpace(string(output)))
+			} else {
+				var failure *exec.ExitError
+				if assert.ErrorAs(t, err, &failure, string(output)) {
+					assert.Equal(t, 2, failure.ExitCode())
+				}
+				assert.Contains(t, string(output), "INCOMPLETE: "+tc.message)
+			}
+			assert.NotContains(t, string(output), "[object Promise]")
+		})
+	}
+}
+
 // TestNpmSelectionAndLockSubset uses real module resolution and the maintained
 // dependency graph. Correct globals and independent cache roots stay usable;
 // a nested incompatible Puppeteer must not be mistaken for the top-level pin.

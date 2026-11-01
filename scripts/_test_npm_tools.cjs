@@ -175,7 +175,9 @@ function writeSubset(source, destination, names) {
   fs.writeFileSync(path.join(destination, 'package-lock.json'), JSON.stringify(lock, null, 2) + '\n');
 }
 
-if (require.main === module) {
+// main waits for the pinned Puppeteer API before inspecting browser paths and
+// revisions. Both synchronous failures and rejected promises keep exit code 2.
+async function main() {
   try {
     const [operation, ...args] = process.argv.slice(2);
     if (operation === 'inspect' && (args.length === 5 || args.length === 6)) inspect(args.slice(0, 2), args.slice(2, 5), process.stdout, args[5]);
@@ -190,10 +192,11 @@ if (require.main === module) {
     else if (operation === 'browser' && args.length === 1) {
       const loader = createRequire(path.join(puppeteerRoot(args[0]), 'package.json'));
       const puppeteer = loader('puppeteer');
-      const executable = puppeteer.executablePath();
+      const executable = await puppeteer.executablePath();
       if (!fs.existsSync(executable)) throw new Error(`missing Puppeteer browser ${executable}`);
       const version = require('node:child_process').execFileSync(executable, ['--version'], { encoding: 'utf8', timeout: 10000 });
-      if (!version.split(/\s+/).includes(puppeteer.browserVersion)) throw new Error(`browser must match Puppeteer revision ${puppeteer.browserVersion}`);
+      const requiredVersion = await puppeteer.browserVersion();
+      if (!version.split(/\s+/).includes(requiredVersion)) throw new Error(`browser must match Puppeteer revision ${requiredVersion}`);
       console.log(executable);
     }
     else throw new Error('usage: npm-tools inspect installed-root cache-root markdownlint md-to-pdf puppeteer | lock source destination names...');
@@ -202,5 +205,7 @@ if (require.main === module) {
     process.exitCode = 2;
   }
 }
+
+if (require.main === module) main();
 
 module.exports = { inspect, subsetLock, rendererWorks };

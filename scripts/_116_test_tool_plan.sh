@@ -503,6 +503,13 @@ trice_find_node() {
     printf '%s\n' "$candidate"
     return
   fi
+  # Compiler setup can prepend a directory with another Node. Reuse the exact
+  # startup selection only while its runtime and adjacent npm launchers remain usable.
+  candidate="${TRICE_PLAN_NODE:-}"
+  if [ -n "$candidate" ] && trice_tool_matches "$candidate" "$TRICE_NODE_VERSION" && [ -f "$(dirname "$candidate")/npm" ] && [ -f "$(dirname "$candidate")/npx" ]; then
+    printf '%s\n' "$candidate"
+    return
+  fi
   if [ "${TRICE_PLAN_OS:-}" = darwin ] && command -v brew >/dev/null 2>&1; then
     local prefix
     prefix="$(HOMEBREW_NO_AUTO_UPDATE=1 brew --prefix node 2>/dev/null || true)"

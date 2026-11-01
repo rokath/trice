@@ -165,7 +165,7 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_TEST_PLAN_SCOPES": "", "TRICE_TEST_PLAN_ACTIVE": "0", "TRICE_TEST_SETUP_ONLY": "0",
 		"TRICE_TEST_PROGRESS_TTY": "0", "TRICE_TEST_PROGRESS_INTERVAL_SECONDS": "30",
 		"CLANG_FORMAT_BIN": "", "NODE_PATH": "",
-		"TRICE_PLAN_FILE": "", "TRICE_FORMAT_PYTHON": "", "PUPPETEER_CACHE_DIR": "",
+		"TRICE_PLAN_FILE": "", "TRICE_PLAN_NODE": "", "TRICE_FORMAT_PYTHON": "", "PUPPETEER_CACHE_DIR": "",
 		// Native Windows package discovery must not bypass fixture tools through
 		// an installed host Cppcheck. Case-folded filtering below also removes
 		// inherited ProgramFiles aliases on Unix; discovery cases opt in explicitly.
@@ -867,11 +867,17 @@ ensure_cppcheck_test_tool && cppcheck --version`, nil)
 		root := scriptFixture(t)
 		writeFixture(t, root, "bin/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.20.0'\n")
 		writeFixture(t, root, "System Programs/Cppcheck/cppcheck.exe", "#!/bin/sh\necho 'Cppcheck 2.22.0'\n")
+		// Unix needs an extensionless command to model Windows .exe lookup.
+		if runtime.GOOS != "windows" {
+			writeFixture(t, root, "System Programs/Cppcheck/cppcheck", "#!/bin/sh\necho 'Cppcheck 2.22.0'\n")
+		}
 		out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
 cygpath() { printf '%s\n' "$2"; }
 PROGRAMFILES="$PWD/System Programs"
-ensure_cppcheck_test_tool && test "$(command -v cppcheck)" != "$PWD/bin/cppcheck"`, nil)
+ensure_cppcheck_test_tool && bash -c 'cppcheck --version'`, nil)
 		assert.NoError(t, err, out)
+		assert.Contains(t, out, "Cppcheck 2.22.0")
+		assert.NotContains(t, out, "Cppcheck 2.20.0")
 		assert.NotContains(t, out, "Install Cppcheck")
 		assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
 	})
