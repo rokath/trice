@@ -88,9 +88,9 @@ confirm_tool_install() {
     return 1
   fi
   if [ -t 0 ] && { true >/dev/tty; } 2>/dev/null; then
-    printf '\nInstall %s %s? [y/N] ' "$description" "$destination" >/dev/tty
+    printf '\nInstall %s %s? [y/N] (press ENTER to confirm) ' "$description" "$destination" >/dev/tty
   else
-    printf 'Install %s %s? [y/N] ' "$description" "$destination" >&2
+    printf 'Install %s %s? [y/N] (press ENTER to confirm) ' "$description" "$destination" >&2
   fi
   # Read the caller's input descriptor, not a reopened Git Bash terminal.
   # Keep EOF distinct from an explicit refusal so quiet logs explain failures.

@@ -281,6 +281,7 @@ func TestPinnedToolConfirmation(t *testing.T) {
 				assert.Contains(t, out, "CI cannot prompt")
 			} else {
 				assert.Contains(t, out, "Install shfmt v3.14.1 locally under temp/tools?")
+				assert.Contains(t, out, "[y/N] (press ENTER to confirm)")
 			}
 			assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
 		})
@@ -1557,6 +1558,7 @@ func TestRunnerSetupCancellation(t *testing.T) {
 				assert.Len(t, header.FindAllString(out, -1), 1, out)
 				assert.Len(t, header.FindAllString(string(tools), -1), 1)
 				assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
+				assert.Contains(t, out, "Type c, u or a, then press ENTER (ENTER alone aborts).")
 				assert.NotContains(t, out, "native test preparation failed")
 				if !tc.proceed {
 					assert.Equal(t, 1, strings.Count(out, "Cancelled."), out)
@@ -1606,6 +1608,42 @@ run_step _540_test_fixture.sh
 			assert.NoError(t, readErr)
 			assert.Contains(t, string(data), "\x00", "the raw log must retain the original payload")
 		})
+	}
+}
+
+// TestRunnerFinalResultDisplay uses the existing terminal palette without a
+// native PTY. Persistent summaries and plain output must retain readable text.
+func TestRunnerFinalResultDisplay(t *testing.T) {
+	for _, colored := range []bool{false, true} {
+		for _, tc := range []struct {
+			result, color, detail string
+		}{
+			{"PASS", "\x1b[32m", ""},
+			{"FAIL", "\x1b[31m", ""},
+			{"INCOMPLETE", "\x1b[33m", ""},
+			{"ABORTED", "\x1b[33m", " (signal exit status 130)"},
+		} {
+			t.Run(tc.result+"/colored="+strconv.FormatBool(colored), func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+				out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
+if [ "$FIXTURE_COLORS" = true ]; then
+  PASS_COLOR=$'\033[32m' FAIL_COLOR=$'\033[31m' WARN_COLOR=$'\033[33m' RESET_COLOR=$'\033[0m'
+fi
+summary_result "$FIXTURE_RESULT" "$FIXTURE_DETAIL"
+`, map[string]string{"FIXTURE_COLORS": strconv.FormatBool(colored), "FIXTURE_RESULT": tc.result, "FIXTURE_DETAIL": tc.detail})
+				assert.NoError(t, err, out)
+				plain := "Result: " + tc.result + tc.detail + "\n"
+				want := plain
+				if colored {
+					want = "Result: " + tc.color + tc.result + "\x1b[0m" + tc.detail + "\n"
+				}
+				assert.Equal(t, want, out)
+				summary, err := os.ReadFile(filepath.Join(root, "temp/log/testAll_summary.log"))
+				assert.NoError(t, err)
+				assert.Equal(t, plain, string(summary))
+			})
+		}
 	}
 }
 
@@ -1782,6 +1820,7 @@ main ` + arguments + `
 				assert.NotContains(t, out, "Format repo? [y/N]")
 			} else {
 				assert.Contains(t, out, "Format repo? [y/N]")
+				assert.Contains(t, out, "Format repo? [y/N] (press ENTER to confirm)")
 			}
 			if tc.formatted {
 				called, readErr := os.ReadFile(filepath.Join(root, "format-called"))

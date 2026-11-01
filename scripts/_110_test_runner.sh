@@ -46,6 +46,19 @@ summary_line() {
   printf '%s\n' "$1"
 }
 
+# Keep persistent summaries plain while using the existing terminal palette for
+# the final status. Empty colors retain redirected-output and NO_COLOR behavior.
+summary_result() {
+  local result="$1" detail="${2:-}" color=''
+  case "$result" in
+    PASS) color="$PASS_COLOR" ;;
+    FAIL) color="$FAIL_COLOR" ;;
+    INCOMPLETE | ABORTED) color="$WARN_COLOR" ;;
+  esac
+  printf 'Result: %s%s\n' "$result" "$detail" >>"$SUMMARY_LOG"
+  printf 'Result: %s%s%s%s\n' "$color" "$result" "$RESET_COLOR" "$detail"
+}
+
 # capture_tracked_bytes records actual worktree bytes, including files that
 # were already dirty before testAll. Git status alone cannot detect a second
 # edit to such a file when its short status stays the same.
@@ -554,7 +567,7 @@ offer_repository_format() {
   local answer='' status=0
   if [ "${TEST_ALL_NO_FORMAT:-0}" = 1 ]; then return 0; fi
   if [ -n "${CI:-}" ] && [ "$CI" != false ]; then return 0; fi
-  printf 'Format repo? [y/N] '
+  printf 'Format repo? [y/N] (press ENTER to confirm) '
   IFS= read -r answer || answer=''
   printf '\n'
   answer="${answer%$'\r'}"
@@ -686,9 +699,9 @@ main() {
       summary_line "INCOMPLETE: cannot write $LOG_DIR/results.json; check free disk space and write permissions."
   fi
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
-    summary_line "Result: ABORTED (signal exit status $TEST_ALL_ABORTED)"
+    summary_result ABORTED " (signal exit status $TEST_ALL_ABORTED)"
   else
-    summary_line "Result: $result"
+    summary_result "$result"
   fi
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"

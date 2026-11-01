@@ -936,6 +936,7 @@ trice_test_tool_plan() {
       trice_plan_print '    Leave newer system versions unchanged.'
       trice_plan_print '    Install remaining missing pinned tool versions into temp/tools.'
       trice_plan_print '[a] Abort'
+      trice_plan_print 'Type c, u or a, then press ENTER (ENTER alone aborts).'
       trice_plan_print 'Choose [c/u/a] (default: a):'
       IFS= read -r answer || answer=''
       answer="${answer%$'\r'}"

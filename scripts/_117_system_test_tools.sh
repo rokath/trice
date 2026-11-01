@@ -252,7 +252,7 @@ trice_system_tool_setup() {
     esac
   done <"$commands"
   trice_plan_print "Upgrade details: $plan.details"
-  trice_plan_print 'Upgrade these system tools to the pinned versions? [y/N]'
+  trice_plan_print 'Upgrade these system tools to the pinned versions? [y/N] (press ENTER to confirm)'
   IFS= read -r answer || answer=''
   answer="${answer%$'\r'}"
   case "$answer" in y | Y | yes | YES) ;; *)
