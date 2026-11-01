@@ -303,4 +303,10 @@ int TriceHandleDecodedRecord(const void* node, const uint8_t* record, size_t dec
 
 triceNodeFn_t fn_TricePrintIgnoredID;
 
+#else
+
+// ISO C requires a declaration even when receive support removes all code.
+// This typedef keeps TX-only builds warning-free without emitting code or data.
+typedef int triceRxDisabledTranslationUnit;
+
 #endif // #if TRICE_RX_SUPPORT == 1
