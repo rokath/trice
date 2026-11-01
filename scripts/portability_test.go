@@ -1686,6 +1686,7 @@ func TestRunnerDiagnosticsWithNUL(t *testing.T) {
 		{"incomplete", "2", "INCOMPLETE: fixture evidence missing", "INCOMPLETE"},
 		{"missing", "0", "MISSING TOOL: fixture compiler", "INCOMPLETE"},
 		{"warning", "0", "Hint: fixture warning", "PASS"},
+		{"compiler_warning", "0", "source.c:4:2: warning: unused variable [-Wunused-variable]", "PASS"},
 		{"failure", "1", "FAIL: fixture assertion failed", "FAIL"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -4565,8 +4566,8 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc", "clang"} {
 				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 0\n")
 			}
-			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh"} {
-				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\nif [ -z \"${TRICE_ID_WORKFLOW:-}\" ]; then echo 'INFO: standalone'; else echo managed-$TRICE_ID_WORKFLOW; fi\nexit \"${BUILD_STATUS:-0}\"\n")
+			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh", "L432_inst/build_with_clang.sh"} {
+				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\nif [ -z \"${TRICE_ID_WORKFLOW:-}\" ]; then echo 'INFO: standalone'; else echo managed-$TRICE_ID_WORKFLOW; fi\nif [ \"${BUILD_WARNING:-0}\" = 1 ]; then echo 'module.c:1:2: warning: fixture compiler warning'; fi\nexit \"${BUILD_STATUS:-0}\"\n")
 			}
 			writeFixture(t, root, "build.log", "warning: tool-version diagnostic\n")
 			out, err := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log")})
@@ -4574,7 +4575,13 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			assert.Contains(t, out, "matrix-"+workflow)
 			assert.Contains(t, out, "Hint:")
 			if workflow == "bind" {
-				assert.Equal(t, 9, strings.Count(out, "INFO: standalone"), out)
+				assert.Equal(t, 10, strings.Count(out, "INFO: standalone"), out)
+				warnings, warningErr := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{
+					"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log"), "BUILD_WARNING": "1",
+				})
+				assert.NoError(t, warningErr, warnings)
+				assert.Contains(t, warnings, "Hint: standalone examples/L432_inst/build_with_clang.sh completed with compiler warnings")
+				assert.Contains(t, warnings, "module.c:1:2: warning: fixture compiler warning")
 			} else {
 				assert.NotContains(t, out, "INFO: standalone")
 			}

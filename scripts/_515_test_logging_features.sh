@@ -121,8 +121,9 @@ main() {
   log "INFO: experimental TestContextEnrichmentRebasePoC is a separate opt-in proof, not productive CE support; see UM Testing"
 
   has_command cc || pc_compiler=gcc
-  if logging_tools "host Bind entry points" git go cmake "$pc_compiler"; then
-    run_logging_go_checks ./scripts TestBindEntrypointIntegration || return $?
+  if logging_tools "host Bind entry points and demos" git go cmake gcc clang; then
+    run_logging_go_checks ./scripts TestBindEntrypointIntegration TestHostDemoEntrypointIntegration \
+      TestExampleCoverageInventory TestDisabledRxTranslationUnit TestLabPlotLaunchers || return $?
   elif [ "$SELECTED" = "full" ]; then
     return 1
   fi

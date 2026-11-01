@@ -340,6 +340,14 @@ run_step() {
         while IFS= read -r detail; do
           summary_line "  $detail"
         done < <(grep -aE '^Hint:' "$step_log")
+        # A successful build can still warn. Show distinct diagnostics from
+        # quiet logs, including compiler output nested inside Go integrations.
+        if grep -aEq '(^|[[:space:]])warning:' "$step_log"; then
+          summary_line "Hint: $step emitted warnings; full details: $step_log"
+          while IFS= read -r detail; do
+            summary_line "  $detail"
+          done < <(grep -aE '(^|[[:space:]])warning:' "$step_log" | sort -u | head -n 5)
+        fi
       fi
     fi
   elif [ "$rc" -eq 2 ]; then

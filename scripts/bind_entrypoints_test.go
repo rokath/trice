@@ -337,18 +337,18 @@ func TestBindEntrypointIntegration(t *testing.T) {
 	}
 
 	t.Run("ABC_Bind_and_Insert", func(t *testing.T) {
-		root := copyEntrypointCheckout(t, "examples/TriceAbc", "src", "scripts/_120_setup_trice_environment.sh", "demoTIL.json")
-		original, err := os.ReadFile(filepath.Join(root, "examples/TriceAbc/N1_tx/main.c"))
-		assert.NoError(t, err)
-		selection, err := os.ReadFile(filepath.Join(root, "examples/TriceAbc/NodeLib/nodeAbc.h"))
-		assert.NoError(t, err)
-		til, err := os.ReadFile(filepath.Join(root, "demoTIL.json"))
-		assert.NoError(t, err)
-		// Isolated metadata proves generation honors the configured table instead
-		// of silently reverting to demoTIL.json. Shared reference files stay intact.
-		writeFixture(t, root, "metadata/til.json", string(til))
-		writeFixture(t, root, "metadata/li.json", "")
 		for _, workflow := range []string{"bind", "insert"} {
+			root := copyEntrypointCheckout(t, "examples/TriceAbc", "src", "scripts/_120_setup_trice_environment.sh", "demoTIL.json")
+			original, err := os.ReadFile(filepath.Join(root, "examples/TriceAbc/N1_tx/main.c"))
+			assert.NoError(t, err)
+			selection, err := os.ReadFile(filepath.Join(root, "examples/TriceAbc/NodeLib/nodeAbc.h"))
+			assert.NoError(t, err)
+			til, err := os.ReadFile(filepath.Join(root, "demoTIL.json"))
+			assert.NoError(t, err)
+			// Isolated metadata proves generation honors the configured table instead
+			// of silently reverting to demoTIL.json. Shared reference files stay intact.
+			writeFixture(t, root, "metadata/til.json", string(til))
+			writeFixture(t, root, "metadata/li.json", "")
 			t.Run(workflow, func(t *testing.T) {
 				out, err := runFixture(t, root, "bash examples/TriceAbc/demo.sh", map[string]string{
 					"TRICE_BIN": binary, "TRICE_ID_WORKFLOW": workflow, "CC": compiler,
@@ -359,6 +359,7 @@ func TestBindEntrypointIntegration(t *testing.T) {
 					t.FailNow()
 				}
 				assert.Equal(t, 9, strings.Count(out, "build: N"), out)
+				assert.NotContains(t, out, "warning:", "successful ABC builds must not hide compiler warnings")
 				assert.Contains(t, out, "N6_rx: log:(from node=N1_tx) text=N1 says hi")
 				assert.Contains(t, out, "abc:DivideResult")
 				assert.Contains(t, out, "N1_tx: TX-> x0 3 bytes")

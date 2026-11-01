@@ -58,6 +58,7 @@ run_standalone_bind_examples() {
     "G0B1_inst/build.sh"
     "G0B1_inst/build_with_clang.sh"
     "L432_inst/build.sh"
+    "L432_inst/build_with_clang.sh"
   )
 
   for entry in "${entries[@]}"; do
@@ -93,6 +94,12 @@ run_standalone_bind_examples() {
       # Successful standalone runs still need to expose dependency information
       # in the parent log, particularly why PC_log does not need SEGGER tools.
       grep -E '^(INFO:|SKIP:|Hint:)' "$entry_log" || true
+      # Standalone compiler output lives in a separate file. Forward warnings
+      # too so a successful nested build cannot hide them from testAll's summary.
+      if grep -Eiq 'warning:' "$entry_log"; then
+        printf 'Hint: standalone examples/%s completed with compiler warnings; see %s\n' "$entry" "$entry_log"
+        grep -Ei 'warning:' "$entry_log" || true
+      fi
       continue
     else
       status=$?
