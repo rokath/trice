@@ -119,7 +119,10 @@ func g0b1HostCompile(t *testing.T, root string, sources []string, defines ...str
 func TestG0B1ConfigurationKeepsNormalDefaults(t *testing.T) {
 	for _, configuration := range []string{"default", "0", "98", "1"} {
 		t.Run(configuration, func(t *testing.T) {
-			root := scriptFixture(t, "examples/G0B1_inst/Core/Inc/triceConfig.h")
+			// Match firmware include order so omitted switches use real defaults.
+			root := scriptFixture(t, "examples/G0B1_inst/Core/Inc/triceConfig.h",
+				"src/TriceDefaultConfig.h", "src/triceLogDefaultConfig.h", "src/SEGGER_RTT.h",
+				"src/SEGGER_RTT_ConfDefaults.h", "src/default_conf/SEGGER_RTT_Conf.h")
 			writeFixture(t, root, "examples/G0B1_inst/Core/Inc/main.h", `#include <stdint.h>
 typedef struct { uint32_t CNT; } Timer;
 extern Timer timer2, timer17;
@@ -137,6 +140,7 @@ uint32_t HAL_GetTick(void);
 `)
 			writeFixture(t, root, "check.c", `#include <assert.h>
 #include "examples/G0B1_inst/Core/Inc/triceConfig.h"
+#include "TriceDefaultConfig.h"
 Timer timer2 = {0x12345678u}, timer17 = {123u};
 uint32_t HAL_GetTick(void) { return 456u; }
 int main(void) {
@@ -161,7 +165,7 @@ int main(void) {
   return 0;
 }
 `)
-			defines := []string{"-DTRICE_OFF=0"}
+			defines := []string{"-DTRICE_OFF=0", "-Isrc", "-Isrc/default_conf"}
 			if configuration != "default" {
 				defines = append(defines, "-DCONFIGURATION="+configuration)
 			}
@@ -215,6 +219,10 @@ void __set_PRIMASK(uint32_t mask);
 void __DSB(void);
 void fakeTrice(const char *format, ...);
 #define trice(...) fakeTrice(__VA_ARGS__)
+/* Comparison records share the writer; the fake has no stamp or ID metadata. */
+#define TRice(...) fakeTrice(__VA_ARGS__)
+#define Trice(...) fakeTrice(__VA_ARGS__)
+#define TRICE(tid, ...) fakeTrice(__VA_ARGS__)
 `)
 			writeFixture(t, root, "check.c", `#include <assert.h>
 #include <stdarg.h>
@@ -225,6 +233,8 @@ unsigned clockIndex;
 uint32_t SystemCoreClock = 64000000u;
 static uint32_t irqMask = INITIAL_MASK;
 static unsigned clockEnabled, disabled, restored, records, reports, descriptions;
+/* Keep reference bursts separate from timed records and sample reports. */
+static unsigned comparisons[4];
 /* Expected public results, deliberately independent of the production formula. */
 static const unsigned overheads[8] = {4,8,100,4,4,4,4,4};
 static const unsigned raws[8] = {100,104,4,96,116,132,148,164};
@@ -257,6 +267,18 @@ void fakeTrice(const char *format, ...) {
     assert(va_arg(args, unsigned) == fractions[reports]);
     va_end(args);
     ++reports;
+  } else if (strstr(format, "msg:G0B1 TRice ")) {
+    assert(reports == 8u);
+    ++comparisons[0];
+  } else if (strstr(format, "msg:G0B1 Trice ")) {
+    assert(reports == 8u);
+    ++comparisons[1];
+  } else if (strstr(format, "time:G0B1 TRICE(ID(0)... ")) {
+    assert(reports == 8u);
+    ++comparisons[2];
+  } else if (strstr(format, "time:G0B1 TRICE(Id(0)... ")) {
+    assert(reports == 8u);
+    ++comparisons[3];
   } else ++descriptions;
 }
 int main(void) {
@@ -272,7 +294,8 @@ int main(void) {
     timer.ticks[index+3]=timer.ticks[index+2]+raws[sample];
   }
   G0B1FastMeasure();
-  assert(records == 128u && reports == 8u && descriptions == 2u);
+  assert(records == 128u && reports == 8u && descriptions == 6u);
+  for (unsigned kind=0; kind<4; ++kind) assert(comparisons[kind] == 7u);
   assert(disabled == 8u && restored == 8u && irqMask == INITIAL_MASK);
   return 0;
 }
