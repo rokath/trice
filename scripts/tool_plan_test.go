@@ -379,15 +379,15 @@ func TestNpmBrowserProbe(t *testing.T) {
 			renderer := "installed tools/node_modules/md-to-pdf"
 			writeFixture(t, root, renderer+"/package.json", `{"name":"md-to-pdf","version":"5.2.5","main":"index.cjs"}`)
 			dependency := renderer + "/node_modules/puppeteer"
-			writeFixture(t, root, dependency+"/package.json", `{"name":"puppeteer","version":"25.16.0","main":"index.cjs"}`)
-			writeFixture(t, root, dependency+"/index.cjs", `const path = require('node:path');
+			writeFixture(t, root, dependency+"/package.json", `{"name":"puppeteer","version":"25.16.0","type":"module","main":"index.js"}`)
+			writeFixture(t, root, dependency+"/index.js", `import path from 'node:path';
 const mode = `+strconv.Quote(tc.name)+`;
-// Both methods deliberately resolve asynchronously, matching Puppeteer 25.
-module.exports = {
+// Match Puppeteer 25: the full asynchronous API belongs to the default instance.
+const puppeteer = {
   executablePath: async () => {
     await Promise.resolve();
     if (mode === 'path_rejected') throw new Error('fixture path lookup failed');
-    return mode === 'missing_browser' ? path.join(__dirname, 'absent-browser') : process.execPath;
+    return mode === 'missing_browser' ? path.join(process.cwd(), 'absent-browser') : process.execPath;
   },
   browserVersion: async () => {
     await Promise.resolve();
@@ -395,6 +395,9 @@ module.exports = {
     return mode === 'wrong_revision' ? '0.0.0' : process.version;
   },
 };
+// The named exports deliberately omit browserVersion, as the real module does.
+export const executablePath = puppeteer.executablePath;
+export default puppeteer;
 `)
 			command := exec.Command(node, "scripts/_test_npm_tools.cjs", "browser", filepath.Join(root, "installed tools"))
 			command.Dir = root
@@ -412,6 +415,42 @@ module.exports = {
 			assert.NotContains(t, string(output), "[object Promise]")
 		})
 	}
+}
+
+// TestPinnedPuppeteerBrowserProbe exercises the real selected npm module in
+// native runs. Only the browser path is replaced; its real revision API must
+// reject Node's version without launching or downloading a browser.
+func TestPinnedPuppeteerBrowserProbe(t *testing.T) {
+	tools := os.Getenv("TRICE_TEST_NPM_DIR")
+	if tools == "" {
+		t.Skip("requires the pinned npm selection prepared by testAll; never installs tools")
+	}
+	node, err := exec.LookPath("node")
+	require.NoError(t, err)
+	root := scriptFixture(t, "scripts/testcheck/package.json")
+	writeFixture(t, root, "browser-preload.cjs", `const assert = require('node:assert/strict');
+const path = require('node:path');
+const { createRequire } = require('node:module');
+const loader = createRequire(path.join(process.env.FIXTURE_NPM_ROOT, 'node_modules', 'md-to-pdf', 'package.json'));
+const expected = require('./scripts/testcheck/package.json').dependencies.puppeteer;
+assert.equal(loader('puppeteer/package.json').version, expected, 'exercise the pinned renderer dependency');
+const puppeteer = loader('puppeteer');
+assert.equal(typeof puppeteer.browserVersion, 'undefined', 'the namespace has no revision method');
+assert.equal(typeof puppeteer.default.browserVersion, 'function', 'use the default instance API');
+// Keep module loading, revision lookup and CLI handling real. Node's executable
+// provides a portable, deliberately incompatible browser version on every OS.
+puppeteer.default.executablePath = async () => process.execPath;
+`)
+	command := exec.Command(node, "--require", "./browser-preload.cjs", "scripts/_test_npm_tools.cjs", "browser", tools)
+	command.Dir = root
+	command.Env = append(os.Environ(), "FIXTURE_NPM_ROOT="+tools)
+	output, err := command.CombinedOutput()
+	var failure *exec.ExitError
+	if assert.ErrorAs(t, err, &failure, string(output)) {
+		assert.Equal(t, 2, failure.ExitCode())
+	}
+	assert.Regexp(t, `INCOMPLETE: browser must match Puppeteer revision [0-9]+\.[0-9]+\.[0-9]+`, string(output))
+	assert.NotContains(t, string(output), "is not a function")
 }
 
 // TestNpmSelectionAndLockSubset uses real module resolution and the maintained

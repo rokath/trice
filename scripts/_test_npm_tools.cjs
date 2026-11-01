@@ -191,7 +191,8 @@ async function main() {
     } else if (operation === 'puppeteer-root' && args.length === 1) console.log(puppeteerRoot(args[0]));
     else if (operation === 'browser' && args.length === 1) {
       const loader = createRequire(path.join(puppeteerRoot(args[0]), 'package.json'));
-      const puppeteer = loader('puppeteer');
+      // The pinned ESM package exports browserVersion only on its default instance.
+      const puppeteer = loader('puppeteer').default;
       const executable = await puppeteer.executablePath();
       if (!fs.existsSync(executable)) throw new Error(`missing Puppeteer browser ${executable}`);
       const version = require('node:child_process').execFileSync(executable, ['--version'], { encoding: 'utf8', timeout: 10000 });
