@@ -4,6 +4,7 @@ package scripts_test
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -201,6 +202,37 @@ exit 29
 			assert.Equal(t, want, string(args))
 			assert.NoFileExists(t, filepath.Join(root, "preparation.calls"))
 			assert.NoFileExists(t, filepath.Join(root, "build.args"))
+		})
+	}
+}
+
+// TestFeatureBuildDirectoryRules replays Make's forced directory recipes against
+// the existing output directory created by the build-signature helper.
+func TestFeatureBuildDirectoryRules(t *testing.T) {
+	makeTool, err := exec.LookPath("make")
+	if err != nil {
+		t.Skip("the example directory rules require GNU Make")
+	}
+	for _, compiler := range []string{"gcc", "clang"} {
+		t.Run(compiler, func(t *testing.T) {
+			root := scriptFixture(t, "examples/G0B1_features/"+compiler+"1.mak")
+			directory := filepath.Join(root, "examples/G0B1_features")
+			build := "out." + compiler
+			// The signature marker deliberately exists before the first Make call.
+			writeFixture(t, root, "examples/G0B1_features/"+build+"/.trice-build-signature", "incomplete\n")
+			variable := "GCC_BUILD=" + build
+			if compiler == "clang" {
+				variable = "CLANG_BUILD=" + build
+			}
+			for attempt := 0; attempt < 2; attempt++ {
+				command := exec.Command(makeTool, "-f", compiler+"1.mak", "-B", variable, build)
+				command.Dir = directory
+				output, err := command.CombinedOutput()
+				assert.NoError(t, err, string(output))
+				contents, err := os.ReadFile(filepath.Join(directory, build, ".trice-build-signature"))
+				assert.NoError(t, err)
+				assert.Equal(t, "incomplete\n", string(contents), "recreating the directory must preserve its contents")
+			}
 		})
 	}
 }

@@ -45,8 +45,9 @@ $(CLANG_BUILD)/%.bin: $(CLANG_BUILD)/%.elf | $(CLANG_BUILD)
 #	@ls -l $(GCC_BUILD)/*.o
 #	@ls -l $(CLANG_BUILD)/$(TARGET).*
 
+# Forced configuration rebuilds may repeat this recipe for an existing directory.
 $(CLANG_BUILD):
-	mkdir $@
+	mkdir -p $@
 
 # dependencies
 -include $(wildcard $(CLANG_BUILD)/*.d)

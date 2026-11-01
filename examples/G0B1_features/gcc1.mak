@@ -38,8 +38,9 @@ $(GCC_BUILD)/%.bin: $(GCC_BUILD)/%.elf | $(GCC_BUILD)
 #	@ls -l $(GCC_BUILD)/*.o
 #	@ls -l $(GCC_BUILD)/$(TARGET).*
 	
+# Forced configuration rebuilds may repeat this recipe for an existing directory.
 $(GCC_BUILD):
-	mkdir $@
+	mkdir -p $@
 
 # dependencies
 -include $(wildcard $(GCC_BUILD)/*.d)
