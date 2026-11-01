@@ -125,6 +125,12 @@ func TestLiveReloadUpdatesRunningLogger(t *testing.T) {
 					if err != nil {
 						return false
 					}
+					// MultiWriter publishes stdout before the mirrored file write.
+					// Observe both sinks before making assertions about the logfile.
+					mirrored, err := os.ReadFile(filepath.Join(root, "application.log"))
+					if err != nil || !strings.Contains(string(mirrored), want) {
+						return false
+					}
 					for _, outputLine := range strings.Split(application.String(), "\n") {
 						if strings.Contains(outputLine, want) && strings.Contains(outputLine, field+".c") && strings.Contains(outputLine, fmt.Sprint(line)) {
 							if format == "json" {
