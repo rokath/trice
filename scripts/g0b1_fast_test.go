@@ -121,7 +121,7 @@ func TestG0B1ConfigurationKeepsNormalDefaults(t *testing.T) {
 		t.Run(configuration, func(t *testing.T) {
 			// Match firmware include order so omitted switches use real defaults.
 			root := scriptFixture(t, "examples/G0B1_inst/Core/Inc/triceConfig.h",
-				"src/TriceDefaultConfig.h", "src/triceLogDefaultConfig.h", "src/SEGGER_RTT.h",
+				"src/triceDefaultConfig.h", "src/triceLogDefaultConfig.h", "src/SEGGER_RTT.h",
 				"src/SEGGER_RTT_ConfDefaults.h", "src/default_conf/SEGGER_RTT_Conf.h")
 			writeFixture(t, root, "examples/G0B1_inst/Core/Inc/main.h", `#include <stdint.h>
 typedef struct { uint32_t CNT; } Timer;
@@ -140,7 +140,7 @@ uint32_t HAL_GetTick(void);
 `)
 			writeFixture(t, root, "check.c", `#include <assert.h>
 #include "examples/G0B1_inst/Core/Inc/triceConfig.h"
-#include "TriceDefaultConfig.h"
+#include "triceDefaultConfig.h"
 Timer timer2 = {0x12345678u}, timer17 = {123u};
 uint32_t HAL_GetTick(void) { return 456u; }
 int main(void) {

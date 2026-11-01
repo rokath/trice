@@ -4,6 +4,7 @@ package scripts_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -85,6 +86,56 @@ func TestIDWorkflowsInitializeLocalLI(t *testing.T) {
 	}
 }
 
+// readFixtureSource rejects case mismatches even on a case-insensitive host.
+// Checking directory entries prevents fixture copies from hiding Linux failures.
+func readFixtureSource(root, name string) ([]byte, error) {
+	directory := root
+	for _, part := range strings.Split(filepath.ToSlash(name), "/") {
+		entries, err := os.ReadDir(directory)
+		if err != nil {
+			return nil, err
+		}
+		found := false
+		for _, entry := range entries {
+			if entry.Name() == part {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, fmt.Errorf("fixture source %q: no entry spelled %q in %s", name, part, directory)
+		}
+		directory = filepath.Join(directory, part)
+	}
+	return os.ReadFile(directory)
+}
+
+// TestFixtureSourceSpelling checks both directory and file names independently
+// of the host filesystem's case rules, while preserving source bytes exactly.
+func TestFixtureSourceSpelling(t *testing.T) {
+	root := t.TempDir()
+	writeFixture(t, root, "src/triceDefaultConfig.h", "fixture source\n")
+	for _, tc := range []struct {
+		name, path, missing string
+	}{
+		{"exact", "src/triceDefaultConfig.h", ""},
+		{"wrong_directory_case", "Src/triceDefaultConfig.h", "Src"},
+		{"wrong_file_case", "src/TriceDefaultConfig.h", "TriceDefaultConfig.h"},
+		{"missing_file", "src/absent.h", "absent.h"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			data, err := readFixtureSource(root, tc.path)
+			if tc.missing == "" {
+				assert.NoError(t, err)
+				assert.Equal(t, "fixture source\n", string(data))
+			} else {
+				assert.ErrorContains(t, err, "no entry spelled "+strconv.Quote(tc.missing))
+				assert.Nil(t, data)
+			}
+		})
+	}
+}
+
 // scriptFixture copies only the production scripts under test; their normal
 // relative-root discovery then resolves into the isolated fixture repository.
 func scriptFixture(t *testing.T, scripts ...string) string {
@@ -97,7 +148,7 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 	runner := false
 	for _, name := range scripts {
 		runner = runner || name == "scripts/_110_test_runner.sh"
-		data, err := os.ReadFile(filepath.Join("..", name))
+		data, err := readFixtureSource("..", name)
 		if !assert.NoError(t, err) {
 			t.FailNow()
 		}
