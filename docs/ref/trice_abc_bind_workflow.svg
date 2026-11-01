@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" role="img" aria-labelledby="title description">
+  <title id="title">Trice ABC: Bind, generate, dispatch</title>
+  <desc id="description">At build time Bind associates a sender command with an ID in til.json, and generate connects that ID to a receiver function. At runtime the ID and payload travel to the receiver, which calls the application handler. The application supplies the handler body.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10Z" fill="#475569"/>
+    </marker>
+    <style>
+      text { font-family: sans-serif; fill: #172b4d; font-size: 16px; }
+      .label { font-size: 14px; fill: #475569; }
+      .heading { font-size: 19px; font-weight: bold; }
+      .code { font-family: monospace; font-size: 15px; }
+      .arrow { fill: none; stroke: #475569; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1000" height="450" rx="12" fill="#ffffff"/>
+  <text x="24" y="33" class="heading">Build time: generated connection between a command and its handler</text>
+  <rect x="24" y="66" width="280" height="133" rx="10" fill="#fff4cc" stroke="#b68217"/>
+  <text x="42" y="95" class="heading">Your sender call</text>
+  <text x="42" y="128" class="code">trice8C("cmd:setLeds",</text>
+  <text x="42" y="151" class="code">        &amp;mask, 1);</text>
+  <text x="42" y="180" class="label">Command name and payload</text>
+  <path d="M306 132H358" class="arrow"/>
+  <text x="330" y="117" class="label" text-anchor="middle">bind</text>
+  <rect x="360" y="66" width="280" height="133" rx="10" fill="#e7f0ff" stroke="#4079ba"/>
+  <text x="378" y="95" class="heading">til.json</text>
+  <text x="378" y="128" class="code">5150: trice8C</text>
+  <text x="378" y="151" class="code">      "cmd:setLeds"</text>
+  <text x="378" y="180" class="label">Assigned ID and command metadata</text>
+  <path d="M642 132H694" class="arrow"/>
+  <text x="668" y="117" class="label" text-anchor="middle">generate</text>
+  <rect x="696" y="66" width="280" height="133" rx="10" fill="#e7f0ff" stroke="#4079ba"/>
+  <text x="714" y="95" class="heading">Receiver table</text>
+  <text x="714" y="128" class="code">{5150u, 8u, setLeds}</text>
+  <text x="714" y="155" class="label">Generated .c file + selected .h file</text>
+  <text x="714" y="180" class="label">Compile with your handler source</text>
+  <path d="M24 229H976" stroke="#cbd5e1" stroke-dasharray="5 5"/>
+  <text x="24" y="261" class="heading">Runtime: the receiver calls your function</text>
+  <rect x="24" y="284" width="280" height="91" rx="10" fill="#e9f7ef" stroke="#388058"/>
+  <text x="42" y="314" class="heading">ID + payload</text>
+  <text x="42" y="345" class="code">5150 + LED mask</text>
+  <path d="M306 330H358" class="arrow"/>
+  <rect x="360" y="284" width="280" height="91" rx="10" fill="#e9f7ef" stroke="#388058"/>
+  <text x="378" y="314" class="heading">Receive runtime</text>
+  <text x="378" y="345" class="label">Parse record, resolve ID, dispatch</text>
+  <path d="M642 330H694" class="arrow"/>
+  <path d="M836 201V281" class="arrow"/>
+  <rect x="696" y="284" width="280" height="91" rx="10" fill="#fff4cc" stroke="#b68217"/>
+  <text x="714" y="314" class="heading">setLeds(&amp;rx)</text>
+  <text x="714" y="345" class="label">Your function body updates the LEDs</text>
+  <text x="24" y="417">You implement the handler body. Bind and generate maintain the IDs and dispatch table.</text>
+</svg>

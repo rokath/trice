@@ -5,21 +5,22 @@
 
 <!-- mdtoc -->
 
-- [1. Quick use](#quick-use)
-- [2. ABC macro families](#abc-macro-families)
-- [3. Command names and handler names](#command-names-and-handler-names)
-- [4. Receiver selection and generated table](#receiver-selection-and-generated-table)
-- [5. Receive runtime contract](#receive-runtime-contract)
-- [6. Handler payload handling](#handler-payload-handling)
-- [7. Responses](#responses)
-- [8. What ABC is not](#what-abc-is-not)
-- [9. Example: `examples/TriceAbc`](#example-examplestriceabc)
-  - [9.1. ABC Demo Layout, Startup, and Runtime Policy](#abc-demo-layout-startup-and-runtime-policy)
-- [10. BcSim Broadcast Byte-Stream Simulator](#bcsim-broadcast-byte-stream-simulator)
-- [11. Host tests](#host-tests)
-- [12. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
-- [13. Security boundary](#security-boundary)
-- [14. Summary](#summary)
+- [1. Key idea](#key-idea)
+- [2. Quick use](#quick-use)
+- [3. ABC macro families](#abc-macro-families)
+- [4. Command names and handler names](#command-names-and-handler-names)
+- [5. Receiver selection and generated table](#receiver-selection-and-generated-table)
+- [6. Receive runtime contract](#receive-runtime-contract)
+- [7. Handler payload handling](#handler-payload-handling)
+- [8. Responses](#responses)
+- [9. What ABC is not](#what-abc-is-not)
+- [10. Example: `examples/TriceAbc`](#example-examplestriceabc)
+  - [10.1. ABC Demo Layout, Startup, and Runtime Policy](#abc-demo-layout-startup-and-runtime-policy)
+- [11. BcSim Broadcast Byte-Stream Simulator](#bcsim-broadcast-byte-stream-simulator)
+- [12. Host tests](#host-tests)
+- [13. Building RPC-like protocols on top](#building-rpc-like-protocols-on-top)
+- [14. Security boundary](#security-boundary)
+- [15. Summary](#summary)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -36,32 +37,89 @@ ABC means:
 - **Broadcast:** zero, one, or several receivers may observe the same record.
 - **Commands:** selected receivers may execute locally compiled handlers.
 
-The key idea is the generated ID/function-pointer list on the receiver:
+## 1. <a id="key-idea"></a>Key idea
 
-```text
-sender source
-  trice8C("cmd:setLeds", &mask, 1)
-        |
-        | trice insert
-        v
-til.json
-  ID <-> "cmd:setLeds"
-        |
-        | trice generate -i til.json -abc device_abc
-        v
-device_abc.c
-  { ID, 8, setLeds }
-        |
-        | receive runtime
-        v
-TriceParseRecord() -> TriceResolveAbc() -> TriceDispatchAbc() -> setLeds(&rx)
+**Sender: call `trice8C(...)`. Receiver: implement the command function.** Once TX/RX and the transport are configured, that is the application work. Bind assigns the ID; the ABC generator creates the handler declarations and connects the selected functions to their IDs in the receiver table.
+
+**What happens on reception:**
+
+1. The transport collects and decodes a complete frame, for example COBS or TCOBS. The Trice runtime parses each contained record, keeping its ID and payload together and checking its length.
+2. The runtime searches the usually short generated ID table linearly. **No match: no command is called.**
+3. On a match with a valid payload length, it calls the handler **immediately in the receive context**. Processing continues when the handler returns.
+
+Example: ID `5150` with payload byte `0x05` calls `setLeds(&rx)` below and sets the LEDs to mask `0x05`. The command text stays in the TIL.
+
+An optional 16- or 32-bit ABC stamp reaches the handler as `rx->stamp`. The sender can use it to tell the receiver its address, or to identify a request; the application defines and sets this value explicitly.
+
+**Keep handlers short.** For slow or delayed work, copy the needed payload into application-owned storage or a queue, schedule the work yourself, and return. Do not retain `rx` or `rx->payload`; the runtime does not keep them for you.
+
+Dispatch is lightweight: a small table scan and a function-pointer call, without payload copying or heap allocation. ABC expects no reply, so there is no request/response handshake or waiting for a remote return value. Optional [responses](#responses) are separate messages.
+
+![Bind assigns the command ID; generate builds the dispatch table; the receiver runs the application handler](../ref/trice_abc_bind_workflow.svg)
+
+1. Write the sender call in `sender.c`:
+
+```c
+#include "trice.h"
+
+void SendLeds(uint8_t mask) {
+    trice8C("cmd:setLeds", &mask, 1);
+}
 ```
 
-Only the Trice ID, optional ABC stamp, and optional payload are transferred. The command string stays in the TIL data and is used during receiver-code generation.
+The suffix `C` marks a command. `8` means 8-bit payload elements; `1` sends one element. The name after the last colon, `setLeds`, becomes the receiver function name.
 
-## 1. <a id="quick-use"></a>Quick use
+2. Run Bind in that project. Initialize the metadata files on first use; `touch` preserves existing contents:
 
-![Trice ABC core workflow](../ref/trice_abc_core_workflow2.svg)
+```sh
+touch til.json li.json
+trice bind -src sender.c -i til.json -li li.json -genDir generated
+```
+
+Bind keeps the call readable and creates its ID definitions under `generated/`. The TIL contains an entry like this; the assigned ID can differ:
+
+```json
+{
+  "5150": {
+    "Type": "trice8C",
+    "Strg": "cmd:setLeds"
+  }
+}
+```
+
+3. Generate the receiver code from that TIL:
+
+```sh
+trice generate -i til.json -abc device_abc -genDir generated
+```
+
+The first run creates `generated/device_abc.h` with `void setLeds(const triceRx_t* rx);`. Keep the declarations for the commands this receiver accepts. Later runs preserve this user-owned header and regenerate `generated/device_abc.c`, whose dispatch table contains the equivalent of:
+
+```c
+const triceAbc_t triceAbc[] = {
+    /* id, bitWidth, function pointer */
+    {5150u, 8u, setLeds},
+};
+```
+
+For real generated results, open the demo's [selection header](../../examples/TriceAbc/NodeLib/nodeAbc.h) and [dispatch table](../../examples/TriceAbc/NodeLib/nodeAbc.c). Its [build script](../../examples/TriceAbc/build.sh) runs Bind when selected with `TRICE_ID_WORKFLOW=bind` and then executes the ABC generator.
+
+4. Implement the selected function in an application source file:
+
+```c
+#include "device_abc.h"
+
+void setLeds(const triceRx_t* rx) {
+    if (rx->payloadBytes != 1u) {
+        return;
+    }
+    boardSetLeds(rx->payload[0]); // Your application action.
+}
+```
+
+`boardSetLeds` stands for the application's hardware or state update. The demo's real handlers live in [NodeLib/node.c](../../examples/TriceAbc/NodeLib/node.c). Compile your handler source together with the generated `.c` file and the receive runtime.
+
+## 2. <a id="quick-use"></a>Quick use
 
 1. Enable sending and/or receiving in `triceConfig.h`:
 
@@ -82,23 +140,24 @@ void SetLeds(uint8_t mask) {
 }
 ```
 
-3. Insert IDs into the sources and TIL file:
+3. Bind IDs to the sources and TIL file:
 
 ```bash
-trice insert -til til.json -li li.json -src ./project_src
+touch til.json li.json
+trice bind -i til.json -li li.json -src ./project_src -genDir generated
 ```
 
 4. Generate the receiver selection/header pair and table:
 
 ```bash
-trice generate -i til.json -abc ./device_abc
+trice generate -i til.json -abc device_abc -genDir generated
 ```
 
 This creates:
 
 ```text
-device_abc.h   generated once, then user-owned receiver selection header
-device_abc.c   generated table, regenerated from til.json and device_abc.h
+generated/device_abc.h   generated once, then user-owned selection header
+generated/device_abc.c   table regenerated from til.json and device_abc.h
 ```
 
 5. Edit `device_abc.h` and keep only the commands this target shall receive:
@@ -138,24 +197,16 @@ void setLeds(const triceRx_t* rx) {
 }
 ```
 
-7. Feed decoded Trice records to the receive runtime:
+7. Feed each decoded frame to the receive runtime:
 
 ```c
-triceRx_t rx;
-int used = TriceParseRecord(&rx, record, recordLen);
-
-if (used > 0 && TriceResolveAbc(&rx, triceAbc, triceAbcElements) == TRICE_RX_RESULT_OK) {
-    (void)TriceDispatchAbc(&rx);
-}
+// Parse the frame's records and call matching handlers before returning.
+(void)TriceHandleDecodedRecord(0, decoded, decodedLen);
 ```
 
 `triceRx` parses already deframed and decrypted Trice records. UART, RTT, file, socket, COBS, TCOBS, and encryption handling stay outside this small receive core.
 
-<!--![Trice ABC core workflow](./ref/trice_abc_core_workflow.svg)-->
-
-![Trice ABC core workflow](../ref/trice_abc_core_workflow.png)
-
-## 2. <a id="abc-macro-families"></a>ABC macro families
+## 3. <a id="abc-macro-families"></a>ABC macro families
 
 The suffix `C` means command. The optional number in the macro name is the payload element width.
 
@@ -184,14 +235,14 @@ TRice16C("cmd:motorStep", 0x12345678, step, 4); // 32-bit stamp, 4 16-bit values
 
 For stamped ABC macros, the explicit ABC stamp follows the command string and precedes the payload arguments.
 
-ABC stamps are application-defined correlation values. They are not automatically generated Trice timestamps. Pass `TriceStamp16` or `TriceStamp32` explicitly if a real timestamp is desired.
+ABC stamps are application-defined values, for example a sender address or a request sequence number. The handler reads the value from `rx->stamp` and its width from `rx->stampBits`. They are not automatically generated Trice timestamps. Pass `TriceStamp16` or `TriceStamp32` explicitly if a real timestamp is desired.
 
 ```c
 TriceC("cmd:sample", TriceStamp16);
 TRiceC("cmd:sample", TriceStamp32);
 ```
 
-## 3. <a id="command-names-and-handler-names"></a>Command names and handler names
+## 4. <a id="command-names-and-handler-names"></a>Command names and handler names
 
 The ABC command name is written where a normal Trice format string would stand. Treat it as a command name, not as a printf format string.
 
@@ -212,7 +263,7 @@ The prefixes are not ABC addresses. They are useful for readable TIL data, filte
 
 The final command part must be a valid C identifier. Do not add a trailing newline to ABC command strings.
 
-## 4. <a id="receiver-selection-and-generated-table"></a>Receiver selection and generated table
+## 5. <a id="receiver-selection-and-generated-table"></a>Receiver selection and generated table
 
 `trice generate -abc target` creates `target.h` and `target.c` in `-genDir` (default `./generated`). The header is user-owned after its first creation: edit and version it to select the commands compiled into that target. The repository ignores generated C files but leaves this editable header visible to Git. An explicit target path such as `-abc path/target` keeps its existing location relative to the TIL directory.
 
@@ -239,11 +290,11 @@ const unsigned triceAbcElements = sizeof(triceAbc) / sizeof(triceAbc[0]);
 
 Do not edit `device_abc.c`. Implement the selected handlers in normal application code. Missing handler implementations fail as normal linker errors.
 
-## 5. <a id="receive-runtime-contract"></a>Receive runtime contract
+## 6. <a id="receive-runtime-contract"></a>Receive runtime contract
 
-The common receive API is in `src/triceRx.h` and `src/triceRx.c`.
+The common receive API is in [triceRx.h](../../src/triceRx.h) and [triceRx.c](../../src/triceRx.c). `TriceHandleDecodedRecord(node, decoded, decodedLen)` parses and handles all records in a decoded frame, calling matching ABC handlers directly. Pass `0` for `node` when no application context is needed by the optional log/ignored-record callbacks.
 
-Use `TriceParseRecord()` to parse one decoded Trice record. It fills a `triceRx_t`:
+For custom receive paths, `TriceParseRecord()` parses one record and returns its consumed byte count. It fills a `triceRx_t`:
 
 ```c
 uint16_t id;              // Trice ID
@@ -254,15 +305,11 @@ const uint8_t* payload;   // points into caller-owned input buffer
 uint16_t payloadBytes;    // payload byte count
 ```
 
-The payload is not copied. Do not store `rx->payload` beyond the lifetime of the input buffer unless the handler copies the data.
+`TriceResolveAbc()` searches the generated `triceAbc[]` table, checks that the payload length fits the element width, and attaches the bit width and handler pointer to `rx`. The handler checks command-specific requirements, such as exactly one LED-mask byte. No matching ID means no ABC execution; the same record may still be handled as normal log traffic when enabled.
 
-`TriceResolveAbc()` looks up the parsed ID in the generated `triceAbc[]` table and attaches the resolved bit width and function pointer to `rx`.
+The runtime borrows the input buffer without copying the payload. Treat `rx` and its payload as valid only during the handler call. Copy any data needed for later execution and arrange its scheduling in application code.
 
-`TriceDispatchAbc()` validates the payload size against the resolved bit width and calls the selected handler. Unknown IDs are normal in mixed streams and can be ignored.
-
-For simple one-record receive paths, `TriceAbcOnReceive(pBuf, len)` is available as a convenience wrapper. Stream receivers should usually parse records explicitly, advance by the positive consumed byte count, and decide per record whether it is ABC, normal log traffic, counted typeX0 traffic, or unknown traffic.
-
-## 6. <a id="handler-payload-handling"></a>Handler payload handling
+## 7. <a id="handler-payload-handling"></a>Handler payload handling
 
 Handlers get only `const triceRx_t*`. Application state must come from normal program context.
 
@@ -285,7 +332,7 @@ void setTime(const triceRx_t* rx) {
 
 Use the configured Trice transfer order consistently if payload values are exchanged between different endian architectures.
 
-## 7. <a id="responses"></a>Responses
+## 8. <a id="responses"></a>Responses
 
 ABC has no built-in response model. A handler may send no response, one response, or several responses.
 
@@ -301,7 +348,7 @@ TRice8C("abc:LedsState", responseStamp32, &leds, 1);
 
 The response is just another Trice message. It may be a normal log message or another ABC command. Use stamps to correlate responses with requests.
 
-## 8. <a id="what-abc-is-not"></a>What ABC is not
+## 9. <a id="what-abc-is-not"></a>What ABC is not
 
 ABC is not RPC by itself.
 
@@ -322,7 +369,7 @@ Build these policies above ABC when needed.
 
 ABC is also not remote code execution. A receiver can execute only handlers already compiled into the firmware and selected by its generated ABC table.
 
-## 9. <a id="example-examplestriceabc"></a>Example: `examples/TriceAbc`
+## 10. <a id="example-examplestriceabc"></a>Example: `examples/TriceAbc`
 
 The host-native demo shows ABC without embedded hardware.
 
@@ -457,7 +504,7 @@ th@Thomass-MacBook-Pro-7 TriceAbc %
 
 ![Trice ABC host demo bus topology](../ref/trice_abc_demo_bus.png)
 
-### 9.1. <a id="abc-demo-layout-startup-and-runtime-policy"></a>ABC Demo Layout, Startup, and Runtime Policy
+### 10.1. <a id="abc-demo-layout-startup-and-runtime-policy"></a>ABC Demo Layout, Startup, and Runtime Policy
 
 The [host-native example](../../examples/TriceAbc/) requires Bash and a C compiler (`gcc`, `clang`, or `cc`); `CC` selects a compiler explicitly. Its build script uses `TRICE_BIN` if supplied, otherwise Go when available, or `trice` in `PATH`. It builds all nine executables below `build` (`.exe` on Windows).
 
@@ -513,7 +560,7 @@ N6_rx: log:tick=4
 N7_bi: x0 5 bytes: 10 11 12 13 14
 ```
 
-## 10. <a id="bcsim-broadcast-byte-stream-simulator"></a>BcSim Broadcast Byte-Stream Simulator
+## 11. <a id="bcsim-broadcast-byte-stream-simulator"></a>BcSim Broadcast Byte-Stream Simulator
 
 [BcSim](../../examples/TriceAbc/BcSim/) is a standalone C module: several PC processes append to a shared local file and poll bytes written by others. It knows nothing about IDs, framing, encryption, packet boundaries, source addresses, commands, or handlers. `bc.bus` contains exactly the supplied bytes, with no inserted name, timestamp, length, or metadata; optional `bc.log` is human-readable diagnostic output only.
 
@@ -552,7 +599,7 @@ Its [build script](../../examples/TriceAbc/BcSimChk/build.sh) compiles `main.c` 
 
 This is a local demonstration medium, not high-performance IPC or a real embedded link. The bus grows until removed, only finitely many self-write ranges are remembered, and a restarted process cannot identify a previous instance's writes. A killed writer can leave a lock directory requiring cleanup. Network filesystems may not offer the same atomic directory and visibility behavior as local filesystems.
 
-## 11. <a id="host-tests"></a>Host tests
+## 12. <a id="host-tests"></a>Host tests
 
 `_test/abc_tx_host` checks the transmit side. It compiles a small C fixture with ABC TX support, emits selected `triceC`, `TriceC`, `TRiceC`, `trice8C`, `trice16C`, and `trice32C` calls, and compares the produced bytes with fixed fixtures. It verifies wire format generation only; it does not use a receiver table.
 
@@ -560,7 +607,7 @@ This is a local demonstration medium, not high-performance IPC or a real embedde
 
 Together, these tests document the current ABC boundary: transmit macros create normal Trice records, the generated table maps selected IDs to handlers, and the receive runtime parses/resolves/dispatches one decoded record at a time.
 
-## 12. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
+## 13. <a id="building-rpc-like-protocols-on-top"></a>Building RPC-like protocols on top
 
 Use ABC as the transport primitive and define the RPC policy in the application.
 
@@ -576,7 +623,7 @@ A minimal RPC-like pattern is:
 
 For addressed RPC over a broadcast bus, put the destination into the stamp or payload and let non-matching receivers ignore the command. ABC itself still broadcasts the record.
 
-## 13. <a id="security-boundary"></a>Security boundary
+## 14. <a id="security-boundary"></a>Security boundary
 
 ABC receiving allows incoming Trice records to trigger selected local application handlers. Do not enable ABC receive processing on untrusted inputs without an application-level trust model.
 
@@ -588,7 +635,7 @@ Typical protections are:
 - add authentication or encryption around the transport,
 - compile out `TRICE_RX_ABC_SUPPORT` where it is not needed.
 
-## 14. <a id="summary"></a>Summary
+## 15. <a id="summary"></a>Summary
 
 ABC turns selected Trice IDs into asynchronous broadcast commands.
 
