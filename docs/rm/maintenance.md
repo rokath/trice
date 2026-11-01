@@ -36,6 +36,8 @@ The [Guide](../TriceGuide.md) describes the repository layout. This appendix cov
 | [gitAddWorktreeFromGitLogLineData.sh](../../scripts/gitAddWorktreeFromGitLogLineData.sh), [gitAddWorktreesBetween.sh](../../scripts/gitAddWorktreesBetween.sh) | Create separate checkouts for historical comparisons. Read their usage before running. |
 | [gitLogWithBranches.sh](../../scripts/gitLogWithBranches.sh) | Inspect history with branch context. |
 
+Public shell entry points in `scripts/` have no leading underscore: `testAll.sh`, `format_repo.sh`, `release_prep.sh`, `buildTriceTool.sh` and the three Git tools above. The [scripts overview](../../scripts/README.md) lists the public commands. Internal shell, Python and Node.js scripts start with `_`, including the numbered test steps. Run those helpers directly only for focused maintenance or diagnostics.
+
 ## 2. <a id="github-workflows"></a>GitHub workflows
 
 The [testing chapter](target_tests.md#github-actions) owns the test workflow catalogue, coverage commands and link checks. Workflow YAML files define their current triggers; repository settings decide which checks block merging.
@@ -76,7 +78,7 @@ VS Code Markdown previews, table formatting and paste extensions can help editin
 ## 4. <a id="cleaning-the-sources"></a>Cleaning the Sources
 
 * `./scripts/format_repo.sh check` checks manual, shell, Go and C formatting. It preserves sources, ID metadata, example build outputs and `.DS_Store` files. If a pinned formatter is missing, it asks before installing it under `temp/tools`.
-* `./scripts/format_repo.sh format` also refreshes Bind headers, cleans example build outputs and removes `.DS_Store` files. Run it separately or accept `Format repo? [y/N]` before a local `testAll.sh` run. Use `testAll.sh --no-format` to suppress that question.
+* `./scripts/format_repo.sh format` also refreshes Bind headers, cleans example build outputs and removes `.DS_Store` files. Run it separately, accept `Format repo? [y/N]` before an interactive full test run, or use `testAll.sh --format`. Both formatting switches automatically choose local tool preparation (`c`); `quick` defaults to `--no-format`.
 * `docs/_scratchPad/` contains notes and historical sources. It is excluded from repository-wide Go discovery, formatting, linting and link checks; no `go.mod` is needed there.
 * [`_300_clean_dsstore.sh`](../../scripts/_300_clean_dsstore.sh) removes macOS folder metadata when explicitly requested. Tests report it without deleting it.
 * [`_240_legacy_clean_ids.sh`](../../scripts/_240_legacy_clean_ids.sh) belongs to the [deprecated Insert/Clean workflow](insert_clean_cache.md), not normal Bind preparation.
@@ -89,7 +91,7 @@ Use the unchanged [github-repo-stats action](https://github.com/jgehrcke/github-
 to archive GitHub traffic and generate its standard HTML/PDF report. It covers
 daily views and clones, stars, forks, referrers and popular paths. No custom
 traffic collector, chart library or Trice dependency is added. A separate
-[download report generator](../../scripts/github_downloads.py) uses Python's
+[download report generator](../../scripts/_github_downloads.py) uses Python's
 standard library to render release-download charts.
 
 Release markers and a separately measured daily star/fork inventory remain
@@ -281,7 +283,7 @@ Trice builds, change release files, contact the traffic API or push data.
 
 For an offline report, save `gh api --paginate --slurp 'repos/rokath/trice/releases?per_page=100'`
 to `temp/releases.json`, then run
-`python3 scripts/github_downloads.py temp/releases.json temp/downloads`.
+`python3 scripts/_github_downloads.py temp/releases.json temp/downloads`.
 Open `temp/downloads/report/index.html`. Reuse `temp/downloads` to retain local
 daily snapshots. `go test ./scripts -run 'TestDownload'` checks the generator
 and Pages integration with fixtures, without API access or Git writes.
