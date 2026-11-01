@@ -29,7 +29,7 @@
 
 Trice ABC adds command-style communication to normal Trice records. The API is intentionally small and meant as a building block.
 
-The [TriceAbc example](../../examples/TriceAbc) demonstrates ABC communication with COBS framing and without encryption. Its node configurations define the framing explicitly; when experimenting with a different transport setup, update the sender, receiver and logging options together.
+The [TriceAbc example](../../examples/TriceAbc) demonstrates ABC communication with COBS framing and without encryption. But encryption is possible too. Its node configurations define the framing explicitly; when experimenting with a different transport setup, update the sender, receiver and logging options together.
 
 ABC means:
 
@@ -39,7 +39,7 @@ ABC means:
 
 ## 1. <a id="key-idea"></a>Key idea
 
-**Sender: call `trice8C(...)`. Receiver: implement the command function.** Once TX/RX and the transport are configured, that is the application work. Bind assigns the ID; the ABC generator creates the handler declarations and connects the selected functions to their IDs in the receiver table.
+**Sender: call `trice8C("fname"...)`. Receiver: implement the command `fname`.** Once TX/RX and the transport are configured, that is the application work. Bind assigns the ID; the ABC generator creates the handler declarations and connects the selected functions to their IDs in the receiver table.
 
 **What happens on reception:**
 
