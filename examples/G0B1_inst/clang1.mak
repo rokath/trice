@@ -17,7 +17,8 @@ $(CLANG_BUILD)/cmsis_os.o: CLANG_SOURCE_FLAGS += -Wno-invalid-utf8 -Wno-unused-p
 $(CLANG_BUILD)/SEGGER_RTT.o: CLANG_SOURCE_FLAGS += -Wno-zero-length-array
 # FreeRTOS updates this debug counter even when configUSE_TRACE_FACILITY is off.
 # Keep the vendor source intact and restrict the suppression to its task unit.
-$(CLANG_BUILD)/tasks.o: CLANG_SOURCE_FLAGS += -Wno-unused-but-set-global
+# The parent warning group also works with older Apple Clang versions.
+$(CLANG_BUILD)/tasks.o: CLANG_SOURCE_FLAGS += -Wno-unused-but-set-variable
 
 # assembler
 $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
@@ -34,7 +35,7 @@ $(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 # linker # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 $(CLANG_BUILD)/$(TARGET).elf: $(CLANG_OBJECTS) $(BUILDFILES)
 	@echo linking...
-	@$(GCC_CC) $(CLANG_OBJECTS) $(MCU) $(CLANG_LDFLAGS) $(VERBOSE) -o $@ 2> gccLinksClangWarning.txt
+	@$(GCC_CC) $(CLANG_OBJECTS) $(MCU) $(CLANG_LDFLAGS) $(VERBOSE) -o $@ 2> gccLinksClangWarning.txt || { status=$$?; cat gccLinksClangWarning.txt >&2; exit $$status; }
 	@#echo -e
 	@$(CLANG_SZ) $@
 

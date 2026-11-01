@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+	"unicode/utf8"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -187,6 +189,154 @@ func TestRecordAndPrintTriceStatistics(t *testing.T) {
 	assert.Contains(t, s, "c.c")
 	assert.Contains(t, s, "hello")
 	assert.Contains(t, s, "2 Trice messsges")
+}
+
+// TestStatisticsLocationColumns checks report alignment, width caps and retained
+// path suffixes, independently of the map's row order and terminal color codes.
+func TestStatisticsLocationColumns(t *testing.T) {
+	for _, tc := range []struct {
+		name, format, path, expected string
+		width, maxDirs               int
+	}{
+		{"short_paths_shrink", "%32s%4d", "src/main.c", "src/main.c", 20, 3},
+		{"long_paths_are_capped", "%32s%4d", "examples/exampleData/triceLogDiagData.c", "…/exampleData/triceLogDiagData.c", 32, 3},
+		{"directory_suffix_retained", "%12s%4d", "one/two/verylong.c", "…/verylong.c", 12, 3},
+		{"left_aligned_format", "%-12s%4d", "one/two/verylong.c", "…/verylong.c", 12, 3},
+		{"index_after_width", "%12[1]s%4[2]d", "one/two/verylong.c", "…/verylong.c", 12, 3},
+		{"escaped_percent_ignored", "%%64s:%12s%4d", "one/two/verylong.c", "…/verylong.c", 12, 3},
+		{"no_width_keeps_full_path", "%s:%d", "examples/exampleData/triceLogDiagData.c", "examples/exampleData/triceLogDiagData.c", 39, 3},
+		{"unbounded_first_string", "%s %%32s %d", "examples/exampleData/triceLogDiagData.c", "examples/exampleData/triceLogDiagData.c", 39, 3},
+		{"unicode_suffix", "%11s%4d", "src/überlang.c", "…überlang.c", 11, 3},
+		{"one_character_limit", "%1s%4d", "src/main.c", "…", 1, 3},
+		{"liMaxDirs_applies_first", "%32s%4d", "examples/exampleData/triceLogDiagData.c", "triceLogDiagData.c", 20, 0},
+		{"missing_location", "%32s%4d", "", ".", 20, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.NotContains(t, fmt.Sprintf(tc.format, tc.path, 23), "%!", "the width rule must match a usable Go location format")
+			// Restore every shared input so report sizing cannot leak to other tests.
+			oldEnabled, oldAll, oldCounts := TriceStatistics, emitter.AllStatistics, IDStat
+			oldTIL, oldLI, oldFormat := IDLUT, LILUT, LocationInformationFormatString
+			oldMaxDirs, oldPalette := id.LIMaxDirs, emitter.ColorPalette
+			t.Cleanup(func() {
+				TriceStatistics, emitter.AllStatistics, IDStat = oldEnabled, oldAll, oldCounts
+				IDLUT, LILUT, LocationInformationFormatString = oldTIL, oldLI, oldFormat
+				id.LIMaxDirs, emitter.ColorPalette = oldMaxDirs, oldPalette
+			})
+			TriceStatistics, emitter.AllStatistics = true, false
+			IDStat = map[id.TriceID]int{7: 2, 8: 1}
+			IDLUT = id.TriceIDLookUp{7: {Type: "TRICE", Strg: "hello\\n"}, 8: {Type: "trice", Strg: "another message\\n"}}
+			LILUT = id.TriceIDLookUpLI{
+				7: {File: tc.path, Line: 23},
+				8: {File: "src/z.c", Line: 4},
+				// Locations without recorded events must not widen the report.
+				9: {File: "unseen/very-very-very-long-file-without-any-recorded-events.c", Line: 1},
+			}
+			LocationInformationFormatString = tc.format
+			id.LIMaxDirs, emitter.ColorPalette = tc.maxDirs, "none"
+			var output bytes.Buffer
+			PrintTriceStatistics(&output)
+			// Every separator must occupy the heading's column in both rules and rows.
+			var boundaries []int
+			for _, line := range strings.Split(output.String(), "\n") {
+				if !strings.Contains(line, "|") {
+					continue
+				}
+				var positions []int
+				for position, character := range []rune(line) {
+					if character == '|' {
+						positions = append(positions, position)
+					}
+				}
+				if boundaries == nil {
+					boundaries = positions
+				}
+				assert.Equal(t, boundaries, positions, line)
+				fields := strings.Split(line, "|")
+				assert.Equal(t, tc.width+2, utf8.RuneCountInString(fields[1]), line)
+				if _, err := strconv.Atoi(strings.TrimSpace(fields[0])); err == nil {
+					expectedPath := tc.expected
+					if strings.TrimSpace(fields[3]) == "8" {
+						expectedPath = "src/z.c"
+						if tc.maxDirs == 0 {
+							expectedPath = "z.c"
+						}
+						if tc.width == 1 {
+							expectedPath = "…"
+						}
+					}
+					assert.Equal(t, expectedPath, strings.TrimSpace(fields[1]))
+					assert.True(t, utf8.ValidString(fields[1]))
+				}
+			}
+			assert.Contains(t, output.String(), "3 Trice messsges")
+		})
+	}
+}
+
+// TestStatisticsTypeColumns checks that only printed type names determine the
+// column width and that headings, rules and rows retain identical boundaries.
+func TestStatisticsTypeColumns(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		types []string
+		width int
+	}{
+		{"empty_report_keeps_heading", nil, 4},
+		{"missing_type_keeps_heading", []string{""}, 4},
+		{"short_names_shrink", []string{"TRICE", "trice"}, 5},
+		{"heading_is_minimum", []string{"T", "X"}, 4},
+		{"ten_character_name", []string{"trice16_12", "TRICE"}, 10},
+		{"assert_name_expands", []string{"triceAssert", "TRICE"}, 11},
+		{"long_assert_name_expands", []string{"TRice32_1", "TriceAssertOrReturnValue"}, 24},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			// Keep report configuration and event counts local to each case.
+			oldEnabled, oldAll, oldCounts := TriceStatistics, emitter.AllStatistics, IDStat
+			oldTIL, oldLI, oldPalette := IDLUT, LILUT, emitter.ColorPalette
+			t.Cleanup(func() {
+				TriceStatistics, emitter.AllStatistics, IDStat = oldEnabled, oldAll, oldCounts
+				IDLUT, LILUT, emitter.ColorPalette = oldTIL, oldLI, oldPalette
+			})
+			TriceStatistics, emitter.AllStatistics, emitter.ColorPalette = true, false, "none"
+			IDStat, IDLUT, LILUT = map[id.TriceID]int{}, id.TriceIDLookUp{}, id.TriceIDLookUpLI{}
+			for i, name := range tc.types {
+				tid := id.TriceID(i + 1)
+				IDStat[tid] = 1
+				IDLUT[tid] = id.TriceFmt{Type: name, Strg: "message\\n"}
+			}
+			// Dictionary entries without recorded events must not widen the column.
+			IDLUT[99] = id.TriceFmt{Type: "UnrecordedTypeLongerThanEveryPrintedName"}
+			var output bytes.Buffer
+			PrintTriceStatistics(&output)
+			var boundaries []int
+			rows := 0
+			for _, line := range strings.Split(output.String(), "\n") {
+				if !strings.Contains(line, "|") {
+					continue
+				}
+				var positions []int
+				for position, character := range []rune(line) {
+					if character == '|' {
+						positions = append(positions, position)
+					}
+				}
+				if boundaries == nil {
+					boundaries = positions
+				}
+				assert.Equal(t, boundaries, positions, line)
+				fields := strings.Split(line, "|")
+				assert.Equal(t, tc.width+2, utf8.RuneCountInString(fields[4]), line)
+				if _, err := strconv.Atoi(strings.TrimSpace(fields[0])); err == nil {
+					tid, err := strconv.Atoi(strings.TrimSpace(fields[3]))
+					assert.NoError(t, err)
+					assert.Equal(t, IDLUT[id.TriceID(tid)].Type, strings.TrimSpace(fields[4]))
+					rows++
+				}
+			}
+			assert.NotEmpty(t, boundaries, "the report must include its column headings")
+			assert.Equal(t, len(tc.types), rows, "each recorded type must remain visible")
+		})
+	}
 }
 
 // TestStatisticsWaitsForDictionaryReload checks that a report cannot inspect

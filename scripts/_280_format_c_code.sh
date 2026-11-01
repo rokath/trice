@@ -186,8 +186,10 @@ ensure_clang_format() {
     return 1
   fi
 
-  # Try the native Windows launcher first; python3 may be a Store alias there.
-  if command -v py >/dev/null 2>&1 && py -3 -c 'import sys; sys.exit(sys.version_info[0] != 3)' >/dev/null 2>&1; then
+  # Reuse the interpreter whose formatter prerequisites were checked in planning.
+  if [ -n "${TRICE_FORMAT_PYTHON:-}" ]; then
+    python_command=("$TRICE_FORMAT_PYTHON")
+  elif command -v py >/dev/null 2>&1 && py -3 -c 'import sys; sys.exit(sys.version_info[0] != 3)' >/dev/null 2>&1; then
     python_command=(py -3)
   else
     for candidate in python3 python; do
@@ -242,6 +244,9 @@ ensure_clang_format() {
   return 1
 }
 
+if declare -F trice_test_tool_plan >/dev/null && [ "${TRICE_TEST_PLAN_ACTIVE:-0}" != 1 ]; then
+  trice_test_tool_plan format || exit 2
+fi
 ensure_clang_format
 
 if [ "$MODE" = "setup" ]; then

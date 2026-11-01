@@ -67,7 +67,8 @@ create_feature_copy() {
   FEATURE_COPY_DIR="$(mktemp -d "$LOG_DIR/logging-features.XXXXXX")" || return 1
   log "INFO: isolated feature examples (retained on failure): $FEATURE_COPY_DIR"
   mkdir -p "$FEATURE_COPY_DIR/project" || return 1
-  git ls-files -z -- src examples/PC_features examples/G0B1_features examples/exampleData \
+  # The compiler wrappers source the shared CLI helper outside their project.
+  git ls-files -z -- src examples/PC_features examples/G0B1_features examples/exampleData examples/buildCLI.sh \
     scripts/_150_setup_build_environment.sh \
     ':!examples/PC_features/li.json' ':!examples/G0B1_features/li.json' \
     >"$FEATURE_COPY_DIR/paths" || {

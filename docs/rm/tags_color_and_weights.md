@@ -193,6 +193,8 @@ Decoder and transport diagnostics are not untagged application events. Byte-orie
 
 `-tagStat` counts successfully decoded application events by tag group, including `untagged`; `-triceStat` counts successfully decoded ID-based Trice events by ID. `-stat` prints both reports. These totals are recorded before `-pick`, `-ban`, `-logLevel`, and visualization routing, so they include events hidden from the text display. One call counts once even if it spans several output lines; several calls on one line count separately. Palette changes, metadata columns, and repeated report printing do not change the totals. Decoder diagnostics and malformed records are excluded. Formatted ID-less `typeX0` records contribute to tag statistics but have no Trice ID to count. Byte-oriented CHAR/DUMP chunks have no event boundary and do not contribute to these event totals.
 
+The Trice statistics path column grows to fit the recorded locations after `-liMaxDirs`, up to the fixed file-field width in `-liFmt`. For example, `-liFmt '%32s%4d'` limits this column to 32 characters. Longer paths start with `…` and retain their filename suffix; UTF-8 characters remain intact. Without a fixed string-field width, paths are shown in full. The heading and separators follow the same width as the rows.
+
 ## 8. <a id="output-options"></a>Output options
 
 ![Trice color output options](../ref/ColorOptions.PNG)

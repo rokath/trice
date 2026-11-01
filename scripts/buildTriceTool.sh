@@ -128,7 +128,7 @@ protect_existing_target() {
       if [ "$BACKUP_EXPLICIT" = false ]; then
         log_always "An existing $target_basename installation would be overwritten:"
         log_always "  $target_path"
-        log_always "Choose: [b]ackup and overwrite, overwrite [w]ithout backup, [a]bort"
+        log_always "Choose: [b]ackup and overwrite, overwrite [w]ithout backup, [a]bort (press ENTER to confirm)"
         read -r -p "> " overwrite_choice
         case "${overwrite_choice:-b}" in
           b | B | "")
@@ -152,7 +152,7 @@ protect_existing_target() {
         else
           prompt_suffix="without backup"
         fi
-        read -r -p "Overwrite existing $target_basename ${prompt_suffix}? [y/N] " overwrite_confirm
+        read -r -p "Overwrite existing $target_basename ${prompt_suffix}? [y/N] (press ENTER to confirm) " overwrite_confirm
         case "${overwrite_confirm:-N}" in
           y | Y) ;;
           *)

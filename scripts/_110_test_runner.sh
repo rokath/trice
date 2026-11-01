@@ -46,6 +46,19 @@ summary_line() {
   printf '%s\n' "$1"
 }
 
+# Keep persistent summaries plain while using the existing terminal palette for
+# the final status. Empty colors retain redirected-output and NO_COLOR behavior.
+summary_result() {
+  local result="$1" detail="${2:-}" color=''
+  case "$result" in
+    PASS) color="$PASS_COLOR" ;;
+    FAIL) color="$FAIL_COLOR" ;;
+    INCOMPLETE | ABORTED) color="$WARN_COLOR" ;;
+  esac
+  printf 'Result: %s%s\n' "$result" "$detail" >>"$SUMMARY_LOG"
+  printf 'Result: %s%s%s%s\n' "$color" "$result" "$RESET_COLOR" "$detail"
+}
+
 # capture_tracked_bytes records actual worktree bytes, including files that
 # were already dirty before testAll. Git status alone cannot detect a second
 # edit to such a file when its short status stays the same.
@@ -72,7 +85,7 @@ capture_tracked_bytes() {
   fi
   # New task sources must also be protected before they have been staged.
   git ls-files -z --others --exclude-standard -- '*.go' '*.c' '*.h' '*.sh' \
-    'scripts/test-tools.env' 'scripts/testcheck/package*.json' >>"$path_list" || return 1
+    'scripts/test-tools.env' 'scripts/testcheck/package*.json' 'scripts/_test_npm_tools.cjs' >>"$path_list" || return 1
 
   : >"$manifest" || return 1
   : >"$entries" || return 1
@@ -308,7 +321,8 @@ run_step() {
   step_progress_prefix "$step" "$step_elapsed"
   if [ "$rc" -eq 0 ]; then
     step_log="$LOG_DIR/$(basename "$step" .sh).log"
-    if [ -f "$step_log" ] && grep -Eq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
+    # Raw test payloads may contain NUL bytes; diagnostics are still text.
+    if [ -f "$step_log" ] && grep -aEq '^(MISSING TOOL:|SKIP:)' "$step_log"; then
       printf 'INCOMPLETE\n' >>"$SUMMARY_LOG"
       printf '%sINCOMPLETE%s\n' "$WARN_COLOR" "$RESET_COLOR"
       rc=2
@@ -316,7 +330,7 @@ run_step() {
       # in the per-step log during a quiet aggregate test run.
       while IFS= read -r warning; do
         summary_line "  $warning"
-      done < <(grep -E '^(MISSING TOOL:|SKIP:)' "$step_log")
+      done < <(grep -aE '^(MISSING TOOL:|SKIP:)' "$step_log")
     else
       printf 'PASS\n' >>"$SUMMARY_LOG"
       printf '%sPASS%s\n' "$PASS_COLOR" "$RESET_COLOR"
@@ -325,7 +339,7 @@ run_step() {
       if [ -f "$step_log" ]; then
         while IFS= read -r detail; do
           summary_line "  $detail"
-        done < <(grep -E '^Hint:' "$step_log")
+        done < <(grep -aE '^Hint:' "$step_log")
       fi
     fi
   elif [ "$rc" -eq 2 ]; then
@@ -336,7 +350,7 @@ run_step() {
     if [ -f "$step_log" ]; then
       while IFS= read -r detail; do
         summary_line "  $detail"
-      done < <(grep -E '^(INCOMPLETE:|MISSING TOOL:|SKIP:)' "$step_log")
+      done < <(grep -aE '^(INCOMPLETE:|MISSING TOOL:|SKIP:)' "$step_log")
     fi
   elif [ "$rc" -eq 130 ] || [ "$rc" -eq 143 ]; then
     printf 'ABORTED\n' >>"$SUMMARY_LOG"
@@ -444,12 +458,13 @@ expected_step_weight() {
 }
 
 # parse_test_all_arguments accepts the historical selection plus the optional
-# failure policy in either order. Continue after failures unless --stop is set.
+# failure policy and format-prompt suppression in either order.
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
   TEST_ALL_SELECTED="full"
   TEST_ALL_NO_STOP=1
+  TEST_ALL_NO_FORMAT=0
   for argument in "$@"; do
     case "$argument" in
       quick | full)
@@ -462,9 +477,10 @@ parse_test_all_arguments() {
         ;;
       --no-stop) TEST_ALL_NO_STOP=1 ;;
       --stop) TEST_ALL_NO_STOP=0 ;;
+      --no-format) TEST_ALL_NO_FORMAT=1 ;;
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
-        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop]\n' >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop] [--no-format]\n' >&2
         printf 'Default: full, continue after failures (--no-stop).\n' >&2
         return 2
         ;;
@@ -538,11 +554,47 @@ run_selected_steps() {
   done
 }
 
+# Preserve formatter diagnostics while the shared progress helper reports long
+# work. Formatting is an explicit maintenance action, before the test baseline.
+run_repository_formatter() {
+  "$SCRIPTS_DIR/format_repo.sh" format >"$LOG_DIR/format_repo.log" 2>&1
+}
+
+# Local users may opt into the existing complete formatter. EOF/default and CI
+# leave sources alone. Capture its intentional changes even on partial failure;
+# later test mutations must still be detected against the resulting baseline.
+offer_repository_format() {
+  local answer='' status=0
+  if [ "${TEST_ALL_NO_FORMAT:-0}" = 1 ]; then return 0; fi
+  if [ -n "${CI:-}" ] && [ "$CI" != false ]; then return 0; fi
+  printf 'Format repo? [y/N] (press ENTER to confirm) '
+  IFS= read -r answer || answer=''
+  printf '\n'
+  answer="${answer%$'\r'}"
+  case "$answer" in y | Y | yes | YES) ;; *) return 0 ;; esac
+
+  # Do not hide unexpected preparation edits by refreshing the baseline.
+  if ! capture_tracked_bytes "$TEST_ALL_STATE_DIR/prepared" || ! cmp -s "$TEST_ALL_STATE_DIR/before" "$TEST_ALL_STATE_DIR/prepared"; then
+    summary_line 'INCOMPLETE: worktree changed during preparation; formatting and tests were not started.'
+    return 2
+  fi
+  trice_setup_with_progress 'Formatting repository' run_repository_formatter || status=$?
+  if ! capture_tracked_bytes "$TEST_ALL_STATE_DIR/formatted" || ! mv "$TEST_ALL_STATE_DIR/formatted" "$TEST_ALL_STATE_DIR/before"; then
+    summary_line 'INCOMPLETE: cannot capture the worktree after formatting; tests were not started.'
+    return 2
+  fi
+  if [ "$status" -ne 0 ]; then
+    summary_line "INCOMPLETE: repository formatting failed; no tests started. See $LOG_DIR/format_repo.log"
+    return 2
+  fi
+}
+
 main() {
   local selected
   local started_at
   local finished_at
   local duration
+  local preparation_started_at
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
   TEST_ALL_FAILED=0
@@ -557,6 +609,7 @@ main() {
   export SUMMARY_LOG="$LOG_DIR/testAll_summary.log"
   build_test_plan
   started_at=$(date +%s)
+  preparation_started_at="$started_at"
   : >"$SUMMARY_LOG"
   : >"$LOG_DIR/steps.tsv"
   # Shared Insert/Bind state has one owner, even with separate log directories.
@@ -569,39 +622,59 @@ main() {
   TEST_ALL_LOCK_OWNED=1
   printf 'PID=%s\nLOG_DIR=%s\n' "$$" "$LOG_DIR" >./temp/testAll.lock/owner
   TEST_ALL_STATE_DIR="$(mktemp -d "$LOG_DIR/testAll-state.XXXXXX")" || exit 1
-  summary_line "Preparing testAll: capturing tracked worktree state..."
+  printf '%s\n' 'Preparing testAll: capturing tracked worktree state...' >>"$SUMMARY_LOG"
   capture_tracked_bytes "$TEST_ALL_STATE_DIR/before" || exit 1
   TEST_ALL_STATE_CAPTURED=1
-  summary_line "Starting testAll at $(date)"
-  summary_line "Selection: $selected"
-  summary_line "Run directory: $LOG_DIR"
-  summary_line "Scope: native code, compiler and local consistency checks; external links and release snapshots run separately."
+  # Preserve detailed run context in the summary without making the user read
+  # it before the tool table. Startup needs only selection, platform and log.
+  printf '%s\n' "Starting testAll at $(date)" "Selection: $selected" "Run directory: $LOG_DIR" \
+    'Scope: native code, compiler and local consistency checks; external links and release snapshots run separately.' >>"$SUMMARY_LOG"
   if [ "$selected" = "quick" ]; then
-    summary_line "ID workflows: bind (CE/SL fixtures also cover insert/clean)"
+    printf '%s\n' 'ID workflows: bind (CE/SL fixtures also cover insert/clean)' >>"$SUMMARY_LOG"
   else
-    summary_line "ID workflows: bind plus legacy insert/clean"
+    printf '%s\n' 'ID workflows: bind plus legacy insert/clean' >>"$SUMMARY_LOG"
   fi
   if [ "$TEST_ALL_NO_STOP" -eq 1 ]; then
-    summary_line "Failure policy: continue after failures (--no-stop, default)"
+    printf '%s\n' 'Failure policy: continue after failures (--no-stop, default)' >>"$SUMMARY_LOG"
   else
-    summary_line "Failure policy: stop after the first failure (--stop)"
+    printf '%s\n' 'Failure policy: stop after the first failure (--stop)' >>"$SUMMARY_LOG"
   fi
-  summary_line "Progress scale: expected relative test work (hardware-independent; no ETA)"
-  # Keep declared versions visible on both cold and warm runs, before any
-  # redirected preparation or installation prompt can hide that context.
-  print_pinned_test_tools | while IFS= read -r line; do summary_line "$line"; done
-  summary_line "Preparing declared native tools; first-time downloads and builds can take several minutes. Log: $LOG_DIR/tools.log"
+  printf '%s\n' 'Progress scale: expected relative test work (hardware-independent; no ETA)' >>"$SUMMARY_LOG"
+  # Preparation mirrors the complete system/cache inventory to the terminal;
+  # a separate pin-only banner would repeat it without explaining availability.
+  printf '%s\n' 'Preparing declared native tools; first-time downloads and builds can take several minutes.' >>"$SUMMARY_LOG"
+  local display_os
+  display_os="$(uname -s)"
+  case "$display_os" in MINGW* | MSYS* | CYGWIN*) display_os=Windows ;; Darwin) display_os=macOS ;; esac
+  summary_line "testAll | $selected | $display_os $(uname -m)"
+  summary_line "Log: ${LOG_DIR#"$(pwd)/"}/tools.log"
   # Preparation completes before tests; its selected environment is inherited
   # by every step. Missing prerequisites never turn into a reduced green run.
+  TRICE_TEST_SETUP_CANCELLED=0
   if ! prepare_native_test_tools >"$LOG_DIR/tools.log" 2>&1; then
-    summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
-    cat "$LOG_DIR/tools.log"
+    if [ "${TRICE_TEST_SETUP_CANCELLED:-0}" = 1 ]; then
+      # Interactive planning already displayed both inventory and cancellation.
+      # Captured/noninteractive output still needs one replay, but no failure
+      # banner: deliberate cancellation is not a failed tool installation.
+      printf '%s\n' 'Cancelled.' >>"$SUMMARY_LOG"
+      if [ "${TRICE_TEST_PROGRESS_TTY:-0}" != 1 ]; then cat "$LOG_DIR/tools.log"; fi
+    else
+      summary_line "INCOMPLETE: native test preparation failed; see $LOG_DIR/tools.log"
+      cat "$LOG_DIR/tools.log"
+    fi
     TEST_ALL_INCOMPLETE=1
+    started_at=$(date +%s)
+  elif ! offer_repository_format; then
+    TEST_ALL_INCOMPLETE=1
+    started_at=$(date +%s)
   else
+    started_at=$(date +%s)
+    summary_line "Tool preparation finished in $((started_at - preparation_started_at))s; preparation is outside the test duration."
+    summary_line "Starting tests at $(date)"
     run_selected_steps || true
   fi
 
-  verify_tracked_bytes || TEST_ALL_FAILED=1
+  if [ "$TEST_ALL_STATE_CAPTURED" -eq 1 ]; then verify_tracked_bytes || TEST_ALL_FAILED=1; fi
 
   finished_at=$(date +%s)
   duration=$((finished_at - started_at))
@@ -619,13 +692,16 @@ main() {
   else
     TEST_ALL_INCOMPLETE=1
     result=INCOMPLETE
-    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"native test bootstrap unavailable; see tools.log"}\n' "$selected" >"$LOG_DIR/results.json" ||
+    local preparation_reason='native test bootstrap unavailable; see tools.log'
+    if [ "${TRICE_TEST_SETUP_CANCELLED:-0}" = 1 ]; then preparation_reason='tool preparation cancelled before testing'; fi
+    if [ "${TRICE_TEST_SETUP_ONLY:-0}" = 1 ]; then preparation_reason='system tool setup finished; rerun the startup check before testing'; fi
+    printf '{"schema":1,"result":"INCOMPLETE","selection":"%s","reason":"%s"}\n' "$selected" "$preparation_reason" >"$LOG_DIR/results.json" ||
       summary_line "INCOMPLETE: cannot write $LOG_DIR/results.json; check free disk space and write permissions."
   fi
   if [ "$TEST_ALL_ABORTED" -ne 0 ]; then
-    summary_line "Result: ABORTED (signal exit status $TEST_ALL_ABORTED)"
+    summary_result ABORTED " (signal exit status $TEST_ALL_ABORTED)"
   else
-    summary_line "Result: $result"
+    summary_result "$result"
   fi
   summary_line "Duration: ${duration}s"
   summary_line "Finished at $(date)"

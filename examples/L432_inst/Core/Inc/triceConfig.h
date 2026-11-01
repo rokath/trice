@@ -956,6 +956,7 @@ void L432LogConfigInfo(void);
 #define TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE 1
 
 #elif CONFIGURATION == 98 /////////////////////////////////////////////////////
+// tlog -hs off -prefix off -i ../../demoTIL.json -port /dev/tty.usbmodem0007701629111 -li ../../demoLI.json -liFmt "%32s%4d" -liMaxDirs 2 -ts16delta "note:%9d" -ts32delta "note:%9d" -ts32 "att: %08x" -ts16 "att:     %04x" -ts0 "         " -typeX0 "% x"
 #define LogConfigInfo() L432LogConfigInfo()
 #define TRICE_DEFERRED_OUTPUT 1
 #define TRICE_BUFFER TRICE_DOUBLE_BUFFER

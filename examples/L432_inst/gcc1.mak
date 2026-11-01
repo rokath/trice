@@ -1,4 +1,5 @@
-GCC_LDFLAGS = $(CPU) -specs=nano.specs -T$(LDSCRIPT) $(LIB_DIR) $(LIBS) -Wl,-Map=$(GCC_BUILD)/$(TARGET).map,--cref   -Wl,--gc-sections -Wl,--no-warn-rwx-segments #
+# Defer the vendor runtime's GNU-stack warning while measuring logging speed.
+GCC_LDFLAGS = $(CPU) -specs=nano.specs -T$(LDSCRIPT) $(LIB_DIR) $(LIBS) -Wl,-Map=$(GCC_BUILD)/$(TARGET).map,--cref   -Wl,--gc-sections -Wl,--no-warn-rwx-segments -Wl,--no-warn-execstack #
 
 GCC_OBJECTS =
 

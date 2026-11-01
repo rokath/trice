@@ -214,6 +214,13 @@ func writeReport(dir, selection, result string, started int64) error {
 
 // main uses stable exit codes shared by the shell runner and native CI.
 func main() {
+	if len(os.Args) == 6 && os.Args[1] == "inspect" {
+		if err := inspectTool(os.Args[2], os.Args[3], os.Args[4], os.Args[5], os.Stdout); err != nil {
+			fmt.Fprintln(os.Stderr, "INCOMPLETE:", err)
+			os.Exit(2)
+		}
+		return
+	}
 	if len(os.Args) == 4 && os.Args[1] == "identity" {
 		if err := checkToolIdentity(os.Args[2], os.Args[3], ""); err != nil {
 			fmt.Fprintf(os.Stderr, "INCOMPLETE: %v\n", err)
@@ -222,7 +229,7 @@ func main() {
 		return
 	}
 	if len(os.Args) > 1 && (os.Args[1] == "tools" || os.Args[1] == "bundle") {
-		// The first pass may reuse or freeze installed tools but cannot download,
+		// The first pass may reuse installed tools but cannot download,
 		// compile or unpack missing ones. Exit 3 asks the shell for one approval.
 		arguments, allowInstall := os.Args[2:], true
 		if len(arguments) > 0 && arguments[0] == "--no-install" {
@@ -270,6 +277,6 @@ func main() {
 		}
 		return
 	}
-	fmt.Fprintln(os.Stderr, "Usage: testcheck audit events.json [required-test ...] | report directory selection result started-unix | tools [--no-install] config cache names... | bundle [--no-install] config cache name | identity binary version")
+	fmt.Fprintln(os.Stderr, "Usage: testcheck audit events.json [required-test ...] | report directory selection result started-unix | tools [--no-install] config cache names... | bundle [--no-install] config cache name | inspect config cache tools-or-bundle name | identity binary version")
 	os.Exit(2)
 }

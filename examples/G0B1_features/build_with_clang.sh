@@ -8,11 +8,21 @@
 
 set -euo pipefail
 
+# Match GCC argument handling before the project-local Bind dispatch.
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source=../buildCLI.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+parse_example_build_cli "$0" none g0b1-feature-tour "$@"
+if [ "$check_only" -eq 1 ]; then
+  check_example_build_tools clang
+  exit 0
+fi
+
 # The feature project owns Core/Src and its CE adapter; the shared canonical
 # example workflow does not scan these sources. Reuse its GCC preparation.
 if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" != "1" ]; then
   source "$(dirname "$0")/../../scripts/_150_setup_build_environment.sh"
-  exec "$(dirname "$0")/demo_build.sh" clang
+  TRICE_FLAGS="$flags" exec "$(dirname "$0")/demo_build.sh" clang
 fi
 
 # ------------------------------------------------------------------------------
@@ -143,7 +153,7 @@ cd "${SCRIPT_DIR}"
 # matrix entry.
 make clean
 
-make ${MAKE_JOBS} clang
+make ${MAKE_JOBS} TRICE_FLAGS="${flags}" clang
 
 # ------------------------------------------------------------------------------
 # 5) Post-build cleanup

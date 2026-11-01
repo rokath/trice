@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 #
-# Usage: ./build_with_clang.sh. Build the firmware with Clang; do not flash it.
+# Usage: ./build_with_clang.sh [0|98]. Build with Clang; do not flash the board.
 # Requires Bash, make, Clang, Trice and Arm GNU libraries in PATH.
 # A standalone run prepares Bind headers; managed tests may use Insert/Clean.
 # Repository tests may already own that preparation. Cleanup preserves failures
 # and also runs on Ctrl-C; the helper functions implement these safeguards.
 
 set -euo pipefail
+
+# Match the GCC CLI before Bind, tool setup or compiler execution.
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source=../buildCLI.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+parse_example_build_cli "$0" '0 or 98' g0b1-clock-benchmark "$@"
+if [ "$check_only" -eq 1 ]; then
+  check_example_build_tools clang
+  exit 0
+fi
 
 # ------------------------------------------------------------------------------
 # 1) Resolve stable directories
@@ -139,7 +149,7 @@ cd "${SCRIPT_DIR}"
 # matrix entry.
 make clean
 
-make ${MAKE_JOBS} clang
+make ${MAKE_JOBS} TRICE_FLAGS="${flags}" clang
 
 # ------------------------------------------------------------------------------
 # 5) Post-build cleanup

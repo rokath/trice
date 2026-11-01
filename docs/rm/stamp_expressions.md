@@ -111,8 +111,8 @@ Each compiled occurrence has its own state for its source and stamp width. Every
 | Condition | When detected | Result and effect on state |
 | --- | --- | --- |
 | Invalid argument count, a stateful phase, or an invalid/nonconstant `modulus` or `initial` | CLI initialization | Reject the configuration before opening input. |
-| Phase evaluation fails, or the phase is nonfinite, fractional, negative, outside the modulus, or not representable by `uint64` | Observation | Report a diagnostic and make the affected field unavailable. Keep the previous valid phase and accumulated count. A later valid sample may continue if the sampling contract still holds across the usable samples. |
-| Adding `step` would exceed `UINT64_MAX` | Observation | Report accumulator overflow and keep this instance unavailable until a new tracking session. The accumulator never wraps silently. |
+| Phase evaluation fails, or the phase is nonfinite, fractional, negative, outside the modulus, or not representable by `uint64` | Observation | Mark the affected field unavailable; `-v` also reports the error. Keep the previous valid phase and accumulated count. A later valid sample may continue if the sampling contract still holds across the usable samples. |
+| Adding `step` would exceed `UINT64_MAX` | Observation | Mark the field unavailable until a new tracking session; `-v` also reports accumulator overflow. The accumulator never wraps silently. |
 
 An unavailable field displays `?` markers instead of a numeric result; the application message remains available. A failure in arithmetic or formatting **after** a valid `unwrap` observation does not undo that observation. See [Errors and unavailable fields](#errors-and-unavailable-fields) for field-level behavior.
 
@@ -242,7 +242,7 @@ Text keeps the stamp of the existing first-call line selection. Later calls cann
 
 ## Errors and unavailable fields
 
-Startup rejects malformed expressions, unknown names, wrong-width aliases, unsupported functions, invalid argument counts, and invalid constant arguments. Runtime failures such as an out-of-range or fractional phase, division by zero, nonfinite arithmetic, or unsafe numeric conversion produce a diagnostic and aligned `?` markers for the affected field. The application message remains available. A raw stamp is never substituted under a converted unit label.
+Startup rejects malformed expressions, unknown names, wrong-width aliases, unsupported functions, invalid argument counts, and invalid constant arguments with a full error message. Runtime failures such as an out-of-range or fractional phase, division by zero, nonfinite arithmetic, or unsafe numeric conversion produce aligned `?` markers for the affected field. Add `-v` to print detailed stamp diagnostics as well. The application message remains available. A raw stamp is never substituted under a converted unit label.
 
 Invalid phases do not advance or reset the tracker. Later usable phases continue from the last valid one, subject to the same sampling contract across that gap. Accumulator overflow stays unavailable until a new session; it never silently wraps. This limited expression language executes neither shell commands nor arbitrary Go code.
 

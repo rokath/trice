@@ -12,7 +12,7 @@
 </div>
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
 
-**Log and trace in as few as 6 CPU clocks per call.**<sup>[1](#note-speed)</sup><br>
+**Log C-code in 3 or 7 Assembler instructions (< ~16 clocks) per call.**<sup>[1](#note-speed)</sup><br>
 Printf-like calls.<sup>[2](#note-calls)</sup> Compact records.<sup>[3](#note-records)</sup> Even from interrupt handlers.<sup>[4](#note-interrupts)</sup><br>
 Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#note-ids)</sup> Aliases for legacy code.<sup>[7](#note-aliases)</sup>
 
@@ -42,7 +42,7 @@ Footnotes:
 <a id="note-name"></a>\* The name combines ***TR***ace ***I***Ds, ***C*** and ***E***mbedded systems.
 
 <!-- Keep these links in an ordinary list: GitHub does not rewrite relative document links inside Markdown footnotes. -->
-1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](docs/rm/performance.md).
+1. <a id="note-speed"></a>Record creation in an optimized configuration; transmission is handled separately. See the [measurement and configuration](docs/rm/performance.md#clock-measurements-and-disassembly-for-fastest-configurations).
 2. <a id="note-calls"></a>[Printf-like syntax and supported formats](docs/rm/printf_comparison.md).
 3. <a id="note-records"></a>[Compact binary records and transfer size](docs/rm/binary_encoding.md#minimal-transfer-bytes-amount).
 4. <a id="note-interrupts"></a>Trice calls can be used directly inside interrupt handlers. The [example output](docs/rm/cli.md#example-output) shows interrupt-originated `ISR:` messages mixed with events from normal application code.

@@ -245,6 +245,12 @@ prepare_host_compilers() {
     fi
     [ -n "$clang_supported" ] && return 0
   fi
+  # Planned preparation already selected/installed its declared compilers.
+  # A failed runtime probe must not silently install another unlisted bundle.
+  if [ "${TRICE_TEST_PLAN_ACTIVE:-0}" = 1 ]; then
+    log "INCOMPLETE: selected host compilers failed their runtime checks; repair the local setup and rerun the startup plan."
+    return 1
+  fi
   # A failed cached selection must not stay active in later independent steps.
   rm -f ./temp/tools/host-gcc/.ready || return 1
   case "$(uname -s)" in

@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 #
-# Usage: ./build.sh runs the small feature-tour build in demo_build.sh.
-# With explicit arguments, this script runs the inherited firmware/test build,
-# for example ./build.sh TRICE_OFF=1.
+# Usage: ./build.sh [compiler defines...] builds the feature tour in demo_build.sh.
+# An outer repository workflow retains ownership of its prepared firmware build.
 # Build the firmware; this script does not flash the board.
 # Requires Bash, make, Trice and the Arm GNU toolchain in PATH.
 # Library/image details: ../../docs/rm/memory_usage.md
@@ -14,10 +13,20 @@
 
 set -euo pipefail
 
-# The ordinary build of this cloned project uses its own CE rule and ID table.
-# Keep the inherited compiler-switch matrix for explicit arguments only.
-if [ "$#" -eq 0 ]; then
-  exec "$(dirname "$0")/demo_build.sh"
+# Both compiler wrappers expose the same CLI without preparing feature sources.
+# shellcheck source-path=SCRIPTDIR
+# shellcheck source=../buildCLI.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+parse_example_build_cli "$0" none g0b1-feature-tour "$@"
+if [ "$check_only" -eq 1 ]; then
+  check_example_build_tools gcc
+  exit 0
+fi
+
+# Standalone builds keep the private CE rule and ID table for extra defines too.
+# Export the parsed flags for Make without changing demo_build.sh's own CLI.
+if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" != 1 ]; then
+  TRICE_FLAGS="$flags" exec "$(dirname "$0")/demo_build.sh"
 fi
 
 # ------------------------------------------------------------------------------
@@ -161,59 +170,16 @@ trap 'cleanup_and_exit 143' TERM
 # 3a) Optional TRICE_OFF / typeX0 compilation matrix
 # ------------------------------------------------------------------------------
 
-if [ "$#" -eq 1 ] && [ "$1" = "--x0-matrix" ]; then
-  # The matrix deliberately reuses this script's normal one-build path. That
-  # keeps ID insertion, cleanup, build environment loading and TRICE_OFF
-  # verification behavior identical to the ordinary example build.
-  for off_value in 0 1; do
-    for x0_value in 0 1; do
-      echo "x0-matrix: TRICE_OFF=${off_value} TRICE_TX_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
-      "${SCRIPT_DIR}/build.sh" "TRICE_OFF=${off_value}" "TRICE_TX_X0_COUNTED_BUFFER_SUPPORT=${x0_value}"
-    done
-  done
-
-  trap - INT TERM EXIT
-  exit 0
-fi
-
-for arg in "$@"; do
-  if [ "$arg" = "--x0-matrix" ]; then
-    echo "usage: ./build.sh --x0-matrix" >&2
-    echo "       or pass compiler defines without --x0-matrix" >&2
-    exit 2
-  fi
-done
+# The shared CLI dispatches all matrix entries through this compiler wrapper.
 
 # ------------------------------------------------------------------------------
 # 3) Build TRICE_FLAGS and detect TRICE_OFF
 # ------------------------------------------------------------------------------
 
-# Initialize an empty string for the compiler defines passed to make.
-flags=""
-
-# Track TRICE_OFF=1 explicitly. This controls whether IDs are inserted before
-# the first build and whether the additional no-ID verification build runs.
-triceOFF="0"
-
-# Loop through all arguments.
-#
-# Keep the original pattern-preserving behavior:
-#   TRICE_OFF=1
-# becomes:
-#   -DTRICE_OFF=1
-#
-# and arbitrary other arguments become -D... as before.
-for arg in "$@"; do
-  if [ "${arg}" = "TRICE_OFF=1" ]; then
-    triceOFF="1"
-
-    # Keep compatibility with existing scripts/env if anything downstream
-    # expects this exported shell variable.
-    export triceOFF="1"
-  fi
-
-  flags="${flags}-D${arg} "
-done
+# Preserve the inherited TRICE_OFF verification using the shared parsed flags.
+if [ "$triceOFF" = 1 ]; then
+  export triceOFF
+fi
 
 # ------------------------------------------------------------------------------
 # 4) Run TRICE scripts

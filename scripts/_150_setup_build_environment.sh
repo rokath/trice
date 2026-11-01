@@ -372,10 +372,11 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   #       * ARM installer under /Applications/ArmGNUToolchain/<version>/...
   ###########################################################################
 
-  # Ensure Xcode Command Line Tools are ahead in PATH so llvm-size is found
+  # Keep Xcode helpers available without replacing an already selected compiler.
+  # Native test preparation may have pinned upstream Clang ahead of Apple Clang.
   if [ -d "/Library/Developer/CommandLineTools/usr/bin" ]; then
-    export PATH="/Library/Developer/CommandLineTools/usr/bin:$PATH"
-    log_info "Added /Library/Developer/CommandLineTools/usr/bin to PATH."
+    export PATH="$PATH:/Library/Developer/CommandLineTools/usr/bin"
+    log_info "Appended /Library/Developer/CommandLineTools/usr/bin to PATH."
   fi
 
   # If Homebrew binutils exist, put them early in PATH as well

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/fmtspec"
@@ -412,9 +413,22 @@ func PrintTriceStatistics(w io.Writer) {
 		defer LUTMutex.RUnlock()
 	}
 	var sum int
-	fmt.Fprintf(w, "\nTrice Statistics:                  (n: Trice ends with no newline, if 0 ↴)\n\n")
-	fmt.Fprintln(w, `   Count |       Location Information       | Line |  ID   |    Type    |n| Format String`)
-	fmt.Fprintln(w, " ------- | -------------------------------- | ---- | ----- | ---------- |-|----------------------------------------")
+	// Size paths from the recorded events while the dictionary read lock is held.
+	fileWidth := statisticsLocationWidth()
+	// Keep complete type names aligned, using only entries printed in this report.
+	typeWidth := utf8.RuneCountInString("Type")
+	for tid := range IDStat {
+		typeWidth = max(typeWidth, utf8.RuneCountInString(IDLUT[tid].Type))
+	}
+	header := "Location Information"
+	if len(header) > fileWidth {
+		header = header[:fileWidth] // The heading is ASCII; even a one-column limit fits.
+	}
+	// Use the same column boundaries for the heading, separator and data rows.
+	separator := fmt.Sprintf("%s | %s |%s | %s | %s |-|%s", strings.Repeat("-", 8), strings.Repeat("-", fileWidth), strings.Repeat("-", 5), strings.Repeat("-", 5), strings.Repeat("-", typeWidth), strings.Repeat("-", 40))
+	fmt.Fprintf(w, "\nTrice Statistics:                                (n: Trice ends with no newline, if 0)\n\n")
+	fmt.Fprintf(w, "%8s | %*s |%5s | %5s | %*s |n| Format String\n", "Count", fileWidth, header, "Line", "ID", typeWidth, "Type")
+	fmt.Fprintln(w, separator)
 	for tid, count := range IDStat {
 		sum += count
 		trice := IDLUT[tid]
@@ -425,11 +439,50 @@ func PrintTriceStatistics(w io.Writer) {
 		if !found {
 			newline = `0`
 		}
-		file := id.LocationFile(li)
-		fmt.Fprintf(w, "%8d | %32s |%5d | %5d | %10s |%s| %s\n", count, file, li.Line, tid, trice.Type, newline, emitter.Colorize(trice.Strg))
+		file := statisticsLocationFile(id.LocationFile(li), fileWidth)
+		fmt.Fprintf(w, "%8d | %*s |%5d | %5d | %*s |%s| %s\n", count, fileWidth, file, li.Line, tid, typeWidth, trice.Type, newline, emitter.Colorize(trice.Strg))
 	}
-	fmt.Fprintln(w, " ------------------------------------------------------------------------------------------------------------------")
+	fmt.Fprintln(w, strings.Repeat("-", utf8.RuneCountInString(separator)))
 	fmt.Fprintf(w, "%8d Trice messsges\n", sum)
+}
+
+// statisticsFileWidthPattern recognizes a fixed Go string-field width, including
+// argument indexes, while consuming escaped percent signs without mistaking them
+// for a path field. A missing or dynamic width leaves the report unbounded.
+var statisticsFileWidthPattern = regexp.MustCompile(`%%|%[-+# 0]*([0-9]*)(?:\.[0-9]+)?(?:\[[0-9]+\])?s`)
+
+// statisticsLocationWidth uses only IDs present in the report, after liMaxDirs.
+// Its caller holds LUTMutex so both sizing and rendering see the same locations.
+func statisticsLocationWidth() int {
+	width := utf8.RuneCountInString("Location Information")
+	for tid := range IDStat {
+		width = max(width, utf8.RuneCountInString(id.LocationFile(LILUT[tid])))
+	}
+	for _, field := range statisticsFileWidthPattern.FindAllStringSubmatch(LocationInformationFormatString, -1) {
+		if field[0] == "%%" {
+			continue
+		}
+		// Only a positive static width of the first string field supplies a cap.
+		limit, err := strconv.Atoi(field[1])
+		if err == nil && limit > 0 {
+			width = min(width, limit)
+		}
+		break
+	}
+	return width
+}
+
+// statisticsLocationFile keeps the filename and trailing directories when a path
+// exceeds its column. Truncate runes so non-ASCII filenames remain valid UTF-8.
+func statisticsLocationFile(file string, width int) string {
+	if utf8.RuneCountInString(file) <= width {
+		return file
+	}
+	if width == 1 {
+		return "…"
+	}
+	runes := []rune(file)
+	return "…" + string(runes[len(runes)-width+1:])
 }
 
 // LocationInformation returns optional location information for id.

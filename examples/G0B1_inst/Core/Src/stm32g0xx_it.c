@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -109,7 +110,7 @@ void TIM17_FDCAN_IT1_IRQHandler(void) {
 	/* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
 	HAL_TIM_IRQHandler(&htim17);
 	/* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 1 */
-#if !TRICE_OFF
+#if !TRICE_OFF && CONFIGURATION == 0
 	static int i = 0;
 	if (i++ > 25000) {
 		trice("isr:TIM17_FDCAN_IT1_IRQHandler! (%u ms)\n", i);

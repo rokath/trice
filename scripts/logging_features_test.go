@@ -70,6 +70,10 @@ exit "${MOCK_PC_STATUS:-0}"
 	writeFixture(t, root, "examples/G0B1_features/check_build.sh", `#!/usr/bin/env bash
 set -eu
 cd "$(dirname "$0")"
+# Exercise the shared CLI dependency from the isolated copy, as both wrappers do.
+source ../buildCLI.sh
+parse_example_build_cli "$0" none g0b1-feature-tour EXTRA=7
+[ "$flags" = '-DEXTRA=7 ' ]
 compiler=${1:-gcc}
 if [ "$compiler" = gcc ]; then
   [ ! -e out.gcc/cached.o ] && [ ! -e generated/user.h ]
