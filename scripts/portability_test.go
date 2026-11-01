@@ -1527,7 +1527,7 @@ func TestRunnerSetupCancellation(t *testing.T) {
 }
 `)
 			writeFixture(t, root, "scripts/_410_test_sentinel.sh", "#!/usr/bin/env bash\nsource scripts/_100_test_common.sh\ninit_logfile\necho executed > step-called\nlog executed\n")
-			command := "printf '" + tc.input + "' | {\nexec 9>&1\nsource scripts/_110_test_runner.sh\nbuild_test_plan() { add_plan_step _410_test_sentinel.sh; }\nmain --no-format\n}"
+			command := "printf '" + tc.input + "' | {\nexec 9>&1\nsource scripts/_110_test_runner.sh\nbuild_test_plan() { add_plan_step _410_test_sentinel.sh; }\nmain full\n}"
 			out, err := runFixture(t, root, command, map[string]string{
 				"CI": "false", "FIXTURE_MIRROR": strconv.FormatBool(tc.mirror),
 				"FIXTURE_SETUP_FAILURE": strconv.FormatBool(tc.fail), "TRICE_TEST_SETUP_CANCELLED": "1",
@@ -1573,6 +1573,110 @@ func TestRunnerSetupCancellation(t *testing.T) {
 	}
 }
 
+// TestRunnerAutomaticAnswers uses the real planner with a missing Node pin.
+// Unattended CLI choices approve only the displayed local setup and keep disk
+// checks authoritative; successful fixtures must execute their sentinel step.
+func TestRunnerAutomaticAnswers(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments  string
+		format, diskFull bool
+	}{
+		{name: "quick_defaults", arguments: "quick"},
+		{name: "full_no_format", arguments: "full --no-format"},
+		{name: "implicit_full_no_format", arguments: "--no-format"},
+		{name: "no_format_before_selection", arguments: "--no-format quick"},
+		{name: "full_format", arguments: "full --format", format: true},
+		{name: "quick_format", arguments: "quick --format", format: true},
+		{name: "format_before_selection", arguments: "--format quick", format: true},
+		{name: "quick_missing_disk_space", arguments: "quick", diskFull: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			initGitFixture(t, root)
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v0.0.0\n")
+			writeFixture(t, root, "bin/brew", "#!/bin/sh\nexit 1\n")
+			writeFixture(t, root, "bin/df", "#!/bin/sh\nprintf 'Filesystem 1024-blocks Used Available Capacity Mounted\\nfixture 99999999 1 %s 1%% /\\n' \"$FIXTURE_AVAILABLE_KIB\"\n")
+			writeFixture(t, root, "scripts/_115_prepare_native_tests.sh", `prepare_native_test_tools() {
+  TRICE_TEST_REPORT_BIN=''
+  source scripts/_116_test_tool_plan.sh
+  trice_system_tool_setup() { touch system-update-called; return 2; }
+  trice_test_tool_plan node || return $?
+  trice_plan_allows_install Node.js || return $?
+  printf 'local preparation approved\n' > setup-called
+  TRICE_TEST_REPORT_BIN="$ROOT/bin/testcheck-fixture"
+}
+`)
+			writeFixture(t, root, "scripts/format_repo.sh", "#!/bin/sh\nprintf '%s\\n' \"$*\" > format-called\n")
+			writeFixture(t, root, "scripts/_410_test_sentinel.sh", `#!/usr/bin/env bash
+source scripts/_100_test_common.sh
+init_logfile
+if [ "$FIXTURE_EXPECT_FORMAT" = true ]; then
+  test -f format-called || exit 91
+else
+  test ! -f format-called || exit 92
+fi
+printf 'executed\n' > step-called
+log executed
+`)
+			free := "99999999"
+			if tc.diskFull {
+				free = "0"
+			}
+			out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+build_test_plan() { add_plan_step _410_test_sentinel.sh; }
+main `+tc.arguments+` </dev/null`, map[string]string{
+				"CI": "false", "FIXTURE_AVAILABLE_KIB": free,
+				"FIXTURE_EXPECT_FORMAT": strconv.FormatBool(tc.format),
+			})
+			assert.NotContains(t, out, "Choose [c/u/a]")
+			assert.NotContains(t, out, "Format repo?")
+			assert.NoFileExists(t, filepath.Join(root, "system-update-called"))
+			if tc.diskFull {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "Result: INCOMPLETE")
+				assert.Contains(t, out, "insufficient.")
+				assert.NoFileExists(t, filepath.Join(root, "setup-called"))
+				assert.NoFileExists(t, filepath.Join(root, "step-called"))
+			} else {
+				assert.NoError(t, err, out)
+				assert.Contains(t, out, "Result: PASS")
+				assert.FileExists(t, filepath.Join(root, "setup-called"))
+				assert.FileExists(t, filepath.Join(root, "step-called"))
+			}
+			if tc.format {
+				data, readErr := os.ReadFile(filepath.Join(root, "format-called"))
+				assert.NoError(t, readErr)
+				assert.Equal(t, "format\n", string(data))
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "format-called"))
+			}
+			assert.NoDirExists(t, filepath.Join(root, "temp/testAll.lock"))
+		})
+	}
+}
+
+// TestRunnerRejectsConflictingFormatFlags rejects ambiguity before planning,
+// preparation, formatting, checkout locking or execution of any test step.
+func TestRunnerRejectsConflictingFormatFlags(t *testing.T) {
+	for _, arguments := range []string{"--format --no-format", "--no-format --format", "quick --format --no-format"} {
+		t.Run(arguments, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			out, err := runFixture(t, root, `source scripts/_110_test_runner.sh
+prepare_native_test_tools() { touch setup-called; }
+build_test_plan() { touch plan-called; }
+main `+arguments, nil)
+			var failure *exec.ExitError
+			if assert.ErrorAs(t, err, &failure, out) {
+				assert.Equal(t, 2, failure.ExitCode())
+			}
+			assert.Contains(t, out, "Choose either --format or --no-format; they cannot be combined.")
+			assert.NoFileExists(t, filepath.Join(root, "setup-called"))
+			assert.NoFileExists(t, filepath.Join(root, "plan-called"))
+			assert.NoDirExists(t, filepath.Join(root, "temp/testAll.lock"))
+		})
+	}
+}
+
 // TestRunnerDiagnosticsWithNUL keeps raw payloads intact while displaying text
 // diagnostics for failed, incomplete and successful steps without binary notices.
 func TestRunnerDiagnosticsWithNUL(t *testing.T) {
@@ -1582,6 +1686,7 @@ func TestRunnerDiagnosticsWithNUL(t *testing.T) {
 		{"incomplete", "2", "INCOMPLETE: fixture evidence missing", "INCOMPLETE"},
 		{"missing", "0", "MISSING TOOL: fixture compiler", "INCOMPLETE"},
 		{"warning", "0", "Hint: fixture warning", "PASS"},
+		{"compiler_warning", "0", "source.c:4:2: warning: unused variable [-Wunused-variable]", "PASS"},
 		{"failure", "1", "FAIL: fixture assertion failed", "FAIL"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -1756,7 +1861,8 @@ func TestRunnerComparesActualTrackedBytes(t *testing.T) {
 
 // TestRunnerOffersRepositoryFormatting keeps explicit maintenance outside the
 // test baseline. Accepted formatting may change files; later test mutations
-// must still fail, while refusal, EOF, CLI suppression and CI never format.
+// must still fail. Quick defaults, refusal, EOF and CI skip optional formatting;
+// an explicit --format remains authoritative on both local and CI runs.
 func TestRunnerOffersRepositoryFormatting(t *testing.T) {
 	for _, tc := range []struct {
 		name, reply, arguments, result string
@@ -1769,8 +1875,13 @@ func TestRunnerOffersRepositoryFormatting(t *testing.T) {
 		{name: "decline", reply: "n\n", steps: true, result: "PASS"},
 		{name: "empty", reply: "\n", steps: true, result: "PASS"},
 		{name: "EOF", steps: true, result: "PASS"},
+		{name: "quick_defaults", reply: "y\n", arguments: "quick", steps: true, result: "PASS"},
 		{name: "cli_suppresses", reply: "y\n", arguments: "quick --no-format", steps: true, result: "PASS"},
 		{name: "cli_before_selection", reply: "y\n", arguments: "--no-format quick", steps: true, result: "PASS"},
+		{name: "cli_format_full", reply: "n\n", arguments: "full --format", formatted: true, steps: true, result: "PASS"},
+		{name: "cli_format_quick", reply: "n\n", arguments: "quick --format", formatted: true, steps: true, result: "PASS"},
+		{name: "cli_format_before_selection", arguments: "--format quick", formatted: true, steps: true, result: "PASS"},
+		{name: "cli_format_CI", arguments: "--format", ci: true, formatted: true, steps: true, result: "PASS"},
 		{name: "CI_suppresses", reply: "y\n", ci: true, steps: true, result: "PASS"},
 		{name: "formatter_fails", reply: "y\n", formatted: true, formatFails: true, result: "INCOMPLETE"},
 		{name: "preparation_mutation_is_not_hidden", reply: "y\n", prepChanges: true, result: "INCOMPLETE"},
@@ -1799,7 +1910,7 @@ if [ "$STEP_CHANGES" = true ]; then printf 'changed by test\n' > tracked.txt; fi
 `)
 			arguments := tc.arguments
 			if arguments == "" {
-				arguments = "quick"
+				arguments = "full"
 			}
 			body := `printf '%s' "$FORMAT_REPLY" | {
 source scripts/_110_test_runner.sh
@@ -4455,8 +4566,8 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc", "clang"} {
 				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 0\n")
 			}
-			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh"} {
-				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\nif [ -z \"${TRICE_ID_WORKFLOW:-}\" ]; then echo 'INFO: standalone'; else echo managed-$TRICE_ID_WORKFLOW; fi\nexit \"${BUILD_STATUS:-0}\"\n")
+			for _, entry := range []string{"DemoData_Trice/build.sh", "PC_log/build_and_run.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh", "L432_inst/build_with_clang.sh"} {
+				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\nif [ -z \"${TRICE_ID_WORKFLOW:-}\" ]; then echo 'INFO: standalone'; else echo managed-$TRICE_ID_WORKFLOW; fi\nif [ \"${BUILD_WARNING:-0}\" = 1 ]; then echo 'module.c:1:2: warning: fixture compiler warning'; fi\nexit \"${BUILD_STATUS:-0}\"\n")
 			}
 			writeFixture(t, root, "build.log", "warning: tool-version diagnostic\n")
 			out, err := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log")})
@@ -4464,7 +4575,13 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			assert.Contains(t, out, "matrix-"+workflow)
 			assert.Contains(t, out, "Hint:")
 			if workflow == "bind" {
-				assert.Equal(t, 9, strings.Count(out, "INFO: standalone"), out)
+				assert.Equal(t, 10, strings.Count(out, "INFO: standalone"), out)
+				warnings, warningErr := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{
+					"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log"), "BUILD_WARNING": "1",
+				})
+				assert.NoError(t, warningErr, warnings)
+				assert.Contains(t, warnings, "Hint: standalone examples/L432_inst/build_with_clang.sh completed with compiler warnings")
+				assert.Contains(t, warnings, "module.c:1:2: warning: fixture compiler warning")
 			} else {
 				assert.NotContains(t, out, "INFO: standalone")
 			}

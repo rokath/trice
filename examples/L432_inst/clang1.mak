@@ -11,6 +11,11 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 CLANG_OBJECTS += $(addprefix $(CLANG_BUILD)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
+# FreeRTOS updates uxTaskNumber even when tracing removes its only reader.
+# Suppress this warning only for tasks.c, without changing the vendor source.
+# The parent warning group also supports older Apple Clang versions.
+$(CLANG_BUILD)/tasks.o: CLANG_SOURCE_FLAGS += -Wno-unused-but-set-variable
+
 # assembler
 $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
@@ -20,7 +25,7 @@ $(CLANG_BUILD)/%.o: %.s $(BUILDFILES) | $(CLANG_BUILD)
 # compiler
 $(CLANG_BUILD)/%.o: %.c $(BUILDFILES) | $(CLANG_BUILD)
 	@echo $<
-	@$(CLANG_CC) $(VERBOSE) $(CLANG_C_FLAGS) $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
+	@$(CLANG_CC) $(VERBOSE) $(CLANG_C_FLAGS) $(CLANG_SOURCE_FLAGS) $(C_DEFS) $(C_INCLUDES) $(CLANG_ONLY_FLAGS) -c $< -o $@
 #	@echo -e
 
 # linker # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments

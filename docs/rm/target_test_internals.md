@@ -302,6 +302,23 @@ Step 530 (links) and 610 (snapshot packages) remain separately runnable checks, 
 
 Step 515 selects the compiler-to-decoder CE/SL tests for C/C++, text/JSON/KV, structured fields, stamps, exactly-once argument evaluation, disabled logging and reversible Insert/Clean. It also checks the PC feature tour, G0B1 firmware artifacts, ABC demo and CLion build through public scripts. Its isolated checkout copies contain current tracked source bytes, including uncommitted edits; existing build directories and captures are not reused. Failed copies remain under `temp/log/logging-features.*`.
 
+The [example coverage inventory](../../scripts/example_coverage_test.go) records every tracked project directory under `demo/` and `examples/`; adding a project without registering its coverage fails the tests. Full includes all projects below. Quick retains the host/demo checks and selects fewer MCU configurations.
+
+| Projects | Automated coverage and Bind use |
+| --- | --- |
+| `demo/direct`, `demo/deferred`, `demo/live` | Step 515 runs the public scripts with real Bind, GCC and Clang, then decodes their output. The unchanged live producer is stopped after its first flushed record. |
+| `TriceAbc`, including `BcSimChk` | Step 515 builds and runs all nine ABC nodes with Bind and both compilers, retains Insert/Clean coverage, and runs the standalone byte-bus demo. TX-only RX compilation uses ISO C warnings as errors. The RM key-idea sender, Bind command, TIL excerpt and generator command are checked too. |
+| `DemoData_Trice`, `DemoData_CSV` | Step 515 builds both producers with GCC and Clang and runs finite sample captures. Trice output is bound and decoded; plain CSV has no Trice IDs. Full also builds the logging-on/off matrix. |
+| `PC_features`, `PC_log` | Feature-output checks in 515 and the standalone Bind build/run in 600. |
+| `F030_bare`, `G0B1_bare`, `L432_bare` | Full logging-on/off builds in 580/590/600; shared instrumented example sources are prepared by the managed ID workflow. |
+| `F030_inst`, `G0B1_inst`, `L432_inst` | Managed Insert and Bind builds; standalone GCC/Clang Bind entries in 600, G0B1 Clang in 560/570 and the L432 GCC configuration matrix in 620. |
+| `F030_inst_rtt`, `F030_inst_uart`, `G0B1_log` | Standalone Bind builds in 600. Physical logging transports need a separate board/probe test. |
+| `G0B1_features` | Isolated Bind firmware build in 515; full uses GCC and Clang. |
+| `LabPlotDemo`, `LabPlotUser` | Real producer builds above, compressed LabPlot-project XML validation and headless launcher tests. `LabPlotUser` is a documentation-only walkthrough. GUI rendering remains a manual check. |
+| `exampleData`, `TriceAbc/BcSim`, `TriceAbc/NodeLib` | Shared inputs compiled by the corresponding firmware and host builds; these are not separate applications. |
+
+Host integration tests reject compiler warnings rather than hiding them in successful Go output. Firmware builds retain vendor diagnostics; the suite's PASS summary now also surfaces distinct `warning:` lines from detail logs. A successful compilation does not prove MCU execution, physical UART/RTT communication or GUI rendering.
+
 `TestContextEnrichmentPoC` and `TestContextEnrichmentPoCRebaseScopeBoundary` retain narrowly scoped compiler proofs. The larger experimental `TestContextEnrichmentRebasePoC` is explicitly excluded from ordinary suite Go/coverage runs; it does not establish productive Rebase/wrapper support. Run that investigation separately with `TRICE_BIND_INTEGRATION=1 go test ./internal/id -run '^TestContextEnrichmentRebasePoC$' -count=1 -v`. Available compiler variants and skips must be read as such. See [CE testing](context_enrichment.md#test-coverage) for the feature's limits.
 
 The L432 wrapper prepares Bind once, then builds configurations 0–100 in separate fresh object directories. It keeps all code-generation options and ELF/HEX/BIN targets, while disabling only expensive assembler text listings (`GCC_LISTINGS=0`). Each configuration uses `make -j1`; the outer job budget limits total concurrency. Normal `build.sh CONFIGURATION=N` still creates listings for manual inspection.

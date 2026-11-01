@@ -113,7 +113,7 @@ func runDownloadReport(t *testing.T, input, directory, observedAt string) (strin
 	python := python3Command(t)
 	file := filepath.Join(t.TempDir(), "releases.json")
 	require.NoError(t, os.WriteFile(file, []byte(input), 0600))
-	args := append(append([]string{}, python[1:]...), "github_downloads.py", file, directory, "--observed-at", observedAt)
+	args := append(append([]string{}, python[1:]...), "_github_downloads.py", file, directory, "--observed-at", observedAt)
 	command := exec.Command(python[0], args...)
 	output, err := command.CombinedOutput()
 	return string(output), err
@@ -237,6 +237,27 @@ func TestDownloadEmptyRepository(t *testing.T) {
 	assert.Contains(t, output, "0 downloads, 1 observed days")
 	assert.Contains(t, downloadFile(t, directory, "report/by-release.svg"), "No published releases.")
 	assert.Equal(t, 1, strings.Count(downloadFile(t, directory, "report/over-time.svg"), "<circle "))
+}
+
+// TestDownloadWorkflowUsesInternalGenerator executes the actual statistics step.
+// Only the GitHub API is replaced; the renamed generator must create its real
+// report through the workflow's relative path, with no network or Git writes.
+func TestDownloadWorkflowUsesInternalGenerator(t *testing.T) {
+	root := scriptFixture(t, "scripts/_github_downloads.py")
+	writeFixture(t, root, "bin/gh", "#!/bin/sh\nprintf '%s\\n' \"$FIXTURE_RELEASES\"\n")
+	python := python3Command(t)
+	quoted := make([]string, len(python))
+	for index, part := range python {
+		quoted[index] = "'" + strings.ReplaceAll(filepath.ToSlash(part), "'", "'\"'\"'") + "'"
+	}
+	command := "python3() { " + strings.Join(quoted, " ") + " \"$@\"; }\n" + workflowShellStep(t, "statistics.yml", "Collect release downloads and render charts")
+	input := downloadJSON(t, []map[string]any{downloadRelease(1, "v1", "2026-01-01T00:00:00Z", 9)})
+	output, err := runFixture(t, root, command, map[string]string{"FIXTURE_RELEASES": input})
+	require.NoError(t, err, output)
+	report := downloadFile(t, root, "_download_data/rokath/trice/downloads/report/index.html")
+	assert.Contains(t, report, "9 downloads")
+	assert.Contains(t, downloadFile(t, root, "_download_data/rokath/trice/downloads/report/by-release.svg"), "v1")
+	assert.NoFileExists(t, filepath.Join(root, "scripts/github_downloads.py"))
 }
 
 // TestDownloadPagesIntegration runs the actual publication step against local Git/tar fixtures.

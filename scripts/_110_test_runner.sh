@@ -340,6 +340,14 @@ run_step() {
         while IFS= read -r detail; do
           summary_line "  $detail"
         done < <(grep -aE '^Hint:' "$step_log")
+        # A successful build can still warn. Show distinct diagnostics from
+        # quiet logs, including compiler output nested inside Go integrations.
+        if grep -aEq '(^|[[:space:]])warning:' "$step_log"; then
+          summary_line "Hint: $step emitted warnings; full details: $step_log"
+          while IFS= read -r detail; do
+            summary_line "  $detail"
+          done < <(grep -aE '(^|[[:space:]])warning:' "$step_log" | sort -u | head -n 5)
+        fi
       fi
     fi
   elif [ "$rc" -eq 2 ]; then
@@ -457,14 +465,16 @@ expected_step_weight() {
   esac
 }
 
-# parse_test_all_arguments accepts the historical selection plus the optional
-# failure policy and format-prompt suppression in either order.
+# Explicit format choices approve checkout-local preparation. Quick defaults to
+# that same unattended setup without formatting; full keeps its interactive menu.
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
   TEST_ALL_SELECTED="full"
   TEST_ALL_NO_STOP=1
   TEST_ALL_NO_FORMAT=0
+  TEST_ALL_DO_FORMAT=0
+  TEST_ALL_AUTO_CONTINUE=0
   for argument in "$@"; do
     case "$argument" in
       quick | full)
@@ -477,15 +487,27 @@ parse_test_all_arguments() {
         ;;
       --no-stop) TEST_ALL_NO_STOP=1 ;;
       --stop) TEST_ALL_NO_STOP=0 ;;
+      --format) TEST_ALL_DO_FORMAT=1 ;;
       --no-format) TEST_ALL_NO_FORMAT=1 ;;
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
-        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop] [--no-format]\n' >&2
-        printf 'Default: full, continue after failures (--no-stop).\n' >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop] [--format|--no-format]\n' >&2
+        printf 'Default: full, continue after failures (--no-stop). Quick and format flags automatically choose c (checkout-local setup).\n' >&2
         return 2
         ;;
     esac
   done
+  if [ "$TEST_ALL_DO_FORMAT" -eq 1 ] && [ "$TEST_ALL_NO_FORMAT" -eq 1 ]; then
+    printf 'Choose either --format or --no-format; they cannot be combined.\n' >&2
+    return 2
+  fi
+  if [ "$TEST_ALL_SELECTED" = quick ]; then
+    TEST_ALL_AUTO_CONTINUE=1
+    if [ "$TEST_ALL_DO_FORMAT" -eq 0 ]; then TEST_ALL_NO_FORMAT=1; fi
+  fi
+  if [ "$TEST_ALL_DO_FORMAT" -eq 1 ] || [ "$TEST_ALL_NO_FORMAT" -eq 1 ]; then
+    TEST_ALL_AUTO_CONTINUE=1
+  fi
 }
 
 # run_step_with_policy records every failure. By default it returns control to
@@ -560,18 +582,20 @@ run_repository_formatter() {
   "$SCRIPTS_DIR/format_repo.sh" format >"$LOG_DIR/format_repo.log" 2>&1
 }
 
-# Local users may opt into the existing complete formatter. EOF/default and CI
-# leave sources alone. Capture its intentional changes even on partial failure;
-# later test mutations must still be detected against the resulting baseline.
+# Explicit --format bypasses the question, including in CI. Interactive full
+# runs retain the question; EOF/default and quick leave sources alone. Capture
+# intentional changes even on partial failure so later test edits stay visible.
 offer_repository_format() {
   local answer='' status=0
-  if [ "${TEST_ALL_NO_FORMAT:-0}" = 1 ]; then return 0; fi
-  if [ -n "${CI:-}" ] && [ "$CI" != false ]; then return 0; fi
-  printf 'Format repo? [y/N] (press ENTER to confirm) '
-  IFS= read -r answer || answer=''
-  printf '\n'
-  answer="${answer%$'\r'}"
-  case "$answer" in y | Y | yes | YES) ;; *) return 0 ;; esac
+  if [ "$TEST_ALL_DO_FORMAT" -ne 1 ]; then
+    if [ "${TEST_ALL_NO_FORMAT:-0}" = 1 ]; then return 0; fi
+    if [ -n "${CI:-}" ] && [ "$CI" != false ]; then return 0; fi
+    printf 'Format repo? [y/N] (press ENTER to confirm) '
+    IFS= read -r answer || answer=''
+    printf '\n'
+    answer="${answer%$'\r'}"
+    case "$answer" in y | Y | yes | YES) ;; *) return 0 ;; esac
+  fi
 
   # Do not hide unexpected preparation edits by refreshing the baseline.
   if ! capture_tracked_bytes "$TEST_ALL_STATE_DIR/prepared" || ! cmp -s "$TEST_ALL_STATE_DIR/before" "$TEST_ALL_STATE_DIR/prepared"; then
@@ -597,6 +621,9 @@ main() {
   local preparation_started_at
   parse_test_all_arguments "$@" || exit $?
   selected="$TEST_ALL_SELECTED"
+  # Reuse the planner's existing approval boundary without suppressing its
+  # inventory, prerequisite checks or disk-space checks. System updates stay manual.
+  if [ "$TEST_ALL_AUTO_CONTINUE" -eq 1 ]; then export TRICE_TEST_SETUP_APPROVED=1; fi
   TEST_ALL_FAILED=0
   TEST_ALL_INCOMPLETE=0
   TEST_ALL_ABORTED=0

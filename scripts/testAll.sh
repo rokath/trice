@@ -9,6 +9,12 @@
 # Continue-on-failure is the default; stop early only when requested:
 # - ./scripts/testAll.sh [quick|full] --stop
 # - ./scripts/testAll.sh [quick|full] --no-stop (explicit default)
+# Formatting and setup answers:
+# - ./scripts/testAll.sh [quick|full] --format     # choose c, format without asking
+# - ./scripts/testAll.sh [quick|full] --no-format  # choose c, skip formatting
+# - quick defaults to c and --no-format; an explicit --format overrides that.
+# - c permits missing pinned tools under temp/tools, never system updates.
+# - full without format flags keeps its interactive setup and format questions.
 #
 # Selection:
 # - quick

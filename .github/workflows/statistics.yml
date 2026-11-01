@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           gh api --paginate --slurp 'repos/rokath/trice/releases?per_page=100' > _releases.json
-          python3 scripts/github_downloads.py _releases.json _download_data/rokath/trice/downloads
+          python3 scripts/_github_downloads.py _releases.json _download_data/rokath/trice/downloads
 
       - name: Archive download snapshot and report
         shell: bash

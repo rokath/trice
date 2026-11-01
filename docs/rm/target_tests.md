@@ -41,18 +41,21 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 ./scripts/testAll.sh
 ```
 
-The default is **full**. The suite checks installed tools and `temp/tools` first. If a project-local tool needs installation or repair, it asks once during preparation; later runs with valid tools need no answer. Empty input or EOF declines installation. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
+The default is **full**, with setup and formatting questions. The suite checks installed tools and `temp/tools` first. `quick` and either formatting switch choose `c` automatically: reuse valid tools and install missing pinned tools under `temp/tools`. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
 Every run lists the declared tool versions before preparation. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
 
 | Command | Use |
 | --- | --- |
 | `./scripts/testAll.sh` | Full native suite; normal final check before sharing a change. |
-| `./scripts/testAll.sh quick` | Shorter feedback while editing; still includes real C execution with GCC and Clang. |
+| `./scripts/testAll.sh quick` | Shorter feedback with GCC and Clang; choose `c` and skip formatting without questions. |
 | `./scripts/testAll.sh full` | Explicit spelling of the default. |
 | `./scripts/testAll.sh quick --stop` | Stop after the first failed step. |
 | `./scripts/testAll.sh --no-stop` | Explicitly continue after failures; this is already the default. |
-| `./scripts/testAll.sh --no-format` | Skip the optional repository-formatting question and leave formatting to the checks. Works with `quick` or `full`. |
+| `./scripts/testAll.sh --format` | Choose `c` and format the repository before testing, without questions. Works with `quick` or `full`. |
+| `./scripts/testAll.sh --no-format` | Choose `c` and leave formatting to the checks, without questions. Works with `quick` or `full`. |
+
+An explicit `--format` overrides quick's default. `--format` and `--no-format` cannot be combined. These unattended choices retain the tool inventory, version checks, prerequisite checks and disk-space checks. Use full without either formatting switch to choose system updates through `u`.
 
 From PowerShell, use `bash ./scripts/testAll.sh` to start the same runner. Direct Go commands also work in PowerShell; the compiler and runtime still need to be available to Go.
 

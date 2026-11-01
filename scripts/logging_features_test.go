@@ -35,7 +35,7 @@ esac
 case "$2" in
   ./internal/args) tests='TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder TestOrderedIDsTargetRecordsMatchSourceAndCatalog TestNativeProjectPathsAndLineEndings' ;;
   ./internal/id) tests='TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary' ;;
-  ./scripts) tests='TestBindEntrypointIntegration' ;;
+  ./scripts) tests='TestBindEntrypointIntegration TestHostDemoEntrypointIntegration TestExampleCoverageInventory TestDisabledRxTranslationUnit TestLabPlotLaunchers' ;;
   *) echo 'FAIL: unexpected package selection'; exit 8 ;;
 esac
 for test in $tests; do
@@ -155,7 +155,7 @@ func TestLoggingFeaturesSelectionAndIsolation(t *testing.T) {
 			assert.Len(t, lines, 3, "each focused Go selection runs once")
 			assert.Contains(t, string(calls), "test ./internal/args -run ^(TestContextEnrichmentTargetToDecoder|TestContextInsertCleanTargetToDecoder|TestOrderedIDsTargetRecordsMatchSourceAndCatalog|TestNativeProjectPathsAndLineEndings)$ -count=1 -v | integration=1")
 			assert.Contains(t, string(calls), "test ./internal/id -run ^(TestContextEnrichmentPoC|TestContextEnrichmentPoCRebaseScopeBoundary)$ -count=1 -v | integration=1")
-			assert.Contains(t, string(calls), "test ./scripts -run ^(TestBindEntrypointIntegration)$ -count=1 -v | integration=1")
+			assert.Contains(t, string(calls), "test ./scripts -run ^(TestBindEntrypointIntegration|TestHostDemoEntrypointIntegration|TestExampleCoverageInventory|TestDisabledRxTranslationUnit|TestLabPlotLaunchers)$ -count=1 -v | integration=1")
 			assert.NotContains(t, string(calls), "TestContextEnrichmentRebasePoC")
 			calls, err = os.ReadFile(filepath.Join(root, "temp/log/example-calls"))
 			assert.NoError(t, err)
