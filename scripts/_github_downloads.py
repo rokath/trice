@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Render release-download charts from paginated GitHub CLI output using only stdlib."""
+"""Internal workflow helper: render release-download charts using only stdlib."""
 
 import argparse
 from datetime import datetime, timedelta, timezone
