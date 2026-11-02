@@ -101,6 +101,8 @@ For a genuinely new project, `touch til.json li.json` creates initially empty fi
 * Active demo and example LI files, including `demoLI.json`, are generated locally rather than versioned. Build and ID-workflow scripts initialize a missing file and retain existing LI evidence. The historical `_test/testdata/testLI.json` fixture remains versioned.
 * Keep local LI between ID-processing runs even if source locations are unwanted in logs. `trice log -li off` suppresses their loading and display while Bind and Insert can continue using LI for ID ownership and reuse. See [Location Information](cli.md#location-information).
 
+Preserve the final build-specific LI externally with its TIL and any required alias overrides. An external content hash can identify the saved LI; unpack archived ZIPs externally and pass the selected JSON through `-li`. Trice does not archive, hash or recover historical locations automatically. Alias names and wrappers remain [raw TIL identity](legacy_user_code.md#stored-identity-and-overrides); original-source CE tags affect ID ranges transiently and are not additional history fields.
+
 ## 7. <a id="exporting-decoder-metadata"></a>Exporting decoder metadata
 
 Run Bind, then `trice generate -src application -logC` to export currently referenced formats for a local or custom decoder. See [Generate](generate.md) for output paths and options. This is also useful where a Go host executable is unavailable, for example QNX environments. See also the [custom-decoder discussion](https://github.com/rokath/trice/discussions/263).

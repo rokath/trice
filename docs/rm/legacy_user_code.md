@@ -176,7 +176,7 @@ Repeated instrumentation keeps IDs stable. Renaming, case changes, a payload-fam
 
 An explicit override is not stored. Repeat it when logging, for example `trice bind -alias MyWrn:err` and `tlog -alias MyWrn:err` alongside the project's ordinary options. Without it the name resolves to WARNING. An override affects all loaded IDs for that name; neither different IDs nor different capture dates preserve different historical tag intentions. Keep required logging options with the capture. The host cannot reliably warn about a forgotten override. Build overrides affect ID ranges; host overrides affect host classification only.
 
-Alias CE integration and its rare fallback-change warning are the next implementation stage (#769). Until that stage is complete, the combined alias/CE behavior is not ready for release. No additional tag storage or history mechanism is planned; see the [German review](../_scratchPad/Alias_Tags_CLI_CE_Review_DE.md) for the accepted boundary and workarounds.
+Alias CE selects the event-tag group before source-prefix groups. Scalar aliases follow the existing scalar limits; native `triceS` accepts fixed text, while selected string-alias extensions and all added runtime strings are rejected. A rare change from the original build tag to the stored-format host tag produces a normal warning with workarounds. See the [capability table and fallback examples](context_enrichment.md#alias-tags-and-ce-limits). No additional tag storage or history mechanism is introduced.
 
 #### Frozen name heuristic
 

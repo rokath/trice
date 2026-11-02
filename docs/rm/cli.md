@@ -50,6 +50,8 @@ Both `-name value` and `-name=value` work, including the existing double-dash fo
 
 Register user tags with `-utag` (also `-uTag` or `-UTAG`). The old `-ulabel` name is rejected with a replacement hint. `bind`, `insert` and `clean` accept names only; `log` and `tlog` also accept weights and colors. See [user-defined tags](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
 
+Use `-alias Name[:Tag]` or `-salias Name[:Tag]` consistently in source commands. `Name:Tag` implicitly registers the tag and overrides normal name/format classification. `log` and `tlog` accept the same options for overrides; repeat an override when logging because it is not stored. Same-kind repetitions merge, conflicting explicit tags and registration under both kinds fail before processing. See [alias identity](legacy_user_code.md#alias-identity-and-tags-in-v2) and [CE limits](context_enrichment.md#alias-tags-and-ce-limits).
+
 ## 2. <a id="automatic-dictionary-reload"></a>Automatic dictionary reload
 
 Making it facile for a user to use Trice was the driving point just to have

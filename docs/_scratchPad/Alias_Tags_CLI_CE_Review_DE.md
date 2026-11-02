@@ -1,8 +1,8 @@
 # Alias Tags und Context Enrichment für v2.0.0
 
-Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die CLI- und Tag-Grundlagen aus #768 sowie die Aliasidentität und Host-Verarbeitung aus #761 sind auf ausdrücklichen Auftrag umgesetzt. Die CE-Integration aus #769 benötigt noch einen eigenen Auftrag. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
+Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die CLI- und Tag-Grundlagen aus #768, die Aliasidentität und Host-Verarbeitung aus #761 sowie die CE-Integration aus #769 sind auf ausdrücklichen Auftrag implementiert. Die abschließende Benutzerabnahme einschließlich Compiler-/Plattformprüfungen steht aus. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
 
-Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den RM-Erklärungen. Es unterscheidet den umgesetzten Stand von #768/#761 vom verbleibenden CE-Zielverhalten.
+Stand: 3. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den RM-Erklärungen und unterscheidet implementiertes Verhalten von noch ausstehender Abnahme.
 
 ## Entwicklungsaufgaben und Reihenfolge
 
@@ -11,11 +11,11 @@ Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englisc
 | Abgeschlossen | #767 — Review alias integration and CE fallback warnings before implementation | Warnungsfälle und Aufrufer geprüft; kanonische Tag-Ausgabe und Vis-Auswahl entschieden; Sollfälle den Folgeissues zugeordnet. |
 | Umgesetzt | #768 — Unify CLI option and tag name case rules and replace -ulabel with -utag | Optionsnamen-Regeln, kommandospezifisches `-utag` und gemeinsame schreibungsunabhängige Tag-Identität einschließlich kanonischer Großschreibung implementiert. |
 | Umgesetzt | #761 — Preserve alias identity and resolve tags consistently across build and logging | Aliasregistrierung, TIL-Identität, gemeinsame Tag-Auflösung, Host-Verarbeitung, Generatoren und Vis implementiert. |
-| Abschließend | #769 — Integrate alias tags with bounded context enrichment | Skalare Alias-CE und festen Text für natives `triceS` integrieren, Verarbeitungspfade prüfen und RM, Beispiele und CLI-Hilfe vervollständigen. |
+| Implementiert, Abnahme offen | #769 — Integrate alias tags with bounded context enrichment | Virtuelle Tag-Auswahl, ursprüngliche Build-Tags, Fallback-Warnung, CE-Grenzen, Verhaltenstests, C-Beispiel und Dokumentation ergänzt. Der Compiler-/Host-Integrationstest ist vorbereitet, noch nicht ausgeführt. |
 
 Diese Staffelung trennt überschaubare Änderungen. Veröffentlicht wird eine gemeinsame Alias-Semantik für v2.0.0. Zwischenstände mit unterschiedlichen öffentlichen Tag-Regeln sind kein eigenes Releaseziel. Die Vorprüfung benötigt weder einen Prototyp noch eine neue Speicher-Machbarkeitsstudie. Neu entdeckte wesentliche Verhaltensfragen werden vor der betreffenden Implementierung ausdrücklich geklärt.
 
-Die Vorprüfung und die Umsetzung von #768/#761 wurden jeweils ausdrücklich beauftragt. #769 ist noch nicht implementiert; die gemeinsame Alias-/CE-Funktion ist damit noch nicht zur Veröffentlichung fertig.
+Die Vorprüfung und die Umsetzung von #768/#761/#769 wurden jeweils ausdrücklich beauftragt. Vor Veröffentlichung stehen die Benutzerprüfung und die erforderlichen nativen Abnahmeläufe aus.
 
 ## Implementierungsstand von Issue #768
 
@@ -23,7 +23,7 @@ Die gemeinsame CLI-Verarbeitung normalisiert nur echte Optionsnamen. Einbuchstab
 
 `-utag` ersetzt `-ulabel` einschließlich einer Fehlermeldung für alte Schreibweisen. Bind, Insert und Clean akzeptieren ausschließlich Namen und weisen Gewichte/Farben vor Änderungen ab. Die Tag-Registry führt bereits veröffentlichte und noch ungewichtete Case-Varianten zusammen, verwendet SENSOR/X als kanonische Custom-Metadaten und erhält die Präfixschreibweise für die Darstellung. CLI-Hilfe, aktive RM-Beispiele und aufrufende Beispiel-/Releaseprüfungen sind angepasst.
 
-Die Go-Tests für `internal/args`, `internal/emitter` und `internal/translator` bestanden beim Abschluss von #768. Die betroffenen ID-Bereichs-/CE-Tests und die Skript-Fixtures für LabPlot und Release-Featureausgaben bestanden ebenfalls. ShellCheck, Shellformat, JavaScript-Syntax und Dokumentlinks wurden für diesen Stand geprüft. Ein Gesamtlauf, reale Firmware-Builds und native Linux-/Windows-Abnahmen wurden nicht ausgeführt. Die folgenden Aliasänderungen gehören zu #761; CE-Fallback-Warnungen verbleiben bei #769.
+Die Go-Tests für `internal/args`, `internal/emitter` und `internal/translator` bestanden beim Abschluss von #768. Die betroffenen ID-Bereichs-/CE-Tests und die Skript-Fixtures für LabPlot und Release-Featureausgaben bestanden ebenfalls. ShellCheck, Shellformat, JavaScript-Syntax und Dokumentlinks wurden für diesen Stand geprüft. Ein Gesamtlauf, reale Firmware-Builds und native Linux-/Windows-Abnahmen wurden nicht ausgeführt. Die folgenden Aliasänderungen gehören zu #761; die CE-Fallback-Warnung ist bei #769 beschrieben.
 
 ## Implementierungsstand von Issue #761
 
@@ -35,7 +35,26 @@ Der Decoder führt Ereignis-Tag und statische Präfixherkunft bis zu Text, JSON/
 
 Gezielte Verhaltenstests decken Registrierung, vollständige Heuristiktabellen, alte/gemischte TIL, Wiederholung, Umbenennung, Familienwechsel, Cache-Umgehung, ID-Bereiche, Generatorauswahl, Reload, Text/JSON/KV, Laufzeitpräfixe, Filter, Statistik vor Filtern und Vis ab. CLI-Hilfe und [RM](../rm/legacy_user_code.md#alias-identity-and-tags-in-v2) sind ergänzt. Der Gesamtlauf sowie Compiler-/Firmware- und native Linux-/Windows-Abnahmen bleiben der abschließenden Benutzerprüfung vorbehalten.
 
-Für #769 verbleiben virtuelle Tag-Selektoren bei CE, Warnungen bei geändertem Format-Fallback einschließlich passendem Clean, die verbindliche Zurückweisung ausgewählter String-Alias-Erweiterungen sowie die hardwarefreie C-/Host-Abnahme und konsolidierte CE-Beispiele. Die vorhandenen CE-Helfer erhalten bereits die Aliasidentität; daraus folgt noch keine abgeschlossene Alias-CE-Unterstützung.
+Die anschließende CE-Integration und ihre gesonderte Abnahme stehen im folgenden Abschnitt zu #769.
+
+## Implementierungsstand von Issue #769
+
+Aliase wählen zuerst ihre Ereignis-Tag-Gruppe, dann Quellpräfixgruppen in Quellreihenfolge. Jede kanonische Gruppe wirkt einmal; CLI-Reihenfolge innerhalb einer Gruppe bleibt erhalten. Ein virtueller Tag plus ein gleichwertiger Quellpräfix erzeugt keine zusätzliche Duplikatwarnung. Wiederholte physische Präfixe behalten die vorhandene Warnung. Eigene Tags verwenden dieselbe Gruppierung wie Built-ins.
+
+Bind und Insert warnen vor Veröffentlichung einmal pro betroffener Stelle, wenn das effektive Format einen anderen Host-Tag als den ursprünglichen Build-Tag ergibt. Der Build-Tag bleibt außerhalb der TIL-Schlüssel und steuert auch die ID-Bereiche sowie die anschließende Sortierung. Wiederholtes Insert und passendes Clean rekonstruieren das ursprüngliche Format anhand der vollständigen Endung. Dies berücksichtigt auch ein ursprünglich leeres Aliasformat, bei dem erst der feste CE-Text den ersten Tag erzeugt. Es gibt keine zweite Erweiterung anhand des erwarteten Host-Tags und keine zusätzlichen Speicherfelder.
+
+Ausgewählte String-Alias-Erweiterungen werden vor Adaptererzeugung oder Quelldateiänderungen abgewiesen. Stringwertige CE-Regeln scheitern bereits bei der Optionsprüfung, auch ungenutzt. Natives `triceS` behält festen CE-Text ohne weitere Laufzeitwerte. Bestehende String-Aliase ohne Erweiterung behalten Namen, Hülle und Projektformatierung; eine leere Regel fügt weder Text noch Werte hinzu.
+
+Die gezielten Go-Tests für Warnungstabelle, Normal-/Dry-run-Verarbeitung, Wiederholung, passendes Clean, Cache, ID-Bereiche, Schreibreihenfolge, Rollback, Teilscans, unveränderte historische Einträge, Custom-Gruppen und Beispielvorbereitung bestehen. RM-Kapitel zu Aliasen, CE, Tags, CLI, IDs, Structured Logging und Generate sowie CLI-Hilfe und Changelog sind ergänzt.
+
+Das [C-Beispiel](../../_test/testdata/aliasContext.c) verwendet einen skalaren Alias mit CE, natives `triceS` mit festem Text, einen printf-String-Alias und einen direkten String-Wrapper ohne CE. Zähler prüfen die einfache Auswertung und die Ausführung der Projektmakros. Der neue Test `TestAliasContextTargetToDecoder` ist für Bind/Insert und direkte/lokale Dekodierung vorbereitet; er prüft Text/JSON/KV, Filter, Statistik vor Filtern, LI, Generate und Vis. Er ist in den bestehenden CE-Abnahmeschritt eingebunden und zusätzlich einzeln per Opt-in aufrufbar. Seine Vorbereitung und die Testauswahl-Fixtures wurden ohne Compiler getestet. Der eigentliche C-/Host-Lauf wurde gemäß Vorgabe nicht gestartet.
+
+| Abnahme | Stand |
+|---|---|
+| Gezielte Go-Verhaltenstests | Bestanden; keine Gesamtabnahme. |
+| C-Sender, lokale Dekodierung und Host-Integration | Test ergänzt, nicht ausgeführt. |
+| Native Compiler-Abnahme unter macOS, Linux und Windows | Jeweils noch erforderlich; nicht aus simulierten oder reinen Go-Tests ableitbar. |
+| Gesamttests, Coverage und reale Firmware | Nicht ausgeführt; separater ausdrücklicher Auftrag beziehungsweise Benutzerprüfung. |
 
 ## Aliasarten und Registrierung
 
@@ -322,7 +341,7 @@ Die folgende Matrix beschreibt den Ausgangsstand der Vorprüfung. Den inzwischen
 | #761 | Kurze Aliase wie `A`, reine Case-Unterschiede und Namen mit `S`, `32` oder `Assert`; alte/gemischte TIL, stabile Rohschlüssel, Renames und erhaltene historische Einträge; gültiger und ungültiger Reload; Text/JSON/KV einschließlich Laufzeitpräfixen und LI off; Vis mit Ereignis-Tag sowie freiem Präfix. |
 | #769 | Warnungstabelle, Overrides und Namensheuristik ohne Fehlwarnung, wiederholtes Insert und passendes Clean mit/ohne Cache; eine Warnung pro Stelle vor Veröffentlichung und keine zweite CE-Auswahl; native `triceS`-Text-CE positiv, jede ausgewählte `-salias`-Erweiterung negativ; hardwarefreie C-/Host-Integration. |
 
-Alle gefundenen Integrationspunkte und die beiden während der Prüfung geklärten Verhaltensentscheidungen sind damit zugeordnet. #768 und #761 sind umgesetzt; als nächste Implementierung bleibt #769 mit eigenem Auftrag.
+Alle gefundenen Integrationspunkte und die beiden während der Prüfung geklärten Verhaltensentscheidungen sind damit zugeordnet. #768, #761 und #769 sind implementiert; als nächster Schritt bleibt die Benutzerabnahme einschließlich der noch nicht ausgeführten C-/Host- und Plattformläufe.
 
 ## Geplante Abnahme und Dokumentation
 
@@ -339,7 +358,7 @@ Jede spätere Implementierungsstufe erhält verständliche Verhaltenstests mit u
 
 Fokussierte Tests begleiten die Implementierung nach dem Startsignal. Gesamtläufe, Coverage und breite Compiler-/Plattformabnahme werden erst auf ausdrücklichen Auftrag ausgeführt. Native Linux-, macOS- und Windows-Ergebnisse sind von simulierten Plattformtests zu unterscheiden. Diese Vorprüfung hat keine Builds oder Verhaltenstests ausgeführt.
 
-Später werden die vorhandenen RM-Kapitel zu Aliasen, Tags, CLI, IDs, CE, Structured Logging und Generate erweitert. Die obigen Tabellen und Beispiele bilden dafür die deutsche Reviewgrundlage. Der Changelog erhält nur kurze Hinweise und relative RM-Links.
+Die vorhandenen RM-Kapitel zu Aliasen, Tags, CLI, IDs, CE, Structured Logging und Generate sind erweitert. Die obigen Tabellen und Beispiele bilden die deutsche Reviewgrundlage. Der Changelog enthält nur kurze Hinweise und relative RM-Links.
 
 Die LI-Archivierung bleibt extern: finale build-spezifische LI aufbewahren, bei Bedarf über Inhalts-Hash identifizieren, passenden Datensatz extern auswählen und mit `-li` verwenden. ZIPs werden extern entpackt. Trice erhält dafür keine Hash-/Archivdienste oder Historienfelder.
 
