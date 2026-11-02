@@ -120,7 +120,7 @@ trap cleanup INT TERM EXIT
 echo "Waiting for LabPlot to open UDP port 9000..."
 wait_for_udp_port 9000 LabPlot 5
 
-"$tlog_bin" -p UDP4 -args 127.0.0.1:9001 -til "$til_file" -ulabel vis_demo \
+"$tlog_bin" -p UDP4 -args 127.0.0.1:9001 -til "$til_file" -utag vis_demo \
   '-vis=vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop' &
 tlog_pid=$!
 
