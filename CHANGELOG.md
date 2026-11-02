@@ -1,6 +1,26 @@
 # Changelog
 
-## v2.0.0-beta-2 (unreleased)
+## v2.0.0-beta-3 (unreleased)
+
+This third v2 beta improves logging diagnostics, example builds, performance measurements and developer test preparation.
+
+### Logging and target fixes
+
+- Runtime [stamp-expression errors](docs/rm/stamp_expressions.md#errors-and-unavailable-fields) display compact `?` markers while preserving the application message; `-v` adds detailed diagnostics.
+- [Statistics](docs/rm/tags_color_and_weights.md#event-statistics) size path/type columns dynamically and shorten long paths.
+- Target receive sources avoid empty translation units when receive support is disabled. G0B1 header paths use exact casing, and the FreeRTOS warning suppression works with Apple Clang.
+
+### Examples and developer workflow
+
+- GCC and Clang [example builds](docs/rm/examples.md) share command-line options; L432 gains explicit Clang configurations. Example demos have broader workflow checks and expose compiler warnings.
+- G0B1 gains configurable [clock benchmarks](docs/rm/examples.md#g0b1-clock-benchmark), expanded bursts and updated [performance comparisons](docs/rm/performance.md). Logging examples show timestamp unwrapping and statistics.
+- [Developer test preparation](docs/rm/target_tests.md#how-to-run-the-tests) supports unattended quick/formatting choices, improves pinned-tool discovery and browser-module validation, and reports progress, cancellation and final results more clearly.
+
+### Release scope
+
+- The alias/tag/CLI/CE redesign remains under review and is not implemented in this beta.
+
+## v2.0.0-beta-2
 
 This second v2 beta improves CLI behavior, example reliability and native developer testing across Windows, Linux and macOS.
 
