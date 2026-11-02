@@ -28,6 +28,9 @@ type idData struct {
 	liNeedsRewrite bool            // liNeedsRewrite removes obsolete schema fields even when no source locations changed.
 	// preparedInsert holds final source bytes for the current deterministic insert pass.
 	preparedInsert map[string][]byte
+	// sourceBuildTags retains pre-CE policy by source ordinal for one private
+	// Insert/Clean transaction. It is never serialized or used as a TIL key.
+	sourceBuildTags map[string][]string
 	// reservedIDs protects locations outside the current writable source scope.
 	reservedIDs map[TriceID]bool
 	// sourceFS proves native case aliases without changing stored reference data.

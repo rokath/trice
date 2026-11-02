@@ -262,6 +262,9 @@ func (p *idData) insertIDsInOrder(w io.Writer, fs *afero.Afero, action ant.Proce
 		parsed[index], _ = scanSourceSites(input.path, string(out), false)
 		for ordinal, site := range parsed[index] {
 			if site.id > 0 {
+				if tags, ok := p.sourceBuildTags[filepath.Clean(input.path)]; ok && ordinal < len(tags) {
+					site.buildTag = tags[ordinal]
+				}
 				sites = append(sites, orderedIDSite{file: index, site: ordinal, path: input.path, line: site.line, column: site.column, id: site.id, buildTag: site.buildTag})
 			}
 		}

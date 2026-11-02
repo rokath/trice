@@ -128,6 +128,8 @@ func TestBindContextRejectsInvalidRulesBeforeWrites(t *testing.T) {
 		{"duplicate rule fields", `ctx:"{x}{x}", a, b`, "duplicate structured field"},
 		{"literal closing brace must be escaped", `ctx:"}"`, "unmatched closing brace"},
 		{"multiline expression cannot become a macro", "ctx:\"%d\", x\n+1", "expected selector"},
+		{"unused runtime string", `unused:" %s", text`, "added runtime strings"},
+		{"unused named runtime string", `unused:" {text:%s}", text`, "added runtime strings"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			defer prepareBindTest(t, map[string]string{"main.c": "trice(\"msg:untouched\");\n"})()
@@ -161,7 +163,6 @@ func TestBindContextRejectsUnsupportedSitesWithoutPartialWrites(t *testing.T) {
 		{"eight bit cannot transport a float", "trice8(\"ctx:a\");\n", ArrayFlag{`ctx:"%f", aFloat(velocity)`}, "below 32 bit"},
 		{"float32 bits cannot silently become float64", "trice64(\"ctx:a\");\n", ArrayFlag{`ctx:"%f", aFloat(velocity)`}, "requires aDouble(), not aFloat()"},
 		{"float64 requires a 64 bit macro", "trice32(\"ctx:a\");\n", ArrayFlag{`ctx:"%f", aDouble(velocity)`}, "non-64-bit"},
-		{"scalar record cannot append a string", "trice(\"ctx:a\");\n", ArrayFlag{`ctx:"%s", text`}, "string format specifier outside"},
 		{"expanded arity must fit the target", "trice(\"ctx:a\");\n", ArrayFlag{`ctx:"` + strings.Repeat("%d", 13) + `", ` + strings.TrimSuffix(strings.Repeat("x,", 13), ",")}, "no more than 12"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

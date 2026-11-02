@@ -135,6 +135,11 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching liFile exists, its first occurrence is used.
 func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin, visitAssignedID func(TriceID), originalTags ...[]string) (out []byte, modified bool, err error) {
+	if len(originalTags) == 0 {
+		if tags, ok := p.sourceBuildTags[filepath.Clean(sourcePath)]; ok {
+			originalTags = [][]string{tags}
+		}
+	}
 	// Bind supplies original per-site tags after rendering its private CE view.
 	siteIndex := 0
 	var idn TriceID                              // idn is the last found id inside the source.
@@ -194,7 +199,11 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 			buildTag = originalTags[0][siteIndex]
 		}
 		siteIndex++
-		t.Strg, _, _ = selectContextRules(t.Strg, rules)
+		var selected []contextRule
+		t.Strg, selected, _ = selectTriceContextRules(t, rules, buildTag)
+		if err := validateAliasContext(t, selected); err != nil {
+			return nil, false, fmt.Errorf("%s:%d: CE: %w", sourcePath, triceStartLine, err)
+		}
 
 		// Only check format specifiers(param count) when the tool has a real format string.
 		// triceS aliases can wrap custom argument lists and store those verbatim in t.Strg.

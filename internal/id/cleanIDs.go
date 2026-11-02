@@ -78,6 +78,8 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 	var delta int                                // offset change cause by ID statement insertion
 	var t TriceFmt                               // t is the actual located trice.
 	line := 1                                    // line counts source code lines, these start with 1.
+	// Match the preflight plan even when some sites have no removable ID.
+	siteIndex := 0
 	if p.err != nil {
 		return
 	}
@@ -93,6 +95,12 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 		if loc == nil {
 			break // done
 		}
+		originalTag := ""
+		originalTags, planned := p.sourceBuildTags[filepath.Clean(sourcePath)]
+		if planned && siteIndex < len(originalTags) {
+			originalTag = originalTags[siteIndex]
+		}
+		siteIndex++
 		if loc[3] == loc[4] { // No iD(n) found
 			ignore = true
 		} else {
@@ -109,7 +117,15 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 			if t.isAlias() && !t.isSAlias() && (strings.HasPrefix(t.Strg, SAliasStrgPrefix) || strings.HasSuffix(t.Strg, SAliasStrgSuffix)) {
 				return nil, false, fmt.Errorf("%s:%d: scalar alias %s uses a reserved SAlias boundary", sourcePath, line, t.Alias)
 			}
-			t.Strg, _, _ = selectContextRules(t.Strg, rules)
+			var selected []contextRule
+			if planned {
+				t.Strg, selected, _ = selectTriceContextRules(t, rules, originalTag)
+			} else {
+				t.Strg, selected, _ = selectTriceContextRules(t, rules)
+			}
+			if err := validateAliasContext(t, selected); err != nil {
+				return nil, false, fmt.Errorf("%s:%d: CE: %w", sourcePath, line, err)
+			}
 			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.

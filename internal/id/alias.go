@@ -150,22 +150,7 @@ func ResolveAliasEvent(raw TriceFmt) AliasEvent {
 		return AliasEvent{}
 	}
 	event := AliasEvent{Alias: true, Tag: "untagged"}
-	format := raw.Strg
-	if t.Type == "triceS" {
-		if !strings.HasPrefix(format, SAliasStrgPrefix) || !strings.HasSuffix(format, SAliasStrgSuffix) {
-			format = ""
-		} else {
-			format = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(format, SAliasStrgPrefix), SAliasStrgSuffix))
-			// A later literal in an assertion expression is not a format prefix.
-			if !strings.HasPrefix(format, `"`) {
-				format = ""
-			} else if loc := matchStringLiteral(format); loc != nil && loc[0] == 0 {
-				format = format[1 : loc[1]-1]
-			} else {
-				format = ""
-			}
-		}
-	}
+	format := aliasStaticFormat(raw, t)
 	if prefix, _, ok := strings.Cut(format, ":"); ok {
 		if _, err := emitter.FindTagName(prefix); err == nil {
 			event.Prefix = prefix
@@ -191,6 +176,28 @@ func ResolveAliasEvent(raw TriceFmt) AliasEvent {
 	}
 	event.Reason += "; " + reason
 	return event
+}
+
+// aliasStaticFormat shares the bounded first-argument interpretation between
+// host classification and CE selection without modifying the stored wrapper.
+func aliasStaticFormat(raw, payload TriceFmt) string {
+	format := raw.Strg
+	if payload.Type == "triceS" {
+		if !strings.HasPrefix(format, SAliasStrgPrefix) || !strings.HasSuffix(format, SAliasStrgSuffix) {
+			format = ""
+		} else {
+			format = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(format, SAliasStrgPrefix), SAliasStrgSuffix))
+			// A later literal in an assertion expression is not a format prefix.
+			if !strings.HasPrefix(format, `"`) {
+				format = ""
+			} else if loc := matchStringLiteral(format); loc != nil && loc[0] == 0 {
+				format = format[1 : loc[1]-1]
+			} else {
+				format = ""
+			}
+		}
+	}
+	return format
 }
 
 // ExplainAliases reports policy once per dictionary entry and unused options.
