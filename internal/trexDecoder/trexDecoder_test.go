@@ -1287,7 +1287,7 @@ func TestReadStatisticsRequireSuccessfulApplicationDecode(t *testing.T) {
 		DecoderData: decoder.NewDecoderData(decoder.Config{
 			Endian: decoder.LittleEndian,
 			LUT: id.TriceIDLookUp{
-				1: {Type: "BADTYPE", Strg: "wrn:bad=%d"},
+				1: {Type: "TRICE_INVALID", Strg: "wrn:bad=%d"},
 				2: {Type: "TRICE8_1", Strg: "wrn:good=%d"},
 				3: {Type: "TRICE_0", Strg: ""},
 			},

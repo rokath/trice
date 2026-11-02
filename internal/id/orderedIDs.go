@@ -23,6 +23,8 @@ type orderedIDSite struct {
 	key          string
 	line, column int
 	id           TriceID
+	// buildTag is source policy, independent of the stored post-CE format.
+	buildTag string
 }
 
 // sourceFileIdentity retains native metadata for one case-folded spelling.
@@ -118,13 +120,24 @@ func (p *idData) selectedLocationAlias(stored string, candidates []string) bool 
 // orderIdenticalIDs permutes only interchangeable IDs. The existing allocator
 // still selects new IDs; TIL entries and IDs outside the scope are retained.
 func (p *idData) orderIdenticalIDs(sites []orderedIDSite) error {
-	groups := make(map[TriceFmt][]int)
+	// Equal raw formats can have different original build tags after CE.
+	// Such sites must not exchange IDs across their policy ranges.
+	type policyKey struct {
+		format TriceFmt
+		tag    string
+	}
+	groups := make(map[policyKey][]int)
 	for index, site := range sites {
 		format, ok := p.idToTrice[site.id]
 		if !ok || site.id <= 0 || p.reservedIDs[site.id] {
 			return fmt.Errorf("cannot order ID %d at %s:%d: missing or reserved mapping", site.id, site.path, site.line)
 		}
-		groups[format] = append(groups[format], index)
+		tag := site.buildTag
+		if tag == "" {
+			tag = triceTag(format)
+		}
+		key := policyKey{format, tag}
+		groups[key] = append(groups[key], index)
 		sites[index].key = orderedIDPath(site.path)
 	}
 	for format, indexes := range groups {
@@ -135,7 +148,7 @@ func (p *idData) orderIdenticalIDs(sites []orderedIDSite) error {
 		}
 		ids := make(TriceIDs, 0, len(pool))
 		for id := range pool {
-			if p.idAllowedForTrice(id, format) {
+			if p.idAllowedForTrice(id, format.format, format.tag) {
 				ids = append(ids, id)
 			}
 		}
@@ -178,7 +191,7 @@ func orderBindIDs(plans []bindFilePlan) error {
 		}
 		paths = append(paths, plan.path)
 		for ordinal, site := range plan.sites {
-			sites = append(sites, orderedIDSite{file: file, site: ordinal, path: plan.path, line: site.line, column: site.column, id: site.id})
+			sites = append(sites, orderedIDSite{file: file, site: ordinal, path: plan.path, line: site.line, column: site.column, id: site.id, buildTag: site.buildTag})
 		}
 	}
 	IDData.reserveIDsOutside(paths, protected)
@@ -249,7 +262,7 @@ func (p *idData) insertIDsInOrder(w io.Writer, fs *afero.Afero, action ant.Proce
 		parsed[index], _ = scanSourceSites(input.path, string(out), false)
 		for ordinal, site := range parsed[index] {
 			if site.id > 0 {
-				sites = append(sites, orderedIDSite{file: index, site: ordinal, path: input.path, line: site.line, column: site.column, id: site.id})
+				sites = append(sites, orderedIDSite{file: index, site: ordinal, path: input.path, line: site.line, column: site.column, id: site.id, buildTag: site.buildTag})
 			}
 		}
 	}

@@ -218,6 +218,10 @@ func scanSourceSites(path, source string, maskComments bool) (sites []bindSite, 
 			diagnostics = append(diagnostics, bindDiagnostic{path: path, line: site.line, message: err.Error()})
 		}
 		site.format = trice.Strg
+		site.buildTag = triceTag(trice)
+		if trice.isAlias() && !trice.isSAlias() && (strings.HasPrefix(trice.Strg, SAliasStrgPrefix) || strings.HasSuffix(trice.Strg, SAliasStrgSuffix)) {
+			diagnostics = append(diagnostics, bindDiagnostic{path: path, line: site.line, message: "scalar alias uses a reserved SAlias boundary"})
+		}
 
 		if absolute[3] == absolute[4] {
 			site.mode = bindSiteAuto

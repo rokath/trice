@@ -64,6 +64,12 @@ func (p *remoteDisplay) WriteLine(line []string) {
 	p.Err = p.PtrRPC.Call("DisplayServer.WriteLine", line, nil)
 }
 
+// WriteEventLine transfers event provenance without inserting text markers.
+func (p *remoteDisplay) WriteEventLine(line EventLine) {
+	p.errorFatal()
+	p.Err = p.PtrRPC.Call("DisplayServer.WriteEventLine", line, nil)
+}
+
 //  // startServer starts a display server with the filename exe (if not already running).
 //  func (p *RemoteDisplay) startServer() {
 //  	var cmd *exec.Cmd

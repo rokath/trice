@@ -27,6 +27,7 @@ func NewLut(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUp {
 		return lu
 	}
 	msg.FatalInfoOnErr(lu.fromFile(fSys, fn, w), fmt.Sprintf("Error in file %s?", fn))
+	msg.FatalInfoOnErr(lu.ValidateAliases(), fmt.Sprintf("Error in file %s?", fn))
 	if Verbose {
 		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	}
@@ -217,6 +218,9 @@ func idDiagnosticWriter(writers []io.Writer) io.Writer {
 // see also ConstructFullTriceInfo
 func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
 	for i, x := range ilu {
+		if payload, err := PayloadFormat(x); err != nil || payload.Alias != "" {
+			continue
+		}
 		specs := formatSpecifierSpecs(x.Strg)
 		n := len(specs)
 		if !(0 <= n && n <= 12) {

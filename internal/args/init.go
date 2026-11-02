@@ -53,6 +53,7 @@ func init() {
 
 // FlagsInit initializes all sub-command flag sets.
 func FlagsInit() {
+	id.TriceAliases, id.TriceSAliases = nil, nil
 	helpInit()
 	logInit()
 	addInit()
@@ -101,6 +102,8 @@ func logInit() {
 	emitter.Pick = nil
 	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ContinueOnError) // sub-command
+	flagTriceAliases(fsScLog)
+	flagTriceSAliases(fsScLog)
 	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr.")
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
@@ -117,7 +120,7 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
 	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
-A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
+A typical use case is "-logLevel wrn". Native events without a recognized format-string tag use the built-in "untagged" group. Macro aliases also resolve tags from their names and current explicit overrides. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
 Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in and user-defined tag names ignore case; custom tag metadata uses uppercase names. The equivalent spelling -loglevel accepts the same values. See also CLI switches -utag, -pick and -ban.`)
 	fsScLog.StringVar(&emitter.LogLevel, "loglevel", "all", "Alias for -logLevel; accepts all, off, a registered tag or alias, or an integer weight from 0 to 999.")
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
@@ -214,6 +217,7 @@ Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every even
 	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
 	fsScLog.Var(&visRules, "vis", `Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
 <tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop][;header="<go-string>"]
+Registered tag selectors compare the event tag; unregistered selectors match the exact static prefix.
 Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks are recreated for each command. A header is written once per output sink; each encoded UDP record is one datagram.`)
 }
 
@@ -395,17 +399,18 @@ source code files inside directory ./_test EXCEPT file trice.h inside _test/src 
 }
 
 func flagTriceAliases(p *flag.FlagSet) {
-	p.Var(&id.TriceAliases, "alias", `Additional macro names to treat like trice().
-This flag can be specified multiple times to add more aliases. Each provided name will be
-recognized as equivalent to a trice() call. (default none)
+	p.Var(&id.TriceAliases, "alias", `Scalar macro alias: Name or Name:Tag (repeatable).
+Names are exact C identifiers and must not start with trice. TIL preserves the name.
+Tag priority: explicit override, name heuristic, first static prefix, untagged.
+Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
  (default none)`) // multi flag
 	p.Var(&id.TriceAliases, "a", "Short for trice() aliases.") // multi flag
 }
 
 func flagTriceSAliases(p *flag.FlagSet) {
-	p.Var(&id.TriceSAliases, "salias", `Additional macro names to treat like triceS().
-This flag can be specified multiple times to add more aliases. Each provided name will be
-recognized as equivalent to a triceS() call.
+	p.Var(&id.TriceSAliases, "salias", `String macro alias: Name or Name:Tag (repeatable).
+Uses triceS payloads and preserves the exact name and existing argument wrapper.
+Same tag priority as -alias; both kinds cannot register the same name.
  (default none)`) // multi flag
 	p.Var(&id.TriceSAliases, "sa", "Short for triceS() aliases.") // multi flag
 }

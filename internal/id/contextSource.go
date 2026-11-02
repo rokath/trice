@@ -159,7 +159,8 @@ func transformSourceContext(w io.Writer, path, source string, rules []contextRul
 		}
 		extension, expressions := sourceContextExtension(selected)
 		original, matches := sourceContextMatch(physical, extension, args, expressions, selected)
-		if len(expressions) != 0 && triceTypeCategory(bindSiteFormat(site).Type) != "" {
+		payload, _ := PayloadFormat(bindSiteFormat(site))
+		if len(expressions) != 0 && triceTypeCategory(payload.Type) != "" {
 			matches = false // Buffer/string arguments are not scalar CE arguments.
 		}
 		if clean && !matches || !clean && matches {

@@ -28,7 +28,7 @@ func (p *idData) triceIDCleaning(w io.Writer, fSys *afero.Afero, path string, fi
 	var cacheExists bool
 	var cleanedCachePath string
 	cache := filepath.Join(UserHomeDir, ".trice/cache")
-	if TriceCacheEnabled {
+	if TriceCacheEnabled && len(aliasDefinitions) == 0 {
 
 		if _, err = fSys.Stat(cache); err == nil { // cache folder exists
 			// This cache code works in conjunction with the cache code in function triceIDInsertion.
@@ -101,7 +101,7 @@ clean:
 	///////////////////////////////////////////////////////////////////////////////
 	// cache stuff:
 	//
-	if TriceCacheEnabled && cacheExists && p.err == nil {
+	if TriceCacheEnabled && len(aliasDefinitions) == 0 && cacheExists && p.err == nil {
 		// The file could have been modified by the user but if IDs are not touched, modified is false.
 		// So we need to update the cache also when modified is false.
 		msg.Tell(w, "Copy file into the cleaned-cache.")
@@ -110,7 +110,7 @@ clean:
 		err = CopyFileWithMTime(fSys, cleanedCachePath, path)
 		p.join(err)
 	}
-	if TriceCacheEnabled && !cacheExists {
+	if TriceCacheEnabled && len(aliasDefinitions) == 0 && !cacheExists {
 		fmt.Fprintln(w, "Warning: Folder", cache, "not found. Please create it or do not use the -cache switch.")
 	}
 	//

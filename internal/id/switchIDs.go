@@ -48,8 +48,11 @@ type TagEntry struct {
 // idAllowedForTrice reports whether an ID belongs to the current common or
 // tag-specific policy range for a format. Historical TIL entries are checked
 // with this predicate before they can be reused by insert or bind.
-func (p *idData) idAllowedForTrice(id TriceID, t TriceFmt) bool {
+func (p *idData) idAllowedForTrice(id TriceID, t TriceFmt, originalTag ...string) bool {
 	tagName := triceTag(t)
+	if len(originalTag) > 0 {
+		tagName = originalTag[0]
+	}
 	canonical, _ := emitter.FindTagName(tagName)
 	for _, entry := range p.TagList {
 		if entry.tagName == canonical {
@@ -129,6 +132,9 @@ func (p *idData) removeIDFromIDSpace(id TriceID) {
 
 // triceTag returns the trice tag, if any, or an empty string.
 func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.tags.
+	if event := ResolveAliasEvent(t); event.Alias {
+		return event.Tag
+	}
 	before, _, ok := strings.Cut(t.Strg, ":")
 	if !ok {
 		return ""
@@ -138,8 +144,11 @@ func triceTag(t TriceFmt) string { // t.Strg contains the Trice tag information:
 
 // newID returns a new, so far unused trice ID for usage.
 // The global variable SearchMethod controls the way a new ID is selected.
-func (p *idData) newID(t TriceFmt) (id TriceID) {
+func (p *idData) newID(t TriceFmt, originalTag ...string) (id TriceID) {
 	name := triceTag(t)
+	if len(originalTag) > 0 {
+		name = originalTag[0]
+	}
 	tag, _ := emitter.FindTagName(name)
 common:
 	for i := range p.TagList {

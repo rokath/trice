@@ -51,6 +51,11 @@ func canonicalizeSourceTemplate(t *TriceFmt, rest string) error {
 // instrumentation and when loading externally supplied or historical TIL data.
 // Dynamic buffers have repeated elements, not the scalar schema promised by M19.
 func ValidateStructuredFields(t TriceFmt, template fmtspec.Template) error {
+	var err error
+	t, err = PayloadFormat(t)
+	if err != nil {
+		return err
+	}
 	if len(template.Fields) == 0 {
 		return nil
 	}

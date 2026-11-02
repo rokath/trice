@@ -33,9 +33,17 @@ func zeroTriceIDs(w io.Writer, path, sourcePath string, in []byte, a *ant.Admin)
 		if loc[3] == loc[4] { // No iD(n) found
 			ignore = true
 		} else {
-			t.Type = rest[loc[0]:loc[1]]       // t.Type is the TRice8_2 or TRice part for example. Hint: TRice defaults to 32 bit if not configured differently.
-			t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes wit +1 and -1.
-			idS = rest[loc[3]:loc[4]]          // idS is where we expect n.
+			t.Type = rest[loc[0]:loc[1]]
+			resolveTriceAlias(&t)
+			if t.isSAlias() {
+				t.Strg = SAliasStrgPrefix + rest[loc[5]:loc[6]] + SAliasStrgSuffix
+			} else {
+				t.Strg = rest[loc[5]+1 : loc[6]-1]
+			}
+			if t.isAlias() && !t.isSAlias() && (strings.HasPrefix(t.Strg, SAliasStrgPrefix) || strings.HasSuffix(t.Strg, SAliasStrgSuffix)) {
+				return nil, false, fmt.Errorf("%s:%d: scalar alias %s uses a reserved SAlias boundary", sourcePath, line, t.Alias)
+			}
+			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
 			if nLoc == nil { // Someone wrote trice( iD(0x100), ...), trice( id(), ... ) or trice( iD(name), ...) for example.
 				if Verbose {
@@ -70,15 +78,12 @@ func zeroTriceIDs(w io.Writer, path, sourcePath string, in []byte, a *ant.Admin)
 		a.Mutex.Lock()                             // several files could contain the same t or idn.
 		tt, ok := IDData.idToTrice[idn]            // check til.json.
 		if !ok {                                   // idn is not inside til.json.
-			IDData.idToTrice[idn] = t // Add idn.
+			IDData.idToTrice[idn] = storedTriceFormat(t) // Add exact persisted identity.
 		} else { // idn is inside til.json.
-			alias := t.Alias // keep
-			t.Alias = ""     // clear
-			if tt != t {     // idn references to a different t.
+			if tt != storedTriceFormat(t) { // idn references a different identity.
 				fmt.Fprintln(w, "ID inside", path, "line", line, "refers to", t, "but is already used inside til.json for", tt)
 				idn = 0
 			}
-			t.Alias = alias // restore
 		}
 		if idn != 0 {
 			IDData.idToLocNew[idn] = newTriceLI(sourcePath, line) // Add idn to new location information.

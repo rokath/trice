@@ -108,6 +108,9 @@ func structuredTargetMembers(record decoder.ApplicationRecord, state *targetStam
 // adding a visible tag. Only an explicit lowercase format tag is removed under
 // palettes that strip such tags in text mode.
 func structuredTagAndMessage(record decoder.ApplicationRecord) (string, string) {
+	if record.Alias {
+		return record.Tag, emitter.DecodeDisplayEscapes(emitter.AliasMessage(record.Message, record.Tag, record.StaticPrefix))
+	}
 	canonical, err := emitter.FindTagName(record.Tag)
 	if err != nil {
 		return "untagged", emitter.DecodeDisplayEscapes(record.Message)

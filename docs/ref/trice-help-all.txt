@@ -97,8 +97,16 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
 #	Example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
 #	Example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
 Option names with more than one character ignore case; one-character names remain case-sensitive. Values retain their own rules; registered tag names ignore case. Use -utag to register tags.
+  -a value
+    	Short for trice() aliases.
   -addNL
     	Add a newline char at trice messages end to use for example "hi" instead of "hi\n" in source code.
+  -alias value
+    	Scalar macro alias: Name or Name:Tag (repeatable).
+    	Names are exact C identifiers and must not start with trice. TIL preserves the name.
+    	Tag priority: explicit override, name heuristic, first static prefix, untagged.
+    	Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
+    	 (default none)
   -args string
     	Use to pass port specific parameters. The "default" value depends on the used port:
     	port "COMn": default="-baud 115200", Unused option for a different driver. (For baud rate settings see -baud.)
@@ -213,7 +221,7 @@ Option names with more than one character ignore case; one-character names remai
     	Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr. (default "text")
   -logLevel string
         Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
-        A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
+        A typical use case is "-logLevel wrn". Native events without a recognized format-string tag use the built-in "untagged" group. Macro aliases also resolve tags from their names and current explicit overrides. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
         Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in and user-defined tag names ignore case; custom tag metadata uses uppercase names. The equivalent spelling -loglevel accepts the same values. See also CLI switches -utag, -pick and -ban. (default "all")
   -logfile string
     	Append all output to logfile. Options are: 'off|none|filename|auto':
@@ -255,6 +263,13 @@ Option names with more than one character ignore case; one-character names remai
   -pw string
     	Short for -password.
   -s	Short for '-showInputBytes'.
+  -sa value
+    	Short for triceS() aliases.
+  -salias value
+    	String macro alias: Name or Name:Tag (repeatable).
+    	Uses triceS payloads and preserves the exact name and existing argument wrapper.
+    	Same tag priority as -alias; both kinds cannot register the same name.
+    	 (default none)
   -showID string
     	Format string for displaying first trice ID at start of each line. Example: "debug:%7d ". Default is "". If several trices form a log line only the first trice ID ist displayed.
   -showInputBytes
@@ -339,6 +354,7 @@ Option names with more than one character ignore case; one-character names remai
   -vis value
     	Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
     	<tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop][;header="<go-string>"]
+    	Registered tag selectors compare the event tag; unregistered selectors match the exact static prefix.
     	Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks are recreated for each command. A header is written once per output sink; each encoded UDP record is one datagram.
 sub-command 'a|add': Use for adding library source files containing already trice IDs to your project.
 #	It extends the ID list from these source files but does not change the source files, even if they contain Trices without IDs.
@@ -352,9 +368,10 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -a value
     	Short for trice() aliases.
   -alias value
-    	Additional macro names to treat like trice().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a trice() call. (default none)
+    	Scalar macro alias: Name or Name:Tag (repeatable).
+    	Names are exact C identifiers and must not start with trice. TIL preserves the name.
+    	Tag priority: explicit override, name heuristic, first static prefix, untagged.
+    	Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
     	 (default none)
   -dry-run
     	No changes applied but output shows what would happen.
@@ -394,9 +411,9 @@ sub-command 'a|add': Use for adding library source files containing already tric
   -sa value
     	Short for triceS() aliases.
   -salias value
-    	Additional macro names to treat like triceS().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a triceS() call.
+    	String macro alias: Name or Name:Tag (repeatable).
+    	Uses triceS payloads and preserves the exact name and existing argument wrapper.
+    	Same tag priority as -alias; both kinds cannot register the same name.
     	 (default none)
   -skip
     	short for skipAdditionalChecks
@@ -426,9 +443,10 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
   -abc string
         Create or use <target>.h and regenerate <target>.c in -genDir; an explicit [path/]<target> keeps its path for Trice ABC receive handling.
   -alias value
-        Additional macro names to treat like trice().
-        This flag can be specified multiple times to add more aliases. Each provided name will be
-        recognized as equivalent to a trice() call. (default none)
+        Scalar macro alias: Name or Name:Tag (repeatable).
+        Names are exact C identifiers and must not start with trice. TIL preserves the name.
+        Tag priority: explicit override, name heuristic, first static prefix, untagged.
+        Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
          (default none)
   -bindReport
         Report existing Bind sidecars, rebase helpers and their references in the selected -src scan without changing files. Uses -genDir and -exclude; needs no TIL/LI. A missing scan owner does not prove an unused file. Cannot be combined with other generate modes.
@@ -472,9 +490,9 @@ sub-command 'g|gen|generate': Use for creating colors or support files.
   -sa value
         Short for triceS() aliases.
   -salias value
-        Additional macro names to treat like triceS().
-        This flag can be specified multiple times to add more aliases. Each provided name will be
-        recognized as equivalent to a triceS() call.
+        String macro alias: Name or Name:Tag (repeatable).
+        Uses triceS payloads and preserves the exact name and existing argument wrapper.
+        Same tag priority as -alias; both kinds cannot register the same name.
          (default none)
   -src value
         Source directory or file to inspect for current Trice sites or Bind artifact references.
@@ -553,9 +571,10 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -addParamCount
     	Extend TRICE macro names with the parameter count _n to enable compile time checks.
   -alias value
-    	Additional macro names to treat like trice().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a trice() call. (default none)
+    	Scalar macro alias: Name or Name:Tag (repeatable).
+    	Names are exact C identifiers and must not start with trice. TIL preserves the name.
+    	Tag priority: explicit override, name heuristic, first static prefix, untagged.
+    	Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
     	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.
@@ -604,9 +623,9 @@ sub-command 'i|insert': For updating til.json and inserting IDs into source file
   -sa value
     	Short for triceS() aliases.
   -salias value
-    	Additional macro names to treat like triceS().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a triceS() call.
+    	String macro alias: Name or Name:Tag (repeatable).
+    	Uses triceS payloads and preserves the exact name and existing argument wrapper.
+    	Same tag priority as -alias; both kinds cannot register the same name.
     	 (default none)
   -skip
     	short for skipAdditionalChecks
@@ -659,9 +678,10 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
   -a value
     	Short for trice() aliases.
   -alias value
-    	Additional macro names to treat like trice().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a trice() call. (default none)
+    	Scalar macro alias: Name or Name:Tag (repeatable).
+    	Names are exact C identifiers and must not start with trice. TIL preserves the name.
+    	Tag priority: explicit override, name heuristic, first static prefix, untagged.
+    	Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
     	 (default none)
   -ce value
     	Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
@@ -708,9 +728,9 @@ sub-command 'b|bind': Generate stable Trice ID sidecars while keeping bind-owned
   -sa value
     	Short for triceS() aliases.
   -salias value
-    	Additional macro names to treat like triceS().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a triceS() call.
+    	String macro alias: Name or Name:Tag (repeatable).
+    	Uses triceS payloads and preserves the exact name and existing argument wrapper.
+    	Same tag priority as -alias; both kinds cannot register the same name.
     	 (default none)
   -skip
     	short for skipAdditionalChecks
@@ -748,9 +768,10 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -a value
     	Short for trice() aliases.
   -alias value
-    	Additional macro names to treat like trice().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a trice() call. (default none)
+    	Scalar macro alias: Name or Name:Tag (repeatable).
+    	Names are exact C identifiers and must not start with trice. TIL preserves the name.
+    	Tag priority: explicit override, name heuristic, first static prefix, untagged.
+    	Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
     	 (default none)
   -cache
     	Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.
@@ -795,9 +816,9 @@ sub-command 'c|clean': Set all [id|Id|ID](n) inside source tree dir to [id|Id|ID
   -sa value
     	Short for triceS() aliases.
   -salias value
-    	Additional macro names to treat like triceS().
-    	This flag can be specified multiple times to add more aliases. Each provided name will be
-    	recognized as equivalent to a triceS() call.
+    	String macro alias: Name or Name:Tag (repeatable).
+    	Uses triceS payloads and preserves the exact name and existing argument wrapper.
+    	Same tag priority as -alias; both kinds cannot register the same name.
     	 (default none)
   -skip
     	short for skipAdditionalChecks

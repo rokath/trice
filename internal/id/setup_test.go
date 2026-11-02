@@ -193,6 +193,7 @@ func (p *globalDefaults) SetGlobalVars(t *testing.T) {
 	ExcludeSrcs = p.defaultExcludeSrcs
 	TriceAliases = p.defaultTriceAliases
 	TriceSAliases = p.defaultTriceSAliases
+	_ = ProcessAliases()
 	ExtendMacrosWithParamCount = p.defaultExtendMacrosWithParamCount
 	DefaultTriceBitWidth = p.defaultDefaultTriceBitWidth
 	DefaultStampSize = p.defaultDefaultStampSize

@@ -19,6 +19,7 @@ import (
 
 // SubCmdIdClean performs sub-command clean, zeroing or removing trice IDs from source tree.
 func SubCmdIdClean(w io.Writer, fSys *afero.Afero) error {
+	defer func() { ExplainAliases(w, IDData.idToTrice) }()
 	if len(ContextEnrichment) != 0 {
 		return switchSourceContext(w, fSys, true)
 	}
@@ -105,6 +106,9 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 			if err = canonicalizeSourceTemplate(&t, rest[loc[6]:]); err != nil {
 				return nil, false, fmt.Errorf("%s:%d: %w", sourcePath, line, err)
 			}
+			if t.isAlias() && !t.isSAlias() && (strings.HasPrefix(t.Strg, SAliasStrgPrefix) || strings.HasSuffix(t.Strg, SAliasStrgSuffix)) {
+				return nil, false, fmt.Errorf("%s:%d: scalar alias %s uses a reserved SAlias boundary", sourcePath, line, t.Alias)
+			}
 			t.Strg, _, _ = selectContextRules(t.Strg, rules)
 			idS = rest[loc[3]:loc[4]] // idS is where we expect n.
 			nLoc := matchNb.FindStringIndex(idS)
@@ -141,14 +145,13 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 		a.Mutex.Lock()                             // several files could contain the same t or idn.
 		tt, ok := IDData.idToTrice[idn]            // check til.json.
 		if !ok {                                   // idn is not inside til.json.
-			IDData.idToTrice[idn] = t // Add idn.
+			IDData.idToTrice[idn] = storedTriceFormat(t) // Add exact persisted identity.
 		} else { // idn is inside til.json.
 
 			// TODO: The following should be done better.
 
-			u := t
-			u.Alias = "" // clear
-			if strings.HasPrefix(u.Strg, SAliasStrgPrefix) && strings.HasSuffix(u.Strg, SAliasStrgSuffix) {
+			u := storedTriceFormat(t)
+			if strings.HasPrefix(strings.ToLower(u.Type), "trice") && strings.HasPrefix(u.Strg, SAliasStrgPrefix) && strings.HasSuffix(u.Strg, SAliasStrgSuffix) {
 				u.Strg, _ = strings.CutPrefix(u.Strg, SAliasStrgPrefix)
 				u.Strg, _ = strings.CutSuffix(u.Strg, SAliasStrgSuffix)
 				u.Strg, _ = strings.CutPrefix(u.Strg, `"`)
@@ -156,7 +159,7 @@ func (p *idData) cleanTriceIDs(w io.Writer, path, sourcePath string, in []byte, 
 			}
 			uu := tt
 			uu.Alias = "" // clear
-			if strings.HasPrefix(uu.Strg, SAliasStrgPrefix) && strings.HasSuffix(uu.Strg, SAliasStrgSuffix) {
+			if strings.HasPrefix(strings.ToLower(uu.Type), "trice") && strings.HasPrefix(uu.Strg, SAliasStrgPrefix) && strings.HasSuffix(uu.Strg, SAliasStrgSuffix) {
 				uu.Strg, _ = strings.CutPrefix(uu.Strg, SAliasStrgPrefix)
 				uu.Strg, _ = strings.CutSuffix(uu.Strg, SAliasStrgSuffix)
 				uu.Strg, _ = strings.CutPrefix(uu.Strg, `"`)

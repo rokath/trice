@@ -188,6 +188,7 @@ func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu trice
 		} else {
 			tf.Strg = subs[loc[5]:loc[6]]
 		}
+		tf = storedTriceFormat(tf)
 		tfS := tf
 
 		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.

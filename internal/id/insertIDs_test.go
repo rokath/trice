@@ -59,11 +59,11 @@ func TestAliasesInsertion(t *testing.T) {
 	// create expected til.json file
 	expTil := `{
 	"993": {
-		"Type": "triceS",
+		"Type": "SAlias_WITH_MESSAGE_AND_ARGS",
 		"Strg": "` + SAliasStrgPrefix + `false, \"test message: %d\\n\"` + SAliasStrgSuffix + `"
 	},
 	"994": {
-		"Type": "triceS",
+		"Type": "SAlias_WITH_MESSAGE",
 		"Strg": "` + SAliasStrgPrefix + `false, \"test message\\n\"` + SAliasStrgSuffix + `"
 	},
 	"995": {
@@ -79,11 +79,11 @@ func TestAliasesInsertion(t *testing.T) {
 		"Strg": "some info\\n"
 	},
 	"998": {
-		"Type": "triceS",
+		"Type": "SAlias_NO_MESSAGE",
 		"Strg": "` + SAliasStrgPrefix + `42` + SAliasStrgSuffix + `"
 	},
 	"999": {
-		"Type": "trice",
+		"Type": "Alias",
 		"Strg": "Simple message: %d\\n"
 	}
 }`

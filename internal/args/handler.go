@@ -227,7 +227,12 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		}
 		id.Verbose = Verbose
 		id.CompactSrcs()
-		id.ProcessAliases()
+		if err := id.ProcessAliases(); err != nil {
+			return &cliUsageError{command: "add", cause: err}
+		}
+		if err := emitter.AddUserTagNames(id.AliasTagNames()...); err != nil {
+			return &cliUsageError{command: "add", cause: err}
+		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
@@ -236,7 +241,12 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		}
 		id.Verbose = Verbose
 		id.CompactSrcs()
-		id.ProcessAliases()
+		if err := id.ProcessAliases(); err != nil {
+			return &cliUsageError{command: "generate", cause: err}
+		}
+		if err := emitter.AddUserTagNames(id.AliasTagNames()...); err != nil {
+			return &cliUsageError{command: "generate", cause: err}
+		}
 		// Inventory inspection bypasses output setup, which can open a logfile
 		// or connect to a sink. Its only output is the caller-provided writer.
 		if id.GenerateBindReport {
@@ -250,8 +260,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		}
 		id.Verbose = Verbose
 		id.CompactSrcs()
-		id.ProcessAliases()
-		if err := emitter.AddUserTagNames(); err != nil {
+		if err := id.ProcessAliases(); err != nil {
+			return &cliUsageError{command: "insert", cause: err}
+		}
+		if err := emitter.AddUserTagNames(id.AliasTagNames()...); err != nil {
 			return &cliUsageError{command: "insert", cause: err}
 		}
 		err := id.EvaluateIDRangeStrings()
@@ -272,8 +284,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		// indistinguishable from a deliberate `-src ./` selection.
 		implicitSourceSelection := len(id.Srcs) == 0
 		id.CompactSrcs()
-		id.ProcessAliases()
-		if err := emitter.AddUserTagNames(); err != nil {
+		if err := id.ProcessAliases(); err != nil {
+			return &cliUsageError{command: "bind", cause: err}
+		}
+		if err := emitter.AddUserTagNames(id.AliasTagNames()...); err != nil {
 			return &cliUsageError{command: "bind", cause: err}
 		}
 		if err := id.EvaluateIDRangeStrings(); err != nil {
@@ -290,8 +304,11 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 			return err
 		}
 		id.CompactSrcs()
-		id.ProcessAliases()
-		if err := emitter.AddUserTagNames(); err != nil {
+		id.Verbose = Verbose
+		if err := id.ProcessAliases(); err != nil {
+			return &cliUsageError{command: "clean", cause: err}
+		}
+		if err := emitter.AddUserTagNames(id.AliasTagNames()...); err != nil {
 			return &cliUsageError{command: "clean", cause: err}
 		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
@@ -412,8 +429,10 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 		return &cliUsageError{command: "log", cause: errors.New("switches -pick and -ban cannot be used together")}
 	}
 	id.Logging = true
-	id.ProcessAliases()
-	if err := emitter.AddUserLabels(); err != nil {
+	if err := id.ProcessAliases(); err != nil {
+		return &cliUsageError{command: "log", cause: err}
+	}
+	if err := emitter.AddUserLabels(id.AliasTagNames()...); err != nil {
 		return &cliUsageError{command: "log", cause: err}
 	}
 	if err := emitter.ResolveFilterSelectors(); err != nil {
@@ -486,6 +505,10 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 		decoder.IDLUT = ilu
 	}
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
+	if err := ilu.ValidateAliases(); err != nil {
+		return fmt.Errorf("%s: %w", id.FnJSON, err)
+	}
+	id.ExplainAliases(w, ilu)
 	m.Lock()
 	ilu.AddFmtCount(w)
 	m.Unlock()

@@ -18,17 +18,23 @@ type TriceLineComposer struct {
 	suffix          string
 	Line            []string // line collector
 	err             error
+	// styles parallels Line; empty entries retain legacy metadata handling.
+	styles   []string
+	prefixes []string
+	eventTag string
+	// eventPrefix belongs only to the first fragment of the current event.
+	eventPrefix string
 }
 
 // newLineComposer creates a line composer using lw for finalized lines.
 func newLineComposer(lw LineWriter) *TriceLineComposer {
 	p := &TriceLineComposer{
-		lw,                      // initialize p.lw with lw
-		HostStamp,               // initialize p.timeStampFormat with HostStamp
-		Prefix,                  // initialize p.prefix with Prefix
-		Suffix,                  // initialize p.suffix with Suffix
-		make([]string, 0, 4096), // initialize p.Line (not more than 4096 strings per line expected)
-		nil,                     // initialize p.err with nil
+		lw:              lw,                      // initialize p.lw with lw
+		timestampFormat: HostStamp,               // initialize p.timeStampFormat with HostStamp
+		prefix:          Prefix,                  // initialize p.prefix with Prefix
+		suffix:          Suffix,                  // initialize p.suffix with Suffix
+		Line:            make([]string, 0, 4096), // initialize p.Line (not more than 4096 strings per line expected)
+		err:             nil,                     // initialize p.err with nil
 	}
 	return p
 }
@@ -55,6 +61,50 @@ func (p *TriceLineComposer) timestamp() string {
 func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
 	s := string(b)
 	return p.WriteString(s)
+}
+
+// WriteEvent styles every fragment using one resolved event tag. Only the
+// first fragment may lose a matching static prefix, under the sink's palette.
+func (p *TriceLineComposer) WriteEvent(message, tag, prefix string) (int, error) {
+	p.eventTag = tag
+	if canonical, err := FindTagName(prefix); err == nil && canonical == tag {
+		p.eventPrefix = prefix
+	}
+	defer func() { p.eventTag, p.eventPrefix = "", "" }()
+	return p.WriteString(message)
+}
+
+// AliasMessage applies the same prefix policy to text, JSON and KV messages.
+func AliasMessage(message, tag, prefix string) string {
+	canonical, err := FindTagName(prefix)
+	if ColorPalette != "off" && prefix != "" && err == nil && canonical == tag && isLower(prefix) {
+		return strings.TrimPrefix(message, prefix+":")
+	}
+	return message
+}
+
+// ColorizeEvent applies event semantics to displays outside the line composer,
+// including statistics. No received message prefix is used for classification.
+func ColorizeEvent(message, tag, prefix string) string {
+	message = AliasMessage(message, tag, prefix)
+	if ColorPalette != "off" && ColorPalette != "none" {
+		if i := tagIndex(Tags, tag); i >= 0 {
+			return Tags[i].colorize(message)
+		}
+	}
+	return message
+}
+
+// appendFragment keeps application styling separate from metadata and does not
+// alter the strings observed by ordinary LineWriter implementations.
+func (p *TriceLineComposer) appendFragment(s, tag string) {
+	p.Line = append(p.Line, s)
+	p.styles = append(p.styles, tag)
+	prefix := ""
+	if tag != "" {
+		prefix, p.eventPrefix = p.eventPrefix, ""
+	}
+	p.prefixes = append(p.prefixes, prefix)
 }
 
 // DecodeDisplayEscapes applies the text line composer's established escape
@@ -108,31 +158,49 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	ts := p.timestamp()
 	for _, sx := range ss {
 		if len(p.Line) == 0 && 0 < lineEndCount { // start new line && and complete line
-			p.Line = append(p.Line, ts, p.prefix, sx, p.suffix)
+			p.appendFragment(ts, "")
+			p.appendFragment(p.prefix, "")
+			p.appendFragment(sx, p.eventTag)
+			p.appendFragment(p.suffix, "")
 			p.completeLine()
 			lineEndCount--
 		} else if len(p.Line) == 0 && lineEndCount == 0 { // start new line
-			p.Line = append(p.Line, ts, p.prefix, sx)
+			p.appendFragment(ts, "")
+			p.appendFragment(p.prefix, "")
+			p.appendFragment(sx, p.eventTag)
 			if len(sx) == 0 { // A new line with an empty string was started.
 				// This could cause unwanted timestamp offsets if the next line is significantly delayed.
 				emptyLine = true
 			}
 		} else if 0 < len(p.Line) && 0 < lineEndCount { // complete line
-			p.Line = append(p.Line, sx, p.suffix)
+			p.appendFragment(sx, p.eventTag)
+			p.appendFragment(p.suffix, "")
 			p.completeLine()
 			lineEndCount--
 		} else if 0 < len(p.Line) && lineEndCount == 0 { // extend line
-			p.Line = append(p.Line, sx)
+			p.appendFragment(sx, p.eventTag)
 		}
 	}
 	if emptyLine { // clean up
 		p.Line = p.Line[:0]
+		p.styles = p.styles[:0]
+		p.prefixes = p.prefixes[:0]
 	}
 	return
 }
 
 func (p *TriceLineComposer) completeLine() {
-	p.lw.WriteLine(p.Line)
+	hasEvent := false
+	for _, tag := range p.styles {
+		hasEvent = hasEvent || tag != ""
+	}
+	if styled, ok := p.lw.(interface{ WriteEventLine(EventLine) }); ok && hasEvent {
+		styled.WriteEventLine(EventLine{Fragments: p.Line, Tags: p.styles, Prefixes: p.prefixes})
+	} else {
+		p.lw.WriteLine(p.Line)
+	}
 	p.Line = p.Line[:0]
+	p.styles = p.styles[:0]
+	p.prefixes = p.prefixes[:0]
 	NextLine = true // consumed by decoder table mode to detect completed output lines
 }

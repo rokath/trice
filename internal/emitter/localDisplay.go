@@ -69,3 +69,8 @@ func (p *colorDisplay) WriteLine(line []string) {
 	// Delegates to lineTransformerANSI.WriteLine.
 	p.lw.WriteLine(line)
 }
+
+// WriteEventLine forwards provenance to the local ANSI transformer.
+func (p *colorDisplay) WriteEventLine(line EventLine) {
+	p.lw.(*lineTransformerANSI).WriteEventLine(line)
+}

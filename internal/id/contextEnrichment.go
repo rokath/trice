@@ -33,6 +33,8 @@ type contextRule struct {
 // bindEnrichment separates the original call signature from its final schema.
 // Only the generated adapter evaluates expressions; the source remains intact.
 type bindEnrichment struct {
+	// payloadType chooses the native adapter without changing alias identity.
+	payloadType       string
 	arguments         []string
 	expressions       []string
 	originalArguments int
@@ -219,6 +221,7 @@ func directContextSite(plan *bindFilePlan, planIndex, siteIndex int, masked stri
 // Fixed-arity macros gain a matching implementation; generic macros keep theirs.
 func enrichBindSite(source, masked string, site *bindSite, format string, rules []contextRule) error {
 	entry := bindSiteFormat(*site)
+	entry, _ = PayloadFormat(entry)
 	args, err := splitTriceParametersUntilClosingBracket(masked[site.loc[6]:])
 	if err != nil {
 		return err
@@ -268,7 +271,8 @@ func enrichBindSite(source, masked string, site *bindSite, format string, rules 
 			return fmt.Errorf("64-bit CE float argument %d requires aDouble(), not aFloat()", i+1)
 		}
 	}
-	site.macro, site.format, site.ce = entry.Type, entry.Strg, ce
+	ce.payloadType = entry.Type
+	site.macro, site.format, site.ce = storedTriceFormat(entry).Type, entry.Strg, ce
 	return nil
 }
 
@@ -371,7 +375,7 @@ func renderBindContext(builder *strings.Builder, plan *bindFilePlan) {
 		for _, expression := range site.ce.expressions {
 			arguments = append(arguments, "("+expression+")")
 		}
-		fmt.Fprintf(builder, "#define %s(%s) TRICE_INSERT_%s(%s)\n", bindContextMode(plan.key, site), strings.Join(parameters, ", "), site.macro, strings.Join(arguments, ", "))
+		fmt.Fprintf(builder, "#define %s(%s) TRICE_INSERT_%s(%s)\n", bindContextMode(plan.key, site), strings.Join(parameters, ", "), site.ce.payloadType, strings.Join(arguments, ", "))
 		// Aliases carry no additional numeric descriptors, so source ordering,
 		// historical IDs, and logC still see exactly one logical site.
 		for line := site.line + 1; line <= site.ce.lastLine; line++ {

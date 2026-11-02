@@ -32,7 +32,7 @@ type userLabelSpec struct {
 
 // AddUserLabels rebuilds the per-command tag registry and applies all -utag
 // specifications atomically. Unweighted new labels inherit the final INFO weight.
-func AddUserLabels() error {
+func AddUserLabels(extraNames ...string) error {
 	tags := copyTagRegistry(defaultTags)
 	// Apply the selected palette before explicit -utag overrides.
 	for i := range tags {
@@ -45,7 +45,7 @@ func AddUserLabels() error {
 	pending := make(map[string]tag)
 	pendingOrder := make([]string, 0, len(UserLabel))
 
-	for _, specification := range UserLabel {
+	for _, specification := range append(append([]string{}, extraNames...), UserLabel...) {
 		parsed, err := parseUserLabel(specification)
 		if err != nil {
 			return fmt.Errorf("invalid -utag %q: %w", specification, err)
@@ -109,13 +109,28 @@ func AddUserLabels() error {
 
 // AddUserTagNames validates the build-command subset before publishing a new
 // registry. Weights and colors are logging policy, not source-processing input.
-func AddUserTagNames() error {
+func AddUserTagNames(extraNames ...string) error {
 	for _, specification := range UserLabel {
 		if strings.Contains(specification, ":") {
 			return fmt.Errorf("invalid -utag %q: build commands accept tag names only; set weights and colors when logging", specification)
 		}
 	}
-	return AddUserLabels()
+	return AddUserLabels(extraNames...)
+}
+
+// CanonicalTagDefinition validates an alias assignment without publishing a
+// registry. Only built-ins influence canonical spelling across commands.
+func CanonicalTagDefinition(name string) (string, error) {
+	if strings.Contains(name, ":") {
+		return "", errors.New("expected a tag name without weight or color")
+	}
+	if _, err := parseUserLabel(name); err != nil {
+		return "", err
+	}
+	if i := tagIndex(defaultTags, name); i >= 0 {
+		return defaultTags[i].Names[0], nil
+	}
+	return strings.ToUpper(name), nil
 }
 
 // parseUserLabel validates one name, name:weight, or name:generated-color value
@@ -669,4 +684,43 @@ func (p *lineTransformerANSI) WriteLine(line []string) {
 		l = append(l, ansi.Reset)
 	}
 	p.lw.WriteLine(l)
+}
+
+// EventLine carries resolved per-fragment tags through local or remote display.
+// Empty tags retain the existing handling for timestamps and diagnostics.
+type EventLine struct {
+	Fragments []string
+	Tags      []string
+	// Prefixes contains only first-fragment static prefixes already proven to
+	// belong to the event tag. Remote display applies its own removal palette.
+	Prefixes []string
+}
+
+// WriteEventLine colors alias fragments without reparsing their contents. This
+// preserves conflicting prefixes and prevents continuation/runtime retagging.
+func (p *lineTransformerANSI) WriteEventLine(line EventLine) {
+	result := make([]string, 0, len(line.Fragments))
+	for i, fragment := range line.Fragments {
+		tag := ""
+		if i < len(line.Tags) {
+			tag = line.Tags[i]
+		}
+		if tag == "" {
+			colored, _ := p.colorize(fragment)
+			result = append(result, colored)
+			continue
+		}
+		if i < len(line.Prefixes) && p.colorPalette != "off" {
+			if prefix := line.Prefixes[i]; prefix != "" && isLower(prefix) {
+				fragment = strings.TrimPrefix(fragment, prefix+":")
+			}
+		}
+		if p.colorPalette != "off" && p.colorPalette != "none" {
+			if index := tagIndex(Tags, tag); index >= 0 {
+				fragment = Tags[index].colorize(fragment)
+			}
+		}
+		result = append(result, fragment)
+	}
+	p.lw.WriteLine(result)
 }

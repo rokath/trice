@@ -440,7 +440,11 @@ func PrintTriceStatistics(w io.Writer) {
 			newline = `0`
 		}
 		file := statisticsLocationFile(id.LocationFile(li), fileWidth)
-		fmt.Fprintf(w, "%8d | %*s |%5d | %5d | %*s |%s| %s\n", count, fileWidth, file, li.Line, tid, typeWidth, trice.Type, newline, emitter.Colorize(trice.Strg))
+		message := emitter.Colorize(trice.Strg)
+		if event := id.ResolveAliasEvent(trice); event.Alias {
+			message = emitter.ColorizeEvent(trice.Strg, event.Tag, event.Prefix)
+		}
+		fmt.Fprintf(w, "%8d | %*s |%5d | %5d | %*s |%s| %s\n", count, fileWidth, file, li.Line, tid, typeWidth, trice.Type, newline, message)
 	}
 	fmt.Fprintln(w, strings.Repeat("-", utf8.RuneCountInString(separator)))
 	fmt.Fprintf(w, "%8d Trice messsges\n", sum)

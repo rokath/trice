@@ -73,9 +73,13 @@ func WatchLookUpTables(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, li Tric
 			if next == nil {
 				return errors.New("expected a JSON object, got null")
 			}
+			if err := next.ValidateAliases(); err != nil {
+				return err
+			}
 			// Apply the same normalization and diagnostics as initial loading;
 			// existing historical entries must not block newer valid entries.
 			next.AddFmtCount(w)
+			ExplainAliases(w, next)
 			mutex.Lock()
 			clear(lu)
 			for key, value := range next {

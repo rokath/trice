@@ -253,6 +253,7 @@ func addCurrentLogSite(selected, til TriceIDLookUp, path string, site bindSite, 
 	}
 	want := TriceFmt{Type: site.macro, Strg: site.format}
 	resolveTriceAlias(&want)
+	want = storedTriceFormat(want)
 	got, ok := til[id]
 	if !ok {
 		return []bindDiagnostic{{path: path, line: site.line, message: fmt.Sprintf("Trice ID %d is absent from %s; run trice insert or trice bind before trice generate -logC", id, FnJSON)}}
