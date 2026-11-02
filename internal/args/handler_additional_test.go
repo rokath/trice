@@ -18,6 +18,45 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestAliasCLIValidation covers both logging entry points before any input is
+// opened, including implicit custom registration and conflicts in unused names.
+func TestAliasCLIValidation(t *testing.T) {
+	oldStart := startLogLoop
+	t.Cleanup(func() { startLogLoop = oldStart; FlagsInit(); _ = id.ProcessAliases(); _ = emitter.AddUserLabels() })
+	for _, entry := range []string{"trice", "tlog"} {
+		for _, test := range []struct {
+			options []string
+			valid   bool
+		}{
+			{[]string{"-alias", "MyWrn:sensor", "-pick", "SENSOR"}, true},
+			{[]string{"-sa", "A:err", "-salias", "A:ERROR"}, true},
+			{[]string{"-alias", "A", "-alias", "A:err"}, true},
+			{[]string{"-alias", "TriceWarning"}, false},
+			{[]string{"-alias", "A:err", "-a", "A:wrn"}, false},
+			{[]string{"-a", "FooS", "-sa", "FooS"}, false},
+		} {
+			t.Run(entry+strings.Join(test.options, " "), func(t *testing.T) {
+				FlagsInit()
+				opened := false
+				startLogLoop = func(io.Writer, *afero.Afero) error { opened = true; return nil }
+				fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+				var err error
+				if entry == "trice" {
+					err = Handler(io.Discard, fs, append([]string{"trice", "log"}, test.options...))
+				} else {
+					err = LogHandler(io.Discard, fs, append([]string{"tlog"}, test.options...))
+				}
+				assert.Equal(t, test.valid, opened)
+				if test.valid {
+					assert.NoError(t, err)
+				} else {
+					assert.Error(t, err)
+				}
+			})
+		}
+	}
+}
+
 // TestOptionCaseParsing checks the actual flag parser, including value boundaries
 // and canonical explicit-option tracking rather than only rewritten tokens.
 func TestOptionCaseParsing(t *testing.T) {

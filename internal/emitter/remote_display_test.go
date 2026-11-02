@@ -3,13 +3,53 @@
 package emitter
 
 import (
+	"bytes"
 	"io"
 	"net"
 	"net/rpc"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+// TestAliasRemoteDisplayProvenance sends real RPC payloads through the display
+// server without opening a TCP port or reparsing conflicting message prefixes.
+func TestAliasRemoteDisplayProvenance(t *testing.T) {
+	saved := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(saved) })
+	HostStamp = "off"
+	Prefix = ""
+	Suffix = ""
+	for _, test := range []struct{ client, server, want string }{
+		{"none", "none", "first err:second\nerr:continuation\n"},
+		{"none", "off", "wrn:first err:second\nerr:continuation\n"},
+		{"off", "none", "first err:second\nerr:continuation\n"},
+	} {
+		t.Run(test.client+"/"+test.server, func(t *testing.T) {
+			ColorPalette = test.client
+			require.NoError(t, AddUserLabels())
+			var output bytes.Buffer
+			server := rpc.NewServer()
+			require.NoError(t, server.RegisterName("DisplayServer", &DisplayServer{Display: *newColorDisplay(&output, test.server)}))
+			clientConn, serverConn := net.Pipe()
+			go server.ServeConn(serverConn)
+			client := rpc.NewClient(clientConn)
+			defer client.Close()
+			defer serverConn.Close()
+			remote := &remoteDisplay{PtrRPC: client}
+			composer := newLineComposer(remote)
+			_, err := composer.WriteEvent("wrn:first ", "WARNING", "wrn")
+			require.NoError(t, err)
+			_, err = composer.WriteEvent("err:second\nerr:continuation\n", "WARNING", "err")
+			require.NoError(t, err)
+			require.NoError(t, remote.Err)
+			assert.Equal(t, test.want, output.String())
+		})
+	}
+}
 
 type shutdownStub struct {
 	writeLines chan []string

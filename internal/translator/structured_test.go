@@ -256,6 +256,144 @@ func TestStructuredTagAndMessageFollowTextMode(t *testing.T) {
 	}
 }
 
+// TestAliasWirePresentation checks real alias payloads through text, JSON and
+// KV. Runtime data and later lines must not become new classification inputs.
+func TestAliasWirePresentation(t *testing.T) {
+	for _, test := range []struct {
+		name, alias, format, tag, message string
+		payload                           []byte
+	}{
+		{"fallback", "printi", `err:failed\n`, "ERROR", "failed\n", nil},
+		{"matching prefix", "MyWrn", `wrn:failed\n`, "WARNING", "failed\n", nil},
+		{"uppercase prefix", "MyWrn", `WRN:failed\n`, "WARNING", "WRN:failed\n", nil},
+		{"conflicting prefix", "MyWrn", `err:failed\n`, "WARNING", "err:failed\n", nil},
+		{"continuation", "MyWrn", `wrn:first\nerr:second\n`, "WARNING", "first\nerr:second\n", nil},
+		{"short scalar", "A", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"native-looking alias", "FooS", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"digits in alias", "My32", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"assert in alias", "MyAssert", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"runtime matching prefix", "MyWrn", id.SAliasStrgPrefix + `payload` + id.SAliasStrgSuffix, "WARNING", "wrn:payload\n", []byte("wrn:payload\n")},
+		{"runtime conflicting prefix", "MyWrn", id.SAliasStrgPrefix + `payload` + id.SAliasStrgSuffix, "WARNING", "err:payload\n", []byte("err:payload\n")},
+	} {
+		for _, format := range []string{"text", "json", "kv"} {
+			for _, palette := range []string{"none", "off", "dark"} {
+				t.Run(test.name+"/"+format+"/"+palette, func(t *testing.T) {
+					configureStructuredTest(t, format)
+					oldA, oldS := id.TriceAliases, id.TriceSAliases
+					t.Cleanup(func() { id.TriceAliases, id.TriceSAliases = oldA, oldS; _ = id.ProcessAliases() })
+					id.TriceAliases, id.TriceSAliases = nil, nil
+					assert.NoError(t, id.ProcessAliases())
+					emitter.ColorPalette = palette
+					oldIndent := decoder.NewlineIndent
+					decoder.NewlineIndent = 0
+					t.Cleanup(func() { decoder.NewlineIndent = oldIndent })
+					lut := id.TriceIDLookUp{1: {Type: test.alias, Strg: test.format}}
+					output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, test.payload))
+					assert.Empty(t, diagnostics)
+					message := test.message
+					if palette == "off" {
+						if event := id.ResolveAliasEvent(lut[1]); event.Prefix != "" && strings.HasPrefix(test.format, event.Prefix+":") && !strings.HasPrefix(message, event.Prefix+":") {
+							message = event.Prefix + ":" + message
+						}
+					}
+					if format == "json" {
+						var record struct{ Tag, Message string }
+						if assert.NoError(t, json.Unmarshal([]byte(output), &record)) {
+							assert.Equal(t, test.tag, record.Tag)
+							assert.Equal(t, message, record.Message)
+						}
+					} else if format == "kv" {
+						prefix, encoded, found := strings.Cut(output, " message=")
+						if assert.True(t, found) {
+							assert.Equal(t, "tag="+test.tag, strings.Fields(prefix)[0])
+							decoded, err := strconv.Unquote(strings.TrimSuffix(encoded, "\n"))
+							assert.NoError(t, err)
+							assert.Equal(t, message, decoded)
+						}
+					} else if palette != "dark" {
+						assert.Equal(t, message, output)
+					} else {
+						assert.Contains(t, output, "\x1b[")
+						assert.NotContains(t, output, "WARNING:")
+						assert.Contains(t, output, strings.Split(message, "\n")[0])
+					}
+				})
+			}
+		}
+	}
+}
+
+// TestAliasWireFiltersAndStatistics counts decoded events before all host
+// filters, including empty events, and applies nonpersisted command overrides.
+func TestAliasWireFiltersAndStatistics(t *testing.T) {
+	for _, filter := range []string{"pick", "ban", "level", "override"} {
+		t.Run(filter, func(t *testing.T) {
+			configureStructuredTest(t, "json")
+			oldA, oldS := id.TriceAliases, id.TriceSAliases
+			oldStats := emitter.TagStatistics
+			t.Cleanup(func() {
+				id.TriceAliases, id.TriceSAliases = oldA, oldS
+				_ = id.ProcessAliases()
+				emitter.TagStatistics = oldStats
+				_ = emitter.AddUserLabels()
+			})
+			id.TriceAliases, id.TriceSAliases = nil, nil
+			if filter == "override" {
+				id.TriceAliases = []string{"MyWrn:sensor"}
+			}
+			assert.NoError(t, id.ProcessAliases())
+			assert.NoError(t, emitter.AddUserLabels(id.AliasTagNames()...))
+			emitter.TagStatistics = true
+			tag := "WARNING"
+			if filter == "override" {
+				tag = "SENSOR"
+			}
+			before := emitter.TagEvents(tag)
+			switch filter {
+			case "pick":
+				emitter.Pick = []string{"err"}
+			case "ban":
+				emitter.Ban = []string{"wrn"}
+			case "level":
+				emitter.LogLevel = "fatal"
+			}
+			assert.NoError(t, emitter.ResolveFilterSelectors())
+			lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: ""}}
+			output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, nil))
+			assert.Empty(t, diagnostics)
+			assert.Equal(t, before+1, emitter.TagEvents(tag))
+			if filter == "override" {
+				assert.Contains(t, output, `"tag":"SENSOR"`)
+				assert.Contains(t, output, `"message":""`)
+			} else {
+				assert.Empty(t, output)
+			}
+		})
+	}
+}
+
+// TestAliasTextFragments keeps separate events' colors and prefix provenance
+// even when several calls jointly form one display line.
+func TestAliasTextFragments(t *testing.T) {
+	configureStructuredTest(t, "text")
+	lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: "wrn:first "}, 2: {Type: "LogErr", Strg: "err:second\\n"}}
+	input := append(structuredPacket(1, nil), structuredPacket(2, nil)...)
+	output, diagnostics := runStructuredWire(t, lut, input)
+	assert.Empty(t, diagnostics)
+	assert.Equal(t, "first second\n", output)
+}
+
+// TestAliasStringDisplayNewline resolves the stored wrapper before adding a
+// presentation newline, so this option cannot turn it into a partial wrapper.
+func TestAliasStringDisplayNewline(t *testing.T) {
+	configureStructuredTest(t, "text")
+	trexDecoder.AddNewlineToEachTriceMessage = true
+	lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: id.SAliasStrgPrefix + `payload` + id.SAliasStrgSuffix}}
+	output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, []byte("wrn:payload")))
+	assert.Empty(t, diagnostics)
+	assert.Equal(t, "wrn:payload\n", output)
+}
+
 // TestStructuredStringFieldsTrimWithoutChangingMessages verifies that user
 // strings retain their raw meaning in text while exported fields drop only
 // their outer whitespace, including Unicode whitespace and empty values.

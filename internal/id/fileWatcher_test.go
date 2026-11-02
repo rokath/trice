@@ -9,11 +9,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -63,6 +65,44 @@ func watcherFiles(t *testing.T) *afero.Afero {
 	directory := t.TempDir()
 	FnJSON, LIFnJSON = filepath.Join(directory, "til.json"), filepath.Join(directory, "li.json")
 	return &afero.Afero{Fs: afero.NewOsFs()}
+}
+
+// TestAliasReloadKeepsRawIdentityAndLastGoodView publishes validated alias
+// replacements without resetting command overrides or accepting partial wrappers.
+func TestAliasReloadKeepsRawIdentityAndLastGoodView(t *testing.T) {
+	fs := watcherFiles(t)
+	oldA, oldS := TriceAliases, TriceSAliases
+	t.Cleanup(func() { TriceAliases, TriceSAliases = oldA, oldS; _ = ProcessAliases(); _ = emitter.AddUserLabels() })
+	TriceAliases, TriceSAliases = ArrayFlag{"MyWrn:sensor"}, nil
+	require.NoError(t, ProcessAliases())
+	require.NoError(t, emitter.AddUserLabels(AliasTagNames()...))
+	require.NoError(t, fs.WriteFile(FnJSON, []byte(`{"17":{"Type":"MyWrn","Strg":"err:x=%d"}}`), 0o600))
+	lu := TriceIDLookUp{}
+	var mu sync.RWMutex
+	var out watcherOutput
+	stop, err := WatchLookUpTables(&out, fs, lu, nil, &mu)
+	require.NoError(t, err)
+	defer stop()
+	wait := func(want TriceFmt) {
+		t.Helper()
+		require.Eventually(t, func() bool { mu.RLock(); defer mu.RUnlock(); return len(lu) == 1 && lu[17] == want }, 3*time.Second, 5*time.Millisecond, out.String())
+	}
+	first := TriceFmt{Type: "MyWrn", Strg: "err:x=%d"}
+	wait(first)
+	for _, bad := range []string{`{"17":{"Type":"A","Strg":"SAlias_Strg('partial"}}`, `{"17":{"Type":"bad-name","Strg":"x"}}`} {
+		before := len(out.String())
+		require.NoError(t, atomicWriteFile(fs.Fs, FnJSON, []byte(bad), 0o600))
+		require.Eventually(t, func() bool {
+			return len(out.String()) > before && strings.Contains(out.String()[before:], "keeping last valid table")
+		}, 3*time.Second, 5*time.Millisecond)
+		mu.RLock()
+		assert.Equal(t, first, lu[17])
+		assert.Equal(t, "SENSOR", ResolveAliasEvent(lu[17]).Tag)
+		mu.RUnlock()
+	}
+	require.NoError(t, atomicWriteFile(fs.Fs, FnJSON, []byte(`{"17":{"Type":"MyWrn","Strg":"info:updated=%u"}}`), 0o600))
+	wait(TriceFmt{Type: "MyWrn", Strg: "info:updated=%u"})
+	assert.Equal(t, "SENSOR", ResolveAliasEvent(TriceFmt{Type: "MyWrn", Strg: "info:updated=%u"}).Tag)
 }
 
 // TestWatchLookUpTablesRealSaves exercises the OS backend with both ordinary
