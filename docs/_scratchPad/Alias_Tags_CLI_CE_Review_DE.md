@@ -1,6 +1,6 @@
 # Alias Tags und Context Enrichment für v2.0.0
 
-Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die Implementierung beginnt erst nach einem gesonderten Startsignal. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Issue #767 bleibt eine begrenzte Integrationsprüfung; ein erweiterter Speicherweg ist dafür nicht mehr nachzuweisen.
+Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die Feature-Implementierung beginnt erst nach einem gesonderten Startsignal. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
 
 Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den vorgesehenen RM-Erklärungen. Es beschreibt das Zielverhalten, keine bereits fertiggestellte Implementierung.
 
@@ -8,12 +8,14 @@ Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englisc
 
 | Reihenfolge | Issue | Ergebnis |
 |---|---|---|
-| Zuerst | #767 — Review alias integration and CE fallback warnings before implementation | Warnungsfälle, einheitliche Tags und betroffene Alias-Lesepfade kurz prüfen und konkrete Sollbeispiele festhalten. |
+| Abgeschlossen | #767 — Review alias integration and CE fallback warnings before implementation | Warnungsfälle und Aufrufer geprüft; kanonische Tag-Ausgabe und Vis-Auswahl entschieden; Sollfälle den Folgeissues zugeordnet. |
 | Danach | #768 — Unify CLI option and tag name case rules and replace -ulabel with -utag | Optionsnamen-Regeln, kommandospezifisches `-utag` und gemeinsame schreibungsunabhängige Tag-Identität umsetzen. |
 | Danach | #761 — Preserve alias identity and resolve tags consistently across build and logging | Aliasregistrierung, TIL-Identität, gemeinsame Tag-Auflösung und Host-Verarbeitung umsetzen. |
 | Abschließend | #769 — Integrate alias tags with bounded context enrichment | Skalare Alias-CE und festen Text für natives `triceS` integrieren, Verarbeitungspfade prüfen und RM, Beispiele und CLI-Hilfe vervollständigen. |
 
 Diese Staffelung trennt überschaubare Änderungen. Veröffentlicht wird eine gemeinsame Alias-Semantik für v2.0.0. Zwischenstände mit unterschiedlichen öffentlichen Tag-Regeln sind kein eigenes Releaseziel. Die Vorprüfung benötigt weder einen Prototyp noch eine neue Speicher-Machbarkeitsstudie. Neu entdeckte wesentliche Verhaltensfragen werden vor der betreffenden Implementierung ausdrücklich geklärt.
+
+Die Vorprüfung wurde auf ausdrücklichen Auftrag durchgeführt. Ihr Abschluss ist noch keine Freigabe für die Feature-Implementierung in #768, #761 oder #769.
 
 ## Aliasarten und Registrierung
 
@@ -47,6 +49,8 @@ Ein gültiger ungenutzter Alias bleibt ohne normale Warnung und erzeugt allein d
 `Name:Tag` registriert einen gültigen neuen Custom-Tag im jeweiligen Kommando automatisch. Beispielsweise benötigt `-alias SensorAlarm:sensor` kein zusätzliches `-utag sensor`. Built-in- und Custom-Tags werden ohne Beachtung der Groß-/Kleinschreibung aufgelöst: `sensor`, `Sensor` und `SENSOR` bezeichnen dieselbe Gruppe. Das gilt für Registrierung, Overrides, Format-Fallback, CE und Hostauswahl. Die C-Identifier der Aliase bleiben dagegen exakt. Bestehende Default-Gewichte sowie Host-Overrides für Gewicht und Farbe gelten weiter; je Eigenschaft gewinnt die letzte Zuweisung.
 
 Die Registrierung wird in den passenden Quellkommandos einschließlich Bind, Insert, Clean und Generate mit Quellscan verwendet. Für explizite Host-Overrides akzeptieren auch `log` und `tlog` die Aliasoptionen.
+
+Eigene Tag-Gruppen erhalten großgeschriebene kanonische Namen in Metadaten: `sensor`, `Sensor` und `SENSOR` werden zu SENSOR, `x` und `X` zu X. Bestehende kanonische Built-in-Namen, insbesondere `untagged`, bleiben erhalten. Die Schreibweise von Alias-Identifiern und geschriebenen Meldungspräfixen wird dadurch nicht verändert.
 
 ## Tag Zuordnung
 
@@ -156,6 +160,8 @@ Im ausdrücklich akzeptierten CE-Fallback-Sonderfall verwendet der Host das gesp
 
 Die Statistik zählt weiterhin erfolgreich dekodierte Ereignisse vor der Filterung. Tool- und Transportdiagnosen werden keine Alias-Ereignisse. LI zeigt auf die Alias-Aufrufstelle; Tag-Auflösung funktioniert auch mit `-li off`.
 
+Bei `-vis` vergleichen registrierte Tag-Selektoren den aufgelösten Ereignis-Tag. Freie, unregistrierte Selektoren behalten ihre bisherige exakte Auswahl am statischen Formatpräfix. Die normalen Ereignisfilter werden weiterhin vor der Vis-Auswahl angewendet. Details und Sollbeispiele stehen im Ergebnis der Vorprüfung.
+
 `-verbose` erklärt Grundtyp, Tag und Zuordnungsgrund einschließlich Ausschlüssen, Gleichstand, Fallback und Override. Ein widersprechender bekannter Quellpräfix wird ausschließlich dort erläutert. Die neue Warnung bei verändertem CE-Fallback erscheint davon unabhängig auch ohne `-verbose`. Es gibt keinen neuen Warnschalter. Echte Eingabe- oder Dateifehler bleiben normale Fehler.
 
 ## Context Enrichment
@@ -229,13 +235,13 @@ Alte normalisierte native Einträge bleiben nach ihren bisherigen Nutzdatenregel
 
 Zusätzliche Tag-/Meta-/Schemafelder, eine Tag-Begleitdatei, synthetische sichtbare Präfixe und neue Wire-Felder sind nicht beauftragt. Für den akzeptierten CE-Fallback-Sonderfall wird auch keine neue `Strg`-Kodierung eingeführt und keine getrennte ID garantiert.
 
-## Begrenzte Integrationsprüfung vor dem Startsignal
+## Ergebnis der Integrationsprüfung zu Issue #767
 
-Issue #767 bleibt sinnvoll, weil gespeicherte Aliasnamen mehrere Leser und Ausgabepfade betreffen. Der Umfang ist jetzt begrenzt: Warnungsverhalten, einheitliche Tag-Gruppen und die betroffenen Alias-Verarbeitungspfade prüfen. Die frühere Forderung nach verlustfreier Speicherung jedes CE-Fallbacks entfällt; ebenso der Nachweis fester CE-Texte für `-salias`. Ein Prototyp oder eine neue Speicher-Machbarkeitsstudie ist dafür nicht erforderlich.
+Die Vorprüfung ist am Quellstand `11c47309` abgeschlossen. Sie hat Quellpfade und Sollfälle geprüft, keine Feature-Implementierung oder Verhaltensprüfung ausgeführt. Die offenen Implementierungsarbeiten sind #768, #761 und #769 zugeordnet. Zusätzliche Speicherung und ein CE-Textweg für `-salias` sind dafür nicht erforderlich.
 
-### Wann die CE-Fallback-Warnung erscheint
+### CE-Fallback-Warnung und Verarbeitungsreihenfolge
 
-Der aus dem ursprünglichen Format bestimmte Build-Tag wird mit der Klassifikation des gespeicherten effektiven Formats verglichen, jeweils mit derselben Tag-Registrierung und den angegebenen Overrides. Dieser Vergleich dient nur der Warnung. Die ursprüngliche Auswahl für CE und ID-Bereiche bleibt bestehen.
+Bind bestimmt den Build-Tag vor der CE-Auswahl aus dem ursprünglichen statischen Format. Danach werden der virtuelle Tag und die Quellgruppen jeweils einmal ausgewählt, Erweiterung und Nutzdaten validiert und das effektive Wörterbuchformat gebildet. Erst dann wird dessen erwarteter Host-Tag mit dem Build-Tag verglichen. Der Vergleich löst bei Abweichung eine Warnung aus; er wählt weder CE erneut aus noch ändert er den ursprünglichen Tag für die ID-Bereichsauswahl.
 
 Mit `-alias printi -ce 'ctx:" [checked]"'` gelten diese Sollwerte:
 
@@ -246,45 +252,55 @@ Mit `-alias printi -ce 'ctx:" [checked]"'` gelten diese Sollwerte:
 | `untagged:ctx:err:failed` | `untagged` | `untagged:err:failed [checked]` | `untagged` | Nein |
 | `ctx:failed` | `untagged` | `failed [checked]` | `untagged` | Nein |
 
-Die ersten beiden Fälle können weiterhin denselben Aliasnamen und dasselbe effektive Format besitzen. Der Host kann die verlorene Unterscheidung nicht rekonstruieren. Diese Einschränkung wird akzeptiert; sie löst keine zusätzliche Speicherung und keine Suche nach tatsächlich kollidierenden Aufrufstellen aus.
+`printi:untagged` als Override bei Build und Host hält beide Tags auf `untagged`. Bei `MyWrn("ctx:err:failed")` hält die Namensheuristik beide auf WARNING. Beide Fälle erzeugen keine neue Warnung. Bei einem registrierten `ctx` bleibt der Präfix erhalten und beide Tags sind CTX; auch dann gibt es keine Fallback-Warnung.
 
-Bind/Insert warnen vor Änderungen einmal pro betroffener Aufrufstelle, auch ohne `-verbose`, mit Datei, Zeile, Alias, ursprünglichem Tag, erwartetem Host-Tag und Workaround. Ansonsten gültige Verarbeitung läuft weiter. Clean mit passenden CE-Einstellungen prüft die entsprechende Transformation ebenfalls. Einfaches Entfernen von IDs erhält keine zusätzliche Warnung oder Voraussetzung.
+Die ersten beiden Tabellenzeilen dürfen denselben Aliasnamen und dasselbe effektive Format besitzen. Die verlorene Unterscheidung wird nicht gespeichert und nicht durch eine Kollisionssuche oder zusätzliche ID-Schlüssel ersetzt. Workarounds bleiben `printi("untagged:ctx:err:failed")` oder ein bei Build und Logging wiederholter expliziter Override.
 
-Eine explizite Zuordnung oder ein Namensheuristik-Treffer, der den Tag unverändert hält, erzeugt keine solche Warnung. Echte Fehler bleiben Fehler: Eine ausgewählte CE-Erweiterung für `-salias` wird beispielsweise abgewiesen.
+Insert/Clean behalten CE-Selektoren im physischen Quellliteral. Bei wiederholtem Insert oder Clean mit passenden CE-Einstellungen muss deshalb zuerst die vorhandene vollständige Erweiterung über `sourceContextMatch` erkannt und das Originalformat rekonstruiert werden. Das physische Literal allein ist nicht das gespeicherte effektive Format. Für die Warnung werden rekonstruiertes Original und effektive Wörterbuchform verglichen; die Prüfung gehört vor Cache-Abkürzungen und vor Veröffentlichung der Änderungen. Der heutige erste Clean-Durchlauf kehrt noch vor dieser Prüfung zurück; der spätere Restore-Durchlauf darf die Warnung nicht doppelt ausgeben.
 
-Als Workaround bleibt ein eindeutiger erster Präfix erhalten:
+Ein mögliches Warnungsformat ist: `app.c:12: warning: alias printi: CE changes format fallback from untagged to ERROR; keep a first tag prefix or repeat -alias printi:untagged when logging`. Pro betroffener Aufrufstelle erscheint höchstens eine solche normale Warnung, auch ohne `-verbose`; ansonsten gültige Verarbeitung läuft weiter. Einfaches ID-Clean erzeugt keine neue CE-Warnung. Ungültige Regeln und ausgewählte feste oder werttragende CE-Erweiterungen für `-salias` bleiben Fehler vor Änderungen.
 
-```c
-printi("untagged:ctx:err:failed");
-```
+### Kanonische Tag-Ausgabe und Vis-Auswahl
 
-Alternativ kann `-alias printi:untagged` bei Build und Logging angegeben werden. Ein später vergessener Logging-Override bleibt die bereits dokumentierte separate Einschränkung.
+Die Reviewentscheidung lautet: Eigene Tags erhalten in Metadaten einen großgeschriebenen kanonischen Namen. Bestehende Built-in-Namen bleiben erhalten, insbesondere `untagged`.
 
-### Einheitliche Tag-Gruppen prüfen
+| Eingabe oder Registrierung | Sollverhalten |
+|---|---|
+| `-utag sensor`, `-utag Sensor`, `-utag SENSOR` | Eine Gruppe SENSOR; JSON/KV und Statistik verwenden SENSOR. |
+| Dieselben ungewichteten Registrierungen in anderer Reihenfolge | Dieselbe kanonische Identität und Ausgabe. |
+| Beim Logging `-utag sensor:300 -utag SENSOR:650` | Eine Gruppe SENSOR mit Gewicht 650; Farbe bleibt davon unabhängig. |
+| `-alias Name:sensor -alias Name:SENSOR` | Gleiche explizite Zuordnung, kein Konflikt. |
+| `-utag x`, danach Auswahl mit `X` | Eine Gruppe X; die Regel für einbuchstabige CLI-Optionen ändert sich nicht. |
+| Virtueller Tag SENSOR und Quellpräfixe `Sensor:SENSOR:sensor:` | Eine CE-Gruppe, insgesamt einmal angewendet; CLI-Reihenfolge innerhalb der Gruppe bleibt erhalten. |
 
-`sensor`, `Sensor` und `SENSOR` müssen von Registrierung über Alias-Override, Format-Fallback, tagabhängige ID-Bereiche und CE bis zu Filtern, Statistik, Level, JSON/KV und Visualisierung eine Gruppe bezeichnen. Dasselbe gilt für `x` und `X`. Wiederholte Gewichts-/Farbzuweisungen verändern diese eine Gruppe nach den bestehenden Regeln; pro Eigenschaft gewinnt die letzte Zuweisung.
+Die gemeinsame Registry muss sowohl bereits veröffentlichte als auch noch ausstehende ungewichtete Registrierungen zusammenführen. Eine Änderung nur an `tagIndex` reicht nicht: `AddUserLabels` verwendet heute zusätzlich schreibungsabhängige Pending-Map-Schlüssel und erzeugt Custom-Gruppen ohne das Built-in-Case-Flag. Reservierte Selektornamen wie `all` und `off` dürfen nicht über andere Schreibweisen zu neuen Tags werden. Meldungspräfixe behalten ihre Quellschreibweise; nur passende kleingeschriebene Präfixe verschwinden bei aktiver Palette oder `none`.
 
-Die Vorprüfung hält konkrete Beispiele für die kanonische Ausgabe fest. Die Registrierungsreihenfolge darf keine getrennten Tag-Identitäten erzeugen. Virtueller Tag und unterschiedlich geschriebene Quellpräfixe dürfen CE insgesamt nur einmal auswählen. Die ursprüngliche Präfixschreibweise bleibt für die Darstellung erhalten; C-Identifier der Aliase und einbuchstabige CLI-Optionsnamen bleiben case-sensitiv.
+Die zweite Reviewentscheidung betrifft `-vis`: Registrierte Tag-Selektoren vergleichen den aufgelösten Ereignis-Tag, freie unregistrierte Selektoren behalten ihre bisherige exakte Auswahl am statischen Formatpräfix. Bei `MyWrn("err:x=%u\n", x)` wählt deshalb `-vis wrn:…` das WARNING-Ereignis, `-vis err:…` dagegen nicht. Ein unregistriertes `imu` kann weiterhin über `imu:` im Wörterbuchformat auswählen. Nach Registrierung als Tag greifen für `imu/IMU` die gemeinsamen Tag-Regeln. Normale Ereignisfilter laufen weiterhin vor Vis; Nutzdaten-, Zeilen- und Sink-Grenzen bleiben bestehen.
 
-### Präfixdarstellung benötigt Herkunftsinformation
+### Betroffene Aufrufer und Zuständigkeiten
 
-Ein gesetztes Ereignis-Tag reicht nicht aus. Die [strukturierte Darstellung](../../internal/translator/structured.go) und die [Textdarstellung](../../internal/emitter/lineTransformerANSI.go) besitzen heute eigene Präfixbehandlung. Sie müssen wissen, ob ein passender Präfix tatsächlich im statischen Quellformat stand.
+| Pfad und heutige Annahme | Erforderliche Einbindung | Issue |
+|---|---|---|
+| [CLI und Registry](../../internal/args/handler.go), [Tag-Verarbeitung](../../internal/emitter/lineTransformerANSI.go): exakte Flags, getrennte Custom-Schreibweisen und Pending-Map | Kanonische Optionsnamen; Registry und implizite Alias-Tags vor ID-Bereichen, Filtern und Vis aufbauen; SENSOR/X als kanonische Custom-Ausgabe; letzte Zuweisung je Eigenschaft. | #768, Aliasregistrierung #761 |
+| [Aliasparser und Quell-Edits](../../internal/id/helper.go), [Bind-Scan](../../internal/id/bindParse.go), [Matcher](../../internal/id/match.go) und [Update](../../internal/id/Update.go) | Native Namensregeln getrennt von exakten Alias-Identifiern halten; Case-Folding des nativen Regex-Zweigs darf nicht auf Aliasalternativen wirken. Native Indizes wie `Type[2]` und `Type[:5]` nur auf aufgelöste Nutzdatentypen anwenden. | #761 |
+| [TriceFmt](../../internal/id/id.go), [Dictionary und Rückwärtsindex](../../internal/id/manage.go), [Bind-Schlüssel](../../internal/id/bindMetadata.go), [geordnete IDs](../../internal/id/orderedIDs.go) | Rohidentität aus exaktem Aliasnamen und effektivem `Strg` halten; aufgelöste Nutzdatenart und Build-Tag separat im Speicher führen, nicht als zusätzliche Vergleichsfelder. Alte native Einträge erhalten. | #761 |
+| [Insert](../../internal/id/insertIDs.go), [Clean](../../internal/id/cleanIDs.go), [Zero-ID-Helfer](../../internal/id/zeroIDs.go), [Insert-Cache](../../internal/id/cachedInsert.go) und [Clean-Cache](../../internal/id/cachedClean.go) | Aliasname beim Schreiben erhalten; vorhandene Cache-/ID-Pläne dürfen Validierung, die aktuelle Zuordnung oder Warnungen nicht umgehen. Keine Cache-Migration oder Datenbereinigung. | #761, CE-Warnung #769 |
+| [ID-Bereiche](../../internal/id/switchIDs.go) und [CE-Bind](../../internal/id/contextEnrichment.go) | Quell-Tag vor CE für aktuelle ID-Auswahl halten; Warnungsvergleich mit effektivem Format; String-Alias-Erweiterung vor Adaptererzeugung abweisen. | #761 und #769 |
+| [CE Insert/Clean](../../internal/id/contextSource.go) | Vollständige Suffixerkennung, Originalrekonstruktion und effektive Wörterbuchform berücksichtigen; Warnung vor Änderungen einmalig, auch bei Wiederholung und Cache. | #769 |
+| [Initiales Laden](../../internal/args/handler.go), [AddFmtCount](../../internal/id/manage.go) und [Nachladen](../../internal/id/fileWatcher.go) | `AddFmtCount` verändert heute `Type`. Rohdaten und aufgelöste Sicht getrennt halten und nach erfolgreicher Prüfung gemeinsam unter dem bestehenden Lock veröffentlichen. Ungültige Alias-/Hüllenupdates erhalten die letzte gültige Sicht. Kommando-Registry und Statistik nicht beim TIL-Reload neu initialisieren. | #761 |
+| [TREX-Decoder](../../internal/trexDecoder/trexDecoder.go), [Ereignisrecord](../../internal/decoder/record.go), [Textausgabe](../../internal/emitter/lineTransformerANSI.go), [JSON/KV](../../internal/translator/structured.go), [Statistik](../../internal/decoder/decoder.go) | Payload-Familie vor nativer Typauswertung auflösen; Ereignis-Tag und statische Präfixschreibweise bis zur Ausgabe führen. Ein ursprüngliches `%s` darf empfangenes `wrn:payload` nicht zum entfernbaren Präfix machen. Statistik zählt erfolgreiche Ereignisse vor Filtern. | #761 |
+| [Vis-Router](../../internal/vis/router.go) und [numerischer Record](../../internal/decoder/decoder.go) | Startup und Laufzeit verwenden dieselbe Tag-Auswahl; numerische Form über aufgelösten Nutzdatentyp bestimmen. `fixedNumericShape` lehnt heute Aliasnamen ab; Fingerprints behalten die Rohidentität. Freie Präfixauswahl erhalten. | #761; gemeinsame Tag-Suche #768 |
+| [Generatoren](../../internal/id/generate.go), [C-Tabelle](../../internal/id/generateTil.go), [Quellauswahl](../../internal/id/generateLog.go), [ABC-Auswahl](../../internal/id/generateAbc.go) und [Bind-Bericht](../../internal/id/generateBindReport.go) | Namen/Hüllen in Exporten erhalten, Parameterzahl und Familie aus der aufgelösten Sicht bestimmen; kein `S`-/`32`-/`Assert`-Raten im Aliasnamen. Bestehende native Sondertypen bleiben unverändert unterstützt; keine zusätzlichen Alias-Nutzdatenfamilien oder lokalen Tag-/Filterfunktionen einführen. | #761; CE-Abnahme #769 |
 
-Ein als WARNING klassifizierter Alias mit ursprünglichem Format `%s` muss beispielsweise empfangenes `wrn:payload` vollständig erhalten. Der Laufzeittext erzeugt keinen entfernbaren Quellpräfix. Diese Herkunft muss bis zur Ausgabe erhalten bleiben; dafür ist nicht automatisch ein weiteres TIL-Feld erforderlich.
+### Zugeordnete Regressionen und Abschluss
 
-### Weitere betroffene Verarbeitungspfade
+| Issue | Später zu implementierende Sollfälle |
+|---|---|
+| #768 | SENSOR/X in allen Registrierungsreihenfolgen einschließlich Pending-Gruppen; letzte Gewichts-/Farbzuweisung; reservierte Namen in anderer Schreibweise; unveränderte Präfixdarstellung; einbuchstabige Optionsnamen bleiben exakt. |
+| #761 | Kurze Aliase wie `A`, reine Case-Unterschiede und Namen mit `S`, `32` oder `Assert`; alte/gemischte TIL, stabile Rohschlüssel, Renames und erhaltene historische Einträge; gültiger und ungültiger Reload; Text/JSON/KV einschließlich Laufzeitpräfixen und LI off; Vis mit Ereignis-Tag sowie freiem Präfix. |
+| #769 | Warnungstabelle, Overrides und Namensheuristik ohne Fehlwarnung, wiederholtes Insert und passendes Clean mit/ohne Cache; eine Warnung pro Stelle vor Veröffentlichung und keine zweite CE-Auswahl; native `triceS`-Text-CE positiv, jede ausgewählte `-salias`-Erweiterung negativ; hardwarefreie C-/Host-Integration. |
 
-[TriceFmt](../../internal/id/id.go) speichert Aliasnamen heute nur in einem nicht serialisierten Feld; die neue Bedeutung von `Type` betrifft daher mehr als den CLI-Parser. Zu prüfen sind insbesondere:
-
-- [Aliasauflösung](../../internal/id/helper.go), [Dictionary-Verarbeitung](../../internal/id/manage.go) und ID-Vergleichsschlüssel.
-- Bind-Metadaten, Insert/Clean und CE-Reihenfolge vor ID-Bereichsauswahl.
-- [Typabhängige Generatoren](../../internal/id/generate.go) und [lokale C-Logtabellen](../../internal/id/generateLog.go).
-- Initiales Laden und konsistentes Nachladen von gespeicherten Einträgen, Tag-Registry und aufgelöster Sicht. Ein ungültiges Update muss die letzte gültige Sicht erhalten.
-- CLI-Namensauflösung einschließlich optionaler Pfade und explizit gesetzter Optionen.
-
-Die neuen Host-Tags erweitern nicht automatisch die lokalen Filter- und Farbfunktionen generierter C-Logger. Die Generatoren müssen die aufgelöste Nutzdatenart trotzdem korrekt behandeln.
-
-Issue #767 ist abgeschlossen, wenn die Warnungsfälle einschließlich Clean, konkrete einheitliche Tag-Beispiele, eine kurze Übersicht der betroffenen Leser und die zugehörigen späteren Regressionstests festgehalten sind. Die Aufgaben werden #768, #761 und #769 zugeordnet. Es ist keine Feature-Implementierung und kein zusätzlicher Speicher- oder String-Alias-CE-Nachweis erforderlich.
+Alle gefundenen Integrationspunkte und die beiden während der Prüfung geklärten Verhaltensentscheidungen sind damit zugeordnet. Die nächsten Arbeitsschritte bleiben #768 → #761 → #769; deren Feature-Implementierung benötigt einen eigenen Auftrag.
 
 ## Geplante Abnahme und Dokumentation
 
