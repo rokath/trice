@@ -130,7 +130,12 @@ func prepareAliasContextExample(t *testing.T, fs *afero.Afero, project, command 
 	tilPath := filepath.Join(project, "til.json")
 	buildDir := filepath.Join(project, "build")
 	require.NoError(t, fs.MkdirAll(project, 0o755))
-	require.NoError(t, fs.WriteFile(sourcePath, source, 0o644))
+	// Repository-wide Bind can instrument this fixture before the test runs.
+	// Its owner include belongs to the checkout, not this isolated project;
+	// remove only that generated directive from the copy so Insert sees clean
+	// source and Bind creates its own sidecar. Never change the shared fixture.
+	ownerInclude := regexp.MustCompile(`(?m)^[\t ]*#[\t ]*include[\t ]+"trice_sidecar_[A-Za-z0-9_]+_[0-9A-F]{16}\.h"[\t ]+// trice-bind: keep as last include before this file's Trice calls[\t ]*\r?\n`)
+	require.NoError(t, fs.WriteFile(sourcePath, ownerInclude.ReplaceAll(source, nil), 0o644))
 	require.NoError(t, fs.WriteFile(tilPath, []byte(`{"900":{"Type":"trice","Strg":"historical"}}`), 0o644))
 	require.NoError(t, fs.WriteFile(filepath.Join(project, "li.json"), []byte("{}"), 0o644))
 	options := []string{command, "-src", sourcePath, "-til", tilPath, "-li", filepath.Join(project, "li.json"), "-genDir", buildDir, "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-alias", "MyWrn", "-salias", "PrintfS", "-salias", "DirectS", "-ce", `WARNING:" context={context}", ++contextEvaluations`, "-ce", `native:" [checked]"`}
@@ -175,6 +180,49 @@ func TestAliasContextExamplePreparation(t *testing.T) {
 			assert.NotContains(t, string(table), id.SAliasStrgPrefix)
 			assert.Contains(t, string(table), "TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING")
 		})
+	}
+}
+
+// TestAliasContextExampleSourceIsolation checks actual source and table
+// generation from clean and repository-bound inputs without checkout sidecars.
+func TestAliasContextExampleSourceIsolation(t *testing.T) {
+	for _, command := range []string{"bind", "insert"} {
+		for _, state := range []string{"clean", "repository_bound"} {
+			for _, ending := range []string{"LF", "CRLF"} {
+				t.Run(command+"/"+state+"/"+ending, func(t *testing.T) {
+					source := "#include \"trice.h\"\n"
+					if state == "repository_bound" {
+						source += "#include \"trice_sidecar_repository_c_1111111111111111.h\" // trice-bind: keep as last include before this file's Trice calls\n"
+					}
+					source += "void logValue(void) { MyWrn(\"err:value={value}\\n\", originalValue()); }\n"
+					if ending == "CRLF" {
+						source = strings.ReplaceAll(source, "\n", "\r\n")
+					}
+					input := []byte(source)
+					fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+					sourcePath, tilPath, tablePath := prepareAliasContextExample(t, fs, "example", command, input)
+					assert.Equal(t, source, string(input), "preparation must leave the fixture bytes unchanged")
+					prepared, err := fs.ReadFile(sourcePath)
+					require.NoError(t, err)
+					assert.Contains(t, string(prepared), "#include \"trice.h\"")
+					assert.NotContains(t, string(prepared), "trice_sidecar_repository_c_")
+					if command == "insert" {
+						assert.NotContains(t, string(prepared), "trice_sidecar_")
+						assert.Contains(t, string(prepared), "iD(1000)")
+					} else {
+						assert.Contains(t, string(prepared), "#include \"trice_sidecar_main_c_")
+					}
+					content, err := fs.ReadFile(tilPath)
+					require.NoError(t, err)
+					var til id.TriceIDLookUp
+					require.NoError(t, json.Unmarshal(content, &til))
+					assert.Equal(t, id.TriceFmt{Type: "MyWrn", Strg: `err:value={value} context={context}\n`}, til[1000])
+					table, err := fs.ReadFile(tablePath)
+					require.NoError(t, err)
+					assert.Contains(t, string(table), `err:value=%d context=%d\n`)
+				})
+			}
+		}
 	}
 }
 
