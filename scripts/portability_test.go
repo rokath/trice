@@ -4573,7 +4573,7 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 			out, err := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{"TRICE_ID_WORKFLOW": workflow, "LOGFILE": filepath.Join(root, "build.log")})
 			assert.NoError(t, err, out)
 			assert.Contains(t, out, "matrix-"+workflow)
-			assert.Contains(t, out, "Hint:")
+			assert.NotContains(t, out, "completed with compiler warnings", "earlier log entries are not evidence for the current build")
 			if workflow == "bind" {
 				assert.Equal(t, 10, strings.Count(out, "INFO: standalone"), out)
 				warnings, warningErr := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh on full", map[string]string{
@@ -4598,6 +4598,82 @@ func TestStandaloneExamplesKeepWorkflowOwnership(t *testing.T) {
 					assert.NotContains(t, out, "standalone examples/PC_log", "cancellation must stop before the second standalone entry")
 					assert.NotContains(t, out, "matrix-bind")
 				}
+			}
+		})
+	}
+}
+
+// TestGCCWorkerWarningAttribution distinguishes application output from compiler
+// diagnostics and confines hints to the build that actually emitted a warning.
+// Fixtures execute real shell pipelines without invoking installed compilers.
+func TestGCCWorkerWarningAttribution(t *testing.T) {
+	for _, tc := range []struct {
+		name, mode, selection, standalone, matrix, host, wantHint, status string
+	}{
+		{name: "application_tags", standalone: "WARNING:11+i:red\\n\\033[31mWARNING:11+i:red\\033[0m", matrix: "warning: application text", host: "WARNING: payload"},
+		{name: "standalone_source_warning", standalone: "file.c:12:3: warning: unused variable", wantHint: "standalone examples/PC_log/build_and_run.sh"},
+		{name: "matrix_source_warning", matrix: "file.c:12: warning: unused variable", wantHint: "G0B1_inst X0 matrix"},
+		{name: "host_msvc_warning", host: "C:/project/file.c(12,3): warning C4101: unused variable", wantHint: "TRICE_ON builds"},
+		{name: "colored_source_warning", matrix: "\\033[1mfile.c:12:3: \\033[33mwarning: unused variable\\033[0m", wantHint: "G0B1_inst X0 matrix"},
+		{name: "driver_warning", matrix: "arm-none-eabi-gcc: warning: option ignored", wantHint: "G0B1_inst X0 matrix"},
+		{name: "linker_warning", host: "ld: warning: duplicate libraries", wantHint: "TRICE_ON builds"},
+		{name: "quick_warning", selection: "quick", matrix: "clang-20: warning: option ignored", wantHint: "G0B1_inst quick build"},
+		{name: "off_warning", mode: "off", host: "file.c:2: warning: unused variable", wantHint: "TRICE_OFF builds"},
+		{name: "failed_matrix", matrix: "file.c:2: warning: before failure", status: "23"},
+		{name: "interrupted_matrix", status: "130"},
+		{name: "cancelled_matrix", status: "143"},
+		{name: "stage_log_failure", status: "19"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_200_gcc_example_build_worker.sh")
+			writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "# No compiler setup is needed in this fixture.\n")
+			writeFixture(t, root, "examples/cleanAllTargets.sh", "#!/bin/sh\nexit 0\n")
+			for _, tool := range []string{"arm-none-eabi-gcc", "cmake", "cc", "clang"} {
+				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 0\n")
+			}
+			for _, entry := range []string{"DemoData_Trice/build.sh", "G0B1_log/build.sh", "F030_inst/build.sh", "F030_inst_rtt/build.sh", "F030_inst_uart/build.sh", "G0B1_inst/build_with_clang.sh", "L432_inst/build.sh", "L432_inst/build_with_clang.sh"} {
+				writeFixture(t, root, "examples/"+entry, "#!/bin/sh\necho standalone-completed\n")
+			}
+			writeFixture(t, root, "examples/PC_log/build_and_run.sh", "#!/bin/sh\nprintf '%b\\n' \"$STANDALONE_OUTPUT\"\n")
+			writeFixture(t, root, "examples/G0B1_inst/build.sh", "#!/bin/sh\nif [ \"${TRICE_ID_WORKFLOW:-}\" = bind ]; then\n  echo matrix-executed\n  printf '%b\\n' \"$MATRIX_OUTPUT\" >&2\n  exit \"$MATRIX_STATUS\"\nfi\n")
+			for _, mode := range []string{"ON", "OFF"} {
+				writeFixture(t, root, "examples/buildAllTargets_TRICE_"+mode+".sh", "#!/bin/sh\necho host-executed\nprintf '%b\\n' \"$HOST_OUTPUT\" >&2\n")
+			}
+			// A genuine diagnostic from an earlier phase must never contaminate hints.
+			writeFixture(t, root, "build.log", "earlier.c:1: warning: earlier phase\n")
+			mode, selection, status := tc.mode, tc.selection, tc.status
+			if mode == "" {
+				mode = "on"
+			}
+			if selection == "" {
+				selection = "full"
+			}
+			if status == "" {
+				status = "0"
+			}
+			// A failed log sink must also stop the worker even if the build succeeds.
+			if tc.name == "stage_log_failure" {
+				status = "0"
+				writeFixture(t, root, "bin/tee", "#!/bin/sh\ncat >/dev/null\nexit 19\n")
+			}
+			out, err := runFixture(t, root, "bash scripts/_200_gcc_example_build_worker.sh "+mode+" "+selection, map[string]string{
+				"TRICE_ID_WORKFLOW": "bind", "LOGFILE": filepath.Join(root, "build.log"),
+				"STANDALONE_OUTPUT": tc.standalone, "MATRIX_OUTPUT": tc.matrix, "HOST_OUTPUT": tc.host, "MATRIX_STATUS": status,
+			})
+			if tc.status != "" {
+				if assert.Error(t, err, out) {
+					assert.Equal(t, "exit status "+tc.status, err.Error(), out)
+				}
+				assert.NotContains(t, out, "host-executed", "a failed or cancelled build stops subsequent stages")
+			} else {
+				assert.NoError(t, err, out)
+				assert.Contains(t, out, "executed", "success must execute a nonempty build plan")
+			}
+			if tc.wantHint == "" {
+				assert.NotContains(t, out, "completed with compiler warnings")
+			} else {
+				assert.Contains(t, out, "Hint: "+tc.wantHint+" completed with compiler warnings")
+				assert.Equal(t, 1, strings.Count(out, "completed with compiler warnings"), "a warning belongs to exactly one build stage")
 			}
 		})
 	}
