@@ -9443,13 +9443,125 @@
 		"Type": "trice8",
 		"Strg": "dbg:CONFIGURATION == %d - An example configuration\\n"
 	},
+	"15362": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 7 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15364": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales H TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15366": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales E TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15374": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 1\\n"
+	},
+	"15380": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 6 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
 	"15381": {
 		"Type": "Trice64",
 		"Strg": "info:Energy {energy_j:%.2f J}\\n"
 	},
+	"15390": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 2 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
 	"15401": {
 		"Type": "trice",
 		"Strg": "ras, "
+	},
+	"15406": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 2 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15411": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 1 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15429": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales G TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15438": {
+		"Type": "trice",
+		"Strg": "wr: X0 before 2\\n"
+	},
+	"15457": {
+		"Type": "trice",
+		"Strg": "wr: X0 tail\\n"
+	},
+	"15468": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 3 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15469": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales F TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15483": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 9 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15484": {
+		"Type": "triceS",
+		"Strg": "wr: X0-S:%s\\n"
+	},
+	"15491": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales B TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15501": {
+		"Type": "trice",
+		"Strg": "msg:G0B1 fast CPU/TIM2=%u Hz, samples=%u, records/sample=%u\\n"
+	},
+	"15502": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 9 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15511": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales G TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15515": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales H TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15517": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 3 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15519": {
+		"Type": "TRice8B",
+		"Strg": "wr: X0-TRiceB: %02x\\n"
+	},
+	"15527": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 5\\n"
+	},
+	"15545": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 6\\n"
+	},
+	"15550": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales A TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15552": {
+		"Type": "trice",
+		"Strg": "msg:G0B1 fast compiler=GCC\\n"
+	},
+	"15559": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 4 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15560": {
+		"Type": "Trice8B",
+		"Strg": "wr: X0-TriceB: %02x\\n"
 	},
 	"15562": {
 		"Type": "Trice32",
@@ -9459,6 +9571,34 @@
 		"Type": "trice32",
 		"Strg": "info:pos:Position sample\\n"
 	},
+	"15583": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales G TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15585": {
+		"Type": "triceS",
+		"Strg": "wr: X0-S:%s\\n"
+	},
+	"15589": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 5\\n"
+	},
+	"15610": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 8 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15614": {
+		"Type": "trice",
+		"Strg": "wr: X0 after 1\\n"
+	},
+	"15615": {
+		"Type": "trice",
+		"Strg": "msg:G0B1 fast compiler=Clang\\n"
+	},
+	"15618": {
+		"Type": "trice",
+		"Strg": "deb:trice function call macros with 16-bit timestamp need ~52 clocks (reference)\\n"
+	},
 	"15620": {
 		"Type": "TRice32",
 		"Strg": "info:Voltage {voltage_mv:%u} mV\\n"
@@ -9467,9 +9607,37 @@
 		"Type": "trice",
 		"Strg": "err:file not found (error code 7)\\n"
 	},
+	"15623": {
+		"Type": "TriceS",
+		"Strg": "wr: X0-TriceS:%s\\n"
+	},
+	"15624": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"15625": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
 	"15634": {
 		"Type": "trice",
 		"Strg": "debug:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
+	},
+	"15638": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 4 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15639": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 9 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15645": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 2 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15649": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
 	},
 	"15651": {
 		"Type": "trice",
@@ -9479,29 +9647,173 @@
 		"Type": "Trice16",
 		"Strg": "info:Current {current_ma} mA\\n"
 	},
+	"15656": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 0 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15674": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 9 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15676": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 8 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
 	"15679": {
 		"Type": "trice",
 		"Strg": " = %d\\n"
+	},
+	"15688": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 1 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15690": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales E TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15693": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales E TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15699": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 4\\n"
+	},
+	"15703": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 1 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15704": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales A TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15725": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales G TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15729": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 1\\n"
+	},
+	"15734": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales A TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
 	},
 	"15740": {
 		"Type": "trice32",
 		"Strg": "info:Temp {temp_c:%.1f C}\\n"
 	},
+	"15742": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales H TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
 	"15747": {
 		"Type": "trice",
 		"Strg": "info:State {motor.state} rpm {motorPtr.rpm} / %d\\n"
+	},
+	"15764": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 5 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15765": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 7 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15771": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 7 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15773": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"15779": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales F TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
 	},
 	"15782": {
 		"Type": "trice",
 		"Strg": "deb:_SINGLE_MAX_SIZE=%d, _BUFFER_SIZE=%d, _DEFERRED_BUFFER_SIZE=%d\\n"
 	},
+	"15787": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 3 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15791": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 8 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15797": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 1\\n"
+	},
+	"15802": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 0 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15807": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 0\\n"
+	},
+	"15814": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 8 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15816": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 4 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15825": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 6 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15826": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 5 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
 	"15827": {
 		"Type": "trice",
 		"Strg": "err:file not found (error code 7)\\n"
 	},
+	"15840": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"15848": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
 	"15849": {
 		"Type": "triceS",
 		"Strg": "rd:sizeof(%8s)"
+	},
+	"15851": {
+		"Type": "trice8B",
+		"Strg": "wr: X0-B: %02x\\n"
+	},
+	"15854": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 5 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15855": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 8 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"15865": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 4\\n"
+	},
+	"15873": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 4\\n"
+	},
+	"15878": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales B TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15880": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
 	},
 	"15881": {
 		"Type": "trice",
@@ -9511,9 +9823,49 @@
 		"Type": "trice",
 		"Strg": "dwa, "
 	},
+	"15889": {
+		"Type": "trice",
+		"Strg": "deb:trice insert macros with 32-bit timestamp need down to ~9 clocks (fastest)\\n"
+	},
+	"15892": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales F TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15893": {
+		"Type": "triceS",
+		"Strg": "msg:native:{device:%s}\\n"
+	},
+	"15897": {
+		"Type": "trice8B",
+		"Strg": "wr: X0-B: %02x\\n"
+	},
+	"15906": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 2 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15910": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 9 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"15912": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales H TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
 	"15918": {
 		"Type": "TRice",
 		"Strg": "vis_demo:%f,%f,%f\\n"
+	},
+	"15920": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"15925": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 5\\n"
+	},
+	"15930": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales F TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
 	},
 	"15932": {
 		"Type": "triceS",
@@ -9523,6 +9875,22 @@
 		"Type": "Trice",
 		"Strg": "att:MyStructEvaluationFunction(json:ExA{{Apple:{Apple}, Birn:{Birn:%u}, Fish:{Fish:%f}}})\\n"
 	},
+	"15961": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales H TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"15962": {
+		"Type": "trice",
+		"Strg": "deb:trice function call macros with 32-bit timestamp need ~54 clocks (reference)\\n"
+	},
+	"15963": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 7 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15968": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 2 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
 	"15982": {
 		"Type": "triceS",
 		"Strg": "rd:sizeof(%8s)"
@@ -9531,13 +9899,85 @@
 		"Type": "trice",
 		"Strg": "dwa, "
 	},
+	"15996": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 0 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"16004": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 1\\n"
+	},
+	"16010": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16012": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales B TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"16017": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16019": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16038": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales F TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"16039": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
 	"16041": {
 		"Type": "triceS",
 		"Strg": "rd:sizeof(%8s)"
 	},
+	"16048": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 5\\n"
+	},
+	"16053": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 5 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"16054": {
+		"Type": "trice",
+		"Strg": "msg:G0B1 fast sample=%u raw=%u overhead=%u net=%u clocks/log=%u.%02u\\n"
+	},
+	"16067": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16076": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 3\\n"
+	},
+	"16077": {
+		"Type": "trice8B",
+		"Strg": "wr: X0-B: %02x\\n"
+	},
+	"16078": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 3 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"16079": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 6\\n"
+	},
+	"16087": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 3\\n"
+	},
 	"16090": {
 		"Type": "trice8",
 		"Strg": "info:Small {counter:%u}\\n"
+	},
+	"16094": {
+		"Type": "triceS",
+		"Strg": "wr: X0-S:%s\\n"
 	},
 	"16100": {
 		"Type": "trice",
@@ -9547,17 +9987,97 @@
 		"Type": "triceN",
 		"Strg": "info:Code {code:%s}\\n"
 	},
+	"16107": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales E TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"16108": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 0\\n"
+	},
+	"16124": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 0 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"16134": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 2\\n"
+	},
+	"16135": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 6 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"16136": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 3\\n"
+	},
 	"16138": {
 		"Type": "trice",
 		"Strg": "tri\\n"
+	},
+	"16143": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 4\\n"
+	},
+	"16145": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 2\\n"
+	},
+	"16146": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(ID(0)... 6\\n"
+	},
+	"16148": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 6 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"16157": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales A TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"16165": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 1 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"16175": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales E TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
 	},
 	"16177": {
 		"Type": "trice32",
 		"Strg": "info:speed:Speed sample\\n"
 	},
+	"16199": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 1 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"16205": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 2\\n"
+	},
+	"16206": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 6\\n"
+	},
+	"16211": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16214": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales B TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
 	"16216": {
 		"Type": "trice",
 		"Strg": " = %d\\n"
+	},
+	"16219": {
+		"Type": "Trice",
+		"Strg": "msg:G0B1 Trice 0\\n"
+	},
+	"16222": {
+		"Type": "trice",
+		"Strg": "deb:trice insert macros with 16-bit timestamp need down to ~10 clocks (nearly fastest)\\n"
 	},
 	"16223": {
 		"Type": "trice",
@@ -9567,9 +10087,21 @@
 		"Type": "trice",
 		"Strg": "tri\\n"
 	},
+	"16230": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales G TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
 	"16234": {
 		"Type": "TRice32_1",
 		"Strg": "info:pos:Fixed sample={sample}\\n"
+	},
+	"16240": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 3 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"16245": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales A TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
 	},
 	"16249": {
 		"Type": "trice",
@@ -9579,17 +10111,65 @@
 		"Type": "trice",
 		"Strg": " = %d\\n"
 	},
+	"16265": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 4 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"16266": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 5 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"16271": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16273": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 0 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"16277": {
+		"Type": "trice",
+		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16281": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales 7 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
+	},
+	"16285": {
+		"Type": "TRice",
+		"Strg": "att:🐁 Speedy Gonzales 6 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
 	"16289": {
 		"Type": "TRice64",
 		"Strg": "sig:%.1f s\\n"
+	},
+	"16290": {
+		"Type": "TRICE",
+		"Strg": "att:🐁 Speedy Gonzales B TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
+	},
+	"16291": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 0\\n"
+	},
+	"16294": {
+		"Type": "Trice",
+		"Strg": "att:🐁 Speedy Gonzales 4 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
 	},
 	"16296": {
 		"Type": "triceS",
 		"Strg": "info:Device {device:%s}\\n"
 	},
+	"16302": {
+		"Type": "TRice",
+		"Strg": "msg:G0B1 TRice 2\\n"
+	},
 	"16308": {
 		"Type": "trice64",
 		"Strg": "info:Bytes {bytes:%llu}\\n"
+	},
+	"16316": {
+		"Type": "TRICE",
+		"Strg": "time:G0B1 TRICE(Id(0)... 3\\n"
 	},
 	"16326": {
 		"Type": "trice",

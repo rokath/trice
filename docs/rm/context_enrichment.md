@@ -7,8 +7,8 @@
 
 - [1. Getting Started with Position and Speed](#getting-started-with-position-and-speed)
 - [2. Rules and Selectors](#rules-and-selectors)
-  - [Alias tags and CE limits](#alias-tags-and-ce-limits)
-  - [Fallback warnings and original build tags](#fallback-warnings-and-original-build-tags)
+  - [2.1. Alias tags and CE limits](#alias-tags-and-ce-limits)
+  - [2.2. Fallback warnings and original build tags](#fallback-warnings-and-original-build-tags)
 - [3. Expressions, Fields and Evaluation](#expressions-fields-and-evaluation)
 - [4. Using Global and Local Values](#using-global-and-local-values)
 - [5. Build, IDs and Generated Files](#build-ids-and-generated-files)
@@ -140,7 +140,7 @@ Both calls receive the extension; `WARNING:` or `wrn:` retains its original spel
 
 Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-utag` and `-ce` have separate purposes.
 
-### Alias tags and CE limits
+### 2.1. <a id="alias-tags-and-ce-limits"></a>Alias tags and CE limits
 
 Register project macros with `-alias Name` or `-salias Name`; `Name:Tag` explicitly assigns and registers a tag. Alias names remain exact C identifiers; tag names ignore case. See [alias identity and the frozen name heuristic](legacy_user_code.md#alias-identity-and-tags-in-v2) and the [CLI case rules](cli.md#common-information).
 
@@ -158,7 +158,7 @@ String-valued CE rules are invalid even when unused. Calls without original valu
 
 For native `triceS("msg:%s\n", text)`, `-ce 'msg:" [context]"'` produces the ordinary host template `msg:%s [context]\n` while transmitting the original string alone. A string alias may instead format on the target or directly forward to `triceS`. Its stored C-argument wrapper is not an ordinary host template. Supporting fixed text or added printf arguments there would require a separate formatter/storage contract and could bypass project behavior. All such `-salias` extensions are deferred until a concrete need justifies them. A selected extending rule is an error before publication, including a broad tag rule that reaches a string alias; it is not silently skipped.
 
-### Fallback warnings and original build tags
+### 2.2. <a id="fallback-warnings-and-original-build-tags"></a>Fallback warnings and original build tags
 
 Build CE and ID ranges use the original source tag. The host classifies the effective stored format. Removing a free selector can expose another first prefix:
 
