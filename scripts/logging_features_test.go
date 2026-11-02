@@ -33,13 +33,14 @@ case "${MOCK_GO_RESULT:-pass}" in
   skipped_child) echo '    --- SKIP: TestContextEnrichmentTargetToDecoder/c (0.00s)' ;;
 esac
 case "$2" in
-  ./internal/args) tests='TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder TestOrderedIDsTargetRecordsMatchSourceAndCatalog TestNativeProjectPathsAndLineEndings' ;;
+  ./internal/args) tests='TestContextEnrichmentTargetToDecoder TestContextInsertCleanTargetToDecoder TestAliasContextTargetToDecoder TestOrderedIDsTargetRecordsMatchSourceAndCatalog TestNativeProjectPathsAndLineEndings' ;;
   ./internal/id) tests='TestContextEnrichmentPoC TestContextEnrichmentPoCRebaseScopeBoundary' ;;
   ./scripts) tests='TestBindEntrypointIntegration TestHostDemoEntrypointIntegration TestExampleCoverageInventory TestDisabledRxTranslationUnit TestLabPlotLaunchers' ;;
   *) echo 'FAIL: unexpected package selection'; exit 8 ;;
 esac
 for test in $tests; do
   if [ "${MOCK_GO_RESULT:-}" = missing_second ] && [ "$test" = TestContextInsertCleanTargetToDecoder ]; then continue; fi
+  if [ "${MOCK_GO_RESULT:-}" = missing_alias_context ] && [ "$test" = TestAliasContextTargetToDecoder ]; then continue; fi
   if [ "${MOCK_GO_RESULT:-}" = missing_ordered_ids ] && [ "$test" = TestOrderedIDsTargetRecordsMatchSourceAndCatalog ]; then continue; fi
   printf '%s\n' "--- PASS: $test (0.01s)"
 done
@@ -153,7 +154,7 @@ func TestLoggingFeaturesSelectionAndIsolation(t *testing.T) {
 			assert.NoError(t, err)
 			lines := strings.Split(strings.TrimSpace(string(calls)), "\n")
 			assert.Len(t, lines, 3, "each focused Go selection runs once")
-			assert.Contains(t, string(calls), "test ./internal/args -run ^(TestContextEnrichmentTargetToDecoder|TestContextInsertCleanTargetToDecoder|TestOrderedIDsTargetRecordsMatchSourceAndCatalog|TestNativeProjectPathsAndLineEndings)$ -count=1 -v | integration=1")
+			assert.Contains(t, string(calls), "test ./internal/args -run ^(TestContextEnrichmentTargetToDecoder|TestContextInsertCleanTargetToDecoder|TestAliasContextTargetToDecoder|TestOrderedIDsTargetRecordsMatchSourceAndCatalog|TestNativeProjectPathsAndLineEndings)$ -count=1 -v | integration=1")
 			assert.Contains(t, string(calls), "test ./internal/id -run ^(TestContextEnrichmentPoC|TestContextEnrichmentPoCRebaseScopeBoundary)$ -count=1 -v | integration=1")
 			assert.Contains(t, string(calls), "test ./scripts -run ^(TestBindEntrypointIntegration|TestHostDemoEntrypointIntegration|TestExampleCoverageInventory|TestDisabledRxTranslationUnit|TestLabPlotLaunchers)$ -count=1 -v | integration=1")
 			assert.NotContains(t, string(calls), "TestContextEnrichmentRebasePoC")
@@ -181,7 +182,7 @@ func TestLoggingFeaturesSelectionAndIsolation(t *testing.T) {
 // or skipped mandatory tests. Neither condition may launch the example builds.
 func TestLoggingFeaturesRequireActualGoPasses(t *testing.T) {
 	t.Parallel()
-	for _, outcome := range []string{"empty", "skipped_parent", "skipped_child", "missing_second", "missing_ordered_ids", "fail"} {
+	for _, outcome := range []string{"empty", "skipped_parent", "skipped_child", "missing_second", "missing_alias_context", "missing_ordered_ids", "fail"} {
 		t.Run(outcome, func(t *testing.T) {
 			root, _ := loggingFeatureFixture(t)
 			out, err := runFixture(t, root, "./scripts/_515_test_logging_features.sh full", map[string]string{"MOCK_GO_RESULT": outcome})
