@@ -31,8 +31,8 @@ func TestIDPolicyMatchesCommonAndTagSpecificRanges(t *testing.T) {
 
 // TestIDRangesUseTheSameTagRecognitionAsCallsites checks CLI range parsing and
 // source format classification together. Built-in spellings share one range;
-// free labels have independent ranges and an unknown spelling uses the common
-// source range, but is rejected when supplied as a CLI range selector.
+// custom tags also share a range across case variants. A second assignment for
+// the same canonical group is rejected without changing existing ranges.
 func TestIDRangesUseTheSameTagRecognitionAsCallsites(t *testing.T) {
 	for _, tc := range []struct {
 		name, rangeName string
@@ -49,12 +49,11 @@ func TestIDRangesUseTheSameTagRecognitionAsCallsites(t *testing.T) {
 			require.NoError(t, emitter.AddUserLabels())
 			Min, Max = 100, 199
 			IDData.TagList = nil
-			IDRange = ArrayFlag{tc.rangeName + ":10,19", "new:20,29", "NEW:30,39"}
+			IDRange = ArrayFlag{tc.rangeName + ":10,19", "new:20,29"}
 			require.NoError(t, EvaluateIDRangeStrings())
 			assert.Equal(t, []TagEntry{
 				{tagName: "RECEIVE", min: 10, max: 19},
-				{tagName: "new", min: 20, max: 29},
-				{tagName: "NEW", min: 30, max: 39},
+				{tagName: "NEW", min: 20, max: 29},
 			}, IDData.TagList)
 			for _, spelling := range []string{"rx", "RX", "rX", "ReCeIvE"} {
 				format := TriceFmt{Strg: spelling + ":ready"}
@@ -65,13 +64,13 @@ func TestIDRangesUseTheSameTagRecognitionAsCallsites(t *testing.T) {
 			}
 			assert.True(t, IDData.idAllowedForTrice(20, TriceFmt{Strg: "new:ready"}))
 			assert.False(t, IDData.idAllowedForTrice(30, TriceFmt{Strg: "new:ready"}))
-			assert.True(t, IDData.idAllowedForTrice(30, TriceFmt{Strg: "NEW:ready"}))
-			assert.False(t, IDData.idAllowedForTrice(20, TriceFmt{Strg: "NEW:ready"}))
-			assert.True(t, IDData.idAllowedForTrice(100, TriceFmt{Strg: "NeW:ready"}))
-			assert.False(t, IDData.idAllowedForTrice(20, TriceFmt{Strg: "NeW:ready"}))
+			assert.True(t, IDData.idAllowedForTrice(20, TriceFmt{Strg: "NEW:ready"}))
+			assert.False(t, IDData.idAllowedForTrice(30, TriceFmt{Strg: "NEW:ready"}))
+			assert.False(t, IDData.idAllowedForTrice(100, TriceFmt{Strg: "NeW:ready"}))
+			assert.True(t, IDData.idAllowedForTrice(20, TriceFmt{Strg: "NeW:ready"}))
 			for _, invalid := range []struct{ rule, reason string }{
 				{"Rx:40,49", "already an assigned ID range"},
-				{"NeW:40,49", "applied name NeW is unknown"},
+				{"NeW:40,49", "already an assigned ID range"},
 			} {
 				before := append([]TagEntry(nil), IDData.TagList...)
 				IDRange = ArrayFlag{invalid.rule}

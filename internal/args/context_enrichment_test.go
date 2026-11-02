@@ -40,7 +40,7 @@ func TestContextEnrichmentCLI(t *testing.T) {
 	require.NoError(t, fs.WriteFile("til.json", []byte("{}"), 0o644))
 	require.NoError(t, fs.WriteFile("li.json", []byte("{}"), 0o644))
 	options := []string{"bind", "-src", "main.c", "-til", "til.json", "-li", "li.json", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
-	_, err := runContextCLI(t, fs, append(append([]string{}, options...), "-ce", `MOTOR:", x={}", pos.x`, "-ce", `motor:", y={}", pos.y`, "-ulabel", "motor")...)
+	_, err := runContextCLI(t, fs, append(append([]string{}, options...), "-ce", `MOTOR:", x={}", pos.x`, "-ce", `motor:", y={}", pos.y`, "-utag", "motor")...)
 	require.NoError(t, err)
 	content, err := fs.ReadFile("til.json")
 	require.NoError(t, err)
@@ -72,7 +72,7 @@ func TestContextInsertCleanCLI(t *testing.T) {
 	require.NoError(t, fs.WriteFile("til.json", []byte("{}"), 0o644))
 	require.NoError(t, fs.WriteFile("li.json", []byte("{}"), 0o644))
 	rules := []string{"-ce", `motor:", x={}", pos.x`, "-ce", `ctx:", y={}", pos.y`}
-	insert := append([]string{"insert", "-src", "main.c", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-ulabel", "motor"}, rules...)
+	insert := append([]string{"insert", "-src", "main.c", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-utag", "motor"}, rules...)
 	output, err := runContextCLI(t, fs, insert...)
 	require.NoError(t, err, output)
 	inserted, err := fs.ReadFile("main.c")
@@ -104,7 +104,7 @@ func TestContextInsertCleanCLI(t *testing.T) {
 	repeated, err := fs.ReadFile("main.c")
 	require.NoError(t, err)
 	assert.Equal(t, inserted, repeated)
-	clean := append([]string{"clean", "-src", "main.c", "-ulabel", "motor"}, rules...)
+	clean := append([]string{"clean", "-src", "main.c", "-utag", "motor"}, rules...)
 	for repeat := 0; repeat < 2; repeat++ {
 		output, err = runContextCLI(t, fs, clean...)
 		require.NoError(t, err, output)

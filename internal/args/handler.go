@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/kr/pretty"
 	"github.com/rokath/trice/internal/com"
@@ -70,6 +72,10 @@ func withCLIHelp(err error, loggingOnly bool) error {
 // flag package's automatic usage dump. Explicit help prints full usage and stops
 // successfully; errors and unexpected positional arguments stop before any work.
 func parseCommandFlags(w io.Writer, flags *flag.FlagSet, arguments []string) (stop bool, err error) {
+	arguments, err = normalizeCommandArgs(flags, arguments)
+	if err != nil {
+		return true, &cliUsageError{command: flags.Name(), cause: err}
+	}
 	// Help renderers also use these flag sets, so restore their output after parsing.
 	previousOutput := flags.Output()
 	flags.SetOutput(io.Discard)
@@ -87,6 +93,79 @@ func parseCommandFlags(w io.Writer, flags *flag.FlagSet, arguments []string) (st
 		return true, &cliUsageError{command: flags.Name(), cause: fmt.Errorf("unexpected argument %q", flags.Arg(0))}
 	}
 	return false, nil
+}
+
+// optionKey folds multi-character option names only. Values and one-character
+// names are never passed through a blanket argument-vector conversion.
+func optionKey(name string) string {
+	if utf8.RuneCountInString(name) > 1 {
+		return strings.ToLower(name)
+	}
+	return name
+}
+
+// normalizeCommandArgs follows flag.Parse token consumption so a value starting
+// with '-' stays a value. Registered aliases share a deterministic spelling for
+// Visit/Lookup users; ambiguous registrations fail before command side effects.
+func normalizeCommandArgs(flags *flag.FlagSet, arguments []string) ([]string, error) {
+	names := make(map[string]*flag.Flag)
+	var collision error
+	flags.VisitAll(func(f *flag.Flag) {
+		key := optionKey(f.Name)
+		if previous, exists := names[key]; exists {
+			kind := reflect.TypeOf(f.Value)
+			if kind != reflect.TypeOf(previous.Value) || !kind.Comparable() || f.Value != previous.Value || f.DefValue != previous.DefValue {
+				collision = fmt.Errorf("options -%s and -%s conflict when ignoring case", previous.Name, f.Name)
+			}
+			return
+		}
+		names[key] = f
+	})
+	if collision != nil {
+		return nil, collision
+	}
+	out := make([]string, 0, len(arguments))
+	for i := 0; i < len(arguments); i++ {
+		arg := arguments[i]
+		if arg == "--" || !strings.HasPrefix(arg, "-") || arg == "-" {
+			return append(out, arguments[i:]...), nil
+		}
+		dashes := "-"
+		if strings.HasPrefix(arg, "--") {
+			dashes = "--"
+		}
+		name, value, assigned := strings.Cut(arg[len(dashes):], "=")
+		key := optionKey(name)
+		if key == "ulabel" {
+			return nil, errors.New("option -ulabel has been replaced by -utag")
+		}
+		f, exists := names[key]
+		if !exists {
+			// Go's flag package provides implicit help even without a registered flag.
+			if key == "help" {
+				return append(out, append([]string{dashes + "help"}, arguments[i+1:]...)...), nil
+			}
+			return append(out, arguments[i:]...), nil
+		}
+		canonical := dashes + f.Name
+		if assigned {
+			out = append(out, canonical+"="+value)
+			continue
+		}
+		// logC alone is boolean-like but also accepts an optional separate path.
+		if flags.Name() == "generate" && f.Name == "logC" && i+1 < len(arguments) && !strings.HasPrefix(arguments[i+1], "-") {
+			out = append(out, canonical+"="+arguments[i+1])
+			i++
+			continue
+		}
+		out = append(out, canonical)
+		boolean, isBoolean := f.Value.(interface{ IsBoolFlag() bool })
+		if !(isBoolean && boolean.IsBoolFlag()) && i+1 < len(arguments) {
+			i++
+			out = append(out, arguments[i])
+		}
+	}
+	return out, nil
 }
 
 // Handler parses args and executes the selected sub-command.
@@ -115,6 +194,9 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 	// FlagSet.Parse() requires a set of arguments to parse as input.
 	// os.Args[2:] will be all arguments starting after the sub-command at os.Args[1]
 	subCmd := args[1]
+	if strings.EqualFold(subCmd, "-help") || strings.EqualFold(subCmd, "--help") {
+		subCmd = "-help"
+	}
 	subArgs := args[2:]
 	switch subCmd { // Check which sub-command is invoked.
 	default:
@@ -149,7 +231,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
 		return id.SubCmdIdAdd(w, fSys)
 	case "generate":
-		if stop, err := parseCommandFlags(w, fsScGenerate, normalizeGenerateArgs(subArgs)); stop {
+		if stop, err := parseCommandFlags(w, fsScGenerate, subArgs); stop {
 			return err
 		}
 		id.Verbose = Verbose
@@ -169,7 +251,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		id.Verbose = Verbose
 		id.CompactSrcs()
 		id.ProcessAliases()
-		if err := emitter.AddUserLabels(); err != nil {
+		if err := emitter.AddUserTagNames(); err != nil {
 			return &cliUsageError{command: "insert", cause: err}
 		}
 		err := id.EvaluateIDRangeStrings()
@@ -191,7 +273,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		implicitSourceSelection := len(id.Srcs) == 0
 		id.CompactSrcs()
 		id.ProcessAliases()
-		if err := emitter.AddUserLabels(); err != nil {
+		if err := emitter.AddUserTagNames(); err != nil {
 			return &cliUsageError{command: "bind", cause: err}
 		}
 		if err := id.EvaluateIDRangeStrings(); err != nil {
@@ -209,7 +291,7 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) (err error) {
 		}
 		id.CompactSrcs()
 		id.ProcessAliases()
-		if err := emitter.AddUserLabels(); err != nil {
+		if err := emitter.AddUserTagNames(); err != nil {
 			return &cliUsageError{command: "clean", cause: err}
 		}
 		w = do.DistributeArgs(w, fSys, LogfileName, Verbose)
@@ -268,21 +350,8 @@ func handleLog(w io.Writer, fSys *afero.Afero, args []string) error {
 	return runLog(w, fSys, args[1:])
 }
 
-func normalizeGenerateArgs(args []string) []string {
-	out := make([]string, 0, len(args))
-	for i := 0; i < len(args); i++ {
-		if args[i] == "-logC" && i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
-			out = append(out, "-logC="+args[i+1])
-			i++
-			continue
-		}
-		out = append(out, args[i])
-	}
-	return out
-}
-
 func isVersionSwitch(arg string) bool {
-	return arg == "--version" || arg == "-version"
+	return strings.EqualFold(arg, "--version") || strings.EqualFold(arg, "-version")
 }
 
 func versionHandler(w io.Writer, fSys *afero.Afero, subArgs []string) error {
@@ -372,7 +441,7 @@ var startLogLoop = logLoop
 func isLogFlagPassed(name string) bool {
 	found := false
 	fsScLog.Visit(func(f *flag.Flag) {
-		if f.Name == name {
+		if optionKey(f.Name) == optionKey(name) {
 			found = true
 		}
 	})

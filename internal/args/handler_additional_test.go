@@ -10,12 +10,200 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// TestOptionCaseParsing checks the actual flag parser, including value boundaries
+// and canonical explicit-option tracking rather than only rewritten tokens.
+func TestOptionCaseParsing(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		args    []string
+		want    string
+		failure string
+	}{
+		{"mixed separate value", []string{"-VaLuE", "Grüße/Config.C"}, "Grüße/Config.C", ""},
+		{"double dash assignment", []string{"--VALUE=MyExpr(A + B)"}, "MyExpr(A + B)", ""},
+		{"dash value", []string{"-VALUE", "-uLABEL"}, "-uLABEL", ""},
+		{"boundary as consumed value", []string{"-VALUE", "--"}, "--", ""},
+		{"last assignment", []string{"-value=First", "-VaLuE", "Second"}, "Second", ""},
+		{"multiletter abbreviation", []string{"-SA=ExactAlias"}, "ExactAlias", ""},
+		{"boolean switches", []string{"-SWITCH", "-sWiTcH=false"}, "", ""},
+		{"unknown uppercase letter", []string{"-A"}, "", "flag provided but not defined"},
+		{"single letter", []string{"-a=CaseSensitive"}, "CaseSensitive", ""},
+		{"single Unicode letter", []string{"-σ=CaseSensitive"}, "CaseSensitive", ""},
+		{"single Unicode letter remains exact", []string{"-Σ=CaseSensitive"}, "", "flag provided but not defined"},
+		{"old option", []string{"--uLaBeL=Sensor"}, "", "replaced by -utag"},
+		{"end options", []string{"--", "-ULABEL"}, "", "unexpected argument"},
+		{"positional before flags", []string{"source.c", "-VALUE=ignored"}, "", "unexpected argument"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			set := flag.NewFlagSet("fixture", flag.ContinueOnError)
+			var value string
+			var enabled bool
+			set.StringVar(&value, "value", "", "Fixture value")
+			set.StringVar(&value, "sa", "", "Fixture multiletter alias")
+			set.StringVar(&value, "a", "", "Fixture single-letter alias")
+			set.StringVar(&value, "σ", "", "Fixture Unicode single-letter alias")
+			set.BoolVar(&enabled, "switch", false, "Fixture boolean")
+			stop, err := parseCommandFlags(io.Discard, set, tc.args)
+			if tc.failure != "" {
+				require.Error(t, err)
+				assert.True(t, stop)
+				assert.Contains(t, err.Error(), tc.failure)
+				return
+			}
+			require.NoError(t, err)
+			assert.False(t, stop)
+			assert.Equal(t, tc.want, value)
+			assert.False(t, enabled)
+		})
+	}
+}
+
+// TestCommandOptionCollisions checks every production command and rejects
+// differently functioning names that would become ambiguous after folding.
+func TestCommandOptionCollisions(t *testing.T) {
+	FlagsInit()
+	for _, set := range []*flag.FlagSet{fsScHelp, fsScLog, fsScAdd, fsScGenerate, fsScInsert, fsScBind, fsScClean, fsScVersion, fsScSv, fsScScan, fsScSdSv} {
+		_, err := normalizeCommandArgs(set, nil)
+		assert.NoError(t, err, set.Name())
+		if set.Lookup("verbose") != nil {
+			stop, parseErr := parseCommandFlags(io.Discard, set, []string{"--VERBOSE=false"})
+			assert.NoError(t, parseErr, set.Name())
+			assert.False(t, stop, set.Name())
+		}
+	}
+	set := flag.NewFlagSet("fixture", flag.ContinueOnError)
+	set.String("name", "", "First setting")
+	set.String("NAME", "", "Different setting")
+	stop, err := parseCommandFlags(io.Discard, set, []string{"-name=value"})
+	require.Error(t, err)
+	assert.True(t, stop)
+	assert.Contains(t, err.Error(), "conflict when ignoring case")
+}
+
+// TestLogOptionCaseEntryPoints proves shared CLI behavior before input opens,
+// including explicit timestamp flags, tag registration and pick/ban conflicts.
+func TestLogOptionCaseEntryPoints(t *testing.T) {
+	originalStart := startLogLoop
+	t.Cleanup(func() { startLogLoop = originalStart; FlagsInit() })
+	for _, loggingOnly := range []bool{false, true} {
+		FlagsInit()
+		started := false
+		startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
+		fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+		run := func(arguments ...string) error {
+			if loggingOnly {
+				return LogHandler(io.Discard, fs, append([]string{"tlog"}, arguments...))
+			}
+			return Handler(io.Discard, fs, append([]string{"trice", "log"}, arguments...))
+		}
+		require.NoError(t, run("-LOGFORMAT=json", "-TS32=ms", "-TS=off", "-uTag", "Sensor:650", "-PICK", "sENSOR", "-LOGLEVEL", "SENSOR"))
+		assert.True(t, started)
+		assert.Equal(t, "json", decoder.LogFormat)
+		assert.True(t, decoder.ShowTargetStamp32Passed)
+		assert.True(t, decoder.TargetTimeStampUnitPassed)
+		assert.True(t, emitter.ApplicationEventAllowed("Sensor"))
+		FlagsInit()
+		started = false
+		err := run("-PiCk", "err", "-BAN", "wrn")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "cannot be used together")
+		assert.False(t, started)
+		for _, removed := range []string{"-ulabel", "-uLabel=Sensor", "--ULABEL=Sensor"} {
+			FlagsInit()
+			started = false
+			err = run(removed, "Sensor")
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "replaced by -utag")
+			assert.False(t, started)
+		}
+	}
+}
+
+// TestRootOptionCase preserves exact subcommands and short names while implicit
+// help and version options use the same long-name policy as ordinary flags.
+func TestRootOptionCase(t *testing.T) {
+	for _, tc := range []struct {
+		args    []string
+		failure bool
+	}{
+		{[]string{"trice", "--HELP"}, false},
+		{[]string{"trice", "log", "--HELP"}, false},
+		{[]string{"trice", "--VERSION"}, false},
+		{[]string{"tlog", "--HELP"}, false},
+		{[]string{"tlog", "--VERSION"}, false},
+		{[]string{"trice", "LOG"}, true},
+		{[]string{"trice", "HELP"}, true},
+		{[]string{"trice", "-H"}, true},
+		{[]string{"tlog", "-V"}, true},
+	} {
+		t.Run(strings.Join(tc.args, " "), func(t *testing.T) {
+			FlagsInit()
+			var output bytes.Buffer
+			fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+			var err error
+			if tc.args[0] == "tlog" {
+				err = LogHandler(&output, fs, tc.args)
+			} else {
+				err = Handler(&output, fs, tc.args)
+			}
+			if tc.failure {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, output.String())
+			}
+		})
+	}
+}
+
+// TestGenerateOptionalPathCase checks both optional forms and ensures logC-like
+// text consumed by another option is never reinterpreted as a generation flag.
+func TestGenerateOptionalPathCase(t *testing.T) {
+	for _, arguments := range [][]string{{"-LOGC"}, {"--logc=Grüße/Log.C"}, {"-LoGc", "Grüße/Log.C"}, {"-src", "-LOGC"}} {
+		FlagsInit()
+		stop, err := parseCommandFlags(io.Discard, fsScGenerate, arguments)
+		require.NoError(t, err)
+		assert.False(t, stop)
+		if arguments[0] == "-src" {
+			assert.False(t, id.GenerateLogC)
+			assert.Contains(t, id.Srcs, "-LOGC")
+		} else {
+			assert.True(t, id.GenerateLogC)
+			if len(arguments) > 1 || strings.Contains(arguments[0], "=") {
+				assert.Equal(t, "Grüße/Log.C", id.GenerateLogCPath)
+			}
+		}
+	}
+}
+
+// TestBuildUserTagsRejectMetadataBeforeWrites checks all mutating entry points
+// with a real source file; invalid host policy must leave source and TIL intact.
+func TestBuildUserTagsRejectMetadataBeforeWrites(t *testing.T) {
+	for _, command := range []string{"bind", "insert", "clean"} {
+		for _, value := range []string{"sensor:650", "sensor:red:blue"} {
+			FlagsInit()
+			fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+			require.NoError(t, fs.WriteFile("main.c", []byte("trice(\"sensor:ready\");\n"), 0644))
+			err := Handler(io.Discard, fs, []string{"trice", command, "-SRC", "main.c", "-UTAG", value})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "tag names only")
+			content, readErr := fs.ReadFile("main.c")
+			require.NoError(t, readErr)
+			assert.Equal(t, "trice(\"sensor:ready\");\n", string(content))
+			exists, statErr := fs.Exists("til.json")
+			require.NoError(t, statErr)
+			assert.False(t, exists)
+		}
+	}
+}
 
 type versionState struct {
 	Version   string
@@ -221,16 +409,16 @@ func TestLogEntryPointsResolveUserSelectorsAfterRegistration(t *testing.T) {
 		run  func([]string) error
 		pick bool
 	}{
-		{name: "trice pick before label", args: []string{"-pick", "motor", "-ulabel", "motor"}, run: func(args []string) error {
+		{name: "trice pick before label", args: []string{"-pick", "motor", "-utag", "motor"}, run: func(args []string) error {
 			return Handler(io.Discard, fSys, append([]string{"trice", "log"}, args...))
 		}, pick: true},
-		{name: "tlog label before pick", args: []string{"-ulabel", "motor", "-pick", "motor"}, run: func(args []string) error {
+		{name: "tlog label before pick", args: []string{"-utag", "motor", "-pick", "motor"}, run: func(args []string) error {
 			return LogHandler(io.Discard, fSys, append([]string{"tlog"}, args...))
 		}, pick: true},
-		{name: "trice ban before label", args: []string{"-ban", "motor", "-ulabel", "motor"}, run: func(args []string) error {
+		{name: "trice ban before label", args: []string{"-ban", "motor", "-utag", "motor"}, run: func(args []string) error {
 			return Handler(io.Discard, fSys, append([]string{"trice", "log"}, args...))
 		}},
-		{name: "tlog label before ban", args: []string{"-ulabel", "motor", "-ban", "motor"}, run: func(args []string) error {
+		{name: "tlog label before ban", args: []string{"-utag", "motor", "-ban", "motor"}, run: func(args []string) error {
 			return LogHandler(io.Discard, fSys, append([]string{"tlog"}, args...))
 		}},
 	}
@@ -244,10 +432,10 @@ func TestLogEntryPointsResolveUserSelectorsAfterRegistration(t *testing.T) {
 			require.NoError(t, tt.run(tt.args))
 			assert.True(t, started)
 			if tt.pick {
-				assert.Contains(t, emitter.Pick, "motor")
+				assert.Contains(t, emitter.Pick, "MOTOR")
 				assert.Nil(t, emitter.Ban)
 			} else {
-				assert.Contains(t, emitter.Ban, "motor")
+				assert.Contains(t, emitter.Ban, "MOTOR")
 				assert.Nil(t, emitter.Pick)
 			}
 		})
@@ -299,9 +487,6 @@ func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
 		{name: "lowercase excessive weight", args: []string{"-loglevel", "1000"}, contains: "range 0..999"},
 		{name: "lowercase fractional weight", args: []string{"-loglevel", "1.5"}, contains: "numeric weight"},
 		{name: "lowercase empty value", args: []string{"-loglevel", ""}, contains: "level is empty"},
-		{name: "custom pick does not ignore case", args: []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-pick", "NeW"}, contains: "unknown tag"},
-		{name: "custom ban does not ignore case", args: []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-ban", "NeW"}, contains: "unknown tag"},
-		{name: "custom threshold does not ignore case", args: []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-loglevel", "NeW"}, contains: "unknown tag"},
 	}
 
 	for _, entryPoint := range entryPoints {
@@ -352,17 +537,20 @@ func TestLogLevelSpellingsShareThresholdAndCommandIsolation(t *testing.T) {
 			{"lowercase tag alias", []string{"-loglevel", "wrn"}, "wrn"},
 			{"lowercase category alias", []string{"-loglevel", "rx"}, "rx"},
 			{"mixed-case category alias", []string{"-loglevel", "rX"}, "rX"},
-			{"mixed-case override and selectors", []string{"-ulabel", "rX:750", "-pick", "ReCeIvE", "-loglevel", "Rx"}, "Rx"},
+			{"mixed-case override and selectors", []string{"-utag", "rX:750", "-pick", "ReCeIvE", "-loglevel", "Rx"}, "Rx"},
 			{"mixed-case ban", []string{"-ban", "rX"}, "all"},
 			{"numeric ban without a matching tag", []string{"-ban", "200"}, "all"},
 			{"numeric pick without a matching tag", []string{"-pick", "200"}, "all"},
 			{"minimum numeric pick", []string{"-pick", "0"}, "all"},
 			{"maximum numeric ban", []string{"-ban", "999"}, "all"},
 			{"repeated names and weights", []string{"-pick", "err", "-pick", "200", "-pick", "wrn"}, "all"},
-			{"numeric selection and override in either order", []string{"-ban", "200", "-ulabel", "sensor:200"}, "all"},
-			{"explicit single-letter user label", []string{"-ulabel", "x:200", "-pick", "x", "-loglevel", "x"}, "x"},
-			{"lowercase user label", []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-pick", "new", "-loglevel", "new"}, "new"},
-			{"uppercase user label", []string{"-ulabel", "new:300", "-ulabel", "NEW:650", "-pick", "NEW", "-loglevel", "NEW"}, "NEW"},
+			{"numeric selection and override in either order", []string{"-ban", "200", "-utag", "sensor:200"}, "all"},
+			{"explicit single-letter user label", []string{"-utag", "x:200", "-pick", "x", "-loglevel", "x"}, "x"},
+			{"lowercase user label", []string{"-utag", "new:300", "-utag", "NEW:650", "-pick", "new", "-loglevel", "new"}, "new"},
+			{"uppercase user label", []string{"-utag", "new:300", "-utag", "NEW:650", "-pick", "NEW", "-loglevel", "NEW"}, "NEW"},
+			{"mixed-case custom pick", []string{"-utag", "new:300", "-utag", "NEW:650", "-pick", "NeW"}, "all"},
+			{"mixed-case custom ban", []string{"-utag", "new:300", "-utag", "NEW:650", "-ban", "NeW"}, "all"},
+			{"mixed-case custom threshold", []string{"-utag", "new:300", "-utag", "NEW:650", "-loglevel", "NeW"}, "NeW"},
 			{"lowercase all", []string{"-loglevel", "all"}, "all"},
 			{"lowercase off", []string{"-loglevel", "off"}, "off"},
 			{"last lowercase assignment wins", []string{"-logLevel", "600", "-loglevel", "700"}, "700"},
@@ -668,12 +856,15 @@ func TestHandlerBindReportRejectsOtherModes(t *testing.T) {
 	}
 }
 
-// TestNormalizeGenerateLogCPath verifies both documented optional-path forms
-// without retaining the removed -tilC compatibility spelling.
-func TestNormalizeGenerateLogCPath(t *testing.T) {
-	assert.Equal(t, []string{"-logC=build/til.c", "-src", "src"}, normalizeGenerateArgs([]string{"-logC", "build/til.c", "-src", "src"}))
-	assert.Equal(t, []string{"-logC=build/til.c"}, normalizeGenerateArgs([]string{"-logC=build/til.c"}))
-	assert.Equal(t, []string{"-tilC", "old.c"}, normalizeGenerateArgs([]string{"-tilC", "old.c"}))
+// TestGenerateRejectsRemovedTilC keeps the obsolete optional-path name rejected
+// even though current generation option names now accept case variants.
+func TestGenerateRejectsRemovedTilC(t *testing.T) {
+	FlagsInit()
+	t.Cleanup(FlagsInit)
+	stop, err := parseCommandFlags(io.Discard, fsScGenerate, []string{"-tilC", "old.c"})
+	require.Error(t, err)
+	assert.True(t, stop)
+	assert.Contains(t, err.Error(), "flag provided but not defined")
 }
 
 // TestGeneratedDirectoryFlagsUseOneDefault ensures every ID-producing command

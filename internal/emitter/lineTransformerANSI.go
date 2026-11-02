@@ -21,7 +21,7 @@ const (
 	untaggedTag  = "untagged"
 )
 
-// userLabelSpec keeps independently supplied metadata for one -ulabel value.
+// userLabelSpec keeps independently supplied metadata for one -utag value.
 type userLabelSpec struct {
 	name      string
 	weight    int
@@ -30,11 +30,11 @@ type userLabelSpec struct {
 	hasColor  bool
 }
 
-// AddUserLabels rebuilds the per-command tag registry and applies all -ulabel
+// AddUserLabels rebuilds the per-command tag registry and applies all -utag
 // specifications atomically. Unweighted new labels inherit the final INFO weight.
 func AddUserLabels() error {
 	tags := copyTagRegistry(defaultTags)
-	// Apply the selected palette before explicit -ulabel overrides.
+	// Apply the selected palette before explicit -utag overrides.
 	for i := range tags {
 		if style := tagColorStyle(tags[i].Names[0], ColorPalette); style != "" {
 			tags[i].colorize = ansi.ColorFunc(style)
@@ -48,10 +48,17 @@ func AddUserLabels() error {
 	for _, specification := range UserLabel {
 		parsed, err := parseUserLabel(specification)
 		if err != nil {
-			return fmt.Errorf("invalid -ulabel %q: %w", specification, err)
+			return fmt.Errorf("invalid -utag %q: %w", specification, err)
 		}
 
-		if i := tagIndex(tags, parsed.name); i >= 0 {
+		key := strings.ToUpper(parsed.name)
+		index := tagIndex(tags, parsed.name)
+		// A canonical spelling must not create a duplicate of an internal
+		// diagnostic group, whose runtime recognition remains case-sensitive.
+		if index < 0 {
+			index = tagIndex(tags, key)
+		}
+		if i := index; i >= 0 {
 			if parsed.hasWeight {
 				tags[i].weight = parsed.weight
 			}
@@ -61,9 +68,11 @@ func AddUserLabels() error {
 			}
 			continue
 		}
-		newTag, wasPending := pending[parsed.name]
+		// Canonical pending keys also merge case variants before a group gets
+		// its final INFO default; published custom groups use the same lookup.
+		newTag, wasPending := pending[key]
 		if !wasPending {
-			newTag = tag{Names: []string{parsed.name}, colorize: colorizeUSER}
+			newTag = tag{Names: []string{key}, caseInsensitive: true, colorize: colorizeUSER}
 		}
 		if parsed.hasColor {
 			newTag.colorize = ansi.ColorFunc(parsed.color)
@@ -72,12 +81,12 @@ func AddUserLabels() error {
 		if parsed.hasWeight {
 			newTag.weight = parsed.weight
 			tags = append(tags, newTag)
-			delete(pending, parsed.name)
+			delete(pending, key)
 			continue
 		}
-		pending[parsed.name] = newTag
+		pending[key] = newTag
 		if !wasPending {
-			pendingOrder = append(pendingOrder, parsed.name)
+			pendingOrder = append(pendingOrder, key)
 		}
 	}
 
@@ -98,6 +107,17 @@ func AddUserLabels() error {
 	return nil
 }
 
+// AddUserTagNames validates the build-command subset before publishing a new
+// registry. Weights and colors are logging policy, not source-processing input.
+func AddUserTagNames() error {
+	for _, specification := range UserLabel {
+		if strings.Contains(specification, ":") {
+			return fmt.Errorf("invalid -utag %q: build commands accept tag names only; set weights and colors when logging", specification)
+		}
+	}
+	return AddUserLabels()
+}
+
 // parseUserLabel validates one name, name:weight, or name:generated-color value
 // without changing the current registry.
 func parseUserLabel(specification string) (parsed userLabelSpec, err error) {
@@ -106,7 +126,7 @@ func parseUserLabel(specification string) (parsed userLabelSpec, err error) {
 	if name == "" {
 		return parsed, errors.New("tag name is empty")
 	}
-	if name == "all" || name == "off" || isDecimal(name) {
+	if strings.EqualFold(name, "all") || strings.EqualFold(name, "off") || isDecimal(name) {
 		return parsed, fmt.Errorf("tag name %q is reserved", name)
 	}
 	if !hasValue {
@@ -332,9 +352,9 @@ type tag struct {
 	count           int                 // count records successfully decoded application events in this tag group.
 	weight          int                 // weight is the group priority and is independent of table order and color.
 	Names           []string            // Names contains all aliases for one tag.
-	caseInsensitive bool                // caseInsensitive recognizes built-in application aliases regardless of spelling.
+	caseInsensitive bool                // caseInsensitive recognizes application tags regardless of spelling.
 	colorize        func(string) string // colorize is the function called for each tag.
-	colorOverridden bool                // colorOverridden marks an explicit -ulabel color for presentation without a visible tag.
+	colorOverridden bool                // colorOverridden marks an explicit -utag color for presentation without a visible tag.
 }
 
 // defaultTags contains the immutable built-in tag definitions used to start
@@ -404,8 +424,8 @@ func copyTagRegistry(src []tag) []tag {
 }
 
 // tagIndex applies one recognition rule to metadata, weights, selectors and
-// presentation. Built-in aliases ignore case; user labels remain literal so
-// independently registered labels such as new and NEW cannot merge.
+// presentation. Built-in and custom application aliases ignore case while
+// internal diagnostic groups retain their existing recognition policy.
 func tagIndex(tags []tag, name string) int {
 	for i, group := range tags {
 		for _, alias := range group.Names {
@@ -429,7 +449,7 @@ var Tags = copyTagRegistry(defaultTags)
 
 // levelTags selects the canonical tags that define numeric level boundaries.
 // Their immutable defaultTags weights apply to every command; changing a tag's
-// effective weight with -ulabel never moves boundaries for other events.
+// effective weight with -utag never moves boundaries for other events.
 var levelTags = []string{"FATAL", "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "TRACE", "VERBOSE"}
 
 // TagLevel derives structured severity from the current weight of a canonical
@@ -475,8 +495,8 @@ func UntaggedColorOverridden() bool {
 }
 
 // FindTagNameFold resolves all registered aliases without regard to case for
-// Context Enrichment selectors, whose separate matching contract ignores case
-// even for free selectors. Logging uses FindTagName to keep user tags literal.
+// Context Enrichment selectors, whose matching also ignores case for free
+// selectors. Registered application tags use the same policy when logging.
 func FindTagNameFold(name string) (string, error) {
 	for _, t := range Tags {
 		for _, alias := range t.Names {

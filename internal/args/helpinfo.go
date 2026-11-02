@@ -56,7 +56,8 @@ func helpInfo(w io.Writer) error {
 #	"trice h" will print this help text as a whole.
 #	Example 'trice h': Print short help.
 #	Example 'trice h -all': Print all help.
-#	Example 'trice h -log': Print log help.`)
+#	Example 'trice h -log': Print log help.
+Option names with more than one character ignore case; one-character names remain case-sensitive. Subcommands keep their exact spelling. Values retain their own rules; registered tag names ignore case. Use -utag to register tags.`)
 	fsScHelp.SetOutput(w)
 	fsScHelp.PrintDefaults()
 	return e
@@ -66,7 +67,8 @@ func logInfo(w io.Writer) error {
 	_, e := fmt.Fprintln(w, `sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
 #	Example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
 #	Example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
-#	Example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.`)
+#	Example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
+Option names with more than one character ignore case; one-character names remain case-sensitive. Values retain their own rules; registered tag names ignore case. Use -utag to register tags.`)
 	fsScLog.SetOutput(w)
 	fsScLog.PrintDefaults()
 	return e

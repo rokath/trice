@@ -37,6 +37,20 @@ func normalizeGeneratedHelpWhitespace(s string) string {
 	for old, newText := range replacements {
 		s = strings.ReplaceAll(s, old, newText)
 	}
+	// Normalize the updated option descriptions without reformatting unrelated
+	// historical help blocks in the generated reference file.
+	lines := strings.Split(s, "\n")
+	updatedOption := false
+	for i, line := range lines {
+		if strings.HasPrefix(line, "  -") {
+			name := strings.Fields(line)[0]
+			updatedOption = name == "-ban" || name == "-pick" || name == "-logLevel" || name == "-utag"
+		}
+		if updatedOption && strings.HasPrefix(line, "    \t") {
+			lines[i] = "        " + strings.TrimPrefix(line, "    \t")
+		}
+	}
+	s = strings.Join(lines, "\n")
 	const generateHeading = "sub-command 'g|gen|generate':"
 	const nextHeading = "sub-command 's|scan':"
 	if start := strings.Index(s, generateHeading); start >= 0 {
