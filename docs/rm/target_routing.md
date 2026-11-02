@@ -17,7 +17,7 @@ Target routing selects output channels on the firmware side. Host switches `-log
 
 ## 1. <a id="id-routing"></a>ID Routing
 
-With `trice bind`, `-IDRange tag:min,max` assigns a range to a complete [tag group](tags_color_and_weights.md). The same option exists for legacy Insert. Register a free tag with `-ulabel` first; option order does not matter. Groups without a specific range use `-IDMin` through `-IDMax`.
+With `trice bind`, `-IDRange tag:min,max` assigns a range to a complete [tag group](tags_color_and_weights.md). The same option exists for legacy Insert. Register a free tag with `-utag` first; option order does not matter. Groups without a specific range use `-IDMin` through `-IDMax`.
 
 Tag-specific ranges include both endpoints and must satisfy `1 <= min <= max <= 16383`. They must not overlap the general range or any other tag range. A shared endpoint is an overlap; adjacent disjoint ranges and a range containing one ID are valid. Two aliases of the same group cannot define two separate ranges. Missing parts, malformed numbers, unknown tags, reversed bounds, and out-of-range values are rejected before source, dictionary, or bind-artifact changes. All supplied rules are validated together.
 
@@ -35,9 +35,9 @@ Active deferred ID selection requires `TRICE_DEFERRED_TRANSFER_MODE` to be `TRIC
 
 ## 2. <a id="possibility-to-create-new-tags-without-modifying-trice-tool-source"></a>Possibility to create new tags without modifying trice tool source
 
-According to the demand in [541](https://github.com/rokath/trice/issues/541) a CLI switch `-ulabel` exists now.
+According to the demand in [541](https://github.com/rokath/trice/issues/541) a CLI switch `-utag` exists now.
 
-Use `-ulabel` for additional user labels. Try this example in an empty folder:
+Use `-utag` for additional user labels. Try this example in an empty folder:
 
 * File *main.c*:
 
@@ -56,7 +56,7 @@ int main(void){
 
 ```bash
 touch til.json li.json
-trice bind -src main.c -genDir build/sidecars -IDMin 1004 -IDMax 6999 -IDRange wife:16000,16009 -IDRange man:1000,1003 -ulabel man -ulabel wife
+trice bind -src main.c -genDir build/sidecars -IDMin 1004 -IDMax 6999 -IDRange wife:16000,16009 -IDRange man:1000,1003 -utag man -utag wife
 ```
 
 Bind adds its managed include to `main.c`; the calls stay ID-free. Add `build/sidecars` to the compiler include path. Example assignments are `msg → 5778`, `man → 1002`, `wife → 16004`, `any → 2184`; the actual random choices may differ. These assignments alone do not enable a target output filter: configure the output's ID bounds separately as described above.

@@ -126,7 +126,7 @@ A tag is the prefix before the first colon, for example `info:` or `wrn:`. Try t
 ./show_text.sh -pick info
 ./show_json.sh -logLevel wrn
 ./show_json.sh -loglevel 600
-./show_json.sh -ulabel sensor:650 -logLevel wrn
+./show_json.sh -utag sensor:650 -logLevel wrn
 ```
 
 The first shows INFO events only. The second selects Warning and higher-priority events, including `Retry 2`; the third uses the equivalent lowercase option spelling and numeric Warning threshold. The fourth raises this tour's custom `sensor` tag above the Warning threshold, so `Humidity 55 percent` also appears. This is useful when you want all serious messages rather than a list of individual tags. Higher weights mean higher priority; a lower threshold admits more events.
@@ -135,11 +135,13 @@ The first shows INFO events only. The second selects Warning and higher-priority
 
 Repeat `-pick` or `-ban` for several selectors: `./show_json.sh -pick info -pick wrn` displays either group. A number selects an exact weight: `-ban 450` hides this tour's sensor events, while `-pick 450` displays only events at weight 450. In comparison, `-loglevel 450` displays weights 450 and above. Colon-separated lists and weight ranges are rejected; use one selector per option.
 
-JSON and KV derive `level` from the effective weight while keeping `tag` as the category. Here, `sensor` normally has weight 450 and appears as `tag=sensor level=DEBUG`. With `-ulabel sensor:650`, it becomes `tag=sensor level=WARNING`; its message and fields stay the same. RECEIVE normally has level DEBUG, and `untagged` has level INFO. The eight [level intervals](rm/structured_logging.md#json-and-kv-contract) stay fixed when tag weights are overridden.
+JSON and KV derive `level` from the effective weight while keeping `tag` as the category. Here, `sensor` normally has weight 450 and appears as `tag=SENSOR level=DEBUG`. With `-utag sensor:650`, it becomes `tag=SENSOR level=WARNING`; its message and fields stay the same. RECEIVE normally has level DEBUG, and `untagged` has level INFO. The eight [level intervals](rm/structured_logging.md#json-and-kv-contract) stay fixed when tag weights are overridden.
 
-Built-in tag names and aliases ignore case: `rx`, `RX` and `rX` all identify RECEIVE for selection, weights, colors, statistics and structured output. Lowercase tags normally disappear from the displayed message; mixed/uppercase ones remain visible, so `rX:payload` keeps its prefix. Free user tags match exactly: `new` and `NEW` can have separate weights; an unregistered spelling `NeW` is classified as `untagged`. A message without a recognized tag remains as written: `untagged` is classification metadata, not a prefix the tool invents in its message. Details: [tags, weights and selection](rm/tags_color_and_weights.md).
+Built-in and registered user tag names ignore case: `rx`, `RX` and `rX` identify RECEIVE, while registered `sensor`, `Sensor` and `SENSOR` identify one custom group SENSOR. They share selection, weights, colors, statistics and structured output. Lowercase tags normally disappear from the displayed message; mixed/uppercase ones remain visible, so `rX:payload` keeps its prefix. A message without a recognized tag remains as written: `untagged` is classification metadata, not a prefix the tool invents in its message. Details: [tags, weights and selection](rm/tags_color_and_weights.md).
 
-Built-in aliases have at least two letters, for example `err`, `inf`, `msg`, `wrn`, `dbg`, `rx` and `tx`. Former one-letter aliases such as `e` are no longer recognized: `e:problem` remains visible and is classified as `untagged`. You can still explicitly register a one-letter user tag with `-ulabel x:200`.
+Built-in aliases have at least two letters, for example `err`, `inf`, `msg`, `wrn`, `dbg`, `rx` and `tx`. Former one-letter aliases such as `e` are no longer recognized: `e:problem` remains visible and is classified as `untagged`. You can still explicitly register a one-letter user tag with `-utag x:200`; both `x` and `X` then identify X.
+
+Multi-character option names ignore case, while one-character names and subcommands retain their exact spelling. `-utag` replaces the removed `-ulabel` name. See the [CLI rules](rm/cli.md#common-information), including the name-only form of `-utag` for build commands.
 
 ### 3.3. <a id="read-target-stamps"></a>Read target stamps
 

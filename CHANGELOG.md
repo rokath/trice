@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Multi-character [CLI option names](docs/rm/cli.md#common-information) ignore case; one-character names remain case-sensitive. `-utag` replaces `-ulabel`; build commands accept tag names only, while logging also accepts weights and colors.
+- [Custom tag names](docs/rm/tags_color_and_weights.md#user-defined-tags-weights-and-colors) now ignore case and use uppercase metadata. Previously separate groups such as `new` and `NEW` merge; review configurations that relied on the distinction.
+
 ## v2.0.0-beta-3 (unreleased)
 
 This third v2 beta improves logging diagnostics, example builds, performance measurements and developer test preparation.

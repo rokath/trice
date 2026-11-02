@@ -132,11 +132,11 @@ Both calls receive the extension; `WARNING:` or `wrn:` retains its original spel
 
 - Only configured selectors trigger CE. Without a matching rule, a prefix has no CE effect.
 - A custom, entirely lowercase selector is removed from the final template when its rule is applied, but retained in the source. `pos:` disappears from output; `PoS:` and `POS:` remain visible and trigger the same rule.
-- Registered Trice tags and `-ulabel` names retain their prefixes in the final template. Normal rules apply to tag metadata and display: for example, `-color off` preserves `info:`; CE does not remove this known tag.
+- Registered Trice tags and `-utag` names retain their prefixes in the final template. Normal rules apply to tag metadata and display: for example, `-color off` preserves `info:`; CE does not remove this known tag.
 - Different selectors act in source order. Multiple rules for the same selector act in CLI order.
 - If a selector occurs more than once at a site, including through an alias, its rule group is applied only once. During extension, the tool emits a warning for that site.
 
-Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-ulabel` and `-ce` have separate purposes.
+Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-utag` and `-ce` have separate purposes.
 
 
 

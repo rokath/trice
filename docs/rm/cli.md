@@ -44,6 +44,12 @@ Invalid command-line arguments print the error and one help hint on stderr, then
 
 Request detailed help explicitly with `trice help -bind`, `trice bind -h`, or `tlog help`. Help requests exit successfully; `trice help -all` lists all command options.
 
+Option names with more than one character ignore case: `-logFormat` and `-LOGFORMAT`, `-IDRange` and `-idrange`, or `-sa` and `-SA` are equivalent. One-character names remain case-sensitive: `-a` and `-A` are different, and an unregistered name is an error. Subcommands retain their exact spelling.
+
+Both `-name value` and `-name=value` work, including the existing double-dash forms. Values are not lowercased: paths, C identifiers, expressions and format strings retain their spelling. Tag names use their own [case-insensitive recognition](tags_color_and_weights.md#user-defined-tags-weights-and-colors). A value consumed by an option may start with `-`; `--` otherwise ends option parsing. For an optional `generate -logC` path starting with `-`, use `-logC=path`.
+
+Register user tags with `-utag` (also `-uTag` or `-UTAG`). The old `-ulabel` name is rejected with a replacement hint. `bind`, `insert` and `clean` accept names only; `log` and `tlog` also accept weights and colors. See [user-defined tags](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
+
 ## 2. <a id="automatic-dictionary-reload"></a>Automatic dictionary reload
 
 Making it facile for a user to use Trice was the driving point just to have

@@ -1,21 +1,29 @@
 # Alias Tags und Context Enrichment für v2.0.0
 
-Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die Feature-Implementierung beginnt erst nach einem gesonderten Startsignal. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
+Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die CLI- und Tag-Grundlagen aus #768 sind auf ausdrücklichen Auftrag umgesetzt; die Alias- und CE-Integration aus #761 und #769 benötigt jeweils einen eigenen Auftrag. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
 
-Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den vorgesehenen RM-Erklärungen. Es beschreibt das Zielverhalten, keine bereits fertiggestellte Implementierung.
+Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den vorgesehenen RM-Erklärungen. Es unterscheidet den umgesetzten Stand von #768 vom verbleibenden Zielverhalten.
 
 ## Entwicklungsaufgaben und Reihenfolge
 
 | Reihenfolge | Issue | Ergebnis |
 |---|---|---|
 | Abgeschlossen | #767 — Review alias integration and CE fallback warnings before implementation | Warnungsfälle und Aufrufer geprüft; kanonische Tag-Ausgabe und Vis-Auswahl entschieden; Sollfälle den Folgeissues zugeordnet. |
-| Danach | #768 — Unify CLI option and tag name case rules and replace -ulabel with -utag | Optionsnamen-Regeln, kommandospezifisches `-utag` und gemeinsame schreibungsunabhängige Tag-Identität umsetzen. |
+| Umgesetzt | #768 — Unify CLI option and tag name case rules and replace -ulabel with -utag | Optionsnamen-Regeln, kommandospezifisches `-utag` und gemeinsame schreibungsunabhängige Tag-Identität einschließlich kanonischer Großschreibung implementiert. |
 | Danach | #761 — Preserve alias identity and resolve tags consistently across build and logging | Aliasregistrierung, TIL-Identität, gemeinsame Tag-Auflösung und Host-Verarbeitung umsetzen. |
 | Abschließend | #769 — Integrate alias tags with bounded context enrichment | Skalare Alias-CE und festen Text für natives `triceS` integrieren, Verarbeitungspfade prüfen und RM, Beispiele und CLI-Hilfe vervollständigen. |
 
 Diese Staffelung trennt überschaubare Änderungen. Veröffentlicht wird eine gemeinsame Alias-Semantik für v2.0.0. Zwischenstände mit unterschiedlichen öffentlichen Tag-Regeln sind kein eigenes Releaseziel. Die Vorprüfung benötigt weder einen Prototyp noch eine neue Speicher-Machbarkeitsstudie. Neu entdeckte wesentliche Verhaltensfragen werden vor der betreffenden Implementierung ausdrücklich geklärt.
 
-Die Vorprüfung wurde auf ausdrücklichen Auftrag durchgeführt. Ihr Abschluss ist noch keine Freigabe für die Feature-Implementierung in #768, #761 oder #769.
+Die Vorprüfung und die Umsetzung von #768 wurden jeweils ausdrücklich beauftragt. #761 und #769 sind noch nicht implementiert.
+
+## Implementierungsstand von Issue #768
+
+Die gemeinsame CLI-Verarbeitung normalisiert nur echte Optionsnamen. Einbuchstabige Namen, Unterkommandos und verbrauchte Optionswerte bleiben unverändert. Mehrbuchstabige Namen einschließlich `-SA`, explizit gesetzte Stempel-/Filteroptionen und die optionalen `generate -logC`-Pfadformen sind berücksichtigt. Verschiedene Einstellungen mit kollidierenden Optionsnamen werden abgewiesen.
+
+`-utag` ersetzt `-ulabel` einschließlich einer Fehlermeldung für alte Schreibweisen. Bind, Insert und Clean akzeptieren ausschließlich Namen und weisen Gewichte/Farben vor Änderungen ab. Die Tag-Registry führt bereits veröffentlichte und noch ungewichtete Case-Varianten zusammen, verwendet SENSOR/X als kanonische Custom-Metadaten und erhält die Präfixschreibweise für die Darstellung. CLI-Hilfe, aktive RM-Beispiele und aufrufende Beispiel-/Releaseprüfungen sind angepasst.
+
+Die Go-Tests für `internal/args`, `internal/emitter` und `internal/translator` bestehen. Die betroffenen ID-Bereichs-/CE-Tests und die Skript-Fixtures für LabPlot und Release-Featureausgaben bestehen ebenfalls. ShellCheck, Shellformat, JavaScript-Syntax und Dokumentlinks sind geprüft. Ein Gesamtlauf, reale Firmware-Builds und native Linux-/Windows-Abnahmen wurden nicht ausgeführt. Alias-Registrierung mit `Name:Tag`, gespeicherte Aliasidentität, die geänderte Vis-Auswahl und CE-Fallback-Warnungen verbleiben bei #761/#769.
 
 ## Aliasarten und Registrierung
 
