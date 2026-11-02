@@ -1,8 +1,8 @@
 # Alias Tags und Context Enrichment für v2.0.0
 
-Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die CLI- und Tag-Grundlagen aus #768 sind auf ausdrücklichen Auftrag umgesetzt; die Alias- und CE-Integration aus #761 und #769 benötigt jeweils einen eigenen Auftrag. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
+Die nachfolgende Bedienung und alle Suchwort- und Ausschlusslisten einschließlich `trial` sind akzeptiert. Die CLI- und Tag-Grundlagen aus #768 sowie die Aliasidentität und Host-Verarbeitung aus #761 sind auf ausdrücklichen Auftrag umgesetzt. Die CE-Integration aus #769 benötigt noch einen eigenen Auftrag. Der seltene CE-Fallback-Sonderfall wird mit Warnung und Workarounds akzeptiert, fester CE-Text für `-salias` wird zurückgestellt, und eigene Tags werden wie Built-ins ohne Beachtung der Groß-/Kleinschreibung behandelt. Die begrenzte Integrationsprüfung zu Issue #767 ist abgeschlossen; ihre Ergebnisse und die zugeordneten Folgearbeiten stehen unten.
 
-Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den vorgesehenen RM-Erklärungen. Es unterscheidet den umgesetzten Stand von #768 vom verbleibenden Zielverhalten.
+Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englische Entwicklungsdokumentation im Meilenstein „Version 2.0.0“. Dieses deutsche Papier verbindet die Reviewgrundlage mit den RM-Erklärungen. Es unterscheidet den umgesetzten Stand von #768/#761 vom verbleibenden CE-Zielverhalten.
 
 ## Entwicklungsaufgaben und Reihenfolge
 
@@ -10,12 +10,12 @@ Stand: 2. November 2026. Die Issues #761, #767, #768 und #769 bilden die englisc
 |---|---|---|
 | Abgeschlossen | #767 — Review alias integration and CE fallback warnings before implementation | Warnungsfälle und Aufrufer geprüft; kanonische Tag-Ausgabe und Vis-Auswahl entschieden; Sollfälle den Folgeissues zugeordnet. |
 | Umgesetzt | #768 — Unify CLI option and tag name case rules and replace -ulabel with -utag | Optionsnamen-Regeln, kommandospezifisches `-utag` und gemeinsame schreibungsunabhängige Tag-Identität einschließlich kanonischer Großschreibung implementiert. |
-| Danach | #761 — Preserve alias identity and resolve tags consistently across build and logging | Aliasregistrierung, TIL-Identität, gemeinsame Tag-Auflösung und Host-Verarbeitung umsetzen. |
+| Umgesetzt | #761 — Preserve alias identity and resolve tags consistently across build and logging | Aliasregistrierung, TIL-Identität, gemeinsame Tag-Auflösung, Host-Verarbeitung, Generatoren und Vis implementiert. |
 | Abschließend | #769 — Integrate alias tags with bounded context enrichment | Skalare Alias-CE und festen Text für natives `triceS` integrieren, Verarbeitungspfade prüfen und RM, Beispiele und CLI-Hilfe vervollständigen. |
 
 Diese Staffelung trennt überschaubare Änderungen. Veröffentlicht wird eine gemeinsame Alias-Semantik für v2.0.0. Zwischenstände mit unterschiedlichen öffentlichen Tag-Regeln sind kein eigenes Releaseziel. Die Vorprüfung benötigt weder einen Prototyp noch eine neue Speicher-Machbarkeitsstudie. Neu entdeckte wesentliche Verhaltensfragen werden vor der betreffenden Implementierung ausdrücklich geklärt.
 
-Die Vorprüfung und die Umsetzung von #768 wurden jeweils ausdrücklich beauftragt. #761 und #769 sind noch nicht implementiert.
+Die Vorprüfung und die Umsetzung von #768/#761 wurden jeweils ausdrücklich beauftragt. #769 ist noch nicht implementiert; die gemeinsame Alias-/CE-Funktion ist damit noch nicht zur Veröffentlichung fertig.
 
 ## Implementierungsstand von Issue #768
 
@@ -23,7 +23,19 @@ Die gemeinsame CLI-Verarbeitung normalisiert nur echte Optionsnamen. Einbuchstab
 
 `-utag` ersetzt `-ulabel` einschließlich einer Fehlermeldung für alte Schreibweisen. Bind, Insert und Clean akzeptieren ausschließlich Namen und weisen Gewichte/Farben vor Änderungen ab. Die Tag-Registry führt bereits veröffentlichte und noch ungewichtete Case-Varianten zusammen, verwendet SENSOR/X als kanonische Custom-Metadaten und erhält die Präfixschreibweise für die Darstellung. CLI-Hilfe, aktive RM-Beispiele und aufrufende Beispiel-/Releaseprüfungen sind angepasst.
 
-Die Go-Tests für `internal/args`, `internal/emitter` und `internal/translator` bestehen. Die betroffenen ID-Bereichs-/CE-Tests und die Skript-Fixtures für LabPlot und Release-Featureausgaben bestehen ebenfalls. ShellCheck, Shellformat, JavaScript-Syntax und Dokumentlinks sind geprüft. Ein Gesamtlauf, reale Firmware-Builds und native Linux-/Windows-Abnahmen wurden nicht ausgeführt. Alias-Registrierung mit `Name:Tag`, gespeicherte Aliasidentität, die geänderte Vis-Auswahl und CE-Fallback-Warnungen verbleiben bei #761/#769.
+Die Go-Tests für `internal/args`, `internal/emitter` und `internal/translator` bestanden beim Abschluss von #768. Die betroffenen ID-Bereichs-/CE-Tests und die Skript-Fixtures für LabPlot und Release-Featureausgaben bestanden ebenfalls. ShellCheck, Shellformat, JavaScript-Syntax und Dokumentlinks wurden für diesen Stand geprüft. Ein Gesamtlauf, reale Firmware-Builds und native Linux-/Windows-Abnahmen wurden nicht ausgeführt. Die folgenden Aliasänderungen gehören zu #761; CE-Fallback-Warnungen verbleiben bei #769.
+
+## Implementierungsstand von Issue #761
+
+`-alias`/`-salias` validieren exakte Identifier, reservierte Namen, Wiederholungen und Konflikte vor Änderungen beziehungsweise vor dem Log-Eingang. `Name:Tag` registriert den Tag implizit; `log` und `tlog` akzeptieren die Overrides. Die eingefrorene Heuristik enthält alle 18 positiven Suchwörter und 144 Ausschlüsse. Explizite Zuordnung, Namensheuristik, erstes statisches Formatpräfix und `untagged` haben den festgelegten Vorrang.
+
+Die TIL speichert den exakten Aliasnamen und das effektive Format einschließlich bestehender String-Alias-Hülle. Nutzdatenfamilie und ursprünglicher Build-Tag werden separat aufgelöst; sie erweitern den Identitätsschlüssel nicht. Insert, Clean, Bind, geordnete IDs, Add und Quellscan-Generatoren erhalten die Rohidentität. Alte native Einträge bleiben erhalten. Aliasaufrufe umgehen den alten Zeitstempelcache ohne dessen Daten zu migrieren oder zu bereinigen.
+
+Der Decoder führt Ereignis-Tag und statische Präfixherkunft bis zu Text, JSON/KV, Statistik und Vis mit. Farben und Präfixentfernung verwenden diese Herkunft statt empfangene Zeichenketten erneut zu klassifizieren. Das gilt auch für mehrere Ereignisse pro Zeile und mehrzeilige Meldungen. Registrierte Vis-Selektoren prüfen den Ereignis-Tag; freie Selektoren behalten den exakten statischen Präfixvergleich. Aliasnamen mit `S`, `32` oder `Assert` bestimmen keine Nutzdatenform. Ungültige Alias-/Hüllenupdates erhalten beim Reload die letzte gültige Tabelle und die aktuelle Kommandozuordnung.
+
+Gezielte Verhaltenstests decken Registrierung, vollständige Heuristiktabellen, alte/gemischte TIL, Wiederholung, Umbenennung, Familienwechsel, Cache-Umgehung, ID-Bereiche, Generatorauswahl, Reload, Text/JSON/KV, Laufzeitpräfixe, Filter, Statistik vor Filtern und Vis ab. CLI-Hilfe und [RM](../rm/legacy_user_code.md#alias-identity-and-tags-in-v2) sind ergänzt. Der Gesamtlauf sowie Compiler-/Firmware- und native Linux-/Windows-Abnahmen bleiben der abschließenden Benutzerprüfung vorbehalten.
+
+Für #769 verbleiben virtuelle Tag-Selektoren bei CE, Warnungen bei geändertem Format-Fallback einschließlich passendem Clean, die verbindliche Zurückweisung ausgewählter String-Alias-Erweiterungen sowie die hardwarefreie C-/Host-Abnahme und konsolidierte CE-Beispiele. Die vorhandenen CE-Helfer erhalten bereits die Aliasidentität; daraus folgt noch keine abgeschlossene Alias-CE-Unterstützung.
 
 ## Aliasarten und Registrierung
 
@@ -245,7 +257,7 @@ Zusätzliche Tag-/Meta-/Schemafelder, eine Tag-Begleitdatei, synthetische sichtb
 
 ## Ergebnis der Integrationsprüfung zu Issue #767
 
-Die Vorprüfung ist am Quellstand `11c47309` abgeschlossen. Sie hat Quellpfade und Sollfälle geprüft, keine Feature-Implementierung oder Verhaltensprüfung ausgeführt. Die offenen Implementierungsarbeiten sind #768, #761 und #769 zugeordnet. Zusätzliche Speicherung und ein CE-Textweg für `-salias` sind dafür nicht erforderlich.
+Die Vorprüfung ist am Quellstand `11c47309` abgeschlossen. Sie hat Quellpfade und Sollfälle geprüft, keine Feature-Implementierung oder Verhaltensprüfung ausgeführt. Die damals offenen Implementierungsarbeiten wurden #768, #761 und #769 zugeordnet. Zusätzliche Speicherung und ein CE-Textweg für `-salias` sind dafür nicht erforderlich.
 
 ### CE-Fallback-Warnung und Verarbeitungsreihenfolge
 
@@ -287,7 +299,9 @@ Die zweite Reviewentscheidung betrifft `-vis`: Registrierte Tag-Selektoren vergl
 
 ### Betroffene Aufrufer und Zuständigkeiten
 
-| Pfad und heutige Annahme | Erforderliche Einbindung | Issue |
+Die folgende Matrix beschreibt den Ausgangsstand der Vorprüfung. Den inzwischen erreichten Implementierungsstand zeigen die Abschnitte zu #768 und #761 am Dokumentanfang.
+
+| Pfad und Annahme bei der Vorprüfung | Erforderliche Einbindung | Issue |
 |---|---|---|
 | [CLI und Registry](../../internal/args/handler.go), [Tag-Verarbeitung](../../internal/emitter/lineTransformerANSI.go): exakte Flags, getrennte Custom-Schreibweisen und Pending-Map | Kanonische Optionsnamen; Registry und implizite Alias-Tags vor ID-Bereichen, Filtern und Vis aufbauen; SENSOR/X als kanonische Custom-Ausgabe; letzte Zuweisung je Eigenschaft. | #768, Aliasregistrierung #761 |
 | [Aliasparser und Quell-Edits](../../internal/id/helper.go), [Bind-Scan](../../internal/id/bindParse.go), [Matcher](../../internal/id/match.go) und [Update](../../internal/id/Update.go) | Native Namensregeln getrennt von exakten Alias-Identifiern halten; Case-Folding des nativen Regex-Zweigs darf nicht auf Aliasalternativen wirken. Native Indizes wie `Type[2]` und `Type[:5]` nur auf aufgelöste Nutzdatentypen anwenden. | #761 |
@@ -308,7 +322,7 @@ Die zweite Reviewentscheidung betrifft `-vis`: Registrierte Tag-Selektoren vergl
 | #761 | Kurze Aliase wie `A`, reine Case-Unterschiede und Namen mit `S`, `32` oder `Assert`; alte/gemischte TIL, stabile Rohschlüssel, Renames und erhaltene historische Einträge; gültiger und ungültiger Reload; Text/JSON/KV einschließlich Laufzeitpräfixen und LI off; Vis mit Ereignis-Tag sowie freiem Präfix. |
 | #769 | Warnungstabelle, Overrides und Namensheuristik ohne Fehlwarnung, wiederholtes Insert und passendes Clean mit/ohne Cache; eine Warnung pro Stelle vor Veröffentlichung und keine zweite CE-Auswahl; native `triceS`-Text-CE positiv, jede ausgewählte `-salias`-Erweiterung negativ; hardwarefreie C-/Host-Integration. |
 
-Alle gefundenen Integrationspunkte und die beiden während der Prüfung geklärten Verhaltensentscheidungen sind damit zugeordnet. Die nächsten Arbeitsschritte bleiben #768 → #761 → #769; deren Feature-Implementierung benötigt einen eigenen Auftrag.
+Alle gefundenen Integrationspunkte und die beiden während der Prüfung geklärten Verhaltensentscheidungen sind damit zugeordnet. #768 und #761 sind umgesetzt; als nächste Implementierung bleibt #769 mit eigenem Auftrag.
 
 ## Geplante Abnahme und Dokumentation
 

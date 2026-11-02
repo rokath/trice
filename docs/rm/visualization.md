@@ -49,7 +49,7 @@ tlog ... \
   -vis='imu:printf("%0.3f,%0.3f,%0.3f\n",v0*0.5,v1*0.5,v2*0.5)@udp://127.0.0.1:7010;log=drop'
 ```
 
-The selector matches the original Trice format prefix `<tag>:`. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
+Registered tag selectors match the resolved event tag, ignoring case. For example, `MyWrn("err:x=%u\n", x)` belongs to WARNING: `wrn` selects it, while `err` does not. An unregistered free selector such as `imu` still matches the exact stored static prefix `imu:`. Registering it with `-utag imu` gives it event-tag semantics. [Scalar aliases](legacy_user_code.md#alias-identity-and-tags-in-v2) use their resolved payload shape while preserving their original identity. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
 
 The supported fields are:
 
