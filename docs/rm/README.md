@@ -47,5 +47,3 @@ New to Trice? Start with the [User Manual](../TriceUserManual.md). Use the [Guid
 - [Safe Build Scripts and Cancellation](ctrl_c_robust_use_of_trice_insert_and_trice_clean.md)
 - [Deprecated: Insert/Clean and Its Cache](insert_clean_cache.md)
 - [Project Background and Resources](project_resources.md)
-
-- [Footer](FOOTER.md)
