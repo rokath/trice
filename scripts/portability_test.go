@@ -208,7 +208,9 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_TEST_AUTO_SETUP": "0", "TRICE_TEST_REPORT_BIN": "",
 		"TRICE_TEST_SETUP_APPROVED":  "0",
 		"TRICE_TEST_SETUP_CANCELLED": "0",
-		"TRICE_BIND_INTEGRATION":     "0", "TRICE_TEST_NPM_DIR": "",
+		// An outer suite's chosen budget must not change fixture expectations.
+		"TRICE_GO_TEST_TIMEOUT":  "2h",
+		"TRICE_BIND_INTEGRATION": "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
 		// Outer preparation must not lend a plan, browser or formatter selection
 		// to disposable tool doubles or silently authorize real installations.
@@ -2507,12 +2509,23 @@ command -v python3
 // including coverage, without compiling packages or invoking compiler matrices.
 func TestGoStepsAllowSlowNativeScriptFixtures(t *testing.T) {
 	for _, step := range []string{"_540_test_go.sh", "_550_test_go_coverage.sh"} {
-		t.Run(step, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/"+step)
-			writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "bin/gofmt", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "bin/go", `#!/bin/sh
+		for _, tc := range []struct {
+			name, timeout, want string
+			unset, rejected     bool
+		}{
+			{name: "default", unset: true, want: "2h"},
+			{name: "slower_host", timeout: "4h", want: "4h"},
+			{name: "combined_units", timeout: "1h30m", want: "1h30m"},
+			{name: "zero_cannot_disable_limit", timeout: "0h", rejected: true},
+			{name: "invalid_unit", timeout: "2days", rejected: true},
+			{name: "empty_value", rejected: true},
+		} {
+			t.Run(step+"/"+tc.name, func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/"+step)
+				writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "bin/gofmt", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "bin/go", `#!/bin/sh
 printf '%s\n' "$*" >> go.calls
 case "$1" in
   env) [ "$2" != GOVERSION ] || echo go1.27.3 ;;
@@ -2530,23 +2543,84 @@ case "$1" in
     ;;
 esac
 `)
-			// A new run owns its raw coverage; older evidence must survive.
-			writeFixture(t, root, "temp/log/coverage.out", "previous coverage evidence\n")
-			runDir := filepath.Join(root, "temp/log/current-run")
-			out, err := runFixture(t, root, "bash scripts/"+step, map[string]string{"LOG_DIR": runDir})
-			assert.NoError(t, err, out)
-			calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
-			assert.NoError(t, err)
-			assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts")
-			assert.Contains(t, string(calls), "-timeout=30m")
-			previous, err := os.ReadFile(filepath.Join(root, "temp/log/coverage.out"))
-			assert.NoError(t, err)
-			assert.Equal(t, "previous coverage evidence\n", string(previous))
-			if step == "_550_test_go_coverage.sh" {
-				profile, err := os.ReadFile(filepath.Join(runDir, "coverage.out"))
+				// A new run owns its raw coverage; older evidence must survive.
+				writeFixture(t, root, "temp/log/coverage.out", "previous coverage evidence\n")
+				runDir := filepath.Join(root, "temp/log/current-run")
+				command := "bash scripts/" + step
+				if tc.unset {
+					command = "unset TRICE_GO_TEST_TIMEOUT\n" + command
+				}
+				out, err := runFixture(t, root, command, map[string]string{"LOG_DIR": runDir, "TRICE_GO_TEST_TIMEOUT": tc.timeout})
+				if tc.rejected {
+					assert.Error(t, err, out)
+					assert.Contains(t, out, "Invalid Go test timeout")
+					assert.NoFileExists(t, filepath.Join(root, "go.calls"), "reject the budget before package discovery or compilation")
+					return
+				}
+				assert.NoError(t, err, out)
+				calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
 				assert.NoError(t, err)
-				assert.Contains(t, string(profile), "mode: atomic")
+				assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts")
+				assert.Contains(t, string(calls), "-timeout="+tc.want)
+				previous, err := os.ReadFile(filepath.Join(root, "temp/log/coverage.out"))
+				assert.NoError(t, err)
+				assert.Equal(t, "previous coverage evidence\n", string(previous))
+				if step == "_550_test_go_coverage.sh" {
+					profile, err := os.ReadFile(filepath.Join(runDir, "coverage.out"))
+					assert.NoError(t, err)
+					assert.Contains(t, string(profile), "mode: atomic")
+				}
+			})
+		}
+	}
+}
+
+// TestRunnerGoPackageTimeout checks public argument handling and propagation to
+// an executed child step. Invalid budgets must stop before setup or test work.
+func TestRunnerGoPackageTimeout(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments, environment, want string
+		inherit, rejected                  bool
+	}{
+		{name: "default", arguments: "quick", want: "2h"},
+		{name: "CLI_separate_value", arguments: "quick --go-test-timeout 4h", want: "4h"},
+		{name: "CLI_before_selection_overrides_environment", arguments: "--go-test-timeout=90m quick", environment: "3h", inherit: true, want: "90m"},
+		{name: "environment", arguments: "quick", environment: "3h", inherit: true, want: "3h"},
+		{name: "fractional_duration", arguments: "quick --go-test-timeout 1.5h", want: "1.5h"},
+		{name: "missing_value", arguments: "quick --go-test-timeout", rejected: true},
+		{name: "negative_duration", arguments: "quick --go-test-timeout=-2h", rejected: true},
+		{name: "zero_duration", arguments: "quick --go-test-timeout=0h0m", rejected: true},
+		{name: "invalid_environment", arguments: "quick", environment: "forever", inherit: true, rejected: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			initGitFixture(t, root)
+			writeFixture(t, root, "scripts/_410_test_timeout.sh", `#!/usr/bin/env bash
+source scripts/_100_test_common.sh
+init_logfile
+printf '%s\n' "$TRICE_GO_TEST_TIMEOUT" > timeout.used
+`)
+			command := "source scripts/_110_test_runner.sh\nbuild_test_plan() { add_plan_step _410_test_timeout.sh; }\nmain " + tc.arguments
+			if !tc.inherit {
+				command = "unset TRICE_GO_TEST_TIMEOUT\n" + command
 			}
+			out, err := runFixture(t, root, command, map[string]string{"TRICE_GO_TEST_TIMEOUT": tc.environment})
+			if tc.rejected {
+				assert.Error(t, err, out)
+				if tc.name == "missing_value" {
+					assert.Contains(t, out, "Missing duration after --go-test-timeout")
+				} else {
+					assert.Contains(t, out, "Invalid Go test timeout")
+				}
+				assert.NoFileExists(t, filepath.Join(root, "timeout.used"))
+				assert.NoDirExists(t, filepath.Join(root, "temp/testAll.lock"))
+				return
+			}
+			assert.NoError(t, err, out)
+			used, err := os.ReadFile(filepath.Join(root, "timeout.used"))
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want+"\n", string(used))
+			assert.Contains(t, out, "Result: PASS")
 		})
 	}
 }

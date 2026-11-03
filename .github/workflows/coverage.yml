@@ -41,6 +41,8 @@ concurrency:
 jobs:
   coverage:
     runs-on: ubuntu-latest
+    # Leave setup and artifact upload time beyond the Go package budget.
+    timeout-minutes: 150
 
     steps:
       # 1) Check out repository code
@@ -63,7 +65,7 @@ jobs:
           mkdir -p ./temp/log
           # Cached test profiles can retain old line positions for other packages
           # in -coverpkg=./.... Keep the build cache, but rerun coverage tests.
-          go test -count=1 ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
+          go test -count=1 -timeout=2h ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
 
       # 4) Print a human-readable summary into the workflow logs
       # This uses Go’s built-in cover tool. :contentReference[oaicite:3]{index=3}

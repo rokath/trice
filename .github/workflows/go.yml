@@ -12,6 +12,8 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
+    # Match the package budget used by normal suite tests, with setup headroom.
+    timeout-minutes: 150
     steps:
     - uses: actions/checkout@v7
 
@@ -34,7 +36,7 @@ jobs:
     #   run: go vet -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v -timeout=2h ./...
 
     - name: Build
       run: go build -v ./...

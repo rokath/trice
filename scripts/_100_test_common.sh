@@ -174,6 +174,19 @@ export GOCACHE="${GOCACHE:-$(cd "./.gocache" && pwd)}"
 source "$SCRIPTS_DIR/_105_setup_test_tools.sh" || return 2
 activate_cached_host_test_tools
 
+# go_package_test_timeout validates an explicit positive budget before setup or
+# package discovery. Hours/minutes/seconds, fractions and combined units cover
+# long local runs without hardware guesses or accidentally disabling the timer.
+go_package_test_timeout() {
+  local timeout="$1"
+  local pattern='^([0-9]+([.][0-9]+)?[hms])+$'
+  if [[ ! "$timeout" =~ $pattern ]] || [[ ! "$timeout" =~ [1-9] ]]; then
+    printf 'Invalid Go test timeout: %s. Use a positive duration such as 90m, 2h or 1h30m.\n' "$timeout" >&2
+    return 2
+  fi
+  printf '%s\n' "$timeout"
+}
+
 # run_go_tests records the original JSON stream before auditing it. Diagnostics
 # remain readable in the step log, while empty selections and unexpected skips
 # cannot be mistaken for a completed integration run.
