@@ -37,7 +37,9 @@ func TestToListTilCUsesCStringSemanticsForGeneratedFormatLiterals(t *testing.T) 
 	til := TriceIDLookUp{
 		1001: {Type: "trice", Strg: `tick=%u\n`},
 		1002: {Type: "trice", Strg: `\rTriceCheck %4d`},
-		1003: {Type: "trice", Strg: `SAlias_Strg('\"att:%s.\n\"')SAlias_Strg`},
+		// Use ordinary format text for quote escaping. Complete SAlias wrappers
+		// hold target-side arguments and readers render their payload as %s.
+		1003: {Type: "trice", Strg: `\"att:%d.\n\"`},
 
 		// The original C spelling for literal backslashes is "\\",
 		// otherwise "\t" would correctly become a tab.
@@ -52,7 +54,7 @@ func TestToListTilCUsesCStringSemanticsForGeneratedFormatLiterals(t *testing.T) 
 
 	assertGeneratedTilCFormat(t, generated, 1001, 1, "tick=%u\n")
 	assertGeneratedTilCFormat(t, generated, 1002, 1, "\rTriceCheck %4d")
-	assertGeneratedTilCFormat(t, generated, 1003, 1, "SAlias_Strg('\"att:%s.\n\"')SAlias_Strg")
+	assertGeneratedTilCFormat(t, generated, 1003, 1, "\"att:%d.\n\"")
 	assertGeneratedTilCFormat(t, generated, 1004, 0, "path=C:\\temp\\demo\n")
 
 	if strings.Contains(generated, `tick=%u\\n`) {

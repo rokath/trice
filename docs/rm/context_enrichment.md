@@ -7,6 +7,8 @@
 
 - [1. Getting Started with Position and Speed](#getting-started-with-position-and-speed)
 - [2. Rules and Selectors](#rules-and-selectors)
+  - [2.1. Alias tags and CE limits](#alias-tags-and-ce-limits)
+  - [2.2. Fallback warnings and original build tags](#fallback-warnings-and-original-build-tags)
 - [3. Expressions, Fields and Evaluation](#expressions-fields-and-evaluation)
 - [4. Using Global and Local Values](#using-global-and-local-values)
 - [5. Build, IDs and Generated Files](#build-ids-and-generated-files)
@@ -119,7 +121,7 @@ The CE examples in [triceCheck.c](../../_test/testdata/triceCheck.c) immediately
 
 The shell must pass the entire option value as one argument; the examples use single quotes for this. Extensions use the same C escapes and placeholders as a Trice format string. They are placed before a trailing `\n` in the original template, or at its end otherwise. Leading and trailing whitespace is preserved.
 
-Selectors are looked up in the contiguous prefix sequence at the beginning of the format string, for example `info:pos:speed:`. Comparison is case-insensitive; known built-in tag aliases belong to the same group, such as `warn` and `WARNING`.
+Selectors are looked up in the contiguous prefix sequence at the beginning of the format string, for example `info:pos:speed:`. For macro aliases, their resolved event-tag group is selected first, as described below. Comparison is case-insensitive for built-in and custom tags; aliases such as `warn` and `WARNING` belong to the same group.
 
 Thus `-ce 'Wrn:", attempt={attempt}", 7'` and `-ce 'WARNING:", attempt={attempt}", 7'` select the same log sites, even when their tag aliases use mixed spellings in the source:
 
@@ -132,11 +134,52 @@ Both calls receive the extension; `WARNING:` or `wrn:` retains its original spel
 
 - Only configured selectors trigger CE. Without a matching rule, a prefix has no CE effect.
 - A custom, entirely lowercase selector is removed from the final template when its rule is applied, but retained in the source. `pos:` disappears from output; `PoS:` and `POS:` remain visible and trigger the same rule.
-- Registered Trice tags and `-ulabel` names retain their prefixes in the final template. Normal rules apply to tag metadata and display: for example, `-color off` preserves `info:`; CE does not remove this known tag.
+- Registered Trice tags and `-utag` names retain their prefixes in the final template. Normal rules apply to tag metadata and display: for example, `-color off` preserves `info:`; CE does not remove this known tag.
 - Different selectors act in source order. Multiple rules for the same selector act in CLI order.
 - If a selector occurs more than once at a site, including through an alias, its rule group is applied only once. During extension, the tool emits a warning for that site.
 
-Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-ulabel` and `-ce` have separate purposes.
+Thus `info:pos:speed:` adds position first and speed second, even if the CLI lists the `speed` rule first. The same name may serve as both a user label and a CE selector; `-utag` and `-ce` have separate purposes.
+
+### 2.1. <a id="alias-tags-and-ce-limits"></a>Alias tags and CE limits
+
+Register project macros with `-alias Name` or `-salias Name`; `Name:Tag` explicitly assigns and registers a tag. Alias names remain exact C identifiers; tag names ignore case. See [alias identity and the frozen name heuristic](legacy_user_code.md#alias-identity-and-tags-in-v2) and the [CLI case rules](cli.md#common-information).
+
+For each alias site, resolve its original-source event tag using override → name → first registered static prefix → `untagged`. Select that tag's CE group first, then contiguous source-prefix groups in source order. Each canonical group runs once; rules within a group retain CLI order. A virtual SENSOR group and `Sensor:SENSOR:sensor:` therefore add the SENSOR group once. Repeated physical selectors still produce the existing duplicate-selector warning; the virtual group plus one physical prefix does not.
+
+For `MyWrn("err:ctx:code=%u", code)`, WARNING rules run first, ERROR rules can follow from `err`, then `ctx` rules. The event remains WARNING. Known prefixes remain message text until normal host presentation; only selected all-lowercase free selectors disappear from the effective dictionary format.
+
+| Added CE content | Scalar native Trices and `-alias` | Native `triceS` | `-salias` |
+|---|---|---|---|
+| Fixed text, no added value | Allowed within format/recognition limits | Allowed within format/recognition limits | Rejected |
+| Scalar runtime values | Existing width, arity and float rules | Rejected | Rejected |
+| Runtime strings, including `%s` and named string fields | Rejected | Rejected | Rejected |
+
+String-valued CE rules are invalid even when unused. Calls without original value arguments get no exception. Use `%%s` for literal percent text. Original supported runtime strings remain valid; these limits concern added CE content. An empty rule adds no text or values and does not rewrite a string alias's wrapper.
+
+For native `triceS("msg:%s\n", text)`, `-ce 'msg:" [context]"'` produces the ordinary host template `msg:%s [context]\n` while transmitting the original string alone. A string alias may instead format on the target or directly forward to `triceS`. Its stored C-argument wrapper is not an ordinary host template. Supporting fixed text or added printf arguments there would require a separate formatter/storage contract and could bypass project behavior. All such `-salias` extensions are deferred until a concrete need justifies them. A selected extending rule is an error before publication, including a broad tag rule that reaches a string alias; it is not silently skipped.
+
+### 2.2. <a id="fallback-warnings-and-original-build-tags"></a>Fallback warnings and original build tags
+
+Build CE and ID ranges use the original source tag. The host classifies the effective stored format. Removing a free selector can expose another first prefix:
+
+```c
+printi("ctx:err:failed");
+```
+
+With `-alias printi -ce 'ctx:" [checked]"'`, the build tag is `untagged`, the stored format is `err:failed [checked]`, and the host tag is ERROR. Bind and Insert emit one normal warning per affected site before writes and continue. Matching Clean reconstructs the original format using the complete suffix and checks the same transformation once. Plain ID-only Clean adds no CE warning. Diagnostics identify the file, line, alias, both tags and a workaround; neither `-verbose` nor an actual dictionary collision is required.
+
+| Original source format or registration | Stored format | Build / host tag | Warning |
+|---|---|---|---|
+| `ctx:err:failed` | `err:failed [checked]` | untagged / ERROR | Yes |
+| `err:failed [checked]` | Unchanged | ERROR / ERROR | No |
+| `untagged:ctx:err:failed` | `untagged:err:failed [checked]` | untagged / untagged | No |
+| `ctx:failed` | `failed [checked]` | untagged / untagged | No |
+| `MyWrn` or explicit `printi:untagged` | `err:failed [checked]` | Same tag on both sides | No |
+| `ctx` registered at build and logging | `ctx:err:failed [checked]` | CTX / CTX | No |
+
+Prefer an enduring first prefix such as `untagged:ctx:err:failed`, or repeat an explicit alias assignment at build and logging. An override applies to every loaded ID for that alias; different historical override intentions cannot be recovered from TIL. Keep logging options with the capture.
+
+This rare fallback difference is accepted. It adds no TIL fields, tag files, encoding or wire data. The build tag stays transient, and the expected host tag never triggers another CE selection pass. Runtime strings remain excluded from tag classification and prefix removal.
 
 
 
@@ -150,7 +193,7 @@ Original arguments precede additional CE arguments. Each additional expression i
 
 Scalar Trices still transmit at most twelve values of the same bit width. CE preserves bit width and stamp type and adjusts fixed arity, for example from `TRice32_1` to `TRice32_3`. Floating-point values explicitly require `aFloat(...)` at 32 bits and `aDouble(...)` at 64 bits; there is no automatic conversion. 8-/16-bit Trices cannot transmit floating-point values. The compiler checks actual C types and identifier visibility.
 
-String, buffer and other special Trice families receive no additional runtime arguments through CE. A text-only extension without additional values is possible if the final format remains valid for the original family, for example `label:" online"` on a `triceS`. Named buffer fields remain excluded, as in Structured Logging.
+String, buffer and other special native Trice families receive no additional runtime arguments through CE. A text-only extension without additional values is possible if the final format remains valid for the original family, for example `label:" online"` on a native `triceS`. String-alias extensions follow the stricter table above. Named buffer fields remain excluded, as in Structured Logging.
 
 ## 4. <a id="using-global-and-local-values"></a>Using Global and Local Values
 
@@ -297,6 +340,14 @@ This build effort has not been introduced as a production workflow. Also, `__COU
 ## 7. <a id="test-coverage"></a>Test Coverage
 
 The [rule and Bind tests](../../internal/id/contextEnrichment_test.go) check selectors, aliases, order, invalid rules, limits, stable IDs, configuration changes, the field registry and unchanged files after rejection or write errors. The [Insert/Clean tests](../../internal/id/contextSource_test.go) additionally cover complete and partial matches, format and argument suffix positions, multi-part rule groups, newlines, repetition, handwritten fields, comments, moved calls, exclusions and rollback after write errors. The [CLI and target tests](../../internal/args/context_enrichment_test.go) exercise both public workflows through `generate -logC` and actual target records to text/JSON/KV output.
+
+The [alias CE tests](../../internal/id/contextAlias_test.go) cover virtual/source ordering, canonical custom groups, the warning table, repeated Insert and matching Clean, cache, dry-run, publication ordering, rollback and partial scans. The small [hardware-free C example](../../_test/testdata/aliasContext.c) keeps a scalar alias, native string Trice, printf-style string alias and direct string wrapper in one source. Its project macros count evaluations so accidental formatter bypass or repeated CE evaluation fails the test. Public preparation is checked without a compiler; an opt-in C run also checks generated/local decoding, text/JSON/KV, filters, pre-filter statistics, LI and Vis:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/args -run '^TestAliasContextTargetToDecoder$' -count=1
+```
+
+Run this in a POSIX shell or Git Bash with the existing Clang toolchain. The existing `_515_test_logging_features.sh` acceptance step also requires this test to report PASS. It uses temporary projects and separate executables for Bind/Insert and wire/local modes. Native Linux, macOS and Windows runs are separate acceptance results; a preparation test does not establish compiler or platform support.
 
 Evidence for the production implementation covers Clang in C11 and C++17, `clangd` with a real compile configuration, 8/16/32/64-bit values, different stamp types and builds without `__COUNTER__`. It checks separate local scopes, once-only evaluation, `TRICE_OFF`, `TRICE_CLEAN` and understandable compiler/editor errors for missing identifiers. Insert additionally tests two log sites in separate local blocks on the same wrapper line and their complete removal. The editor check excludes only clangd's `SwapBinaryOperands` refactoring action: Clangd 21 proposes overlapping edits within an explicit `Id(...)` for this action. Compiler diagnostics and missing-identifier errors remain checked. Other compilers are assessed separately in the PoC appendix.
 

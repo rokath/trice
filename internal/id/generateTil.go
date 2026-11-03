@@ -68,6 +68,11 @@ const triceLog_t triceLog[] = {
 	for _, n := range ids {
 		id := TriceID(n)
 		t := ilu[id]
+		if _, err := PayloadFormat(t); err != nil {
+			return nil, fmt.Errorf("ID %d: %w", id, err)
+		}
+		originalType := t.Type
+		t = processingFormat(t)
 		if !isSAliasEncodedString(t.Strg) {
 			template, err := fmtspec.ParseTemplate(t.Strg, nil)
 			if err != nil {
@@ -80,7 +85,7 @@ const triceLog_t triceLog[] = {
 		}
 		extType, bitWidth, paramCount := computeLogValues(t, defaultBitWidth)
 		quotedFormat := tilCFormatLiteral(t.Strg)
-		row := fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", t.Type, extType, id, bitWidth, paramCount, quotedFormat)
+		row := fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, %s },`+"\n", originalType, extType, id, bitWidth, paramCount, quotedFormat)
 		condition := logFeatureCondition(t, bitWidth)
 		if condition == "1" {
 			text = append(text, []byte(row)...)
@@ -89,7 +94,7 @@ const triceLog_t triceLog[] = {
 		text = append(text, []byte("#if "+condition+"\n")...)
 		text = append(text, []byte(row)...)
 		text = append(text, []byte("#elif TRICE_LOCAL_LOG_KEEP_DISABLED_IDS == 1\n")...)
-		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, 0 }, // Known ID; local feature disabled.`+"\n", t.Type, extType, id, bitWidth, paramCount))...)
+		text = append(text, []byte(fmt.Sprintf(`	/* %-10s ( %-10s ) */ { %5du, %3du, %s, 0 }, // Known ID; local feature disabled.`+"\n", originalType, extType, id, bitWidth, paramCount))...)
 		text = append(text, []byte("#endif\n")...)
 	}
 	// A permanent trailing sentinel makes the declaration valid even when all
@@ -109,6 +114,7 @@ const triceLog_t triceLog[] = {
 // generator. Generated and runtime checks remain deliberately redundant: the
 // former saves flash while the latter protects hand-written/stale tables.
 func logFeatureCondition(t TriceFmt, bitWidth int) string {
+	t = processingFormat(t)
 	category := triceTypeCategory(t.Type)
 	specs := formatSpecifierSpecs(t.Strg)
 	conditions := make([]string, 0, 8)
@@ -308,6 +314,7 @@ func hexDigitValue(c byte) (int, bool) {
 // computeLogValues prepares the compact C RX table. The uint8_t paramCount
 // cannot use -1, so variable-size payload families use the public sentinel.
 func computeLogValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth int, paramCount string) {
+	t = processingFormat(t)
 	DefaultTriceBitWidth = strconv.Itoa(defaultBitWidth)
 	if info := abcTypeInfo(t.Type); info.isABC {
 		if info.bitWidth == 0 {

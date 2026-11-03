@@ -142,7 +142,7 @@ function verifyFeatures(toolDirectory, targetArchive) {
   // Exercise both shipped entry points against the same newly produced records.
   const options = ['-p', 'FILEBUFFER', '-args', 'capture.bin', '-pf', 'TCOBSv1', '-d16',
     '-til', 'til.json', '-li', 'li.json', '-hs', 'off', '-color', 'none',
-    '-ts16', 'phase:%d', '-ts32', 'ms', '-ts32delta', 'ms', '-ulabel', 'sensor:450'];
+    '-ts16', 'phase:%d', '-ts32', 'ms', '-ts32delta', 'ms', '-utag', 'sensor:450'];
   let referenceEvents;
   for (const tool of ['trice', 'tlog']) {
     const executable = path.join(toolRoot, tool + suffix);

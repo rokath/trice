@@ -378,7 +378,7 @@ namespace TriceIDList;
 
 	for id, t := range ilu {
 		extType, bitWidth, paramCount := computeValues(t, defaultBitWidth)
-		text = append(text, []byte(fmt.Sprintf(`		/* %10s ( %10s )*/ { %5d, new TilItem( %2d, %2d, "%s" ) },`+"\n", t.Type, extType, id, bitWidth, paramCount, t.Strg))...)
+		text = append(text, []byte(fmt.Sprintf(`		/* %10s ( %10s )*/ { %5d, new TilItem( %2d, %2d, "%s" ) },`+"\n", t.Type, extType, id, bitWidth, paramCount, processingFormat(t).Strg))...)
 	}
 
 	tail := []byte(`    };
@@ -390,6 +390,7 @@ namespace TriceIDList;
 }
 
 func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, paramCount int) {
+	t = processingFormat(t)
 	DefaultTriceBitWidth = strconv.Itoa(defaultBitWidth)
 	if info := abcTypeInfo(t.Type); info.isABC {
 		return t.Type, info.bitWidth, -1
@@ -417,8 +418,8 @@ func computeValues(t TriceFmt, defaultBitWidth int) (extType string, bitWidth, p
 // For examples see TestConstructFullTriceInfo
 // see also AddFmtCount
 func ConstructFullTriceInfo(origType string, paramCount int) (fullTriceType string, err error) {
-	if strings.ToUpper(origType[:5]) != "TRICE" {
-		err = fmt.Errorf(origType, "starts not with trice")
+	if len(origType) < 5 || strings.ToUpper(origType[:5]) != "TRICE" {
+		err = fmt.Errorf("%q does not start with trice", origType)
 		return
 	}
 	if len(origType) == 5 { // most often expected case: trice, Trice, TRice or TRICE

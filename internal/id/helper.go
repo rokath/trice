@@ -154,28 +154,14 @@ func findClosingParentis(s string, startAt int) int {
 }
 
 func resolveTriceAlias(t *TriceFmt) {
-	isAlias := slices.Contains(TriceAliases, t.Type)
-	isSAlias := slices.Contains(TriceSAliases, t.Type)
-
-	if isAlias && isSAlias {
-		isSAlias = false
-		// The same alias registered for trice() and triceS(). Let's analyze the last letter
-		if len(t.Type) > 0 {
-			last := t.Type[len(t.Type)-1]
-			if last == 's' || last == 'S' {
-				isAlias = false
-				isSAlias = true
-			}
-		}
-	}
-
-	if isAlias {
+	t.Alias = ""
+	if definition := aliasDefinitions[t.Type]; definition != nil {
+		definition.used.Store(true)
 		t.Alias = t.Type
-		// QUESTION: What can be an easy way to map aliases to a variety of triceX_Y?
 		t.Type = "trice"
-	} else if isSAlias {
-		t.Alias = t.Type
-		t.Type = "triceS"
+		if definition.stringPayload {
+			t.Type = "triceS"
+		}
 	}
 }
 
@@ -191,14 +177,20 @@ func CompactSrcs() {
 	Srcs = slices.Compact(Srcs)
 }
 
-func ProcessAliases() {
+func ProcessAliases() error {
+	if err := prepareAliasDefinitions(); err != nil {
+		return err
+	}
 	suffix := `\b` // Word boundary after macro name
 
 	// Core TRICE pattern (without closing \b)
-	baseTricePattern := `(?i)\bTRICE(?:0|_0|Assert\w*|(?:8|16|32|64)*(?:_*[0-9SNBFC]*)*)`
+	baseTricePattern := `(?i:\bTRICE(?:0|_0|Assert\w*|(?:8|16|32|64)*(?:_*[0-9SNBFC]*)*))`
 
 	// Combine static and dynamic aliases
-	merged := append(TriceAliases, TriceSAliases...)
+	merged := make([]string, 0, len(aliasDefinitions))
+	for name := range aliasDefinitions {
+		merged = append(merged, name)
+	}
 
 	// Escape dynamic macros and sort longest first
 	var escapedExtras []string
@@ -208,6 +200,9 @@ func ProcessAliases() {
 		}
 	}
 	sort.SliceStable(escapedExtras, func(i, j int) bool {
+		if len(escapedExtras[i]) == len(escapedExtras[j]) {
+			return escapedExtras[i] < escapedExtras[j]
+		}
 		return len(escapedExtras[i]) > len(escapedExtras[j])
 	})
 
@@ -224,6 +219,7 @@ func ProcessAliases() {
 
 	// Partial matcher for the start of any TRICE-style or aliaS macro call
 	matchAnyTriceStart = regexp.MustCompile(finalMacroPattern + `\s*\(`)
+	return nil
 }
 
 // fileExists returns true, if path exits.
@@ -544,6 +540,10 @@ func isTopLevelCall(expr, name string) bool {
 // rest starts immediately after the trice format string and can be very long (the remaining file context),
 // but we check only until the trice end and return nil if the evaluation is ok.
 func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) {
+	t, err = PayloadFormat(t)
+	if err != nil {
+		return err
+	}
 	specs := formatSpecifierSpecs(t.Strg)
 	fsc := len(specs)
 	// At this stage we know the end of the format string (start of rest)
@@ -784,6 +784,7 @@ func shortenDiagnosticLine(s string, maxRunes int) string {
 // and loc refer to the unchanged input, which lets callers defer all copying
 // until every parser-derived edit is known.
 func idSourceEdit(s string, offset int, loc []int, t TriceFmt, id TriceID) sourceEdit {
+	t, _ = PayloadFormat(t)
 	gap := ""
 	if SpaceInsideParenthesis {
 		gap = " "
@@ -877,6 +878,7 @@ func keptOpeningWhitespace(s string, offset int, loc []int) string {
 
 // cleanID inserts id 0 into s or removes ID statement according to loc information and returns the result together with the changed len.
 func cleanID(s string, offset int, loc []int, t TriceFmt) (result string, delta int) {
+	t, _ = PayloadFormat(t)
 	// code is similar to writeiD code for clarity.
 	if t.Type[2] == 'I' { // Upper case letter (s.th. like TRICE*...), we set id just to 0.
 		return writeID(s, offset, loc, t, 0)

@@ -15,6 +15,7 @@ import (
 	"sync"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/fmtspec"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/printf"
@@ -134,7 +135,7 @@ func NewRouter(
 		for _, numericID := range ids {
 			triceID := id.TriceID(numericID)
 			triceFormat := snapshot[triceID]
-			if !rule.matchesFormat(triceFormat.Strg) {
+			if !rule.matchesEntry(triceFormat) {
 				continue
 			}
 			rule.classifyCandidate(triceID, triceFormat)
@@ -238,7 +239,7 @@ func (router *Router) Process(record decoder.VisRecord, partialLine bool) bool {
 	}
 	dropNormalOutput := false
 	for _, rule := range router.rules {
-		if !rule.enabled || !rule.matchesFormat(record.Format) {
+		if !rule.enabled || !rule.matchesEntry(id.TriceFmt{Type: record.Type, Strg: record.Format}) {
 			continue
 		}
 		if !rule.ensureCandidate(record) {
@@ -271,9 +272,18 @@ func (router *Router) Process(record decoder.VisRecord, partialLine bool) bool {
 	return dropNormalOutput
 }
 
-// matchesFormat applies the exact tag-plus-colon selector to the original LUT format.
-func (rule *runtimeRule) matchesFormat(format string) bool {
-	return strings.HasPrefix(format, rule.tag+":")
+// matchesEntry gives registered selectors event semantics while retaining exact
+// static-prefix routing for free selectors. Both startup and runtime use it.
+func (rule *runtimeRule) matchesEntry(format id.TriceFmt) bool {
+	if selected, err := emitter.FindTagName(rule.tag); err == nil {
+		if event := id.ResolveAliasEvent(format); event.Alias {
+			return event.Tag == selected
+		}
+		prefix, _, _ := strings.Cut(format.Strg, ":")
+		actual, err := emitter.FindTagName(prefix)
+		return err == nil && actual == selected
+	}
+	return strings.HasPrefix(format.Strg, rule.tag+":")
 }
 
 // classifyCandidate updates one independent ID classification and emits its verbose diagnostic once.
@@ -460,6 +470,11 @@ func (rule *runtimeRule) verbosef(format string, arguments ...interface{}) {
 
 // fixedNumericShape reconstructs the same supported TREX scalar layout used by the decoder.
 func fixedNumericShape(triceFormat id.TriceFmt) (printf.Shape, error) {
+	var payloadErr error
+	triceFormat, payloadErr = id.PayloadFormat(triceFormat)
+	if payloadErr != nil {
+		return printf.Shape{}, payloadErr
+	}
 	typeName := triceFormat.Type
 	if before, _, found := strings.Cut(typeName, "Assert"); found {
 		typeName = strings.TrimSpace(before)

@@ -101,6 +101,8 @@ For a genuinely new project, `touch til.json li.json` creates initially empty fi
 * Active demo and example LI files, including `demoLI.json`, are generated locally rather than versioned. Build and ID-workflow scripts initialize a missing file and retain existing LI evidence. The historical `_test/testdata/testLI.json` fixture remains versioned.
 * Keep local LI between ID-processing runs even if source locations are unwanted in logs. `trice log -li off` suppresses their loading and display while Bind and Insert can continue using LI for ID ownership and reuse. See [Location Information](cli.md#location-information).
 
+Preserve the final build-specific LI externally with its TIL and any required alias overrides. An external content hash can identify the saved LI; unpack archived ZIPs externally and pass the selected JSON through `-li`. Trice does not archive, hash or recover historical locations automatically. Alias names and wrappers remain [raw TIL identity](legacy_user_code.md#stored-identity-and-overrides); original-source CE tags affect ID ranges transiently and are not additional history fields.
+
 ## 7. <a id="exporting-decoder-metadata"></a>Exporting decoder metadata
 
 Run Bind, then `trice generate -src application -logC` to export currently referenced formats for a local or custom decoder. See [Generate](generate.md) for output paths and options. This is also useful where a Go host executable is unavailable, for example QNX environments. See also the [custom-decoder discussion](https://github.com/rokath/trice/discussions/263).
@@ -145,7 +147,7 @@ Previous usage | Required adjustment
 ID management with `-liPath` | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it.
 Logging with `-liPath` | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename.
 `-pick err:wrn` or `-ban dbg:trace` | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above.
-`-ulabel alpha:beta` to register two tags | Use `-ulabel alpha -ulabel beta`. A colon now assigns one tag's weight or color, for example `-ulabel alpha:650`. User-defined tags match exact spelling.
+`-ulabel alpha:beta` to register two tags | Use `-utag alpha -utag beta`. Logging also accepts a weight or color, for example `-utag alpha:650`; build commands accept names only. User-defined tags ignore case and have uppercase canonical metadata.
 Built-in one-letter tags or selectors, or `OK` as a Message alias | Use descriptive names such as `err`, `wrn`, `inf`, `dbg` and `msg`, including in `-IDRange`. Built-in names ignore case. The old aliases are removed; unregistered prefixes count as `untagged`, and unknown selectors are errors. `rx` now selects Receive and `tx` selects Transmit, without the former overlap with Read/Write.
 `-logLevel` based on the old tag-table order | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown.
 

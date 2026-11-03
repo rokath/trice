@@ -27,6 +27,7 @@ var (
 
 // SubCmdIdBind generates stable sidecars while keeping bind-owned user Trice calls ID-free.
 func SubCmdIdBind(w io.Writer, fSys *afero.Afero) error {
+	defer func() { ExplainAliases(w, IDData.idToTrice) }()
 	if w == nil {
 		w = io.Discard
 	}
@@ -284,9 +285,13 @@ func assignBindIDs(w io.Writer, plans []bindFilePlan, initialIDs map[TriceID]str
 			}
 			var assignedIDs []TriceID
 			var insertOutput bytes.Buffer
+			buildTags := make([]string, len(plan.sites))
+			for i, site := range plan.sites {
+				buildTags[i] = site.buildTag
+			}
 			_, modified, err := IDData.insertTriceIDsVisit(&insertOutput, plan.path, ToLIFile(plan.path), insertInput, admin, func(id TriceID) {
 				assignedIDs = append(assignedIDs, id)
-			})
+			}, buildTags)
 			if err != nil {
 				message := strings.TrimSpace(insertOutput.String())
 				if message == "" {

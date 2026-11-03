@@ -32,9 +32,9 @@ func (id *TriceID) Set(value string) error {
 
 // TriceFmt is the trice format information assigned to a trice ID.
 type TriceFmt struct {
-	Type  string `json:"Type"` // format type (bit-size and number of fmt string parameters)
+	Type  string `json:"Type"` // native type or exact persisted alias name
 	Strg  string `json:"Strg"` // format string
-	Alias string `json:"-"`    // alias, if any
+	Alias string `json:"-"`    // transient original name in a resolved payload view; empty in identity keys
 }
 
 func (tf TriceFmt) isAlias() bool {

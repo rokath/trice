@@ -200,7 +200,7 @@ func TestChannelArrayFlagSetCollectsRawSelectors(t *testing.T) {
 }
 
 // TestResolveFilterSelectorsUsesCompleteTagRegistry verifies that built-in and
-// user-defined groups resolve identically after all -ulabel values are known.
+// user-defined groups resolve identically after all -utag values are known.
 func TestResolveFilterSelectorsUsesCompleteTagRegistry(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -212,7 +212,7 @@ func TestResolveFilterSelectorsUsesCompleteTagRegistry(t *testing.T) {
 	LogLevel = "MSG"
 	require.NoError(t, ResolveFilterSelectors())
 
-	assert.Contains(t, []string(Pick), "motor")
+	assert.Contains(t, []string(Pick), "MOTOR")
 	for _, alias := range tagVariants("msg") {
 		assert.Contains(t, []string(Pick), alias)
 	}
@@ -654,7 +654,7 @@ func TestAddUserLabelsAppliesWeightsWithoutDuplicateGroups(t *testing.T) {
 }
 
 // TestAddUserLabelsCombinesGeneratedColorsAndWeights checks alias-wide color
-// overrides, independent metadata order, literal user labels, and command reset.
+// overrides, independent metadata order, folded user labels, and command reset.
 func TestAddUserLabelsCombinesGeneratedColorsAndWeights(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -675,7 +675,7 @@ func TestAddUserLabelsCombinesGeneratedColorsAndWeights(t *testing.T) {
 	}
 	newWeight, err := TagWeight("new")
 	require.NoError(t, err)
-	assert.Equal(t, 300, newWeight)
+	assert.Equal(t, 400, newWeight)
 	upperWeight, err := TagWeight("NEW")
 	require.NoError(t, err)
 	assert.Equal(t, 400, upperWeight)
@@ -735,7 +735,7 @@ func TestUserLabelColorValidationSharesGeneratedVocabulary(t *testing.T) {
 }
 
 // TestAddUserLabelsRejectsInvalidSpecificationsAtomically verifies that no
-// partial registration survives any malformed -ulabel value.
+// partial registration survives any malformed -utag value.
 func TestAddUserLabelsRejectsInvalidSpecificationsAtomically(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })

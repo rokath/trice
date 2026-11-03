@@ -614,9 +614,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.Trice, ok = p.Lut[triceID]
 	// Keep the LUT representation separate from the optional display-only newline mutation.
 	originalTrice := p.Trice
-	if AddNewlineToEachTriceMessage && decoder.LogFormat == "text" {
-		p.Trice.Strg += `\n` // this adds a newline to each single Trice message
-	}
 	p.LutMutex.RUnlock()
 	if !ok {
 		diagnosticStart := n
@@ -638,13 +635,17 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	if p.visEnabled {
+		visFormat := p.Trice.Strg
+		if AddNewlineToEachTriceMessage && decoder.LogFormat == "text" {
+			visFormat += `\n`
+		}
 		p.visRecord = decoder.VisRecord{
 			ID:         triceID,
 			Type:       originalTrice.Type,
 			Format:     originalTrice.Strg,
 			Stamp:      decoder.TargetTimestamp,
 			StampBits:  decoder.TargetTimestampSize * 8,
-			SingleLine: isSingleVisLine(p.Trice.Strg),
+			SingleLine: isSingleVisLine(visFormat),
 		}
 	}
 	// Decoder diagnostics prefixed to a valid message make this Read unsuitable
@@ -659,6 +660,10 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		// statistics. The host may later hide it without changing totals.
 		decoder.RecordForStatistics(triceID)
 		tagCandidate := decoder.FormatTagCandidate(originalTrice.Strg)
+		if event := id.ResolveAliasEvent(originalTrice); event.Alias {
+			tagCandidate = event.Tag
+			p.record.Alias, p.record.StaticPrefix = true, event.Prefix
+		}
 		emitter.RecordTagEvent(tagCandidate)
 		p.markApplication(applicationStart, n, tagCandidate)
 		p.record.Tag = tagCandidate
@@ -719,6 +724,17 @@ func (p *trexDec) plausibleIncompletePayload(tid id.TriceID, payloadSize int) bo
 	if !known {
 		return false
 	}
+	var err error
+	tf, err = id.PayloadFormat(tf)
+	if err != nil {
+		return false
+	}
+	if tf.Alias != "" {
+		_, kinds := decoder.UReplaceN(tf.Strg)
+		if full, err := id.ConstructFullTriceInfo(tf.Type, len(kinds)); err == nil {
+			tf.Type = full
+		}
+	}
 	kind := strings.ToUpper(tf.Type)
 	for _, entry := range cobsFunctionPtrList {
 		if entry.triceType == kind && !isSpecialCaseTriceType(kind) {
@@ -764,10 +780,20 @@ func isSingleVisLine(format string) bool {
 // p.Trice.Type is the received trice, in fact the name from til.json.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 	p.sprintDiagnostic = false
+	var payloadErr error
+	p.Trice, payloadErr = id.PayloadFormat(p.Trice)
+	if payloadErr != nil {
+		p.sprintDiagnostic = true
+		return copy(b, fmt.Sprintln("ERROR:", payloadErr))
+	}
 
 	isSAlias := strings.HasPrefix(p.Trice.Strg, id.SAliasStrgPrefix) && strings.HasSuffix(p.Trice.Strg, id.SAliasStrgSuffix)
 	if isSAlias { // A SAlias Strg is covered with id.SAliasStrgPrefix and id.SAliasStrgSuffix in til.json and it needs to be replaced with "%s" here.
 		p.Trice.Strg = "%s" // See appropriate comment inside insertTriceIDs().
+	}
+	// Resolve wrapper provenance before applying this display-only option.
+	if AddNewlineToEachTriceMessage && decoder.LogFormat == "text" {
+		p.Trice.Strg += `\n`
 	}
 
 	template, templateErr := fmtspec.ParseTemplate(p.Trice.Strg, nil)

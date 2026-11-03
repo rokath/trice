@@ -695,7 +695,10 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 				msg.OnErr(err)
 			}
 			if classifiedEvent {
-				if _, err := emitter.FindTagName(tagCandidate); err != nil {
+				if available && record.Alias {
+					_, err := sw.WriteEvent(string(application[:n]), record.Tag, record.StaticPrefix)
+					msg.OnErr(err)
+				} else if _, err := emitter.FindTagName(tagCandidate); err != nil {
 					writeUntaggedApplication(sw, application[:n])
 				} else {
 					_, err := sw.Write(application[:n])

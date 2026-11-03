@@ -67,6 +67,8 @@ To generate a compact C metadata table for current target-side Trice sites, firs
 
 Commented Trice calls with explicit Insert IDs remain selectable. An ID-free call that exists only in a C comment has no Bind preprocessor site and therefore no exact sidecar ID; `-logC` reports it instead of guessing or silently omitting it. Use `trice insert` for such retained commented calls, give the commented example an explicit authoritative ID, or exclude that source from this generated table.
 
+Repeat `-alias`/`-salias` registrations for source recognition. `-logC` reads the final TIL/Bind schema without repeating `-ce`; it resolves native payload shapes separately from raw alias names and renders complete string-alias wrappers as the received `%s` payload. JSON exports preserve the original names/wrappers. No dictionary conversion or historical alias reconstruction is performed. The [hardware-free alias/CE example](context_enrichment.md#test-coverage) exercises this workflow.
+
 ```C
 // SPDX-License-Identifier: MIT
 

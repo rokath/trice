@@ -794,7 +794,7 @@ func acceptBindPreferredID(w io.Writer, resolver *bindMetadataResolver, plan *bi
 		primaryFormat, primaryExists := IDData.idToTrice[candidate.id]
 		// Historical metadata is read-only evidence. It may be reused only when
 		// the candidate still belongs to the current common or tag-specific range.
-		if primaryExists && !IDData.idAllowedForTrice(candidate.id, primaryFormat) {
+		if primaryExists && !IDData.idAllowedForTrice(candidate.id, primaryFormat, site.buildTag) {
 			continue
 		}
 		if primaryExists {
@@ -845,8 +845,7 @@ func acceptBindPreferredID(w io.Writer, resolver *bindMetadataResolver, plan *bi
 func bindSiteFormat(site bindSite) TriceFmt {
 	format := TriceFmt{Type: site.macro, Strg: site.format}
 	resolveTriceAlias(&format)
-	format.Alias = ""
-	return format
+	return storedTriceFormat(format)
 }
 
 // bindSidecarCandidates aligns old sidecar descriptors with current sites by

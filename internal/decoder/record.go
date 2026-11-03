@@ -25,13 +25,17 @@ type FieldValue struct {
 // ApplicationRecord is one target call, independent of its newline count.
 // The fixed host facts are separate from Fields so user names never collide.
 type ApplicationRecord struct {
-	Tag       string
-	Message   string
-	Fields    []FieldValue
-	ID        id.TriceID
-	HasID     bool
-	Stamp     uint64
-	StampBits int
+	// Alias and StaticPrefix prevent received values or continuation lines
+	// from being mistaken for a written application prefix.
+	Alias        bool
+	StaticPrefix string
+	Tag          string
+	Message      string
+	Fields       []FieldValue
+	ID           id.TriceID
+	HasID        bool
+	Stamp        uint64
+	StampBits    int
 }
 
 // RecordProvider exposes a successfully decoded event even when its text is

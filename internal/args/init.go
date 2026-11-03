@@ -53,6 +53,7 @@ func init() {
 
 // FlagsInit initializes all sub-command flag sets.
 func FlagsInit() {
+	id.TriceAliases, id.TriceSAliases = nil, nil
 	helpInit()
 	logInit()
 	addInit()
@@ -101,6 +102,8 @@ func logInit() {
 	emitter.Pick = nil
 	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ContinueOnError) // sub-command
+	flagTriceAliases(fsScLog)
+	flagTriceSAliases(fsScLog)
 	fsScLog.StringVar(&decoder.LogFormat, "logFormat", "text", "Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr.")
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TREX)'. Target device encoding must match.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
@@ -117,8 +120,8 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
 	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
-A typical use case is "-logLevel wrn". Application events without a recognized format-string tag use the built-in "untagged" group. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
-Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in tag names and aliases ignore case; user-defined tags are matched exactly. The equivalent spelling -loglevel accepts the same values. See also CLI switches -ulabel, -pick and -ban.`)
+A typical use case is "-logLevel wrn". Native events without a recognized format-string tag use the built-in "untagged" group. Macro aliases also resolve tags from their names and current explicit overrides. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
+Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in and user-defined tag names ignore case; custom tag metadata uses uppercase names. The equivalent spelling -loglevel accepts the same values. See also CLI switches -utag, -pick and -ban.`)
 	fsScLog.StringVar(&emitter.LogLevel, "loglevel", "all", "Alias for -logLevel; accepts all, off, a registered tag or alias, or an integer weight from 0 to 999.")
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",
@@ -200,10 +203,10 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagLogLIList(fsScLog)
 	flagIPAddress(fsScLog)
-	fsScLog.Var(&emitter.Ban, "ban", `Suppress a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in tags ignore case and user-defined tags match exactly. "all" suppresses every message and "off" suppresses none.
-Example: "-ban dbg -ban wrn -ban 200" suppresses Debug, Warning, and every event at weight 200 (not 199 or 201). Empty or invalid selectors are rejected after user tags are registered. Not usable with "-pick". See also "-ulabel" and "-logLevel".`) // multi flag
-	fsScLog.Var(&emitter.Pick, "pick", `Display only a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in tags ignore case and user-defined tags match exactly. "all" selects every message and "off" selects none.
-Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every event at weight 200. This is exact selection; use -loglevel 200 for weight 200 and above. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-ulabel" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Ban, "ban", `Suppress a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" suppresses every message and "off" suppresses none.
+Example: "-ban dbg -ban wrn -ban 200" suppresses Debug, Warning, and every event at weight 200 (not 199 or 201). Empty or invalid selectors are rejected after user tags are registered. Not usable with "-pick". See also "-utag" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Pick, "pick", `Display only a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" selects every message and "off" selects none.
+Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every event at weight 200. This is exact selection; use -loglevel 200 for weight 200 and above. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-utag" and "-logLevel".`) // multi flag
 	flagUserLabel(fsScLog)
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
@@ -214,6 +217,7 @@ Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every even
 	fsScLog.BoolVar(&trexDecoder.DisableCycleErrors, "noCycleCheck", false, `Disables reporting of cycle errors.`)
 	fsScLog.Var(&visRules, "vis", `Transform selected fixed-width numeric TREX messages for visualization. This repeatable switch uses:
 <tag>:printf("<go-fmt>",<expressions>)@<file-path-or-udp://address>[;log=keep|drop][;header="<go-string>"]
+Registered tag selectors compare the event tag; unregistered selectors match the exact static prefix.
 Expressions support id, ts, ts16, ts32, v0...v11, numeric literals, parentheses, and + - * /. Existing -pick/-ban filtering runs first. File sinks are recreated for each command. A header is written once per output sink; each encoded UDP record is one datagram.`)
 }
 
@@ -260,7 +264,8 @@ func insertIDsInit() {
 	fsScInsert.StringVar(&id.FieldsDir, "genDir", id.DefaultGenDir, "Directory for the current invocation's trice-fields.txt field registry, relative to the current working directory by default.")
 	flagsInsertAndBind(fsScInsert)
 	fsScInsert.Var(&id.ContextEnrichment, "ce", `Idempotently append context in source calls. Repeat selector:"format-extension"[, comma-free C-expression]...
-Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format and argument suffix is absent; partial matches count as absent. No provenance comments. Float values require aFloat()/aDouble().`)
+Example: -ce 'ctx7:", clock={}", clock'. Append only when the complete format and argument suffix is absent; partial matches count as absent. No provenance comments. Float values require aFloat()/aDouble().
+Aliases select their event-tag group before source-prefix groups, once per group. Added runtime strings and selected -salias extensions are rejected. Native triceS accepts fixed text only. A changed alias format fallback warns before writes; build ID ranges keep the original tag.`)
 	fsScInsert.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScInsert.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID insert (EXPERIMENTAL!). The folder must exist.`)
 	fsScInsert.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space inside Trice braces: `trice(<space>iD(<space>123<space>), \"...);`. Use this if your default code auto-formatting is with space inside braces.")
@@ -274,7 +279,8 @@ func bindIDsInit() {
 	flagsInsertAndBind(fsScBind)
 	fsScBind.StringVar(&id.BindDir, "genDir", id.DefaultGenDir, "Directory for generated Trice bind sidecar headers and the current invocation's trice-fields.txt field registry, relative to the current working directory by default. Missing directories, including parents, are created automatically; for example, -genDir a/b/c creates a/b/c.")
 	fsScBind.Var(&id.ContextEnrichment, "ce", `Append context at selected direct bind sites. Repeat selector:"format-extension"[, comma-free C-expression]...
-Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".`)
+Example: -ce 'pos:", x={}, y={}", pos.x, pos.y'. Float values require aFloat()/aDouble(). Search UM for "bind-limits".
+Aliases select their event-tag group before source-prefix groups, once per group. Added runtime strings and selected -salias extensions are rejected. Native triceS accepts fixed text only. A changed alias format fallback warns before writes; build ID ranges keep the original tag.`)
 	flagUserLabel(fsScBind)
 }
 
@@ -299,7 +305,8 @@ func cleanIDsInit() {
 	fsScClean = flag.NewFlagSet("clean", flag.ContinueOnError) // sub-command
 	flagsRefreshAndUpdate(fsScClean)
 	fsScClean.Var(&id.ContextEnrichment, "ce", `Remove one complete matching format and argument suffix at selected calls, regardless of origin. Partial matches are left unchanged.
-Repeat selector:"format-extension"[, comma-free C-expression]... Matching uses the complete ordered rule group; no provenance comments are needed.`)
+Repeat selector:"format-extension"[, comma-free C-expression]... Matching uses the complete ordered rule group; no provenance comments are needed.
+Uses the same alias tag selection and capability limits as Insert/Bind. Matching CE fallback changes warn once before writes; ID-only Clean adds no CE warning.`)
 	fsScClean.BoolVar(&id.TriceCacheEnabled, "cache", false, `Use "~/.trice/cache/" for fast ID clean (EXPERIMENTAL!). The folder must exist.`)
 	fsScClean.BoolVar(&id.SpaceInsideParenthesis, "spaceInsideParenthesis", false, "Add space after Trice opening brace: `trice(<space>\"...)`. Use this if your default code auto-formatting is with space after opening brace.")
 	fsScClean.BoolVar(&id.SpaceInsideParenthesis, "w", false, "Short for (white)spaceInsideParenthesis or \"wide\".")
@@ -343,8 +350,12 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 }
 
 func flagUserLabel(p *flag.FlagSet) {
-	p.Var(&emitter.UserLabel, "ulabel", `Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". Built-in tag names and aliases ignore case; user-defined tags are matched exactly.
-Example: "-ulabel motor -ulabel sensor:150 -ulabel motor:red:blue" registers a tag with color; "-ulabel msg:300 -ulabel msg:red:blue" combines weight and color for every built-in MESSAGE alias. "-ulabel new:300 -ulabel NEW:400" creates separate user labels. A new tag without a weight uses the final INFO weight. See also "-logLevel".`) // multi flag
+	usage := `Register a tag or set its weight (0..999) or color. Repeat with name, name:weight, or name:color. Colors must match tokens shown by "trice generate -colors". All application tag names ignore case; custom metadata uses uppercase names.
+Example: "-utag motor -utag sensor:150 -utag motor:red:blue" registers a tag with color; "-utag msg:300 -utag msg:red:blue" combines weight and color for MESSAGE. "-utag new:300 -utag NEW:400" sets one NEW group to weight 400. A new tag without a weight uses the final INFO weight. See also "-logLevel".`
+	if p.Name() == "bind" || p.Name() == "insert" || p.Name() == "clean" {
+		usage = `Register a tag name for source processing. Repeat with name only; weights and colors are logging options. Tag names ignore case; custom metadata uses uppercase names. Example: "-utag motor -utag sensor". Clean needs matching names for CE reversal, not for plain ID removal.`
+	}
+	p.Var(&emitter.UserLabel, "utag", usage)
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {
@@ -391,17 +402,18 @@ source code files inside directory ./_test EXCEPT file trice.h inside _test/src 
 }
 
 func flagTriceAliases(p *flag.FlagSet) {
-	p.Var(&id.TriceAliases, "alias", `Additional macro names to treat like trice().
-This flag can be specified multiple times to add more aliases. Each provided name will be
-recognized as equivalent to a trice() call. (default none)
+	p.Var(&id.TriceAliases, "alias", `Scalar macro alias: Name or Name:Tag (repeatable).
+Names are exact C identifiers and must not start with trice. TIL preserves the name.
+Tag priority: explicit override, name heuristic, first static prefix, untagged.
+Repeat overrides when logging; they are not stored. Name:Tag also registers the tag.
  (default none)`) // multi flag
 	p.Var(&id.TriceAliases, "a", "Short for trice() aliases.") // multi flag
 }
 
 func flagTriceSAliases(p *flag.FlagSet) {
-	p.Var(&id.TriceSAliases, "salias", `Additional macro names to treat like triceS().
-This flag can be specified multiple times to add more aliases. Each provided name will be
-recognized as equivalent to a triceS() call.
+	p.Var(&id.TriceSAliases, "salias", `String macro alias: Name or Name:Tag (repeatable).
+Uses triceS payloads and preserves the exact name and existing argument wrapper.
+Same tag priority as -alias; both kinds cannot register the same name.
  (default none)`) // multi flag
 	p.Var(&id.TriceSAliases, "sa", "Short for triceS() aliases.") // multi flag
 }

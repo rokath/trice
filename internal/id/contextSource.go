@@ -34,7 +34,7 @@ func sourceContextExtension(rules []contextRule) (string, []string) {
 // Comments and outer argument whitespace are ignored, just as in the existing
 // C argument parser; different expressions or field spellings are not guessed
 // equivalent. The returned format retains any original final newline.
-func sourceContextMatch(format, extension string, args, expressions []string, rules []contextRule) (string, bool) {
+func sourceContextMatch(format, extension string, args, expressions []string, rules []contextRule, macro ...string) (string, bool) {
 	if len(args) < len(expressions) {
 		return "", false
 	}
@@ -62,6 +62,9 @@ func sourceContextMatch(format, extension string, args, expressions []string, ru
 			continue
 		}
 		_, remaining, _ := selectContextRules(original, rules)
+		if len(macro) > 0 {
+			_, remaining, _ = selectTriceContextRules(TriceFmt{Type: macro[0], Strg: original}, rules)
+		}
 		// A text-only extension must not consume its own selecting prefix.
 		if slices.EqualFunc(remaining, rules, func(a, b contextRule) bool {
 			return a.selector == b.selector && a.sourceFormat == b.sourceFormat && slices.Equal(a.expressions, b.expressions)
@@ -131,7 +134,7 @@ func sourceContextReducedMacro(macro string, count int) string {
 // Partial matches are ordinary source: insert appends the whole extension and
 // clean leaves it alone. The preflight-only clean pass preserves enriched TIL
 // entries until ordinary ID cleanup has consumed the still-enriched calls.
-func transformSourceContext(w io.Writer, path, source string, rules []contextRule, clean, restore bool) (string, error) {
+func transformSourceContext(w io.Writer, path, source string, rules []contextRule, clean, restore bool, originalTags ...*[]string) (string, error) {
 	if hasTriceBindSidecarInclude(source) {
 		return source, nil
 	}
@@ -139,28 +142,94 @@ func transformSourceContext(w io.Writer, path, source string, rules []contextRul
 	if len(diagnostics) != 0 {
 		return "", fmt.Errorf("%s", formatBindDiagnostic(diagnostics[0]))
 	}
-	if clean && !restore {
-		return source, nil
-	}
 	var edits []sourceEdit
 	masked := stripCComments(source)
 	for _, site := range sites {
+		entry := bindSiteFormat(site)
+		buildTag := site.buildTag
+		if len(originalTags) > 0 {
+			*originalTags[0] = append(*originalTags[0], buildTag)
+		}
 		if strings.TrimSpace(masked[site.loc[0]:site.loc[1]]) == "" {
 			continue // Commented examples retain their ordinary ID-only behavior.
 		}
-		physical := source[site.loc[5]+1 : site.loc[6]-1]
-		format, selected, duplicates := selectContextRules(physical, rules)
-		if len(selected) == 0 {
+		format, selected, duplicates := selectTriceContextRules(entry, rules, buildTag)
+		if err := validateAliasContext(entry, selected); err != nil {
+			return "", fmt.Errorf("%s:%d: CE: %w", path, site.line, err)
+		}
+		payload, _ := PayloadFormat(entry)
+		if payload.Alias != "" && payload.Type == "triceS" {
 			continue
 		}
+		if len(selected) == 0 && payload.Alias == "" {
+			continue
+		}
+		physical := source[site.loc[5]+1 : site.loc[6]-1]
 		args, err := splitTriceParametersUntilClosingBracket(masked[site.loc[6]:])
 		if err != nil {
 			return "", fmt.Errorf("%s:%d: CE: %w", path, site.line, err)
 		}
 		extension, expressions := sourceContextExtension(selected)
-		original, matches := sourceContextMatch(physical, extension, args, expressions, selected)
-		if len(expressions) != 0 && triceTypeCategory(bindSiteFormat(site).Type) != "" {
+		original, matches := "", false
+		if len(selected) > 0 {
+			original, matches = sourceContextMatch(physical, extension, args, expressions, selected, site.macro)
+		}
+		// CE can itself introduce the first prefix of an originally empty alias
+		// format. Recover only a complete suffix whose reconstructed source
+		// selects exactly that group; never select again from the stored host tag.
+		if !matches && payload.Alias != "" {
+			seen := map[string]bool{}
+			for _, rule := range rules {
+				if seen[rule.selector] {
+					continue
+				}
+				seen[rule.selector] = true
+				if _, known := contextSelector(rule.selector); !known {
+					continue
+				}
+				candidateFormat, candidates, candidateDuplicates := selectTriceContextRules(entry, rules, rule.selector)
+				candidateExtension, candidateExpressions := sourceContextExtension(candidates)
+				if reconstructed, ok := sourceContextMatch(physical, candidateExtension, args, candidateExpressions, candidates, site.macro); ok {
+					format, selected, duplicates = candidateFormat, candidates, candidateDuplicates
+					extension, expressions = candidateExtension, candidateExpressions
+					original, matches = reconstructed, true
+					break
+				}
+			}
+		}
+		if len(selected) == 0 {
+			continue
+		}
+		if len(expressions) != 0 && triceTypeCategory(payload.Type) != "" {
 			matches = false // Buffer/string arguments are not scalar CE arguments.
+		}
+		if matches {
+			buildTag = triceTag(TriceFmt{Type: site.macro, Strg: original})
+			if len(originalTags) > 0 {
+				tags := *originalTags[0]
+				tags[len(tags)-1] = buildTag
+			}
+		}
+		if !restore && (!clean || matches) {
+			effective := entry
+			if matches {
+				if err := canonicalizeSourceTemplate(&effective, masked[site.loc[6]:]); err != nil {
+					return "", fmt.Errorf("%s:%d: CE: %w", path, site.line, err)
+				}
+				effective.Strg, _, _ = selectTriceContextRules(effective, rules, buildTag)
+			} else {
+				prepared := site
+				if err := enrichBindSite(source, masked, &prepared, format, selected); err != nil {
+					return "", fmt.Errorf("%s:%d: CE: %w", path, site.line, err)
+				}
+				effective = bindSiteFormat(prepared)
+			}
+			warnContextFallback(w, path, site.line, buildTag, effective)
+		}
+		// Preflight validates and diagnoses matching Clean transformations before
+		// ID/cache processing; only the later restore pass edits source bytes.
+		if clean && !restore {
+			continue
 		}
 		if clean && !matches || !clean && matches {
 			continue
@@ -187,10 +256,7 @@ func transformSourceContext(w io.Writer, path, source string, rules []contextRul
 		}
 		body, newline := contextNewlineSuffix(physical)
 		edits = append(edits, sourceEdit{start: site.loc[5], end: site.loc[6], replacement: `"` + body + extension + newline + `"`})
-		entry := bindSiteFormat(site)
-		entry.Type = source[site.loc[0]:site.loc[1]]
-		resolveTriceAlias(&entry)
-		if entry.Type != site.macro {
+		if source[site.loc[0]:site.loc[1]] != site.macro {
 			edits = append(edits, sourceEdit{start: site.loc[0], end: site.loc[1], replacement: site.macro})
 		}
 		if len(expressions) != 0 {
@@ -213,6 +279,9 @@ func switchSourceContext(w io.Writer, fs *afero.Afero, clean bool) error {
 		return err
 	}
 	private := &afero.Afero{Fs: afero.NewCopyOnWriteFs(fs.Fs, afero.NewMemMapFs())}
+	previousTags := IDData.sourceBuildTags
+	IDData.sourceBuildTags = make(map[string][]string)
+	defer func() { IDData.sourceBuildTags = previousTags }()
 	var paths []string
 	admin := &ant.Admin{Trees: Srcs, ExcludeTrees: ExcludeSrcs, MatchingFileName: isSourceFile}
 	admin.Action = func(_ io.Writer, _ *afero.Afero, path string, _ os.FileInfo, a *ant.Admin) error {
@@ -231,10 +300,12 @@ func switchSourceContext(w io.Writer, fs *afero.Afero, clean bool) error {
 		if err != nil {
 			return err
 		}
-		prepared, err := transformSourceContext(w, path, string(content), rules, clean, false)
+		var buildTags []string
+		prepared, err := transformSourceContext(w, path, string(content), rules, clean, false, &buildTags)
 		if err != nil {
 			return err
 		}
+		IDData.sourceBuildTags[filepath.Clean(path)] = buildTags
 		if prepared != string(content) {
 			if err := atomicWriteFile(private, path, []byte(prepared), fileWritePerm(fs, path, 0o644)); err != nil {
 				return err

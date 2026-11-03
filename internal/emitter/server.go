@@ -37,6 +37,13 @@ func (p *DisplayServer) WriteLine(line []string, reply *int64) error {
 	return nil // todo: ? p.Display.lw.Err
 }
 
+// WriteEventLine renders resolved alias fragments using the server palette.
+func (p *DisplayServer) WriteEventLine(line EventLine, reply *int64) error {
+	*reply = int64(len(line.Fragments))
+	p.Display.WriteEventLine(line)
+	return nil
+}
+
 // ColorPalette is the exported server function for color palette, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
 func (p *DisplayServer) ColorPalette(s []string, reply *int64) error {

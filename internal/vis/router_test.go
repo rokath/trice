@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -72,6 +73,47 @@ func readTestFile(t *testing.T, fileSystem *afero.Afero, path string) string {
 	data, err := fileSystem.ReadFile(path)
 	require.NoError(t, err)
 	return string(data)
+}
+
+// TestAliasVisSelection uses event tags for registered selectors at startup and
+// runtime, while free selectors continue to inspect the exact static prefix.
+func TestAliasVisSelection(t *testing.T) {
+	oldA, oldS := id.TriceAliases, id.TriceSAliases
+	t.Cleanup(func() {
+		id.TriceAliases, id.TriceSAliases = oldA, oldS
+		_ = id.ProcessAliases()
+		_ = emitter.AddUserLabels()
+	})
+	id.TriceAliases, id.TriceSAliases = nil, nil
+	require.NoError(t, id.ProcessAliases())
+	require.NoError(t, emitter.AddUserLabels())
+	for _, test := range []struct {
+		selector, format string
+		selected         bool
+	}{
+		{"wrn", `err:x=%d\n`, true}, {"WARNING", `err:x=%d\n`, true}, {"err", `err:x=%d\n`, false}, {"imu", `imu:x=%d\n`, true}, {"IMU", `imu:x=%d\n`, false},
+	} {
+		t.Run(test.selector+test.format, func(t *testing.T) {
+			fs := testFileSystem()
+			lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: test.format}}
+			var diagnostics bytes.Buffer
+			router, err := NewRouter(&diagnostics, fs, lut, new(sync.RWMutex), []string{test.selector + `:printf("%d\n",v0)@out.csv;log=drop`}, true)
+			require.NoError(t, err)
+			defer router.Close()
+			assert.Equal(t, test.selected, router.Process(testRecord(1, "MyWrn", test.format, 0, 0, signedValue(32, 7)), false))
+			if test.selected {
+				assert.Equal(t, "7\n", readTestFile(t, fs, "out.csv"))
+			}
+		})
+	}
+	require.NoError(t, emitter.AddUserLabels("imu"))
+	rule := runtimeRule{parsedRule: parsedRule{tag: "IMU"}}
+	assert.False(t, rule.matchesEntry(id.TriceFmt{Type: "MyWrn", Strg: "imu:%d"}))
+	assert.True(t, rule.matchesEntry(id.TriceFmt{Type: "A", Strg: "imu:%d"}))
+	_, err := fixedNumericShape(id.TriceFmt{Type: "FooS", Strg: "x=%d\n"})
+	assert.NoError(t, err)
+	_, err = fixedNumericShape(id.TriceFmt{Type: "A", Strg: id.SAliasStrgPrefix + `"x=%d"` + id.SAliasStrgSuffix})
+	assert.Error(t, err)
 }
 
 // TestRouterEncodesTypedExpressionsAndDropsOnlyAfterSuccess verifies the central record path.

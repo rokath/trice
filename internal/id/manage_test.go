@@ -210,8 +210,9 @@ func TestLutFileTransferMemMap(t *testing.T) {
 func TestResolveTriceAlias(t *testing.T) {
 	defer Setup(t)()
 
-	TriceAliases = ArrayFlag{"LogX", "MixS"}
-	TriceSAliases = ArrayFlag{"PrintS", "MixS"}
+	TriceAliases = ArrayFlag{"LogX"}
+	TriceSAliases = ArrayFlag{"PrintS"}
+	require.NoError(t, ProcessAliases())
 
 	alias := TriceFmt{Type: "LogX"}
 	resolveTriceAlias(&alias)
@@ -223,10 +224,9 @@ func TestResolveTriceAlias(t *testing.T) {
 	assert.Equal(t, "triceS", sAlias.Type)
 	assert.Equal(t, "PrintS", sAlias.Alias)
 
-	shared := TriceFmt{Type: "MixS"}
-	resolveTriceAlias(&shared)
-	assert.Equal(t, "triceS", shared.Type)
-	assert.Equal(t, "MixS", shared.Alias)
+	TriceAliases = append(TriceAliases, "MixS")
+	TriceSAliases = append(TriceSAliases, "MixS")
+	assert.ErrorContains(t, ProcessAliases(), "both -alias and -salias")
 }
 
 // TestIDSpaceHelpers verifies the expected behavior.

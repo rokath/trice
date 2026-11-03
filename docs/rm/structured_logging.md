@@ -198,13 +198,15 @@ Text prefixes, suffixes, colors, indentation, time-difference columns and `-addN
 
 ## 5. <a id="json-and-kv-contract"></a>JSON and KV Contract
 
-Every application record contains `tag`, `level` and `message`. `tag` is the canonical name of a registered format string tag. Built-in aliases ignore case in both metadata and filtering: `inf:Hi` and `Inf:Hi` both yield `tag=INFO`; `rX:Hi` yields `tag=RECEIVE`. User-defined tags match exactly, so `new` and `NEW` can be separate groups. If no registered tag matches, the value is `untagged`.
+Every application record contains `tag`, `level` and `message`. `tag` is the canonical event tag: native calls use their registered static prefix, while [macro aliases](legacy_user_code.md#alias-identity-and-tags-in-v2) use override → name → first registered static prefix → `untagged`. Built-in and custom names ignore case in metadata and filtering: `inf:Hi` and `Inf:Hi` both yield `tag=INFO`; `rX:Hi` yields `tag=RECEIVE`. Registered `new`, `NEW` and `NeW` share one custom group with uppercase metadata `tag=NEW`. If no source matches, the value is `untagged`.
+
+Alias message rendering removes only a matching lowercase static prefix. Conflicting/mixed-case prefixes and received `wrn:payload` text remain; `-color off` preserves every written prefix, with no ANSI codes in JSON/KV. Added scalar CE values can be named fields. Added runtime strings and every selected string-alias CE extension are excluded; native `triceS` retains fixed CE text. See [CE capabilities and its accepted fallback warning](context_enrichment.md#alias-tags-and-ce-limits).
 
 `message` takes the message content of text output without ANSI colors, outer metadata, text prefixes or suffixes. With `-color none` or `default`, only a recognized, entirely lowercase format string tag is removed: `inf:Hi` becomes `Hi`, whereas `Inf:Hi` remains `Inf:Hi`. Likewise, `rx:Hi` becomes `Hi`, while `rX:Hi` retains its prefix even though it belongs to RECEIVE. An unknown prefix such as `mgs:Hi` also remains visible. With `-color off`, explicitly written tag prefixes remain, as in text mode. Trice never adds `untagged:` to message text: `trice("Hi")` yields `message="Hi"` and `tag="untagged"`; `trice("mgs:Hi")` yields `message="mgs:Hi"` and `tag="untagged"`. Leading and trailing whitespace, empty messages and messages consisting only of whitespace are preserved.
 
 A runtime string does not change tag classification: with `triceS("{text:%s}", value)` and a value starting with `err:`, `tag` remains `untagged`. Existing text output converts sequences such as `\n` and `\t` for display, including within runtime strings; `message` follows that display. The named field `fields.text` retains the transmitted string, except for outer whitespace.
 
-`level` is derived from the tag group's effective numeric weight, including `-ulabel` overrides. Select the named level with the highest lower boundary not exceeding that weight. The eight boundaries come from the built-in defaults and stay fixed for the command, even when the weights of level-named tags are overridden. Category tags, custom tags and `untagged` use the same rule. Colors and tag names do not determine the level.
+`level` is derived from the tag group's effective numeric weight, including `-utag` overrides. Select the named level with the highest lower boundary not exceeding that weight. The eight boundaries come from the built-in defaults and stay fixed for the command, even when the weights of level-named tags are overridden. Category tags, custom tags and `untagged` use the same rule. Colors and tag names do not determine the level.
 
 Effective weight | Exported level
 --- | ---
@@ -217,7 +219,7 @@ Effective weight | Exported level
 100–299 | TRACE
 0–99 | VERBOSE
 
-VERBOSE starts at 0, so every supported weight belongs to exactly one interval. There is no default-level or INFO fallback. A new custom tag without an explicit weight still inherits the effective INFO **weight**; its level is then derived from that number. For example, `-ulabel INFO:750 -ulabel sensor` gives both groups weight 750 and level ERROR, while the INFO boundary remains 500 for other groups. Equal overridden tag weights are harmless; the eight fixed level boundaries are distinct.
+VERBOSE starts at 0, so every supported weight belongs to exactly one interval. There is no default-level or INFO fallback. A new custom tag without an explicit weight still inherits the effective INFO **weight**; its level is then derived from that number. For example, `-utag INFO:750 -utag sensor` gives both groups weight 750 and level ERROR, while the INFO boundary remains 500 for other groups. Equal overridden tag weights are harmless; the eight fixed level boundaries are distinct.
 
 For example, an application category can pass a severity threshold and receive a level while retaining its tag:
 
@@ -226,22 +228,22 @@ trice("sensor:Supply {} mV", voltage_mV);
 ```
 
 ```sh
-trice log -ulabel sensor:650 -logLevel wrn -logFormat json
+trice log -utag sensor:650 -logLevel wrn -logFormat json
 ```
 
 Using the matching dictionary and input, with `voltage_mV = 3300`, the event is:
 
 ```json
-{"tag":"sensor","level":"WARNING","message":"Supply 3300 mV","fields":{"voltage_mV":3300}}
+{"tag":"SENSOR","level":"WARNING","message":"Supply 3300 mV","fields":{"voltage_mV":3300}}
 ```
 
 The `sensor` weight of 650 passes the default Warning threshold of 600 and falls in the WARNING interval. With `-logFormat kv`, the same event is:
 
 ```text
-tag=sensor level=WARNING message="Supply 3300 mV" field.voltage_mV=3300
+tag=SENSOR level=WARNING message="Supply 3300 mV" field.voltage_mV=3300
 ```
 
-Changing `sensor` to weight 550 gives level INFO; changing it to 750 gives level ERROR. Its tag, message and fields remain unchanged. The rule also applies to level-named tags: `-ulabel INFO:750` produces `tag=INFO level=ERROR`. Built-in category RECEIVE normally produces `tag=RECEIVE level=DEBUG`; an untagged message normally produces `tag=untagged level=INFO` without injecting `untagged:` into its message. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
+Changing `sensor` to weight 550 gives level INFO; changing it to 750 gives level ERROR. Its tag, message and fields remain unchanged. The rule also applies to level-named tags: `-utag INFO:750` produces `tag=INFO level=ERROR`. Built-in category RECEIVE normally produces `tag=RECEIVE level=DEBUG`; an untagged message normally produces `tag=untagged level=INFO` without injecting `untagged:` into its message. Register `sensor` consistently for the relevant instrumentation and logging commands; see [user-defined tags](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
 
 In JSON, user fields reside under `fields`. Host and user fields therefore cannot overwrite each other: a user field named `tag` appears under `fields.tag`. User fields are emitted in template order. A record without exportable user fields has no empty `fields` object.
 

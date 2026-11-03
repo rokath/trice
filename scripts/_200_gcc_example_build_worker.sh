@@ -7,14 +7,28 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
-# fail_on_compiler_diagnostics retains diagnostics without making a successful
-# build fail because another compiler release adds a warning. Build failures
-# propagate through the command status; arbitrary words in log text are not a
-# reliable compiler error detector.
-fail_on_compiler_diagnostics() {
-  local stage="$1"
+# compiler_warnings recognizes source locations and compiler/linker drivers,
+# including MSVC locations. Strip ANSI colors before matching; application
+# messages such as WARNING:11+i:red are not compiler diagnostics.
+compiler_warnings() {
+  LC_ALL=C sed -E $'s/\033\\[[0-9;]*[[:alpha:]]//g' "$1" |
+    LC_ALL=C grep -E ':[0-9]+(:[0-9]+)?:[[:space:]]+warning:|\([0-9]+(,[0-9]+)?\)[[:space:]]*:[[:space:]]*warning[[:space:]]+[A-Z]+[0-9]+:|(^|.*[/\\])([^/\\[:space:]]*(gcc|g\+\+|clang|clang\+\+|cc1|cc1plus|collect2|ld|ld64)|cc|c\+\+)(-[0-9.]+)?(\.exe)?:[[:space:]]+warning:'
+}
 
-  if grep -Eiq 'warning:' "$LOGFILE"; then
+# run_compiler_stage keeps each build's evidence separate from earlier output.
+# pipefail preserves build/cancellation and tee failures while output stays live.
+run_compiler_stage() {
+  local stage="$1" key="$2" directory="$3"
+  local stage_log="$LOGFILE.build.$key"
+  local status
+  shift 3
+  if (cd "$directory" && "$@") 2>&1 | tee "$stage_log"; then
+    :
+  else
+    status=$?
+    return "$status"
+  fi
+  if compiler_warnings "$stage_log" >/dev/null; then
     printf 'Hint: %s completed with compiler warnings; see the diagnostics above.\n' "$stage"
   fi
 }
@@ -96,9 +110,9 @@ run_standalone_bind_examples() {
       grep -E '^(INFO:|SKIP:|Hint:)' "$entry_log" || true
       # Standalone compiler output lives in a separate file. Forward warnings
       # too so a successful nested build cannot hide them from testAll's summary.
-      if grep -Eiq 'warning:' "$entry_log"; then
+      if compiler_warnings "$entry_log" >/dev/null; then
         printf 'Hint: standalone examples/%s completed with compiler warnings; see %s\n' "$entry" "$entry_log"
-        grep -Ei 'warning:' "$entry_log" || true
+        compiler_warnings "$entry_log" || true
       fi
       continue
     else
@@ -127,30 +141,18 @@ run_on_matrix() {
   clean_all_targets
   if [ "$selected" = "quick" ]; then
     printf '+ examples/G0B1_inst/build.sh\n'
-    (
-      cd "$ROOT/examples/G0B1_inst" || exit 1
-      ./build.sh
-    )
-    fail_on_compiler_diagnostics "G0B1_inst quick build"
+    run_compiler_stage "G0B1_inst quick build" quick "$ROOT/examples/G0B1_inst" ./build.sh
     clean_all_targets
     return 0
   fi
 
   printf '+ examples/G0B1_inst/build.sh --x0-matrix\n'
-  (
-    cd "$ROOT/examples/G0B1_inst" || exit 1
-    ./build.sh --x0-matrix
-  )
-  fail_on_compiler_diagnostics "G0B1_inst X0 matrix"
+  run_compiler_stage "G0B1_inst X0 matrix" x0 "$ROOT/examples/G0B1_inst" ./build.sh --x0-matrix
 
   clean_all_targets
   has_host_build_tools || return 0
   printf '+ examples/buildAllTargets_TRICE_ON.sh\n'
-  (
-    cd "$ROOT/examples" || exit 1
-    ./buildAllTargets_TRICE_ON.sh
-  )
-  fail_on_compiler_diagnostics "TRICE_ON builds"
+  run_compiler_stage "TRICE_ON builds" on "$ROOT/examples" ./buildAllTargets_TRICE_ON.sh
   clean_all_targets
 }
 
@@ -160,11 +162,7 @@ run_off_matrix() {
   has_host_build_tools || return 0
   clean_all_targets
   printf '+ examples/buildAllTargets_TRICE_OFF.sh\n'
-  (
-    cd "$ROOT/examples" || exit 1
-    ./buildAllTargets_TRICE_OFF.sh
-  )
-  fail_on_compiler_diagnostics "TRICE_OFF builds"
+  run_compiler_stage "TRICE_OFF builds" off "$ROOT/examples" ./buildAllTargets_TRICE_OFF.sh
   clean_all_targets
 }
 

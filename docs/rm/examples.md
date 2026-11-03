@@ -179,7 +179,7 @@ The [text](../../examples/PC_features/show_text.sh), [JSON](../../examples/PC_fe
 ```sh
 ./show_json.sh -logLevel wrn
 ./show_text.sh -pick info
-./show_json.sh -ulabel sensor:650 -logLevel wrn
+./show_json.sh -utag sensor:650 -logLevel wrn
 ./show_text.sh -tagStat
 ```
 

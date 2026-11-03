@@ -49,7 +49,7 @@ tlog ... \
   -vis='imu:printf("%0.3f,%0.3f,%0.3f\n",v0*0.5,v1*0.5,v2*0.5)@udp://127.0.0.1:7010;log=drop'
 ```
 
-The selector matches the original Trice format prefix `<tag>:`. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
+Registered tag selectors match the resolved event tag, ignoring case. For example, `MyWrn("err:x=%u\n", x)` belongs to WARNING: `wrn` selects it, while `err` does not. An unregistered free selector such as `imu` still matches the exact stored static prefix `imu:`. Registering it with `-utag imu` gives it event-tag semantics. [Scalar aliases](legacy_user_code.md#alias-identity-and-tags-in-v2) use their resolved payload shape while preserving their original identity. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
 
 The supported fields are:
 
@@ -278,7 +278,7 @@ Writing log.bin
 - Show logs in binary log file: 
 
 ```txt
-th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo | head
+th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -utag vis_demo | head
 Jul 25 15:38:55.411676  FILEBUFFER:    0,000_000 0.000000,1.000000,0.000000
 Jul 25 15:38:55.411691  FILEBUFFER:    0,000_002 0.087851,0.992854,0.027246
 Jul 25 15:38:55.411705  FILEBUFFER:    0,000_004 0.175023,0.971519,0.053608
@@ -294,7 +294,7 @@ th@Thomass-MacBook-Pro-7 bin %
 - Get CSV log file:
 
 ```txt
-th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -ulabel vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100.0,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
+th@Thomass-MacBook-Pro-7 bin % tlog -p FILEBUFFER -args log.bin -til ../../../demoTIL.json -utag vis_demo -vis='vis_demo:printf("%0.3f,%0.3f,%0.3f,%0.3f\n",ts/100.0,v0,v1,v2)@log.csv;header="time_s,X,Y,Z\n";log=drop'
 th@Thomass-MacBook-Pro-7 bin % head log.csv
 time_s,X,Y,Z
 0.000,0.000,1.000,0.000
@@ -318,7 +318,7 @@ For a live Serial Studio or other CSV viewer listening on UDP `9000`, start
 the decoder from the repository root before starting the binary producer:
 
 ```sh
-trice log -p UDP4 -args 127.0.0.1:9001 -pf TCOBS -til demoTIL.json -ulabel vis_demo \
+trice log -p UDP4 -args 127.0.0.1:9001 -pf TCOBS -til demoTIL.json -utag vis_demo \
   -vis='vis_demo:printf("%0.6f,%0.6f,%0.6f,%0.6f\n",ts/100.0,v0,v1,v2)@udp://127.0.0.1:9000;log=drop'
 ```
 

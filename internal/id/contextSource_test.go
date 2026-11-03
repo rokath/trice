@@ -288,7 +288,7 @@ func TestSourceContextAliasWithUnderscoreKeepsItsName(t *testing.T) {
 	defer prepareSourceContextTest(t, map[string]string{"main.c": source}, `ctx:" x=%d", x`)()
 	TriceAliases = ArrayFlag{"my_trace"}
 	ProcessAliases()
-	t.Cleanup(ProcessAliases)
+	t.Cleanup(func() { _ = ProcessAliases() })
 	require.NoError(t, SubCmdIdInsert(io.Discard, FSys))
 	inserted, err := FSys.ReadFile(Srcs[0])
 	require.NoError(t, err)

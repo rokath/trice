@@ -256,6 +256,144 @@ func TestStructuredTagAndMessageFollowTextMode(t *testing.T) {
 	}
 }
 
+// TestAliasWirePresentation checks real alias payloads through text, JSON and
+// KV. Runtime data and later lines must not become new classification inputs.
+func TestAliasWirePresentation(t *testing.T) {
+	for _, test := range []struct {
+		name, alias, format, tag, message string
+		payload                           []byte
+	}{
+		{"fallback", "printi", `err:failed\n`, "ERROR", "failed\n", nil},
+		{"matching prefix", "MyWrn", `wrn:failed\n`, "WARNING", "failed\n", nil},
+		{"uppercase prefix", "MyWrn", `WRN:failed\n`, "WARNING", "WRN:failed\n", nil},
+		{"conflicting prefix", "MyWrn", `err:failed\n`, "WARNING", "err:failed\n", nil},
+		{"continuation", "MyWrn", `wrn:first\nerr:second\n`, "WARNING", "first\nerr:second\n", nil},
+		{"short scalar", "A", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"native-looking alias", "FooS", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"digits in alias", "My32", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"assert in alias", "MyAssert", `info:%d\n`, "INFO", "7\n", structuredWords(32, 7)},
+		{"runtime matching prefix", "MyWrn", id.SAliasStrgPrefix + `payload` + id.SAliasStrgSuffix, "WARNING", "wrn:payload\n", []byte("wrn:payload\n")},
+		{"runtime conflicting prefix", "MyWrn", id.SAliasStrgPrefix + `payload` + id.SAliasStrgSuffix, "WARNING", "err:payload\n", []byte("err:payload\n")},
+	} {
+		for _, format := range []string{"text", "json", "kv"} {
+			for _, palette := range []string{"none", "off", "dark"} {
+				t.Run(test.name+"/"+format+"/"+palette, func(t *testing.T) {
+					configureStructuredTest(t, format)
+					oldA, oldS := id.TriceAliases, id.TriceSAliases
+					t.Cleanup(func() { id.TriceAliases, id.TriceSAliases = oldA, oldS; _ = id.ProcessAliases() })
+					id.TriceAliases, id.TriceSAliases = nil, nil
+					assert.NoError(t, id.ProcessAliases())
+					emitter.ColorPalette = palette
+					oldIndent := decoder.NewlineIndent
+					decoder.NewlineIndent = 0
+					t.Cleanup(func() { decoder.NewlineIndent = oldIndent })
+					lut := id.TriceIDLookUp{1: {Type: test.alias, Strg: test.format}}
+					output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, test.payload))
+					assert.Empty(t, diagnostics)
+					message := test.message
+					if palette == "off" {
+						if event := id.ResolveAliasEvent(lut[1]); event.Prefix != "" && strings.HasPrefix(test.format, event.Prefix+":") && !strings.HasPrefix(message, event.Prefix+":") {
+							message = event.Prefix + ":" + message
+						}
+					}
+					if format == "json" {
+						var record struct{ Tag, Message string }
+						if assert.NoError(t, json.Unmarshal([]byte(output), &record)) {
+							assert.Equal(t, test.tag, record.Tag)
+							assert.Equal(t, message, record.Message)
+						}
+					} else if format == "kv" {
+						prefix, encoded, found := strings.Cut(output, " message=")
+						if assert.True(t, found) {
+							assert.Equal(t, "tag="+test.tag, strings.Fields(prefix)[0])
+							decoded, err := strconv.Unquote(strings.TrimSuffix(encoded, "\n"))
+							assert.NoError(t, err)
+							assert.Equal(t, message, decoded)
+						}
+					} else if palette != "dark" {
+						assert.Equal(t, message, output)
+					} else {
+						assert.Contains(t, output, "\x1b[")
+						assert.NotContains(t, output, "WARNING:")
+						assert.Contains(t, output, strings.Split(message, "\n")[0])
+					}
+				})
+			}
+		}
+	}
+}
+
+// TestAliasWireFiltersAndStatistics counts decoded events before all host
+// filters, including empty events, and applies nonpersisted command overrides.
+func TestAliasWireFiltersAndStatistics(t *testing.T) {
+	for _, filter := range []string{"pick", "ban", "level", "override"} {
+		t.Run(filter, func(t *testing.T) {
+			configureStructuredTest(t, "json")
+			oldA, oldS := id.TriceAliases, id.TriceSAliases
+			oldStats := emitter.TagStatistics
+			t.Cleanup(func() {
+				id.TriceAliases, id.TriceSAliases = oldA, oldS
+				_ = id.ProcessAliases()
+				emitter.TagStatistics = oldStats
+				_ = emitter.AddUserLabels()
+			})
+			id.TriceAliases, id.TriceSAliases = nil, nil
+			if filter == "override" {
+				id.TriceAliases = []string{"MyWrn:sensor"}
+			}
+			assert.NoError(t, id.ProcessAliases())
+			assert.NoError(t, emitter.AddUserLabels(id.AliasTagNames()...))
+			emitter.TagStatistics = true
+			tag := "WARNING"
+			if filter == "override" {
+				tag = "SENSOR"
+			}
+			before := emitter.TagEvents(tag)
+			switch filter {
+			case "pick":
+				emitter.Pick = []string{"err"}
+			case "ban":
+				emitter.Ban = []string{"wrn"}
+			case "level":
+				emitter.LogLevel = "fatal"
+			}
+			assert.NoError(t, emitter.ResolveFilterSelectors())
+			lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: ""}}
+			output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, nil))
+			assert.Empty(t, diagnostics)
+			assert.Equal(t, before+1, emitter.TagEvents(tag))
+			if filter == "override" {
+				assert.Contains(t, output, `"tag":"SENSOR"`)
+				assert.Contains(t, output, `"message":""`)
+			} else {
+				assert.Empty(t, output)
+			}
+		})
+	}
+}
+
+// TestAliasTextFragments keeps separate events' colors and prefix provenance
+// even when several calls jointly form one display line.
+func TestAliasTextFragments(t *testing.T) {
+	configureStructuredTest(t, "text")
+	lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: "wrn:first "}, 2: {Type: "LogErr", Strg: "err:second\\n"}}
+	input := append(structuredPacket(1, nil), structuredPacket(2, nil)...)
+	output, diagnostics := runStructuredWire(t, lut, input)
+	assert.Empty(t, diagnostics)
+	assert.Equal(t, "first second\n", output)
+}
+
+// TestAliasStringDisplayNewline resolves the stored wrapper before adding a
+// presentation newline, so this option cannot turn it into a partial wrapper.
+func TestAliasStringDisplayNewline(t *testing.T) {
+	configureStructuredTest(t, "text")
+	trexDecoder.AddNewlineToEachTriceMessage = true
+	lut := id.TriceIDLookUp{1: {Type: "MyWrn", Strg: id.SAliasStrgPrefix + `payload` + id.SAliasStrgSuffix}}
+	output, diagnostics := runStructuredWire(t, lut, structuredPacket(1, []byte("wrn:payload")))
+	assert.Empty(t, diagnostics)
+	assert.Equal(t, "wrn:payload\n", output)
+}
+
 // TestStructuredStringFieldsTrimWithoutChangingMessages verifies that user
 // strings retain their raw meaning in text while exported fields drop only
 // their outer whitespace, including Unicode whitespace and empty values.
@@ -726,8 +864,8 @@ func TestStructuredLevelFollowsEffectiveTagWeight(t *testing.T) {
 	assert.NoError(t, emitter.AddUserLabels())
 	for _, tt := range []struct{ tag, want string }{
 		{"Info", `{"tag":"INFO","level":"VERBOSE","message":"Info:ready"}`},
-		{"motor", `{"tag":"motor","level":"FATAL","message":"ready"}`},
-		{"MoToR", `{"tag":"untagged","level":"INFO","message":"MoToR:ready"}`},
+		{"motor", `{"tag":"MOTOR","level":"FATAL","message":"ready"}`},
+		{"MoToR", `{"tag":"MOTOR","level":"FATAL","message":"MoToR:ready"}`},
 		{"WaRn", `{"tag":"WARNING","level":"WARNING","message":"WaRn:ready"}`},
 	} {
 		t.Run(tt.tag, func(t *testing.T) {
@@ -758,37 +896,37 @@ func TestStructuredLevelDerivationAcrossWireFormats(t *testing.T) {
 		{name: "lowercase pick includes mixed-case event", template: "rX:value={value}", labels: []string{"rx:750"}, pick: "rx", tag: "RECEIVE", level: "ERROR", message: "rX:value=7"},
 		{name: "mixed-case ban excludes lowercase event", template: "rx:value={value}", ban: "rX", rejected: true},
 		{name: "lowercase ban excludes mixed-case event", template: "rX:value={value}", ban: "rx", rejected: true},
-		{name: "lowercase user label stays independent", template: "new:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "new", tag: "new", level: "DEBUG", message: "value=7"},
+		{name: "lowercase user label shares canonical weight", template: "new:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "new", tag: "NEW", level: "WARNING", message: "value=7"},
 		{name: "uppercase user label keeps prefix and weight", template: "NEW:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "NEW", tag: "NEW", level: "WARNING", message: "NEW:value=7"},
-		{name: "uppercase user label is not picked as lowercase", template: "NEW:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "new", rejected: true},
-		{name: "unregistered custom spelling uses untagged", template: "NeW:value={value}", labels: []string{"new:300", "NEW:650", "untagged:150"}, tag: "untagged", level: "TRACE", message: "NeW:value=7"},
-		{name: "custom tag just below WARNING", template: "sensor:value={value}", labels: []string{"sensor:599"}, tag: "sensor", level: "INFO", message: "value=7"},
-		{name: "exact numeric pick preserves structured fields", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", tag: "sensor", level: "TRACE", message: "value=7"},
+		{name: "uppercase user label is picked as lowercase", template: "NEW:value={value}", labels: []string{"new:300", "NEW:650"}, pick: "new", tag: "NEW", level: "WARNING", message: "NEW:value=7"},
+		{name: "mixed-case custom spelling shares canonical metadata", template: "NeW:value={value}", labels: []string{"new:300", "NEW:650", "untagged:150"}, tag: "NEW", level: "WARNING", message: "NeW:value=7"},
+		{name: "custom tag just below WARNING", template: "sensor:value={value}", labels: []string{"sensor:599"}, tag: "SENSOR", level: "INFO", message: "value=7"},
+		{name: "exact numeric pick preserves structured fields", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", tag: "SENSOR", level: "TRACE", message: "value=7"},
 		{name: "exact numeric ban suppresses entire event", template: "sensor:value={value}", labels: []string{"sensor:200"}, ban: "200", rejected: true},
 		{name: "numeric pick is not a minimum threshold", template: "sensor:value={value}", labels: []string{"sensor:201"}, pick: "200", rejected: true},
-		{name: "numeric ban keeps a neighboring higher weight", template: "sensor:value={value}", labels: []string{"sensor:201"}, ban: "200", tag: "sensor", level: "TRACE", message: "value=7"},
+		{name: "numeric ban keeps a neighboring higher weight", template: "sensor:value={value}", labels: []string{"sensor:201"}, ban: "200", tag: "SENSOR", level: "TRACE", message: "value=7"},
 		{name: "numeric pick follows a built-in override", template: "rX:value={value}", labels: []string{"rx:200"}, pick: "200", tag: "RECEIVE", level: "TRACE", message: "rX:value=7"},
 		{name: "numeric pick follows untagged override", template: "typo:value={value}", labels: []string{"untagged:200"}, pick: "200", tag: "untagged", level: "TRACE", message: "typo:value=7"},
 		{name: "minimum threshold still restricts exact pick", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", threshold: "201", rejected: true},
 		{name: "removed single-letter prefix stays in message", template: "e:value={value}", tag: "untagged", level: "INFO", message: "e:value=7"},
-		{name: "explicit single-letter tag is a separate category", template: "x:value={value}", labels: []string{"x:200"}, pick: "200", tag: "x", level: "TRACE", message: "value=7"},
-		{name: "custom tag exactly at WARNING", template: "sensor:value={value}", labels: []string{"sensor:600"}, tag: "sensor", level: "WARNING", message: "value=7"},
-		{name: "custom tag remains WARNING at 650", template: "sensor:value={value}", labels: []string{"sensor:650"}, tag: "sensor", level: "WARNING", message: "value=7"},
-		{name: "color override does not change numeric level", template: "sensor:value={value}", labels: []string{"sensor:650", "sensor:red:blue"}, tag: "sensor", level: "WARNING", message: "value=7"},
-		{name: "custom tag moves to ERROR at 750", template: "sensor:value={value}", labels: []string{"sensor:750"}, tag: "sensor", level: "ERROR", message: "value=7"},
+		{name: "explicit single-letter tag is a separate category", template: "x:value={value}", labels: []string{"x:200"}, pick: "200", tag: "X", level: "TRACE", message: "value=7"},
+		{name: "custom tag exactly at WARNING", template: "sensor:value={value}", labels: []string{"sensor:600"}, tag: "SENSOR", level: "WARNING", message: "value=7"},
+		{name: "custom tag remains WARNING at 650", template: "sensor:value={value}", labels: []string{"sensor:650"}, tag: "SENSOR", level: "WARNING", message: "value=7"},
+		{name: "color override does not change numeric level", template: "sensor:value={value}", labels: []string{"sensor:650", "sensor:red:blue"}, tag: "SENSOR", level: "WARNING", message: "value=7"},
+		{name: "custom tag moves to ERROR at 750", template: "sensor:value={value}", labels: []string{"sensor:750"}, tag: "SENSOR", level: "ERROR", message: "value=7"},
 		{name: "level-named tag follows its weight", template: "info:value={value}", labels: []string{"INFO:750"}, tag: "INFO", level: "ERROR", message: "value=7"},
-		{name: "INFO override does not move sensor boundary", template: "sensor:value={value}", labels: []string{"INFO:750", "sensor:550"}, tag: "sensor", level: "INFO", message: "value=7"},
-		{name: "equal overridden level-tag weights are unambiguous", template: "sensor:value={value}", labels: []string{"INFO:750", "wrn:750", "sensor:650"}, tag: "sensor", level: "WARNING", message: "value=7"},
-		{name: "unweighted custom tag inherits effective INFO weight", template: "sensor:value={value}", labels: []string{"sensor", "INFO:750"}, tag: "sensor", level: "ERROR", message: "value=7"},
-		{name: "unweighted custom tag normally becomes INFO", template: "sensor:value={value}", labels: []string{"sensor"}, tag: "sensor", level: "INFO", message: "value=7"},
+		{name: "INFO override does not move sensor boundary", template: "sensor:value={value}", labels: []string{"INFO:750", "sensor:550"}, tag: "SENSOR", level: "INFO", message: "value=7"},
+		{name: "equal overridden level-tag weights are unambiguous", template: "sensor:value={value}", labels: []string{"INFO:750", "wrn:750", "sensor:650"}, tag: "SENSOR", level: "WARNING", message: "value=7"},
+		{name: "unweighted custom tag inherits effective INFO weight", template: "sensor:value={value}", labels: []string{"sensor", "INFO:750"}, tag: "SENSOR", level: "ERROR", message: "value=7"},
+		{name: "unweighted custom tag normally becomes INFO", template: "sensor:value={value}", labels: []string{"sensor"}, tag: "SENSOR", level: "INFO", message: "value=7"},
 		{name: "untagged stays free of an injected prefix", template: "  value={value}  ", tag: "untagged", level: "INFO", message: "  value=7  "},
 		{name: "unknown tag keeps the typo and derives untagged level", template: "mgs:value={value}", labels: []string{"untagged:150"}, tag: "untagged", level: "TRACE", message: "mgs:value=7"},
 		{name: "OK is unknown rather than a MESSAGE alias", template: "OK:value={value}", tag: "untagged", level: "INFO", message: "OK:value=7"},
 		{name: "lowercase ok is not stripped as a MESSAGE alias", template: "ok:value={value}", tag: "untagged", level: "INFO", message: "ok:value=7"},
 		{name: "explicit OK user tag gets its own level", template: "OK:value={value}", labels: []string{"OK:650"}, tag: "OK", level: "WARNING", message: "OK:value=7"},
-		{name: "weight zero is a named VERBOSE interval", template: "sensor:value={value}", labels: []string{"sensor:0"}, tag: "sensor", level: "VERBOSE", message: "value=7"},
-		{name: "weight 999 remains FATAL", template: "sensor:value={value}", labels: []string{"sensor:999"}, tag: "sensor", level: "FATAL", message: "value=7"},
-		{name: "numeric threshold uses exact 650", template: "sensor:value={value}", labels: []string{"sensor:650"}, threshold: "650", tag: "sensor", level: "WARNING", message: "value=7"},
+		{name: "weight zero is a named VERBOSE interval", template: "sensor:value={value}", labels: []string{"sensor:0"}, tag: "SENSOR", level: "VERBOSE", message: "value=7"},
+		{name: "weight 999 remains FATAL", template: "sensor:value={value}", labels: []string{"sensor:999"}, tag: "SENSOR", level: "FATAL", message: "value=7"},
+		{name: "numeric threshold uses exact 650", template: "sensor:value={value}", labels: []string{"sensor:650"}, threshold: "650", tag: "SENSOR", level: "WARNING", message: "value=7"},
 		{name: "numeric threshold rejects 650 below 651", template: "sensor:value={value}", labels: []string{"sensor:650"}, threshold: "651", rejected: true},
 		{name: "tag threshold follows overridden INFO weight", template: "sensor:value={value}", labels: []string{"INFO:750", "sensor:650"}, threshold: "INFO", rejected: true},
 	} {

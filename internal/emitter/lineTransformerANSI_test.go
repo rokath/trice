@@ -427,7 +427,7 @@ func TestBuiltInTagRecognitionPreservesWrittenPrefixes(t *testing.T) {
 
 // TestBuiltInTagSelectorsShareWeightsAcrossSpellings checks selection for both
 // typed events and legacy byte fragments. A mixed-case prefix must never pass
-// or fail using the unrelated untagged weight; user labels still stay literal.
+// or fail using the unrelated untagged weight; custom groups share this policy.
 func TestBuiltInTagSelectorsShareWeightsAcrossSpellings(t *testing.T) {
 	for _, tc := range []struct {
 		name, threshold string
@@ -458,57 +458,44 @@ func TestBuiltInTagSelectorsShareWeightsAcrossSpellings(t *testing.T) {
 	}
 }
 
-// TestUserTagsRemainExactAcrossLogging keeps separately registered new and NEW
-// independent in metadata, levels, selection, statistics and text. A third
-// spelling is unknown and follows the configured untagged event policy.
-func TestUserTagsRemainExactAcrossLogging(t *testing.T) {
+// TestUserTagsShareOneCanonicalGroup checks metadata, counters and selection
+// across case variants while preserving the written prefix's display policy.
+func TestUserTagsShareOneCanonicalGroup(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
 	UserLabel = ArrayFlag{"new:300", "NEW:650", "untagged:150"}
 	require.NoError(t, AddUserLabels())
 	TagStatistics = true
-	for _, tc := range []struct {
-		name, level, visible string
-		weight               int
-	}{
-		{"new", "DEBUG", "payload", 300},
-		{"NEW", "WARNING", "NEW:payload", 650},
-	} {
-		canonical, err := FindTagName(tc.name)
+	for _, spelling := range []string{"new", "NEW", "NeW"} {
+		canonical, err := FindTagName(spelling)
 		require.NoError(t, err)
-		assert.Equal(t, tc.name, canonical)
-		weight, err := TagWeight(tc.name)
+		assert.Equal(t, "NEW", canonical)
+		weight, err := TagWeight(spelling)
 		require.NoError(t, err)
-		assert.Equal(t, tc.weight, weight)
-		assert.Equal(t, tc.level, TagLevel(tc.name))
-		RecordTagEvent(tc.name)
-		got, _ := newLineTransformerANSI(newCheckDisplay(), "none").colorize(tc.name + ":payload")
-		assert.Equal(t, tc.visible, got)
+		assert.Equal(t, 650, weight)
+		assert.Equal(t, "WARNING", TagLevel(spelling))
+		RecordTagEvent(spelling)
+		want := spelling + ":payload"
+		if spelling == "new" {
+			want = "payload"
+		}
+		got, _ := newLineTransformerANSI(newCheckDisplay(), "none").colorize(spelling + ":payload")
+		assert.Equal(t, want, got)
 	}
-	_, err := FindTagName("NeW")
-	assert.Error(t, err)
-	_, err = TagWeight("NeW")
-	assert.Error(t, err)
-	assert.Empty(t, TagLevel("NeW"))
-	RecordTagEvent("NeW")
-	assert.Equal(t, 1, TagEvents("new"))
-	assert.Equal(t, 1, TagEvents("NEW"))
-	assert.Equal(t, 1, TagEvents("untagged"))
-	assert.Equal(t, -1, TagEvents("NeW"))
-	got, _ := newLineTransformerANSI(newCheckDisplay(), "none").colorize("NeW:payload")
-	assert.Equal(t, "NeW:payload", got)
-	Pick, Ban, LogLevel = channelArrayFlag{"new"}, nil, "all"
+	assert.Equal(t, 3, TagEvents("new"))
+	assert.Equal(t, 3, TagEvents("NEW"))
+	assert.Equal(t, 3, TagEvents("NeW"))
+	assert.Zero(t, TagEvents("untagged"))
+	Pick, Ban, LogLevel = channelArrayFlag{"nEw"}, nil, "all"
 	require.NoError(t, ResolveFilterSelectors())
-	assert.True(t, ApplicationEventAllowed("new"))
-	assert.False(t, ApplicationEventAllowed("NEW"))
-	assert.False(t, ApplicationEventAllowed("NeW"))
-	Pick, Ban = nil, channelArrayFlag{"NEW"}
+	for _, spelling := range []string{"new", "NEW", "NeW"} {
+		assert.True(t, ApplicationEventAllowed(spelling))
+	}
+	Pick, Ban = nil, channelArrayFlag{"NeW"}
 	require.NoError(t, ResolveFilterSelectors())
-	assert.True(t, ApplicationEventAllowed("new"))
-	assert.False(t, ApplicationEventAllowed("NEW"))
-	assert.True(t, ApplicationEventAllowed("NeW"), "unknown spelling belongs to untagged, not NEW")
-	Ban, LogLevel = nil, "151"
-	assert.False(t, ApplicationEventAllowed("NeW"), "unknown spelling uses untagged weight 150")
+	for _, spelling := range []string{"new", "NEW", "NeW"} {
+		assert.False(t, ApplicationEventAllowed(spelling))
+	}
 	for _, option := range []string{"pick", "ban", "level"} {
 		Pick, Ban, LogLevel = nil, nil, "all"
 		switch option {
@@ -519,13 +506,61 @@ func TestUserTagsRemainExactAcrossLogging(t *testing.T) {
 		case "level":
 			LogLevel = "NeW"
 		}
-		assert.Error(t, ResolveFilterSelectors(), "a CLI %s must name an exact user tag", option)
+		assert.NoError(t, ResolveFilterSelectors())
 	}
+}
+
+// TestUserTagPendingVariantsMerge checks unweighted registrations both before
+// and after a published weighted group, with independent color/default policy.
+func TestUserTagPendingVariantsMerge(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	for _, values := range []ArrayFlag{
+		{"sensor", "Sensor", "SENSOR", "INFO:550"},
+		{"SENSOR", "Sensor", "sensor", "INFO:550"},
+		{"Sensor:red:blue", "sensor", "SENSOR:550"},
+		{"sensor:550", "SENSOR", "Sensor:red:blue"},
+	} {
+		UserLabel = values
+		require.NoError(t, AddUserLabels(), values)
+		assert.Equal(t, len(defaultTags)+1, len(Tags), values)
+		for _, spelling := range []string{"sensor", "Sensor", "SENSOR"} {
+			canonical, err := FindTagName(spelling)
+			require.NoError(t, err)
+			assert.Equal(t, "SENSOR", canonical)
+			weight, err := TagWeight(spelling)
+			require.NoError(t, err)
+			assert.Equal(t, 550, weight)
+		}
+	}
+	for _, spelling := range []string{"ALL", "All", "OFF", "Off"} {
+		UserLabel = ArrayFlag{"sensor", spelling}
+		require.Error(t, AddUserLabels())
+		canonical, err := FindTagName("Sensor")
+		require.NoError(t, err)
+		assert.Equal(t, "SENSOR", canonical, "invalid input preserves the previous registry")
+	}
+	UserLabel = ArrayFlag{"x"}
+	require.NoError(t, AddUserLabels())
+	canonical, err := FindTagName("X")
+	require.NoError(t, err)
+	assert.Equal(t, "X", canonical)
+}
+
+// TestCustomCanonicalNameDoesNotDuplicateDiagnostics protects the internal
+// diagnostic group when a registration canonicalizes to its reserved identity.
+func TestCustomCanonicalNameDoesNotDuplicateDiagnostics(t *testing.T) {
+	s := snapshotEmitterState()
+	t.Cleanup(func() { restoreEmitterState(s) })
+	UserLabel = ArrayFlag{"cycle_error", "CYCLE_ERROR"}
+	require.NoError(t, AddUserLabels())
+	assert.Equal(t, len(defaultTags), len(Tags))
+	assert.Empty(t, duplicateTagAliases(Tags))
 }
 
 // TestOKIsNotAnImplicitMessageAlias keeps a success-like word out of MESSAGE.
 // It is ordinary unknown text unless the user explicitly registers that label;
-// registration then follows the same exact-case policy as any free user tag.
+// registration then follows the same case-insensitive policy as other user tags.
 func TestOKIsNotAnImplicitMessageAlias(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -547,13 +582,14 @@ func TestOKIsNotAnImplicitMessageAlias(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "OK", canonical)
 	assert.Equal(t, "WARNING", TagLevel("OK"))
-	_, err = FindTagName("ok")
-	assert.Error(t, err)
+	canonical, err = FindTagName("ok")
+	require.NoError(t, err)
+	assert.Equal(t, "OK", canonical)
 }
 
 // TestBuiltInTagsHaveNoSingleLetterAliases checks the registry-wide rule rather
 // than assuming a particular list of removed shortcuts. Explicit user labels
-// may still be one letter, with independent case-sensitive weights and colors.
+// may still be one letter, with one weight/color group across case variants.
 func TestBuiltInTagsHaveNoSingleLetterAliases(t *testing.T) {
 	s := snapshotEmitterState()
 	t.Cleanup(func() { restoreEmitterState(s) })
@@ -575,11 +611,11 @@ func TestBuiltInTagsHaveNoSingleLetterAliases(t *testing.T) {
 	UserLabel = ArrayFlag{"x:650", "X:150", "e:750"}
 	require.NoError(t, AddUserLabels())
 	for _, tc := range []struct{ name, level, message string }{
-		{"x", "WARNING", "ready"}, {"X", "TRACE", "X:ready"}, {"e", "ERROR", "ready"},
+		{"x", "TRACE", "ready"}, {"X", "TRACE", "X:ready"}, {"e", "ERROR", "ready"},
 	} {
 		canonical, err := FindTagName(tc.name)
 		require.NoError(t, err)
-		assert.Equal(t, tc.name, canonical)
+		assert.Equal(t, strings.ToUpper(tc.name), canonical)
 		assert.Equal(t, tc.level, TagLevel(tc.name))
 		got, _ := newLineTransformerANSI(newCheckDisplay(), "none").colorize(tc.name + ":ready")
 		assert.Equal(t, tc.message, got)

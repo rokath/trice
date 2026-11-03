@@ -17,10 +17,10 @@ cd "$(dirname "$0")"
 ./build_and_run.sh
 all_events=$(./show_json.sh)
 warning_only=$(./show_json.sh -loglevel 600)
-warning_and_sensor=$(./show_json.sh -ulabel sensor:650 -logLevel wrn)
+warning_and_sensor=$(./show_json.sh -utag sensor:650 -logLevel wrn)
 # Numeric pick/ban selects an exact weight; it is not a minimum threshold.
-exact_sensor=$(./show_json.sh -ulabel sensor:200 -pick 200)
-without_sensor=$(./show_json.sh -ulabel sensor:200 -ban 200)
+exact_sensor=$(./show_json.sh -utag sensor:200 -pick 200)
+without_sensor=$(./show_json.sh -utag sensor:200 -ban 200)
 kv_events=$(./show_kv.sh)
 
 # Check values and metadata across the binary transport, binder, and decoder.
@@ -74,13 +74,13 @@ case "$warning_only" in
     ;;
 esac
 case "$warning_only" in
-  *'"tag":"sensor"'* | *'"tag":"INFO"'* | *'"tag":"DEBUG"'*)
+  *'"tag":"SENSOR"'* | *'"tag":"INFO"'* | *'"tag":"DEBUG"'*)
     echo 'FAIL: a lower-weight event passed the Warning threshold' >&2
     exit 1
     ;;
 esac
 case "$warning_and_sensor" in
-  *'"tag":"WARNING","level":"WARNING"'*'"tag":"sensor","level":"WARNING"'*) ;;
+  *'"tag":"WARNING","level":"WARNING"'*'"tag":"SENSOR","level":"WARNING"'*) ;;
   *)
     echo 'FAIL: overriding the sensor weight did not include both events' >&2
     exit 1
@@ -97,7 +97,7 @@ esac
 # The registered sensor weight is 450 (DEBUG); raising it to 650 above changes
 # its level to WARNING while the sensor tag and message stay unchanged.
 case "$kv_events" in
-  *'tag=sensor level=DEBUG message="Humidity 55 percent\n"'*) ;;
+  *'tag=SENSOR level=DEBUG message="Humidity 55 percent\n"'*) ;;
   *)
     echo 'FAIL: the sensor category did not derive DEBUG from weight 450' >&2
     exit 1
@@ -110,14 +110,14 @@ case "$exact_sensor" in
     echo 'FAIL: exact weight selection admitted a different weight' >&2
     exit 1
     ;;
-  *'"tag":"sensor","level":"TRACE","message":"Humidity 55 percent\n"'*) ;;
+  *'"tag":"SENSOR","level":"TRACE","message":"Humidity 55 percent\n"'*) ;;
   *)
     echo 'FAIL: exact weight selection lost the sensor event' >&2
     exit 1
     ;;
 esac
 case "$without_sensor" in
-  *'"tag":"sensor"'*)
+  *'"tag":"SENSOR"'*)
     echo 'FAIL: exact weight exclusion kept the sensor event' >&2
     exit 1
     ;;

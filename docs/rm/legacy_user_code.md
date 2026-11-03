@@ -9,18 +9,22 @@
 * [2. Legacy User Code Option Trice Adaptation Edits](#legacy-user-code-option-trice-adaptation-edits)
 * [3. Legacy User Code Option Print Buffer Wrapping and Framing](#legacy-user-code-option-print-buffer-wrapping-and-framing)
 * [4. Legacy User Code Option Trice Aliases Adaptation](#legacy-user-code-option-trice-aliases-adaptation)
-  * [4.1. PR533 Doc](#pr533-doc)
-  * [4.2. PR533 Summary](#pr533-summary)
-  * [4.3. PR533 Motivation](#pr533-motivation)
-  * [4.4. What This PR533 Adds](#what-this-pr533-adds)
-  * [4.5. PR533 Example](#pr533-example)
-    * [4.5.1. PR533 Check with Trice](#pr533-check-with-trice)
-    * [4.5.2. PR533 Check without Trice:](#pr533-check-without-trice)
-  * [4.6. PR536 Doc](#pr536-doc)
-    * [4.6.1. What This PR536 Adds](#what-this-pr536-adds)
-    * [4.6.2. PR536 - The Problem Statement](#pr536---the-problem-statement)
-    * [4.6.3. PR536 Implementation Details:](#pr536-implementation-details)
-  * [4.7. Alias Example Project](#alias-example-project)
+  * [4.1. Alias identity and tags in v2](#alias-identity-and-tags-in-v2)
+    * [4.1.1. Event tag and presentation](#event-tag-and-presentation)
+    * [4.1.2. Stored identity and overrides](#stored-identity-and-overrides)
+    * [4.1.3. Frozen name heuristic](#frozen-name-heuristic)
+  * [4.2. PR533 Doc](#pr533-doc)
+  * [4.3. PR533 Summary](#pr533-summary)
+  * [4.4. PR533 Motivation](#pr533-motivation)
+  * [4.5. What This PR533 Adds](#what-this-pr533-adds)
+  * [4.6. PR533 Example](#pr533-example)
+    * [4.6.1. PR533 Check with Trice](#pr533-check-with-trice)
+    * [4.6.2. PR533 Check without Trice:](#pr533-check-without-trice)
+  * [4.7. PR536 Doc](#pr536-doc)
+    * [4.7.1. What This PR536 Adds](#what-this-pr536-adds)
+    * [4.7.2. PR536 - The Problem Statement](#pr536---the-problem-statement)
+    * [4.7.3. PR536 Implementation Details:](#pr536-implementation-details)
+  * [4.8. Alias Example Project](#alias-example-project)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -130,15 +134,95 @@ Despite of these 2 CGO tests the real-world example [./examples/G0B1_inst](../..
 
 The following sub-chapters are mainly written by [@srgg](https://github.com/srgg) as accompanying documentation to its pull requests.
 
-### 4.1. <a id="pr533-doc"></a>PR533 Doc
+### 4.1. <a id="alias-identity-and-tags-in-v2"></a>Alias identity and tags in v2
 
-### 4.2. <a id="pr533-summary"></a>PR533 Summary
+Register scalar project macros with `-alias Name` (`-a`) and string macros with `-salias Name` (`-sa`). Use the same registrations in Bind, Insert, Clean and source-scanning Generate. The macro must transmit the registered payload family; its name does not specify width or arity. Normal default-width configuration still applies.
+
+Names are exact ASCII C identifiers: `[A-Za-z_][A-Za-z0-9_]*`. Names starting with `trice`, ignoring case, are reserved. `A`, `FooS`, `My32` and `MyAssert` are valid scalar names; `TriceWarning` is reserved. The same name under both alias kinds is an error. Repeated definitions of the same kind merge; `Name` plus `Name:Tag` uses the explicit tag. Different explicit tags are errors, including unused definitions. Equivalent tag spellings such as `err` and `ERROR` agree.
+
+`Name:Tag` also registers that tag in the current command. Custom tag names ignore case and have uppercase metadata, as with `sensor` → SENSOR. They do not become name-heuristic words. Build and host both need custom registrations used by format fallback. Valid unused aliases are silent; `-verbose` explains registrations, payload kinds, tag decisions, exclusions and conflicting static prefixes.
+
+#### 4.1.1. <a id="event-tag-and-presentation"></a>Event tag and presentation
+
+For each alias event, select the first applicable source:
+
+| Priority | Source |
+|---|---|
+| First | Explicit `Name:Tag` in the current command. `Name:untagged` stops here. |
+| Next | The frozen name heuristic below. |
+| Next | A registered tag before the first colon of the static format. |
+| Last | `untagged`. |
+
+No later prefix or received string supplies a fallback. Thus `printi("ctx:err:failed")` is untagged unless `ctx` is registered. For string aliases, only an identifiable literal in the first semantic user argument supplies a static prefix; `MyAssert(condition, "err:failed")` does not search the later argument.
+
+One selected tag controls filters, colors, statistics, levels, JSON/KV and registered [Vis selectors](visualization.md). Successful events count before filtering. Runtime values, subsequent lines and other events on the same display line cannot reclassify an alias event. LI remains at the alias call site; tags also work with `-li off`.
+
+Only a known static prefix belonging to the selected tag can be removed. Active palettes and `-color none` remove its all-lowercase spelling; mixed/uppercase and conflicting prefixes remain. `-color off` preserves every written prefix. JSON/KV use the same removal policy without ANSI colors. No tag prefix is added.
+
+| Alias call | Event tag | Message with `-color none` |
+|---|---|---|
+| `printi("err:failed")` | ERROR | `failed` |
+| `MyWrn("wrn:failed")` | WARNING | `failed` |
+| `MyWrn("WRN:failed")` | WARNING | `WRN:failed` |
+| `MyWrn("err:failed")` | WARNING | `err:failed` |
+
+A runtime string `wrn:payload` stays intact even when its alias event is WARNING.
+
+#### 4.1.2. <a id="stored-identity-and-overrides"></a>Stored identity and overrides
+
+TIL retains the ID map with only `Type` and `Strg`. New entries store the exact alias name in `Type`. A complete existing `SAlias_Strg('...')SAlias_Strg` wrapper means a string payload; otherwise the alias is scalar. The native processing type is derived separately and never changes the identity key. Scalar formats must not start with `SAlias_Strg('` or end with `')SAlias_Strg`; partial wrappers are errors on read. Marker-like text in the middle is allowed. Loss of both markers cannot always be detected.
+
+Repeated instrumentation keeps IDs stable. Renaming, case changes, a payload-family change or a changed effective format can allocate another ID while preserving old rows. Historical normalized native entries stay native; their former alias names cannot be reconstructed. Mixed dictionaries work without conversion. Older tools need not understand new alias types. Alias commands reparse sources instead of trusting the legacy timestamp cache; old caches are left unchanged. Invalid alias reloads retain the last valid table and the current command policy.
+
+An explicit override is not stored. Repeat it when logging, for example `trice bind -alias MyWrn:err` and `tlog -alias MyWrn:err` alongside the project's ordinary options. Without it the name resolves to WARNING. An override affects all loaded IDs for that name; neither different IDs nor different capture dates preserve different historical tag intentions. Keep required logging options with the capture. The host cannot reliably warn about a forgotten override. Build overrides affect ID ranges; host overrides affect host classification only.
+
+Alias CE selects the event-tag group before source-prefix groups. Scalar aliases follow the existing scalar limits; native `triceS` accepts fixed text, while selected string-alias extensions and all added runtime strings are rejected. A rare change from the original build tag to the stored-format host tag produces a normal warning with workarounds. See the [capability table and fallback examples](context_enrichment.md#alias-tags-and-ce-limits). No additional tag storage or history mechanism is introduced.
+
+#### 4.1.3. <a id="frozen-name-heuristic"></a>Frozen name heuristic
+
+Compare a lowercase copy of the alias name; do not rewrite the stored name. Find all occurrences of all positive substrings, without requiring word boundaries or CamelCase splitting.
+
+| Tag and tie priority | Positive substrings |
+|---|---|
+| FATAL | `fatal` |
+| CRITICAL | `critical`, `crit` |
+| ERROR | `error`, `err` |
+| WARNING | `warning`, `warn`, `wrn` |
+| INFO | `informal`, `info`, `inf` |
+| DEBUG | `debug`, `dbg`, `deb`, `db` |
+| TRACE | `trace`, `tr` |
+| VERBOSE | `verbose` |
+
+Find every literal exclusion occurrence, ignoring case, including inside compound identifiers. Discard a positive match only when that entire positive-match span is inside an exclusion occurrence. This applies across groups: infrastructure suppresses both its inf and tr. Separate matches elsewhere survive. Do not suppress the whole alias, whole group, partially overlapping longer matches, or derive extra inflections automatically.
+
+| Group for reference | Exclusion terms |
+|---|---|
+| FATAL | `nonfatal`, `non_fatal` |
+| CRITICAL | `criterion`, `criteria`, `critic`, `critique`, `noncritical`, `non_critical`, `criticalsection`, `critical_section`, `criticalregion`, `critical_region`, `criticalpath`, `critical_path` |
+| ERROR | `interrupt`, `override`, `overridden`, `overriding`, `ferrite`, `ferromagnet`, `ferric`, `ferrous`, `ferrule`, `terrain`, `territory`, `terrestrial`, `berry`, `cherry` |
+| WARNING | `nowarn`, `no_warn`, `nowarning`, `no_warning` |
+| INFO | `infrared`, `infrastructure`, `infer`, `inflect`, `infix`, `infimum`, `infinite`, `infinity`, `inflate`, `inflation`, `inflating`, `inflow`, `influx`, `influence`, `infill`, `infect` |
+| DEBUG | `readback`, `readbinary`, `readbit`, `readbyte`, `readblock`, `readbuffer`, `feedback`, `seedbed`, `broadband`, `deadband`, `fieldbus`, `fieldbuffer`, `modbus`, `redblack`, `codebase`, `codeblock`, `codebook`, `modebit`, `debit`, `debt`, `debounce`, `deblock`, `debian`, `loadbalance`, `loadbalancing` |
+| TRACE | `abstract`, `attribute`, `constrain`, `contract`, `contrast`, `control`, `electric`, `electrode`, `electron`, `entries`, `entry`, `entropy`, `extract`, `instrument`, `intrinsic`, `matrix`, `matrices`, `metric`, `retrieve`, `retrieval`, `stream`, `strength`, `stress`, `stride`, `string`, `strip`, `strobe`, `strong`, `struct`, `track`, `trap`, `tray`, `treat`, `tree`, `trend`, `tremor`, `transact`, `transceiver`, `transfer`, `transform`, `transient`, `transistor`, `transit`, `translate`, `translation`, `translator`, `transmission`, `transmit`, `transparent`, `transparency`, `transpose`, `transposition`, `transport`, `transducer`, `trial`, `triangle`, `triangular`, `trigger`, `trim`, `trip`, `tristate`, `tri_state`, `true`, `truncate`, `truncation`, `try`, `ultrasonic`, `ultrasound`, `ultraviolet` |
+| VERBOSE | `nonverbose`, `non_verbose` |
+
+trial is included. Bandwidth needs no exclusion because it contains neither db nor deb.
+
+Choose the longest remaining positive match. For equal lengths from different groups, use the table order FATAL, CRITICAL, ERROR, WARNING, INFO, DEBUG, TRACE, VERBOSE. Registry additions, user tags, weights, colors and option order do not alter this contract.
+
+Examples: Log_Error_Warning → WARNING; LogErrWrn → ERROR; CriticalLog → CRITICAL despite the shorter critic exclusion; CriticalSectionError → ERROR; InfrastructureInfo → INFO; ReadbackDebug → DEBUG; TransferTrace and TrialTrace → TRACE; TrialMode → untagged before format fallback.
+
+Freeze these rules for the new TIL meaning. A future list/priority change needs an explicitly reviewed way to preserve the interpretation of existing captures. No new version/history field is part of this work.
+
+### 4.2. <a id="pr533-doc"></a>PR533 Doc
+
+### 4.3. <a id="pr533-summary"></a>PR533 Summary
 
 This PR introduces support for treating user-defined macros as aliases to trice and triceS within the Trice CLI toolchain. The goal is to enable project-specific logging macros to be processed just like built-in Trice macros — including ID generation, decoding, and binary format support — without requiring projects to directly call `trice()` or `triceS()` in their source code.
 
 PR leverages the `-exclude` source feature added in [\#529](https://github.com/rokath/trice/pull/529).
 
-### 4.3. <a id="pr533-motivation"></a>PR533 Motivation
+### 4.4. <a id="pr533-motivation"></a>PR533 Motivation
 
 Trice uses a source-scanning and ID generation approach, where the toolchain scans for `trice(...)` and `triceS(...)` calls, injects numeric trace IDs, and builds a mapping database. However, it currently only supports built-in(hardcoded) macros and allows only global on/off control via compile-time flags.
 
@@ -148,11 +232,11 @@ This makes it difficult to:
 - Redirect trace/logging behavior to other backends (e.g., MicroSD, raw printf, no-op).
 - Change behavior per module or configuration without losing Trice tooling support.
 
-### 4.4. <a id="what-this-pr533-adds"></a>What This PR533 Adds
+### 4.5. <a id="what-this-pr533-adds"></a>What This PR533 Adds
 
 **CLI-level aliasing**: Developers can now declare custom macros to be treated as `trice` or `triceS` equivalents. These user-defined macros will be recognized during scanning, ID injection, and decoding. 
 
-### 4.5. <a id="pr533-example"></a>PR533 Example
+### 4.6. <a id="pr533-example"></a>PR533 Example
 
 *print_macro.h*:
 
@@ -189,7 +273,7 @@ void setup() {
  }
 ```
 
-#### 4.5.1. <a id="pr533-check-with-trice"></a>PR533 Check with Trice
+#### 4.6.1. <a id="pr533-check-with-trice"></a>PR533 Check with Trice
 
 Insert trice IDs:
 
@@ -203,7 +287,7 @@ Flash the MCU and run the trice receiver on your host machine to receive probes 
    trice log -p UDP4 -v -pf none
 ```
 
-#### 4.5.2. <a id="pr533-check-without-trice"></a>PR533 Check without Trice:
+#### 4.6.2. <a id="pr533-check-without-trice"></a>PR533 Check without Trice:
 
 Clean trice IDs, if any:
 
@@ -213,9 +297,9 @@ trice clean -alias DEBUG_PRINT -salias DEBUG_PRINT_S  -exclude ./print_macro.h -
 
 Flash with `-DTRICE_OFF`.
 
-### 4.6. <a id="pr536-doc"></a>PR536 Doc
+### 4.7. <a id="pr536-doc"></a>PR536 Doc
 
-#### 4.6.1. <a id="what-this-pr536-adds"></a>What This PR536 Adds
+#### 4.7.1. <a id="what-this-pr536-adds"></a>What This PR536 Adds
 
 This is a follow-up to [\#533](https://github.com/rokath/trice/pull/533). It **enforces the consistent use of the "%s" format in all triceS aliases** and fixes that behavior in the newly added test case.
 
@@ -225,7 +309,7 @@ The following simplified example reflects a real use case where custom macros wr
 #define CUSTOM_PRINT_S(id, fmt, ....) triceS(id, "%s", format_message(fmt, ##__VA_ARGS__))
 ```
 
-#### 4.6.2. <a id="pr536---the-problem-statement"></a>PR536 - The Problem Statement
+#### 4.7.2. <a id="pr536---the-problem-statement"></a>PR536 - The Problem Statement
 
 Determining the Strg argument reliably is challenging due to:
 
@@ -242,7 +326,7 @@ CUSTOM_ASSERT(false);
 
 Improving this would likely require Clang integration—adding complexity (e.g., full build flags, complete source context)—whereas Trice’s current regex-based approach remains lightweight and simple to use.
 
-#### 4.6.3. <a id="pr536-implementation-details"></a>PR536 Implementation Details:
+#### 4.7.3. <a id="pr536-implementation-details"></a>PR536 Implementation Details:
 
 `matchTrice()` was re-implemented to improve robustness. It now:
 
@@ -252,7 +336,7 @@ Improving this would likely require Clang integration—adding complexity (e.g.,
 
 This approach simplifies the logic and allows the parser to skip invalid or partial matches without aborting, enabling continued scanning of the file for valid constructs.
 
-### 4.7. <a id="alias-example-project"></a>Alias Example Project
+### 4.8. <a id="alias-example-project"></a>Alias Example Project
 
 To use the Alias technique with `examples/G0B1_inst` the following adaptations were made:
 

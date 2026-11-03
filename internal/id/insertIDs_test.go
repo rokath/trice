@@ -59,11 +59,11 @@ func TestAliasesInsertion(t *testing.T) {
 	// create expected til.json file
 	expTil := `{
 	"993": {
-		"Type": "triceS",
+		"Type": "SAlias_WITH_MESSAGE_AND_ARGS",
 		"Strg": "` + SAliasStrgPrefix + `false, \"test message: %d\\n\"` + SAliasStrgSuffix + `"
 	},
 	"994": {
-		"Type": "triceS",
+		"Type": "SAlias_WITH_MESSAGE",
 		"Strg": "` + SAliasStrgPrefix + `false, \"test message\\n\"` + SAliasStrgSuffix + `"
 	},
 	"995": {
@@ -79,11 +79,11 @@ func TestAliasesInsertion(t *testing.T) {
 		"Strg": "some info\\n"
 	},
 	"998": {
-		"Type": "triceS",
+		"Type": "SAlias_NO_MESSAGE",
 		"Strg": "` + SAliasStrgPrefix + `42` + SAliasStrgSuffix + `"
 	},
 	"999": {
-		"Type": "trice",
+		"Type": "Alias",
 		"Strg": "Simple message: %d\\n"
 	}
 }`
@@ -360,18 +360,18 @@ func TestInsertKnownID2(t *testing.T) {
 }`
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(exsLI), 0777))
 
-	// create existing til.json file
+	// Known alias IDs use the exact macro spelling as their stored type.
 	exsTIL := `{
 	"55": {
-		"Type": "trice",
+		"Type": "log",
 		"Strg": "msg:value=%d\\n"
 	},
 	"66": {
-		"Type": "triceS",
+		"Type": "AST",
 		"Strg": "` + SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + SAliasStrgSuffix + `"
 	},
 	"77": {
-		"Type": "trice",
+		"Type": "printk",
 		"Strg": "%x"
 	}
 }`

@@ -21,6 +21,7 @@ import (
 
 // SubCmdIdInsert performs sub-command insert, adding trice IDs to source tree.
 func SubCmdIdInsert(w io.Writer, fSys *afero.Afero) (e error) {
+	defer func() { ExplainAliases(w, IDData.idToTrice) }()
 	if len(ContextEnrichment) != 0 {
 		return switchSourceContext(w, fSys, false)
 	}
@@ -133,7 +134,14 @@ func (p *idData) insertTriceIDs(w io.Writer, sourcePath, liFile string, in []byt
 // - idInSourceIsZero,    trice is not inside p.triceToId                                     -> create new ID & add ID to p.idToTrice
 // - idInSourceIsZero,    trice is is inside p.triceToId                                      -> unused ID -> use ID (remove from p.triceToId)
 //   - If trice is assigned to several IDs, the location information consulted. If a matching liFile exists, its first occurrence is used.
-func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin, visitAssignedID func(TriceID)) (out []byte, modified bool, err error) {
+func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in []byte, a *ant.Admin, visitAssignedID func(TriceID), originalTags ...[]string) (out []byte, modified bool, err error) {
+	if len(originalTags) == 0 {
+		if tags, ok := p.sourceBuildTags[filepath.Clean(sourcePath)]; ok {
+			originalTags = [][]string{tags}
+		}
+	}
+	// Bind supplies original per-site tags after rendering its private CE view.
+	siteIndex := 0
 	var idn TriceID                              // idn is the last found id inside the source.
 	var idN TriceID                              // idN is the to be written id into the source.
 	var idS string                               // idS is the "iD(n)" statement, if found.
@@ -172,7 +180,7 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 			t.Strg = rest[loc[5]+1 : loc[6]-1] // Now we have the complete trice t (Type and Strg). We remove the double quotes with +1 and -1.
 		} else {
 			// We cannot simply use "%s" here, because that will later not match the source code and cause ID assign issues then.
-			// For til.json file compability we cannot have t.Alias there and we need to have t.Type=="triceS".
+			// Persisted Type keeps the alias name; this existing wrapper identifies its string payload without another schema field.
 			// To keep the full format information and to signal the SAlias case, we wrap it with SAliasStrgPrefix and SAliasStrgSuffix.
 			t.Strg = SAliasStrgPrefix + rest[loc[5]:loc[6]] + SAliasStrgSuffix
 			// The Trice Tool can check for this case and
@@ -183,7 +191,19 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 		if err = canonicalizeSourceTemplate(&t, rest[loc[6]:]); err != nil {
 			return nil, false, fmt.Errorf("%s:%d: %w", sourcePath, triceStartLine, err)
 		}
-		t.Strg, _, _ = selectContextRules(t.Strg, rules)
+		if t.isAlias() && !t.isSAlias() && (strings.HasPrefix(t.Strg, SAliasStrgPrefix) || strings.HasSuffix(t.Strg, SAliasStrgSuffix)) {
+			return nil, false, fmt.Errorf("%s:%d: scalar alias %s uses a reserved SAlias boundary", sourcePath, triceStartLine, t.Alias)
+		}
+		buildTag := triceTag(t)
+		if len(originalTags) > 0 && siteIndex < len(originalTags[0]) {
+			buildTag = originalTags[0][siteIndex]
+		}
+		siteIndex++
+		var selected []contextRule
+		t.Strg, selected, _ = selectTriceContextRules(t, rules, buildTag)
+		if err := validateAliasContext(t, selected); err != nil {
+			return nil, false, fmt.Errorf("%s:%d: CE: %w", sourcePath, triceStartLine, err)
+		}
 
 		// Only check format specifiers(param count) when the tool has a real format string.
 		// triceS aliases can wrap custom argument lists and store those verbatim in t.Strg.
@@ -240,10 +260,10 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 		// process t
 		// Without new CE rules, retain an explicit ID's already resolved
 		// selector policy while still checking its full message and type.
-		if previous, ok := p.idToTrice[idn]; len(rules) == 0 && ok && previous.Type == t.Type && matchesInsertContextFormat(t.Strg, previous.Strg) {
+		if previous, ok := p.idToTrice[idn]; len(rules) == 0 && ok && previous.Type == storedTriceFormat(t).Type && matchesInsertContextFormat(t.Strg, previous.Strg) {
 			t.Strg = previous.Strg
 		}
-		t.Alias = ""          // Remove potentially existing alias.
+		t = storedTriceFormat(t)
 		ids := p.triceToId[t] // ids contains all ID´s of a Trice.
 		if Verbose {
 			fmt.Fprintln(w, "Trice ", t, " has", len(ids), "unused ID(s), but could be from different file(s). IDs=", ids, ".")
@@ -269,7 +289,7 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 				}
 				continue
 			}
-			if !p.idAllowedForTrice(id, t) {
+			if !p.idAllowedForTrice(id, t, buildTag) {
 				continue
 			}
 			// id == idn or idn == 0 here
@@ -385,12 +405,12 @@ func (p *idData) insertTriceIDsVisit(w io.Writer, sourcePath, liFile string, in 
 				}
 			}
 		}
-		if idN != 0 && !p.idAllowedForTrice(idN, t) {
+		if idN != 0 && !p.idAllowedForTrice(idN, t, buildTag) {
 			idN = 0
 			idn = 0
 		}
 		if idN == 0 { // newID
-			idN = p.newID(t) // t.Strg contains the Trice tag information: string until the first colon matches a string in emitter.colorChannels.
+			idN = p.newID(t, buildTag) // Build policy uses the source tag before CE.
 			if Verbose {
 				fmt.Fprintln(w, "Create a new ID ", idN, " for ", t)
 			}

@@ -33,6 +33,8 @@ type contextRule struct {
 // bindEnrichment separates the original call signature from its final schema.
 // Only the generated adapter evaluates expressions; the source remains intact.
 type bindEnrichment struct {
+	// payloadType chooses the native adapter without changing alias identity.
+	payloadType       string
 	arguments         []string
 	expressions       []string
 	originalArguments int
@@ -112,6 +114,11 @@ func parseContextRules(values []string) ([]contextRule, error) {
 		if len(template.Specs) != len(rule.expressions) {
 			return nil, fmt.Errorf("invalid -ce %q: %d format conversion(s) for %d expression(s)", value, len(template.Specs), len(rule.expressions))
 		}
+		for _, spec := range template.Specs {
+			if spec.Kind == fmtspec.KindString {
+				return nil, fmt.Errorf("invalid -ce %q: added runtime strings are not supported; use fixed CE text or scalar values", value)
+			}
+		}
 		rule.format = template.Canonical
 		rules = append(rules, rule)
 	}
@@ -120,11 +127,23 @@ func parseContextRules(values []string) ([]contextRule, error) {
 
 // selectContextRules walks the prefix chain in source order. Only configured
 // lowercase free selectors disappear; known tags retain normal color behavior.
-func selectContextRules(format string, rules []contextRule) (string, []contextRule, []string) {
+func selectContextRules(format string, rules []contextRule, virtualTag ...string) (string, []contextRule, []string) {
 	var prefix strings.Builder
 	var selected []contextRule
 	var duplicates []string
 	seen := make(map[string]bool)
+	// Virtual selection precedes source groups. Only repeated physical prefixes
+	// produce duplicate warnings; a matching virtual/physical pair is normal.
+	seenSource := make(map[string]bool)
+	if len(virtualTag) > 0 && virtualTag[0] != "" {
+		key, _ := contextSelector(virtualTag[0])
+		for _, rule := range rules {
+			if rule.selector == key {
+				selected = append(selected, rule)
+				seen[key] = true
+			}
+		}
+	}
 	for {
 		name, rest, found := strings.Cut(format, ":")
 		key, known := contextSelector(name)
@@ -138,9 +157,11 @@ func selectContextRules(format string, rules []contextRule) (string, []contextRu
 			}
 		}
 		if len(matching) != 0 {
-			if seen[key] {
+			if seenSource[key] {
 				duplicates = append(duplicates, name)
-			} else {
+			}
+			seenSource[key] = true
+			if !seen[key] {
 				selected = append(selected, matching...)
 				seen[key] = true
 			}
@@ -151,6 +172,51 @@ func selectContextRules(format string, rules []contextRule) (string, []contextRu
 		format = rest
 	}
 	return prefix.String() + format, selected, duplicates
+}
+
+// selectTriceContextRules adds alias event semantics without reinterpreting a
+// string alias's C wrapper as a host format. Original tags are transient policy.
+func selectTriceContextRules(entry TriceFmt, rules []contextRule, originalTag ...string) (string, []contextRule, []string) {
+	event := ResolveAliasEvent(entry)
+	if !event.Alias {
+		return selectContextRules(entry.Strg, rules)
+	}
+	tag := event.Tag
+	if len(originalTag) > 0 {
+		tag = originalTag[0]
+	}
+	payload, _ := PayloadFormat(entry)
+	if payload.Type == "triceS" {
+		_, selected, duplicates := selectContextRules(aliasStaticFormat(entry, payload), rules, tag)
+		return entry.Strg, selected, duplicates
+	}
+	return selectContextRules(entry.Strg, rules, tag)
+}
+
+// validateAliasContext rejects extensions before a generated adapter could
+// replace project-side string formatting. Empty rules add no text or values.
+func validateAliasContext(entry TriceFmt, rules []contextRule) error {
+	payload, err := PayloadFormat(entry)
+	if err != nil {
+		return err
+	}
+	if payload.Alias != "" && payload.Type == "triceS" {
+		for _, rule := range rules {
+			if rule.format != "" || len(rule.expressions) > 0 {
+				return fmt.Errorf("-salias %s cannot receive CE text or values; remove the selecting CE rule or exclude this site", payload.Alias)
+			}
+		}
+	}
+	return nil
+}
+
+// warnContextFallback compares original build policy with the final stored
+// view. It never reselects CE, changes IDs, or requires a dictionary collision.
+func warnContextFallback(w io.Writer, path string, line int, originalTag string, effective TriceFmt) {
+	event := ResolveAliasEvent(effective)
+	if event.Alias && event.Tag != originalTag {
+		fmt.Fprintf(w, "%s:%d: warning: alias %s CE fallback changes build tag %s to host tag %s; keep an enduring untagged: prefix or repeat -alias %s:%s at build and logging\n", path, line, storedTriceFormat(effective).Type, originalTag, event.Tag, storedTriceFormat(effective).Type, originalTag)
+	}
 }
 
 // prepareBindContext enriches only direct sites after all ordinary Bind source
@@ -168,8 +234,16 @@ func prepareBindContext(w io.Writer, plans []bindFilePlan, rules []contextRule) 
 		masked := stripCComments(source)
 		for siteIndex := range plan.sites {
 			site := &plan.sites[siteIndex]
-			format, selected, duplicates := selectContextRules(site.format, rules)
+			entry := bindSiteFormat(*site)
+			format, selected, duplicates := selectTriceContextRules(entry, rules, site.buildTag)
 			if len(selected) == 0 {
+				continue
+			}
+			if err := validateAliasContext(entry, selected); err != nil {
+				diagnostics = append(diagnostics, bindDiagnostic{path: plan.path, line: site.line, message: "CE: " + err.Error()})
+				continue
+			}
+			if payload, _ := PayloadFormat(entry); payload.Alias != "" && payload.Type == "triceS" {
 				continue
 			}
 			if !directContextSite(plan, planIndex, siteIndex, masked) {
@@ -183,6 +257,7 @@ func prepareBindContext(w io.Writer, plans []bindFilePlan, rules []contextRule) 
 			if len(duplicates) != 0 {
 				fmt.Fprintf(w, "%s:%d: warning: duplicate CE selector(s) %s; each selector is applied once\n", plan.path, site.line, strings.Join(duplicates, ", "))
 			}
+			warnContextFallback(w, plan.path, site.line, site.buildTag, bindSiteFormat(*site))
 		}
 	}
 	return diagnostics
@@ -219,6 +294,10 @@ func directContextSite(plan *bindFilePlan, planIndex, siteIndex int, masked stri
 // Fixed-arity macros gain a matching implementation; generic macros keep theirs.
 func enrichBindSite(source, masked string, site *bindSite, format string, rules []contextRule) error {
 	entry := bindSiteFormat(*site)
+	if err := validateAliasContext(entry, rules); err != nil {
+		return err
+	}
+	entry, _ = PayloadFormat(entry)
 	args, err := splitTriceParametersUntilClosingBracket(masked[site.loc[6]:])
 	if err != nil {
 		return err
@@ -268,7 +347,8 @@ func enrichBindSite(source, masked string, site *bindSite, format string, rules 
 			return fmt.Errorf("64-bit CE float argument %d requires aDouble(), not aFloat()", i+1)
 		}
 	}
-	site.macro, site.format, site.ce = entry.Type, entry.Strg, ce
+	ce.payloadType = entry.Type
+	site.macro, site.format, site.ce = storedTriceFormat(entry).Type, entry.Strg, ce
 	return nil
 }
 
@@ -371,7 +451,7 @@ func renderBindContext(builder *strings.Builder, plan *bindFilePlan) {
 		for _, expression := range site.ce.expressions {
 			arguments = append(arguments, "("+expression+")")
 		}
-		fmt.Fprintf(builder, "#define %s(%s) TRICE_INSERT_%s(%s)\n", bindContextMode(plan.key, site), strings.Join(parameters, ", "), site.macro, strings.Join(arguments, ", "))
+		fmt.Fprintf(builder, "#define %s(%s) TRICE_INSERT_%s(%s)\n", bindContextMode(plan.key, site), strings.Join(parameters, ", "), site.ce.payloadType, strings.Join(arguments, ", "))
 		// Aliases carry no additional numeric descriptors, so source ordering,
 		// historical IDs, and logC still see exactly one logical site.
 		for line := site.line + 1; line <= site.ce.lastLine; line++ {

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -40,7 +41,7 @@ func TestContextEnrichmentCLI(t *testing.T) {
 	require.NoError(t, fs.WriteFile("til.json", []byte("{}"), 0o644))
 	require.NoError(t, fs.WriteFile("li.json", []byte("{}"), 0o644))
 	options := []string{"bind", "-src", "main.c", "-til", "til.json", "-li", "li.json", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward"}
-	_, err := runContextCLI(t, fs, append(append([]string{}, options...), "-ce", `MOTOR:", x={}", pos.x`, "-ce", `motor:", y={}", pos.y`, "-ulabel", "motor")...)
+	_, err := runContextCLI(t, fs, append(append([]string{}, options...), "-ce", `MOTOR:", x={}", pos.x`, "-ce", `motor:", y={}", pos.y`, "-utag", "motor")...)
 	require.NoError(t, err)
 	content, err := fs.ReadFile("til.json")
 	require.NoError(t, err)
@@ -72,7 +73,7 @@ func TestContextInsertCleanCLI(t *testing.T) {
 	require.NoError(t, fs.WriteFile("til.json", []byte("{}"), 0o644))
 	require.NoError(t, fs.WriteFile("li.json", []byte("{}"), 0o644))
 	rules := []string{"-ce", `motor:", x={}", pos.x`, "-ce", `ctx:", y={}", pos.y`}
-	insert := append([]string{"insert", "-src", "main.c", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-ulabel", "motor"}, rules...)
+	insert := append([]string{"insert", "-src", "main.c", "-genDir", "build", "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-utag", "motor"}, rules...)
 	output, err := runContextCLI(t, fs, insert...)
 	require.NoError(t, err, output)
 	inserted, err := fs.ReadFile("main.c")
@@ -104,7 +105,7 @@ func TestContextInsertCleanCLI(t *testing.T) {
 	repeated, err := fs.ReadFile("main.c")
 	require.NoError(t, err)
 	assert.Equal(t, inserted, repeated)
-	clean := append([]string{"clean", "-src", "main.c", "-ulabel", "motor"}, rules...)
+	clean := append([]string{"clean", "-src", "main.c", "-utag", "motor"}, rules...)
 	for repeat := 0; repeat < 2; repeat++ {
 		output, err = runContextCLI(t, fs, clean...)
 		require.NoError(t, err, output)
@@ -118,6 +119,231 @@ func TestContextInsertCleanCLI(t *testing.T) {
 		assert.Contains(t, help, "-ce")
 		assert.Contains(t, help, "complete")
 	}
+}
+
+// prepareAliasContextExample runs the public source and generator commands for
+// the shared C example. It needs no compiler, so schema regressions stay visible
+// during focused Go work even when native acceptance is left to the user.
+func prepareAliasContextExample(t *testing.T, fs *afero.Afero, project, command string, source []byte) (string, string, string) {
+	t.Helper()
+	sourcePath := filepath.Join(project, "main.c")
+	tilPath := filepath.Join(project, "til.json")
+	buildDir := filepath.Join(project, "build")
+	require.NoError(t, fs.MkdirAll(project, 0o755))
+	// Repository-wide Bind can instrument this fixture before the test runs.
+	// Its owner include belongs to the checkout, not this isolated project;
+	// remove only that generated directive from the copy so Insert sees clean
+	// source and Bind creates its own sidecar. Never change the shared fixture.
+	ownerInclude := regexp.MustCompile(`(?m)^[\t ]*#[\t ]*include[\t ]+"trice_sidecar_[A-Za-z0-9_]+_[0-9A-F]{16}\.h"[\t ]+// trice-bind: keep as last include before this file's Trice calls[\t ]*\r?\n`)
+	require.NoError(t, fs.WriteFile(sourcePath, ownerInclude.ReplaceAll(source, nil), 0o644))
+	require.NoError(t, fs.WriteFile(tilPath, []byte(`{"900":{"Type":"trice","Strg":"historical"}}`), 0o644))
+	require.NoError(t, fs.WriteFile(filepath.Join(project, "li.json"), []byte("{}"), 0o644))
+	options := []string{command, "-src", sourcePath, "-til", tilPath, "-li", filepath.Join(project, "li.json"), "-genDir", buildDir, "-IDMin", "1000", "-IDMax", "1999", "-IDMethod", "upward", "-alias", "MyWrn", "-salias", "PrintfS", "-salias", "DirectS", "-ce", `WARNING:" context={context}", ++contextEvaluations`, "-ce", `native:" [checked]"`}
+	output, err := runContextCLI(t, fs, options...)
+	require.NoError(t, err, output)
+	first, err := fs.ReadFile(sourcePath)
+	require.NoError(t, err)
+	output, err = runContextCLI(t, fs, options...)
+	require.NoError(t, err, output)
+	second, err := fs.ReadFile(sourcePath)
+	require.NoError(t, err)
+	assert.Equal(t, first, second)
+	tablePath := filepath.Join(project, "triceLog.c")
+	output, err = runContextCLI(t, fs, "generate", "-src", sourcePath, "-til", tilPath, "-li", filepath.Join(project, "li.json"), "-genDir", buildDir, "-alias", "MyWrn", "-salias", "PrintfS", "-salias", "DirectS", "-logC", tablePath)
+	require.NoError(t, err, output)
+	return sourcePath, tilPath, tablePath
+}
+
+// TestAliasContextExamplePreparation validates the public example and raw
+// identity without running compiler or integration acceptance automatically.
+func TestAliasContextExamplePreparation(t *testing.T) {
+	source, err := os.ReadFile(filepath.Join("..", "..", "_test", "testdata", "aliasContext.c"))
+	require.NoError(t, err)
+	for _, command := range []string{"bind", "insert"} {
+		t.Run(command, func(t *testing.T) {
+			fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+			_, tilPath, tablePath := prepareAliasContextExample(t, fs, "example", command, source)
+			content, err := fs.ReadFile(tilPath)
+			require.NoError(t, err)
+			var til id.TriceIDLookUp
+			require.NoError(t, json.Unmarshal(content, &til))
+			require.Len(t, til, 5)
+			assert.Equal(t, id.TriceFmt{Type: "trice", Strg: "historical"}, til[900])
+			assert.Equal(t, id.TriceFmt{Type: "MyWrn", Strg: `err:value={value} context={context}\n`}, til[1000])
+			assert.Equal(t, id.TriceFmt{Type: "triceS", Strg: `msg:{device:%s} [checked]\n`}, til[1001])
+			assert.Equal(t, "PrintfS", til[1002].Type)
+			assert.True(t, strings.HasPrefix(til[1002].Strg, id.SAliasStrgPrefix))
+			assert.Equal(t, "DirectS", til[1003].Type)
+			table, err := fs.ReadFile(tablePath)
+			require.NoError(t, err)
+			assert.NotContains(t, string(table), "historical")
+			assert.NotContains(t, string(table), id.SAliasStrgPrefix)
+			assert.Contains(t, string(table), "TRICE_LOG_PARAM_COUNT_DYNAMIC_STRING")
+		})
+	}
+}
+
+// TestAliasContextExampleSourceIsolation checks actual source and table
+// generation from clean and repository-bound inputs without checkout sidecars.
+func TestAliasContextExampleSourceIsolation(t *testing.T) {
+	for _, command := range []string{"bind", "insert"} {
+		for _, state := range []string{"clean", "repository_bound"} {
+			for _, ending := range []string{"LF", "CRLF"} {
+				t.Run(command+"/"+state+"/"+ending, func(t *testing.T) {
+					source := "#include \"trice.h\"\n"
+					if state == "repository_bound" {
+						source += "#include \"trice_sidecar_repository_c_1111111111111111.h\" // trice-bind: keep as last include before this file's Trice calls\n"
+					}
+					source += "void logValue(void) { MyWrn(\"err:value={value}\\n\", originalValue()); }\n"
+					if ending == "CRLF" {
+						source = strings.ReplaceAll(source, "\n", "\r\n")
+					}
+					input := []byte(source)
+					fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+					sourcePath, tilPath, tablePath := prepareAliasContextExample(t, fs, "example", command, input)
+					assert.Equal(t, source, string(input), "preparation must leave the fixture bytes unchanged")
+					prepared, err := fs.ReadFile(sourcePath)
+					require.NoError(t, err)
+					assert.Contains(t, string(prepared), "#include \"trice.h\"")
+					assert.NotContains(t, string(prepared), "trice_sidecar_repository_c_")
+					if command == "insert" {
+						assert.NotContains(t, string(prepared), "trice_sidecar_")
+						assert.Contains(t, string(prepared), "iD(1000)")
+					} else {
+						assert.Contains(t, string(prepared), "#include \"trice_sidecar_main_c_")
+					}
+					content, err := fs.ReadFile(tilPath)
+					require.NoError(t, err)
+					var til id.TriceIDLookUp
+					require.NoError(t, json.Unmarshal(content, &til))
+					assert.Equal(t, id.TriceFmt{Type: "MyWrn", Strg: `err:value={value} context={context}\n`}, til[1000])
+					table, err := fs.ReadFile(tablePath)
+					require.NoError(t, err)
+					assert.Contains(t, string(table), `err:value=%d context=%d\n`)
+				})
+			}
+		}
+	}
+}
+
+// TestAliasContextTargetToDecoder is an opt-in hardware-free proof through a
+// real C sender, generated local decoder, text/JSON/KV, filters and Vis. It is
+// intentionally gated like the existing CE compiler tests.
+func TestAliasContextTargetToDecoder(t *testing.T) {
+	if os.Getenv("TRICE_BIND_INTEGRATION") != "1" {
+		t.Skip("set TRICE_BIND_INTEGRATION=1 for alias/CE C and host acceptance")
+	}
+	cc, err := exec.LookPath("clang")
+	require.NoError(t, err, "the existing CE integration toolchain requires Clang")
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	source, err := os.ReadFile(filepath.Join(root, "_test", "testdata", "aliasContext.c"))
+	require.NoError(t, err)
+	library, err := filepath.Glob(filepath.Join(root, "src", "[a-z]*.c"))
+	require.NoError(t, err)
+	require.NotEmpty(t, library)
+	for _, command := range []string{"bind", "insert"} {
+		for _, local := range []bool{false, true} {
+			name := command + "/wire"
+			if local {
+				name = command + "/local"
+			}
+			t.Run(name, func(t *testing.T) {
+				project := t.TempDir()
+				fs := &afero.Afero{Fs: afero.NewOsFs()}
+				sourcePath, tilPath, tablePath := prepareAliasContextExample(t, fs, project, command, source)
+				config := contextTargetConfig
+				if local {
+					config = strings.Replace(config, "TRICE_STACK_BUFFER", "TRICE_RING_BUFFER", 1)
+					config = strings.Replace(config, "#define TRICE_DIRECT_OUTPUT 1", "#define TRICE_DIRECT_OUTPUT 0", 1)
+					config = strings.Replace(config, "#define TRICE_DEFERRED_OUTPUT 0", "#define TRICE_DEFERRED_OUTPUT 1\n#define TRICE_LOCAL_LOG 1\n#define TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS 0\n#define TRICE_LOCAL_LOG_USE_ANSI_COLORS 0", 1)
+				}
+				require.NoError(t, fs.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
+				executable := filepath.Join(t.TempDir(), "alias-context")
+				if runtime.GOOS == "windows" {
+					executable += ".exe"
+				}
+				arguments := []string{"-std=c11", "-Wall", "-Wextra", "-Werror", "-Wno-builtin-macro-redefined", "-U__COUNTER__", "-I", project, "-I", filepath.Join(project, "build"), "-I", filepath.Join(root, "src"), "-I", filepath.Join(root, "src", "default_conf"), sourcePath, tablePath}
+				arguments = append(arguments, library...)
+				arguments = append(arguments, "-o", executable)
+				buildOutput, err := exec.Command(cc, arguments...).CombinedOutput()
+				require.NoError(t, err, "%s", buildOutput)
+				var diagnostics bytes.Buffer
+				run := exec.Command(executable)
+				run.Stderr = &diagnostics
+				wire, err := run.Output()
+				require.NoError(t, err, "%s", diagnostics.String())
+				if local {
+					assert.Empty(t, wire)
+					return
+				}
+				assertAliasContextHost(t, fs, project, tilPath, wire)
+			})
+		}
+	}
+}
+
+// assertAliasContextHost compares independent messages from real target bytes.
+// Ordinary string-alias formatting remains on the target and is never bypassed.
+func assertAliasContextHost(t *testing.T, fs *afero.Afero, project, tilPath string, wire []byte) {
+	t.Helper()
+	capture := filepath.Join(project, "capture.bin")
+	require.NoError(t, fs.WriteFile(capture, wire, 0o644))
+	base := []string{"log", "-p", "FILEBUFFER", "-args", capture, "-pf", "none", "-til", tilPath, "-li", "off", "-hs", "off", "-ts", "off", "-prefix", "", "-suffix", "", "-color", "none"}
+	wantTags := []string{"WARNING", "MESSAGE", "INFO", "untagged"}
+	want := []string{"err:value=7 context=1\n", "pump [checked]\n", "formatted=9/ok\n", "wrn:payload\n"}
+	for _, format := range []string{"text", "json", "kv"} {
+		output, err := runContextCLI(t, fs, append(append([]string{}, base...), "-logFormat", format)...)
+		require.NoError(t, err)
+		if format == "text" {
+			assert.Equal(t, strings.Join(want, ""), output)
+			continue
+		}
+		lines := strings.Split(strings.TrimSuffix(output, "\n"), "\n")
+		require.Len(t, lines, 4)
+		for i, line := range lines {
+			if format == "json" {
+				var event struct {
+					Tag, Message string
+					Fields       map[string]any
+				}
+				require.NoError(t, json.Unmarshal([]byte(line), &event))
+				assert.Equal(t, wantTags[i], event.Tag)
+				assert.Equal(t, want[i], event.Message)
+				if i == 0 {
+					assert.Equal(t, float64(7), event.Fields["value"])
+					assert.Equal(t, float64(1), event.Fields["context"])
+				}
+			} else {
+				assert.Contains(t, line, "tag="+wantTags[i])
+				assert.Contains(t, line, "message="+strconv.Quote(want[i]))
+			}
+		}
+	}
+	output, err := runContextCLI(t, fs, append(append([]string{}, base...), "-pick", "wrn", "-logFormat", "json", "-tagStat")...)
+	require.NoError(t, err)
+	assert.Contains(t, output, `"tag":"WARNING"`)
+	assert.NotContains(t, output, `"tag":"INFO"`)
+	for _, tag := range wantTags {
+		assert.Equal(t, 1, emitter.TagEvents(tag), tag+" counts before filtering")
+	}
+	visPath := filepath.Join(project, "vis.txt")
+	output, err = runContextCLI(t, fs, append(append([]string{}, base...), "-vis", `wrn:printf("%d\n",v0)@`+visPath+`;log=drop`, "-logFormat", "json")...)
+	require.NoError(t, err)
+	assert.NotContains(t, output, `"tag":"WARNING"`)
+	visualized, err := fs.ReadFile(visPath)
+	require.NoError(t, err)
+	assert.Equal(t, "7\n", string(visualized))
+	withLI := append([]string{}, base...)
+	for i := range withLI {
+		if withLI[i] == "-li" {
+			withLI[i+1] = filepath.Join(project, "li.json")
+		}
+	}
+	output, err = runContextCLI(t, fs, append(withLI, "-logFormat", "json", "-liFmt", "%s:%d")...)
+	require.NoError(t, err)
+	assert.Contains(t, output, `"file":"main.c"`)
+	assert.Contains(t, output, `"line":`)
 }
 
 // contextTargetConfig enables actual unframed target records and the generated

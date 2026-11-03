@@ -44,11 +44,13 @@ type bindInclude struct {
 
 // bindSite records parser-derived source identity and the later insert-derived ID assignment.
 type bindSite struct {
-	line        int
-	column      int
-	loc         [7]int
-	macro       string
-	format      string
+	line   int
+	column int
+	loc    [7]int
+	macro  string
+	format string
+	// buildTag preserves original source classification outside persisted keys.
+	buildTag    string
 	mode        bindSiteMode
 	wrapper     string
 	id          TriceID

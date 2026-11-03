@@ -15,4 +15,4 @@ trice log \
   -p FILEBUFFER -args capture.bin -pf TCOBSv1 -d16 \
   -til til.json -li li.json -hs off \
   -ts16 'phase:%6d' -ts32 ms -ts32delta ms \
-  -ulabel sensor:450 -logFormat text "$@"
+  -utag sensor:450 -logFormat text "$@"

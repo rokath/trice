@@ -131,7 +131,7 @@ func ResolveFilterSelectors() error {
 
 // resolveChannelSelectors expands groups to aliases and normalizes integer
 // weights without expanding them to groups. Weight matching therefore follows
-// each group's effective value, including command-specific -ulabel overrides.
+// each group's effective value, including command-specific -utag overrides.
 // all and off retain their existing complete-set and empty-set semantics.
 func resolveChannelSelectors(option string, raw channelArrayFlag) (channelArrayFlag, error) {
 	if raw == nil {

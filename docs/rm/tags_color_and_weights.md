@@ -43,11 +43,13 @@ Wrn:fox  -> Wrn:fox
 
 The colors, aliases, and weights are defined in [lineTransformerANSI.go](../../internal/emitter/lineTransformerANSI.go). The tag itself does not require a target-side enable switch. Use `-pick` or `-ban` to select complete tag groups during host logging. Tag-specific ID ranges can additionally assign and route target IDs.
 
-Built-in application tag names and aliases are recognized independently of uppercase and lowercase spelling. For example, `rx`, `RX`, `rX`, and `ReCeIvE` all identify RECEIVE, even if that exact spelling is not listed. They share a weight, color, event-statistics counter, and derived structured level. This also applies to built-in names supplied to `-pick`, `-ban`, `-logLevel`/`-loglevel`, `-ulabel`, and `-IDRange`: `-IDRange rX:10,19` assigns that range to every RECEIVE spelling in the source. A second range for another spelling of the same group is rejected.
+[Macro aliases](legacy_user_code.md#alias-identity-and-tags-in-v2) select one event tag by explicit override, frozen name heuristic, first static registered prefix, then `untagged`. Their conflicting prefixes stay visible: `MyWrn("err:failed")` is WARNING and displays `err:failed`. Received strings cannot supply a removable prefix. [CE](context_enrichment.md#alias-tags-and-ce-limits) selects this event-tag group first; a rare change in format fallback is diagnosed without storing another tag.
 
-Recognition does not rewrite message text. With `-color none` or `default`, a recognized prefix is removed only if it contains no uppercase letters: `rx:payload` displays `payload`, while `rX:payload` and `RX:payload` keep their written prefixes. With `-color off`, all written prefixes remain. User-defined tags follow a separate, exact-spelling rule described [below](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
+Built-in and registered user-defined application tag names are recognized independently of uppercase and lowercase spelling. For example, `rx`, `RX`, `rX`, and `ReCeIvE` all identify RECEIVE, even if that exact spelling is not listed. Registered `sensor`, `Sensor` and `SENSOR` identify one custom group SENSOR. Each group shares a weight, color, event-statistics counter, and derived structured level. This also applies to names supplied to `-pick`, `-ban`, `-logLevel`/`-loglevel`, `-utag`, and `-IDRange`: `-IDRange rX:10,19` assigns that range to every RECEIVE spelling in the source. A second range for another spelling of the same group is rejected.
 
-Built-in aliases contain at least two characters. For example, `wr` selects Write, while `wrn`, `WARN`, and `WARNING` select Warning. The former single-letter aliases such as `e`, `i`, `m`, and `w` are not built in for v2. Their prefixes remain visible and their events belong to `untagged` unless those literal names are explicitly registered with `-ulabel`. Use descriptive built-in names such as `err`, `inf`, `msg`, and `wr` for automatic classification and for `-pick`, `-ban`, `-logLevel`, or `-IDRange`.
+Recognition does not rewrite message text. With `-color none` or `default`, a recognized prefix is removed only if it contains no uppercase letters: `rx:payload` displays `payload`, while `rX:payload` and `RX:payload` keep their written prefixes. With `-color off`, all written prefixes remain. Registered user-defined tags follow these same presentation rules.
+
+Built-in aliases contain at least two characters. For example, `wr` selects Write, while `wrn`, `WARN`, and `WARNING` select Warning. The former single-letter aliases such as `e`, `i`, `m`, and `w` are not built in for v2. Their prefixes remain visible and their events belong to `untagged` unless those literal names are explicitly registered with `-utag`. Use descriptive built-in names such as `err`, `inf`, `msg`, and `wr` for automatic classification and for `-pick`, `-ban`, `-logLevel`, or `-IDRange`.
 
 It is possible to concatenate individually tagged fragments to produce output such as:
 
@@ -59,7 +61,7 @@ The source for this example is in [`triceCheck.c`](../../_test/testdata/triceChe
 
 Each tag group has one integer weight in the range `0..999`. A larger value means greater importance. The weight belongs to the group and therefore applies to every alias in that group. It is independent of the group's position in the tag table and independent of its color.
 
-The following table lists the default weights defined in [lineTransformerANSI.go](../../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-ulabel warn:650`.
+The following table lists the default weights defined in [lineTransformerANSI.go](../../internal/emitter/lineTransformerANSI.go). Re-assignment for logging using the CLI is possible: `-utag warn:650`.
 
 Weight | Level boundary | Other groups with this default weight
 ---: | --- | ---
@@ -72,7 +74,7 @@ Weight | Level boundary | Other groups with this default weight
 100 | TRACE | DELTATIME, INTERRUPT, MICROSECOND, MILLISECOND, SECOND, SIGNAL, TIME
 0 | VERBOSE | —
 
-Only the eight names in the level-boundary column define levels. Other tags are categories: they receive a [structured level derived from their effective weight](structured_logging.md#json-and-kv-contract), but do not introduce additional boundaries. For example, RECEIVE has default weight 300 and exported level DEBUG; `-ulabel rx:750` changes its exported level to ERROR while keeping its tag RECEIVE. CLI overrides never move the level boundaries.
+Only the eight names in the level-boundary column define levels. Other tags are categories: they receive a [structured level derived from their effective weight](structured_logging.md#json-and-kv-contract), but do not introduce additional boundaries. For example, RECEIVE has default weight 300 and exported level DEBUG; `-utag rx:750` changes its exported level to ERROR while keeping its tag RECEIVE. CLI overrides never move the level boundaries.
 
 `CYCLE_ERROR` is a Trice tool diagnostic rather than an application tag. Its stored value does not define application-message priority.
 
@@ -90,12 +92,12 @@ Aliases select the complete group. `-pick all` selects every message and `-pick 
 An integer from `0` through `999` selects exactly that effective weight, independently of the tag name or derived level:
 
 ```sh
-trice log -ulabel sensor:200 -ban 200
-trice log -ulabel sensor:200 -pick 200
+trice log -utag sensor:200 -ban 200
+trice log -utag sensor:200 -pick 200
 trice log -pick err -pick 200 -pick 450
 ```
 
-The first excludes all events at weight 200 but keeps weights 199 and 201. The second displays only weight 200. The third displays the Error group plus any groups at weights 200 or 450: repeated selectors form a union. A named selector selects only its group, not other groups sharing that weight. Numeric selection uses the current weights after all `-ulabel` overrides, including the weight of `untagged`. Weights 199, 200 and 201 all derive level TRACE, but `-pick 200` still selects only 200. A valid numeric selector is accepted even if no registered group currently has that weight.
+The first excludes all events at weight 200 but keeps weights 199 and 201. The second displays only weight 200. The third displays the Error group plus any groups at weights 200 or 450: repeated selectors form a union. A named selector selects only its group, not other groups sharing that weight. Numeric selection uses the current weights after all `-utag` overrides, including the weight of `untagged`. Weights 199, 200 and 201 all derive level TRACE, but `-pick 200` still selects only 200. A valid numeric selector is accepted even if no registered group currently has that weight.
 
 Typed application events without a recognized tag use `untagged` for numeric selection. Byte-oriented CHAR/DUMP fragments have no event weight; a numeric selector matches their recognized tag prefixes only. Raw text such as `200:payload` is not a weight annotation.
 
@@ -111,19 +113,19 @@ These commands use the same threshold with the default INFO weight of 500. Both 
 
 With the default weights, `-logLevel info` includes Message and `untagged` events because they also have weight 500. It excludes Debug and technical categories such as Receive (300), Trace (100), and Verbose (0). Without either spelling of the option, the threshold defaults to `all`.
 
-Use a threshold when the requirement is “Warning and everything more important”, including new user tags assigned sufficiently high weights. For example, `trice log -ulabel motor:780 -logLevel wrn` includes `motor` alongside Warning, Attention, Alert, Error, and higher-weight groups. Use `-pick` for a specific set of groups such as Receive and Transmit, regardless of their weights. Combining both expresses a selected subsystem or category set with a minimum priority.
+Use a threshold when the requirement is “Warning and everything more important”, including new user tags assigned sufficiently high weights. For example, `trice log -utag motor:780 -logLevel wrn` includes `motor` alongside Warning, Attention, Alert, Error, and higher-weight groups. Use `-pick` for a specific set of groups such as Receive and Transmit, regardless of their weights. Combining both expresses a selected subsystem or category set with a minimum priority.
 
-Filtering uses the exact effective weight, not the derived level's lower boundary. A tag with weight 650 passes `-loglevel 650` and fails `-loglevel 651`, although its structured level is WARNING in both cases. A named threshold also uses the tag's effective weight: `-ulabel INFO:750 -logLevel INFO` selects weight 750 and above; it does not change the fixed INFO level boundary of 500.
+Filtering uses the exact effective weight, not the derived level's lower boundary. A tag with weight 650 passes `-loglevel 650` and fails `-loglevel 651`, although its structured level is WARNING in both cases. A named threshold also uses the tag's effective weight: `-utag INFO:750 -logLevel INFO` selects weight 750 and above; it does not change the fixed INFO level boundary of 500.
 
 These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](target_routing.md#id-routing); received raw bytes can still be kept in a [binary logfile](cli.md#binary-logfile).
 
 For a short capture to experiment with, run the [PC feature tour](examples.md#pc-feature-tour) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](examples.md#g0b1-feature-tour) applies the same output choices to a board capture.
 
-All `-ulabel` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
+All `-utag` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
 
 ```sh
-trice log -pick motor -ulabel motor:650
-trice log -ulabel motor:650 -pick motor
+trice log -pick motor -utag motor:650
+trice log -utag motor:650 -pick motor
 ```
 
 `-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err -pick wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
@@ -140,35 +142,42 @@ The translator keeps the diagnostic writer separate from the application line co
 
 ## 5. <a id="user-defined-tags-weights-and-colors"></a>User-defined tags, weights, and colors
 
-Use the repeatable `-ulabel name`, `-ulabel name:weight`, or `-ulabel name:color` option to register a new tag or change a known group's weight or color for one command:
+Use the repeatable `-utag` option to register a new tag or change a known group's weight or color for one command. The old `-ulabel` name is rejected in every case spelling.
+
+| Commands | Accepted values |
+|---|---|
+| `bind`, `insert`, `clean` | `name` |
+| `log`, `tlog` | `name`, `name:weight`, `name:color` |
 
 ```sh
-trice log -ulabel motor -ulabel sensor:150
-trice insert -ulabel motor:250
-trice bind -ulabel motor:250
-trice log -ulabel motor:red:blue
-trice log -ulabel msg:300 -ulabel msg:red:blue
+trice log -utag motor -utag sensor:150
+trice insert -utag motor
+trice bind -utag motor
+trice log -utag motor:red:blue
+trice log -utag msg:300 -utag msg:red:blue
 ```
 
-A new tag without an explicit weight receives the final INFO weight after all `-ulabel` options have been processed. An explicit weight must be between `0` and `999`, inclusive. The color must be exactly one of the tokens printed by `trice generate -colors`, such as `red:blue`. An unknown color is rejected with a hint to that command.
+A new tag without an explicit weight receives the final INFO weight after all `-utag` options have been processed. An explicit weight must be between `0` and `999`, inclusive. The color must be exactly one of the tokens printed by `trice generate -colors`, such as `red:blue`. An unknown color is rejected with a hint to that command.
 
 An existing name without either property leaves its group unchanged. An existing name with a weight changes the complete group, including every alias. The last explicit assignment wins:
 
 ```sh
--ulabel msg:150 -ulabel MSG:600 -ulabel msg
+-utag msg:150 -utag MSG:600 -utag msg
 ```
 
 This results in weight `600` for the complete Message group. It does not create additional groups for `msg` or `MSG`.
 
-Weight and color are independent. `-ulabel msg:300 -ulabel msg:"yellow+h:green"` gives every built-in Message alias (`msg`, `message`, `MSG`, and `MESSAGE`) weight `300` and the same color. Repeating either property changes only that property; the last value for each property wins. Free user labels are literal: `-ulabel new:300 -ulabel NEW:400` creates two distinct labels with no user-defined alias relationship. A one-letter user tag is allowed: `-ulabel x:650` registers the literal tag `x` with weight 650; it does not also register `X`.
+Weight and color are independent. `-utag msg:300 -utag msg:"yellow+h:green"` gives every built-in Message alias (`msg`, `message`, `MSG`, and `MESSAGE`) weight `300` and the same color. Repeating either property changes only that property; the last value for each property wins. `-utag new:300 -utag NEW:400` sets one NEW group to weight 400. A one-letter user tag is allowed: `-utag x:650` registers one X group, also recognized as `x`.
 
-The distinction also applies to event classification and CLI selection. With `-ulabel new:300 -ulabel NEW:650`, `new:payload` has tag `new` and level DEBUG, while `NEW:payload` has tag `NEW` and level WARNING. `-pick new` selects only the first label. An unregistered spelling such as `NeW:payload` belongs to `untagged` and keeps its prefix; using `NeW` as a pick, ban, or level selector is an error. In contrast, `-ulabel rX:750` changes the existing RECEIVE group, so `rx`, `RX`, and `rX` all have weight 750 and level ERROR; it creates no additional user tag.
+Custom groups use uppercase canonical names in JSON/KV and statistics, independent of registration order. With `-utag new:300 -utag NEW:650`, `new:payload`, `NEW:payload` and `NeW:payload` all have tag NEW and level WARNING; `-pick new` selects them all. Lowercase `new:` is removed under the normal palette rules, while `NEW:` and `NeW:` remain visible. `-utag rX:750` changes the existing RECEIVE group, so `rx`, `RX`, and `rX` all have weight 750 and level ERROR; it creates no additional user tag. Existing canonical built-in names, including `untagged`, stay unchanged.
 
-`OK` is not a built-in MESSAGE alias. `OK:ready` remains visible and belongs to `untagged` unless explicitly registered, for example with `-ulabel OK:650`. That registers the literal user tag `OK`; it does not also register `ok` or `Ok`.
+`OK` is not a built-in MESSAGE alias. `OK:ready` remains visible and belongs to `untagged` unless explicitly registered, for example with `-utag OK:650`. That registers one OK group, also recognized as `ok` or `Ok`.
 
-Each option accepts exactly one name. The old colon-separated name-list form is invalid. Empty names or values, unknown colors, weights outside `0..999`, purely numeric names, `all`, and `off` are rejected before the command opens or changes its input and output files. A color token itself contains a colon between foreground and background.
+Each option accepts exactly one name. The old colon-separated name-list form is invalid. Empty names or values, unknown colors, weights outside `0..999`, purely numeric names, and any case spelling of `all` or `off` are rejected before the command opens or changes its input and output files. A color token itself contains a colon between foreground and background.
 
-For `insert` and `bind`, only the registered name participates in tag and `-IDRange` handling. Weight and color change no target data and are not stored in the source or `til.json`.
+For `insert`, `bind` and `clean`, weights and colors are rejected. Registered names participate in tag, CE and applicable `-IDRange` handling; plain ID cleanup needs no extra tag registration. Logging weights and colors are not stored in the source or `til.json`.
+
+Compared with earlier v2 beta behavior, previously separate custom groups such as `new` and `NEW` now merge. Review logging configurations that relied on that distinction; historical dictionaries are not rewritten.
 
 Command-specific user tags, weight overrides, and color overrides are discarded before a later command in the same process starts.
 
@@ -185,7 +194,7 @@ Stored format string | Visible text with `-color off`
 
 The host never adds `untagged:` to visible application text. It appears only if the application supplied those characters. For example, `trice("Hello")` displays `Hello` with every palette, while an unknown prefix such as `mgs:blah` remains visible so a typo can be spotted. An explicitly written `untagged:` follows the usual presentation rules for lowercase tags: `-color off` keeps it, while `-color none` and `default` remove the tag from the visible text.
 
-`-pick untagged`, `-ban untagged`, `-logLevel`, and statistics handle this group like other application tags. Its weight is independent of INFO and can be changed for one command with `-ulabel untagged:150`. An optional color such as `-ulabel untagged:red:default` still styles text output with `-color default`, without printing the group name. `-color none` and `-color off` leave it uncolored.
+`-pick untagged`, `-ban untagged`, `-logLevel`, and statistics handle this group like other application tags. Its weight is independent of INFO and can be changed for one command with `-utag untagged:150`. An optional color such as `-utag untagged:red:default` still styles text output with `-color default`, without printing the group name. `-color none` and `-color off` leave it uncolored.
 
 Decoder and transport diagnostics are not untagged application events. Byte-oriented CHAR and DUMP decoder chunks also receive no synthetic event tag because they do not identify individual application events. Classification changes neither source format strings, lookup-table entries, IDs, nor recorded raw bytes.
 
@@ -211,7 +220,7 @@ Choose a built-in palette with `trice log -color dark`, `-color light`, or `-col
 
 Warm colors identify warnings and errors, while informational messages use cool colors or green. Related I/O tags use related hues with different emphasis. The time-unit tags intentionally share one style. Actual ANSI hues depend on the terminal's color settings; the palette does not change the terminal background.
 
-Run `trice generate -colors` to display the supported color strings and a preview of all three tag palettes. Use `-ulabel name:color` for a per-command override; it takes precedence over the chosen palette. The assignments are kept together in [lineTransformerANSI.go](../../internal/emitter/lineTransformerANSI.go).
+Run `trice generate -colors` to display the supported color strings and a preview of all three tag palettes. Use `-utag name:color` for a per-command override; it takes precedence over the chosen palette. The assignments are kept together in [lineTransformerANSI.go](../../internal/emitter/lineTransformerANSI.go).
 
 ## 10. <a id="color-issues-under-windows"></a>Color issues under Windows
 
