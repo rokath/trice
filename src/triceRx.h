@@ -32,12 +32,12 @@ extern "C" {
 enum {
 	TRICE_RX_RESULT_OK = 0,                             // success
 	TRICE_RX_LEN_TOO_SHORT = -1,                        // No bytes were consumed; the caller can wait for more data or drop the partial record.
-	TRICE_RX_ID_WITHOUT_ABC_HANDLER = -2,               // The rexeived ID has no assigned handler, that's ok for many IDs.
+	TRICE_RX_ID_WITHOUT_ABC_HANDLER = -2,               // The received ID has no assigned handler, that's OK for many IDs.
 	TRICE_RX_ERR_LOG_ID_NOT_FOUND = -3,                 // The generated trice ID-pFmt list maybe obsolete or data mismatch.
 	TRICE_RX_ERR_LOCATION_ID_NOT_FOUND = -4,            // The generated trice ID-location list maybe obsolete or data mismatch.
-	TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH = -5,    // The payload length is not a multiple of the bithwith byte count.
+	TRICE_RX_ERR_PAYLOAD_LEN_BITWIDTH_MISMATCH = -5,    // The payload length is not a multiple of the element byte count.
 	TRICE_RX_ERR_PAYLOAD_LEN_PARAM_COUNT_MISMATCH = -7, // The generated trice ID-pFmt list maybe obsolete or data mismatch.
-	TRICE_RX_ERR_PARAM_COUNT_MISMATCH = -8,             // The generated Id-pFmt paramCount does not match the form buffer computed paramCount.
+	TRICE_RX_ERR_PARAM_COUNT_MISMATCH = -8,             // The generated Id-pFmt paramCount does not match the paramCount computed from the buffer.
 	TRICE_RX_ERR_BIT_WIDTH_CONFLICT = -9,               // The generated data do not match. Version conflict?
 	TRICE_RX_ERR_UNSUPPORTED_X0_FRAME = -10,            // #if TRICE_RX_X0_COUNTED_BUFFER_SUPPORT == 0
 	TRICE_RX_ERR_INVALID_BITWIDTH_VALUE = -11,          // unexpected
@@ -45,10 +45,11 @@ enum {
 
 // triceRx_t describes one parsed receive record plus optional resolved metadata.
 // payload points into the caller-owned input buffer; no payload bytes are copied.
+// Keep that buffer unchanged while using the record or its payload.
 // It is a struct which gets filled during trice rx.
 typedef struct triceRx_t {
 	uint16_t id;            // Trice id
-	uint8_t bitWidth;       // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
+	uint8_t bitWidth;       // payload bit width, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
 	uint8_t stampBits;      //  `0`, `16`, or `32` valid stamp bits or 0xffu for typeX0 Trices.
 	uint32_t stamp;         // usually timestamp for Trice messages, any stamp for Trice ABC messages
 	const uint8_t* payload; // points into the input buffer
@@ -111,7 +112,7 @@ int TriceParseRecord(triceRx_t* rx, const uint8_t* buf, size_t len);
 //! \li ABC metadata should be generated from `trice generate -abc path/target` and should contain ID, bit width, and function pointer.
 typedef struct {
 	uint16_t id;      // Trice id
-	uint8_t bitWidth; // payload bithWidth, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
+	uint8_t bitWidth; // payload bit width, 0, 8, 16, 32, 64 or 0xffu for unknown. Resolved from triceAbc[] list or til.json.
 	triceFn_t fn;     // abc function handler resolved from generated triceAbc[].
 } triceAbc_t;
 
@@ -122,13 +123,13 @@ extern const unsigned triceAbcElements;
 //! \details Resolve ABC metadata
 //! \li The resolver searches `list[0..count-1]` for `rx->id`. If found, it fills:
 //! \li    rx->bitWidth
-//! \li    rx->fn
+//! \li    rx->abcFnHandler
 //!
 //! If `rx->bitWidth` is still `TRICE_BIT_WIDTH_UNKNOWN`, the resolver sets it.
 //! If it is already set and differs from the table entry, the resolver returns a bit-width conflict error.
 //!
 //! \retval TRICE_RX_RESULT_OK on success.
-//! \retval TRICE_RX_ERR_NOT_FOUND if the ID is not in the table. Unknown IDs are normal in mixed streams.
+//! \retval TRICE_RX_ID_WITHOUT_ABC_HANDLER if the ID is not in the table. Unknown IDs are normal in mixed streams.
 int TriceResolveAbc(triceRx_t* rx, const triceAbc_t* list, size_t count);
 
 extern triceFn_t fn_TriceDispatchAbc;
@@ -170,7 +171,7 @@ extern const unsigned triceLogElements; // generated log resolver table element 
 //! The bit width and parameter count are generated TIL facts, not parsed from the Trice macro name at runtime.
 //! If already assigned, the value must be identical or an error is reported.
 //! \retval TRICE_RX_RESULT_OK if found.
-//! \retval TRICE_RX_ERR_NOT_FOUND if the ID is not in the table.
+//! \retval TRICE_RX_ERR_LOG_ID_NOT_FOUND if the ID is not in the table.
 int TriceResolveLog(triceRx_t* rx, const triceLog_t* list, size_t count);
 
 #if TRICE_LOCATION_SUPPORT == 1
