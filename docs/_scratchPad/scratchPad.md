@@ -38,8 +38,12 @@ Abgearbeitet:
   - Issue \#761 ist jetzt eröffnet. Prüfe, inwieweit diese mit dieser Aufgabe kollidiert/verreinbar ist und ob beide Aufgaben besser in einem Rutsch oder getrennt gelöst werden und in welcher Reihenfolge dann am besten.
 - Du sollst jetzt nichts umsetzen, sondern nur gründlich analysieren. Schreibe dein Ergebnis in in ein 531-761_Analyse.md Dokument. Trenne User-Interface von Implentierung/Testing. Zunächst will ich ein klares, leicht zu verstehendes User Interface abstimmen natürlich nur im Rahmen des Machbaren. 
 
+Offen: 
+
+
 -->
 
+```bash
 Paul Win-PC Log:
 
 
@@ -104,3 +108,4 @@ Duration: 9592s
 Finished at Wed Oct 28 13:46:51 WEST 2026
 
 ms@PaulPCWin11 MINGW64 ~/repos/trice (wip)
+```
