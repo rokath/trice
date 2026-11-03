@@ -324,16 +324,18 @@ func TestAliasContextStringRules(t *testing.T) {
 // original-source ID policy rather than selecting again from the host result.
 func TestAliasContextBindFallback(t *testing.T) {
 	for _, test := range []struct {
-		format, alias, stored string
-		warning               bool
+		name, format, alias, stored string
+		warning                     bool
 	}{
-		{"ctx:err:failed", "printi", "err:failed [checked]", true},
-		{"err:failed [checked]", "printi", "err:failed [checked]", false},
-		{"untagged:ctx:err:failed", "printi", "untagged:err:failed [checked]", false},
-		{"ctx:failed", "printi", "failed [checked]", false},
-		{"ctx:err:failed", "MyWrn", "err:failed [checked]", false},
+		{"fallback_changes_host_tag", "ctx:err:failed", "printi", "err:failed [checked]", true},
+		{"source_tag_selects_group", "err:failed [checked]", "printi", "err:failed [checked]", false},
+		{"explicit_untagged_prefix", "untagged:ctx:err:failed", "printi", "untagged:err:failed [checked]", false},
+		{"untagged_host_result", "ctx:failed", "printi", "failed [checked]", false},
+		{"alias_tag_preserved", "ctx:err:failed", "MyWrn", "err:failed [checked]", false},
 	} {
-		t.Run(test.format+test.alias, func(t *testing.T) {
+		// prepareBindTest uses t.Name() in paths, so keep format colons out
+		// of directory names that Windows normalizes differently.
+		t.Run(test.name, func(t *testing.T) {
 			defer prepareBindTest(t, map[string]string{"main.c": test.alias + `("` + test.format + `");` + "\n"})()
 			TriceAliases = ArrayFlag{test.alias}
 			require.NoError(t, ProcessAliases())
