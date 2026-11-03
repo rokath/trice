@@ -57,7 +57,7 @@ Short notes use an emoji and a text label, such as `💡 Tip` or `⚠️ Warning
 For the PC examples you need:
 
 - A checkout or extracted source snapshot of Trice, including `demo`, `examples` and the library `src`.
-- Bash and the usual shell utilities. On Windows, use Git Bash or s.th. similar.
+- Bash and the usual shell utilities. On Windows, use Git Bash or a similar Bash environment.
 - The host tools from [GitHub Releases](https://github.com/rokath/trice/releases) in the `PATH`, CLI check: `trice --version`.
 - A **native host C compiler** named `cc` or `gcc` with its matching runtime libraries and headers; see [compiler setup](rm/development_environment_setup.md).
 
@@ -173,7 +173,7 @@ When you edit an example, its output check may correctly fail because it still e
 
 ## 4. <a id="bring-trice-into-your-firmware"></a>Bring Trice into your firmware
 
-All examples are executable and intended to help starting with Trice on any MCU/CPU.
+All examples are executable and intended to help you start using Trice on any MCU/CPU.
 
 [F030_bare](../examples/F030_bare/) is a STM32CubeMX-generated F030R8 project and kept uninstrumented. Compare it with [F030_inst_rtt](../examples/F030_inst_rtt/) or [F030_inst_uart](../examples/F030_inst_uart/) to see all Trice related changes.
 
@@ -249,7 +249,7 @@ Set the compiler include **order** like this
  -Isrc/default_conf \
 ```
 
-Your `SEGGER_RTT_Conf.h`, if existend, then takes precedence over the [RTT fallback configuration](rm/rtt.md).
+Your `SEGGER_RTT_Conf.h`, if present, then takes precedence over the [RTT fallback configuration](rm/rtt.md).
 
 Bind inserts generated includes into source files and writes **sidecar headers** to `build/sidecars`. Make `trice bind` a build dependency so it runs before compilation when log sources change. Then build and flash normally. Do not commit generated sidecars.
 
@@ -265,14 +265,14 @@ trice log -p COM7 -baud 115200
 
 Replace `COM7` with your device's port name (`trice s` can help with that). This command uses the default `til.json` and `li.json` in the current directory and TCOBSv1 framing, which matches the library default used by the configuration above. The result includes `Firmware started`. Binary bytes are expected on the wire, so a plain terminal will not display the original text. Other transport/configuration choices need matching decoder settings; copy the log script of the corresponding [working example](rm/examples.md).
 
-The same captured records can later be decoded with `-logFormat json` or `-logFormat kv`. The project's newest accumulated `til.json` also decodes older captures. For source locations, use the `li.json` from the corresponding firmware build; see the next chapter. While logging, the host automatically reloads changes to its existing TIL/LI files; see [automatic reload](rm/cli.md#automatic-dictionary-reload).
+The same captured records can later be decoded with `-logFormat json` or `-logFormat kv`. The project's newest accumulated `til.json` also decodes older captures with compatible formats; for 1.x captures, check [firmware and dictionary compatibility](rm/id_management.md#compatibility-with-firmware-and-host-tool-versions). For source locations, use the `li.json` from the corresponding firmware build; see the next chapter. While logging, the host automatically reloads changes to its existing TIL/LI files; see [automatic reload](rm/cli.md#automatic-dictionary-reload).
 
 ## 5. <a id="know-which-files-to-keep"></a>Know which files to keep
 
 File or directory                                       | What to do with it
 --------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Application sources and `triceConfig.h`                 | Keep under version control, including the generated include lines that Bind adds to sources.
-`til.json`                                              | Keep under version control and extend it across builds. Its newest accumulated version also decodes older firmware and captures.
+`til.json`                                              | Keep under version control and extend it across builds. Its newest accumulated version also decodes compatible older firmware and captures.
 `li.json`                                               | Generated source-location table; normally leave it out of version control. Keep a copy with a firmware build or capture when you need that build's exact source locations.
 `build/sidecars/`                                       | Regenerable sidecar headers and field registry. Leave them out of version control; Bind recreates them before compilation.
 Executables, object files and `capture.bin` / `log.bin` | Build/run outputs; retain firmware images and captures when useful for later investigation.

@@ -329,7 +329,7 @@ The 32-bit buffer write primitive is:
 
 The disassembly and screenshot in this section are historical. The current configuration 98 still uses raw DWT stamps and deferred double buffering; rebuild and measure the current image before relying on the old intervals.
 
-* To not loose any clocks, the function `SomeExampleTrices` in [triceExamples.c](../../examples/exampleData/triceExamples.c) uses the upper case macro `TRICE` for the first "🐁 Speedy Gonzales" Trices.
+* To avoid spending extra clock cycles, the function `SomeExampleTrices` in [triceExamples.c](../../examples/exampleData/triceExamples.c) uses the upper case macro `TRICE` for the first "🐁 Speedy Gonzales" Trices.
 
 * The `triceConfig.h` settings are
 
@@ -349,7 +349,7 @@ The disassembly and screenshot in this section are historical. The current confi
 ```
 
 * Both stamps read the DWT cycle counter running with the 64 MHz MCU clock. The register is accessed through a pointer to `volatile uint32_t`.
-* No direct output to not loose time during the Trice macro execution.
+* No direct output, to avoid transmission work during Trice macro execution.
 * Configuration 98 explicitly disables critical sections; use controlled writers and sufficient buffer space.
 * The Trice double buffer allows the Trice macros to write without checks.
 * The Trice protection, diagnostics and cycle counter are disabled to not perform unneeded clocks.

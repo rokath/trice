@@ -136,7 +136,7 @@ These are ideas and historical proposals, not release commitments.
 
 ##### Trice v1.0 Code
 
-> **Hint:** To follow this explanation with the debugger, you can open in VSCode the trice folder, klick the Run & Debug Button or press CTRL-SHIFT-D, select `trice l -p DUMP` and set a breakpoint at `func main()` in [./cmd/trice/main.go](../../cmd/trice/main.go) or directly in `translator.Translate` [./internal/translator/translator.go](../../internal/translator/translator.go).
+> **Hint:** To follow this explanation with the debugger, open the trice folder in VSCode, click the Run & Debug button or press CTRL-SHIFT-D, select `trice l -p DUMP` and set a breakpoint at `func main()` in [./cmd/trice/main.go](../../cmd/trice/main.go) or directly in `translator.Translate` in [./internal/translator/translator.go](../../internal/translator/translator.go).
 * In file [./internal/args/handler.go](../../internal/args/handler.go) function `logLoop` calls `receiver.NewReadWriteCloser` and passes the created `rwc` object to `translator.Translate`.
 * There `rwc` is used to create an appropriate decode object `dec` passed to `decodeAndComposeLoop`, which uses `func (p *trexDec) Read(b []byte) (n int, err error)` then, doing the byte interpretation.
   * Finally `n += p.sprintTrice(b[n:]) // use param info` is called doing the conversion.

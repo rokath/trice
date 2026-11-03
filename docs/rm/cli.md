@@ -172,18 +172,11 @@ This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` 
 
 ## 9. <a id="udp4-input"></a>UDP4 input
 
-The pull request [\#529](https://github.com/rokath/trice/pull/529) introduces key enhancement:
+To receive Trice logs over IPv4 UDP, use `-port UDP4`. By default, it listens on `0.0.0.0:17005`, which accepts packets on all network interfaces. Use `-args` to choose a different local address and port. This receiver does not join multicast groups.
 
-```b
-    IPv4 UDP Receiver
-    Adds support for receiving data over IPv4 using UDP. This enables integration with systems that broadcast or transmit telemetry, logs, or other messages over the network.
-```
-
--port UDP4 Example
-
-To receive Trice logs over IPv4 UDP, use the -port UDP4 option. By default, it listens on 0.0.0.0:17005, which accepts packets on all network interfaces. You can specify a different address or multicast group via -args.
-
+```bash
 trice log -p UDP4
+```
 
 ## 10. <a id="stimulate-target-with-a-user-command-over-uart"></a>Stimulate target with a user command over UART
 
