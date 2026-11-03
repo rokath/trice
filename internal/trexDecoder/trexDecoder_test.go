@@ -946,7 +946,9 @@ func TestSprintTriceErrorPaths(t *testing.T) {
 	p := &trexDec{DecoderData: decoder.NewDecoderData(decoder.Config{Endian: decoder.LittleEndian})}
 	b := make([]byte, 256)
 
-	p.Trice = id.TriceFmt{Type: "BADTYPE", Strg: "%d"}
+	// C identifiers such as BADTYPE are valid aliases. A malformed native type
+	// must reach reconstruction failure rather than the scalar alias fallback.
+	p.Trice = id.TriceFmt{Type: "TRICE_INVALID", Strg: "%d"}
 	p.B = []byte{1}
 	p.ParamSpace = 1
 	n := p.sprintTrice(b)

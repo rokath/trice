@@ -360,18 +360,18 @@ func TestInsertKnownID2(t *testing.T) {
 }`
 	assert.Nil(t, FSys.WriteFile(LIFnJSON, []byte(exsLI), 0777))
 
-	// create existing til.json file
+	// Known alias IDs use the exact macro spelling as their stored type.
 	exsTIL := `{
 	"55": {
-		"Type": "trice",
+		"Type": "log",
 		"Strg": "msg:value=%d\\n"
 	},
 	"66": {
-		"Type": "triceS",
+		"Type": "AST",
 		"Strg": "` + SAliasStrgPrefix + `0 == 1, \"that is wrong\"` + SAliasStrgSuffix + `"
 	},
 	"77": {
-		"Type": "trice",
+		"Type": "printk",
 		"Strg": "%x"
 	}
 }`
