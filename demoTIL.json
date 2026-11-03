@@ -9467,6 +9467,10 @@
 		"Type": "Trice64",
 		"Strg": "info:Energy {energy_j:%.2f J}\\n"
 	},
+	"15384": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
 	"15390": {
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales 2 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
@@ -9490,6 +9494,10 @@
 	"15438": {
 		"Type": "trice",
 		"Strg": "wr: X0 before 2\\n"
+	},
+	"15454": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"A user prints call with integer and float values: %u, %d, %x, %2.1f\\n\"')SAlias_Strg"
 	},
 	"15457": {
 		"Type": "trice",
@@ -9547,6 +9555,10 @@
 		"Type": "TRICE",
 		"Strg": "time:G0B1 TRICE(Id(0)... 6\\n"
 	},
+	"15548": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"A user prints call without values.\\n\"')SAlias_Strg"
+	},
 	"15550": {
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales A TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
@@ -9583,9 +9595,17 @@
 		"Type": "TRice",
 		"Strg": "msg:G0B1 TRice 5\\n"
 	},
+	"15590": {
+		"Type": "CUSTOM_PRINT",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
 	"15610": {
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales 8 TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
+	},
+	"15611": {
+		"Type": "CUSTOM_ASSERT",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)theQuestion ')SAlias_Strg"
 	},
 	"15614": {
 		"Type": "trice",
@@ -9651,6 +9671,10 @@
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales 0 TRICE(... insert macro (uppercase-only macro) without target stamp\\n"
 	},
+	"15665": {
+		"Type": "CUSTOM_PRINT",
+		"Strg": "CUSTOM_PRINT example: the right answer is: %d\\n"
+	},
 	"15674": {
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales 9 TRICE(ID(0)... insert macro (uppercase-only macro) with 32-bit time stamp\\n"
@@ -9658,6 +9682,10 @@
 	"15676": {
 		"Type": "TRice",
 		"Strg": "att:🐁 Speedy Gonzales 8 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
+	},
+	"15677": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
 	},
 	"15679": {
 		"Type": "trice",
@@ -9755,6 +9783,10 @@
 		"Type": "TRICE",
 		"Strg": "time:G0B1 TRICE(Id(0)... 0\\n"
 	},
+	"15812": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s...\\n\"')SAlias_Strg"
+	},
 	"15814": {
 		"Type": "Trice",
 		"Strg": "att:🐁 Speedy Gonzales 8 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
@@ -9851,6 +9883,10 @@
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales H TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
 	},
+	"15916": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
 	"15918": {
 		"Type": "TRice",
 		"Strg": "vis_demo:%f,%f,%f\\n"
@@ -9891,9 +9927,21 @@
 		"Type": "TRice",
 		"Strg": "att:🐁 Speedy Gonzales 2 TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
 	},
+	"15976": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:'-alias' & '-salias' contributor is %s.\\n\"')SAlias_Strg"
+	},
+	"15977": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s....\\n\"')SAlias_Strg"
+	},
 	"15982": {
 		"Type": "triceS",
 		"Strg": "rd:sizeof(%8s)"
+	},
+	"15988": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
 	},
 	"15992": {
 		"Type": "trice",
@@ -9902,6 +9950,10 @@
 	"15996": {
 		"Type": "Trice",
 		"Strg": "att:🐁 Speedy Gonzales 0 TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
+	},
+	"16000": {
+		"Type": "printi",
+		"Strg": "A user printi call without values.\\n"
 	},
 	"16004": {
 		"Type": "TRICE",
@@ -9915,6 +9967,10 @@
 		"Type": "Trice",
 		"Strg": "att:🐁 Speedy Gonzales B TRice(... function call macro (mixed-case macro) with 16-bit time stamp\\n"
 	},
+	"16014": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s..\\n\"')SAlias_Strg"
+	},
 	"16017": {
 		"Type": "trice",
 		"Strg": "att:G0B1 fast record without timestamp\\n"
@@ -9922,6 +9978,10 @@
 	"16019": {
 		"Type": "trice",
 		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16035": {
+		"Type": "CUSTOM_ASSERT",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
 	},
 	"16038": {
 		"Type": "TRICE",
@@ -10043,9 +10103,17 @@
 		"Type": "TRICE",
 		"Strg": "att:🐁 Speedy Gonzales E TRICE(Id(0)... insert macro (uppercase-only macro) with 16-bit time stamp\\n"
 	},
+	"16176": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
 	"16177": {
 		"Type": "trice32",
 		"Strg": "info:speed:Speed sample\\n"
+	},
+	"16192": {
+		"Type": "printi",
+		"Strg": "A user printi call with integer and float values: %u, %d, %x, %2.1f\\n"
 	},
 	"16199": {
 		"Type": "TRICE",
@@ -10059,9 +10127,17 @@
 		"Type": "TRice",
 		"Strg": "msg:G0B1 TRice 6\\n"
 	},
+	"16208": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"att:%s.\\n\"')SAlias_Strg"
+	},
 	"16211": {
 		"Type": "trice",
 		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16213": {
+		"Type": "CUSTOM_ASSERT",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer, (char*)\"'%s' Am, it is %d\"')SAlias_Strg"
 	},
 	"16214": {
 		"Type": "TRICE",
@@ -10107,9 +10183,17 @@
 		"Type": "trice",
 		"Strg": "err:unknown error code %d\\n"
 	},
+	"16250": {
+		"Type": "CUSTOM_ASSERT",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
+	},
 	"16257": {
 		"Type": "trice",
 		"Strg": " = %d\\n"
+	},
+	"16264": {
+		"Type": "CUSTOM_ASSERT",
+		"Strg": "SAlias_Strg('theFastFoundAnswer == theRightAnswer')SAlias_Strg"
 	},
 	"16265": {
 		"Type": "TRice",
@@ -10130,6 +10214,10 @@
 	"16277": {
 		"Type": "trice",
 		"Strg": "att:G0B1 fast record without timestamp\\n"
+	},
+	"16279": {
+		"Type": "prints",
+		"Strg": "SAlias_Strg('\"A user ... with string, integer and float values: %u, %d, %x, %2.1f, %s and %s\\n\"')SAlias_Strg"
 	},
 	"16281": {
 		"Type": "TRICE",
