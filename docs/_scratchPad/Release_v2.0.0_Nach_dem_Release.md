@@ -3,10 +3,10 @@
 ## Zuerst erledigen
 
 1. Zunächst die reproduzierten Fehler und Release-Voraussetzungen aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) abschließen.
-2. Danach **N01 und N02** bearbeiten: ungenutzte Helfer sorgfältig prüfen und die veraltete Beschreibung der Host-Architektur ersetzen.
-3. **N03 und N04** gezielt ausbauen: Tests an tatsächlichen Fehlergrenzen und eine vollständige Auswahl der selbst gepflegten Dokumentation.
+2. Danach **N06 und N02** bearbeiten: die übrige Dokumentation systematisch verständlicher machen und die veraltete Beschreibung der Host-Architektur ersetzen.
+3. **N01, N03 und N04** gezielt bearbeiten: ungenutzte Helfer prüfen, Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
 4. **N05** nur als getrennte Wartungsaufgabe angehen. Eine breite Skriptumbenennung kurz vor v2.0.0 bringt wenig Anwendernutzen und berührt viele Aufrufer.
-5. **N06 und N07** sind Dokumentationspflege beziehungsweise Zukunftsideen, keine zugesagten neuen Funktionen.
+5. **N07** bewahrt Zukunftsideen, ohne neue Funktionen zuzusagen.
 
 Stand: Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Die folgenden Änderungen wurden nicht implementiert. Bereits direkt korrigierte Kleinigkeiten stehen ausschließlich im Git-Diff.
 
@@ -94,13 +94,19 @@ Einzelne Namen könnten später verständlicher werden:
 
 **Erledigt, wenn:** jede gewählte Umbenennung einen konkreten Verständlichkeitsgewinn hat, alle aktiven Aufrufer passen und der Änderungssatz ausschließlich diese Aufgabe enthält.
 
-## Wiederholungen und historische Anleitungen gezielt straffen
+## Dokumentation mit konkreten Anwendungsbeispielen verständlich machen
 
-**N06 · niedrige Priorität · kein flächiger Handbuchumbau nötig**
+**N06 · mittlere Priorität · systematische Überarbeitung der aktiven Dokumentation**
+
+**Auftrag vom 2026-11-04:** die gesamte selbst gepflegte aktive Dokumentation auf Verständlichkeit für menschliche Leser prüfen. Technische Korrektheit und Klarheit sind gleich wichtig. Release Notes, Einstieg und Migration zuerst gemäß V04 bearbeiten; danach die übrigen Referenzkapitel und Beispielanleitungen. Archivierte und fremde Texte bleiben ausgenommen.
+
+**Maßstab:** Leser sollen erkennen, wann sie eine Funktion brauchen, was sie tun müssen und welches Ergebnis sie erhalten. Abstrakte Fachbegriffe und Regeln vermeiden oder unmittelbar durch ein kleines Anwendungsbeispiel erklären. Beispiel: Für `MyWrn("err:temperature=%u\n", 85)` schreibt `-vis='wrn:printf("%d\n",v0)@warnings.csv'` die Zeile `85` in `warnings.csv`; `v0` ist der erste Messwert. Das zeigt die Wirkung deutlicher als „registered selectors select event tags“.
+
+**Vorgehen:** pro erklärungsbedürftiger Regel einen realistischen Aufruf oder eine Eingabe und das erwartete Ergebnis zeigen. Nur wenn eine Grenze sonst unklar bleibt, einen Gegenfall ergänzen. Begriffe beim ersten Gebrauch kurz erklären. Vage Absätze durch Beispiele ersetzen, unnötige Sätze streichen und längere Details verlinken; nicht zu jeder bisherigen Erklärung zusätzliche Beispiele anhängen. Auch die To-do-Papiere selbst nach diesem Maßstab prüfen.
 
 User Manual, Quickstarts und Referenz erfüllen verschiedene Aufgaben. Kurze Wiederholungen von Voraussetzung, Beispiel und erwartetem Ergebnis sind dort sinnvoll. Die neuen Vergleichstabellen zu Bind, CE und Compilergrenzen sollten erhalten bleiben.
 
-**Sinnvolle spätere Pflege:**
+**Dabei Wiederholungen und historischen Kontext prüfen:**
 
 - Die verbindlichen Upgrade-Regeln in [ID Management](../rm/id_management.md) belassen. README, Release Notes und Einführungen mit kurzen Hinweisen dorthin verlinken, statt jeweils vollständige Migrationslisten zu führen.
 - Längere Entscheidungsbegründungen in den vorhandenen thematischen Anhängen von [Bind](../rm/bind.md) und [CE](../rm/context_enrichment.md) halten. Bei künftigen Ergänzungen zuerst prüfen, ob bereits eine Tabelle dieselbe Grenze beschreibt.
@@ -109,7 +115,7 @@ User Manual, Quickstarts und Referenz erfüllen verschiedene Aufgaben. Kurze Wie
 
 Zusätzliche Referenzlinks lohnen sich vor allem bei Compiler-Sonderfällen, Formatsemantik und Ablaufverträgen. Primärdokumentation plus ein konkreter Repository-Test ist hilfreicher als viele allgemeine Bloglinks. Version oder Einschränkung daneben nennen, wenn das Verhalten davon abhängt.
 
-**Erledigt, wenn:** Leser eine maßgebliche Erklärung pro Thema finden und klar erkennen, ob ein Beispiel aktuell geprüft, historisch oder ein Zukunftsvorschlag ist. Bestehende Zeilenumbrüche, Abstände und generierte Navigation nicht nebenbei großflächig normalisieren.
+**Erledigt, wenn:** Leser die nötige Handlung und deren Ergebnis aus dem Text oder einem unmittelbar folgenden Beispiel verstehen, ohne interne Begriffe selbst erschließen zu müssen. Jede Ergänzung muss dem Verständnis oder der korrekten Anwendung helfen; bloße Wiederholungen entfallen. Die technische Bedeutung bleibt erhalten. Leser finden eine maßgebliche Erklärung pro Thema und erkennen, ob ein Beispiel aktuell geprüft, historisch oder ein Zukunftsvorschlag ist. Bestehende Zeilenumbrüche, Abstände und generierte Navigation nicht nebenbei großflächig normalisieren.
 
 ## Zukunftsideen aus dem Archiv
 

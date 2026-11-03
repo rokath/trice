@@ -3,7 +3,7 @@
 ## Zuerst erledigen
 
 1. **V01–V03 beheben:** lokal reproduzierte Fehler in Netzwerk-Close, Tastatureingabe/Rückkanal und lokalem C-Logging; jeweils den fehlenden Verhaltenstest ergänzen.
-2. **V04–V06 abschließen:** Stable-Veröffentlichung vorbereiten, das fehlende PDF-Kapitel aufnehmen und die zugesagte Bedeutung von `-exec` klären.
+2. **V04–V06 abschließen:** Stable-Veröffentlichung und verständliche Release-/Upgrade-Hinweise vorbereiten, das fehlende PDF-Kapitel aufnehmen und die zugesagte Bedeutung von `-exec` klären.
 3. **V07 vor der Archivlöschung bearbeiten:** die wenigen eigenständigen Inhalte sichern und aktive Verweise anpassen.
 4. **V08 am endgültigen Release-Kandidaten prüfen:** offene CI-Nachweise schließen. Erst danach den unveränderlichen Release-Tag setzen und veröffentlichen.
 
@@ -90,7 +90,11 @@ Der aktuelle Changelog verteilt den Stand auf `Unreleased` und drei Beta-Abschni
 
 **Maßnahme:** den Stable-Abschnitt mit den tatsächlich enthaltenen Änderungen konsolidieren und den Prerelease-Schalter passend zur vorgesehenen Beta-/Stable-Politik setzen. Das vorhandene `skip_upload: auto` für Homebrew im Zusammenhang mit beiden Tagarten kontrollieren; siehe [GoReleaser Homebrew-Konfiguration](https://goreleaser.com/customization/publish/homebrew_casks/). Die bestehende Entscheidung für Release-Archive bzw. lokale Checkout-Builds ohne `/v2`-Modulmigration bleibt unverändert.
 
+**Verständlichkeit vor dem Release:** Changelog, README, User Manual/Quickstarts und die Migrationshinweise aus Sicht eines neuen Anwenders durchgehen. Abstrakte Aussagen wie „selectors select event tags“ durch eine konkrete Handlung und deren Ergebnis ersetzen oder unmittelbar mit einem kurzen Beispiel erklären. Bei Upgrade-Regeln möglichst bisherige und neue Verwendung samt sichtbarer Auswirkung zeigen. Fachbegriffe kurz am Einsatzort erklären; ein Link darf notwendiges Grundverständnis nicht ersetzen. Beispiele sollen unklare Prosa ersetzen und Wiederholungen vermeiden. Der vollständige Durchgang durch die übrige aktive Dokumentation ist als N06 in [Nach dem Release](Release_v2.0.0_Nach_dem_Release.md) eingeplant.
+
 **Erledigt, wenn:** die Vorbereitung für einen Beta-Tag und `v2.0.0` jeweils die richtigen, nicht leeren Notes auswählt; die Stable-Veröffentlichung kein Prerelease wird und die gewünschte Tap-Veröffentlichung eindeutig ist. Prüfungen an [release_preparation_test.go](../../scripts/release_preparation_test.go) anschließen, ohne im Test reale Releases zu veröffentlichen.
+
+Für die Dokumentation gilt zusätzlich: Leser erkennen ohne Kenntnis interner Begriffe, wann eine Neuerung hilft, was sie eingeben oder ändern müssen und welches Ergebnis sie erwarten können. Changelog-Einträge bleiben kurz; ein nötiges Inline-Beispiel ist erlaubt, vollständige Anleitungen stehen in `docs/rm/`.
 
 ## Das Kapitel zu Stamp-Ausdrücken fehlt im Referenz-PDF
 
