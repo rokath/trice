@@ -681,8 +681,10 @@ prepare_selected_npm_tools() {
 # Check each destination's nearest existing directory. Group by df's device so
 # worktree caches, separate Go caches and browser caches cannot borrow free space
 # from another filesystem. Peak estimates deliberately include archive/staging.
+# The optional flag hides routine capacity output, but never setup failures.
 trice_plan_space() {
   local name version found action selected target installed peak directory device available reserve
+  local show_capacity="${1:-1}"
   local groups="$TRICE_PLAN_FILE.space" devices="$TRICE_PLAN_FILE.devices" required free failed=0
   reserve="${TRICE_TEST_DISK_RESERVE_MIB:-1024}"
   case "$reserve" in '' | *[!0-9]*)
@@ -719,20 +721,25 @@ trice_plan_space() {
         trice_plan_print "Disk [$device]: $(trice_plan_size "$free") free; insufficient."
         trice_plan_print "Free another $(trice_plan_size "$((required + reserve - free))") before setup."
         failed=1
-      else trice_plan_print "Disk [$device]: $(trice_plan_size "$free") free - sufficient."; fi
+      elif [ "$show_capacity" = 1 ]; then trice_plan_print "Disk [$device]: $(trice_plan_size "$free") free - sufficient."; fi
     done <"$devices"
-  else
+  elif [ "$show_capacity" = 1 ]; then
     trice_plan_print "Disk: $(trice_plan_size "$(df -Pk . | awk 'END {printf "%d",$4/1024}')") free."
   fi
   [ "$failed" -eq 0 ]
 }
 
-# Display every selection before asking once. Continue authorizes checkout-local
-# preparation; update additionally offers confirmed, version-bounded upgrades.
+# Display the inventory only when installation or host setup is needed.
+# Continue authorizes checkout-local preparation; update additionally offers
+# confirmed, version-bounded upgrades. Ready tools proceed without reading stdin.
 # An internal recheck after updates retains consent for remaining local tools.
 trice_test_tool_plan() {
   local scope="${1:-native}" os architecture selected found tool version action target installed peak answer='' blocked=0 checkout_space_ok=1 system_status
   local after_updates="${2:-0}"
+  # Reuse alone needs no installation choice, including verified cached tools.
+  local installation_needed=0
+  # Routine capacity information accompanies the visible setup inventory.
+  local show_inventory=0
   # Exit 2 also describes real setup failures. Keep explicit refusal distinct
   # so the suite can avoid replaying an inventory already mirrored to the user.
   export TRICE_TEST_SETUP_CANCELLED=0
@@ -921,13 +928,20 @@ trice_test_tool_plan() {
     trice_plan_row Go-build-cache shared 'source fallback' install 'build-cache allowance' "$(trice_tool_path "$build_cache")" 0 768
     trice_plan_row Go-module-cache shared 'source fallback' install 'module-cache allowance' "$(trice_tool_path "$module_cache")" 0 512
   fi
-  if [ "$after_updates" != 1 ]; then trice_plan_table; fi
   while IFS=$'\t' read -r tool version found action selected target installed peak; do
-    [ "$action" != manual ] || blocked=1
+    case "$action" in
+      install) installation_needed=1 ;;
+      manual) blocked=1 ;;
+    esac
   done <"$TRICE_PLAN_FILE"
-  trice_plan_space || checkout_space_ok=0
+  if [ "$after_updates" != 1 ] && { [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; }; then
+    trice_plan_table
+    show_inventory=1
+  fi
+  trice_plan_space "$show_inventory" || checkout_space_ok=0
   if [ "$blocked" -ne 0 ]; then trice_plan_can_continue || true; fi
-  if [ "$after_updates" != 1 ] && [ "${TRICE_TEST_SETUP_APPROVED:-0}" != 1 ] && { [ -z "${CI:-}" ] || [ "${CI:-}" = false ]; }; then
+  if { [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; } &&
+    [ "$after_updates" != 1 ] && [ "${TRICE_TEST_SETUP_APPROVED:-0}" != 1 ] && { [ -z "${CI:-}" ] || [ "${CI:-}" = false ]; }; then
     while true; do
       trice_plan_print ''
       trice_plan_print '[c] Continue'

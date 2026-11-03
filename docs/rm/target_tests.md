@@ -27,6 +27,9 @@ This chapter covers everyday use, GitHub Actions and release-package checks. [Te
   * [6.2. Understand the installation and release audit jobs](#understand-the-installation-and-release-audit-jobs)
   * [6.3. Before accepting a release candidate](#before-accepting-a-release-candidate)
 * [7. Documentation history](#documentation-history)
+* [8. Appendix: optional test and performance investigations](#appendix-optional-test-and-performance-investigations)
+  * [8.1. Parser and record robustness](#parser-and-record-robustness)
+  * [8.2. Comparable timing measurements](#comparable-timing-measurements)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -41,9 +44,9 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 ./scripts/testAll.sh
 ```
 
-The default is **full**, with setup and formatting questions. The suite checks installed tools and `temp/tools` first. `quick` and either formatting switch choose `c` automatically: reuse valid tools and install missing pinned tools under `temp/tools`. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
+The default is **full**, with a formatting question and a setup menu only when tools or host prerequisites need preparation. The suite checks installed tools and `temp/tools` first. `quick` and either formatting switch choose `c` automatically: reuse valid tools and install missing pinned tools under `temp/tools`. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
-Every run lists the declared tool versions before preparation. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
+Startup lists the declared tool versions only when tools need installation or host prerequisites are missing. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
 
 | Command | Use |
 | --- | --- |
@@ -54,8 +57,9 @@ Every run lists the declared tool versions before preparation. Installation ques
 | `./scripts/testAll.sh --no-stop` | Explicitly continue after failures; this is already the default. |
 | `./scripts/testAll.sh --format` | Choose `c` and format the repository before testing, without questions. Works with `quick` or `full`. |
 | `./scripts/testAll.sh --no-format` | Choose `c` and leave formatting to the checks, without questions. Works with `quick` or `full`. |
+| `./scripts/testAll.sh --go-test-timeout 4h` | Allow up to four hours per Go test package in steps 540/550; the default is two hours. Works with `quick` or `full`. |
 
-An explicit `--format` overrides quick's default. `--format` and `--no-format` cannot be combined. These unattended choices retain the tool inventory, version checks, prerequisite checks and disk-space checks. Use full without either formatting switch to choose system updates through `u`.
+An explicit `--format` overrides quick's default. `--format` and `--no-format` cannot be combined. These unattended choices retain version checks, prerequisite checks and disk-space checks. Use full without either formatting switch to choose system updates through `u` when setup is needed.
 
 From PowerShell, use `bash ./scripts/testAll.sh` to start the same runner. Direct Go commands also work in PowerShell; the compiler and runtime still need to be available to Go.
 
@@ -92,6 +96,8 @@ The native filesystem test detects whether the actual volume is case-sensitive. 
 All three systems use [test-tools.env](../../scripts/test-tools.env) for exact tool versions and release checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for Node dependencies. Before downloading anything, startup shows the active versions, required pins, reusable installations/caches, and additional installations. Complete matching CMake, GCC, LLVM and ARM packages stay at their existing locations; large toolchains are not copied into the checkout.
 
 The startup table shows required, system and cached versions. `Location` is the selected or planned source; `Size` estimates additional installed space in MB/GB. Missing prerequisites also appear in the table. Shared WinLibs packages are budgeted once. Detailed paths remain in the run's tool-plan file.
+
+When every required tool is available at its declared version, execution continues without a tool table, disk-space message, installation menu or confirmation. This applies to `testAll.sh`, `format_repo.sh` and separately invoked formatting, build and check scripts, including reuse from verified caches. The table, disk-space information and `c/u/a` menu appear when a required tool needs installation or a host prerequisite needs attention. Setup failures, including insufficient disk space, remain visible. The separate optional repository-formatting question in full test runs remains unchanged.
 
 A complete package can bring additional tools. For example, Windows WinLibs supplies GCC and Clang together with CMake and Cppcheck. Installing it for missing compiler versions also places these extra tools in `temp/tools`, even if matching system versions already exist. The installer keeps the complete package rather than removing those files. "Install only missing tools" therefore means installing only the required packages, not filtering every executable inside them.
 
@@ -162,6 +168,10 @@ Each suite invocation keeps its own `temp/log/testAll.XXXXXX` directory. The con
 Start with the first failed step and its log, rather than the last line of a long compiler trace. The displayed time belongs to that step, including its preparation and restoration. The percentage estimates relative test work, not remaining wall-clock time.
 
 Steps 540 and 550 execute the Go tests without and with coverage. The same test name failing in both logs can therefore have one cause. Start with its first error; a missing report or output file later in the log can be a consequence. Use the stable script name when comparing runs: a position such as `24/25` depends on the selected plan.
+
+Their Go timeout applies to the entire test package, not to each test or to the whole suite. A timeout naming a test that ran for only a few seconds can mean the package spent its budget on earlier tests. Inspect the retained `*.go.*` events before treating that name as a hanging test.
+
+Use `--go-test-timeout 4h` for a slower host. A positive duration can combine hours, minutes and seconds, for example `90m`, `1.5h` or `1h30m`; zero and malformed values are rejected before preparation. For direct step commands, use `TRICE_GO_TEST_TIMEOUT=4h ./scripts/_540_test_go.sh` or the corresponding coverage step. The CLI overrides this environment variable. CPU model or core count cannot reliably predict process-start, antivirus, disk and cache costs, so no hardware-dependent limit is guessed. Separate compiler-test and CI job limits still apply.
 
 | File in the run directory | Contents |
 | --- | --- |
@@ -258,6 +268,16 @@ The [native workflow](../../.github/workflows/native-tests.yml) calls the [share
 
 Each platform runs independently; one failure does not cancel the others. Race checks cover `internal/decoder`, `internal/emitter`, `internal/translator` and `internal/vis`. The workflow attempts to upload `temp/log` even after failures, under `native-<runner>-<selection>` artifacts.
 
+Go package timeouts and Actions job timeouts are separate. The first limit reached stops the corresponding work:
+
+| Job | Go package limit | Whole-job limit |
+| --- | --- | --- |
+| Native full/quick suite | Two hours in steps 540/550; the separate race check uses 20 minutes. | 180 minutes, including preparation, all suite steps and race checks. |
+| Script portability | Two hours for `./scripts`. | 150 minutes, including setup and compilation. |
+| Go coverage and manual Go workflow | Two hours per package. | 150 minutes, including setup and artifacts/builds. |
+
+The local `--go-test-timeout` switch changes the package budget only. It does not extend an Actions job. Other focused compiler, installation and release-audit jobs retain their own limits.
+
 Use a successful native job on each required OS at the same commit as platform evidence. Linux containers help isolate Linux packages; they do not exercise Windows file locking or macOS process behavior. This matrix uses actual native runners.
 
 An ordinary branch push does not start this native acceptance workflow. Use a PR for quick checks or start it manually for full checks of that branch. The separate push-triggered Script portability workflow covers the script package only. Also check the Bash version used by a macOS job: a run with modern Bash does not verify system Bash 3.2 compatibility.
@@ -321,6 +341,32 @@ The [publishing workflow](../../.github/workflows/goreleaser.yml) is a separate 
 
 Use one fixed candidate commit for the native full jobs on all required systems, the complete compiler matrices, external links, snapshot/installation checks and the release notes. Inspect retained artifacts and any skipped jobs. After publication, audit the exact release tag. Keep hardware checks separate and name the board/setup when recording their result.
 
+The [release checklist](tool_build_release.md#prepare-a-release) separates candidate acceptance from checks of published assets and gives the branch, tag and workflow commands. Hardware results belong to their documented board/tool setup; repeat the relevant checks when that setup or its transport changes.
+
 ## 7. <a id="documentation-history"></a>Documentation history
 
 This chapter and [Test Internals](target_test_internals.md) replace the former target-test chapter, scattered test instructions and the native-test design draft. Their original texts are preserved in [the test documentation archive](../_scratchPad/obsolete/testing/README.md). Historical transcripts there describe old runs, not current acceptance or performance targets.
+
+## 8. <a id="appendix-optional-test-and-performance-investigations"></a>Appendix: optional test and performance investigations
+
+These investigations are available for a concrete maintenance need. They are not additional release requirements, and the proposed fuzz entry points and optimizations below are not implemented features.
+
+### 8.1. <a id="parser-and-record-robustness"></a>Parser and record robustness
+
+Possible fuzz targets include format/CE parsing and decoder input, especially escapes, braces, truncated records and combinations of options. Useful invariants are: rejected input causes no panic or partial publication, canonical templates round-trip consistently, diagnostics stay outside JSON stdout, and concurrent paths have no data races. Keep discovered failures as readable regression tests. A bounded fuzz run does not establish complete input safety.
+
+The native nightly/manual workflow already runs the race detector for the decoder, emitter, translator and visualization packages. Future fuzz targets would complement those checks; they do not require making every test parallel.
+
+### 8.2. <a id="comparable-timing-measurements"></a>Comparable timing measurements
+
+Record commit, OS/architecture, compiler/tool versions, selected scope, concurrency and cold/warm cache state. Measure process startup, compilation, file access and test execution separately. Retain the original run logs before another invocation. Raising a timeout changes the permitted duration; it is not a performance improvement.
+
+| Investigation | Measurement |
+| --- | --- |
+| Slow Windows steps | Compare the same required configurations; separate native process startup, compiler/CGO work, actual parallelism and file access. |
+| Bind versus Insert/Clean | Measure Bind generation, Insert, Clean, the complete Insert/Clean cycle, compilation, extra example builds and restoration separately. |
+| Early host filtering and template caching | Replay with 0, 50, 90 and 100 percent rejected events; record CPU, allocations and throughput for text, JSON and KV. |
+
+The historical full runs from 15 October 2026 took 1,850 seconds on macOS and 6,727 seconds on Windows. Their GCC Insert steps took 132/971 seconds and GCC Bind 204/1,505 seconds respectively. These were different machines with existing caches, and the Windows run failed one step. They are diagnostic observations, not a controlled OS benchmark or current performance targets. The apparent Bind/Insert factor of about 1.55 includes different preparation, example builds and restoration; it does not measure the two commands alone.
+
+For filtering or caching experiments, preserve framing/integrity checks, raw captures, statistics, diagnostics, stamp references, accepted records and dictionary reload behavior. Include typed SL/CE records. Any optimization needs independent behavioral and timing evidence; reducing coverage, adding retries or skipping slow cases does not establish a speedup.

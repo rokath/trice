@@ -15,6 +15,10 @@
 # - quick defaults to c and --no-format; an explicit --format overrides that.
 # - c permits missing pinned tools under temp/tools, never system updates.
 # - full without format flags keeps its interactive setup and format questions.
+# Go package timeout:
+# - --go-test-timeout 4h changes the default 2h budget in steps 540 and 550.
+# - TRICE_GO_TEST_TIMEOUT supplies the same default for direct step commands.
+# - The CLI overrides that environment value; this is not a whole-suite limit.
 #
 # Selection:
 # - quick

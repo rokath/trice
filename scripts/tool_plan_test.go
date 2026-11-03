@@ -54,7 +54,8 @@ for size in 150 1024 4500; do trice_plan_size "$size"; printf '\n'; done`, nil)
 
 // TestToolPlanInventorySeparatesSystemAndCache uses real discovery and rendering
 // on each platform branch. An older host, a usable cache and an incompatible
-// cache must stay distinct; cancellation may never execute an installer.
+// cache must stay distinct. Ready tools need no inventory; missing tools must
+// still show their versions, and cancellation may never execute an installer.
 func TestToolPlanInventorySeparatesSystemAndCache(t *testing.T) {
 	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT-10.0"} {
 		for _, cached := range []string{"26.12.1", "25.0.0"} {
@@ -82,21 +83,25 @@ func TestToolPlanInventorySeparatesSystemAndCache(t *testing.T) {
 source scripts/_116_test_tool_plan.sh
 PATH="$PWD/$FIXTURE_CACHE:$PATH"
 printf 'a\n' | trice_test_tool_plan node`, map[string]string{"CI": "false", "FIXTURE_PLATFORM": platform, "FIXTURE_CACHE": cache})
-				assert.Error(t, err, out)
-				assert.Regexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
-				assert.Regexp(t, `(?m)^-{79}$`, out)
-				assert.Regexp(t, `(?m)^Node[.]js +26[.]12[.]1 +24[.]14[.]0 +`+strings.ReplaceAll(cached, ".", `[.]`)+` +Cache +`, out)
 				assert.NotContains(t, out, "Selected ")
 				assert.NotContains(t, out, "Peak")
 				if cached == "26.12.1" {
-					assert.Contains(t, out, "No installation needed.")
+					assert.NoError(t, err, out)
+					assert.Empty(t, out, "reusing tools needs neither an inventory nor capacity output")
+					assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
+					assert.NotContains(t, out, "No installation needed.")
+					assert.NotContains(t, out, "Choose [c/u/a]")
 				} else {
+					assert.Error(t, err, out)
+					assert.Regexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
+					assert.Regexp(t, `(?m)^-{79}$`, out)
+					assert.Regexp(t, `(?m)^Node[.]js +26[.]12[.]1 +24[.]14[.]0 +`+strings.ReplaceAll(cached, ".", `[.]`)+` +Cache +`, out)
 					assert.Contains(t, out, "~180 MB")
+					assert.Contains(t, out, "[u] Update system tools (up to pinned versions)")
+					assert.Contains(t, out, "Install missing pinned tool versions into temp/tools.")
+					assert.Contains(t, out, "Leave newer system versions unchanged.")
+					assert.Contains(t, out, "Install remaining missing pinned tool versions into temp/tools.")
 				}
-				assert.Contains(t, out, "[u] Update system tools (up to pinned versions)")
-				assert.Contains(t, out, "Install missing pinned tool versions into temp/tools.")
-				assert.Contains(t, out, "Leave newer system versions unchanged.")
-				assert.Contains(t, out, "Install remaining missing pinned tool versions into temp/tools.")
 			})
 		}
 	}
@@ -189,7 +194,7 @@ func TestToolPlanConsentAndSpace(t *testing.T) {
 			freeMiB     int
 			wantSuccess bool
 		}{
-			{"matching_no_install", "c", true, 0, true},
+			{"matching_no_install", "", true, 0, true},
 			{"missing_approved", "c", false, 4096, true},
 			{"missing_declined", "a", false, 4096, false},
 			{"missing_EOF", "", false, 4096, false},
@@ -221,11 +226,14 @@ func TestToolPlanConsentAndSpace(t *testing.T) {
 					"CI": "false", "TRICE_TEST_SETUP_APPROVED": "0", "TRICE_TEST_PLAN_SCOPES": "", "TRICE_TEST_PLAN_ACTIVE": "0",
 				})
 				assert.Equal(t, tc.wantSuccess, err == nil, out)
-				assert.Contains(t, out, "26.12.1")
-				assert.Contains(t, out, "free")
 				if tc.matching {
-					assert.Contains(t, out, "No installation needed.")
+					assert.Empty(t, out, "ready tools must continue quietly, even when space is low")
+					assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
+					assert.NotContains(t, out, "No installation needed.")
+					assert.NotContains(t, out, "Choose [c/u/a]", "ready tools must proceed even with stdin at EOF")
 				} else {
+					assert.Contains(t, out, "free")
+					assert.Contains(t, out, "26.12.1")
 					assert.Contains(t, out, "Install: Node.js (~180 MB)")
 				}
 				if tc.name == "insufficient_space" {
@@ -309,6 +317,12 @@ printf 'Filesystem 1024-blocks Used Available Capacity Mounted\n%s 999999999 1 %
 	assert.Error(t, err, out)
 	assert.Contains(t, out, "Disk [disk-b]: ~1 MB free; insufficient.")
 	assert.Contains(t, out, "Free another ~59 MB before setup.")
+	// Suppressing routine capacity output must not conceal a setup shortfall.
+	out, err = runFixture(t, root, "source scripts/_105_setup_test_tools.sh\nTRICE_PLAN_FILE=space.tsv\nTRICE_TEST_DISK_RESERVE_MIB=10\ntrice_plan_space 0\n", nil)
+	assert.Error(t, err, out)
+	assert.Contains(t, out, "Disk [disk-b]: ~1 MB free; insufficient.")
+	assert.Contains(t, out, "Free another ~59 MB before setup.")
+	assert.NotContains(t, out, "free - sufficient.")
 }
 
 // TestNodeRuntimeRestoresStartupSelection simulates compiler setup shadowing a

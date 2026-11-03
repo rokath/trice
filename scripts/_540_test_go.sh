@@ -16,8 +16,11 @@ main() {
   local package
   local package_list
   local packages=()
+  local go_timeout
 
   init_logfile
+  go_timeout="$(go_package_test_timeout "${TRICE_GO_TEST_TIMEOUT-2h}")" || exit 2
+  log "Go test timeout per package: $go_timeout"
   if ! has_command go; then
     log "MISSING TOOL: go"
     log "SKIP: Go not installed"
@@ -55,9 +58,9 @@ main() {
   fi
   # Reuse compiled dependencies, but execute tests on every suite invocation.
   # Clearing the global cache here would also discard the PC worker's builds.
-  # Script fixtures start many native processes on Windows. Match the script
-  # portability CI timeout instead of Go's shorter implicit ten-minute limit.
-  run_go_tests -count=1 "${packages[@]}" -skip '^TestContextEnrichmentRebasePoC$' -timeout=30m || {
+  # Native script fixtures can exceed thirty minutes even while making progress.
+  # Keep a generous, overridable package budget for slower hosts and cold caches.
+  run_go_tests -count=1 "${packages[@]}" -skip '^TestContextEnrichmentRebasePoC$' "-timeout=$go_timeout" || {
     local status=$?
     log "FAIL: normal Go package tests failed"
     exit "$status"

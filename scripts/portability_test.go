@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // writeFixture confines executable tool doubles and input files to one test's
@@ -208,7 +209,9 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_TEST_AUTO_SETUP": "0", "TRICE_TEST_REPORT_BIN": "",
 		"TRICE_TEST_SETUP_APPROVED":  "0",
 		"TRICE_TEST_SETUP_CANCELLED": "0",
-		"TRICE_BIND_INTEGRATION":     "0", "TRICE_TEST_NPM_DIR": "",
+		// An outer suite's chosen budget must not change fixture expectations.
+		"TRICE_GO_TEST_TIMEOUT":  "2h",
+		"TRICE_BIND_INTEGRATION": "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
 		// Outer preparation must not lend a plan, browser or formatter selection
 		// to disposable tool doubles or silently authorize real installations.
@@ -1201,8 +1204,9 @@ func TestScratchpadExcludedFromGo(t *testing.T) {
 // Bind or cleanup, even after an explicit earlier format argument.
 func TestRepositoryFormattingCheckPreservesOutputs(t *testing.T) {
 	for _, tc := range []struct {
-		name, arguments, failed string
-		format                  bool
+		name, arguments, failed     string
+		bindChange, snapshotFailure string
+		format, dirty, secondPass   bool
 	}{
 		{name: "check", arguments: "check"},
 		{name: "verbose_check", arguments: "check --verbose"},
@@ -1210,12 +1214,27 @@ func TestRepositoryFormattingCheckPreservesOutputs(t *testing.T) {
 		{name: "default_formats_and_cleans", format: true},
 		{name: "explicit_format", arguments: "format", format: true},
 		{name: "last_mode_is_format", arguments: "check format", format: true},
+		{name: "bind_changes_C_source", format: true, bindChange: "source", secondPass: true},
+		{name: "bind_rewrites_identical_source", format: true, bindChange: "identical"},
+		{name: "existing_local_edit_needs_no_second_pass", format: true, dirty: true},
+		{name: "bind_changes_already_edited_source", format: true, dirty: true, bindChange: "source", secondPass: true},
+		{name: "failed_snapshot_before_bind_stops_maintenance", format: true, snapshotFailure: "before"},
+		{name: "failed_snapshot_after_bind_stops_cleanup", format: true, snapshotFailure: "after"},
 		{name: "failed_check_stops_without_cleanup", arguments: "check", failed: "_270_format_go_code.sh"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/format_repo.sh")
+			initGitFixture(t, root)
+			// A real tracked C++ path exercises content comparison, spaces and
+			// pre-existing edits without relying on the fixture's clean state.
+			writeFixture(t, root, "source with spaces.cpp", "int initial;\n")
+			output, err := exec.Command("git", "-C", root, "add", "source with spaces.cpp").CombinedOutput()
+			require.NoError(t, err, string(output))
+			if tc.dirty {
+				writeFixture(t, root, "source with spaces.cpp", "int user_edit;\n")
+			}
 			for _, name := range []string{
-				"scripts/_310_refresh_trice_user_manual.sh", "scripts/_260_format_shell_scripts.sh",
+				"scripts/_310_refresh_trice_manuals.sh", "scripts/_260_format_shell_scripts.sh",
 				"scripts/_270_format_go_code.sh", "scripts/_280_format_c_code.sh",
 				"trice_bindIDs_in_examples_and_test_folder.sh", "examples/cleanAllTargets.sh",
 				"scripts/_300_clean_dsstore.sh",
@@ -1225,7 +1244,14 @@ name=${0##*/}
 printf '%s\n' "$name" >> helpers.calls
 [ "$name" != "$FAILED_HELPER" ] || exit 19
 case "$name" in
-  trice_bindIDs*) printf 'updated IDs\n' > demoTIL.json ;;
+  trice_bindIDs*)
+    printf 'updated IDs\n' > demoTIL.json
+    : > bind-called
+    case "$BIND_CHANGE" in
+      source) printf 'int generated;\n' > 'source with spaces.cpp' ;;
+      identical) printf 'int initial;\n' > 'source with spaces.cpp' ;;
+    esac
+    ;;
   cleanAllTargets.sh) rm -f examples/fixture/build/output ;;
   _300_clean_dsstore.sh) rm -f .DS_Store ;;
 esac
@@ -1234,28 +1260,109 @@ esac
 			for _, name := range []string{"demoTIL.json", ".DS_Store", "examples/fixture/build/output"} {
 				writeFixture(t, root, name, "preserve this\n")
 			}
-			out, err := runFixture(t, root, "bash scripts/format_repo.sh "+tc.arguments, map[string]string{"FAILED_HELPER": tc.failed})
-			assert.Equal(t, tc.failed != "", err != nil, out)
+			if tc.snapshotFailure != "" {
+				// Keep hashing successful so a failed diff specifically verifies
+				// pipefail propagation and prevents later destructive helpers.
+				writeFixture(t, root, "bin/git", `#!/bin/sh
+if [ "$1" = hash-object ]; then cat >/dev/null; echo snapshot; exit 0; fi
+if [ "$SNAPSHOT_FAILURE" = before ] || [ -f bind-called ]; then
+  echo fixture-diff-failure >&2
+  exit 71
+fi
+`)
+			}
+			out, err := runFixture(t, root, "bash scripts/format_repo.sh "+tc.arguments, map[string]string{
+				"FAILED_HELPER": tc.failed, "BIND_CHANGE": tc.bindChange, "SNAPSHOT_FAILURE": tc.snapshotFailure,
+			})
+			assert.Equal(t, tc.failed != "" || tc.snapshotFailure != "", err != nil, out)
 			calls, readErr := os.ReadFile(filepath.Join(root, "helpers.calls"))
 			assert.NoError(t, readErr)
-			expected := "_310_refresh_trice_user_manual.sh\n_260_format_shell_scripts.sh\n_270_format_go_code.sh\n"
+			expected := "_310_refresh_trice_manuals.sh\n_260_format_shell_scripts.sh\n_270_format_go_code.sh\n"
 			if tc.failed == "" {
 				expected += "_280_format_c_code.sh\n"
 			}
-			if tc.format {
-				expected += "trice_bindIDs_in_examples_and_test_folder.sh\n_280_format_c_code.sh\ncleanAllTargets.sh\n_300_clean_dsstore.sh\n"
+			// Metadata can change before an after-Bind inspection fails, but
+			// cleanup must run only after all required formatting succeeds.
+			bindRuns := tc.format && tc.failed == "" && tc.snapshotFailure != "before"
+			cleanupRuns := tc.format && tc.failed == "" && tc.snapshotFailure == ""
+			if bindRuns {
+				expected += "trice_bindIDs_in_examples_and_test_folder.sh\n"
+			}
+			if cleanupRuns {
+				if tc.secondPass {
+					expected += "_280_format_c_code.sh\n"
+				}
+				expected += "cleanAllTargets.sh\n_300_clean_dsstore.sh\n"
 				assert.NoFileExists(t, filepath.Join(root, ".DS_Store"))
 				assert.NoFileExists(t, filepath.Join(root, "examples/fixture/build/output"))
 			} else {
-				for _, name := range []string{"demoTIL.json", ".DS_Store", "examples/fixture/build/output"} {
+				for _, name := range []string{".DS_Store", "examples/fixture/build/output"} {
 					data, err := os.ReadFile(filepath.Join(root, name))
 					assert.NoError(t, err)
 					assert.Equal(t, "preserve this\n", string(data), name)
 				}
 			}
+			metadata, readErr := os.ReadFile(filepath.Join(root, "demoTIL.json"))
+			require.NoError(t, readErr)
+			if bindRuns {
+				assert.Equal(t, "updated IDs\n", string(metadata))
+			} else {
+				assert.Equal(t, "preserve this\n", string(metadata))
+			}
+			if tc.snapshotFailure != "" {
+				assert.Contains(t, out, "cannot inspect C/C++ changes "+tc.snapshotFailure+" Bind")
+			}
 			assert.Equal(t, expected, string(calls))
 		})
 	}
+}
+
+// TestRepositoryFormattingWithReadyTools exercises the public wrapper and real
+// shell/C formatters without stdin. Only tool executables and unrelated steps
+// are doubled; an unchanged Bind result must need only one real C-format pass.
+func TestRepositoryFormattingWithReadyTools(t *testing.T) {
+	root := scriptFixture(t, "scripts/format_repo.sh", "scripts/_260_format_shell_scripts.sh", "scripts/_280_format_c_code.sh")
+	// This regression needs real planning, unlike installer-isolation fixtures.
+	setup, err := readFixtureSource("..", "scripts/_105_setup_test_tools.sh")
+	require.NoError(t, err)
+	writeFixture(t, root, "scripts/_105_setup_test_tools.sh", string(setup))
+	writeFixture(t, root, "bin/shfmt", `#!/bin/sh
+if [ "$1" = --version ]; then echo v3.14.1; exit 0; fi
+printf '%s\n' "$*" >> shfmt.calls
+`)
+	writeFixture(t, root, "bin/clang-format", `#!/bin/sh
+if [ "$1" = --version ]; then echo 'clang-format version 23.1.3'; exit 0; fi
+printf '%s\n' "$*" >> clang-format.calls
+`)
+	for _, tool := range []string{"go", "python", "python3", "curl", "pip", "pip3"} {
+		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho unexpected-tool-execution >&2\ntouch unexpected-tool-execution\nexit 92\n")
+	}
+	for _, step := range []string{
+		"scripts/_310_refresh_trice_manuals.sh", "scripts/_270_format_go_code.sh",
+		"trice_bindIDs_in_examples_and_test_folder.sh", "examples/cleanAllTargets.sh", "scripts/_300_clean_dsstore.sh",
+	} {
+		writeFixture(t, root, step, "#!/bin/sh\nexit 0\n")
+	}
+	writeFixture(t, root, "sample.sh", "#!/bin/sh\nexit 0\n")
+	writeFixture(t, root, "sample.c", "int sample;\n")
+	initGitFixture(t, root)
+	// Track real inputs so successful entry points cannot be empty selections.
+	output, err := exec.Command("git", "-C", root, "add", "sample.sh", "sample.c").CombinedOutput()
+	require.NoError(t, err, string(output))
+	out, err := runFixture(t, root, "bash scripts/format_repo.sh format </dev/null", map[string]string{"CI": "false"})
+	assert.NoError(t, err, out)
+	assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
+	assert.NotContains(t, out, "Choose [c/u/a]")
+	assert.NotContains(t, out, "Cancelled.")
+	assert.NotContains(t, out, "Disk:")
+	assert.NoFileExists(t, filepath.Join(root, "unexpected-tool-execution"))
+	assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+	shellCalls, err := os.ReadFile(filepath.Join(root, "shfmt.calls"))
+	require.NoError(t, err)
+	assert.Contains(t, string(shellCalls), "sample.sh")
+	cCalls, err := os.ReadFile(filepath.Join(root, "clang-format.calls"))
+	require.NoError(t, err)
+	assert.Equal(t, 1, strings.Count(string(cCalls), "-i --style=file --files="), "unchanged Bind sources must not be formatted twice")
 }
 
 // TestLegacyIDRefreshChecksInputsAndStopsOnFailure preserves the deliberate
@@ -1493,7 +1600,9 @@ func TestRunnerSetupCancellation(t *testing.T) {
 	for _, tc := range []struct {
 		name, input           string
 		mirror, proceed, fail bool
+		ready                 bool
 	}{
+		{name: "ready_tools_EOF_runs_step", ready: true, proceed: true},
 		{name: "abort_captured", input: "a\\n"},
 		{name: "abort_mirrored", input: "a\\n", mirror: true},
 		{name: "empty_captured", input: "\\n"},
@@ -1506,7 +1615,14 @@ func TestRunnerSetupCancellation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
 			initGitFixture(t, root)
-			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			// Cancellation cases need a missing pin; a ready runtime must bypass
+			// the setup menu and execute the same nonempty plan without input.
+			version := "0.0.0"
+			if tc.ready {
+				version = "26.12.1"
+			}
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v"+version+"\n")
+			writeFixture(t, root, "bin/brew", "#!/bin/sh\nexit 1\n")
 			for _, tool := range []string{"npm", "npx"} {
 				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 92\n")
 			}
@@ -1555,10 +1671,18 @@ func TestRunnerSetupCancellation(t *testing.T) {
 				assert.NotContains(t, out, "Cancelled.")
 			} else {
 				header := regexp.MustCompile(`(?m)^Tool +Required +System +Cache +Location +Size$`)
-				assert.Len(t, header.FindAllString(out, -1), 1, out)
-				assert.Len(t, header.FindAllString(string(tools), -1), 1)
-				assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
-				assert.Contains(t, out, "Type c, u or a, then press ENTER (ENTER alone aborts).")
+				if tc.ready {
+					// Reusable tools need no setup inventory, even in tools.log.
+					assert.Empty(t, header.FindAllString(string(tools), -1), string(tools))
+					assert.Empty(t, header.FindAllString(out, -1), out)
+					assert.NotContains(t, out, "Choose [c/u/a]")
+					assert.NotContains(t, out, "Cancelled.")
+				} else {
+					assert.Len(t, header.FindAllString(string(tools), -1), 1)
+					assert.Len(t, header.FindAllString(out, -1), 1, out)
+					assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
+					assert.Contains(t, out, "Type c, u or a, then press ENTER (ENTER alone aborts).")
+				}
 				assert.NotContains(t, out, "native test preparation failed")
 				if !tc.proceed {
 					assert.Equal(t, 1, strings.Count(out, "Cancelled."), out)
@@ -2507,12 +2631,23 @@ command -v python3
 // including coverage, without compiling packages or invoking compiler matrices.
 func TestGoStepsAllowSlowNativeScriptFixtures(t *testing.T) {
 	for _, step := range []string{"_540_test_go.sh", "_550_test_go_coverage.sh"} {
-		t.Run(step, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/"+step)
-			writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "bin/gofmt", "#!/bin/sh\nexit 0\n")
-			writeFixture(t, root, "bin/go", `#!/bin/sh
+		for _, tc := range []struct {
+			name, timeout, want string
+			unset, rejected     bool
+		}{
+			{name: "default", unset: true, want: "2h"},
+			{name: "slower_host", timeout: "4h", want: "4h"},
+			{name: "combined_units", timeout: "1h30m", want: "1h30m"},
+			{name: "zero_cannot_disable_limit", timeout: "0h", rejected: true},
+			{name: "invalid_unit", timeout: "2days", rejected: true},
+			{name: "empty_value", rejected: true},
+		} {
+			t.Run(step+"/"+tc.name, func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/"+step)
+				writeFixture(t, root, "scripts/_270_format_go_code.sh", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "scripts/buildTriceTool.sh", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "bin/gofmt", "#!/bin/sh\nexit 0\n")
+				writeFixture(t, root, "bin/go", `#!/bin/sh
 printf '%s\n' "$*" >> go.calls
 case "$1" in
   env) [ "$2" != GOVERSION ] || echo go1.27.3 ;;
@@ -2530,23 +2665,84 @@ case "$1" in
     ;;
 esac
 `)
-			// A new run owns its raw coverage; older evidence must survive.
-			writeFixture(t, root, "temp/log/coverage.out", "previous coverage evidence\n")
-			runDir := filepath.Join(root, "temp/log/current-run")
-			out, err := runFixture(t, root, "bash scripts/"+step, map[string]string{"LOG_DIR": runDir})
-			assert.NoError(t, err, out)
-			calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
-			assert.NoError(t, err)
-			assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts")
-			assert.Contains(t, string(calls), "-timeout=30m")
-			previous, err := os.ReadFile(filepath.Join(root, "temp/log/coverage.out"))
-			assert.NoError(t, err)
-			assert.Equal(t, "previous coverage evidence\n", string(previous))
-			if step == "_550_test_go_coverage.sh" {
-				profile, err := os.ReadFile(filepath.Join(runDir, "coverage.out"))
+				// A new run owns its raw coverage; older evidence must survive.
+				writeFixture(t, root, "temp/log/coverage.out", "previous coverage evidence\n")
+				runDir := filepath.Join(root, "temp/log/current-run")
+				command := "bash scripts/" + step
+				if tc.unset {
+					command = "unset TRICE_GO_TEST_TIMEOUT\n" + command
+				}
+				out, err := runFixture(t, root, command, map[string]string{"LOG_DIR": runDir, "TRICE_GO_TEST_TIMEOUT": tc.timeout})
+				if tc.rejected {
+					assert.Error(t, err, out)
+					assert.Contains(t, out, "Invalid Go test timeout")
+					assert.NoFileExists(t, filepath.Join(root, "go.calls"), "reject the budget before package discovery or compilation")
+					return
+				}
+				assert.NoError(t, err, out)
+				calls, err := os.ReadFile(filepath.Join(root, "go.calls"))
 				assert.NoError(t, err)
-				assert.Contains(t, string(profile), "mode: atomic")
+				assert.Contains(t, string(calls), "test -count=1 github.com/rokath/trice/scripts")
+				assert.Contains(t, string(calls), "-timeout="+tc.want)
+				previous, err := os.ReadFile(filepath.Join(root, "temp/log/coverage.out"))
+				assert.NoError(t, err)
+				assert.Equal(t, "previous coverage evidence\n", string(previous))
+				if step == "_550_test_go_coverage.sh" {
+					profile, err := os.ReadFile(filepath.Join(runDir, "coverage.out"))
+					assert.NoError(t, err)
+					assert.Contains(t, string(profile), "mode: atomic")
+				}
+			})
+		}
+	}
+}
+
+// TestRunnerGoPackageTimeout checks public argument handling and propagation to
+// an executed child step. Invalid budgets must stop before setup or test work.
+func TestRunnerGoPackageTimeout(t *testing.T) {
+	for _, tc := range []struct {
+		name, arguments, environment, want string
+		inherit, rejected                  bool
+	}{
+		{name: "default", arguments: "quick", want: "2h"},
+		{name: "CLI_separate_value", arguments: "quick --go-test-timeout 4h", want: "4h"},
+		{name: "CLI_before_selection_overrides_environment", arguments: "--go-test-timeout=90m quick", environment: "3h", inherit: true, want: "90m"},
+		{name: "environment", arguments: "quick", environment: "3h", inherit: true, want: "3h"},
+		{name: "fractional_duration", arguments: "quick --go-test-timeout 1.5h", want: "1.5h"},
+		{name: "missing_value", arguments: "quick --go-test-timeout", rejected: true},
+		{name: "negative_duration", arguments: "quick --go-test-timeout=-2h", rejected: true},
+		{name: "zero_duration", arguments: "quick --go-test-timeout=0h0m", rejected: true},
+		{name: "invalid_environment", arguments: "quick", environment: "forever", inherit: true, rejected: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
+			initGitFixture(t, root)
+			writeFixture(t, root, "scripts/_410_test_timeout.sh", `#!/usr/bin/env bash
+source scripts/_100_test_common.sh
+init_logfile
+printf '%s\n' "$TRICE_GO_TEST_TIMEOUT" > timeout.used
+`)
+			command := "source scripts/_110_test_runner.sh\nbuild_test_plan() { add_plan_step _410_test_timeout.sh; }\nmain " + tc.arguments
+			if !tc.inherit {
+				command = "unset TRICE_GO_TEST_TIMEOUT\n" + command
 			}
+			out, err := runFixture(t, root, command, map[string]string{"TRICE_GO_TEST_TIMEOUT": tc.environment})
+			if tc.rejected {
+				assert.Error(t, err, out)
+				if tc.name == "missing_value" {
+					assert.Contains(t, out, "Missing duration after --go-test-timeout")
+				} else {
+					assert.Contains(t, out, "Invalid Go test timeout")
+				}
+				assert.NoFileExists(t, filepath.Join(root, "timeout.used"))
+				assert.NoDirExists(t, filepath.Join(root, "temp/testAll.lock"))
+				return
+			}
+			assert.NoError(t, err, out)
+			used, err := os.ReadFile(filepath.Join(root, "timeout.used"))
+			assert.NoError(t, err)
+			assert.Equal(t, tc.want+"\n", string(used))
+			assert.Contains(t, out, "Result: PASS")
 		})
 	}
 }
@@ -3194,7 +3390,7 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 // records actual arguments and never rewrites the documentation sources.
 func manualMaintenanceFixture(t *testing.T) string {
 	t.Helper()
-	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_310_refresh_trice_user_manual.sh", "scripts/_440_test_manual_format.sh")
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_310_refresh_trice_manuals.sh", "scripts/_440_test_manual_format.sh")
 	for _, path := range []string{
 		"docs/TriceUserManual.md",
 		"docs/rm/README.md", "docs/rm/HEADER.md", "docs/rm/FOOTER.md", "docs/rm/INDEX.md",
@@ -3249,7 +3445,7 @@ fi
 [ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v mdtoc)" ] || exit 91
 printf 'fixture: go1.25\n\tpath\tgithub.com/rokath/mdtoc/cmd/mdtoc\n\tmod\tgithub.com/rokath/mdtoc\t%s\th1:fixture\n' "$MDTOC_MODULE_VERSION"
 `)
-			command := "bash scripts/_310_refresh_trice_user_manual.sh check"
+			command := "bash scripts/_310_refresh_trice_manuals.sh check"
 			if tc.answer != "" {
 				command = "printf '" + tc.answer + "\\n' | " + command
 			}
@@ -3275,7 +3471,7 @@ printf 'fixture: go1.25\n\tpath\tgithub.com/rokath/mdtoc/cmd/mdtoc\n\tmod\tgithu
 			if tc.name == "old_release_declined" {
 				out, err = runFixture(t, root, "bash scripts/_440_test_manual_format.sh", map[string]string{"MDTOC_FIXTURE_VERSION": tc.version, "CI": "true"})
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "FAIL: _310_refresh_trice_user_manual.sh check failed")
+				assert.Contains(t, out, "FAIL: _310_refresh_trice_manuals.sh check failed")
 			}
 		})
 	}
@@ -3297,7 +3493,7 @@ func TestManualMaintenanceIncludesChapters(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := manualMaintenanceFixture(t)
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.arguments, map[string]string{"REJECTED": tc.rejected})
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh "+tc.arguments, map[string]string{"REJECTED": tc.rejected})
 			if tc.rejected != "" {
 				assert.Error(t, err, out)
 				assert.Contains(t, out, "invalid manual: "+tc.rejected)
@@ -3347,7 +3543,7 @@ func TestManualMaintenanceValidatesSourcesBeforeFormatting(t *testing.T) {
 			} else if !assert.NoError(t, os.RemoveAll(filepath.Join(root, tc.path))) {
 				return
 			}
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh format", nil)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, tc.message)
 			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"), "preflight must finish before invoking mdtoc")
@@ -3370,7 +3566,7 @@ func TestManualMaintenanceRejectsIncompleteChapterLists(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			root := manualMaintenanceFixture(t)
 			writeFixture(t, root, tc.path, tc.content)
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh format", nil)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, tc.message)
 			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"))
@@ -3395,7 +3591,7 @@ func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
 			if !withNotes {
 				assert.NoError(t, os.Remove(filepath.Join(root, "docs/rm/notes.md")))
 			}
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh check", nil)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh check", nil)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, "no mdtoc-managed reference chapters found: docs/rm/*.md")
 			assert.Contains(t, out, "expected <!-- mdtoc -->")

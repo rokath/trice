@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# _310_refresh_trice_user_manual.sh
+# _310_refresh_trice_manuals.sh
 #
 # Purpose
 # -------
@@ -12,11 +12,11 @@
 #
 # Usage
 # -----
-#   ./scripts/_310_refresh_trice_user_manual.sh
-#   ./scripts/_310_refresh_trice_user_manual.sh check
-#   ./scripts/_310_refresh_trice_user_manual.sh format
-#   ./scripts/_310_refresh_trice_user_manual.sh check --verbose
-#   ./scripts/_310_refresh_trice_user_manual.sh format --verbose
+#   ./scripts/_310_refresh_trice_manuals.sh
+#   ./scripts/_310_refresh_trice_manuals.sh check
+#   ./scripts/_310_refresh_trice_manuals.sh format
+#   ./scripts/_310_refresh_trice_manuals.sh check --verbose
+#   ./scripts/_310_refresh_trice_manuals.sh format --verbose
 
 set -euo pipefail
 

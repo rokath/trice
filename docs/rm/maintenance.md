@@ -65,8 +65,8 @@ Keep headings and contents labels free of emojis. Use the [shared symbol meaning
 
 | Task | Command |
 | --- | --- |
-| Regenerate manual ToCs, numbering and anchors | `./scripts/_310_refresh_trice_user_manual.sh format` |
-| Verify them without editing | `./scripts/_310_refresh_trice_user_manual.sh check` |
+| Regenerate manual ToCs, numbering and anchors | `./scripts/_310_refresh_trice_manuals.sh format` |
+| Verify them without editing | `./scripts/_310_refresh_trice_manuals.sh check` |
 | Check Markdown | `./scripts/_450_test_markdownlint.sh` |
 | Check links | `./scripts/_530_test_links.sh` |
 | Build both PDFs | `./scripts/_320_generate_trice_user_manual_pdf.sh` |

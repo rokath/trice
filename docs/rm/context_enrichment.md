@@ -32,6 +32,7 @@
     - [9.7.4. Implications for a Possible Implementation](#implications-for-a-possible-implementation)
     - [9.7.5. Repeating the Extended PoC](#repeating-the-extended-poc)
 - [10. Approach and Boundaries](#approach-and-boundaries)
+- [11. Appendix: optional diagnostics for unused rules](#appendix-optional-diagnostics-for-unused-rules)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -252,7 +253,9 @@ This limitation remains because CE produces ordinary C/C++ code. The Trice tool 
 
 CE is applied before schema and ID determination. The ID follows the final Trice type and canonical template, including field names. A different expression with the same schema does not change the ID: `ctx:", x={position}", pos.x` may change to `ctx:", x={position}", pos.y`. Changes to the field name, format or final type follow the existing ID assignment rules instead. Historical TIL entries remain available for older firmware.
 
-After every source or CE configuration change, rerun `bind` with the complete desired rule list and rebuild the firmware. Without `-ce`, the next Bind run produces normal schemas without CE again. Rules are not carried forward from earlier runs. The dictionary and generated firmware must belong together; changing only `til.json` cannot create additional target values.
+After every source or CE configuration change, rerun bind with the complete desired rule list and rebuild the firmware. Rules are not carried forward from earlier runs: without -ce, the next Bind run generates normal schemas without CE.
+
+The dictionary accumulates historical ID-to-format mappings. One dictionary can decode output from multiple firmware versions, provided it retains the mappings used by each version. Removing CE from the current configuration does not remove those historical mappings. Additional target values require regenerated Bind headers and a firmware rebuild; changing only til.json cannot make the firmware collect or transmit them.
 
 Use the normal [Bind setup](bind.md#quick-start) and [build integration](bind.md#build-integration), including the initial sidecar include. CE writes neither extensions nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
 
@@ -338,6 +341,30 @@ Extra scalar CE values appended to a string/buffer record | Error before changin
 This build effort has not been introduced as a production workflow. Also, `__COUNTER__` is not available in every compiler and is neither a runtime counter nor a cycle counter. Even globally visible CE values therefore do not separately enable complex Bind sites. The uniform limitation is easy to explain and reject during Bind. `insert/clean -ce` requires neither this mapping nor this preliminary pass. Exact evidence, costs and open questions appear in the [PoC appendix within this chapter](context_enrichment.md#appendix-ce-feasibility-proofs).
 
 ## 7. <a id="test-coverage"></a>Test Coverage
+
+For runnable examples of supported CE, start with these tests. Each contains concrete input calls, rules and independent expected results:
+
+Example | Test and source | What to follow
+--- | --- | ---
+Bind rules and generated schemas | `TestBindContextFinalSchemas` in [contextEnrichment_test.go](../../internal/id/contextEnrichment_test.go) | Read the `call`, `rules` and `want` columns together; the test checks the final dictionary and generated adapter. Includes a rule that matches no site and produces no warning.
+The `ctx7` clock example with Insert/Clean | `TestInsertCleanContextRoundTrip` in [contextSource_test.go](../../internal/id/contextSource_test.go) | The first case shows the original call, CE rule, extended source and final schema. Repeating Insert preserves it; Clean restores the original source.
+Public CLI options | `TestContextEnrichmentCLI` in [context_enrichment_test.go](../../internal/args/context_enrichment_test.go) | Two `-ce` options add position fields; a subsequent Bind without `-ce` generates a schema without those fields.
+Real C/C++ values decoded on the host | `TestContextEnrichmentTargetToDecoder` and `TestContextInsertCleanTargetToDecoder` in [context_enrichment_test.go](../../internal/args/context_enrichment_test.go) | The tests take the four marked CE examples from [triceCheck.c](../../_test/testdata/triceCheck.c), compile them and verify transmitted values and text/JSON/KV output.
+Aliases with once-only evaluation | `TestAliasContextTargetToDecoder` and [aliasContext.c](../../_test/testdata/aliasContext.c) | A small hardware-free sender exercises scalar alias CE, native string text enrichment and ordinary string aliases; counters detect repeated expression evaluation or bypassed project macros.
+
+The first two examples need no C compiler and can be run from the repository root:
+
+```sh
+go test ./internal/id -run '^(TestBindContextFinalSchemas|TestInsertCleanContextRoundTrip)$' -count=1 -v
+```
+
+For the real target-to-decoder examples, select the existing Clang, Clang++ and clangd toolchain, then opt in explicitly:
+
+```sh
+TRICE_BIND_INTEGRATION=1 go test ./internal/args -run '^TestContext(Enrichment|InsertClean)TargetToDecoder$' -count=1 -v
+```
+
+Without the opt-in variable, these compiler tests report SKIP. The experimental wrapper/rebase proofs have their own instructions in the [appendix](#appendix-ce-feasibility-proofs).
 
 The [rule and Bind tests](../../internal/id/contextEnrichment_test.go) check selectors, aliases, order, invalid rules, limits, stable IDs, configuration changes, the field registry and unchanged files after rejection or write errors. The [Insert/Clean tests](../../internal/id/contextSource_test.go) additionally cover complete and partial matches, format and argument suffix positions, multi-part rule groups, newlines, repetition, handwritten fields, comments, moved calls, exclusions and rollback after write errors. The [CLI and target tests](../../internal/args/context_enrichment_test.go) exercise both public workflows through `generate -logC` and actual target records to text/JSON/KV output.
 
@@ -583,6 +610,8 @@ The C++20 limitation comes from the existing rebase check: it subtracts values o
 
 **The scope obstacle is solved for the tested cases; the cost of this approach is an additional compiler-dependent build step.** A production decision must explicitly include this effort. The PoC provides neither such a workflow nor a new CLI option.
 
+General CE rebasing remains an optional architecture direction, with no release commitment. The current supported alternatives are direct Bind sites and the reversible Insert/Clean workflow. The evidence in this appendix is retained for a later concrete need; it does not create an outstanding release requirement.
+
 Before implementation, the following points in particular would need decisions or evidence:
 
 - Integrating the preliminary pass into supported build systems, with the same defines, include paths, language modes and target options as the actual compilation.
@@ -590,6 +619,8 @@ Before implementation, the following points in particular would need decisions o
 - Behavior with precompiled headers, modules, additional counter uses in argument macros and other compiler families. The PoC makes no guarantees for these.
 - If strict C++20 builds are a goal, a separate correction and acceptance of the existing enum rebase check.
 - Deciding whether the simpler extension for uniquely addressable wrappers with one log site should be implemented independently of general CE rebasing first. The PoC proves this case without a counter preprocessing pass; enabling it in production remains a separate task.
+
+A smaller extension could support only wrappers containing one uniquely addressable log site. Before offering it, verify alias and selector behavior, identifiers visible at each expansion, all supported widths and stamps, once-only expression evaluation, repeated calls and `generate -logC`. Ambiguous or unsupported forms must fail clearly. This option is independent of the general compiler-prepass approach and is not enabled by the existing PoC.
 
 A second compiler pass is therefore a demonstrated possibility, not a claim that no simpler approach could exist. The initial direct-site CE stage remains unchanged. This PoC does not investigate source transformation. The now available `insert/clean -ce` is implemented separately and described above with its own tests.
 
@@ -608,4 +639,10 @@ The test detects installed Clang/GCC C/C++ toolchains and ARM GCC itself, report
 CE is optional build-time instrumentation: rules select log sites whose records contain additional runtime values. It introduces no general implicit context state. There are therefore no push/pop calls, task-local state or context handles requiring special management during task switches or interrupts.
 
 Other logging systems offer related but differently structured concepts, such as [Go `slog.Logger.With`](https://pkg.go.dev/log/slog), [Microsoft `ILogger.BeginScope`](https://learn.microsoft.com/dotnet/api/microsoft.extensions.logging.ilogger.beginscope), [Serilog `LogContext`](https://github.com/serilog/serilog/wiki/Enrichment) and [Rust `tracing` spans](https://docs.rs/tracing/latest/tracing/span/). These references imply no Trice dependencies or compatibility guarantees.
+
+## 11. <a id="appendix-optional-diagnostics-for-unused-rules"></a>Appendix: optional diagnostics for unused rules
+
+With a valid rule such as `-ce 'ctx7:", clock={clock}", readClock()'`, Bind succeeds when no site in the selected source scan matches `ctx7`. It emits no warning about that unused rule, and `-v` currently adds no specific unused-rule message. Rule validation still applies even when a rule matches no site.
+
+A future extension could report one concise informational note per unmatched selector with `-v`, for example `CE selector ctx7 matched no sites in the selected source scan`. This could help identify a misspelled selector or an unintended `-src`/`-exclude` selection while keeping normal output quiet and the command successful. Matching would use the actual selected sites and existing selector-group semantics. This is an optional diagnostic idea, with no current implementation or release commitment.
 

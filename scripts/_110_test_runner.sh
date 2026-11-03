@@ -470,12 +470,15 @@ expected_step_weight() {
 parse_test_all_arguments() {
   local argument
   local selection_seen=0
+  # A CLI value takes precedence over the environment for every child step.
+  local go_timeout="${TRICE_GO_TEST_TIMEOUT-2h}"
   TEST_ALL_SELECTED="full"
   TEST_ALL_NO_STOP=1
   TEST_ALL_NO_FORMAT=0
   TEST_ALL_DO_FORMAT=0
   TEST_ALL_AUTO_CONTINUE=0
-  for argument in "$@"; do
+  while [ "$#" -gt 0 ]; do
+    argument="$1"
     case "$argument" in
       quick | full)
         if [ "$selection_seen" -eq 1 ]; then
@@ -489,14 +492,26 @@ parse_test_all_arguments() {
       --stop) TEST_ALL_NO_STOP=0 ;;
       --format) TEST_ALL_DO_FORMAT=1 ;;
       --no-format) TEST_ALL_NO_FORMAT=1 ;;
+      --go-test-timeout)
+        if [ "$#" -lt 2 ]; then
+          printf 'Missing duration after --go-test-timeout; use, for example, --go-test-timeout 4h.\n' >&2
+          return 2
+        fi
+        go_timeout="$2"
+        shift
+        ;;
+      --go-test-timeout=*) go_timeout="${argument#*=}" ;;
       *)
         printf 'Unsupported testAll argument: %s\n' "$argument" >&2
-        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop] [--format|--no-format]\n' >&2
+        printf 'Usage: ./scripts/testAll.sh [quick|full] [--no-stop|--stop] [--format|--no-format] [--go-test-timeout 2h]\n' >&2
         printf 'Default: full, continue after failures (--no-stop). Quick and format flags automatically choose c (checkout-local setup).\n' >&2
         return 2
         ;;
     esac
+    shift
   done
+  go_timeout="$(go_package_test_timeout "$go_timeout")" || return 2
+  export TRICE_GO_TEST_TIMEOUT="$go_timeout"
   if [ "$TEST_ALL_DO_FORMAT" -eq 1 ] && [ "$TEST_ALL_NO_FORMAT" -eq 1 ]; then
     printf 'Choose either --format or --no-format; they cannot be combined.\n' >&2
     return 2

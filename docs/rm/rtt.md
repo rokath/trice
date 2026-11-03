@@ -632,7 +632,9 @@ Nov 14 17:32:35.710201  TCP4:       triceExamples.c    26        0_504 i=4444440
 
 ## 11. <a id="segger-j-link-on-darwin-macos"></a>SEGGER J-Link on Darwin (macOS)
 
-TODO: Working example with SEGGER_RTT J-Link and Open OCD
+RTT was manually verified on macOS with a G0B1 evaluation board whose on-board debug probe was flashed with J-Link OB firmware. This hardware result covers that J-Link setup. OpenOCD uses the separate [macOS procedure](#openocd-with-darwin-macos); the J-Link result does not establish the OpenOCD path.
+
+When repeating a hardware check, record the board, probe firmware, macOS and SEGGER tool versions together with the observed Trice output. Native compiler and CI tests complement this result but do not replace a real probe/board run.
 
 ## 12. <a id="links"></a>Links
 

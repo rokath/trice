@@ -112,8 +112,11 @@ main() {
   local package
   local package_list
   local packages=()
+  local go_timeout
 
   init_logfile
+  go_timeout="$(go_package_test_timeout "${TRICE_GO_TEST_TIMEOUT-2h}")" || exit 2
+  log "Go test timeout per package: $go_timeout"
   if ! has_command go; then
     log "MISSING TOOL: go"
     log "SKIP: Go not installed"
@@ -157,8 +160,8 @@ main() {
     exit 1
   fi
   # Coverage must represent a fresh execution while retaining compiled inputs.
-  # Keep the same per-package timeout as normal tests and script portability CI.
-  GOTOOLCHAIN="$go_toolchain" run_go_tests -count=1 "${packages[@]}" -skip '^TestContextEnrichmentRebasePoC$' -timeout=30m -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
+  # Coverage uses the same overridable package budget as the ordinary Go step.
+  GOTOOLCHAIN="$go_toolchain" run_go_tests -count=1 "${packages[@]}" -skip '^TestContextEnrichmentRebasePoC$' "-timeout=$go_timeout" -covermode=atomic -coverprofile="$coverage_file" "-coverpkg=$coverage_packages" || {
     local status=$?
     log "FAIL: go coverage test failed"
     exit "$status"

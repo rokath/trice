@@ -291,13 +291,58 @@ void TriceCheck(int index) {
         break; case __LINE__: triceS("info:Device {device:%s}\n", "pump");                         //exp: "time:        default: info:Device pump\n"
         break; case __LINE__: triceN("info:Code {code:%s}\n", "READY!", 5);                        //exp: "time:        default: info:Code READY\n"
 
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
         // Context Enrichment examples: bind -ce adds values without editing these calls.
+        // FIXED INTEGRATION FIXTURE: Do not add, remove or edit these four calls.
+        // The CE target-to-decoder tests copy them and check exact expected output.
+        // Put user experiments after the closing marker below.
+        //
         break; case __LINE__: trice32("info:pos:Position sample\n");                             //exp: "time:        default: info:pos:Position sample\n"
         break; case __LINE__: trice32("info:speed:Speed sample\n");                              //exp: "time:        default: info:speed:Speed sample\n"
-        break; case __LINE__: Trice32("info:pos:speed:Moving sample={sample}\n", 3);              //exp: "time:    be16default: info:pos:speed:Moving sample=3\n"
-        break; case __LINE__: TRice32_1("info:pos:Fixed sample={sample}\n", 4);                    //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        break; case __LINE__: Trice32("info:pos:speed:Moving sample={sample}\n", 3);             //exp: "time:    be16default: info:pos:speed:Moving sample=3\n"
+        break; case __LINE__: TRice32_1("info:pos:Fixed sample={sample}\n", 4);                  //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        //
         // End Context Enrichment examples; the expectations above apply without -ce.
-        
+        //
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //
+        // EDITABLE CE/SL EXAMPLES: Add user experiments here, outside the fixed fixture above.
+        // All expectations below are without -ce and with the default tag weights.
+        // JSON/KV: -logFormat json or -logFormat kv, with -color none -li off -showID '' -hs off -ts off.
+        // json_exp and kv_exp illustrate output; the test harness currently evaluates only exp.
+        // {} derives the field name from the C argument; {sample} explicitly names it.
+        // Without -ce, the free pos: selector remains in the JSON/KV message.
+        //
+        break; case __LINE__: trice  ("info:speed:Speed sample\n");                              //exp: "time:        default: info:speed:Speed sample\n"
+        break; case __LINE__: Trice  ("info:pos:speed:Moving sample={sample}\n", 5);             //exp: "time:    be16default: info:pos:speed:Moving sample=5\n"
+        break; case __LINE__: TRice("info:pos:Fixed sample={sample}\n", 4);                      //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        break; case __LINE__: TRice("info:pos:Fixed sample={sample}\n", 4);                      //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+
+        break; case __LINE__: { int sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //exp: "time:feed3322default: info:pos:Fixed sample=6\n"
+        break; case __LINE__: { int sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //json_exp: {"tag":"INFO","level":"INFO","message":"pos:Fixed sample=6\n","fields":{"sample":6}}
+        break; case __LINE__: { int sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //kv_exp: tag=INFO level=INFO message="pos:Fixed sample=6\n" field.sample=6
+
+        break; case __LINE__: { int x = 7; trice("trace:Fixed value={}\n", x); }                 //exp: "time:        default: trace:Fixed value=7\n"
+        break; case __LINE__: { int x = 7; trice("trace:Fixed value={}\n", x); }                 //json_exp: {"tag":"TRACE","level":"TRACE","message":"Fixed value=7\n","fields":{"x":7}}
+        break; case __LINE__: { int x = 7; trice("trace:Fixed value={}\n", x); }                 //kv_exp: tag=TRACE level=TRACE message="Fixed value=7\n" field.x=7
+
+        break; case __LINE__: { int x = 8; trice("msg:Fixed value={sample}\n", x); }             //exp: "time:        default: msg:Fixed value=8\n"
+        break; case __LINE__: { int x = 8; trice("msg:Fixed value={sample}\n", x); }             //json_exp: {"tag":"MESSAGE","level":"INFO","message":"Fixed value=8\n","fields":{"sample":8}}
+        break; case __LINE__: { int x = 8; trice("msg:Fixed value={sample}\n", x); }             //kv_exp: tag=MESSAGE level=INFO message="Fixed value=8\n" field.sample=8
+
+        break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //exp: "time:        default: dbg:Fixed value=9\n"
+        break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //json_exp: {"tag":"DEBUG","level":"DEBUG","message":"Fixed value=9\n","fields":{"sample":9}}
+        break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //kv_exp: tag=DEBUG level=DEBUG message="Fixed value=9\n" field.sample=9
+        //
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         break; case __LINE__: trice("sig:length modifier coverage for supported combinations\n" );
         break; case __LINE__: trice8 ("len:hh %hhd %hhi %hhu %hho %hhO %hhx %hhX %hhb\n", -128, -1, -1, -1, -1, -1, -1, 0xA5u );                                                                                           //exp: "time:        default: len:hh -128 -1 255 377 0o377 ff FF 10100101\n"
         break; case __LINE__: trice16("len:h %hd %hi %hu %ho %hO %hx %hX %hb\n", -32768, -1, -1, -1, -1, -1, -1, 0xA55Au );                                                                                                //exp: "time:        default: len:h -32768 -1 65535 177777 0o177777 ffff FFFF 1010010101011010\n"
