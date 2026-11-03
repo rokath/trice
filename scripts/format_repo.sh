@@ -33,7 +33,7 @@ main() {
     esac
   done
 
-  echo "$SCRIPT_DIR/_310_refresh_trice_user_manual.sh" "$@" && "$SCRIPT_DIR/_310_refresh_trice_user_manual.sh" "$@"
+  echo "$SCRIPT_DIR/_310_refresh_trice_manuals.sh" "$@" && "$SCRIPT_DIR/_310_refresh_trice_manuals.sh" "$@"
   echo "$SCRIPT_DIR/_260_format_shell_scripts.sh" "$@" && "$SCRIPT_DIR/_260_format_shell_scripts.sh" "$@"
   echo "$SCRIPT_DIR/_270_format_go_code.sh" "$@" && "$SCRIPT_DIR/_270_format_go_code.sh" "$@"
 

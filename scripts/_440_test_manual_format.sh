@@ -14,8 +14,8 @@ source "$SCRIPT_DIR/_100_test_common.sh"
 
 main() {
   init_logfile
-  run_cmd "$SCRIPTS_DIR/_310_refresh_trice_user_manual.sh" check || {
-    log "FAIL: _310_refresh_trice_user_manual.sh check failed"
+  run_cmd "$SCRIPTS_DIR/_310_refresh_trice_manuals.sh" check || {
+    log "FAIL: _310_refresh_trice_manuals.sh check failed"
     exit 1
   }
 }

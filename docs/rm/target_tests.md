@@ -46,7 +46,7 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 
 The default is **full**, with a formatting question and a setup menu only when tools or host prerequisites need preparation. The suite checks installed tools and `temp/tools` first. `quick` and either formatting switch choose `c` automatically: reuse valid tools and install missing pinned tools under `temp/tools`. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
-Every run lists the declared tool versions before preparation. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
+Startup lists the declared tool versions only when tools need installation or host prerequisites are missing. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
 
 | Command | Use |
 | --- | --- |
@@ -59,7 +59,7 @@ Every run lists the declared tool versions before preparation. Installation ques
 | `./scripts/testAll.sh --no-format` | Choose `c` and leave formatting to the checks, without questions. Works with `quick` or `full`. |
 | `./scripts/testAll.sh --go-test-timeout 4h` | Allow up to four hours per Go test package in steps 540/550; the default is two hours. Works with `quick` or `full`. |
 
-An explicit `--format` overrides quick's default. `--format` and `--no-format` cannot be combined. These unattended choices retain the tool inventory, version checks, prerequisite checks and disk-space checks. Use full without either formatting switch to choose system updates through `u`.
+An explicit `--format` overrides quick's default. `--format` and `--no-format` cannot be combined. These unattended choices retain version checks, prerequisite checks and disk-space checks. Use full without either formatting switch to choose system updates through `u` when setup is needed.
 
 From PowerShell, use `bash ./scripts/testAll.sh` to start the same runner. Direct Go commands also work in PowerShell; the compiler and runtime still need to be available to Go.
 
@@ -97,7 +97,7 @@ All three systems use [test-tools.env](../../scripts/test-tools.env) for exact t
 
 The startup table shows required, system and cached versions. `Location` is the selected or planned source; `Size` estimates additional installed space in MB/GB. Missing prerequisites also appear in the table. Shared WinLibs packages are budgeted once. Detailed paths remain in the run's tool-plan file.
 
-When every required tool is available at its declared version, execution continues without an installation menu or confirmation. This applies to `testAll.sh`, `format_repo.sh` and separately invoked formatting, build and check scripts, including reuse from verified caches. The `c/u/a` menu appears when a required tool needs installation or a host prerequisite needs attention. The separate optional repository-formatting question in full test runs remains unchanged.
+When every required tool is available at its declared version, execution continues without a tool table, installation menu or confirmation. This applies to `testAll.sh`, `format_repo.sh` and separately invoked formatting, build and check scripts, including reuse from verified caches. The table and `c/u/a` menu appear when a required tool needs installation or a host prerequisite needs attention. The separate optional repository-formatting question in full test runs remains unchanged.
 
 A complete package can bring additional tools. For example, Windows WinLibs supplies GCC and Clang together with CMake and Cppcheck. Installing it for missing compiler versions also places these extra tools in `temp/tools`, even if matching system versions already exist. The installer keeps the complete package rather than removing those files. "Install only missing tools" therefore means installing only the required packages, not filtering every executable inside them.
 

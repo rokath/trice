@@ -1218,7 +1218,7 @@ func TestRepositoryFormattingCheckPreservesOutputs(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/format_repo.sh")
 			for _, name := range []string{
-				"scripts/_310_refresh_trice_user_manual.sh", "scripts/_260_format_shell_scripts.sh",
+				"scripts/_310_refresh_trice_manuals.sh", "scripts/_260_format_shell_scripts.sh",
 				"scripts/_270_format_go_code.sh", "scripts/_280_format_c_code.sh",
 				"trice_bindIDs_in_examples_and_test_folder.sh", "examples/cleanAllTargets.sh",
 				"scripts/_300_clean_dsstore.sh",
@@ -1241,7 +1241,7 @@ esac
 			assert.Equal(t, tc.failed != "", err != nil, out)
 			calls, readErr := os.ReadFile(filepath.Join(root, "helpers.calls"))
 			assert.NoError(t, readErr)
-			expected := "_310_refresh_trice_user_manual.sh\n_260_format_shell_scripts.sh\n_270_format_go_code.sh\n"
+			expected := "_310_refresh_trice_manuals.sh\n_260_format_shell_scripts.sh\n_270_format_go_code.sh\n"
 			if tc.failed == "" {
 				expected += "_280_format_c_code.sh\n"
 			}
@@ -1282,7 +1282,7 @@ printf '%s\n' "$*" >> clang-format.calls
 		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho unexpected-tool-execution >&2\ntouch unexpected-tool-execution\nexit 92\n")
 	}
 	for _, step := range []string{
-		"scripts/_310_refresh_trice_user_manual.sh", "scripts/_270_format_go_code.sh",
+		"scripts/_310_refresh_trice_manuals.sh", "scripts/_270_format_go_code.sh",
 		"trice_bindIDs_in_examples_and_test_folder.sh", "examples/cleanAllTargets.sh", "scripts/_300_clean_dsstore.sh",
 	} {
 		writeFixture(t, root, step, "#!/bin/sh\nexit 0\n")
@@ -1295,6 +1295,7 @@ printf '%s\n' "$*" >> clang-format.calls
 	require.NoError(t, err, string(output))
 	out, err := runFixture(t, root, "bash scripts/format_repo.sh format </dev/null", map[string]string{"CI": "false"})
 	assert.NoError(t, err, out)
+	assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
 	assert.NotContains(t, out, "Choose [c/u/a]")
 	assert.NotContains(t, out, "Cancelled.")
 	assert.NoFileExists(t, filepath.Join(root, "unexpected-tool-execution"))
@@ -1613,14 +1614,14 @@ func TestRunnerSetupCancellation(t *testing.T) {
 				assert.NotContains(t, out, "Cancelled.")
 			} else {
 				header := regexp.MustCompile(`(?m)^Tool +Required +System +Cache +Location +Size$`)
-				assert.Len(t, header.FindAllString(string(tools), -1), 1)
 				if tc.ready {
-					// Ready setup stays in tools.log; the runner only surfaces
-					// the inventory when installation needs a user choice.
+					// Reusable tools need no setup inventory, even in tools.log.
+					assert.Empty(t, header.FindAllString(string(tools), -1), string(tools))
 					assert.Empty(t, header.FindAllString(out, -1), out)
 					assert.NotContains(t, out, "Choose [c/u/a]")
 					assert.NotContains(t, out, "Cancelled.")
 				} else {
+					assert.Len(t, header.FindAllString(string(tools), -1), 1)
 					assert.Len(t, header.FindAllString(out, -1), 1, out)
 					assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
 					assert.Contains(t, out, "Type c, u or a, then press ENTER (ENTER alone aborts).")
@@ -3332,7 +3333,7 @@ func TestManualGenerateExamplesUseCurrentCLI(t *testing.T) {
 // records actual arguments and never rewrites the documentation sources.
 func manualMaintenanceFixture(t *testing.T) string {
 	t.Helper()
-	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_310_refresh_trice_user_manual.sh", "scripts/_440_test_manual_format.sh")
+	root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_310_refresh_trice_manuals.sh", "scripts/_440_test_manual_format.sh")
 	for _, path := range []string{
 		"docs/TriceUserManual.md",
 		"docs/rm/README.md", "docs/rm/HEADER.md", "docs/rm/FOOTER.md", "docs/rm/INDEX.md",
@@ -3387,7 +3388,7 @@ fi
 [ "$1" = version ] && [ "$2" = -m ] && [ "$3" = "$(command -v mdtoc)" ] || exit 91
 printf 'fixture: go1.25\n\tpath\tgithub.com/rokath/mdtoc/cmd/mdtoc\n\tmod\tgithub.com/rokath/mdtoc\t%s\th1:fixture\n' "$MDTOC_MODULE_VERSION"
 `)
-			command := "bash scripts/_310_refresh_trice_user_manual.sh check"
+			command := "bash scripts/_310_refresh_trice_manuals.sh check"
 			if tc.answer != "" {
 				command = "printf '" + tc.answer + "\\n' | " + command
 			}
@@ -3413,7 +3414,7 @@ printf 'fixture: go1.25\n\tpath\tgithub.com/rokath/mdtoc/cmd/mdtoc\n\tmod\tgithu
 			if tc.name == "old_release_declined" {
 				out, err = runFixture(t, root, "bash scripts/_440_test_manual_format.sh", map[string]string{"MDTOC_FIXTURE_VERSION": tc.version, "CI": "true"})
 				assert.Error(t, err, out)
-				assert.Contains(t, out, "FAIL: _310_refresh_trice_user_manual.sh check failed")
+				assert.Contains(t, out, "FAIL: _310_refresh_trice_manuals.sh check failed")
 			}
 		})
 	}
@@ -3435,7 +3436,7 @@ func TestManualMaintenanceIncludesChapters(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := manualMaintenanceFixture(t)
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh "+tc.arguments, map[string]string{"REJECTED": tc.rejected})
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh "+tc.arguments, map[string]string{"REJECTED": tc.rejected})
 			if tc.rejected != "" {
 				assert.Error(t, err, out)
 				assert.Contains(t, out, "invalid manual: "+tc.rejected)
@@ -3485,7 +3486,7 @@ func TestManualMaintenanceValidatesSourcesBeforeFormatting(t *testing.T) {
 			} else if !assert.NoError(t, os.RemoveAll(filepath.Join(root, tc.path))) {
 				return
 			}
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh format", nil)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, tc.message)
 			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"), "preflight must finish before invoking mdtoc")
@@ -3508,7 +3509,7 @@ func TestManualMaintenanceRejectsIncompleteChapterLists(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			root := manualMaintenanceFixture(t)
 			writeFixture(t, root, tc.path, tc.content)
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh format", nil)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh format", nil)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, tc.message)
 			assert.NoFileExists(t, filepath.Join(root, "mdtoc.calls"))
@@ -3533,7 +3534,7 @@ func TestManualMaintenanceRequiresManagedChapters(t *testing.T) {
 			if !withNotes {
 				assert.NoError(t, os.Remove(filepath.Join(root, "docs/rm/notes.md")))
 			}
-			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_user_manual.sh check", nil)
+			out, err := runFixture(t, root, "bash scripts/_310_refresh_trice_manuals.sh check", nil)
 			assert.Error(t, err, out)
 			assert.Contains(t, out, "no mdtoc-managed reference chapters found: docs/rm/*.md")
 			assert.Contains(t, out, "expected <!-- mdtoc -->")

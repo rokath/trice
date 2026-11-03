@@ -727,7 +727,7 @@ trice_plan_space() {
   [ "$failed" -eq 0 ]
 }
 
-# Display every selection, but ask only when installation or host setup is needed.
+# Display the inventory only when installation or host setup is needed.
 # Continue authorizes checkout-local preparation; update additionally offers
 # confirmed, version-bounded upgrades. Ready tools proceed without reading stdin.
 # An internal recheck after updates retains consent for remaining local tools.
@@ -924,13 +924,15 @@ trice_test_tool_plan() {
     trice_plan_row Go-build-cache shared 'source fallback' install 'build-cache allowance' "$(trice_tool_path "$build_cache")" 0 768
     trice_plan_row Go-module-cache shared 'source fallback' install 'module-cache allowance' "$(trice_tool_path "$module_cache")" 0 512
   fi
-  if [ "$after_updates" != 1 ]; then trice_plan_table; fi
   while IFS=$'\t' read -r tool version found action selected target installed peak; do
     case "$action" in
       install) installation_needed=1 ;;
       manual) blocked=1 ;;
     esac
   done <"$TRICE_PLAN_FILE"
+  if [ "$after_updates" != 1 ] && { [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; }; then
+    trice_plan_table
+  fi
   trice_plan_space || checkout_space_ok=0
   if [ "$blocked" -ne 0 ]; then trice_plan_can_continue || true; fi
   if { [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; } &&
