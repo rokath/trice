@@ -1204,8 +1204,9 @@ func TestScratchpadExcludedFromGo(t *testing.T) {
 // Bind or cleanup, even after an explicit earlier format argument.
 func TestRepositoryFormattingCheckPreservesOutputs(t *testing.T) {
 	for _, tc := range []struct {
-		name, arguments, failed string
-		format                  bool
+		name, arguments, failed     string
+		bindChange, snapshotFailure string
+		format, dirty, secondPass   bool
 	}{
 		{name: "check", arguments: "check"},
 		{name: "verbose_check", arguments: "check --verbose"},
@@ -1213,10 +1214,25 @@ func TestRepositoryFormattingCheckPreservesOutputs(t *testing.T) {
 		{name: "default_formats_and_cleans", format: true},
 		{name: "explicit_format", arguments: "format", format: true},
 		{name: "last_mode_is_format", arguments: "check format", format: true},
+		{name: "bind_changes_C_source", format: true, bindChange: "source", secondPass: true},
+		{name: "bind_rewrites_identical_source", format: true, bindChange: "identical"},
+		{name: "existing_local_edit_needs_no_second_pass", format: true, dirty: true},
+		{name: "bind_changes_already_edited_source", format: true, dirty: true, bindChange: "source", secondPass: true},
+		{name: "failed_snapshot_before_bind_stops_maintenance", format: true, snapshotFailure: "before"},
+		{name: "failed_snapshot_after_bind_stops_cleanup", format: true, snapshotFailure: "after"},
 		{name: "failed_check_stops_without_cleanup", arguments: "check", failed: "_270_format_go_code.sh"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/format_repo.sh")
+			initGitFixture(t, root)
+			// A real tracked C++ path exercises content comparison, spaces and
+			// pre-existing edits without relying on the fixture's clean state.
+			writeFixture(t, root, "source with spaces.cpp", "int initial;\n")
+			output, err := exec.Command("git", "-C", root, "add", "source with spaces.cpp").CombinedOutput()
+			require.NoError(t, err, string(output))
+			if tc.dirty {
+				writeFixture(t, root, "source with spaces.cpp", "int user_edit;\n")
+			}
 			for _, name := range []string{
 				"scripts/_310_refresh_trice_manuals.sh", "scripts/_260_format_shell_scripts.sh",
 				"scripts/_270_format_go_code.sh", "scripts/_280_format_c_code.sh",
@@ -1228,7 +1244,14 @@ name=${0##*/}
 printf '%s\n' "$name" >> helpers.calls
 [ "$name" != "$FAILED_HELPER" ] || exit 19
 case "$name" in
-  trice_bindIDs*) printf 'updated IDs\n' > demoTIL.json ;;
+  trice_bindIDs*)
+    printf 'updated IDs\n' > demoTIL.json
+    : > bind-called
+    case "$BIND_CHANGE" in
+      source) printf 'int generated;\n' > 'source with spaces.cpp' ;;
+      identical) printf 'int initial;\n' > 'source with spaces.cpp' ;;
+    esac
+    ;;
   cleanAllTargets.sh) rm -f examples/fixture/build/output ;;
   _300_clean_dsstore.sh) rm -f .DS_Store ;;
 esac
@@ -1237,24 +1260,57 @@ esac
 			for _, name := range []string{"demoTIL.json", ".DS_Store", "examples/fixture/build/output"} {
 				writeFixture(t, root, name, "preserve this\n")
 			}
-			out, err := runFixture(t, root, "bash scripts/format_repo.sh "+tc.arguments, map[string]string{"FAILED_HELPER": tc.failed})
-			assert.Equal(t, tc.failed != "", err != nil, out)
+			if tc.snapshotFailure != "" {
+				// Keep hashing successful so a failed diff specifically verifies
+				// pipefail propagation and prevents later destructive helpers.
+				writeFixture(t, root, "bin/git", `#!/bin/sh
+if [ "$1" = hash-object ]; then cat >/dev/null; echo snapshot; exit 0; fi
+if [ "$SNAPSHOT_FAILURE" = before ] || [ -f bind-called ]; then
+  echo fixture-diff-failure >&2
+  exit 71
+fi
+`)
+			}
+			out, err := runFixture(t, root, "bash scripts/format_repo.sh "+tc.arguments, map[string]string{
+				"FAILED_HELPER": tc.failed, "BIND_CHANGE": tc.bindChange, "SNAPSHOT_FAILURE": tc.snapshotFailure,
+			})
+			assert.Equal(t, tc.failed != "" || tc.snapshotFailure != "", err != nil, out)
 			calls, readErr := os.ReadFile(filepath.Join(root, "helpers.calls"))
 			assert.NoError(t, readErr)
 			expected := "_310_refresh_trice_manuals.sh\n_260_format_shell_scripts.sh\n_270_format_go_code.sh\n"
 			if tc.failed == "" {
 				expected += "_280_format_c_code.sh\n"
 			}
-			if tc.format {
-				expected += "trice_bindIDs_in_examples_and_test_folder.sh\n_280_format_c_code.sh\ncleanAllTargets.sh\n_300_clean_dsstore.sh\n"
+			// Metadata can change before an after-Bind inspection fails, but
+			// cleanup must run only after all required formatting succeeds.
+			bindRuns := tc.format && tc.failed == "" && tc.snapshotFailure != "before"
+			cleanupRuns := tc.format && tc.failed == "" && tc.snapshotFailure == ""
+			if bindRuns {
+				expected += "trice_bindIDs_in_examples_and_test_folder.sh\n"
+			}
+			if cleanupRuns {
+				if tc.secondPass {
+					expected += "_280_format_c_code.sh\n"
+				}
+				expected += "cleanAllTargets.sh\n_300_clean_dsstore.sh\n"
 				assert.NoFileExists(t, filepath.Join(root, ".DS_Store"))
 				assert.NoFileExists(t, filepath.Join(root, "examples/fixture/build/output"))
 			} else {
-				for _, name := range []string{"demoTIL.json", ".DS_Store", "examples/fixture/build/output"} {
+				for _, name := range []string{".DS_Store", "examples/fixture/build/output"} {
 					data, err := os.ReadFile(filepath.Join(root, name))
 					assert.NoError(t, err)
 					assert.Equal(t, "preserve this\n", string(data), name)
 				}
+			}
+			metadata, readErr := os.ReadFile(filepath.Join(root, "demoTIL.json"))
+			require.NoError(t, readErr)
+			if bindRuns {
+				assert.Equal(t, "updated IDs\n", string(metadata))
+			} else {
+				assert.Equal(t, "preserve this\n", string(metadata))
+			}
+			if tc.snapshotFailure != "" {
+				assert.Contains(t, out, "cannot inspect C/C++ changes "+tc.snapshotFailure+" Bind")
 			}
 			assert.Equal(t, expected, string(calls))
 		})
@@ -1263,7 +1319,7 @@ esac
 
 // TestRepositoryFormattingWithReadyTools exercises the public wrapper and real
 // shell/C formatters without stdin. Only tool executables and unrelated steps
-// are doubled; both C passes must actually run without installation or menus.
+// are doubled; an unchanged Bind result must need only one real C-format pass.
 func TestRepositoryFormattingWithReadyTools(t *testing.T) {
 	root := scriptFixture(t, "scripts/format_repo.sh", "scripts/_260_format_shell_scripts.sh", "scripts/_280_format_c_code.sh")
 	// This regression needs real planning, unlike installer-isolation fixtures.
@@ -1298,6 +1354,7 @@ printf '%s\n' "$*" >> clang-format.calls
 	assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
 	assert.NotContains(t, out, "Choose [c/u/a]")
 	assert.NotContains(t, out, "Cancelled.")
+	assert.NotContains(t, out, "Disk:")
 	assert.NoFileExists(t, filepath.Join(root, "unexpected-tool-execution"))
 	assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
 	shellCalls, err := os.ReadFile(filepath.Join(root, "shfmt.calls"))
@@ -1305,7 +1362,7 @@ printf '%s\n' "$*" >> clang-format.calls
 	assert.Contains(t, string(shellCalls), "sample.sh")
 	cCalls, err := os.ReadFile(filepath.Join(root, "clang-format.calls"))
 	require.NoError(t, err)
-	assert.Equal(t, 2, strings.Count(string(cCalls), "-i --style=file --files="), "both real C-format passes must execute")
+	assert.Equal(t, 1, strings.Count(string(cCalls), "-i --style=file --files="), "unchanged Bind sources must not be formatted twice")
 }
 
 // TestLegacyIDRefreshChecksInputsAndStopsOnFailure preserves the deliberate

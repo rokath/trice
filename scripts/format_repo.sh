@@ -21,9 +21,20 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
+# Compare the tracked C/C++ diff around Bind, including binary changes and
+# existing local edits. Metadata-only updates do not require another C pass.
+# No external diff command or text conversion may hide a source change.
+c_format_state() {
+  git -C "$SCRIPT_DIR/.." diff --no-ext-diff --no-textconv --binary --no-color --no-renames -- \
+    '*.c' '*.h' '*.cpp' '*.hpp' '*.cc' '*.hh' '*.cxx' '*.hxx' |
+    git hash-object --stdin
+}
+
 main() {
   local mode="format"
   local arg
+  # Snapshot only Bind's edits so an already dirty checkout still formats once.
+  local before_bind after_bind
 
   # Keep the mode in sync with the delegated formatters. The last explicit
   # mode wins, matching their existing argument handling.
@@ -39,11 +50,20 @@ main() {
 
   echo "$SCRIPT_DIR/_280_format_c_code.sh" "$@" && "$SCRIPT_DIR/_280_format_c_code.sh" "$@"
   if [ "$mode" = "format" ]; then
-    # Bind records the line layout produced by the first formatting pass. It
-    # can also generate or normalize directives with trailing comments, so a
-    # final formatting pass restores their repository-wide alignment.
+    # Bind records the formatted source layout. Only new or changed C/C++
+    # directives need a second pass; unchanged files and ID metadata do not.
+    if ! before_bind="$(c_format_state)"; then
+      echo "FAIL: cannot inspect C/C++ changes before Bind; Bind and cleanup were not started." >&2
+      return 1
+    fi
     echo "$SCRIPT_DIR/../trice_bindIDs_in_examples_and_test_folder.sh" && "$SCRIPT_DIR/../trice_bindIDs_in_examples_and_test_folder.sh"
-    echo "$SCRIPT_DIR/_280_format_c_code.sh" "$@" && "$SCRIPT_DIR/_280_format_c_code.sh" "$@"
+    if ! after_bind="$(c_format_state)"; then
+      echo "FAIL: cannot inspect C/C++ changes after Bind; final formatting and cleanup were not started." >&2
+      return 1
+    fi
+    if [ "$before_bind" != "$after_bind" ]; then
+      echo "$SCRIPT_DIR/_280_format_c_code.sh" "$@" && "$SCRIPT_DIR/_280_format_c_code.sh" "$@"
+    fi
 
     # Cleanup belongs to explicit maintenance, never to a formatting check.
     echo "$SCRIPT_DIR/../examples/cleanAllTargets.sh" && "$SCRIPT_DIR/../examples/cleanAllTargets.sh"
