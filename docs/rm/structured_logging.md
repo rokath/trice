@@ -12,6 +12,7 @@
 * [5. JSON and KV Contract](#json-and-kv-contract)
 * [6. Optional Metadata](#optional-metadata)
 * [7. Field Registry](#field-registry)
+* [8. Appendix: optional uses of named fields](#appendix-optional-uses-of-named-fields)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -286,4 +287,17 @@ A successful `bind` or `insert` run produces `trice-fields.txt`, listing field n
 The count covers instrumented sites with that user field in the current invocation. The file is regenerated completely, without adding historical TIL fields. A run over part of the sources describes only that part; project-wide checks should therefore include all relevant sources. Cache hits are counted. Host metadata is excluded, but a field actually named `tag` by the user is included.
 
 Sorting is by ascending count, then alphabetically by field name for equal counts. The line format is `%8d %s\n`; field names have no artificial length limit. A successful run without user fields creates an empty file. `-dry-run` publishes no new file and preserves an existing registry (`trice-fields.txt`).
+
+## 8. <a id="appendix-optional-uses-of-named-fields"></a>Appendix: optional uses of named fields
+
+Named fields could support the following future tools. These are design options, with no current CLI or release commitment:
+
+| Option | Possible benefit | Decisions needed |
+| --- | --- | --- |
+| Visualization expressions using field names | Keep expressions readable when argument order changes. | Missing fields, repeated names, incompatible types and the distinction between user fields and host metadata. |
+| A schema overview | Show field names, types and IDs across selected schemas. | Current source scope versus historical TIL entries, and how to display different types under the same name. |
+
+The current [visualization interface](visualization.md#visualization-output-with--vis) uses positional values `v0` through `v11`; SL field names are not expression identifiers. The field registry above lists current-run frequencies, not a complete schema inventory.
+
+Any extension should reuse the schema in `Type` and `Strg`, preserve historical mappings and require no additional target payload or automatic C-type inference. Choose a concrete use case before defining another CLI or export format.
 
