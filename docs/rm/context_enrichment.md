@@ -252,7 +252,9 @@ This limitation remains because CE produces ordinary C/C++ code. The Trice tool 
 
 CE is applied before schema and ID determination. The ID follows the final Trice type and canonical template, including field names. A different expression with the same schema does not change the ID: `ctx:", x={position}", pos.x` may change to `ctx:", x={position}", pos.y`. Changes to the field name, format or final type follow the existing ID assignment rules instead. Historical TIL entries remain available for older firmware.
 
-After every source or CE configuration change, rerun `bind` with the complete desired rule list and rebuild the firmware. Without `-ce`, the next Bind run produces normal schemas without CE again. Rules are not carried forward from earlier runs. The dictionary and generated firmware must belong together; changing only `til.json` cannot create additional target values.
+After every source or CE configuration change, rerun bind with the complete desired rule list and rebuild the firmware. Rules are not carried forward from earlier runs: without -ce, the next Bind run generates normal schemas without CE.
+
+The dictionary accumulates historical ID-to-format mappings. One dictionary can decode output from multiple firmware versions, provided it retains the mappings used by each version. Removing CE from the current configuration does not remove those historical mappings. Additional target values require regenerated Bind headers and a firmware rebuild; changing only til.json cannot make the firmware collect or transmit them.
 
 Use the normal [Bind setup](bind.md#quick-start) and [build integration](bind.md#build-integration), including the initial sidecar include. CE writes neither extensions nor additional arguments into user log sites. Repeated runs with the same configuration preserve source, IDs and generated contents. `trice-fields.txt` counts final CE fields together with directly specified fields for the current run. `-dry-run` publishes no changes. Invalid rules, field conflicts and selected unsupported Bind sites are rejected before writes; publication failures use the existing Bind rollback.
 
