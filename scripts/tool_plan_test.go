@@ -82,21 +82,23 @@ func TestToolPlanInventorySeparatesSystemAndCache(t *testing.T) {
 source scripts/_116_test_tool_plan.sh
 PATH="$PWD/$FIXTURE_CACHE:$PATH"
 printf 'a\n' | trice_test_tool_plan node`, map[string]string{"CI": "false", "FIXTURE_PLATFORM": platform, "FIXTURE_CACHE": cache})
-				assert.Error(t, err, out)
 				assert.Regexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
 				assert.Regexp(t, `(?m)^-{79}$`, out)
 				assert.Regexp(t, `(?m)^Node[.]js +26[.]12[.]1 +24[.]14[.]0 +`+strings.ReplaceAll(cached, ".", `[.]`)+` +Cache +`, out)
 				assert.NotContains(t, out, "Selected ")
 				assert.NotContains(t, out, "Peak")
 				if cached == "26.12.1" {
+					assert.NoError(t, err, out)
 					assert.Contains(t, out, "No installation needed.")
+					assert.NotContains(t, out, "Choose [c/u/a]")
 				} else {
+					assert.Error(t, err, out)
 					assert.Contains(t, out, "~180 MB")
+					assert.Contains(t, out, "[u] Update system tools (up to pinned versions)")
+					assert.Contains(t, out, "Install missing pinned tool versions into temp/tools.")
+					assert.Contains(t, out, "Leave newer system versions unchanged.")
+					assert.Contains(t, out, "Install remaining missing pinned tool versions into temp/tools.")
 				}
-				assert.Contains(t, out, "[u] Update system tools (up to pinned versions)")
-				assert.Contains(t, out, "Install missing pinned tool versions into temp/tools.")
-				assert.Contains(t, out, "Leave newer system versions unchanged.")
-				assert.Contains(t, out, "Install remaining missing pinned tool versions into temp/tools.")
 			})
 		}
 	}
@@ -189,7 +191,7 @@ func TestToolPlanConsentAndSpace(t *testing.T) {
 			freeMiB     int
 			wantSuccess bool
 		}{
-			{"matching_no_install", "c", true, 0, true},
+			{"matching_no_install", "", true, 0, true},
 			{"missing_approved", "c", false, 4096, true},
 			{"missing_declined", "a", false, 4096, false},
 			{"missing_EOF", "", false, 4096, false},
@@ -225,6 +227,7 @@ func TestToolPlanConsentAndSpace(t *testing.T) {
 				assert.Contains(t, out, "free")
 				if tc.matching {
 					assert.Contains(t, out, "No installation needed.")
+					assert.NotContains(t, out, "Choose [c/u/a]", "ready tools must proceed even with stdin at EOF")
 				} else {
 					assert.Contains(t, out, "Install: Node.js (~180 MB)")
 				}

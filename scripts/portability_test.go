@@ -15,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // writeFixture confines executable tool doubles and input files to one test's
@@ -1260,6 +1261,52 @@ esac
 	}
 }
 
+// TestRepositoryFormattingWithReadyTools exercises the public wrapper and real
+// shell/C formatters without stdin. Only tool executables and unrelated steps
+// are doubled; both C passes must actually run without installation or menus.
+func TestRepositoryFormattingWithReadyTools(t *testing.T) {
+	root := scriptFixture(t, "scripts/format_repo.sh", "scripts/_260_format_shell_scripts.sh", "scripts/_280_format_c_code.sh")
+	// This regression needs real planning, unlike installer-isolation fixtures.
+	setup, err := readFixtureSource("..", "scripts/_105_setup_test_tools.sh")
+	require.NoError(t, err)
+	writeFixture(t, root, "scripts/_105_setup_test_tools.sh", string(setup))
+	writeFixture(t, root, "bin/shfmt", `#!/bin/sh
+if [ "$1" = --version ]; then echo v3.14.1; exit 0; fi
+printf '%s\n' "$*" >> shfmt.calls
+`)
+	writeFixture(t, root, "bin/clang-format", `#!/bin/sh
+if [ "$1" = --version ]; then echo 'clang-format version 23.1.3'; exit 0; fi
+printf '%s\n' "$*" >> clang-format.calls
+`)
+	for _, tool := range []string{"go", "python", "python3", "curl", "pip", "pip3"} {
+		writeFixture(t, root, "bin/"+tool, "#!/bin/sh\necho unexpected-tool-execution >&2\ntouch unexpected-tool-execution\nexit 92\n")
+	}
+	for _, step := range []string{
+		"scripts/_310_refresh_trice_user_manual.sh", "scripts/_270_format_go_code.sh",
+		"trice_bindIDs_in_examples_and_test_folder.sh", "examples/cleanAllTargets.sh", "scripts/_300_clean_dsstore.sh",
+	} {
+		writeFixture(t, root, step, "#!/bin/sh\nexit 0\n")
+	}
+	writeFixture(t, root, "sample.sh", "#!/bin/sh\nexit 0\n")
+	writeFixture(t, root, "sample.c", "int sample;\n")
+	initGitFixture(t, root)
+	// Track real inputs so successful entry points cannot be empty selections.
+	output, err := exec.Command("git", "-C", root, "add", "sample.sh", "sample.c").CombinedOutput()
+	require.NoError(t, err, string(output))
+	out, err := runFixture(t, root, "bash scripts/format_repo.sh format </dev/null", map[string]string{"CI": "false"})
+	assert.NoError(t, err, out)
+	assert.NotContains(t, out, "Choose [c/u/a]")
+	assert.NotContains(t, out, "Cancelled.")
+	assert.NoFileExists(t, filepath.Join(root, "unexpected-tool-execution"))
+	assert.NoDirExists(t, filepath.Join(root, "temp/tools"))
+	shellCalls, err := os.ReadFile(filepath.Join(root, "shfmt.calls"))
+	require.NoError(t, err)
+	assert.Contains(t, string(shellCalls), "sample.sh")
+	cCalls, err := os.ReadFile(filepath.Join(root, "clang-format.calls"))
+	require.NoError(t, err)
+	assert.Equal(t, 2, strings.Count(string(cCalls), "-i --style=file --files="), "both real C-format passes must execute")
+}
+
 // TestLegacyIDRefreshChecksInputsAndStopsOnFailure preserves the deliberate
 // history-reset contract while keeping incomplete inputs and failed tools from
 // triggering later source rewrites, generated copies or build cleanup.
@@ -1495,7 +1542,9 @@ func TestRunnerSetupCancellation(t *testing.T) {
 	for _, tc := range []struct {
 		name, input           string
 		mirror, proceed, fail bool
+		ready                 bool
 	}{
+		{name: "ready_tools_EOF_runs_step", ready: true, proceed: true},
 		{name: "abort_captured", input: "a\\n"},
 		{name: "abort_mirrored", input: "a\\n", mirror: true},
 		{name: "empty_captured", input: "\\n"},
@@ -1508,7 +1557,14 @@ func TestRunnerSetupCancellation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/_100_test_common.sh", "scripts/_110_test_runner.sh")
 			initGitFixture(t, root)
-			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v26.12.1\n")
+			// Cancellation cases need a missing pin; a ready runtime must bypass
+			// the setup menu and execute the same nonempty plan without input.
+			version := "0.0.0"
+			if tc.ready {
+				version = "26.12.1"
+			}
+			writeFixture(t, root, "bin/node", "#!/bin/sh\necho v"+version+"\n")
+			writeFixture(t, root, "bin/brew", "#!/bin/sh\nexit 1\n")
 			for _, tool := range []string{"npm", "npx"} {
 				writeFixture(t, root, "bin/"+tool, "#!/bin/sh\nexit 92\n")
 			}
@@ -1557,10 +1613,18 @@ func TestRunnerSetupCancellation(t *testing.T) {
 				assert.NotContains(t, out, "Cancelled.")
 			} else {
 				header := regexp.MustCompile(`(?m)^Tool +Required +System +Cache +Location +Size$`)
-				assert.Len(t, header.FindAllString(out, -1), 1, out)
 				assert.Len(t, header.FindAllString(string(tools), -1), 1)
-				assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
-				assert.Contains(t, out, "Type c, u or a, then press ENTER (ENTER alone aborts).")
+				if tc.ready {
+					// Ready setup stays in tools.log; the runner only surfaces
+					// the inventory when installation needs a user choice.
+					assert.Empty(t, header.FindAllString(out, -1), out)
+					assert.NotContains(t, out, "Choose [c/u/a]")
+					assert.NotContains(t, out, "Cancelled.")
+				} else {
+					assert.Len(t, header.FindAllString(out, -1), 1, out)
+					assert.Equal(t, 1, strings.Count(out, "Choose [c/u/a]"), out)
+					assert.Contains(t, out, "Type c, u or a, then press ENTER (ENTER alone aborts).")
+				}
 				assert.NotContains(t, out, "native test preparation failed")
 				if !tc.proceed {
 					assert.Equal(t, 1, strings.Count(out, "Cancelled."), out)

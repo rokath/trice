@@ -727,12 +727,15 @@ trice_plan_space() {
   [ "$failed" -eq 0 ]
 }
 
-# Display every selection before asking once. Continue authorizes checkout-local
-# preparation; update additionally offers confirmed, version-bounded upgrades.
+# Display every selection, but ask only when installation or host setup is needed.
+# Continue authorizes checkout-local preparation; update additionally offers
+# confirmed, version-bounded upgrades. Ready tools proceed without reading stdin.
 # An internal recheck after updates retains consent for remaining local tools.
 trice_test_tool_plan() {
   local scope="${1:-native}" os architecture selected found tool version action target installed peak answer='' blocked=0 checkout_space_ok=1 system_status
   local after_updates="${2:-0}"
+  # Reuse alone needs no installation choice, including verified cached tools.
+  local installation_needed=0
   # Exit 2 also describes real setup failures. Keep explicit refusal distinct
   # so the suite can avoid replaying an inventory already mirrored to the user.
   export TRICE_TEST_SETUP_CANCELLED=0
@@ -923,11 +926,15 @@ trice_test_tool_plan() {
   fi
   if [ "$after_updates" != 1 ]; then trice_plan_table; fi
   while IFS=$'\t' read -r tool version found action selected target installed peak; do
-    [ "$action" != manual ] || blocked=1
+    case "$action" in
+      install) installation_needed=1 ;;
+      manual) blocked=1 ;;
+    esac
   done <"$TRICE_PLAN_FILE"
   trice_plan_space || checkout_space_ok=0
   if [ "$blocked" -ne 0 ]; then trice_plan_can_continue || true; fi
-  if [ "$after_updates" != 1 ] && [ "${TRICE_TEST_SETUP_APPROVED:-0}" != 1 ] && { [ -z "${CI:-}" ] || [ "${CI:-}" = false ]; }; then
+  if { [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; } &&
+    [ "$after_updates" != 1 ] && [ "${TRICE_TEST_SETUP_APPROVED:-0}" != 1 ] && { [ -z "${CI:-}" ] || [ "${CI:-}" = false ]; }; then
     while true; do
       trice_plan_print ''
       trice_plan_print '[c] Continue'

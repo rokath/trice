@@ -44,7 +44,7 @@ Use Bash on Linux and macOS, and Git Bash on Windows:
 ./scripts/testAll.sh
 ```
 
-The default is **full**, with setup and formatting questions. The suite checks installed tools and `temp/tools` first. `quick` and either formatting switch choose `c` automatically: reuse valid tools and install missing pinned tools under `temp/tools`. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
+The default is **full**, with a formatting question and a setup menu only when tools or host prerequisites need preparation. The suite checks installed tools and `temp/tools` first. `quick` and either formatting switch choose `c` automatically: reuse valid tools and install missing pinned tools under `temp/tools`. System package changes require their own approval. Some host prerequisites and operating-system SDKs still need to be installed separately. Allow plenty of time: a full run includes hundreds of compiler configurations and may take about an hour, depending on the machine and cache.
 
 Every run lists the declared tool versions before preparation. Installation questions name the requesting tool group or cache. Caches belong to each worktree. Standalone-tool caches use a hash of the complete `scripts/test-tools.env`, so merging a changed manifest can require a new cache even for tools whose versions stayed the same. npm packages use a separate lockfile hash. The next run reuses a completed, valid cache.
 
@@ -96,6 +96,8 @@ The native filesystem test detects whether the actual volume is case-sensitive. 
 All three systems use [test-tools.env](../../scripts/test-tools.env) for exact tool versions and release checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for Node dependencies. Before downloading anything, startup shows the active versions, required pins, reusable installations/caches, and additional installations. Complete matching CMake, GCC, LLVM and ARM packages stay at their existing locations; large toolchains are not copied into the checkout.
 
 The startup table shows required, system and cached versions. `Location` is the selected or planned source; `Size` estimates additional installed space in MB/GB. Missing prerequisites also appear in the table. Shared WinLibs packages are budgeted once. Detailed paths remain in the run's tool-plan file.
+
+When every required tool is available at its declared version, execution continues without an installation menu or confirmation. This applies to `testAll.sh`, `format_repo.sh` and separately invoked formatting, build and check scripts, including reuse from verified caches. The `c/u/a` menu appears when a required tool needs installation or a host prerequisite needs attention. The separate optional repository-formatting question in full test runs remains unchanged.
 
 A complete package can bring additional tools. For example, Windows WinLibs supplies GCC and Clang together with CMake and Cppcheck. Installing it for missing compiler versions also places these extra tools in `temp/tools`, even if matching system versions already exist. The installer keeps the complete package rather than removing those files. "Install only missing tools" therefore means installing only the required packages, not filtering every executable inside them.
 
