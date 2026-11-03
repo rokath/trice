@@ -469,6 +469,72 @@ func TestReleaseWorkflowBindings(t *testing.T) {
 	}
 }
 
+// TestNativeWorkflowPreparesToolchainSpace checks the hosted-Linux boundary and
+// runs the cleanup body with doubles. No host SDK or real sudo is ever touched.
+func TestNativeWorkflowPreparesToolchainSpace(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", ".github", "workflows", "native-tests-reusable.yml"))
+	if !assert.NoError(t, err) {
+		return
+	}
+	var workflow struct {
+		Jobs map[string]struct {
+			Steps []struct {
+				Name, If, Uses, Run string
+			}
+		}
+	}
+	if !assert.NoError(t, yaml.Unmarshal(data, &workflow)) {
+		return
+	}
+	// Space must be available before a large tool cache is restored or expanded.
+	cleanupIndex, cacheIndex := -1, -1
+	cleanupBody := ""
+	for i, step := range workflow.Jobs["native"].Steps {
+		if step.Name == "Free space for pinned Linux toolchains" {
+			cleanupIndex, cleanupBody = i, step.Run
+			assert.Equal(t, "${{ runner.os == 'Linux' && runner.environment == 'github-hosted' }}", step.If,
+				"cleanup must never affect macOS, Windows or self-hosted machines")
+		}
+		if strings.HasPrefix(step.Uses, "actions/cache@") {
+			cacheIndex = i
+		}
+	}
+	if !assert.GreaterOrEqual(t, cleanupIndex, 0) || !assert.NotEmpty(t, cleanupBody) || !assert.Greater(t, cacheIndex, cleanupIndex) {
+		return
+	}
+	for _, failed := range []bool{false, true} {
+		name := "SDK_cleanup_succeeds"
+		if failed {
+			name = "SDK_cleanup_failure_stops_preparation"
+		}
+		t.Run(name, func(t *testing.T) {
+			root := t.TempDir()
+			writeFixture(t, root, "bin/df", "#!/bin/sh\necho measured >> df.calls\n")
+			writeFixture(t, root, "bin/sudo", `#!/bin/sh
+printf '%s\n' "$*" >> sudo.calls
+[ "$FIXTURE_REMOVE_FAILURE" != true ] || exit 73
+`)
+			failure := "false"
+			if failed {
+				failure = "true"
+			}
+			out, runErr := runFixture(t, root, cleanupBody, map[string]string{"FIXTURE_REMOVE_FAILURE": failure})
+			assert.Equal(t, failed, runErr != nil, out)
+			calls, readErr := os.ReadFile(filepath.Join(root, "sudo.calls"))
+			assert.NoError(t, readErr)
+			assert.Equal(t, "rm -rf -- /usr/local/lib/android /usr/share/dotnet\n", string(calls))
+			measurements, readErr := os.ReadFile(filepath.Join(root, "df.calls"))
+			assert.NoError(t, readErr)
+			if failed {
+				assert.Equal(t, "measured\n", string(measurements))
+				assert.Contains(t, out, "::error::Cannot free toolchain space:")
+			} else {
+				assert.Equal(t, "measured\nmeasured\n", string(measurements))
+			}
+		})
+	}
+}
+
 // TestLibraryWorkflowRetainsPreparationLogs keeps failed setup diagnosable even
 // before compiler artifacts exist or when their optional upload is disabled.
 func TestLibraryWorkflowRetainsPreparationLogs(t *testing.T) {
