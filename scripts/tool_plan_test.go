@@ -87,6 +87,7 @@ printf 'a\n' | trice_test_tool_plan node`, map[string]string{"CI": "false", "FIX
 				assert.NotContains(t, out, "Peak")
 				if cached == "26.12.1" {
 					assert.NoError(t, err, out)
+					assert.Empty(t, out, "reusing tools needs neither an inventory nor capacity output")
 					assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
 					assert.NotContains(t, out, "No installation needed.")
 					assert.NotContains(t, out, "Choose [c/u/a]")
@@ -225,12 +226,13 @@ func TestToolPlanConsentAndSpace(t *testing.T) {
 					"CI": "false", "TRICE_TEST_SETUP_APPROVED": "0", "TRICE_TEST_PLAN_SCOPES": "", "TRICE_TEST_PLAN_ACTIVE": "0",
 				})
 				assert.Equal(t, tc.wantSuccess, err == nil, out)
-				assert.Contains(t, out, "free")
 				if tc.matching {
+					assert.Empty(t, out, "ready tools must continue quietly, even when space is low")
 					assert.NotRegexp(t, `(?m)^Tool +Required +System +Cache +Location +Size$`, out)
 					assert.NotContains(t, out, "No installation needed.")
 					assert.NotContains(t, out, "Choose [c/u/a]", "ready tools must proceed even with stdin at EOF")
 				} else {
+					assert.Contains(t, out, "free")
 					assert.Contains(t, out, "26.12.1")
 					assert.Contains(t, out, "Install: Node.js (~180 MB)")
 				}
@@ -315,6 +317,12 @@ printf 'Filesystem 1024-blocks Used Available Capacity Mounted\n%s 999999999 1 %
 	assert.Error(t, err, out)
 	assert.Contains(t, out, "Disk [disk-b]: ~1 MB free; insufficient.")
 	assert.Contains(t, out, "Free another ~59 MB before setup.")
+	// Suppressing routine capacity output must not conceal a setup shortfall.
+	out, err = runFixture(t, root, "source scripts/_105_setup_test_tools.sh\nTRICE_PLAN_FILE=space.tsv\nTRICE_TEST_DISK_RESERVE_MIB=10\ntrice_plan_space 0\n", nil)
+	assert.Error(t, err, out)
+	assert.Contains(t, out, "Disk [disk-b]: ~1 MB free; insufficient.")
+	assert.Contains(t, out, "Free another ~59 MB before setup.")
+	assert.NotContains(t, out, "free - sufficient.")
 }
 
 // TestNodeRuntimeRestoresStartupSelection simulates compiler setup shadowing a
