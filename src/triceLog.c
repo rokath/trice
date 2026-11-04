@@ -124,7 +124,8 @@ static int triceLogParseDecimal(const char* format, size_t* index, size_t* value
 // triceLogIsIntegerConversion disambiguates C's ptrdiff_t length modifier in
 // "%td" from Trice's standalone boolean conversion "%t".
 static int triceLogIsIntegerConversion(char conversion) {
-	return strchr("diuoxXbOq", conversion) != 0;
+	// strchr also matches the string terminator, which is not a conversion.
+	return conversion != '\0' && strchr("diuoxXbOq", conversion) != 0;
 }
 
 // triceLogParseConversion accepts the deliberately bounded local formatter

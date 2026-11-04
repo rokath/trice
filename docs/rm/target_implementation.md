@@ -302,6 +302,11 @@ meanings:
 - scalar `%q` prints a quoted character and dynamic `%q` prints an escaped,
   quoted string.
 
+For example, `trice8("bool=%t", 1u)` produces `bool=true`; a zero value produces
+`bool=false`. `%t` also works before a newline or further text. In `%td` and
+`%tu`, `t` remains the C integer length modifier. With extended formats disabled,
+standalone `%t` returns `TRICE_LOG_ERR_FEATURE_DISABLED` and no text.
+
 `TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES` accepts exactly one `%s`, or one
 `%q` when extended formats are enabled, in a dynamic string record. The encoded
 payload length is always the read boundary. An embedded NUL in an explicitly
