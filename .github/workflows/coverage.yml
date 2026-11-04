@@ -7,7 +7,7 @@
 #
 # Notes:
 # - GitHub scheduled workflows run in UTC and only run from the default branch workflow file.
-# - If you add this file on a non-default branch, the schedule will not start until merged. :contentReference[oaicite:0]{index=0}
+# - If you add this file on a non-default branch, the schedule will not start until merged.
 
 name: Go Coverage (PR + Monthly)
 
@@ -20,7 +20,7 @@ on:
   pull_request:
 
   # Run once a month: at 03:00 UTC on the 1st day of every month
-  # Adjust to your preference; cron is always interpreted in UTC. :contentReference[oaicite:1]{index=1}
+  # Adjust to your preference; cron is always interpreted in UTC.
   schedule:
     - cron: "0 3 1 * *"
 
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v7
 
       # 2) Install Go (recommended: read version from go.mod)
-      # actions/setup-go exists in newer majors; using the major tag keeps you on supported updates. :contentReference[oaicite:2]{index=2}
+      # actions/setup-go exists in newer majors; using the major tag keeps you on supported updates.
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
@@ -68,14 +68,14 @@ jobs:
           go test -count=1 -timeout=2h ./... -covermode=atomic -coverprofile=./temp/log/coverage.out -coverpkg=./...
 
       # 4) Print a human-readable summary into the workflow logs
-      # This uses Go’s built-in cover tool. :contentReference[oaicite:3]{index=3}
+      # This uses Go’s built-in cover tool.
       - name: Coverage summary (log)
         run: |
           set -euo pipefail
           go tool cover -func=./temp/log/coverage.out
 
       # 5) Upload coverage.out as an artifact for later inspection/download
-      # Useful for debugging and auditing. Artifact v4 is the current major. :contentReference[oaicite:4]{index=4}
+      # Keep coverage.out available for later inspection.
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7
         with:
@@ -86,7 +86,7 @@ jobs:
       # 6) Send coverage to Coveralls
       #
       # coverallsapp/github-action supports multiple input styles; 'file' + 'format' is the modern pattern.
-      # It can also add a PR comment on pull_request events. :contentReference[oaicite:5]{index=5}
+      # It can also add a PR comment on pull_request events.
       #
       # Authentication:
       # - For public repos with GitHub integration, GITHUB_TOKEN is often enough.

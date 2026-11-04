@@ -165,5 +165,5 @@ Further changes can affect builds and automated checks:
 ## 11. <a id="long-time-availability"></a>Long Time Availability
 
 * You could place a download link for the Trice tool and the used **til.json** list.
-* Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 200 years.
+* Optionally add the (compressed/encrypted) ID reference list as a resource in target flash memory to be sure not to lose it in the next 200 years.
 

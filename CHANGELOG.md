@@ -3,7 +3,7 @@
 ## Unreleased
 
 - [Macro aliases](docs/rm/legacy_user_code.md#alias-identity-and-tags-in-v2) preserve their exact names in TIL and resolve one event tag for filtering, colors, statistics, JSON/KV and visualization. `Name:Tag` overrides work in source commands and logging; repeat them when logging because they are not stored. Older tools may not read new alias entries.
-- Registered [Vis selectors](docs/rm/visualization.md) select event tags; unregistered free selectors retain exact static-prefix matching.
+- [Visualization output](docs/rm/visualization.md) now recognizes warning macros such as `MyWrn` even when the message text starts with `err:`. For `MyWrn("err:temperature=%u\n", 85)`, the option `-vis='wrn:printf("%d\n",v0)@warnings.csv'` appends `85` to `warnings.csv`; `v0` is the first logged value.
 - [Alias CE](docs/rm/context_enrichment.md#alias-tags-and-ce-limits) selects the event tag before source groups and warns before writes when CE changes format fallback. Native `triceS` retains fixed text; selected string-alias extensions and all added runtime strings are rejected.
 - Multi-character [CLI option names](docs/rm/cli.md#common-information) ignore case; one-character names remain case-sensitive. `-utag` replaces `-ulabel`; build commands accept tag names only, while logging also accepts weights and colors.
 - [Custom tag names](docs/rm/tags_color_and_weights.md#user-defined-tags-weights-and-colors) now ignore case and use uppercase metadata. Previously separate groups such as `new` and `NEW` merge; review configurations that relied on the distinction.

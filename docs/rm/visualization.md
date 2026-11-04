@@ -49,7 +49,29 @@ tlog ... \
   -vis='imu:printf("%0.3f,%0.3f,%0.3f\n",v0*0.5,v1*0.5,v2*0.5)@udp://127.0.0.1:7010;log=drop'
 ```
 
-Registered tag selectors match the resolved event tag, ignoring case. For example, `MyWrn("err:x=%u\n", x)` belongs to WARNING: `wrn` selects it, while `err` does not. An unregistered free selector such as `imu` still matches the exact stored static prefix `imu:`. Registering it with `-utag imu` gives it event-tag semantics. [Scalar aliases](legacy_user_code.md#alias-identity-and-tags-in-v2) use their resolved payload shape while preserving their original identity. `-pick` and `-ban` run first. A message removed by either existing filter is therefore invisible both to normal output and to `-vis`.
+To collect temperatures from warning messages in a CSV file, suppose your firmware uses a project macro `MyWrn`, registered as a [Trice alias](legacy_user_code.md#alias-identity-and-tags-in-v2):
+
+```c
+MyWrn("err:temperature=%u\n", 85);
+```
+
+Run this command in the directory containing the firmware's matching `til.json`, replacing `COM7` with your serial port:
+
+```bash
+trice log -p COM7 -vis='wrn:printf("%d\n",v0)@warnings.csv'
+```
+
+Each time that call arrives, this line is appended to `warnings.csv`:
+
+```text
+85
+```
+
+Here, `wrn` means "take warning messages", `v0` is their first numeric value, and `@warnings.csv` names the output file. The name `MyWrn` makes this a warning even though its text begins with `err:`. Changing the rule to `err:printf(...)` would exclude this message. `wrn`, `WRN` and `WARNING` select the same warnings.
+
+For a custom name that has not been registered with `-utag`, the start of the text decides. For example, `-vis='imu:printf("%d\n",v0)@imu.csv'` writes `21` from `trice("imu:temperature=%u\n", 21)`, but ignores text starting with `IMU:`. With `-utag imu`, both spellings select the IMU tag; a warning alias still belongs to warnings even if its text starts with `imu:`.
+
+`-pick` and `-ban` run first. A message removed by either filter reaches neither normal output nor `-vis`.
 
 The supported fields are:
 
