@@ -2,12 +2,12 @@
 
 ## Zuerst erledigen
 
-1. **V01–V03 beheben:** lokal reproduzierte Fehler in Netzwerk-Close, Tastatureingabe/Rückkanal und lokalem C-Logging; jeweils den fehlenden Verhaltenstest ergänzen.
+1. **V01–V03 umgesetzt:** Tests und Dokumentation sind ergänzt. Für das Zwischen-Review gestoppt; V04–V08 bleiben offen.
 2. **V04–V06 abschließen:** Stable-Veröffentlichung und verständliche Release-/Upgrade-Hinweise vorbereiten, das fehlende PDF-Kapitel aufnehmen und die zugesagte Bedeutung von `-exec` klären.
 3. **V07 vor der Archivlöschung bearbeiten:** die wenigen eigenständigen Inhalte sichern und aktive Verweise anpassen.
 4. **V08 am endgültigen Release-Kandidaten prüfen:** offene CI-Nachweise schließen. Erst danach den unveränderlichen Release-Tag setzen und veröffentlichen.
 
-Die größere Aufräumarbeit, mögliche Skriptumbenennungen und weitere Testideen stehen in [Besser nach dem Release](Release_v2.0.0_Nach_dem_Release.md). Die folgenden Punkte sind Arbeitsvorschläge, keine bereits ausgeführten Implementierungen.
+Die größere Aufräumarbeit, mögliche Skriptumbenennungen und weitere Testideen stehen in [Besser nach dem Release](Release_v2.0.0_Nach_dem_Release.md). Die Fehlerbeschreibungen dokumentieren den ursprünglichen Review-Stand; der jeweilige Umsetzungsstand steht direkt beim Punkt.
 
 ## Stand und Aussagekraft
 
@@ -15,11 +15,13 @@ Review vom 2026-11-03, Branch `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075
 
 Untersucht wurden Repository-Struktur, aktive Handbücher und ihre Verweise, Versionsgeschichte ab `v1.0.0`, Host- und Target-Code mit Schwerpunkt auf Fehlergrenzen, zugehörige Tests, Beispiele, Skriptaufrufer, Release-Konfiguration, vorhandene CI-Ergebnisse und die Themen des Archivs. Das ist eine breite statische Prüfung mit gezielten Reproduktionen, kein Nachweis für jede Codezeile oder jede Hardwarekonfiguration. Vendorte Bibliotheken und Binärpakete wurden nicht vollständig auditiert.
 
-Kleine eindeutige Text-, Link- und Kommentarkorrekturen wurden direkt vorgenommen und sind im Git-Diff sichtbar. Sie werden hier nicht als offene Aufgaben wiederholt. Laufzeitverhalten, Build-Konfiguration und Testlogik wurden nicht geändert. Das Archiv blieb unverändert. Es wurden keine vollständigen Testsuiten, Coverage-Läufe, Firmwarematrizen oder Release-Veröffentlichungen gestartet.
+Beim ursprünglichen Review wurden kleine eindeutige Text-, Link- und Kommentarkorrekturen direkt vorgenommen. Sie werden hier nicht als offene Aufgaben wiederholt. Laufzeitverhalten, Build-Konfiguration und Testlogik wurden damals nicht geändert. Das Archiv blieb unverändert. Es wurden keine vollständigen Testsuiten, Coverage-Läufe, Firmwarematrizen oder Release-Veröffentlichungen gestartet.
 
 ## Netzwerkverbindungen stürzen beim ausführlichen Schließen ab
 
 **V01 · hohe Priorität · reproduzierter Fehler**
+
+**Umgesetzt am 2026-11-04:** TCP4 und UDP4 übernehmen den Diagnosewriter bereits im Konstruktor. Der neue Factory-Test prüft beide Transporte mit und ohne `Verbose`, das geschlossene Socket und bei TCP zusätzlich EOF beim Peer. Die bisherigen Tests reparieren keine Writer-Felder mehr nachträglich. Gezielte V01-Prüfung: **9 Tests erfolgreich** unter Windows; keine Gesamtabnahme.
 
 **Fundstelle:** [internal/receiver/receiver.go](../../internal/receiver/receiver.go), `newTCP4Connection`, `newUDPConnection`, beide `Close`-Methoden und `NewReadWriteCloser`; im Review etwa Zeilen 153–220 und 294–317.
 
@@ -36,6 +38,10 @@ Die beiden Konstruktoren lassen das Feld `w` leer. Bei `receiver.Verbose = true`
 ## Tastatur-EOF erzeugt Kommandos, Diagnosewrapper verschlucken sie
 
 **V02 · hohe Priorität · EOF und verlorene Writes reproduziert, UDP-Panic statisch belegt**
+
+**Umgesetzt am 2026-11-04:** EOF beendet die Shell; eine letzte Zeile ohne Newline wird einmal gesendet, eine absichtlich leere Zeile bleibt ein Nullbyte-Kommando. Andere Lesefehler, Schreibfehler und kurze Writes beenden die Shell mit Diagnose, ohne Wiederholung. Der Log-Lauf besitzt und beendet die Shell einschließlich blockierter Reads/Writes; das geliehene Standardinput bleibt offen. Eigene Eingabehandles ermöglichen den Abbruch unter Windows und Unix. Beide Diagnosewrapper leiten Writes und deren Rückgaben unverändert weiter. `-ds`/`-displayserver` mit UDP4 wird vor dem Start abgelehnt; direkte UDP-Writes liefern einen Fehler statt eines Panics. Das Verhalten ist in [CLI](../rm/cli.md#stimulate-target-with-a-user-command-over-uart) beschrieben.
+
+**Gezielt geprüft:** 55 Tests für V01/V02 mit Race-Detector erfolgreich unter Windows/amd64, Go 1.26.1. Der neue Unix-Adapter kompiliert für Linux/amd64 und Darwin/amd64. Native Linux-/macOS-Läufe und eine interaktive Terminalabnahme wurden nicht ausgeführt; die Windows-Lebenszyklustests verwenden Pipes.
 
 **Fundstellen:** [internal/keybcmd/keybcmd.go](../../internal/keybcmd/keybcmd.go), `loopAction` und `keyboardInput`; [translator.go](../../internal/translator/translator.go), `Translate`; [receiver.go](../../internal/receiver/receiver.go), `udp4.Write`, `bytesViewer.Write` und `binaryLogger.Write`; [handler.go](../../internal/args/handler.go), Aufbau der Wrapperkette.
 
@@ -56,6 +62,10 @@ Ein weiterer Fehler betrifft auch schreibfähige TCP-/UART-Ziele: `-showInputByt
 ## Abschließendes `%t` scheitert im lokalen C-Logger
 
 **V03 · hohe Priorität · reproduzierter Fehler**
+
+**Umgesetzt am 2026-11-04:** Die Integer-Konversionserkennung schließt den Nullabschluss ausdrücklich aus. Der neue öffentliche Producer-/`TriceLog`-Test prüft `0`, `1` und `255` für `%t` am Formatende, vor Newline und vor Text; `%td` und `%tu` bleiben Integer-Konversionen. Alle Fälle laufen mit Ring- und Doppelpuffer, jeweils mit aktivierten und deaktivierten erweiterten Formaten. Bei deaktiviertem `%t` werden Feature-Fehler und leere Ausgabe geprüft. [Local Deferred Text Log](../rm/target_implementation.md#local-deferred-text-log) enthält das konkrete Beispiel und die Abgrenzung zu C-Längenmodifikatoren.
+
+**Gezielt geprüft:** Die drei ausgewählten Go-Integrationstests mit insgesamt acht kompilierten und ausgeführten C-Testprogrammen bestehen unter Windows/amd64 mit GCC 10.3.0. Dazu gehören die bisherigen Puffer-/Byteorder- und deaktivierten Formatter-Fälle. Keine vollständige Compiler-Matrix oder Gesamtabnahme.
 
 **Fundstelle:** [src/triceLog.c](../../src/triceLog.c), `triceLogIsIntegerConversion` und `triceLogParseConversion`, etwa Zeilen 124–202. Die unterstützte Bool-Ausgabe ist in [Local Deferred Text Log](../rm/target_implementation.md#local-deferred-text-log) dokumentiert.
 
@@ -202,3 +212,24 @@ Details und Beispiele gehören in `docs/rm/`; der Changelog sollte diese Zusamme
 | Gesamtsuite, Full-Compiler-Matrix, neue Coverage-/Race-Läufe, Hardwaretests und vollständige Paketabnahme. | **Nicht ausgeführt.** Ausgewählte vorhandene CI-Ergebnisse wurden gelesen, nicht als eigene neue Abnahme ausgegeben. |
 
 Die temporären Reproduktionen sind Hilfsmittel dieses Reviews und keine eingecheckten Regressionstests. Bei der Umsetzung die beschriebenen Fälle in die bestehenden Tests aufnehmen. Nach funktionalen Änderungen gelten frühere Checks nicht automatisch für den neuen Stand.
+
+## Prüfungen der Umsetzung
+
+Stand 2026-11-04, Windows/amd64, Go 1.26.1 und GCC 10.3.0. Die oben dokumentierten ursprünglichen Review-Prüfungen sind von diesen neuen Ergebnissen zu unterscheiden.
+
+- **PASS:** V01/V02, 55 ausgewählte Tests einschließlich Unterfällen mit Race-Detector. Die Shell-Tests verbinden ihre Goroutinen vor dem Testende wieder mit dem Testablauf. Native Eingabeabbruchtests verwenden Windows-Pipes.
+- **PASS:** V03, drei ausgewählte Go-Integrationstests mit acht C-Testprogrammen, einschließlich vier neuer Puffer-/Feature-Kombinationen. RTK zählt 10 erfolgreiche Tests einschließlich Unterfällen.
+- **PASS, nur kompiliert:** Tastaturadapter für Linux/amd64 und Darwin/amd64. Die Ausgabe `NUL` in den folgenden Befehlen ist das Windows-Nullgerät des ausführenden Hosts.
+- **PASS:** `gofmt -l` ohne Ausgabe für alle betroffenen Go-Dateien, `git diff --check`, UTF-8-/BOM-/Zeilenendenkontrolle. Neue Go-Dateien beginnen mit dem MIT-SPDX-Header.
+- **Nicht ausgeführt:** native Linux-/macOS-Tests, interaktive Terminal-/Hardwareabnahme, vollständige Paketsuiten, `testAll.sh`, Coverage und Full-Compiler-Matrix. Die finale Abnahme bleibt beim Benutzer.
+
+Die fokussierten Test- und Kompilierungsbefehle:
+
+```sh
+rtk go test -race ./internal/receiver ./internal/keybcmd ./internal/args -run 'Test(NetworkFactoryClose|UDP4WriteRejectsCommands|DiagnosticWrappersForwardCommands|BinaryLoggerWriteAndClose|BytesViewerWriteAndClose|LoopAction.*|KeyboardInput.*|ReadInput.*|RemoteDisplay.*|CLIReplayClosesInputAndBinaryLogWithDebugWrapper)$' -count=1 -timeout=90s
+GOOS=linux CGO_ENABLED=0 go test -c -o NUL ./internal/keybcmd
+GOOS=darwin CGO_ENABLED=0 go test -c -o NUL ./internal/keybcmd
+rtk go test ./internal/id -run '^TestLocalLog(BooleanConversionBoundaries|CompilesAndRunsWithBothDeferredBuffers|DynamicStringNeedsNoPrintfImplementation)$' -count=1 -timeout=120s
+```
+
+Frühe Entwicklungsläufe fanden einen geschlossenen Windows-Eingabehandle sowie fehlende Display-/Printf-Voraussetzungen im Testaufbau. Diese sind korrigiert; die oben genannten erfolgreichen Wiederholungen prüfen den endgültigen Codestand. V04–V08 wurden nicht begonnen. Keine Dateien unter `obsolete` wurden geändert; es wurde nichts gestagt, committet oder gepusht.
