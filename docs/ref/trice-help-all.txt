@@ -178,8 +178,6 @@ Option names with more than one character ignore case; one-character names remai
     			  CHAR prints the received bytes as characters.
     			  DUMP prints the received bytes as hex code (see switch -dc too).
     	 (default "TREX")
-  -exec string
-    	Use to pass an additional command line for port TCP4 (like gdbserver start).
   -hs string
     	PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
     	This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.

@@ -396,6 +396,82 @@ func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
 	}
 }
 
+// TestRemovedExecOptionIsUnknown covers both public entry points and rejects
+// every former spelling, including empty values, before the input is opened.
+func TestRemovedExecOptionIsUnknown(t *testing.T) {
+	original := startLogLoop
+	t.Cleanup(func() { startLogLoop = original; FlagsInit() })
+	for _, loggingOnly := range []bool{false, true} {
+		entry := "trice"
+		if loggingOnly {
+			entry = "tlog"
+		}
+		for _, tc := range []struct {
+			name    string
+			options []string
+		}{
+			{name: "omitted"},
+			{name: "empty value", options: []string{"-exec", ""}},
+			{name: "command value", options: []string{"-exec", "gdbserver --once"}},
+			{name: "whitespace value", options: []string{"-exec", " "}},
+			{name: "empty assignment", options: []string{"-exec="}},
+			{name: "value assignment", options: []string{"-exec=gdbserver"}},
+			{name: "long spelling", options: []string{"--exec=gdbserver"}},
+			{name: "uppercase spelling", options: []string{"-EXEC=gdbserver"}},
+		} {
+			t.Run(entry+"/"+tc.name, func(t *testing.T) {
+				FlagsInit()
+				started := false
+				startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
+				var output bytes.Buffer
+				fs := &afero.Afero{Fs: afero.NewReadOnlyFs(afero.NewMemMapFs())}
+				arguments := append([]string{"-p", "TCP4"}, tc.options...)
+				var err error
+				if loggingOnly {
+					err = LogHandler(&output, fs, append([]string{"tlog"}, arguments...))
+				} else {
+					err = Handler(&output, fs, append([]string{"trice", "log"}, arguments...))
+				}
+				if len(tc.options) == 0 {
+					assert.NoError(t, err)
+					assert.True(t, started)
+				} else {
+					require.Error(t, err)
+					assert.ErrorContains(t, err, "flag provided but not defined")
+					assert.Contains(t, strings.ToLower(err.Error()), "exec")
+					assert.False(t, started)
+					hint := "trice help -log"
+					if loggingOnly {
+						hint = "tlog help"
+					}
+					assert.ErrorContains(t, err, hint)
+				}
+				assert.NotContains(t, output.String(), "todo: execute")
+			})
+		}
+	}
+}
+
+// TestLogHelpOmitsExec ensures both public help entry points stop advertising
+// the removed option, while still showing the supported logging options.
+func TestLogHelpOmitsExec(t *testing.T) {
+	for _, loggingOnly := range []bool{false, true} {
+		FlagsInit()
+		t.Cleanup(FlagsInit)
+		var output bytes.Buffer
+		fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+		if loggingOnly {
+			assert.NoError(t, LogHandler(&output, fs, []string{"tlog", "help"}))
+		} else {
+			assert.NoError(t, Handler(&output, fs, []string{"trice", "help", "-log"}))
+		}
+		assert.Contains(t, output.String(), "-port string")
+		assert.NotContains(t, output.String(), "-exec")
+		assert.NotContains(t, output.String(), "Unsupported: nonempty values are rejected.")
+		assert.NotContains(t, output.String(), "Use to pass an additional command line")
+	}
+}
+
 // TestRemoteDisplayRejectsUDPBeforeInput checks both public command entry
 // points and option spellings without starting a shell or opening a socket.
 func TestRemoteDisplayRejectsUDPBeforeInput(t *testing.T) {

@@ -170,6 +170,8 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
+Start that server or an external GDB server yourself before running `trice log`. Trice connects to the running server.
+
 ## 9. <a id="udp4-input"></a>UDP4 input
 
 To receive Trice logs over IPv4 UDP, use `-port UDP4`. By default, it listens on `0.0.0.0:17005`, which accepts packets on all network interfaces. Use `-args` to choose a different local address and port. This receiver does not join multicast groups.

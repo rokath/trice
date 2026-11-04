@@ -62,9 +62,6 @@ var (
 	// PortArguments are the trice receiver device specific arguments.
 	PortArguments string
 
-	// ExecCommand is a commandline to be executed.
-	ExecCommand string
-
 	// DefaultLinkArgs replaces "default" args value for ST-LINK and J-LINK port.
 	DefaultLinkArgs = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"
 
@@ -299,9 +296,6 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		if Verbose {
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
-		if ExecCommand != "" {
-			fmt.Fprintln(w, "todo: execute ", ExecCommand)
-		}
 		l := newTCP4Connection(w, args)
 		r = l
 	case "UDP4":
@@ -310,9 +304,6 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		}
 		if Verbose {
 			fmt.Fprintln(w, "PortArguments=", args)
-		}
-		if ExecCommand != "" {
-			fmt.Fprintln(w, "todo: execute ", ExecCommand)
 		}
 		l := newUDPConnection(w, args)
 		r = l

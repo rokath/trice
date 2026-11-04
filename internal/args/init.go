@@ -178,8 +178,6 @@ port "DEC" or "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for a
 port "HEX" or "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
 `)
 
-	execInfo := `Use to pass an additional command line for port TCP4 (like gdbserver start).`
-
 	fsScLog.StringVar(&receiver.PortArguments, "args", "default", argsInfo)
 	fsScLog.StringVar(&do.TCPOutAddr, "tcp", "", `TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".`)
 	fsScLog.BoolVar(&emitter.DisplayRemote, "displayserver", false, `Send trice lines to displayserver @ ipa:ipp.
@@ -188,8 +186,6 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "doubled16BitID", false, `Tells, that 16-bit IDs are doubled. That switch is needed when un-routed direct output is used like (TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE == 1), but also with double buffer in (TRICE_DEFERRED_TRANSFER_MODE==TRICE_MULTI_PACK_MODE) and XTEA encryption. Read the user guide for more details.`)
 	fsScLog.BoolVar(&trexDecoder.Doubled16BitID, "d16", false, "Short for '-doubled16BitID'.")
 	fsScLog.BoolVar(&trexDecoder.SingleFraming, "singleFraming", false, `singleFraming demands, that each received package contains not more than a singe Trice message. This is the case for all direct modes or if you "#define TRICE_DEFERRED_TRANSFER_MODE TRICE_SINGLE_PACK_MODE" in your triceConfig.h file. Applying this switch makes sense with COBS and TCOBS framing to improve Trice tool error recognition in received binary data. Not usable together with encryption because of the padding bytes.`)
-
-	fsScLog.StringVar(&receiver.ExecCommand, "exec", "", execInfo)
 
 	fsScLog.BoolVar(&decoder.Unsigned, "unsigned", true, "Hex, Octal and Bin values are printed as unsigned values. For signed output use -unsigned=false")
 	fsScLog.BoolVar(&decoder.Unsigned, "u", true, "Short for '-unsigned'.")
