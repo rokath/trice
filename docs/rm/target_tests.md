@@ -345,7 +345,7 @@ The [release checklist](tool_build_release.md#prepare-a-release) separates candi
 
 ## 7. <a id="documentation-history"></a>Documentation history
 
-This chapter and [Test Internals](target_test_internals.md) replace the former target-test chapter, scattered test instructions and the native-test design draft. Their original texts are preserved in [the test documentation archive](../_scratchPad/obsolete/testing/README.md). Historical transcripts there describe old runs, not current acceptance or performance targets.
+This chapter gives the current test commands; [Test Internals](target_test_internals.md) explains the harness and configurations. Record the tested commit, OS and selection with each result. Historical transcripts describe old runs, not current acceptance or performance targets.
 
 ## 8. <a id="appendix-optional-test-and-performance-investigations"></a>Appendix: optional test and performance investigations
 

@@ -62,9 +62,6 @@ var (
 	// PortArguments are the trice receiver device specific arguments.
 	PortArguments string
 
-	// ExecCommand is a commandline to be executed.
-	ExecCommand string
-
 	// DefaultLinkArgs replaces "default" args value for ST-LINK and J-LINK port.
 	DefaultLinkArgs = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"
 
@@ -150,8 +147,8 @@ type tcp4 struct {
 }
 
 // newTCP4Connection returns a readCloser capable tcp4 instance.
-func newTCP4Connection(endpoint string) *tcp4 {
-	r := &tcp4{}
+func newTCP4Connection(w io.Writer, endpoint string) *tcp4 {
+	r := &tcp4{w: w}
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
 	if err != nil {
 		log.Fatal(endpoint, err)
@@ -187,8 +184,8 @@ type udp4 struct {
 }
 
 // newTCP4Connection returns a readCloser capable tcp4 instance.
-func newUDPConnection(endpoint string) *udp4 {
-	r := &udp4{}
+func newUDPConnection(w io.Writer, endpoint string) *udp4 {
+	r := &udp4{w: w}
 	addr, err := net.ResolveUDPAddr("udp4", endpoint)
 	if err != nil {
 		log.Fatal(endpoint, err)
@@ -208,8 +205,9 @@ func (p *udp4) Read(b []byte) (int, error) {
 	return n, err
 }
 
+// Write rejects commands because this listener has no configured reply peer.
 func (p *udp4) Write(b []byte) (int, error) {
-	panic("udp4.Write not implemented")
+	return 0, errors.New("UDP4 target commands are not supported: no reply address is configured")
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
@@ -298,10 +296,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		if Verbose {
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
-		if ExecCommand != "" {
-			fmt.Fprintln(w, "todo: execute ", ExecCommand)
-		}
-		l := newTCP4Connection(args)
+		l := newTCP4Connection(w, args)
 		r = l
 	case "UDP4":
 		if args == "default" { // nothing assigned in args
@@ -310,10 +305,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 		if Verbose {
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
-		if ExecCommand != "" {
-			fmt.Fprintln(w, "todo: execute ", ExecCommand)
-		}
-		l := newUDPConnection(args)
+		l := newUDPConnection(w, args)
 		r = l
 	case "FILE", "FILEBUFFER":
 		if args == "default" { // nothing assigned in args
@@ -398,7 +390,7 @@ func (b *buffer) Close() error {
 //	//
 type binaryLogger struct {
 	w         io.Writer
-	r         io.ReadCloser
+	r         io.ReadWriteCloser
 	closeOnce sync.Once // Closing a wrapper owns both source and logfile, once.
 	closeErr  error
 }
@@ -456,7 +448,8 @@ func (p *binaryLogger) Close() error {
 	return p.closeErr
 }
 
-func (p *binaryLogger) Write(buf []byte) (count int, err error) { return 0, nil }
+// Write preserves the command channel; only incoming bytes belong in the log.
+func (p *binaryLogger) Write(buf []byte) (int, error) { return p.r.Write(buf) }
 
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -506,8 +499,8 @@ func (p *bytesViewer) Close() error {
 	return p.closeErr
 }
 
-// Close is needed to satisfy the ReadCloser interface.
-func (p *bytesViewer) Write(_ []byte) (int, error) { return 0, nil }
+// Write forwards commands without presenting them as received bytes.
+func (p *bytesViewer) Write(buf []byte) (int, error) { return p.r.Write(buf) }
 
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -467,6 +467,118 @@ int main(void) {
 	}
 }
 
+// TestLocalLogBooleanConversionBoundaries exercises the public producer and
+// TriceLog path for terminal %t, neighboring text, and C's integer t modifier.
+// Each feature/buffer combination owns its project and executable, so Windows
+// never relinks over a program just executed by a different case.
+func TestLocalLogBooleanConversionBoundaries(t *testing.T) {
+	compiler := firstAvailableCompiler("cc", "gcc", "clang")
+	if compiler == "" {
+		t.Skip("no C compiler available")
+	}
+	repositoryRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	require.NoError(t, err)
+	sourceDirectory := filepath.Join(repositoryRoot, "src")
+	librarySources, err := filepath.Glob(filepath.Join(sourceDirectory, "[a-z]*.c"))
+	require.NoError(t, err)
+	sort.Strings(librarySources)
+	for _, buffer := range []string{"TRICE_RING_BUFFER", "TRICE_DOUBLE_BUFFER"} {
+		for _, extended := range []int{0, 1} {
+			t.Run(fmt.Sprintf("%s/extended=%d", buffer, extended), func(t *testing.T) {
+				project := t.TempDir()
+				config := fmt.Sprintf(`// SPDX-License-Identifier: MIT
+#ifndef TRICE_CONFIG_H_
+#define TRICE_CONFIG_H_
+#define TRICE_BUFFER %s
+#define TRICE_DEFERRED_BUFFER_SIZE 1024
+#define TRICE_DEFERRED_OUTPUT 1
+#define TRICE_LOCAL_LOG 1
+#define TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS %d
+#define TRICE_DIRECT_OUTPUT 0
+#define TRICE_DIAGNOSTICS 0
+#define TRICE_CONFIG_WARNINGS 0
+#endif
+`, buffer, extended)
+				table := `// SPDX-License-Identifier: MIT
+#include "triceRx.h"
+const triceLog_t triceLog[] = {
+    { 1000u, 8u, 1u, "bool=%t" },
+    { 1001u, 8u, 1u, "bool=%t\n" },
+    { 1002u, 8u, 1u, "bool=%t text" },
+    { 1003u, 32u, 1u, "ptrdiff=%td" },
+    { 1004u, 32u, 1u, "unsigned=%tu" },
+};
+const unsigned triceLogElements = sizeof(triceLog) / sizeof(triceLog[0]);
+`
+				mainSource := `// SPDX-License-Identifier: MIT
+#include <stdio.h>
+#include <string.h>
+#include "trice.h"
+
+// checkLog consumes one real buffered record and reports the named failure,
+// checking both the snprintf-compatible result and the complete output text.
+static int checkLog(const char* name, const char* expected, int boolean) {
+    char text[64] = "not cleared";
+    int disabled = boolean && TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS == 0;
+    int wanted = disabled ? TRICE_LOG_ERR_FEATURE_DISABLED : (int)strlen(expected);
+    const char* wantedText = disabled ? "" : expected;
+    int result = TriceLog(text, sizeof(text));
+    if (result == wanted && strcmp(text, wantedText) == 0) return 0;
+    fprintf(stderr, "%s: result=%d expected=%d text=[%s] expected=[%s]\n",
+            name, result, wanted, text, wantedText);
+    return 1;
+}
+
+int main(void) {
+    // Install the full scalar formatter so %tu is independent of the optional
+    // minimal formatter's deliberately limited %d/%x conversion subset.
+    UserTriceLogPrintfFn = snprintf;
+    // Include both boolean values and a non-unit true value at the 8-bit limit.
+    const unsigned values[] = {0u, 1u, 255u};
+    for (unsigned i = 0u; i < sizeof(values) / sizeof(values[0]); ++i) {
+        const char* word = values[i] == 0u ? "false" : "true";
+        char expected[64];
+        trice8(iD(1000), "bool=%t", values[i]);
+        snprintf(expected, sizeof(expected), "bool=%s", word);
+        if (checkLog("terminal bool", expected, 1)) return 1;
+        trice8(iD(1001), "bool=%t\n", values[i]);
+        snprintf(expected, sizeof(expected), "bool=%s\n", word);
+        if (checkLog("newline bool", expected, 1)) return 1;
+        trice8(iD(1002), "bool=%t text", values[i]);
+        snprintf(expected, sizeof(expected), "bool=%s text", word);
+        if (checkLog("bool before text", expected, 1)) return 1;
+    }
+    // Ordinary C length modifiers work even when standalone %t is disabled.
+    trice32(iD(1003), "ptrdiff=%td", -7);
+    if (checkLog("signed t length modifier", "ptrdiff=-7", 0)) return 1;
+    trice32(iD(1004), "unsigned=%tu", 9u);
+    return checkLog("unsigned t length modifier", "unsigned=9", 0);
+}
+`
+				require.NoError(t, os.WriteFile(filepath.Join(project, "triceConfig.h"), []byte(config), 0o644))
+				require.NoError(t, os.WriteFile(filepath.Join(project, "til.c"), []byte(table), 0o644))
+				require.NoError(t, os.WriteFile(filepath.Join(project, "main.c"), []byte(mainSource), 0o644))
+				executable := filepath.Join(project, "local_log_bool")
+				if runtime.GOOS == "windows" {
+					executable += ".exe"
+				}
+				arguments := []string{
+					"-std=c11", "-Wall", "-Wextra", "-Werror",
+					"-I", project,
+					"-I", sourceDirectory, "-I", filepath.Join(sourceDirectory, "default_conf"),
+					filepath.Join(project, "main.c"), filepath.Join(project, "til.c"),
+				}
+				arguments = append(arguments, librarySources...)
+				arguments = append(arguments, "-o", executable)
+				output, compileErr := exec.Command(compiler, arguments...).CombinedOutput()
+				require.NoError(t, compileErr, "%s", output)
+				output, runErr := exec.Command(executable).CombinedOutput()
+				assert.NoError(t, runErr, "%s", output)
+			})
+		}
+	}
+}
+
 // TestGeneratedLocalLogTableHonorsFeatureSubsets preprocesses one generated
 // table under two target configurations. This verifies the complete path from
 // shared format analysis to C preprocessor selection, including the important

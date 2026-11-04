@@ -363,8 +363,8 @@ nfpms:
         dst: /usr/share/licenses/trice/LICENSE.md
 
 release:
-  # Mark published releases as prereleases during the v2 beta phase.
-  prerelease: true
+  # Beta/RC tags remain prereleases; a plain version such as v2.0.0 is stable.
+  prerelease: auto
   # Each generated PDF is uploaded as a standalone release asset so it stays
   # platform-independent and does not bloat every platform-specific tool archive.
   #

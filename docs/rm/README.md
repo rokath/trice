@@ -14,6 +14,7 @@ New to Trice? Start with the [User Manual](../TriceUserManual.md). Use the [Guid
 - [Target Configuration](target_configuration.md)
 - [Logging and Command-Line Tools](cli.md)
 - [Stamps and Time Measurements](stamps.md)
+- [Stamp Expressions and Continuous Counters](stamp_expressions.md)
 - [Transports and Custom Writers](custom_output.md)
 - [Trice over RTT](rtt.md)
 - [Example Projects](examples.md)
@@ -47,3 +48,4 @@ New to Trice? Start with the [User Manual](../TriceUserManual.md). Use the [Guid
 - [Safe Build Scripts and Cancellation](ctrl_c_robust_use_of_trice_insert_and_trice_clean.md)
 - [Deprecated: Insert/Clean and Its Cache](insert_clean_cache.md)
 - [Project Background and Resources](project_resources.md)
+- [Future Design Ideas](future_development.md)

@@ -21,6 +21,7 @@ import (
 	"github.com/rokath/trice/internal/do"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/internal/vis"
@@ -425,6 +426,9 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	if decoder.LogFormat != "text" && (emitter.DisplayRemote || decoder.TestTableMode) {
 		return &cliUsageError{command: "log", cause: fmt.Errorf("-logFormat %s cannot use the text-only remote display or test-table output", decoder.LogFormat)}
 	}
+	if emitter.DisplayRemote && strings.EqualFold(receiver.Port, "UDP4") {
+		return &cliUsageError{command: "log", cause: errors.New("-ds/-displayserver cannot use -port UDP4: target commands need a writable transport such as TCP4 or UART")}
+	}
 	if isLogFlagPassed("pick") && isLogFlagPassed("ban") {
 		return &cliUsageError{command: "log", cause: errors.New("switches -pick and -ban cannot be used together")}
 	}
@@ -572,10 +576,26 @@ func logLoop(w io.Writer, fSys *afero.Afero) error {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
+		// The shell and receiver share ownership of this connection. Closing
+		// it before joining the shell also interrupts a blocked command write.
+		var closeOnce sync.Once
+		var closeErr error
+		closeInput := func() { closeOnce.Do(func() { closeErr = rwc.Close() }) }
+		var stopKeyboard func()
+		if emitter.DisplayRemote {
+			stopKeyboard, e = keybcmd.ReadInput(rwc, closeInput)
+			if e != nil {
+				closeInput()
+				return errors.Join(e, closeErr)
+			}
+		}
 		e = translator.Translate(applicationOutput, sw, ilu, m, li, rwc, visRouter)
 		// Close the final wrapper chain before retrying or returning; a defer in
 		// this loop retained every previous input and never closed wrapper files.
-		closeErr := rwc.Close()
+		if stopKeyboard != nil {
+			stopKeyboard()
+		}
+		closeInput()
 		if closeErr != nil {
 			if e == io.EOF {
 				e = nil

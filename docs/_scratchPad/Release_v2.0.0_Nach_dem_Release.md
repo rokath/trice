@@ -6,7 +6,7 @@
 2. Danach **N06 und N02** bearbeiten: die übrige Dokumentation systematisch verständlicher machen und die veraltete Beschreibung der Host-Architektur ersetzen.
 3. **N01, N03 und N04** gezielt bearbeiten: ungenutzte Helfer prüfen, Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
 4. **N05** nur als getrennte Wartungsaufgabe angehen. Eine breite Skriptumbenennung kurz vor v2.0.0 bringt wenig Anwendernutzen und berührt viele Aufrufer.
-5. **N07** bewahrt Zukunftsideen, ohne neue Funktionen zuzusagen.
+5. **N07 ist im RM gesichert:** Zukunftsideen bleiben auffindbar, ohne neue Funktionen zuzusagen.
 
 Stand: Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Die folgenden Änderungen wurden nicht implementiert. Bereits direkt korrigierte Kleinigkeiten stehen ausschließlich im Git-Diff.
 
@@ -119,15 +119,13 @@ Zusätzliche Referenzlinks lohnen sich vor allem bei Compiler-Sonderfällen, For
 
 ## Zukunftsideen aus dem Archiv
 
-**N07 · niedrige Priorität · inhaltliche Sicherung, keine Implementierungszusage**
+**N07 · inhaltliche Sicherung im RM umgesetzt · keine Implementierungszusage**
 
-Die folgenden Ideen sind hier bewusst knapp gesichert. Das reicht für die spätere Wiederaufnahme; vollständige Entwürfe, damalige Implementierungspläne und Gesprächsprotokolle müssen nicht in die aktive Referenz kopiert werden. Originalpfade beziehen sich auf den Review-Commit und bleiben darüber aus Git lesbar.
+Die wichtigen Inhalte stehen jetzt im RM-Anhang [Future Design Ideas](../rm/future_development.md). Er enthält konkrete Entwurfsregeln, offene Entscheidungen, Grenzen und die Git-Fundstellen der Originale; das gelöschte Archiv wird dafür nicht benötigt.
 
-| Quelle unter `docs/_scratchPad/obsolete` | Erhaltenswerter Kern | Abgrenzung und späteres Ziel |
-| --- | --- | --- |
-| `trice-til-v2-entwurf-0.2/til-json-v2-spezifikation.md` und ältere TIL-Vorschläge | Eine künftige versionierte Dictionary-Struktur könnte Decoder-Metadaten und Format-/Profilinformationen expliziter und selbstbeschreibend ablegen. Entscheidend sind klare Versionskennung, reproduzierbare Interpretation und prüfbare Grenzen zwischen Firmware, Dictionary und Host. | „TIL v2“ im Entwurfsnamen ist kein Nachweis für das Format von Trice v2.0.0. Zuerst den neueren Entwurf mit der heutigen TIL-Struktur vergleichen; keine automatische Datenkonversion. Ein knapper Zukunftsabschnitt in [ID Management](../rm/id_management.md) wäre ein geeignetes Ziel. |
-| `trice_serial_studio_tss_entwurf.md` | Wiederverwendbar sind die Fragen nach Kanalnamen, Einheiten, Transformationen, Zeitbasis und einem stabilen Austauschformat für externe Dashboard-Werkzeuge. | Der Entwurf ist ausdrücklich zugunsten anderer Tools zurückgestellt. Das bleibt so; keine geplante Serial-Studio-Integration daraus ableiten. Aktuell dokumentiertes `-vis` und LabPlot bleiben maßgeblich. Allgemeine Überlegungen könnten später in einen Ideenanhang von [Visualization](../rm/visualization.md); vorgeschlagene CLI-Syntaxen, Projektformate und MessagePack-Unterstützung sind nicht als verfügbar darzustellen. |
-| `TriceRx_Tlog_C_ArchitectureDesign.md`, Zukunftsteil | Der gemeinsame Record-Parser und getrennte Resolver können später weitere C-seitige Empfänger oder einen eigenständigen C-Decoder unterstützen. Das kann Speicherbedarf und Nutzung ohne Go-Host adressieren. | Lokales Target-Logging ist bereits implementiert; ein vollständiger C-Ersatz des Go-Tools folgt daraus nicht. Die heute gültigen RX-Regeln gehören schon vor der Archivlöschung in V07; der zusätzliche Host bleibt eine eigene Produktentscheidung. |
+- [Dictionary-Schema](../rm/future_development.md#a-self-describing-dictionary): Profile, Historie, feste Protokolltabellen und Unterschiede zwischen den beiden Entwürfen. „TIL V2“ ist unabhängig von Trice v2.0.0; keine automatische Datenkonversion.
+- [Dashboard-Adapter](../rm/future_development.md#typed-streams-for-dashboard-tools): typisierte Kanäle, Ausgabeformate und Erhalt manueller Projekteinstellungen. Serial Studio bleibt zurückgestellt; aktuell gelten `-vis` und LabPlot.
+- [C-Hostdecoder](../rm/future_development.md#a-small-c-host-decoder): möglicher kleiner Datei-Decoder und Vergleichstests mit Go; ein vollständiger C-Ersatz des Host-Tools bleibt eine eigene Produktentscheidung.
 
 Nicht wieder eröffnen: bereits abgelehnte oder abgeschlossene Anforderungen aus alten Plänen, unvalidierte Leistungsversprechen, alte Profiltransfer-Automatisierung und historische Testfehler, die im aktuellen Stand behoben sind. `_Legacy`, archivierter CUI-/STIM-Code und `.code_snippets` sind keine Aufforderung zur Wiederbelebung. Vor einer späteren Bereinigung solcher Bestände deren tatsächliche Rolle und externe Nutzung gesondert prüfen.
 

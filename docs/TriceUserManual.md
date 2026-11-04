@@ -63,6 +63,8 @@ For the PC examples you need:
 
 The `trice` tool manages IDs and decodes logs; the companion `tlog` is a shortcut for `trice log`. The examples below use `trice`.
 
+For a 1.x project, read the [migration guide](rm/id_management.md#migrating-1x-scripts-and-projects) before rebuilding. For example, replace `-pick err:wrn` with `-pick err -pick wrn` to keep both Error and Warning events. Preserve the [matching old tool and dictionaries](rm/id_management.md#compatibility-with-firmware-and-host-tool-versions) when replaying old captures.
+
 ## 2. <a id="see-your-first-log"></a>See your first log
 
 Start in repository folder [demo/deferred](../demo/deferred) with [./run.sh](../demo/deferred/run.sh)

@@ -21,7 +21,6 @@ import (
 	_ "github.com/rokath/trice/internal/dumpDecoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/printf"
 	"github.com/rokath/trice/internal/receiver"
 	_ "github.com/rokath/trice/internal/trexDecoder"
@@ -71,9 +70,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	if controller, ok := dec.(decoder.VisRecordController); ok {
 		controller.SetVisRecordEnabled(visRouter != nil)
 	}
-	if emitter.DisplayRemote {
-		keybcmd.ReadInput(rwc)
-	} else {
+	if !emitter.DisplayRemote {
 		stopSignals := startSignalHandler(diagnostics, rwc, visRouter)
 		defer stopSignals()
 	}

@@ -5,8 +5,10 @@ package scripts_test
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -3783,6 +3785,159 @@ printf 'rendered %s\n' "$manual" > "${manual%.md}.pdf"
 	}
 }
 
+// manualArchiveDependencies finds repository archive links in ordinary prose.
+// Fenced/inline code and HTML comments are examples or maintenance notes, not
+// navigation dependencies. Resolve relative paths before checking the archive.
+func manualArchiveDependencies(source, document string) []string {
+	var prose strings.Builder
+	fence := "" // Hide example bodies until the corresponding fence closes.
+	for _, line := range strings.Split(document, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if fence != "" {
+			if strings.HasPrefix(trimmed, fence) {
+				fence = ""
+			}
+			continue
+		}
+		if strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~") {
+			fence = trimmed[:3]
+			continue
+		}
+		prose.WriteString(line)
+		prose.WriteByte('\n')
+	}
+	visible := regexp.MustCompile(`(?s)<!--.*?-->`).ReplaceAllString(prose.String(), "")
+	visible = regexp.MustCompile("`[^`]*`").ReplaceAllString(visible, "")
+	var dependencies []string
+	for _, match := range regexp.MustCompile(`\[[^\]]*\]\(([^)]+)\)`).FindAllStringSubmatch(visible, -1) {
+		target, err := url.Parse(match[1])
+		if err != nil || target.Scheme != "" || target.Host != "" || target.Path == "" {
+			continue
+		}
+		resolved := path.Clean(path.Join(path.Dir(filepath.ToSlash(source)), target.Path))
+		if resolved == "docs/_scratchPad/obsolete" || strings.HasPrefix(resolved, "docs/_scratchPad/obsolete/") {
+			dependencies = append(dependencies, match[1])
+		}
+	}
+	return dependencies
+}
+
+// TestActiveManualsHaveNoArchiveDependencies keeps the active entry points and
+// manuals usable if the historical scratchpad archive is removed later. The
+// scratchpad and archived directories themselves are intentionally not read.
+func TestActiveManualsHaveNoArchiveDependencies(t *testing.T) {
+	root := filepath.Clean("..")
+	documents := []string{filepath.Join(root, "README.md"), filepath.Join(root, ".github", "workflows", "README.md")}
+	err := filepath.WalkDir(filepath.Join(root, "docs"), func(name string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() && (entry.Name() == "_scratchPad" || entry.Name() == "obsolete") {
+			return filepath.SkipDir
+		}
+		if !entry.IsDir() && strings.EqualFold(filepath.Ext(name), ".md") {
+			documents = append(documents, name)
+		}
+		return nil
+	})
+	require.NoError(t, err)
+	for _, name := range documents {
+		content, err := os.ReadFile(name)
+		require.NoError(t, err)
+		source, err := filepath.Rel(root, name)
+		require.NoError(t, err)
+		assert.Empty(t, manualArchiveDependencies(source, string(content)), "%s must link to active documentation instead of docs/_scratchPad/obsolete", source)
+	}
+}
+
+// TestArchiveDependencyDetection exercises real former link forms and ensures
+// examples, comments, fragments and external resources do not block the gate.
+func TestArchiveDependencyDetection(t *testing.T) {
+	for _, tc := range []struct {
+		name, source, text string
+		want               []string
+	}{
+		{"chapter link", "docs/rm/target_tests.md", "[History](../_scratchPad/obsolete/testing/README.md)", []string{"../_scratchPad/obsolete/testing/README.md"}},
+		{"normalized workflow link", ".github/workflows/README.md", "[History](../../docs/rm/../_scratchPad/obsolete/history.md#old)", []string{"../../docs/rm/../_scratchPad/obsolete/history.md#old"}},
+		{"encoded path", "README.md", "[History](docs/_scratchPad/%6Fbsolete/history.md)", []string{"docs/_scratchPad/%6Fbsolete/history.md"}},
+		{"active replacement", "docs/rm/target_tests.md", "[Tests](target_test_internals.md)", nil},
+		{"external resource", "README.md", "[External](https://example.com/obsolete/history.md)", nil},
+		{"local fragment", "README.md", "[Section](#obsolete)", nil},
+		{"fenced example", "README.md", "```md\n[History](docs/_scratchPad/obsolete/history.md)\n```\n", nil},
+		{"inline example", "README.md", "`[History](docs/_scratchPad/obsolete/history.md)`", nil},
+		{"comment", "README.md", "<!-- [History](docs/_scratchPad/obsolete/history.md) -->", nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, manualArchiveDependencies(tc.source, tc.text))
+		})
+	}
+}
+
+// referenceChaptersMissingFromIndex finds chapter sources omitted from the
+// maintained book list, whether or not they already have an mdtoc container.
+// Navigation and framing documents are explicit exceptions, not subject chapters.
+func referenceChaptersMissingFromIndex(directory, index string) ([]string, error) {
+	links := regexp.MustCompile(`(?m)^[\t ]*[-*][\t ]+\[[^\]]+\]\((?:\./)?([^/)#]+\.md)\)[\t ]*$`)
+	listed := make(map[string]bool)
+	for _, match := range links.FindAllStringSubmatch(index, -1) {
+		listed[match[1]] = true
+	}
+	entries, err := os.ReadDir(directory)
+	if err != nil {
+		return nil, err
+	}
+	var missing []string
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".md" {
+			continue
+		}
+		switch entry.Name() {
+		case "README.md", "INDEX.md", "HEADER.md", "FOOTER.md":
+			continue
+		}
+		if !listed[entry.Name()] {
+			missing = append(missing, entry.Name())
+		}
+	}
+	return missing, nil
+}
+
+// TestReferenceManualChapterInventory checks the real release sources rather
+// than inferring completeness from a successful PDF render or managed TOCs.
+func TestReferenceManualChapterInventory(t *testing.T) {
+	directory := filepath.Join("..", "docs", "rm")
+	index, err := os.ReadFile(filepath.Join(directory, "README.md"))
+	require.NoError(t, err)
+	missing, err := referenceChaptersMissingFromIndex(directory, string(index))
+	require.NoError(t, err)
+	assert.Empty(t, missing, "add these chapter files to docs/rm/README.md so the reference PDF includes them; only README.md, INDEX.md, HEADER.md and FOOTER.md are exempt")
+}
+
+// TestReferenceInventoryFindsUnmanagedChapters proves that an omitted new
+// subject chapter is detected before anyone adds a managed contents block.
+func TestReferenceInventoryFindsUnmanagedChapters(t *testing.T) {
+	for _, tc := range []struct {
+		name, index string
+		missing     []string
+	}{
+		{"listed chapter", "- [Subject](subject.md)\n", nil},
+		{"relative chapter link", "* [Subject](./subject.md)\n", nil},
+		{"chapter without mdtoc omitted", "# Reference\n", []string{"subject.md"}},
+		{"external link does not include chapter", "- [Subject](https://example.com/subject.md)\n", []string{"subject.md"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			for _, name := range []string{"README.md", "INDEX.md", "HEADER.md", "FOOTER.md", "subject.md"} {
+				writeFixture(t, root, name, "# Subject\n\nUnmanaged chapter text.\n")
+			}
+			writeFixture(t, root, "image.svg", "not a chapter\n")
+			missing, err := referenceChaptersMissingFromIndex(root, tc.index)
+			require.NoError(t, err)
+			assert.Equal(t, tc.missing, missing)
+		})
+	}
+}
+
 // TestReferencePDFPreparation exercises real Markdown tokenization, namespace
 // mapping and staging cleanup without rendering PDFs or fetching npm packages.
 // It runs inside the existing offline renderer environment when available.
@@ -3791,6 +3946,9 @@ func TestReferencePDFPreparation(t *testing.T) {
 		t.Skip("npx not installed; reference preparation uses the PDF renderer runtime")
 	}
 	root := scriptFixture(t, "scripts/_prepare_reference_manual.cjs")
+	stampChapter, err := os.ReadFile(filepath.Join("..", "docs", "rm", "stamp_expressions.md"))
+	require.NoError(t, err)
+	writeFixture(t, root, "docs/rm/stamp_expressions.md", string(stampChapter))
 	writeFixture(t, root, "docs/rm/README.md", "# Reference\n\n- [Introduction](HEADER.md)\n- [Beta](b.md)\n- [Alpha](a.md)\n- [Footer](FOOTER.md)\n")
 	writeFixture(t, root, "docs/rm/HEADER.md", "# Introduction\n\nBook introduction.\n")
 	writeFixture(t, root, "docs/rm/FOOTER.md", "# Footer\n\nBook footer.\n")
@@ -3904,6 +4062,23 @@ fs.writeFileSync('docs/rm/b.md','# Beta\n\n![Broken](missing.png)\n');
 assert.throws(() => helper.prepare(marked,process.cwd()), /missing reference image/);
 fs.rmSync('docs/rm/b.md');
 assert.throws(() => helper.prepare(marked,process.cwd()), /missing or empty reference source/);
+// Include the real stamp chapter and verify that its examples and chapter links
+// survive the same preparation/verification path used by the release PDF.
+fs.writeFileSync('docs/rm/README.md', '# Reference\n\n- [Introduction](HEADER.md)\n- [Stamps](stamps.md)\n- [Expressions](stamp_expressions.md)\n');
+fs.writeFileSync('docs/rm/stamps.md', '# Stamps\n\n[Unwrap reference](stamp_expressions.md#unwrap-reference)\n');
+helper.prepare(marked, process.cwd());
+const stamps = fs.readFileSync('temp/manual-pdf/chapters/stamps.md', 'utf8');
+const expressions = fs.readFileSync('temp/manual-pdf/chapters/stamp_expressions.md', 'utf8');
+const expressionText = expressions.replace(/<[^>]+>/g, '');
+for (const example of ['printf(', 'unwrap(47999-ts,48000)/48', 'delta(unwrap(47999-ts,48000))/48']) {
+  assert.ok(expressionText.includes(example), 'the PDF chapter must contain the actual example: ' + example);
+}
+assert.match(stamps, /href="#rm-stamp_expressions--heading-\d+"/, 'included chapter links stay inside the PDF');
+assert.ok(!expressions.includes('<summary>Contents</summary>'), 'the book uses its global contents');
+const introduction = fs.readFileSync('temp/manual-pdf/chapters/HEADER.md', 'utf8');
+const stampContents = fs.readFileSync('temp/manual-pdf/_contents.md', 'utf8');
+fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md', '# <a id="rm-start"></a>Reference\n\n' + stampContents + introduction + stamps + expressions);
+helper.verify(marked, process.cwd());
 console.log('PASS: README order, cleanup, sources, code, comments, images, anchors and rejected broken inputs');
 `)
 	command := "npx --offline -y --package=md-to-pdf@5.2.5 --package=puppeteer@25.16.0 -c 'node check.cjs'"

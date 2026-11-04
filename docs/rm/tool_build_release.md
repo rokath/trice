@@ -127,10 +127,10 @@ Follow the [release-candidate checks](target_tests.md#before-accepting-a-release
 
 ### 3.2. <a id="create-and-transfer-the-release-tag"></a>Create and Transfer the Release Tag
 
-Use an annotated tag on the approved commit. In one Bash session, select an unused version and the branch containing the approved workflow. This example uses the next beta after beta 3; change it to the version actually being released:
+Use an annotated tag on the approved commit. In one Bash session, select an unused version and the branch containing the approved workflow. This example prepares the stable v2 release; use an unused beta tag such as `v2.0.0-beta-4` only when publishing another beta:
 
 ```sh
-release_tag=v2.0.0-beta-4
+release_tag=v2.0.0
 workflow_branch=main
 git rev-parse "$release_commit^{commit}"
 git show-ref --tags
@@ -161,7 +161,14 @@ gh workflow run goreleaser.yml --repo rokath/trice --ref "$workflow_branch" -f t
 gh run list --repo rokath/trice --workflow goreleaser.yml --limit 5
 ```
 
-The workflow uses the selected version's section in [CHANGELOG.md](../../CHANGELOG.md) as the release notes; a missing or empty section stops publication. Wait for the **Run GoReleaser** and **Verify generated release artifacts** steps to succeed. During the v2 beta phase, [the release configuration](../../.goreleaser.yaml) marks releases as prereleases.
+The workflow uses the selected version's section in [CHANGELOG.md](../../CHANGELOG.md) as the release notes; a missing or empty section stops publication. The spelling must match exactly: `v2.0.0-beta3` does not select the `v2.0.0-beta-3` section. Existing tags are not renamed. Wait for the **Run GoReleaser** and **Verify generated release artifacts** steps to succeed.
+
+[The release configuration](../../.goreleaser.yaml) uses `release.prerelease: auto` and Homebrew `skip_upload: auto`:
+
+| Selected tag | GitHub release | Stable Homebrew tap |
+| --- | --- | --- |
+| `v2.0.0-beta-4` or another beta/RC tag | Prerelease | Unchanged; install the tagged archive or checkout. |
+| `v2.0.0` or another plain version | Stable | Updated with both `trice` and `tlog`. |
 
 ### 3.4. <a id="inspect-the-published-assets"></a>Inspect the Published Assets
 
@@ -190,5 +197,5 @@ For a beta, download the matching platform archive from its tagged release and p
 
 The module remains `github.com/rokath/trice`. Versioned remote installation with a v2 tag is not supported without a `/v2` module path; use the archive or local checkout build described above. See [Go major version suffixes](https://go.dev/ref/mod#major-version-suffixes).
 
-Homebrew remains the stable-release route. `skip_upload: auto` prevents prerelease tags from updating the normal tap, and beta audits skip the Homebrew job. Before publishing a stable v2 release, review `release.prerelease` and the stable installation checks explicitly.
+For a published stable release, run `brew install rokath/tap/trice` to install both tools. Beta audits skip the Homebrew job; stable audits include it. These checks verify the published files, separately from local configuration and release-notes tests.
 

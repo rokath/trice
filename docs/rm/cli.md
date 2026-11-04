@@ -6,6 +6,7 @@
 <!-- mdtoc -->
 
 * [1. Common information](#common-information)
+  * [1.1. Text and raw-byte monitors](#text-and-raw-byte-monitors)
 * [2. Automatic dictionary reload](#automatic-dictionary-reload)
 * [3. Some Log examples](#some-log-examples)
 * [4. Logging over a display server](#logging-over-a-display-server)
@@ -51,6 +52,37 @@ Both `-name value` and `-name=value` work, including the existing double-dash fo
 Register user tags with `-utag` (also `-uTag` or `-UTAG`). The old `-ulabel` name is rejected with a replacement hint. `bind`, `insert` and `clean` accept names only; `log` and `tlog` also accept weights and colors. See [user-defined tags](tags_color_and_weights.md#user-defined-tags-weights-and-colors).
 
 Use `-alias Name[:Tag]` or `-salias Name[:Tag]` consistently in source commands. `Name:Tag` implicitly registers the tag and overrides normal name/format classification. `log` and `tlog` accept the same options for overrides; repeat an override when logging because it is not stored. Same-kind repetitions merge, conflicting explicit tags and registration under both kinds fail before processing. See [alias identity](legacy_user_code.md#alias-identity-and-tags-in-v2) and [CE limits](context_enrichment.md#alias-tags-and-ce-limits).
+
+### 1.1. <a id="text-and-raw-byte-monitors"></a>Text and raw-byte monitors
+
+Use `tlog` or `trice log` to receive plain text or inspect raw bytes through the same UART, RTT, TCP or file inputs used for binary Trice logs:
+
+| `-encoding` | Use it for |
+| --- | --- |
+| `TREX` (default) | Decode Trice binary records with their matching dictionary and framing settings. |
+| `CHAR` | Display already formatted text, such as ordinary UART `printf` output or text produced by the [local C logger](target_implementation.md#local-deferred-text-log). |
+| `DUMP` | Display raw bytes as hexadecimal pairs, without needing valid Trice frames. `-dc 16` selects 16 bytes per output line. |
+
+`-debug` adds TREX decoding stages, including deframing and optional decryption. `-showInputBytes` prints incoming read chunks alongside the selected decoder's output. `DUMP` provides a hex monitor without TREX decoding attempts; `CHAR` handles text streams. The debug label `-> DEC:` means decrypted bytes, not decimal output. `DEC` and `HEX` are input-source names for `-p`, not encoding names.
+
+Try both monitors without hardware. In an empty working directory, create an empty dictionary: the current startup still loads the `-i` file even though these two decoders need no ID lookup.
+
+```sh
+printf '{}\n' > monitor-til.json
+tlog -p HEX -args '48 65 6c 6c 6f 0a' -encoding CHAR \
+  -i monitor-til.json -li off -hs off -ts off -prefix off -color off
+```
+
+The output is `Hello` followed by a newline. For the same bytes as hex:
+
+```sh
+tlog -p HEX -args '48 65 6c 6c 6f 0a' -encoding DUMP -dc 6 \
+  -i monitor-til.json -li off -hs off -ts off -prefix off -color off
+```
+
+The output is `48 65 6c 6c 6f 0a` followed by a newline. Both finite inputs exit when consumed. For a live UART monitor, replace `-p HEX -args '48 65 6c 6c 6f 0a'` with `-p COM7 -baud 115200` (or your device, such as `/dev/ttyUSB0`), keeping the chosen encoding and other options. Stop live reception with Ctrl+C. JSON/KV event output requires `TREX`.
+
+Further host decoders can use the shared registry and existing inputs; see [Adding a host decoder](target_test_internals.md#adding-a-host-decoder). Registering a new name is a small step; a new wire format also needs matching producer bytes, metadata handling and format tests.
 
 ## 2. <a id="automatic-dictionary-reload"></a>Automatic dictionary reload
 
@@ -170,9 +202,13 @@ trice l -p TCP4 -args "192.168.2.3:45678"
 
 This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` to read binary Trice data from.
 
+Start that server or an external GDB server yourself before running `trice log`. Trice connects to the running server.
+
 ## 9. <a id="udp4-input"></a>UDP4 input
 
 To receive Trice logs over IPv4 UDP, use `-port UDP4`. By default, it listens on `0.0.0.0:17005`, which accepts packets on all network interfaces. Use `-args` to choose a different local address and port. This receiver does not join multicast groups.
+
+UDP4 receives logs only; it has no target command reply address. Combining it with `-ds` or `-displayserver` is rejected. Use TCP4 or UART when you need the interactive target command shell.
 
 ```bash
 trice log -p UDP4
@@ -183,6 +219,12 @@ trice log -p UDP4
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](../ref/UARTCommandAnimation.gif)
+
+Start `trice ds` in one terminal, then run `trice log -p COM3 -ds` in another. Entering `hi` and pressing Enter sends `hi` followed by a zero byte to the target. An intentionally empty line sends just the zero byte. `help`, `shutdown`, and `quit` are local shell commands; `quit` ends the console and leaves the display server running.
+
+`-showInputBytes` and `-binaryLogfile` can be used together with this shell. Both options preserve outgoing commands; their diagnostic output and binary recording contain received bytes only.
+
+End of standard input stops the shell while logging continues. A final command without a newline is sent once. Other input errors, target write errors, and incomplete writes stop the shell with a diagnostic; commands are not retried. When the log run ends, it interrupts pending keyboard reads and target writes and waits for the shell to finish. Standard input remains open.
 
 ## 11. <a id="location-information"></a>Location Information
 

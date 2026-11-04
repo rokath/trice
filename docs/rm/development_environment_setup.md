@@ -190,7 +190,7 @@ environment; parsing the templates alone cannot establish those results.
     exit
     ```
 
-* Log out and back in so the new environment is active. Then [build the checkout tools](tool_build_release.md#build-trice-tool-from-go-sources) and follow [the native Linux test instructions](target_tests.md#prepare-linux). The old Debian test transcript is retained in [the test documentation archive](../_scratchPad/obsolete/testing/test_instructions_excerpts.md).
+* Log out and back in so the new environment is active. Then [build the checkout tools](tool_build_release.md#build-trice-tool-from-go-sources) and follow [the native Linux test instructions](target_tests.md#prepare-linux).
 
 ### 4.5. <a id="gitkraken-or-other-gui-for-git"></a>Gitkraken (or other GUI for git)
 

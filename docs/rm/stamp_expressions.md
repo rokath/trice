@@ -1,5 +1,29 @@
 # Stamp expressions and continuous counters
 
+<details markdown="1">
+<summary>Contents</summary>
+
+<!-- mdtoc -->
+
+* [Syntax and compatibility](#syntax-and-compatibility)
+* [unwrap reference](#unwrap-reference)
+  * [Parameters](#parameters)
+  * [Return value and state changes](#return-value-and-state-changes)
+  * [Preconditions and observation lifecycle](#preconditions-and-observation-lifecycle)
+  * [Errors](#errors)
+* [A 48 MHz down-counter](#a-48-mhz-down-counter)
+* [Origin, modulus, and integer precision](#origin-modulus-and-integer-precision)
+* [Other counter configurations](#other-counter-configurations)
+* [Sampling and continuity contract](#sampling-and-continuity-contract)
+* [Invisible samples and visible deltas](#invisible-samples-and-visible-deltas)
+* [Errors and unavailable fields](#errors-and-unavailable-fields)
+* [Shell quoting](#shell-quoting)
+
+<!-- numbering=false min=2 max=4 slug=github anchor=false link=true toc=true bullets=auto -->
+<!-- /mdtoc -->
+
+</details>
+
 Use an expression in the existing stamp switch to convert raw hardware ticks on the PC. For a 48 MHz counter counting from 47999 down to 0, this displays continuous microseconds:
 
 ```bash
