@@ -4,9 +4,13 @@
 
 ## v2.0.0 (unreleased)
 
+**[Progress from 1.0 to 2.0](docs/rm/project_resources.md#progress-from-10-to-20)**
+
 Trice 2.0 adds ID-free source instrumentation, named log fields, automatic context values, configurable tag priorities, host-side counter expressions, visualization output, and local deferred text logging. Review the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects) before rebuilding a 1.x project.
 
-The standalone `tlog` command, UDP input, counted user packets and ABC broadcast commands arrived before v2. They are part of the cumulative progress since 1.0, rather than new v2 features.
+### Progress since 1.0
+
+Between 1.0 and 2.0, Trice gained macro aliases and user tags, UDP input, more host packages, shared decoder registration, the standalone `tlog` command, counted user packets and ABC broadcast commands. These arrived before v2. ID-based binary logging, Insert/Clean, target buffers, COBS/TCOBS, XTEA and RTT were already available in 1.0.
 
 ### New workflows
 
@@ -30,7 +34,7 @@ The standalone `tlog` command, UDP input, counted user packets and ABC broadcast
 - Changed ID ranges or added, removed or moved identical calls can change IDs. Rebuild firmware and retain its matching LI file; see [ID assignment](docs/rm/id_management.md#different-ids-for-same-trices).
 - Source builds require Go 1.25 or newer. Use release archives or a local tag checkout; remote `go install ...@v2.0.0` is unsupported without a `/v2` module path. Stable tags update the Homebrew tap; beta tags do not.
 
-## v2.0.0-beta-3 (unreleased)
+## v2.0.0-beta-3
 
 This third v2 beta improves logging diagnostics, example builds, performance measurements and developer test preparation.
 
