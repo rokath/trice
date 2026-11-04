@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
 
@@ -367,6 +368,73 @@ func TestSelectedReleaseNotes(t *testing.T) {
 				assert.NoFileExists(t, filepath.Join(root, "temp", "release-notes.md"))
 			}
 		})
+	}
+}
+
+// TestReleaseCandidateNotes selects the real changelog through the production
+// workflow step. Historical beta notes must stay separate from the cumulative
+// stable description, and a different tag spelling must never act as an alias.
+func TestReleaseCandidateNotes(t *testing.T) {
+	changelog, err := os.ReadFile(filepath.Join("..", "CHANGELOG.md"))
+	require.NoError(t, err)
+	for _, tc := range []struct {
+		tag, marker string
+		valid       bool
+	}{
+		{"v2.0.0", "### Upgrade from 1.x", true},
+		{"v2.0.0-beta-3", "This third v2 beta", true},
+		{"v2.0.0-beta3", "", false},
+	} {
+		t.Run(tc.tag, func(t *testing.T) {
+			root := t.TempDir()
+			writeFixture(t, root, "CHANGELOG.md", string(changelog))
+			out, err := runFixture(t, root, workflowShellStep(t, "goreleaser.yml", "Prepare selected release notes"), map[string]string{
+				"RELEASE_TAG": tc.tag, "GITHUB_REPOSITORY": "fixture/trice", "GITHUB_SERVER_URL": "https://github.example",
+			})
+			if !tc.valid {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "lacks a release-notes section for "+tc.tag)
+				assert.NoFileExists(t, filepath.Join(root, "temp", "release-notes.md"))
+				return
+			}
+			require.NoError(t, err, out)
+			notes, err := os.ReadFile(filepath.Join(root, "temp", "release-notes.md"))
+			require.NoError(t, err)
+			assert.True(t, strings.HasPrefix(string(notes), "## "+tc.tag+"\n\n"))
+			assert.Contains(t, string(notes), tc.marker)
+			assert.NotContains(t, string(notes), "(unreleased)")
+			if tc.tag == "v2.0.0" {
+				assert.NotContains(t, string(notes), "not implemented in this beta")
+				assert.NotContains(t, string(notes), "This third v2 beta")
+				assert.Contains(t, string(notes), "-utag")
+				assert.Contains(t, string(notes), "https://github.example/fixture/trice/blob/v2.0.0/docs/rm/id_management.md#migrating-1x-scripts-and-projects")
+			} else {
+				assert.NotContains(t, string(notes), "### Upgrade from 1.x")
+			}
+		})
+	}
+}
+
+// TestReleasePublicationPolicy locks the documented GoReleaser auto policies:
+// prerelease tags stay off the stable tap, while plain versions publish there.
+// No release or tap write is performed by these configuration assertions.
+func TestReleasePublicationPolicy(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("..", ".goreleaser.yaml"))
+	require.NoError(t, err)
+	var configuration struct {
+		Release struct {
+			Prerelease string `yaml:"prerelease"`
+		} `yaml:"release"`
+		HomebrewCasks []struct {
+			Name       string `yaml:"name"`
+			SkipUpload string `yaml:"skip_upload"`
+		} `yaml:"homebrew_casks"`
+	}
+	require.NoError(t, yaml.Unmarshal(data, &configuration))
+	assert.Equal(t, "auto", configuration.Release.Prerelease, "beta/RC tags are prereleases; v2.0.0 is stable")
+	require.NotEmpty(t, configuration.HomebrewCasks)
+	for _, cask := range configuration.HomebrewCasks {
+		assert.Equal(t, "auto", cask.SkipUpload, "%s must publish only stable tags to the tap", cask.Name)
 	}
 }
 

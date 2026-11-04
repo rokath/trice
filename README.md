@@ -22,6 +22,8 @@ See the moments that matter: a fleeting interrupt, a changing sensor value, or t
 
 The Guide helps you choose your first experiment, discover the features, and find the details for your own project. Start on your PC, then explore what Trice can do on your hardware.
 
+Before upgrading a 1.x project, read the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects): format braces, CLI options, tags and generated paths have changed. Keep old captures with their [matching host tool and dictionaries](docs/rm/id_management.md#compatibility-with-firmware-and-host-tool-versions).
+
 **Keep interrupt logging light:** transmit raw hardware counter stamps and let the host [reconstruct wraps and convert units](docs/rm/stamp_expressions.md). Moving this arithmetic to the host can significantly reduce target CPU work, especially when logging in interrupt handlers.
 
 <details markdown="1"><summary>Small demo animation</summary>

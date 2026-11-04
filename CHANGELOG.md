@@ -2,11 +2,33 @@
 
 ## Unreleased
 
-- [Macro aliases](docs/rm/legacy_user_code.md#alias-identity-and-tags-in-v2) preserve their exact names in TIL and resolve one event tag for filtering, colors, statistics, JSON/KV and visualization. `Name:Tag` overrides work in source commands and logging; repeat them when logging because they are not stored. Older tools may not read new alias entries.
-- [Visualization output](docs/rm/visualization.md) now recognizes warning macros such as `MyWrn` even when the message text starts with `err:`. For `MyWrn("err:temperature=%u\n", 85)`, the option `-vis='wrn:printf("%d\n",v0)@warnings.csv'` appends `85` to `warnings.csv`; `v0` is the first logged value.
-- [Alias CE](docs/rm/context_enrichment.md#alias-tags-and-ce-limits) selects the event tag before source groups and warns before writes when CE changes format fallback. Native `triceS` retains fixed text; selected string-alias extensions and all added runtime strings are rejected.
-- Multi-character [CLI option names](docs/rm/cli.md#common-information) ignore case; one-character names remain case-sensitive. `-utag` replaces `-ulabel`; build commands accept tag names only, while logging also accepts weights and colors.
-- [Custom tag names](docs/rm/tags_color_and_weights.md#user-defined-tags-weights-and-colors) now ignore case and use uppercase metadata. Previously separate groups such as `new` and `NEW` merge; review configurations that relied on the distinction.
+## v2.0.0 (unreleased)
+
+Trice 2.0 adds ID-free source instrumentation, named log fields, automatic context values, configurable tag priorities, host-side counter expressions, visualization output, and local deferred text logging. Review the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects) before rebuilding a 1.x project.
+
+The standalone `tlog` command, UDP input, counted user packets and ABC broadcast commands arrived before v2. They are part of the cumulative progress since 1.0, rather than new v2 features.
+
+### New workflows
+
+- [Bind](docs/rm/bind.md) supplies IDs through generated headers; calls such as `trice("msg:ready\n")` stay ID-free. Insert/Clean remains available. Bind and [Context Enrichment](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives) have explicit compiler and wrapper limits.
+- [Structured Logging](docs/rm/structured_logging.md) gives values names, for example `{voltage_mv:%u}`, and emits text, JSON or key/value records. [Context Enrichment](docs/rm/context_enrichment.md) adds selected values automatically; runtime-string extensions have [specific limits](docs/rm/context_enrichment.md#alias-tags-and-ce-limits).
+- [Tags](docs/rm/tags_color_and_weights.md) control priority, filters and colors. For example, `-logLevel wrn` keeps Warning and higher-priority events. [Macro aliases](docs/rm/legacy_user_code.md#alias-identity-and-tags-in-v2) retain their exact TIL names and use the same event tag across output formats and visualization; repeat `Name:Tag` overrides when logging because they are not stored.
+- [Stamp expressions](docs/rm/stamp_expressions.md) use `printf`, `unwrap` and `delta` on the host to convert raw hardware counters and reconstruct wraps. This can remove conversion work from interrupt handlers.
+- [Visualization](docs/rm/visualization.md) writes selected numeric values to files or UDP. For `MyWrn("err:temperature=%u\n", 85)`, `-vis='wrn:printf("%d\n",v0)@warnings.csv'` appends `85` to `warnings.csv`; the macro's Warning tag decides the selection.
+- [Local deferred text logging](docs/rm/target_implementation.md#local-deferred-text-log) formats buffered records on the target. [Generation tools](docs/rm/generate.md) export source-selected C tables, readable dictionaries and Bind reports. The guided [User Manual](docs/TriceUserManual.md) and split [Reference Manual](docs/rm/README.md) are also shipped as two PDFs.
+
+### Fixes and reliability
+
+- TCP/UDP close diagnostics preserve connection cleanup. The [interactive command shell](docs/rm/cli.md#stimulate-target-with-a-user-command-over-uart) handles EOF and write failures, stops with its log run, and keeps commands working through byte-display and binary-log wrappers. UDP4 rejects unsupported command use.
+- The local C logger accepts `%t` at the end of a format. Finite replay exits and releases resources; live dictionary reload handles file replacement. Filters preserve complete events and metadata, statistics count decoded events before filtering, and stamp-expression errors preserve the application message.
+- Removed the unused, unimplemented `-exec` option. [Start external servers manually](docs/rm/cli.md#tcp4-input) before logging; the option previously printed a placeholder without starting a process.
+
+### Upgrade from 1.x
+
+- Write literal braces as `{{` and `}}`; single braces now define fields. Keep historical firmware and captures with their matching tool and dictionaries. An unchanged binary layout does not guarantee [template compatibility](docs/rm/id_management.md#compatibility-with-firmware-and-host-tool-versions).
+- Update [CLI options and generated paths](docs/rm/id_management.md#migrating-1x-scripts-and-projects): use `-pick err -pick wrn` instead of `-pick err:wrn`, `-utag` instead of `-ulabel`, and source-selected `-logC` instead of `-tilC`. Multi-character option names ignore case; one-character names remain case-sensitive. Custom tags such as `new` and `NEW` now form one group.
+- Changed ID ranges or added, removed or moved identical calls can change IDs. Rebuild firmware and retain its matching LI file; see [ID assignment](docs/rm/id_management.md#different-ids-for-same-trices).
+- Source builds require Go 1.25 or newer. Use release archives or a local tag checkout; remote `go install ...@v2.0.0` is unsupported without a `/v2` module path. Stable tags update the Homebrew tap; beta tags do not.
 
 ## v2.0.0-beta-3 (unreleased)
 

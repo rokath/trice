@@ -31,6 +31,8 @@
 
 These recipes extend the [UM firmware walkthrough](../TriceUserManual.md#bring-trice-into-your-firmware) with transport-specific settings. Install the host tools as described there. All three recipes use Bind; keep each project's TIL/LI and run Bind before compilation whenever its log sources change.
 
+For a 1.x project, apply the [migration notes](id_management.md#migrating-1x-scripts-and-projects) before copying target files or rebuilding. For example, change `"msg:literal={x}"` to `"msg:literal={{x}}"` to keep displaying `literal={x}`. Replay old firmware captures with their [matching old tool and dictionaries](id_management.md#compatibility-with-firmware-and-host-tool-versions).
+
 ## 1. <a id="quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit"></a>Quickstart: Existing non-blocking byte writer, deferred auxiliary 8-bit
 
 <!--
