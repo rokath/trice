@@ -2,10 +2,10 @@
 
 ## Zuerst erledigen
 
-1. **V01–V03 umgesetzt:** Tests und Dokumentation sind ergänzt. Für das Zwischen-Review gestoppt; V04–V08 bleiben offen.
-2. **V04–V06 abschließen:** Stable-Veröffentlichung und verständliche Release-/Upgrade-Hinweise vorbereiten, das fehlende PDF-Kapitel aufnehmen und die zugesagte Bedeutung von `-exec` klären.
-3. **V07 vor der Archivlöschung bearbeiten:** die wenigen eigenständigen Inhalte sichern und aktive Verweise anpassen.
-4. **V08 am endgültigen Release-Kandidaten prüfen:** offene CI-Nachweise schließen. Erst danach den unveränderlichen Release-Tag setzen und veröffentlichen.
+1. **V01–V03 umgesetzt:** Tests und Dokumentation sind ergänzt; dieser Zwischenstand ist in Git enthalten.
+2. **V04–V06 umgesetzt:** Stable-/Upgrade-Hinweise und Veröffentlichungspolitik sind vorbereitet, das Stamp-Kapitel ist im PDF enthalten und die unbenutzte Option `-exec` ist vollständig entfernt. Gezielte Prüfungen stehen unten.
+3. **V07 umgesetzt:** Decoder-Anleitung und aktuelle RX-Grundsätze sind außerhalb des Archivs gesichert, aktive Archivverweise entfernt und ein Regressionstest ergänzt. Das Archiv selbst bleibt unverändert.
+4. **V08 geprüft, endgültige Freigabe offen:** Die früheren LinkCheck-/ARM64-Lücken sind für den veröffentlichten Commit `83d7316f` geschlossen. Die noch uncommitteten Änderungen V04–V07 gehören nicht zu diesen CI-Ergebnissen. Erst den endgültigen Kandidaten prüfen, danach den unveränderlichen Release-Tag setzen und veröffentlichen.
 
 Die größere Aufräumarbeit, mögliche Skriptumbenennungen und weitere Testideen stehen in [Besser nach dem Release](Release_v2.0.0_Nach_dem_Release.md). Die Fehlerbeschreibungen dokumentieren den ursprünglichen Review-Stand; der jeweilige Umsetzungsstand steht direkt beim Punkt.
 
@@ -89,6 +89,10 @@ newline bool: result=10 expected=10 text=[bool=true
 
 **V04 · hohe Priorität · verbleibende Release-Vorbereitung**
 
+**Umgesetzt am 2026-11-04:** `release.prerelease: auto` unterscheidet Beta-/RC-Tags von stabilen Versions-Tags. Das bestehende Homebrew-`skip_upload: auto` bleibt erhalten: nur Stable aktualisiert den normalen Tap. Der neue Abschnitt `v2.0.0 (unreleased)` bündelt die tatsächlichen Neuerungen, Korrekturen und Upgrade-Grenzen; historische Beta-Notes bleiben unverändert. README, User Manual und Quickstarts verlinken die Migration und zeigen nötige Anpassungen. Die vorhandene Migrationstabelle wurde geprüft; das Release-Handbuch erklärt Tag-Schreibweise und Tap-Veröffentlichung mit einer Vergleichstabelle. Keine `/v2`-Modulmigration und keine Veröffentlichung.
+
+**Gezielt geprüft:** 18 Release-Tests erfolgreich; die vier Fälle der echten Notes-Auswahl nach der letzten Changelog-Ergänzung erneut erfolgreich. Stable und `v2.0.0-beta-3` erhalten ihre eigenen Notes; `v2.0.0-beta3` wird ohne eigene Sektion ausdrücklich abgelehnt. `goreleaser check` mit Version 2.19.0 bestätigt die Konfiguration.
+
 **Fundstellen:** [.goreleaser.yaml](../../.goreleaser.yaml), `release.prerelease: true`; [.github/workflows/goreleaser.yml](../../.github/workflows/goreleaser.yml), Schritt `Prepare selected release notes`; [CHANGELOG.md](../../CHANGELOG.md).
 
 Zwei konkrete Voraussetzungen fehlen für `v2.0.0`:
@@ -110,6 +114,10 @@ Für die Dokumentation gilt zusätzlich: Leser erkennen ohne Kenntnis interner B
 
 **V05 · mittlere Priorität · statisch nachgewiesene Dokumentationslücke**
 
+**Umgesetzt am 2026-11-04:** Das Stamp-Kapitel steht direkt nach den Zeitstempel-Grundlagen in der Referenzliste und besitzt eine vom vorhandenen `mdtoc`-Prozess verwaltete Inhaltsnavigation. Die bisherigen Überschriften bleiben ohne zusätzliche Quellnummern oder Anker. Ein Inventartest kontrolliert alle Fachkapitel, auch solche ohne `mdtoc`; nur README, Index, Header und Footer sind ausgenommen. Der Assembler-Test verwendet das echte Stamp-Kapitel und prüft Beispiele sowie interne Kapitelziele.
+
+**Gezielt geprüft:** 54 Tests und der gemeinsame Handbuchcheck erfolgreich. Beide PDFs am V04–V06-Zwischenstand erzeugt: User Manual 9 Seiten, Reference Manual 485 Seiten. Die `printf`-/`unwrap`-/`delta`-Beispiele sind auf Seite 116 enthalten und wurden als gerenderte PNG-Seite gelesen; zusätzlich wurden die Referenzseiten 97, 98, 117 und 121 sowie User-Manual-Seiten 1 und 2 sichtgeprüft. Der Assembler bestätigt 929 interne Verweise und 1.284 eindeutige Anker. Im tatsächlichen Referenz-PDF zeigen 971 interne Link-Annotationen auf vorhandene Seitenobjekte, einschließlich des Stamp-Kapitels und seiner Unterabschnitte. Keine vollständige Sichtprüfung aller 485 Seiten.
+
 [stamp_expressions.md](../rm/stamp_expressions.md) wird aus README, Changelog und anderen Kapiteln verlinkt, fehlt aber in [docs/rm/README.md](../rm/README.md). Es hat außerdem keinen `mdtoc`-Block.
 
 Der Assembler [scripts/_prepare_reference_manual.cjs](../../scripts/_prepare_reference_manual.cjs) wählt Kapitel aus dieser README-Liste. Verweise auf andere Markdown-Dateien werden zu Weblinks, statt deren Inhalt in das PDF aufzunehmen. Der Refresh-Check in [_310_refresh_trice_manuals.sh](../../scripts/_310_refresh_trice_manuals.sh) verlangt die Behandlung gelisteter beziehungsweise bereits von `mdtoc` verwalteter Kapitel; dieses Kapitel fällt durch beide Auswahlkriterien. Ein erfolgreicher PDF-Build allein beweist deshalb keine Vollständigkeit.
@@ -122,15 +130,21 @@ Der Assembler [scripts/_prepare_reference_manual.cjs](../../scripts/_prepare_ref
 
 **V06 · mittlere Priorität · erreichbarer Platzhalter**
 
-[internal/args/init.go](../../internal/args/init.go) bewirbt `-exec` als zusätzliche Kommandozeile für TCP4, etwa zum Start eines GDB-Servers. Der TCP- und UDP-Pfad in [receiver.go](../../internal/receiver/receiver.go) druckt jedoch nur `todo: execute ...`. Es wird kein Prozess gestartet. Auch die generierte CLI-Referenz übernimmt das Versprechen.
+**Umgesetzt am 2026-11-04, anschließend nach Benutzerentscheidung vollständig entfernt:** Die repositoryweite Suche fand keinen produktiven Trice-Aufruf mit `-exec`, sondern nur Registrierung, Platzhalter, die zwischenzeitliche Ablehnung, Tests und Dokumentation. Die `find -exec`-Aufrufe im Release-Audit gehören zum Unix-Werkzeug und bleiben erhalten; eine historische Erwähnung unter `obsolete` bleibt unverändert. Flag-Registrierung, globale Variable und Sonderbehandlung sind entfernt. Auch `-exec=""` ist nun eine unbekannte Option. Hilfe und generierte Referenz führen sie nicht mehr auf; das Handbuch verlangt nur den manuellen Serverstart. Es wurde keine Prozessverwaltung ergänzt.
 
-**Empfehlung vor dem Release:** nicht leere Verwendung verständlich als nicht unterstützt ablehnen und die Hilfe entsprechend formulieren. Eine echte Prozessverwaltung wäre eine eigenständige Funktion mit Lebenszyklus-, Fehler- und Plattformfragen und sollte nicht beiläufig ergänzt werden.
+**Gezielt geprüft nach vollständiger Entfernung:** 57 Tests in `internal/args` und `internal/receiver` erfolgreich. Beide Programme behandeln frühere Schreibweisen einschließlich leerer Werte, `--exec` und `-EXEC` als unbekannte Option und öffnen dabei keinen Eingang. Normale Aufrufe ohne den Schalter, explizite Hilfe und die neu generierte Referenz bestehen ihre Prüfungen. Die vier Release-Notes-Fälle wurden nach der Changelog-Anpassung erneut erfolgreich ausgeführt. Beide PDFs wurden neu erzeugt; die bereinigte CLI-Seite 98 und User-Manual-Seite 2 wurden erneut sichtgeprüft, alle 971 internen PDF-Verweise erneut aufgelöst. Die frühere Prüfung der bloßen Ablehnung ist dadurch als aktueller V06-Nachweis ersetzt.
 
-**Erledigt, wenn:** ein Benutzer keinen erfolgreichen Kommando-Start aus der Option ableiten kann, obwohl keiner stattfindet; Hilfe, generierte Referenz und CLI-Verhalten stimmen überein. Einen Test für diesen öffentlichen Pfad ergänzen. Das ist mehr als ein Tippfehler, daher wurde die Entscheidung nicht vorweggenommen.
+**Ursprünglicher Befund:** [internal/args/init.go](../../internal/args/init.go) bewarb `-exec` als zusätzliche Kommandozeile für TCP4, etwa zum Start eines GDB-Servers. Der TCP- und UDP-Pfad in [receiver.go](../../internal/receiver/receiver.go) druckte jedoch nur `todo: execute ...`. Es wurde kein Prozess gestartet. Auch die generierte CLI-Referenz übernahm das Versprechen.
+
+**Verbindliche Entscheidung:** Nach Prüfung auf echte Verwendung die Option vollständig entfernen. Eine echte Prozessverwaltung bleibt außerhalb dieses Auftrags.
+
+**Erledigt, wenn:** Registrierung, Zustand und Sonderbehandlung fehlen; Hilfe und generierte Referenz enthalten keinen solchen Schalter. Beide Programme behandeln seine frühere Verwendung als unbekannte Option, während normale Aufrufe ohne ihn weiter funktionieren.
 
 ## Vor der Löschung von `obsolete` Wissen gezielt sichern
 
 **V07 · mittlere Priorität · an die geplante Archivlöschung gebunden**
+
+**Umgesetzt am 2026-11-04:** [Adding a host decoder](../rm/target_test_internals.md#adding-a-host-decoder) erhält die Konstruktor-Signatur, Initialisierung, Registrierung, den Translator-Import und passende Testverweise. [Receiving and resolving records](../rm/target_implementation.md#receiving-and-resolving-records) erklärt den heutigen Parse-/Resolve-/Consume-Pfad, Pufferlebensdauer, logische Länge und unvollständige Records anhand der aktuellen C-Schnittstellen. Die Zukunftsideen bleiben im Bericht [Nach dem Release](Release_v2.0.0_Nach_dem_Release.md) auffindbar. Keine Archivdatei wurde verändert oder gelöscht.
 
 Der tatsächliche Pfad ist `docs/_scratchPad/obsolete`. Die 338 versionierten Dateien enthalten Handbuchstände, abgeschlossene Pläne, Experimente, Codekopien und wenige eigenständige Erläuterungen. Nicht den gesamten Ordner in neue Anhänge verschieben. Für die folgenden Archivpfade gilt der oben genannte Review-Commit; nach der Löschung bleiben sie über Git erreichbar.
 
@@ -144,7 +158,7 @@ Der tatsächliche Pfad ist `docs/_scratchPad/obsolete`. Die 338 versionierten Da
 | `trice-til-v2-entwurf-0.2/`, ältere TIL-Entwürfe und Serial-Studio-Ideen | Als mögliche spätere Entwicklung, ausdrücklich nicht als implementierter Bestandteil von Trice v2.0.0. | Die knappe inhaltliche Sicherung steht unter „Zukunftsideen aus dem Archiv“ in [Nach dem Release](Release_v2.0.0_Nach_dem_Release.md). Kein Schemawechsel oder neues Ausgabeformat vor dem Release nötig. |
 | `rm1/`, `_Legacy/`, `docs/`, `cmd/`, `testing/`, `reports/`, alte Übergaben | Vor allem historische Handbücher, Transkripte, Code und abgeschlossene Arbeitsstände. Die alten Handbuchdateien sind nicht alle bytegleich mit den neuen; Inhalte wurden auch zusammengeführt. | Aktive Handbücher und Tests als Referenz verwenden. Originale in Git belassen. Historische Testausgaben und KI-Vergleichsberichte nicht als aktuelle Abnahme oder belegte Leistungsdaten ausgeben. |
 
-**Beim späteren Löschcommit außerdem drei aktive Verweise anpassen:** [.github/workflows/README.md](../../.github/workflows/README.md), [Development Environment Setup](../rm/development_environment_setup.md) und [Running the Tests](../rm/target_tests.md) verweisen noch ausdrücklich in das Archiv. Nicht die archivierten Dateien selbst reparieren. Der Ausschluss des Scratchpads in Link-Prüfungen ersetzt diese Kontrolle nicht.
+**Drei aktive Verweise bereits angepasst:** [.github/workflows/README.md](../../.github/workflows/README.md), [Development Environment Setup](../rm/development_environment_setup.md) und [Running the Tests](../rm/target_tests.md) benötigen das Archiv nicht mehr. Der neue Test `TestActiveManualsHaveNoArchiveDependencies` kontrolliert die aktiven Handbücher und Einstiegspunkte; Beispiele, Kommentare und das historische Scratchpad sind ausgenommen. Die Archivlöschung ist ein separater Schritt.
 
 Ein Original lässt sich nach der Löschung beispielsweise so lesen:
 
@@ -154,11 +168,23 @@ git show 08b31e2ca033aa428e4d06e7bd41231ef2075b0d:docs/_scratchPad/obsolete/Addi
 
 **Erledigt, wenn:** die Decoder-Anleitung und die aktuellen RX-Grundsätze verständlich außerhalb des Archivs stehen, die Zukunftsideen auffindbar bleiben und keine aktive Dokumentation mehr auf gelöschte Archivdateien angewiesen ist. Die Archivlöschung selbst wurde in diesem Review nicht ausgeführt.
 
-## Die letzte CI-Evidenz ist noch nicht vollständig grün
+## CI-Evidenz dem endgültigen Kandidaten zuordnen
 
 **V08 · hohe Priorität für die endgültige Freigabe · offene Nachweise, nicht pauschal Produktfehler**
 
-Read-only-Abfrage der PR-Workflows für den Review-HEAD am 2026-11-03. Die verwendete API liefert PR-getriggerte Läufe und nur die erste Ergebnisseite; daraus folgt keine Aussage über sämtliche Nightly-, manuellen oder früheren Läufe.
+**Aktualisiert am 2026-11-04, 10:40 UTC:** Lokaler und veröffentlichter Branch `wip` stehen auf `83d7316ff024b77aab586edbe427a767a3d6da67`. Die Read-only-Abfrage aller diesem SHA zugeordneten Actions-Läufe liefert 15 von insgesamt 15 Einträgen, ohne Event-Filter. Alle 15 Läufe sind abgeschlossen und erfolgreich. Die Joblisten der unten verlinkten vier Kernläufe sind vollständig (14/14, 4/4, 1/1 und 2/2). Die PR-Läufe verwenden zusätzlich die PR-Merge-Revision; diese Evidenz umfasst keine nachträglichen Änderungen im lokalen Arbeitsbaum.
+
+| Nachweis für `83d7316f` | Ergebnis und Grenze |
+| --- | --- |
+| [Link Check, Run 41803513920](https://github.com/rokath/trice/actions/runs/41803513920) | **PASS:** Markdown-Linkprüfung erfolgreich; die frühere LLVM-Verbindungslücke ist für diesen Stand geschlossen. |
+| [install-checks, Run 41803513828](https://github.com/rokath/trice/actions/runs/41803513828) | **PASS:** alle 14 Jobs, einschließlich nativer Archive für [macOS arm64](https://github.com/rokath/trice/actions/runs/41803513828/job/126486895459) und [macOS amd64](https://github.com/rokath/trice/actions/runs/41803513828/job/126486895721), Windows/Linux, DEB/RPM/APK, Checkout-Installationen, Target-Sources und Release-PDFs. Beide macOS-Archive bestehen auch die Smoke- und ausgelieferten Funktionstests. |
+| [Native Trice tests, Run 41803513935](https://github.com/rokath/trice/actions/runs/41803513935) | **PASS:** schnelle native Auswahl auf Windows, Linux und macOS arm64. Der native Intel-Full-Job und die zusätzlichen Concurrency-Schritte sind **übersprungen**, daher kein Full-Nachweis. Der erfolgreiche Intel-Archivtest oben ist davon getrennt. |
+| [TRICE Library CI, Run 41803513930](https://github.com/rokath/trice/actions/runs/41803513930) | **PASS:** Heavy Build/Compile-Auswahl `quick`; keine vollständige neue Compiler-Matrix. |
+| Übrige elf Läufe desselben SHA | **PASS:** Coverage, CodeQL, Script-Portabilität, Installations-/Format-/Lint-Prüfungen und PR-Automatisierung. Erfolgreiche Automatisierungsjobs ersetzen keine Produktprüfung. |
+
+**Noch offen:** Die Änderungen V04–V07 müssen zuerst in einen überprüfbaren Kandidaten-Commit gelangen und übertragen werden. Anschließend die vorgesehenen nativen Full-/Compiler- und Paketnachweise genau diesem Stand zuordnen und fehlende Checks vom Benutzer ausführen lassen. Die oben gelesenen Ergebnisse dürfen nicht als CI-Abnahme des uncommitteten Arbeitsbaums gelten. Es wurden keine Workflows gestartet, Tags gesetzt oder Releases veröffentlicht.
+
+Die folgende Tabelle hält den **historischen Review-Stand vom 2026-11-03** fest. Damals wurden nur PR-Läufe und die erste Ergebnisseite gelesen; die beiden offenen Nachweise sind inzwischen für `83d7316f` geschlossen.
 
 | Beobachtung | Bedeutung und nächste Handlung |
 | --- | --- |
@@ -232,4 +258,60 @@ GOOS=darwin CGO_ENABLED=0 go test -c -o NUL ./internal/keybcmd
 rtk go test ./internal/id -run '^TestLocalLog(BooleanConversionBoundaries|CompilesAndRunsWithBothDeferredBuffers|DynamicStringNeedsNoPrintfImplementation)$' -count=1 -timeout=120s
 ```
 
-Frühe Entwicklungsläufe fanden einen geschlossenen Windows-Eingabehandle sowie fehlende Display-/Printf-Voraussetzungen im Testaufbau. Diese sind korrigiert; die oben genannten erfolgreichen Wiederholungen prüfen den endgültigen Codestand. V04–V08 wurden nicht begonnen. Keine Dateien unter `obsolete` wurden geändert; es wurde nichts gestagt, committet oder gepusht.
+Frühe Entwicklungsläufe fanden einen geschlossenen Windows-Eingabehandle sowie fehlende Display-/Printf-Voraussetzungen im Testaufbau. Diese sind korrigiert; die oben genannten erfolgreichen Wiederholungen prüfen den damaligen V01–V03-Codestand. V04–V08 waren zu diesem Zwischenstand noch nicht begonnen. Das Archiv blieb unverändert; Git-Schreiboperationen waren nicht Teil dieser ersten Umsetzungsrunde.
+
+## Prüfungen der Release-Vorbereitung
+
+Stand 2026-11-04, Windows/amd64. Go-Tests mit Go 1.26.1; Konfiguration mit GoReleaser 2.19.0. Dokumentation mit Node.js 26.12.1, `mdtoc` 1.0.3, `stitchmd` 0.9.0, `md-to-pdf` 5.2.5 und Puppeteer 25.16.0.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Release-Notes-Auswahl, Veröffentlichungspolitik und Workflow-/Tagbindung | **PASS:** 18 ausgewählte Tests; Notes-Auswahl am finalen Changelog erneut **PASS**, 4 Fälle. Keine realen Releases oder Tap-Schreibzugriffe. |
+| Kapitelinventar, unmanaged Kapitel, echter PDF-Assembler, bisherige Handbuch-/PDF-Fixtures | **PASS:** 54 ausgewählte Tests. Der Assembler-Test läuft mit dem vorhandenen Renderer-Cache, ohne npm-Downloads. |
+| Vollständig entfernte Option, unbekannte frühere Schreibweisen, Hilfe-/Snapshot-Gleichheit und Netzwerkregressionen | **PASS:** 57 ausgewählte Tests in `internal/args` und `internal/receiver` nach der vollständigen Entfernung. |
+| `goreleaser check`, `scripts/_310_refresh_trice_manuals.sh check` | **PASS.** |
+| `scripts/_320_generate_trice_user_manual_pdf.sh` mit passendem Headless-Browser | **PASS:** beide PDFs erzeugt; Inhalts-, Ziel- und begrenzte Sichtprüfung wie unter V05. |
+| Neue relative Markdown-Verweise | **PASS:** 41 Ziele/Fragmente vor der Statuspflege; Statuslinks verwenden dieselben bereits geprüften Kapitel. |
+| Formatierung und Encoding | `gofmt -l` ohne Ausgabe; UTF-8, BOM und Zeilenenden erhalten; `git diff --check` erfolgreich. Der entfernte Hilfeeintrag benötigt keine Umformatierung des übrigen Snapshots. |
+| Gesamtsuiten, Coverage, Full-Compiler-Matrix, native Linux-/macOS-Läufe und Veröffentlichung | **Nicht ausgeführt.** Die finale Abnahme und V08 bleiben beim Benutzer. |
+
+Die fokussierten Go-Befehle:
+
+```sh
+rtk go test ./scripts -run '^Test(SelectedReleaseNotes|ReleaseCandidateNotes|ReleasePublicationPolicy|ReleaseTagCheckout|ReleaseWorkflowBindings)$' -count=1 -timeout=90s
+rtk go test ./scripts -run '^Test(ReferenceManualChapterInventory|ReferenceInventoryFindsUnmanagedChapters|ReferencePDFPreparation|ManualMaintenance.*|ManualPDFGenerationPreservesBookIdentity)$' -count=1 -timeout=120s
+go generate ./internal/args
+rtk go test ./internal/args ./internal/receiver -run '^Test(RemovedExecOptionIsUnknown|LogHelpOmitsExec|HelpAll|GeneratedHelpAllDocIsUpToDate|CLIExplicitHelpStillAvailable|NetworkFactoryClose|NewReadWriteCloserUDP4Default|TCP4WriteAndDefaultArguments)$' -count=1 -timeout=90s
+rtk go test ./scripts -run '^TestReleaseCandidateNotes$' -count=1 -timeout=45s
+```
+
+Der erste PDF-Versuch bereitete den bereits gepinnten Browser vor, scheiterte aber unter Windows beim `--version`-Aufruf von `chrome.exe` mit Timeout. Die Headless-Ausgabe derselben Revision `156.0.8078.47` besteht die unveränderte Versionsprüfung und erzeugt beide Bücher erfolgreich. Für diesen lokalen Lauf wurde in Git Bash gesetzt:
+
+```sh
+PUPPETEER_EXECUTABLE_PATH="$(cygpath -m "$PWD")/temp/tools/puppeteer/chrome-headless-shell/win64-156.0.8078.47/chrome-headless-shell-win64/chrome-headless-shell.exe" bash ./scripts/_320_generate_trice_user_manual_pdf.sh
+```
+
+Build-Skripte und Toolversionen wurden dafür nicht geändert. PDFs und Vorschaubilder bleiben generierte, Git-ignorierte Prüfartefakte. Diese zweite Umsetzungsrunde betraf V04–V06; V07/V08 folgten in der nächsten Runde. Es wurde nichts gestagt, committet, gepusht oder veröffentlicht.
+
+## Prüfungen der Wissenssicherung und CI-Abfrage
+
+Stand 2026-11-04, Windows/amd64, gleiche Werkzeuge wie oben. V07 ist umgesetzt; V08 bleibt bis zur Abnahme des endgültigen Kandidaten offen.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Aktive Handbücher ohne Archivabhängigkeiten; Erkennung früherer, normalisierter und URL-kodierter Links sowie Abgrenzung von Beispielen, Kommentaren und externen URLs | **PASS:** 11 Tests einschließlich Unterfällen. |
+| Bestehende Tests für Decoder-Registrierung, Namensnormalisierung, gemeinsame Initialisierung und Character-Decoder-Reads | **PASS:** 9 Tests in zwei Paketen; die dokumentierten Schnittstellen bleiben unverändert. |
+| `scripts/_310_refresh_trice_manuals.sh check` | **PASS:** neue Anhänge sind verlinkt, bestehende Navigation bleibt konsistent. |
+| Erneuter PDF-Build mit den V07-Anhängen | **PASS:** User Manual 9 Seiten, Reference Manual 488 Seiten. Assembler: 935 interne Verweise, 1.286 eindeutige Anker. Im Referenz-PDF lösen alle 977 internen Link-Annotationen zu vorhandenen Seiten auf. RX-Anhang auf Seiten 358–359 und Decoder-Anhang auf Seiten 429–431 sowie User-Manual-Seite 2 gerendert und sichtgeprüft; keine vollständige Sichtprüfung des Buchs. |
+| Read-only-CI-Abfrage für `83d7316f` | **PASS:** vollständige Lauf- und relevante Joblisten gelesen; Einzelheiten und Grenzen unter V08. Keine Workflow-Ausführung ausgelöst. |
+| Neue relative Verweise, Formatierung und Encoding | **PASS:** 68 hinzugefügte relative Ziele/Fragmente geprüft; `gofmt -l` ohne Ausgabe, `git diff --check` erfolgreich; UTF-8, BOM und CRLF-Zahl erhalten. |
+| Gesamtsuiten, Full-Compiler-Matrix und native finale Paketabnahme | **Nicht ausgeführt:** finale Prüfung durch den Benutzer; veröffentlichte CI-Ergebnisse gelten nur für die dort geprüfte Revision. |
+
+Die zusätzlichen fokussierten Go-Befehle:
+
+```sh
+rtk go test ./scripts -run '^Test(ActiveManualsHaveNoArchiveDependencies|ArchiveDependencyDetection)$' -count=1 -timeout=60s
+rtk go test ./internal/decoder ./internal/charDecoder -run '^Test(NormalizeEncoding|Register.*|NewDecoderDataWithoutBuffers|NewInitializesDecoderData|ReadPassThrough|SetInputSwitchesReader|ReadWithoutInputReturnsEOF)$' -count=1 -timeout=60s
+```
+
+Das Archiv ist unverändert. Die Commit-Befehle wurden nur vorgeschlagen; es wurde nichts gestagt, committet, gepusht oder veröffentlicht.
