@@ -169,7 +169,8 @@ trice_inventory_cache() {
 # Convert internal MiB budgets to the approximate MB/GB labels used in the UI.
 # Budget arithmetic and reserve checks retain their original units.
 trice_plan_size() {
-  awk -v mib="$1" 'BEGIN { if (mib >= 1024) printf "~%.1f GB",mib/1024; else printf "~%.0f MB",mib }'
+  # Standalone callers must get the same decimal point as the shared test runner.
+  LC_ALL=C awk -v mib="$1" 'BEGIN { if (mib >= 1024) printf "~%.1f GB",mib/1024; else printf "~%.0f MB",mib }'
 }
 
 # Keep the human overview separate from the detailed plan and setup budgets.

@@ -43,13 +43,33 @@ printf 'c\nu\na\n' | trice_test_tool_plan node`, map[string]string{"CI": "false"
 }
 
 // TestToolPlanSizeLabels keeps approximate capacity labels consistent between
-// installation rows and disk messages, including the switch to gigabytes.
+// installation rows and disk messages, including the switch to gigabytes and
+// a locale-independent decimal point outside the shared test environment.
 func TestToolPlanSizeLabels(t *testing.T) {
-	root := scriptFixture(t)
-	out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
-for size in 150 1024 4500; do trice_plan_size "$size"; printf '\n'; done`, nil)
-	assert.NoError(t, err, out)
-	assert.Equal(t, "~150 MB\n~1.0 GB\n~4.4 GB\n", out)
+	for _, scenario := range []string{"default", "comma_decimal_locale"} {
+		t.Run(scenario, func(t *testing.T) {
+			root := scriptFixture(t)
+			env := map[string]string{}
+			if scenario == "comma_decimal_locale" {
+				// Model a comma-decimal awk without requiring an installed locale.
+				// Keep real arithmetic and formatting when the caller requests C.
+				awk, err := exec.LookPath("awk")
+				require.NoError(t, err)
+				env["FIXTURE_REAL_AWK"] = filepath.ToSlash(awk)
+				env["LC_ALL"], env["LC_NUMERIC"] = "", ""
+				writeFixture(t, root, "bin/awk", `#!/bin/sh
+case "${LC_ALL:-${LC_NUMERIC:-}}" in
+  C | POSIX | C.*) exec "$FIXTURE_REAL_AWK" "$@" ;;
+esac
+"$FIXTURE_REAL_AWK" "$@" | tr '.' ','
+`)
+			}
+			out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+for size in 150 1024 4500; do trice_plan_size "$size"; printf '\n'; done`, env)
+			assert.NoError(t, err, out)
+			assert.Equal(t, "~150 MB\n~1.0 GB\n~4.4 GB\n", out)
+		})
+	}
 }
 
 // TestToolPlanInventorySeparatesSystemAndCache uses real discovery and rendering

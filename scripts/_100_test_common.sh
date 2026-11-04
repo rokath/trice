@@ -23,6 +23,10 @@
 
 set -u
 
+# Keep test output stable on every host, including directly invoked steps.
+# C requires no installed language locale and overrides inherited LC_* values.
+export LC_ALL=C LANG=C LANGUAGE=C
+
 # A replaced Go installation can leave an inherited GOROOT pointing at a
 # directory that no longer exists. Preserve valid custom toolchains, but let
 # the selected go executable discover its own root when that override is stale.

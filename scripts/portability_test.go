@@ -203,6 +203,9 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"LOG_DIR": filepath.Join(root, "temp", "log"), "TRICE_TMP_DIR": filepath.Join(root, "temp"),
 		"TRICE_BIN_DIR": filepath.Join(root, "bin"), "PATH": filepath.Join(root, "bin") + string(os.PathListSeparator) + os.Getenv("PATH"),
 		"GOCACHE": filepath.Join(root, "cache"), "NO_COLOR": "1",
+		// Direct go test calls need the runner's stable locale too. Explicit
+		// locale cases can replace these defaults through overrides below.
+		"LC_ALL": "C", "LANG": "C", "LANGUAGE": "C",
 		// A surrounding testAll full run must not silently enable recovery or
 		// compiler matrices in fixtures. Full-mode cases opt in via overrides.
 		"SELECTED": "quick",
@@ -261,6 +264,45 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 	}
 	output, err := cmd.CombinedOutput()
 	return string(output), err
+}
+
+// TestFixtureLocale isolates ordinary subprocesses from the user's locale while
+// allowing locale-specific cases to replace the defaults explicitly.
+func TestFixtureLocale(t *testing.T) {
+	t.Setenv("LC_ALL", "POSIX")
+	t.Setenv("LANG", "POSIX")
+	t.Setenv("LANGUAGE", "de")
+	for _, tc := range []struct {
+		name      string
+		overrides map[string]string
+		want      string
+	}{
+		{name: "ignores_host_locale", want: "C\nC\nC\n"},
+		{
+			name:      "explicit_locale_override",
+			overrides: map[string]string{"LC_ALL": "POSIX", "LANG": "POSIX", "LANGUAGE": "de"},
+			want:      "POSIX\nPOSIX\nde\n",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t)
+			out, err := runFixture(t, root, `sh -c 'printf "%s\n" "$LC_ALL" "$LANG" "$LANGUAGE"'`, tc.overrides)
+			assert.NoError(t, err, out)
+			assert.Equal(t, tc.want, out)
+		})
+	}
+}
+
+// TestCommonTestLocale checks that standalone steps and runner children export
+// the same C locale even when their caller selected another locale explicitly.
+func TestCommonTestLocale(t *testing.T) {
+	root := scriptFixture(t, "scripts/_100_test_common.sh")
+	out, err := runFixture(t, root, `source scripts/_100_test_common.sh
+sh -c 'printf "%s\n" "$LC_ALL" "$LANG" "$LANGUAGE"'`, map[string]string{
+		"LC_ALL": "POSIX", "LANG": "POSIX", "LANGUAGE": "de",
+	})
+	assert.NoError(t, err, out)
+	assert.Equal(t, "C\nC\nC\n", out)
 }
 
 // TestPinnedToolConfirmation checks explicit consent, refusal and CI behavior
