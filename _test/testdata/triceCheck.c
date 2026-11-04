@@ -291,6 +291,7 @@ void TriceCheck(int index) {
         break; case __LINE__: triceS("info:Device {device:%s}\n", "pump");                         //exp: "time:        default: info:Device pump\n"
         break; case __LINE__: triceN("info:Code {code:%s}\n", "READY!", 5);                        //exp: "time:        default: info:Code READY\n"
 
+#if !TRICE_OFF // This switch avoids warning: unused variable 'sample' [-Wunused-variable], when compiled with TRICE_OFF.
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -342,6 +343,7 @@ void TriceCheck(int index) {
         break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //kv_exp: tag=DEBUG level=DEBUG message="Fixed value=9\n" field.sample=9
         //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif // #if !TRICE_OFF
 
         break; case __LINE__: trice("sig:length modifier coverage for supported combinations\n" );
         break; case __LINE__: trice8 ("len:hh %hhd %hhi %hhu %hho %hhO %hhx %hhX %hhb\n", -128, -1, -1, -1, -1, -1, -1, 0xA5u );                                                                                           //exp: "time:        default: len:hh -128 -1 255 377 0o377 ff FF 10100101\n"
