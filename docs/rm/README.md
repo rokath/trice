@@ -14,6 +14,7 @@ New to Trice? Start with the [User Manual](../TriceUserManual.md). Use the [Guid
 - [Target Configuration](target_configuration.md)
 - [Logging and Command-Line Tools](cli.md)
 - [Stamps and Time Measurements](stamps.md)
+- [Stamp Expressions and Continuous Counters](stamp_expressions.md)
 - [Transports and Custom Writers](custom_output.md)
 - [Trice over RTT](rtt.md)
 - [Example Projects](examples.md)
