@@ -2,6 +2,8 @@
 
 Use [Running the Tests](target_tests.md) for commands, prerequisites, GitHub Actions and release checks. This part explains how the tests produce their evidence and where to make a focused change.
 
+For a custom host encoding, see [Adding a host decoder](#adding-a-host-decoder).
+
 <details markdown="1">
 <summary>Contents</summary>
 
@@ -344,3 +346,53 @@ For host behavior, add tests beside the relevant Go implementation. For orchestr
 Shared shell helpers and their fixtures must also work with macOS Bash 3.2. For example, expanding an empty array under `set -u` can fail there while succeeding with modern Bash. Give runner success fixtures a nonempty plan and assert that its steps ran. Give compiler cases separate executable paths, so Windows never has to overwrite a just-executed program.
 
 After changing shared test infrastructure, check its direct callers, suite, CI and release hooks, then run the complete affected Go packages after the final edit. Use native Windows, Linux and macOS checks for the same revision and record each result separately. Mocked OS selection and a passing test on one host do not establish a pass on the other hosts. See [native acceptance](target_tests.md#native-acceptance-on-all-three-systems) for the CI entry points.
+
+<!-- mdtoc off -->
+## Adding a host decoder
+<!-- mdtoc on -->
+
+Create a package such as `internal/myDecoder` that implements [`decoder.Decoder`](../../internal/decoder/decoder.go): `Read([]byte) (int, error)` and `SetInput(io.Reader)`. Start from [`charDecoder`](../../internal/charDecoder/charDecoder.go) for a byte-stream example or [`trexDecoder`](../../internal/trexDecoder/trexDecoder.go) for framed records. Keep this constructor signature so the shared registry can call it:
+
+```go
+func New(
+    w io.Writer,
+    lut id.TriceIDLookUp,
+    m *sync.RWMutex,
+    li id.TriceIDLookUpLI,
+    in io.Reader,
+    endian bool,
+) decoder.Decoder
+```
+
+Embed `decoder.DecoderData` in the implementation to inherit `SetInput`, and initialize it with the shared constructor:
+
+```go
+decoder.NewDecoderData(decoder.Config{
+    Out:         w,
+    LUT:         lut,
+    LUTMutex:    m,
+    LI:          li,
+    In:          in,
+    Endian:      endian,
+    NeedBuffers: false, // Set true when the decoder needs framed working buffers.
+})
+```
+
+`Out == nil` becomes `io.Discard`; a nil `LUTMutex` receives a default mutex. `NeedBuffers` controls the additional framing buffers, not every allocation in the shared state. Implement the encoding's `Read` method in the new package, then register its constructor:
+
+```go
+// init makes the constructor available when this package is imported.
+func init() {
+    decoder.Register("MY_ENCODING", New)
+}
+```
+
+Add a side-effect import in [`internal/translator/translator.go`](../../internal/translator/translator.go):
+
+```go
+import _ "github.com/rokath/trice/internal/myDecoder"
+```
+
+`decoder.NewForEncoding("MY_ENCODING", ...)` can then construct it; names ignore case and surrounding whitespace. Run with `trice log -encoding MY_ENCODING` and the usual input options.
+
+Follow the [registry tests](../../internal/decoder/registry_test.go), [shared-constructor tests](../../internal/decoder/decoder_test.go) and [character-decoder tests](../../internal/charDecoder/charDecoder_test.go). Check constructor state, registration, input replacement, partial reads and EOF. A framed decoder also needs tests for split records and draining buffered records before EOF; data returned together with an input error must not be lost.

@@ -1,5 +1,7 @@
 # Target Implementation
 
+For the receive side, see [Receiving and resolving records](#receiving-and-resolving-records).
+
 <details markdown="1">
 <summary>Contents</summary>
 
@@ -561,4 +563,26 @@ File                                                | description
 ## 10. <a id="obsolete-rpc-support"></a>Obsolete RPC support
 
 The older RPC implementation is obsolete; it is separate from current [ABC commands](abc_asynchronous_broadcast_commands.md). Some library sources, tests and examples still contain RPC compatibility code. Do not enable it for a new integration. Removing it from example code is a separate task; this documentation reorganization does not change those sources.
+
+<!-- mdtoc off -->
+## Receiving and resolving records
+<!-- mdtoc on -->
+
+The current receive path separates three steps:
+
+| Step | What it does |
+| --- | --- |
+| Parse | `TriceParseRecord(&rx, buf, len)` reads one already deframed and decrypted record. It obtains the ID, stamp, cycle counter and payload byte range without consulting a TIL table. |
+| Resolve | `TriceResolveAbc` or `TriceResolveLog` looks up the ID in a generated table with an explicit element count. Resolution attaches the value width and handler or format information, and checks payload-size and metadata conflicts. |
+| Consume | The application dispatches the resolved ABC handler or formats the log record. `TriceHandleDecodedRecord` combines these steps for enabled receive consumers. |
+
+See the public contract in [`triceRx.h`](../../src/triceRx.h) and the implementation in [`triceRx.c`](../../src/triceRx.c). The parser returns a **positive logical record length**, without alignment padding. For example, an unstamped four-byte header plus one payload byte returns `5`; a transport's three extra alignment bytes are still the caller's responsibility. Only advance the input position according to that transport's record/alignment rules.
+
+`TRICE_RX_LEN_TOO_SHORT` means no complete record was consumed. Keep the partial bytes and retry from the same record start after receiving more data, or discard them under the application's error policy. Do not resolve or consume `rx` after a parse error. Other negative results describe unsupported or invalid input; the parser does not resynchronize a byte stream for the caller.
+
+`rx.payload` points into the caller's input buffer; parsing copies no payload bytes. Keep the buffer alive and unchanged until resolution and consumption finish. A delayed consumer must keep that storage valid or copy the data it needs before the buffer is reused. Immediately after parsing, `bitWidth` is `TRICE_BIT_WIDTH_UNKNOWN`, `paramCount` is zero, and optional format/handler fields are unset; those facts come from resolution, not from the record bytes alone.
+
+RX can be used independently of TX macros, output buffers and UART/RTT transmit backends. Include `triceRx.h`, compile `triceRx.c`, and supply the tables and handlers required by the receive consumers you enable. Configure `TRICE_RX_ABC_SUPPORT`, `TRICE_RX_LOG_SUPPORT` and `TRICE_RX_X0_COUNTED_BUFFER_SUPPORT` through the project configuration; [`triceRxDefaultConfig.h`](../../src/triceRxDefaultConfig.h) derives `TRICE_RX_SUPPORT` when it is not set explicitly. Framing and decryption happen before this parser. The [ABC chapter](abc_asynchronous_broadcast_commands.md) explains dispatch and application-level responses; [Local Deferred Text Log](#local-deferred-text-log) explains the local formatter. These implemented building blocks do not imply a standalone C replacement for the host tool.
+
+The [receive-runtime tests](../../_test/abc_rx_host/triceAbcReceiveTest.c) cover parsing, resolution, dispatch and incomplete/invalid records. The [local-log integration tests](../../internal/id/local_log_integration_test.go) exercise the parser and resolver through the real buffer adapters and formatter.
 
