@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"testing"
 	"time"
 
@@ -416,7 +417,7 @@ func TestBinaryLoggerAppendsToExistingFile(t *testing.T) {
 
 // TestUDP4ConnectionReceivesPackets verifies the expected behavior.
 func TestUDP4ConnectionReceivesPackets(t *testing.T) {
-	conn := newUDPConnection("127.0.0.1:0")
+	conn := newUDPConnection(io.Discard, "127.0.0.1:0")
 	defer conn.Close()
 
 	peer, err := net.DialUDP("udp4", nil, conn.conn.LocalAddr().(*net.UDPAddr))
@@ -499,7 +500,6 @@ func TestNewReadWriteCloserUDP4Default(t *testing.T) {
 	require.NoError(t, err)
 	udp, ok := rc.(*udp4)
 	require.True(t, ok)
-	udp.w = &out
 	defer rc.Close()
 
 	assert.Contains(t, out.String(), "Assigning default arguments for port UDP4")
@@ -518,12 +518,12 @@ func TestNewReadWriteCloserUDP4Default(t *testing.T) {
 	assert.Equal(t, []byte{0x21, 0x22}, buf[:n])
 }
 
-// TestUDP4WritePanics verifies the expected behavior.
-func TestUDP4WritePanics(t *testing.T) {
+// TestUDP4WriteRejectsCommands requires an actionable error without a panic.
+func TestUDP4WriteRejectsCommands(t *testing.T) {
 	conn := &udp4{}
-	assert.PanicsWithValue(t, "udp4.Write not implemented", func() {
-		_, _ = conn.Write([]byte{0x01})
-	})
+	n, err := conn.Write([]byte{0x01})
+	assert.Zero(t, n)
+	assert.ErrorContains(t, err, "UDP4 target commands are not supported")
 }
 
 // TestTCP4WriteAndDefaultArguments verifies both the tcp4 write wrapper and
@@ -551,7 +551,6 @@ func TestTCP4WriteAndDefaultArguments(t *testing.T) {
 	var out bytes.Buffer
 	rc, err := NewReadWriteCloser(&out, nil, false, "TCP4", "default")
 	require.NoError(t, err)
-	rc.(*tcp4).w = &out
 	defer rc.Close()
 	require.NoError(t, rc.(*tcp4).conn.SetDeadline(time.Now().Add(5*time.Second)))
 
@@ -569,24 +568,88 @@ func TestTCP4WriteAndDefaultArguments(t *testing.T) {
 	}
 }
 
-// TestBinaryLoggerWriteAndClose verifies the expected behavior.
+// TestBinaryLoggerWriteAndClose preserves the source's command channel.
 func TestBinaryLoggerWriteAndClose(t *testing.T) {
-	logger := &binaryLogger{}
+	source := &countedResource{}
+	logger := &binaryLogger{r: source}
 
-	n, err := logger.Write([]byte("ignored"))
+	n, err := logger.Write([]byte("hi\x00"))
 	require.NoError(t, err)
-	assert.Zero(t, n)
+	assert.Equal(t, 3, n)
+	assert.Equal(t, [][]byte{[]byte("hi\x00")}, source.writes)
 	assert.NoError(t, logger.Close())
+	assert.Equal(t, 1, source.closes)
 }
 
-// TestBytesViewerWriteAndClose verifies the expected behavior.
+// TestBytesViewerWriteAndClose preserves the source's command channel.
 func TestBytesViewerWriteAndClose(t *testing.T) {
-	viewer := &bytesViewer{}
+	source := &countedResource{}
+	viewer := &bytesViewer{r: source}
 
-	n, err := viewer.Write([]byte("ignored"))
+	n, err := viewer.Write([]byte("hi\x00"))
 	require.NoError(t, err)
-	assert.Zero(t, n)
+	assert.Equal(t, 3, n)
+	assert.Equal(t, [][]byte{[]byte("hi\x00")}, source.writes)
 	assert.NoError(t, viewer.Close())
+	assert.Equal(t, 1, source.closes)
+}
+
+// commandWriteSource records the exact command while injecting transport
+// results, including partial progress accompanied by an error.
+type commandWriteSource struct {
+	stubReadWriteCloser
+	count int
+	err   error
+}
+
+func (s *commandWriteSource) Write(b []byte) (int, error) {
+	_, _ = s.stubReadWriteCloser.Write(b)
+	return s.count, s.err
+}
+
+// TestDiagnosticWrappersForwardCommands covers public constructors separately
+// and in the CLI's order. Neither diagnostic output may include outgoing data.
+func TestDiagnosticWrappersForwardCommands(t *testing.T) {
+	savedLogfile := BinaryLogfileName
+	BinaryLogfileName = "commands.bin"
+	t.Cleanup(func() { BinaryLogfileName = savedLogfile })
+	writeErr := errors.New("target disconnected")
+	for _, mode := range []string{"viewer", "logger", "combined"} {
+		for _, result := range []struct {
+			name  string
+			count int
+			err   error
+		}{
+			{"complete", 3, nil},
+			{"short write", 1, nil},
+			{"failed write", 0, writeErr},
+			{"partial failed write", 1, writeErr},
+		} {
+			t.Run(mode+"/"+result.name, func(t *testing.T) {
+				source := &commandWriteSource{count: result.count, err: result.err}
+				var connection io.ReadWriteCloser = source
+				var diagnostics bytes.Buffer
+				fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+				if mode != "logger" {
+					connection = NewBytesViewer(&diagnostics, connection)
+				}
+				if mode != "viewer" {
+					connection = NewBinaryLogger(io.Discard, fs, connection)
+				}
+				t.Cleanup(func() { assert.NoError(t, connection.Close()) })
+				n, err := connection.Write([]byte("hi\x00"))
+				assert.Equal(t, result.count, n)
+				assert.Equal(t, result.err, err)
+				assert.Equal(t, [][]byte{[]byte("hi\x00")}, source.writes)
+				assert.Empty(t, diagnostics.String())
+				if mode != "viewer" {
+					data, err := fs.ReadFile(BinaryLogfileName)
+					require.NoError(t, err)
+					assert.Empty(t, data, "binary logs contain received bytes only")
+				}
+			})
+		}
+	}
 }
 
 // TestBufferCloseResetsContent verifies the expected behavior.
@@ -653,14 +716,52 @@ func TestTCP4CloseVerbose(t *testing.T) {
 	listener := listenTCP4Test(t)
 	serveTCP4Test(t, listener, func(connection net.Conn) error { return nil })
 
-	client := newTCP4Connection(listener.Addr().String())
+	var out bytes.Buffer
+	client := newTCP4Connection(&out, listener.Addr().String())
 
 	savedVerbose := Verbose
 	Verbose = true
 	t.Cleanup(func() { Verbose = savedVerbose })
 
-	var out bytes.Buffer
-	client.w = &out
 	assert.NoError(t, client.Close())
 	assert.Contains(t, out.String(), "Closing tcp4 device.")
+}
+
+// TestNetworkFactoryClose exercises unmodified factory results and verifies
+// that diagnostics never prevent the underlying socket from being closed.
+func TestNetworkFactoryClose(t *testing.T) {
+	savedVerbose := Verbose
+	t.Cleanup(func() { Verbose = savedVerbose })
+	for _, port := range []string{"TCP4", "UDP4"} {
+		for _, verbose := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/verbose=%t", port, verbose), func(t *testing.T) {
+				Verbose = verbose
+				endpoint := "127.0.0.1:0"
+				if port == "TCP4" {
+					listener := listenTCP4Test(t)
+					endpoint = listener.Addr().String()
+					serveTCP4Test(t, listener, func(peer net.Conn) error {
+						_, err := peer.Read(make([]byte, 1))
+						if errors.Is(err, io.EOF) {
+							return nil
+						}
+						return fmt.Errorf("peer did not observe close: %v", err)
+					})
+				}
+				var out bytes.Buffer
+				connection, err := NewReadWriteCloser(&out, nil, verbose, port, endpoint)
+				require.NoError(t, err)
+				t.Cleanup(func() { _ = connection.Close() })
+				require.NoError(t, connection.Close())
+				_, err = connection.Read(make([]byte, 1))
+				assert.ErrorIs(t, err, net.ErrClosed)
+				message := "Closing " + strings.ToLower(port) + " device."
+				if verbose {
+					assert.Contains(t, out.String(), message)
+				} else {
+					assert.Empty(t, out.String())
+				}
+			})
+		}
+	}
 }

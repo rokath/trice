@@ -396,6 +396,31 @@ func TestRunLogValidatesPickAndBanBeforeStartingInput(t *testing.T) {
 	}
 }
 
+// TestRemoteDisplayRejectsUDPBeforeInput checks both public command entry
+// points and option spellings without starting a shell or opening a socket.
+func TestRemoteDisplayRejectsUDPBeforeInput(t *testing.T) {
+	original := startLogLoop
+	t.Cleanup(func() { startLogLoop = original; FlagsInit() })
+	for _, loggingOnly := range []bool{false, true} {
+		for _, option := range []string{"-ds", "-displayserver"} {
+			FlagsInit()
+			started := false
+			startLogLoop = func(io.Writer, *afero.Afero) error { started = true; return nil }
+			fs := &afero.Afero{Fs: afero.NewMemMapFs()}
+			arguments := []string{option, "-p", "uDp4"}
+			var err error
+			if loggingOnly {
+				err = LogHandler(io.Discard, fs, append([]string{"tlog"}, arguments...))
+			} else {
+				err = Handler(io.Discard, fs, append([]string{"trice", "log"}, arguments...))
+			}
+			assert.ErrorContains(t, err, "cannot use -port UDP4")
+			assert.ErrorContains(t, err, "TCP4 or UART")
+			assert.False(t, started)
+		}
+	}
+}
+
 // TestStampExpressionsValidateBeforeInput checks the reserved prefix and contexts
 // through the same initialization path that opens a real logger.
 func TestStampExpressionsValidateBeforeInput(t *testing.T) {

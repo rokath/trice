@@ -174,6 +174,8 @@ This expects a TCP4 server at IP address `192.168.2.3` with port number `45678` 
 
 To receive Trice logs over IPv4 UDP, use `-port UDP4`. By default, it listens on `0.0.0.0:17005`, which accepts packets on all network interfaces. Use `-args` to choose a different local address and port. This receiver does not join multicast groups.
 
+UDP4 receives logs only; it has no target command reply address. Combining it with `-ds` or `-displayserver` is rejected. Use TCP4 or UART when you need the interactive target command shell.
+
 ```bash
 trice log -p UDP4
 ```
@@ -183,6 +185,12 @@ trice log -p UDP4
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](../ref/UARTCommandAnimation.gif)
+
+Start `trice ds` in one terminal, then run `trice log -p COM3 -ds` in another. Entering `hi` and pressing Enter sends `hi` followed by a zero byte to the target. An intentionally empty line sends just the zero byte. `help`, `shutdown`, and `quit` are local shell commands; `quit` ends the console and leaves the display server running.
+
+`-showInputBytes` and `-binaryLogfile` can be used together with this shell. Both options preserve outgoing commands; their diagnostic output and binary recording contain received bytes only.
+
+End of standard input stops the shell while logging continues. A final command without a newline is sent once. Other input errors, target write errors, and incomplete writes stop the shell with a diagnostic; commands are not retried. When the log run ends, it interrupts pending keyboard reads and target writes and waits for the shell to finish. Standard input remains open.
 
 ## 11. <a id="location-information"></a>Location Information
 
