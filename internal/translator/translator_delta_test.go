@@ -589,16 +589,6 @@ func TestLocationInformation(t *testing.T) {
 	}
 }
 
-// TestFormatTargetDeltaValueBuiltinFormats verifies the expected behavior.
-func TestFormatTargetDeltaValueBuiltinFormats(t *testing.T) {
-	assert.Equal(t, " 1:02:03,004", formatTargetDeltaValue(4, "ms", 3723004))
-	assert.Equal(t, "   4,005_006", formatTargetDeltaValue(4, "us", 4005006))
-	assert.Equal(t, "       7,008", formatTargetDeltaValue(2, "ms", 7008))
-	assert.Equal(t, "       9_010", formatTargetDeltaValue(2, "us", 9010))
-	assert.Equal(t, "raw", formatTargetDeltaValue(0, "raw", 123))
-	assert.Equal(t, "delta:11", formatTargetDeltaValue(4, "delta:%d", 11))
-}
-
 // TestSplitSingleFormatDirective verifies the expected behavior.
 func TestSplitSingleFormatDirective(t *testing.T) {
 	prefix, width, leftAlign, suffix, ok := splitSingleFormatDirective("dt:%-6d us")
@@ -632,9 +622,8 @@ func TestFormatMissingTargetDelta(t *testing.T) {
 	assert.Equal(t, want, got)
 }
 
-// TestTargetStampWidthAndFormatFallbacks verifies direct width helpers and fallback formatting.
-func TestTargetStampWidthAndFormatFallbacks(t *testing.T) {
-	assert.Equal(t, len("ts:0007"), targetStampWidth(4, "ts:%04d"))
+// TestTargetStampFormatFallbacks verifies custom formats and unsupported stamp widths.
+func TestTargetStampFormatFallbacks(t *testing.T) {
 	assert.Equal(t, "stamp:7", formatTargetStamp(4, "stamp:%d", 7))
 	assert.Equal(t, "stamp:7", formatTargetStamp(2, "stamp:%d", 7))
 	assert.Equal(t, "marker", formatTargetStamp(0, "marker", 99))
@@ -1678,9 +1667,14 @@ func TestTREXVisIntegrationRoutesUnstampedAndBothStampWidths(t *testing.T) {
 // TestFormatTargetStampEpochAndBuiltinVariants verifies additional built-in timestamp branches.
 func TestFormatTargetStampEpochAndBuiltinVariants(t *testing.T) {
 	assert.Equal(t, "", formatTargetStamp32("", 123))
+	assert.Equal(t, "time: 1:02:03,004", formatTargetStamp32("ms", 3723004))
 	assert.Equal(t, "time:   4,005_006", formatTargetStamp32("us", 4005006))
 	assert.Equal(t, "time:       7,008", formatTargetStamp16("ms", 7008))
 	assert.Equal(t, "time:       9_010", formatTargetStamp16("us", 9010))
+	assert.Equal(t, "raw", formatTargetStamp(0, "raw", 123))
+	assert.Equal(t, "delta:11", formatTargetStamp(4, "delta:%d", 11))
+	assert.Equal(t, "1970-01-01 00:00:00 UTC-->2106-02-07 06:28:16 UTC", formatTargetStamp32("epoch", 0))
+	assert.Equal(t, "2106-02-07 06:28:15 UTC", formatTargetStamp32("epoch", uint64(^uint32(0))))
 
 	ts := uint64(1700000000)
 	assert.Equal(t,

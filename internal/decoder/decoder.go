@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 	"unicode/utf8"
 
 	"github.com/rokath/trice/internal/emitter"
@@ -489,22 +488,6 @@ func statisticsLocationFile(file string, width int) string {
 	return "…" + string(runes[len(runes)-width+1:])
 }
 
-// LocationInformation returns optional location information for id.
-func LocationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
-	if li != nil && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
-		if li, ok := li[tid]; ok {
-			return fmt.Sprintf(LocationInformationFormatString, id.LocationFile(li), li.Line)
-		} else {
-			return fmt.Sprintf(LocationInformationFormatString, "", 0)
-		}
-	} else {
-		if Verbose {
-			return "no li"
-		}
-	}
-	return ""
-}
-
 // locationInformationWidth computes byte count for location information.
 func locationInformationWidth() (sum int) {
 	re := regexp.MustCompile("[0-9]+")
@@ -517,34 +500,4 @@ func locationInformationWidth() (sum int) {
 		sum += v
 	}
 	return sum + 1 // plus space after line number
-}
-
-// CorrectWrappedTimestamp checks whether a 32-bit timestamp falls outside the valid range
-// and virtually sets a 33rd bit by adding 2^32 seconds to it
-func CorrectWrappedTimestamp(ts32 uint32) time.Time {
-
-	const (
-		minValidYear = 2000
-		maxValidYear = 2038
-		wrapOffset   = 1 << 32 // 2^32 seconds
-	)
-
-	// Interpret the timestamp as time.Time
-	t := time.Unix(int64(ts32), 0).UTC()
-
-	if t.Year() >= minValidYear && t.Year() <= maxValidYear {
-		return t
-	}
-
-	// Apply wraparound correction by adding 2^32 seconds
-	tWrapped := time.Unix(int64(ts32)+wrapOffset, 0).UTC()
-
-	// If the corrected timestamp is plausible, return it
-	if tWrapped.Year() > maxValidYear && tWrapped.Year() <= maxValidYear+100 {
-		return tWrapped
-	}
-
-	// Fallback: return the original timestamp and print a warning
-	fmt.Printf("WARNING: Timestamp %v (%d) is outside the expected year range\n", t, ts32)
-	return t
 }
