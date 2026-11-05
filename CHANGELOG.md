@@ -43,7 +43,7 @@ This fourth v2 beta implements the alias/tag/CLI/CE redesign and improves loggin
 - [Macro aliases](docs/rm/legacy_user_code.md#alias-identity-and-tags-in-v2) retain their exact names in dictionaries and use one event tag across filters, statistics, text, JSON/KV and visualization. `-alias Name:Tag` and `-salias Name:Tag` override tag selection; repeat these overrides when logging because they are not stored.
 - [Context Enrichment](docs/rm/context_enrichment.md#alias-tags-and-ce-limits) applies the alias event-tag rules before source-prefix rules, once per tag group. Scalar aliases support enrichment within the existing scalar limits; native `triceS` accepts fixed text. String-alias extensions and added runtime strings are rejected. Changes between the original build tag and stored-format host tag produce a warning with workarounds.
 
-### CLI changes
+### CLI options and custom tags
 
 - Multi-character [option names](docs/rm/cli.md#common-information) now ignore case; one-character names remain case-sensitive. Option values keep their spelling.
 - Use `-utag` instead of `-ulabel`; the old name reports a replacement hint. [Custom tags](docs/rm/tags_color_and_weights.md#user-defined-tags-weights-and-colors) now ignore case and share one group, weight, color and statistics counter, following the built-in tag presentation rules.
@@ -54,7 +54,10 @@ This fourth v2 beta implements the alias/tag/CLI/CE redesign and improves loggin
 - TCP/UDP shutdown preserves cleanup diagnostics. The [interactive command shell](docs/rm/cli.md#stimulate-target-with-a-user-command-over-uart) handles EOF and write failures, stops with logging, and forwards commands through byte-display and binary-log wrappers. UDP4 rejects unsupported command use without panicking.
 - The [local C logger](docs/rm/target_implementation.md#local-deferred-text-log) correctly handles a boolean `%t` conversion at the end of a format.
 - [Developer tests](docs/rm/target_tests.md#how-to-run-the-tests) reuse available tool versions without setup prompts, skip formatting when Bind leaves sources unchanged, allow configurable Go test timeouts, and use the C locale for consistent output.
+- Pinned tool downloads retry transient network and HTTP failures with increasing delays while retaining SHA-256 verification. Linux library CI frees space for tool archives and extraction before setup.
+- [CI link checks](docs/rm/target_tests.md#github-actions) validate local files and anchors in PRs. Pushes to `main` and manual runs also check external links, keeping temporary website outages out of PR link results.
 - Manuals expand alias/CE guidance, CHAR/DUMP monitoring, decoder extension and JSON/KV examples. The reference PDF now includes [stamp expressions](docs/rm/stamp_expressions.md).
+- [Release instructions](docs/rm/tool_build_release.md#publish-a-release-quick-steps) now start with a short checklist for notes, PR integration, tags and manual publication. Follow-up notes preserve completed release-review decisions and their Git provenance.
 
 ## v2.0.0-beta-3
 
