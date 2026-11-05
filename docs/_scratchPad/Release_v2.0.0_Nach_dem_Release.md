@@ -4,20 +4,21 @@
 
 1. Die endgültige Freigabe aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) bleibt Voraussetzung für die Veröffentlichung.
 2. **N06 und der Markdown-Teil von N02 fließen bereits in beta-4 ein:** kurze Einstiege, konkrete Ein-/Ausgaben und die heutige Host-Architektur. Die folgende Tabelle zeigt den Umfang.
-3. **N01 und N02 sind umgesetzt.** Als Nächstes N03 und N04 bearbeiten: Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
-4. **N05** nur als getrennte Wartungsaufgabe angehen. Eine breite Skriptumbenennung kurz vor v2.0.0 bringt wenig Anwendernutzen und berührt viele Aufrufer.
+3. **N01, N02 und N05 sind umgesetzt.** Als Nächstes N03 bearbeiten: Tests an tatsächlichen Fehlergrenzen ergänzen.
+4. **N04 entfällt nach Nutzerentscheidung.** Die fünf eigenen `third_party`-READMEs bleiben von der automatischen Linkprüfung ausgenommen.
 5. **N07 ist im RM gesichert:** Zukunftsideen bleiben auffindbar, ohne neue Funktionen zuzusagen.
 
-Stand: 2026-11-05. Ausgangspunkt war das Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Im Dokumentationsschritt für beta-4 blieben Code, Tests und Prüfskripte unverändert. Anschließend wurden N01 mit Code- und Teständerungen sowie N02 mit Kommentarkorrekturen umgesetzt; die Abschnitte unten halten Ergebnisse und Prüfungen fest.
+Stand: 2026-11-05. Ausgangspunkt war das Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Im Dokumentationsschritt für beta-4 blieben Code, Tests und Prüfskripte unverändert. Anschließend wurden N01 mit Code- und Teständerungen, N02 mit Kommentarkorrekturen und N05 mit gezielten Skriptumbenennungen umgesetzt. N04 entfällt nach Nutzerentscheidung; die Abschnitte unten halten Ergebnisse und Prüfungen fest.
 
 Punkt                          | Dokumentationsstand für beta-4                                                                                                                                                                                | Was offen bleibt
------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------
+------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------
 N06: Einstieg und Orientierung | README, Guide, Quickstarts und Beispielübersicht führen direkt zur passenden Aufgabe. Bind zeigt einen konkreten Aufruf statt eines Platzhalters; ältere IDE-/Insert-Anleitungen sind als solche eingeordnet. | Historische Hardware-Rezepte sind dadurch nicht neu validiert.
 N06: Werte und Ausgabe         | User Manual und Referenz zeigen zwei CSV-Spalten samt Dateiinhalt, Umrechnung und Grenzen. Strukturierte Ausgabe und CE beginnen mit Eingabe, Befehl und Ergebnis.                                            | Die technischen Detailregeln bleiben in den Fachkapiteln und vorhandenen Anhängen.
 N02: Host-Architektur          | [Aktueller Datenfluss](../rm/target_test_internals.md#host-logging-pipeline) mit Besitz, Lebensdauer, Locks, Diagnosen und Fehlerweitergabe; die historische Parserbeschreibung verweist darauf.              | Erledigt; siehe N02.
-N04: Link-Prüfumfang           | Relative Links der eigenen Wrapper-READMEs wurden mit den bearbeiteten Dokumenten lokal geprüft.                                                                                                              | Automatische Einbeziehung in Lychee benötigt eine getrennte Änderung der Prüfauswahl.
+N04: Link-Prüfumfang           | Relative Links der eigenen Wrapper-READMEs wurden mit den bearbeiteten Dokumenten lokal geprüft.                                                                                                              | Zusätzliche automatische Prüfung entfällt nach Nutzerentscheidung.
 N01: ungenutzter Code          | Go-Altzweige und auskommentierter Receiver-Code entfernt; Tests prüfen die aktiven Wege.                                                                                                                      | Öffentliche C-Deklaration geprüft und bewusst beibehalten; siehe N01.
-N03, N05                       | Keine Implementierung im Dokumentationsschritt.                                                                                                                                                               | Zusätzliche Tests und gegebenenfalls einzelne Skriptumbenennungen.
+N03: Verhaltenstests           | Einzelne Regressionstests wurden mit N01 und den EPUB-/Release-Korrekturen ergänzt.                                                                                                                           | Weiterer gezielter Testausbau.
+N05: Skriptnamen               | Sieben interne Helfer folgen jetzt dem Muster `_NNN_name.ext`; Aufrufer, Tests und aktive Dokumentation verwenden die neuen Namen.                                                                            | Erledigt; siehe N05.
 
 Die Beispiele wurden mit den vorhandenen Quellen und Tests abgeglichen. Dabei wurde auch die Dateibehandlung von `-vis` klargestellt: Jeder Lauf ersetzt eine vorhandene Ausgabedatei. Die bestehende LabPlot-Animation wird wiederverwendet; eine kleine Tabelle erklärt ihre Spaltenzuordnung. Das ist kein neuer Lauf der Programme oder der Hardware-Beispiele; die finale Testausführung bleibt beim Benutzer.
 
@@ -76,33 +77,33 @@ Als spätere Ergänzung eignen sich begrenzte Go-Fuzz-Tests für Format-/Express
 
 ## Selbst gepflegte Dokumentation vollständig in Prüfungen erfassen
 
-**N04 · niedrige bis mittlere Priorität · Werkzeugauswahl verbessern**
+**N04 · entfällt nach Nutzerentscheidung vom 2026-11-05**
 
-[lychee.toml](../../lychee.toml) schließt `third_party` vollständig aus. Dort liegen jedoch auch fünf kurze, vom Projekt gepflegte Wrapper-READMEs. Ihre veralteten Handbuchlinks wurden während dieses Reviews korrigiert, waren vom normalen Linkcheck aber nicht erfasst.
-
-**Maßnahme:** eigene Wrapper-Dokumentation von fremden Texten und Binärpaketen unterscheiden und gezielt mitprüfen. Vendor-Dokumentation weiterhin nicht automatisch umschreiben. Ebenso beim Handbuchinventar klar zwischen Fachkapiteln, Index/Header/Footer und archiviertem Material unterscheiden. Die bereits behobene Auslassung des Stamp-Kapitels zeigt den nötigen Prüfumfang; siehe die Referenz zur Handbuchvollständigkeit unten.
-
-**Erledigt, wenn:** ein absichtlich beschädigter relativer Link in einer eigenen `third_party`-README erkannt würde und originale Vendor-Dateien unverändert bleiben. Externe Verbindungsfehler getrennt von fehlenden lokalen Dateien oder Fragmenten ausweisen.
+Die bekannten veralteten Links in den fünf eigenen Wrapper-READMEs unter `third_party` sind korrigiert. Auf eine zusätzliche automatische Prüfung dieser Dateien wird verzichtet. Der Ausschluss von `third_party` in [lychee.toml](../../lychee.toml) bleibt bestehen; künftige kaputte Links in diesen READMEs werden damit nicht automatisch erkannt.
 
 ## Skriptumbenennungen klein und getrennt halten
 
-**N05 · niedrige Priorität · keine breite Umbenennung vor v2.0.0 empfohlen**
+**N05 · umgesetzt am 2026-11-05 · interne Helfer einheitlich benannt**
 
-Die aktuelle Nummerierung trennt bereits interne Schritte und ihre Reihenfolge. Sie wurde erst kürzlich vereinheitlicht; die Migrationsdokumentation nennt die neuen Namen. Eine weitere komplette Umbenennung oder Neunummerierung erhöht jetzt den Aufwand für Benutzer und Aufrufer.
+Interne Shell-, Node.js- und Python-Helfer folgen dem Muster `_NNN_name.ext`. Der Unterstrich kennzeichnet den internen Helfer; die Nummer dient der Sortierung und bestimmt keine Ausführungsreihenfolge. Öffentlich dokumentierte Einstiege behalten ihre Namen, auch wenn CI sie ebenfalls aufruft.
 
-Einzelne Namen könnten später verständlicher werden:
+Umbenannt sind:
 
-Heutiger Name                                                     | Möglicher Name                               | Konkreter Grund
------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-`scripts/_320_generate_trice_user_manual_pdf.sh`                  | `scripts/_320_generate_trice_manual_pdfs.sh` | Erzeugt inzwischen User- und Reference-Manual-PDF. Der bisherige Singular und die Beschränkung auf das User Manual sind zu eng.
-`trice_bindIDs_in_examples_and_test_folder.sh` im Repository-Root | `scripts/bind_examples_and_tests.sh`         | Name und Ablage könnten das öffentlich aufrufbare Bind-Hilfsskript kürzer und einheitlicher beschreiben.
-`scripts/buildTriceTool.sh`                                       | `scripts/build_trice_tools.sh`               | Baut `trice` und `tlog`; Plural und die verbreitete Unterstrichschreibweise wären präziser. Der vorhandene Name ist aber gut dokumentiert und kein Releaseproblem.
+Bisher                                  | Jetzt
+--------------------------------------- | -------------------------------------------
+`examples/buildCLI.sh`                  | `examples/_010_build_cli.sh`
+`examples/prepareTriceBind.sh`          | `examples/_020_prepare_trice_bind.sh`
+`scripts/_test_npm_tools.cjs`           | `scripts/_118_test_npm_tools.cjs`
+`scripts/_prepare_reference_manual.cjs` | `scripts/_315_prepare_reference_manual.cjs`
+`scripts/_prepare_pages.py`             | `scripts/_340_prepare_pages.py`
+`scripts/_github_downloads.py`          | `scripts/_350_github_downloads.py`
+`scripts/_verify_release_features.cjs`  | `scripts/_615_verify_release_features.cjs`
 
-`scripts/testAll.sh` würde ich als etablierten Einstieg behalten. Interne nummerierte Tests und Beispiel-Wrapper nicht allein aus Stilgründen umbenennen. Ein führender Unterstrich sollte interne Helfer erkennen lassen; öffentlich dokumentierte Einstiege brauchen vor allem stabile, klare Namen.
+Die Renderer-Konfiguration `scripts/_manual_pdf_config.cjs` behält ihren Namen. Weitere kosmetische Umbenennungen von `scripts/testAll.sh`, `scripts/buildTriceTool.sh`, dem Bind-Skript im Root und dem PDF-Einstieg entfallen. Beispiel-Einstiege wie `build.sh` und `show_json.sh` bleiben ebenfalls erhalten.
 
-**Vor einer tatsächlichen Änderung alle Aufrufer erfassen:** direkte Entwickleraufrufe, `testAll.sh`, `format_repo.sh`, Beispielvorbereitung, `.goreleaser.yaml`, GitHub-Workflows, Skripttests und aktive Dokumentation. Die bestehenden Verhaltenstests des jeweiligen Aufrufwegs mitziehen. Keine stillen Kompatibilitätswrapper oder zusätzliche Migration einführen; deren Bedarf wäre gesondert zu entscheiden. Archivierte Texte nicht umschreiben.
+Beispiel-Builds, Tool-Vorbereitung, Snapshot-Prüfung, GitHub-Workflows, Testfixtures und aktive Dokumentation verwenden die neuen Namen. Die bestehenden PDF-/EPUB-Hooks bleiben die öffentlichen Aufrufwege. Es gibt keine zusätzlichen Kompatibilitätswrapper; die Skriptlogik bleibt unverändert.
 
-**Erledigt, wenn:** jede gewählte Umbenennung einen konkreten Verständlichkeitsgewinn hat, alle aktiven Aufrufer passen und der Änderungssatz ausschließlich diese Aufgabe enthält.
+**Prüfung:** gezielte Go-Tests in `scripts` und `scripts/testcheck` erfolgreich (`-count=1 -timeout=6m`), darunter Beispiel-CLI und Bind-Vorbereitung, npm-/Browser-Auswahl, echte Handbuch-Vorbereitung, PDF-/EPUB-Wrapper, Pages, Downloadberichte und Release-Prüfung. Die betroffene Shell-Auswahl besteht auch mit macOS-Bash 3.2. Syntax, ShellCheck, shfmt, gofmt, Actionlint und lokale Dokumentlinks sind geprüft; der Inhaltsvergleich zeigt ausschließlich die vereinbarten Namens-/Pfadersetzungen. Ausgeführt auf macOS arm64 in einer isolierten Kopie. Keine Gesamtsuite, realen Compiler-/PDF-/EPUB-Builds oder nativen Linux-/Windows-Läufe; die finale Gesamtabnahme bleibt beim Benutzer.
 
 ## Dokumentation mit konkreten Anwendungsbeispielen verständlich machen
 
