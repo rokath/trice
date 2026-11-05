@@ -7,6 +7,7 @@
 
 * [1. Placeholders and Names](#placeholders-and-names)
 * [2. Field Types and Display](#field-types-and-display)
+  * [2.1. Supported records and limits](#supported-records-and-limits)
 * [3. Instrumentation and Dictionary](#instrumentation-and-dictionary)
 * [4. Output Formats and Event Boundaries](#output-formats-and-event-boundaries)
 * [5. JSON and KV Contract](#json-and-kv-contract)
@@ -19,15 +20,13 @@
 
 </details>
 
-Machine-readable output requires the standard TREX wire format. CHAR and DUMP do not provide suitable event boundaries and are rejected with `-logFormat json` or `-logFormat kv`.
-
-Structured Logging adds named, typed values to a readable message. A regular Trice call is enough:
+Use named fields when a program should read measurements without parsing your message text. The same capture can be displayed as text, JSON or key/value records. For example, a motor reports its ID and temperature:
 
 ```c
 trice("info:Motor {motor_id}: {temperature_c:%.1f C}", motor_id, aFloat(temperature_c));
 ```
 
-With `motor_id = 3` and `temperature_c = 87.5`, the output depends on the selected format:
+Run Bind and rebuild after changing the source template. Use the resulting `til.json` with the firmware or capture. With `motor_id = 3` and `temperature_c = 87.5`, the message and fields look like this:
 
 These three outputs use `-li off -showID '' -hs off -ts off`, so no optional host or target metadata appears.
 
@@ -49,7 +48,9 @@ Motor 3: 87.5 C
 tag=INFO level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature_c=87.5
 ```
 
-Further output formats, such as CSV, could be added when needed.
+For two-column CSV output, use [`-vis`](visualization.md#save-two-values-as-csv). CSV is not a `-logFormat` value.
+
+Machine-readable output requires the standard TREX wire format. CHAR and DUMP do not provide suitable event boundaries and are rejected with `-logFormat json` or `-logFormat kv`.
 
 The target continues to transmit the ID and values using the existing wire format. Field names are not transmitted as additional runtime arguments or payload; they reside in the dictionary on the host.
 
@@ -57,9 +58,7 @@ Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN
 
 Try the [PC Feature Tour](examples.md#pc-feature-tour) or the [G0B1 Feature Tour](examples.md#g0b1-feature-tour): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
 
-Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
-
-Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","level":"INFO","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
+For buffer and function-display restrictions, see [Supported records and limits](#supported-records-and-limits).
 
 ## 1. <a id="placeholders-and-names"></a>Placeholders and Names
 
@@ -84,16 +83,16 @@ With `voltage_mV = 3300` and `current_mA = 120`, either call displays `Supply 33
 
 These are alternatives for the same log site, not two calls required to produce one event. Bind or Insert must run after changing the template. For these integer values, `{}` uses the same `%d` display as the original call.
 
-Format string syntax | Meaning
----|---
-`{motor_id}` | Explicit field name, default display.
-`{}` | Derive the name from the corresponding C argument.
-`{plant.}` | Prefix the derived name with `plant.`.
-`{:%.1f}` | Derived name and explicit display.
+Format string syntax   | Meaning
+---------------------- | --------------------------------------------------
+`{motor_id}`           | Explicit field name, default display.
+`{}`                   | Derive the name from the corresponding C argument.
+`{plant.}`             | Prefix the derived name with `plant.`.
+`{:%.1f}`              | Derived name and explicit display.
 `{temperature:%.1f C}` | Explicit name and display.
-`{: = %.1f C}` | Derived name and display.
-`{motor_id:: %d, }` | Name `motor_id`, display `: %d, `.
-`{{` and `}}` | Literal opening and closing braces.
+`{: = %.1f C}`         | Derived name and display.
+`{motor_id:: %d, }`    | Name `motor_id`, display `: %d, `.
+`{{` and `}}`          | Literal opening and closing braces.
 
 The first colon separates the name from its display. The display may contain free text and further colons, but must contain exactly one supported format specifier. `%%` is not an additional value. Dynamic widths such as `%*d` are not allowed in a structured field.
 
@@ -129,15 +128,15 @@ This produces `set={1,2}, value=7` when `value = 7`. A backslash before a brace 
 
 ## 2. <a id="field-types-and-display"></a>Field Types and Display
 
-Format specifier | Structured value
----|---
-`%d`, `%i` | Signed integer of the Trice bit width.
+Format specifier                   | Structured value
+---------------------------------- | ------------------------------------------------------------------------------------
+`%d`, `%i`                         | Signed integer of the Trice bit width.
 `%u`, `%o`, `%O`, `%x`, `%X`, `%b` | Unsigned integer. The selected numeric base affects only the message.
 `%f`, `%F`, `%e`, `%E`, `%g`, `%G` | Floating-point number; 32 bits with `aFloat`, 64 bits with `aDouble`.
-`%c`, `%q`, `%U` | Character as a string; invalid Unicode code points become the replacement character.
-`%t` | Boolean: zero is `false`, other values are `true`.
-`%s` | String from `triceS` or `triceN`.
-`%p` | Address in the form `0x...`; does not imply the type of the referenced object.
+`%c`, `%q`, `%U`                   | Character as a string; invalid Unicode code points become the replacement character.
+`%t`                               | Boolean: zero is `false`, other values are `true`.
+`%s`                               | String from `triceS` or `triceN`.
+`%p`                               | Address in the form `0x...`; does not imply the type of the referenced object.
 
 `%%` is a literal percent sign and creates neither a field nor an additional argument.
 
@@ -146,6 +145,12 @@ Supported C length modifiers such as `%lu` or `%llX` do not change these semanti
 `-unsigned=false` does not change the meaning of structured unsigned fields either. It continues to control the corresponding classical text display.
 
 Named string fields use `%s`; alternative classical string displays such as `%x` remain message text without a named field. A structured floating-point field in a 64-bit Trice requires `aDouble(...)`; `aFloat(...)` is rejected there to prevent interpreting the transmitted bits as a double.
+
+### 2.1. <a id="supported-records-and-limits"></a>Supported records and limits
+
+Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
+
+Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","level":"INFO","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
 
 ## 3. <a id="instrumentation-and-dictionary"></a>Instrumentation and Dictionary
 
@@ -210,15 +215,15 @@ A runtime string does not change tag classification: with `triceS("{text:%s}", v
 `level` is derived from the tag group's effective numeric weight, including `-utag` overrides. Select the named level with the highest lower boundary not exceeding that weight. The eight boundaries come from the built-in defaults and stay fixed for the command, even when the weights of level-named tags are overridden. Category tags, custom tags and `untagged` use the same rule. Colors and tag names do not determine the level.
 
 Effective weight | Exported level
---- | ---
-900–999 | FATAL
-800–899 | CRITICAL
-700–799 | ERROR
-600–699 | WARNING
-500–599 | INFO
-300–499 | DEBUG
-100–299 | TRACE
-0–99 | VERBOSE
+---------------- | --------------
+900–999          | FATAL
+800–899          | CRITICAL
+700–799          | ERROR
+600–699          | WARNING
+500–599          | INFO
+300–499          | DEBUG
+100–299          | TRACE
+0–99             | VERBOSE
 
 VERBOSE starts at 0, so every supported weight belongs to exactly one interval. There is no default-level or INFO fallback. A new custom tag without an explicit weight still inherits the effective INFO **weight**; its level is then derived from that number. For example, `-utag INFO:750 -utag sensor` gives both groups weight 750 and level ERROR, while the INFO boundary remains 500 for other groups. Equal overridden tag weights are harmless; the eight fixed level boundaries are distinct.
 
@@ -260,13 +265,13 @@ tag=INFO level=INFO message="Motor \"A\"\nready" field.message="Motor \"A\"\nrea
 
 ## 6. <a id="optional-metadata"></a>Optional Metadata
 
-Field | Prerequisite and content
----|---
-`id` | ID-based event and enabled `-showID`; numeric Trice ID without text padding.
-`file`, `line` | Existing LI entry, enabled `-li` and `-liFmt`; only an available filename or a nonzero line number is emitted.
-`ts16`, `ts32` | Existing 16- or 32-bit target stamp and output enabled through `-ts` or the corresponding `-ts16`/`-ts32` option. Each value is a string in its own CLI display format; an existing zero value is also emitted.
+Field                    | Prerequisite and content
+------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`id`                     | ID-based event and enabled `-showID`; numeric Trice ID without text padding.
+`file`, `line`           | Existing LI entry, enabled `-li` and `-liFmt`; only an available filename or a nonzero line number is emitted.
+`ts16`, `ts32`           | Existing 16- or 32-bit target stamp and output enabled through `-ts` or the corresponding `-ts16`/`-ts32` option. Each value is a string in its own CLI display format; an existing zero value is also emitted.
 `ts16Delta`, `ts32Delta` | Enabled `-ts16delta` or `-ts32delta` option and a previous stamp of the same bit width. The first stamp has no delta field at all. Display follows the respective delta option.
-`hs` | Enabled `-hs`; formatted host time string without trailing column padding. `-hs off` or `none` omits it.
+`hs`                     | Enabled `-hs`; formatted host time string without trailing column padding. `-hs off` or `none` omits it.
 
 Target stamp values have no leading stamp tag such as `time:` or `dt:`, but retain configured additional text and units. Outer whitespace is removed. The four kinds remain separate: for example, `ts16` may represent a temperature and `ts32` a time. `-ts0` and `-ts0delta` are text placeholders only and create no metadata fields.
 
@@ -292,10 +297,10 @@ Sorting is by ascending count, then alphabetically by field name for equal count
 
 Named fields could support the following future tools. These are design options, with no current CLI or release commitment:
 
-| Option | Possible benefit | Decisions needed |
-| --- | --- | --- |
-| Visualization expressions using field names | Keep expressions readable when argument order changes. | Missing fields, repeated names, incompatible types and the distinction between user fields and host metadata. |
-| A schema overview | Show field names, types and IDs across selected schemas. | Current source scope versus historical TIL entries, and how to display different types under the same name. |
+Option                                      | Possible benefit                                         | Decisions needed
+------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------
+Visualization expressions using field names | Keep expressions readable when argument order changes.   | Missing fields, repeated names, incompatible types and the distinction between user fields and host metadata.
+A schema overview                           | Show field names, types and IDs across selected schemas. | Current source scope versus historical TIL entries, and how to display different types under the same name.
 
 The current [visualization interface](visualization.md#visualization-output-with--vis) uses positional values `v0` through `v11`; SL field names are not expression identifiers. The field registry above lists current-run frequencies, not a complete schema inventory.
 

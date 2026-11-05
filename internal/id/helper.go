@@ -643,15 +643,6 @@ func evaluateTriceParameterCount(t TriceFmt, line int, rest string) (err error) 
 	return
 }
 
-// countColonsUntilClosingBracket parses s until the first closing bracket
-// and determines the number of colons.
-// If there is in rest a starting string, all until the string end is ignored.
-// If there is in rest a opening bracket, all until the next matching closing bracket is ignored.
-func countColonsUntilClosingBracket(rest string) (count int, e error) {
-	args, err := splitTriceParametersUntilClosingBracket(rest)
-	return len(args), err
-}
-
 func splitTriceParametersUntilClosingBracket(rest string) (args []string, err error) {
 	// Inserted CE expressions and preserved original arguments may contain C
 	// comments. Mask only this call so comment commas/parentheses are inert and
@@ -931,7 +922,7 @@ var stringLiterals bufio.SplitFunc = func(data []byte, atEOF bool) (advance int,
 	return start, nil, nil
 }
 
-// matchStringLiteral returns a two-element slice of integers defining the location of the leftmost match in s of the matchFmtString regular expression.
+// matchStringLiteral returns a two-element slice identifying the first C string literal in the input.
 // The match itself is at s[loc[0]:loc[1]]. A return value of nil indicates no match.
 // If the format string contains `\"` elements, the found sub strings are concatenated to the returned result.
 func matchStringLiteral(input string) (loc []int) {

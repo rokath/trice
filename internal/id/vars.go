@@ -26,7 +26,6 @@ var (
 	matchSourceFile              = regexp.MustCompile(patSourceFile)
 	matchNbID                    = regexp.MustCompile(patNbID)
 	matchNb                      = regexp.MustCompile(patNb)
-	matchFmtString               = regexp.MustCompile(patFmtString)
 	matchSpacesWithOptionalComma = regexp.MustCompile(patSpacesWithOptionalComma)
 	ExtendMacrosWithParamCount   bool
 

@@ -1,37 +1,47 @@
-# Trice v2.0.0: besser nach dem Release
+# Trice v2.0.0: Dokumentationsabschluss und Folgearbeiten
 
 ## Zuerst erledigen
 
-1. Zunächst die reproduzierten Fehler und Release-Voraussetzungen aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) abschließen.
-2. Danach **N06 und N02** bearbeiten: die übrige Dokumentation systematisch verständlicher machen und die veraltete Beschreibung der Host-Architektur ersetzen.
-3. **N01, N03 und N04** gezielt bearbeiten: ungenutzte Helfer prüfen, Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
+1. Die endgültige Freigabe aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) bleibt Voraussetzung für die Veröffentlichung.
+2. **N06 und der Markdown-Teil von N02 fließen bereits in beta-4 ein:** kurze Einstiege, konkrete Ein-/Ausgaben und die heutige Host-Architektur. Die folgende Tabelle zeigt den Umfang.
+3. **N01 ist umgesetzt.** Als Nächstes N03 und N04 bearbeiten: Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
 4. **N05** nur als getrennte Wartungsaufgabe angehen. Eine breite Skriptumbenennung kurz vor v2.0.0 bringt wenig Anwendernutzen und berührt viele Aufrufer.
 5. **N07 ist im RM gesichert:** Zukunftsideen bleiben auffindbar, ohne neue Funktionen zuzusagen.
 
-Stand: Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Die folgenden Änderungen wurden nicht implementiert. Bereits direkt korrigierte Kleinigkeiten stehen ausschließlich im Git-Diff.
+Stand: 2026-11-05. Ausgangspunkt war das Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Im Dokumentationsschritt für beta-4 blieben Code, Tests und Prüfskripte unverändert. Anschließend wurde N01 mit Code- und Teständerungen umgesetzt; der Abschnitt unten hält Ergebnis und Prüfungen fest.
 
-## Kandidaten für ungenutzten Code gezielt untersuchen
+Punkt                          | Dokumentationsstand für beta-4                                                                                                                                                                                | Was offen bleibt
+------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------
+N06: Einstieg und Orientierung | README, Guide, Quickstarts und Beispielübersicht führen direkt zur passenden Aufgabe. Bind zeigt einen konkreten Aufruf statt eines Platzhalters; ältere IDE-/Insert-Anleitungen sind als solche eingeordnet. | Historische Hardware-Rezepte sind dadurch nicht neu validiert.
+N06: Werte und Ausgabe         | User Manual und Referenz zeigen zwei CSV-Spalten samt Dateiinhalt, Umrechnung und Grenzen. Strukturierte Ausgabe und CE beginnen mit Eingabe, Befehl und Ergebnis.                                            | Die technischen Detailregeln bleiben in den Fachkapiteln und vorhandenen Anhängen.
+N02: Host-Architektur          | [Aktueller Datenfluss](../rm/target_test_internals.md#host-logging-pipeline) mit Besitz, Lebensdauer, Locks, Diagnosen und Fehlerweitergabe; die historische Parserbeschreibung verweist darauf.              | Veraltete Kommentare in Go-Dateien: separate Quellcodepflege.
+N04: Link-Prüfumfang           | Relative Links der eigenen Wrapper-READMEs wurden mit den bearbeiteten Dokumenten lokal geprüft.                                                                                                              | Automatische Einbeziehung in Lychee benötigt eine getrennte Änderung der Prüfauswahl.
+N01: ungenutzter Code          | Go-Altzweige und auskommentierter Receiver-Code entfernt; Tests prüfen die aktiven Wege.                                                                                                                      | Öffentliche C-Deklaration geprüft und bewusst beibehalten; siehe N01.
+N03, N05                       | Keine Implementierung im Dokumentationsschritt.                                                                                                                                                               | Zusätzliche Tests und gegebenenfalls einzelne Skriptumbenennungen.
 
-**N01 · mittlere Priorität · statische Kandidaten, keine pauschale Löschfreigabe**
+Die Beispiele wurden mit den vorhandenen Quellen und Tests abgeglichen. Dabei wurde auch die Dateibehandlung von `-vis` klargestellt: Jeder Lauf ersetzt eine vorhandene Ausgabedatei. Die bestehende LabPlot-Animation wird wiederverwendet; eine kleine Tabelle erklärt ihre Spaltenzuordnung. Das ist kein neuer Lauf der Programme oder der Hardware-Beispiele; die finale Testausführung bleibt beim Benutzer.
 
-Die Suche nach Symbolreferenzen in den aktiven Go-/C-Quellen zeigt mehrere Helfer ohne Produktionsaufrufer. Die Tabelle unterscheidet vollständig unreferenzierte Symbole von Funktionen, die nur noch ihre eigenen Tests beschäftigen. Das ist keine vollständige Callgraph- oder ABI-Analyse.
+## Ungenutzten internen Code entfernen
 
-| Fundstelle | Beobachtung | Sinnvolle nächste Prüfung |
-| --- | --- | --- |
-| [internal/printf/expression.go](../../internal/printf/expression.go), `CompileExpression`, etwa Zeile 261 | Nur die Definition gefunden. Die aktuellen Aufrufer verwenden den kontextabhängigen Kompilierpfad. | Prüfen, ob der Wrapper noch eine geplante interne Schnittstelle ist; ansonsten separat entfernen. |
-| [internal/id/list.go](../../internal/id/list.go), `SubCmdAddToList`, etwa Zeile 23 | Nur noch direkter Aufruf aus `manage_fs_test.go`; der CLI-Pfad verwendet eine andere Implementierung. | Verhaltenstest möglichst an den aktiven öffentlichen `add`-Pfad anschließen. Nicht das gesamte File löschen: darunterliegende Helfer können weiter benötigt werden. |
-| [internal/id/Update.go](../../internal/id/Update.go), `triceParse`, etwa Zeile 154 | Nur `update_additional_test.go` ruft den Helfer auf. | Gegen den tatsächlich verwendeten Quellparser abgrenzen, bevor Code und Tests entfallen. |
-| [internal/id/helper.go](../../internal/id/helper.go), `countColonsUntilClosingBracket`, etwa Zeile 650 | Referenzen nur in Parser-/Coverage-Tests. | Feststellen, ob ein alter Parserrest oder absichtlich isolierter Baustein; Tests nicht als alleinigen Nutzungsnachweis werten. |
-| [internal/decoder/decoder.go](../../internal/decoder/decoder.go), `LocationInformation` und `CorrectWrappedTimestamp`, etwa Zeilen 493/524 | Aufrufe nur in den Tests dieses Pakets. Die Ausgabe wird inzwischen im Translator behandelt. | Aktuelle Zuständigkeit und Unterschiede zur Translator-Implementierung dokumentieren; danach gegebenenfalls eine alte Doppelimplementierung entfernen. |
-| [internal/translator/translator.go](../../internal/translator/translator.go), `targetStampWidth` und `formatTargetDeltaValue`, etwa Zeilen 219/347 | Aufrufe nur in `translator_delta_test.go`. | Prüfen, ob die Tests den wirklichen Stamp-Ausgabepfad absichern oder nur verbliebene Altfunktionen. |
-| [src/triceRx.h](../../src/triceRx.h), `extern triceFn_t fn_TriceDispatchAbc` | Im aktiven Quellbestand weder Definition noch Verwendung gefunden. | Gegen aktuelle ABC-Dispatch-Schnittstellen und mögliche externe Nutzer prüfen. Eine öffentliche Deklaration nicht allein aufgrund der lokalen Suche still entfernen. |
-| [internal/receiver/receiver.go](../../internal/receiver/receiver.go), großer auskommentierter Block ab etwa Zeile 516 | Explizit als möglicherweise obsolet markierter früherer Receive-Loop. Kein ausführbarer Code. | Nach Ersatz der Architekturbeschreibung separat entfernen; Git bewahrt die Historie. |
+**N01 · umgesetzt am 2026-11-05 · öffentliche C-Deklaration bewusst beibehalten**
 
-**Nicht automatisch als tot einstufen:** registrierte Decoder und `init`-Funktionen, plattformabhängige Dateien, Funktionszeiger/Callbacks, öffentliche `pkg`-Hilfen oder absichtliche Testzugänge wie Wrapper um aktive Implementierungen. Makrovarianten in der C-Bibliothek gehören zur Konfigurationsmatrix; ein fehlender Aufruf in einer einzelnen Beispielkonfiguration ist kein Löschbeleg.
+Die Go-Kandidaten wurden gegen alle aktiven Quellreferenzen geprüft. Entfernt sind die ungenutzten Helfer und ihre ausschließlich alten Tests. Der heutige CLI-Pfad `add` verwendet `SubCmdIdAdd` und `zeroTriceIDs`; seine Implementierung blieb unverändert.
 
-[internal/id/_nondeterministic_insert_test.go](../../internal/id/_nondeterministic_insert_test.go) ist ausdrücklich deaktivierter historischer Testcode mit Verweis auf die abgeschlossene Entscheidung zu Issue 616. Das ist kein Auftrag, die alte Anforderung vor dem Release wieder einzuführen. Aktuelle deterministische ID-Regeln haben eigene Tests.
+Bereich                                                 | Ergebnis
+------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[Printf-Ausdrücke](../../internal/printf/expression.go) | `CompileExpression` entfernt; der aktive Parser verwendet weiterhin `compileInContext`.
+Alter `add`-/Quellparser                                | `SubCmdAddToList` und seine ungenutzte Aufrufkette einschließlich `triceParse` entfernt. `list.go` und die ausschließlich alten Parsertests in `update_additional_test.go` entfallen.
+[Parameterparser](../../internal/id/helper.go)          | Den Zählwrapper entfernt; Tests prüfen direkt die getrennten Argumente und Fehler von `splitTriceParametersUntilClosingBracket`.
+[Decoder](../../internal/decoder/decoder.go)            | Die ungenutzten Kopien von `LocationInformation` und `CorrectWrappedTimestamp` entfernt; die verwendeten Translator-Funktionen bleiben erhalten.
+[Zeitstempel](../../internal/translator/translator.go)  | `targetStampWidth` und `formatTargetDeltaValue` entfernt. Die Formatprüfungen laufen über den aktiven Formatter einschließlich Epoch-Grenzfällen.
+[Receiver](../../internal/receiver/receiver.go)         | Den vollständig auskommentierten alten Receive-Loop entfernt. Der heutige Datenfluss ist bereits im RM beschrieben; die übrige Kommentarpflege bleibt N02.
+[Öffentlicher C-Header](../../src/triceRx.h)            | `fn_TriceDispatchAbc` geprüft und bewusst beibehalten: intern ohne Nutzer, aber eine öffentliche Deklaration. Externe Nutzung ist durch die lokale Suche nicht ausgeschlossen.
 
-**Erledigt, wenn:** jeder entfernte Helfer nachweislich keine aktive Verantwortung mehr trägt und die relevanten Verhaltenstests weiterhin den produktiven Pfad prüfen. Keine Umbenennungs- oder Kompatibilitätsmigration beiläufig mit dieser Bereinigung verbinden.
+`list.go` wurde erst nach Prüfung aller Aufrufer vollständig entfernt: Auch Adapter und Traversierung gehörten ausschließlich zum alten Zweig. Gemeinsam genutzte Matcher, Quellfilter und Formatprüfungen in `Update.go`, `vars.go` und `helper.go` bleiben erhalten. Neue Tests am aktuellen `add`-Einstieg prüfen die ID-Schreibweisen, rekursive Quellenauswahl, unveränderte Quelldateien und die Erhaltung bestehender TIL-/LI-Einträge. Der Markertest prüft jetzt ebenfalls diesen Einstieg samt Zeilennummern.
+
+**Prüfergebnis:** gezielte Go-Tests in `internal/id`, `internal/printf`, `internal/decoder`, `internal/translator`, `internal/receiver` und `internal/args` erfolgreich (`-count=1 -timeout=2m`). Die Auswahl umfasste die neuen Add-/Parameterfälle sowie bestehende Add-, Marker-, Stamp-, Orts-, Translator-Loop- und Receiver-Wrapper-Tests. Die Nachsuche fand keine verbliebenen Go-Referenzen auf die entfernten Symbole. Keine Gesamtsuite, Coverage, C-Compiler-Matrix oder Hardwaretests ausgeführt.
+
+Registrierte Decoder, Plattformcode, Callbacks und öffentliche `pkg`-Hilfen wurden nicht pauschal bereinigt. [internal/id/_nondeterministic_insert_test.go](../../internal/id/_nondeterministic_insert_test.go) bleibt als ausdrücklich deaktivierter historischer Test unverändert; die frühere Anforderung wird nicht wieder eingeführt.
 
 ## Die Host-Architektur an einer Stelle aktuell erklären
 
@@ -82,11 +92,11 @@ Die aktuelle Nummerierung trennt bereits interne Schritte und ihre Reihenfolge. 
 
 Einzelne Namen könnten später verständlicher werden:
 
-| Heutiger Name | Möglicher Name | Konkreter Grund |
-| --- | --- | --- |
-| `scripts/_320_generate_trice_user_manual_pdf.sh` | `scripts/_320_generate_trice_manual_pdfs.sh` | Erzeugt inzwischen User- und Reference-Manual-PDF. Der bisherige Singular und die Beschränkung auf das User Manual sind zu eng. |
-| `trice_bindIDs_in_examples_and_test_folder.sh` im Repository-Root | `scripts/bind_examples_and_tests.sh` | Name und Ablage könnten das öffentlich aufrufbare Bind-Hilfsskript kürzer und einheitlicher beschreiben. |
-| `scripts/buildTriceTool.sh` | `scripts/build_trice_tools.sh` | Baut `trice` und `tlog`; Plural und die verbreitete Unterstrichschreibweise wären präziser. Der vorhandene Name ist aber gut dokumentiert und kein Releaseproblem. |
+Heutiger Name                                                     | Möglicher Name                               | Konkreter Grund
+----------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`scripts/_320_generate_trice_user_manual_pdf.sh`                  | `scripts/_320_generate_trice_manual_pdfs.sh` | Erzeugt inzwischen User- und Reference-Manual-PDF. Der bisherige Singular und die Beschränkung auf das User Manual sind zu eng.
+`trice_bindIDs_in_examples_and_test_folder.sh` im Repository-Root | `scripts/bind_examples_and_tests.sh`         | Name und Ablage könnten das öffentlich aufrufbare Bind-Hilfsskript kürzer und einheitlicher beschreiben.
+`scripts/buildTriceTool.sh`                                       | `scripts/build_trice_tools.sh`               | Baut `trice` und `tlog`; Plural und die verbreitete Unterstrichschreibweise wären präziser. Der vorhandene Name ist aber gut dokumentiert und kein Releaseproblem.
 
 `scripts/testAll.sh` würde ich als etablierten Einstieg behalten. Interne nummerierte Tests und Beispiel-Wrapper nicht allein aus Stilgründen umbenennen. Ein führender Unterstrich sollte interne Helfer erkennen lassen; öffentlich dokumentierte Einstiege brauchen vor allem stabile, klare Namen.
 

@@ -6,6 +6,15 @@
 <!-- mdtoc -->
 
 * [1. Visualization output with `-vis`](#visualization-output-with--vis)
+  * [1.1. Save two values as CSV](#save-two-values-as-csv)
+  * [1.2. Select messages and handle aliases](#select-messages-and-handle-aliases)
+  * [1.3. Syntax and numeric expressions](#syntax-and-numeric-expressions)
+    * [1.3.1. Built-in names: values, ID and target stamp](#built-in-names-values-id-and-target-stamp)
+    * [1.3.2. Choose ts, ts16 or ts32](#choose-ts-ts16-or-ts32)
+    * [1.3.3. Plot measurements taken at irregular times](#plot-measurements-taken-at-irregular-times)
+    * [1.3.4. Host time, missing stamps and counter wraps](#host-time-missing-stamps-and-counter-wraps)
+  * [1.4. Files, UDP and normal log output](#files-udp-and-normal-log-output)
+  * [1.5. Supported records and failure behavior](#supported-records-and-failure-behavior)
 * [2. Setting up the LabPlot Demo](#setting-up-the-labplot-demo)
   * [2.1. The common live-data format](#the-common-live-data-format)
   * [2.2. ./examples/DemoData_CSV](#examplesdemodata_csv)
@@ -13,6 +22,9 @@
   * [2.4. Quick LabPlot demonstration](#quick-labplot-demonstration)
   * [2.5. Recreate the project in LabPlot](#recreate-the-project-in-labplot)
   * [2.6. Troubleshooting and adaptations](#troubleshooting-and-adaptations)
+* [3. Appendix: Visualization expression reference](#appendix-visualization-expression-reference)
+  * [3.1. Arithmetic and formatting](#arithmetic-and-formatting)
+  * [3.2. A formatted JSON line](#a-formatted-json-line)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -21,33 +33,46 @@
 
 ## 1. <a id="visualization-output-with--vis"></a>Visualization output with `-vis`
 
-`tlog` and `trice log` support the same repeatable `-vis` option for sending selected numeric measurements to external visualization tools. Consumers can, for example, be LabPlot, Serial Studio, PlotJuggler, uPlot, Grafana, or a custom program; these names do not imply a tool-specific protocol. Trice itself does not draw a graph. It transforms one typed Trice message into one user-defined text record and writes that record to a file or UDP destination.
+Use `-vis` to save measurements as CSV or send them to a plotting program over UDP. Each selected numeric Trice call supplies one output record. `tlog` and `trice log` accept the same rules.
 
-The syntax is:
+### 1.1. <a id="save-two-values-as-csv"></a>Save two values as CSV
 
-```text
--vis='<tag>:printf("<go-fmt>",<expression-list>)@<file-path-or-udp-sink>[;log=keep|drop]'
-```
-
-For example, this target message keeps its visualization details independent of the host tool:
+Suppose a motor reports speed in rpm and current in mA. These two calls represent two successive samples:
 
 ```c
-TRice("imu:ax=%f,ay=%f,az=%f\n", aFloat(ax), aFloat(ay), aFloat(az));
+// Keep both measurements in one call so they form one CSV row.
+trice("motor:rpm=%u,current_mA=%u\n", 1500, 120);
+trice("motor:rpm=%u,current_mA=%u\n", 1520, 125);
 ```
 
-It can be written as CSV:
+Run Bind and rebuild the firmware after adding these calls. From the directory containing its matching `til.json`, run the following in Bash or Git Bash. Replace `COM7` and add your usual baud/framing options if needed:
 
 ```bash
-tlog ... \
-  -vis='imu:printf("%d,%0.3f,%0.3f,%0.3f\n",ts32,v0,v1,v2)@imu.csv'
+trice log -p COM7 -utag motor \
+  -vis='motor:printf("%d,%d\n",v0,v1)@motor.csv;header="rpm,current_mA\n"'
 ```
 
-or sent as one UDP datagram per record:
+A new `motor.csv` then contains:
 
-```bash
-tlog ... \
-  -vis='imu:printf("%0.3f,%0.3f,%0.3f\n",v0*0.5,v1*0.5,v2*0.5)@udp://127.0.0.1:7010;log=drop'
+```csv
+rpm,current_mA
+1500,120
+1520,125
 ```
+
+`motor` selects the tag, `v0` is the first value, and `v1` the second. The comma and `\n` create columns and rows. `header` supplies the column names; omit it for data-only output. **Each logging run replaces an existing output file.** Choose a new filename to keep an earlier recording.
+
+Want to…                                          | Use
+------------------------------------------------- | -----------------------------------------------------------------------------------------------------------
+Save both values                                  | `printf("%d,%d\n",v0,v1)`
+Reverse the columns                               | `printf("%d,%d\n",v1,v0)`
+Convert mA to A                                   | `printf("%d,%.3f\n",v0,v1/1000)` → `1500,0.120` for the first sample; change the header to `rpm,current_A`.
+Use a named field such as `rpm` in the expression | Use `v0` instead. Field names are not expression variables.
+Combine values from two separate calls            | Put them in one call first. `-vis` does not join events.
+
+The normal log remains visible. The [LabPlot animation](../ref/LabPlotDemo.gif) shows a complete three-signal example with live plots and parallel text output. To try it, follow the [LabPlot demo](#quick-labplot-demonstration); to send your own values, use [UDP output](#files-udp-and-normal-log-output). Trice writes the data; the receiving program draws the graph.
+
+### 1.2. <a id="select-messages-and-handle-aliases"></a>Select messages and handle aliases
 
 To collect temperatures from warning messages in a CSV file, suppose your firmware uses a project macro `MyWrn`, registered as a [Trice alias](legacy_user_code.md#alias-identity-and-tags-in-v2):
 
@@ -61,7 +86,7 @@ Run this command in the directory containing the firmware's matching `til.json`,
 trice log -p COM7 -vis='wrn:printf("%d\n",v0)@warnings.csv'
 ```
 
-Each time that call arrives, this line is appended to `warnings.csv`:
+During the run, each matching call adds this line to `warnings.csv`:
 
 ```text
 85
@@ -73,70 +98,168 @@ For a custom name that has not been registered with `-utag`, the start of the te
 
 `-pick` and `-ban` run first. A message removed by either filter reaches neither normal output nor `-vis`.
 
-The supported fields are:
+### 1.3. <a id="syntax-and-numeric-expressions"></a>Syntax and numeric expressions
+
+The examples below use the motor call from section 1.1: `v0` is speed in rpm and `v1` is current in mA. The first sample is `1500,120`. Use the firmware's matching dictionary and input settings; replace `COM7` with your port.
+
+The complete rule form is:
 
 ```text
-id                unsigned Trice ID
-ts                raw 16- or 32-bit Target-Stamp, with one width latched per rule
-ts16              raw 16-bit Target-Stamp
-ts32              raw 32-bit Target-Stamp
-v0 ... v11        typed positional Trice values
+-vis='<tag>:printf("<format>",<expressions>)@<destination>[;log=keep|drop][;header="<text>"]'
 ```
 
-The value fields are positional and can be reordered in the expression list. `-vis` does not extract names such as `ax` or `rpm` from the human-readable target format and does not accept those names as identifiers. For example, `printf("%g,%g\n",v2,v0)` deliberately emits the third value before the first. Structured Logging field names are not visualization expression identifiers; use `v0` through `v11` for this interface.
+Square brackets mark optional parts; do not type them. Choose either `keep` or `drop` for `log`.
 
-A Target-Stamp is an unscaled number. `-vis` does not assume that it represents time and does not perform unit conversion, wrap extension, or mixed-width reconstruction. Scaling is explicit in an expression, for example `ts32*0.001`. A rule may use `ts16` or `ts32`, but not both. A generic `ts` rule is disabled with a warning if an otherwise eligible message later changes between 16 and 32 bits.
-
-Separate rules make the expected stamp width explicit:
+**Save both measurements.**
 
 ```bash
-tlog ... \
-  -vis='fast:printf("%d,%g\n",ts16,v0)@fast.csv' \
-  -vis='slow:printf("%d,%g\n",ts32,v0)@slow.csv'
+trice log -p COM7 -utag motor \
+  -vis='motor:printf("%d,%d\n",v0,v1)@motor.csv'
 ```
 
-Expressions support decimal, floating-point, and hexadecimal literals, parentheses, unary minus, and `+`, `-`, `*`, `/`. A direct field retains its signed, unsigned, floating-point, or Boolean type. Arithmetic is evaluated as `float64`. A floating result used with an integer verb must be finite and inside the `int64` range; it is then truncated toward zero.
+The first row in `motor.csv` is `1500,120`. `motor` selects messages, `printf` creates the row, and `@motor.csv` selects the file. The comma separates the two columns; `\n` ends the row. This host formatter uses `%d` for integers, including values logged with `%u` on the target. Normal text output remains visible.
 
-The `printf` encoder supports:
-
-```text
-integer:       %d %b %o %x %X
-floating:      %f %e %E %g %G
-generic:       %v
-Boolean:       %t with a direct Boolean field
-literal:       %%
-formatting:    literal width and precision, such as %08x or %0.3f
-```
-
-`%u`, dynamic `*` width or precision, explicit argument indexes, string conversions, and other Go formatting verbs are not supported. The expression count must equal the number of consuming verbs. The encoder adds no implicit newline; include `\n` in the format when the receiving tool expects one. A one-line JSON record is possible as well:
+**Convert current to amperes and name the columns.**
 
 ```bash
-tlog ... \
-  -vis='imu:printf("{\"stamp\":%d,\"x\":%g,\"y\":%g,\"z\":%g}\n",ts32,v0,v1,v2)@udp://127.0.0.1:7011'
+trice log -p COM7 -utag motor \
+  -vis='motor:printf("%d,%.3f\n",v0,v1/1000)@motor-amps.csv;header="rpm,current_A\n"'
 ```
 
-A bare path and `file:<path>` both select an append-only file:
+`v1/1000` converts mA to A; `%.3f` keeps three decimal places. `header` writes the first line. The file starts with:
 
-```text
-@out.csv
-@logs/imu.csv
-@file:out.csv
+```csv
+rpm,current_A
+1500,0.120
 ```
 
-Missing files are created. Rules using the same normalized file path share one open file. `file://out.csv` is rejected because standard URI parsing treats `out.csv` as a host, not as a relative path. Full file-URI semantics are not part of this implementation.
+**Send the same values to a live viewer and hide their normal log lines.**
 
-UDP destinations use:
-
-```text
-@udp://127.0.0.1:7010
-@udp://localhost:7010
+```bash
+trice log -p COM7 -utag motor \
+  -vis='motor:printf("%d,%.3f\n",v0,v1/1000)@udp://127.0.0.1:7010;log=drop'
 ```
 
-The address is resolved and opened before decoding starts. File and UDP writes are synchronous. There is no queue, retry, reconnect, acknowledgement, TCP, WebSocket, or named-pipe support in this first implementation.
+The receiver on UDP port **7010** gets `1500,0.120` followed by a newline. That port is an example, not a default. This command sends no header. `log=drop` hides a motor message only after its visualization write succeeds; other messages continue normally. [Destination rules](#files-udp-and-normal-log-output) explain ports and supported outputs.
 
-`log=keep` is the default and leaves the decoded message in normal output. `log=drop` removes it from normal output only after that rule has encoded and written the visualization record successfully. All overlapping rules are still attempted; one successful `log=drop` rule wins. An ignored record or a failed encoder or sink write does not drop the normal log.
+Repeat `-vis` in one command to write to several destinations, for example a CSV file and a UDP viewer at the same time.
 
-Only fixed-width numeric Trice messages are eligible. The first twelve values are addressable as `v0` through `v11`; additional values do not prevent a rule from using that addressable prefix and remain available to normal logging. `Trice` string, buffer, function-display, character, typeX0, `CHAR`, and `DUMP` inputs are not supported. Named values, specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are deferred behind the same selector/encoder/sink separation. One eligible Trice must also form one complete log line by itself. Partial, multi-line, and multi-Trice lines continue through normal logging but are ignored by `-vis`; verbose mode reports every such occurrence.
+#### 1.3.1. <a id="built-in-names-values-id-and-target-stamp"></a>Built-in names: values, ID and target stamp
+
+These are all the available expression names. They are lowercase and refer to the **current received record**:
+
+Name         | Meaning                                            | Example
+------------ | -------------------------------------------------- | -------------------------------------------------------------------------
+`v0` … `v11` | First through twelfth numeric value from the call  | The motor call provides `v0 = 1500`, `v1 = 120`.
+`id`         | The record's unsigned Trice ID                     | If Bind assigned ID 4711, `printf("%d,%d\n",id,v0)` produces `4711,1500`.
+`ts16`       | Raw 16-bit target stamp                            | A transmitted stamp of 1000 gives `ts16 = 1000`.
+`ts32`       | Raw 32-bit target stamp                            | A transmitted stamp of 1000 gives `ts32 = 1000`.
+`ts`         | Raw target stamp, accepting either width initially | The first eligible stamped record determines the width for this rule.
+
+Use `v0` … `v11` for **payload values**; `id` and the stamp names are additional metadata. Source variable names and structured field names such as `rpm` are not expression variables. For example, `printf("%d,%d\n",v1,v0)` reverses the motor columns to `120,1500`; using `rpm` instead of `v0` is rejected.
+
+#### 1.3.2. <a id="choose-ts-ts16-or-ts32"></a>Choose ts, ts16 or ts32
+
+Use `ts16` or `ts32` when you know the transmitted stamp width. Use `ts` when the same command should work with either a 16-bit-stamp firmware build or a 32-bit-stamp build. The records selected by one `ts` rule must keep the same width during that logging run.
+
+For a motor record with stamp `1000` and speed `1500`, add one of these options to `trice log -p COM7 -utag motor`:
+
+Option                                              | Result
+--------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------
+`-vis='motor:printf("%d,%d\n",ts16,v0)@time16.csv'` | Writes `1000,1500` for a 16-bit stamp. Skips 32-bit and unstamped records.
+`-vis='motor:printf("%d,%d\n",ts32,v0)@time32.csv'` | Writes `1000,1500` for a 32-bit stamp. Skips 16-bit and unstamped records.
+`-vis='motor:printf("%d,%d\n",ts,v0)@time.csv'`     | Writes `1000,1500` with either initial width. Skips unstamped records. A later width change disables this rule with a warning.
+
+For example, if the `ts` rule first accepts a 16-bit record and later a 32-bit record, it writes no row for the second record and stops visualizing further records for the rest of the run. Normal logging continues. If both widths are expected, use two explicit-width rules instead. A single rule containing both `ts16` and `ts32` is rejected: one record carries only one stamp width.
+
+The names do not determine the unit. `1000` means one second only if your firmware supplies milliseconds. A stamp may instead be a hardware tick count or a task identifier; see [target stamps](stamps.md).
+
+#### 1.3.3. <a id="plot-measurements-taken-at-irregular-times"></a>Plot measurements taken at irregular times
+
+Measurements do **not** need equal time intervals. Include the target time as a CSV column and use that column as the plot's horizontal axis.
+
+Suppose the motor logs when its readings change. In an already configured project, this call carries a 32-bit stamp:
+
+```c
+// Capture both measurements with a 32-bit target stamp.
+TRice32("motor:rpm=%u,current_mA=%u\n", speed_rpm, current_mA);
+```
+
+Here, `TR` selects the 32-bit stamp; the final `32` selects the value width. The firmware's `TriceStamp32()` must provide the stamp. For this example it returns elapsed **milliseconds**, and the three calls occur at 1000, 1040 and 1175 ms. Run Bind and rebuild after changing the calls.
+
+```bash
+trice log -p COM7 -utag motor \
+  -vis='motor:printf("%.3f,%d,%.3f\n",ts32/1000,v0,v1/1000)@motor-time.csv;header="time_s,rpm,current_A\n"'
+```
+
+With successive readings of `(1500,120)`, `(1520,125)` and `(1490,118)`, `motor-time.csv` contains:
+
+```csv
+time_s,rpm,current_A
+1.000,1500,0.120
+1.040,1520,0.125
+1.175,1490,0.118
+```
+
+Plot `rpm` or `current_A` against `time_s`. The gaps are 40 ms and 135 ms, not equal. `-vis` emits one row per accepted event; it does not insert samples, interpolate or resample. For live UDP, replace `@motor-time.csv` with the receiver's address and omit the header if the viewer expects numeric rows only.
+
+#### 1.3.4. <a id="host-time-missing-stamps-and-counter-wraps"></a>Host time, missing stamps and counter wraps
+
+**Host timestamps are not available inside `-vis`.** There is no `hs`, `hostTime` or `now` expression name. Enabling `-hs` changes normal log output, not the CSV data. Without a target stamp, a stamp-based rule skips the record; it does not substitute the host time or zero. A time value sent as an ordinary numeric argument can still be used through its `v0` … `v11` position.
+
+All stamp names read the raw transmitted number. They do not start at zero for a new recording and do not reconstruct counter wraps. For example, a 16-bit millisecond counter wrapping from 65535 to 0 gives this output with `printf("%.3f\n",ts16/1000)`:
+
+```csv
+65.535
+0.000
+```
+
+For a continuous time axis, use a target time counter that does not wrap during the recording, or reconstruct wraps afterwards. The [stamp-display expressions](stamp_expressions.md) offer `unwrap` and `delta` for normal log columns; these functions are **not supported in `-vis`**. Options such as `-ts32 ms` or `-ts32 'printf(...)'` do not change the raw `ts32` value used here.
+
+See the [expression reference](#appendix-visualization-expression-reference) for all supported operators, output formats and conversion limits.
+
+### 1.4. <a id="files-udp-and-normal-log-output"></a>Files, UDP and normal log output
+
+**The supported destinations are regular files and UDP sockets. There is no default UDP port.** The `@` separates the expression from its destination; it is required.
+
+Destination in a rule                                                     | Behavior
+------------------------------------------------------------------------- | ----------------------------------------------------------------------------
+`@motor.csv`                                                              | File in the host command's working directory.
+`@logs/motor.csv` or `@file:logs/motor.csv`                               | File in an existing `logs` directory. Both forms mean the same thing.
+`@udp://127.0.0.1:7010`                                                   | UDP receiver on the same PC, port 7010.
+`@udp://localhost:7010`                                                   | Same idea with a hostname; other resolvable hostnames work too.
+`@udp://192.168.1.50:9000`                                                | UDP receiver on another computer, port 9000.
+`@udp://[::1]:7010`                                                       | UDP over IPv6 loopback; brackets surround the IPv6 address.
+`@udp://127.0.0.1`                                                        | Rejected: the port is missing.
+`@udp://127.0.0.1:0`                                                      | Rejected: the port must be a number from 1 through 65535.
+`@file://motor.csv`                                                       | Rejected: file-URI syntax is unsupported; use a plain path or `file:<path>`.
+`@tcp://localhost:7010`, `@ws://localhost:7010`, `@http://localhost:7010` | Rejected: TCP, WebSocket and HTTP outputs are unsupported.
+`@pipe://plot`                                                            | Rejected: named pipes and process pipes are unsupported.
+
+There is no stdout destination shortcut: `@-` means a file literally named `-`, not standard output.
+
+**Files:** missing files are created; existing contents are replaced when the destination opens at startup. Parent directories must already exist. An existing destination must be a regular file, not a directory or pipe. Rules using the same normalized path share one open file, so their rows go into the same new recording.
+
+**UDP:** choose the port configured in your receiving program. `7010` and `9000` above are examples; the supplied LabPlot project listens on `9000`. The port in `-vis` is the **destination** port, independent of the Trice input selected by `-p`. Omitting it fails during startup with `UDP sink must use udp://host:port`; no port is assumed.
+
+Start the receiver first and configure its expected columns. Each accepted event is sent as one datagram. UDP has no delivery acknowledgement; a successful write does not prove that a viewer received it. The destination is resolved and opened before decoding starts. File and UDP writes are synchronous, with no queue, retry or reconnect.
+
+**Column names:** `;header="rpm,current_A\n"` writes that text once per shared destination at startup. Include the newline yourself. Rules sharing a destination must agree on any nonempty header; conflicting headers fail at startup. With UDP the header is a separate datagram, so include it only if the receiver expects it.
+
+**Normal log output:** `log=keep` is the default. `log=drop` suppresses an event only after that rule has encoded and written its visualization record successfully. All overlapping rules are attempted; one successful `log=drop` rule wins. An ignored record or a failed write does not suppress the normal log.
+
+### 1.5. <a id="supported-records-and-failure-behavior"></a>Supported records and failure behavior
+
+Use one fixed-width numeric call ending in one newline, as in the motor example. The following limits apply:
+
+Input                                                                              | Result
+---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------
+One numeric call forming one complete line                                         | Eligible; use `v0` through `v11` for its first twelve values.
+A string, buffer, function-display, character, typeX0, CHAR or DUMP record         | No visualization record; use normal logging.
+A partial line, multiple lines in one call, or a line assembled from several calls | Normal logging continues; `-vis` ignores the record and verbose mode explains why.
+Named structured fields                                                            | Numeric values remain positional: use `v0`, `v1`, etc.
+
+Additional values beyond the first twelve remain available to normal logging. Specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are not provided.
 
 At startup, each rule checks all matching historical `til.json` entries. Incompatible old entries are excluded independently, so one stale ID does not block another compatible ID. A rule with no compatible entry is disabled with a prominent warning. Rules are also disabled, never silently, after a generic Target-Stamp width conflict, an unsafe runtime expression conversion, or a sink failure. Normal logging continues.
 
@@ -144,7 +267,7 @@ At startup, each rule checks all matching historical `til.json` entries. Incompa
 
 [![LabPlot live curves and tlog output](../ref/LabPlotDemo-preview.png)](../ref/LabPlotDemo.gif)
 
-Select the preview to open the full animation.
+Select the preview to open the animation. On the left, three signals change over time; on the right, one signal is plotted against another. The terminal below continues to show text messages.
 
 This section uses [LabPlot](https://labplot.org/), a cross-platform interactive
 plotting application. The finished, ready-to-run example is in
@@ -160,6 +283,11 @@ receives normalized numeric CSV records with this column layout:
 ```text
 time_s,x,y,z
 ```
+
+Plot in the animation | Horizontal axis    | Vertical axis
+--------------------- | ------------------ | ----------------------------------------
+Time series, left     | `time_s`, column 1 | Three curves: `x`, `y`, `z`, columns 2–4
+Lissajous, right      | `x`, column 2      | `y`, column 3
 
 The finished project predeclares the four numeric columns and performs one
 initial read while loading. This prepares LabPlot's UDP socket before the
@@ -448,3 +576,37 @@ and triggers an initial read when loaded so that LabPlot prepares its socket.
   `tlog`. If that port is busy, stop the other receiver or change it in
   `run_trice.sh` and its `-args` value together.
 
+## 3. <a id="appendix-visualization-expression-reference"></a>Appendix: Visualization expression reference
+
+### 3.1. <a id="arithmetic-and-formatting"></a>Arithmetic and formatting
+
+Expressions support decimal, floating-point and hexadecimal literals, parentheses, unary minus, and `+`, `-`, `*`, `/`. For example, `(v0-100)*0.5` produces `10.0` from a value of `120` when formatted with `%.1f`. Function calls, array indexing and other operators are unsupported.
+
+A direct field retains its signed, unsigned, floating-point or Boolean type. Arithmetic uses `float64`, so `v1/1000` can produce `0.120` rather than integer zero. An arithmetic result used with an integer verb must be finite and inside the `int64` range; it is then truncated toward zero.
+
+Output          | Supported conversions             | Example
+--------------- | --------------------------------- | -----------------------------------------------------------
+Integer         | `%d`, `%b`, `%o`, `%x`, `%X`      | `printf("%04x\n",v0)` writes `002a` for integer 42.
+Floating-point  | `%f`, `%e`, `%E`, `%g`, `%G`      | `printf("%.3f\n",v0/1000)` writes `0.120` for 120.
+Generic         | `%v`                              | Uses the expression value's type.
+Boolean         | `%t`, with a direct Boolean field | `printf("%t\n",v0)` writes `true` for a Boolean true value.
+Literal percent | `%%`                              | `printf("%d%%\n",v0)` writes `75%` for 75.
+
+Literal widths and precisions such as `%08x` and `%.3f` are supported. `%u`, dynamic `*` width or precision, explicit argument indexes and string conversions are not. Use `%d` for unsigned decimal output. The expression count must equal the number of consuming conversions; `%%` consumes none. No newline is added automatically: include `\n` in the format.
+
+### 3.2. <a id="a-formatted-json-line"></a>A formatted JSON line
+
+For finite numeric values, `printf` can also create a JSON line. Suppose an IMU record has a 32-bit stamp of 1000 and values `0.5`, `1` and `-0.25`:
+
+```bash
+trice log -p COM7 -utag imu \
+  -vis='imu:printf("{\"stamp\":%d,\"x\":%g,\"y\":%g,\"z\":%g}\n",ts32,v0,v1,v2)@imu.jsonl'
+```
+
+The resulting line is:
+
+```json
+{"stamp":1000,"x":0.5,"y":1,"z":-0.25}
+```
+
+The property names come from the quoted format; the expressions still use `ts32`, `v0`, `v1` and `v2`. This is the same `printf` encoder, not a separate JSON encoder. For normal structured log events with named fields and metadata, use [`-logFormat json`](structured_logging.md).

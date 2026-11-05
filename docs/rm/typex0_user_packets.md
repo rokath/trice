@@ -57,12 +57,12 @@ len >= 2:
 Summary:
 
 Packet length | Selector | Packet Type        | Trice Tool Action
---------------:|---------:|--------------------|-------------------------
-`0` |        - | `user0B`           | ignored (reserved)
-`1` |        - | `user1B`           | error (reserved)
-`2..3` |   `!= 0` | `user2B`, `user3B` | error (reserved)
-`>= 2` |      `0` | `typeX0`           | according `-typeX0` CLI
-`>= 4` |   `!= 0` | regular Trice      | default
+------------: | -------: | ------------------ | -----------------------
+`0`           | -        | `user0B`           | ignored (reserved)
+`1`           | -        | `user1B`           | error (reserved)
+`2..3`        | `!= 0`   | `user2B`, `user3B` | error (reserved)
+`>= 2`        | `0`      | `typeX0`           | according `-typeX0` CLI
+`>= 4`        | `!= 0`   | regular Trice      | default
 
 Packet length 0 is possible when framing like COBS is used and 2 delimiter bytes (usually 0) occur without a package in between.
 
@@ -199,7 +199,7 @@ Print the same payload twice, once as string and once as spaced hex.
 `triceX0.c` contains the counted buffer reference implementation. The Trice tool then needs the CLI switch `-typeX0=[mode:]<format>`, where `counted` is the default mode for values without a colon. Examples:
 
 CLI switch `trice log ...`     | Meaning
---------------------------------|---------------------------------------------------------------------
+------------------------------ | -------------------------------------------------------------------
 `-typeX0=all:ignore`           | ignore the complete non-mixed X0 package without length checking
 `-typeX0=counted:ignore`       | just check for valid length and ignore
 `-typeX0=ignore`               | just check for valid length and ignore (short for `counted:ignore`)
@@ -269,7 +269,7 @@ is a real function and writes counted selector-0 records into the configured Tri
 This switch is intentionally independent from `TRICE_OFF`:
 
 `TRICE_OFF` | `TRICE_TX_X0_COUNTED_BUFFER_SUPPORT` | Setting
--------------|--------------------------------------|-------------------------------------------------------------------------
+----------- | ------------------------------------ | -----------------------------------------------------------------------
 `== 0`      | `== 0`                               | normal Trice macros are active, `triceX0()` is a no-op
 `== 0`      | `== 1`                               | normal Trice macros are active, `triceX0()` emits counted X0 records
 `== 1`      | `== 0`                               | normal Trice macros are off, `triceX0()` is a no-op

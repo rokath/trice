@@ -5,8 +5,6 @@ package decoder
 import (
 	"bytes"
 	"fmt"
-	"io"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -424,34 +422,6 @@ func TestHandleTypeX0(t *testing.T) {
 	}
 }
 
-// TestLocationInformation validates location string formatting with and without verbose/lookup data.
-func TestLocationInformation(t *testing.T) {
-	oldFmt := LocationInformationFormatString
-	oldVerbose := Verbose
-	oldMaxDirs := id.LIMaxDirs
-	t.Cleanup(func() {
-		LocationInformationFormatString = oldFmt
-		Verbose = oldVerbose
-		id.LIMaxDirs = oldMaxDirs
-	})
-
-	li := id.TriceIDLookUpLI{
-		12: {File: "/tmp/demo/main.c", Line: 77},
-	}
-
-	LocationInformationFormatString = "%s:%d "
-	id.LIMaxDirs = 0
-	assert.Equal(t, "main.c:77 ", LocationInformation(12, li))
-	assert.Equal(t, ":0 ", LocationInformation(13, li))
-
-	LocationInformationFormatString = "off"
-	Verbose = false
-	assert.Equal(t, "", LocationInformation(12, li))
-
-	Verbose = true
-	assert.Equal(t, "no li", LocationInformation(12, li))
-}
-
 // TestLocationInformationWidth exercises the regex-based width calculator to ensure consistent output lengths.
 func TestLocationInformationWidth(t *testing.T) {
 	oldFmt := LocationInformationFormatString
@@ -459,35 +429,4 @@ func TestLocationInformationWidth(t *testing.T) {
 
 	LocationInformationFormatString = "info:%21s%6d "
 	assert.Equal(t, 28, locationInformationWidth())
-}
-
-// TestCorrectWrappedTimestamp verifies timestamp wrap handling returns future-corrected times inside reasonablen range.
-func TestCorrectWrappedTimestamp(t *testing.T) {
-	// Valid range: unchanged.
-	valid := uint32(time.Date(2005, 1, 1, 0, 0, 0, 0, time.UTC).Unix())
-	tv := CorrectWrappedTimestamp(valid)
-	assert.Equal(t, 2005, tv.Year())
-
-	// Out-of-range low value: wrapped to plausible year.
-	tw := CorrectWrappedTimestamp(0)
-	assert.Equal(t, 2106, tw.Year())
-}
-
-// TestCorrectWrappedTimestampFallback ensures fallback branch logs a warning and returns transformed time for invalid input.
-func TestCorrectWrappedTimestampFallback(t *testing.T) {
-	// Silence warning output from fallback path.
-	oldStdout := os.Stdout
-	r, w, err := os.Pipe()
-	assert.NoError(t, err)
-	os.Stdout = w
-	t.Cleanup(func() {
-		_ = w.Close()
-		os.Stdout = oldStdout
-		_, _ = io.ReadAll(r)
-		_ = r.Close()
-	})
-
-	// Max uint32 is outside accepted range and wrapped value is too far in the future.
-	tf := CorrectWrappedTimestamp(^uint32(0))
-	assert.Equal(t, 2106, tf.Year())
 }

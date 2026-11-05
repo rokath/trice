@@ -26,8 +26,8 @@ STITCHMD_VERSION="${TRICE_TOOL_STITCHMD_VERSION:-0.9.0}"
 # Resolve setup separately so callers can obtain installation consent before
 # launching a release tool whose captured hooks cannot read interactive input.
 MODE="${1:-generate}"
-if [[ "$#" -gt 1 ]] || [[ "$MODE" != generate && "$MODE" != setup ]]; then
-  echo "Usage: $0 [generate|setup]" >&2
+if [[ "$#" -gt 1 ]] || [[ "$MODE" != generate && "$MODE" != setup && "$MODE" != prepare ]]; then
+  echo "Usage: $0 [generate|setup|prepare]" >&2
   exit 2
 fi
 
@@ -97,6 +97,8 @@ fi
 
 # The pinned renderer requires the manifest's Node runtime, including direct
 # invocations that did not inherit the native suite's prepared PATH.
+# EPUB preparation rasterizes diagram labels too, so it needs the same browser
+# selection and cache even when a preceding PDF hook ran in a separate shell.
 if declare -F trice_test_tool_plan >/dev/null; then
   trice_test_tool_plan pdf || exit 2
 fi
@@ -219,6 +221,12 @@ fi
 if ! run_pdf_prepare --verify; then
   show_context
   die "reference manual link/anchor verification failed"
+fi
+
+# EPUB generation reuses the verified book inputs without rendering PDFs.
+if [[ "$MODE" == prepare ]]; then
+  run_pdf_prepare --epub
+  exit 0
 fi
 
 generated_at="$(date '+%Y-%m-%d %H:%M %Z')"

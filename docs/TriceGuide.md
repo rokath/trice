@@ -25,28 +25,32 @@ Already using Trice? Jump to a task under [2. Entry Points](#entry-points). The 
 
 ## 1. <a id="document-overview"></a>Document Overview
 
-Document                                                                                   | Content
--------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------
-[trice/README.md](../README.md)                                                            | Project Entry
-[trice/docs/TriceUserManual.md](./TriceUserManual.md)                                      | From your first PC log to your own firmware. The first experiments need no board.
-[trice/docs/rm/README.md](rm/README.md)                                                    | The complete technical reference
-[trice discussions](https://github.com/rokath/trice/discussions?discussions_q) - on GitHub | searchable questions and answers
-[trice issues](https://github.com/rokath/trice/issues?q=is%3Aissue) - on GotHub            | problems and solutions
-[trice/docs/TriceGuide.md](./TriceGuide.md)                                                | This file
-[trice/docs/ref/trice-help-all.txt](./ref/trice-help-all.txt) - CLI help output            | CLI help snapshot; run `trice help -all` for your installed tool
-[trice/src/triceDefaultConfig.h](../src/triceDefaultConfig.h) - Source Code                | Target configuration switches explained and their default values
-[trice/_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) - Test Code            | Extensive executable Trice test inputs; not a beginner tutorial
-[trice/docs/ref/](./ref) - included material                                               | documentation images and CLI-help data
-[trice/docs/_scratchPad/](./_scratchPad)                                                   | Internal plans, drafts and historical material - no prerequisites for using Trice.
-[trice/CHANGELOG.md](../CHANGELOG.md)                                                      | Release history
-[trice/CONTRIBUTING.md](../CONTRIBUTING.md)                                                | Contribution and validation guidance
+Document                                                                                                                       | Content
+------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------
+[trice/README.md](../README.md)                                                                                                | Project Entry
+[trice/docs/TriceUserManual.md](./TriceUserManual.md)                                                                          | From your first PC log to your own firmware. The first experiments need no board.
+[User Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)               | Download the User Manual from the latest stable release.
+[User Manual EPUB 3 — latest release](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.epub)           | Download the reflowable User Manual eBook from the latest stable release.
+[trice/docs/rm/README.md](rm/README.md)                                                                                        | The complete technical reference (reference manual chapters as Markdown files)
+[Reference Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceReferenceManual.pdf)     | Download the Reference Manual from the latest stable release.
+[Reference Manual EPUB 3 — latest release](https://github.com/rokath/trice/releases/latest/download/TriceReferenceManual.epub) | Download the reflowable Reference Manual eBook from the latest stable release.
+[trice discussions](https://github.com/rokath/trice/discussions?discussions_q) - on GitHub                                     | searchable questions and answers
+[trice issues](https://github.com/rokath/trice/issues?q=is%3Aissue) - on GotHub                                                | problems and solutions
+[trice/docs/TriceGuide.md](./TriceGuide.md)                                                                                    | This file
+[trice/docs/ref/trice-help-all.txt](./ref/trice-help-all.txt) - CLI help output                                                | CLI help snapshot; run `trice help -all` for your installed tool
+[trice/src/triceDefaultConfig.h](../src/triceDefaultConfig.h) - Source Code                                                    | Target configuration switches explained and their default values
+[trice/_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) - Test Code                                                | Extensive executable Trice test inputs; not a beginner tutorial
+[trice/docs/ref/](./ref) - included material                                                                                   | documentation images and CLI-help data
+[trice/docs/_scratchPad/](./_scratchPad)                                                                                       | Internal plans, drafts and historical material - no prerequisites for using Trice.
+[trice/CHANGELOG.md](../CHANGELOG.md)                                                                                          | Release history
+[trice/CONTRIBUTING.md](../CONTRIBUTING.md)                                                                                    | Contribution and validation guidance
 
 ## 2. <a id="entry-points"></a>Entry Points
 
 ### 2.1. <a id="integration"></a>Integration
 
 What you need                                  | Where to look
------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 A guided start with runnable examples          | [User Manual](./TriceUserManual.md), from installation through fields, filters and context to target integration
 Setup, syntax, configuration and limits        | [Reference Manual](rm/README.md), the complete technical reference
 Printf-like calls and their differences        | [Trice and printf](rm/printf_comparison.md), including floating-point values and extended formatting
@@ -64,7 +68,7 @@ Cache for existing Insert/Clean builds         | [Deprecated source cache](rm/in
 ### 2.2. <a id="log-output-and-analysis"></a>Log output and analysis
 
 What you need                      | Where to look
------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Log levels                         | [Tag weights](rm/tags_color_and_weights.md#tag-weights) and [selecting tags and priority](rm/tags_color_and_weights.md#selecting-tags-and-priority); these filters operate on the host
 Tag colors and aliases             | [Trice tags and colors](rm/tags_color_and_weights.md) and [user-defined tags](rm/tags_color_and_weights.md#user-defined-tags-weights-and-colors)
 Select or exclude individual tags  | [Selecting tags and priority](rm/tags_color_and_weights.md#selecting-tags-and-priority) (`-pick`, `-ban`)
@@ -76,13 +80,14 @@ Timing analysis                    | [Target stamps](rm/stamps.md) and [delta co
 Source-file and line information   | [Location information](rm/cli.md#location-information)
 Event counts                       | [Event statistics](rm/tags_color_and_weights.md#event-statistics)
 Graphical visualization            | [Visualization output](rm/visualization.md#visualization-output-with--vis) and [LabPlot demo](rm/visualization.md#setting-up-the-labplot-demo)
+Save measurements as CSV           | [Two values per row](rm/visualization.md#save-two-values-as-csv), with column names, unit conversion and example output
 Record decoded text or raw bytes   | [Logfile output](rm/cli.md#logfile-output) and [binary logfile](rm/cli.md#binary-logfile)
 Integrating multiple targets       | [Several targets at the same time](rm/cli.md#several-targets-at-the-same-time)
 
 ### 2.3. <a id="target-behavior-and-transport"></a>Target behavior and transport
 
 What you need                              | Where to look
--------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Minimize log-call execution time           | [Trice Speed](rm/performance.md); compare direct and deferred modes and their RAM needs
 Logging from interrupts or multiple tasks  | [Critical sections and Trice checks](rm/target_configuration.md#critical-sections-and-checks)
 Work without heap allocation               | [No dynamic memory management in the target logging path](rm/memory_usage.md#no-dynamic-memory-management-needed)
@@ -102,18 +107,19 @@ Adapt existing logging and assert macros   | [Legacy aliases](rm/legacy_user_cod
 
 ### 2.4. <a id="troubleshooting-and-contributions"></a>Troubleshooting and contributions
 
-What you need                   | Where to look
---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------
-Missing or incorrect log output | [User Manual troubleshooting](./TriceUserManual.md#if-something-does-not-work) and [Reference Manual troubleshooting](rm/troubleshooting.md)
-Bind-specific errors            | [Bind diagnostics](rm/bind.md#diagnostics-and-troubleshooting)
-Release changes or contributing | [CHANGELOG](../CHANGELOG.md) and [CONTRIBUTING](../CONTRIBUTING.md)
-Run tests or add test cases     | [Testing the target library](rm/target_tests.md)
-Questions and bug reports       | [Community and contributions](rm/project_resources.md#community-and-contributions)
+What you need                      | Where to look
+---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------
+Missing or incorrect log output    | [User Manual troubleshooting](./TriceUserManual.md#if-something-does-not-work) and [Reference Manual troubleshooting](rm/troubleshooting.md)
+Bind-specific errors               | [Bind diagnostics](rm/bind.md#diagnostics-and-troubleshooting)
+Release changes or contributing    | [CHANGELOG](../CHANGELOG.md) and [CONTRIBUTING](../CONTRIBUTING.md)
+Run tests or add test cases        | [Testing the target library](rm/target_tests.md)
+Understand or extend host decoding | [Host logging pipeline](rm/target_test_internals.md#host-logging-pipeline): data flow, ownership, errors and decoder extension points
+Questions and bug reports          | [Community and contributions](rm/project_resources.md#community-and-contributions)
 
 ### 2.5. <a id="project-resources"></a>Project resources
 
 What you need              | Where to look
----------------------------|------------------------------------------------------------------------------------------------------------------------------------
+-------------------------- | -----------------------------------------------------------------------------------------------------------------------------------
 Downloads and installation | [Get Trice](rm/project_resources.md#download-and-install-trice): released host tools, source builds, and version compatibility
 Compare approaches         | [Alternative projects](rm/project_resources.md#alternative-projects-and-related-approaches) for logging, tracing, and visualization
 Support the project        | [Support and sponsoring](rm/project_resources.md#support-and-sponsoring), including GitHub Sponsors, Buy Me a Coffee, and PayPal
@@ -128,7 +134,7 @@ Start with [demo](../demo/) to see a first log, [examples/PC_features](../exampl
 ### 3.1. <a id="sources-examples-and-documentation"></a>Sources, examples, and documentation
 
 Folder                                   | Purpose and useful entry point
------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 [src](../src/)                           | The target C library. Include `trice.h` and provide a project-specific `triceConfig.h`; [firmware integration](./TriceUserManual.md#bring-trice-into-your-firmware) shows the steps. `triceDefaultConfig.h` documents the defaults.
 [src/default_conf](../src/default_conf/) | Fallback RTT configuration. Search this directory last, after project/generated headers and `src`, so your own `SEGGER_RTT_Conf.h` takes precedence. See [Trice over RTT](rm/rtt.md).
 [demo](../demo/)                         | Minimal direct and deferred PC demos. Start with the [first-log walkthrough](./TriceUserManual.md#see-your-first-log).
@@ -144,7 +150,7 @@ Folder                                   | Purpose and useful entry point
 ### 3.2. <a id="repository-configuration-and-history"></a>Repository configuration and history
 
 Location                                                           | Purpose
--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------
 [.github](../.github/)                                             | CI, release, and documentation workflows, issue templates, and funding configuration. See the [workflow reference](rm/maintenance.md#github-workflows).
 [.vscode](../.vscode/) and [.idea](../.idea/)                      | Optional VS Code and GoLand project settings; not target-library dependencies.
 [.code_snippets](../.code_snippets/)                               | Retained legacy helper snippets; not the recommended integration path.
@@ -158,7 +164,7 @@ Location                                                           | Purpose
 These directories may appear after building or testing; they are not additional source libraries to integrate.
 
 Location                                                  | Typical contents and handling
-----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 `generated/`                                              | Default `-genDir` output: Bind sidecars, the structured-field registry, optional one-line JSON views, and generated C tables. Bind projects add it to the compiler include path. See [persistent and generated files](rm/bind.md#persistent-and-generated-files).
 `build/` or example-specific output folders               | Compiler output. The example's build script determines the path.
 `dist/`                                                   | Local GoReleaser archives and release artifacts.

@@ -126,17 +126,17 @@ Learning that Trice is also a [baby girl name](https://www.babynamespedia.com/me
 
 ID-based binary logging, Insert/Clean, target buffers, COBS/TCOBS, XTEA and RTT were already available in 1.0. The table separates later improvements from the features introduced with 2.0; use the [Changelog](../../CHANGELOG.md) for individual release notes.
 
-| Release period | Progress for users | Current reference |
-| --- | --- | --- |
-| 1.1.x | Macro aliases and user tags, UDP input, additional stamp/version information and more host packages. | [Existing logging macros](legacy_user_code.md), [CLI](cli.md) |
-| 1.2.x | More stamp-delta and portability support, shared decoder registration, format-string removal and printf-length corrections. Standalone `tlog` arrived in 1.2.3; installation packages expanded. | [Stamps](stamps.md), [Printf comparison](printf_comparison.md), [Build and release](tool_build_release.md) |
-| 1.2.4 to 1.3.0 | Counted typeX0 payloads, ABC reception and broadcast commands with multi-node examples. ABC was already part of 1.3.0. | [typeX0](typex0_user_packets.md), [ABC](abc_asynchronous_broadcast_commands.md) |
-| 2.0 | Bind supplies IDs through generated headers so source calls remain ID-free. Insert/Clean stays available; compiler and wrapper limits are documented. | [Bind](bind.md) |
-| 2.0 | Named structured fields with text/JSON/key-value output; Context Enrichment adds selected context values with explicit limits for direct and wrapper/rebase sites. | [Structured logging](structured_logging.md), [Context Enrichment](context_enrichment.md) |
-| 2.0 | Weighted tags, filtering, configurable colors, consistent macro-alias identity and updated CLI/custom-tag spellings. | [Tags](tags_color_and_weights.md), [Alias identity](legacy_user_code.md#alias-identity-and-tags-in-v2) |
-| 2.0 | Host-side `printf`, `unwrap` and `delta` expressions for stamps, plus numeric visualization through files or UDP. | [Stamp expressions](stamp_expressions.md), [Visualization](visualization.md) |
-| 2.0 | Local deferred text logging on the target, source-selected C metadata, readable dictionaries and Bind reports. | [Target implementation](target_implementation.md#local-deferred-text-log), [Generation](generate.md) |
-| 2.0 | Deterministic ID assignment for identical calls, improved reload/replay and filter behavior, a guided User Manual, a split reference and two release PDFs. | [IDs](id_management.md), [User Manual](../TriceUserManual.md), [Reference](README.md) |
+Release period | Progress for users                                                                                                                                                                              | Current reference
+-------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------
+1.1.x          | Macro aliases and user tags, UDP input, additional stamp/version information and more host packages.                                                                                            | [Existing logging macros](legacy_user_code.md), [CLI](cli.md)
+1.2.x          | More stamp-delta and portability support, shared decoder registration, format-string removal and printf-length corrections. Standalone `tlog` arrived in 1.2.3; installation packages expanded. | [Stamps](stamps.md), [Printf comparison](printf_comparison.md), [Build and release](tool_build_release.md)
+1.2.4 to 1.3.0 | Counted typeX0 payloads, ABC reception and broadcast commands with multi-node examples. ABC was already part of 1.3.0.                                                                          | [typeX0](typex0_user_packets.md), [ABC](abc_asynchronous_broadcast_commands.md)
+2.0            | Bind supplies IDs through generated headers so source calls remain ID-free. Insert/Clean stays available; compiler and wrapper limits are documented.                                           | [Bind](bind.md)
+2.0            | Named structured fields with text/JSON/key-value output; Context Enrichment adds selected context values with explicit limits for direct and wrapper/rebase sites.                              | [Structured logging](structured_logging.md), [Context Enrichment](context_enrichment.md)
+2.0            | Weighted tags, filtering, configurable colors, consistent macro-alias identity and updated CLI/custom-tag spellings.                                                                            | [Tags](tags_color_and_weights.md), [Alias identity](legacy_user_code.md#alias-identity-and-tags-in-v2)
+2.0            | Host-side `printf`, `unwrap` and `delta` expressions for stamps, plus numeric visualization through files or UDP.                                                                               | [Stamp expressions](stamp_expressions.md), [Visualization](visualization.md)
+2.0            | Local deferred text logging on the target, source-selected C metadata, readable dictionaries and Bind reports.                                                                                  | [Target implementation](target_implementation.md#local-deferred-text-log), [Generation](generate.md)
+2.0            | Deterministic ID assignment for identical calls, improved reload/replay and filter behavior, a guided User Manual, a split reference and two release PDFs.                                      | [IDs](id_management.md), [User Manual](../TriceUserManual.md), [Reference](README.md)
 
 Before rebuilding a 1.x project, follow the [migration guide](id_management.md#migrating-1x-scripts-and-projects) and preserve the [matching firmware, tool and dictionaries](id_management.md#compatibility-with-firmware-and-host-tool-versions). The unchanged record layout alone does not make old format strings compatible with the new field syntax.
 
@@ -154,6 +154,8 @@ The [Future Design Ideas appendix](future_development.md) preserves the dictiona
 
 
 ### 6.2. <a id="improving-the-trice-tool-internal-parser-not-planned-right-now"></a>Improving the Trice Tool Internal Parser (not planned right now)
+
+For the current implementation, read [Host logging pipeline](target_test_internals.md#host-logging-pipeline). It explains records, filters, output, ownership and errors. The v1.0 description and redesign proposal below are historical background, not a planned change.
 
 #### 6.2.1. <a id="trice-internal-log-code-short-description"></a>Trice Internal Log Code Short Description
 

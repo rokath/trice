@@ -34,7 +34,7 @@
 Repository work is optional for firmware users. For installation and first use follow the [UM](../TriceUserManual.md). OpenCommit below is an optional contributor tool, not a Trice prerequisite.
 
 Action                                    | Command
--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Get a local repository copy.              | `git clone github.com/rokath/trice.git trice`
 Show current folder                       | `pwd`
 Show repository status.                   | `git status`

@@ -213,13 +213,6 @@ func autoTargetStamp0Delta() {
 	decoder.TargetStamp0Delta = strings.Repeat(" ", width)
 }
 
-func targetStampWidth(size int, format string) int {
-	if text, active := expressionPlaceholder(size, format); active {
-		return len(text)
-	}
-	return len(formatTargetStamp(size, format, 0))
-}
-
 func targetStampDisplayWidth(size int, format string) int {
 	s := formatTargetStamp(size, format, 0)
 	if text, active := expressionPlaceholder(size, format); active {
@@ -339,45 +332,6 @@ func formatTargetDelta(size int, format string, timestamp uint64, state *targetS
 	default:
 		return ""
 	}
-}
-
-func formatTargetDeltaValue(size int, timestampFormat string, timestamp uint64) string {
-	switch size {
-	case 4:
-		switch timestampFormat {
-		case "ms", "hh:mm:ss,ms":
-			ms := timestamp % 1000
-			sec := (timestamp - ms) / 1000 % 60
-			min := (timestamp - ms - 1000*sec) / 60000 % 60
-			hour := (timestamp - ms - 1000*sec - 60000*min) / 3600000
-			return fmt.Sprintf("%2d:%02d:%02d,%03d", hour, min, sec, ms)
-		case "us", "Âµs", "ssss,ms_Âµs":
-			us := timestamp % 1000
-			ms := (timestamp - us) / 1000 % 1000
-			sd := (timestamp - 1000*ms) / 1000000
-			return fmt.Sprintf("%4d,%03d_%03d", sd, ms, us)
-		default:
-			return fmt.Sprintf(timestampFormat, timestamp)
-		}
-	case 2:
-		switch timestampFormat {
-		case "ms", "s,ms":
-			ms := timestamp % 1000
-			sec := (timestamp - ms) / 1000
-			return fmt.Sprintf("      %2d,%03d", sec, ms)
-		case "us", "Âµs", "ms_Âµs":
-			us := timestamp % 1000
-			ms := (timestamp - us) / 1000 % 1000
-			return fmt.Sprintf("      %2d_%03d", ms, us)
-		default:
-			return fmt.Sprintf(timestampFormat, timestamp)
-		}
-	case 0:
-		if timestampFormat != "" {
-			return fmt.Sprint(timestampFormat)
-		}
-	}
-	return ""
 }
 
 func formatTargetStamp(size int, format string, timestamp uint64) string {

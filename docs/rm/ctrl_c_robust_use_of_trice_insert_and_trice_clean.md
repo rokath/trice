@@ -26,10 +26,10 @@ Use [Bind](bind.md#build-integration) for normal builds: bind, compile, flash. T
 
 An interruption has two different scopes:
 
-| Scope | Protection |
-| --- | --- |
-| One changed file | The [atomic writer](../../internal/id/helper.go) writes a temporary sibling, flushes and closes it, then renames it over the original. An unsuccessful replacement leaves the old file intact. |
-| A whole preparation/build run | A wrapper must own preparation, child processes and restoration. Atomic individual writes do not make a multi-file run one indivisible operation. |
+Scope                         | Protection
+----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+One changed file              | The [atomic writer](../../internal/id/helper.go) writes a temporary sibling, flushes and closes it, then renames it over the original. An unsuccessful replacement leaves the old file intact.
+A whole preparation/build run | A wrapper must own preparation, child processes and restoration. Atomic individual writes do not make a multi-file run one indivisible operation.
 
 Insert, Clean and dictionary writes use this atomic writer. Bind additionally rolls back already published files when a handled publication error occurs. This does not guarantee a complete multi-file rollback after process termination or power loss. The deprecated `-cache` is a timestamp-preserving build optimization, not a transaction journal.
 
@@ -47,10 +47,10 @@ Do not edit shared test sources or run formatting/preparation commands concurren
 
 Exactly one level owns each shared source tree:
 
-| Owner | Responsibilities |
-| --- | --- |
-| Outer wrapper | Prepare once, start builds, wait for all children, restore once. Children do not prepare or restore shared inputs. |
-| Individual build | Prepare and restore its own isolated inputs. An outer orchestrator only starts and waits for builds. |
+Owner            | Responsibilities
+---------------- | ------------------------------------------------------------------------------------------------------------------
+Outer wrapper    | Prepare once, start builds, wait for all children, restore once. Children do not prepare or restore shared inputs.
+Individual build | Prepare and restore its own isolated inputs. An outer orchestrator only starts and waits for builds.
 
 For a normal application build, Bind is a compilation dependency. For tests that temporarily change workflows, use a snapshot owner like the repository helper. Do not mix global Insert/Clean with child scripts that also modify the same sources.
 
@@ -118,11 +118,11 @@ Use `make clean` for build outputs when the project provides it. It knows the co
 
 ## 8. <a id="example-scripts"></a>Example scripts
 
-| Script | Responsibility |
-| --- | --- |
-| [test runner](../../scripts/_110_test_runner.sh) | Run steps, stop after cancellation and verify tracked state. |
-| [test-state helper](../../scripts/_140_trice_test_state.sh) | Snapshot ownership, signal handling and exact restoration. |
-| [PC worker](../../scripts/_160_pc_target_test_worker.sh) | Per-configuration CGO execution and environment. |
-| [GCC example worker](../../scripts/_200_gcc_example_build_worker.sh) | Build a selected example configuration. |
-| [GCC workflow orchestrator](../../scripts/_210_gcc_example_builds_all_workflows.sh) | Coordinate the selected ID workflows and child builds. |
+Script                                                                              | Responsibility
+----------------------------------------------------------------------------------- | ------------------------------------------------------------
+[test runner](../../scripts/_110_test_runner.sh)                                    | Run steps, stop after cancellation and verify tracked state.
+[test-state helper](../../scripts/_140_trice_test_state.sh)                         | Snapshot ownership, signal handling and exact restoration.
+[PC worker](../../scripts/_160_pc_target_test_worker.sh)                            | Per-configuration CGO execution and environment.
+[GCC example worker](../../scripts/_200_gcc_example_build_worker.sh)                | Build a selected example configuration.
+[GCC workflow orchestrator](../../scripts/_210_gcc_example_builds_all_workflows.sh) | Coordinate the selected ID workflows and child builds.
 

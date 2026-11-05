@@ -25,16 +25,16 @@
 
 The [Guide](../TriceGuide.md) describes the repository layout. This appendix covers maintenance, not application setup.
 
-| Location | Maintainer use |
-| --- | --- |
-| [.github/workflows](../../.github/workflows) | Automation; each YAML file defines its triggers, permissions and steps. |
-| [.github/labeler.yml](../../.github/labeler.yml) | Rules consumed by the label workflow, not an executable workflow. |
-| [.github/ISSUE_TEMPLATE](../../.github/ISSUE_TEMPLATE) | Issue forms. |
-| [.clang-format](../../.clang-format), [.clang-format-ignore](../../.clang-format-ignore) | C formatting and exclusions. |
-| [.editorconfig](../../.editorconfig), [.gitattributes](../../.gitattributes) | Editor settings and Git line-ending rules. |
-| [.markdownlint.yaml](../../.markdownlint.yaml), [.markdownlintignore](../../.markdownlintignore), [lychee.toml](../../lychee.toml) | Documentation checks and exclusions. |
-| [gitAddWorktreeFromGitLogLineData.sh](../../scripts/gitAddWorktreeFromGitLogLineData.sh), [gitAddWorktreesBetween.sh](../../scripts/gitAddWorktreesBetween.sh) | Create separate checkouts for historical comparisons. Read their usage before running. |
-| [gitLogWithBranches.sh](../../scripts/gitLogWithBranches.sh) | Inspect history with branch context. |
+Location                                                                                                                                                       | Maintainer use
+-------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------
+[.github/workflows](../../.github/workflows)                                                                                                                   | Automation; each YAML file defines its triggers, permissions and steps.
+[.github/labeler.yml](../../.github/labeler.yml)                                                                                                               | Rules consumed by the label workflow, not an executable workflow.
+[.github/ISSUE_TEMPLATE](../../.github/ISSUE_TEMPLATE)                                                                                                         | Issue forms.
+[.clang-format](../../.clang-format), [.clang-format-ignore](../../.clang-format-ignore)                                                                       | C formatting and exclusions.
+[.editorconfig](../../.editorconfig), [.gitattributes](../../.gitattributes)                                                                                   | Editor settings and Git line-ending rules.
+[.markdownlint.yaml](../../.markdownlint.yaml), [.markdownlintignore](../../.markdownlintignore), [lychee.toml](../../lychee.toml)                             | Documentation checks and exclusions.
+[gitAddWorktreeFromGitLogLineData.sh](../../scripts/gitAddWorktreeFromGitLogLineData.sh), [gitAddWorktreesBetween.sh](../../scripts/gitAddWorktreesBetween.sh) | Create separate checkouts for historical comparisons. Read their usage before running.
+[gitLogWithBranches.sh](../../scripts/gitLogWithBranches.sh)                                                                                                   | Inspect history with branch context.
 
 Public shell entry points in `scripts/` have no leading underscore: `testAll.sh`, `format_repo.sh`, `release_prep.sh`, `buildTriceTool.sh` and the three Git tools above. The [scripts overview](../../scripts/README.md) lists the public commands. Internal shell, Python and Node.js scripts start with `_`, including the numbered test steps. Run those helpers directly only for focused maintenance or diagnostics.
 
@@ -42,12 +42,12 @@ Public shell entry points in `scripts/` have no leading underscore: `testAll.sh`
 
 The [testing chapter](target_tests.md#github-actions) owns the test workflow catalogue, coverage commands and link checks. Workflow YAML files define their current triggers; repository settings decide which checks block merging.
 
-| Workflow | Repository maintenance role |
-| --- | --- |
-| [pages.yml](../../.github/workflows/pages.yml) | Build/deploy documentation and the statistics reports described below. |
-| [label.yml](../../.github/workflows/label.yml), [stale.yml](../../.github/workflows/stale.yml) | Apply labels and handle inactive issues/pull requests. |
-| [statistics.yml](../../.github/workflows/statistics.yml) | Repository activity reports; not a Trice logging feature. |
-| [statistics-branch-guard.yml](../../.github/workflows/statistics-branch-guard.yml) | Reject PRs involving the statistics branch; see [data isolation](../../.github/workflows/README.md). |
+Workflow                                                                                       | Repository maintenance role
+---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------
+[pages.yml](../../.github/workflows/pages.yml)                                                 | Build/deploy documentation and the statistics reports described below.
+[label.yml](../../.github/workflows/label.yml), [stale.yml](../../.github/workflows/stale.yml) | Apply labels and handle inactive issues/pull requests.
+[statistics.yml](../../.github/workflows/statistics.yml)                                       | Repository activity reports; not a Trice logging feature.
+[statistics-branch-guard.yml](../../.github/workflows/statistics-branch-guard.yml)             | Reject PRs involving the statistics branch; see [data isolation](../../.github/workflows/README.md).
 
 ## 3. <a id="trice-reference-manual-maintenance"></a>Trice Reference Manual Maintenance
 
@@ -63,15 +63,18 @@ Keep each chapter's `mdtoc` container. Write plain headings without manual numbe
 
 Keep headings and contents labels free of emojis. Use the [shared symbol meanings](HEADER.md#symbols-and-table-results) sparingly in UM and RM prose: one symbol plus its English text label per note. In comparison tables, keep the words beside ✅ Yes and ❌ No, retain any restrictions with Partial, and distinguish — (not applicable), ? (unknown/not checked) and 0 (a measured zero). Do not decorate commands, code or quoted tool output. Preserve the commented symbol collection in [FOOTER.md](FOOTER.md) as reference material.
 
-| Task | Command |
-| --- | --- |
-| Regenerate manual ToCs, numbering and anchors | `./scripts/_310_refresh_trice_manuals.sh format` |
-| Verify them without editing | `./scripts/_310_refresh_trice_manuals.sh check` |
-| Check Markdown | `./scripts/_450_test_markdownlint.sh` |
-| Check links | `./scripts/_530_test_links.sh` |
-| Build both PDFs | `./scripts/_320_generate_trice_user_manual_pdf.sh` |
+Task                                          | Command
+--------------------------------------------- | --------------------------------------------------
+Regenerate manual ToCs, numbering and anchors | `./scripts/_310_refresh_trice_manuals.sh format`
+Verify them without editing                   | `./scripts/_310_refresh_trice_manuals.sh check`
+Check Markdown                                | `./scripts/_450_test_markdownlint.sh`
+Check links                                   | `./scripts/_530_test_links.sh`
+Build both PDFs                               | `./scripts/_320_generate_trice_user_manual_pdf.sh`
+Build both EPUB 3 eBooks                      | `bash scripts/_325_generate_trice_manual_epubs.sh`
 
 The PDF build assembles the RM chapter list, rewrites internal links and numbers the complete document. Generated assembly files are build artifacts. Check the resulting PDFs for chapter starts, code blocks, tables and working links.
+
+The EPUB command uses the same chapter and link preparation, then converts both manuals with Pandoc 3.8.3. Install that version from [Pandoc](https://pandoc.org/installing.html) and run the command from a POSIX shell (Git Bash on Windows). It also uses the PDF browser to convert SVG diagrams with HTML labels into embedded PNGs; original images stay unchanged. To use an installed Chrome instead, set `PUPPETEER_EXECUTABLE_PATH` to its executable. The generated `docs/TriceUserManual.epub` and `docs/TriceReferenceManual.epub` stay out of Git, like the PDFs. Release and snapshot CI generate both formats and publish them as separate assets. The title page shows the Git version, source commit and its date, and generation time in UTC. Local Git versions include `dirty` for uncommitted changes; release builds show the selected tag. The eBook title and date metadata identify the edition in reader libraries. EPUB text reflows to the reader's screen; check wide tables and long code examples on your preferred reader.
 
 VS Code Markdown previews, table formatting and paste extensions can help editing; they are optional. Use the repository commands for reproducible ToCs and PDFs.
 
@@ -247,13 +250,13 @@ next authenticated workflow run; local formatting checks do not verify API acces
 **GitHub activity statistics are not a count of unique Trice users.
 Automated access and repeated downloads are included.**
 
-| Metric or display | Limit |
-| --- | --- |
-| Daily unique visitors and cloners | GitHub distinguishes sources within that day, not necessarily people. |
-| Cumulative unique visitors/cloners | These are accumulated daily values, not unique people across the whole period. |
-| Missing traffic values | The upstream analysis may replace missing individual values with zero. Do not treat this report as proof of uninterrupted collection. |
-| Historical stars and forks | Reconstruction from currently existing entries is not a complete historical net inventory; removed entries cannot be recovered that way. |
-| Report timestamp | The report gives its generation time in UTC. Check Actions for collection failures. |
+Metric or display                  | Limit
+---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------
+Daily unique visitors and cloners  | GitHub distinguishes sources within that day, not necessarily people.
+Cumulative unique visitors/cloners | These are accumulated daily values, not unique people across the whole period.
+Missing traffic values             | The upstream analysis may replace missing individual values with zero. Do not treat this report as proof of uninterrupted collection.
+Historical stars and forks         | Reconstruction from currently existing entries is not a complete historical net inventory; removed entries cannot be recovered that way.
+Report timestamp                   | The report gives its generation time in UTC. Check Actions for collection failures.
 
 The dashboard places the warning and these limits beside the unchanged
 upstream report. Its charts and wording are not locally patched. No user

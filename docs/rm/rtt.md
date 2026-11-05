@@ -38,7 +38,7 @@
 
 </details>
 
-> Allows Trice over the debug probe without using a pin or UART.
+Use RTT to read logs through a compatible debug probe without adding a UART connection. Start with the [J-Link quickstart](quickstarts.md#quickstart-segger-rtt-direct-mode-with-j-link); this chapter explains source updates, configuration and other probe setups.
 
 The RTT target sources come from SEGGER's official [SEGGERMicro/RTT repository](https://github.com/SEGGERMicro/RTT).
 Trice includes the unmodified `SEGGER_RTT.c`, `SEGGER_RTT.h`, and `SEGGER_RTT_ConfDefaults.h`

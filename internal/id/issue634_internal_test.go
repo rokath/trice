@@ -3,11 +3,11 @@
 package id
 
 import (
-	"bytes"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIssue634MaskTriceInsertDisabledRegions(t *testing.T) {
@@ -77,7 +77,11 @@ func TestIssue634MaskTriceInsertDisabledRegions(t *testing.T) {
 	}
 }
 
-func TestIssue634RefreshRespectsMarkers(t *testing.T) {
+// TestIssue634AddPreservesLocationsOutsideDisabledRegions checks both metadata
+// files through the live add path while retaining the original source bytes.
+func TestIssue634AddPreservesLocationsOutsideDisabledRegions(t *testing.T) {
+	defer Setup(t)()
+
 	source := strings.Join([]string{
 		`trice(iD(11), "active");`,
 		`// TRICE_INSERT_OFF`,
@@ -87,11 +91,14 @@ func TestIssue634RefreshRespectsMarkers(t *testing.T) {
 		``,
 	}, "\n")
 
+	require.NoError(t, FSys.WriteFile(SFName, []byte(source), 0o600))
+	Srcs = ArrayFlag{SFName}
+	require.NoError(t, SubCmdIdAdd(W, FSys))
+
 	ilu := make(TriceIDLookUp)
-	flu := make(triceFmtLookUp)
+	require.NoError(t, ilu.fromFile(FSys, FnJSON))
 	lim := make(TriceIDLookUpLI)
-	var out bytes.Buffer
-	refreshIDs(&out, "issue634_refresh.c", source, ilu, flu, lim)
+	require.NoError(t, lim.fromFile(FSys, LIFnJSON))
 
 	assert.Contains(t, ilu, TriceID(11))
 	assert.Contains(t, ilu, TriceID(33))
@@ -99,4 +106,9 @@ func TestIssue634RefreshRespectsMarkers(t *testing.T) {
 	assert.Contains(t, lim, TriceID(11))
 	assert.Contains(t, lim, TriceID(33))
 	assert.NotContains(t, lim, TriceID(22))
+	assert.Equal(t, 1, lim[11].Line)
+	assert.Equal(t, 5, lim[33].Line)
+	actualSource, err := FSys.ReadFile(SFName)
+	require.NoError(t, err)
+	assert.Equal(t, source, string(actualSource))
 }

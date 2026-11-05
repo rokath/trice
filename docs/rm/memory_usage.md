@@ -103,17 +103,17 @@ Please check the manuals and create a pull request or simply let me know.
 
 ### 6.1. <a id="armcc-compiler-v5"></a>ARMCC compiler v5
 
-Compiler | Linker         | Result                                          | Comment
-----------|----------------|-------------------------------------------------|-----------------------------------
-o0       |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big
-o1       |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 | |
-o3       |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 | |
-o0       | split sections | Code= 7880 RO-data=268 RW-data=156 ZI-data=4892 | for debugging
-o1       | split sections | Code= 5404 RO-data=260 RW-data=148 ZI-data=4892 | **for debugging**
-o3       | split sections | Code= 4996 RO-data=260 RW-data=148 ZI-data=4892 | **good balance**
-o0       | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | builds slower
-o1       | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower
-o3       | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image**
+| Compiler | Linker         | Result                                          | Comment                           |
+| -------- | -------------- | ----------------------------------------------- | --------------------------------- |
+| o0       |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big                          |
+| o1       |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 |                                   |
+| o3       |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 |                                   |
+| o0       | split sections | Code= 7880 RO-data=268 RW-data=156 ZI-data=4892 | for debugging                     |
+| o1       | split sections | Code= 5404 RO-data=260 RW-data=148 ZI-data=4892 | **for debugging**                 |
+| o3       | split sections | Code= 4996 RO-data=260 RW-data=148 ZI-data=4892 | **good balance**                  |
+| o0       | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | builds slower                     |
+| o1       | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower                     |
+| o3       | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image** |
 
 ## 7. <a id="trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization"></a>TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization
 
@@ -455,7 +455,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 ðŸ
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
 Program Size (STM32-F030R8 demo project)      | trice instrumentation | buffer size | compiler optimize for time | comment
------------------------------------------------|-----------------------|-------------|----------------------------|---------------------------------
+--------------------------------------------- | --------------------- | ----------- | -------------------------- | -------------------------------
 Code=1592 RO-data=236 RW-data= 4 ZI-data=1028 | none                  | 0           | off                        | CubeMX generated, no trice
 Code=1712 RO-data=240 RW-data=24 ZI-data=1088 | core                  | 64          | off                        | core added without trices
 Code=3208 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | off                        | TRICE_SHORT_MEMORY is 1 (small)
@@ -468,7 +468,7 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512     
 ### 8.10. <a id="memory-needs-for-old-example-2"></a>Memory Needs for Old Example 2
 
 Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark
---------------------------------|-------------|--------------|------------------------|-----------------------------------------------|--------------------------------------------------------------------
+------------------------------ | ----------- | ------------ | ---------------------- | --------------------------------------------- | ------------------------------------------------------------------
 MDK-ARM_STM32F030_bareerated   | CLANG v6.19 | -Oz          | yes                    | Code=1020 RO-data=196 RW-data=0 ZI-data=1024  | This is the plain generated project without trice instrumentation.
 MDK-ARM_STM32F030_instrumented | CLANG v6.19 | -Oz          | yes                    | Code=4726 RO-data=238 RW-data=16 ZI-data=4608 | This is with full trice instrumentation with example messages.
 

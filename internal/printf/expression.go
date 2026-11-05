@@ -257,11 +257,6 @@ func (n binaryNode) Infer(shape *Shape) (Kind, error) {
 	return Float, nil
 }
 
-// compileExpression validates one Go expression AST and lowers it into the small -vis evaluator.
-func CompileExpression(node ast.Expr, source string) (Expression, error) {
-	return compileInContext(node, source, &compiler{})
-}
-
 // compileInContext applies the caller's field and stateful-function whitelist.
 func compileInContext(node ast.Expr, source string, context *compiler) (Expression, error) {
 	var references References

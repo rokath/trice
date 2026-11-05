@@ -333,6 +333,11 @@ verify_release_pdf() {
   local manual size minimum
 
   for manual in TriceUserManual TriceReferenceManual; do
+    verify_release_artifact "$DIST_DIR/$manual.epub"
+    if [ "$(unzip -p "$DIST_DIR/$manual.epub" mimetype)" != application/epub+zip ]; then
+      log "FAIL: $manual.epub is not an EPUB container; expected mimetype application/epub+zip"
+      exit 1
+    fi
     verify_release_artifact "$DIST_DIR/$manual.pdf"
     # Keep the reference threshold; the new guide is deliberately shorter.
     minimum=10000
@@ -378,20 +383,22 @@ main() {
     exit 1
   }
 
-  # GoReleaser uploads both manual PDFs as release extra_files. The
+  # GoReleaser uploads both manuals as PDF and EPUB release extra_files. The
   # local snapshot check also copies them to ./dist so the expected artifact set
   # is visible in one directory for smoke tests and CI artifact upload.
   run_cmd mkdir -p "$ROOT_DIR/dist" || {
     log "FAIL: could not ensure ./dist/ exists for the local manual PDF copy"
     exit 1
   }
-  local manual
+  local manual format
   for manual in TriceUserManual TriceReferenceManual; do
-    verify_release_artifact "$ROOT_DIR/docs/$manual.pdf"
-    run_cmd cp -f "$ROOT_DIR/docs/$manual.pdf" "$ROOT_DIR/dist/$manual.pdf" || {
-      log "FAIL: could not copy docs/$manual.pdf into ./dist/"
-      exit 1
-    }
+    for format in pdf epub; do
+      verify_release_artifact "$ROOT_DIR/docs/$manual.$format"
+      run_cmd cp -f "$ROOT_DIR/docs/$manual.$format" "$ROOT_DIR/dist/$manual.$format" || {
+        log "FAIL: could not copy docs/$manual.$format into ./dist/"
+        exit 1
+      }
+    done
   done
 
   verify_snapshot_layout

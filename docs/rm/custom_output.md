@@ -15,11 +15,11 @@
 
 Choose a path that can carry the encoded bytes without changing their order. The [UM firmware outline](../TriceUserManual.md#bring-trice-into-your-firmware) introduces the basic writer; [integration recipes](quickstarts.md) specify the configuration.
 
-| Path | Typical use | Details |
-| --- | --- | --- |
-| UART / USB virtual COM | Standalone serial connection, often deferred output. | [UART recipe](quickstarts.md#quickstart-uart-or-usb-vcom-deferred-output). |
-| RTT | Probe access to target memory. | [RTT configuration and tools](rtt.md). |
-| Existing writer or file | Application transmit queue, SD-card recording, custom transport. | Writer requirements below. |
+Path                    | Typical use                                                      | Details
+----------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------
+UART / USB virtual COM  | Standalone serial connection, often deferred output.             | [UART recipe](quickstarts.md#quickstart-uart-or-usb-vcom-deferred-output).
+RTT                     | Probe access to target memory.                                   | [RTT configuration and tools](rtt.md).
+Existing writer or file | Application transmit queue, SD-card recording, custom transport. | Writer requirements below.
 
 ## 1. <a id="other-byte-transports"></a>Other byte transports
 

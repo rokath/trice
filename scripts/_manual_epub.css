@@ -1,0 +1,28 @@
+/* Reflow with reader-selected fonts while keeping technical examples legible. */
+body { line-height: 1.4; }
+img { max-width: 100%; height: auto; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+code { font-family: monospace; }
+pre code { font-size: 0.85em; }
+/* Pandoc's highlighting uses a more specific white-space: pre rule. Override
+   it explicitly and allow code to split across reader pages instead of clipping. */
+pre, pre > code.sourceCode {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+}
+div.sourceCode, pre, pre > code {
+  max-width: 100%;
+  overflow: visible;
+  break-inside: auto;
+  page-break-inside: auto;
+}
+/* Inline line spans can wrap and paginate; inline-block spans stay indivisible. */
+pre > code.sourceCode > span {
+  display: inline;
+  padding-left: 0;
+  text-indent: 0;
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+th, td { border: 1px solid #888; padding: 0.3em; overflow-wrap: anywhere; }
+h1, h2, h3, h4 { break-after: avoid; }
