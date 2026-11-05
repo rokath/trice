@@ -113,6 +113,13 @@ func TestCheckoutBuildProtectsBothTools(t *testing.T) {
 // TestReleaseAuditSelectsRequestedTag executes the real resolver/download step.
 // Its GH double refuses an omitted/different tag, so latest fallback cannot pass.
 func TestReleaseAuditSelectsRequestedTag(t *testing.T) {
+	// Assert the required asset names as well as the count, so substituting or
+	// dropping either EPUB cannot pass by preserving the number of downloads.
+	requiredAssets := []string{
+		"trice_tool_linux_amd64.tar.gz", "trice_tool_darwin_amd64.tar.gz", "trice_tool_windows_amd64.zip",
+		"trice_target_sources_*.zip", "trice_*_amd64.deb", "trice_*_amd64.rpm", "trice_*_amd64.apk",
+		"TriceReferenceManual.pdf", "TriceUserManual.pdf", "TriceReferenceManual.epub", "TriceUserManual.epub",
+	}
 	for _, tc := range []struct {
 		name, requested, published, missingAsset    string
 		prerelease, draft, missing, extraAssets, ok bool
@@ -122,6 +129,8 @@ func TestReleaseAuditSelectsRequestedTag(t *testing.T) {
 		{name: "multiple_assets_with_spaces", requested: "v2.0.0", published: "v2.0.0", extraAssets: true, ok: true},
 		{name: "missing_downloaded_sources", requested: "v2.0.0", published: "v2.0.0", missingAsset: "trice_target_sources_*.zip"},
 		{name: "missing_downloaded_manual", requested: "v2.0.0", published: "v2.0.0", missingAsset: "TriceUserManual.pdf"},
+		{name: "missing_downloaded_user_epub", requested: "v2.0.0", published: "v2.0.0", missingAsset: "TriceUserManual.epub"},
+		{name: "missing_downloaded_reference_epub", requested: "v2.0.0", published: "v2.0.0", missingAsset: "TriceReferenceManual.epub"},
 		{name: "missing_tag_stops_before_api"},
 		{name: "invalid_tag_stops_before_api", requested: "bad tag"},
 		{name: "missing_release_stops_before_downloads", requested: "v2.0.0-beta-1", missing: true},
@@ -182,7 +191,10 @@ esac
 				calls, readErr := os.ReadFile(filepath.Join(root, "gh.calls"))
 				assert.NoError(t, readErr)
 				assert.Contains(t, string(calls), "release view "+tc.requested+" --repo fixture/trice")
-				assert.Equal(t, 9, strings.Count(string(calls), "release download "+tc.requested+" "))
+				assert.Equal(t, len(requiredAssets), strings.Count(string(calls), "release download "+tc.requested+" "))
+				for _, asset := range requiredAssets {
+					assert.Contains(t, string(calls), "release download "+tc.requested+" --repo fixture/trice --pattern "+asset+" --dir release-assets\n")
+				}
 				assert.Contains(t, out, "OK downloaded: trice_target_sources_*.zip")
 				if tc.extraAssets {
 					assert.Contains(t, out, "  release-assets/trice_target_sources_fixture.zip\n")
