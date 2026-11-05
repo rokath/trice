@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-// Package decoder provides several decoders for differently encoded trice streams.
+// Package decoder defines shared state, the constructor registry and optional
+// event interfaces for host decoders.
 package decoder
 
 import (
@@ -110,6 +111,8 @@ func init() {
 type New func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder
 
 // Config contains common constructor parameters for all decoders.
+// In and Out are borrowed; their owner closes them. LUT and LI remain shared
+// with the dictionary watcher, so all live map access must use the same LUTMutex.
 type Config struct {
 	Out         io.Writer
 	LUT         id.TriceIDLookUp
@@ -120,8 +123,9 @@ type Config struct {
 	NeedBuffers bool // NeedBuffers allocates B, B0 and InnerBuffer for framed decoders.
 }
 
-// Decoder is providing a byte reader returning decoded trice's.
-// SetInput allows switching the input stream to a different source.
+// Decoder turns input bytes into decoded text through io.Reader. Optional
+// RecordProvider and OutputClassifier interfaces expose events and diagnostics.
+// SetInput replaces the input reader without closing either source.
 type Decoder interface {
 	io.Reader
 	SetInput(io.Reader)
@@ -227,27 +231,31 @@ type VisRecordController interface {
 	SetVisRecordEnabled(bool)
 }
 
-// DecoderData is the common data struct for all decoders.
+// DecoderData holds shared constructor state and decoder-owned working buffers.
+// Read calls on one instance must be sequential: framing reuses and reslices the
+// buffers, and the translator consumes each result before reading the next one.
 type DecoderData struct {
-	W           io.Writer          // io.Stdout or the like
-	In          io.Reader          // in is the inner reader, which is used to get raw bytes
+	W           io.Writer          // borrowed diagnostic writer
+	In          io.Reader          // borrowed raw input reader
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
-	B           []byte             // read buffer holds a single decoded TCOBS package, which can contain several trices.
+	B           []byte             // unprocessed record bytes, from one decoded frame when framing is enabled
 	B0          []byte             // initial value for B
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
 	TriceSize   int                // trice head and payload size as number of bytes
 	ParamSpace  int                // trice payload size after head
 	SLen        int                // string length for TRICE_S
 	Lut         id.TriceIDLookUp   // id look-up map for translation
-	LutMutex    *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
+	LutMutex    *sync.RWMutex      // shared lock for Lut and Li reads and watcher updates
 	Li          id.TriceIDLookUpLI // location information map
-	Trice       id.TriceFmt        // id.TriceFmt // received trice
+	Trice       id.TriceFmt        // snapshot of the selected TIL entry
 }
 
 // NewDecoderData initializes the common base fields for a decoder.
 //
 // Callers can request pre-allocated internal working buffers with NeedBuffers.
+// A nil Out becomes io.Discard. A nil LUTMutex creates a private lock, suitable
+// only when the supplied dictionaries are not concurrently changed elsewhere.
 func NewDecoderData(c Config) DecoderData {
 	if c.Out == nil {
 		c.Out = io.Discard
@@ -272,9 +280,8 @@ func NewDecoderData(c Config) DecoderData {
 	return d
 }
 
-// SetInput allows switching the input stream to a different source.
-//
-// This function is for easier testing with cycle counters.
+// SetInput replaces the borrowed reader without closing it or resetting buffered
+// bytes and cycle state. Construct a new decoder for an independent input session.
 func (p *DecoderData) SetInput(r io.Reader) {
 	p.In = r
 }

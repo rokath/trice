@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// Package translator routes decoded host events through filters to text,
+// structured output and optional visualization sinks.
 package translator
 
 import (
@@ -39,17 +41,21 @@ var (
 	Verbose bool
 )
 
-// Translate performs the trice log task.
+// Translate decodes rwc with the registered Encoding and routes accepted events
+// to sw (text), w (JSON/KV), and the optional visRouter.
 //
-// Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
-// Each read returns the amount of bytes for one trice. rc is called on every
-// Translate returns true on io.EOF or false on hard read error or sigterm.
+// Diagnostics use w in text mode and stderr in JSON/KV mode. Translate returns
+// io.EOF after a finite input such as FILEBUFFER is drained, or a read, render or
+// structured-output write error. Text-output errors are reported via msg.OnErr.
+// Invalid encoding or endianness settings terminate via log.Fatal.
+//
+// The caller closes rwc after return; output writers and visRouter are borrowed.
+// In local display mode, the signal handler closes rwc and visRouter before exit.
 func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, rwc io.ReadWriteCloser, visRouter *vis.Router) error {
 	diagnostics := w
 	if decoder.LogFormat != "text" {
 		diagnostics = os.Stderr
 	}
-	//var dec Decoder //io.Reader
 	if Verbose {
 		fmt.Fprintln(diagnostics, "Encoding is", Encoding)
 	}
@@ -478,7 +484,7 @@ func splitSingleFormatDirective(format string) (prefix string, width int, leftAl
 	return "", 0, false, "", false
 }
 
-// decodeAndComposeLoop does not return.
+// decodeAndComposeLoop runs the loop with a shared application and diagnostic writer.
 func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decoder.Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI, visRouter *vis.Router) error {
 	return decodeAndComposeLoopOutput(w, w, sw, dec, lut, li, visRouter)
 }
@@ -492,7 +498,10 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 	if len(tableMutex) != 0 {
 		mutex = tableMutex[0]
 	}
-	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
+	// Consume decoded bytes and borrowed spans before the next Read. The line
+	// composer copies text into strings; visualization consumes typed records
+	// synchronously.
+	b := make([]byte, decoder.DefaultSize)
 	sleepCounter := 0
 	if err := prepareTargetStampFormats(); err != nil {
 		return err
@@ -502,7 +511,7 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 		return err
 	}
 	for {
-		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
+		n, err := dec.Read(b) // An empty read can still expose a valid ApplicationRecord.
 
 		if err != io.EOF && err != nil {
 			return err
@@ -531,6 +540,8 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 							}
 						}
 					}
+					// Protect LI lookups during encoding; encoded owns its bytes
+					// and can be written after releasing the dictionary lock.
 					mutex.RLock()
 					encoded, err := renderStructuredRecord(record, li, time.Now(), &state)
 					mutex.RUnlock()
@@ -601,6 +612,8 @@ func decodeAndComposeLoopOutput(w, diagnostics io.Writer, sw *emitter.TriceLineC
 			}
 
 			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
+				// Render the shared LI entry while locked. Only the resulting
+				// string is used after unlock, never the map entry itself.
 				mutex.RLock()
 				s := locationInformation(decoder.LastTriceID, li)
 				mutex.RUnlock()
@@ -705,7 +718,8 @@ func writeUntaggedFragment(sw *emitter.TriceLineComposer, fragment []byte, style
 // output and returns the single application range and its format tag candidate,
 // if present. classifiedEvent is false for byte-oriented decoders without event
 // boundaries. Diagnostics skip application filters, metadata, visualization, and
-// the line transformer.
+// the line transformer. The application slice aliases decoded; consume it before
+// the next Read reuses the buffer.
 func separateDecoderDiagnostics(w io.Writer, dec decoder.Decoder, decoded []byte) (application []byte, tag string, classifiedEvent bool) {
 	classifier, ok := dec.(decoder.OutputClassifier)
 	if !ok {

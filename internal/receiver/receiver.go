@@ -1,34 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This is possibly obsolete information!
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Package receiver is responsible for getting and handling the bytes from the communication port.
-// There ae different communication ports possible: COM, RTT, TCP...
-// It is activated by the trice package and calls emit.Trice() on received bytes chunks.
+// Package receiver opens raw input streams for the host logger. Framing and
+// event decoding belong to the decoder selected by the translator.
 //
-// Implementation
-// ==============
-// - trice.DoReceive() is called when trice ist started in log or receiver mode
-// - In dependence on receiverDevice DoSerial() or DoSeggerRTT() or ... is activated (named DoDevice() from now)
-// - DoDevice()
-//   - performs device specific initialization
-//   - performs Start() which starts the go routine receiving(), responsible for raw data (see below)
-//   - and ends in device.doReceive()
-// - device is a composed type from triceReceiver (common functionality) and deviceReceiver (device specific functionality)
-// - The newDevice(...) function creates the device specific instance and links to it the triceReceiver instance created by
-// device.triceReceiver = newTriceReceiver(device). The device parameter for newTriceReceiver() is the linked device interface
-// into the triceReceiver instance so that the in this way composed device instance can use the common triceReceiver parts as well.
-// - receiving()
-//  - scans the incoming data stream for valid headers,
-//  - and puts these into the triceChannel, when trice headers
-//  - or puts them together with the following package data into the buffer channel if it is a valid package
-//  - It is up to the trice implementation to add more channels here for other protocols
-// - doReceive() is the endless loop waiting for data in the channels filled in by receiving()
-//  - All incoming buffer packets are collected into a byte slice for later usage (case `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT_EXPERIMENTAL`)
-//  - If a trice header comes out of the triceChannel emit.Trice() is called
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// args.logLoop owns the io.ReadWriteCloser returned by NewReadWriteCloser and
+// any byte-display or binary-capture wrappers. Closing the outermost wrapper
+// releases its source and capture file; diagnostic writers remain open.
+// Wrappers forward outgoing target commands separately from received bytes.
 package receiver
 
 import (
@@ -146,7 +124,7 @@ type tcp4 struct {
 	conn *net.TCPConn
 }
 
-// newTCP4Connection returns a readCloser capable tcp4 instance.
+// newTCP4Connection opens a TCP command and input connection owned by the caller.
 func newTCP4Connection(w io.Writer, endpoint string) *tcp4 {
 	r := &tcp4{w: w}
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
@@ -177,13 +155,13 @@ func (p *tcp4) Close() error {
 	return p.conn.Close()
 }
 
-// udp holds an open udp connection.
+// udp4 holds a UDP listener without a configured reply peer.
 type udp4 struct {
 	w    io.Writer // os.Stdout
 	conn *net.UDPConn
 }
 
-// newTCP4Connection returns a readCloser capable tcp4 instance.
+// newUDPConnection opens a UDP input listener owned by the caller.
 func newUDPConnection(w io.Writer, endpoint string) *udp4 {
 	r := &udp4{w: w}
 	addr, err := net.ResolveUDPAddr("udp4", endpoint)
@@ -225,7 +203,7 @@ type file struct {
 	fh afero.File
 }
 
-// newFileReader returns a readCloser capable file instance.
+// newFileReader opens fn read-only; command writes are discarded.
 func newFileReader(w io.Writer, fSys *afero.Afero, fn string) *file {
 	r := &file{w: w}
 	fh, err := fSys.Open(fn)
@@ -254,14 +232,13 @@ func (p *file) Close() error {
 	return p.fh.Close()
 }
 
-// NewReadWriteCloser returns a ReadCloser for the specified port and its args.
-// err is nil on successful open.
-// When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
-// When port is "DUMP", args is expected to be a space or comma separated hex print like "09 a1 fe"
-// When port is "BUFFER", args is expected to be a decimal byte sequence in the same format as for example coming from one of the other ports.
-// When port is "JLINK", args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
-// When port is "STLINK", args has the same format as for "JLINK"
-// When port is "OPENOCD", args is []string{"-f", "openocd.cfg"}
+// NewReadWriteCloser opens the selected transport or replay source.
+// The caller closes the returned stream, or its outermost wrapper; w is borrowed
+// for diagnostics. TCP, UDP and file constructors call log.Fatal on open errors.
+//
+// DUMP/HEX accept hexadecimal bytes such as "09 a1 fe"; BUFFER/DEC accept decimal
+// bytes such as "9 161 254". JLINK/STLINK use logger arguments; OPENOCD uses the
+// fixed "-f openocd.cfg" configuration in link.NewDevice.
 func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args string) (r io.ReadWriteCloser, err error) {
 	if Verbose {
 		if args == "default" {
@@ -348,11 +325,7 @@ func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args
 			fmt.Fprintln(w, "PortArguments=", args)
 		}
 		var c com.COMport // interface type
-		//if args == "TARM" { // for comparing dynamic behavior
-		//	c = com.NewCOMPortTarm(w, verbose, port)
-		//} else {
 		c = com.NewPort(w, port, verbose)
-		//}
 		if !c.Open() {
 			err = fmt.Errorf("can not open %s", port)
 		}
@@ -395,9 +368,9 @@ type binaryLogger struct {
 	closeErr  error
 }
 
-// NewBinaryLogger returns a ReadWriteCloser `in` which is internally using reader `from`.
-// Calling the `in` Read method leads to internally calling the `from` Read method
-// but lets to do some additional logging
+// NewBinaryLogger appends received bytes to BinaryLogfileName unless capture is
+// disabled. The wrapper owns from and the capture file, closing each once.
+// The diagnostic writer w is borrowed; outgoing commands are only forwarded.
 func NewBinaryLogger(w io.Writer, fSys *afero.Afero, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
 	fn := BinaryLogfileName
 	if fn == "none" || fn == "off" || fn == "nul" || fn == "" {
@@ -420,6 +393,8 @@ func NewBinaryLogger(w io.Writer, fSys *afero.Afero, from io.ReadWriteCloser) (i
 	return p
 }
 
+// Read preserves the source's byte count and error, including bytes read with
+// EOF. Capture failures are joined with the input error without hiding the count.
 func (p *binaryLogger) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
 	if count == 0 {
@@ -465,9 +440,8 @@ type bytesViewer struct {
 	closeErr  error
 }
 
-// NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
-// Calling the `in` Read method leads to internally calling the `from` Read method
-// but lets to do some additional action like logging
+// NewBytesViewer displays received bytes in hexadecimal on w and forwards target
+// commands unchanged. The wrapper owns from but leaves the borrowed w open.
 func NewBytesViewer(w io.Writer, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
 	p := &bytesViewer{w: w, r: from}
 	return p
