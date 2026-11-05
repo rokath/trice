@@ -294,7 +294,7 @@ These jobs still serve distinct purposes. They are not all replaced by the nativ
 | [Coverage](../../.github/workflows/coverage.yml) | PR, push to `main`, monthly and manual: Go coverage artifact and Coveralls upload. |
 | [Go](../../.github/workflows/go.yml) | Manual Go build/tests and coverage integration. |
 | [Clang-Format](../../.github/workflows/clang-format.yml), [shfmt](../../.github/workflows/shfmt.yml), [ShellCheck](../../.github/workflows/shellcheck.yml), [Super-Linter](../../.github/workflows/superlinter.yml) | Source/document/configuration checks; each YAML defines its event filters. |
-| [Links](../../.github/workflows/link-check.yml) | Separate local/external link check, including fragment destinations. Both the local script and CI enable `--include-fragments`. Server availability and rate limits can affect it; inspect the actual failing URL. `GITHUB_TOKEN`/`GH_TOKEN` can reduce GitHub throttling locally. |
+| [Links](../../.github/workflows/link-check.yml) | PRs check local files and anchors with `--offline --include-fragments`. Pushes to `main` and manual runs also check external links. The local script checks both. Server availability and rate limits can affect external checks; inspect the actual failing URL. `GITHUB_TOKEN`/`GH_TOKEN` can reduce GitHub throttling locally. |
 | [CodeQL](../../.github/workflows/codeql.yml) | Go/C/C++ security analysis; complements executable tests. |
 | [Future tool compatibility](../../.github/workflows/tool-compatibility.yml) | Weekly/manual: current stable Go and latest GoReleaser. A maintenance signal for future upgrades, separate from acceptance with declared versions. |
 
