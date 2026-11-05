@@ -77,7 +77,7 @@ if [ "$1" = --version ]; then echo v26.12.1; exit 0; fi
 [ -s "${PUPPETEER_CACHE_DIR:-missing-cache}/browser" ] || { echo 'missing prepared browser' >&2; exit 93; }
 [ "$(cd "$PUPPETEER_CACHE_DIR" && pwd -P)" = "$(cd "$FIXTURE_BROWSER_CACHE" && pwd -P)" ] || exit 94
 case "$1" in
-  scripts/_prepare_reference_manual.cjs)
+  scripts/_315_prepare_reference_manual.cjs)
     mkdir -p temp/manual-pdf/chapters
     case "${2:-}" in
       '') printf '# Reference Manual\n' > temp/manual-pdf/SUMMARY.md ;;

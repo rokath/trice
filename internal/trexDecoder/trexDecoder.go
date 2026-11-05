@@ -88,7 +88,8 @@ type trexDec struct {
 	recordParts        strings.Builder           // unbounded message assembly for classic buffer/function logs
 }
 
-// ApplicationRecord returns an event independently of the legacy text spans.
+// ApplicationRecord returns the most recent event even when Read produced no
+// text bytes. Fields shares the event's backing slice and must not be modified.
 func (p *trexDec) ApplicationRecord() (decoder.ApplicationRecord, bool) {
 	return p.record, p.recordValid
 }
@@ -149,9 +150,9 @@ func (p *trexDec) VisRecord() (decoder.VisRecord, bool) {
 	return p.visRecord, p.visValid
 }
 
-// New provides a TREX decoder instance.
-//
-// in is the input byte stream source.
+// New creates a TREX decoder with its own framing buffers. Input, diagnostic
+// writer and dictionaries are borrowed; m must match the dictionary watcher's
+// lock. The caller closes the input when the session ends.
 func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
 	// Todo: rewrite using the TCOBS Reader. The provided in io.Reader provides a raw data stream.
 	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
@@ -184,12 +185,9 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	return p
 }
 
-// nextData reads with an inner reader a raw byte stream.
-//
-// When fewer than 4 bytes are available, nextData returns without processing.
-// That means the incoming data stream is exhausted and a next try should be started a bit later.
-// Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
-// Afterwards 0 or at least 4 bytes are inside p.B
+// nextData appends one raw read to the unframed bytes in p.B, even when input
+// returns bytes together with an error. Read decides when enough bytes form a
+// record; a split header or payload remains buffered for the next call.
 func (p *trexDec) nextData() {
 	m, err := p.In.Read(p.InnerBuffer)      // use p.InnerBuffer as destination read buffer
 	p.B = append(p.B, p.InnerBuffer[:m]...) // merge with leftovers
@@ -197,14 +195,10 @@ func (p *trexDec) nextData() {
 	p.inputBytes += uint64(m)
 }
 
-// nextPackage reads with an inner reader a TCOBSv1 encoded byte stream.
-//
-// When no terminating 0 is found in the incoming bytes nextPackage returns without action.
-// That means the incoming data stream is exhausted and a next try should be started a bit later.
-// Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
-// When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
-// and returns it in b and its len in n. If more data arrived after the first terminating 0,
-// these are kept internally and concatenated with the following bytes in a next Read.
+// nextPackage decodes one zero-terminated COBS/TCOBS frame into p.B and returns
+// diagnostics separately. Without a delimiter, p.IBuf retains the partial frame;
+// after a complete frame, it retains any following bytes for the next call.
+// A failed decode discards that frame's partial result, not the following frames.
 func (p *trexDec) nextPackage() string {
 	var diagnostic strings.Builder
 	// Here p.IBuf contains none or available bytes, what can be several trice messages.
@@ -219,8 +213,8 @@ func (p *trexDec) nextPackage() string {
 			p.inputBytes += uint64(m)
 			index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
 			if index == -1 {                   // p.IBuf has no complete COBS data, so leave
-				// Even err could be io.EOF, some valid data possibly in p.iBUf.
-				// In case of file input (J-LINK usage) a plug off is not detectable here.
+				// EOF can be temporary for a live file input. Keep the partial
+				// frame so a later Read can append the missing delimiter.
 				return diagnostic.String() // no terminating 0, nothing to do
 			}
 		}
@@ -347,21 +341,19 @@ func (p *trexDec) removeZeroHiByte(s []byte) (r []byte) {
 }
 
 // Read returns application text and tool diagnostics in b[:n] and classifies
-// their ranges through DecodedOutputSpans.
-// Read is the provided read method for TREX decoding and provides next string as byte slice.
+// their ranges through DecodedOutputSpans. It processes at most one application
+// event, leaving later records from the same frame buffered for another Read.
 //
-// It uses inner reader p.In and internal id look-up table to fill b with a string.
-// b is a slice of bytes with a len for the max expected string size.
-// n is the count of read bytes inside b.
-// Read returns usually one complete trice string or nothing but can return concatenated
-// trice strings, each ending with a newline despite the last one, when messages added.
-// Read does not process all internally read complete trice packages to be able later to
-// separate Trices within one line to keep them separated for color processing.
-// An empty read can still represent progress through a filtered or empty record.
+// Consume b[:n] and the decoder-owned spans before the next Read. Text may fill
+// only part of a log line or contain several newlines; event boundaries come from
+// ApplicationRecord, not newlines. A valid empty event can accompany n == 0.
+//
 // EOF is returned only when input is exhausted and no buffered progress remains.
 // A partial final packet is retained, allowing live file readers to resume later.
 // In case of a non-matching cycle, a diagnostic is prefixed to valid application text.
-// Invalid package data produces only diagnostics and the package is dropped.
+// Malformed framed records are discarded. Plausible split unframed records remain
+// buffered, while corrupt unframed bytes trigger resynchronization. Diagnostics
+// alone never create a valid ApplicationRecord.
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	// Buffer lengths alone are insufficient: a read can refill exactly what the
 	// decoder consumes. Include received bytes and empty application records.
@@ -610,6 +602,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	var ok bool
+	// TriceFmt contains strings only. Copy it under the shared lock, then use
+	// the immutable values without keeping a map access alive across reloads.
 	p.LutMutex.RLock()
 	p.Trice, ok = p.Lut[triceID]
 	// Keep the LUT representation separate from the optional display-only newline mutation.

@@ -20,7 +20,7 @@ import (
 func l432Fixture(t *testing.T) string {
 	t.Helper()
 	root := scriptFixture(t, "examples/L432_inst/all_configs_build.sh")
-	writeFixture(t, root, "examples/prepareTriceBind.sh", `prepare_trice_bind_build() {
+	writeFixture(t, root, "examples/_020_prepare_trice_bind.sh", `prepare_trice_bind_build() {
   mkdir -p ../../events ../../active
   echo prepared >> ../../events/preparation
   [ "${PREPARATION_FAIL:-0}" = 0 ] || return 9
@@ -317,7 +317,7 @@ printf 'MatrixExit:%s\n' "$status"
 // containing spaces. These tests never invoke a host compiler or modify sources.
 func l432ClangFixture(t *testing.T) string {
 	t.Helper()
-	root := scriptFixture(t, "examples/L432_inst/build.sh", "examples/L432_inst/build_with_clang.sh", "examples/prepareTriceBind.sh")
+	root := scriptFixture(t, "examples/L432_inst/build.sh", "examples/L432_inst/build_with_clang.sh", "examples/_020_prepare_trice_bind.sh")
 	writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "MAKE_JOBS=-j1\n")
 	writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", `#!/bin/sh
 echo prepared >> preparation.calls

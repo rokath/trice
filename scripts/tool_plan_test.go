@@ -408,7 +408,7 @@ func TestNpmBrowserProbe(t *testing.T) {
 		{"revision_rejected", "fixture revision lookup failed"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_test_npm_tools.cjs")
+			root := scriptFixture(t, "scripts/_118_test_npm_tools.cjs")
 			// Resolve the renderer's nested dependency, including a path with spaces.
 			renderer := "installed tools/node_modules/md-to-pdf"
 			writeFixture(t, root, renderer+"/package.json", `{"name":"md-to-pdf","version":"5.2.5","main":"index.cjs"}`)
@@ -433,7 +433,7 @@ const puppeteer = {
 export const executablePath = puppeteer.executablePath;
 export default puppeteer;
 `)
-			command := exec.Command(node, "scripts/_test_npm_tools.cjs", "browser", filepath.Join(root, "installed tools"))
+			command := exec.Command(node, "scripts/_118_test_npm_tools.cjs", "browser", filepath.Join(root, "installed tools"))
 			command.Dir = root
 			output, err := command.CombinedOutput()
 			if tc.message == "" {
@@ -475,7 +475,7 @@ assert.equal(typeof puppeteer.default.browserVersion, 'function', 'use the defau
 // provides a portable, deliberately incompatible browser version on every OS.
 puppeteer.default.executablePath = async () => process.execPath;
 `)
-	command := exec.Command(node, "--require", "./browser-preload.cjs", "scripts/_test_npm_tools.cjs", "browser", tools)
+	command := exec.Command(node, "--require", "./browser-preload.cjs", "scripts/_118_test_npm_tools.cjs", "browser", tools)
 	command.Dir = root
 	command.Env = append(os.Environ(), "FIXTURE_NPM_ROOT="+tools)
 	output, err := command.CombinedOutput()
@@ -493,11 +493,11 @@ puppeteer.default.executablePath = async () => process.execPath;
 func TestNpmSelectionAndLockSubset(t *testing.T) {
 	node, err := exec.LookPath("node")
 	require.NoError(t, err, "npm selection checks require the existing Node runtime")
-	root := scriptFixture(t, "scripts/_test_npm_tools.cjs", "scripts/testcheck/package-lock.json")
+	root := scriptFixture(t, "scripts/_118_test_npm_tools.cjs", "scripts/testcheck/package-lock.json")
 	writeFixture(t, root, "check.cjs", `const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const helper = require('./scripts/_test_npm_tools.cjs');
+const helper = require('./scripts/_118_test_npm_tools.cjs');
 // Synthetic installations have real package resolution but no npm/network use.
 function pkg(root, name, version) {
   const directory = path.join(root, 'node_modules', name);
@@ -562,7 +562,7 @@ console.log('selection and dependency closure passed');
 	// Let the installed npm validate a generated graph without fetching or
 	// extracting packages. This catches lockfile consistency rules beyond our
 	// own traversal assertions, including the renderer's peer dependencies.
-	out, npmErr := runFixture(t, root, "node scripts/_test_npm_tools.cjs lock scripts/testcheck/package-lock.json subset md-to-pdf puppeteer\nnpm ci --prefix subset --cache \"$PWD/npm-cache\" --dry-run --offline --ignore-scripts --no-audit --no-fund\n", nil)
+	out, npmErr := runFixture(t, root, "node scripts/_118_test_npm_tools.cjs lock scripts/testcheck/package-lock.json subset md-to-pdf puppeteer\nnpm ci --prefix subset --cache \"$PWD/npm-cache\" --dry-run --offline --ignore-scripts --no-audit --no-fund\n", nil)
 	assert.NoError(t, npmErr, out)
 	assert.NoFileExists(t, filepath.Join(root, "subset", "node_modules", "md-to-pdf", "package.json"), "dry-run must not install a real tool")
 }

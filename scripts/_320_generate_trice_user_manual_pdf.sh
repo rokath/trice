@@ -122,9 +122,9 @@ fi
 
 run_pdf_prepare() {
   if [[ "$PDF_USE_SELECTED" == 1 ]]; then
-    node scripts/_prepare_reference_manual.cjs "$@"
+    node scripts/_315_prepare_reference_manual.cjs "$@"
   else
-    npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_prepare_reference_manual.cjs $*"
+    npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_315_prepare_reference_manual.cjs $*"
   fi
 }
 

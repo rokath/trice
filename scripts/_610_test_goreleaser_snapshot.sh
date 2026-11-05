@@ -237,7 +237,7 @@ smoke_test_host_archive() {
   feature_source_zip="$(find "$DIST_DIR" -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
   feature_bash="$BASH"
   if [ "$host_os" = windows ]; then feature_bash="$(cygpath -w "$BASH")"; fi
-  run_cmd env RELEASE_FEATURE_BASH="$feature_bash" node "$SCRIPTS_DIR/_verify_release_features.cjs" "$unpack_dir/$archive_dir" "$feature_source_zip" || {
+  run_cmd env RELEASE_FEATURE_BASH="$feature_bash" node "$SCRIPTS_DIR/_615_verify_release_features.cjs" "$unpack_dir/$archive_dir" "$feature_source_zip" || {
     log "FAIL: shipped Bind/CE/Structured Logging feature test failed"
     exit 1
   }

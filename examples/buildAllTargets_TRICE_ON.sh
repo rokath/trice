@@ -15,8 +15,8 @@ trap 'exit 143' TERM
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
 
-# shellcheck source=./prepareTriceBind.sh
-source "$SCRIPT_DIR/prepareTriceBind.sh"
+# shellcheck source=./_020_prepare_trice_bind.sh
+source "$SCRIPT_DIR/_020_prepare_trice_bind.sh"
 prepare_trice_bind_build "$REPO_ROOT"
 
 failCount=0

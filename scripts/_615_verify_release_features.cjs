@@ -166,7 +166,7 @@ function verifyFeatures(toolDirectory, targetArchive) {
 module.exports = { verifyLicense, verifyEvents, verifyReadable, verifyFeatures, toolEnvironment };
 if (require.main === module) {
   try {
-    assert.equal(process.argv.length, 4, 'usage: node scripts/_verify_release_features.cjs TOOL_DIRECTORY TARGET_ZIP');
+    assert.equal(process.argv.length, 4, 'usage: node scripts/_615_verify_release_features.cjs TOOL_DIRECTORY TARGET_ZIP');
     verifyFeatures(process.argv[2], process.argv[3]);
   } catch (error) {
     console.error(`FAIL: ${error.message}`);

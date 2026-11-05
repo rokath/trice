@@ -768,7 +768,7 @@ func TestReleaseFeatureOutputValidation(t *testing.T) {
 	if err != nil {
 		t.Skip("Node is required for the existing release environment")
 	}
-	helper, err := filepath.Abs("_verify_release_features.cjs")
+	helper, err := filepath.Abs("_615_verify_release_features.cjs")
 	assert.NoError(t, err)
 	root := t.TempDir()
 	command := exec.Command(node, "-e", `

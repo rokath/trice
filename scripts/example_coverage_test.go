@@ -159,7 +159,7 @@ func TestHostDemoEntrypointIntegration(t *testing.T) {
 		require.NoError(t, err, "step 515 requires both native compilers")
 		for _, project := range []string{"demo/direct", "demo/deferred", "demo/live", "examples/DemoData_CSV", "examples/DemoData_Trice", "examples/TriceAbc", "examples/TriceAbc/BcSimChk"} {
 			t.Run(compiler+"/"+project, func(t *testing.T) {
-				root := copyEntrypointCheckout(t, project, "src", "examples/prepareTriceBind.sh",
+				root := copyEntrypointCheckout(t, project, "src", "examples/_020_prepare_trice_bind.sh",
 					"examples/TriceAbc/BcSim", "trice_bindIDs_in_examples_and_test_folder.sh",
 					"scripts/_120_setup_trice_environment.sh", "scripts/_130_trice_id_workflow.sh", "demoTIL.json")
 				writeFixture(t, root, "bin/trice", "#!/bin/sh\nexec "+exampleShellPath(binary)+" \"$@\"\n")

@@ -20,7 +20,7 @@ import (
 func g0b1BuildFixture(t *testing.T) string {
 	t.Helper()
 	root := scriptFixture(t, "examples/G0B1_inst/build.sh", "examples/G0B1_inst/build_with_clang.sh")
-	writeFixture(t, root, "examples/prepareTriceBind.sh", `prepare_trice_bind_build() {
+	writeFixture(t, root, "examples/_020_prepare_trice_bind.sh", `prepare_trice_bind_build() {
   echo prepared >> "$1/preparation.calls"
   export TRICE_ID_WORKFLOW_OWNER=1 TRICE_ID_WORKFLOW=bind
 }

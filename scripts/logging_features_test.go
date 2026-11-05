@@ -72,7 +72,7 @@ exit "${MOCK_PC_STATUS:-0}"
 set -eu
 cd "$(dirname "$0")"
 # Exercise the shared CLI dependency from the isolated copy, as both wrappers do.
-source ../buildCLI.sh
+source ../_010_build_cli.sh
 parse_example_build_cli "$0" none g0b1-feature-tour EXTRA=7
 [ "$flags" = '-DEXTRA=7 ' ]
 compiler=${1:-gcc}

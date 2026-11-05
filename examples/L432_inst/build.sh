@@ -15,8 +15,8 @@ set -euo pipefail
 
 # Parse the same public CLI as the Clang entry before preparing sources.
 # shellcheck source-path=SCRIPTDIR
-# shellcheck source=../buildCLI.sh
-source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+# shellcheck source=../_010_build_cli.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../_010_build_cli.sh"
 parse_example_build_cli "$0" '0 through 100' l432-clang-prerequisites "$@"
 if [ "$check_only" -eq 1 ]; then
   check_example_build_tools gcc
@@ -148,8 +148,8 @@ trap 'cleanup_and_exit 143' TERM
 
 # Bound sources need generated sidecar headers and their include path even when
 # this script is called directly instead of through the aggregate test wrapper.
-# shellcheck source=../prepareTriceBind.sh
-source "${ROOT}/examples/prepareTriceBind.sh"
+# shellcheck source=../_020_prepare_trice_bind.sh
+source "${ROOT}/examples/_020_prepare_trice_bind.sh"
 prepare_trice_bind_build "${ROOT}"
 
 # A managed test wrapper or the direct Bind preparation owns the source state.

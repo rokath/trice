@@ -146,8 +146,8 @@ main() {
 
   # The managed test owner has already prepared Bind and owns restoration.
   # Direct invocation uses the same preparation as the standalone build.
-  # shellcheck source=../prepareTriceBind.sh
-  source "$L432_ROOT/examples/prepareTriceBind.sh"
+  # shellcheck source=../_020_prepare_trice_bind.sh
+  source "$L432_ROOT/examples/_020_prepare_trice_bind.sh"
   prepare_trice_bind_build "$L432_ROOT"
   # shellcheck source=../../scripts/_150_setup_build_environment.sh
   source "$L432_ROOT/scripts/_150_setup_build_environment.sh"

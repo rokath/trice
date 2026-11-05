@@ -10,8 +10,8 @@ set -euo pipefail
 
 # Match the GCC CLI before Bind, tool setup or compiler execution.
 # shellcheck source-path=SCRIPTDIR
-# shellcheck source=../buildCLI.sh
-source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+# shellcheck source=../_010_build_cli.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../_010_build_cli.sh"
 parse_example_build_cli "$0" '0 or 98' g0b1-clock-benchmark "$@"
 if [ "$check_only" -eq 1 ]; then
   check_example_build_tools clang
@@ -118,8 +118,8 @@ trap 'cleanup 143' TERM
 
 # Match the GCC entry point: standalone builds refresh Bind headers, while an
 # outer Insert/Bind workflow retains ownership of its prepared source state.
-# shellcheck source=../prepareTriceBind.sh
-source "${ROOT}/examples/prepareTriceBind.sh"
+# shellcheck source=../_020_prepare_trice_bind.sh
+source "${ROOT}/examples/_020_prepare_trice_bind.sh"
 prepare_trice_bind_build "${ROOT}"
 if [ "${TRICE_ID_WORKFLOW_OWNER:-0}" = "1" ]; then
   echo "Trice ID workflow owned by outer wrapper: ${TRICE_ID_WORKFLOW:-unknown}"

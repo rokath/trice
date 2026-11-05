@@ -193,7 +193,7 @@ jobs:
         run: |
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-          node scripts/_verify_release_features.cjs artifacts/trice_tool_linux_amd64 "$source_zip"
+          node scripts/_615_verify_release_features.cjs artifacts/trice_tool_linux_amd64 "$source_zip"
 
   audit-macos:
     name: Release Audit macOS Archive
@@ -270,7 +270,7 @@ jobs:
         run: |
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-          node scripts/_verify_release_features.cjs artifacts/trice_tool_darwin_amd64 "$source_zip"
+          node scripts/_615_verify_release_features.cjs artifacts/trice_tool_darwin_amd64 "$source_zip"
 
   audit-windows:
     name: Release Audit Windows Archive
@@ -341,7 +341,7 @@ jobs:
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
           # Use this Git Bash, even if Windows also exposes a WSL bash launcher.
-          RELEASE_FEATURE_BASH="$(cygpath -w "$BASH")" node scripts/_verify_release_features.cjs artifacts/windows/trice_tool_windows_amd64 "$source_zip"
+          RELEASE_FEATURE_BASH="$(cygpath -w "$BASH")" node scripts/_615_verify_release_features.cjs artifacts/windows/trice_tool_windows_amd64 "$source_zip"
 
   audit-debian:
     name: Release Audit Debian Package

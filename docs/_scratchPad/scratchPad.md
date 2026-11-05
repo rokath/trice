@@ -25,8 +25,6 @@ Abgearbeitet:
 
 Offen: 
 
-*) Nach_dem Release N01 sollte noch gemacht werden.
-
 *) Ließe sich ein Evalboard example, etwa G0B1 erweitern mit einer Visualisierungsseqquenz? Etwa eine Funktion, die simulierte Bewegungsdaten erzeugt. Dann könnte live vom Evalboard die Visualisierung laufen und nicht nur trocken mit dem PC.
 
 -->
