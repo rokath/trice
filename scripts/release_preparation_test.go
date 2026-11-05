@@ -537,10 +537,24 @@ func TestReleaseWorkflowBindings(t *testing.T) {
 	}
 }
 
-// TestNativeWorkflowPreparesToolchainSpace checks the hosted-Linux boundary and
-// runs the cleanup body with doubles. No host SDK or real sudo is ever touched.
+// TestNativeWorkflowPreparesToolchainSpace covers both shared CI entry points
+// with doubles. No host SDK or real sudo is ever touched.
 func TestNativeWorkflowPreparesToolchainSpace(t *testing.T) {
-	data, err := os.ReadFile(filepath.Join("..", ".github", "workflows", "native-tests-reusable.yml"))
+	for _, workflow := range []struct{ file, job string }{
+		{"native-tests-reusable.yml", "native"},
+		{"trice_lib_reusable.yml", "build"},
+	} {
+		t.Run(workflow.file, func(t *testing.T) {
+			checkWorkflowToolchainSpace(t, workflow.file, workflow.job)
+		})
+	}
+}
+
+// checkWorkflowToolchainSpace verifies that hosted SDK cleanup precedes cache
+// restoration or tool installation and that failures stop the preparation body.
+func checkWorkflowToolchainSpace(t *testing.T, workflowFile, job string) {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("..", ".github", "workflows", workflowFile))
 	if !assert.NoError(t, err) {
 		return
 	}
@@ -555,19 +569,19 @@ func TestNativeWorkflowPreparesToolchainSpace(t *testing.T) {
 		return
 	}
 	// Space must be available before a large tool cache is restored or expanded.
-	cleanupIndex, cacheIndex := -1, -1
+	cleanupIndex, preparationIndex := -1, -1
 	cleanupBody := ""
-	for i, step := range workflow.Jobs["native"].Steps {
+	for i, step := range workflow.Jobs[job].Steps {
 		if step.Name == "Free space for pinned Linux toolchains" {
 			cleanupIndex, cleanupBody = i, step.Run
 			assert.Equal(t, "${{ runner.os == 'Linux' && runner.environment == 'github-hosted' }}", step.If,
 				"cleanup must never affect macOS, Windows or self-hosted machines")
 		}
-		if strings.HasPrefix(step.Uses, "actions/cache@") {
-			cacheIndex = i
+		if preparationIndex < 0 && (strings.HasPrefix(step.Uses, "actions/cache@") || step.Name == "Install toolchains and build tools") {
+			preparationIndex = i
 		}
 	}
-	if !assert.GreaterOrEqual(t, cleanupIndex, 0) || !assert.NotEmpty(t, cleanupBody) || !assert.Greater(t, cacheIndex, cleanupIndex) {
+	if !assert.GreaterOrEqual(t, cleanupIndex, 0) || !assert.NotEmpty(t, cleanupBody) || !assert.Greater(t, preparationIndex, cleanupIndex) {
 		return
 	}
 	for _, failed := range []bool{false, true} {
