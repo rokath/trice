@@ -155,6 +155,8 @@ The [Future Design Ideas appendix](future_development.md) preserves the dictiona
 
 ### 6.2. <a id="improving-the-trice-tool-internal-parser-not-planned-right-now"></a>Improving the Trice Tool Internal Parser (not planned right now)
 
+For the current implementation, read [Host logging pipeline](target_test_internals.md#host-logging-pipeline). It explains records, filters, output, ownership and errors. The v1.0 description and redesign proposal below are historical background, not a planned change.
+
 #### 6.2.1. <a id="trice-internal-log-code-short-description"></a>Trice Internal Log Code Short Description
 
 ##### Trice v1.0 Code
