@@ -35,8 +35,8 @@ done
 # Bound sources depend on generated headers but those build artifacts are not
 # committed. The shared preparation runs Bind for direct builds and respects an
 # outer test workflow that already owns the source state.
-# shellcheck source=../prepareTriceBind.sh
-. "$script_dir/../prepareTriceBind.sh"
+# shellcheck source=../_020_prepare_trice_bind.sh
+. "$script_dir/../_020_prepare_trice_bind.sh"
 prepare_trice_bind_build "$repo_root"
 
 cd "$script_dir"

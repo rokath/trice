@@ -220,7 +220,7 @@ fi
 # script and the later configuration sweep run in separate child shells; if
 # only the first child prepared Bind, its exported include path would disappear
 # before the sweep and the compiler could not find the generated sidecars.
-prepare_bind_script="$EXAMPLES_DIR/prepareTriceBind.sh"
+prepare_bind_script="$EXAMPLES_DIR/_020_prepare_trice_bind.sh"
 [[ -f "$prepare_bind_script" ]] || die "Bind preparation helper not found: $prepare_bind_script"
 # shellcheck disable=SC1090
 source "$prepare_bind_script"

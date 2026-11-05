@@ -18,8 +18,8 @@ fail() {
 
 # Keep argument validation identical to GCC and independent of installed tools.
 # shellcheck source-path=SCRIPTDIR
-# shellcheck source=../buildCLI.sh
-source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+# shellcheck source=../_010_build_cli.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../_010_build_cli.sh"
 parse_example_build_cli "$0" '0 through 100' l432-clang-prerequisites "$@"
 
 # All later project paths are relative to this directory, even when the caller
@@ -141,8 +141,8 @@ fi
 # Reuse the repository's Bind preparation. A managed Insert/Bind test already
 # owns its source state, so the helper leaves that state under its control.
 # This script never starts a separate Insert/Clean lifecycle.
-# shellcheck source=../prepareTriceBind.sh
-source ../prepareTriceBind.sh || fail 1 'could not load Trice Bind preparation.'
+# shellcheck source=../_020_prepare_trice_bind.sh
+source ../_020_prepare_trice_bind.sh || fail 1 'could not load Trice Bind preparation.'
 if prepare_trice_bind_build "$(cd ../.. && pwd)"; then
   :
 else

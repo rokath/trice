@@ -94,7 +94,7 @@ Use the unchanged [github-repo-stats action](https://github.com/jgehrcke/github-
 to archive GitHub traffic and generate its standard HTML/PDF report. It covers
 daily views and clones, stars, forks, referrers and popular paths. No custom
 traffic collector, chart library or Trice dependency is added. A separate
-[download report generator](../../scripts/_github_downloads.py) uses Python's
+[download report generator](../../scripts/_350_github_downloads.py) uses Python's
 standard library to render release-download charts.
 
 Release markers and a separately measured daily star/fork inventory remain
@@ -152,7 +152,7 @@ The job uses the normal read-only `GITHUB_TOKEN` for release counts and the
 existing `GHRS_GITHUB_API_TOKEN` for data-branch writes; no new secret is needed.
 
 The [Pages workflow](../../.github/workflows/pages.yml) uses
-[the shared preparation script](../../scripts/_prepare_pages.py) to assemble
+[the shared preparation script](../../scripts/_340_prepare_pages.py) to assemble
 `temp/pages-source`, then builds it with Jekyll and deploys one `_site` artifact.
 The versioned [index.md](../../index.md) is the only homepage; it includes the
 prepared README. The root [_config.yml](../../_config.yml) selects the Cayman
@@ -178,7 +178,7 @@ GEM_HOME="$PWD/temp/pages-gems" GEM_PATH="$PWD/temp/pages-gems" \
 Then prepare and build the site:
 
 ```sh
-python3 scripts/_prepare_pages.py
+python3 scripts/_340_prepare_pages.py
 GEM_HOME="$PWD/temp/pages-gems" GEM_PATH="$PWD/temp/pages-gems" \
   JEKYLL_ENV=production PAGES_ENV=dotcom PAGES_REPO_NWO=rokath/trice \
   ruby temp/pages-gems/bin/github-pages build --source temp/pages-source --destination temp/pages-site
@@ -286,7 +286,7 @@ Trice builds, change release files, contact the traffic API or push data.
 
 For an offline report, save `gh api --paginate --slurp 'repos/rokath/trice/releases?per_page=100'`
 to `temp/releases.json`, then run
-`python3 scripts/_github_downloads.py temp/releases.json temp/downloads`.
+`python3 scripts/_350_github_downloads.py temp/releases.json temp/downloads`.
 Open `temp/downloads/report/index.html`. Reuse `temp/downloads` to retain local
 daily snapshots. `go test ./scripts -run 'TestDownload'` checks the generator
 and Pages integration with fixtures, without API access or Git writes.

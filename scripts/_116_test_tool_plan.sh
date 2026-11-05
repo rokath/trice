@@ -544,7 +544,7 @@ trice_plan_npm() {
     [ -z "$global_root" ] || global_root="$(dirname "$(trice_tool_path "$global_root")")"
   fi
   probe_node="${TRICE_PLAN_NODE:-$(command -v node || true)}"
-  if [ -z "$probe_node" ] || ! "$probe_node" scripts/_test_npm_tools.cjs inspect "$global_root" "$cache_root" "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" "$TRICE_PLAN_FILE.npm-inventory" >"$TRICE_PLAN_FILE.npm"; then
+  if [ -z "$probe_node" ] || ! "$probe_node" scripts/_118_test_npm_tools.cjs inspect "$global_root" "$cache_root" "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" "$TRICE_PLAN_FILE.npm-inventory" >"$TRICE_PLAN_FILE.npm"; then
     printf 'markdownlint-cli\t%s\tunverified without usable Node\tinstall\t-\nmd-to-pdf\t%s\tunverified without usable Node\tinstall\t-\npuppeteer\t%s\tunverified without usable Node\tinstall\t-\n' "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" >"$TRICE_PLAN_FILE.npm"
   fi
   while IFS=$'\t' read -r name version found action selected; do
@@ -562,7 +562,7 @@ trice_plan_npm() {
     fi
   done <"$TRICE_PLAN_FILE.npm"
   if [ "${TRICE_PLAN_SCOPE:-native}" = pdf ]; then
-    if [ -n "$renderer_root" ] && [ -n "$probe_node" ] && "$probe_node" scripts/_test_npm_tools.cjs browser "$renderer_root" >"$TRICE_PLAN_FILE.browser" 2>/dev/null; then
+    if [ -n "$renderer_root" ] && [ -n "$probe_node" ] && "$probe_node" scripts/_118_test_npm_tools.cjs browser "$renderer_root" >"$TRICE_PLAN_FILE.browser" 2>/dev/null; then
       trice_plan_row Puppeteer-browser 'matching library revision' available reuse "$(cat "$TRICE_PLAN_FILE.browser")" temp/tools 0 0
     else
       trice_plan_row Puppeteer-browser 'matching library revision' 'missing or incompatible' install 'pinned Chrome release binaries' "${PUPPETEER_CACHE_DIR:-temp/tools/puppeteer}" 900 1800
@@ -589,7 +589,7 @@ prepare_selected_npm_tools() {
   fi
   # Node may itself have needed setup. Recheck before installing any npm root;
   # an initially unverifiable global installation must not be duplicated.
-  node scripts/_test_npm_tools.cjs inspect "$global_root" "$cache_root" "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" >"$TRICE_TEST_NPM_PLAN.rechecked" || return 2
+  node scripts/_118_test_npm_tools.cjs inspect "$global_root" "$cache_root" "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" >"$TRICE_TEST_NPM_PLAN.rechecked" || return 2
   while IFS=$'\t' read -r name version found action selected; do
     if [ "${TRICE_PLAN_SCOPE:-native}" = pdf ] && [ "$name" = markdownlint-cli ]; then continue; fi
     if [ "$action" = install ]; then
@@ -620,7 +620,7 @@ prepare_selected_npm_tools() {
       else
         # Tool names are fixed manifest keys, not user-supplied shell syntax.
         # shellcheck disable=SC2086
-        node scripts/_test_npm_tools.cjs lock scripts/testcheck/package-lock.json "$subset" $names || exit 2
+        node scripts/_118_test_npm_tools.cjs lock scripts/testcheck/package-lock.json "$subset" $names || exit 2
       fi
       PUPPETEER_SKIP_DOWNLOAD=true trice_setup_with_progress "Installing npm tools ($names) into temp/tools" npm ci --prefix "$subset" --cache "$(pwd)/temp/tools/npm-cache" --ignore-scripts --no-audit --no-fund || exit 2
       printf '%s\n' "$lock" >"$subset/.ready" || exit 2
@@ -631,7 +631,7 @@ prepare_selected_npm_tools() {
     global_root="${global_root%$'\r'}"
     [ -z "$global_root" ] || global_root="$(dirname "$(trice_tool_path "$global_root")")"
   fi
-  node scripts/_test_npm_tools.cjs inspect "$global_root" "$cache_root" "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" >"$TRICE_TEST_NPM_PLAN.selected" || return 2
+  node scripts/_118_test_npm_tools.cjs inspect "$global_root" "$cache_root" "$TRICE_TOOL_MARKDOWNLINT_VERSION" "$TRICE_TOOL_MD_TO_PDF_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" >"$TRICE_TEST_NPM_PLAN.selected" || return 2
   while IFS=$'\t' read -r name version found action selected; do
     if [ "${TRICE_PLAN_SCOPE:-native}" = pdf ] && [ "$name" = markdownlint-cli ]; then continue; fi
     if [ "$action" != reuse ]; then
@@ -663,7 +663,7 @@ prepare_selected_npm_tools() {
     *) NODE_PATH="$renderer_root/node_modules${NODE_PATH:+:$NODE_PATH}" ;;
   esac
   export TRICE_TEST_NPM_DIR NODE_PATH
-  TRICE_TEST_PDF_CLI="$(node scripts/_test_npm_tools.cjs cli "$renderer_root" md-to-pdf)" || return 2
+  TRICE_TEST_PDF_CLI="$(node scripts/_118_test_npm_tools.cjs cli "$renderer_root" md-to-pdf)" || return 2
   export TRICE_TEST_PDF_CLI
   if [ "${TRICE_PLAN_SCOPE:-native}" != pdf ]; then
     trice_tool_matches markdownlint "$TRICE_TOOL_MARKDOWNLINT_VERSION" || {
@@ -671,11 +671,11 @@ prepare_selected_npm_tools() {
       return 2
     }
   fi
-  if [ "${TRICE_PLAN_SCOPE:-native}" = pdf ] && ! node scripts/_test_npm_tools.cjs browser "$renderer_root" >/dev/null 2>&1; then
+  if [ "${TRICE_PLAN_SCOPE:-native}" = pdf ] && ! node scripts/_118_test_npm_tools.cjs browser "$renderer_root" >/dev/null 2>&1; then
     export PUPPETEER_CACHE_DIR="${PUPPETEER_CACHE_DIR:-$(pwd)/temp/tools/puppeteer}"
-    owner="$(node scripts/_test_npm_tools.cjs puppeteer-root "$renderer_root")" || return 2
+    owner="$(node scripts/_118_test_npm_tools.cjs puppeteer-root "$renderer_root")" || return 2
     PUPPETEER_SKIP_DOWNLOAD=false trice_setup_with_progress 'Installing Puppeteer browser into temp/tools' node "$owner/install.mjs" || return 2
-    node scripts/_test_npm_tools.cjs browser "$renderer_root" || return 2
+    node scripts/_118_test_npm_tools.cjs browser "$renderer_root" || return 2
   fi
 }
 

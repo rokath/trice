@@ -34,7 +34,7 @@ jobs:
 
       - name: Prepare documentation for GitHub Pages
         run: |
-          python3 scripts/_prepare_pages.py
+          python3 scripts/_340_prepare_pages.py
 
       - name: Setup Pages
         uses: actions/configure-pages@v6

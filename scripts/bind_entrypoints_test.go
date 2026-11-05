@@ -219,7 +219,7 @@ func TestClangBuildRespectsPreparationOwner(t *testing.T) {
 	for _, workflow := range []string{"standalone", "bind", "insert"} {
 		for _, outcome := range []string{"success", "bind_failure", "compiler_failure", "termination"} {
 			t.Run(workflow+"/"+outcome, func(t *testing.T) {
-				root := scriptFixture(t, "examples/G0B1_inst/build_with_clang.sh", "examples/prepareTriceBind.sh")
+				root := scriptFixture(t, "examples/G0B1_inst/build_with_clang.sh", "examples/_020_prepare_trice_bind.sh")
 				writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "MAKE_JOBS=-j1\n")
 				writeFixture(t, root, "trice_bindIDs_in_examples_and_test_folder.sh", `#!/bin/sh
 printf 'bind\n' >> "$FIXTURE_ROOT/preparation"

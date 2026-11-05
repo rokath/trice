@@ -131,8 +131,8 @@ flags="${trice_flags[*]-}"
 
 # Bound sources need generated sidecar headers and their include path even when
 # this script is called directly instead of through the aggregate test wrapper.
-# shellcheck source=../prepareTriceBind.sh
-source "${ROOT}/examples/prepareTriceBind.sh"
+# shellcheck source=../_020_prepare_trice_bind.sh
+source "${ROOT}/examples/_020_prepare_trice_bind.sh"
 prepare_trice_bind_build "${ROOT}"
 
 # A managed test wrapper or the direct Bind preparation owns the source state.

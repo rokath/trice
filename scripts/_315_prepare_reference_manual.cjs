@@ -381,7 +381,7 @@ async function main() {
     if (process.argv[2] === '--verify') verify(marked, repoRoot);
     else if (process.argv[2] === '--epub') await prepareEpub(marked, repoRoot);
     else if (process.argv.length === 2) prepare(marked, repoRoot);
-    else throw new Error('usage: node scripts/_prepare_reference_manual.cjs [--verify|--epub]');
+    else throw new Error('usage: node scripts/_315_prepare_reference_manual.cjs [--verify|--epub]');
 }
 if (require.main === module) {
   main().catch(error => {

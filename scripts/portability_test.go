@@ -145,9 +145,9 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 	t.Helper()
 	root := t.TempDir()
 	// Tool setup is shared by standalone checks as well as suite entry points.
-	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/_116_test_tool_plan.sh", "scripts/_117_system_test_tools.sh", "scripts/_test_npm_tools.cjs", "scripts/test-tools.env")
+	scripts = append(scripts, "scripts/_105_setup_test_tools.sh", "scripts/_116_test_tool_plan.sh", "scripts/_117_system_test_tools.sh", "scripts/_118_test_npm_tools.cjs", "scripts/test-tools.env")
 	// Paired example entry points share their public argument parser.
-	scripts = append(scripts, "examples/buildCLI.sh")
+	scripts = append(scripts, "examples/_010_build_cli.sh")
 	runner := false
 	for _, name := range scripts {
 		runner = runner || name == "scripts/_110_test_runner.sh"
@@ -2212,7 +2212,7 @@ func TestExampleMatricesStopOnCancellation(t *testing.T) {
 			t.Run(mode+"/"+outcome, func(t *testing.T) {
 				script := "examples/buildAllTargets_TRICE_" + mode + ".sh"
 				root := scriptFixture(t, script)
-				writeFixture(t, root, "examples/prepareTriceBind.sh", "prepare_trice_bind_build() { :; }\n")
+				writeFixture(t, root, "examples/_020_prepare_trice_bind.sh", "prepare_trice_bind_build() { :; }\n")
 				first := "F030_bare"
 				if mode == "ON" {
 					first = "DemoData_CSV"
@@ -3334,7 +3334,7 @@ func TestExampleCleanupPreservesFailureStatus(t *testing.T) {
 			for _, tc := range cases {
 				t.Run(tc.name, func(t *testing.T) {
 					root := scriptFixture(t, script)
-					writeFixture(t, root, "examples/prepareTriceBind.sh", "prepare_trice_bind_build() { :; }\n")
+					writeFixture(t, root, "examples/_020_prepare_trice_bind.sh", "prepare_trice_bind_build() { :; }\n")
 					writeFixture(t, root, "scripts/_150_setup_build_environment.sh", "MAKE_JOBS=-j1\n")
 					writeFixture(t, root, "scripts/_230_legacy_insert_ids.sh", "#!/bin/sh\nexit 0\n")
 					writeFixture(t, root, "scripts/_240_legacy_clean_ids.sh", "#!/bin/sh\ncount_file=\"$FIXTURE_ROOT/clean-count\"\ncount=0\nif [ -f \"$count_file\" ]; then read -r count < \"$count_file\"; fi\ncount=$((count + 1))\nprintf '%s\\n' \"$count\" > \"$count_file\"\nif [ \"$count\" -eq 2 ]; then exit \"$CLEAN_STATUS\"; fi\nexit 0\n")
@@ -3673,7 +3673,7 @@ func TestManualPDFGenerationPreservesBookIdentity(t *testing.T) {
 		{"replaced_module_is_not_pinned", "", "", "", "replacement", "stitchmd dev must be built from"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs", "scripts/_prepare_reference_manual.cjs")
+			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_manual_pdf_config.cjs", "scripts/_315_prepare_reference_manual.cjs")
 			writeFixture(t, root, "docs/ref/asset.txt", "fixture image directory\n")
 			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
 				if manual != tc.missing {
@@ -3733,8 +3733,8 @@ esac
 			writeFixture(t, root, "bin/npx", `#!/bin/sh
 if [ "$1" = --version ]; then echo fixture-npx; exit 0; fi
 case "$*" in
-  *'node scripts/_prepare_reference_manual.cjs --verify'*) exit 0 ;;
-  *'node scripts/_prepare_reference_manual.cjs'*)
+  *'node scripts/_315_prepare_reference_manual.cjs --verify'*) exit 0 ;;
+  *'node scripts/_315_prepare_reference_manual.cjs'*)
     mkdir -p temp/manual-pdf
     printf '# Reference\n' > temp/manual-pdf/SUMMARY.md
     exit 0 ;;
@@ -3987,7 +3987,7 @@ func TestReferencePDFPreparation(t *testing.T) {
 	if _, err := exec.LookPath("npx"); err != nil {
 		t.Skip("npx not installed; reference preparation uses the PDF renderer runtime")
 	}
-	root := scriptFixture(t, "scripts/_prepare_reference_manual.cjs")
+	root := scriptFixture(t, "scripts/_315_prepare_reference_manual.cjs")
 	stampChapter, err := os.ReadFile(filepath.Join("..", "docs", "rm", "stamp_expressions.md"))
 	require.NoError(t, err)
 	writeFixture(t, root, "docs/rm/stamp_expressions.md", string(stampChapter))
@@ -4028,7 +4028,7 @@ func TestReferencePDFPreparation(t *testing.T) {
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const helper = require('./scripts/_prepare_reference_manual.cjs');
+const helper = require('./scripts/_315_prepare_reference_manual.cjs');
 let marked;
 for (const directory of process.env.PATH.split(path.delimiter)) {
   try {
@@ -4201,7 +4201,7 @@ func TestManualPagesLinksKeepReadersOnTheSite(t *testing.T) {
 func checkManualPagesLinks(t *testing.T, newline string) {
 	t.Helper()
 	lineEndings := func(text string) string { return strings.ReplaceAll(text, "\n", newline) }
-	root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+	root := scriptFixture(t, "scripts/_340_prepare_pages.py", "index.md", "_config.yml")
 	writeFixture(t, root, "README.md", "[Guide](./docs/TriceUserManual.md#see-your-first-log)\n[Reference](./docs/rm/README.md)\n[Speed](docs/rm/performance.md)\n")
 	writeFixture(t, root, "docs/ref/example.png", "image bytes")
 	writeFixture(t, root, "docs/ref/example.gif", "animation bytes")
@@ -4274,7 +4274,7 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 	paths := []string{"index.md", "_config.yml", "README.md", "docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"}
 	for _, missing := range paths {
 		t.Run(missing, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_prepare_pages.py")
+			root := scriptFixture(t, "scripts/_340_prepare_pages.py")
 			for _, path := range paths {
 				if path != missing {
 					writeFixture(t, root, path, "[Reference](./rm/bind.md#bind-limits)\n")
@@ -4296,7 +4296,7 @@ func TestManualPagesRequiresActiveSources(t *testing.T) {
 // TestManualPagesPublicationScope checks observable staging boundaries and links,
 // including repeat builds after a resource disappears from the documentation.
 func TestManualPagesPublicationScope(t *testing.T) {
-	root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+	root := scriptFixture(t, "scripts/_340_prepare_pages.py", "index.md", "_config.yml")
 	for _, path := range []string{"README.md", "docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"} {
 		writeFixture(t, root, path, "# Documentation\n")
 	}
@@ -4324,7 +4324,7 @@ func TestManualPagesPublicationScope(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "original bytes", string(copied), "referenced image bytes must survive")
 	}
-	for _, path := range []string{"docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md", "scripts/_prepare_pages.py"} {
+	for _, path := range []string{"docs/ref/unused.png", "third_party/package.zip", "src/trice.h", "docs/obsolete/old.md", "docs/_scratchPad/note.md", "scripts/_340_prepare_pages.py"} {
 		assert.NoFileExists(t, filepath.Join(site, path), "unselected files must not be published")
 	}
 	writeFixture(t, root, "README.md", "# Updated homepage\n")
@@ -4343,7 +4343,7 @@ func TestManualPagesRejectsBrokenResources(t *testing.T) {
 		{"escaping_link", "[Outside](../outside.md)", "", "link escapes repository in README.md"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_prepare_pages.py", "index.md", "_config.yml")
+			root := scriptFixture(t, "scripts/_340_prepare_pages.py", "index.md", "_config.yml")
 			for _, path := range []string{"docs/README.md", "docs/TriceUserManual.md", "docs/TriceGuide.md", "docs/rm/README.md"} {
 				writeFixture(t, root, path, "# Documentation\n")
 			}

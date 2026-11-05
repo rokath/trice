@@ -10,8 +10,8 @@ set -euo pipefail
 
 # Match GCC argument handling before the project-local Bind dispatch.
 # shellcheck source-path=SCRIPTDIR
-# shellcheck source=../buildCLI.sh
-source "$(dirname -- "${BASH_SOURCE[0]}")/../buildCLI.sh"
+# shellcheck source=../_010_build_cli.sh
+source "$(dirname -- "${BASH_SOURCE[0]}")/../_010_build_cli.sh"
 parse_example_build_cli "$0" none g0b1-feature-tour "$@"
 if [ "$check_only" -eq 1 ]; then
   check_example_build_tools clang

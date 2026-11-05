@@ -274,7 +274,7 @@ jobs:
         run: |
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-          node scripts/_verify_release_features.cjs artifacts/trice_tool_linux_amd64 "$source_zip"
+          node scripts/_615_verify_release_features.cjs artifacts/trice_tool_linux_amd64 "$source_zip"
 
   install-check-macos:
     name: Install Check macOS Archive
@@ -359,7 +359,7 @@ jobs:
         run: |
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
-          node scripts/_verify_release_features.cjs artifacts/trice_tool_darwin_${{ matrix.arch }} "$source_zip"
+          node scripts/_615_verify_release_features.cjs artifacts/trice_tool_darwin_${{ matrix.arch }} "$source_zip"
 
   install-check-windows:
     name: Install Check Windows Archive
@@ -417,7 +417,7 @@ jobs:
           set -euo pipefail
           source_zip="$(find artifacts -maxdepth 1 -name 'trice_target_sources_*.zip' -print -quit)"
           # Use this Git Bash, even if Windows also exposes a WSL bash launcher.
-          RELEASE_FEATURE_BASH="$(cygpath -w "$BASH")" node scripts/_verify_release_features.cjs artifacts/windows/trice_tool_windows_amd64 "$source_zip"
+          RELEASE_FEATURE_BASH="$(cygpath -w "$BASH")" node scripts/_615_verify_release_features.cjs artifacts/windows/trice_tool_windows_amd64 "$source_zip"
 
   install-check-debian:
     name: Install Check Debian Package

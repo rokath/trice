@@ -85,7 +85,7 @@ capture_tracked_bytes() {
   fi
   # New task sources must also be protected before they have been staged.
   git ls-files -z --others --exclude-standard -- '*.go' '*.c' '*.h' '*.sh' \
-    'scripts/test-tools.env' 'scripts/testcheck/package*.json' 'scripts/_test_npm_tools.cjs' >>"$path_list" || return 1
+    'scripts/test-tools.env' 'scripts/testcheck/package*.json' 'scripts/_118_test_npm_tools.cjs' >>"$path_list" || return 1
 
   : >"$manifest" || return 1
   : >"$entries" || return 1

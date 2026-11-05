@@ -16,8 +16,8 @@ REPO_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
 
 # Bound source includes generated headers even when target logging is compiled
 # out. Preparing them here keeps TRICE_OFF builds valid in a fresh checkout.
-# shellcheck source=./prepareTriceBind.sh
-source "$SCRIPT_DIR/prepareTriceBind.sh"
+# shellcheck source=./_020_prepare_trice_bind.sh
+source "$SCRIPT_DIR/_020_prepare_trice_bind.sh"
 prepare_trice_bind_build "$REPO_ROOT"
 
 failCount=0

@@ -113,7 +113,7 @@ func runDownloadReport(t *testing.T, input, directory, observedAt string) (strin
 	python := python3Command(t)
 	file := filepath.Join(t.TempDir(), "releases.json")
 	require.NoError(t, os.WriteFile(file, []byte(input), 0600))
-	args := append(append([]string{}, python[1:]...), "_github_downloads.py", file, directory, "--observed-at", observedAt)
+	args := append(append([]string{}, python[1:]...), "_350_github_downloads.py", file, directory, "--observed-at", observedAt)
 	command := exec.Command(python[0], args...)
 	output, err := command.CombinedOutput()
 	return string(output), err
@@ -243,7 +243,7 @@ func TestDownloadEmptyRepository(t *testing.T) {
 // Only the GitHub API is replaced; the renamed generator must create its real
 // report through the workflow's relative path, with no network or Git writes.
 func TestDownloadWorkflowUsesInternalGenerator(t *testing.T) {
-	root := scriptFixture(t, "scripts/_github_downloads.py")
+	root := scriptFixture(t, "scripts/_350_github_downloads.py")
 	writeFixture(t, root, "bin/gh", "#!/bin/sh\nprintf '%s\\n' \"$FIXTURE_RELEASES\"\n")
 	python := python3Command(t)
 	quoted := make([]string, len(python))
