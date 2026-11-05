@@ -167,24 +167,24 @@ The switches are deliberately independent of any printf implementation. Their
 names are similar to familiar nanoprintf choices where useful, but Trice neither
 includes nanoprintf nor defines `NANOPRINTF_*` macros.
 
-Switch | Default | Effect when set to `1`
---- | ---: | ---
-`TRICE_LOCAL_LOG` | `0` | Includes the local consumer and formatter.
-`TRICE_LOCAL_LOG_USE_PRINTF_HOOK` | `1` | Declares and uses the runtime `UserTriceLogPrintfFn` hook.
-`TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER` | `1` | Includes the separate exact `%d`/`%x` fallback.
-`TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS` | `1` | Accepts fixed widths such as `%8d`, `%02x`, and `%-12s`.
-`TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS` | `1` | Accepts fixed precision such as `%.3f` and `%.5s`.
-`TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS` | `1` | Accepts `%e`, `%E`, `%f`, `%F`, `%g`, and `%G` through the hook.
-`TRICE_LOCAL_LOG_USE_64_BIT_VALUES` | `1` | Includes 64-bit integer, buffer, and `aDouble()` paths.
-`TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS` | `0` | Includes Trice's internal `%b` conversion.
-`TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG` | `1` | Accepts `#`, including the internal `%#b` prefix.
-`TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS` | `0` | Includes internal `%O`, `%t`, `%p`, and `%q` conversions.
-`TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES` | `1` | Includes bounded `triceS` and string-form `triceN`.
-`TRICE_LOCAL_LOG_USE_BUFFER_TRICES` | `0` | Includes `TRICE8_B` through `TRICE64_B`.
-`TRICE_LOCAL_LOG_USE_PREFIX_HOOK` | `0` | Declares and calls `UserTriceLogPrefixFn` before each message body.
-`TRICE_LOCAL_LOG_USE_ANSI_COLORS` | `0` | Colors records which begin with a recognized Trice tag.
-`TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS` | `0` | Removes a recognized all-lower-case tag and its first colon.
-`TRICE_LOCAL_LOG_KEEP_DISABLED_IDS` | `1` | Keeps ID and shape metadata, but no string, for disabled generated entries.
+Switch                                              | Default | Effect when set to `1`
+--------------------------------------------------- | ------: | ---------------------------------------------------------------------------
+`TRICE_LOCAL_LOG`                                   | `0`     | Includes the local consumer and formatter.
+`TRICE_LOCAL_LOG_USE_PRINTF_HOOK`                   | `1`     | Declares and uses the runtime `UserTriceLogPrintfFn` hook.
+`TRICE_LOCAL_LOG_USE_MINIMAL_FORMATTER`             | `1`     | Includes the separate exact `%d`/`%x` fallback.
+`TRICE_LOCAL_LOG_USE_FIELD_WIDTH_FORMAT_SPECIFIERS` | `1`     | Accepts fixed widths such as `%8d`, `%02x`, and `%-12s`.
+`TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS`   | `1`     | Accepts fixed precision such as `%.3f` and `%.5s`.
+`TRICE_LOCAL_LOG_USE_FLOAT_FORMAT_SPECIFIERS`       | `1`     | Accepts `%e`, `%E`, `%f`, `%F`, `%g`, and `%G` through the hook.
+`TRICE_LOCAL_LOG_USE_64_BIT_VALUES`                 | `1`     | Includes 64-bit integer, buffer, and `aDouble()` paths.
+`TRICE_LOCAL_LOG_USE_BINARY_FORMAT_SPECIFIERS`      | `0`     | Includes Trice's internal `%b` conversion.
+`TRICE_LOCAL_LOG_USE_ALT_FORM_FLAG`                 | `1`     | Accepts `#`, including the internal `%#b` prefix.
+`TRICE_LOCAL_LOG_USE_EXTENDED_FORMAT_SPECIFIERS`    | `0`     | Includes internal `%O`, `%t`, `%p`, and `%q` conversions.
+`TRICE_LOCAL_LOG_USE_DYNAMIC_STRING_TRICES`         | `1`     | Includes bounded `triceS` and string-form `triceN`.
+`TRICE_LOCAL_LOG_USE_BUFFER_TRICES`                 | `0`     | Includes `TRICE8_B` through `TRICE64_B`.
+`TRICE_LOCAL_LOG_USE_PREFIX_HOOK`                   | `0`     | Declares and calls `UserTriceLogPrefixFn` before each message body.
+`TRICE_LOCAL_LOG_USE_ANSI_COLORS`                   | `0`     | Colors records which begin with a recognized Trice tag.
+`TRICE_LOCAL_LOG_STRIP_LOWER_CASE_TAGS`             | `0`     | Removes a recognized all-lower-case tag and its first colon.
+`TRICE_LOCAL_LOG_KEEP_DISABLED_IDS`                 | `1`     | Keeps ID and shape metadata, but no string, for disabled generated entries.
 
 Every switch is Boolean and invalid values fail during preprocessing. Defaults
 preserve the original local-log integer, string, width, precision, float, and
@@ -510,53 +510,53 @@ size_t TriceEncode(int* pTriceID, unsigned int pCount, uint32_t * const dest, ui
 
 * `./src`: **User Interface**
 
-File                      | description
----------------------------|----------------------------------------------------------------------------------------------------------------------------------------------
+File                         | description
+---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------
 [trice.h](../../src/trice.h) | trice runtime lib user interface, `#include trice.h` in project files, where to use Trice macros. Add `./src` to your compiler include path.
-`triceConfig.h`           | Create this file to overwrite  [triceDefaultConfig.h](../../src/triceDefaultConfig.h) as needed.
+`triceConfig.h`              | Create this file to overwrite  [triceDefaultConfig.h](../../src/triceDefaultConfig.h) as needed.
 
 * `./src`: **Internal Components** (only partially needed, add all to your project - the configuration selects automatically)
 
 See [Trice Project Image Size Optimization](memory_usage.md) for compiling `src/*.c` and removing unused library sections from the final image.
 
-File                                                | description
------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------
-[cobs.h](../../src/cobs.h)                             | message packaging, alternatively for tcobs
-[cobsEncode.c](../../src/cobsEncode.c)                 | message encoding, alternatively for tcobs
-[cobsDecode.c](../../src/cobsDecode.c)                 | message decoding, normally not needed
-[trice.c](../../src/trice.c)                           | trice core lib
-[trice8McuOrder.h](../../src/trice8McuOrder.h)         | trice MCU endianness lib
-[trice8McuReverse.h](../../src/trice8McuReverse.h)     | trice MCU reverse endianness lib
-[trice16McuOrder.h](../../src/trice16McuOrder.h)       | trice MCU endianness lib
-[trice16McuReverse.h](../../src/trice16McuReverse.h)   | trice MCU reverse endianness lib
-[trice32McuOrder.h](../../src/trice32McuOrder.h)       | trice MCU endianness lib
-[trice32McuReverse.h](../../src/trice32McuReverse.h)   | trice MCU reverse endianness lib
-[trice64McuOrder.h](../../src/trice64McuOrder.h)       | trice MCU endianness lib
-[trice64McuReverse.h](../../src/trice64McuReverse.h)   | trice MCU reverse endianness lib
-[SEGGER_RTT.h](../../src/SEGGER_RTT.h)                 | Segger RTT code interface
-[SEGGER_RTT.c](../../src/SEGGER_RTT.c)                 | Segger RTT code
+File                                                             | description
+---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------
+[cobs.h](../../src/cobs.h)                                       | message packaging, alternatively for tcobs
+[cobsEncode.c](../../src/cobsEncode.c)                           | message encoding, alternatively for tcobs
+[cobsDecode.c](../../src/cobsDecode.c)                           | message decoding, normally not needed
+[trice.c](../../src/trice.c)                                     | trice core lib
+[trice8McuOrder.h](../../src/trice8McuOrder.h)                   | trice MCU endianness lib
+[trice8McuReverse.h](../../src/trice8McuReverse.h)               | trice MCU reverse endianness lib
+[trice16McuOrder.h](../../src/trice16McuOrder.h)                 | trice MCU endianness lib
+[trice16McuReverse.h](../../src/trice16McuReverse.h)             | trice MCU reverse endianness lib
+[trice32McuOrder.h](../../src/trice32McuOrder.h)                 | trice MCU endianness lib
+[trice32McuReverse.h](../../src/trice32McuReverse.h)             | trice MCU reverse endianness lib
+[trice64McuOrder.h](../../src/trice64McuOrder.h)                 | trice MCU endianness lib
+[trice64McuReverse.h](../../src/trice64McuReverse.h)             | trice MCU reverse endianness lib
+[SEGGER_RTT.h](../../src/SEGGER_RTT.h)                           | Segger RTT code interface
+[SEGGER_RTT.c](../../src/SEGGER_RTT.c)                           | Segger RTT code
 [SEGGER_RTT_ConfDefaults.h](../../src/SEGGER_RTT_ConfDefaults.h) | SEGGER defaults for settings not supplied by the project
-[SEGGER_RTT_Conf.h](../../src/default_conf/SEGGER_RTT_Conf.h) | Small Trice fallback configuration; project headers take precedence
-[SEGGER_RTT_LICENSE.md](../../src/SEGGER_RTT_LICENSE.md) | SEGGER license to retain when redistributing its target sources
-[tcobs.h](../../src/tcobs.h)                           | message compression and packaging interface
-[tcobsv1Encode.c](../../src/tcobsv1Encode.c)           | message encoding and packaging
-[tcobsv1Decode.c](../../src/tcobsv1Decode.c)           | message decoding and packaging, normally not needed
-[tcobsv1Internal.h](../../src/tcobsv1Internal.h)       | message decoding and packaging internal interface
-[trice8.h](../../src/trice8.h)                         | 8-bit trice code interface
-[trice8.c](../../src/trice8.c)                         | 8-bit trice code
-[trice16.h](../../src/trice16.h)                       | 16-bit trice code interface
-[trice16.c](../../src/trice16.c)                       | 16-bit trice code
-[trice32.h](../../src/trice32.h)                       | 32-bit trice code interface
-[trice32.c](../../src/trice32.c)                       | 32-bit trice code
-[trice64.h](../../src/trice64.h)                       | 64-bit trice code interface
-[trice64.c](../../src/trice64.c)                       | 64-bit trice code
-[triceAuxiliary.c](../../src/triceAuxiliary.c)         | trice code for auxiliary interfaces
-[triceDefaultConfig.h](../../src/triceDefaultConfig.h) | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*
-[triceDoubleBuffer.c](../../src/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest deferred mode
-[triceStackBuffer.c](../../src/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode
-[triceRingBuffer.c](../../src/triceRingBuffer.c)       | trice runtime lib extension needed for recommended deferred mode
-[xtea.h](../../src/xtea.h)                             | XTEA message encryption/decryption interface
-[xtea.c](../../src/xtea.c)                             | XTEA message encryption/decryption code
+[SEGGER_RTT_Conf.h](../../src/default_conf/SEGGER_RTT_Conf.h)    | Small Trice fallback configuration; project headers take precedence
+[SEGGER_RTT_LICENSE.md](../../src/SEGGER_RTT_LICENSE.md)         | SEGGER license to retain when redistributing its target sources
+[tcobs.h](../../src/tcobs.h)                                     | message compression and packaging interface
+[tcobsv1Encode.c](../../src/tcobsv1Encode.c)                     | message encoding and packaging
+[tcobsv1Decode.c](../../src/tcobsv1Decode.c)                     | message decoding and packaging, normally not needed
+[tcobsv1Internal.h](../../src/tcobsv1Internal.h)                 | message decoding and packaging internal interface
+[trice8.h](../../src/trice8.h)                                   | 8-bit trice code interface
+[trice8.c](../../src/trice8.c)                                   | 8-bit trice code
+[trice16.h](../../src/trice16.h)                                 | 16-bit trice code interface
+[trice16.c](../../src/trice16.c)                                 | 16-bit trice code
+[trice32.h](../../src/trice32.h)                                 | 32-bit trice code interface
+[trice32.c](../../src/trice32.c)                                 | 32-bit trice code
+[trice64.h](../../src/trice64.h)                                 | 64-bit trice code interface
+[trice64.c](../../src/trice64.c)                                 | 64-bit trice code
+[triceAuxiliary.c](../../src/triceAuxiliary.c)                   | trice code for auxiliary interfaces
+[triceDefaultConfig.h](../../src/triceDefaultConfig.h)           | This file contains the most probably settings and serves also as a reference for tuning your project *triceConfig.h*
+[triceDoubleBuffer.c](../../src/triceDoubleBuffer.c)             | trice runtime lib extension needed for fastest deferred mode
+[triceStackBuffer.c](../../src/triceStackBuffer.c)               | trice runtime lib extension needed for direct mode
+[triceRingBuffer.c](../../src/triceRingBuffer.c)                 | trice runtime lib extension needed for recommended deferred mode
+[xtea.h](../../src/xtea.h)                                       | XTEA message encryption/decryption interface
+[xtea.c](../../src/xtea.c)                                       | XTEA message encryption/decryption code
 
 * The *tcobs\*.\** files are copied from [tcobs v1](https://github.com/rokath/tcobs). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
@@ -572,11 +572,11 @@ The older RPC implementation is obsolete; it is separate from current [ABC comma
 
 The current receive path separates three steps:
 
-| Step | What it does |
-| --- | --- |
-| Parse | `TriceParseRecord(&rx, buf, len)` reads one already deframed and decrypted record. It obtains the ID, stamp, cycle counter and payload byte range without consulting a TIL table. |
-| Resolve | `TriceResolveAbc` or `TriceResolveLog` looks up the ID in a generated table with an explicit element count. Resolution attaches the value width and handler or format information, and checks payload-size and metadata conflicts. |
-| Consume | The application dispatches the resolved ABC handler or formats the log record. `TriceHandleDecodedRecord` combines these steps for enabled receive consumers. |
+Step    | What it does
+------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Parse   | `TriceParseRecord(&rx, buf, len)` reads one already deframed and decrypted record. It obtains the ID, stamp, cycle counter and payload byte range without consulting a TIL table.
+Resolve | `TriceResolveAbc` or `TriceResolveLog` looks up the ID in a generated table with an explicit element count. Resolution attaches the value width and handler or format information, and checks payload-size and metadata conflicts.
+Consume | The application dispatches the resolved ABC handler or formats the log record. `TriceHandleDecodedRecord` combines these steps for enabled receive consumers.
 
 See the public contract in [`triceRx.h`](../../src/triceRx.h) and the implementation in [`triceRx.c`](../../src/triceRx.c). The parser returns a **positive logical record length**, without alignment padding. For example, an unstamped four-byte header plus one payload byte returns `5`; a transport's three extra alignment bytes are still the caller's responsibility. Only advance the input position according to that transport's record/alignment rules.
 

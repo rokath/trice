@@ -39,22 +39,22 @@ The [`unwrap` reference](#unwrap-reference) defines the parameters, return value
 
 The host interprets the stamp in four steps:
 
-| Value | Meaning | Example |
-| --- | --- | --- |
-| Raw stamp | Received counter value | `ts` |
-| Forward phase | Position within one counter period | `47999-ts` |
-| Unwrapped ticks | Continuous count across observed wraps | [`unwrap(47999-ts,48000)`](#unwrap-reference) |
-| Visible delta | Difference from the previous emission of this delta field | [`delta(unwrap(47999-ts,48000))`](#unwrap-reference) |
+Value           | Meaning                                                   | Example
+--------------- | --------------------------------------------------------- | ----------------------------------------------------
+Raw stamp       | Received counter value                                    | `ts`
+Forward phase   | Position within one counter period                        | `47999-ts`
+Unwrapped ticks | Continuous count across observed wraps                    | [`unwrap(47999-ts,48000)`](#unwrap-reference)
+Visible delta   | Difference from the previous emission of this delta field | [`delta(unwrap(47999-ts,48000))`](#unwrap-reference)
 
 ## Syntax and compatibility
 
 The four switches `-ts16`, `-ts32`, `-ts16delta`, and `-ts32delta` accept `printf("format", expression, ...)`. The inner format is a double-quoted Go string. The exact prefix `printf(` at the start of the argument selects expression mode; malformed expressions fail before the input opens. An old literal beginning with that prefix must be written explicitly, for example `printf("printf(%d)",ts)`.
 
-| Context | Names and functions |
-| --- | --- |
-| `-ts16`, `-ts16delta` | `ts`, `ts16`, [`unwrap(phase,modulus[,initial])`](#unwrap-reference) |
-| `-ts32`, `-ts32delta` | `ts`, `ts32`, [`unwrap(phase,modulus[,initial])`](#unwrap-reference) |
-| Delta columns only | Also `delta(expression)` |
+Context               | Names and functions
+--------------------- | --------------------------------------------------------------------
+`-ts16`, `-ts16delta` | `ts`, `ts16`, [`unwrap(phase,modulus[,initial])`](#unwrap-reference)
+`-ts32`, `-ts32delta` | `ts`, `ts32`, [`unwrap(phase,modulus[,initial])`](#unwrap-reference)
+Delta columns only    | Also `delta(expression)`
 
 `ts` always means the current raw unsigned stamp, including inside a delta expression. Wrong-width aliases, payload names such as `v0`, unknown functions, nested `delta`, and stateful functions inside an `unwrap` phase are rejected. `unwrap` and `delta` are unavailable in `-vis`.
 
@@ -77,11 +77,11 @@ Available in expression-mode `-ts16`, `-ts32`, `-ts16delta`, and `-ts32delta`. S
 
 ### Parameters
 
-| Input parameter | Meaning and valid values | How to choose it |
-| --- | --- | --- |
-| `phase` | Stateless expression evaluated for each matching raw stamp. Its result must be finite, integral, and satisfy `0 <= phase < modulus`. It may use `ts`, the matching `ts16` or `ts32` alias, numeric literals, and basic arithmetic. It cannot contain `unwrap` or `delta`. | Supply a phase that advances in the counting direction. For an up-counter use `ts`. For a down-counter running from `R` to `0`, use `R-ts`. Keep the phase in counter ticks; convert units after `unwrap`. |
-| `modulus` | Required exact integer constant in `1..UINT64_MAX`, fixed during CLI initialization. It uses the same unit as `phase`. | Supply the actual number of states in one counter period. A counter running through `0..47999` has modulus `48000`; full-range 16-bit and 32-bit counters use `65536` and `4294967296`. The transmitted stamp width alone does not determine the modulus. |
-| `initial` | Optional exact integer constant in `0..UINT64_MAX`. It sets the first returned accumulated count, in the same unit as `phase`. | Omit it to preserve the first usable phase. Use `0` for elapsed ticks from the first usable sample, or another value for a chosen starting offset. The first returned value is exactly `initial`, without adding the first phase to it. |
+Input parameter | Meaning and valid values                                                                                                                                                                                                                                                  | How to choose it
+--------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`phase`         | Stateless expression evaluated for each matching raw stamp. Its result must be finite, integral, and satisfy `0 <= phase < modulus`. It may use `ts`, the matching `ts16` or `ts32` alias, numeric literals, and basic arithmetic. It cannot contain `unwrap` or `delta`. | Supply a phase that advances in the counting direction. For an up-counter use `ts`. For a down-counter running from `R` to `0`, use `R-ts`. Keep the phase in counter ticks; convert units after `unwrap`.
+`modulus`       | Required exact integer constant in `1..UINT64_MAX`, fixed during CLI initialization. It uses the same unit as `phase`.                                                                                                                                                    | Supply the actual number of states in one counter period. A counter running through `0..47999` has modulus `48000`; full-range 16-bit and 32-bit counters use `65536` and `4294967296`. The transmitted stamp width alone does not determine the modulus.
+`initial`       | Optional exact integer constant in `0..UINT64_MAX`. It sets the first returned accumulated count, in the same unit as `phase`.                                                                                                                                            | Omit it to preserve the first usable phase. Use `0` for elapsed ticks from the first usable sample, or another value for a chosen starting offset. The first returned value is exactly `initial`, without adding the first phase to it.
 
 `modulus` and `initial` cannot depend on a changing stamp. Constant arithmetic is evaluated exactly before the integer range check. Integral floating spellings such as `48000.0` are accepted; fractional values such as `48000.5` are rejected. An initial value of `9007199254740993` remains exact.
 
@@ -95,10 +95,10 @@ On success, return the current accumulated count `A` as `uint64`. No time-unit c
 
 For the first usable sample with phase `p`:
 
-| Form | First return value `A` | Saved previous phase |
-| --- | --- | --- |
-| `unwrap(phase,modulus)` | `p` | `p` |
-| `unwrap(phase,modulus,initial)` | `initial` | `p` |
+Form                            | First return value `A` | Saved previous phase
+------------------------------- | ---------------------- | --------------------
+`unwrap(phase,modulus)`         | `p`                    | `p`
+`unwrap(phase,modulus,initial)` | `initial`              | `p`
 
 Thus, `initial` changes the returned origin while the actual first phase remains the starting point for later differences. A first sample hidden by an output filter still initializes this state.
 
@@ -132,11 +132,11 @@ Each compiled occurrence has its own state for its source and stamp width. Every
 
 ### Errors
 
-| Condition | When detected | Result and effect on state |
-| --- | --- | --- |
-| Invalid argument count, a stateful phase, or an invalid/nonconstant `modulus` or `initial` | CLI initialization | Reject the configuration before opening input. |
-| Phase evaluation fails, or the phase is nonfinite, fractional, negative, outside the modulus, or not representable by `uint64` | Observation | Mark the affected field unavailable; `-v` also reports the error. Keep the previous valid phase and accumulated count. A later valid sample may continue if the sampling contract still holds across the usable samples. |
-| Adding `step` would exceed `UINT64_MAX` | Observation | Mark the field unavailable until a new tracking session; `-v` also reports accumulator overflow. The accumulator never wraps silently. |
+Condition                                                                                                                      | When detected      | Result and effect on state
+------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Invalid argument count, a stateful phase, or an invalid/nonconstant `modulus` or `initial`                                     | CLI initialization | Reject the configuration before opening input.
+Phase evaluation fails, or the phase is nonfinite, fractional, negative, outside the modulus, or not representable by `uint64` | Observation        | Mark the affected field unavailable; `-v` also reports the error. Keep the previous valid phase and accumulated count. A later valid sample may continue if the sampling contract still holds across the usable samples.
+Adding `step` would exceed `UINT64_MAX`                                                                                        | Observation        | Mark the field unavailable until a new tracking session; `-v` also reports accumulator overflow. The accumulator never wraps silently.
 
 An unavailable field displays `?` markers instead of a numeric result; the application message remains available. A failure in arithmetic or formatting **after** a valid `unwrap` observation does not undo that observation. See [Errors and unavailable fields](#errors-and-unavailable-fields) for field-level behavior.
 
@@ -144,14 +144,14 @@ An unavailable field displays `?` markers instead of a numeric result; the appli
 
 The sequence `47999, 47998, ..., 1, 0, 47999, ...` has **48000 states**. Its nominal period is 1000 microseconds. Choose `47999-ts` as the forward phase; using `48000-ts` would shift the origin by one tick.
 
-| Raw `ts` | Phase ticks | Phase microseconds | `%d` | `%.3f` |
-| ---: | ---: | ---: | ---: | ---: |
-| 47999 | 0 | 0 | 0 | 0.000 |
-| 47998 | 1 | 0.020833333... | 0 | 0.021 |
-| 47951 | 48 | 1 | 1 | 1.000 |
-| 23999 | 24000 | 500 | 500 | 500.000 |
-| 0 | 47999 | 999.979166666... | 999 | 999.979 |
-| 47999 after reload | 0 | 0 | 0 | 0.000 |
+Raw `ts`           | Phase ticks | Phase microseconds | `%d` | `%.3f`
+-----------------: | ----------: | -----------------: | ---: | ------:
+47999              | 0           | 0                  | 0    | 0.000
+47998              | 1           | 0.020833333...     | 0    | 0.021
+47951              | 48          | 1                  | 1    | 1.000
+23999              | 24000       | 500                | 500  | 500.000
+0                  | 47999       | 999.979166666...   | 999  | 999.979
+47999 after reload | 0           | 0                  | 0    | 0.000
 
 ```bash
 # Bash / Git Bash: within-period phase, without wrap reconstruction
@@ -169,23 +169,23 @@ In the continuous-time argument, [`unwrap`](#unwrap-reference) receives the forw
 
 With [`unwrap(47999-ts,48000)`](#unwrap-reference), the same counter continues across successive wraps:
 
-| Raw `ts` | Forward phase | Accumulated ticks | Microseconds with `%.3f` |
-| ---: | ---: | ---: | ---: |
-| 47999 | 0 | 0 | 0.000 |
-| 23999 | 24000 | 24000 | 500.000 |
-| 0 | 47999 | 47999 | 999.979 |
-| 47999 | 0 | 48000 | 1000.000 |
-| 23999 | 24000 | 72000 | 1500.000 |
-| 47999 | 0 | 96000 | 2000.000 |
+Raw `ts` | Forward phase | Accumulated ticks | Microseconds with `%.3f`
+-------: | ------------: | ----------------: | -----------------------:
+47999    | 0             | 0                 | 0.000
+23999    | 24000         | 24000             | 500.000
+0        | 47999         | 47999             | 999.979
+47999    | 0             | 48000             | 1000.000
+23999    | 24000         | 72000             | 1500.000
+47999    | 0             | 96000             | 2000.000
 
 ## Origin, modulus, and integer precision
 
 [`unwrap(phase,modulus)`](#unwrap-reference) starts at the first usable phase. [`unwrap(phase,modulus,initial)`](#unwrap-reference) returns the selected initial value for that first sample, then adds subsequent phase advances. For raw values `23999, 0, 47999`:
 
-| Expression | Tick results | Microsecond results after `/48` |
-| --- | --- | --- |
-| `unwrap(47999-ts,48000)` | 24000, 47999, 48000 | 500, 999.979166..., 1000 |
-| `unwrap(47999-ts,48000,0)` | 0, 23999, 24000 | 0, 499.979166..., 500 |
+Expression                 | Tick results        | Microsecond results after `/48`
+-------------------------- | ------------------- | -------------------------------
+`unwrap(47999-ts,48000)`   | 24000, 47999, 48000 | 500, 999.979166..., 1000
+`unwrap(47999-ts,48000,0)` | 0, 23999, 24000     | 0, 499.979166..., 500
 
 An initial zero measures elapsed time from the first usable received sample, even if that sample is hidden. Neither form reveals periods before that sample or target uptime.
 
@@ -204,12 +204,12 @@ This preserves a one-tick difference above `2^53` accumulated ticks. `delta(unwr
 
 Each example follows the [`unwrap` parameter rules](#unwrap-reference): normalize the phase to advance forward and use the counter's actual number of states as the modulus.
 
-| Counter | Bash / Git Bash argument | Example raw values | Unwrapped ticks |
-| --- | --- | --- | --- |
-| Full-range 16-bit up | `-ts16 'printf("time:%12d ticks",unwrap(ts,65536))'` | 65534, 65535, 0, 1 | 65534, 65535, 65536, 65537 |
-| Full-range 16-bit down | `-ts16 'printf("time:%12d ticks",unwrap(65535-ts,65536))'` | 1, 0, 65535, 65534 | 65534, 65535, 65536, 65537 |
-| Full-range 32-bit up | `-ts32 'printf("time:%15d ticks",unwrap(ts,4294967296))'` | 4294967295, 0, 1 | 4294967295, 4294967296, 4294967297 |
-| 0..9999 up | `-ts16 'printf("msg:%12d counts",unwrap(ts,10000))'` | 9998, 9999, 0, 1 | 9998, 9999, 10000, 10001 |
+Counter                | Bash / Git Bash argument                                   | Example raw values | Unwrapped ticks
+---------------------- | ---------------------------------------------------------- | ------------------ | ----------------------------------
+Full-range 16-bit up   | `-ts16 'printf("time:%12d ticks",unwrap(ts,65536))'`       | 65534, 65535, 0, 1 | 65534, 65535, 65536, 65537
+Full-range 16-bit down | `-ts16 'printf("time:%12d ticks",unwrap(65535-ts,65536))'` | 1, 0, 65535, 65534 | 65534, 65535, 65536, 65537
+Full-range 32-bit up   | `-ts32 'printf("time:%15d ticks",unwrap(ts,4294967296))'`  | 4294967295, 0, 1   | 4294967295, 4294967296, 4294967297
+0..9999 up             | `-ts16 'printf("msg:%12d counts",unwrap(ts,10000))'`       | 9998, 9999, 0, 1   | 9998, 9999, 10000, 10001
 
 For a 48 MHz full-width 32-bit up-counter, [`unwrap`](#unwrap-reference) returns continuous ticks. Choose the display unit with the divisor:
 
@@ -241,15 +241,15 @@ trice log -p COM15 -baud 921600 -pick err -ts off \
   -ts16delta 'printf("dt:%12.3f us", delta(unwrap(47999-ts,48000))/48)'
 ```
 
-| Capture time, us | Raw stamp | Accumulated ticks | Visible? |
-| ---: | ---: | ---: | --- |
-| 0 | 47999 | 0 | ✅ Yes |
-| 500 | 23999 | 24000 | ❌ No |
-| 1000 | 47999 | 48000 | ❌ No |
-| 1500 | 23999 | 72000 | ❌ No |
-| 2000 | 47999 | 96000 | ❌ No |
-| 2500 | 23999 | 120000 | ❌ No |
-| 3000 | 47999 | 144000 | ✅ Yes |
+Capture time, us | Raw stamp | Accumulated ticks | Visible?
+---------------: | --------: | ----------------: | --------
+0                | 47999     | 0                 | ✅ Yes
+500              | 23999     | 24000             | ❌ No
+1000             | 47999     | 48000             | ❌ No
+1500             | 23999     | 72000             | ❌ No
+2000             | 47999     | 96000             | ❌ No
+2500             | 23999     | 120000            | ❌ No
+3000             | 47999     | 144000            | ✅ Yes
 
 Here ✅ Yes and ❌ No describe visibility only; all rows still supply usable counter samples.
 

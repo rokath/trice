@@ -47,22 +47,22 @@
 
 No board yet? Start with the [minimal PC demos](#minimal-pc-demos-direct-and-deferred), then try fields, filters, context and [CSV output](../TriceUserManual.md#save-two-measurements-as-csv) with the [PC feature tour](#pc-feature-tour). For your own firmware, use the [transport quickstarts](quickstarts.md). The table below helps you choose a matching STM32 example.
 
-Project Name                                    | Description
--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-|                                                 | |
-[F030_bare](../../examples/F030_bare)           | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to `F030_inst*` so see quickly the needed instrumentation steps you need for your own project.
-[F030_inst_uart](../../examples/F030_inst_uart) | Recommended starting point when RTT is not the aim
-[F030_inst_rtt](../../examples/F030_inst_rtt)   | To use RTT start here
-[F030_inst](../../examples/F030_inst)           | This example shows how to use RTT and serial parallel.
-|                                                 | |
-[G0B1_bare](../../examples/G0B1_bare)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.
-[G0B1_inst](../../examples/G0B1_inst)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.
-[PC_features](examples.md#pc-feature-tour)                 | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts.
-[G0B1_features](examples.md#g0b1-feature-tour)             | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts.
-|                                                 | |
-[L432_bare](../../examples/L432_bare)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../../examples/L432_inst) project is then a next step performable.
-[L432_inst](../../examples/L432_inst)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.
-|                                                 | |
+| Project Name                                    | Description                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|                                                 |                                                                                                                                                                                                                                                                                     |
+| [F030_bare](../../examples/F030_bare)           | This is a minimal STM32CubeMX generated Makefile project adapted to Clang and GCC. It serves as a reference for diff to `F030_inst*` so see quickly the needed instrumentation steps you need for your own project.                                                                 |
+| [F030_inst_uart](../../examples/F030_inst_uart) | Recommended starting point when RTT is not the aim                                                                                                                                                                                                                                  |
+| [F030_inst_rtt](../../examples/F030_inst_rtt)   | To use RTT start here                                                                                                                                                                                                                                                               |
+| [F030_inst](../../examples/F030_inst)           | This example shows how to use RTT and serial parallel.                                                                                                                                                                                                                              |
+|                                                 |                                                                                                                                                                                                                                                                                     |
+| [G0B1_bare](../../examples/G0B1_bare)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC.                                                                                                                                                                                         |
+| [G0B1_inst](../../examples/G0B1_inst)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                       |
+| [PC_features](examples.md#pc-feature-tour)      | Small PC capture with structured fields, CE, tags, runtime strings, timestamps, and text/JSON/KV decoder scripts.                                                                                                                                                                   |
+| [G0B1_features](examples.md#g0b1-feature-tour)  | A copy of G0B1_inst showing CE task handles from two FreeRTOS tasks and matching decoder scripts.                                                                                                                                                                                   |
+|                                                 |                                                                                                                                                                                                                                                                                     |
+| [L432_bare](../../examples/L432_bare)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project extended to compile also with Clang trying to perform minimal changes. It produces some warnings, because it is not finetuned. The [L432_inst](../../examples/L432_inst) project is then a next step performable. |
+| [L432_inst](../../examples/L432_inst)           | This is a minimal FreeRTOS STM32CubeMX generated Makefile project adapted to Clang and GCC and afterward instrumented with the Trice library.                                                                                                                                       |
+|                                                 |                                                                                                                                                                                                                                                                                     |
 
 ## 1. <a id="minimal-pc-demos-direct-and-deferred"></a>Minimal PC Demos: Direct and Deferred
 
@@ -168,7 +168,7 @@ cd examples/PC_features
 The [build script](../../examples/PC_features/build_and_run.sh) binds local IDs and applies `-ce 'ctx:", cycle={cycle:%u}", pc_sample_phase'`. The shared `emit_sample` call therefore gains a `cycle` field without editing its `Supply {voltage_mv:%u}` format. The device name uses `TriceS` because CE does not append runtime arguments to string Trices. `til.json` and `li.json` are versioned project tables; the capture, executable, and generated headers are build outputs. Rebuild after changing the source or CE rule.
 
 Feature                           | Source to edit                                                       | Observable result
------------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------------------
+--------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------
 Numeric fields and runtime string | `emit_sample` and the device-name `TriceS`                           | JSON `fields.voltage_mv` and `fields.device`; the device is `pump A`.
 CE at one shared call site        | `info:ctx:` and `pc_sample_phase`                                    | Supply readings contain `cycle=7` and `cycle=11`.
 Built-in and custom tags          | `wrn:`, `dbg:`, `sensor:`                                            | Warning threshold filters events; `sensor` has weight 450 in the show scripts.
@@ -510,15 +510,15 @@ Use `G0B1_inst` to compare GCC and Clang on the same board. Configuration 0 rema
 the default; configuration 98 selects the bounded logging benchmark. No CubeMX
 installation, external crystal, measurement pin or additional library is required.
 
-| Setting | Configuration 0 | Configuration 98 |
-| --- | --- | --- |
-| CPU clock | Original 16 MHz | 64 MHz from HSI16 and PLL |
-| Compiler optimization | `-O3` | `-O3` |
-| Logging | Original examples and `TriceCheck` | Eight bursts of 16 parameterless records without timestamps |
-| Buffer and output | Ring buffer, direct RTT plus deferred encrypted UART | 4096-byte double buffer, deferred UART, COBS, no encryption |
-| Protection, diagnostics, message counter | Original defaults | Disabled for this bounded, single-writer measurement |
-| Other log writers | Original tasks and timer interrupt | Quiet; the default task owns logging and transfer |
-| Timestamp units | TIM17 microseconds; HAL milliseconds | Raw TIM2 clocks, if timestamped calls are added |
+Setting                                  | Configuration 0                                      | Configuration 98
+---------------------------------------- | ---------------------------------------------------- | -----------------------------------------------------------
+CPU clock                                | Original 16 MHz                                      | 64 MHz from HSI16 and PLL
+Compiler optimization                    | `-O3`                                                | `-O3`
+Logging                                  | Original examples and `TriceCheck`                   | Eight bursts of 16 parameterless records without timestamps
+Buffer and output                        | Ring buffer, direct RTT plus deferred encrypted UART | 4096-byte double buffer, deferred UART, COBS, no encryption
+Protection, diagnostics, message counter | Original defaults                                    | Disabled for this bounded, single-writer measurement
+Other log writers                        | Original tasks and timer interrupt                   | Quiet; the default task owns logging and transfer
+Timestamp units                          | TIM17 microseconds; HAL milliseconds                 | Raw TIM2 clocks, if timestamped calls are added
 
 Open a terminal in `examples/G0B1_inst`. Use Bash (Git Bash on Windows), GNU make,
 Trice and the Arm GNU bare-metal toolchain; Clang builds also need Clang with ARM
@@ -604,14 +604,14 @@ Folder: [../examples/L432_inst/](../../examples/L432_inst/)
 The GCC and Clang entry points in `G0B1_inst`, `L432_inst` and `G0B1_features`
 accept the same argument forms and control options:
 
-| Arguments | Effect |
-| --- | --- |
-| None | Keep the project default. `G0B1_features` runs its private feature tour. |
-| `98` or `CONFIGURATION=98` | Select a supported configuration for this build. |
-| `NAME` or `NAME=VALUE` | Pass an extra compiler define; may follow the configuration. |
-| `-h` or `--help` | Show usage without preparing sources or building. |
-| `--check` | Check the selected compiler's prerequisites without preparing sources or building. |
-| `--x0-matrix` | Build the four logging/typeX0 combinations with the selected compiler. |
+Arguments                  | Effect
+-------------------------- | ----------------------------------------------------------------------------------
+None                       | Keep the project default. `G0B1_features` runs its private feature tour.
+`98` or `CONFIGURATION=98` | Select a supported configuration for this build.
+`NAME` or `NAME=VALUE`     | Pass an extra compiler define; may follow the configuration.
+`-h` or `--help`           | Show usage without preparing sources or building.
+`--check`                  | Check the selected compiler's prerequisites without preparing sources or building.
+`--x0-matrix`              | Build the four logging/typeX0 combinations with the selected compiler.
 
 Use control options alone. Select at most one configuration: `G0B1_inst` supports
 0 and 98; `L432_inst` supports 0 through 100. `G0B1_features` has no selectable
@@ -662,20 +662,20 @@ measurement are separate validation steps.
 Use tools built for your host OS and CPU architecture. Put their executable
 directories on `PATH` so all commands below are available in the same terminal.
 
-| Host | Shell and tools |
-| --- | --- |
-| Windows | Git Bash and native Windows compiler/toolchain executables. Git Bash supplies `cygpath` for native path conversion. |
-| Linux, including WSL | Bash and Linux compiler/toolchain executables. |
-| macOS | System Bash 3.2 or newer, and macOS compiler/toolchain executables. Clang must include the Thumb backend. |
+Host                 | Shell and tools
+-------------------- | -------------------------------------------------------------------------------------------------------------------
+Windows              | Git Bash and native Windows compiler/toolchain executables. Git Bash supplies `cygpath` for native path conversion.
+Linux, including WSL | Bash and Linux compiler/toolchain executables.
+macOS                | System Bash 3.2 or newer, and macOS compiler/toolchain executables. Clang must include the Thumb backend.
 
-| Required component | Purpose and check |
-| --- | --- |
-| Bash 3.2 or newer | Runs the script; common POSIX utilities such as `awk`, `tr` and `uname` must also be available. |
-| GNU make | Runs the Makefile. `make --version` must identify GNU Make. |
-| Clang | Compiles for Cortex-M4. `clang --print-targets` must list `thumb`; a compiler built only for the host is insufficient. |
-| Arm GNU bare-metal toolchain | Supplies `arm-none-eabi-gcc`, `arm-none-eabi-objcopy` and `arm-none-eabi-size`. GCC must report `arm-none-eabi` as its target. |
-| Matching Newlib headers and runtime | Supplies `stdlib.h`, `libc.a`, `libc_nano.a`, `libm.a`, `libnosys.a` and `nano.specs`; GCC also supplies `libgcc.a`. The runtime must include Cortex-M4 hard-float variants. |
-| Trice from this checkout | Generates current Bind headers. A managed repository test may already own Bind/Insert preparation. |
+Required component                  | Purpose and check
+----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Bash 3.2 or newer                   | Runs the script; common POSIX utilities such as `awk`, `tr` and `uname` must also be available.
+GNU make                            | Runs the Makefile. `make --version` must identify GNU Make.
+Clang                               | Compiles for Cortex-M4. `clang --print-targets` must list `thumb`; a compiler built only for the host is insufficient.
+Arm GNU bare-metal toolchain        | Supplies `arm-none-eabi-gcc`, `arm-none-eabi-objcopy` and `arm-none-eabi-size`. GCC must report `arm-none-eabi` as its target.
+Matching Newlib headers and runtime | Supplies `stdlib.h`, `libc.a`, `libc_nano.a`, `libm.a`, `libnosys.a` and `nano.specs`; GCC also supplies `libgcc.a`. The runtime must include Cortex-M4 hard-float variants.
+Trice from this checkout            | Generates current Bind headers. A managed repository test may already own Bind/Insert preparation.
 
 Distribution packages sometimes split the compiler, binutils, Newlib headers and
 nano runtime into separate packages. Install the matching components from the
@@ -686,17 +686,17 @@ It supports headers installed separately from libraries, versioned GCC directori
 multilib subdirectories, relocated toolchains and paths containing spaces. It makes
 no assumption that `include` is next to the selected `libc.a`.
 
-| Reported problem | Action |
-| --- | --- |
-| Required tool missing from `PATH`, or tool cannot run | Install the component for your host OS/CPU, reopen the terminal and check its executable directory on `PATH`. |
-| `make` is not GNU Make | Select GNU make on `PATH`. |
-| Clang has no Thumb backend | Select a Clang installation that includes ARM/Thumb support. |
-| GCC reports an incompatible target | Select the Arm GNU bare-metal compiler named `arm-none-eabi-gcc`. |
-| ARM runtime file unavailable | Install the matching Newlib/nano and GCC runtime packages with Cortex-M4 hard-float support. The message names the missing file and GCC's reported path. |
-| `stdlib.h` not found in GCC search paths | Install the matching ARM Newlib headers and check the listed directories. Host C library headers cannot replace ARM headers. |
-| Header search query fails | Read the GCC diagnostics above the message; check that the complete compiler installation is executable and supports the selected Cortex-M4/FPU options. |
-| Invalid `CLANG_LIBC_INCLUDE` | Correct or unset the override. It must name the ARM header directory containing `stdlib.h`. Relative paths start at `examples/L432_inst`. |
-| Bind or firmware build fails | Read the original diagnostics above the final message. Linker diagnostics also remain in `gccLinksClangWarning.txt`. |
+Reported problem                                      | Action
+----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------
+Required tool missing from `PATH`, or tool cannot run | Install the component for your host OS/CPU, reopen the terminal and check its executable directory on `PATH`.
+`make` is not GNU Make                                | Select GNU make on `PATH`.
+Clang has no Thumb backend                            | Select a Clang installation that includes ARM/Thumb support.
+GCC reports an incompatible target                    | Select the Arm GNU bare-metal compiler named `arm-none-eabi-gcc`.
+ARM runtime file unavailable                          | Install the matching Newlib/nano and GCC runtime packages with Cortex-M4 hard-float support. The message names the missing file and GCC's reported path.
+`stdlib.h` not found in GCC search paths              | Install the matching ARM Newlib headers and check the listed directories. Host C library headers cannot replace ARM headers.
+Header search query fails                             | Read the GCC diagnostics above the message; check that the complete compiler installation is executable and supports the selected Cortex-M4/FPU options.
+Invalid `CLANG_LIBC_INCLUDE`                          | Correct or unset the override. It must name the ARM header directory containing `stdlib.h`. Relative paths start at `examples/L432_inst`.
+Bind or firmware build fails                          | Read the original diagnostics above the final message. Linker diagnostics also remain in `gccLinksClangWarning.txt`.
 
 For a custom header installation outside GCC's search paths, set
 `CLANG_LIBC_INCLUDE` to its ARM Newlib header directory, then run `--check` again.

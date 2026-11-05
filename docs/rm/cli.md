@@ -31,13 +31,13 @@
 
 Start in the directory containing the firmware's matching `til.json` and `li.json`:
 
-| Task | Command | Result |
-| --- | --- | --- |
-| Find a serial port | `trice scan` | Lists available ports; choose the one connected to your board. |
-| Read its log | `trice log -p COM7 -baud 115200` | Displays decoded firmware messages. Replace the port and match the firmware's baud rate and framing. |
-| See warnings and higher priorities | `trice log -p COM7 -logLevel wrn` | Hides lower-priority messages on the host; target traffic is unchanged. |
-| Check the tool version | `trice version` | Prints version information. |
-| Look up logging options | `trice help -log` | Lists the options for `log`; use `-all` for all commands. |
+Task                               | Command                           | Result
+---------------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------
+Find a serial port                 | `trice scan`                      | Lists available ports; choose the one connected to your board.
+Read its log                       | `trice log -p COM7 -baud 115200`  | Displays decoded firmware messages. Replace the port and match the firmware's baud rate and framing.
+See warnings and higher priorities | `trice log -p COM7 -logLevel wrn` | Hides lower-priority messages on the host; target traffic is unchanged.
+Check the tool version             | `trice version`                   | Prints version information.
+Look up logging options            | `trice help -log`                 | Lists the options for `log`; use `-all` for all commands.
 
 If no messages appear, add `-showInputBytes` to the same log command. No bytes points to the input connection; received bytes with decode diagnostics point to framing, configuration or dictionary mismatches. Add `-debug` to inspect frames and decoded packets. See [input-byte output](../ref/ShowInputBytesExample.PNG), [debug output](../ref/DebugSwitchExample.PNG), and [troubleshooting](troubleshooting.md).
 
@@ -62,11 +62,11 @@ Use `-alias Name[:Tag]` or `-salias Name[:Tag]` consistently in source commands.
 
 Use `tlog` or `trice log` to receive plain text or inspect raw bytes through the same UART, RTT, TCP or file inputs used for binary Trice logs:
 
-| `-encoding` | Use it for |
-| --- | --- |
-| `TREX` (default) | Decode Trice binary records with their matching dictionary and framing settings. |
-| `CHAR` | Display already formatted text, such as ordinary UART `printf` output or text produced by the [local C logger](target_implementation.md#local-deferred-text-log). |
-| `DUMP` | Display raw bytes as hexadecimal pairs, without needing valid Trice frames. `-dc 16` selects 16 bytes per output line. |
+`-encoding`      | Use it for
+---------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+`TREX` (default) | Decode Trice binary records with their matching dictionary and framing settings.
+`CHAR`           | Display already formatted text, such as ordinary UART `printf` output or text produced by the [local C logger](target_implementation.md#local-deferred-text-log).
+`DUMP`           | Display raw bytes as hexadecimal pairs, without needing valid Trice frames. `-dc 16` selects 16 bytes per output line.
 
 `-debug` adds TREX decoding stages, including deframing and optional decryption. `-showInputBytes` prints incoming read chunks alongside the selected decoder's output. `DUMP` provides a hex monitor without TREX decoding attempts; `CHAR` handles text streams. The debug label `-> DEC:` means decrypted bytes, not decimal output. `DEC` and `HEX` are input-source names for `-p`, not encoding names.
 

@@ -61,13 +61,13 @@ Within each group, the IDs already selected by normal allocation are sorted nume
 
 For example, assume these three IDs belong to one group:
 
-Source state | Site in path order | Assigned ID
---- | --- | ---:
-Before | `b.c:10` | 100
-Before | `d.c:20` | 200
-After adding `a.c:5`, with ID 300 also selected | `a.c:5` | 100
-After | `b.c:10` | 200
-After | `d.c:20` | 300
+Source state                                    | Site in path order | Assigned ID
+----------------------------------------------- | ------------------ | ----------:
+Before                                          | `b.c:10`           | 100
+Before                                          | `d.c:20`           | 200
+After adding `a.c:5`, with ID 300 also selected | `a.c:5`            | 100
+After                                           | `b.c:10`           | 200
+After                                           | `d.c:20`           | 300
 
 Both existing sites may change IDs when an identical site is added, removed, or moved. This is intentional. An unchanged source selection with the same selected ID pool produces the same mapping on subsequent runs, regardless of scan-root order or worker completion. The same rule applies after Clean/Insert; Clean itself does not allocate IDs. An explicit ID in an Insert source is not a request to exempt that site from ordering. Bind changes its own generated descriptors and leaves Insert-owned source files and their IDs alone.
 
@@ -79,11 +79,11 @@ The [behavioral tests](../../internal/id/orderedIDs_test.go) cover group changes
 
 ## 5. <a id="files-ownership-and-history"></a>Files, ownership and history
 
-| File | During development | For firmware and recordings |
-| --- | --- | --- |
-| `til.json` | Keep under version control; extend it without discarding old entries. Bind requires an existing file. | A newer cumulative TIL can retain old mappings; template and host compatibility still matters. |
-| `li.json` | Keep locally between ID runs, including partial scans. It records site ownership as well as locations. | Keep the build's LI when exact source locations matter. |
-| Bind sidecars | Generated build inputs; normally not versioned. Bind recreates them from the selected sources and metadata. | Not a substitute for the long-lived TIL or firmware metadata. Use the [artifact report](generate.md#bind-artifact-report) before cleaning unfamiliar generated trees. |
+File          | During development                                                                                          | For firmware and recordings
+------------- | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`til.json`    | Keep under version control; extend it without discarding old entries. Bind requires an existing file.       | A newer cumulative TIL can retain old mappings; template and host compatibility still matters.
+`li.json`     | Keep locally between ID runs, including partial scans. It records site ownership as well as locations.      | Keep the build's LI when exact source locations matter.
+Bind sidecars | Generated build inputs; normally not versioned. Bind recreates them from the selected sources and metadata. | Not a substitute for the long-lived TIL or firmware metadata. Use the [artifact report](generate.md#bind-artifact-report) before cleaning unfamiliar generated trees.
 
 For a genuinely new project, `touch til.json li.json` creates initially empty files without replacing existing data. Missing dictionaries are rejected to avoid silently assigning a new history. Do not delete TIL to remove unused entries: old firmware and captures may still need them. Use separate dictionaries for independent projects or deliberately share one accumulated dictionary with consistent ownership and ID policy.
 
@@ -115,24 +115,24 @@ Run Bind, then `trice generate -src application -logC` to export currently refer
 
 Keep each released firmware together with its `til.json`, matching `li.json` if needed, host-tool version, and decoding options such as framing, byte order, and default value width. Retaining an ID preserves its dictionary entry; it does not make every dictionary compatible with every host version. Location information must describe the firmware actually running, even when one cumulative TIL covers multiple firmware versions.
 
-Firmware and dictionary | Host tool | Supported use
---- | --- | ---
-v1.3.0 firmware with its unchanged dictionaries | v1.3.0 | Reproduce historical output with the corresponding original options.
-Existing firmware with classic printf formats and retained IDs | Current host | Supported when the formats are valid under the current template syntax and transport settings match. Literal braces are a relevant exception; see the examples below.
-Current firmware and current dictionaries, including structured fields or CE | Current host | Supported within the documented record families and CE limits. Current instrumentation and its matching target sources are required when building these features.
-A dictionary containing current named fields or doubled literal braces | v1.3.0 | Not a supported interpretation of the new templates. The old host does not understand fields and prints doubled braces literally.
-C headers, implementation files, or generated Bind sidecars mixed from different releases | Any host | No general source/build compatibility guarantee. Use target files from one release and regenerate sidecars with the corresponding host tool.
+Firmware and dictionary                                                                   | Host tool    | Supported use
+----------------------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+v1.3.0 firmware with its unchanged dictionaries                                           | v1.3.0       | Reproduce historical output with the corresponding original options.
+Existing firmware with classic printf formats and retained IDs                            | Current host | Supported when the formats are valid under the current template syntax and transport settings match. Literal braces are a relevant exception; see the examples below.
+Current firmware and current dictionaries, including structured fields or CE              | Current host | Supported within the documented record families and CE limits. Current instrumentation and its matching target sources are required when building these features.
+A dictionary containing current named fields or doubled literal braces                    | v1.3.0       | Not a supported interpretation of the new templates. The old host does not understand fields and prints doubled braces literally.
+C headers, implementation files, or generated Bind sidecars mixed from different releases | Any host     | No general source/build compatibility guarantee. Use target files from one release and regenerate sidecars with the corresponding host tool.
 
 The following examples use the same unstamped TREX record layout and ID in both host versions. `Strg` is the stored dictionary string; the scalar case carries the value `7`.
 
-Stored `Strg` | Record payload | v1.3.0 interpretation | Current interpretation
---- | --- | --- | ---
-`msg:count=%d` | One 32-bit value | `count=7` | `count=7`
-`hi` | No values | `hi` | `hi`; JSON/KV classify it as `untagged` without inserting a tag into `message`.
-`msg:literal={x}` | No values | `literal={x}` | `{x}` requires a value; the record is rejected with a diagnostic.
-`msg:set={1,2}` | No values | `set={1,2}` | Invalid field name; the record is rejected with a diagnostic.
-`msg:literal={{x}}` | No values | `literal={{x}}` | `literal={x}`
-`msg:value={x}` | One 32-bit value | Not a supported one-value printf format | `value=7`, with field `x=7` in structured output.
+Stored `Strg`       | Record payload   | v1.3.0 interpretation                   | Current interpretation
+------------------- | ---------------- | --------------------------------------- | -------------------------------------------------------------------------------
+`msg:count=%d`      | One 32-bit value | `count=7`                               | `count=7`
+`hi`                | No values        | `hi`                                    | `hi`; JSON/KV classify it as `untagged` without inserting a tag into `message`.
+`msg:literal={x}`   | No values        | `literal={x}`                           | `{x}` requires a value; the record is rejected with a diagnostic.
+`msg:set={1,2}`     | No values        | `set={1,2}`                             | Invalid field name; the record is rejected with a diagnostic.
+`msg:literal={{x}}` | No values        | `literal={{x}}`                         | `literal={x}`
+`msg:value={x}`     | One 32-bit value | Not a supported one-value printf format | `value=7`, with field `x=7` in structured output.
 
 For unchanged historical firmware that used literal braces, replay with its archived dictionary and matching old host tool. In sources built with the current tools, write literal braces as `{{` and `}}`, then regenerate IDs/dictionaries and rebuild. Logging does not rewrite supplied dictionaries, and historical dictionaries are not automatically converted. An unchanged binary record layout alone does not establish template compatibility. Replay checks must inspect output and diagnostics: a rejected record does not necessarily make the logger exit with a nonzero status.
 
@@ -140,16 +140,16 @@ For unchanged historical firmware that used literal braces, replay with its arch
 
 Review scripts written for 1.x before using the v2 tools. These changes are relative to v1.3.0 and apply to both `trice log` and `tlog` where relevant:
 
-Previous usage | Required adjustment
---- | ---
-`trice generate -tilC` | Use `trice generate -src Core -logC`, selecting your own sources. Run Insert or Bind first. Only currently referenced IDs are emitted, not the whole historical TIL. The default output is now `generated/til.c`; use `-logC=build/til.c` to choose a path.
-`trice generate -abc deviceX` followed by compiling `deviceX.c` | A name without a directory now produces `generated/deviceX.h` and `.c`. Compile the file from its new location, select another directory with `-genDir`, or specify the target path, for example `-abc=custom/deviceX`. ABC itself was already included in v1.3.0.
-ID management with `-liPath` | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it.
-Logging with `-liPath` | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename.
-`-pick err:wrn` or `-ban dbg:trace` | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above.
-`-ulabel alpha:beta` to register two tags | Use `-utag alpha -utag beta`. Logging also accepts a weight or color, for example `-utag alpha:650`; build commands accept names only. User-defined tags ignore case and have uppercase canonical metadata.
+Previous usage                                                    | Required adjustment
+----------------------------------------------------------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`trice generate -tilC`                                            | Use `trice generate -src Core -logC`, selecting your own sources. Run Insert or Bind first. Only currently referenced IDs are emitted, not the whole historical TIL. The default output is now `generated/til.c`; use `-logC=build/til.c` to choose a path.
+`trice generate -abc deviceX` followed by compiling `deviceX.c`   | A name without a directory now produces `generated/deviceX.h` and `.c`. Compile the file from its new location, select another directory with `-genDir`, or specify the target path, for example `-abc=custom/deviceX`. ABC itself was already included in v1.3.0.
+ID management with `-liPath`                                      | Use `-liRoot <project-root>` to choose the directory that stored paths are relative to. The default is the directory containing `li.json`. Its `File` field now contains a source path, for example `Core/Src/main.c`, rather than only `main.c`; adjust scripts that read it.
+Logging with `-liPath`                                            | Remove it. Use `-liMaxDirs N` to show up to N parent directories; the default `0` shows only the filename.
+`-pick err:wrn` or `-ban dbg:trace`                               | Repeat the switch: `-pick err -pick wrn` or `-ban dbg -ban trace`. Colon lists are rejected; `-pick` and `-ban` cannot be combined. `-pick 600` selects only weight 600; use `-logLevel 600` for weight 600 and above.
+`-ulabel alpha:beta` to register two tags                         | Use `-utag alpha -utag beta`. Logging also accepts a weight or color, for example `-utag alpha:650`; build commands accept names only. User-defined tags ignore case and have uppercase canonical metadata.
 Built-in one-letter tags or selectors, or `OK` as a Message alias | Use descriptive names such as `err`, `wrn`, `inf`, `dbg` and `msg`, including in `-IDRange`. Built-in names ignore case. The old aliases are removed; unregistered prefixes count as `untagged`, and unknown selectors are errors. `rx` now selects Receive and `tx` selects Transmit, without the former overlap with Read/Write.
-`-logLevel` based on the old tag-table order | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown.
+`-logLevel` based on the old tag-table order                      | Recheck which messages pass: selection now uses a minimum weight. `-logLevel wrn` includes Warning and messages with higher priority; `-loglevel 600` is equivalent with default weights. Messages without a recognized tag are also filtered. Tags used for timestamps or other output columns do not decide whether a message is shown.
 
 Further changes can affect builds and automated checks:
 

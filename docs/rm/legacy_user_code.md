@@ -33,12 +33,12 @@
 
 Choose how much of the existing logging you can change:
 
-| Situation | Approach | Main trade-off |
-| --- | --- | --- |
-| Calls already use a project macro such as `MyWrn(...)` | [Adapt and register the macro as a Trice alias](#legacy-user-code-option-trice-aliases-adaptation) | Keep most call sites; check argument types and alias rules. |
-| You can edit the calls | [Replace them with Trice calls](#legacy-user-code-option-trice-adaptation-edits) | Compact records, but review each format and argument. |
-| Existing code must keep printing text, and a second output is available | [Use separate outputs](#legacy-user-code-option-separate-physical-output-channel) | Simple separation; two viewers and no common message order. |
-| Existing code must keep printing text over the same output | [Wrap and frame its print buffer](#legacy-user-code-option-print-buffer-wrapping-and-framing) | Adapt the output layer; target-side text formatting still costs time and memory. |
+Situation                                                               | Approach                                                                                           | Main trade-off
+----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------
+Calls already use a project macro such as `MyWrn(...)`                  | [Adapt and register the macro as a Trice alias](#legacy-user-code-option-trice-aliases-adaptation) | Keep most call sites; check argument types and alias rules.
+You can edit the calls                                                  | [Replace them with Trice calls](#legacy-user-code-option-trice-adaptation-edits)                   | Compact records, but review each format and argument.
+Existing code must keep printing text, and a second output is available | [Use separate outputs](#legacy-user-code-option-separate-physical-output-channel)                  | Simple separation; two viewers and no common message order.
+Existing code must keep printing text over the same output              | [Wrap and frame its print buffer](#legacy-user-code-option-print-buffer-wrapping-and-framing)      | Adapt the output layer; target-side text formatting still costs time and memory.
 
 Do not mix raw `printf` bytes into a Trice binary stream: use a separate channel or the framing described below. For current alias behavior, start with [Alias identity and tags in v2](#alias-identity-and-tags-in-v2); the later PR notes explain its history.
 
@@ -150,12 +150,12 @@ Names are exact ASCII C identifiers: `[A-Za-z_][A-Za-z0-9_]*`. Names starting wi
 
 For each alias event, select the first applicable source:
 
-| Priority | Source |
-|---|---|
-| First | Explicit `Name:Tag` in the current command. `Name:untagged` stops here. |
-| Next | The frozen name heuristic below. |
-| Next | A registered tag before the first colon of the static format. |
-| Last | `untagged`. |
+Priority | Source
+-------- | -----------------------------------------------------------------------
+First    | Explicit `Name:Tag` in the current command. `Name:untagged` stops here.
+Next     | The frozen name heuristic below.
+Next     | A registered tag before the first colon of the static format.
+Last     | `untagged`.
 
 No later prefix or received string supplies a fallback. Thus `printi("ctx:err:failed")` is untagged unless `ctx` is registered. For string aliases, only an identifiable literal in the first semantic user argument supplies a static prefix; `MyAssert(condition, "err:failed")` does not search the later argument.
 
@@ -163,12 +163,12 @@ One selected tag controls filters, colors, statistics, levels, JSON/KV and regis
 
 Only a known static prefix belonging to the selected tag can be removed. Active palettes and `-color none` remove its all-lowercase spelling; mixed/uppercase and conflicting prefixes remain. `-color off` preserves every written prefix. JSON/KV use the same removal policy without ANSI colors. No tag prefix is added.
 
-| Alias call | Event tag | Message with `-color none` |
-|---|---|---|
-| `printi("err:failed")` | ERROR | `failed` |
-| `MyWrn("wrn:failed")` | WARNING | `failed` |
-| `MyWrn("WRN:failed")` | WARNING | `WRN:failed` |
-| `MyWrn("err:failed")` | WARNING | `err:failed` |
+Alias call             | Event tag | Message with `-color none`
+---------------------- | --------- | --------------------------
+`printi("err:failed")` | ERROR     | `failed`
+`MyWrn("wrn:failed")`  | WARNING   | `failed`
+`MyWrn("WRN:failed")`  | WARNING   | `WRN:failed`
+`MyWrn("err:failed")`  | WARNING   | `err:failed`
 
 A runtime string `wrn:payload` stays intact even when its alias event is WARNING.
 
@@ -186,29 +186,29 @@ Alias CE selects the event-tag group before source-prefix groups. Scalar aliases
 
 Compare a lowercase copy of the alias name; do not rewrite the stored name. Find all occurrences of all positive substrings, without requiring word boundaries or CamelCase splitting.
 
-| Tag and tie priority | Positive substrings |
-|---|---|
-| FATAL | `fatal` |
-| CRITICAL | `critical`, `crit` |
-| ERROR | `error`, `err` |
-| WARNING | `warning`, `warn`, `wrn` |
-| INFO | `informal`, `info`, `inf` |
-| DEBUG | `debug`, `dbg`, `deb`, `db` |
-| TRACE | `trace`, `tr` |
-| VERBOSE | `verbose` |
+Tag and tie priority | Positive substrings
+-------------------- | ---------------------------
+FATAL                | `fatal`
+CRITICAL             | `critical`, `crit`
+ERROR                | `error`, `err`
+WARNING              | `warning`, `warn`, `wrn`
+INFO                 | `informal`, `info`, `inf`
+DEBUG                | `debug`, `dbg`, `deb`, `db`
+TRACE                | `trace`, `tr`
+VERBOSE              | `verbose`
 
 Find every literal exclusion occurrence, ignoring case, including inside compound identifiers. Discard a positive match only when that entire positive-match span is inside an exclusion occurrence. This applies across groups: infrastructure suppresses both its inf and tr. Separate matches elsewhere survive. Do not suppress the whole alias, whole group, partially overlapping longer matches, or derive extra inflections automatically.
 
-| Group for reference | Exclusion terms |
-|---|---|
-| FATAL | `nonfatal`, `non_fatal` |
-| CRITICAL | `criterion`, `criteria`, `critic`, `critique`, `noncritical`, `non_critical`, `criticalsection`, `critical_section`, `criticalregion`, `critical_region`, `criticalpath`, `critical_path` |
-| ERROR | `interrupt`, `override`, `overridden`, `overriding`, `ferrite`, `ferromagnet`, `ferric`, `ferrous`, `ferrule`, `terrain`, `territory`, `terrestrial`, `berry`, `cherry` |
-| WARNING | `nowarn`, `no_warn`, `nowarning`, `no_warning` |
-| INFO | `infrared`, `infrastructure`, `infer`, `inflect`, `infix`, `infimum`, `infinite`, `infinity`, `inflate`, `inflation`, `inflating`, `inflow`, `influx`, `influence`, `infill`, `infect` |
-| DEBUG | `readback`, `readbinary`, `readbit`, `readbyte`, `readblock`, `readbuffer`, `feedback`, `seedbed`, `broadband`, `deadband`, `fieldbus`, `fieldbuffer`, `modbus`, `redblack`, `codebase`, `codeblock`, `codebook`, `modebit`, `debit`, `debt`, `debounce`, `deblock`, `debian`, `loadbalance`, `loadbalancing` |
-| TRACE | `abstract`, `attribute`, `constrain`, `contract`, `contrast`, `control`, `electric`, `electrode`, `electron`, `entries`, `entry`, `entropy`, `extract`, `instrument`, `intrinsic`, `matrix`, `matrices`, `metric`, `retrieve`, `retrieval`, `stream`, `strength`, `stress`, `stride`, `string`, `strip`, `strobe`, `strong`, `struct`, `track`, `trap`, `tray`, `treat`, `tree`, `trend`, `tremor`, `transact`, `transceiver`, `transfer`, `transform`, `transient`, `transistor`, `transit`, `translate`, `translation`, `translator`, `transmission`, `transmit`, `transparent`, `transparency`, `transpose`, `transposition`, `transport`, `transducer`, `trial`, `triangle`, `triangular`, `trigger`, `trim`, `trip`, `tristate`, `tri_state`, `true`, `truncate`, `truncation`, `try`, `ultrasonic`, `ultrasound`, `ultraviolet` |
-| VERBOSE | `nonverbose`, `non_verbose` |
+Group for reference | Exclusion terms
+------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FATAL               | `nonfatal`, `non_fatal`
+CRITICAL            | `criterion`, `criteria`, `critic`, `critique`, `noncritical`, `non_critical`, `criticalsection`, `critical_section`, `criticalregion`, `critical_region`, `criticalpath`, `critical_path`
+ERROR               | `interrupt`, `override`, `overridden`, `overriding`, `ferrite`, `ferromagnet`, `ferric`, `ferrous`, `ferrule`, `terrain`, `territory`, `terrestrial`, `berry`, `cherry`
+WARNING             | `nowarn`, `no_warn`, `nowarning`, `no_warning`
+INFO                | `infrared`, `infrastructure`, `infer`, `inflect`, `infix`, `infimum`, `infinite`, `infinity`, `inflate`, `inflation`, `inflating`, `inflow`, `influx`, `influence`, `infill`, `infect`
+DEBUG               | `readback`, `readbinary`, `readbit`, `readbyte`, `readblock`, `readbuffer`, `feedback`, `seedbed`, `broadband`, `deadband`, `fieldbus`, `fieldbuffer`, `modbus`, `redblack`, `codebase`, `codeblock`, `codebook`, `modebit`, `debit`, `debt`, `debounce`, `deblock`, `debian`, `loadbalance`, `loadbalancing`
+TRACE               | `abstract`, `attribute`, `constrain`, `contract`, `contrast`, `control`, `electric`, `electrode`, `electron`, `entries`, `entry`, `entropy`, `extract`, `instrument`, `intrinsic`, `matrix`, `matrices`, `metric`, `retrieve`, `retrieval`, `stream`, `strength`, `stress`, `stride`, `string`, `strip`, `strobe`, `strong`, `struct`, `track`, `trap`, `tray`, `treat`, `tree`, `trend`, `tremor`, `transact`, `transceiver`, `transfer`, `transform`, `transient`, `transistor`, `transit`, `translate`, `translation`, `translator`, `transmission`, `transmit`, `transparent`, `transparency`, `transpose`, `transposition`, `transport`, `transducer`, `trial`, `triangle`, `triangular`, `trigger`, `trim`, `trip`, `tristate`, `tri_state`, `true`, `truncate`, `truncation`, `try`, `ultrasonic`, `ultrasound`, `ultraviolet`
+VERBOSE             | `nonverbose`, `non_verbose`
 
 trial is included. Bandwidth needs no exclusion because it contains neither db nor deb.
 

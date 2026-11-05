@@ -24,12 +24,12 @@ These historical proposals preserve design work for later discussion. They are n
 
 The July 2026 drafts proposed keeping the information needed to decode a saved binary stream in its matching dictionary. Today, use the documented [dictionary and firmware compatibility rules](id_management.md#compatibility-with-firmware-and-host-tool-versions); the schema below is a proposal.
 
-| Proposed part | Purpose |
-| --- | --- |
-| `SchemaVersion` | Identify the dictionary format explicitly and reject unknown versions without partial interpretation. |
-| `Profiles` | Name stream configurations, including a required `default`; profiles change decoder settings, not the ID list. |
-| `StreamFormat` | Store framing, single/multi packet mode, doubled 16-bit IDs, byte order, default value width, encryption settings, stamp formats and typeX0 handling. |
-| `Trices` | Hold the existing ID-to-`Type`/`Strg` entries, with room for later stable field names, units or data types. |
+Proposed part   | Purpose
+--------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------
+`SchemaVersion` | Identify the dictionary format explicitly and reject unknown versions without partial interpretation.
+`Profiles`      | Name stream configurations, including a required `default`; profiles change decoder settings, not the ID list.
+`StreamFormat`  | Store framing, single/multi packet mode, doubled 16-bit IDs, byte order, default value width, encryption settings, stamp formats and typeX0 handling.
+`Trices`        | Hold the existing ID-to-`Type`/`Strg` entries, with room for later stable field names, units or data types.
 
 Device connections, baud rates, ports, input paths, display filters, colors and location files would remain separate. Framing algorithms and the fixed record layout would belong to shared protocol definitions. This separates "how these bytes were encoded" from "where to read them and how to display them".
 
@@ -62,11 +62,11 @@ Proposed acceptance cases mixed ts0/ts16/ts32 records, different value widths an
 
 The older draft and revision 0.2 disagree on some details. Preserve these as decisions to revisit rather than combining them into one apparent specification:
 
-| Question | Older draft | Revision 0.2 |
-| --- | --- | --- |
-| Profile-name comparison | Case-sensitive. | Case-insensitive, retaining the declared spelling. |
-| Values for an undeclared profile | Consistency error. | Ignore them when reading and omit them on the next write. |
-| Explicit value equal to an inherited default | Pin an independent profile value, recording prior inheritance. | The update procedure specifies no change when the effective value is equal. |
+Question                                     | Older draft                                                    | Revision 0.2
+-------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------
+Profile-name comparison                      | Case-sensitive.                                                | Case-insensitive, retaining the declared spelling.
+Values for an undeclared profile             | Consistency error.                                             | Ignore them when reading and omit them on the next write.
+Explicit value equal to an inherited default | Pin an independent profile value, recording prior inheritance. | The update procedure specifies no change when the effective value is equal.
 
 ## 2. <a id="typed-streams-for-dashboard-tools"></a>Typed streams for dashboard tools
 
@@ -80,13 +80,13 @@ A mapping could give one record stable channel names such as `right.vel.x`, `rig
 
 Channel names, units, transformations, source identity and time basis need defined meanings. Keep values from one input record together, distinguish missing updates from zero, and decide explicitly whether a dashboard retains or clears absent channels. The old sketch explored sparse updates and host-side mapping while keeping widget layout outside target firmware.
 
-| Historical format candidate | Design question |
-| --- | --- |
-| MessagePack map | Named typed values and sparse updates; the draft's preferred binary path. |
-| Binary TLV | Compact type/length/value records, with explicit float or fixed-point scaling rules. |
-| ASCII key/value | Visible debug or transition format, with additional text formatting and bandwidth. |
-| Protobuf | A schema and generated project/import workflow would be needed. |
-| Raw bytes | Fixed channel order and types; sparse updates and mixed values need a separate contract. |
+Historical format candidate | Design question
+--------------------------- | ----------------------------------------------------------------------------------------
+MessagePack map             | Named typed values and sparse updates; the draft's preferred binary path.
+Binary TLV                  | Compact type/length/value records, with explicit float or fixed-point scaling rules.
+ASCII key/value             | Visible debug or transition format, with additional text formatting and bandwidth.
+Protobuf                    | A schema and generated project/import workflow would be needed.
+Raw bytes                   | Fixed channel order and types; sparse updates and mixed values need a separate contract.
 
 The draft considered generating dashboard projects and separate Trice-owned mapping metadata. Updating an existing project should preserve stable dataset identity, user layouts, colors, units, alarms and manual transforms. Suggested safeguards were backups before patching, additive updates and no automatic deletion of old datasets. The purpose and actual consumer of the proposed sidecar were still open questions. These are design considerations, not an implemented project converter.
 

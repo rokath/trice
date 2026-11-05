@@ -22,11 +22,11 @@ See the moments that matter: a fleeting interrupt, a changing sensor value, or t
 
 Start with one task:
 
-| I want to… | Start here |
-| --- | --- |
-| See a log without a board | [First PC log](docs/TriceUserManual.md#see-your-first-log) |
-| Log from my firmware | [Firmware walkthrough](docs/TriceUserManual.md#bring-trice-into-your-firmware), then [choose a transport](docs/rm/quickstarts.md) |
-| Save measurements for a spreadsheet or plot | [Two values per CSV row](docs/rm/visualization.md#save-two-values-as-csv) |
+I want to…                                  | Start here
+------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------
+See a log without a board                   | [First PC log](docs/TriceUserManual.md#see-your-first-log)
+Log from my firmware                        | [Firmware walkthrough](docs/TriceUserManual.md#bring-trice-into-your-firmware), then [choose a transport](docs/rm/quickstarts.md)
+Save measurements for a spreadsheet or plot | [Two values per CSV row](docs/rm/visualization.md#save-two-values-as-csv)
 
 Use the [Guide](docs/TriceGuide.md#entry-points) to find other tasks and the full reference.
 

@@ -33,11 +33,11 @@ These recipes extend the [UM firmware walkthrough](../TriceUserManual.md#bring-t
 
 Choose the path that matches your hardware:
 
-| You already have… | Use | What happens |
-| --- | --- | --- |
-| A non-blocking byte writer, such as a UART DMA queue | [Your existing writer](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) | Log calls fill a Trice buffer; `TriceTransfer()` passes bytes to your writer. |
-| A compatible target and J-Link debug probe | [Direct RTT](#quickstart-segger-rtt-direct-mode-with-j-link) | Log calls write to an RTT RAM buffer; the probe reads it. |
-| A UART or USB virtual COM port | [Deferred serial output](#quickstart-uart-or-usb-vcom-deferred-output) | Log calls fill a buffer; transfer code drains it to the serial link. |
+You already have…                                    | Use                                                                                            | What happens
+---------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -----------------------------------------------------------------------------
+A non-blocking byte writer, such as a UART DMA queue | [Your existing writer](#quickstart-existing-non-blocking-byte-writer-deferred-auxiliary-8-bit) | Log calls fill a Trice buffer; `TriceTransfer()` passes bytes to your writer.
+A compatible target and J-Link debug probe           | [Direct RTT](#quickstart-segger-rtt-direct-mode-with-j-link)                                   | Log calls write to an RTT RAM buffer; the probe reads it.
+A UART or USB virtual COM port                       | [Deferred serial output](#quickstart-uart-or-usb-vcom-deferred-output)                         | Log calls fill a buffer; transfer code drains it to the serial link.
 
 Deferred mode moves transmission out of the log call; the application must call `TriceTransfer()` regularly. Direct RTT does not need that drain call. For a 1.x project, apply the [migration notes](id_management.md#migrating-1x-scripts-and-projects) before rebuilding. Keep old captures with their [matching tool and dictionaries](id_management.md#compatibility-with-firmware-and-host-tool-versions).
 

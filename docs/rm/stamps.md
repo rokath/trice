@@ -29,7 +29,7 @@
 * Default notation (function call):
 
   notation                     | stamp size | remark
-  ------------------------------|------------|-----------------------------------------------------------------------------
+  ---------------------------- | ---------- | ---------------------------------------------------------------------------
   `trice( iD(n), "...", ...);` | 0-bit      | no stamp at all, shortest footprint
   `Trice( iD(n), "...", ...);` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping
   `TRice( iD(n), "...", ...);` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping
@@ -39,7 +39,7 @@
 * Legacy notation (code inlining):
 
   notation                    | stamp size | remark
-  -----------------------------|------------|-----------------------------------------------------------------------------
+  --------------------------- | ---------- | ---------------------------------------------------------------------------
   `TRICE( id(n), "...", ...)` | 0-bit      | no stamp at all, shortest footprint
   `TRICE( Id(n), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping
   `TRICE( ID(n), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping

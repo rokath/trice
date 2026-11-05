@@ -123,20 +123,20 @@ Follow [GoReleaser and release-package testing](target_tests.md#goreleaser-and-r
 
 Use this checklist for each selected release. Acceptance checks do not add features or require general documentation changes; a failure needs a focused correction and renewed evidence for the affected checks.
 
-| Before creating the tag | Required evidence |
-| --- | --- |
-| Candidate | Approved commit, intended branch history, clean worktree and recorded commit ID. |
-| Native tests | Successful full runs on Linux, macOS and Windows for that candidate; distinguish Intel/Apple Silicon results and any accepted platform limits. Quick PR checks remain useful separate evidence. |
-| CI and coverage | Required Actions pass for the candidate; inspect skipped/incomplete jobs and compare coverage with the target-branch baseline using the declared package selection. |
-| Installation and snapshot | Both tools, target sources, complete licenses, platform archives, Linux packages and both manual PDFs checked through the existing snapshot/installation jobs. |
-| Notes and known limits | The selected version has nonempty English release notes, correct links and an explicit record of accepted deviations. |
-| Relevant manual checks | For changed TCP behavior, check Windows for a delayed firewall dialog after process exit. Record RTT hardware checks separately with board, transport and tool versions; compiler tests do not establish hardware operation. |
+Before creating the tag   | Required evidence
+------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Candidate                 | Approved commit, intended branch history, clean worktree and recorded commit ID.
+Native tests              | Successful full runs on Linux, macOS and Windows for that candidate; distinguish Intel/Apple Silicon results and any accepted platform limits. Quick PR checks remain useful separate evidence.
+CI and coverage           | Required Actions pass for the candidate; inspect skipped/incomplete jobs and compare coverage with the target-branch baseline using the declared package selection.
+Installation and snapshot | Both tools, target sources, complete licenses, platform archives, Linux packages and both manual PDFs checked through the existing snapshot/installation jobs.
+Notes and known limits    | The selected version has nonempty English release notes, correct links and an explicit record of accepted deviations.
+Relevant manual checks    | For changed TCP behavior, check Windows for a delayed firewall dialog after process exit. Record RTT hardware checks separately with board, transport and tool versions; compiler tests do not establish hardware operation.
 
-| After publication | Required evidence |
-| --- | --- |
-| Selected release | The expected tag/commit and prerelease/stable status are visible. |
-| Downloads | Actual published archives, packages, checksums, target sources and both PDFs are present and usable at their final URLs. |
-| Release audit | The manually selected tag passes archive, package-installation and shipped-feature checks. Retain the run URL and any accepted limits. |
+After publication | Required evidence
+----------------- | --------------------------------------------------------------------------------------------------------------------------------------
+Selected release  | The expected tag/commit and prerelease/stable status are visible.
+Downloads         | Actual published archives, packages, checksums, target sources and both PDFs are present and usable at their final URLs.
+Release audit     | The manually selected tag passes archive, package-installation and shipped-feature checks. Retain the run URL and any accepted limits.
 
 Local full runs and Actions cover the candidate. The post-publication checks cover the files users actually download. Preserve the distinction when recording results; older successful runs remain evidence for their original revisions.
 
@@ -207,10 +207,10 @@ The workflow uses the selected version's section in [CHANGELOG.md](../../CHANGEL
 
 [The release configuration](../../.goreleaser.yaml) uses `release.prerelease: auto` and Homebrew `skip_upload: auto`:
 
-| Selected tag | GitHub release | Stable Homebrew tap |
-| --- | --- | --- |
-| `v2.0.0-beta-4` or another beta/RC tag | Prerelease | Unchanged; install the tagged archive or checkout. |
-| `v2.0.0` or another plain version | Stable | Updated with both `trice` and `tlog`. |
+Selected tag                           | GitHub release | Stable Homebrew tap
+-------------------------------------- | -------------- | --------------------------------------------------
+`v2.0.0-beta-4` or another beta/RC tag | Prerelease     | Unchanged; install the tagged archive or checkout.
+`v2.0.0` or another plain version      | Stable         | Updated with both `trice` and `tlog`.
 
 ### 4.4. <a id="inspect-the-published-assets"></a>Inspect the Published Assets
 

@@ -60,12 +60,12 @@ Keep the accumulated TIL and local LI. Rebuild firmware after ID changes. This c
 
 Both `trice add` and `trice insert` can collect existing numeric IDs into TIL/LI. **Add guarantees unchanged source files.** It is not a required preparation step for Insert.
 
-| Behavior | `add` | `insert` |
-| --- | --- | --- |
-| Collect existing IDs into TIL/LI | ✅ Yes. | ✅ Yes. |
-| Call without an ID | Leaves it alone. | Assigns an ID. |
-| ID already maps to a different message | Reports the conflict; leaves the source unchanged. | Assigns another eligible ID and changes the source. |
-| Write source files | Never. | When needed. |
+Behavior                               | `add`                                              | `insert`
+-------------------------------------- | -------------------------------------------------- | ---------------------------------------------------
+Collect existing IDs into TIL/LI       | ✅ Yes.                                            | ✅ Yes.
+Call without an ID                     | Leaves it alone.                                   | Assigns an ID.
+ID already maps to a different message | Reports the conflict; leaves the source unchanged. | Assigns another eligible ID and changes the source.
+Write source files                     | Never.                                             | When needed.
 
 ```c
 trice(iD(123), "Existing");
@@ -120,7 +120,7 @@ When `id.TriceCacheEnabled` is true (applied `-cache` CLI switch) and the folder
 ## 6. <a id="trice-cache-tests"></a>Trice Cache Tests
 
 Nr    | Action   | cCache  | iCache  | ID state   | Edited state | Test function
--------|----------|---------|---------|------------|--------------|-------------------------------------------------------------------------------
+----- | -------- | ------- | ------- | ---------- | ------------ | -----------------------------------------------------------------------------
 0,1   | 0:clean  | 0:inval | 0:inval | 0:cleaned  | X:any        | Test_0_1_0000X_clean_on_invalid_cCache_invalid_iCache_cleaned_file
 2,3   | 0:clean  | 0:inval | 0:inval | 1:inserted | X:any        | Test_2_3_00011_clean_on_inalid_cCache_invalid_iCache_inserted_edited_file
 4,5   | 0:clean  | 0:inval | 1:valid | 0:cleaned  | X:any        | Test_4_5_0010X_clean_on_invalid_cCache_valid_iCache_cleaned_file
@@ -431,7 +431,7 @@ Until here the algorithm seem to be ok.
 * A Trice **ID** is inserted by `trice insert` as shown in the table:
 
   Unpatched User Code | After `trice insert`          | Remark
-  ---------------------|-------------------------------|---------------
+  ------------------- | ----------------------------- | -------------
   `trice( "Hi!\n");`  | `trice( iD(12345), "Hi!\n");` | no stamps
   `Trice( "Hi!\n");`  | `Trice( iD(12345), "Hi!\n");` | 16-bit stamps
   `TRice( "Hi!\n");`  | `TRice( iD(12345), "Hi!\n");` | 32-bit stamps
@@ -443,7 +443,7 @@ Until here the algorithm seem to be ok.
 * Legacy code is handled this way:
 
   Unpatched User Code       | After `trice insert`          | Remark
-  ---------------------------|-------------------------------|----------------------------------------------------
+  ------------------------- | ----------------------------- | --------------------------------------------------
   `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice i -defaultStampSize 0`
   `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice i -defaultStampSize 16`
   `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice i -defaultStampSize 32`
@@ -603,19 +603,19 @@ Build
 
 ## 18. <a id="appendix-trice_clean-states-at-a-glance"></a>Appendix: `TRICE_CLEAN` States at a Glance
 
-State     |    `TRICE_CLEAN` | Own sidecar active | Effect
------------|-----------------:|-------------------:|-------------------------------
-Inserted  | undefined or `0` |              ❌ No | Explicit TIDs from the source
-Bound     | undefined or `0` |             ✅ Yes | TIDs from the sidecar
-Clean/Off |              `1` |                  — | Existing clean/off path
+State     | `TRICE_CLEAN`    | Own sidecar active | Effect
+--------- | ---------------: | -----------------: | -----------------------------
+Inserted  | undefined or `0` | ❌ No              | Explicit TIDs from the source
+Bound     | undefined or `0` | ✅ Yes             | TIDs from the sidecar
+Clean/Off | `1`              | —                  | Existing clean/off path
 
 Tool effect when the definition exists:
 
 Tool           | Effect on `TRICE_CLEAN`
-----------------|------------------------:
-`trice insert` |          sets it to `0`
-`trice clean`  |          sets it to `1`
-`trice bind`   |          sets it to `0`
+-------------- | ----------------------:
+`trice insert` | sets it to `0`
+`trice clean`  | sets it to `1`
+`trice bind`   | sets it to `0`
 
 If the definition is absent, `trice bind` does not add it.
 

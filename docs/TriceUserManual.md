@@ -291,7 +291,7 @@ The same captured records can later be decoded with `-logFormat json` or `-logFo
 ## 5. <a id="know-which-files-to-keep"></a>Know which files to keep
 
 File or directory                                       | What to do with it
---------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Application sources and `triceConfig.h`                 | Keep under version control, including the generated include lines that Bind adds to sources.
 `til.json`                                              | Keep under version control and extend it across builds. Its newest accumulated version also decodes compatible older firmware and captures.
 `li.json`                                               | Generated source-location table; normally leave it out of version control. Keep a copy with a firmware build or capture when you need that build's exact source locations.
@@ -309,7 +309,7 @@ The generated headers are needed to compile, but do not need to be kept after th
 ## 6. <a id="choose-your-next-example"></a>Choose your next example
 
 What you want to try            | Project and next experiment                                                                                                                  | Full instructions
---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------
+------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------
 First instrumentation with RTT  | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_rtt](../examples/F030_inst_rtt/).                                                | [RTT integration steps](rm/examples.md#f030_inst_rtt)
 First instrumentation with UART | Compare [F030_bare](../examples/F030_bare/) with [F030_inst_uart](../examples/F030_inst_uart/).                                              | [UART integration steps](rm/examples.md#f030_inst_uart)
 Task context on an MCU          | [G0B1_features](../examples/G0B1_features/): the same logging function called by two FreeRTOS tasks gains different task handles through CE. | [Build, flash and capture](rm/examples.md#g0b1-feature-tour)
@@ -326,7 +326,7 @@ These projects have different prerequisites. In particular, the G0B1 build needs
 ## 7. <a id="if-something-does-not-work"></a>If something does not work
 
 Symptom                                                           | Next check
-------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 `trice` or `tlog` is not found, or a documented option is unknown | Check `PATH` and `trice --version`. Install a tool version that supports the option; `trice help -all` lists the available switches.
 PC compilation fails on standard headers                          | Use a native host compiler with its runtime/SDK, not `arm-none-eabi-gcc`. Follow the [compiler setup](rm/development_environment_setup.md).
 A generated header is missing or points at a wrong call           | Run Bind from the intended project root and check the generated include path. Do not edit individual sidecar definitions. See [Bind diagnostics](rm/bind.md#diagnostics-and-troubleshooting).

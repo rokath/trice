@@ -32,10 +32,10 @@ Target records → byte transport → host decoder + til.json → readable event
 
 ## 2. <a id="direct-and-deferred-output"></a>Direct and deferred output
 
-| Mode | Work done by a log call | Application responsibility |
-| --- | --- | --- |
-| Direct | Creates a record and passes it through the configured direct output path. | Provide an output callback with acceptable execution time. |
-| Deferred | Stores a record in a ring or double buffer. | Call `TriceTransfer()` regularly to encode and drain pending records. |
+Mode     | Work done by a log call                                                   | Application responsibility
+-------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------
+Direct   | Creates a record and passes it through the configured direct output path. | Provide an output callback with acceptable execution time.
+Deferred | Stores a record in a ring or double buffer.                               | Call `TriceTransfer()` regularly to encode and drain pending records.
 
 Both modes can be enabled together; see [F030_inst](examples.md#f030_inst). Deferred mode reduces the immediate work at the call site but still needs time for transfer. Choose buffers using the [performance measurements](performance.md) and [memory reference](memory_usage.md); the fastest measured configuration is not a guarantee for every target.
 

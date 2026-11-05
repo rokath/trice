@@ -87,11 +87,11 @@ The repeatable option has the same syntax for `bind`, `insert` and `clean`:
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
 ```
 
-Command | Effect
----|---
-`trice bind -ce …` | Extends generated sidecars; the Trice calls themselves remain unchanged. Supports direct sites uniquely addressable by source line.
+Command              | Effect
+-------------------- | -----------------------------------------------------------------------------------------------------------------------------------
+`trice bind -ce …`   | Extends generated sidecars; the Trice calls themselves remain unchanged. Supports direct sites uniquely addressable by source line.
 `trice insert -ce …` | Writes the ID, extension and arguments into recognized source calls. Repeating the same rules does not add the extension again.
-`trice clean -ce …` | Removes the matching CE extension using the same rules and cleans IDs according to the usual rules. Repetition is harmless.
+`trice clean -ce …`  | Removes the matching CE extension using the same rules and cleans IDs according to the usual rules. Repetition is harmless.
 
 CE requires no global runtime context or push/pop calls on the target. Every executed record transmits its own additional values. CE is therefore independent of [Structured Logging](structured_logging.md): an extension may use classical printf placeholders or also create named fields.
 
@@ -189,11 +189,11 @@ For each alias site, resolve its original-source event tag using override → na
 
 For `MyWrn("err:ctx:code=%u", code)`, WARNING rules run first, ERROR rules can follow from `err`, then `ctx` rules. The event remains WARNING. Known prefixes remain message text until normal host presentation; only selected all-lowercase free selectors disappear from the effective dictionary format.
 
-| Added CE content | Scalar native Trices and `-alias` | Native `triceS` | `-salias` |
-|---|---|---|---|
-| Fixed text, no added value | Allowed within format/recognition limits | Allowed within format/recognition limits | Rejected |
-| Scalar runtime values | Existing width, arity and float rules | Rejected | Rejected |
-| Runtime strings, including `%s` and named string fields | Rejected | Rejected | Rejected |
+Added CE content                                        | Scalar native Trices and `-alias`        | Native `triceS`                          | `-salias`
+------------------------------------------------------- | ---------------------------------------- | ---------------------------------------- | ---------
+Fixed text, no added value                              | Allowed within format/recognition limits | Allowed within format/recognition limits | Rejected
+Scalar runtime values                                   | Existing width, arity and float rules    | Rejected                                 | Rejected
+Runtime strings, including `%s` and named string fields | Rejected                                 | Rejected                                 | Rejected
 
 String-valued CE rules are invalid even when unused. Calls without original value arguments get no exception. Use `%%s` for literal percent text. Original supported runtime strings remain valid; these limits concern added CE content. An empty rule adds no text or values and does not rewrite a string alias's wrapper.
 
@@ -209,14 +209,14 @@ printi("ctx:err:failed");
 
 With `-alias printi -ce 'ctx:" [checked]"'`, the build tag is `untagged`, the stored format is `err:failed [checked]`, and the host tag is ERROR. Bind and Insert emit one normal warning per affected site before writes and continue. Matching Clean reconstructs the original format using the complete suffix and checks the same transformation once. Plain ID-only Clean adds no CE warning. Diagnostics identify the file, line, alias, both tags and a workaround; neither `-verbose` nor an actual dictionary collision is required.
 
-| Original source format or registration | Stored format | Build / host tag | Warning |
-|---|---|---|---|
-| `ctx:err:failed` | `err:failed [checked]` | untagged / ERROR | Yes |
-| `err:failed [checked]` | Unchanged | ERROR / ERROR | No |
-| `untagged:ctx:err:failed` | `untagged:err:failed [checked]` | untagged / untagged | No |
-| `ctx:failed` | `failed [checked]` | untagged / untagged | No |
-| `MyWrn` or explicit `printi:untagged` | `err:failed [checked]` | Same tag on both sides | No |
-| `ctx` registered at build and logging | `ctx:err:failed [checked]` | CTX / CTX | No |
+Original source format or registration | Stored format                   | Build / host tag       | Warning
+-------------------------------------- | ------------------------------- | ---------------------- | -------
+`ctx:err:failed`                       | `err:failed [checked]`          | untagged / ERROR       | Yes
+`err:failed [checked]`                 | Unchanged                       | ERROR / ERROR          | No
+`untagged:ctx:err:failed`              | `untagged:err:failed [checked]` | untagged / untagged    | No
+`ctx:failed`                           | `failed [checked]`              | untagged / untagged    | No
+`MyWrn` or explicit `printi:untagged`  | `err:failed [checked]`          | Same tag on both sides | No
+`ctx` registered at build and logging  | `ctx:err:failed [checked]`      | CTX / CTX              | No
 
 Prefer an enduring first prefix such as `untagged:ctx:err:failed`, or repeat an explicit alias assignment at build and logging. An override applies to every loaded ID for that alias; different historical override intentions cannot be recovered from TIL. Keep logging options with the capture.
 
@@ -317,19 +317,19 @@ Table key: ✅ Yes = supported; ❌ No = unsupported; Partial = supported only u
 
 ### 6.1. <a id="compiler-macro-__counter__-exists"></a>Compiler macro &#95;&#95;COUNTER&#95;&#95; exists
 
-Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
---- | --- | --- | ---
-Insert/Clean, with or without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
-Bind without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
-Bind with `-ce` | ✅ Yes | ❌ No | ❌ No
+Workflow                            | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
+----------------------------------- | ----------------------------------- | ------------------------------------- | -----------------------
+Insert/Clean, with or without `-ce` | ✅ Yes                              | ✅ Yes                                | ✅ Yes
+Bind without `-ce`                  | ✅ Yes                              | ✅ Yes                                | ✅ Yes
+Bind with `-ce`                     | ✅ Yes                              | ❌ No                                 | ❌ No
 
 ### 6.2. <a id="no-__counter__-macro-in-compiler"></a>No &#95;&#95;COUNTER&#95;&#95; macro in compiler
 
-Workflow | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
---- | --- | --- | ---
-Insert/Clean, with or without `-ce` | ✅ Yes | ✅ Yes | ✅ Yes
-Bind without `-ce` | ✅ Yes | ❌ No | Partial: simple macros only
-Bind with `-ce` | ✅ Yes | ❌ No | ❌ No
+Workflow                            | One direct Trice statement per line | Multiple Trice statements on one line | Calls inside log macros
+----------------------------------- | ----------------------------------- | ------------------------------------- | ---------------------------
+Insert/Clean, with or without `-ce` | ✅ Yes                              | ✅ Yes                                | ✅ Yes
+Bind without `-ce`                  | ✅ Yes                              | ❌ No                                 | Partial: simple macros only
+Bind with `-ce`                     | ✅ Yes                              | ❌ No                                 | ❌ No
 
 A simple macro is, for example, `#define LOG() trice("msg:ready")`, called as `LOG();` on its own single line.
 
@@ -371,9 +371,9 @@ With `insert -ce 'job:", job={job}", jobId'`, `jobId` is inserted directly into 
 
 This requires a call with a known format string that the Trice parser can recognize. A definition such as `#define LOG_ANY(format) trice(format)` provides neither a static selector nor a complete schema. CE is not a general C preprocessor and does not promise support for arbitrary macro-assembled formats. An explicit Trice call or a function with a fixed format and passed values remains a simple alternative.
 
-Other CE limits | Result for both workflows
---- | ---
-A local variable used by CE is missing at the call | Compiler error
+Other CE limits                                           | Result for both workflows
+--------------------------------------------------------- | ---------------------------
+A local variable used by CE is missing at the call        | Compiler error
 Extra scalar CE values appended to a string/buffer record | Error before changing files
 
 **Why the Bind limitation remains despite a successful PoC:** Existing counter rebasing placed expressions from different log sites into multiple C branches. The compiler checks even branches that are not executed. A local variable valid only on the left can therefore cause an artificial error on the right. The extended PoC selects the adapter during macro expansion and avoids this error for the tested cases. It requires an additional preprocessing pass with the actual compiler per translation unit and build configuration, plus matching generated mapping files.
@@ -384,13 +384,13 @@ This build effort has not been introduced as a production workflow. Also, `__COU
 
 For runnable examples of supported CE, start with these tests. Each contains concrete input calls, rules and independent expected results:
 
-Example | Test and source | What to follow
---- | --- | ---
-Bind rules and generated schemas | `TestBindContextFinalSchemas` in [contextEnrichment_test.go](../../internal/id/contextEnrichment_test.go) | Read the `call`, `rules` and `want` columns together; the test checks the final dictionary and generated adapter. Includes a rule that matches no site and produces no warning.
-The `ctx7` clock example with Insert/Clean | `TestInsertCleanContextRoundTrip` in [contextSource_test.go](../../internal/id/contextSource_test.go) | The first case shows the original call, CE rule, extended source and final schema. Repeating Insert preserves it; Clean restores the original source.
-Public CLI options | `TestContextEnrichmentCLI` in [context_enrichment_test.go](../../internal/args/context_enrichment_test.go) | Two `-ce` options add position fields; a subsequent Bind without `-ce` generates a schema without those fields.
-Real C/C++ values decoded on the host | `TestContextEnrichmentTargetToDecoder` and `TestContextInsertCleanTargetToDecoder` in [context_enrichment_test.go](../../internal/args/context_enrichment_test.go) | The tests take the four marked CE examples from [triceCheck.c](../../_test/testdata/triceCheck.c), compile them and verify transmitted values and text/JSON/KV output.
-Aliases with once-only evaluation | `TestAliasContextTargetToDecoder` and [aliasContext.c](../../_test/testdata/aliasContext.c) | A small hardware-free sender exercises scalar alias CE, native string text enrichment and ordinary string aliases; counters detect repeated expression evaluation or bypassed project macros.
+Example                                    | Test and source                                                                                                                                                    | What to follow
+------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Bind rules and generated schemas           | `TestBindContextFinalSchemas` in [contextEnrichment_test.go](../../internal/id/contextEnrichment_test.go)                                                          | Read the `call`, `rules` and `want` columns together; the test checks the final dictionary and generated adapter. Includes a rule that matches no site and produces no warning.
+The `ctx7` clock example with Insert/Clean | `TestInsertCleanContextRoundTrip` in [contextSource_test.go](../../internal/id/contextSource_test.go)                                                              | The first case shows the original call, CE rule, extended source and final schema. Repeating Insert preserves it; Clean restores the original source.
+Public CLI options                         | `TestContextEnrichmentCLI` in [context_enrichment_test.go](../../internal/args/context_enrichment_test.go)                                                         | Two `-ce` options add position fields; a subsequent Bind without `-ce` generates a schema without those fields.
+Real C/C++ values decoded on the host      | `TestContextEnrichmentTargetToDecoder` and `TestContextInsertCleanTargetToDecoder` in [context_enrichment_test.go](../../internal/args/context_enrichment_test.go) | The tests take the four marked CE examples from [triceCheck.c](../../_test/testdata/triceCheck.c), compile them and verify transmitted values and text/JSON/KV output.
+Aliases with once-only evaluation          | `TestAliasContextTargetToDecoder` and [aliasContext.c](../../_test/testdata/aliasContext.c)                                                                        | A small hardware-free sender exercises scalar alias CE, native string text enrichment and ordinary string aliases; counters detect repeated expression evaluation or bypassed project macros.
 
 The first two examples need no C compiler and can be run from the repository root:
 
@@ -472,10 +472,10 @@ trice("ctx:value=%d %%d", clock);
 
 The first `%d` prints `clock`; `%%d` prints the literal text `%d` and needs no additional argument. Although the last characters `%d` and the last argument `clock` seem to match the rule, they do not belong together here. `clean -ce` leaves the call unchanged. `insert -ce` adds its own placeholder and argument, producing `trice("ctx:value=%d %%d%d", clock, clock);`.
 
-State at the selected log site | `insert -ce` | `clean -ce`
----|---|---
-Complete format and argument extension present | Add nothing | Remove one complete extension
-No complete match, including a partial match | Append the entire extension | Leave CE unchanged
+State at the selected log site                 | `insert -ce`                | `clean -ce`
+---------------------------------------------- | --------------------------- | -----------------------------
+Complete format and argument extension present | Add nothing                 | Remove one complete extension
+No complete match, including a partial match   | Append the entire extension | Leave CE unchanged
 
 Normal ID processing occurs in both cases. When several rules match, the entire rule group is compared in application order. Individual matching parts are neither skipped nor removed separately. Repeated `insert` therefore adds nothing twice. `clean` removes at most one complete group per invocation; if two identical groups occur consecutively, a second Clean invocation can remove the second group too.
 
@@ -537,19 +537,19 @@ The fixture already contains the regular Bind sidecar include and a fixed file k
 
 ### 9.2. <a id="verified-behavior"></a>Verified Behavior
 
-Case | Expected result | Evidence
----|---|---
-Argument-free `trice` | Local `x` is transmitted as an additional value | Binary record contains `7`
-Already parameterized `trice` | Original value precedes CE value | Binary record contains `1, 1`
-Simple expression | `x + 1` is evaluated at the call site | Binary record contains `8`
-Fixed arity | `trice_0` and `trice_1` receive the appropriate final arity | Binary records contain `7` and `22, 7` respectively
-Inner block scope | Uses `blockValue`, visible only there | Binary record contains `11`
-Unselected log site | No additional values | Binary record remains argument-free
-Side effects | Original and CE expressions are each evaluated exactly once | Two separate runtime counters equal `1`
-Unexecuted call | No record or CE side effect | Seven records despite eight instrumented sites; CE counter remains `1`
-TIL consistency | Final templates, arity, IDs and payload agree | Explicit template expectations and the actual Trice record parser/resolver
-Repetition | Identical IDs and generated contents | Byte comparison of source, configuration, TIL, LI, sidecar and field registry after two PoC Bind runs
-Invalid context | An invisible identifier is diagnosed | Compiler and `clangd` reject `ceMissingLocal`
+Case                          | Expected result                                             | Evidence
+----------------------------- | ----------------------------------------------------------- | -----------------------------------------------------------------------------------------------------
+Argument-free `trice`         | Local `x` is transmitted as an additional value             | Binary record contains `7`
+Already parameterized `trice` | Original value precedes CE value                            | Binary record contains `1, 1`
+Simple expression             | `x + 1` is evaluated at the call site                       | Binary record contains `8`
+Fixed arity                   | `trice_0` and `trice_1` receive the appropriate final arity | Binary records contain `7` and `22, 7` respectively
+Inner block scope             | Uses `blockValue`, visible only there                       | Binary record contains `11`
+Unselected log site           | No additional values                                        | Binary record remains argument-free
+Side effects                  | Original and CE expressions are each evaluated exactly once | Two separate runtime counters equal `1`
+Unexecuted call               | No record or CE side effect                                 | Seven records despite eight instrumented sites; CE counter remains `1`
+TIL consistency               | Final templates, arity, IDs and payload agree               | Explicit template expectations and the actual Trice record parser/resolver
+Repetition                    | Identical IDs and generated contents                        | Byte comparison of source, configuration, TIL, LI, sidecar and field registry after two PoC Bind runs
+Invalid context               | An invisible identifier is diagnosed                        | Compiler and `clangd` reject `ceMissingLocal`
 
 The runtime test uses the actual target macros and Trice library. Auxiliary output delivers the generated binary records to `TriceParseRecord`; `TriceResolveLog` checks them against a C metadata table generated from the final TIL. This also detects incorrect payload lengths or parameter counts. The PoC generates that C table directly from TIL; it does not test the public `generate -logC` workflow.
 
@@ -610,23 +610,23 @@ This preliminary pass is required per translation unit and concrete build config
 
 #### 9.7.2. <a id="verified-cases"></a>Verified Cases
 
-Case | Verified result
----|---
-Simple wrapper with one log site | CE at the call site works even with `__COUNTER__` removed; an ordinary line descriptor suffices.
-Wrapper with two log sites | Original values precede their CE values; generic and fixed arity work.
-Repeated wrapper calls | The same logical IDs transmit different local context values from their callers.
-Wrapper with separate branches | `branchLeft` and `branchRight` remain confined to their own blocks.
-Two direct calls on the same line | Separate blocks with `onlyLeft` and `onlyRight` work without imposing visibility requirements from other scopes.
-Unselected rebase sites | Existing records remain unchanged and have no additional values.
-Side effects | Original and CE expressions are each evaluated exactly once per executed call. An unexecuted wrapper call has no effect.
-Actual records | Eleven records are produced by the real target library, resolved against the final C TIL, and checked for IDs, parameter counts and all ordered values.
-Repetition | Repeated private Bind generation preserves schema, IDs, region mapping and source. The same compiler pass reproduces the same mapping header.
-Other counter uses before log sites | Additional uses at offsets 0, 1 and 7 change the mapping while IDs and expected records remain the same.
-Stale mapping header | A normal build fails. In particular, a shift by one is detected even when it could otherwise hit an adjacent valid adapter.
-Missing context identifier | The compiler and tested `clangd` variants report `cePocMissingLocal` as a real error.
+Case                                              | Verified result
+------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------
+Simple wrapper with one log site                  | CE at the call site works even with `__COUNTER__` removed; an ordinary line descriptor suffices.
+Wrapper with two log sites                        | Original values precede their CE values; generic and fixed arity work.
+Repeated wrapper calls                            | The same logical IDs transmit different local context values from their callers.
+Wrapper with separate branches                    | `branchLeft` and `branchRight` remain confined to their own blocks.
+Two direct calls on the same line                 | Separate blocks with `onlyLeft` and `onlyRight` work without imposing visibility requirements from other scopes.
+Unselected rebase sites                           | Existing records remain unchanged and have no additional values.
+Side effects                                      | Original and CE expressions are each evaluated exactly once per executed call. An unexecuted wrapper call has no effect.
+Actual records                                    | Eleven records are produced by the real target library, resolved against the final C TIL, and checked for IDs, parameter counts and all ordered values.
+Repetition                                        | Repeated private Bind generation preserves schema, IDs, region mapping and source. The same compiler pass reproduces the same mapping header.
+Other counter uses before log sites               | Additional uses at offsets 0, 1 and 7 change the mapping while IDs and expected records remain the same.
+Stale mapping header                              | A normal build fails. In particular, a shift by one is detected even when it could otherwise hit an adjacent valid adapter.
+Missing context identifier                        | The compiler and tested `clangd` variants report `cePocMissingLocal` as a real error.
 Additional counter consumption in a CE expression | Rejected; the investigated preliminary pass assumes one counter per rebase expansion.
-`TRICE_OFF` and `TRICE_CLEAN` | No records and no argument/CE evaluation, even without available `__COUNTER__`.
-Active rebase without `__COUNTER__` | Clear build error including `Search UM for "bind-limits".` The PoC claims no solution for this case.
+`TRICE_OFF` and `TRICE_CLEAN`                     | No records and no argument/CE evaluation, even without available `__COUNTER__`.
+Active rebase without `__COUNTER__`               | Clear build error including `Search UM for "bind-limits".` The PoC claims no solution for this case.
 
 The runtime proof uses scalar 32-bit records with `iD`. It does not replace the broader bit-width/stamp acceptance of production CE and is not complete acceptance of every conceivable wrapper.
 
@@ -634,13 +634,13 @@ The runtime proof uses scalar 32-bit records with `iD`. It does not replace the 
 
 On 27 September 2026, the following installed tool variants were tested:
 
-Tool and target | Language modes | Evidence
----|---|---
-Apple Clang/Clang++ 21.0.0, macOS ARM64 | C99, C11, C17, C++11, C++17 | Preprocessing, compilation with `-Wall -Wextra -Werror`, linking and actual program execution passed.
+Tool and target                                              | Language modes              | Evidence
+------------------------------------------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Apple Clang/Clang++ 21.0.0, macOS ARM64                      | C99, C11, C17, C++11, C++17 | Preprocessing, compilation with `-Wall -Wextra -Werror`, linking and actual program execution passed.
 ARM GNU Toolchain 13.3.Rel1, GCC/G++ 13.3.1, Cortex-M0/Thumb | C99, C11, C17, C++11, C++17 | Preprocessing and generation of real ARM object files with `-Wall -Wextra -Werror` passed; no execution on an MCU or emulator.
-Same ARM GCC version, Cortex-M4/Thumb | C99, C11, C17, C++11, C++17 | Preprocessing and generation of real ARM object files passed; no target runtime claim.
-All three configurations | C++20 | Existing Bind code fails even without experimental CE on an enum warning promoted by `-Werror`. With only that warning downgraded to warning status, the CE PoC passes; Clang includes runtime execution, ARM GCC produces object files.
-Apple clangd 21.0.0 | Host C11 and host C++17 | Loads a real `compile_commands.json` including the experimental header. Valid sources are error-free; the deliberately missing identifier is diagnosed.
+Same ARM GCC version, Cortex-M4/Thumb                        | C99, C11, C17, C++11, C++17 | Preprocessing and generation of real ARM object files passed; no target runtime claim.
+All three configurations                                     | C++20                       | Existing Bind code fails even without experimental CE on an enum warning promoted by `-Werror`. With only that warning downgraded to warning status, the CE PoC passes; Clang includes runtime execution, ARM GCC produces object files.
+Apple clangd 21.0.0                                          | Host C11 and host C++17     | Loads a real `compile_commands.json` including the experimental header. Valid sources are error-free; the deliberately missing identifier is diagnosed.
 
 This covers 18 combinations of toolchain/target and language mode, each with three initial counter states and additional negative and disabled-build cases. In this environment, the macOS `gcc`/`g++` commands are Clang aliases and explicitly do not count as GCC evidence. Independent GCC evidence comes from the ARM cross-compiler. Native GCC variants are also included in the test matrix when available. MSVC, IAR, Arm Compiler/armclang and other language servers were not tested; their support cannot be inferred from these results.
 

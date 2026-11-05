@@ -218,39 +218,39 @@ triceS( "Name: %12s, ",  n ); triceS( "Family: %s, ", f ); trice( "Birthday %2u-
 
 In the remarks, ✅ means supported and ❌ means unsupported. The format-specifier columns retain their literal spellings.
 
-Format Specifier Type                                           | C | Go | T | (T =Trice) \| remark
------------------------------------------------------------------|---|----|---|-----------------------------------------------------------------------------
-signed decimal integer                                          | d | d  | d | ✅ Supported.
-unsigned decimal integer                                        | u | -  | u | The Trice tool changes %u into %d and treats value as unsigned.
-signed decimal integer                                          | i | d  | i | The Trice tool changes %i into %d and treats value as signed.
-signed octal integer                                            | - | o  | o | With `trice log -unsigned=false` value is treated as signed.
-unsigned octal integer                                          | o | -  | o | With `trice log` value is treated as unsigned.
-signed octal integer with 0o prefix                             | - | O  | O | With `trice log -unsigned=false` value is treated as signed.
-unsigned octal integer with 0o prefix                           | - | -  | O | With `trice log` value is treated as unsigned.
-signed hexadecimal integer lowercase                            | - | x  | x | With `trice log -unsigned=false` value is treated as signed.
-unsigned hexadecimal integer lowercase                          | x | -  | x | With `trice log` value is treated as unsigned.
-signed hexadecimal integer uppercase                            | - | X  | X | With `trice log -unsigned=false` value is treated as signed.
-unsigned hexadecimal integer uppercase                          | X | -  | X | With `trice log` value is treated as unsigned.
-signed binary integer                                           | - | b  | b | With `trice log -unsigned=false` value is treated as signed.
-unsigned binary integer                                         | - | -  | b | With `trice log` value is treated as unsigned.
-decimal floating point, lowercase                               | f | f  | f | `aFloat(value)`\|`aDouble(value)`
-decimal floating point, uppercase                               | - | F  | F | `aFloat(value)`\|`aDouble(value)`
-scientific notation (mantissa/exponent), lowercase              | e | e  | e | `aFloat(value)`\|`aDouble(value)`
-scientific notation (mantissa/exponent), uppercase              | E | E  | E | `aFloat(value)`\|`aDouble(value)`
-the shortest representation of %e or %f                         | g | g  | g | `aFloat(value)`\|`aDouble(value)`
-the shortest representation of %E or %F                         | G | G  | G | `aFloat(value)`\|`aDouble(value)`
-a character as byte                                             | c | -  | c | Value can contain ASCII character.
-a character represented by the corresponding Unicode code point | c | c  | c | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format.
-a quoted character                                              | - | q  | q | ✅ Supported.
-the word true or false                                          | - | t  | t | ✅ Supported.
-a string                                                        | s | s  | s | Use `triceS` macro with one and only one runtime generated string.
-pointer address                                                 | p | p  | p | ✅ Supported.
-a double %% prints a single %                                   | % | %  | % | ✅ Supported.
-Unicode escape sequence                                         | - | U  | - | ❌ **Not supported.**
-value in default format                                         | - | v  | - | ❌ **Not supported.**
-Go-syntax representation of the value                           | - | #v | - | ❌ **Not supported.**
-a Go-syntax representation of the type of the value             | - | T  | - | ❌ **Not supported.**
-nothing printed                                                 | n | -  | - | ❌ **Not supported.**
+Format Specifier Type                                           | C   | Go  | T   | (T =Trice) \| remark
+--------------------------------------------------------------- | --- | --- | --- | ---------------------------------------------------------------------------
+signed decimal integer                                          | d   | d   | d   | ✅ Supported.
+unsigned decimal integer                                        | u   | -   | u   | The Trice tool changes %u into %d and treats value as unsigned.
+signed decimal integer                                          | i   | d   | i   | The Trice tool changes %i into %d and treats value as signed.
+signed octal integer                                            | -   | o   | o   | With `trice log -unsigned=false` value is treated as signed.
+unsigned octal integer                                          | o   | -   | o   | With `trice log` value is treated as unsigned.
+signed octal integer with 0o prefix                             | -   | O   | O   | With `trice log -unsigned=false` value is treated as signed.
+unsigned octal integer with 0o prefix                           | -   | -   | O   | With `trice log` value is treated as unsigned.
+signed hexadecimal integer lowercase                            | -   | x   | x   | With `trice log -unsigned=false` value is treated as signed.
+unsigned hexadecimal integer lowercase                          | x   | -   | x   | With `trice log` value is treated as unsigned.
+signed hexadecimal integer uppercase                            | -   | X   | X   | With `trice log -unsigned=false` value is treated as signed.
+unsigned hexadecimal integer uppercase                          | X   | -   | X   | With `trice log` value is treated as unsigned.
+signed binary integer                                           | -   | b   | b   | With `trice log -unsigned=false` value is treated as signed.
+unsigned binary integer                                         | -   | -   | b   | With `trice log` value is treated as unsigned.
+decimal floating point, lowercase                               | f   | f   | f   | `aFloat(value)`\|`aDouble(value)`
+decimal floating point, uppercase                               | -   | F   | F   | `aFloat(value)`\|`aDouble(value)`
+scientific notation (mantissa/exponent), lowercase              | e   | e   | e   | `aFloat(value)`\|`aDouble(value)`
+scientific notation (mantissa/exponent), uppercase              | E   | E   | E   | `aFloat(value)`\|`aDouble(value)`
+the shortest representation of %e or %f                         | g   | g   | g   | `aFloat(value)`\|`aDouble(value)`
+the shortest representation of %E or %F                         | G   | G   | G   | `aFloat(value)`\|`aDouble(value)`
+a character as byte                                             | c   | -   | c   | Value can contain ASCII character.
+a character represented by the corresponding Unicode code point | c   | c   | c   | Value can contain UTF-8 characters if the C-File is edited in UTF-8 format.
+a quoted character                                              | -   | q   | q   | ✅ Supported.
+the word true or false                                          | -   | t   | t   | ✅ Supported.
+a string                                                        | s   | s   | s   | Use `triceS` macro with one and only one runtime generated string.
+pointer address                                                 | p   | p   | p   | ✅ Supported.
+a double %% prints a single %                                   | %   | %   | %   | ✅ Supported.
+Unicode escape sequence                                         | -   | U   | -   | ❌ **Not supported.**
+value in default format                                         | -   | v   | -   | ❌ **Not supported.**
+Go-syntax representation of the value                           | -   | #v  | -   | ❌ **Not supported.**
+a Go-syntax representation of the type of the value             | -   | T   | -   | ❌ **Not supported.**
+nothing printed                                                 | n   | -   | -   | ❌ **Not supported.**
 
 * [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
 * [x] Look in [triceCheck.c](../../_test/testdata/triceCheck.c) for exampe code producing this:
@@ -492,7 +492,7 @@ are always usable and the number 8, 16, 32, 64 specifies the parameter width, wh
 More examples:
 
 Trice     | Header | Stamp | max. Values  | Trice Size
------------|--------|-------|--------------|------------
+--------- | ------ | ----- | ------------ | ----------
 `trice8`  | 4      | 0     | 0 \*1 byte   | 4
 ...       | ...    | ...   | ...          | ...
 `trice8`  | 4      | 0     | 12 \*1 byte  | 16
@@ -540,19 +540,19 @@ Hint: With the default TCOBS framing 8-bit values as 32-bit parameters typically
 
 (Examples in [../_test/testdata/triceCheck.c](../../_test/testdata/triceCheck.c))
 
-Macro Name                                      | Description
--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-`triceS`  \|`TriceS`  \|`TRiceS`  \|`TRICE_S`   | Output of runtime generated 0-terminated strings.
-`triceN`  \|`TriceN`  \|`TRiceN`  \|`TRICE_N`   | Is for byte buffer output as string until the specified size. It allows limiting the string size to a specific value and does not rely on a terminating 0. If for example len = 7 is given and "Hello\0World\n" is in the buffer, the byte sequence "Hello\0W" is transmitted but the trice tool probably shows only "Hello".
-`triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_B TRICE8_B`.
-`trice8B` \|`Trice8B` \|`TRice8B` \|`TRICE8_B`  | Is for byte buffer output according to the given format specifier for a single byte.
-`trice16B`\|`Trice16B`\|`TRice16B`\|`TRICE16_B` | Is for 16-bit buffer output according to the given format specifier for a 16-bit value.
-`trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.
-|                                                 | See chapter [Trice ABC - Asynchronous Broadcast Commands](abc_asynchronous_broadcast_commands.md) for the following lines.
-`triceC`  \|`TriceC`  \|`TRiceC`  \|`TRICE_C`   | Is for ABC buffer output according to the given function handler for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_C TRICE8_C`.
-`trice8C` \|`Trice8C` \|`TRice8C` \|`TRICE8_C`  | Is for ABC byte buffer output according to the given function handler.
-`trice16C`\|`Trice16C`\|`TRice16C`\|`TRICE16_C` | Is for ABC 16-bit buffer output according to the given function handler for a 16-bit wide buffer.
-`trice32C`\|`Trice32C`\|`TRice32C`\|`TRICE32_C` | Is for ABC 32-bit buffer output according to the given function handler for a 32-bit wide buffer.
+| Macro Name                                      | Description                                                                                                                                                                                                                                                                                                                   |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `triceS`  \|`TriceS`  \|`TRiceS`  \|`TRICE_S`   | Output of runtime generated 0-terminated strings.                                                                                                                                                                                                                                                                             |
+| `triceN`  \|`TriceN`  \|`TRiceN`  \|`TRICE_N`   | Is for byte buffer output as string until the specified size. It allows limiting the string size to a specific value and does not rely on a terminating 0. If for example len = 7 is given and "Hello\0World\n" is in the buffer, the byte sequence "Hello\0W" is transmitted but the trice tool probably shows only "Hello". |
+| `triceB`  \|`TriceB`  \|`TRiceB`  \|`TRICE_B`   | Is buffer output according to the given format specifier for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_B TRICE8_B`.                                                                                                                                                     |
+| `trice8B` \|`Trice8B` \|`TRice8B` \|`TRICE8_B`  | Is for byte buffer output according to the given format specifier for a single byte.                                                                                                                                                                                                                                          |
+| `trice16B`\|`Trice16B`\|`TRice16B`\|`TRICE16_B` | Is for 16-bit buffer output according to the given format specifier for a 16-bit value.                                                                                                                                                                                                                                       |
+| `trice32B`\|`Trice32B`\|`TRice32B`\|`TRICE32_B` | Is for 32-bit buffer output according to the given format specifier for a 32-bit value.                                                                                                                                                                                                                                       |
+|                                                 | See chapter [Trice ABC - Asynchronous Broadcast Commands](abc_asynchronous_broadcast_commands.md) for the following lines.                                                                                                                                                                                                    |
+| `triceC`  \|`TriceC`  \|`TRiceC`  \|`TRICE_C`   | Is for ABC buffer output according to the given function handler for a default unit according to configuration (8\|16\|32\|64-bit value) - default is `#define TRICE_C TRICE8_C`.                                                                                                                                             |
+| `trice8C` \|`Trice8C` \|`TRice8C` \|`TRICE8_C`  | Is for ABC byte buffer output according to the given function handler.                                                                                                                                                                                                                                                        |
+| `trice16C`\|`Trice16C`\|`TRice16C`\|`TRICE16_C` | Is for ABC 16-bit buffer output according to the given function handler for a 16-bit wide buffer.                                                                                                                                                                                                                             |
+| `trice32C`\|`Trice32C`\|`TRice32C`\|`TRICE32_C` | Is for ABC 32-bit buffer output according to the given function handler for a 32-bit wide buffer.                                                                                                                                                                                                                             |
 
 ## 17. <a id="adapting-printf-calls"></a>Adapting printf calls
 

@@ -62,13 +62,13 @@ rpm,current_mA
 
 `motor` selects the tag, `v0` is the first value, and `v1` the second. The comma and `\n` create columns and rows. `header` supplies the column names; omit it for data-only output. **Each logging run replaces an existing output file.** Choose a new filename to keep an earlier recording.
 
-| Want to… | Use |
-| --- | --- |
-| Save both values | `printf("%d,%d\n",v0,v1)` |
-| Reverse the columns | `printf("%d,%d\n",v1,v0)` |
-| Convert mA to A | `printf("%d,%.3f\n",v0,v1/1000)` → `1500,0.120` for the first sample; change the header to `rpm,current_A`. |
-| Use a named field such as `rpm` in the expression | Use `v0` instead. Field names are not expression variables. |
-| Combine values from two separate calls | Put them in one call first. `-vis` does not join events. |
+Want to…                                          | Use
+------------------------------------------------- | -----------------------------------------------------------------------------------------------------------
+Save both values                                  | `printf("%d,%d\n",v0,v1)`
+Reverse the columns                               | `printf("%d,%d\n",v1,v0)`
+Convert mA to A                                   | `printf("%d,%.3f\n",v0,v1/1000)` → `1500,0.120` for the first sample; change the header to `rpm,current_A`.
+Use a named field such as `rpm` in the expression | Use `v0` instead. Field names are not expression variables.
+Combine values from two separate calls            | Put them in one call first. `-vis` does not join events.
 
 The normal log remains visible. The [LabPlot animation](../ref/LabPlotDemo.gif) shows a complete three-signal example with live plots and parallel text output. To try it, follow the [LabPlot demo](#quick-labplot-demonstration); to send your own values, use [UDP output](#files-udp-and-normal-log-output). Trice writes the data; the receiving program draws the graph.
 
@@ -148,13 +148,13 @@ Repeat `-vis` in one command to write to several destinations, for example a CSV
 
 These are all the available expression names. They are lowercase and refer to the **current received record**:
 
-| Name | Meaning | Example |
-| --- | --- | --- |
-| `v0` … `v11` | First through twelfth numeric value from the call | The motor call provides `v0 = 1500`, `v1 = 120`. |
-| `id` | The record's unsigned Trice ID | If Bind assigned ID 4711, `printf("%d,%d\n",id,v0)` produces `4711,1500`. |
-| `ts16` | Raw 16-bit target stamp | A transmitted stamp of 1000 gives `ts16 = 1000`. |
-| `ts32` | Raw 32-bit target stamp | A transmitted stamp of 1000 gives `ts32 = 1000`. |
-| `ts` | Raw target stamp, accepting either width initially | The first eligible stamped record determines the width for this rule. |
+Name         | Meaning                                            | Example
+------------ | -------------------------------------------------- | -------------------------------------------------------------------------
+`v0` … `v11` | First through twelfth numeric value from the call  | The motor call provides `v0 = 1500`, `v1 = 120`.
+`id`         | The record's unsigned Trice ID                     | If Bind assigned ID 4711, `printf("%d,%d\n",id,v0)` produces `4711,1500`.
+`ts16`       | Raw 16-bit target stamp                            | A transmitted stamp of 1000 gives `ts16 = 1000`.
+`ts32`       | Raw 32-bit target stamp                            | A transmitted stamp of 1000 gives `ts32 = 1000`.
+`ts`         | Raw target stamp, accepting either width initially | The first eligible stamped record determines the width for this rule.
 
 Use `v0` … `v11` for **payload values**; `id` and the stamp names are additional metadata. Source variable names and structured field names such as `rpm` are not expression variables. For example, `printf("%d,%d\n",v1,v0)` reverses the motor columns to `120,1500`; using `rpm` instead of `v0` is rejected.
 
@@ -164,11 +164,11 @@ Use `ts16` or `ts32` when you know the transmitted stamp width. Use `ts` when th
 
 For a motor record with stamp `1000` and speed `1500`, add one of these options to `trice log -p COM7 -utag motor`:
 
-| Option | Result |
-| --- | --- |
-| `-vis='motor:printf("%d,%d\n",ts16,v0)@time16.csv'` | Writes `1000,1500` for a 16-bit stamp. Skips 32-bit and unstamped records. |
-| `-vis='motor:printf("%d,%d\n",ts32,v0)@time32.csv'` | Writes `1000,1500` for a 32-bit stamp. Skips 16-bit and unstamped records. |
-| `-vis='motor:printf("%d,%d\n",ts,v0)@time.csv'` | Writes `1000,1500` with either initial width. Skips unstamped records. A later width change disables this rule with a warning. |
+Option                                              | Result
+--------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------
+`-vis='motor:printf("%d,%d\n",ts16,v0)@time16.csv'` | Writes `1000,1500` for a 16-bit stamp. Skips 32-bit and unstamped records.
+`-vis='motor:printf("%d,%d\n",ts32,v0)@time32.csv'` | Writes `1000,1500` for a 32-bit stamp. Skips 16-bit and unstamped records.
+`-vis='motor:printf("%d,%d\n",ts,v0)@time.csv'`     | Writes `1000,1500` with either initial width. Skips unstamped records. A later width change disables this rule with a warning.
 
 For example, if the `ts` rule first accepts a 16-bit record and later a 32-bit record, it writes no row for the second record and stops visualizing further records for the rest of the run. Normal logging continues. If both widths are expected, use two explicit-width rules instead. A single rule containing both `ts16` and `ts32` is rejected: one record carries only one stamp width.
 
@@ -222,19 +222,19 @@ See the [expression reference](#appendix-visualization-expression-reference) for
 
 **The supported destinations are regular files and UDP sockets. There is no default UDP port.** The `@` separates the expression from its destination; it is required.
 
-| Destination in a rule | Behavior |
-| --- | --- |
-| `@motor.csv` | File in the host command's working directory. |
-| `@logs/motor.csv` or `@file:logs/motor.csv` | File in an existing `logs` directory. Both forms mean the same thing. |
-| `@udp://127.0.0.1:7010` | UDP receiver on the same PC, port 7010. |
-| `@udp://localhost:7010` | Same idea with a hostname; other resolvable hostnames work too. |
-| `@udp://192.168.1.50:9000` | UDP receiver on another computer, port 9000. |
-| `@udp://[::1]:7010` | UDP over IPv6 loopback; brackets surround the IPv6 address. |
-| `@udp://127.0.0.1` | Rejected: the port is missing. |
-| `@udp://127.0.0.1:0` | Rejected: the port must be a number from 1 through 65535. |
-| `@file://motor.csv` | Rejected: file-URI syntax is unsupported; use a plain path or `file:<path>`. |
-| `@tcp://localhost:7010`, `@ws://localhost:7010`, `@http://localhost:7010` | Rejected: TCP, WebSocket and HTTP outputs are unsupported. |
-| `@pipe://plot` | Rejected: named pipes and process pipes are unsupported. |
+Destination in a rule                                                     | Behavior
+------------------------------------------------------------------------- | ----------------------------------------------------------------------------
+`@motor.csv`                                                              | File in the host command's working directory.
+`@logs/motor.csv` or `@file:logs/motor.csv`                               | File in an existing `logs` directory. Both forms mean the same thing.
+`@udp://127.0.0.1:7010`                                                   | UDP receiver on the same PC, port 7010.
+`@udp://localhost:7010`                                                   | Same idea with a hostname; other resolvable hostnames work too.
+`@udp://192.168.1.50:9000`                                                | UDP receiver on another computer, port 9000.
+`@udp://[::1]:7010`                                                       | UDP over IPv6 loopback; brackets surround the IPv6 address.
+`@udp://127.0.0.1`                                                        | Rejected: the port is missing.
+`@udp://127.0.0.1:0`                                                      | Rejected: the port must be a number from 1 through 65535.
+`@file://motor.csv`                                                       | Rejected: file-URI syntax is unsupported; use a plain path or `file:<path>`.
+`@tcp://localhost:7010`, `@ws://localhost:7010`, `@http://localhost:7010` | Rejected: TCP, WebSocket and HTTP outputs are unsupported.
+`@pipe://plot`                                                            | Rejected: named pipes and process pipes are unsupported.
 
 There is no stdout destination shortcut: `@-` means a file literally named `-`, not standard output.
 
@@ -252,12 +252,12 @@ Start the receiver first and configure its expected columns. Each accepted event
 
 Use one fixed-width numeric call ending in one newline, as in the motor example. The following limits apply:
 
-| Input | Result |
-| --- | --- |
-| One numeric call forming one complete line | Eligible; use `v0` through `v11` for its first twelve values. |
-| A string, buffer, function-display, character, typeX0, CHAR or DUMP record | No visualization record; use normal logging. |
-| A partial line, multiple lines in one call, or a line assembled from several calls | Normal logging continues; `-vis` ignores the record and verbose mode explains why. |
-| Named structured fields | Numeric values remain positional: use `v0`, `v1`, etc. |
+Input                                                                              | Result
+---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------
+One numeric call forming one complete line                                         | Eligible; use `v0` through `v11` for its first twelve values.
+A string, buffer, function-display, character, typeX0, CHAR or DUMP record         | No visualization record; use normal logging.
+A partial line, multiple lines in one call, or a line assembled from several calls | Normal logging continues; `-vis` ignores the record and verbose mode explains why.
+Named structured fields                                                            | Numeric values remain positional: use `v0`, `v1`, etc.
 
 Additional values beyond the first twelve remain available to normal logging. Specialized JSON or binary encoders, TCP, WebSocket, named pipes, and process pipes are not provided.
 
@@ -284,10 +284,10 @@ receives normalized numeric CSV records with this column layout:
 time_s,x,y,z
 ```
 
-| Plot in the animation | Horizontal axis | Vertical axis |
-| --- | --- | --- |
-| Time series, left | `time_s`, column 1 | Three curves: `x`, `y`, `z`, columns 2–4 |
-| Lissajous, right | `x`, column 2 | `y`, column 3 |
+Plot in the animation | Horizontal axis    | Vertical axis
+--------------------- | ------------------ | ----------------------------------------
+Time series, left     | `time_s`, column 1 | Three curves: `x`, `y`, `z`, columns 2–4
+Lissajous, right      | `x`, column 2      | `y`, column 3
 
 The finished project predeclares the four numeric columns and performs one
 initial read while loading. This prepares LabPlot's UDP socket before the
@@ -584,13 +584,13 @@ Expressions support decimal, floating-point and hexadecimal literals, parenthese
 
 A direct field retains its signed, unsigned, floating-point or Boolean type. Arithmetic uses `float64`, so `v1/1000` can produce `0.120` rather than integer zero. An arithmetic result used with an integer verb must be finite and inside the `int64` range; it is then truncated toward zero.
 
-| Output | Supported conversions | Example |
-| --- | --- | --- |
-| Integer | `%d`, `%b`, `%o`, `%x`, `%X` | `printf("%04x\n",v0)` writes `002a` for integer 42. |
-| Floating-point | `%f`, `%e`, `%E`, `%g`, `%G` | `printf("%.3f\n",v0/1000)` writes `0.120` for 120. |
-| Generic | `%v` | Uses the expression value's type. |
-| Boolean | `%t`, with a direct Boolean field | `printf("%t\n",v0)` writes `true` for a Boolean true value. |
-| Literal percent | `%%` | `printf("%d%%\n",v0)` writes `75%` for 75. |
+Output          | Supported conversions             | Example
+--------------- | --------------------------------- | -----------------------------------------------------------
+Integer         | `%d`, `%b`, `%o`, `%x`, `%X`      | `printf("%04x\n",v0)` writes `002a` for integer 42.
+Floating-point  | `%f`, `%e`, `%E`, `%g`, `%G`      | `printf("%.3f\n",v0/1000)` writes `0.120` for 120.
+Generic         | `%v`                              | Uses the expression value's type.
+Boolean         | `%t`, with a direct Boolean field | `printf("%t\n",v0)` writes `true` for a Boolean true value.
+Literal percent | `%%`                              | `printf("%d%%\n",v0)` writes `75%` for 75.
 
 Literal widths and precisions such as `%08x` and `%.3f` are supported. `%u`, dynamic `*` width or precision, explicit argument indexes and string conversions are not. Use `%d` for unsigned decimal output. The expression count must equal the number of consuming conversions; `%%` consumes none. No newline is added automatically: include `\n` in the format.
 

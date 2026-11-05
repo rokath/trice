@@ -26,12 +26,12 @@
 
 ## 1. <a id="choose-the-buffer-and-output-mode"></a>Choose the buffer and output mode
 
-| Configuration | Work during the log call | Trade-off |
-| --- | --- | --- |
-| Stack/static buffer, direct output | Build a record and call the configured writer. | Simple; writer latency affects the caller. Static storage needs protection from concurrent calls. |
-| Double buffer, deferred output | Append to the active half; transfer the other half later. | Fast record creation with more reserved RAM. |
-| Ring buffer, deferred output | Reserve record space and append. | Uses buffer capacity flexibly, with additional reservation work. |
-| Deferred plus parallel direct output | Buffer the record and also perform the direct output. | Direct output adds latency even though the deferred path remains enabled. |
+Configuration                        | Work during the log call                                  | Trade-off
+------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------
+Stack/static buffer, direct output   | Build a record and call the configured writer.            | Simple; writer latency affects the caller. Static storage needs protection from concurrent calls.
+Double buffer, deferred output       | Append to the active half; transfer the other half later. | Fast record creation with more reserved RAM.
+Ring buffer, deferred output         | Reserve record space and append.                          | Uses buffer capacity flexibly, with additional reservation work.
+Deferred plus parallel direct output | Buffer the record and also perform the direct output.     | Direct output adds latency even though the deferred path remains enabled.
 
 Start with a ring buffer for general use. Measure your largest bursts and transfer interval, and keep [buffer protection and diagnostics](target_configuration.md#buffer-protection-and-diagnostics) enabled while sizing. Choose double buffering when call latency is more important than its RAM cost. All shared-state configurations need suitable critical sections for concurrent calls.
 
@@ -230,13 +230,13 @@ Uppercase-only `TRICE(...)` expands inline and can avoid function-call overhead.
 
 The inspected G0B1 binaries identify GCC 15.3.1 and Apple Clang 21.0.0. Both build commands use the same relevant settings:
 
-| Setting | GCC | Clang |
-| --- | --- | --- |
-| Optimization | `-O3` | `-O3` |
-| CPU | `-mcpu=cortex-m0plus` | `-mcpu=cortex-m0plus` |
-| Configuration | `CONFIGURATION=98` | `CONFIGURATION=98` |
-| Record path | Deferred double buffer | Deferred double buffer |
-| Protection, diagnostics, message cycle counter | Disabled | Disabled |
+Setting                                        | GCC                    | Clang
+---------------------------------------------- | ---------------------- | ----------------------
+Optimization                                   | `-O3`                  | `-O3`
+CPU                                            | `-mcpu=cortex-m0plus`  | `-mcpu=cortex-m0plus`
+Configuration                                  | `CONFIGURATION=98`     | `CONFIGURATION=98`
+Record path                                    | Deferred double buffer | Deferred double buffer
+Protection, diagnostics, message cycle counter | Disabled               | Disabled
 
 GCC emits an assembler listing; Clang adds its cross-target selection and extra warnings. These differences do not select a lower optimization level for GCC. The remaining instruction choices come from the compilers.
 

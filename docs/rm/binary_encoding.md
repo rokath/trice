@@ -45,24 +45,24 @@ The leading doubled 2 bytes are removed before framing. But there are cases, the
 ## 2. <a id="symbols"></a>Symbols
 
 Symbol  | Meaning
-:-------:|------------------------------------------------------------------------------
-`i`   | ID bit
-`I`   | `iiiiiiii` = ID byte
-`n`   | number bit
-`z`   | count selector bit
-`s`   | stamp selector bit
-`N`   | `znnnnnnnn` = count selector bit plus 7-bit number byte
-`c`   | cycle counter bit
-`C`   | z==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension
-`t`   | (time)stamp bit
-`T`   | `tttttttt` = (time)stamp byte
-`d`   | data bit
-`D`   | `dddddddd` = data byte
-`...`  | 0 to 32767 data bytes
+:-----: | ----------------------------------------------------------------------------
+`i`     | ID bit
+`I`     | `iiiiiiii` = ID byte
+`n`     | number bit
+`z`     | count selector bit
+`s`     | stamp selector bit
+`N`     | `znnnnnnnn` = count selector bit plus 7-bit number byte
+`c`     | cycle counter bit
+`C`     | z==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension
+`t`     | (time)stamp bit
+`T`     | `tttttttt` = (time)stamp byte
+`d`     | data bit
+`D`     | `dddddddd` = data byte
+`...`   | 0 to 32767 data bytes
 `"..."` | format string
-`W`   | bit width 8, 16, 32 or 64 (uW stands for u8, u16, or u64)
-`x`   | unspecified bit
-`X`   | =`xxxxxxxx` unspecified byte
+`W`     | bit width 8, 16, 32 or 64 (uW stands for u8, u16, or u64)
+`x`     | unspecified bit
+`X`     | =`xxxxxxxx` unspecified byte
 
 The long count field can represent up to 32767 payload bytes. This is the binary format limit, not the amount that the current target buffer macros can write. `TRICE_N`, `TRICE_S`, and the buffer macros built on `TRICE_N` cap the payload at `TRICE_SINGLE_MAX_SIZE - 12` bytes. `TRICE_SINGLE_MAX_SIZE` is the reserved size of one aligned target-side record and cannot exceed 32764 bytes; therefore the largest payload through these macros is 32752 bytes. The limit for a runtime string counts its characters, excluding the terminating zero byte.
 
@@ -74,7 +74,7 @@ The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and t
 * A decoded frame of 0 bytes is ignored. A 1-byte frame is unsupported. Frames with 2 or 3 bytes are selector-0 candidates when their selector bits are `00`; valid counted `typeX0` handling then still depends on the embedded count. Otherwise they are unsupported short user data.
 
   bytes       | Comment
-  :------------|---------------------------------------------------------------------------------------------------------------
+  :---------- | -------------------------------------------------------------------------------------------------------------
   ` `         | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes.
   `X`         | 1-byte message, unsupported and reserved for extensions or user data
   `X` `X`     | 2-byte message, counted `typeX0` if selector `00`, otherwise unsupported and reserved
@@ -84,13 +84,13 @@ The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and t
 * The `0` selector is usable for any user encoding. The Trice tool handles such packages according to the CLI switch `-typeX0`.
 * The `1`, `2` and `3` selector bits are followed by the 14-bit ID.
 
-  16-bit groups                      | Selector (2 msb) | Comment                                                                                   | Endianness sizes
-  :-----------------------------------|:----------------:|-------------------------------------------------------------------------------------------|:--------------------------------
-  _________ `00xxxxxxX ...`          |        0         | [typeX0 record](binary_encoding.md#typex0-records), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`
-  _________ `01iiiiiiI NC  ...`      |        1         | >= 4-byte message, Trice format without     stamp                                         | ___ `u16 u16 [uW] ... [uW]`
-  _________ `10iiiiiiI TT NC ...`    |        2         | >= 4-byte message, Trice format with 16-bit stamp                                         | ___ `u16 u16 u16 [uW] ... [uW]`
-  `10iiiiiiI 10iiiiiiI TT NC ...`    |        2         | First 16bit are doubled. Info over `-d16` trice switch.                                   | `u16 u16 u16 u16 [uW] ... [uW]`
-  _________ `11iiiiiiI TT TT NC ...` |        3         | >= 4-byte message, Trice format with 32-bit stamp                                         | ___ `u16 u32 u16 [uW] ... [uW]`
+  16-bit groups                      | Selector (2 msb) | Comment                                                                                                     | Endianness sizes
+  :--------------------------------- | :--------------: | ----------------------------------------------------------------------------------------------------------- | :------------------------------
+  _________ `00xxxxxxX ...`          | 0                | [typeX0 record](binary_encoding.md#typex0-records), >= 2-byte message, reserved for extensions or user data | ___ `u16 ?...?`
+  _________ `01iiiiiiI NC  ...`      | 1                | >= 4-byte message, Trice format without     stamp                                                           | ___ `u16 u16 [uW] ... [uW]`
+  _________ `10iiiiiiI TT NC ...`    | 2                | >= 4-byte message, Trice format with 16-bit stamp                                                           | ___ `u16 u16 u16 [uW] ... [uW]`
+  `10iiiiiiI 10iiiiiiI TT NC ...`    | 2                | First 16bit are doubled. Info over `-d16` trice switch.                                                     | `u16 u16 u16 u16 [uW] ... [uW]`
+  _________ `11iiiiiiI TT TT NC ...` | 3                | >= 4-byte message, Trice format with 32-bit stamp                                                           | ___ `u16 u32 u16 [uW] ... [uW]`
 
 * The selector `2` encoding has 2 possibilities. When using `TRICE_DIRECT_SEGGER_RTT_32BIT_WRITE` or encryption, for alignment reasons the first 16bit ID field is doubled. The Trice tool discards these 2 doubled bytes when the CLI switch `-d16` is given or encryption is active.
 * Default endianness is little endian as most MCUs use little endianness. Otherwise the `-triceEndianness=bigEndian` CLI switch is needed.
@@ -109,11 +109,11 @@ The 12-byte allowance covers up to 8 bytes for the ID, a 32-bit timestamp, and t
 * All following values are encoded in the known endianness.
 
 value   | byte offset | type              | comment
----------|------------:|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-IdLo    |           0 | byte              | The first byte is always the Trice ID lower 8 bits.
-IdHi    |           1 | byte              | The second byte 2 most significant bits are `01` and the 6 least significant bits are the Trice ID upper 6 bits.
-NC      |           2 | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z` is **1**, the current Trice contains no cycle counter and has a 15-bit payload count instead (for payloads > 127).
-payload |           4 | u8\|u16\|u32\|u64 | The payload contains a number of equal size values.
+------- | ----------: | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+IdLo    | 0           | byte              | The first byte is always the Trice ID lower 8 bits.
+IdHi    | 1           | byte              | The second byte 2 most significant bits are `01` and the 6 least significant bits are the Trice ID upper 6 bits.
+NC      | 2           | u16               | The most significant bit is the count selector bit `z` and usually **0**, telling, that the following 7 bits are the payload byte count and that the 8 least significant bits are the cycle counter. If `z` is **1**, the current Trice contains no cycle counter and has a 15-bit payload count instead (for payloads > 127).
+payload | 4           | u8\|u16\|u32\|u64 | The payload contains a number of equal size values.
 
 ### 3.1. <a id="typex0-records"></a>typeX0 Records
 
@@ -161,7 +161,7 @@ One possible use case is to have user **printi** statements parallel to Trices (
 *Framing NONE Overview Table:*
 
 *mode* | *packed* | `-pf=`   | encr | *wr* | *use* | pad | stream  | remark
---------|----------|----------|------|------|-------|-----|---------|----------
+------ | -------- | -------- | ---- | ---- | ----- | --- | ------- | --------
 *di*   | *single* | `none32` | NONE | *32* | *32*  | 0-3 | aligned | done
 *de*   | *single* | `none8`  | NONE | *8*  | *8*   | 0   | compact | done
 *de*   | *single* | `none32` | NONE | *8*  | *32*  | 0   | aligned | **plan**
@@ -186,12 +186,12 @@ One possible use case is to have user **printi** statements parallel to Trices (
 
 Encoder dependencies follow the **active outputs**. Select direct framing with `TRICE_DIRECT_OUT_FRAMING` and deferred framing with `TRICE_DEFERRED_OUT_FRAMING`. An inactive output's framing setting adds no dependency. For example, a direct-only COBS application does not need TCOBS despite the deferred framing default.
 
-Active output framing | Required encoder source | Encoder sources that can be omitted
---- | --- | ---
-TCOBS only | `src/tcobsv1Encode.c` | `src/cobsEncode.c`
-COBS only | `src/cobsEncode.c` | `src/tcobsv1Encode.c`
-NONE only | None | Both encoder sources
-Direct COBS and deferred TCOBS, or the reverse | Both encoder sources | Neither
+Active output framing                          | Required encoder source | Encoder sources that can be omitted
+---------------------------------------------- | ----------------------- | -----------------------------------
+TCOBS only                                     | `src/tcobsv1Encode.c`   | `src/cobsEncode.c`
+COBS only                                      | `src/cobsEncode.c`      | `src/tcobsv1Encode.c`
+NONE only                                      | None                    | Both encoder sources
+Direct COBS and deferred TCOBS, or the reverse | Both encoder sources    | Neither
 
 These selective builds work without LTO, optimization or linker removal of unused sections. Encryption-disabled builds need no `src/xtea.c`; builds without RTT need no `src/SEGGER_RTT.c` or project RTT configuration. With the Trice backend disabled (`TRICE_OFF` or `TRICE_CLEAN`, without counted typeX0 transmission), retained UART settings do not require `triceUart.h` or UART hardware hooks. The [minimal demos](examples.md#minimal-pc-demos-direct-and-deferred) still compile `src/*.c` for simplicity; removing unreferenced code from such a complete-library build remains a separate [image-size optimization](memory_usage.md).
 
@@ -217,11 +217,11 @@ The [encoder dependency tests](../../internal/id/encoder_dependencies_test.go) l
 
 Trice supports optional [XTEA](https://en.wikipedia.org/wiki/XTEA) encryption. Configure it in the application's `triceConfig.h`, using the settings documented in [triceDefaultConfig.h](../../src/triceDefaultConfig.h):
 
-| Setting | Use |
-| --- | --- |
-| `XTEA_ENCRYPT_KEY` | Target encryption key. |
-| `TRICE_DIRECT_XTEA_ENCRYPT 1` | Encrypt direct output; adds work in the call's critical path. |
-| `TRICE_DEFERRED_XTEA_ENCRYPT 1` | Encrypt deferred output during transfer. |
+Setting                         | Use
+------------------------------- | -------------------------------------------------------------
+`XTEA_ENCRYPT_KEY`              | Target encryption key.
+`TRICE_DIRECT_XTEA_ENCRYPT 1`   | Encrypt direct output; adds work in the call's critical path.
+`TRICE_DEFERRED_XTEA_ENCRYPT 1` | Encrypt deferred output during transfer.
 
 Run `trice log -port ... -password MySecret -showKey` once to obtain the matching key definition, then use the same password when decoding. The example password is not a project secret.
 

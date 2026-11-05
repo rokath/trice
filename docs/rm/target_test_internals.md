@@ -46,13 +46,13 @@ UART / RTT / file → receiver → decoder + til.json → event → filter
 
 For example, `trice("wrn:current=%u\n", 120)` sends an ID and a value. The host looks up the template, builds a WARNING event, applies the requested filter, then formats `current=120`. A matching `-vis` rule reads numeric value `120` directly; it does not parse the displayed text.
 
-| Stage | Responsibility and source |
-| --- | --- |
-| Open the input | [`args.logLoop`](../../internal/args/handler.go) obtains an `io.ReadWriteCloser` from [`receiver`](../../internal/receiver/receiver.go). Optional byte-display and binary-capture wrappers retain outgoing command writes. |
-| Decode | [`translator.Translate`](../../internal/translator/translator.go) creates the registered decoder. [`trexDecoder`](../../internal/trexDecoder/trexDecoder.go) handles framing, record parsing and dictionary lookup. |
-| Expose an event | `Read` still provides text bytes. The optional [`RecordProvider`](../../internal/decoder/record.go) provides an `ApplicationRecord` with tag, message, typed fields, ID and stamp, even when its message is empty. |
-| Select and present | The translator applies host filters before normal output and visualization. JSON/KV encode events; the text emitter can compose a line from several calls. [Statistics](tags_color_and_weights.md#event-statistics) count successfully decoded events before filtering. |
-| Write visualization | [`vis.Router`](../../internal/vis/router.go) consumes typed numeric records synchronously. A successful `log=drop` rule suppresses the normal output for that event. |
+Stage               | Responsibility and source
+------------------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Open the input      | [`args.logLoop`](../../internal/args/handler.go) obtains an `io.ReadWriteCloser` from [`receiver`](../../internal/receiver/receiver.go). Optional byte-display and binary-capture wrappers retain outgoing command writes.
+Decode              | [`translator.Translate`](../../internal/translator/translator.go) creates the registered decoder. [`trexDecoder`](../../internal/trexDecoder/trexDecoder.go) handles framing, record parsing and dictionary lookup.
+Expose an event     | `Read` still provides text bytes. The optional [`RecordProvider`](../../internal/decoder/record.go) provides an `ApplicationRecord` with tag, message, typed fields, ID and stamp, even when its message is empty.
+Select and present  | The translator applies host filters before normal output and visualization. JSON/KV encode events; the text emitter can compose a line from several calls. [Statistics](tags_color_and_weights.md#event-statistics) count successfully decoded events before filtering.
+Write visualization | [`vis.Router`](../../internal/vis/router.go) consumes typed numeric records synchronously. A successful `log=drop` rule suppresses the normal output for that event.
 
 ### 1.1. <a id="ownership-and-lifetime"></a>Ownership and lifetime
 
@@ -63,25 +63,25 @@ For example, `trice("wrn:current=%u\n", 120)` sends an ID and a value. The host 
 
 ### 1.2. <a id="errors-and-output-boundaries"></a>Errors and output boundaries
 
-| Situation | Observable result |
-| --- | --- |
-| Damaged or incomplete input | Follow the decoder's recovery rules. A failed decode does not become a successful `ApplicationRecord`; diagnostics remain distinct from application events. |
-| Filter rejects an event | Its message, metadata and visualization output are all omitted. |
-| JSON/KV logging | Application records go to the selected output; tool diagnostics go to stderr. A read, render or output-write error is returned by `Translate`. |
-| Finite `FILEBUFFER` reaches EOF | The log run finishes and releases its input. A temporarily empty live input continues waiting. |
-| Visualization write fails | The affected rule is disabled with a diagnostic; normal logging continues. See [visualization limits](visualization.md#supported-records-and-failure-behavior). |
+Situation                       | Observable result
+------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------
+Damaged or incomplete input     | Follow the decoder's recovery rules. A failed decode does not become a successful `ApplicationRecord`; diagnostics remain distinct from application events.
+Filter rejects an event         | Its message, metadata and visualization output are all omitted.
+JSON/KV logging                 | Application records go to the selected output; tool diagnostics go to stderr. A read, render or output-write error is returned by `Translate`.
+Finite `FILEBUFFER` reaches EOF | The log run finishes and releases its input. A temporarily empty live input continues waiting.
+Visualization write fails       | The affected rule is disabled with a diagnostic; normal logging continues. See [visualization limits](visualization.md#supported-records-and-failure-behavior).
 
 Use [Adding a host decoder](#adding-a-host-decoder) for the extension points and constructor contract. The older parser proposal in [Project Resources](project_resources.md#improving-the-trice-tool-internal-parser-not-planned-right-now) is historical background.
 
 ## 2. <a id="where-the-tests-live"></a>Where the tests live
 
-| Location | Responsibility |
-| --- | --- |
-| [internal](../../internal), [cmd](../../cmd), [pkg](../../pkg) | Go unit and integration tests beside their implementation: CLI/IDs, parsing, encoding/decoding, transports, filtering, output and shared helpers. |
-| [scripts](../../scripts) | Behavioral tests of public scripts, cancellation, source restoration, tool setup, release preparation and cache invalidation. Most use isolated fixtures; explicitly enabled integration builds real examples. |
-| [scripts/testcheck](../../scripts/testcheck) | Tool identity/download/cache checks, Go-event auditing and structured suite reports. |
-| [_test](../../_test) | 63 independently compiled CGO configuration packages, catalogued below. Go does not discover this underscore-prefixed tree from `go test ./...`. |
-| [examples](../../examples) | Native demos and MCU projects built through their public entry points. The managed wrappers restore shared state. |
+Location                                                       | Responsibility
+-------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[internal](../../internal), [cmd](../../cmd), [pkg](../../pkg) | Go unit and integration tests beside their implementation: CLI/IDs, parsing, encoding/decoding, transports, filtering, output and shared helpers.
+[scripts](../../scripts)                                       | Behavioral tests of public scripts, cancellation, source restoration, tool setup, release preparation and cache invalidation. Most use isolated fixtures; explicitly enabled integration builds real examples.
+[scripts/testcheck](../../scripts/testcheck)                   | Tool identity/download/cache checks, Go-event auditing and structured suite reports.
+[_test](../../_test)                                           | 63 independently compiled CGO configuration packages, catalogued below. Go does not discover this underscore-prefixed tree from `go test ./...`.
+[examples](../../examples)                                     | Native demos and MCU projects built through their public entry points. The managed wrappers restore shared state.
 
 The native CLI tests in [native_platform_test.go](../../internal/args/native_platform_test.go) build the current tools in temporary paths with spaces and Unicode. They check LF/CRLF, LI lines, relative paths, Bind byte preservation, Insert/Clean round trips, filesystem case aliases, and C records decoded with both compiler families. [The Windows test](../../internal/args/native_platform_windows_test.go) adds a real sharing-lock failure and checks preservation/retry. These are additional integration tests, not substitutes for the configuration matrix.
 
@@ -104,15 +104,15 @@ triceConfig.h + Trice C library + C test sites
 
 Each ordinary configuration uses these pieces:
 
-| File | Role |
-| --- | --- |
-| Its `triceConfig.h` | Selects buffer, direct/deferred outputs, framing, encryption, transfer mode and simulated writer. |
-| Its `cgo_test.go` | Chooses matching host decoder flags and test strategy; special packages define their own assertions here. |
-| [testdata/cgoPackage.go](../../_test/testdata/cgoPackage.go) | Canonical CGO bridge, C source includes, capture/transfer helpers and comparison loops. |
-| [testdata/cgoPackage_test.go](../../_test/testdata/cgoPackage_test.go) | Shared test entry points, state setup and diagnostic regression tests. |
-| [testdata/cgoTrice.c](../../_test/testdata/cgoTrice.c) | Simulated output writers, capture buffers and framing-capability probes. |
-| [testdata/triceCheck.c](../../_test/testdata/triceCheck.c) | Shared C calls and their expected text. |
-| `generated_cgoPackage*.go` | Package-local bridge/test copies. Normal runs overlay the current canonical files; do not hand-edit these copies. |
+File                                                                   | Role
+---------------------------------------------------------------------- | -----------------------------------------------------------------------------------------------------------------
+Its `triceConfig.h`                                                    | Selects buffer, direct/deferred outputs, framing, encryption, transfer mode and simulated writer.
+Its `cgo_test.go`                                                      | Chooses matching host decoder flags and test strategy; special packages define their own assertions here.
+[testdata/cgoPackage.go](../../_test/testdata/cgoPackage.go)           | Canonical CGO bridge, C source includes, capture/transfer helpers and comparison loops.
+[testdata/cgoPackage_test.go](../../_test/testdata/cgoPackage_test.go) | Shared test entry points, state setup and diagnostic regression tests.
+[testdata/cgoTrice.c](../../_test/testdata/cgoTrice.c)                 | Simulated output writers, capture buffers and framing-capability probes.
+[testdata/triceCheck.c](../../_test/testdata/triceCheck.c)             | Shared C calls and their expected text.
+`generated_cgoPackage*.go`                                             | Package-local bridge/test copies. Normal runs overlay the current canonical files; do not hand-edit these copies.
 
 The bridge includes the C implementation files directly, so each package receives its own compile-time configuration. Its CGO include order is the configuration directory, `src`, then `src/default_conf`; Bind preparation adds the generated sidecar include paths. Each configuration runs in a separate process, keeping its C state and Go decoder globals separate from other configurations.
 
@@ -122,11 +122,11 @@ The harness reads the `//exp:` markers in `triceCheck.c`, remembers their line n
 
 `testLines = -1` means all expectations. Positive values are a local debugging limit, not a complete test result. A selected line may emit multiple records; the capture is not limited to one Trice per source line.
 
-| Strategy | Behavior |
-| --- | --- |
-| `auto` | The worker asks the compiled C configuration whether framed channels support batched decoding. Unframed and special cases keep their suitable existing path. |
-| Bulk | Executes all sites, retains source/output boundaries, and starts the host logger once per channel. Direct and deferred streams are kept separate. |
-| Line by line | Captures and decodes one expectation at a time; needed where concatenation loses unframed packet boundaries and useful for diagnosis. |
+Strategy     | Behavior
+------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------
+`auto`       | The worker asks the compiled C configuration whether framed channels support batched decoding. Unframed and special cases keep their suitable existing path.
+Bulk         | Executes all sites, retains source/output boundaries, and starts the host logger once per channel. Direct and deferred streams are kept separate.
+Line by line | Captures and decodes one expectation at a time; needed where concatenation loses unframed packet boundaries and useful for diagnosis.
 
 Batched **decoding** does not mean changing every target's transfer schedule. Configurations that drain after each site retain that schedule; the existing deferred bulk cases retain their grouped transfers to test buffering. Finite replay finishes when the recorded input is drained.
 
@@ -134,15 +134,15 @@ The first mismatch stops that configuration's comparison loop, avoiding thousand
 
 ### 3.2. <a id="shared-and-additional-go-test-entry-points"></a>Shared and additional Go test entry points
 
-| Test | What it checks |
-| --- | --- |
-| `TestTriceLog` | Runs the shared expectation list using the configuration's direct, deferred, combined or special path. |
-| `TestBulkOutputDiagnostics` | Checks source mapping and diagnostics for exact, empty and multiline output, changed values, missing records, unexpected prefixes and trailing records. This is a harness check, repeated by the shared package template. |
-| `TestLogs` in the three alias/user-print packages | Runs their dedicated `TargetActivity.c` expectations through the actual decoder; see their catalogue rows. |
-| `TestStructuredTriceExamples` in `ringB_de_multi_cobs_ua` | Separately identifies the canonical structured examples: 8/16/32/64-bit values, member fields mixed with classic placeholders, float/double wrappers, strings, bounded strings and a manual JSON field name. |
-| `TestPCStopsAtFirstMismatch` in the same package | Deliberately fails child processes in line, bulk and combined modes; requires one source-linked diagnostic, no subsequent comparison, and retained bulk input/output. |
-| `TestTriceAbcReceiveRuntime` | Runs 15 C receiver/resolver scenarios; see the ABC cases below. |
-| `TestTriceAbcTransmitMacros` | Compares six ABC macro calls with fixed wire bytes; see the ABC cases below. |
+Test                                                      | What it checks
+--------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`TestTriceLog`                                            | Runs the shared expectation list using the configuration's direct, deferred, combined or special path.
+`TestBulkOutputDiagnostics`                               | Checks source mapping and diagnostics for exact, empty and multiline output, changed values, missing records, unexpected prefixes and trailing records. This is a harness check, repeated by the shared package template.
+`TestLogs` in the three alias/user-print packages         | Runs their dedicated `TargetActivity.c` expectations through the actual decoder; see their catalogue rows.
+`TestStructuredTriceExamples` in `ringB_de_multi_cobs_ua` | Separately identifies the canonical structured examples: 8/16/32/64-bit values, member fields mixed with classic placeholders, float/double wrappers, strings, bounded strings and a manual JSON field name.
+`TestPCStopsAtFirstMismatch` in the same package          | Deliberately fails child processes in line, bulk and combined modes; requires one source-linked diagnostic, no subsequent comparison, and retained bulk input/output.
+`TestTriceAbcReceiveRuntime`                              | Runs 15 C receiver/resolver scenarios; see the ABC cases below.
+`TestTriceAbcTransmitMacros`                              | Compares six ABC macro calls with fixed wire bytes; see the ABC cases below.
 
 `TestMain` and per-test setup save/restore shared Go settings. They are lifecycle helpers, not extra C coverage claims.
 
@@ -156,35 +156,35 @@ Read names as a guide, not as a replacement for the configuration: `di` means di
 
 All these packages use simulated UART A. The single/multi difference remains active even when the host decoder batches input.
 
-| Package | Variation checked |
-| --- | --- |
-| [dblB_de_multi_cobs_ua](../../_test/dblB_de_multi_cobs_ua) | Multi-pack COBS. |
-| [dblB_de_multi_nopf_ua](../../_test/dblB_de_multi_nopf_ua) | Multi-pack without framing. |
-| [dblB_de_multi_tcobs_ua](../../_test/dblB_de_multi_tcobs_ua) | Multi-pack TCOBS. |
-| [dblB_de_multi_xtea_cobs_ua](../../_test/dblB_de_multi_xtea_cobs_ua) | Multi-pack XTEA + COBS. |
-| [dblB_de_multi_xtea_tcobs_ua](../../_test/dblB_de_multi_xtea_tcobs_ua) | Multi-pack XTEA + TCOBS. |
-| [dblB_de_single_cobs_ua](../../_test/dblB_de_single_cobs_ua) | Single-pack COBS. |
-| [dblB_de_single_nopf_ua](../../_test/dblB_de_single_nopf_ua) | Single-pack without framing. |
-| [dblB_de_single_tcobs_ua](../../_test/dblB_de_single_tcobs_ua) | Single-pack TCOBS. |
-| [dblB_de_single_xtea_cobs_ua](../../_test/dblB_de_single_xtea_cobs_ua) | Single-pack XTEA + COBS. |
-| [dblB_de_single_xtea_tcobs_ua](../../_test/dblB_de_single_xtea_tcobs_ua) | Single-pack XTEA + TCOBS. |
+Package                                                                  | Variation checked
+------------------------------------------------------------------------ | ----------------------------
+[dblB_de_multi_cobs_ua](../../_test/dblB_de_multi_cobs_ua)               | Multi-pack COBS.
+[dblB_de_multi_nopf_ua](../../_test/dblB_de_multi_nopf_ua)               | Multi-pack without framing.
+[dblB_de_multi_tcobs_ua](../../_test/dblB_de_multi_tcobs_ua)             | Multi-pack TCOBS.
+[dblB_de_multi_xtea_cobs_ua](../../_test/dblB_de_multi_xtea_cobs_ua)     | Multi-pack XTEA + COBS.
+[dblB_de_multi_xtea_tcobs_ua](../../_test/dblB_de_multi_xtea_tcobs_ua)   | Multi-pack XTEA + TCOBS.
+[dblB_de_single_cobs_ua](../../_test/dblB_de_single_cobs_ua)             | Single-pack COBS.
+[dblB_de_single_nopf_ua](../../_test/dblB_de_single_nopf_ua)             | Single-pack without framing.
+[dblB_de_single_tcobs_ua](../../_test/dblB_de_single_tcobs_ua)           | Single-pack TCOBS.
+[dblB_de_single_xtea_cobs_ua](../../_test/dblB_de_single_xtea_cobs_ua)   | Single-pack XTEA + COBS.
+[dblB_de_single_xtea_tcobs_ua](../../_test/dblB_de_single_xtea_tcobs_ua) | Single-pack XTEA + TCOBS.
 
 ### 4.2. <a id="double-buffer-with-simultaneous-direct-and-deferred-output"></a>Double buffer with simultaneous direct and deferred output
 
 Each site must decode correctly on both paths. Deferred output uses UART A; the columns distinguish only what changes between configurations. “None” means no framing, not no output.
 
-| Package | Direct path | Deferred path |
-| --- | --- | --- |
-| [dblB_di_cobs_rtt32__de_xtea_cobs_ua](../../_test/dblB_di_cobs_rtt32__de_xtea_cobs_ua) | RTT32, COBS | XTEA + COBS |
-| [dblB_di_nopf_rtt32__de_cobs_ua](../../_test/dblB_di_nopf_rtt32__de_cobs_ua) | RTT32, none | COBS |
-| [dblB_di_nopf_rtt32__de_multi_cobs_ua](../../_test/dblB_di_nopf_rtt32__de_multi_cobs_ua) | RTT32, none | Explicit multi-pack COBS |
-| [dblB_di_nopf_rtt32__de_multi_tcobs_ua](../../_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua) | RTT32, none | Explicit multi-pack TCOBS |
-| [dblB_di_nopf_rtt32__de_tcobs_ua](../../_test/dblB_di_nopf_rtt32__de_tcobs_ua) | RTT32, none | TCOBS |
-| [dblB_di_nopf_rtt32__de_xtea_cobs_ua](../../_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua) | RTT32, none | XTEA + COBS |
-| [dblB_di_nopf_rtt8__de_cobs_ua](../../_test/dblB_di_nopf_rtt8__de_cobs_ua) | RTT8, none | COBS |
-| [dblB_di_nopf_rtt8__de_multi_cobs_ua](../../_test/dblB_di_nopf_rtt8__de_multi_cobs_ua) | RTT8, none | Explicit multi-pack COBS |
-| [dblB_di_nopf_rtt8__de_multi_tcobs_ua](../../_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua) | RTT8, none | Explicit multi-pack TCOBS |
-| [dblB_di_nopf_rtt8__de_tcobs_ua](../../_test/dblB_di_nopf_rtt8__de_tcobs_ua) | RTT8, none | TCOBS |
+Package                                                                                    | Direct path | Deferred path
+------------------------------------------------------------------------------------------ | ----------- | -------------------------
+[dblB_di_cobs_rtt32__de_xtea_cobs_ua](../../_test/dblB_di_cobs_rtt32__de_xtea_cobs_ua)     | RTT32, COBS | XTEA + COBS
+[dblB_di_nopf_rtt32__de_cobs_ua](../../_test/dblB_di_nopf_rtt32__de_cobs_ua)               | RTT32, none | COBS
+[dblB_di_nopf_rtt32__de_multi_cobs_ua](../../_test/dblB_di_nopf_rtt32__de_multi_cobs_ua)   | RTT32, none | Explicit multi-pack COBS
+[dblB_di_nopf_rtt32__de_multi_tcobs_ua](../../_test/dblB_di_nopf_rtt32__de_multi_tcobs_ua) | RTT32, none | Explicit multi-pack TCOBS
+[dblB_di_nopf_rtt32__de_tcobs_ua](../../_test/dblB_di_nopf_rtt32__de_tcobs_ua)             | RTT32, none | TCOBS
+[dblB_di_nopf_rtt32__de_xtea_cobs_ua](../../_test/dblB_di_nopf_rtt32__de_xtea_cobs_ua)     | RTT32, none | XTEA + COBS
+[dblB_di_nopf_rtt8__de_cobs_ua](../../_test/dblB_di_nopf_rtt8__de_cobs_ua)                 | RTT8, none  | COBS
+[dblB_di_nopf_rtt8__de_multi_cobs_ua](../../_test/dblB_di_nopf_rtt8__de_multi_cobs_ua)     | RTT8, none  | Explicit multi-pack COBS
+[dblB_di_nopf_rtt8__de_multi_tcobs_ua](../../_test/dblB_di_nopf_rtt8__de_multi_tcobs_ua)   | RTT8, none  | Explicit multi-pack TCOBS
+[dblB_di_nopf_rtt8__de_tcobs_ua](../../_test/dblB_di_nopf_rtt8__de_tcobs_ua)               | RTT8, none  | TCOBS
 
 Unspecified deferred transfer mode currently defaults to multi-pack. The explicitly named multi-pack packages retain that setting in their own header; both sets remain independently selected.
 
@@ -192,105 +192,105 @@ Unspecified deferred transfer mode currently defaults to multi-pack. The explici
 
 These use UART A, like the deferred double-buffer cases, but exercise the ring-buffer implementation and wrap/transfer behavior.
 
-| Package | Variation checked |
-| --- | --- |
-| [ringB_de_multi_cobs_ua](../../_test/ringB_de_multi_cobs_ua) | Multi-pack COBS; also owns the structured-example and first-mismatch tests. |
-| [ringB_de_multi_nopf_ua](../../_test/ringB_de_multi_nopf_ua) | Multi-pack without framing; explicitly enlarged deferred buffer. |
-| [ringB_de_multi_tcobs_ua](../../_test/ringB_de_multi_tcobs_ua) | Multi-pack TCOBS. |
-| [ringB_de_multi_xtea_cobs_ua](../../_test/ringB_de_multi_xtea_cobs_ua) | Multi-pack XTEA + COBS. |
-| [ringB_de_multi_xtea_tcobs_ua](../../_test/ringB_de_multi_xtea_tcobs_ua) | Multi-pack XTEA + TCOBS. |
-| [ringB_de_single_cobs_ua](../../_test/ringB_de_single_cobs_ua) | Single-pack COBS. |
-| [ringB_de_single_nopf_ua](../../_test/ringB_de_single_nopf_ua) | Single-pack without framing. |
-| [ringB_de_single_tcobs_ua](../../_test/ringB_de_single_tcobs_ua) | Single-pack TCOBS. |
-| [ringB_de_single_xtea_cobs_ua](../../_test/ringB_de_single_xtea_cobs_ua) | Single-pack XTEA + COBS. |
-| [ringB_de_single_xtea_tcobs_ua](../../_test/ringB_de_single_xtea_tcobs_ua) | Single-pack XTEA + TCOBS. |
+Package                                                                    | Variation checked
+-------------------------------------------------------------------------- | ---------------------------------------------------------------------------
+[ringB_de_multi_cobs_ua](../../_test/ringB_de_multi_cobs_ua)               | Multi-pack COBS; also owns the structured-example and first-mismatch tests.
+[ringB_de_multi_nopf_ua](../../_test/ringB_de_multi_nopf_ua)               | Multi-pack without framing; explicitly enlarged deferred buffer.
+[ringB_de_multi_tcobs_ua](../../_test/ringB_de_multi_tcobs_ua)             | Multi-pack TCOBS.
+[ringB_de_multi_xtea_cobs_ua](../../_test/ringB_de_multi_xtea_cobs_ua)     | Multi-pack XTEA + COBS.
+[ringB_de_multi_xtea_tcobs_ua](../../_test/ringB_de_multi_xtea_tcobs_ua)   | Multi-pack XTEA + TCOBS.
+[ringB_de_single_cobs_ua](../../_test/ringB_de_single_cobs_ua)             | Single-pack COBS.
+[ringB_de_single_nopf_ua](../../_test/ringB_de_single_nopf_ua)             | Single-pack without framing.
+[ringB_de_single_tcobs_ua](../../_test/ringB_de_single_tcobs_ua)           | Single-pack TCOBS.
+[ringB_de_single_xtea_cobs_ua](../../_test/ringB_de_single_xtea_cobs_ua)   | Single-pack XTEA + COBS.
+[ringB_de_single_xtea_tcobs_ua](../../_test/ringB_de_single_xtea_tcobs_ua) | Single-pack XTEA + TCOBS.
 
 ### 4.4. <a id="ring-buffer-with-simultaneous-direct-and-deferred-output"></a>Ring buffer with simultaneous direct and deferred output
 
 Deferred output again uses UART A and the default multi-pack mode.
 
-| Package | Direct path | Deferred path |
-| --- | --- | --- |
-| [ringB_di_cobs_rtt32__de_tcobs_ua](../../_test/ringB_di_cobs_rtt32__de_tcobs_ua) | RTT32, COBS | TCOBS |
-| [ringB_di_cobs_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_cobs_rtt32__de_xtea_cobs_ua) | RTT32, COBS | XTEA + COBS |
-| [ringB_di_cobs_rtt8__de_tcobs_ua](../../_test/ringB_di_cobs_rtt8__de_tcobs_ua) | RTT8, COBS | TCOBS |
-| [ringB_di_nopf_rtt32__de_tcobs_ua](../../_test/ringB_di_nopf_rtt32__de_tcobs_ua) | RTT32, none | TCOBS |
-| [ringB_di_nopf_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua) | RTT32, none | XTEA + COBS |
-| [ringB_di_nopf_rtt8__de_tcobs_ua](../../_test/ringB_di_nopf_rtt8__de_tcobs_ua) | RTT8, none | TCOBS |
-| [ringB_di_tcobs_rtt32__de_tcobs_ua](../../_test/ringB_di_tcobs_rtt32__de_tcobs_ua) | RTT32, TCOBS | TCOBS |
-| [ringB_di_xtea_cobs_rtt32__de_cobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_cobs_ua) | RTT32, XTEA + COBS | COBS |
-| [ringB_di_xtea_cobs_rtt32__de_tcobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua) | RTT32, XTEA + COBS | TCOBS |
-| [ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua) | RTT32, XTEA + COBS | XTEA + COBS |
+Package                                                                                            | Direct path        | Deferred path
+-------------------------------------------------------------------------------------------------- | ------------------ | -------------
+[ringB_di_cobs_rtt32__de_tcobs_ua](../../_test/ringB_di_cobs_rtt32__de_tcobs_ua)                   | RTT32, COBS        | TCOBS
+[ringB_di_cobs_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_cobs_rtt32__de_xtea_cobs_ua)           | RTT32, COBS        | XTEA + COBS
+[ringB_di_cobs_rtt8__de_tcobs_ua](../../_test/ringB_di_cobs_rtt8__de_tcobs_ua)                     | RTT8, COBS         | TCOBS
+[ringB_di_nopf_rtt32__de_tcobs_ua](../../_test/ringB_di_nopf_rtt32__de_tcobs_ua)                   | RTT32, none        | TCOBS
+[ringB_di_nopf_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_nopf_rtt32__de_xtea_cobs_ua)           | RTT32, none        | XTEA + COBS
+[ringB_di_nopf_rtt8__de_tcobs_ua](../../_test/ringB_di_nopf_rtt8__de_tcobs_ua)                     | RTT8, none         | TCOBS
+[ringB_di_tcobs_rtt32__de_tcobs_ua](../../_test/ringB_di_tcobs_rtt32__de_tcobs_ua)                 | RTT32, TCOBS       | TCOBS
+[ringB_di_xtea_cobs_rtt32__de_cobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_cobs_ua)           | RTT32, XTEA + COBS | COBS
+[ringB_di_xtea_cobs_rtt32__de_tcobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_tcobs_ua)         | RTT32, XTEA + COBS | TCOBS
+[ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua](../../_test/ringB_di_xtea_cobs_rtt32__de_xtea_cobs_ua) | RTT32, XTEA + COBS | XTEA + COBS
 
 ### 4.5. <a id="direct-stack-and-static-buffers"></a>Direct stack and static buffers
 
 These have no deferred UART path. “Big-endian” selects wire transfer order on the native host; it does not turn the machine into a big-endian CPU.
 
-| Package | Variation checked |
-| --- | --- |
-| [stackB_di_nopf_aux8](../../_test/stackB_di_nopf_aux8) | Stack buffer, unframed auxiliary byte writer. |
-| [stackB_di_nopf_aux32](../../_test/stackB_di_nopf_aux32) | Stack buffer, unframed auxiliary word writer. |
-| [stackB_di_nopf_rtt8](../../_test/stackB_di_nopf_rtt8) | Stack buffer, unframed RTT byte writer. |
-| [stackB_di_nopf_rtt32](../../_test/stackB_di_nopf_rtt32) | Stack buffer, unframed RTT word writer. |
-| [stackB_di_xtea_cobs_rtt8](../../_test/stackB_di_xtea_cobs_rtt8) | Stack buffer, XTEA + COBS, RTT byte writer. |
-| [staticB_di_nopf_aux8](../../_test/staticB_di_nopf_aux8) | Static buffer, unframed auxiliary byte writer. |
-| [staticB_di_nopf_aux32](../../_test/staticB_di_nopf_aux32) | Static buffer, unframed auxiliary word writer. |
-| [staticB_di_nopf_rtt8](../../_test/staticB_di_nopf_rtt8) | Static buffer, unframed RTT byte writer. |
-| [staticB_di_nopf_rtt32](../../_test/staticB_di_nopf_rtt32) | Static buffer, unframed RTT word writer. |
-| [staticB_di_tcobs_rtt8](../../_test/staticB_di_tcobs_rtt8) | Static buffer, TCOBS, RTT byte writer. |
-| [staticB_di_tcobs_rtt32](../../_test/staticB_di_tcobs_rtt32) | Static buffer, TCOBS, RTT word writer. |
-| [staticB_di_xtea_cobs_rtt32](../../_test/staticB_di_xtea_cobs_rtt32) | Static buffer, XTEA + COBS, RTT word writer. |
-| [be_staticB_di_xtea_cobs_rtt32](../../_test/be_staticB_di_xtea_cobs_rtt32) | Same encrypted static-buffer path with big-endian transfer order. |
+Package                                                                    | Variation checked
+-------------------------------------------------------------------------- | -----------------------------------------------------------------
+[stackB_di_nopf_aux8](../../_test/stackB_di_nopf_aux8)                     | Stack buffer, unframed auxiliary byte writer.
+[stackB_di_nopf_aux32](../../_test/stackB_di_nopf_aux32)                   | Stack buffer, unframed auxiliary word writer.
+[stackB_di_nopf_rtt8](../../_test/stackB_di_nopf_rtt8)                     | Stack buffer, unframed RTT byte writer.
+[stackB_di_nopf_rtt32](../../_test/stackB_di_nopf_rtt32)                   | Stack buffer, unframed RTT word writer.
+[stackB_di_xtea_cobs_rtt8](../../_test/stackB_di_xtea_cobs_rtt8)           | Stack buffer, XTEA + COBS, RTT byte writer.
+[staticB_di_nopf_aux8](../../_test/staticB_di_nopf_aux8)                   | Static buffer, unframed auxiliary byte writer.
+[staticB_di_nopf_aux32](../../_test/staticB_di_nopf_aux32)                 | Static buffer, unframed auxiliary word writer.
+[staticB_di_nopf_rtt8](../../_test/staticB_di_nopf_rtt8)                   | Static buffer, unframed RTT byte writer.
+[staticB_di_nopf_rtt32](../../_test/staticB_di_nopf_rtt32)                 | Static buffer, unframed RTT word writer.
+[staticB_di_tcobs_rtt8](../../_test/staticB_di_tcobs_rtt8)                 | Static buffer, TCOBS, RTT byte writer.
+[staticB_di_tcobs_rtt32](../../_test/staticB_di_tcobs_rtt32)               | Static buffer, TCOBS, RTT word writer.
+[staticB_di_xtea_cobs_rtt32](../../_test/staticB_di_xtea_cobs_rtt32)       | Static buffer, XTEA + COBS, RTT word writer.
+[be_staticB_di_xtea_cobs_rtt32](../../_test/be_staticB_di_xtea_cobs_rtt32) | Same encrypted static-buffer path with big-endian transfer order.
 
 ### 4.6. <a id="special-configurations"></a>Special configurations
 
 These use custom assertions or add an important independent variation. Some folder names are historical: the alias/user-print headers actually select **stack, direct, unframed auxiliary32**, not the double-buffer/deferred/TCOBS combination suggested by their names.
 
-| Package | What it checks |
-| --- | --- |
-| [be_dblB_de_tcobs_ua](../../_test/be_dblB_de_tcobs_ua) | Shared expectations with big-endian transfer order, double buffer, deferred TCOBS/UART A. |
-| [dblB_de_protect_tcobs_ua](../../_test/dblB_de_protect_tcobs_ua) | Deliberately small double buffer: already accepted records survive, and the next record that cannot safely fit is suppressed. |
-| [ringB_de_protect_tcobs_ua](../../_test/ringB_de_protect_tcobs_ua) | Corresponding protected ring-buffer overflow case, with its own capacity/transfer behavior. |
-| [modify_for_debug](../../_test/modify_for_debug) | Small dedicated double-buffer fixture emits the same three-byte buffer twice and checks both decoded records. |
-| [stackB_di_nopf_aux32_specific](../../_test/stackB_di_nopf_aux32_specific) | Dedicated legacy F-call fixture for 8/16/32/64-bit arrays and stamp spellings; checks line and bulk decoding. |
-| [alias_dblB_de_tcobs_ua](../../_test/alias_dblB_de_tcobs_ua) | User logging aliases, including wrapper macros, preserve their expected decoded output. |
-| [aliasassert_dblB_de_tcobs_ua](../../_test/aliasassert_dblB_de_tcobs_ua) | Custom assertion wrappers, condition text, file/line and formatted messages. |
-| [userprint_dblB_de_tcobs_ua](../../_test/userprint_dblB_de_tcobs_ua) | Variadic user `print` wrapper produces the expected Trice records. |
-| [abc_rx_host](../../_test/abc_rx_host) | Real C ABC parser, resolver and dispatch behavior, with synthetic input records. |
-| [abc_tx_host](../../_test/abc_tx_host) | ABC transmit macro wire bytes, captured by custom write hooks; no receiver table or full Trice runtime is needed. |
+Package                                                                    | What it checks
+-------------------------------------------------------------------------- | -----------------------------------------------------------------------------------------------------------------------------
+[be_dblB_de_tcobs_ua](../../_test/be_dblB_de_tcobs_ua)                     | Shared expectations with big-endian transfer order, double buffer, deferred TCOBS/UART A.
+[dblB_de_protect_tcobs_ua](../../_test/dblB_de_protect_tcobs_ua)           | Deliberately small double buffer: already accepted records survive, and the next record that cannot safely fit is suppressed.
+[ringB_de_protect_tcobs_ua](../../_test/ringB_de_protect_tcobs_ua)         | Corresponding protected ring-buffer overflow case, with its own capacity/transfer behavior.
+[modify_for_debug](../../_test/modify_for_debug)                           | Small dedicated double-buffer fixture emits the same three-byte buffer twice and checks both decoded records.
+[stackB_di_nopf_aux32_specific](../../_test/stackB_di_nopf_aux32_specific) | Dedicated legacy F-call fixture for 8/16/32/64-bit arrays and stamp spellings; checks line and bulk decoding.
+[alias_dblB_de_tcobs_ua](../../_test/alias_dblB_de_tcobs_ua)               | User logging aliases, including wrapper macros, preserve their expected decoded output.
+[aliasassert_dblB_de_tcobs_ua](../../_test/aliasassert_dblB_de_tcobs_ua)   | Custom assertion wrappers, condition text, file/line and formatted messages.
+[userprint_dblB_de_tcobs_ua](../../_test/userprint_dblB_de_tcobs_ua)       | Variadic user `print` wrapper produces the expected Trice records.
+[abc_rx_host](../../_test/abc_rx_host)                                     | Real C ABC parser, resolver and dispatch behavior, with synthetic input records.
+[abc_tx_host](../../_test/abc_tx_host)                                     | ABC transmit macro wire bytes, captured by custom write hooks; no receiver table or full Trice runtime is needed.
 
 ### 4.7. <a id="abc-case-details"></a>ABC case details
 
 The receiver's [C fixture](../../_test/abc_rx_host/triceAbcReceiveTest.c) returns a failure count to Go for each case:
 
-| Case | Check |
-| --- | --- |
-| 1 | No-payload command with a 16-bit stamp; logical record length excludes padding. |
-| 2 | 16-bit payload with a 32-bit stamp, including unaligned input. |
-| 3 | 32-bit payload without a stamp. |
-| 4 | 64-bit payload with a 16-bit stamp; padding is excluded from consumed length. |
-| 5 | Unknown ABC ID is consumed without calling a handler. |
-| 6 | Selector 0 is rejected when counted X0 support is disabled. |
-| 7 | Payload length not aligned to its 32-bit width is rejected before dispatch. |
-| 8 | Truncated selected record is rejected before dispatch. |
-| 9 | Nested dispatch preserves the outer handler's stamp/context. |
-| 10 | Long-count byte payload and logical length without appended padding. |
-| 11 | Default bit width for log names without an explicit width. |
-| 12 | No-width ABC command names remain payload-free. |
-| 13 | Explicit log widths override the no-width default. |
-| 14 | Unknown log IDs, truncated input and wrong parameter counts; no ABC dispatch side effects. The successful known-ID consumed length is currently not asserted. |
-| 15 | A stream caller advances by the consumed length; one receive call handles one record. |
+Case | Check
+---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------
+1    | No-payload command with a 16-bit stamp; logical record length excludes padding.
+2    | 16-bit payload with a 32-bit stamp, including unaligned input.
+3    | 32-bit payload without a stamp.
+4    | 64-bit payload with a 16-bit stamp; padding is excluded from consumed length.
+5    | Unknown ABC ID is consumed without calling a handler.
+6    | Selector 0 is rejected when counted X0 support is disabled.
+7    | Payload length not aligned to its 32-bit width is rejected before dispatch.
+8    | Truncated selected record is rejected before dispatch.
+9    | Nested dispatch preserves the outer handler's stamp/context.
+10   | Long-count byte payload and logical length without appended padding.
+11   | Default bit width for log names without an explicit width.
+12   | No-width ABC command names remain payload-free.
+13   | Explicit log widths override the no-width default.
+14   | Unknown log IDs, truncated input and wrong parameter counts; no ABC dispatch side effects. The successful known-ID consumed length is currently not asserted.
+15   | A stream caller advances by the consumed length; one receive call handles one record.
 
 The transmitter's [C fixture](../../_test/abc_tx_host/triceAbcTransmitTest.c) compares exact bytes, including headers and padding:
 
-| Case | Macro and variation |
-| --- | --- |
-| 1 | `triceC`: no payload, no stamp. |
-| 2 | `TriceC`: no payload, 16-bit stamp. |
-| 3 | `TRiceC`: no payload, 32-bit stamp. |
-| 4 | `trice8C`: three payload bytes, no stamp. |
-| 5 | `Trice16C`: two 16-bit values, 16-bit stamp. |
-| 6 | `TRice32C`: one 32-bit value, 32-bit stamp. |
+Case | Macro and variation
+---- | --------------------------------------------
+1    | `triceC`: no payload, no stamp.
+2    | `TriceC`: no payload, 16-bit stamp.
+3    | `TRiceC`: no payload, 32-bit stamp.
+4    | `trice8C`: three payload bytes, no stamp.
+5    | `Trice16C`: two 16-bit values, 16-bit stamp.
+6    | `TRice32C`: one 32-bit value, 32-bit stamp.
 
 The nine-node [ABC demo](../../examples/TriceAbc/demo.sh) supplies separate process-level integration evidence in step 515: all receivers become ready before transmission, remain alive until requests/replies are drained, and are reaped on failure or interruption. Its start markers are private to each run. The CGO receiver/transmitter cases isolate wire/runtime behavior without that process orchestration.
 
@@ -316,29 +316,29 @@ Preparation exposes the report helper's path only after its build succeeds and t
 
 The numbered files are stable entry points. The table maps each current suite step to its main responsibility; selection differences are listed only in [the usage chapter](target_tests.md#what-full-and-quick-cover).
 
-| Step | Responsibility |
-| --- | --- |
-| 400 | shfmt shell formatting. |
-| 410 | ShellCheck diagnostics. |
-| 420 | Unwanted `.DS_Store` files. |
-| 430 | C/C++ formatting with the pinned clang-format. |
-| 440 | Manual contents/heading formatting with mdtoc. |
-| 450 | Markdown linting. |
-| 460 | GoReleaser configuration check. |
-| 470 | GitHub workflow validation with Actionlint. |
-| 480 | Build the current Trice tool. |
-| 490 | Native runtime/compiler preparation checks. |
-| 500 | Bind behavior and compiler integration. |
-| 510 | Public Bind workflows and transactional restoration. |
-| 515 | Productive CE/SL target-to-decoder tests and feature/example integration. |
-| 520 | Exhaustive target-code analysis with Cppcheck. |
-| 540 | Go formatting and package tests. |
-| 550 | Go tests with coverage and coverage summary. |
-| 560 / 570 | Clang example builds with Insert / Bind. |
-| 580 / 590 / 600 | GCC examples with logging off / Insert / Bind. |
-| 620 | All L432 firmware configurations. |
-| 630 / 640 | GCC PC/CGO configurations with Insert / Bind. |
-| 645 | Clang PC/CGO configurations for the selected ID workflows. |
+Step            | Responsibility
+--------------- | -------------------------------------------------------------------------
+400             | shfmt shell formatting.
+410             | ShellCheck diagnostics.
+420             | Unwanted `.DS_Store` files.
+430             | C/C++ formatting with the pinned clang-format.
+440             | Manual contents/heading formatting with mdtoc.
+450             | Markdown linting.
+460             | GoReleaser configuration check.
+470             | GitHub workflow validation with Actionlint.
+480             | Build the current Trice tool.
+490             | Native runtime/compiler preparation checks.
+500             | Bind behavior and compiler integration.
+510             | Public Bind workflows and transactional restoration.
+515             | Productive CE/SL target-to-decoder tests and feature/example integration.
+520             | Exhaustive target-code analysis with Cppcheck.
+540             | Go formatting and package tests.
+550             | Go tests with coverage and coverage summary.
+560 / 570       | Clang example builds with Insert / Bind.
+580 / 590 / 600 | GCC examples with logging off / Insert / Bind.
+620             | All L432 firmware configurations.
+630 / 640       | GCC PC/CGO configurations with Insert / Bind.
+645             | Clang PC/CGO configurations for the selected ID workflows.
 
 Step 530 (links) and 610 (snapshot packages) remain separately runnable checks, as explained in [release testing](target_tests.md#goreleaser-and-release-package-testing).
 
@@ -348,18 +348,18 @@ Step 515 selects the compiler-to-decoder CE/SL tests for C/C++, text/JSON/KV, st
 
 The [example coverage inventory](../../scripts/example_coverage_test.go) records every tracked project directory under `demo/` and `examples/`; adding a project without registering its coverage fails the tests. Full includes all projects below. Quick retains the host/demo checks and selects fewer MCU configurations.
 
-| Projects | Automated coverage and Bind use |
-| --- | --- |
-| `demo/direct`, `demo/deferred`, `demo/live` | Step 515 runs the public scripts with real Bind, GCC and Clang, then decodes their output. The unchanged live producer is stopped after its first flushed record. |
-| `TriceAbc`, including `BcSimChk` | Step 515 builds and runs all nine ABC nodes with Bind and both compilers, retains Insert/Clean coverage, and runs the standalone byte-bus demo. TX-only RX compilation uses ISO C warnings as errors. The RM key-idea sender, Bind command, TIL excerpt and generator command are checked too. |
-| `DemoData_Trice`, `DemoData_CSV` | Step 515 builds both producers with GCC and Clang and runs finite sample captures. Trice output is bound and decoded; plain CSV has no Trice IDs. Full also builds the logging-on/off matrix. |
-| `PC_features`, `PC_log` | Feature-output checks in 515 and the standalone Bind build/run in 600. |
-| `F030_bare`, `G0B1_bare`, `L432_bare` | Full logging-on/off builds in 580/590/600; shared instrumented example sources are prepared by the managed ID workflow. |
-| `F030_inst`, `G0B1_inst`, `L432_inst` | Managed Insert and Bind builds; standalone GCC/Clang Bind entries in 600, G0B1 Clang in 560/570 and the L432 GCC configuration matrix in 620. |
-| `F030_inst_rtt`, `F030_inst_uart`, `G0B1_log` | Standalone Bind builds in 600. Physical logging transports need a separate board/probe test. |
-| `G0B1_features` | Isolated Bind firmware build in 515; full uses GCC and Clang. |
-| `LabPlotDemo`, `LabPlotUser` | Real producer builds above, compressed LabPlot-project XML validation and headless launcher tests. `LabPlotUser` is a documentation-only walkthrough. GUI rendering remains a manual check. |
-| `exampleData`, `TriceAbc/BcSim`, `TriceAbc/NodeLib` | Shared inputs compiled by the corresponding firmware and host builds; these are not separate applications. |
+Projects                                            | Automated coverage and Bind use
+--------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`demo/direct`, `demo/deferred`, `demo/live`         | Step 515 runs the public scripts with real Bind, GCC and Clang, then decodes their output. The unchanged live producer is stopped after its first flushed record.
+`TriceAbc`, including `BcSimChk`                    | Step 515 builds and runs all nine ABC nodes with Bind and both compilers, retains Insert/Clean coverage, and runs the standalone byte-bus demo. TX-only RX compilation uses ISO C warnings as errors. The RM key-idea sender, Bind command, TIL excerpt and generator command are checked too.
+`DemoData_Trice`, `DemoData_CSV`                    | Step 515 builds both producers with GCC and Clang and runs finite sample captures. Trice output is bound and decoded; plain CSV has no Trice IDs. Full also builds the logging-on/off matrix.
+`PC_features`, `PC_log`                             | Feature-output checks in 515 and the standalone Bind build/run in 600.
+`F030_bare`, `G0B1_bare`, `L432_bare`               | Full logging-on/off builds in 580/590/600; shared instrumented example sources are prepared by the managed ID workflow.
+`F030_inst`, `G0B1_inst`, `L432_inst`               | Managed Insert and Bind builds; standalone GCC/Clang Bind entries in 600, G0B1 Clang in 560/570 and the L432 GCC configuration matrix in 620.
+`F030_inst_rtt`, `F030_inst_uart`, `G0B1_log`       | Standalone Bind builds in 600. Physical logging transports need a separate board/probe test.
+`G0B1_features`                                     | Isolated Bind firmware build in 515; full uses GCC and Clang.
+`LabPlotDemo`, `LabPlotUser`                        | Real producer builds above, compressed LabPlot-project XML validation and headless launcher tests. `LabPlotUser` is a documentation-only walkthrough. GUI rendering remains a manual check.
+`exampleData`, `TriceAbc/BcSim`, `TriceAbc/NodeLib` | Shared inputs compiled by the corresponding firmware and host builds; these are not separate applications.
 
 Host integration tests reject compiler warnings rather than hiding them in successful Go output. Firmware builds retain vendor diagnostics; the suite's PASS summary now also surfaces distinct `warning:` lines from detail logs. A successful compilation does not prove MCU execution, physical UART/RTT communication or GUI rendering.
 
