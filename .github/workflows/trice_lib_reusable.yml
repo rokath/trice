@@ -66,6 +66,21 @@ jobs:
           # checks if you ever add them inside the build scripts.
           fetch-depth: 0
 
+      - name: Free space for pinned Linux toolchains
+        if: ${{ runner.os == 'Linux' && runner.environment == 'github-hosted' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Leave room for the verified tool archives and their extracted copies.
+          # The library matrix does not use the hosted Android or .NET SDKs.
+          echo 'Removing unused hosted-runner Android and .NET SDKs before tool preparation.'
+          df -h .
+          if ! sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet; then
+            echo '::error::Cannot free toolchain space: failed to remove unused SDKs at /usr/local/lib/android and /usr/share/dotnet.'
+            exit 1
+          fi
+          df -h .
+
       - name: Install toolchains and build tools
         shell: bash
         run: |

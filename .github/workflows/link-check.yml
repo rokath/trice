@@ -3,7 +3,7 @@ name: Link Check
 on:
   push:
     branches: ["main"]           # Run link checks on every push to main
-  pull_request:                  # Also run on every PR (useful for gating changes)
+  pull_request:                  # PRs check local files and anchors without remote requests
   workflow_dispatch:             # Allow manual runs from the GitHub UI
 
 jobs:
@@ -45,6 +45,7 @@ jobs:
             --config lychee.toml
             --include-fragments
             --no-progress
+            ${{ github.event_name == 'pull_request' && '--offline' || '' }}
             --remap "https://github.com/rokath/trice/blob/main/_test/testdata/triceCheck.c file://${{ github.workspace }}/_test/testdata/triceCheck.c"
             .
           #

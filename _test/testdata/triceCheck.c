@@ -83,11 +83,10 @@ void TriceCheck(int index) {
 #else // #ifdef TRICE_CHECK_MIN
     char * sABCDE = "abcde 12345";
     uint32_t lenABCDE = strlen(sABCDE);
+#if !TRICE_OFF
     float  x = (float)1089.6082763671875; // 0x44883377
     double y = 518.0547492508867; // 0x4080307020601050
-#if TRICE_OFF
-    TRICE_UNUSED(x)
-    TRICE_UNUSED(y)
+    int z, sample;
 #endif
 #if TRICE_CGO == 1 || defined(TRICE_FULL_CHECK)
     char* A = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
@@ -321,26 +320,26 @@ void TriceCheck(int index) {
         // {} derives the field name from the C argument; {sample} explicitly names it.
         // Without -ce, the free pos: selector remains in the JSON/KV message.
         //
-        break; case __LINE__: trice  ("info:speed:Speed sample\n");                              //exp: "time:        default: info:speed:Speed sample\n"
-        break; case __LINE__: Trice  ("info:pos:speed:Moving sample={sample}\n", 5);             //exp: "time:    be16default: info:pos:speed:Moving sample=5\n"
-        break; case __LINE__: TRice("info:pos:Fixed sample={sample}\n", 4);                      //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
-        break; case __LINE__: TRice("info:pos:Fixed sample={sample}\n", 4);                      //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        break; case __LINE__: trice  ("info:speed:Speed sample\n");                          //exp: "time:        default: info:speed:Speed sample\n"
+        break; case __LINE__: Trice  ("info:pos:speed:Moving sample={sample}\n", 5);         //exp: "time:    be16default: info:pos:speed:Moving sample=5\n"
+        break; case __LINE__: TRice("info:pos:Fixed sample={sample}\n", 4);                  //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
+        break; case __LINE__: TRice("info:pos:Fixed sample={sample}\n", 4);                  //exp: "time:feed3322default: info:pos:Fixed sample=4\n"
 
-        break; case __LINE__: { int sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //exp: "time:feed3322default: info:pos:Fixed sample=6\n"
-        break; case __LINE__: { int sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //json_exp: {"tag":"INFO","level":"INFO","message":"pos:Fixed sample=6\n","fields":{"sample":6}}
-        break; case __LINE__: { int sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //kv_exp: tag=INFO level=INFO message="pos:Fixed sample=6\n" field.sample=6
+        break; case __LINE__: { sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //exp: "time:feed3322default: info:pos:Fixed sample=6\n"
+        break; case __LINE__: { sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //json_exp: {"tag":"INFO","level":"INFO","message":"pos:Fixed sample=6\n","fields":{"sample":6}}
+        break; case __LINE__: { sample = 6; TRice("info:pos:Fixed sample={}\n", sample); }   //kv_exp: tag=INFO level=INFO message="pos:Fixed sample=6\n" field.sample=6
 
-        break; case __LINE__: { int x = 7; trice("trace:Fixed value={}\n", x); }                 //exp: "time:        default: trace:Fixed value=7\n"
-        break; case __LINE__: { int x = 7; trice("trace:Fixed value={}\n", x); }                 //json_exp: {"tag":"TRACE","level":"TRACE","message":"Fixed value=7\n","fields":{"x":7}}
-        break; case __LINE__: { int x = 7; trice("trace:Fixed value={}\n", x); }                 //kv_exp: tag=TRACE level=TRACE message="Fixed value=7\n" field.x=7
+        break; case __LINE__: { z = 7; trice("trace:Fixed value={}\n", z); }                 //exp: "time:        default: trace:Fixed value=7\n"
+        break; case __LINE__: { z = 7; trice("trace:Fixed value={}\n", z); }                 //json_exp: {"tag":"TRACE","level":"TRACE","message":"Fixed value=7\n","fields":{"z":7}}
+        break; case __LINE__: { z = 7; trice("trace:Fixed value={}\n", z); }                 //kv_exp: tag=TRACE level=TRACE message="Fixed value=7\n" field.z=7
 
-        break; case __LINE__: { int x = 8; trice("msg:Fixed value={sample}\n", x); }             //exp: "time:        default: msg:Fixed value=8\n"
-        break; case __LINE__: { int x = 8; trice("msg:Fixed value={sample}\n", x); }             //json_exp: {"tag":"MESSAGE","level":"INFO","message":"Fixed value=8\n","fields":{"sample":8}}
-        break; case __LINE__: { int x = 8; trice("msg:Fixed value={sample}\n", x); }             //kv_exp: tag=MESSAGE level=INFO message="Fixed value=8\n" field.sample=8
+        break; case __LINE__: { z = 8; trice("msg:Fixed value={sample}\n", z); }             //exp: "time:        default: msg:Fixed value=8\n"
+        break; case __LINE__: { z = 8; trice("msg:Fixed value={sample}\n", z); }             //json_exp: {"tag":"MESSAGE","level":"INFO","message":"Fixed value=8\n","fields":{"sample":8}}
+        break; case __LINE__: { z = 8; trice("msg:Fixed value={sample}\n", z); }             //kv_exp: tag=MESSAGE level=INFO message="Fixed value=8\n" field.sample=8
 
-        break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //exp: "time:        default: dbg:Fixed value=9\n"
-        break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //json_exp: {"tag":"DEBUG","level":"DEBUG","message":"Fixed value=9\n","fields":{"sample":9}}
-        break; case __LINE__: { int sample = 9; trice("dbg:Fixed value={}\n", sample); }         //kv_exp: tag=DEBUG level=DEBUG message="Fixed value=9\n" field.sample=9
+        break; case __LINE__: { sample = 9; trice("dbg:Fixed value={}\n", sample); }         //exp: "time:        default: dbg:Fixed value=9\n"
+        break; case __LINE__: { sample = 9; trice("dbg:Fixed value={}\n", sample); }         //json_exp: {"tag":"DEBUG","level":"DEBUG","message":"Fixed value=9\n","fields":{"sample":9}}
+        break; case __LINE__: { sample = 9; trice("dbg:Fixed value={}\n", sample); }         //kv_exp: tag=DEBUG level=DEBUG message="Fixed value=9\n" field.sample=9
         //
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif // #if !TRICE_OFF

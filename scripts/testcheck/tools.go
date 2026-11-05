@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -21,6 +22,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -98,44 +100,85 @@ func binaryDigest(path string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// downloadTool verifies the pinned archive bytes before any extraction. A
-// bounded HTTP client prevents an unavailable release server hanging setup.
+// downloadTool verifies pinned archive bytes before extraction and retries
+// transient failures. Each HTTP attempt remains bounded when a server stalls.
 func downloadTool(url, destination, expected string) error {
+	return downloadToolWithRetry(&http.Client{Timeout: 10 * time.Minute}, time.Sleep, url, destination, expected)
+}
+
+// downloadToolWithRetry keeps waiting injectable so retry behavior can be tested
+// without real delays. Verified caches, permanent errors and bad hashes stop
+// immediately; only transient HTTP or transport failures consume more attempts.
+func downloadToolWithRetry(client *http.Client, wait func(time.Duration), url, destination, expected string) error {
 	if len(expected) != 64 {
 		return fmt.Errorf("missing pinned SHA-256 for %s", url)
 	}
 	if digest, err := binaryDigest(destination); err == nil && digest == expected {
 		return nil
 	}
-	client := &http.Client{Timeout: 10 * time.Minute}
+	// Four attempts with 2/4/8-second pauses tolerate short outages without
+	// repeatedly retrying a broken server for the entire CI job lifetime.
+	const maxAttempts = 4
+	delay := 2 * time.Second
+	var lastErr error
+	for attempt := 1; attempt <= maxAttempts; attempt++ {
+		retry, err := downloadToolAttempt(client, url, destination, expected)
+		if err == nil || !retry {
+			return err
+		}
+		lastErr = err
+		if attempt < maxAttempts {
+			fmt.Fprintf(os.Stderr, "Tool download attempt %d/%d failed: %v; retrying in %s\n", attempt, maxAttempts, err, delay)
+			wait(delay)
+			delay *= 2
+		}
+	}
+	return fmt.Errorf("download %s failed after %d attempts: %w", url, maxAttempts, lastErr)
+}
+
+// transientDownloadError distinguishes interrupted connections from permanent
+// URL, certificate or filesystem errors. It also covers truncated HTTP bodies.
+func transientDownloadError(err error) bool {
+	var networkError net.Error
+	return (errors.As(err, &networkError) && (networkError.Timeout() || networkError.Temporary())) ||
+		errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) ||
+		errors.Is(err, syscall.ECONNRESET) || errors.Is(err, syscall.ECONNABORTED) ||
+		errors.Is(err, syscall.ECONNREFUSED) || errors.Is(err, syscall.EPIPE)
+}
+
+// downloadToolAttempt closes each response before a retry and replaces partial
+// bytes on the next attempt. Only a complete, checksum-verified file is published.
+func downloadToolAttempt(client *http.Client, url, destination, expected string) (bool, error) {
 	response, err := client.Get(url)
 	if err != nil {
-		return err
+		return transientDownloadError(err), fmt.Errorf("download %s: %w", url, err)
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("download %s: HTTP %d", url, response.StatusCode)
+		retry := response.StatusCode == http.StatusTooManyRequests || response.StatusCode == http.StatusBadGateway ||
+			response.StatusCode == http.StatusServiceUnavailable || response.StatusCode == http.StatusGatewayTimeout
+		return retry, fmt.Errorf("download %s: HTTP %d", url, response.StatusCode)
 	}
 	file, err := os.Create(destination + ".partial")
 	if err != nil {
-		return err
+		return false, err
 	}
 	_, copyErr := io.Copy(file, response.Body)
 	closeErr := file.Close()
 	if copyErr != nil {
-		return copyErr
+		return transientDownloadError(copyErr), fmt.Errorf("download %s: %w", url, copyErr)
 	}
 	if closeErr != nil {
-		return closeErr
+		return false, closeErr
 	}
 	digest, err := binaryDigest(destination + ".partial")
 	if err != nil || digest != expected {
-		return fmt.Errorf("SHA-256 mismatch for %s: got %s, want %s", url, digest, expected)
+		return false, fmt.Errorf("SHA-256 mismatch for %s: got %s, want %s", url, digest, expected)
 	}
 	if err := os.Remove(destination); err != nil && !os.IsNotExist(err) {
-		return err
+		return false, err
 	}
-	return os.Rename(destination+".partial", destination)
+	return false, os.Rename(destination+".partial", destination)
 }
 
 // extractTool copies only the named executable. Archive paths, symlinks and

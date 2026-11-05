@@ -6,14 +6,15 @@
 <!-- mdtoc -->
 
 * [1. Build Trice tool from Go sources](#build-trice-tool-from-go-sources)
-* [2. Prepare A Release](#prepare-a-release)
-* [3. Publish a Release Manually from a Selected Tag](#publish-a-release-manually-from-a-selected-tag)
-  * [3.1. Verify the Candidate Commit](#verify-the-candidate-commit)
-  * [3.2. Create and Transfer the Release Tag](#create-and-transfer-the-release-tag)
-  * [3.3. Start the Release Workflow](#start-the-release-workflow)
-  * [3.4. Inspect the Published Assets](#inspect-the-published-assets)
-  * [3.5. Audit That Exact Release](#audit-that-exact-release)
-  * [3.6. Install a Beta or a Stable Release](#install-a-beta-or-a-stable-release)
+* [2. Publish a Release: Quick Steps](#publish-a-release-quick-steps)
+* [3. Prepare A Release](#prepare-a-release)
+* [4. Publish a Release Manually from a Selected Tag](#publish-a-release-manually-from-a-selected-tag)
+  * [4.1. Verify the Candidate Commit](#verify-the-candidate-commit)
+  * [4.2. Create and Transfer the Release Tag](#create-and-transfer-the-release-tag)
+  * [4.3. Start the Release Workflow](#start-the-release-workflow)
+  * [4.4. Inspect the Published Assets](#inspect-the-published-assets)
+  * [4.5. Audit That Exact Release](#audit-that-exact-release)
+  * [4.6. Install a Beta or a Stable Release](#install-a-beta-or-a-stable-release)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -75,7 +76,48 @@ This direct local command also builds both tools, using Go's `GOBIN`/`GOPATH` in
 
 Prefer `bash ./scripts/buildTriceTool.sh` for metadata and overwrite protection. It includes the current repository state in both binaries, shown by `trice version` and `tlog --version`.
 
-## 2. <a id="prepare-a-release"></a>Prepare A Release
+## 2. <a id="publish-a-release-quick-steps"></a>Publish a Release: Quick Steps
+
+This example publishes `wip` through `main` as `v2.0.0-beta-4`. Run the commands from the repository root in Bash and choose an unused tag.
+
+1. **Prepare and commit the release notes.** On `wip`, add a nonempty `## v2.0.0-beta-4` section to [CHANGELOG.md](../../CHANGELOG.md). Commit any other intended release changes before continuing.
+
+   ```sh
+   git add -- CHANGELOG.md && git commit -m "Prepare v2.0.0-beta-4 release notes"
+   ```
+
+2. **Push the development branch.**
+
+   ```sh
+   git push origin wip
+   ```
+
+3. **Create and merge the PR.** On GitHub, open a pull request from `wip` to `main`. Review it and merge after the required checks pass.
+
+4. **Update local `main`.** Start with a clean worktree.
+
+   ```sh
+   git switch main
+   git pull --ff-only origin main
+   ```
+
+5. **Create the annotated release tag.** Complete the [acceptance checks](#prepare-a-release) for this candidate before tagging it.
+
+   ```sh
+   git tag -a v2.0.0-beta-4 -m "Trice v2.0.0-beta-4"
+   ```
+
+6. **Push that tag.**
+
+   ```sh
+   git push origin refs/tags/v2.0.0-beta-4
+   ```
+
+7. **Start GoReleaser.** In GitHub, open **Actions → goreleaser → Run workflow**. Select branch `main`, enter `v2.0.0-beta-4` in the `tag` field, and start the workflow. Wait for it to succeed.
+
+The tag push does not start publication automatically. A beta tag produces a GitHub prerelease and leaves the stable Homebrew tap unchanged. After publication, [check the assets](#inspect-the-published-assets) and [run the release audit](#audit-that-exact-release). The following sections provide the full acceptance checklist and detailed Git commands.
+
+## 3. <a id="prepare-a-release"></a>Prepare A Release
 
 Follow [GoReleaser and release-package testing](target_tests.md#goreleaser-and-release-package-testing) for configuration checks, disposable local snapshots, native package installation and published-release audits. That chapter lists prerequisites and explains what each level proves.
 
@@ -98,11 +140,11 @@ Use this checklist for each selected release. Acceptance checks do not add featu
 
 Local full runs and Actions cover the candidate. The post-publication checks cover the files users actually download. Preserve the distinction when recording results; older successful runs remain evidence for their original revisions.
 
-## 3. <a id="publish-a-release-manually-from-a-selected-tag"></a>Publish a Release Manually from a Selected Tag
+## 4. <a id="publish-a-release-manually-from-a-selected-tag"></a>Publish a Release Manually from a Selected Tag
 
 The [release workflow](../../.github/workflows/goreleaser.yml) runs only when started manually. Publishing a Git tag makes the selected source snapshot available; the separate workflow start publishes its release assets.
 
-### 3.1. <a id="verify-the-candidate-commit"></a>Verify the Candidate Commit
+### 4.1. <a id="verify-the-candidate-commit"></a>Verify the Candidate Commit
 
 Review the release notes and commit the intended changes. Inspect the remote branches before choosing the candidate:
 
@@ -125,12 +167,12 @@ git status --short
 
 Follow the [release-candidate checks](target_tests.md#before-accepting-a-release-candidate) on this same fixed commit, including source restoration. The full code suite does not generate snapshot packages; package construction and native installation are separate checks.
 
-### 3.2. <a id="create-and-transfer-the-release-tag"></a>Create and Transfer the Release Tag
+### 4.2. <a id="create-and-transfer-the-release-tag"></a>Create and Transfer the Release Tag
 
-Use an annotated tag on the approved commit. In one Bash session, select an unused version and the branch containing the approved workflow. This example prepares the stable v2 release; use an unused beta tag such as `v2.0.0-beta-4` only when publishing another beta:
+Use an annotated tag on the approved commit. In one Bash session, select an unused version and the branch containing the approved workflow. This example uses the same beta tag as the quick steps; use a plain version such as `v2.0.0` for a stable release:
 
 ```sh
-release_tag=v2.0.0
+release_tag=v2.0.0-beta-4
 workflow_branch=main
 git rev-parse "$release_commit^{commit}"
 git show-ref --tags
@@ -150,7 +192,7 @@ git ls-remote --tags origin "refs/tags/$release_tag^{}"
 
 The local commit and the remote annotated tag's peeled commit must agree. Keep the tag fixed after publishing so its sources, tool metadata and documentation continue to describe the same release. A failed ancestry check means branch integration is incomplete; resolve it before tagging.
 
-### 3.3. <a id="start-the-release-workflow"></a>Start the Release Workflow
+### 4.3. <a id="start-the-release-workflow"></a>Start the Release Workflow
 
 In GitHub Actions, open **goreleaser**, choose **Run workflow**, select the branch containing the approved pipeline, and enter the selected release tag in the required `tag` field.
 
@@ -170,7 +212,7 @@ The workflow uses the selected version's section in [CHANGELOG.md](../../CHANGEL
 | `v2.0.0-beta-4` or another beta/RC tag | Prerelease | Unchanged; install the tagged archive or checkout. |
 | `v2.0.0` or another plain version | Stable | Updated with both `trice` and `tlog`. |
 
-### 3.4. <a id="inspect-the-published-assets"></a>Inspect the Published Assets
+### 4.4. <a id="inspect-the-published-assets"></a>Inspect the Published Assets
 
 Open the release with the selected tag and check:
 
@@ -179,7 +221,7 @@ Open the release with the selected tag and check:
 - Linux packages, checksums and both `TriceUserManual.pdf` and `TriceReferenceManual.pdf` are present.
 - The host tools report the expected version and commit.
 
-### 3.5. <a id="audit-that-exact-release"></a>Audit That Exact Release
+### 4.5. <a id="audit-that-exact-release"></a>Audit That Exact Release
 
 Start [release-audit](../../.github/workflows/release-audit.yml) manually with the same `tag`. For example:
 
@@ -191,7 +233,7 @@ gh run list --repo rokath/trice --workflow release-audit.yml --limit 5
 
 The audit downloads that release explicitly and tests its archives, packages, target sources and PDFs. The host archive jobs also compile the PC feature tour against the unpacked target library, then verify text, JSON and KV with both shipped tools. Missing artifacts, changed licenses, incorrect fields or non-record JSON stdout fail the audit.
 
-### 3.6. <a id="install-a-beta-or-a-stable-release"></a>Install a Beta or a Stable Release
+### 4.6. <a id="install-a-beta-or-a-stable-release"></a>Install a Beta or a Stable Release
 
 For a beta, download the matching platform archive from its tagged release and place its tools in `PATH`, or build from a checkout of that tag. Use the matching target sources and manuals.
 
