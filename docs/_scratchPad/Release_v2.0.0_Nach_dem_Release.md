@@ -4,17 +4,17 @@
 
 1. Die endgültige Freigabe aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) bleibt Voraussetzung für die Veröffentlichung.
 2. **N06 und der Markdown-Teil von N02 fließen bereits in beta-4 ein:** kurze Einstiege, konkrete Ein-/Ausgaben und die heutige Host-Architektur. Die folgende Tabelle zeigt den Umfang.
-3. **N01 ist umgesetzt.** Als Nächstes N03 und N04 bearbeiten: Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
+3. **N01 und N02 sind umgesetzt.** Als Nächstes N03 und N04 bearbeiten: Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
 4. **N05** nur als getrennte Wartungsaufgabe angehen. Eine breite Skriptumbenennung kurz vor v2.0.0 bringt wenig Anwendernutzen und berührt viele Aufrufer.
 5. **N07 ist im RM gesichert:** Zukunftsideen bleiben auffindbar, ohne neue Funktionen zuzusagen.
 
-Stand: 2026-11-05. Ausgangspunkt war das Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Im Dokumentationsschritt für beta-4 blieben Code, Tests und Prüfskripte unverändert. Anschließend wurde N01 mit Code- und Teständerungen umgesetzt; der Abschnitt unten hält Ergebnis und Prüfungen fest.
+Stand: 2026-11-05. Ausgangspunkt war das Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Im Dokumentationsschritt für beta-4 blieben Code, Tests und Prüfskripte unverändert. Anschließend wurden N01 mit Code- und Teständerungen sowie N02 mit Kommentarkorrekturen umgesetzt; die Abschnitte unten halten Ergebnisse und Prüfungen fest.
 
 Punkt                          | Dokumentationsstand für beta-4                                                                                                                                                                                | Was offen bleibt
 ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------
 N06: Einstieg und Orientierung | README, Guide, Quickstarts und Beispielübersicht führen direkt zur passenden Aufgabe. Bind zeigt einen konkreten Aufruf statt eines Platzhalters; ältere IDE-/Insert-Anleitungen sind als solche eingeordnet. | Historische Hardware-Rezepte sind dadurch nicht neu validiert.
 N06: Werte und Ausgabe         | User Manual und Referenz zeigen zwei CSV-Spalten samt Dateiinhalt, Umrechnung und Grenzen. Strukturierte Ausgabe und CE beginnen mit Eingabe, Befehl und Ergebnis.                                            | Die technischen Detailregeln bleiben in den Fachkapiteln und vorhandenen Anhängen.
-N02: Host-Architektur          | [Aktueller Datenfluss](../rm/target_test_internals.md#host-logging-pipeline) mit Besitz, Lebensdauer, Locks, Diagnosen und Fehlerweitergabe; die historische Parserbeschreibung verweist darauf.              | Veraltete Kommentare in Go-Dateien: separate Quellcodepflege.
+N02: Host-Architektur          | [Aktueller Datenfluss](../rm/target_test_internals.md#host-logging-pipeline) mit Besitz, Lebensdauer, Locks, Diagnosen und Fehlerweitergabe; die historische Parserbeschreibung verweist darauf.              | Erledigt; siehe N02.
 N04: Link-Prüfumfang           | Relative Links der eigenen Wrapper-READMEs wurden mit den bearbeiteten Dokumenten lokal geprüft.                                                                                                              | Automatische Einbeziehung in Lychee benötigt eine getrennte Änderung der Prüfauswahl.
 N01: ungenutzter Code          | Go-Altzweige und auskommentierter Receiver-Code entfernt; Tests prüfen die aktiven Wege.                                                                                                                      | Öffentliche C-Deklaration geprüft und bewusst beibehalten; siehe N01.
 N03, N05                       | Keine Implementierung im Dokumentationsschritt.                                                                                                                                                               | Zusätzliche Tests und gegebenenfalls einzelne Skriptumbenennungen.
@@ -34,7 +34,7 @@ Alter `add`-/Quellparser                                | `SubCmdAddToList` und 
 [Parameterparser](../../internal/id/helper.go)          | Den Zählwrapper entfernt; Tests prüfen direkt die getrennten Argumente und Fehler von `splitTriceParametersUntilClosingBracket`.
 [Decoder](../../internal/decoder/decoder.go)            | Die ungenutzten Kopien von `LocationInformation` und `CorrectWrappedTimestamp` entfernt; die verwendeten Translator-Funktionen bleiben erhalten.
 [Zeitstempel](../../internal/translator/translator.go)  | `targetStampWidth` und `formatTargetDeltaValue` entfernt. Die Formatprüfungen laufen über den aktiven Formatter einschließlich Epoch-Grenzfällen.
-[Receiver](../../internal/receiver/receiver.go)         | Den vollständig auskommentierten alten Receive-Loop entfernt. Der heutige Datenfluss ist bereits im RM beschrieben; die übrige Kommentarpflege bleibt N02.
+[Receiver](../../internal/receiver/receiver.go)         | Den vollständig auskommentierten alten Receive-Loop entfernt. Weitere Kommentare anschließend mit N02 aktualisiert.
 [Öffentlicher C-Header](../../src/triceRx.h)            | `fn_TriceDispatchAbc` geprüft und bewusst beibehalten: intern ohne Nutzer, aber eine öffentliche Deklaration. Externe Nutzung ist durch die lokale Suche nicht ausgeschlossen.
 
 `list.go` wurde erst nach Prüfung aller Aufrufer vollständig entfernt: Auch Adapter und Traversierung gehörten ausschließlich zum alten Zweig. Gemeinsam genutzte Matcher, Quellfilter und Formatprüfungen in `Update.go`, `vars.go` und `helper.go` bleiben erhalten. Neue Tests am aktuellen `add`-Einstieg prüfen die ID-Schreibweisen, rekursive Quellenauswahl, unveränderte Quelldateien und die Erhaltung bestehender TIL-/LI-Einträge. Der Markertest prüft jetzt ebenfalls diesen Einstieg samt Zeilennummern.
@@ -45,17 +45,17 @@ Registrierte Decoder, Plattformcode, Callbacks und öffentliche `pkg`-Hilfen wur
 
 ## Die Host-Architektur an einer Stelle aktuell erklären
 
-**N02 · mittlere Priorität · inhaltliche Kommentar- und Dokumentationspflege**
+**N02 · umgesetzt am 2026-11-05 · Dokumentation und Quellkommentare abgeglichen**
 
-Der Paketkommentar in [receiver.go](../../internal/receiver/receiver.go) beginnt mit „possibly obsolete“ und beschreibt unter anderem `trice.DoReceive`, `emit.Trice` und frühere Kanäle. Diese Beschreibung passt nicht zum aktuellen `io.ReadWriteCloser`-/Translator-Pfad. Der Kommentar zu `Translate` beschreibt einen Bool-Rückgabewert, während die Funktion einen Fehler zurückgibt. Weitere alte Namen stehen in den Receiver-Kommentaren.
+Der [Host-Datenfluss](../rm/target_test_internals.md#host-logging-pipeline) erklärt den aktiven Weg von Transport und Decoder über Records und Filter bis zur Ausgabe. Besitz, Lebensdauer, Dictionary-Locks, Diagnosen und Fehlerweitergabe sowie der Anhang [Adding a host decoder](../rm/target_test_internals.md#adding-a-host-decoder) sind dort verknüpft. Die historische Parserbeschreibung in [Project Resources](../rm/project_resources.md#improving-the-trice-tool-internal-parser-not-planned-right-now) verweist darauf und bleibt ausdrücklich ein nicht geplanter Umbauvorschlag.
 
-Auch [Project Background and Resources](../rm/project_resources.md) enthält eine alte Parserdarstellung, bereits korrekt als v1.0 und als nicht geplanter Umbau gekennzeichnet. Der aktuelle TREX-Decoder stellt zusätzlich über `RecordProvider` strukturierte Informationen bereit; das ursprüngliche `Read`-Interface bleibt bestehen. Ein kurzer Verweis auf die heutige Architektur würde zeigen, welche damaligen Ziele bereits anders gelöst sind, ohne den alten Umbau wieder einzuplanen.
+Die verbleibenden Quellkommentare sind aktualisiert:
 
-**Maßnahme:** eine kurze Darstellung des aktiven Wegs erstellen: Transport → Deframing/Decoder → Record mit Metadaten → Filter/Formatierung/Visualisierung → Ausgabe. Dabei Besitz und Lebensdauer von Readern/Writern, Dictionary-Locks, Diagnoseausgabe und Fehlerweitergabe erklären. Aus dem historischen Abschnitt auf die aktuelle Beschreibung verweisen und den bereits gesicherten Anhang [Adding a host decoder](../rm/target_test_internals.md#adding-a-host-decoder) einbeziehen.
+- [Receiver](../../internal/receiver/receiver.go): heutiger `io.ReadWriteCloser`-Pfad statt alter Kanäle und Funktionsnamen; Eigentümer von Quellen, Capture-Dateien und Diagnose-Writern; konkrete Hex-/Dezimalbeispiele und korrigierte Transportangaben.
+- [Translator](../../internal/translator/translator.go): tatsächliche Fehler- und EOF-Rückgabe, Diagnoseziele, Signalbehandlung sowie die Verarbeitung geliehener Puffer und geschützter LI-Daten. Die bisherige Behauptung, der Loop kehre nicht zurück, ist entfernt.
+- [Decoder-Schnittstellen](../../internal/decoder/decoder.go) und [TREX](../../internal/trexDecoder/trexDecoder.go): gemeinsam verwendete Locks, Pufferbesitz, `SetInput` ohne Zustandsreset, Records unabhängig von Newlines sowie unterschiedliche Behandlung unvollständiger und beschädigter Eingaben. Der TIL-Eintrag wird unter Lock kopiert; seine unveränderlichen Strings bleiben nach Unlock nutzbar.
 
-Kommentare sollen vor allem Invarianten erklären: Warum wird ein Buffer nicht kopiert? Wer schließt einen Writer? Welche Fehler sind ein unvollständiger Record, welche verwerfen ihn? Welche Daten dürfen nach Unlock noch benutzt werden? Flächendeckende Kommentare nach dem Muster „verifies expected behavior“ erhöhen die Verständlichkeit kaum.
-
-**Erledigt, wenn:** eine neue Entwicklerin den aktuellen Daten- und Fehlerfluss ohne Abgleich mit einer historischen Implementierung nachvollziehen kann. Keine Codeumstrukturierung allein zur Angleichung an die Dokumentation durchführen.
+**Prüfung:** Aussagen mit den aktiven Implementierungen abgeglichen. Der Quelltextvergleich ohne Kommentare bestätigt unveränderten ausführbaren Code in allen vier Go-Dateien. UTF-8 und Zeilenenden bleiben erhalten; Formatierung und Diff sind geprüft. Keine Verhaltenstests, Gesamtsuite oder Compiler-Matrix ausgeführt.
 
 ## Verhaltenstests an Grenzen statt nur mehr Testmenge
 
@@ -121,7 +121,7 @@ User Manual, Quickstarts und Referenz erfüllen verschiedene Aufgaben. Kurze Wie
 - Die verbindlichen Upgrade-Regeln in [ID Management](../rm/id_management.md) belassen. README, Release Notes und Einführungen mit kurzen Hinweisen dorthin verlinken, statt jeweils vollständige Migrationslisten zu führen.
 - Längere Entscheidungsbegründungen in den vorhandenen thematischen Anhängen von [Bind](../rm/bind.md) und [CE](../rm/context_enrichment.md) halten. Bei künftigen Ergänzungen zuerst prüfen, ob bereits eine Tabelle dieselbe Grenze beschreibt.
 - Die historischen Integrationsrezepte in [Platform Integration Recipes](../rm/integration_notes.md) weiterhin klar als solche kennzeichnen. Die dort bereits genannte fehlende heutige Bind-Validierung ist keine neue erfolgreiche Abnahme. Aktualisierung nur zusammen mit einer tatsächlich nachvollzogenen Beispielintegration.
-- Die bereits als historisch gekennzeichnete Parserbeschreibung aus [Project Resources](../rm/project_resources.md) im Zuge von N02 mit der aktuellen Architektur verknüpfen. Die ausdrückliche Kennzeichnung als nicht geplanter Umbau erhalten.
+- Die historische Parserbeschreibung aus [Project Resources](../rm/project_resources.md) ist durch N02 mit der aktuellen Architektur verknüpft. Die ausdrückliche Kennzeichnung als nicht geplanter Umbau erhalten.
 
 Zusätzliche Referenzlinks lohnen sich vor allem bei Compiler-Sonderfällen, Formatsemantik und Ablaufverträgen. Primärdokumentation plus ein konkreter Repository-Test ist hilfreicher als viele allgemeine Bloglinks. Version oder Einschränkung daneben nennen, wenn das Verhalten davon abhängt.
 
