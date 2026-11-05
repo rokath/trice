@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -20,6 +21,7 @@ import (
 	"runtime"
 	"strings"
 	"sync/atomic"
+	"syscall"
 	"testing"
 	"time"
 
@@ -49,6 +51,156 @@ func TestPinnedDownloadValidatesCache(t *testing.T) {
 	got, err := os.ReadFile(archive)
 	require.NoError(t, err)
 	assert.Equal(t, data, got, "failed download must retain the last verified archive")
+}
+
+// TestPinnedDownloadRetriesTransientResponses checks that temporary server
+// failures recover with increasing pauses and publish only verified bytes.
+func TestPinnedDownloadRetriesTransientResponses(t *testing.T) {
+	for _, status := range []int{429, 502, 503, 504} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			data := []byte("verified publisher archive")
+			digest := fmt.Sprintf("%x", sha256.Sum256(data))
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if requests.Add(1) < 3 {
+					w.WriteHeader(status)
+					return
+				}
+				_, _ = w.Write(data)
+			}))
+			defer server.Close()
+			archive := filepath.Join(t.TempDir(), "tool.zip")
+			// Record the production backoff without delaying the test suite.
+			var pauses []time.Duration
+			err := downloadToolWithRetry(server.Client(), func(delay time.Duration) {
+				pauses = append(pauses, delay)
+			}, server.URL, archive, digest)
+			require.NoError(t, err)
+			assert.Equal(t, int32(3), requests.Load())
+			assert.Equal(t, []time.Duration{2 * time.Second, 4 * time.Second}, pauses)
+			got, err := os.ReadFile(archive)
+			require.NoError(t, err)
+			assert.Equal(t, data, got)
+		})
+	}
+}
+
+// TestPinnedDownloadLimitsRetries ensures a persistent outage cannot turn into
+// an unbounded setup loop or publish an error response as an archive.
+func TestPinnedDownloadLimitsRetries(t *testing.T) {
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		w.WriteHeader(http.StatusGatewayTimeout)
+	}))
+	defer server.Close()
+	archive := filepath.Join(t.TempDir(), "tool.zip")
+	var pauses []time.Duration
+	err := downloadToolWithRetry(server.Client(), func(delay time.Duration) {
+		pauses = append(pauses, delay)
+	}, server.URL, archive, strings.Repeat("0", 64))
+	assert.ErrorContains(t, err, "failed after 4 attempts")
+	assert.ErrorContains(t, err, "HTTP 504")
+	assert.Equal(t, int32(4), requests.Load())
+	assert.Equal(t, []time.Duration{2 * time.Second, 4 * time.Second, 8 * time.Second}, pauses)
+	assert.NoFileExists(t, archive)
+}
+
+// downloadTestTransport injects connection errors before forwarding successful
+// attempts to a local HTTP server; it never contacts a real release service.
+type downloadTestTransport func(*http.Request) (*http.Response, error)
+
+// RoundTrip exposes the injected behavior through the standard HTTP client.
+func (transport downloadTestTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	return transport(request)
+}
+
+// TestPinnedDownloadRetriesInterruptedTransfers covers both connection failures
+// and truncated bodies, including replacement of bytes from an earlier attempt.
+func TestPinnedDownloadRetriesInterruptedTransfers(t *testing.T) {
+	for _, failure := range []string{"connection_reset", "timeout", "truncated_body"} {
+		t.Run(failure, func(t *testing.T) {
+			data := []byte("complete verified archive")
+			digest := fmt.Sprintf("%x", sha256.Sum256(data))
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if failure == "truncated_body" && requests.Load() == 1 {
+					w.Header().Set("Content-Length", fmt.Sprint(len(data)))
+					_, _ = w.Write([]byte("partial"))
+					return
+				}
+				_, _ = w.Write(data)
+			}))
+			defer server.Close()
+			client := server.Client()
+			underlying := client.Transport
+			client.Transport = downloadTestTransport(func(request *http.Request) (*http.Response, error) {
+				if requests.Add(1) == 1 {
+					switch failure {
+					case "connection_reset":
+						return nil, &net.OpError{Op: "read", Net: "tcp", Err: syscall.ECONNRESET}
+					case "timeout":
+						return nil, &net.DNSError{Err: "temporary lookup timeout", IsTimeout: true}
+					}
+				}
+				return underlying.RoundTrip(request)
+			})
+			archive := filepath.Join(t.TempDir(), "tool.zip")
+			var pauses []time.Duration
+			err := downloadToolWithRetry(client, func(delay time.Duration) {
+				pauses = append(pauses, delay)
+			}, server.URL, archive, digest)
+			require.NoError(t, err)
+			assert.Equal(t, int32(2), requests.Load())
+			assert.Equal(t, []time.Duration{2 * time.Second}, pauses)
+			got, err := os.ReadFile(archive)
+			require.NoError(t, err)
+			assert.Equal(t, data, got)
+		})
+	}
+}
+
+// TestPinnedDownloadRejectsPermanentFailures keeps permission, checksum and
+// local filesystem errors actionable instead of repeating the same failure.
+func TestPinnedDownloadRejectsPermanentFailures(t *testing.T) {
+	for _, failure := range []string{"forbidden", "not_found", "checksum", "missing_directory", "missing_checksum"} {
+		t.Run(failure, func(t *testing.T) {
+			data := []byte("publisher archive")
+			digest := fmt.Sprintf("%x", sha256.Sum256(data))
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requests.Add(1)
+				switch failure {
+				case "forbidden":
+					w.WriteHeader(http.StatusForbidden)
+				case "not_found":
+					w.WriteHeader(http.StatusNotFound)
+				default:
+					_, _ = w.Write(data)
+				}
+			}))
+			defer server.Close()
+			archive := filepath.Join(t.TempDir(), "tool.zip")
+			switch failure {
+			case "checksum":
+				digest = strings.Repeat("0", 64)
+			case "missing_directory":
+				archive = filepath.Join(t.TempDir(), "missing", "tool.zip")
+			case "missing_checksum":
+				digest = ""
+			}
+			err := downloadToolWithRetry(server.Client(), func(time.Duration) {
+				t.Error("permanent failures must not retry")
+			}, server.URL, archive, digest)
+			require.Error(t, err)
+			if failure == "missing_checksum" {
+				assert.Equal(t, int32(0), requests.Load())
+			} else {
+				assert.Equal(t, int32(1), requests.Load())
+			}
+			assert.NoFileExists(t, archive)
+		})
+	}
 }
 
 // TestExecutableExtractionCannotEscape verifies that only executable content
