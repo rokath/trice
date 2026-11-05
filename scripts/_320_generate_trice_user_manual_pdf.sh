@@ -97,7 +97,9 @@ fi
 
 # The pinned renderer requires the manifest's Node runtime, including direct
 # invocations that did not inherit the native suite's prepared PATH.
-if [[ "$MODE" != prepare ]] && declare -F trice_test_tool_plan >/dev/null; then
+# EPUB preparation rasterizes diagram labels too, so it needs the same browser
+# selection and cache even when a preceding PDF hook ran in a separate shell.
+if declare -F trice_test_tool_plan >/dev/null; then
   trice_test_tool_plan pdf || exit 2
 fi
 if ! ensure_node_test_tool; then
@@ -106,7 +108,7 @@ if ! ensure_node_test_tool; then
 fi
 
 PDF_USE_SELECTED=0
-if [[ "$MODE" != prepare ]] && [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
+if [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
   prepare_selected_npm_tools || die "cannot prepare the selected PDF toolchain"
   PDF_USE_SELECTED=1
 fi
@@ -119,27 +121,10 @@ if [[ "$PDF_USE_SELECTED" == 0 ]] && ! command -v npx >/dev/null 2>&1; then
 fi
 
 run_pdf_prepare() {
-  # EPUB preparation needs the pinned parser, but no browser. Reuse a complete
-  # worktree-local npm subset directly rather than launching npm or its cache.
-  local renderer_root
-  if [[ "$MODE" == prepare ]]; then
-    for renderer_root in "${TRICE_TEST_NPM_DIR:-temp/tools/npm/unselected}" temp/tools/npm/*/*/subset-*; do
-      if [[ -f "$renderer_root/node_modules/md-to-pdf/package.json" ]] && node -e '
-        const path = require("node:path");
-        const root = path.resolve(process.argv[1], "node_modules");
-        for (const [name, version] of [["md-to-pdf", process.argv[2]], ["puppeteer", process.argv[3]]]) {
-          if (require(path.join(root, name, "package.json")).version !== version) process.exit(1);
-        }
-      ' "$renderer_root" "${MD_TO_PDF_PACKAGE#*@}" "${PUPPETEER_PACKAGE#*@}"; then
-        TRICE_TEST_NPM_DIR="$renderer_root" node scripts/_prepare_reference_manual.cjs "$@"
-        return $?
-      fi
-    done
-  fi
   if [[ "$PDF_USE_SELECTED" == 1 ]]; then
     node scripts/_prepare_reference_manual.cjs "$@"
   else
-    PUPPETEER_SKIP_DOWNLOAD=true npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_prepare_reference_manual.cjs $*"
+    npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_prepare_reference_manual.cjs $*"
   fi
 }
 

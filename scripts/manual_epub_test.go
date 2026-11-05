@@ -14,6 +14,155 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TestManualEPUBPreparationSharesBrowserSetup executes both real wrappers.
+// Tool doubles expose missing cache propagation without installing a browser or
+// borrowing the developer's existing npm modules and browser cache.
+func TestManualEPUBPreparationSharesBrowserSetup(t *testing.T) {
+	for _, tc := range []struct {
+		name                          string
+		warm, afterPDF, custom, fails bool
+	}{
+		{name: "standalone_cold_cache"},
+		{name: "standalone_warm_cache", warm: true},
+		{name: "separate_PDF_and_EPUB_hooks", afterPDF: true},
+		{name: "explicit_cache_with_spaces", custom: true},
+		{name: "failed_browser_preparation", fails: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_325_generate_trice_manual_epubs.sh")
+			// Preserve the real entry-point ordering; replace only preparation
+			// and external tools so a cold-cache case cannot download anything.
+			setup, err := os.ReadFile(filepath.Join(root, "scripts", "_105_setup_test_tools.sh"))
+			require.NoError(t, err)
+			writeFixture(t, root, "scripts/_105_setup_test_tools.sh", string(setup)+`
+trice_test_tool_plan() {
+  [ "$1" = pdf ] || return 91
+  export PUPPETEER_CACHE_DIR="${PUPPETEER_CACHE_DIR:-$PWD/temp/tools/puppeteer}"
+  export TRICE_TEST_NPM_PLAN="$PWD/renderer-plan"
+}
+ensure_node_test_tool() { return 0; }
+prepare_selected_npm_tools() {
+  [ "$FIXTURE_SETUP_FAILURE" != true ] || return 23
+  if [ ! -f "$PUPPETEER_CACHE_DIR/browser" ]; then
+    mkdir -p "$PUPPETEER_CACHE_DIR" || return 24
+    printf 'prepared browser\n' > "$PUPPETEER_CACHE_DIR/browser"
+    printf 'install\n' >> browser-installs
+  fi
+  export TRICE_TEST_NPM_DIR="$PWD/renderer"
+  export TRICE_TEST_PDF_CLI=scripts/fixture-pdf.cjs
+}
+`)
+			writeFixture(t, root, "docs/TriceUserManual.md", "# User Manual\n")
+			writeFixture(t, root, "docs/rm/README.md", "# Reference Manual\n")
+			writeFixture(t, root, "docs/ref/fixture.txt", "reference\n")
+			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+				writeFixture(t, root, "docs/"+manual+".pdf", "previous PDF\n")
+				writeFixture(t, root, "docs/"+manual+".epub", "previous EPUB\n")
+			}
+			writeFixture(t, root, "bin/git", `#!/bin/sh
+case "$*" in
+  'describe --tags --always --dirty') echo v2.0.0-beta-4 ;;
+  'rev-parse --short=12 HEAD') echo 123456789abc ;;
+  'log -1 --format=%cs') echo 2026-11-05 ;;
+  *) exit 92 ;;
+esac
+`)
+			writeFixture(t, root, "bin/stitchmd", `#!/bin/sh
+if [ "$1" = -version ]; then echo 'stitchmd 0.9.0'; exit 0; fi
+printf '# Reference Manual\n' > temp/manual-pdf/TriceReferenceManual.md
+`)
+			writeFixture(t, root, "bin/node", `#!/bin/sh
+set -eu
+if [ "$1" = --version ]; then echo v26.12.1; exit 0; fi
+[ -s "${PUPPETEER_CACHE_DIR:-missing-cache}/browser" ] || { echo 'missing prepared browser' >&2; exit 93; }
+[ "$(cd "$PUPPETEER_CACHE_DIR" && pwd -P)" = "$(cd "$FIXTURE_BROWSER_CACHE" && pwd -P)" ] || exit 94
+case "$1" in
+  scripts/_prepare_reference_manual.cjs)
+    mkdir -p temp/manual-pdf/chapters
+    case "${2:-}" in
+      '') printf '# Reference Manual\n' > temp/manual-pdf/SUMMARY.md ;;
+      --verify) printf '<h1>Reference Manual</h1>\n' > temp/manual-pdf/TriceReferenceManual.html ;;
+      --epub)
+        printf '<h1>User Manual</h1>\n' > temp/manual-pdf/chapters/TriceUserManual.html
+        printf 'prepared EPUB images\n' >> epub-images
+        ;;
+      *) exit 95 ;;
+    esac
+    ;;
+  scripts/fixture-pdf.cjs)
+    shift
+    printf 'rendered PDF\n' > "${1%.md}.pdf"
+    ;;
+  *) exit 96 ;;
+esac
+`)
+			writeFixture(t, root, "bin/npx", "#!/bin/sh\necho 'unexpected npm installation' >&2\nexit 97\n")
+			writeFixture(t, root, "bin/pandoc", `#!/bin/sh
+set -eu
+if [ "$1" = --version ]; then echo 'pandoc 3.8.3'; exit 0; fi
+for argument do
+  case "$argument" in --output=*) printf 'converted book\n' > "${argument#--output=}" ;; esac
+done
+`)
+			cache := filepath.Join(root, "temp", "tools", "puppeteer")
+			if tc.custom {
+				cache = filepath.Join(root, "custom browser cache")
+			}
+			if tc.warm {
+				writeFixture(t, root, "temp/tools/puppeteer/browser", "existing browser\n")
+			}
+			environment := map[string]string{
+				"FIXTURE_BROWSER_CACHE": filepath.ToSlash(cache),
+				"FIXTURE_SETUP_FAILURE": booleanText(tc.fails),
+			}
+			if tc.custom {
+				environment["PUPPETEER_CACHE_DIR"] = filepath.ToSlash(cache)
+			}
+			command := "set -e\n"
+			if tc.afterPDF {
+				// Separate shells must rediscover the same browser; exports from
+				// the first GoReleaser hook cannot initialize the second hook.
+				command += "bash scripts/_320_generate_trice_user_manual_pdf.sh\n"
+			}
+			command += "bash scripts/_325_generate_trice_manual_epubs.sh"
+			out, err := runFixture(t, root, command, environment)
+			if tc.fails {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "cannot prepare the selected PDF toolchain")
+				assert.NoFileExists(t, filepath.Join(root, "epub-images"))
+			} else {
+				require.NoError(t, err, out)
+				images, readErr := os.ReadFile(filepath.Join(root, "epub-images"))
+				require.NoError(t, readErr)
+				assert.Equal(t, "prepared EPUB images\n", string(images))
+				if tc.warm {
+					assert.NoFileExists(t, filepath.Join(root, "browser-installs"))
+				} else {
+					installs, readErr := os.ReadFile(filepath.Join(root, "browser-installs"))
+					require.NoError(t, readErr)
+					assert.Equal(t, "install\n", string(installs), "a second hook reuses the first hook's browser")
+				}
+			}
+			for _, manual := range []string{"TriceUserManual", "TriceReferenceManual"} {
+				epub, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".epub"))
+				require.NoError(t, readErr)
+				wantEPUB := "converted book\n"
+				if tc.fails {
+					wantEPUB = "previous EPUB\n"
+				}
+				assert.Equal(t, wantEPUB, string(epub))
+				pdf, readErr := os.ReadFile(filepath.Join(root, "docs", manual+".pdf"))
+				require.NoError(t, readErr)
+				wantPDF := "previous PDF\n"
+				if tc.afterPDF {
+					wantPDF = "rendered PDF\n"
+				}
+				assert.Equal(t, wantPDF, string(pdf), "EPUB preparation never renders or replaces PDFs")
+			}
+		})
+	}
+}
+
 // TestManualEPUBGeneration checks publication, tool preflight and conversion
 // failures through the public script without invoking a real package installer.
 func TestManualEPUBGeneration(t *testing.T) {
