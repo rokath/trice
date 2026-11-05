@@ -4121,7 +4121,25 @@ const introduction = fs.readFileSync('temp/manual-pdf/chapters/HEADER.md', 'utf8
 const stampContents = fs.readFileSync('temp/manual-pdf/_contents.md', 'utf8');
 fs.writeFileSync('temp/manual-pdf/TriceReferenceManual.md', '# <a id="rm-start"></a>Reference\n\n' + stampContents + introduction + stamps + expressions);
 helper.verify(marked, process.cwd());
-console.log('PASS: README order, cleanup, sources, code, comments, images, anchors and rejected broken inputs');
+(async () => {
+fs.writeFileSync('docs/TriceUserManual.md', '# User manual\n\n## Topic\n\n[Topic](#topic)\n\n[Reference](rm/README.md)\n\n![Image](ref/image.png)\n');
+await helper.prepareEpub(marked, process.cwd());
+const epubGuide = fs.readFileSync('temp/manual-pdf/chapters/TriceUserManual.html', 'utf8');
+assert.match(epubGuide, /href="#rm-TriceUserManual--heading-1"/, 'UM links target its own namespaced headings');
+assert.match(epubGuide, /https:\/\/github.com\/rokath\/trice\/blob\/[^" ]+\/docs\/rm\/README.md/, 'the separate RM index is an external repository link');
+assert.ok(!epubGuide.includes('href="#rm-start"'), 'UM must not link to the absent RM root anchor');
+assert.ok(epubGuide.includes('../../../docs/ref/image.png'), 'EPUB preparation retains local images for embedding');
+fs.writeFileSync('docs/ref/labelled.svg', '<svg xmlns="http://www.w3.org/2000/svg"><foreignObject><div>Full label</div></foreignObject></svg>');
+fs.writeFileSync('docs/ref/native.svg', '<svg xmlns="http://www.w3.org/2000/svg"><text>Native label</text></svg>');
+const imageFixture = 'temp/manual-pdf/chapters/image-fixture.html';
+const imageHTML = '<img src="../../../docs/ref/labelled.svg"><img src="../../../docs/ref/native.svg"><img src="../../../docs/ref/image.png">';
+fs.writeFileSync(imageFixture, imageHTML);
+const imagePlan = helper.epubImagePlan([require('path').resolve(imageFixture)], require('path').resolve('temp/manual-pdf'));
+assert.equal(imagePlan.length, 1, 'only HTML-labelled SVGs require a PNG fallback');
+assert.ok(imagePlan[0].svg.endsWith('labelled.svg') && imagePlan[0].png.endsWith('.png'));
+assert.equal(fs.readFileSync(imageFixture, 'utf8'), imageHTML, 'planning never rewrites authored images or inputs');
+console.log('PASS: README order, cleanup, sources, code, comments, images, anchors, EPUB guide and rejected broken inputs');
+})().catch(error => { console.error(error); process.exitCode = 1; });
 `)
 	command := "npx --offline -y --package=md-to-pdf@5.2.5 --package=puppeteer@25.16.0 -c 'node check.cjs'"
 	environment := map[string]string{}

@@ -102,6 +102,9 @@ exclude = [
   # only exists after the next release is published, so PR-time link checks
   # cannot validate it remotely yet.
   "^https://github\\.com/rokath/trice/releases/latest/download/TriceReferenceManual\\.pdf$",
+  # New eBook assets do not exist until publication. Snapshot CI generates them;
+  # release-audit checks their actual tagged downloads after publication.
+  "^https://github\\.com/rokath/trice/releases/latest/download/Trice(User|Reference)Manual\\.epub$",
 
   # SourceForge project pages intermittently return Cloudflare HTTP 522 to
   # automated checks while remaining useful human-facing references.

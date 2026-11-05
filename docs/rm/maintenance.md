@@ -70,8 +70,11 @@ Verify them without editing                   | `./scripts/_310_refresh_trice_ma
 Check Markdown                                | `./scripts/_450_test_markdownlint.sh`
 Check links                                   | `./scripts/_530_test_links.sh`
 Build both PDFs                               | `./scripts/_320_generate_trice_user_manual_pdf.sh`
+Build both EPUB 3 eBooks                      | `bash scripts/_325_generate_trice_manual_epubs.sh`
 
 The PDF build assembles the RM chapter list, rewrites internal links and numbers the complete document. Generated assembly files are build artifacts. Check the resulting PDFs for chapter starts, code blocks, tables and working links.
+
+The EPUB command uses the same chapter and link preparation, then converts both manuals with Pandoc 3.8.3. Install that version from [Pandoc](https://pandoc.org/installing.html) and run the command from a POSIX shell (Git Bash on Windows). It also uses the PDF browser to convert SVG diagrams with HTML labels into embedded PNGs; original images stay unchanged. To use an installed Chrome instead, set `PUPPETEER_EXECUTABLE_PATH` to its executable. The generated `docs/TriceUserManual.epub` and `docs/TriceReferenceManual.epub` stay out of Git, like the PDFs. Release and snapshot CI generate both formats and publish them as separate assets. The title page shows the Git version, source commit and its date, and generation time in UTC. Local Git versions include `dirty` for uncommitted changes; release builds show the selected tag. The eBook title and date metadata identify the edition in reader libraries. EPUB text reflows to the reader's screen; check wide tables and long code examples on your preferred reader.
 
 VS Code Markdown previews, table formatting and paste extensions can help editing; they are optional. Use the repository commands for reproducible ToCs and PDFs.
 

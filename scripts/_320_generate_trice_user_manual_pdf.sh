@@ -26,8 +26,8 @@ STITCHMD_VERSION="${TRICE_TOOL_STITCHMD_VERSION:-0.9.0}"
 # Resolve setup separately so callers can obtain installation consent before
 # launching a release tool whose captured hooks cannot read interactive input.
 MODE="${1:-generate}"
-if [[ "$#" -gt 1 ]] || [[ "$MODE" != generate && "$MODE" != setup ]]; then
-  echo "Usage: $0 [generate|setup]" >&2
+if [[ "$#" -gt 1 ]] || [[ "$MODE" != generate && "$MODE" != setup && "$MODE" != prepare ]]; then
+  echo "Usage: $0 [generate|setup|prepare]" >&2
   exit 2
 fi
 
@@ -97,7 +97,7 @@ fi
 
 # The pinned renderer requires the manifest's Node runtime, including direct
 # invocations that did not inherit the native suite's prepared PATH.
-if declare -F trice_test_tool_plan >/dev/null; then
+if [[ "$MODE" != prepare ]] && declare -F trice_test_tool_plan >/dev/null; then
   trice_test_tool_plan pdf || exit 2
 fi
 if ! ensure_node_test_tool; then
@@ -106,7 +106,7 @@ if ! ensure_node_test_tool; then
 fi
 
 PDF_USE_SELECTED=0
-if [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
+if [[ "$MODE" != prepare ]] && [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
   prepare_selected_npm_tools || die "cannot prepare the selected PDF toolchain"
   PDF_USE_SELECTED=1
 fi
@@ -119,10 +119,27 @@ if [[ "$PDF_USE_SELECTED" == 0 ]] && ! command -v npx >/dev/null 2>&1; then
 fi
 
 run_pdf_prepare() {
+  # EPUB preparation needs the pinned parser, but no browser. Reuse a complete
+  # worktree-local npm subset directly rather than launching npm or its cache.
+  local renderer_root
+  if [[ "$MODE" == prepare ]]; then
+    for renderer_root in "${TRICE_TEST_NPM_DIR:-temp/tools/npm/unselected}" temp/tools/npm/*/*/subset-*; do
+      if [[ -f "$renderer_root/node_modules/md-to-pdf/package.json" ]] && node -e '
+        const path = require("node:path");
+        const root = path.resolve(process.argv[1], "node_modules");
+        for (const [name, version] of [["md-to-pdf", process.argv[2]], ["puppeteer", process.argv[3]]]) {
+          if (require(path.join(root, name, "package.json")).version !== version) process.exit(1);
+        }
+      ' "$renderer_root" "${MD_TO_PDF_PACKAGE#*@}" "${PUPPETEER_PACKAGE#*@}"; then
+        TRICE_TEST_NPM_DIR="$renderer_root" node scripts/_prepare_reference_manual.cjs "$@"
+        return $?
+      fi
+    done
+  fi
   if [[ "$PDF_USE_SELECTED" == 1 ]]; then
     node scripts/_prepare_reference_manual.cjs "$@"
   else
-    npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_prepare_reference_manual.cjs $*"
+    PUPPETEER_SKIP_DOWNLOAD=true npx -y --package="$MD_TO_PDF_PACKAGE" --package="$PUPPETEER_PACKAGE" -c "node scripts/_prepare_reference_manual.cjs $*"
   fi
 }
 
@@ -219,6 +236,12 @@ fi
 if ! run_pdf_prepare --verify; then
   show_context
   die "reference manual link/anchor verification failed"
+fi
+
+# EPUB generation reuses the verified book inputs without rendering PDFs.
+if [[ "$MODE" == prepare ]]; then
+  run_pdf_prepare --epub
+  exit 0
 fi
 
 generated_at="$(date '+%Y-%m-%d %H:%M %Z')"

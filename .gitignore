@@ -32,11 +32,12 @@ internal/receiver/trices.raw
 coverage.out
 *.log
 .idea/workspace.xml
-# Manual PDFs are treated as generated artifacts.
-# It is created locally on demand and in the release workflow,
-# but it is no longer versioned in git.
+# Manual PDFs and EPUBs are generated locally and in the release workflow,
+# and are not versioned in Git.
 docs/TriceReferenceManual.pdf
 docs/TriceUserManual.pdf
+docs/TriceReferenceManual.epub
+docs/TriceUserManual.epub
 
 examples/**/*.bus
 

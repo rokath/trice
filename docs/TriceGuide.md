@@ -25,23 +25,25 @@ Already using Trice? Jump to a task under [2. Entry Points](#entry-points). The 
 
 ## 1. <a id="document-overview"></a>Document Overview
 
-Document                                                                                                                   | Content
--------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------
-[trice/README.md](../README.md)                                                                                            | Project Entry
-[trice/docs/TriceUserManual.md](./TriceUserManual.md)                                                                      | From your first PC log to your own firmware. The first experiments need no board.
-[User Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)           | Download the User Manual from the latest stable release.
-[trice/docs/rm/README.md](rm/README.md)                                                                                    | The complete technical reference (reference manual chapters as Markdown files)
-[Reference Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceReferenceManual.pdf) | Download the Reference Manual from the latest stable release.
-[trice discussions](https://github.com/rokath/trice/discussions?discussions_q) - on GitHub                                 | searchable questions and answers
-[trice issues](https://github.com/rokath/trice/issues?q=is%3Aissue) - on GotHub                                            | problems and solutions
-[trice/docs/TriceGuide.md](./TriceGuide.md)                                                                                | This file
-[trice/docs/ref/trice-help-all.txt](./ref/trice-help-all.txt) - CLI help output                                            | CLI help snapshot; run `trice help -all` for your installed tool
-[trice/src/triceDefaultConfig.h](../src/triceDefaultConfig.h) - Source Code                                                | Target configuration switches explained and their default values
-[trice/_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) - Test Code                                            | Extensive executable Trice test inputs; not a beginner tutorial
-[trice/docs/ref/](./ref) - included material                                                                               | documentation images and CLI-help data
-[trice/docs/_scratchPad/](./_scratchPad)                                                                                   | Internal plans, drafts and historical material - no prerequisites for using Trice.
-[trice/CHANGELOG.md](../CHANGELOG.md)                                                                                      | Release history
-[trice/CONTRIBUTING.md](../CONTRIBUTING.md)                                                                                | Contribution and validation guidance
+Document                                                                                                                       | Content
+------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------
+[trice/README.md](../README.md)                                                                                                | Project Entry
+[trice/docs/TriceUserManual.md](./TriceUserManual.md)                                                                          | From your first PC log to your own firmware. The first experiments need no board.
+[User Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf)               | Download the User Manual from the latest stable release.
+[User Manual EPUB 3 — latest release](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.epub)           | Download the reflowable User Manual eBook from the latest stable release.
+[trice/docs/rm/README.md](rm/README.md)                                                                                        | The complete technical reference (reference manual chapters as Markdown files)
+[Reference Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceReferenceManual.pdf)     | Download the Reference Manual from the latest stable release.
+[Reference Manual EPUB 3 — latest release](https://github.com/rokath/trice/releases/latest/download/TriceReferenceManual.epub) | Download the reflowable Reference Manual eBook from the latest stable release.
+[trice discussions](https://github.com/rokath/trice/discussions?discussions_q) - on GitHub                                     | searchable questions and answers
+[trice issues](https://github.com/rokath/trice/issues?q=is%3Aissue) - on GotHub                                                | problems and solutions
+[trice/docs/TriceGuide.md](./TriceGuide.md)                                                                                    | This file
+[trice/docs/ref/trice-help-all.txt](./ref/trice-help-all.txt) - CLI help output                                                | CLI help snapshot; run `trice help -all` for your installed tool
+[trice/src/triceDefaultConfig.h](../src/triceDefaultConfig.h) - Source Code                                                    | Target configuration switches explained and their default values
+[trice/_test/testdata/triceCheck.c](../_test/testdata/triceCheck.c) - Test Code                                                | Extensive executable Trice test inputs; not a beginner tutorial
+[trice/docs/ref/](./ref) - included material                                                                                   | documentation images and CLI-help data
+[trice/docs/_scratchPad/](./_scratchPad)                                                                                       | Internal plans, drafts and historical material - no prerequisites for using Trice.
+[trice/CHANGELOG.md](../CHANGELOG.md)                                                                                          | Release history
+[trice/CONTRIBUTING.md](../CONTRIBUTING.md)                                                                                    | Contribution and validation guidance
 
 ## 2. <a id="entry-points"></a>Entry Points
 

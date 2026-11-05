@@ -7,7 +7,7 @@ const { execFileSync } = require('node:child_process');
 
 // Reuse the explicitly selected renderer before considering legacy npx paths;
 // preparation and rendering must load the same parser/highlighter dependency.
-function loadRenderer() {
+function loadRenderer(moduleName = 'md-to-pdf') {
   const selected = process.env.TRICE_TEST_NPM_DIR;
   const directories = [
     ...(selected ? [path.join(selected, 'node_modules', '.bin')] : []),
@@ -16,13 +16,14 @@ function loadRenderer() {
   ];
   for (const directory of directories) {
     try {
-      const entry = require.resolve('md-to-pdf', { paths: [path.resolve(directory, '..')] });
+      const entry = require.resolve(moduleName, { paths: [path.resolve(directory, '..')] });
+      if (moduleName === 'puppeteer') return require(entry);
       return require(path.join(path.dirname(entry), 'lib/get-marked-with-highlighter.js')).getMarked({}, []);
     } catch (error) {
       if (error.code !== 'MODULE_NOT_FOUND') throw error;
     }
   }
-  throw new Error('md-to-pdf parser not found; run this helper through the PDF wrapper');
+  throw new Error(`${moduleName} not found; run this helper through the PDF wrapper`);
 }
 
 // Reject absent/empty inputs before a previous PDF can be mistaken for new output.
@@ -141,7 +142,7 @@ function destination(value, document, documents, repoRoot, stage, ref, image) {
     if (!target) throw new Error(`unknown reference destination: ${document.filename}: ${value}`);
     return `#${target}`;
   }
-  if (!image && filename === path.join(repoRoot, 'docs/rm/README.md')) return '#rm-start';
+  if (!image && filename === path.join(repoRoot, 'docs/rm/README.md') && documents.has(path.join(repoRoot, 'docs/rm/HEADER.md'))) return '#rm-start';
   const repositoryPath = path.relative(repoRoot, filename);
   if (repositoryPath === '..' || repositoryPath.startsWith(`..${path.sep}`) || path.isAbsolute(repositoryPath)) {
     throw new Error(`reference destination escapes repository: ${value}`);
@@ -304,18 +305,89 @@ function verify(marked, repoRoot) {
   console.log(`Verified ${links.length} internal PDF links and ${ids.size} unique anchors`);
 }
 
-// Both modes are invoked by the shell wrapper inside the selected npx environment.
-if (require.main === module) {
+// Prepare the UM with the same link and image handling as the assembled RM.
+// Its HTML lives beside chapter inputs so their relative resource paths agree.
+async function prepareEpub(marked, repoRoot) {
+  const stage = path.join(repoRoot, 'temp/manual-pdf');
+  const filename = path.join(repoRoot, 'docs/TriceUserManual.md');
+  const document = inspectDocument(marked, filename, 'Trice User Manual', readSource(filename));
+  const documents = new Map([[filename, document]]);
+  const source = renderDocument(marked, document, documents, repoRoot, stage, sourceRef(repoRoot));
+  fs.writeFileSync(path.join(stage, 'chapters/TriceUserManual.html'), marked.parse(source));
+  await rasterizeEpubImages([
+    path.join(stage, 'chapters/TriceUserManual.html'),
+    path.join(stage, 'TriceReferenceManual.html'),
+  ], stage);
+}
+
+// Identify HTML-labelled SVGs that EPUB readers cannot reliably render. Keep
+// native SVG text and existing PNGs intact; raster outputs are disposable.
+function epubImagePlan(htmlFiles, stage) {
+  const crypto = require('node:crypto');
+  const images = [];
+  for (const htmlFile of htmlFiles) {
+    const html = readSource(htmlFile);
+    for (const match of html.matchAll(/\bsrc=(["'])([^"']+\.svg)\1/gi)) {
+      const source = match[2];
+      if (/^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(source)) continue;
+      const svg = path.resolve(path.dirname(htmlFile), decodeURIComponent(source));
+      const content = readSource(svg);
+      if (!/<foreignObject\b/i.test(content)) continue;
+      const hash = crypto.createHash('sha256').update(content).digest('hex').slice(0, 16);
+      images.push({ htmlFile, source, svg, png: path.join(stage, 'epub-images', `${hash}.png`) });
+    }
+  }
+  return images;
+}
+
+// Render labels with the same browser engine used for PDFs, then embed PNGs in
+// the EPUB only. Never modify the original SVG or its Markdown reference.
+async function rasterizeEpubImages(htmlFiles, stage) {
+  const images = epubImagePlan(htmlFiles, stage);
+  if (!images.length) return;
+  const puppeteer = loadRenderer('puppeteer');
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: ['--no-sandbox', '--allow-file-access-from-files'],
+  });
   try {
-    const marked = loadRenderer();
-    const repoRoot = path.resolve(__dirname, '..');
-    if (process.argv[2] === '--verify') verify(marked, repoRoot);
-    else if (process.argv.length === 2) prepare(marked, repoRoot);
-    else throw new Error('usage: node scripts/_prepare_reference_manual.cjs [--verify]');
-  } catch (error) {
-    console.error(`ERROR: ${error.message}`);
-    process.exitCode = 1;
+    fs.mkdirSync(path.join(stage, 'epub-images'), { recursive: true });
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1400, height: 900, deviceScaleFactor: 2 });
+    await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }]);
+    for (const image of images) {
+      if (!fs.existsSync(image.png)) {
+        await page.goto(require('node:url').pathToFileURL(image.svg).href);
+        await page.evaluate(() => document.fonts.ready);
+        const element = await page.$('svg');
+        if (!element) throw new Error(`missing SVG root: ${image.svg}`);
+        await element.screenshot({ path: image.png });
+      }
+      const relative = path.relative(path.dirname(image.htmlFile), image.png).split(path.sep).join('/');
+      const html = readSource(image.htmlFile).split(image.source).join(relative);
+      fs.writeFileSync(image.htmlFile, html);
+    }
+    console.log(`Embedded ${new Set(images.map(image => image.png)).size} HTML-labelled SVGs as EPUB PNG images`);
+  } finally {
+    await browser.close();
   }
 }
 
-module.exports = { prepare, verify, withoutChapterContents };
+// Modes run inside the selected renderer environment and never edit authored sources.
+async function main() {
+    const marked = loadRenderer();
+    const repoRoot = path.resolve(__dirname, '..');
+    if (process.argv[2] === '--verify') verify(marked, repoRoot);
+    else if (process.argv[2] === '--epub') await prepareEpub(marked, repoRoot);
+    else if (process.argv.length === 2) prepare(marked, repoRoot);
+    else throw new Error('usage: node scripts/_prepare_reference_manual.cjs [--verify|--epub]');
+}
+if (require.main === module) {
+  main().catch(error => {
+    console.error(`ERROR: ${error.message}`);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { prepare, verify, prepareEpub, epubImagePlan, withoutChapterContents };

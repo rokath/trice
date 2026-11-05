@@ -92,6 +92,8 @@ jobs:
           download_required 'trice_*_amd64.apk'
           download_required 'TriceReferenceManual.pdf'
           download_required 'TriceUserManual.pdf'
+          download_required 'TriceReferenceManual.epub'
+          download_required 'TriceUserManual.epub'
 
           require_glob 'trice_tool_linux_amd64.tar.gz'
           require_glob 'trice_tool_darwin_amd64.tar.gz'
@@ -102,6 +104,8 @@ jobs:
           require_glob 'trice_*_amd64.apk'
           require_glob 'TriceReferenceManual.pdf'
           require_glob 'TriceUserManual.pdf'
+          require_glob 'TriceReferenceManual.epub'
+          require_glob 'TriceUserManual.epub'
 
           echo "::group::Downloaded release assets"
           find release-assets -maxdepth 1 -type f -exec wc -c {} + | sort
@@ -687,6 +691,23 @@ jobs:
             echo "$manual.pdf size: $size bytes"
             if [ "$size" -le "$minimum" ]; then
               echo "::error::$manual.pdf looks too small: $size bytes"
+              exit 1
+            fi
+          done
+
+      - name: Verify release EPUB containers
+        shell: bash
+        run: |
+          set -euo pipefail
+          for manual in TriceUserManual TriceReferenceManual; do
+            file="artifacts/$manual.epub"
+            if [ ! -s "$file" ] || ! unzip -t "$file"; then
+              echo "::error::missing, empty or damaged EPUB asset: $file"
+              find artifacts -maxdepth 1 -type f -printf '%s %p\n' | sort || true
+              exit 1
+            fi
+            if [ "$(unzip -p "$file" mimetype)" != application/epub+zip ]; then
+              echo "::error::invalid EPUB mimetype: $file"
               exit 1
             fi
           done

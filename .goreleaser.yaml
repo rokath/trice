@@ -12,6 +12,8 @@ before:
     - go generate ./...
     # Generate both git-ignored manual PDFs in docs/ for standalone release assets.
     - bash ./scripts/_320_generate_trice_user_manual_pdf.sh
+    # EPUBs reuse the verified chapter preparation without rendering PDFs.
+    - bash ./scripts/_325_generate_trice_manual_epubs.sh
 # https://goreleaser.com/customization/#Builds
 
 builds:
@@ -393,6 +395,10 @@ release:
   extra_files:
     - glob: "docs/TriceUserManual.pdf"
       name_template: "TriceUserManual.pdf"
+    - glob: "docs/TriceUserManual.epub"
+      name_template: "TriceUserManual.epub"
+    - glob: "docs/TriceReferenceManual.epub"
+      name_template: "TriceReferenceManual.epub"
     - glob: "docs/TriceReferenceManual.pdf"
       # Keep the release asset name stable so README links can point to
       # releases/latest/download/TriceReferenceManual.pdf without knowing the
