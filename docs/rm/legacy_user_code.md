@@ -31,12 +31,16 @@
 
 </details>
 
-When it comes to use legacy sources together with Trice, there are several ways doing so, which do not exclude each other:
+Choose how much of the existing logging you can change:
 
-* [Legacy User Code Option Separate Physical Output Channel](legacy_user_code.md#legacy-user-code-option-separate-physical-output-channel)
-* [Legacy User Code Option Trice Adaptation Edits](legacy_user_code.md#legacy-user-code-option-trice-adaptation-edits)
-* [Legacy User Code Option Print Buffer Wrapping and Framing](legacy_user_code.md#legacy-user-code-option-print-buffer-wrapping-and-framing)
-* [Legacy User Code Option Trice Aliases Adaptation](legacy_user_code.md#legacy-user-code-option-trice-aliases-adaptation)
+| Situation | Approach | Main trade-off |
+| --- | --- | --- |
+| Calls already use a project macro such as `MyWrn(...)` | [Adapt and register the macro as a Trice alias](#legacy-user-code-option-trice-aliases-adaptation) | Keep most call sites; check argument types and alias rules. |
+| You can edit the calls | [Replace them with Trice calls](#legacy-user-code-option-trice-adaptation-edits) | Compact records, but review each format and argument. |
+| Existing code must keep printing text, and a second output is available | [Use separate outputs](#legacy-user-code-option-separate-physical-output-channel) | Simple separation; two viewers and no common message order. |
+| Existing code must keep printing text over the same output | [Wrap and frame its print buffer](#legacy-user-code-option-print-buffer-wrapping-and-framing) | Adapt the output layer; target-side text formatting still costs time and memory. |
+
+Do not mix raw `printf` bytes into a Trice binary stream: use a separate channel or the framing described below. For current alias behavior, start with [Alias identity and tags in v2](#alias-identity-and-tags-in-v2); the later PR notes explain its history.
 
 ## 1. <a id="legacy-user-code-option-separate-physical-output-channel"></a>Legacy User Code Option Separate Physical Output Channel
 

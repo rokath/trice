@@ -37,6 +37,7 @@ Short notes use an emoji and a text label, such as `💡 Tip` or `⚠️ Warning
   - [3.2. Select messages by tag or priority](#select-messages-by-tag-or-priority)
   - [3.3. Read target stamps](#read-target-stamps)
   - [3.4. Add context with one build rule](#add-context-with-one-build-rule)
+  - [3.5. Save two measurements as CSV](#save-two-measurements-as-csv)
 - [4. Bring Trice into your firmware](#bring-trice-into-your-firmware)
   - [4.1. Add the library and configuration](#add-the-library-and-configuration)
   - [4.2. Connect the writer and generate IDs](#connect-the-writer-and-generate-ids)
@@ -137,13 +138,9 @@ The first shows INFO events only. The second selects Warning and higher-priority
 
 Repeat `-pick` or `-ban` for several selectors: `./show_json.sh -pick info -pick wrn` displays either group. A number selects an exact weight: `-ban 450` hides this tour's sensor events, while `-pick 450` displays only events at weight 450. In comparison, `-loglevel 450` displays weights 450 and above. Colon-separated lists and weight ranges are rejected; use one selector per option.
 
-JSON and KV derive `level` from the effective weight while keeping `tag` as the category. Here, `sensor` normally has weight 450 and appears as `tag=SENSOR level=DEBUG`. With `-utag sensor:650`, it becomes `tag=SENSOR level=WARNING`; its message and fields stay the same. RECEIVE normally has level DEBUG, and `untagged` has level INFO. The eight [level intervals](rm/structured_logging.md#json-and-kv-contract) stay fixed when tag weights are overridden.
+Use built-in names such as `info`, `wrn` and `err`, or register your own with `-utag`. Registered names ignore case: `sensor` and `SENSOR` select the same group. Lowercase prefixes normally disappear from the message; uppercase prefixes remain visible. JSON keeps the category in `tag` and derives `level` from its weight.
 
-Built-in and registered user tag names ignore case: `rx`, `RX` and `rX` identify RECEIVE, while registered `sensor`, `Sensor` and `SENSOR` identify one custom group SENSOR. They share selection, weights, colors, statistics and structured output. Lowercase tags normally disappear from the displayed message; mixed/uppercase ones remain visible, so `rX:payload` keeps its prefix. A message without a recognized tag remains as written: `untagged` is classification metadata, not a prefix the tool invents in its message. Details: [tags, weights and selection](rm/tags_color_and_weights.md).
-
-Built-in aliases have at least two letters, for example `err`, `inf`, `msg`, `wrn`, `dbg`, `rx` and `tx`. Former one-letter aliases such as `e` are no longer recognized: `e:problem` remains visible and is classified as `untagged`. You can still explicitly register a one-letter user tag with `-utag x:200`; both `x` and `X` then identify X.
-
-Multi-character option names ignore case, while one-character names and subcommands retain their exact spelling. `-utag` replaces the removed `-ulabel` name. See the [CLI rules](rm/cli.md#common-information), including the name-only form of `-utag` for build commands.
+For the exact weight intervals, prefix rules and alias behavior, see [tags and filters](rm/tags_color_and_weights.md). When upgrading scripts, use the [migration checklist](rm/id_management.md#migrating-1x-scripts-and-projects).
 
 ### 3.3. <a id="read-target-stamps"></a>Read target stamps
 
@@ -172,6 +169,28 @@ This is an option fragment for `trice bind`, not a separate shell command. `ctx:
 Try changing `cycle` to `phase` in both places inside the CE format (`phase={phase:%u}`), then rebuild and decode. The displayed label and JSON field name change together. Every selected call must be able to access the expression. Current `bind -ce` supports direct, uniquely addressable calls; selected wrapper/rebase sites are rejected. CE does not append runtime parameters to `triceS`/`triceN`; use their own string argument for runtime text. These boundaries and the alternative `insert/clean -ce` workflow are explained in [Context Enrichment](rm/context_enrichment.md).
 
 When you edit an example, its output check may correctly fail because it still expects the original values. Run [examples/PC_features/check_output.sh](../examples/PC_features/check_output.sh) as `./check_output.sh` on the unchanged tour; after intentional edits, inspect the new output and update the corresponding expectations. The [guide to adapting these checks](rm/examples.md#updating-the-pc-tours-output-checks) explains where they come from.
+
+### 3.5. <a id="save-two-measurements-as-csv"></a>Save two measurements as CSV
+
+The feature tour's two Supply records contain voltage and the cycle value added above. From `examples/PC_features`, save both columns:
+
+```sh
+./show_text.sh -vis='info:printf("%d,%d\n",v0,v1)@supply.csv;header="voltage_mV,cycle\n"'
+```
+
+For a new `supply.csv`, the result is:
+
+```csv
+voltage_mV,cycle
+3300,7
+3250,11
+```
+
+`v0` and `v1` select the first and second numeric values. Other INFO calls in this tour do not have both values and are excluded from this rule. Each run replaces `supply.csv`; choose another filename to keep a previous recording. Omit `;header="voltage_mV,cycle\n"` for data without column names.
+
+Use one call for values that belong in one row. `-vis` cannot combine separate calls or use field names such as `voltage_mv` as expression variables. See [CSV, scaling and UDP examples](rm/visualization.md#save-two-values-as-csv) for a live motor-monitoring example.
+
+To see live plotting, watch the [LabPlot animation](ref/LabPlotDemo.gif): it shows three demo signals and parallel text output. The [ready-to-run LabPlot demo](rm/visualization.md#quick-labplot-demonstration) includes the matching plot project.
 
 ## 4. <a id="bring-trice-into-your-firmware"></a>Bring Trice into your firmware
 

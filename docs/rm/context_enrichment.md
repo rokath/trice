@@ -39,15 +39,53 @@
 
 </details>
 
-Context Enrichment (CE) adds extra values to selected Trice messages, such as task context, position or operating state. A CLI rule applies to all log sites with the matching selector prefix. This enables additional diagnostics for a build without extending every log site by hand.
+Use Context Enrichment (CE) to add a cycle counter, task ID or position to selected log calls through one build rule. Run Bind with that rule, then rebuild and flash. The extra values are captured when the firmware executes the calls; they cannot be added to an old capture afterwards.
+
+For example, an existing Bind project has this call in `app/main.c`, where `cycle` is a visible unsigned integer:
+
+```c
+// The ctx prefix selects sites that need the current cycle counter.
+trice("msg:ctx:ready\n");
+```
+
+```sh
+trice bind -src app -ce 'ctx:", cycle=%u", cycle'
+```
+
+After rebuilding, a call with `cycle == 42` displays this message with `-color none`:
+
+```text
+ready, cycle=42
+```
+
+Bind keeps the source call as written. The lowercase free selector `ctx:` disappears from the effective log template, and the original newline follows the added value.
+
+Alternatively, select scalar calls by their existing `msg:` tag. For this Bind rule, use direct calls on separate source lines, outside wrapper macros. `cycle` must be visible at every selected site:
+
+```c
+// The msg rule adds context without an extra selector prefix.
+trice("msg:ready\n");
+```
+
+```sh
+trice bind -src app -ce 'msg:", cycle=%u", cycle'
+```
+
+This produces the same `ready, cycle=42` message. To remove the extra value, run Bind with the same source options but without `-ce`, then rebuild and flash:
+
+```sh
+trice bind -src app
+```
+
+The `msg:ready` call then displays `ready` again. In the earlier `msg:ctx:ready` example, the unselected `ctx:` stays visible as `ctx:ready`.
+
+For a named JSON/KV field, replace `%u` in the extension with `{cycle:%u}` or `{:%u}`. The latter derives the name `cycle` from the argument; the colon is required. See [Structured Logging](structured_logging.md).
 
 The repeatable option has the same syntax for `bind`, `insert` and `clean`:
 
 ```text
 -ce 'selector:"format-extension"[, comma-free C-expression]...'
 ```
-
-For example, `-ce 'ctx7:", clock={}", clock' adds the value of `clock`, valid at that site, to `trice("msg:ctx7:hi\n");`. With `clock == 42` and `-color none`, the message is `hi, clock=42`. The custom `ctx7:` remains in the source as a selection marker. It disappears from the final log when it is entirely lowercase. The trailing `\n` remains after the appended value. (*Note: `{}` could also be `%d` or `%08x` in this example. The braces simply demonstrate that [Structured Logging](structured_logging.md) and Context Enrichment are orthogonal: they can be used independently or together.*)
 
 Command | Effect
 ---|---
@@ -61,7 +99,9 @@ Two runnable applications demonstrate the same idea: in the [PC example](example
 
 ## 1. <a id="getting-started-with-position-and-speed"></a>Getting Started with Position and Speed
 
-Start with a normally configured [Bind project](bind.md). `./generated` (the default, relative to the invocation directory) must be on the compiler include path. These values are visible at the log site:
+Start with a normally configured [Bind project](bind.md). The generated headers are build artifacts, normally kept out of version control. By default, Bind writes them to `./generated`; add `-Igenerated` to the compiler options. To use `./build/gen` instead, add `-genDir build/gen` to Bind and use `-Ibuild/gen` when compiling. Paths are relative to each command's working directory.
+
+These values are visible at the log site:
 
 ```c
 struct Position {
@@ -78,22 +118,22 @@ The log site contains two freely chosen selector prefixes:
 trice32("info:pos:speed:Moving sample={sample}\n", 3);
 ```
 
-The Bind invocation adds position and speed:
+The `pos:` rule adds `pos.x` and `pos.y`; the `speed:` rule adds `velocity`. A call with both prefixes gets both extensions. The expressions must be valid at every selected site:
 
 ```sh
-trice bind -ce 'pos:", x={}, y={}", pos.x, pos.y' -ce 'speed:", m/s=%f", aFloat(velocity)'
+trice bind -ce 'pos:", x={}, y={}", pos.x, pos.y' -ce 'speed:", m/s=%.2f", aFloat(velocity)'
 ```
 
 The final template now contains:
 
 ```text
-info:Moving sample={sample}, x={pos.x}, y={pos.y}, m/s=%f\n
+info:Moving sample={sample}, x={pos.x}, y={pos.y}, m/s=%.2f\n
 ```
 
 The transmitted values are the original `3`, followed by `pos.x`, `pos.y` and the floating-point bit representation of `velocity`. With `-color none`, the message portion of text output is:
 
 ```text
-Moving sample=3, x=-444, y=77, m/s=33.330002
+Moving sample=3, x=-444, y=77, m/s=33.33
 ```
 
 The same result could also be obtained with:
@@ -105,12 +145,12 @@ trice32("info:Moving sample={sample}\n", 3);
 and this Bind invocation:
 
 ```sh
-trice bind -ce 'info:", x={}, y={}, m/s=%f", pos.x, pos.y, aFloat(velocity)'
+trice bind -ce 'info:", x={}, y={}, m/s=%.2f", pos.x, pos.y, aFloat(velocity)'
 ```
 
-The decimal digits follow the 32-bit floating-point representation and `%f`; `%.2f` would display `33.33`. JSON and KV contain the same message, including its trailing newline, as an escaped string. They also include the numeric fields `sample`, `pos.x` and `pos.y`. `%f` alone creates no named field; a rule such as `speed:", m/s={speed:%.2f}", aFloat(velocity)` can create one.
+`%.2f` displays two decimal places; plain `%f` would display the stored 32-bit value as `33.330002`. JSON and KV contain the same message, including its trailing newline, as an escaped string. They also include the numeric fields `sample`, `pos.x` and `pos.y`. `%.2f` alone creates no named field; a rule such as `speed:", m/s={speed:%.2f}", aFloat(velocity)` can create one.
 
-The CE examples in [triceCheck.c](../../_test/testdata/triceCheck.c) immediately follow the Structured Logging examples. Their `//exp:` expectations describe the normal run without `-ce`. CE integration tests use the same calls and verify the actually transmitted values with the rules shown above.
+The CE examples in [triceCheck.c](../../_test/testdata/triceCheck.c) immediately follow the Structured Logging examples. Their `//exp:` expectations describe the normal run without `-ce`. CE integration tests use those calls to check the transmitted values; this walkthrough uses `%.2f` for a shorter display.
 
 ## 2. <a id="rules-and-selectors"></a>Rules and Selectors
 

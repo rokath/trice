@@ -40,6 +40,8 @@ For the receive side, see [Receiving and resolving records](#receiving-and-resol
 
 ## 1. <a id="trice-macro-structure"></a>TRICE Macro structure
 
+This section explains the internals of a log call. For example, `trice("msg:count=%u\n", count)` reserves buffer space, writes its ID and value, then finishes the record. The operations below depend on the selected buffer and output mode. For configuration choices, start with [direct versus deferred output](performance.md); for integration steps, use the [firmware walkthrough](../TriceUserManual.md#bring-trice-into-your-firmware).
+
 ### 1.1. <a id="trice_enter"></a>TRICE_ENTER
 
 * Optionally disable interrupts.

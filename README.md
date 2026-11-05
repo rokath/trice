@@ -20,7 +20,15 @@ Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#
 
 See the moments that matter: a fleeting interrupt, a changing sensor value, or the response to a command.<sup>[8](#note-commands)</sup> Trice brings them into view while your firmware runs. Read events as text,<sup>[9](#note-text)</sup> work with structured values,<sup>[10](#note-fields)</sup> or watch measurements come alive in a plot.<sup>[11](#note-plots)</sup>
 
-The Guide helps you choose your first experiment, discover the features, and find the details for your own project. Start on your PC, then explore what Trice can do on your hardware.
+Start with one task:
+
+| I want to… | Start here |
+| --- | --- |
+| See a log without a board | [First PC log](docs/TriceUserManual.md#see-your-first-log) |
+| Log from my firmware | [Firmware walkthrough](docs/TriceUserManual.md#bring-trice-into-your-firmware), then [choose a transport](docs/rm/quickstarts.md) |
+| Save measurements for a spreadsheet or plot | [Two values per CSV row](docs/rm/visualization.md#save-two-values-as-csv) |
+
+Use the [Guide](docs/TriceGuide.md#entry-points) to find other tasks and the full reference.
 
 Before upgrading a 1.x project, read the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects): format braces, CLI options, tags and generated paths have changed. Keep old captures with their [matching host tool and dictionaries](docs/rm/id_management.md#compatibility-with-firmware-and-host-tool-versions).
 

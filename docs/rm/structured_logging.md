@@ -7,6 +7,7 @@
 
 * [1. Placeholders and Names](#placeholders-and-names)
 * [2. Field Types and Display](#field-types-and-display)
+  * [2.1. Supported records and limits](#supported-records-and-limits)
 * [3. Instrumentation and Dictionary](#instrumentation-and-dictionary)
 * [4. Output Formats and Event Boundaries](#output-formats-and-event-boundaries)
 * [5. JSON and KV Contract](#json-and-kv-contract)
@@ -19,15 +20,13 @@
 
 </details>
 
-Machine-readable output requires the standard TREX wire format. CHAR and DUMP do not provide suitable event boundaries and are rejected with `-logFormat json` or `-logFormat kv`.
-
-Structured Logging adds named, typed values to a readable message. A regular Trice call is enough:
+Use named fields when a program should read measurements without parsing your message text. The same capture can be displayed as text, JSON or key/value records. For example, a motor reports its ID and temperature:
 
 ```c
 trice("info:Motor {motor_id}: {temperature_c:%.1f C}", motor_id, aFloat(temperature_c));
 ```
 
-With `motor_id = 3` and `temperature_c = 87.5`, the output depends on the selected format:
+Run Bind and rebuild after changing the source template. Use the resulting `til.json` with the firmware or capture. With `motor_id = 3` and `temperature_c = 87.5`, the message and fields look like this:
 
 These three outputs use `-li off -showID '' -hs off -ts off`, so no optional host or target metadata appears.
 
@@ -49,7 +48,9 @@ Motor 3: 87.5 C
 tag=INFO level=INFO message="Motor 3: 87.5 C" field.motor_id=3 field.temperature_c=87.5
 ```
 
-Further output formats, such as CSV, could be added when needed.
+For two-column CSV output, use [`-vis`](visualization.md#save-two-values-as-csv). CSV is not a `-logFormat` value.
+
+Machine-readable output requires the standard TREX wire format. CHAR and DUMP do not provide suitable event boundaries and are rejected with `-logFormat json` or `-logFormat kv`.
 
 The target continues to transmit the ID and values using the existing wire format. Field names are not transmitted as additional runtime arguments or payload; they reside in the dictionary on the host.
 
@@ -57,9 +58,7 @@ Scalar Trices with 8, 16, 32 or 64 bits and strings through `triceS` and `triceN
 
 Try the [PC Feature Tour](examples.md#pc-feature-tour) or the [G0B1 Feature Tour](examples.md#g0b1-feature-tour): both demonstrate named numeric and string fields and text, NDJSON and KV output. The PC tour requires no hardware and immediately produces a short binary capture.
 
-Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
-
-Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","level":"INFO","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
+For buffer and function-display restrictions, see [Supported records and limits](#supported-records-and-limits).
 
 ## 1. <a id="placeholders-and-names"></a>Placeholders and Names
 
@@ -146,6 +145,12 @@ Supported C length modifiers such as `%lu` or `%llX` do not change these semanti
 `-unsigned=false` does not change the meaning of structured unsigned fields either. It continues to control the corresponding classical text display.
 
 Named string fields use `%s`; alternative classical string displays such as `%x` remain message text without a named field. A structured floating-point field in a 64-bit Trice requires `aDouble(...)`; `aFloat(...)` is rejected there to prevent interpreting the transmitted bits as a double.
+
+### 2.1. <a id="supported-records-and-limits"></a>Supported records and limits
+
+Named fields are currently unavailable for buffer formats such as `triceB`. These repeat a printf placeholder for each buffer element, whereas a structured field describes one named value. The current field schema does not define whether a named buffer should appear as a numeric list, a byte sequence or text. Therefore, `bind` and `insert` reject `trice8B("msg:{bytes:%02x}", bytes, 2)` with an error. `triceF` does not support named fields either.
+
+Buffer logging without a named field remains available: for `0x01` and `0x02`, `trice8B("msg:%02x ", bytes, 2)` produces JSON `{"tag":"MESSAGE","level":"INFO","message":"01 02 "}` without a `fields` object. For a fixed number of individually named values, use scalar Trices instead. Structured output of entire buffers requires a separate format and schema definition.
 
 ## 3. <a id="instrumentation-and-dictionary"></a>Instrumentation and Dictionary
 

@@ -65,9 +65,9 @@
 
 </details>
 
-This chapter is the reference for the current `trice bind` workflow, supported source constructs and limitations. Ordinary sites use file-and-line binding; supported ambiguous sites use automatic local counter rebasing. The restrictions for Context Enrichment are narrower and are explained under [Bind Limits](bind.md#bind-limits).
+Use Bind to keep numeric log IDs out of your C calls. Run it before compilation; it generates headers that connect each call to its dictionary entry. Start with the [quick start](#quick-start); return to [build integration](#build-integration) when adding the command to your build.
 
-This chapter describes the supported workflow, generated files, compiler requirements and troubleshooting. Use [Bind Limits](bind.md#bind-limits) to choose between Bind and the explicit-ID `insert/clean` workflow for your source constructs.
+Ordinary calls on separate source lines are the simplest path. Wrapper macros and several calls on one line have additional compiler requirements; CE supports fewer forms. Check [Bind Limits](#bind-limits) before choosing those forms. The appendices explain how binding works internally.
 
 ## 1. <a id="overview"></a>Overview
 
@@ -97,7 +97,7 @@ A subsequent `trice clean` is not required in a stable bind project.
 A bind project requires:
 
 - the normal Trice library under `./src`,
-- `til.json`,
+- `til.json` and `li.json`,
 - the PC tool with the `trice bind` subcommand,
 - a build step before C/C++ compilation,
 - the sidecar directory on the include path.
@@ -114,16 +114,19 @@ The default directory is:
 
 ### 3.1. <a id="new-id-free-project"></a>New ID-Free Project
 
-1. Write Trice calls without numeric IDs:
+For a project with application sources under `app`, run the following from its root in a POSIX shell (Git Bash on Windows). The target library and configuration must already be integrated; see the [firmware walkthrough](../TriceUserManual.md#bring-trice-into-your-firmware).
+
+1. Write Trice calls without numeric IDs, for example in `app/main.c`:
 
    ```c
    trice("msg:start\n");
    ```
 
-2. Run `trice bind`:
+2. Initialize the dictionary files once, then run Bind:
 
    ```sh
-   trice bind [shared insert options]
+   touch til.json li.json
+   trice bind -src app
    ```
 
 3. Add the sidecar directory to the compiler include path:
@@ -133,6 +136,8 @@ The default directory is:
    ```
 
 4. Build the project.
+
+Keep both dictionary files between builds. After changing a log call, repeat Bind and rebuild; no Clean step is needed. When the call above executes, the matching host decoder displays `start`.
 
 `trice bind` adds a file-local include to bind-managed files, for example:
 

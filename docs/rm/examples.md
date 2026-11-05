@@ -45,6 +45,8 @@
 
 </details>
 
+No board yet? Start with the [minimal PC demos](#minimal-pc-demos-direct-and-deferred), then try fields, filters, context and [CSV output](../TriceUserManual.md#save-two-measurements-as-csv) with the [PC feature tour](#pc-feature-tour). For your own firmware, use the [transport quickstarts](quickstarts.md). The table below helps you choose a matching STM32 example.
+
 Project Name                                    | Description
 -------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 |                                                 | |

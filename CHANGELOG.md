@@ -57,6 +57,7 @@ This fourth v2 beta implements the alias/tag/CLI/CE redesign and improves loggin
 - Pinned tool downloads retry transient network and HTTP failures with increasing delays while retaining SHA-256 verification. Linux library CI frees space for tool archives and extraction before setup.
 - [CI link checks](docs/rm/target_tests.md#github-actions) validate local files and anchors in PRs. Pushes to `main` and manual runs also check external links, keeping temporary website outages out of PR link results.
 - Manuals expand alias/CE guidance, CHAR/DUMP monitoring, decoder extension and JSON/KV examples. The reference PDF now includes [stamp expressions](docs/rm/stamp_expressions.md).
+- Documentation starts with task choices and short input/output examples, including [two-column CSV export](docs/rm/visualization.md#save-two-values-as-csv) and unit conversion. A [host logging overview](docs/rm/target_test_internals.md#host-logging-pipeline) explains data flow, ownership and errors; detailed rules remain in reference sections and appendices.
 - [Release instructions](docs/rm/tool_build_release.md#publish-a-release-quick-steps) now start with a short checklist for notes, PR integration, tags and manual publication. Follow-up notes preserve completed release-review decisions and their Git provenance.
 
 ## v2.0.0-beta-3

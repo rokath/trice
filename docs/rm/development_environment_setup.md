@@ -51,8 +51,9 @@
 
 </details>
 
-* Trice is usable with any C-compiler for any processor type, bit width and endianness. The example projects here are STM32 ones but illustrate how to setup Trice.
-* The [examples](../../examples) folder contains some instrumented example projects together with bare counterparts. Comparing a bare project with its intrumented counterpart gives a quick overview what needs to be done to get started.
+For a new project, follow the [firmware walkthrough](../TriceUserManual.md#bring-trice-into-your-firmware) and choose a [transport quickstart](quickstarts.md). Check [Bind's compiler requirements](bind.md#requirements) before wiring it into the build.
+
+This chapter keeps platform and IDE setup notes, including older Insert workflows. In a current Bind project, IDs stay out of user calls, so the source-rewrite warning and animation below do not describe the normal build. Compare a [bare and instrumented example](examples.md) to see which files an integration adds; adapt paths and peripheral settings to your board.
 
 ## 1. <a id="common-information"></a>Common Information
 

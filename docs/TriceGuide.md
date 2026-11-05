@@ -29,7 +29,9 @@ Document                                                                        
 -------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------
 [trice/README.md](../README.md)                                                            | Project Entry
 [trice/docs/TriceUserManual.md](./TriceUserManual.md)                                      | From your first PC log to your own firmware. The first experiments need no board.
-[trice/docs/rm/README.md](rm/README.md)                                                    | The complete technical reference
+[User Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceUserManual.pdf) | Download the User Manual from the latest stable release.
+[trice/docs/rm/README.md](rm/README.md)                                                    | The complete technical reference (reference manual chapters as Markdown files)
+[Reference Manual PDF — latest release](https://github.com/rokath/trice/releases/latest/download/TriceReferenceManual.pdf) | Download the Reference Manual from the latest stable release.
 [trice discussions](https://github.com/rokath/trice/discussions?discussions_q) - on GitHub | searchable questions and answers
 [trice issues](https://github.com/rokath/trice/issues?q=is%3Aissue) - on GotHub            | problems and solutions
 [trice/docs/TriceGuide.md](./TriceGuide.md)                                                | This file
@@ -76,6 +78,7 @@ Timing analysis                    | [Target stamps](rm/stamps.md) and [delta co
 Source-file and line information   | [Location information](rm/cli.md#location-information)
 Event counts                       | [Event statistics](rm/tags_color_and_weights.md#event-statistics)
 Graphical visualization            | [Visualization output](rm/visualization.md#visualization-output-with--vis) and [LabPlot demo](rm/visualization.md#setting-up-the-labplot-demo)
+Save measurements as CSV           | [Two values per row](rm/visualization.md#save-two-values-as-csv), with column names, unit conversion and example output
 Record decoded text or raw bytes   | [Logfile output](rm/cli.md#logfile-output) and [binary logfile](rm/cli.md#binary-logfile)
 Integrating multiple targets       | [Several targets at the same time](rm/cli.md#several-targets-at-the-same-time)
 
@@ -102,13 +105,14 @@ Adapt existing logging and assert macros   | [Legacy aliases](rm/legacy_user_cod
 
 ### 2.4. <a id="troubleshooting-and-contributions"></a>Troubleshooting and contributions
 
-What you need                   | Where to look
---------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------
-Missing or incorrect log output | [User Manual troubleshooting](./TriceUserManual.md#if-something-does-not-work) and [Reference Manual troubleshooting](rm/troubleshooting.md)
-Bind-specific errors            | [Bind diagnostics](rm/bind.md#diagnostics-and-troubleshooting)
-Release changes or contributing | [CHANGELOG](../CHANGELOG.md) and [CONTRIBUTING](../CONTRIBUTING.md)
-Run tests or add test cases     | [Testing the target library](rm/target_tests.md)
-Questions and bug reports       | [Community and contributions](rm/project_resources.md#community-and-contributions)
+What you need                      | Where to look
+-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+Missing or incorrect log output    | [User Manual troubleshooting](./TriceUserManual.md#if-something-does-not-work) and [Reference Manual troubleshooting](rm/troubleshooting.md)
+Bind-specific errors               | [Bind diagnostics](rm/bind.md#diagnostics-and-troubleshooting)
+Release changes or contributing    | [CHANGELOG](../CHANGELOG.md) and [CONTRIBUTING](../CONTRIBUTING.md)
+Run tests or add test cases        | [Testing the target library](rm/target_tests.md)
+Understand or extend host decoding | [Host logging pipeline](rm/target_test_internals.md#host-logging-pipeline): data flow, ownership, errors and decoder extension points
+Questions and bug reports          | [Community and contributions](rm/project_resources.md#community-and-contributions)
 
 ### 2.5. <a id="project-resources"></a>Project resources
 
