@@ -42,24 +42,28 @@ func TestFmatchStringLiteral(t *testing.T) {
 	}
 }
 
-// TestFcountColonsUntilClosingBracket verifies the expected behavior.
-func TestFcountColonsUntilClosingBracket(t *testing.T) {
+// TestSplitTriceParametersUntilClosingBracket keeps quoted commas and nested
+// calls inside their argument instead of splitting them into extra values.
+func TestSplitTriceParametersUntilClosingBracket(t *testing.T) {
 	var testTable = []struct {
+		name string
 		text string
-		exp  int
+		want []string
 	}{
-		{`,);`, 1},
-		{`, a, b);`, 2},
-		{`, "noise" );`, 1},
-		{`, "noise, sound" );`, 1},
-		{` "noise, sound" );`, 0},
-		{`, a, b, c, )`, 4},
-		{`, a, M(b, c), )`, 3},
+		{"empty argument", `,);`, []string{""}},
+		{"two variables", `, a, b);`, []string{"a", "b"}},
+		{"string argument", `, "noise" );`, []string{`"noise"`}},
+		{"comma inside string", `, "noise, sound" );`, []string{`"noise, sound"`}},
+		{"no argument separator", ` "noise, sound" );`, nil},
+		{"trailing empty argument", `, a, b, c, )`, []string{"a", "b", "c", ""}},
+		{"nested call", `, a, M(b, c), )`, []string{"a", "M(b, c)", ""}},
 	}
 	for _, x := range testTable {
-		act, err := countColonsUntilClosingBracket(x.text)
-		assert.Nil(t, err)
-		assert.EqualValues(t, x.exp, act)
+		t.Run(x.name, func(t *testing.T) {
+			args, err := splitTriceParametersUntilClosingBracket(x.text)
+			assert.NoError(t, err)
+			assert.Equal(t, x.want, args)
+		})
 	}
 }
 

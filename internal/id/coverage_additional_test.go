@@ -175,14 +175,14 @@ func TestEvaluateTriceParameterCountBranchErrors(t *testing.T) {
 	}
 }
 
-// TestCountColonsUntilClosingBracketErrors covers the invalid parser exits that
+// TestSplitTriceParametersUntilClosingBracketErrors covers the invalid parser exits that
 // are otherwise hard to hit through higher-level command tests.
-func TestCountColonsUntilClosingBracketErrors(t *testing.T) {
-	_, err := countColonsUntilClosingBracket(`, "unterminated );`)
+func TestSplitTriceParametersUntilClosingBracketErrors(t *testing.T) {
+	_, err := splitTriceParametersUntilClosingBracket(`, "unterminated );`)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid string literal")
 
-	_, err = countColonsUntilClosingBracket(`, call(abc);`)
+	_, err = splitTriceParametersUntilClosingBracket(`, call(abc);`)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "no matching closing bracket found")
 }
