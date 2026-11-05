@@ -1,14 +1,24 @@
-# Trice v2.0.0: besser nach dem Release
+# Trice v2.0.0: Dokumentationsabschluss und Folgearbeiten
 
 ## Zuerst erledigen
 
-1. Zunächst die reproduzierten Fehler und Release-Voraussetzungen aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) abschließen.
-2. Danach **N06 und N02** bearbeiten: die übrige Dokumentation systematisch verständlicher machen und die veraltete Beschreibung der Host-Architektur ersetzen.
+1. Die endgültige Freigabe aus [Vor dem Release](Release_v2.0.0_Vor_dem_Release.md) bleibt Voraussetzung für die Veröffentlichung.
+2. **N06 und der Markdown-Teil von N02 fließen bereits in beta-4 ein:** kurze Einstiege, konkrete Ein-/Ausgaben und die heutige Host-Architektur. Die folgende Tabelle zeigt den Umfang.
 3. **N01, N03 und N04** gezielt bearbeiten: ungenutzte Helfer prüfen, Tests an tatsächlichen Fehlergrenzen ergänzen und die selbst gepflegte Dokumentation vollständig in Prüfungen erfassen.
 4. **N05** nur als getrennte Wartungsaufgabe angehen. Eine breite Skriptumbenennung kurz vor v2.0.0 bringt wenig Anwendernutzen und berührt viele Aufrufer.
 5. **N07 ist im RM gesichert:** Zukunftsideen bleiben auffindbar, ohne neue Funktionen zuzusagen.
 
-Stand: Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Die folgenden Änderungen wurden nicht implementiert. Bereits direkt korrigierte Kleinigkeiten stehen ausschließlich im Git-Diff.
+Stand: 2026-11-05. Ausgangspunkt war das Review vom 2026-11-03 auf `wip`, HEAD `08b31e2ca033aa428e4d06e7bd41231ef2075b0d`. Die Dokumentationsüberarbeitung erfolgt vor dem Release; Code, Tests und Prüfskripte bleiben in diesem Schritt unverändert.
+
+| Punkt | Dokumentationsstand für beta-4 | Was offen bleibt |
+| --- | --- | --- |
+| N06: Einstieg und Orientierung | README, Guide, Quickstarts und Beispielübersicht führen direkt zur passenden Aufgabe. Bind zeigt einen konkreten Aufruf statt eines Platzhalters; ältere IDE-/Insert-Anleitungen sind als solche eingeordnet. | Historische Hardware-Rezepte sind dadurch nicht neu validiert. |
+| N06: Werte und Ausgabe | User Manual und Referenz zeigen zwei CSV-Spalten samt Dateiinhalt, Umrechnung und Grenzen. Strukturierte Ausgabe und CE beginnen mit Eingabe, Befehl und Ergebnis. | Die technischen Detailregeln bleiben in den Fachkapiteln und vorhandenen Anhängen. |
+| N02: Host-Architektur | [Aktueller Datenfluss](../rm/target_test_internals.md#host-logging-pipeline) mit Besitz, Lebensdauer, Locks, Diagnosen und Fehlerweitergabe; die historische Parserbeschreibung verweist darauf. | Veraltete Kommentare in Go-Dateien: separate Quellcodepflege. |
+| N04: Link-Prüfumfang | Relative Links der eigenen Wrapper-READMEs wurden mit den bearbeiteten Dokumenten lokal geprüft. | Automatische Einbeziehung in Lychee benötigt eine getrennte Änderung der Prüfauswahl. |
+| N01, N03, N05 | Keine Implementierung in diesem Dokumentationsschritt. | Codeanalyse, zusätzliche Tests und gegebenenfalls einzelne Skriptumbenennungen. |
+
+Die Beispiele wurden mit den vorhandenen Quellen und Tests abgeglichen. Dabei wurde auch die Dateibehandlung von `-vis` klargestellt: Jeder Lauf ersetzt eine vorhandene Ausgabedatei. Die bestehende LabPlot-Animation wird wiederverwendet; eine kleine Tabelle erklärt ihre Spaltenzuordnung. Das ist kein neuer Lauf der Programme oder der Hardware-Beispiele; die finale Testausführung bleibt beim Benutzer.
 
 ## Kandidaten für ungenutzten Code gezielt untersuchen
 
