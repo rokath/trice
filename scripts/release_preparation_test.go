@@ -384,8 +384,9 @@ func TestSelectedReleaseNotes(t *testing.T) {
 }
 
 // TestReleaseCandidateNotes selects the real changelog through the production
-// workflow step. Historical beta notes must stay separate from the cumulative
-// stable description, and a different tag spelling must never act as an alias.
+// workflow step. Stable notes link to the feature and migration guides instead
+// of repeating them. Historical beta notes stay separate, and a different tag
+// spelling must never act as an alias.
 func TestReleaseCandidateNotes(t *testing.T) {
 	changelog, err := os.ReadFile(filepath.Join("..", "CHANGELOG.md"))
 	require.NoError(t, err)
@@ -393,7 +394,8 @@ func TestReleaseCandidateNotes(t *testing.T) {
 		tag, marker string
 		valid       bool
 	}{
-		{"v2.0.0", "### Upgrade from 1.x", true},
+		{"v2.0.0", "/docs/rm/feature_overview.md", true},
+		{"v2.0.0-beta-4", "This fourth v2 beta", true},
 		{"v2.0.0-beta-3", "This third v2 beta", true},
 		{"v2.0.0-beta3", "", false},
 	} {
@@ -415,13 +417,13 @@ func TestReleaseCandidateNotes(t *testing.T) {
 			assert.True(t, strings.HasPrefix(string(notes), "## "+tc.tag+"\n\n"))
 			assert.Contains(t, string(notes), tc.marker)
 			assert.NotContains(t, string(notes), "(unreleased)")
+			assert.NotContains(t, string(notes), "\n## ", "only the selected release section belongs in the published notes")
 			if tc.tag == "v2.0.0" {
 				assert.NotContains(t, string(notes), "not implemented in this beta")
+				assert.NotContains(t, string(notes), "This fourth v2 beta")
 				assert.NotContains(t, string(notes), "This third v2 beta")
-				assert.Contains(t, string(notes), "-utag")
+				assert.Contains(t, string(notes), "https://github.example/fixture/trice/blob/v2.0.0/docs/rm/feature_overview.md")
 				assert.Contains(t, string(notes), "https://github.example/fixture/trice/blob/v2.0.0/docs/rm/id_management.md#migrating-1x-scripts-and-projects")
-			} else {
-				assert.NotContains(t, string(notes), "### Upgrade from 1.x")
 			}
 		})
 	}

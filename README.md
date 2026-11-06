@@ -18,6 +18,8 @@ Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#
 
 **[Explore Trice in the Guide](./docs/TriceGuide.md)**
 
+**[Features at a glance](docs/rm/feature_overview.md)** — capabilities, introduction versions and obsolete features, with links to examples and details.
+
 See the moments that matter: a fleeting interrupt, a changing sensor value, or the response to a command.<sup>[8](#note-commands)</sup> Trice brings them into view while your firmware runs. Read events as text,<sup>[9](#note-text)</sup> work with structured values,<sup>[10](#note-fields)</sup> or watch measurements come alive in a plot.<sup>[11](#note-plots)</sup>
 
 Start with one task:

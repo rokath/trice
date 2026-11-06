@@ -6,6 +6,7 @@ New to Trice? Start with the [User Manual](../TriceUserManual.md). Use the [Guid
 
 ## Normal use
 
+- [Trice Features at a Glance](feature_overview.md)
 - [Trice Overview and Concepts](overview.md)
 - [Firmware Integration Recipes](quickstarts.md)
 - [Writing Trice Messages](printf_comparison.md)

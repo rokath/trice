@@ -6,6 +6,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -29,7 +30,7 @@ func TestManualEPUBPreparationSharesBrowserSetup(t *testing.T) {
 		{name: "failed_browser_preparation", fails: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_325_generate_trice_manual_epubs.sh")
+			root := scriptFixture(t, "scripts/_320_generate_trice_user_manual_pdf.sh", "scripts/_325_generate_trice_manual_epubs.sh", "scripts/_manual_epub.lua")
 			// Preserve the real entry-point ordering; replace only preparation
 			// and external tools so a cold-cache case cannot download anything.
 			setup, err := os.ReadFile(filepath.Join(root, "scripts", "_105_setup_test_tools.sh"))
@@ -181,7 +182,7 @@ func TestManualEPUBGeneration(t *testing.T) {
 		{"unreadable_output", "read", "3.8.3"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			root := scriptFixture(t, "scripts/_325_generate_trice_manual_epubs.sh", "scripts/_manual_epub.css")
+			root := scriptFixture(t, "scripts/_325_generate_trice_manual_epubs.sh", "scripts/_manual_epub.css", "scripts/_manual_epub.lua")
 			// Fixed Git facts distinguish the source date from generation time
 			// and keep metadata assertions independent of the developer checkout.
 			writeFixture(t, root, "bin/git", `#!/bin/sh
@@ -212,12 +213,18 @@ if [ "$1" = --version ]; then
 fi
 output=
 mode=convert
+filter=
 for argument do
-  case "$argument" in --output=*) output="${argument#--output=}" ;; --from=epub) mode=read ;; esac
+  case "$argument" in
+    --output=*) output="${argument#--output=}" ;;
+    --from=epub) mode=read ;;
+    --lua-filter=*) filter="${argument#--lua-filter=}" ;;
+  esac
 done
 [ -n "$output" ] || exit 92
 printf '%s\n' "$*" >> "$EPUB_CALLS"
 if [ "$mode" = convert ]; then
+  [ -s "$filter" ] || { echo 'missing EPUB symbol filter' >&2; exit 95; }
   [ "$EPUB_FAILURE" != convert ] || exit 24
   if [ "$EPUB_FAILURE" = convert_reference ] && [ "$1" = TriceReferenceManual.html ]; then exit 24; fi
   [ "$EPUB_FAILURE" != empty ] || exit 0
@@ -265,6 +272,7 @@ fi
 			assert.Equal(t, 4, strings.Count(string(calls), "--from="), "both books are converted and read back")
 			assert.Equal(t, 2, strings.Count(string(calls), "--to=epub3"))
 			assert.Equal(t, 2, strings.Count(string(calls), "--split-level=2"))
+			assert.Equal(t, 2, strings.Count(string(calls), "--lua-filter="), "both books need readable symbol labels")
 			expectedVersion := "v2.0.0-beta-4-2-g123456789abc-dirty"
 			if releaseTag != "" {
 				expectedVersion = releaseTag
@@ -281,6 +289,44 @@ fi
 			}
 		})
 	}
+}
+
+// TestEPUBSymbolsPreserveExamples runs the real converter when installed. Only
+// editorial symbols may change; executable examples and destinations retain
+// their exact Unicode text. No tool download or browser setup is needed.
+func TestEPUBSymbolsPreserveExamples(t *testing.T) {
+	pandoc, err := exec.LookPath("pandoc")
+	if err != nil {
+		t.Skip("pandoc not installed; EPUB symbol check uses the existing converter")
+	}
+	filter, err := filepath.Abs("_manual_epub.lua")
+	require.NoError(t, err)
+	input := `<h1 id="symbols">⚠️ Warnings</h1>
+<p>ℹ️ 💡 ❗ ⚠ ⛔ 🔍 ✅ ❌</p>
+<table><tr><th>Symbol</th><th>Label</th></tr><tr><td>✅</td><td>Yes</td></tr></table>
+<table><tr><th>Switch</th><th>Default</th><th>Effect</th></tr><tr><td><code>TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS</code></td><td>1</td><td>Accepts fixed precision.</td></tr></table>
+<p>café ä Ω → <code>✅ 🙂 café</code></p>
+<p>Legend: <code>✅ Yes</code> and <code>❌ No</code></p>
+<pre><code>print("⚠️ ✅ 🙂")</code></pre>
+<p><a href="https://example.invalid/✅">✅ Link</a></p>
+<p>⚠︎ Text presentation</p>`
+	cmd := exec.Command(pandoc, "--from=html", "--to=html5", "--lua-filter="+filter)
+	cmd.Stdin = strings.NewReader(input)
+	output, err := cmd.CombinedOutput()
+	require.NoError(t, err, string(output))
+	html := string(output)
+	assert.Contains(t, html, `[Warning] Warnings</h1>`)
+	assert.Contains(t, html, "[i] [Tip] [!] [Warning] [Unsupported] [Check] [Yes] [No]")
+	assert.Contains(t, html, "<td>[Yes]</td>")
+	assert.Contains(t, html, `<col style="width: 12%" />`)
+	assert.Equal(t, 2, strings.Count(html, `<col style="width: 44%" />`))
+	assert.Contains(t, html, "<code>TRICE_LOCAL_LOG_USE_PRECISION_FORMAT_SPECIFIERS</code>")
+	assert.Contains(t, html, "café ä Ω →")
+	assert.Contains(t, html, "<code>✅ 🙂 café</code>")
+	assert.Contains(t, html, "<code>[Yes] Yes</code> and <code>[No] No</code>")
+	assert.Contains(t, html, "print(&quot;⚠️ ✅ 🙂&quot;)")
+	assert.Contains(t, html, `<a href="https://example.invalid/✅">[Yes] Link</a>`)
+	assert.Contains(t, html, "[Warning] Text presentation")
 }
 
 // TestPublishedEPUBContainers rejects missing, damaged and incorrectly labelled
