@@ -1,38 +1,24 @@
 # Changelog
 
+[Feature overview](docs/rm/feature_overview.md): capabilities, introduction versions and obsolete features, with links to their documentation.
+
 ## Unreleased
 
-## v2.0.0 (unreleased)
+## v2.0.0
 
-**[Progress from 1.0 to 2.0](docs/rm/project_resources.md#progress-from-10-to-20)**
+Changes since **v2.0.0-beta-4** are listed below. For the complete feature set, use the [feature overview](docs/rm/feature_overview.md). Upgrading from 1.x? Read the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects) before rebuilding.
 
-Trice 2.0 adds ID-free source instrumentation, named log fields, automatic context values, configurable tag priorities, host-side counter expressions, visualization output, and local deferred text logging. Review the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects) before rebuilding a 1.x project.
+### Manuals and release artifacts
 
-### Progress since 1.0
+- The guided [User Manual](docs/TriceUserManual.md) and complete [Reference Manual](docs/rm/README.md) ship as separate **PDF and EPUB 3** assets. EPUBs show the source version, commit and generation date. Release and snapshot CI generate both formats; the release audit checks their published downloads.
+- EPUB formatting adds code wrapping, compatible diagram images, text labels for editorial symbols and contents without duplicate numbering. **Known reader limit:** in SumatraPDF 3.5.2/3.6.1, wide tables can be clipped or long identifiers can overlap neighboring columns. Use the PDFs for these tables.
+- The new [feature overview](docs/rm/feature_overview.md) lists capabilities by introduction version, newest first, links to their documentation and marks obsolete features. The root README and Reference Manual link to it.
+- Manuals start with task choices and concrete input/output examples, including [two-column CSV export](docs/rm/visualization.md#save-two-values-as-csv), unit conversion, irregular measurement times and target-stamp selection. Detailed rules remain in reference sections and appendices; the [host logging overview](docs/rm/target_test_internals.md#host-logging-pipeline) explains ownership, buffers and error handling.
 
-Between 1.0 and 2.0, Trice gained macro aliases and user tags, UDP input, more host packages, shared decoder registration, the standalone `tlog` command, counted user packets and ABC broadcast commands. These arrived before v2. ID-based binary logging, Insert/Clean, target buffers, COBS/TCOBS, XTEA and RTT were already available in 1.0.
+### Developer workflow and cleanup
 
-### New workflows
-
-- [Bind](docs/rm/bind.md) supplies IDs through generated headers; calls such as `trice("msg:ready\n")` stay ID-free. Insert/Clean remains available. Bind and [Context Enrichment](docs/rm/context_enrichment.md#supported-log-sites-and-alternatives) have explicit compiler and wrapper limits.
-- [Structured Logging](docs/rm/structured_logging.md) gives values names, for example `{voltage_mv:%u}`, and emits text, JSON or key/value records. [Context Enrichment](docs/rm/context_enrichment.md) adds selected values automatically; runtime-string extensions have [specific limits](docs/rm/context_enrichment.md#alias-tags-and-ce-limits).
-- [Tags](docs/rm/tags_color_and_weights.md) control priority, filters and colors. For example, `-logLevel wrn` keeps Warning and higher-priority events. [Macro aliases](docs/rm/legacy_user_code.md#alias-identity-and-tags-in-v2) retain their exact TIL names and use the same event tag across output formats and visualization; repeat `Name:Tag` overrides when logging because they are not stored.
-- [Stamp expressions](docs/rm/stamp_expressions.md) use `printf`, `unwrap` and `delta` on the host to convert raw hardware counters and reconstruct wraps. This can remove conversion work from interrupt handlers.
-- [Visualization](docs/rm/visualization.md) writes selected numeric values to files or UDP. For `MyWrn("err:temperature=%u\n", 85)`, `-vis='wrn:printf("%d\n",v0)@warnings.csv'` appends `85` to `warnings.csv`; the macro's Warning tag decides the selection.
-- [Local deferred text logging](docs/rm/target_implementation.md#local-deferred-text-log) formats buffered records on the target. [Generation tools](docs/rm/generate.md) export source-selected C tables, readable dictionaries and Bind reports. The guided [User Manual](docs/TriceUserManual.md) and split [Reference Manual](docs/rm/README.md) are also shipped as two PDFs.
-
-### Fixes and reliability
-
-- TCP/UDP close diagnostics preserve connection cleanup. The [interactive command shell](docs/rm/cli.md#stimulate-target-with-a-user-command-over-uart) handles EOF and write failures, stops with its log run, and keeps commands working through byte-display and binary-log wrappers. UDP4 rejects unsupported command use.
-- The local C logger accepts `%t` at the end of a format. Finite replay exits and releases resources; live dictionary reload handles file replacement. Filters preserve complete events and metadata, statistics count decoded events before filtering, and stamp-expression errors preserve the application message.
-- Removed the unused, unimplemented `-exec` option. [Start external servers manually](docs/rm/cli.md#tcp4-input) before logging; the option previously printed a placeholder without starting a process.
-
-### Upgrade from 1.x
-
-- Write literal braces as `{{` and `}}`; single braces now define fields. Keep historical firmware and captures with their matching tool and dictionaries. An unchanged binary layout does not guarantee [template compatibility](docs/rm/id_management.md#compatibility-with-firmware-and-host-tool-versions).
-- Update [CLI options and generated paths](docs/rm/id_management.md#migrating-1x-scripts-and-projects): use `-pick err -pick wrn` instead of `-pick err:wrn`, `-utag` instead of `-ulabel`, and source-selected `-logC` instead of `-tilC`. Multi-character option names ignore case; one-character names remain case-sensitive. Custom tags such as `new` and `NEW` now form one group.
-- Changed ID ranges or added, removed or moved identical calls can change IDs. Rebuild firmware and retain its matching LI file; see [ID assignment](docs/rm/id_management.md#different-ids-for-same-trices).
-- Source builds require Go 1.25 or newer. Use release archives or a local tag checkout; remote `go install ...@v2.0.0` is unsupported without a `/v2` module path. Stable tags update the Homebrew tap; beta tags do not.
+- [Developer workflows](docs/rm/maintenance.md) use consistently numbered internal helpers. Direct callers of `examples/buildCLI.sh` and `examples/prepareTriceBind.sh` must use `examples/_010_build_cli.sh` and `examples/_020_prepare_trice_bind.sh`. Public build and test entry points remain available.
+- Unused host parsing, ID-management and timestamp-formatting helpers have been removed. Active runtime behavior and dictionary formats are preserved.
 
 ## v2.0.0-beta-4
 
@@ -57,8 +43,6 @@ This fourth v2 beta implements the alias/tag/CLI/CE redesign and improves loggin
 - Pinned tool downloads retry transient network and HTTP failures with increasing delays while retaining SHA-256 verification. Linux library CI frees space for tool archives and extraction before setup.
 - [CI link checks](docs/rm/target_tests.md#github-actions) validate local files and anchors in PRs. Pushes to `main` and manual runs also check external links, keeping temporary website outages out of PR link results.
 - Manuals expand alias/CE guidance, CHAR/DUMP monitoring, decoder extension and JSON/KV examples. The reference PDF now includes [stamp expressions](docs/rm/stamp_expressions.md).
-- Both manuals are available as generated [EPUB 3 eBooks](docs/TriceGuide.md#document-overview), alongside the PDFs. Release and snapshot CI generate both formats; the release audit checks the published assets.
-- Documentation starts with task choices and short input/output examples, including [two-column CSV export](docs/rm/visualization.md#save-two-values-as-csv) and unit conversion. A [host logging overview](docs/rm/target_test_internals.md#host-logging-pipeline) explains data flow, ownership and errors; detailed rules remain in reference sections and appendices.
 - [Release instructions](docs/rm/tool_build_release.md#publish-a-release-quick-steps) now start with a short checklist for notes, PR integration, tags and manual publication. Follow-up notes preserve completed release-review decisions and their Git provenance.
 
 ## v2.0.0-beta-3
