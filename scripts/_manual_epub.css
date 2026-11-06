@@ -1,5 +1,11 @@
 /* Reflow with reader-selected fonts while keeping technical examples legible. */
 body { line-height: 1.4; }
+/* Some reader fonts lack the hollow-circle/square markers used for nested
+   lists. Reuse the ordinary bullet at every depth, including book contents. */
+ul, ul ul, ul ul ul { list-style-type: disc; }
+/* Chapter labels already contain their numbers. Pandoc's EPUB navigation is
+   an ordered list, whose own counters would add a second, misleading number. */
+nav#toc ol, nav#toc li { list-style-type: none; }
 img { max-width: 100%; height: auto; }
 pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 code { font-family: monospace; }
@@ -23,6 +29,18 @@ pre > code.sourceCode > span {
   padding-left: 0;
   text-indent: 0;
 }
-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
-th, td { border: 1px solid #888; padding: 0.3em; overflow-wrap: anywhere; }
+/* Long macro names must not determine the minimum width of the whole table.
+   Fixed layout keeps every column on the page, including in older readers. */
+table { width: 100%; max-width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 0.85em; }
+th, td {
+  border: 1px solid #888;
+  padding: 0.3em;
+  vertical-align: top;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+/* Keep identifiers copyable: wrap visually without adding spaces or hyphens.
+   break-all also works in readers that ignore overflow-wrap: anywhere. */
+th code, td code { white-space: pre-wrap; word-break: break-all; }
 h1, h2, h3, h4 { break-after: avoid; }

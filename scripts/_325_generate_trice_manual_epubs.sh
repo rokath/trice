@@ -30,6 +30,7 @@ generated_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 # The preparation mode assembles the RM and rewrites UM links, without PDFs.
 bash scripts/_320_generate_trice_user_manual_pdf.sh prepare
 css="$PWD/scripts/_manual_epub.css"
+symbol_filter="$PWD/scripts/_manual_epub.lua"
 for manual in TriceUserManual TriceReferenceManual; do
   title="Trice User Manual"
   input_dir=temp/manual-pdf/chapters
@@ -42,7 +43,7 @@ for manual in TriceUserManual TriceReferenceManual; do
   (
     cd "$input_dir"
     pandoc "$manual.html" --from=html --to=epub3 --standalone --fail-if-warnings \
-      --toc --toc-depth=3 --split-level=2 --css="$css" \
+      --toc --toc-depth=3 --split-level=2 --css="$css" --lua-filter="$symbol_filter" \
       --metadata="title:$title ($source_version)" --metadata=lang:en \
       --metadata="subtitle:Source commit: $source_commit ($source_date). Generated: $generated_at" \
       --metadata="date:${generated_at%%T*}" \
