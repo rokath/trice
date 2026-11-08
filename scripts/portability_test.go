@@ -607,6 +607,10 @@ ensure_cppcheck_test_tool() {
   echo analyzer >> dependent-tools
 }
 prepare_pinned_native_tools() { return 0; }
+ensure_pinned_test_tools() {
+  [ "$*" = pandoc ] || return 98
+  echo converter >> dependent-tools
+}
 prepare_native_test_tools || exit $?
 cmake --version || exit $?
 echo completed
@@ -626,6 +630,9 @@ echo completed
 				assert.Contains(t, out, "Selected cmake:")
 				assert.Contains(t, out, "completed")
 				assert.FileExists(t, filepath.Join(root, "dependent-tools"))
+				dependentTools, err := os.ReadFile(filepath.Join(root, "dependent-tools"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(dependentTools), "converter\n", "native preparation must select Pandoc before the Go suite")
 				assert.FileExists(t, filepath.Join(root, "compiler-probe"))
 			} else {
 				assert.NoFileExists(t, filepath.Join(root, "dependent-tools"))

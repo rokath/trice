@@ -167,6 +167,8 @@ prepare_pinned_native_tools() {
   for name in Go Node.js goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd markdownlint-cli; do
     awk -F '\t' -v name="$name" '$1==name {ok=1} END {exit !ok}' "$TRICE_PLAN_FILE" || return 91
   done
+  # A standalone linter must not acquire EPUB-only dependencies.
+  awk -F '\t' '$1=="pandoc" {exit 92}' "$TRICE_PLAN_FILE" || return 92
   echo complete-plan > prepared
 }
 `)
@@ -288,6 +290,7 @@ func TestToolPlanListsOnlyMissingTools(t *testing.T) {
 			versions := map[string]string{
 				"node": "26.12.1", "gcc": gcc, "clang": clang, "arm-none-eabi-gcc": "15.2.1", "cmake": "4.4.4",
 				"goreleaser": "2.19.0", "actionlint": "1.7.12", "shellcheck": "0.11.0", "mdtoc": "1.0.3", "stitchmd": "0.9.0",
+				"pandoc":   "3.8.3",
 				"cppcheck": "2.22.0", "clang-format": "23.1.3", "go": "1.27.3", "jq": "0.0.0", "shfmt": "0.0.0",
 			}
 			for name, version := range versions {
@@ -308,16 +311,123 @@ trice_plan_npm() {
   trice_plan_row puppeteer "$TRICE_TOOL_PUPPETEER_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" reuse available temp/tools 0 0
 }
 trice_test_tool_plan native || exit $?
+awk -F '\t' '$1=="pandoc" {print "PANDOC=" $2 ":" $4}' "$TRICE_PLAN_FILE"
 awk -F '\t' '$4=="install" {print "INSTALL=" $1}' "$TRICE_PLAN_FILE"
 }
 `
 			out, err := runFixture(t, root, body, map[string]string{"FIXTURE_PLATFORM": platform, "CI": "false"})
 			assert.NoError(t, err, out)
+			assert.Contains(t, out, "PANDOC=3.8.3:reuse", "native preparation must plan the converter on every OS")
 			assert.Equal(t, 2, strings.Count(out, "INSTALL="), out)
 			assert.Contains(t, out, "INSTALL=jq")
 			assert.Contains(t, out, "INSTALL=shfmt")
 			assert.Contains(t, out, "Install: jq (~32 MB), shfmt (~32 MB)")
 			assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
+		})
+	}
+}
+
+// TestNativePandocSelection runs the real selection/consent helper on each OS
+// branch. The report-tool double models only installation, never a real download.
+func TestNativePandocSelection(t *testing.T) {
+	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT-10.0"} {
+		for _, state := range []string{"installed", "cached", "missing_approved", "wrong_version", "declined", "no_input", "install_failure", "changed_since_plan"} {
+			t.Run(platform+"/"+state, func(t *testing.T) {
+				root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+				writeFixture(t, root, "bin/uname", "#!/bin/sh\necho \"$FIXTURE_PLATFORM\"\n")
+				writeFixture(t, root, "bin/cygpath", "#!/bin/sh\nfor arg do result=$arg; done\nprintf '%s\\n' \"$result\"\n")
+				writeFixture(t, root, "pandoc-fixture", "#!/bin/sh\necho 'pandoc 3.8.3'\n")
+				if state == "installed" {
+					writeFixture(t, root, "bin/pandoc", "#!/bin/sh\necho 'pandoc 3.8.3'\n")
+				} else {
+					writeFixture(t, root, "bin/pandoc", "#!/bin/sh\necho 'pandoc 3.8.2'\n")
+				}
+				if state == "cached" {
+					writeFixture(t, root, "temp/tools/native/fixture/bin/pandoc", "#!/bin/sh\necho 'pandoc 3.8.3'\n")
+				}
+				action := "install"
+				if state == "installed" || state == "cached" || state == "changed_since_plan" {
+					action = "reuse"
+				}
+				writeFixture(t, root, "plan.tsv", "pandoc\t3.8.3\tfixture\t"+action+"\tfixture\ttemp/tools\t256\t512\n")
+				writeFixture(t, root, "bin/testcheck", `#!/bin/sh
+set -eu
+selected=''
+if [ "$(bin/pandoc --version)" = 'pandoc 3.8.3' ]; then selected="$PWD/bin"; fi
+if [ -x temp/tools/native/fixture/bin/pandoc ]; then selected="$PWD/temp/tools/native/fixture/bin"; fi
+if [ "$1" = inspect ]; then
+  action=install
+  [ -z "$selected" ] || action=reuse
+  printf 'pandoc\t3.8.3\tfixture\t%s\tfixture\ttemp/tools\t256\t512\n' "$action"
+  exit 0
+fi
+[ "$1" = tools ] || exit 90
+shift
+probe=false
+if [ "$1" = --no-install ]; then probe=true; shift; fi
+[ "$1" = scripts/test-tools.env ] && [ "$2" = temp/tools/native ] && [ "$3" = pandoc ] || exit 91
+if [ -z "$selected" ]; then
+  [ "$probe" = false ] || exit 3
+  echo attempted >> installations
+  [ "$PANDOC_STATE" != install_failure ] || { echo 'Pandoc download failed' >&2; exit 2; }
+  selected="$PWD/temp/tools/native/fixture/bin"
+  mkdir -p "$selected"
+  cp pandoc-fixture "$selected/pandoc"
+fi
+printf '%s\n' "$selected"
+`)
+				body := `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+TRICE_TEST_REPORT_BIN="$PWD/bin/testcheck"
+TRICE_TEST_PLAN_ACTIVE=1
+TRICE_PLAN_FILE="$PWD/plan.tsv"
+ensure_pinned_test_tools pandoc || exit $?
+pandoc --version
+`
+				approved := state == "missing_approved" || state == "wrong_version" || state == "install_failure"
+				if approved {
+					body = "printf 'yes\\n' | {\n" + body + "\n}"
+				} else if state == "declined" {
+					body = "printf 'no\\n' | {\n" + body + "\n}"
+				}
+				out, err := runFixture(t, root, body, map[string]string{"CI": "false", "FIXTURE_PLATFORM": platform, "PANDOC_STATE": state})
+				success := state == "installed" || state == "cached" || state == "missing_approved" || state == "wrong_version"
+				if success {
+					assert.NoError(t, err, out)
+					assert.Contains(t, out, "pandoc 3.8.3")
+				} else {
+					assert.Error(t, err, out)
+					assert.NotRegexp(t, `(?m)^pandoc 3\.8\.3$`, out, "failed preparation must not execute the converter")
+				}
+				if approved {
+					assert.FileExists(t, filepath.Join(root, "installations"))
+				} else {
+					assert.NoFileExists(t, filepath.Join(root, "installations"), "cached tools and refused/unplanned setup must never download")
+				}
+				if state == "install_failure" {
+					assert.Contains(t, out, "Pandoc download failed")
+				}
+				if state == "changed_since_plan" {
+					assert.Contains(t, out, "pandoc changed since startup")
+				}
+			})
+		}
+	}
+}
+
+// TestPandocSystemPackages keeps optional system upgrades aligned with the
+// converter required by local native preparation, without running a manager.
+func TestPandocSystemPackages(t *testing.T) {
+	for _, tc := range []struct{ manager, packageName string }{
+		{"apt", "pandoc"}, {"brew", "pandoc"}, {"winget", "JohnMacFarlane.Pandoc"},
+	} {
+		t.Run(tc.manager, func(t *testing.T) {
+			root := scriptFixture(t)
+			out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+trice_system_package_names pandoc "$TRICE_TOOL_PANDOC_VERSION"
+`, map[string]string{"TRICE_SYSTEM_MANAGER": tc.manager})
+			assert.NoError(t, err, out)
+			assert.Equal(t, tc.packageName, strings.TrimSpace(out))
 		})
 	}
 }

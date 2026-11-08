@@ -432,6 +432,10 @@ trice_plan_cli() {
     installed=64
     peak=128
     ;;
+  pandoc)
+    installed=256
+    peak=512
+    ;;
   esac
   key="TRICE_TOOL_$(printf '%s' "$name" | tr '[:lower:]-' '[:upper:]_')"
   version="${key}_VERSION"
@@ -837,6 +841,8 @@ trice_test_tool_plan() {
     esac
     trice_plan_bundle arm arm-none-eabi-gcc "$TRICE_ARM_GCC_VERSION" 1600 2300
     for tool in goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd; do trice_plan_cli "$tool"; done
+    # The native Go suite runs EPUB conversion, unlike standalone lint checks.
+    trice_plan_cli pandoc
   fi
   if [ "$scope" = lint ]; then
     for tool in goreleaser actionlint shellcheck jq shfmt mdtoc stitchmd; do trice_plan_cli "$tool"; done
