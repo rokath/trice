@@ -9559,6 +9559,10 @@
 		"Type": "TRice8B",
 		"Strg": "wr: X0-TRiceB: %02x\\n"
 	},
+	"15522": {
+		"Type": "trice",
+		"Strg": "trace:Fixed value={z}\\n"
+	},
 	"15527": {
 		"Type": "TRICE",
 		"Strg": "time:G0B1 TRICE(Id(0)... 5\\n"
@@ -9871,6 +9875,10 @@
 		"Type": "TRICE",
 		"Strg": "time:G0B1 TRICE(Id(0)... 4\\n"
 	},
+	"15877": {
+		"Type": "trice",
+		"Strg": "trace:Fixed value={z}\\n"
+	},
 	"15878": {
 		"Type": "TRice",
 		"Strg": "att:🐁 Speedy Gonzales B TRice(... function call macro (mixed-case macro) with 32-bit time stamp\\n"
@@ -9998,6 +10006,10 @@
 	"15992": {
 		"Type": "trice",
 		"Strg": "dwa, "
+	},
+	"15994": {
+		"Type": "trice",
+		"Strg": "trace:Fixed value={z}\\n"
 	},
 	"15996": {
 		"Type": "Trice",
