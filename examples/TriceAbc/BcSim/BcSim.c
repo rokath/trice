@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
 /*
  * macOS hides some C/POSIX declarations unless one of the Darwin feature-test
@@ -60,6 +62,46 @@
 #define BCSIM_MKDIR(path) mkdir(path, 0777)
 #define BCSIM_RMDIR(path) rmdir(path)
 #endif
+
+/*
+ * Report the failing filesystem call before other runtime calls overwrite its
+ * error state. Keep diagnostics on stderr, outside the bus and traffic log.
+ */
+static void bcSimReportLockError(const BcSim_t* io, const char* operation) {
+#if defined(_WIN32)
+	const DWORD windowsError = GetLastError();
+#endif
+	const int savedErrno = errno;
+#if defined(_WIN32)
+	const unsigned long crtError = _doserrno;
+#endif
+	/* Record the compiler that built the participant, rather than the shell's CC. */
+#if defined(__clang__)
+	const char* compiler = "Clang " __clang_version__;
+#elif defined(__GNUC__)
+	const char* compiler = "GCC " __VERSION__;
+#elif defined(_MSC_VER)
+	const char* compiler = "MSVC";
+#else
+	const char* compiler = "unknown";
+#endif
+#if defined(_WIN32)
+	const unsigned long pid = (unsigned long)GetCurrentProcessId();
+	fprintf(stderr, "BcSim lock failure: operation=%s lock=\"%s\" participant=\"%s\" pid=%lu errno=%d (%s) win32_error=%lu crt_os_error=%lu compiler=\"%s\"\n",
+	        operation, io->lockPath, io->deviceName, pid, savedErrno, strerror(savedErrno),
+	        (unsigned long)windowsError, crtError, compiler);
+#else
+	const long pid = (long)getpid();
+	fprintf(stderr, "BcSim lock failure: operation=%s lock=\"%s\" participant=\"%s\" pid=%ld errno=%d (%s) compiler=\"%s\"\n",
+	        operation, io->lockPath, io->deviceName, pid, savedErrno, strerror(savedErrno), compiler);
+#endif
+	/* Diagnostic formatting must not replace the filesystem failure for callers. */
+	errno = savedErrno;
+#if defined(_WIN32)
+	_doserrno = crtError;
+	SetLastError(windowsError);
+#endif
+}
 
 /* Sleep helper used while waiting for the writer lock directory. */
 static void bcSimSleepMs(unsigned ms) {
@@ -195,10 +237,16 @@ static int bcSimLock(const BcSim_t* io) {
 	}
 
 	for (;;) {
+#if defined(_WIN32)
+		/* CRT failures need not set both native codes; zero excludes stale values. */
+		_doserrno = 0;
+		SetLastError(ERROR_SUCCESS);
+#endif
 		if (BCSIM_MKDIR(io->lockPath) == 0) {
 			return BCSIM_OK;
 		}
 		if (errno != EEXIST) {
+			bcSimReportLockError(io, "mkdir");
 			return BCSIM_ERR_LOCK;
 		}
 		if (waited >= BCSIM_LOCK_WAIT_MS) {
@@ -220,7 +268,13 @@ static int bcSimUnlock(const BcSim_t* io) {
 	if (io == 0 || io->lockPath[0] == 0) {
 		return BCSIM_ERR_ARG;
 	}
+#if defined(_WIN32)
+	/* Match acquisition diagnostics without carrying over an earlier OS error. */
+	_doserrno = 0;
+	SetLastError(ERROR_SUCCESS);
+#endif
 	if (BCSIM_RMDIR(io->lockPath) != 0) {
+		bcSimReportLockError(io, "rmdir");
 		return BCSIM_ERR_LOCK;
 	}
 	return BCSIM_OK;
@@ -449,6 +503,8 @@ int bcSimOpen(BcSim_t* io,
 	}
 
 	if (io->logPath[0] != 0) {
+		/* Keep the header error primary, but never hide a failed lock release. */
+		int unlockError;
 		e = bcSimTouchFile(io->logPath);
 		if (e != BCSIM_OK) {
 			return e;
@@ -459,9 +515,12 @@ int bcSimOpen(BcSim_t* io,
 			return e;
 		}
 		e = bcSimEnsureLogHeader(io);
-		(void)bcSimUnlock(io);
+		unlockError = bcSimUnlock(io);
 		if (e != BCSIM_OK) {
 			return e;
+		}
+		if (unlockError != BCSIM_OK) {
+			return unlockError;
 		}
 	}
 

@@ -30,6 +30,26 @@ esac
 rm -f bc.bus bc.log
 rm -rf bc.bus.lock
 
+# Track only this demo's children. Fixed slots also work with Bash 3.2 and set -u.
+PARTICIPANTS=(A B C D)
+PARTICIPANT_PIDS=("" "" "" "")
+cleanup_demo() {
+  local status="$1" pid
+  # Ignore further signals while stopping and reaping every remaining child.
+  trap '' INT TERM
+  trap - EXIT
+  for pid in "${PARTICIPANT_PIDS[@]}"; do
+    if [ -n "$pid" ]; then kill -TERM "$pid" 2>/dev/null || true; fi
+  done
+  for pid in "${PARTICIPANT_PIDS[@]}"; do
+    if [ -n "$pid" ]; then wait "$pid" 2>/dev/null || true; fi
+  done
+  exit "$status"
+}
+trap 'cleanup_demo $?' EXIT
+trap 'cleanup_demo 130' INT
+trap 'cleanup_demo 143' TERM
+
 echo "Starting four instances of the same binary."
 echo "Each instance writes random bytes to bc.bus and receives bytes written by the others."
 echo
@@ -37,16 +57,27 @@ echo
 # Launch the same binary four times with different participant names. The
 # slightly different intervals make interleaving more visible in bc.log.
 "$EXE" -name A -auto 4 -interval 180 &
-pid_a=$!
+PARTICIPANT_PIDS[0]=$!
 "$EXE" -name B -auto 4 -interval 220 &
-pid_b=$!
+PARTICIPANT_PIDS[1]=$!
 "$EXE" -name C -auto 4 -interval 260 &
-pid_c=$!
+PARTICIPANT_PIDS[2]=$!
 "$EXE" -name D -auto 4 -interval 300 &
-pid_d=$!
+PARTICIPANT_PIDS[3]=$!
 
-# Wait for all participants. If one fails, bash returns a non-zero status.
-wait "$pid_a" "$pid_b" "$pid_c" "$pid_d"
+# A multi-PID wait returns only the last status; check each participant instead.
+status=0
+for index in 0 1 2 3; do
+  if wait "${PARTICIPANT_PIDS[index]}"; then
+    :
+  else
+    child_status=$?
+    printf 'error: BcSim participant %s exited with status %s\n' "${PARTICIPANTS[index]}" "$child_status" >&2
+    status=$child_status
+  fi
+  PARTICIPANT_PIDS[index]=""
+done
+if [ "$status" -ne 0 ]; then exit "$status"; fi
 
 echo "--- bc.log ---"
 cat bc.log
