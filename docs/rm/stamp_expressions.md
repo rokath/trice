@@ -5,21 +5,21 @@
 
 <!-- mdtoc -->
 
-* [Syntax and compatibility](#syntax-and-compatibility)
-* [unwrap reference](#unwrap-reference)
-  * [Parameters](#parameters)
-  * [Return value and state changes](#return-value-and-state-changes)
-  * [Preconditions and observation lifecycle](#preconditions-and-observation-lifecycle)
-  * [Errors](#errors)
-* [A 48 MHz down-counter](#a-48-mhz-down-counter)
-* [Origin, modulus, and integer precision](#origin-modulus-and-integer-precision)
-* [Other counter configurations](#other-counter-configurations)
-* [Sampling and continuity contract](#sampling-and-continuity-contract)
-* [Invisible samples and visible deltas](#invisible-samples-and-visible-deltas)
-* [Errors and unavailable fields](#errors-and-unavailable-fields)
-* [Shell quoting](#shell-quoting)
+* [1. Syntax and compatibility](#syntax-and-compatibility)
+* [2. unwrap reference](#unwrap-reference)
+  * [2.1. Parameters](#parameters)
+  * [2.2. Return value and state changes](#return-value-and-state-changes)
+  * [2.3. Preconditions and observation lifecycle](#preconditions-and-observation-lifecycle)
+  * [2.4. Errors](#errors)
+* [3. A 48 MHz down-counter](#a-48-mhz-down-counter)
+* [4. Origin, modulus, and integer precision](#origin-modulus-and-integer-precision)
+* [5. Other counter configurations](#other-counter-configurations)
+* [6. Sampling and continuity contract](#sampling-and-continuity-contract)
+* [7. Invisible samples and visible deltas](#invisible-samples-and-visible-deltas)
+* [8. Errors and unavailable fields](#errors-and-unavailable-fields)
+* [9. Shell quoting](#shell-quoting)
 
-<!-- numbering=false min=2 max=4 slug=github anchor=false link=true toc=true bullets=auto -->
+<!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
 </details>
@@ -46,7 +46,7 @@ Forward phase   | Position within one counter period                        | `4
 Unwrapped ticks | Continuous count across observed wraps                    | [`unwrap(47999-ts,48000)`](#unwrap-reference)
 Visible delta   | Difference from the previous emission of this delta field | [`delta(unwrap(47999-ts,48000))`](#unwrap-reference)
 
-## Syntax and compatibility
+## 1. <a id="syntax-and-compatibility"></a>Syntax and compatibility
 
 The four switches `-ts16`, `-ts32`, `-ts16delta`, and `-ts32delta` accept `printf("format", expression, ...)`. The inner format is a double-quoted Go string. The exact prefix `printf(` at the start of the argument selects expression mode; malformed expressions fail before the input opens. An old literal beginning with that prefix must be written explicitly, for example `printf("printf(%d)",ts)`.
 
@@ -62,7 +62,7 @@ Numeric literals, parentheses, unary minus, and `+`, `-`, `*`, `/` use the share
 
 Plain formats and presets such as `-ts16 "msg:%8d us"`, `-ts16 us`, `-ts16 ms`, `-ts16 ""`, and `-ts32 ""` retain their meanings. The `us` and `ms` presets do not discover clock frequency, count direction, or reload value. Plain delta formats still subtract raw stamps modulo `2^16` or `2^32`, as described above. `-ts` sets general presets only. `-ts0` and `-ts0delta` remain alignment facilities; absent stamps never become zero samples.
 
-## unwrap reference
+## 2. <a id="unwrap-reference"></a>unwrap reference
 
 **Purpose:** Extend a forward-running counter phase across successive wraps into a continuous unsigned 64-bit count. The function runs on the PC as part of a stamp expression. Its two signatures are:
 
@@ -75,7 +75,7 @@ The return type corresponds to C `uint64_t`. Here, `UINT64_MAX` is `184467440737
 
 Available in expression-mode `-ts16`, `-ts32`, `-ts16delta`, and `-ts32delta`. See [Syntax and compatibility](#syntax-and-compatibility) for the permitted surrounding expressions.
 
-### Parameters
+### 2.1. <a id="parameters"></a>Parameters
 
 Input parameter | Meaning and valid values                                                                                                                                                                                                                                                  | How to choose it
 --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ Input parameter | Meaning and valid values                                      
 
 Dividing by `48` outside the function converts reconstructed ticks to microseconds for a 48 MHz counter. Dividing the phase by `48` inside the function can produce fractional phases, which are rejected.
 
-### Return value and state changes
+### 2.2. <a id="return-value-and-state-changes"></a>Return value and state changes
 
 On success, return the current accumulated count `A` as `uint64`. No time-unit conversion or display rounding occurs inside `unwrap`.
 
@@ -124,13 +124,13 @@ return A
 
 Each step is in `0..M-1`. Equal consecutive phases add zero; they do not imply a complete wrap. Accumulation and the overflow check use integer arithmetic. See [Origin, modulus, and integer precision](#origin-modulus-and-integer-precision) for the two origins side by side and precision limits when using the result in later arithmetic.
 
-### Preconditions and observation lifecycle
+### 2.3. <a id="preconditions-and-observation-lifecycle"></a>Preconditions and observation lifecycle
 
 The caller must provide samples in capture order from the same counter, with a stable modulus and no unannounced reset. Between consecutive usable observations, the counter must advance by **fewer than `modulus` ticks**. Unobserved complete periods cannot be reconstructed. See the [sampling and continuity contract](#sampling-and-continuity-contract) for the exact condition and capture-time examples.
 
 Each compiled occurrence has its own state for its source and stamp width. Every usable matching decoded stamp advances it once, before output filtering, including empty messages and intermediate calls in a composed line. Missing stamps and diagnostics supply no sample. Rendering reads the saved result and does not advance the counter again. Starting a new input session, including reconnecting, clears the history. See [Invisible samples and visible deltas](#invisible-samples-and-visible-deltas) for a worked example.
 
-### Errors
+### 2.4. <a id="errors"></a>Errors
 
 Condition                                                                                                                      | When detected      | Result and effect on state
 ------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ Adding `step` would exceed `UINT64_MAX`                                         
 
 An unavailable field displays `?` markers instead of a numeric result; the application message remains available. A failure in arithmetic or formatting **after** a valid `unwrap` observation does not undo that observation. See [Errors and unavailable fields](#errors-and-unavailable-fields) for field-level behavior.
 
-## A 48 MHz down-counter
+## 3. <a id="a-48-mhz-down-counter"></a>A 48 MHz down-counter
 
 The sequence `47999, 47998, ..., 1, 0, 47999, ...` has **48000 states**. Its nominal period is 1000 microseconds. Choose `47999-ts` as the forward phase; using `48000-ts` would shift the origin by one tick.
 
@@ -178,7 +178,7 @@ Raw `ts` | Forward phase | Accumulated ticks | Microseconds with `%.3f`
 23999    | 24000         | 72000             | 1500.000
 47999    | 0             | 96000             | 2000.000
 
-## Origin, modulus, and integer precision
+## 4. <a id="origin-modulus-and-integer-precision"></a>Origin, modulus, and integer precision
 
 [`unwrap(phase,modulus)`](#unwrap-reference) starts at the first usable phase. [`unwrap(phase,modulus,initial)`](#unwrap-reference) returns the selected initial value for that first sample, then adds subsequent phase advances. For raw values `23999, 0, 47999`:
 
@@ -200,7 +200,7 @@ For visible intervals, subtract the ticks returned by [`unwrap`](#unwrap-referen
 
 This preserves a one-tick difference above `2^53` accumulated ticks. `delta(unwrap(...)/48)` first converts absolute counts to floating point and can lose that difference. General arithmetic, including absolute `unwrap(...)/48`, retains normal `float64` precision limits. Direct integer formatting preserves all 64 bits. Other integral delta operands are also subtracted exactly; negative differences are retained when representable. `delta(ts)` alone does not correct raw counter wraps.
 
-## Other counter configurations
+## 5. <a id="other-counter-configurations"></a>Other counter configurations
 
 Each example follows the [`unwrap` parameter rules](#unwrap-reference): normalize the phase to advance forward and use the counter's actual number of states as the modulus.
 
@@ -220,7 +220,7 @@ For a 48 MHz full-width 32-bit up-counter, [`unwrap`](#unwrap-reference) returns
 -ts32 'printf("time:%15.9f s", unwrap(ts,4294967296)/48000000)'
 ```
 
-## Sampling and continuity contract
+## 6. <a id="sampling-and-continuity-contract"></a>Sampling and continuity contract
 
 For each pair of consecutive **usable received samples** of the same counter, the user must guarantee `0 <= C[n]-C[n-1] < modulus`, where `C` is the conceptual unbounded tick count. The PC cannot infer unobserved complete periods. Equal phases can mean zero advances or an unknown number of whole periods; the stated contract permits only the first interpretation.
 
@@ -230,7 +230,7 @@ The contract applies after losses, malformed records, and unavailable phases. Ta
 
 Buffered UART/USB transport and file replay are allowed: target capture times matter, not PC arrival times. Host timestamps are not used to guess wraps. Each logger input session represents one source; unidentified multiplexed targets must not be combined into one history. The 16-bit and 32-bit counters and each compiled expression have independent histories. Starting a new session, including reconnecting the transport, resets them.
 
-## Invisible samples and visible deltas
+## 7. <a id="invisible-samples-and-visible-deltas"></a>Invisible samples and visible deltas
 
 All usable decoded stamps update [`unwrap`](#unwrap-reference) before `-pick`, `-ban`, `-logLevel`, visualization `log=drop`, and line-start selection. Empty messages and intermediate calls in a composed line also update it. Missing stamps and diagnostics do not. A present zero stamp is valid.
 
@@ -264,13 +264,13 @@ Text keeps the stamp of the existing first-call line selection. Later calls cann
 -ts16 "" -ts16delta 'printf("dt:%10.3f us", delta(unwrap(47999-ts,48000))/48)'
 ```
 
-## Errors and unavailable fields
+## 8. <a id="errors-and-unavailable-fields"></a>Errors and unavailable fields
 
 Startup rejects malformed expressions, unknown names, wrong-width aliases, unsupported functions, invalid argument counts, and invalid constant arguments with a full error message. Runtime failures such as an out-of-range or fractional phase, division by zero, nonfinite arithmetic, or unsafe numeric conversion produce aligned `?` markers for the affected field. Add `-v` to print detailed stamp diagnostics as well. The application message remains available. A raw stamp is never substituted under a converted unit label.
 
 Invalid phases do not advance or reset the tracker. Later usable phases continue from the last valid one, subject to the same sampling contract across that gap. Accumulator overflow stays unavailable until a new session; it never silently wraps. This limited expression language executes neither shell commands nor arbitrary Go code.
 
-## Shell quoting
+## 9. <a id="shell-quoting"></a>Shell quoting
 
 Keep the double quotes around the inner Go format string. The examples above use Bash/Git Bash quoting. Windows shells use different native-argument rules; choose the following form that matches your shell and argument mode.
 
