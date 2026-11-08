@@ -23,7 +23,7 @@ jobs:
           mkdir -p temp/log
           set -o pipefail
           go version | tee temp/log/future-go-version.log
-          go test -count=1 ./cmd/... ./internal/... ./pkg/... 2>&1 | tee temp/log/future-go.log
+          go test -v -count=1 ./cmd/... ./internal/... ./pkg/... 2>&1 | tee temp/log/future-go.log
       - uses: goreleaser/goreleaser-action@v7
         if: ${{ !cancelled() }}
         with:

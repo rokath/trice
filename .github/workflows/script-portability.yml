@@ -34,4 +34,4 @@ jobs:
         # Never invoke the complete compiler/firmware matrix in this job.
         # Keep the same generous package budget as local steps 540/550, with
         # extra job time for checkout, compilation and cleanup.
-        run: go test -count=1 -timeout=2h ./scripts
+        run: go test -v -count=1 -timeout=2h ./scripts
