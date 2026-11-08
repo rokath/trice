@@ -210,6 +210,8 @@
 * Match the user's language (German or English) unless instructed otherwise.
 * Communication with Codex may be in German or English.
 * All file comments must always be written in English.
+* When reporting existing issue/PR titles, commit subjects, check names, error messages or quoted source text in chat, reproduce the actual wording in its original language. Do not present translations, abbreviations or paraphrases as the original text.
+* Use the exact issue/PR title in link labels; the issue/PR number may precede it. Keep your explanations and summaries separate from original text. Clearly mark excerpts and copy their wording verbatim.
 
 ---
 
