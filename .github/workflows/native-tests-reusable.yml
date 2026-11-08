@@ -45,17 +45,22 @@ jobs:
         run: |
           source scripts/test-tools.env
           printf 'go=%s\nnode=%s\npython=%s\n' "$TRICE_GO_VERSION" "$TRICE_NODE_VERSION" "$TRICE_PYTHON_VERSION" >> "$GITHUB_OUTPUT"
+          printf 'pandoc=%s\n' "$TRICE_TOOL_PANDOC_VERSION" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.versions.outputs.go }}
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ steps.versions.outputs.node }}
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ steps.versions.outputs.python }}
+      # The EPUB filter test executes the real converter on every native OS.
+      - uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: ${{ steps.versions.outputs.pandoc }}
       - name: Restore verified project tools
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: temp/tools
           key: native-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/test-tools.env', 'scripts/testcheck/package-lock.json', 'scripts/clang-intel-macos.lock') }}

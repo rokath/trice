@@ -503,9 +503,12 @@ func TestNativePreparationBootstrapsCMake(t *testing.T) {
 	for _, tc := range []struct {
 		name, reply, platform, architecture         string
 		warm, installFailure, clangFailure, success bool
+		reusedGCC                                   bool
 	}{
 		{name: "empty_cache_approved", reply: "yes", success: true},
 		{name: "warm_cache_without_input", warm: true, success: true},
+		{name: "system_GCC_directory_also_contains_Clang", reply: "yes", reusedGCC: true, success: true},
+		{name: "warm_system_GCC_directory_also_contains_Clang", warm: true, reusedGCC: true, success: true},
 		{name: "empty_cache_declined", reply: "no"},
 		{name: "empty_cache_without_input"},
 		{name: "installation_failure", reply: "yes", installFailure: true},
@@ -558,6 +561,11 @@ if [ "$1" = clang ]; then
   exit 0
 fi
 if [ "$1" != cmake ]; then
+  # Model /usr/bin: reusing GCC must not reactivate its unrelated Clang.
+  if [ "$1" = gcc ] && [ "$REUSED_GCC" = true ]; then
+    printf '%s/bin\n' "$PWD"
+    exit 0
+  fi
   mkdir -p "pinned-$1/bin"
   case "$1" in gcc) names='gcc g++' ;; arm) names='arm-none-eabi-gcc arm-none-eabi-objcopy arm-none-eabi-size' ;; *) exit 95 ;; esac
   for compiler in $names; do cp "bin/$compiler" "pinned-$1/bin/$compiler"; done
@@ -608,6 +616,7 @@ echo completed
 			}
 			out, err := runFixture(t, root, command, map[string]string{
 				"CI": "false", "INSTALL_FAILURE": strconv.FormatBool(tc.installFailure),
+				"REUSED_GCC":    strconv.FormatBool(tc.reusedGCC),
 				"CLANG_FAILURE": strconv.FormatBool(tc.clangFailure), "PLATFORM": tc.platform, "ARCHITECTURE": tc.architecture,
 			})
 			assert.Equal(t, tc.success, err == nil, out)

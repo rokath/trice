@@ -706,6 +706,38 @@ func TestIntelLLVMLockAndWorkflowBindings(t *testing.T) {
 	t.Fatal("native test step is missing")
 }
 
+// TestNativeWorkflowPreparesEPUBConverter checks that the real shared pin is
+// exported to the converter setup before the strict native test audit runs.
+func TestNativeWorkflowPreparesEPUBConverter(t *testing.T) {
+	root := scriptFixture(t)
+	out, err := runFixture(t, root, workflowShellStep(t, "native-tests-reusable.yml", "Read the shared tool versions")+"\ncat versions", map[string]string{"GITHUB_OUTPUT": "versions"})
+	require.NoError(t, err, out)
+	assert.Contains(t, out, "pandoc=3.8.3\n")
+	data, err := os.ReadFile("../.github/workflows/native-tests-reusable.yml")
+	require.NoError(t, err)
+	var workflow struct {
+		Jobs map[string]struct {
+			Steps []struct {
+				Name, Uses string
+				With       map[string]string
+			}
+		}
+	}
+	require.NoError(t, yaml.Unmarshal(data, &workflow))
+	prepared := false
+	for _, step := range workflow.Jobs["native"].Steps {
+		if step.Uses == "r-lib/actions/setup-pandoc@v2" {
+			assert.Equal(t, "${{ steps.versions.outputs.pandoc }}", step.With["pandoc-version"])
+			prepared = true
+		}
+		if step.Name == "Run the native shared test plan" {
+			assert.True(t, prepared, "the required EPUB converter must be installed before tests")
+			return
+		}
+	}
+	t.Fatal("native test step is missing")
+}
+
 // TestNativeWorkflowPreparesToolchainSpace covers both shared CI entry points
 // with doubles. No host SDK or real sudo is ever touched.
 func TestNativeWorkflowPreparesToolchainSpace(t *testing.T) {
