@@ -1,5 +1,11 @@
 // SPDX-License-Identifier: MIT
 
+/* Exercise portable C99 calls without Microsoft's replacement-API warnings.
+ * Keep -Werror active for compiler diagnostics and all other warnings. */
+#if defined(_WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif
+
 /* Keep the real POSIX adapters available when the Windows branch is simulated. */
 #if defined(__APPLE__)
 #define _DARWIN_C_SOURCE
