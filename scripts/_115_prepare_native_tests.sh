@@ -201,6 +201,13 @@ prepare_native_test_tools() {
       fi
     fi
   fi
+  if [ "$(go env GOHOSTOS)" = linux ]; then
+    local native_gcc
+    prepare_pinned_test_selection native_gcc bundle temp/tools/bundles gcc || return 2
+    export PATH="$native_gcc:$PATH"
+  fi
+  # A reused GCC directory can also contain an incompatible system Clang.
+  # Select LLVM last so both compiler families retain their planned identity.
   case "$(uname -s)" in
     Linux | Darwin)
       local clang_bin
@@ -209,11 +216,6 @@ prepare_native_test_tools() {
       hash -r
       ;;
   esac
-  if [ "$(go env GOHOSTOS)" = linux ]; then
-    local native_gcc
-    prepare_pinned_test_selection native_gcc bundle temp/tools/bundles gcc || return 2
-    export PATH="$native_gcc:$PATH"
-  fi
 
   # Select genuine versioned GCC on macOS without replacing Apple's commands.
   # Every selected compiler is subsequently compiled/linked/executed in 490.
