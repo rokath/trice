@@ -123,13 +123,15 @@ jobs:
           # Expose only the three frontends, keeping imported formatters and
           # linker utilities out of other compiler families' PATH selections.
           mkdir -p "$selected"
+          # Character classes match literal dots without Bash-dependent escaping.
+          version_pattern="${TRICE_CLANG_DARWIN_AMD64_VERSION//./[.]}"
           for tool in clang clang++ clangd; do
             if [ ! -x "$prefix/bin/$tool" ]; then
               echo "::error::Intel LLVM preparation: missing executable $prefix/bin/$tool."
               exit 1
             fi
             ln -sf "$prefix/bin/$tool" "$selected/$tool"
-            if ! "$selected/$tool" --version | grep -E "(^|[[:space:]])${TRICE_CLANG_DARWIN_AMD64_VERSION//./\\.}([[:space:]]|$)"; then
+            if ! "$selected/$tool" --version | grep -E "(^|[[:space:]])${version_pattern}([[:space:]]|$)"; then
               echo "::error::Intel LLVM preparation: $selected/$tool must report $TRICE_CLANG_DARWIN_AMD64_VERSION."
               exit 1
             fi

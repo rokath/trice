@@ -556,7 +556,7 @@ func TestReleaseWorkflowBindings(t *testing.T) {
 // TestIntelLLVMWorkflowPreparation exercises the actual CI shell block without
 // network access. Tool doubles expose cold/warm, damaged-cache and failure paths.
 func TestIntelLLVMWorkflowPreparation(t *testing.T) {
-	for _, scenario := range []string{"cold", "warm", "partial_environment", "damaged_bootstrap", "download_failure", "bad_download", "extractor_failure", "wrong_installer", "installer_failure", "wrong_version", "missing_companion", "missing_resource"} {
+	for _, scenario := range []string{"cold", "warm", "partial_environment", "damaged_bootstrap", "download_failure", "bad_download", "extractor_failure", "wrong_installer", "installer_failure", "wrong_version", "version_suffix", "version_prefix", "missing_companion", "missing_resource"} {
 		t.Run(scenario, func(t *testing.T) {
 			root := scriptFixture(t, "scripts/clang-intel-macos.lock")
 			// Hashing and extraction are isolated; native package validation is a
@@ -610,7 +610,13 @@ if [ "$SCENARIO" = missing_companion ]; then rm "$prefix/bin/clangd"; fi
 set -eu
 case "$1" in
   --version)
-    if [ "$SCENARIO" = wrong_version ] && [ "${0##*/}" = clangd ]; then echo 'clangd version 23x1x4'; else echo 'clang version 23.1.4'; fi
+    # Near matches must not satisfy the exact shared compiler pin.
+    case "$SCENARIO:${0##*/}" in
+      wrong_version:clangd) echo 'clangd version 23x1x4' ;;
+      version_suffix:clangd) echo 'clangd version 23.1.40' ;;
+      version_prefix:clangd) echo 'clangd version 123.1.4' ;;
+      *) echo 'clang version 23.1.4' ;;
+    esac
     ;;
   -print-resource-dir) printf '%s/temp/tools/clang-intel/env/lib/clang/23\n' "$PWD" ;;
   *) exit 96 ;;
