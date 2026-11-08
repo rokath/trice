@@ -58,7 +58,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: temp/tools
-          key: native-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/test-tools.env', 'scripts/testcheck/package-lock.json') }}
+          key: native-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/test-tools.env', 'scripts/testcheck/package-lock.json', 'scripts/clang-intel-macos.lock') }}
       - name: Prepare native system prerequisites
         run: |
           set -euo pipefail
@@ -80,6 +80,67 @@ jobs:
               make --version
               ;;
           esac
+      - name: Prepare prebuilt LLVM on Intel macOS
+        if: ${{ runner.os == 'macOS' && runner.arch == 'X64' }}
+        run: |
+          set -euo pipefail
+          source scripts/test-tools.env
+          root="$PWD/temp/tools/clang-intel"
+          bootstrap="$root/bootstrap"
+          archive="$bootstrap/micromamba.tar.bz2"
+          prefix="$root/env"
+          selected="$root/bin"
+          lock=scripts/clang-intel-macos.lock
+          mkdir -p "$bootstrap"
+          # Recheck restored bytes before executing the standalone installer.
+          if ! printf '%s  %s\n' "$TRICE_TOOL_MICROMAMBA_SHA_DARWIN_AMD64" "$archive" | shasum -a 256 -c - >/dev/null 2>&1; then
+            if ! curl -fL --retry 3 "$TRICE_TOOL_MICROMAMBA_URL_DARWIN_AMD64" -o "$archive"; then
+              echo "::error::Intel LLVM preparation: cannot download $TRICE_TOOL_MICROMAMBA_URL_DARWIN_AMD64 to $archive."
+              exit 1
+            fi
+          fi
+          if ! printf '%s  %s\n' "$TRICE_TOOL_MICROMAMBA_SHA_DARWIN_AMD64" "$archive" | shasum -a 256 -c -; then
+            echo "::error::Intel LLVM preparation: checksum mismatch for $archive."
+            exit 1
+          fi
+          if ! tar -xf "$archive" -C "$bootstrap" bin/micromamba; then
+            echo "::error::Intel LLVM preparation: cannot extract bin/micromamba from $archive."
+            exit 1
+          fi
+          installer="$bootstrap/bin/micromamba"
+          if [ "$("$installer" --version)" != "$TRICE_TOOL_MICROMAMBA_VERSION" ]; then
+            echo "::error::Intel LLVM preparation: $installer must report $TRICE_TOOL_MICROMAMBA_VERSION."
+            exit 1
+          fi
+          # Recreate only this environment, retaining downloaded package caches.
+          # Relinking also repairs partial restores and prefixes from another job.
+          rm -rf -- "$prefix"
+          if ! "$installer" --no-rc --no-env create --yes --always-copy \
+            --root-prefix "$root/cache" --prefix "$prefix" --file "$lock"; then
+            echo "::error::Intel LLVM preparation failed using $lock; native tests have not started."
+            exit 1
+          fi
+          # Expose only the three frontends, keeping imported formatters and
+          # linker utilities out of other compiler families' PATH selections.
+          mkdir -p "$selected"
+          for tool in clang clang++ clangd; do
+            if [ ! -x "$prefix/bin/$tool" ]; then
+              echo "::error::Intel LLVM preparation: missing executable $prefix/bin/$tool."
+              exit 1
+            fi
+            ln -sf "$prefix/bin/$tool" "$selected/$tool"
+            if ! "$selected/$tool" --version | grep -E "(^|[[:space:]])${TRICE_CLANG_DARWIN_AMD64_VERSION//./\\.}([[:space:]]|$)"; then
+              echo "::error::Intel LLVM preparation: $selected/$tool must report $TRICE_CLANG_DARWIN_AMD64_VERSION."
+              exit 1
+            fi
+          done
+          resource="$("$selected/clang" -print-resource-dir)"
+          if [ ! -f "$resource/include/stddef.h" ]; then
+            echo "::error::Intel LLVM preparation: missing compiler resource $resource/include/stddef.h."
+            exit 1
+          fi
+          # Existing suite preparation selects this complete package in place.
+          printf '%s\n' "$selected" >> "$GITHUB_PATH"
       - name: Run the native shared test plan
         run: bash scripts/testAll.sh '${{ inputs.selection }}'
       - name: Check concurrent host behavior

@@ -3,6 +3,8 @@
 package scripts_test
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -549,6 +551,153 @@ func TestReleaseWorkflowBindings(t *testing.T) {
 			}
 		}
 	}
+}
+
+// TestIntelLLVMWorkflowPreparation exercises the actual CI shell block without
+// network access. Tool doubles expose cold/warm, damaged-cache and failure paths.
+func TestIntelLLVMWorkflowPreparation(t *testing.T) {
+	for _, scenario := range []string{"cold", "warm", "partial_environment", "damaged_bootstrap", "download_failure", "bad_download", "extractor_failure", "wrong_installer", "installer_failure", "wrong_version", "missing_companion", "missing_resource"} {
+		t.Run(scenario, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/clang-intel-macos.lock")
+			// Hashing and extraction are isolated; native package validation is a
+			// separate diagnostic and never downloads from inside these fixtures.
+			archive := "verified fixture archive\n"
+			writeFixture(t, root, "download/archive", archive)
+			writeFixture(t, root, "scripts/test-tools.env", fmt.Sprintf("TRICE_CLANG_DARWIN_AMD64_VERSION=23.1.4\nTRICE_TOOL_MICROMAMBA_VERSION=2.10.0\nTRICE_TOOL_MICROMAMBA_SHA_DARWIN_AMD64=%x\nTRICE_TOOL_MICROMAMBA_URL_DARWIN_AMD64=https://fixture.invalid/micromamba.tar.bz2\n", sha256.Sum256([]byte(archive))))
+			writeFixture(t, root, "bin/curl", `#!/bin/sh
+set -eu
+printf 'download\n' >> calls
+[ "$SCENARIO" != download_failure ] || exit 38
+while [ "$1" != -o ]; do shift; done
+if [ "$SCENARIO" = bad_download ]; then printf 'damaged bytes\n' > "$2"; else cp download/archive "$2"; fi
+`)
+			writeFixture(t, root, "bin/shasum", `#!/bin/sh
+set -eu
+[ "$*" = '-a 256 -c -' ] || exit 90
+read -r digest archive
+[ "${#digest}" -eq 64 ] || exit 91
+cmp -s download/archive "$archive"
+`)
+			writeFixture(t, root, "bin/tar", `#!/bin/sh
+set -eu
+[ "$1" = -xf ] && [ "$3" = -C ] && [ "$5" = bin/micromamba ] || exit 92
+[ "$SCENARIO" != extractor_failure ] || exit 35
+mkdir -p "$4/bin"
+cp bin/installer-fixture "$4/bin/micromamba"
+`)
+			writeFixture(t, root, "bin/installer-fixture", `#!/bin/sh
+set -eu
+if [ "$1" = --version ]; then
+  if [ "$SCENARIO" = wrong_installer ]; then echo 2.9.0; else echo 2.10.0; fi
+  exit 0
+fi
+printf 'install\n' >> calls
+[ "$1" = --no-rc ] && [ "$2" = --no-env ] && [ "$3" = create ] || exit 93
+prefix='' lock=''
+while [ "$#" -gt 0 ]; do
+  case "$1" in --prefix) prefix="$2"; shift ;; --file) lock="$2"; shift ;; esac
+  shift
+done
+[ "$lock" = scripts/clang-intel-macos.lock ] && grep -q '^@EXPLICIT$' "$lock" || exit 94
+[ ! -e "$prefix/interrupted" ] || exit 95
+[ "$SCENARIO" != installer_failure ] || exit 37
+mkdir -p "$prefix/bin" "$prefix/lib/clang/23/include"
+if [ "$SCENARIO" != missing_resource ]; then touch "$prefix/lib/clang/23/include/stddef.h"; fi
+for tool in clang clang++ clangd; do cp bin/compiler-fixture "$prefix/bin/$tool"; done
+if [ "$SCENARIO" = missing_companion ]; then rm "$prefix/bin/clangd"; fi
+`)
+			writeFixture(t, root, "bin/compiler-fixture", `#!/bin/sh
+set -eu
+case "$1" in
+  --version)
+    if [ "$SCENARIO" = wrong_version ] && [ "${0##*/}" = clangd ]; then echo 'clangd version 23x1x4'; else echo 'clang version 23.1.4'; fi
+    ;;
+  -print-resource-dir) printf '%s/temp/tools/clang-intel/env/lib/clang/23\n' "$PWD" ;;
+  *) exit 96 ;;
+esac
+`)
+			cached := "temp/tools/clang-intel/bootstrap/micromamba.tar.bz2"
+			if scenario == "warm" || scenario == "partial_environment" {
+				writeFixture(t, root, cached, archive)
+			}
+			if scenario == "damaged_bootstrap" {
+				writeFixture(t, root, cached, "incomplete download\n")
+			}
+			if scenario == "partial_environment" {
+				writeFixture(t, root, "temp/tools/clang-intel/env/interrupted", "partial installation\n")
+			}
+			command := workflowShellStep(t, "native-tests-reusable.yml", "Prepare prebuilt LLVM on Intel macOS") + "\n[ \"$(cat \"$GITHUB_PATH\")\" = \"$PWD/temp/tools/clang-intel/bin\" ]\n"
+			out, err := runFixture(t, root, command, map[string]string{"SCENARIO": scenario, "GITHUB_PATH": "selected-path"})
+			success := scenario == "cold" || scenario == "warm" || scenario == "partial_environment" || scenario == "damaged_bootstrap"
+			if success {
+				require.NoError(t, err, out)
+				selected, err := os.ReadFile(filepath.Join(root, "selected-path"))
+				require.NoError(t, err)
+				assert.True(t, strings.HasSuffix(string(selected), "/temp/tools/clang-intel/bin\n"), "the selected prefix belongs to this fixture: %s", selected)
+				frontends, err := os.ReadDir(filepath.Join(root, "temp/tools/clang-intel/bin"))
+				require.NoError(t, err)
+				assert.Len(t, frontends, 3, "dependency utilities must not override GCC, formatters or system tools")
+			} else {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, "::error::Intel LLVM preparation")
+				assert.NoFileExists(t, filepath.Join(root, "selected-path"), "an incomplete compiler must never reach the test plan")
+			}
+			calls, err := os.ReadFile(filepath.Join(root, "calls"))
+			require.NoError(t, err)
+			assert.Equal(t, scenario != "warm" && scenario != "partial_environment", strings.Contains(string(calls), "download\n"))
+			install := scenario != "download_failure" && scenario != "bad_download" && scenario != "extractor_failure" && scenario != "wrong_installer"
+			assert.Equal(t, install, strings.Contains(string(calls), "install\n"), "unverified or incompatible installer bytes cannot install packages")
+		})
+	}
+}
+
+// TestIntelLLVMLockAndWorkflowBindings keeps the complete explicit package lock
+// tied to the native Intel job, shared compiler pin and restored package cache.
+func TestIntelLLVMLockAndWorkflowBindings(t *testing.T) {
+	manifest, err := os.ReadFile("test-tools.env")
+	require.NoError(t, err)
+	version := regexp.MustCompile(`(?m)^TRICE_CLANG_DARWIN_AMD64_VERSION=(\S+)$`).FindSubmatch(manifest)
+	require.Len(t, version, 2)
+	data, err := os.ReadFile("clang-intel-macos.lock")
+	require.NoError(t, err)
+	packages := 0
+	for _, line := range strings.Split(string(data), "\n") {
+		if line == "" || strings.HasPrefix(line, "#") || line == "@EXPLICIT" {
+			continue
+		}
+		assert.Regexp(t, `^https://conda\.anaconda\.org/conda-forge/(osx-64|noarch)/[^/]+\.conda#[a-f0-9]{64}$`, line)
+		packages++
+	}
+	assert.Greater(t, packages, 3, "the lock includes runtime dependencies as well as compiler frontends")
+	for _, name := range []string{"clang-23", "clangxx", "clang-tools"} {
+		assert.Contains(t, string(data), "/"+name+"-"+string(version[1])+"-", name)
+	}
+	workflow, err := os.ReadFile("../.github/workflows/native-tests-reusable.yml")
+	require.NoError(t, err)
+	var parsed struct {
+		Jobs map[string]struct {
+			Steps []struct {
+				Name, If string
+				With     map[string]string
+			}
+		}
+	}
+	require.NoError(t, yaml.Unmarshal(workflow, &parsed))
+	prepared := false
+	for _, step := range parsed.Jobs["native"].Steps {
+		if step.Name == "Restore verified project tools" {
+			assert.Contains(t, step.With["key"], "'scripts/clang-intel-macos.lock'")
+		}
+		if step.Name == "Prepare prebuilt LLVM on Intel macOS" {
+			assert.Equal(t, "${{ runner.os == 'macOS' && runner.arch == 'X64' }}", step.If)
+			prepared = true
+		}
+		if step.Name == "Run the native shared test plan" {
+			assert.True(t, prepared, "prepare Intel binaries before any suite source-build fallback can run")
+			return
+		}
+	}
+	t.Fatal("native test step is missing")
 }
 
 // TestNativeWorkflowPreparesToolchainSpace covers both shared CI entry points
