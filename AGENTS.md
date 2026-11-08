@@ -276,6 +276,7 @@
 
 ## Regression Validation
 
+* When adding, removing, or changing a tool requirement, update every affected script and its tests in the same change: startup planning, local preparation, standalone entry points, CI, and release/snapshot hooks. Keep version pins, download checksums, cache checks, and applicable system-package mappings consistent on Windows, Linux, and macOS. For example, a Go test that starts using Pandoc also needs Pandoc in the local native tool plan and preparation; installing it only in CI is insufficient.
 * Before changing shared setup, tool versions, build helpers, or test infrastructure, identify the affected callers: direct commands, `testAll.sh`, CI, and release/snapshot hooks. Include their existing behavioral tests in validation; checking only the edited entry point is insufficient.
 * Use focused tests during implementation. When explicitly asked to perform final validation, run the complete affected Go test packages and the relevant script/build checks after the last code, configuration, or fixture change. A focused rerun that passes does not replace this final package validation or resolve another known failure.
 * If a later edit changes behavior covered by completed checks, treat those results as outdated; rerun them when needed for implementation or explicitly requested final validation. Report exactly which final-state checks passed, failed, were skipped, or were interrupted. Never describe a previously tested revision as validation of subsequent changes.
