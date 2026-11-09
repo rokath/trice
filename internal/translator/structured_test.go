@@ -907,7 +907,13 @@ func TestStructuredLevelDerivationAcrossWireFormats(t *testing.T) {
 		{name: "numeric ban keeps a neighboring higher weight", template: "sensor:value={value}", labels: []string{"sensor:201"}, ban: "200", tag: "SENSOR", level: "TRACE", message: "value=7"},
 		{name: "numeric pick follows a built-in override", template: "rX:value={value}", labels: []string{"rx:200"}, pick: "200", tag: "RECEIVE", level: "TRACE", message: "rX:value=7"},
 		{name: "numeric pick follows untagged override", template: "typo:value={value}", labels: []string{"untagged:200"}, pick: "200", tag: "untagged", level: "TRACE", message: "typo:value=7"},
-		{name: "minimum threshold still restricts exact pick", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", threshold: "201", rejected: true},
+		{name: "exact pick restores events below threshold", template: "sensor:value={value}", labels: []string{"sensor:200"}, pick: "200", threshold: "201", tag: "SENSOR", level: "TRACE", message: "value=7"},
+		{name: "base threshold keeps unpicked events", template: "err:value={value}", pick: "dbg", threshold: "info", tag: "ERROR", level: "ERROR", message: "value=7"},
+		{name: "named pick restores below threshold", template: "dbg:value={value}", pick: "dbg", threshold: "info", tag: "DEBUG", level: "DEBUG", message: "value=7"},
+		{name: "ban removes events above threshold", template: "err:value={value}", ban: "err", threshold: "info", rejected: true},
+		{name: "explicit all ignores ban", template: "err:value={value}", ban: "all", threshold: "all", tag: "ERROR", level: "ERROR", message: "value=7"},
+		{name: "explicit all ignores pick", template: "dbg:value={value}", pick: "off", threshold: "all", tag: "DEBUG", level: "DEBUG", message: "value=7"},
+		{name: "explicit off ignores pick", template: "err:value={value}", pick: "all", threshold: "off", rejected: true},
 		{name: "removed single-letter prefix stays in message", template: "e:value={value}", tag: "untagged", level: "INFO", message: "e:value=7"},
 		{name: "explicit single-letter tag is a separate category", template: "x:value={value}", labels: []string{"x:200"}, pick: "200", tag: "X", level: "TRACE", message: "value=7"},
 		{name: "custom tag exactly at WARNING", template: "sensor:value={value}", labels: []string{"sensor:600"}, tag: "SENSOR", level: "WARNING", message: "value=7"},
@@ -941,6 +947,7 @@ func TestStructuredLevelDerivationAcrossWireFormats(t *testing.T) {
 				}
 				if tc.threshold != "" {
 					emitter.LogLevel = tc.threshold
+					emitter.LogLevelPassed = true
 				}
 				if tc.pick != "" {
 					assert.NoError(t, emitter.Pick.Set(tc.pick))

@@ -411,6 +411,9 @@ func runLog(w io.Writer, fSys *afero.Afero, subArgs []string) error {
 	if stop, err := parseCommandFlags(w, fsScLog, subArgs); stop {
 		return err
 	}
+	// Both option spellings share a key. Explicit all overrides selectors,
+	// while an omitted log level preserves standalone pick/ban behavior.
+	emitter.LogLevelPassed = isLogFlagPassed("logLevel")
 	// Downstream presentation uses canonical names for its format comparisons.
 	switch strings.ToLower(decoder.LogFormat) {
 	case "text", "json", "kv":

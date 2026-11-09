@@ -606,6 +606,9 @@ func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
 		contains string
 	}{
 		{name: "unknown pick", args: []string{"-pick", "missing"}, contains: "unknown tag"},
+		{name: "explicit all still validates pick", args: []string{"-logLevel", "all", "-pick", "missing"}, contains: "unknown tag"},
+		{name: "explicit off still rejects both selectors", args: []string{"-logLevel", "off", "-pick", "err", "-ban", "dbg"}, contains: "cannot be used together"},
+		{name: "explicit all still rejects both selectors", args: []string{"-logLevel", "all", "-pick", "err", "-ban", "dbg"}, contains: "cannot be used together"},
 		{name: "empty pick", args: []string{"-pick", ""}, contains: "empty tag name"},
 		{name: "double separator", args: []string{"-ban", "err::wrn"}, contains: "repeat -ban"},
 		{name: "colon pick list", args: []string{"-pick", "err:wrn"}, contains: "repeat -pick"},
@@ -640,6 +643,63 @@ func TestLogEntryPointsRejectInvalidSelectorsBeforeStartingInput(t *testing.T) {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.contains)
 				assert.False(t, started)
+			})
+		}
+	}
+}
+
+// TestLogLevelSelectionExamples exercises the issue's observable selection
+// rules through both CLI entry points, including option order and command reset.
+func TestLogLevelSelectionExamples(t *testing.T) {
+	originalStart := startLogLoop
+	oldTags := emitter.Tags
+	t.Cleanup(func() { startLogLoop = originalStart; FlagsInit(); emitter.Tags = oldTags })
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	for _, entry := range []string{"trice log", "tlog"} {
+		for _, tc := range []struct {
+			name string
+			args []string
+			want []string
+		}{
+			{name: "omitted level", want: []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "standalone pick", args: []string{"-pick", "err"}, want: []string{"err"}},
+			{name: "standalone ban", args: []string{"-ban", "err"}, want: []string{"dbg", "msg", "wrn", "fatal", "unknown"}},
+			{name: "base threshold", args: []string{"-logLevel", "info"}, want: []string{"msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "zero threshold still applies ban", args: []string{"-loglevel", "0", "-ban", "err"}, want: []string{"dbg", "msg", "wrn", "fatal", "unknown"}},
+			{name: "pick extends threshold", args: []string{"-logLevel", "info", "-pick", "dbg"}, want: []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "ban restricts threshold", args: []string{"-logLevel", "info", "-ban", "err"}, want: []string{"msg", "wrn", "fatal", "unknown"}},
+			{name: "explicit all ignores ban", args: []string{"-logLevel", "all", "-ban", "err"}, want: []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "explicit all ignores pick", args: []string{"-pick", "err", "-loglevel", "all"}, want: []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "mixed-case option marks explicit all", args: []string{"-LOGLEVEL=all", "-ban", "all"}, want: []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "explicit off ignores pick", args: []string{"-logLevel", "off", "-pick", "err"}},
+			{name: "explicit off ignores ban", args: []string{"-ban", "err", "-loglevel", "off"}},
+			{name: "last assignment all", args: []string{"-logLevel", "off", "-loglevel", "all", "-ban", "all"}, want: []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"}},
+			{name: "last assignment off", args: []string{"-loglevel", "all", "-logLevel", "off", "-pick", "all"}},
+			{name: "numeric pick and overridden weights", args: []string{"-pick", "200", "-loglevel", "700", "-utag", "dbg:200"}, want: []string{"dbg", "err", "fatal"}},
+		} {
+			t.Run(entry+"/"+tc.name, func(t *testing.T) {
+				FlagsInit()
+				started := false
+				startLogLoop = func(io.Writer, *afero.Afero) error {
+					started = true
+					// Capture selection after validation, before any receiver opens.
+					var visible []string
+					for _, tag := range []string{"dbg", "msg", "wrn", "err", "fatal", "unknown"} {
+						if emitter.ApplicationEventAllowed(tag) {
+							visible = append(visible, tag)
+						}
+					}
+					assert.Equal(t, tc.want, visible)
+					return nil
+				}
+				if entry == "tlog" {
+					require.NoError(t, LogHandler(io.Discard, fSys, append([]string{"tlog"}, tc.args...)))
+				} else {
+					require.NoError(t, Handler(io.Discard, fSys, append([]string{"trice", "log"}, tc.args...)))
+				}
+				assert.True(t, started, "valid filter combinations must start logging")
+				FlagsInit()
+				assert.False(t, emitter.LogLevelPassed, "the next command must not inherit explicit all/off")
 			})
 		}
 	}

@@ -125,7 +125,7 @@ Option names with more than one character ignore case; one-character names remai
     	port "HEX" or "DUMP": default="", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
     	 (default "default")
   -ban value
-        Suppress a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" suppresses every message and "off" suppresses none.
+        Suppress a tag group or an exact effective integer weight (0..999). With a -logLevel threshold, exclude matches from its selection; explicit -logLevel all/off takes precedence. Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" suppresses every message and "off" suppresses none.
         Example: "-ban dbg -ban wrn -ban 200" suppresses Debug, Warning, and every event at weight 200 (not 199 or 201). Empty or invalid selectors are rejected after user tags are registered. Not usable with "-pick". See also "-utag" and "-logLevel".
   -baud int
     	Set the serial port baudrate.
@@ -218,7 +218,7 @@ Option names with more than one character ignore case; one-character names remai
   -logFormat string
     	Output format (case-insensitive): text, json (NDJSON; one object per line), or kv/key-value. Diagnostics go to stderr. (default "text")
   -logLevel string
-        Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
+        Set the base application-event priority threshold: a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority. With a threshold, -pick additionally includes matching events and -ban excludes matching events. Explicit "all" shows every application event and explicit "off" hides every application event, ignoring -pick/-ban. When omitted, standalone -pick/-ban selection applies.
         A typical use case is "-logLevel wrn". Native events without a recognized format-string tag use the built-in "untagged" group. Macro aliases also resolve tags from their names and current explicit overrides. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
         Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in and user-defined tag names ignore case; custom tag metadata uses uppercase names. The equivalent spelling -loglevel accepts the same values. See also CLI switches -utag, -pick and -ban. (default "all")
   -logfile string
@@ -248,8 +248,8 @@ Option names with more than one character ignore case; one-character names remai
   -pf string
     	Short for '-packageFraming'. (default "TCOBSv1")
   -pick value
-        Display only a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" selects every message and "off" selects none.
-        Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every event at weight 200. This is exact selection; use -loglevel 200 for weight 200 and above. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-utag" and "-logLevel".
+        Select a tag group or an exact effective integer weight (0..999). Without -logLevel, display only matches. With a threshold, additionally include matches below it; explicit -logLevel all/off takes precedence. Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" selects every message and "off" selects none.
+        Example: "-logLevel info -pick dbg" displays Info and higher, plus Debug. "-pick err -pick wrn -pick 200" alone displays Error, Warning, and every event at exactly weight 200. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-utag" and "-logLevel".
   -port string
     	Case insensitive receiver device name: 'serial name|JLINK|STLINK|FILE|FILEBUFFER|TCP4|TCP4BUFFER|DEC|BUFFER|HEX|DUMP.
     	The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.

@@ -134,6 +134,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	savedBan := emitter.Ban
 	savedPick := emitter.Pick
 	savedLogLevel := emitter.LogLevel
+	savedLogLevelPassed := emitter.LogLevelPassed
 	savedLIFnJSON := id.LIFnJSON
 	savedShowID := decoder.ShowID
 	savedTargetStamp := decoder.TargetStamp
@@ -163,6 +164,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 		emitter.Ban = savedBan
 		emitter.Pick = savedPick
 		emitter.LogLevel = savedLogLevel
+		emitter.LogLevelPassed = savedLogLevelPassed
 		id.LIFnJSON = savedLIFnJSON
 		decoder.ShowID = savedShowID
 		decoder.TargetStamp = savedTargetStamp
@@ -192,6 +194,7 @@ func configureTranslatorLoopTest(t *testing.T) {
 	emitter.Ban = nil
 	emitter.Pick = nil
 	emitter.LogLevel = "all"
+	emitter.LogLevelPassed = false
 	id.LIFnJSON = "off"
 	decoder.ShowID = ""
 	decoder.TargetStamp = "off"
@@ -817,7 +820,7 @@ func TestExactWeightSelectionInTextMode(t *testing.T) {
 	}{
 		{name: "pick exact weight joins accepted calls", pick: "200", want: "AC\n"},
 		{name: "ban exact weight keeps both neighboring weights", ban: "200", want: "B\nD\n"},
-		{name: "minimum threshold restricts exact pick", pick: "200", threshold: "201"},
+		{name: "exact pick extends threshold", pick: "200", threshold: "201", want: "AB\nC\n"},
 		{name: "threshold includes higher weights too", threshold: "200", want: "AB\nC\n"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -834,6 +837,7 @@ func TestExactWeightSelectionInTextMode(t *testing.T) {
 				}
 				if tc.threshold != "" {
 					emitter.LogLevel = tc.threshold
+					emitter.LogLevelPassed = true
 				}
 				require.NoError(t, emitter.ResolveFilterSelectors())
 			})
@@ -1008,14 +1012,14 @@ func TestPartialCallsWithLevelUsesEventDecisions(t *testing.T) {
 }
 
 // TestEncodedCallsCombinePickAndLevel verifies the documented selector example
-// with actual TREX event boundaries: picking two groups does not bypass the
-// higher error threshold, even when a rejected warning ends a partial line.
+// with actual TREX event boundaries: picked warnings extend the error threshold
+// and their accepted newlines complete the visible partial line.
 func TestEncodedCallsCombinePickAndLevel(t *testing.T) {
 	got := runTREXPartialCalls(t, []string{`err:A`, `wrn:B\n`, `err:C\n`, `msg:D\n`}, false, func() {
 		emitter.Pick = []string{"err", "wrn"}
 		emitter.LogLevel = "err"
 	})
-	assert.Equal(t, "AC\n", got)
+	assert.Equal(t, "AB\nC\n", got)
 }
 
 // TestDecodedStatisticsPrecedeSelection exercises actual TREX calls across
@@ -1281,25 +1285,56 @@ func TestByteOrientedDecodersDoNotCreateUntaggedEvents(t *testing.T) {
 	tests := []struct {
 		encoding string
 		input    []byte
+		want     string
 	}{
-		{encoding: "CHAR", input: []byte("plain:stream\n")},
-		{encoding: "DUMP", input: []byte{0x01, 0x02}},
+		{encoding: "CHAR", input: []byte("plain:stream\n"), want: "plain:stream\n"},
+		{encoding: "DUMP", input: []byte{0x01, 0x02}, want: "01 02 \n"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.encoding, func(t *testing.T) {
-			configureTranslatorLoopTest(t)
-			oldDumpLineByteCount := decoder.DumpLineByteCount
-			t.Cleanup(func() { decoder.DumpLineByteCount = oldDumpLineByteCount })
-			decoder.DumpLineByteCount = 16
-			var output bytes.Buffer
-			dec, err := decoder.NewForEncoding(tt.encoding, io.Discard, nil, nil, nil, bytes.NewReader(tt.input), decoder.LittleEndian)
-			require.NoError(t, err)
-			sw := emitter.New(&output)
+		for _, filter := range []struct {
+			name, level, pick, ban string
+			visible                bool
+		}{
+			{name: "omitted level", visible: true},
+			{name: "standalone pick rejects unknown bytes", pick: "err"},
+			{name: "standalone ban keeps unknown bytes", ban: "err", visible: true},
+			{name: "threshold leaves bytes unclassified", level: "999", visible: true},
+			{name: "pick does not restrict base selection", level: "999", pick: "err", visible: true},
+			{name: "ban all restricts threshold", level: "999", ban: "all"},
+			{name: "explicit all overrides pick", level: "all", pick: "off", visible: true},
+			{name: "explicit all overrides ban", level: "all", ban: "all", visible: true},
+			{name: "explicit off overrides pick", level: "off", pick: "all"},
+		} {
+			t.Run(tt.encoding+"/"+filter.name, func(t *testing.T) {
+				configureTranslatorLoopTest(t)
+				if filter.level != "" {
+					emitter.LogLevel, emitter.LogLevelPassed = filter.level, true
+				}
+				if filter.pick != "" {
+					require.NoError(t, emitter.Pick.Set(filter.pick))
+				}
+				if filter.ban != "" {
+					require.NoError(t, emitter.Ban.Set(filter.ban))
+				}
+				require.NoError(t, emitter.ResolveFilterSelectors())
+				oldDumpLineByteCount := decoder.DumpLineByteCount
+				t.Cleanup(func() { decoder.DumpLineByteCount = oldDumpLineByteCount })
+				decoder.DumpLineByteCount = 16
+				var output bytes.Buffer
+				dec, err := decoder.NewForEncoding(tt.encoding, io.Discard, nil, nil, nil, bytes.NewReader(tt.input), decoder.LittleEndian)
+				require.NoError(t, err)
+				sw := emitter.New(&output)
 
-			err = decodeAndComposeLoop(&output, sw, dec, nil, nil, nil)
-			require.ErrorIs(t, err, io.EOF)
-			assert.NotContains(t, output.String(), "untagged:")
-		})
+				err = decodeAndComposeLoop(&output, sw, dec, nil, nil, nil)
+				require.ErrorIs(t, err, io.EOF)
+				assert.NotContains(t, output.String(), "untagged:")
+				if filter.visible {
+					assert.Equal(t, tt.want, output.String())
+				} else {
+					assert.Empty(t, output.String())
+				}
+			})
+		}
 	}
 }
 
@@ -1349,6 +1384,17 @@ func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
 			want: "unsupported short packet size 1",
 		},
 		{
+			name:    "unknown ID survives explicit all overriding ban",
+			framing: "cobs",
+			input:   []byte{0x06, 0x01, 0x40, 0xc0, 0x01, 0x2a, 0x00},
+			lut:     id.TriceIDLookUp{},
+			configureFilter: func() {
+				emitter.LogLevel, emitter.LogLevelPassed = "all", true
+				emitter.Ban = []string{"all"}
+			},
+			want: "unknown ID",
+		},
+		{
 			name:    "cycle diagnostic survives level off",
 			framing: "none",
 			input:   []byte{0x01, 0x40, 0x10, 0x01, 0x2a},
@@ -1356,7 +1402,8 @@ func TestTREXDiagnosticsBypassApplicationFilters(t *testing.T) {
 				1: {Type: "TRICE8_1", Strg: "msg:v=%d\\n"},
 			},
 			configureFilter: func() {
-				emitter.LogLevel = "off"
+				emitter.LogLevel, emitter.LogLevelPassed = "off", true
+				emitter.Pick = []string{"all"}
 			},
 			want:         "CYCLE_ERROR",
 			wantNot:      "v=42",
@@ -1471,12 +1518,16 @@ func runTranslatorVisCase(t *testing.T, tag, option, filter string, levels ...st
 	configureTranslatorLoopTest(t)
 	if len(levels) != 0 {
 		emitter.LogLevel = levels[0]
+		emitter.LogLevelPassed = true
 	}
 	switch filter {
 	case "ban":
 		emitter.Ban = []string{tag}
 	case "exclude-by-pick":
 		emitter.Pick = []string{"other"}
+	case "include-by-pick":
+		// A picked record below the threshold must reach the router as a whole.
+		emitter.Pick = []string{tag}
 	}
 
 	format := tag + ":value=%d\n"
@@ -1560,6 +1611,30 @@ func TestDecodeAndComposeLoopIntegratesVisAfterFiltering(t *testing.T) {
 		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "", "msg")
 		assert.Empty(t, normal)
 		assert.Equal(t, "7\n", visualized)
+	})
+
+	t.Run("pick restores visualization below threshold", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", "", "include-by-pick", "wrn")
+		assert.Equal(t, "value=7\n", normal)
+		assert.Equal(t, "7\n", visualized)
+	})
+
+	t.Run("unpicked record above threshold still reaches visualization", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "exclude-by-pick", "msg")
+		assert.Empty(t, normal)
+		assert.Equal(t, "7\n", visualized)
+	})
+
+	t.Run("explicit all overrides ban before visualization", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", ";log=drop", "ban", "all")
+		assert.Empty(t, normal)
+		assert.Equal(t, "7\n", visualized)
+	})
+
+	t.Run("explicit off overrides pick before visualization", func(t *testing.T) {
+		normal, visualized := runTranslatorVisCase(t, "msg", "", "include-by-pick", "off")
+		assert.Empty(t, normal)
+		assert.Empty(t, visualized)
 	})
 }
 
