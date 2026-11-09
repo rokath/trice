@@ -80,59 +80,31 @@ Only the eight names in the level-boundary column define levels. Other tags are 
 
 ## 3. <a id="selecting-tags-and-priority"></a>Selecting tags and priority
 
-Use the repeatable `-pick` option to display selected tag groups or exact weights, or `-ban` to suppress them. The two options are mutually exclusive. Supply exactly one selector per option and repeat the option for additional selectors:
+`-logLevel` defines the base priority threshold: messages at that weight or higher are visible. `-pick` additionally includes matching messages (OR); `-ban` excludes matching messages (AND NOT). The two selectors remain mutually exclusive. Explicit `-logLevel all` shows all application messages and explicit `-logLevel off` hides all, ignoring either selector. When `-logLevel` is omitted, `-pick` alone shows only matches and `-ban` alone hides only matches.
 
-```sh
-trice log -pick err -pick wrn -pick notice
-trice log -ban dbg -ban trace -ban verbose
-```
+Options after `trice log`  | Result with default weights
+-------------------------- | ------------------------------------
+`-pick err`                | Only ERROR
+`-ban err`                 | Everything except ERROR
+`-logLevel info`           | INFO weight and higher
+`-logLevel info -pick dbg` | INFO weight and higher, plus DEBUG
+`-logLevel info -ban err`  | INFO weight and higher, except ERROR
+`-logLevel all -ban err`   | Everything
+`-logLevel off -pick err`  | Nothing
 
-Aliases select the complete group. `-pick all` selects every message and `-pick off` selects none; `-ban all` suppresses every message and `-ban off` suppresses none. Empty selectors and unknown names are command-line errors. Colon-separated lists such as `-pick err:wrn` are rejected with a hint to repeat the option. Weight ranges such as `-ban 200:400` are not supported.
+`-loglevel` is an equivalent spelling; the last assignment wins. A threshold can be a registered tag or alias, or an integer in `0..999`. For example, `-logLevel info` and `-logLevel 500` use the same default threshold, including MESSAGE and `untagged`. Without a selector, a lower threshold displays more messages.
 
-An integer from `0` through `999` selects exactly that effective weight, independently of the tag name or derived level:
+Supply one selector per option and repeat it for more: `-pick err -pick wrn -pick 200` matches either named group or exactly weight 200. Aliases select their complete group; a named selector does not select other groups sharing its weight. Numeric selectors accept `0..999`, even if no group has that weight; they match exact weights, not ranges or derived levels. `-pick all` matches everything and `-pick off` matches nothing; `-ban all` excludes everything and `-ban off` excludes nothing. With a threshold, `-pick off` therefore leaves the base selection visible. Empty or unknown selectors, colon lists such as `err:wrn`, and ranges such as `200:400` are rejected before input opens, even with explicit `all` or `off`.
 
-```sh
-trice log -utag sensor:200 -ban 200
-trice log -utag sensor:200 -pick 200
-trice log -pick err -pick 200 -pick 450
-```
+All filters use the final weights after [all `-utag` overrides](#user-defined-tags-weights-and-colors), regardless of option order. Changing a weight can therefore change threshold and numeric-selector results. For example, `-utag INFO:750 -logLevel INFO` selects weight 750 and above; `-utag sensor:200 -pick 200` alone selects that sensor group and any other group at weight 200. Filtering uses exact weights, not the fixed structured-level boundaries: weight 650 passes `-logLevel 650` and fails `-logLevel 651` unless picked.
 
-The first excludes all events at weight 200 but keeps weights 199 and 201. The second displays only weight 200. The third displays the Error group plus any groups at weights 200 or 450: repeated selectors form a union. A named selector selects only its group, not other groups sharing that weight. Numeric selection uses the current weights after all `-utag` overrides, including the weight of `untagged`. Weights 199, 200 and 201 all derive level TRACE, but `-pick 200` still selects only 200. A valid numeric selector is accepted even if no registered group currently has that weight.
+Application events without a recognized tag use `untagged` (default weight 500). CHAR/DUMP remain byte-oriented: recognized prefixes use their tag weights and the same combination rules; unknown fragments have no weight and pass the base threshold. Standalone selectors still match recognized prefixes only. Raw text such as `200:payload` is not a weight annotation.
 
-Typed application events without a recognized tag use `untagged` for numeric selection. Byte-oriented CHAR/DUMP fragments have no event weight; a numeric selector matches their recognized tag prefixes only. Raw text such as `200:payload` is not a weight annotation.
+Selection applies to each complete Trice event before metadata and [visualization](visualization.md) are added. An accepted event keeps all its lines, timestamps, location, ID, prefix and suffix; a rejected event leaves none of these behind. Accepted fragments join until an accepted newline arrives; a rejected newline does not finish the visible line. For example, `msg:A`, `dbg:B\n`, `msg:C\n` produce `AC\n` with standalone `-pick msg`. Remaining visible text is flushed with a newline at EOF.
 
-Use `-logLevel` or its equivalent spelling `-loglevel` with `all`, `off`, a registered tag or alias, or a numeric weight from `0` through `999`. An application event passes when its tag group's weight is greater than or equal to the threshold. A lower threshold therefore displays more messages:
+Metadata belongs to the first accepted event of each visible line. Target timestamp differences use the previous visible line's first accepted event. Multi-line events keep their continuation indentation. `-addNL` appends a newline even to events already ending in one, producing an extra indented blank line. Otherwise, empty events produce no output and accepted newline-only events produce a blank line.
 
-```sh
-trice log -logLevel info
-trice log -logLevel 500
-trice log -loglevel 500
-```
-
-These commands use the same threshold with the default INFO weight of 500. Both spellings share one setting; if repeated or mixed, the last assignment wins. Unknown level names and numeric values outside `0..999` are rejected before the input channel is opened. Application messages without a recognized format-string tag use the built-in `untagged` group with default weight 500. `-logLevel off` suppresses all application events.
-
-With the default weights, `-logLevel info` includes Message and `untagged` events because they also have weight 500. It excludes Debug and technical categories such as Receive (300), Trace (100), and Verbose (0). Without either spelling of the option, the threshold defaults to `all`.
-
-Use a threshold when the requirement is “Warning and everything more important”, including new user tags assigned sufficiently high weights. For example, `trice log -utag motor:780 -logLevel wrn` includes `motor` alongside Warning, Attention, Alert, Error, and higher-weight groups. Use `-pick` for a specific set of groups such as Receive and Transmit, regardless of their weights. Combining both expresses a selected subsystem or category set with a minimum priority.
-
-Filtering uses the exact effective weight, not the derived level's lower boundary. A tag with weight 650 passes `-loglevel 650` and fails `-loglevel 651`, although its structured level is WARNING in both cases. A named threshold also uses the tag's effective weight: `-utag INFO:750 -logLevel INFO` selects weight 750 and above; it does not change the fixed INFO level boundary of 500.
-
-These are host-side filters. They do not avoid target argument evaluation or reduce data already transmitted by the target. Target ID routing is configured separately as described in [ID Routing](target_routing.md#id-routing); received raw bytes can still be kept in a [binary logfile](cli.md#binary-logfile).
-
-For a short capture to experiment with, run the [PC feature tour](examples.md#pc-feature-tour) and compare `./show_json.sh`, `./show_json.sh -pick info`, and `./show_json.sh -logLevel wrn`. The [G0B1 feature tour](examples.md#g0b1-feature-tour) applies the same output choices to a board capture.
-
-All `-utag` values are applied before `-pick`, `-ban`, and `-logLevel` are resolved. Option order therefore does not matter:
-
-```sh
-trice log -pick motor -utag motor:650
-trice log -utag motor:650 -pick motor
-```
-
-`-pick` or `-ban` and `-logLevel` jointly decide whether each application event is displayed. An accepted event keeps its timestamps, source location, ID, prefix, suffix, and all lines of its text; a rejected event leaves none of these behind. For example, `-pick err -pick wrn -logLevel err` shows only Error events. A line assembled from several Trice calls contains only the accepted calls, including their accepted newline characters. The same decision also applies to visualization routing. Byte-oriented CHAR/DUMP chunks have no typed event boundary and retain their fragment-based selection behavior.
-
-Each Trice call is one event. Accepted fragments are concatenated until an accepted newline arrives; a rejected newline does not finish the visible line. For example, the three calls `msg:A`, `dbg:B\n`, `msg:C\n` produce `AC\n` with either `-pick msg` or `-logLevel msg` using the default weights. A multi-line event is accepted or rejected as a whole, preserving its continuation indentation. At the end of buffered input, a remaining visible fragment is flushed with a newline.
-
-Metadata columns belong to the first accepted event of each visible line. Target timestamp differences use the previous visible line's first accepted event; rejected events and later fragments on the same line do not update that reference. `-addNL` appends a newline to every event, including one already ending in a newline; the latter produces an additional indented blank line. Without `-addNL`, an empty event produces no visible output, while an accepted newline-only event produces a blank line.
+These host filters do not reduce target evaluation or traffic. See [ID Routing](target_routing.md#id-routing) for target selection and [binary logging](cli.md#binary-logfile) for unfiltered recording. Try the filters with the [PC](examples.md#pc-feature-tour) or [G0B1 feature tour](examples.md#g0b1-feature-tour).
 
 ## 4. <a id="decoder-diagnostics"></a>Decoder diagnostics
 
