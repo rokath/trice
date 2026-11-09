@@ -120,7 +120,7 @@ func TestLatestStableGoPreparation(t *testing.T) {
 				}
 				writeFixture(t, root, "releases.json", stableGoReleaseFixture(t))
 				writeFixture(t, root, "bin/curl", "#!/bin/sh\necho metadata >> metadata-requests\ncat releases.json\n")
-				writeFixture(t, root, "bin/go", "#!/bin/sh\nexit 1\n")
+				writeFixture(t, root, "bin/go", "#!/bin/sh\nprintf 'Fixture fallback Go invoked instead of selected Go: %s\\n' \"$*\" >&2\nexit 1\n")
 				for _, manager := range []string{"dpkg", "brew"} {
 					writeFixture(t, root, "bin/"+manager, "#!/bin/sh\nexit 1\n")
 				}
@@ -135,6 +135,11 @@ func TestLatestStableGoPreparation(t *testing.T) {
 				}
 				out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
 source scripts/_115_prepare_native_tests.sh
+# Unix hosts do not add .exe during PATH lookup. Preserve that behavior in
+# Windows simulations even when this test itself runs under Git Bash.
+if [ "${FIXTURE_HOST%/*}" = windows ]; then
+  go() { ./bin/go "$@"; }
+fi
 # Consent and the full inventory are covered separately; retain the real Go
 # selector and archive routing while replacing host installation side effects.
 trice_test_tool_plan() {
@@ -157,10 +162,15 @@ unzip() {
   mkdir -p "$5/go/bin" && cp runtime-fixture "$5/go/bin/go.exe"
 }
 ensure_native_go_toolchain || exit $?
-go version || exit $?
+# Invoke the simulated platform's executable name through the selected PATH;
+# Windows fixtures contain go.exe even when the actual test host is Unix.
+"$FIXTURE_GO_COMMAND" version || exit $?
 ensure_native_go_toolchain || exit $?
-go version
-`, map[string]string{"FIXTURE_HOST": host, "FIXTURE_CHECKSUM": strings.Repeat(strconv.Itoa(i+1), 64)})
+"$FIXTURE_GO_COMMAND" version
+`, map[string]string{
+					"FIXTURE_HOST": host, "FIXTURE_CHECKSUM": strings.Repeat(strconv.Itoa(i+1), 64),
+					"FIXTURE_GO_COMMAND": runtimeName,
+				})
 				require.NoError(t, err, out)
 				assert.Equal(t, 2, strings.Count(out, "go version go1.28.2 "+host))
 				requests, err := os.ReadFile(filepath.Join(root, "metadata-requests"))
