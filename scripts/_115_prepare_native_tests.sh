@@ -3,10 +3,11 @@
 # Shared native test preparation. Sourced by the common test environment;
 # functions are inert until the runner (or CI setup) requests preparation.
 
-# Probe the exact Go toolchain offline first. Go's launcher may fetch a missing
-# toolchain, so that transition needs the same consent as other installations.
+# Probe the resolved stable Go release offline first. Go's launcher may fetch
+# a missing toolchain, so installation stays inside the existing setup plan.
 ensure_native_go_toolchain() {
   [ "${TRICE_TEST_PLAN_ACTIVE:-0}" = 1 ] || trice_test_tool_plan cli || return 2
+  trice_resolve_go_toolchain || return 2
   local executable archive directory key extension=tar.gz
   executable="$(trice_find_go || true)"
   if [ -z "$executable" ]; then

@@ -2,7 +2,8 @@
 
 # Read-only startup discovery and one consent boundary for test preparation.
 # Bash 3.2 is sufficient; no associative arrays, GNU readlink -f or downloads
-# are needed to display the plan, including when Go itself is missing.
+# are needed to inspect tools. Stable Go metadata is resolved before its plan
+# row, including when Go itself is missing.
 
 # Normalize native output before exact version checks and filesystem queries.
 trice_tool_path() {
@@ -741,6 +742,9 @@ trice_plan_space() {
 trice_test_tool_plan() {
   local scope="${1:-native}" os architecture selected found tool version action target installed peak answer='' blocked=0 checkout_space_ok=1 system_status
   local after_updates="${2:-0}"
+  # Restore the run's exported selection even when a child reuses an existing
+  # plan after sourcing the stable-channel manifest again.
+  case "$scope" in native | lint | pdf | cli* | analyzer) trice_resolve_go_toolchain || return 2 ;; esac
   # Reuse alone needs no installation choice, including verified cached tools.
   local installation_needed=0
   # Routine capacity information accompanies the visible setup inventory.

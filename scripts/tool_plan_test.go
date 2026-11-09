@@ -3,6 +3,7 @@
 package scripts_test
 
 import (
+	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -13,6 +14,173 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// stableGoReleaseFixture supplies official-shaped metadata without contacting
+// the release service. Distinct hashes catch platform/archive mix-ups.
+func stableGoReleaseFixture(t *testing.T) string {
+	t.Helper()
+	var files []map[string]string
+	for i, platform := range []string{"linux-amd64", "linux-arm64", "darwin-amd64", "darwin-arm64", "windows-amd64", "windows-arm64"} {
+		extension := ".tar.gz"
+		if strings.HasPrefix(platform, "windows-") {
+			extension = ".zip"
+		}
+		files = append(files, map[string]string{
+			"filename": "go1.28.2." + platform + extension,
+			"sha256":   strings.Repeat(strconv.Itoa(i+1), 64),
+		})
+	}
+	data, err := json.MarshalIndent([]map[string]any{
+		{"version": "go1.29rc1", "stable": false, "files": []any{}},
+		{"version": "go1.28.2", "stable": true, "files": files},
+		{"version": "go1.27.99", "stable": true, "files": []any{}},
+	}, "", "  ")
+	require.NoError(t, err)
+	return string(data)
+}
+
+// TestLatestStableGoResolution checks selection, verified platform hashes,
+// bounded network failures, malformed metadata, and reuse by child steps.
+func TestLatestStableGoResolution(t *testing.T) {
+	metadata := stableGoReleaseFixture(t)
+	for _, tc := range []struct {
+		name, metadata, diagnostic, inherited string
+		networkFailure                        bool
+	}{
+		{name: "indented release metadata", metadata: metadata},
+		{name: "compact release metadata", metadata: strings.NewReplacer("\n", "", " ", "").Replace(metadata)},
+		{name: "network unavailable", metadata: metadata, networkFailure: true, diagnostic: "cannot resolve the latest stable Go release"},
+		{name: "malformed response", metadata: "not JSON", diagnostic: "contains no valid stable version"},
+		{name: "prereleases only", metadata: strings.ReplaceAll(metadata, `"stable": true`, `"stable": false`), diagnostic: "contains no valid stable version"},
+		{name: "missing platform archive", metadata: strings.Replace(metadata, "go1.28.2.windows-arm64.zip", "go1.28.2.windows-386.zip", 1), diagnostic: "SHA-256 for WINDOWS_ARM64"},
+		{name: "invalid platform checksum", metadata: strings.Replace(metadata, strings.Repeat("6", 64), "not-a-checksum", 1), diagnostic: "SHA-256 for WINDOWS_ARM64"},
+		{name: "invalid inherited release", inherited: "1.29rc1", diagnostic: "contains no valid stable version"},
+		{name: "incomplete inherited checksums", inherited: "1.28.2", diagnostic: "SHA-256 for LINUX_AMD64"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t)
+			config, err := readFixtureSource("..", "scripts/test-tools.env")
+			require.NoError(t, err)
+			writeFixture(t, root, "scripts/test-tools.env", string(config))
+			writeFixture(t, root, "releases.json", tc.metadata)
+			curl := "#!/bin/sh\nprintf '%s\\n' \"$*\" >> metadata-requests\ncat releases.json\n"
+			if tc.networkFailure {
+				curl = "#!/bin/sh\nprintf '%s\\n' \"$*\" >> metadata-requests\nexit 22\n"
+			}
+			writeFixture(t, root, "bin/curl", curl)
+			out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+if ! trice_resolve_go_toolchain; then
+  printf 'selection_after_failure=%s\n' "$TRICE_GO_VERSION"
+  exit 2
+fi
+printf 'selected=%s\n' "$TRICE_GO_VERSION"
+for platform in LINUX_AMD64 LINUX_ARM64 DARWIN_AMD64 DARWIN_ARM64 WINDOWS_AMD64 WINDOWS_ARM64; do
+  key="TRICE_GO_SHA_$platform"
+  printf '%s=%s\n' "$platform" "${!key}"
+done
+# Re-sourcing the manifest in a child must not select a second release.
+bash -c 'source scripts/_105_setup_test_tools.sh; trice_resolve_go_toolchain || exit $?; printf "child=%s\n" "$TRICE_GO_VERSION"'
+`, map[string]string{"TRICE_GO_RESOLVED_VERSION": tc.inherited})
+			if tc.diagnostic != "" {
+				assert.Error(t, err, out)
+				assert.Contains(t, out, tc.diagnostic)
+				assert.Contains(t, out, "selection_after_failure=stable")
+			} else {
+				require.NoError(t, err, out)
+				assert.Contains(t, out, "selected=1.28.2")
+				assert.Contains(t, out, "child=1.28.2")
+				for i, platform := range []string{"LINUX_AMD64", "LINUX_ARM64", "DARWIN_AMD64", "DARWIN_ARM64", "WINDOWS_AMD64", "WINDOWS_ARM64"} {
+					assert.Contains(t, out, platform+"="+strings.Repeat(strconv.Itoa(i+1), 64))
+				}
+			}
+			if tc.inherited == "" {
+				requests, err := os.ReadFile(filepath.Join(root, "metadata-requests"))
+				require.NoError(t, err)
+				assert.Equal(t, 1, strings.Count(string(requests), "https://go.dev/dl/?mode=json"))
+				assert.Contains(t, string(requests), "--max-time 30")
+			} else {
+				assert.NoFileExists(t, filepath.Join(root, "metadata-requests"))
+			}
+		})
+	}
+}
+
+// TestLatestStableGoPreparation connects release resolution to the existing
+// offline discovery and archive installer for every supported OS/architecture.
+// Warm caches skip installation; cold caches verify the selected archive hash.
+func TestLatestStableGoPreparation(t *testing.T) {
+	for i, host := range []string{"linux/amd64", "linux/arm64", "darwin/amd64", "darwin/arm64", "windows/amd64", "windows/arm64"} {
+		for _, warm := range []bool{false, true} {
+			t.Run(host+"/warm="+strconv.FormatBool(warm), func(t *testing.T) {
+				root := scriptFixture(t)
+				for _, name := range []string{"test-tools.env", "_115_prepare_native_tests.sh"} {
+					data, err := readFixtureSource("..", "scripts/"+name)
+					require.NoError(t, err)
+					writeFixture(t, root, "scripts/"+name, string(data))
+				}
+				writeFixture(t, root, "releases.json", stableGoReleaseFixture(t))
+				writeFixture(t, root, "bin/curl", "#!/bin/sh\necho metadata >> metadata-requests\ncat releases.json\n")
+				writeFixture(t, root, "bin/go", "#!/bin/sh\nexit 1\n")
+				for _, manager := range []string{"dpkg", "brew"} {
+					writeFixture(t, root, "bin/"+manager, "#!/bin/sh\nexit 1\n")
+				}
+				runtime := "#!/bin/sh\n[ \"$1\" = version ] || exit 91\necho 'go version go1.28.2 " + host + "'\n"
+				writeFixture(t, root, "runtime-fixture", runtime)
+				runtimeName := "go"
+				if strings.HasPrefix(host, "windows/") {
+					runtimeName = "go.exe"
+				}
+				if warm {
+					writeFixture(t, root, "temp/tools/go/1.28.2/go/bin/"+runtimeName, runtime)
+				}
+				out, err := runFixture(t, root, `source scripts/_105_setup_test_tools.sh
+source scripts/_115_prepare_native_tests.sh
+# Consent and the full inventory are covered separately; retain the real Go
+# selector and archive routing while replacing host installation side effects.
+trice_test_tool_plan() {
+  trice_resolve_go_toolchain || return 2
+  TRICE_PLAN_OS="${FIXTURE_HOST%/*}" TRICE_PLAN_HOST="$FIXTURE_HOST"
+  TRICE_PLAN_PLATFORM="$(printf '%s' "$FIXTURE_HOST" | tr '[:lower:]/' '[:upper:]_')"
+  export TRICE_TEST_PLAN_ACTIVE=1
+}
+trice_plan_allows_install() { [ "$1" = Go ]; }
+download_pinned_test_tool() {
+  [ "$3" = "$FIXTURE_CHECKSUM" ] || return 92
+  printf '%s\n' "$1" >> downloaded-archives
+}
+tar() {
+  [ "$1" = -xf ] && [ "$3" = -C ] || return 93
+  mkdir -p "$4/go/bin" && cp runtime-fixture "$4/go/bin/go"
+}
+unzip() {
+  [ "$1" = -q ] && [ "$2" = -o ] && [ "$4" = -d ] || return 94
+  mkdir -p "$5/go/bin" && cp runtime-fixture "$5/go/bin/go.exe"
+}
+ensure_native_go_toolchain || exit $?
+go version || exit $?
+ensure_native_go_toolchain || exit $?
+go version
+`, map[string]string{"FIXTURE_HOST": host, "FIXTURE_CHECKSUM": strings.Repeat(strconv.Itoa(i+1), 64)})
+				require.NoError(t, err, out)
+				assert.Equal(t, 2, strings.Count(out, "go version go1.28.2 "+host))
+				requests, err := os.ReadFile(filepath.Join(root, "metadata-requests"))
+				require.NoError(t, err)
+				assert.Equal(t, "metadata\n", string(requests))
+				if warm {
+					assert.NoFileExists(t, filepath.Join(root, "downloaded-archives"))
+				} else {
+					archives, err := os.ReadFile(filepath.Join(root, "downloaded-archives"))
+					require.NoError(t, err)
+					extension := ".tar.gz"
+					if strings.HasPrefix(host, "windows/") {
+						extension = ".zip"
+					}
+					assert.Equal(t, "https://go.dev/dl/go1.28.2."+strings.ReplaceAll(host, "/", "-")+extension+"\n", string(archives))
+				}
+			})
+		}
+	}
+}
 
 // TestMissingPrerequisiteKeepsMenu blocks continuation before any installer,
 // while keeping system upgrades available under the same c/u/a menu.

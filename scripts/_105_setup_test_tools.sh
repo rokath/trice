@@ -7,12 +7,69 @@
 TRICE_TOOL_BIN_DIR="$(pwd)/temp/tools/bin"
 export PATH="$TRICE_TOOL_BIN_DIR:$PATH"
 
-# Keep exact versions in one tracked data file. Fixture repositories copy it
-# with this helper so standalone checks use the same contract as the suite.
+# Keep tool requirements in one tracked data file. Go follows stable releases;
+# the other tools retain exact versions shared by standalone checks and suites.
 # shellcheck source=./test-tools.env
 if [ -f "./scripts/test-tools.env" ]; then
   source "./scripts/test-tools.env"
 fi
+
+# Resolve stable Go once per test run, before planning installations. Export
+# the exact release and all supported archive hashes so child steps reuse one
+# selection even if a new release appears while the suite is running. Metadata
+# needs only the existing curl/awk prerequisites, not a prepared Go or Python.
+trice_resolve_go_toolchain() {
+  [ "$TRICE_GO_VERSION" = stable ] || return 0
+  local metadata version platform archive checksum key hashes=''
+  if [ -n "${TRICE_GO_RESOLVED_VERSION:-}" ]; then
+    version="$TRICE_GO_RESOLVED_VERSION"
+  else
+    if ! metadata="$(curl --fail --location --silent --show-error --connect-timeout 10 --max-time 30 'https://go.dev/dl/?mode=json')"; then
+      printf 'INCOMPLETE: cannot resolve the latest stable Go release from https://go.dev/dl/?mode=json; check network access before rerunning test setup.\n' >&2
+      return 2
+    fi
+    # Normalize object boundaries without regex record separators, which are
+    # unavailable in the system awk on some supported macOS installations.
+    metadata="$(printf '%s' "$metadata" | tr -d '\r\n' | tr '{}' '\n\n')"
+    version="$(printf '%s\n' "$metadata" | awk '
+      /"stable"[[:space:]]*:[[:space:]]*true/ {
+        if (match($0, /"version"[[:space:]]*:[[:space:]]*"/)) {
+          value=substr($0,RSTART+RLENGTH); sub(/".*/,"",value)
+          if (value ~ /^go[0-9]+[.][0-9]+[.][0-9]+$/) { sub(/^go/,"",value); print value; exit }
+        }
+      }')"
+  fi
+  if [[ ! "$version" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+    printf 'INCOMPLETE: official Go release metadata contains no valid stable version (received: %s).\n' "$version" >&2
+    return 2
+  fi
+  for platform in LINUX_AMD64 LINUX_ARM64 DARWIN_AMD64 DARWIN_ARM64 WINDOWS_AMD64 WINDOWS_ARM64; do
+    key="TRICE_GO_SHA_$platform"
+    if [ -n "${TRICE_GO_RESOLVED_VERSION:-}" ]; then
+      checksum="${!key:-}"
+    else
+      archive="go$version.$(printf '%s' "$platform" | tr '[:upper:]_' '[:lower:]-')"
+      case "$platform" in WINDOWS_*) archive="$archive.zip" ;; *) archive="$archive.tar.gz" ;; esac
+      checksum="$(printf '%s\n' "$metadata" | awk -v archive="$archive" '
+        {
+          if (!match($0, /"filename"[[:space:]]*:[[:space:]]*"/)) next
+          name=substr($0,RSTART+RLENGTH); sub(/".*/,"",name)
+          if (name != archive || !match($0, /"sha256"[[:space:]]*:[[:space:]]*"/)) next
+          hash=substr($0,RSTART+RLENGTH); sub(/".*/,"",hash); print hash; exit
+        }')"
+    fi
+    if [[ ! "$checksum" =~ ^[0-9a-f]{64}$ ]]; then
+      printf 'INCOMPLETE: Go %s release metadata needs a valid SHA-256 for %s (received: %s).\n' "$version" "$platform" "$checksum" >&2
+      return 2
+    fi
+    hashes="$hashes$key=$checksum
+"
+  done
+  # Publish only a complete version/checksum set; malformed metadata must never
+  # permit an unverified archive or leave a partially selected toolchain.
+  while IFS='=' read -r key checksum; do [ -z "$key" ] || export "$key=$checksum"; done <<<"$hashes"
+  export TRICE_GO_RESOLVED_VERSION="$version" TRICE_GO_VERSION="$version"
+}
 
 # Keep setup status visible while command output remains in tools.log. Status
 # uses stderr so installers may still return selected paths through stdout.
