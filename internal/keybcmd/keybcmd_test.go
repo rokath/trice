@@ -9,6 +9,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"testing"
@@ -85,6 +86,7 @@ func TestLoopActionShutdown(t *testing.T) {
 
 // TestKeyboardInputStartsShellAndProcessesCommands verifies the async shell banner and forwarding behavior.
 func TestKeyboardInputStartsShellAndProcessesCommands(t *testing.T) {
+	limitKeyboardTest(t)
 	target := &signalWriter{done: make(chan []byte, 1)}
 	out := captureStdout(t, func() {
 		source := keyboardSource{Reader: strings.NewReader("hello\n"), interrupt: func() {}, release: func() error { return nil }}
@@ -102,6 +104,7 @@ func TestKeyboardInputStartsShellAndProcessesCommands(t *testing.T) {
 
 // TestReadInputUsesOsStdin verifies ReadInput consumes commands from os.Stdin.
 func TestReadInputUsesOsStdin(t *testing.T) {
+	limitKeyboardTest(t)
 	oldStdin := os.Stdin
 	r, w, err := os.Pipe()
 	if err != nil {
@@ -139,6 +142,18 @@ func TestReadInputUsesOsStdin(t *testing.T) {
 	if !bytes.Equal(target.Bytes(), append([]byte("ping"), 0)) {
 		t.Fatalf("ReadInput did not forward command from stdin: %q", target.Bytes())
 	}
+}
+
+// limitKeyboardTest includes deferred shutdown and cleanup in a short budget.
+// A panic prints every goroutine even when a blocking Windows cancellation
+// prevents an ordinary assertion or cleanup from returning to the test runner.
+func limitKeyboardTest(t *testing.T) {
+	t.Helper()
+	watchdog := time.AfterFunc(15*time.Second, func() {
+		debug.SetTraceback("all")
+		panic("keyboard input test " + t.Name() + " timed out after 15s")
+	})
+	t.Cleanup(func() { watchdog.Stop() })
 }
 
 // signalWriter hands copied commands to the test without shared buffer access.
@@ -281,6 +296,7 @@ func (r *observedReader) Read(b []byte) (int, error) {
 // TestKeyboardInputStopInterruptsPendingStdinRead exercises the native stdin
 // adapter repeatedly and joins before inspecting output or restoring globals.
 func TestKeyboardInputStopInterruptsPendingStdinRead(t *testing.T) {
+	limitKeyboardTest(t)
 	for range 20 {
 		input, writer, err := os.Pipe()
 		require.NoError(t, err)
@@ -318,6 +334,7 @@ func (w observedWriter) Write(b []byte) (int, error) {
 // TestKeyboardInputStopInterruptsPendingWrite proves shutdown also joins when
 // the target has stopped consuming commands, not just while stdin is idle.
 func TestKeyboardInputStopInterruptsPendingWrite(t *testing.T) {
+	limitKeyboardTest(t)
 	reader, writer := io.Pipe()
 	defer reader.Close()
 	defer writer.Close()
