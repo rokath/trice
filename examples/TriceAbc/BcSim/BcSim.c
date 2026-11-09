@@ -228,6 +228,10 @@ static int bcSimTouchFile(const char* path) {
  * to create the same directory at the same time, exactly one succeeds. That is
  * enough for this demonstration transport and avoids OS-specific flock/fcntl or
  * Windows locking code in the public design.
+ *
+ * Windows may briefly deny recreation while a directory is being deleted.
+ * Retry that denial at 100 ms intervals within the existing contention budget;
+ * a persistent denial keeps its original filesystem diagnostic and error code.
  */
 static int bcSimLock(const BcSim_t* io) {
 	unsigned waited = 0u;
@@ -237,6 +241,9 @@ static int bcSimLock(const BcSim_t* io) {
 	}
 
 	for (;;) {
+		/* Only Windows access denial uses the slower retry cadence. */
+		unsigned delay = BCSIM_LOCK_POLL_MS;
+		int retryAccessDenied = 0;
 #if defined(_WIN32)
 		/* CRT failures need not set both native codes; zero excludes stale values. */
 		_doserrno = 0;
@@ -245,15 +252,29 @@ static int bcSimLock(const BcSim_t* io) {
 		if (BCSIM_MKDIR(io->lockPath) == 0) {
 			return BCSIM_OK;
 		}
-		if (errno != EEXIST) {
+#if defined(_WIN32)
+		retryAccessDenied = errno == EACCES && _doserrno == ERROR_ACCESS_DENIED;
+#endif
+		if (errno != EEXIST && !retryAccessDenied) {
 			bcSimReportLockError(io, "mkdir");
 			return BCSIM_ERR_LOCK;
 		}
 		if (waited >= BCSIM_LOCK_WAIT_MS) {
+			if (retryAccessDenied) {
+				bcSimReportLockError(io, "mkdir");
+				return BCSIM_ERR_LOCK;
+			}
 			return BCSIM_ERR_LOCK_TIMEOUT;
 		}
-		bcSimSleepMs(BCSIM_LOCK_POLL_MS);
-		waited += BCSIM_LOCK_POLL_MS;
+		if (retryAccessDenied) {
+			delay = 100u;
+		}
+		/* Mixed contention/denial retries share one budget, including its tail. */
+		if (delay > BCSIM_LOCK_WAIT_MS - waited) {
+			delay = BCSIM_LOCK_WAIT_MS - waited;
+		}
+		bcSimSleepMs(delay);
+		waited += delay;
 	}
 }
 

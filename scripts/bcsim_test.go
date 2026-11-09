@@ -16,7 +16,8 @@ import (
 )
 
 // TestBcSimLockFailures runs the real C implementation with operation-specific
-// faults. The Windows adapter double checks error capture, not Windows races.
+// faults. The Windows adapter double checks retry budgets and error capture,
+// not Windows filesystem races; native integration still exercises real peers.
 func TestBcSimLockFailures(t *testing.T) {
 	for _, compiler := range []string{"gcc", "clang"} {
 		t.Run(compiler, func(t *testing.T) {
@@ -43,6 +44,7 @@ func TestBcSimLockFailures(t *testing.T) {
 typedef uint32_t DWORD;
 #define WINAPI
 #define ERROR_SUCCESS 0u
+#define ERROR_ACCESS_DENIED 5u
 extern unsigned long bcSimProbeDosError;
 #define _doserrno bcSimProbeDosError
 DWORD GetLastError(void);
@@ -58,7 +60,10 @@ void Sleep(DWORD ms);
 					build.Dir = root
 					out, err := build.CombinedOutput()
 					require.NoError(t, err, "%s", out)
-					for _, scenario := range []string{"success", "contention", "timeout", "mkdir_error", "unlock_error", "header_and_unlock_error", "write_error"} {
+					for _, scenario := range []string{
+						"success", "contention", "timeout", "mkdir_error", "unlock_error", "header_and_unlock_error", "write_error",
+						"transient_mkdir_denied", "transient_write_denied", "denied_until_deadline", "contention_then_denied", "other_native_error", "other_errno",
+					} {
 						t.Run(scenario, func(t *testing.T) {
 							// Separate run directories keep bus files and executables
 							// independent, including Windows executable lifetimes.
@@ -68,12 +73,17 @@ void Sleep(DWORD ms);
 							command.Dir, command.Stdout, command.Stderr = work, &stdout, &stderr
 							err := command.Run()
 							require.NoError(t, err, "stdout: %s\nstderr: %s", stdout.String(), stderr.String())
+							windows := adapter == "windows_adapter_double" || runtime.GOOS == "windows"
+							transientDenial := scenario == "transient_mkdir_denied" || scenario == "transient_write_denied" || scenario == "denied_until_deadline"
 							failedOperation := ""
 							switch scenario {
-							case "mkdir_error", "write_error":
+							case "mkdir_error", "write_error", "contention_then_denied", "other_native_error", "other_errno":
 								failedOperation = "mkdir"
 							case "unlock_error", "header_and_unlock_error":
 								failedOperation = "rmdir"
+							}
+							if transientDenial && !windows {
+								failedOperation = "mkdir"
 							}
 							if failedOperation == "" {
 								assert.Empty(t, stderr.String(), "successful or ordinary contended locking stays quiet")
@@ -84,15 +94,42 @@ void Sleep(DWORD ms);
 								assert.Contains(t, stderr.String(), "pid=4242")
 								assert.Contains(t, stderr.String(), "errno=")
 								assert.Contains(t, stderr.String(), "compiler=")
-								if adapter == "windows_adapter_double" || runtime.GOOS == "windows" {
+								if windows {
 									assert.Contains(t, stderr.String(), "win32_error=")
 									assert.Contains(t, stderr.String(), "crt_os_error=")
+									if failedOperation == "mkdir" {
+										nativeError := "5"
+										if scenario == "other_native_error" {
+											nativeError = "32"
+										}
+										assert.Contains(t, stderr.String(), "win32_error="+nativeError+" ", "sleep and formatting must not replace the final filesystem error")
+										assert.Contains(t, stderr.String(), "crt_os_error="+nativeError+" ")
+									}
 								}
 							}
-							if scenario == "mkdir_error" {
-								assert.Contains(t, stdout.String(), "mkdir_calls=1", "unexpected mkdir failures are not retried")
+							// Assert the complete wait sequence's totals, including a
+							// shortened final sleep and shared contention/denial budget.
+							switch {
+							case windows && scenario == "transient_mkdir_denied":
+								assert.Contains(t, stdout.String(), "mkdir_calls=2 sleep_calls=1 slept_ms=100 first_sleep_ms=100 last_sleep_ms=100")
+							case windows && scenario == "transient_write_denied":
+								assert.Contains(t, stdout.String(), "mkdir_calls=3 sleep_calls=1 slept_ms=100 first_sleep_ms=100 last_sleep_ms=100")
+							case windows && (scenario == "mkdir_error" || scenario == "denied_until_deadline"):
+								assert.Contains(t, stdout.String(), "mkdir_calls=4 sleep_calls=3 slept_ms=250 first_sleep_ms=100 last_sleep_ms=50")
+							case windows && scenario == "write_error":
+								assert.Contains(t, stdout.String(), "mkdir_calls=5 sleep_calls=3 slept_ms=250 first_sleep_ms=100 last_sleep_ms=50")
+							case !windows && (scenario == "write_error" || scenario == "transient_write_denied"):
+								assert.Contains(t, stdout.String(), "mkdir_calls=2 sleep_calls=0 slept_ms=0", "opening succeeds before the write fails without retry")
+							case scenario == "contention_then_denied":
+								if windows {
+									assert.Contains(t, stdout.String(), "mkdir_calls=5 sleep_calls=4 slept_ms=250 first_sleep_ms=10 last_sleep_ms=40")
+								} else {
+									assert.Contains(t, stdout.String(), "mkdir_calls=2 sleep_calls=1 slept_ms=10 first_sleep_ms=10 last_sleep_ms=10")
+								}
+							case scenario == "mkdir_error" || transientDenial || scenario == "other_native_error" || scenario == "other_errno":
+								assert.Contains(t, stdout.String(), "mkdir_calls=1 sleep_calls=0 slept_ms=0", "only Windows access denied may gain a retry")
 							}
-							if scenario == "success" || scenario == "contention" {
+							if scenario == "success" || scenario == "contention" || (windows && transientDenial) {
 								data, err := os.ReadFile(filepath.Join(work, "bc.bus"))
 								require.NoError(t, err)
 								assert.Equal(t, []byte{0x41, 0x00, 0xff}, data, "diagnostics never enter the binary bus")
