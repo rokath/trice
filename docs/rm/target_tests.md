@@ -95,7 +95,7 @@ The native filesystem test detects whether the actual volume is case-sensitive. 
 
 ### 1.4. <a id="shared-tool-rules"></a>Shared tool rules
 
-All three systems use [test-tools.env](../../scripts/test-tools.env) for exact tool versions and release checksums, and the [npm lockfile](../../scripts/testcheck/package-lock.json) for Node dependencies. Before downloading anything, startup shows the active versions, required pins, reusable installations/caches, and additional installations. Complete matching CMake, GCC, LLVM and ARM packages stay at their existing locations; large toolchains are not copied into the checkout.
+All three systems use [test-tools.env](../../scripts/test-tools.env) for tool requirements and the [npm lockfile](../../scripts/testcheck/package-lock.json) for Node dependencies. Go automatically uses the latest stable release: startup reads its version and archive checksums from `go.dev`, then keeps that selection for all steps in the run. This metadata lookup needs network access even with a warm cache; a failed lookup stops setup with a diagnostic. Other tools retain their declared versions and checksums. Before downloading tool archives, startup shows the active versions, required pins, reusable installations/caches, and additional installations. Complete matching CMake, GCC, LLVM and ARM packages stay at their existing locations; large toolchains are not copied into the checkout.
 
 The startup table shows required, system and cached versions. `Location` is the selected or planned source; `Size` estimates additional installed space in MB/GB. Missing prerequisites also appear in the table. Shared WinLibs packages are budgeted once. Detailed paths remain in the run's tool-plan file.
 

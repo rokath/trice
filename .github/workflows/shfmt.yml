@@ -31,6 +31,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: ${{ steps.versions.outputs.go }}
+          check-latest: true
 
       - name: Run shfmt in check mode
         run: |

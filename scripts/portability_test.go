@@ -156,6 +156,15 @@ func scriptFixture(t *testing.T, scripts ...string) string {
 			t.FailNow()
 		}
 		writeFixture(t, root, name, string(data))
+		if name == "scripts/test-tools.env" {
+			// Installer fixtures use deterministic releases and never contact the
+			// live release service. Resolver cases restore the stable manifest.
+			config := strings.Replace(string(data), "TRICE_GO_VERSION=stable", "TRICE_GO_VERSION=1.27.3", 1)
+			for _, platform := range []string{"LINUX_AMD64", "LINUX_ARM64", "DARWIN_AMD64", "DARWIN_ARM64", "WINDOWS_AMD64", "WINDOWS_ARM64"} {
+				config += "\nTRICE_GO_SHA_" + platform + "=" + strings.Repeat("a", 64) + "\n"
+			}
+			writeFixture(t, root, name, config)
+		}
 		if name == "scripts/_105_setup_test_tools.sh" {
 			// Legacy installer/orchestrator cases isolate their own consent.
 			// Startup-plan tests explicitly reload the real planner afterwards.
@@ -215,8 +224,10 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		"TRICE_TEST_SETUP_APPROVED":  "0",
 		"TRICE_TEST_SETUP_CANCELLED": "0",
 		// An outer suite's chosen budget must not change fixture expectations.
-		"TRICE_GO_TEST_TIMEOUT":  "2h",
-		"TRICE_BIND_INTEGRATION": "0", "TRICE_TEST_NPM_DIR": "",
+		"TRICE_GO_TEST_TIMEOUT": "2h",
+		// A parent suite's selected stable release must not enter tool doubles.
+		"TRICE_GO_RESOLVED_VERSION": "",
+		"TRICE_BIND_INTEGRATION":    "0", "TRICE_TEST_NPM_DIR": "",
 		"TRICE_TEST_FIXED_HOST": "0",
 		// Outer preparation must not lend a plan, browser or formatter selection
 		// to disposable tool doubles or silently authorize real installations.
@@ -229,6 +240,11 @@ func runFixture(t *testing.T, root, command string, overrides map[string]string)
 		// an installed host Cppcheck. Case-folded filtering below also removes
 		// inherited ProgramFiles aliases on Unix; discovery cases opt in explicitly.
 		"PROGRAMFILES": "",
+	}
+	// Release metadata belongs to the disposable fixture, including failure
+	// cases that intentionally omit one of the official platform checksums.
+	for _, platform := range []string{"LINUX_AMD64", "LINUX_ARM64", "DARWIN_AMD64", "DARWIN_ARM64", "WINDOWS_AMD64", "WINDOWS_ARM64"} {
+		env["TRICE_GO_SHA_"+platform] = ""
 	}
 	reportTool := filepath.Join(root, "bin", "testcheck-fixture")
 	if _, err := os.Stat(reportTool); err == nil {

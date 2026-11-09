@@ -63,6 +63,7 @@ jobs:
         uses: actions/setup-go@v7
         with:
           go-version: stable
+          check-latest: true
 
       # Step 3: Initialize the CodeQL analysis environment (v4)
       - name: Initialize CodeQL (Go)
@@ -170,6 +171,7 @@ jobs:
         uses: actions/setup-go@v7
         with:
           go-version: stable
+          check-latest: true
 
       - name: Build and install trice tool into PATH
         shell: bash

@@ -49,12 +49,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      # 2) Install Go (recommended: read version from go.mod)
+      # 2) Install the latest stable Go release for the tests.
       # actions/setup-go exists in newer majors; using the major tag keeps you on supported updates.
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version-file: go.mod
+          go-version: stable
+          check-latest: true
           cache: true
 
       # 3) Run tests and generate a coverage profile (Go native format)

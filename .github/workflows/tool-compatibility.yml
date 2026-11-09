@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: stable
+          check-latest: true
       - name: Check host code with the current Go release
         run: |
           mkdir -p temp/log
