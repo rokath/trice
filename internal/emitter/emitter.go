@@ -54,11 +54,15 @@ var (
 	// It is used by decoder table-mode output coordination.
 	NextLine bool
 
-	// Ban contains channel tags to suppress.
+	// Ban contains tag groups or exact weights to exclude from selection.
 	Ban channelArrayFlag
 
-	// Pick contains channel tags to display exclusively.
+	// Pick selects tag groups or exact weights, extending an explicit threshold.
 	Pick channelArrayFlag
+
+	// LogLevelPassed distinguishes explicit all from the omitted option, whose
+	// default all must preserve standalone pick/ban selection.
+	LogLevelPassed bool
 
 	// UserLabel adds user-defined tag names at runtime.
 	UserLabel ArrayFlag
@@ -227,42 +231,52 @@ func ApplicationEventAllowed(candidate string) bool {
 		candidate = untaggedTag
 		index = tagIndex(Tags, candidate)
 	}
-	if index < 0 || (Pick != nil && !slices.Contains(Pick, "all") && !tagSelectorMatches(Pick, candidate)) {
+	if index < 0 {
 		return false
 	}
-	if Ban != nil && (slices.Contains(Ban, "all") || tagSelectorMatches(Ban, candidate)) {
+	// Standalone selectors retain their set semantics; a threshold combines
+	// this decision by OR for pick and AND NOT for ban.
+	selected := (Pick == nil || slices.Contains(Pick, "all") || tagSelectorMatches(Pick, candidate)) &&
+		(Ban == nil || (!slices.Contains(Ban, "all") && !tagSelectorMatches(Ban, candidate)))
+	return logLevelSelectionAllowed(index, selected)
+}
+
+// UnclassifiedFragmentAllowed applies filter combinations to byte-oriented
+// decoder chunks, which do not have application event boundaries. Unknown raw
+// prefixes remain unclassified rather than becoming synthetic untagged events.
+func UnclassifiedFragmentAllowed(b []byte) bool {
+	if len(b) == 0 {
 		return false
 	}
+	// Only recognized prefixes have a weight; unknown byte streams keep the
+	// legacy threshold behavior without acquiring an untagged event identity.
+	index := -1
+	prefix, _, found := strings.Cut(string(b), ":")
+	if found {
+		index = tagIndex(Tags, prefix)
+	}
+	return logLevelSelectionAllowed(index, BanOrPickFilter(b) != 0)
+}
+
+// logLevelSelectionAllowed combines the base threshold with selector results
+// for both typed events and raw fragments. An index below zero denotes raw
+// text without a recognized weight, which passes the legacy threshold check.
+func logLevelSelectionAllowed(index int, selected bool) bool {
 	if LogLevel == "off" {
 		return false
 	}
 	if LogLevel == "all" {
-		return true
+		return LogLevelPassed || selected
 	}
 	threshold, err := logLevelWeight(LogLevel)
-	return err == nil && Tags[index].weight >= threshold
-}
-
-// UnclassifiedFragmentAllowed preserves the legacy filtering of byte-oriented
-// decoder chunks, which do not have application event boundaries. Unknown raw
-// prefixes remain unclassified rather than becoming synthetic untagged events.
-func UnclassifiedFragmentAllowed(b []byte) bool {
-	if BanOrPickFilter(b) == 0 || LogLevel == "off" {
+	if err != nil {
 		return false
 	}
-	if LogLevel == "all" {
-		return true
+	passesLevel := index < 0 || Tags[index].weight >= threshold
+	if Pick != nil {
+		return passesLevel || selected
 	}
-	prefix, _, found := strings.Cut(string(b), ":")
-	if !found {
-		return true
-	}
-	index := tagIndex(Tags, prefix)
-	if index < 0 {
-		return true
-	}
-	threshold, err := logLevelWeight(LogLevel)
-	return err == nil && Tags[index].weight >= threshold
+	return passesLevel && selected
 }
 
 // tagSelectorMatches combines named groups and exact effective weights by OR.

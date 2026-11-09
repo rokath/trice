@@ -607,6 +607,10 @@ ensure_cppcheck_test_tool() {
   echo analyzer >> dependent-tools
 }
 prepare_pinned_native_tools() { return 0; }
+ensure_pinned_test_tools() {
+  [ "$*" = pandoc ] || return 98
+  echo converter >> dependent-tools
+}
 prepare_native_test_tools || exit $?
 cmake --version || exit $?
 echo completed
@@ -626,6 +630,9 @@ echo completed
 				assert.Contains(t, out, "Selected cmake:")
 				assert.Contains(t, out, "completed")
 				assert.FileExists(t, filepath.Join(root, "dependent-tools"))
+				dependentTools, err := os.ReadFile(filepath.Join(root, "dependent-tools"))
+				assert.NoError(t, err)
+				assert.Contains(t, string(dependentTools), "converter\n", "native preparation must select Pandoc before the Go suite")
 				assert.FileExists(t, filepath.Join(root, "compiler-probe"))
 			} else {
 				assert.NoFileExists(t, filepath.Join(root, "dependent-tools"))
@@ -4124,7 +4131,10 @@ const expressionText = expressions.replace(/<[^>]+>/g, '');
 for (const example of ['printf(', 'unwrap(47999-ts,48000)/48', 'delta(unwrap(47999-ts,48000))/48']) {
   assert.ok(expressionText.includes(example), 'the PDF chapter must contain the actual example: ' + example);
 }
-assert.match(stamps, /href="#rm-stamp_expressions--heading-\d+"/, 'included chapter links stay inside the PDF');
+// mdtoc anchors and generated heading IDs are both valid if the target exists.
+const unwrapLink = stamps.match(/href="#(rm-stamp_expressions--[^"]+)"/);
+assert.ok(unwrapLink, 'included chapter links stay inside the PDF');
+assert.ok(expressions.includes('id="' + unwrapLink[1] + '"'), 'the unwrap link targets an existing anchor in the included chapter');
 assert.ok(!expressions.includes('<summary>Contents</summary>'), 'the book uses its global contents');
 const introduction = fs.readFileSync('temp/manual-pdf/chapters/HEADER.md', 'utf8');
 const stampContents = fs.readFileSync('temp/manual-pdf/_contents.md', 'utf8');

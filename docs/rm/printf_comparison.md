@@ -70,7 +70,7 @@ Write calls without numeric IDs, for example `trice("ready\n");`. [Bind](bind.md
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
-  * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));
+  * `trice( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
   * The long count field can encode up to 32767 payload bytes, but the current target buffer macros impose a lower limit; see [Binary Encoding](binary_encoding.md). Supporting more than 12 values per Trice macro would require extending the target and host code.
 * Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to intense compile time checks.
   * This length code extension can be done automatically using `trice u -addParamCount`. This is not needed anymore:

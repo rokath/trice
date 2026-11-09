@@ -100,6 +100,7 @@ func logInit() {
 	visRules = nil
 	emitter.Ban = nil
 	emitter.Pick = nil
+	emitter.LogLevelPassed = false
 	emitter.UserLabel = nil
 	fsScLog = flag.NewFlagSet("log", flag.ContinueOnError) // sub-command
 	flagTriceAliases(fsScLog)
@@ -119,7 +120,7 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
-	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Filter application events at or above a priority threshold. The value can be "all", "off", a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority; "off" suppresses all application events.
+	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Set the base application-event priority threshold: a registered tag or alias, or an integer from 0 to 999. Higher values mean higher priority. With a threshold, -pick additionally includes matching events and -ban excludes matching events. Explicit "all" shows every application event and explicit "off" hides every application event, ignoring -pick/-ban. When omitted, standalone -pick/-ban selection applies.
 A typical use case is "-logLevel wrn". Native events without a recognized format-string tag use the built-in "untagged" group. Macro aliases also resolve tags from their names and current explicit overrides. Selection occurs once per event, before location information (-liFmt), target stamps (-ts0, -ts16, -ts32), prefix, suffix, and visualization are added.
 Invalid values are rejected before the input channel is opened. User tags are registered before this value is resolved. Built-in and user-defined tag names ignore case; custom tag metadata uses uppercase names. The equivalent spelling -loglevel accepts the same values. See also CLI switches -utag, -pick and -ban.`)
 	fsScLog.StringVar(&emitter.LogLevel, "loglevel", "all", "Alias for -logLevel; accepts all, off, a registered tag or alias, or an integer weight from 0 to 999.")
@@ -199,10 +200,10 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagLogLIList(fsScLog)
 	flagIPAddress(fsScLog)
-	fsScLog.Var(&emitter.Ban, "ban", `Suppress a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" suppresses every message and "off" suppresses none.
+	fsScLog.Var(&emitter.Ban, "ban", `Suppress a tag group or an exact effective integer weight (0..999). With a -logLevel threshold, exclude matches from its selection; explicit -logLevel all/off takes precedence. Supply one selector per option and repeat the option to exclude any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" suppresses every message and "off" suppresses none.
 Example: "-ban dbg -ban wrn -ban 200" suppresses Debug, Warning, and every event at weight 200 (not 199 or 201). Empty or invalid selectors are rejected after user tags are registered. Not usable with "-pick". See also "-utag" and "-logLevel".`) // multi flag
-	fsScLog.Var(&emitter.Pick, "pick", `Display only a tag group or an exact effective integer weight (0..999). Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" selects every message and "off" selects none.
-Example: "-pick err -pick wrn -pick 200" displays Error, Warning, and every event at weight 200. This is exact selection; use -loglevel 200 for weight 200 and above. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-utag" and "-logLevel".`) // multi flag
+	fsScLog.Var(&emitter.Pick, "pick", `Select a tag group or an exact effective integer weight (0..999). Without -logLevel, display only matches. With a threshold, additionally include matches below it; explicit -logLevel all/off takes precedence. Supply one selector per option and repeat the option to include any matching group or weight. Colon lists and weight ranges are not supported. Built-in and user-defined tags ignore case. "all" selects every message and "off" selects none.
+Example: "-logLevel info -pick dbg" displays Info and higher, plus Debug. "-pick err -pick wrn -pick 200" alone displays Error, Warning, and every event at exactly weight 200. Empty or invalid selectors are rejected after user tags are registered. Not usable with "-ban". See also "-utag" and "-logLevel".`) // multi flag
 	flagUserLabel(fsScLog)
 	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "none" (may need CLI switch -d16) or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")

@@ -441,7 +441,7 @@ func TestBuiltInTagSelectorsShareWeightsAcrossSpellings(t *testing.T) {
 		{name: "canonical pick selects the group", threshold: "all", pick: channelArrayFlag{"RECEIVE"}, want: true},
 		{name: "mixed-case ban rejects the group", threshold: "all", ban: channelArrayFlag{"ReCeIvE"}},
 		{name: "untagged pick does not select a known mixed-case tag", threshold: "all", pick: channelArrayFlag{"untagged"}},
-		{name: "pick does not bypass the numeric threshold", threshold: "751", pick: channelArrayFlag{"rX"}},
+		{name: "pick restores the group below the numeric threshold", threshold: "751", pick: channelArrayFlag{"rX"}, want: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			s := snapshotEmitterState()

@@ -17,7 +17,7 @@ import (
 // late TX readiness, completion during exit checks, complete draining,
 // locale-independent waits and cleanup after startup/runtime errors.
 func TestAbcDemoCoordinatesNodeLifetimes(t *testing.T) {
-	for _, outcome := range []string{"success", "comma_decimal_locale", "startup_failure", "receiver_failure", "sender_completion_race", "sender_failure_race", "sender_exit_without_done"} {
+	for _, outcome := range []string{"success", "comma_decimal_locale", "startup_failure", "startup_marker_signal", "receiver_failure", "sender_completion_race", "sender_failure_race", "sender_exit_without_done"} {
 		t.Run(outcome, func(t *testing.T) {
 			root := scriptFixture(t, "examples/TriceAbc/demo.sh")
 			// Shell doubles use stable executable names; the integration test
@@ -28,12 +28,23 @@ func TestAbcDemoCoordinatesNodeLifetimes(t *testing.T) {
 				writeFixture(t, root, "examples/TriceAbc/build/"+name, `#!/usr/bin/env bash
 set -eu
 name=${0##*/}
-mkdir -p events/active
-printf '%s\n' "$$" > "events/$name.pid"
-touch "events/active/$name"
+# Install cleanup traps before publishing any PID or activity marker. Failure in
+# another node can make the controller terminate this process immediately.
 trap 'rm -f "events/active/$name"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+# Inject TERM just after marker creation to reproduce startup cleanup without
+# relying on process scheduling.
+touch() {
+  command touch "$@"
+  if [ "$OUTCOME:$name" = startup_marker_signal:N2_tx ] && [ "$1" = "events/active/$name" ]; then
+    command touch events/startup-marker-signalled
+    kill -TERM "$$"
+  fi
+}
+mkdir -p events/active
+printf '%s\n' "$$" > "events/$name.pid"
+touch "events/active/$name"
 wait_marker() { until [ -f "$1" ]; do sleep 0.01; done; }
 if [ "$OUTCOME:$name" = startup_failure:N1_tx ]; then exit 37; fi
 if [ "$name" = N1_tx ]; then
@@ -104,6 +115,10 @@ export -f kill
 bash examples/TriceAbc/demo.sh`
 			}
 			out, err := runFixture(t, root, command, env)
+			if outcome == "startup_marker_signal" {
+				assert.FileExists(t, filepath.Join(root, "examples/TriceAbc/events/startup-marker-signalled"), "termination was injected after the activity marker was created")
+				assert.Contains(t, out, "error: ABC node N2_tx", "the controller detects the interrupted node")
+			}
 			if strings.HasPrefix(outcome, "sender_") {
 				assert.FileExists(t, filepath.Join(root, "examples/TriceAbc/events/exit-probe"))
 			}
@@ -122,7 +137,7 @@ bash examples/TriceAbc/demo.sh`
 			}
 			active, readErr := os.ReadDir(filepath.Join(root, "examples/TriceAbc/events/active"))
 			assert.NoError(t, readErr)
-			assert.Empty(t, active, "every started node is reaped on success and failure")
+			assert.Empty(t, active, "every node removes its activity marker on exit")
 			markers, globErr := filepath.Glob(filepath.Join(root, "examples/TriceAbc/build/demo-start.*"))
 			assert.NoError(t, globErr)
 			assert.Empty(t, markers, "stale barriers cannot release another run")

@@ -597,6 +597,8 @@ cd examples/TriceAbc/BcSimChk
 
 Its [build script](../../examples/TriceAbc/BcSimChk/build.sh) compiles `main.c` and `../BcSim/BcSim.c`; `CC` and `CFLAGS` allow experiments, such as `CFLAGS='-DBCSIM_READ_USES_LOCK=1' ./build.sh`. The demo starts four participants with random byte blocks and shows `bc.log` and a bus hex dump. The reusable library files are `BcSim_config.h`, `BcSim.h`, and `BcSim.c`; BcSimChk is not needed by applications reusing the transport.
 
+The demo exits with a failure status if any participant fails. For a lock failure, save the complete `BcSim lock failure:` line from stderr when reporting it. For example, `operation=mkdir lock="bc.bus.lock" participant="D"` identifies D's failed attempt to create the lock directory. The same line includes the process ID, compiler and system error codes; Windows reports both Win32 and C runtime codes. Ordinary lock contention waits silently until acquisition or timeout.
+
 This is a local demonstration medium, not high-performance IPC or a real embedded link. The bus grows until removed, only finitely many self-write ranges are remembered, and a restarted process cannot identify a previous instance's writes. A killed writer can leave a lock directory requiring cleanup. Network filesystems may not offer the same atomic directory and visibility behavior as local filesystems.
 
 ## 12. <a id="host-tests"></a>Host tests

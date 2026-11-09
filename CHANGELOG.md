@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- With a `-logLevel` threshold, `-pick` now additionally includes matches below it; `-ban` excludes matches. Explicit `all`/`off` overrides either selector. Standalone selection is unchanged. See [filter rules and examples](docs/rm/tags_color_and_weights.md#selecting-tags-and-priority).
+
 ## v2.0.0
 
 Changes since **v2.0.0-beta-4** are listed below. For the complete feature set, use the [feature overview](docs/rm/feature_overview.md). Upgrading from 1.x? Read the [migration guide](docs/rm/id_management.md#migrating-1x-scripts-and-projects) before rebuilding.

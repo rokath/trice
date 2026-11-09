@@ -69,6 +69,7 @@ type emitterSnapshot struct {
 	ipAddr        string
 	ipPort        string
 	logLevel      string
+	levelPassed   bool // Explicit all must survive test-state restoration.
 	allStats      bool
 	tagStats      bool
 	ban           channelArrayFlag
@@ -119,6 +120,7 @@ func snapshotEmitterState() emitterSnapshot {
 		ipAddr:        IPAddr,
 		ipPort:        IPPort,
 		logLevel:      LogLevel,
+		levelPassed:   LogLevelPassed,
 		allStats:      AllStatistics,
 		tagStats:      TagStatistics,
 		ban:           append(channelArrayFlag(nil), Ban...),
@@ -140,6 +142,7 @@ func restoreEmitterState(s emitterSnapshot) {
 	IPAddr = s.ipAddr
 	IPPort = s.ipPort
 	LogLevel = s.logLevel
+	LogLevelPassed = s.levelPassed
 	AllStatistics = s.allStats
 	TagStatistics = s.tagStats
 	Ban = append(channelArrayFlag(nil), s.ban...)
@@ -327,7 +330,7 @@ func TestExactWeightSelectorsDoNotActAsThresholds(t *testing.T) {
 		{name: "pick all includes other weights", tag: "above", pick: channelArrayFlag{"all", "200"}, want: true},
 		{name: "ban all excludes other weights", tag: "below", ban: channelArrayFlag{"all", "200"}},
 		{name: "exact pick passes equal minimum threshold", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "200", want: true},
-		{name: "exact pick cannot bypass higher threshold", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "201"},
+		{name: "exact pick restores events below threshold", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "201", want: true},
 		{name: "numeric ban and threshold keep higher weight", tag: "above", ban: channelArrayFlag{"200"}, threshold: "200", want: true},
 		{name: "loglevel off suppresses a numeric pick", tag: "sensor", pick: channelArrayFlag{"200"}, threshold: "off"},
 	} {
@@ -412,6 +415,7 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 	tests := []struct {
 		name, tag, level string
 		pick, ban        channelArrayFlag
+		explicit         bool // Only explicit all overrides standalone selectors.
 		want             bool
 	}{
 		{name: "below numeric threshold", tag: "dbg", level: "500"},
@@ -421,12 +425,12 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 		{name: "tag threshold rejects lower group", tag: "wrn", level: "ERROR"},
 		{name: "no selector all", tag: "dbg", level: "all", want: true},
 		{name: "no selector off", tag: "err", level: "off"},
-		{name: "pick all still applies weight", tag: "dbg", pick: channelArrayFlag{"all"}, level: "err"},
+		{name: "pick all extends below threshold", tag: "dbg", pick: channelArrayFlag{"all"}, level: "err", want: true},
 		{name: "pick selected all", tag: "wrn", pick: channelArrayFlag{"wrn"}, level: "all", want: true},
 		{name: "pick selected off", tag: "wrn", pick: channelArrayFlag{"wrn"}, level: "off"},
-		{name: "pick selected normal", tag: "wrn", pick: channelArrayFlag{"err", "wrn"}, level: "err"},
+		{name: "pick selected below threshold", tag: "wrn", pick: channelArrayFlag{"err", "wrn"}, level: "err", want: true},
 		{name: "pick selected equal", tag: "err", pick: channelArrayFlag{"err", "wrn"}, level: "err", want: true},
-		{name: "pick excludes above threshold", tag: "err", pick: channelArrayFlag{"wrn"}, level: "info"},
+		{name: "pick keeps other groups above threshold", tag: "err", pick: channelArrayFlag{"wrn"}, level: "info", want: true},
 		{name: "pick off selects none", tag: "err", pick: channelArrayFlag{"off"}, level: "all"},
 		{name: "ban selected all", tag: "wrn", ban: channelArrayFlag{"wrn"}, level: "all"},
 		{name: "ban selected off", tag: "wrn", ban: channelArrayFlag{"wrn"}, level: "off"},
@@ -434,6 +438,14 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 		{name: "ban other normal", tag: "err", ban: channelArrayFlag{"wrn"}, level: "err", want: true},
 		{name: "ban all selects none", tag: "err", ban: channelArrayFlag{"all"}, level: "all"},
 		{name: "ban off leaves level active", tag: "dbg", ban: channelArrayFlag{"off"}, level: "info"},
+		{name: "pick off keeps threshold selection", tag: "err", pick: channelArrayFlag{"off"}, level: "info", want: true},
+		{name: "pick misses below threshold", tag: "dbg", pick: channelArrayFlag{"wrn"}, level: "info"},
+		{name: "ban keeps below threshold hidden", tag: "dbg", ban: channelArrayFlag{"err"}, level: "info"},
+		{name: "explicit all ignores pick off", tag: "dbg", pick: channelArrayFlag{"off"}, level: "all", explicit: true, want: true},
+		{name: "explicit all ignores ban all", tag: "err", ban: channelArrayFlag{"all"}, level: "all", explicit: true, want: true},
+		{name: "explicit all ignores named pick", tag: "dbg", pick: channelArrayFlag{"err"}, level: "all", explicit: true, want: true},
+		{name: "explicit all ignores named ban", tag: "err", ban: channelArrayFlag{"err"}, level: "all", explicit: true, want: true},
+		{name: "explicit off ignores pick all", tag: "err", pick: channelArrayFlag{"all"}, level: "off", explicit: true},
 		{name: "unknown tag uses untagged weight", tag: "mgs", level: "500", want: true},
 		{name: "unknown tag rejected above untagged", tag: "mgs", level: "wrn"},
 		{name: "unknown tag selected as untagged", tag: "mgs", pick: channelArrayFlag{"untagged"}, level: "all", want: true},
@@ -445,8 +457,12 @@ func TestApplicationEventAllowedMatrix(t *testing.T) {
 			UserLabel = nil
 			require.NoError(t, AddUserLabels())
 			Pick, Ban, LogLevel = tt.pick, tt.ban, tt.level
+			LogLevelPassed = tt.explicit
 			require.NoError(t, ResolveFilterSelectors())
 			assert.Equal(t, tt.want, ApplicationEventAllowed(tt.tag))
+			if tagIndex(Tags, tt.tag) >= 0 {
+				assert.Equal(t, tt.want, UnclassifiedFragmentAllowed([]byte(tt.tag+":payload")), "recognized CHAR/DUMP prefixes use the same combination rules")
+			}
 		})
 	}
 }
@@ -464,7 +480,7 @@ func TestUnclassifiedFragmentAllowed(t *testing.T) {
 	assert.False(t, UnclassifiedFragmentAllowed([]byte("dbg:low priority")))
 	Pick = channelArrayFlag{"msg"}
 	require.NoError(t, ResolveFilterSelectors())
-	assert.False(t, UnclassifiedFragmentAllowed([]byte("unknown:raw bytes")))
+	assert.True(t, UnclassifiedFragmentAllowed([]byte("unknown:raw bytes")), "unclassified bytes still pass the base threshold")
 	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg and info share the default weight")
 	LogLevel = "msg"
 	assert.True(t, UnclassifiedFragmentAllowed([]byte("msg:accepted")), "msg is admitted at its own weight")
@@ -484,7 +500,9 @@ func TestApplicationEventAllowedUsesConfiguredWeights(t *testing.T) {
 	LogLevel = "600"
 	require.NoError(t, ResolveFilterSelectors())
 	assert.True(t, ApplicationEventAllowed("motor"), "motor exceeds the numeric threshold")
-	assert.False(t, ApplicationEventAllowed("unknown"), "unknown format tags use overridden untagged weight")
+	assert.True(t, ApplicationEventAllowed("unknown"), "pick restores the overridden untagged group below threshold")
+	Pick = nil
+	assert.False(t, ApplicationEventAllowed("unknown"), "without pick the overridden untagged weight is below threshold")
 	LogLevel = "150"
 	assert.True(t, ApplicationEventAllowed("unknown"), "untagged is admitted exactly on its boundary")
 }

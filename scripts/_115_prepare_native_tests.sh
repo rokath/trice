@@ -352,6 +352,8 @@ prepare_native_test_tools() {
   # Parent-shell installers share consent before the formatter child starts.
   trice_prepare_local_tool cppcheck "$TRICE_TOOL_CPPCHECK_VERSION" ensure_cppcheck_test_tool || return 2
   prepare_pinned_native_tools || return 2
+  # Native Go tests execute the real EPUB converter; standalone lint does not.
+  ensure_pinned_test_tools pandoc || return 2
   trice_prepare_local_tool clang-format "$TRICE_TOOL_CLANG_FORMAT_VERSION" "$SCRIPTS_DIR/_280_format_c_code.sh" setup || return 2
 }
 

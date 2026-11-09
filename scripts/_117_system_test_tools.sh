@@ -21,15 +21,16 @@ trice_system_package_names() {
     apt:clang) printf 'clang-%s clangd-%s\n' "$major" "$major" ;;
     apt:clang-format) printf 'clang-format-%s\n' "$major" ;;
     apt:cppcheck) printf 'cppcheck\n' ;;
-    apt:shfmt | apt:jq | apt:shellcheck | apt:goreleaser) printf '%s\n' "$tool" ;;
+    apt:shfmt | apt:jq | apt:shellcheck | apt:goreleaser | apt:pandoc) printf '%s\n' "$tool" ;;
     brew:Go) printf 'go\n' ;;
     brew:Node.js) printf 'node\n' ;;
-    brew:cmake | brew:gcc | brew:cppcheck | brew:shfmt | brew:jq | brew:shellcheck | brew:goreleaser) printf '%s\n' "$tool" ;;
+    brew:cmake | brew:gcc | brew:cppcheck | brew:shfmt | brew:jq | brew:shellcheck | brew:goreleaser | brew:pandoc) printf '%s\n' "$tool" ;;
     brew:clang) printf 'llvm\n' ;;
     winget:Go) printf 'GoLang.Go\n' ;;
     winget:Node.js) printf 'OpenJS.NodeJS\n' ;;
     winget:cmake) printf 'Kitware.CMake\n' ;;
     winget:cppcheck) printf 'Cppcheck.Cppcheck\n' ;;
+    winget:pandoc) printf 'JohnMacFarlane.Pandoc\n' ;;
     *) return 1 ;;
   esac
 }
