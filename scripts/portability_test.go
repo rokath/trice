@@ -4131,7 +4131,10 @@ const expressionText = expressions.replace(/<[^>]+>/g, '');
 for (const example of ['printf(', 'unwrap(47999-ts,48000)/48', 'delta(unwrap(47999-ts,48000))/48']) {
   assert.ok(expressionText.includes(example), 'the PDF chapter must contain the actual example: ' + example);
 }
-assert.match(stamps, /href="#rm-stamp_expressions--heading-\d+"/, 'included chapter links stay inside the PDF');
+// mdtoc anchors and generated heading IDs are both valid if the target exists.
+const unwrapLink = stamps.match(/href="#(rm-stamp_expressions--[^"]+)"/);
+assert.ok(unwrapLink, 'included chapter links stay inside the PDF');
+assert.ok(expressions.includes('id="' + unwrapLink[1] + '"'), 'the unwrap link targets an existing anchor in the included chapter');
 assert.ok(!expressions.includes('<summary>Contents</summary>'), 'the book uses its global contents');
 const introduction = fs.readFileSync('temp/manual-pdf/chapters/HEADER.md', 'utf8');
 const stampContents = fs.readFileSync('temp/manual-pdf/_contents.md', 'utf8');
