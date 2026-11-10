@@ -36,7 +36,7 @@ Die Tests sollen auf Windows, Linux und macOS schneller und weiterhin verlässli
 
 ## 1. <a id="hinweis"></a>Hinweis
 
-Um die Test-Logs geräteübergreifend und auch in ihrer Veränderung besser vergleichen zu können, sollen zukünftig keine Zufallsnamen mehr verwendet werden. Die Logs sollen im temp/log Folder einfach unter testAll bzw. l432 angelegt werden und intern auch keine Zufallsnamen haben. Wenn ein Testlauf beendet wird, auch abgebrochen, dann soll ein zip mit Datum und Uhrzeit mit Sekunde und OS im Namen erstellt werden für die Archivierung. Wenn ein neuer Test angestoßen wird, werden einfach alle Files im `./temp/log/` Folder gelöscht, so dass nur die zip-Files mit der Vergangenheit bleiben.
+Um die Test-Logs geräteübergreifend und auch in ihrer Veränderung besser vergleichen zu können, sollen zukünftig keine Zufallsnamen mehr verwendet werden. Die Logs sollen im temp/log Folder einfach unter testAll bzw. l432 angelegt werden aber am besten pro Testlauf nur einen Folder mit Subfolderen und intern auch keine Zufallsnamen haben. Wenn ein Testlauf beendet wird, auch abgebrochen, dann soll ein zip mit Datum und Uhrzeit mit Sekunde und OS im Namen erstellt werden für die Archivierung. Wenn ein neuer Test angestoßen wird, werden einfach alle Files im `./temp/log/` Folder gelöscht, so dass nur die zip-Files mit der Vergangenheit bleiben. In dem zip sollen auch die zugehörigen Konsolenausgaben, nutzbar als Überblick, enthalten sein.
 
 ## 2. <a id="empfehlung"></a>Empfehlung
 
