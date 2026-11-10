@@ -7,33 +7,38 @@ Die Tests sollen auf Windows, Linux und macOS schneller und weiterhin verlässli
 <h2>ToC</h2>
 <!-- mdtoc -->
 
-- [1. Empfehlung](#empfehlung)
-- [2. Abarbeitungsstufen](#abarbeitungsstufen)
-- [3. Nächster Auftrag und Freigabe](#nächster-auftrag-und-freigabe)
-- [4. Anhang A Messdaten und Vergleich](#anhang-a-messdaten-und-vergleich)
-  - [4.1. Bisherige Ausgangsbefunde](#bisherige-ausgangsbefunde)
-  - [4.2. Wichtige Details des Windows Laufs](#wichtige-details-des-windows-laufs)
-  - [4.3. Geplanter Vergleich auf demselben Dual Boot PC](#geplanter-vergleich-auf-demselben-dual-boot-pc)
-- [5. Anhang B Stufendetails](#anhang-b-stufendetails)
-  - [5.1. Messdaten und Testabdeckung erfassen](#messdaten-und-testabdeckung-erfassen)
-  - [5.2. Zuschnitt und Reihenfolge entscheiden](#zuschnitt-und-reihenfolge-entscheiden)
-  - [5.3. Toolcache und Fortschritt absichern](#toolcache-und-fortschritt-absichern)
-  - [5.4. Mehrfachausführungen bewerten und reduzieren](#mehrfachausführungen-bewerten-und-reduzieren)
-  - [5.5. PC Ausführungskosten verringern](#pc-ausführungskosten-verringern)
-  - [5.6. Vorhandene Worker Parallelisierung abstimmen](#vorhandene-worker-parallelisierung-abstimmen)
-  - [5.7. Teilweise Aufteilung in CI Jobs erproben](#teilweise-aufteilung-in-ci-jobs-erproben)
-  - [5.8. Ergebnisse abnehmen und dokumentieren](#ergebnisse-abnehmen-und-dokumentieren)
-  - [5.9. Compilerabdeckung gesondert entscheiden](#compilerabdeckung-gesondert-entscheiden)
-- [6. Anhang C Jobaufteilung und technische Grenzen](#anhang-c-jobaufteilung-und-technische-grenzen)
-  - [6.1. Bedienung und Pflege begrenzen](#bedienung-und-pflege-begrenzen)
-  - [6.2. Verbindliche Grenzen](#verbindliche-grenzen)
-- [7. Anhang D Entscheidungen und Fortschritt](#anhang-d-entscheidungen-und-fortschritt)
-- [8. Anhang E Vollständige ursprüngliche Übergabe](#anhang-e-vollständige-ursprüngliche-übergabe)
+- [1. Hinweis](#hinweis)
+- [2. Empfehlung](#empfehlung)
+- [3. Abarbeitungsstufen](#abarbeitungsstufen)
+- [4. Nächster Auftrag und Freigabe](#nächster-auftrag-und-freigabe)
+- [5. Anhang A Messdaten und Vergleich](#anhang-a-messdaten-und-vergleich)
+  - [5.1. Bisherige Ausgangsbefunde](#bisherige-ausgangsbefunde)
+  - [5.2. Wichtige Details des Windows Laufs](#wichtige-details-des-windows-laufs)
+  - [5.3. Geplanter Vergleich auf demselben Dual Boot PC](#geplanter-vergleich-auf-demselben-dual-boot-pc)
+- [6. Anhang B Stufendetails](#anhang-b-stufendetails)
+  - [6.1. Messdaten und Testabdeckung erfassen](#messdaten-und-testabdeckung-erfassen)
+  - [6.2. Zuschnitt und Reihenfolge entscheiden](#zuschnitt-und-reihenfolge-entscheiden)
+  - [6.3. Toolcache und Fortschritt absichern](#toolcache-und-fortschritt-absichern)
+  - [6.4. Mehrfachausführungen bewerten und reduzieren](#mehrfachausführungen-bewerten-und-reduzieren)
+  - [6.5. PC Ausführungskosten verringern](#pc-ausführungskosten-verringern)
+  - [6.6. Vorhandene Worker Parallelisierung abstimmen](#vorhandene-worker-parallelisierung-abstimmen)
+  - [6.7. Teilweise Aufteilung in CI Jobs erproben](#teilweise-aufteilung-in-ci-jobs-erproben)
+  - [6.8. Ergebnisse abnehmen und dokumentieren](#ergebnisse-abnehmen-und-dokumentieren)
+  - [6.9. Compilerabdeckung gesondert entscheiden](#compilerabdeckung-gesondert-entscheiden)
+- [7. Anhang C Jobaufteilung und technische Grenzen](#anhang-c-jobaufteilung-und-technische-grenzen)
+  - [7.1. Bedienung und Pflege begrenzen](#bedienung-und-pflege-begrenzen)
+  - [7.2. Verbindliche Grenzen](#verbindliche-grenzen)
+- [8. Anhang D Entscheidungen und Fortschritt](#anhang-d-entscheidungen-und-fortschritt)
+- [9. Anhang E Vollständige ursprüngliche Übergabe](#anhang-e-vollständige-ursprüngliche-übergabe)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
 
-## 1. <a id="empfehlung"></a>Empfehlung
+## 1. <a id="hinweis"></a>Hinweis
+
+Um die Test-Logs geräteübergreifend und auch in ihrer Veränderung besser vergleichen zu können, sollen zukünftig keine Zufallsnamen mehr verwendet werden. Die Logs sollen im temp/log Folder einfach unter testAll bzw. l432 angelegt werden und intern auch keine Zufallsnamen haben. Wenn ein Testlauf beendet wird, auch abgebrochen, dann soll ein zip mit Datum und Uhrzeit mit Sekunde und OS im Namen erstellt werden für die Archivierung. Wenn ein neuer Test angestoßen wird, werden einfach alle Files im `./temp/log/` Folder gelöscht, so dass nur die zip-Files mit der Vergangenheit bleiben.
+
+## 2. <a id="empfehlung"></a>Empfehlung
 
 Doppelarbeit gezielt reduzieren und für die vollen CI-Läufe eine teilweise Aufteilung auf **vier feste Gruppen** prüfen: allgemeine Prüfungen, Firmware/L432, PC-GCC und PC-Clang. Beim vorhandenen Windows-Lauf entfallen darauf ungefähr **93, 52, 34 und 31 Minuten**. Bei nur drei Gruppen bliebe ein Block von rund **145 Minuten**. Das spricht vorläufig für vier Gruppen; zusätzliche Vorbereitung, Runner-Wartezeit und Gesamtaufwand müssen vor der Entscheidung einbezogen werden.
 
@@ -43,7 +48,7 @@ Ein gemeinsamer Einstieg und eine zentrale Stufenliste bleiben erhalten. Keine e
 
 Dieser Plan ist die **alleinige Arbeitsgrundlage für diese Optimierungsaufgabe**. Er enthält die vollständige bisherige Übergabe als historischen Text in Anhang E. Die Regeln in [AGENTS.md](../../AGENTS.md) gelten weiterhin.
 
-## 2. <a id="abarbeitungsstufen"></a>Abarbeitungsstufen
+## 3. <a id="abarbeitungsstufen"></a>Abarbeitungsstufen
 
 Stufe | Aufgabe                                  | Ergebnis
 ----- | ---------------------------------------- | ----------------------------------------------
@@ -59,15 +64,15 @@ O1    | Compilerabdeckung gesondert bewerten     | Optional; keine automatische 
 
 P1 und P2 bilden die erste Untersuchung und Entscheidung. P3 bis P6 sind getrennt prüfbare Maßnahmen. P7 kann danach vorgezogen werden, wenn dies den Intel-Nachweis schneller ermöglicht; es muss nicht auf alle anderen Optimierungen warten. Die Stufendetails und Abnahmekriterien stehen in Anhang B, der Jobvergleich in Anhang C.
 
-## 3. <a id="nächster-auftrag-und-freigabe"></a>Nächster Auftrag und Freigabe
+## 4. <a id="nächster-auftrag-und-freigabe"></a>Nächster Auftrag und Freigabe
 
 Empfehlung für den nächsten Auftrag: **P1 bearbeiten und P2 als konkrete Entscheidungsvorlage ausarbeiten.** Dabei zuerst die vorhandenen Logs nutzen. Zusätzliche notwendige Messläufe und die danach umzusetzende Stufe getrennt benennen. Der inzwischen erfasste Debian-Lauf auf demselben Dual-Boot-PC wird in P1 als besonders hilfreicher Vergleich berücksichtigt. Die detaillierten MacBook-M4-Pro-Daten folgen später.
 
 Aktuell ist ausschließlich dieses Plan-Dokument beauftragt. Es wurden keine neuen Tests oder Benchmarks gestartet und keine Testskripte oder CI-Workflows geändert. „P4 konkretisieren“ bedeutet Planarbeit; „P4 umsetzen“ beauftragt die betreffende Stufe. Teststreichungen, Änderungen der Compilerabdeckung, vollständige Abschlussläufe, Git-Ausführung und Release-Aktionen benötigen weiterhin ihre jeweilige ausdrückliche Beauftragung.
 
-## 4. <a id="anhang-a-messdaten-und-vergleich"></a>Anhang A Messdaten und Vergleich
+## 5. <a id="anhang-a-messdaten-und-vergleich"></a>Anhang A Messdaten und Vergleich
 
-### 4.1. <a id="bisherige-ausgangsbefunde"></a>Bisherige Ausgangsbefunde
+### 5.1. <a id="bisherige-ausgangsbefunde"></a>Bisherige Ausgangsbefunde
 
 Bei der bisherigen Bestandsaufnahme lag der Checkout auf `wip`, HEAD `5f1d0bcde105bb61bae0f78a15fd23f6d20745fa`. Gegenüber dem in der Übergabe genannten Stand `3719635e` waren nur Changelog und Übergabe hinzugekommen beziehungsweise geändert; Testcode und CI entsprachen weiterhin diesem Ausgangsstand. Beim Eintragen der Debian-Daten liegt der Checkout auf `wip`, HEAD `f713ceab876bdbaeaffe862745743632a6d5a63e`; der Commit des Debian-Testlaufs ist im übermittelten Konsolenauszug nicht enthalten.
 
@@ -88,7 +93,7 @@ Die Übergabe dokumentiert für CI vollständige PASS-Läufe auf Linux, Windows 
 
 Lokale Testzeit, CI-Jobdauer und die ungefähre M4-Pro-Angabe werden nicht unmittelbar als Geschwindigkeitsverhältnis gewertet. Der lokale Windows-/Debian-Vergleich auf derselben Hardware wird unten gesondert ausgewiesen. P1 ordnet Commit, Umfang, Worker, Toolversionen und Cachezustand weiter zu.
 
-### 4.2. <a id="wichtige-details-des-windows-laufs"></a>Wichtige Details des Windows Laufs
+### 5.2. <a id="wichtige-details-des-windows-laufs"></a>Wichtige Details des Windows Laufs
 
 - Tatsächlich gewählte Compiler: **WinLibs GCC 16.2.0**, **Clang 23.1.3**, Target `x86_64-w64-windows-gnu`; ARM-GCC **15.2.1**. CMake **4.4.4** wurde wiederverwendet.
 - Die anfänglichen `INCOMPLETE`-Meldungen zu TDM-GCC 10.3.0 und systemweitem LLVM 21.1.7 betreffen verworfene Kandidaten. Die anschließenden Laufzeitproben mit den ausgewählten Compilern und der vollständige Lauf bestanden.
@@ -110,7 +115,7 @@ TestPCCacheOverlayRealCGOBuilds           | nicht ausgewählt | 88,81    | 89,19
 
 Gleiche Testnamen belegen hier wiederholte Ausführung, aber nicht automatisch identische Bedingungen oder verzichtbare Nachweise. Einzeltest- und Paketzeiten können sich durch Parallelität oder Verschachtelung überlappen und dürfen nicht ungeprüft addiert werden. Die Rohdaten stammen aus den vorhandenen JSON-Dateien der Stufen 515, 540 und 550 im oben genannten Laufverzeichnis.
 
-### 4.3. <a id="geplanter-vergleich-auf-demselben-dual-boot-pc"></a>Geplanter Vergleich auf demselben Dual Boot PC
+### 5.3. <a id="geplanter-vergleich-auf-demselben-dual-boot-pc"></a>Geplanter Vergleich auf demselben Dual Boot PC
 
 Der Nutzer hat am **2026-11-10 unter Debian auf derselben Hardware wie beim Windows-Lauf** gemessen. Quelle ist der übermittelte Konsolenauszug; Aufruf `./scripts/testAll.sh`, angezeigter Umfang `full`, Host `Linux x86_64`. Formatierung wurde mit `N` abgelehnt. Start **12:02:16 GMT**, Ende **13:18:49 GMT**, reine Testzeit **4.593 s = 76 min 33 s**. Vorbereitung: **101 s**, einschließlich interaktiver Auswahl und außerhalb der Testzeit; zusammen **4.694 s = 78 min 14 s**.
 
@@ -195,9 +200,9 @@ Gesamte Testzeit         | 210 min 25 s | 76 min 33 s | 2,75
 
 Noch offen für die Vergleichbarkeit: exakter Commit und Test-/CI-Code-Stand des Debian-Laufs, Debian-Version, Checkout-Dateisystem und Cache-Lage, Shell-Version, wirksame L432-/PC-Worker und innere Build-Budgets, Build-Cache-Zustand, Energieprofil und Hintergrundlast. GCC unterscheidet sich bereits sichtbar (**Windows 16.2.0, Debian 15.2.0**), ebenso Clang (**23.1.3 / 23.1.4**). Die Gesamtdifferenz wird daher nicht als reine Betriebssystemwirkung gewertet. Der Debian-Lauf bleibt ein eigener Cache-Fall; neue Messläufe sind nicht beauftragt. Die detaillierten **MacBook-M4-Pro-Daten folgen später**.
 
-## 5. <a id="anhang-b-stufendetails"></a>Anhang B Stufendetails
+## 6. <a id="anhang-b-stufendetails"></a>Anhang B Stufendetails
 
-### 5.1. <a id="messdaten-und-testabdeckung-erfassen"></a>Messdaten und Testabdeckung erfassen
+### 6.1. <a id="messdaten-und-testabdeckung-erfassen"></a>Messdaten und Testabdeckung erfassen
 
 **P1**
 
@@ -207,7 +212,7 @@ Für die größten Blöcke Vorbereitung, Kompilierung, Logger-/Prozessstarts und
 
 **Ergebnis:** eine kompakte Testlandkarte und Laufzeittabelle für vergleichbare Umfänge. Fehlende Messungen benennen und gegebenenfalls einen gesondert beauftragbaren Messlauf vorschlagen. Keine neuen Benchmarks während der reinen Bestandsaufnahme.
 
-### 5.2. <a id="zuschnitt-und-reihenfolge-entscheiden"></a>Zuschnitt und Reihenfolge entscheiden
+### 6.2. <a id="zuschnitt-und-reihenfolge-entscheiden"></a>Zuschnitt und Reihenfolge entscheiden
 
 **P2**
 
@@ -217,7 +222,7 @@ Den nachfolgenden Drei-/Vier-Gruppen-Vergleich anhand der Testlandkarte bestäti
 
 **Ergebnis:** eine entschiedene Reihenfolge und ein begrenzter Pilotumfang. Eine GCC-Reduktion bleibt eine gesonderte Entscheidung unter O1.
 
-### 5.3. <a id="toolcache-und-fortschritt-absichern"></a>Toolcache und Fortschritt absichern
+### 6.3. <a id="toolcache-und-fortschritt-absichern"></a>Toolcache und Fortschritt absichern
 
 **P3**
 
@@ -227,7 +232,7 @@ Die Fortschrittsanzeige so konkretisieren, dass eine noch laufende letzte Stufe 
 
 **Abnahme:** ein späterer Testfehler erhält verwertbare Vorbereitung und Diagnose. Ein Warmcache-Nachweis muss einen tatsächlichen Restore zeigen. PASS, FAIL und Abbruch bleiben eindeutig.
 
-### 5.4. <a id="mehrfachausführungen-bewerten-und-reduzieren"></a>Mehrfachausführungen bewerten und reduzieren
+### 6.4. <a id="mehrfachausführungen-bewerten-und-reduzieren"></a>Mehrfachausführungen bewerten und reduzieren
 
 **P4**
 
@@ -237,7 +242,7 @@ Erst dann entscheiden, ob identische Integrationsergebnisse wiederverwendet oder
 
 **Abnahme:** Vorher-/Nachher-Zuordnung aller betroffenen Pflichtprüfungen; dieselben Fehler werden weiterhin erkannt. Benannte PASS-Nachweise, fehlende Voraussetzungen, leere Testauswahl und SKIP werden weiter geprüft. Der vereinbarte Coverage-Umfang bleibt vollständig.
 
-### 5.5. <a id="pc-ausführungskosten-verringern"></a>PC Ausführungskosten verringern
+### 6.5. <a id="pc-ausführungskosten-verringern"></a>PC Ausführungskosten verringern
 
 **P5**
 
@@ -247,7 +252,7 @@ Nur kompatible Erwartungen weiter bündeln. Content-basierte [Cache-Overlays](..
 
 **Abnahme:** absichtlich ausgelöste Fehler bleiben auf die ursprüngliche Zeile zurückführbar. Bulk-FAIL behält FAIL, auch wenn die zeilenweise Diagnose besteht. Unterstützte und nicht bündelbare Kanäle sowie Direct-, Deferred- und Combined-Verhalten bleiben abgedeckt.
 
-### 5.6. <a id="vorhandene-worker-parallelisierung-abstimmen"></a>Vorhandene Worker Parallelisierung abstimmen
+### 6.6. <a id="vorhandene-worker-parallelisierung-abstimmen"></a>Vorhandene Worker Parallelisierung abstimmen
 
 **P6**
 
@@ -257,7 +262,7 @@ Unterschiedliche Konfigurationen benötigen getrennte Ausgaben. Compiler- und ID
 
 **Abnahme:** nachvollziehbare Budgets für Windows, Linux, ARM-macOS und Intel-macOS; sichere Begrenzung und Überschreibbarkeit. Keine Ressourcenfehler, verwaisten Prozesse, beschädigten Ausgaben oder verlorene Wiederherstellung.
 
-### 5.7. <a id="teilweise-aufteilung-in-ci-jobs-erproben"></a>Teilweise Aufteilung in CI Jobs erproben
+### 6.7. <a id="teilweise-aufteilung-in-ci-jobs-erproben"></a>Teilweise Aufteilung in CI Jobs erproben
 
 **P7**
 
@@ -267,7 +272,7 @@ Gruppenauswahl und Stufenliste zentral halten. Jeder Job erhält einen eigenen C
 
 **Abnahme:** jede bisher erforderliche Prüfung hat einen Besitzer; keine Gruppe fehlt und kein Test wird allein durch die Aufteilung unbeabsichtigt vervielfacht. Fehlende oder abgebrochene Gruppen erlauben keinen Gesamt-PASS. Abbruch, Wiederherstellung, Artefakte und bestehende erforderliche Check-Namen beziehungsweise ihre notwendige Zuordnung sind geklärt.
 
-### 5.8. <a id="ergebnisse-abnehmen-und-dokumentieren"></a>Ergebnisse abnehmen und dokumentieren
+### 6.8. <a id="ergebnisse-abnehmen-und-dokumentieren"></a>Ergebnisse abnehmen und dokumentieren
 
 **P8**
 
@@ -277,7 +282,7 @@ Die beauftragten finalen Läufe umfassen Windows, Linux, ARM-macOS und Intel-mac
 
 **Abnahme:** dokumentierte PASS-/FAIL-/INCOMPLETE-Ergebnisse des konkreten Stands, keine unbeabsichtigte Abdeckungsänderung und weiterhin verständliche Reproduktion. Release- oder Issue-Aktionen bleiben gesondert zu beauftragen.
 
-### 5.9. <a id="compilerabdeckung-gesondert-entscheiden"></a>Compilerabdeckung gesondert entscheiden
+### 6.9. <a id="compilerabdeckung-gesondert-entscheiden"></a>Compilerabdeckung gesondert entscheiden
 
 **O1, optional**
 
@@ -285,7 +290,7 @@ Den Vorschlag „volle Breite mit Clang, weniger GCC-Varianten“ erst anhand un
 
 **Ergebnis:** konkrete erhaltene und entfallende Kombinationen mit Begründung und notwendigem nativen Nachweis. Ohne ausdrückliche Entscheidung bleibt der GCC-Umfang unverändert.
 
-## 6. <a id="anhang-c-jobaufteilung-und-technische-grenzen"></a>Anhang C Jobaufteilung und technische Grenzen
+## 7. <a id="anhang-c-jobaufteilung-und-technische-grenzen"></a>Anhang C Jobaufteilung und technische Grenzen
 
 Der einfachste zusätzliche Schnitt wären drei Gruppen: allgemeine Prüfungen einschließlich Firmware/L432, PC-GCC und PC-Clang. Beim gemessenen Windows-Lauf enthält die erste Gruppe jedoch bereits **145 min 16 s** an Stufenzeit. Die beiden anderen Gruppen benötigen rund 34 und 31 Minuten. Drei Jobs beseitigen diese Unwucht nicht.
 
@@ -304,7 +309,7 @@ Die Debian-Gruppen summieren sich auf 76 min 32 s, mit 1 Sekunde Differenz zur G
 
 Bei gleich leistungsfähigen, sofort verfügbaren getrennten Runnern wäre der längste bekannte Windows-Block im Viererzuschnitt etwa 93 statt 145 Minuten im Dreierzuschnitt. Das ist ein Verteilungsbeispiel, keine zugesicherte CI-Laufzeit: zusätzliche Vorbereitung, Transfers, Warteschlangen und veränderte Auslastung kommen hinzu. Nach P4 bis P6 muss die Verteilung erneut geprüft werden.
 
-### 6.1. <a id="bedienung-und-pflege-begrenzen"></a>Bedienung und Pflege begrenzen
+### 7.1. <a id="bedienung-und-pflege-begrenzen"></a>Bedienung und Pflege begrenzen
 
 - Ein öffentlicher Einstieg bleibt `scripts/testAll.sh`; ohne Gruppenauswahl läuft weiterhin der ganze gewählte Umfang. Eine mögliche zusätzliche Gruppenauswahl wird in P2 spezifiziert, hier noch kein neuer CLI-Vertrag festgelegt.
 - Die Gruppen leiten sich aus derselben zentralen Stufenliste ab. Keine mehrfach gepflegten Skriptlisten in YAML und Shell, keine eigene Pipeline pro Konfiguration.
@@ -315,7 +320,7 @@ Bei gleich leistungsfähigen, sofort verfügbaren getrennten Runnern wäre der l
 - Artefaktnamen unterscheiden Runner, Architektur, Umfang und Gruppe. Der Gesamtstatus erklärt, welche Gruppen vollständig sind; einzelne erfolgreiche Uploads gelten nicht als Test-PASS.
 - Der Pilot muss auf den bisherigen seriellen Ablauf zurückstellbar bleiben, ohne Tests oder Diagnosen zu entfernen.
 
-### 6.2. <a id="verbindliche-grenzen"></a>Verbindliche Grenzen
+### 7.2. <a id="verbindliche-grenzen"></a>Verbindliche Grenzen
 
 - Zunächst den vorhandenen Testumfang erhalten: `quick` und `full`, GCC und Clang, Insert/Clean und Bind, relevante C/C++-, Kanal- und Ausgabevarianten, Go-Coverage und Race-Prüfung.
 - Keine Tests stillschweigend streichen, Pflichtprüfungen in SKIP umwandeln oder Limits erhöhen, um einen grünen Lauf zu erhalten.
@@ -326,7 +331,7 @@ Bei gleich leistungsfähigen, sofort verfügbaren getrennten Runnern wäre der l
 - Die neueste stabile Go-Version bleibt Vorgabe. Die pro Lauf gewählte Version wird protokolliert und innerhalb des Laufs beibehalten. Versionswechsel zwischen Messungen werden als Vergleichsgrenze ausgewiesen.
 - Kein Refactoring von Produktcode oder Umbau von Toolchains als Nebenarbeit. #786, Release v2.0.1, Tags und Issue-Abschluss sind keine automatischen Folgen dieses Plans.
 
-## 7. <a id="anhang-d-entscheidungen-und-fortschritt"></a>Anhang D Entscheidungen und Fortschritt
+## 8. <a id="anhang-d-entscheidungen-und-fortschritt"></a>Anhang D Entscheidungen und Fortschritt
 
 Punkt                   | Festlegung oder Vorschlag                                     | Status
 ----------------------- | ------------------------------------------------------------- | -----------------------------------
@@ -341,7 +346,7 @@ Nach jeder beauftragten Stufe hier kurz nachtragen: Status und Ergebnis, Entsche
 
 Die bisherige Datei `Codex_Handover.md` kann nach Prüfung der vollständigen Übernahme gelöscht werden; dieser Plan benötigt ihren separaten Inhalt nicht mehr. Sie wurde in dieser Planungsrunde nicht verändert oder gelöscht. `AGENTS.md` verwendet den Dateinamen weiterhin als allgemeines Ziel für künftige Rechnerwechsel; dann genügt eine neue kurze Übergabe, die für diese Aufgabe auf den aktuellen Plan verweist.
 
-## 8. <a id="anhang-e-vollständige-ursprüngliche-übergabe"></a>Anhang E Vollständige ursprüngliche Übergabe
+## 9. <a id="anhang-e-vollständige-ursprüngliche-übergabe"></a>Anhang E Vollständige ursprüngliche Übergabe
 
 Der folgende Text ist die vollständige, unveränderte Übergabe vom 2026-11-10, lediglich als Zitat formatiert. Angaben zu damaligem HEAD, uncommitteten Dateien, Arbeitsstopps und nächsten Schritten beschreiben den damaligen Rechnerwechsel. Der aktuelle Arbeitsstand und die Freigaben richten sich nach dem Hauptteil und dem Fortschritt dieses Plans.
 
