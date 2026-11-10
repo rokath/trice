@@ -2,6 +2,9 @@ module github.com/rokath/trice
 
 go 1.25.0
 
+// Local toolchains and disposable projects are not Trice packages.
+ignore ./temp
+
 require (
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/kr/pretty v0.1.0

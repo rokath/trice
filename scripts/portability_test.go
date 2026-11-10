@@ -1275,6 +1275,86 @@ func TestScratchpadExcludedFromGo(t *testing.T) {
 	}
 }
 
+// TestTemporaryArtifactsExcludedFromGo keeps cached toolchains and disposable
+// projects out of wildcard discovery, tests and global coverage on every host.
+func TestTemporaryArtifactsExcludedFromGo(t *testing.T) {
+	// Read the real module's ignore rules through Go's parser. The fixture has
+	// no external dependencies and must fail too if the production rule is lost.
+	command := exec.Command("go", "mod", "edit", "-json", "../go.mod")
+	output, err := command.CombinedOutput()
+	require.NoError(t, err, string(output))
+	var module struct {
+		Go     string
+		Ignore []struct{ Path string }
+	}
+	require.NoError(t, json.Unmarshal(output, &module))
+	require.NotEmpty(t, module.Go)
+	moduleText := "module example.com/active\n\ngo " + module.Go + "\n"
+	for _, pattern := range module.Ignore {
+		moduleText += "\nignore " + strconv.Quote(pattern.Path) + "\n"
+	}
+	// Mixed package names reproduce the Go distribution's compiler-test tree.
+	// A real nested package named temp must survive the root-only exclusion.
+	fixture := func(t *testing.T) string {
+		t.Helper()
+		root := t.TempDir()
+		writeFixture(t, root, "go.mod", moduleText)
+		writeFixture(t, root, ".gitignore", "/temp/\n")
+		writeFixture(t, root, "active.go", "package active\nfunc Value() int { return 7 }\n")
+		writeFixture(t, root, "active_test.go", "package active\nimport \"testing\"\nfunc TestActiveValue(t *testing.T) { if Value() != 7 { t.Fatal(\"active behavior changed\") } }\n")
+		writeFixture(t, root, "nested/temp/value.go", "package temp\nfunc Value() int { return 9 }\n")
+		writeFixture(t, root, "nested/temp/value_test.go", "package temp\nimport \"testing\"\nfunc TestNestedValue(t *testing.T) { if Value() != 9 { t.Fatal(\"nested package was changed\") } }\n")
+		for _, directory := range []string{"temp/tools/go/1.27.4/go/test", "temp/log/project-copy"} {
+			writeFixture(t, root, directory+"/one.go", "package one\n")
+			writeFixture(t, root, directory+"/two.go", "package two\n")
+		}
+		return root
+	}
+	for _, tc := range []struct {
+		name     string
+		args     []string
+		coverage bool
+	}{
+		{"package_discovery", []string{"list", "./..."}, false},
+		{"normal_tests", []string{"test", "-v", "-count=1", "./..."}, false},
+		{"global_coverage", []string{"test", "-v", "-count=1", "./...", "-coverpkg=./...", "-covermode=atomic", "-coverprofile=coverage.out"}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := fixture(t)
+			command := exec.Command("go", tc.args...)
+			command.Dir = root
+			command.Env = cacheProbeEnv(map[string]string{"GOWORK": "off", "GOFLAGS": "", "GOPROXY": "off", "GOSUMDB": "off"})
+			output, err := command.CombinedOutput()
+			require.NoError(t, err, string(output))
+			if tc.name == "package_discovery" {
+				assert.Equal(t, []string{"example.com/active", "example.com/active/nested/temp"}, strings.Fields(string(output)))
+			} else {
+				assert.Contains(t, string(output), "--- PASS: TestActiveValue")
+				assert.Contains(t, string(output), "--- PASS: TestNestedValue")
+			}
+			if tc.coverage {
+				profile, err := os.ReadFile(filepath.Join(root, "coverage.out"))
+				require.NoError(t, err)
+				assert.Contains(t, string(profile), "example.com/active/active.go")
+				assert.Contains(t, string(profile), "example.com/active/nested/temp/value.go")
+				assert.NotContains(t, string(profile), "example.com/active/temp/")
+			}
+		})
+	}
+	t.Run("active_package_errors_are_reported", func(t *testing.T) {
+		root := fixture(t)
+		writeFixture(t, root, "broken/one.go", "package one\n")
+		writeFixture(t, root, "broken/two.go", "package two\n")
+		command := exec.Command("go", "list", "./...")
+		command.Dir = root
+		command.Env = cacheProbeEnv(map[string]string{"GOWORK": "off", "GOFLAGS": "", "GOPROXY": "off", "GOSUMDB": "off"})
+		output, err := command.CombinedOutput()
+		assert.Error(t, err)
+		assert.Contains(t, string(output), "found packages one")
+		assert.Contains(t, string(output), "broken", "excluding tools must not hide real project errors")
+	})
+}
+
 // TestRepositoryFormattingCheckPreservesOutputs exercises wrapper dispatch with
 // destructive helper doubles confined to a fixture. Check mode must not call
 // Bind or cleanup, even after an explicit earlier format argument.
