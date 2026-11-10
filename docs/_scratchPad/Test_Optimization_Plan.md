@@ -1,6 +1,6 @@
 # Test Optimierungsplan
 
-Stand: 2026-11-10. Status: Die drei Logarchive sind verglichen; S1 mit 360 Minuten ist umgesetzt und fokussiert geprüft. S2 und die Optimierungen warten auf eigene Startkommandos.
+Stand: 2026-11-10. Status: Die drei Logarchive sind verglichen; S1 mit 360 Minuten und der danach gefundene Go-Paketsuchfehler sind korrigiert und fokussiert geprüft. S2 und die Optimierungen warten auf eigene Startkommandos.
 
 Zuerst vollständige, fehlerfreie Testläufe auf Windows, Linux und macOS sichern. Dafür zunächst einen kleinen CI-Fix umsetzen und abnehmen. Erst danach Laufzeiten und Logablage verbessern. Testumfang, verständliche Fehlerdiagnosen und einfache Bedienung bleiben erhalten.
 
@@ -81,6 +81,8 @@ O1    | Compilerabdeckung gesondert bewerten     | Optional; keine automatische 
 ## 4. <a id="nächster-auftrag-und-freigabe"></a>Nächster Auftrag und Freigabe
 
 **S1 ist umgesetzt und fokussiert geprüft.** Der nächste Auftrag ist S2: vollständige native CI-Läufe starten oder die vom Nutzer gestarteten Läufe auswerten. Dafür auf ein eigenes Startkommando warten. Keine Jobaufteilung oder andere Optimierung vorziehen.
+
+Der lokale Lauf `testAll.14Xocs` scheiterte anschließend in 540/550 an der frisch im Repo installierten Go-Toolchain und wurde abgebrochen. Der ausdrücklich beauftragte kleine Folgefix ist umgesetzt, siehe Anhang D. Dieser abgebrochene Lauf ist kein S2-Nachweis.
 
 S2 benötigt vollständige native Nachweise des geänderten Stands, insbesondere Intel mit kaltem und warmem Toolcache. Erst bei erfüllten Abnahmekriterien den nächsten Optimierungsschritt auswählen.
 
@@ -402,10 +404,11 @@ Bei gleich leistungsfähigen, sofort verfügbaren getrennten Runnern wäre der l
 ## 8. <a id="anhang-d-entscheidungen-und-fortschritt"></a>Anhang D Entscheidungen und Fortschritt
 
 Punkt                   | Festlegung oder Vorschlag                                         | Status
------------------------ | ----------------------------------------------------------------- | -------------------------------------
+----------------------- | ----------------------------------------------------------------- | ------------------------------------------------
 Arbeitsgrundlage        | Dieser Plan einschließlich vollständiger Übergabe in Anhang E     | Festgelegt
 Reihenfolge             | Kleiner Stabilisierungsfix und vollständige Läufe vor Optimierung | Vom Nutzer vorgegeben
 S1 CI-Zeitbudget        | full auf Windows/Intel 360 statt 180 Minuten                      | Umgesetzt; fokussierte Prüfungen PASS
+Go-Paketsuche           | Lokale Toolchains und Einwegprojekte vor dem Scan ausschließen    | Korrigiert; Regression und reale Auflistung PASS
 S2 Native Abnahme       | Vollständiger Plan, Wiederherstellung, Race; Intel kalt/warm      | Nach S1 gesondert beauftragen
 L1 Logablage            | Feste Pfade, Abschluss-ZIP mit Zeit/OS und Konsolenüberblick      | Vorgemerkt; erst nach S2
 P1 Logvergleich         | Drei Archive und aktueller CI-Status ausgewertet                  | Erledigt; Testlandkarte noch offen
@@ -423,6 +426,14 @@ Nach jeder beauftragten Stufe hier kurz nachtragen: Status und Ergebnis, Entsche
 - Regression vor dem Workflow-Fix: `Windows_full` und `Intel_macOS_full` liefern 180 statt der geforderten 360 Minuten; genau diese beiden Fälle FAIL. Nach dem Fix: **alle acht Runner-/Umfangskombinationen PASS**. Die Auswertung nutzt die vorhandene Node.js-Voraussetzung, ohne neue Abhängigkeit. Das ist eine Logikprüfung auf dem lokalen Host, kein nativer Windows-/Intel-Lauf.
 - Fokussierter Aufruf mit Go 1.27.3: `go test ./scripts -run '^(TestNativeWorkflowBudgets|TestIntelLLVMLockAndWorkflowBindings|TestNativeWorkflowPreparesEPUBConverter|TestNativeWorkflowPreparesToolchainSpace)$' -count=1 -v` — **PASS**. `actionlint .github/workflows/native-tests.yml .github/workflows/native-tests-reusable.yml` — **PASS**. Kein vollständiger Paket-/Suite-Lauf, keine Coverage und kein CI-Dispatch gestartet.
 - Host: ARM-macOS; Go 1.27.3, Node.js 26.13.0, Bash 5.3.20, actionlint 1.7.12. Native fokussierte Prüfungen auf macOS PASS; native Windows- und Linux-Prüfungen dieses Diffs nicht ausgeführt. Vollständige CI-Nachweise auf Windows, Linux und macOS einschließlich Intel kalt/warm sind S2; #786 bleibt offen.
+
+**Folgefix Go-Paketsuche, 2026-11-10:**
+
+- Ursache im lokalen Lauf `testAll.14Xocs`: Die Vorbereitung installierte Go 1.27.4 unter `temp/tools/go/1.27.4/go`. `go list ./...` erfasste dessen absichtlich nicht regulär kompilierbare Compiler-Testquellen. Der bisherige `temp`-Filter in 540/550 kam erst nach der bereits fehlgeschlagenen Auflistung. Der Lauf endete mit `ABORTED`, einschließlich der beiden vorherigen FAIL-Stufen; die Wiederherstellung war vor dem Fix abgeschlossen.
+- Korrektur: [go.mod](../../go.mod) enthält jetzt `ignore ./temp`. Damit werden nur das Wurzelverzeichnis `temp` und seine Inhalte bereits bei der Paketsuche ausgeschlossen. Das schützt 540/550, die direkten Go-/Coverage-CI-Aufrufe und normale lokale `go list`-/`go test`-Aufrufe gemeinsam. Echte Unterpakete wie `nested/temp` bleiben enthalten. Keine Skriptlisten, Toolversionen, Abhängigkeiten oder Cachepfade ändern; Go 1.25 unterstützt die Direktive bereits. Quelle: [Go-Dokumentation zu ignore](https://go.dev/doc/modules/gomod-ref#ignore).
+- Regression: `TestTemporaryArtifactsExcludedFromGo` in [portability_test.go](../../scripts/portability_test.go) verwendet die echten Ausschlussregeln aus `go.mod` und nachgebildete defekte SDK-/Projektkopien. Vor dem Fix scheitern Paketsuche, Tests und globale Coverage daran. Nach dem Fix bestehen alle vier Fälle einschließlich der weiterhin gemeldeten Fehler in aktiven Paketen. **PASS mit Go 1.27.4 und Go 1.25.3 auf ARM-macOS**; die Coverage-Probe betrifft nur ein isoliertes kleines Testprojekt.
+- Unter Go 1.27.4 zusätzlich **PASS**: `TestScratchpadExcludedFromGo`, `TestGoStepsAllowSlowNativeScriptFixtures` für beide Stufen sowie `TestPCCacheOverlayArtifactsStayOutOfGoDiscovery`. Die reale Paketsuche mit der installierten Go-Toolchain findet wieder **27 reguläre Pakete und 63 PC-Konfigurationen**, ohne SDK-Testquellen.
+- Native Windows- und Linux-Prüfungen dieses Folgefixes nicht ausgeführt; vollständige Suite, reguläre Projekt-Coverage und CI-Läufe bleiben für S2 offen. Es wurde kein neuer Abschlusslauf gestartet. L1 und die Optimierungen bleiben unverändert zurückgestellt.
 
 Die ursprüngliche Übergabe bleibt unten vollständig als historisches Zitat erhalten. `AGENTS.md` verwendet `Codex_Handover.md` weiterhin als allgemeines Ziel für künftige Rechnerwechsel; dann genügt eine neue kurze Übergabe, die für diese Aufgabe auf den aktuellen Plan verweist. Die drei Logarchive und die historische Übergabe wurden bei S1 nicht verändert.
 
