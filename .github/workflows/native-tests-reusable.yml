@@ -19,7 +19,8 @@ permissions:
 jobs:
   native:
     runs-on: ${{ inputs.runner }}
-    timeout-minutes: 180
+    # Full Windows/Intel matrices need reserve up to GitHub's six-hour ceiling.
+    timeout-minutes: ${{ inputs.selection == 'full' && (inputs.runner == 'windows-2025' || inputs.runner == 'macos-15-intel') && 360 || 180 }}
     defaults:
       run:
         shell: bash
