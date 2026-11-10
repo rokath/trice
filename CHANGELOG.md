@@ -2,9 +2,18 @@
 
 [Feature overview](docs/rm/feature_overview.md): capabilities, introduction versions and obsolete features, with links to their documentation.
 
-## Unreleased
+## v2.0.1
 
-- With a `-logLevel` threshold, `-pick` now additionally includes matches below it; `-ban` excludes matches. Explicit `all`/`off` overrides either selector. Standalone selection is unchanged. See [filter rules and examples](docs/rm/tags_color_and_weights.md#selecting-tags-and-priority).
+### Logging and examples
+
+- `-logLevel info -pick dbg` now shows INFO and higher-priority messages plus DEBUG; `-logLevel info -ban err` hides ERROR messages. Explicit `-logLevel all` and `-logLevel off` override either selector: for example, `-logLevel all -ban err` now also shows ERROR messages. Using `-pick` or `-ban` alone is unchanged. See [filter rules and examples](docs/rm/tags_color_and_weights.md#selecting-tags-and-priority).
+- Windows logging exits reliably when stopping with a pending read from the console or redirected input.
+- Windows bus simulations retry access-denied errors every 100 ms within the existing five-second lock wait. The demo reports failures from every participant.
+
+### Developer tests and CI
+
+- Intel macOS CI uses checksum-verified prebuilt LLVM packages instead of compiling LLVM from source.
+- Local native tests prepare Pandoc before running the required EPUB checks. Test setup and CI select the latest stable Go release; local test startup needs network access to resolve that version and its checksums. See [running the tests](docs/rm/target_tests.md#how-to-run-the-tests).
 
 ## v2.0.0
 
