@@ -706,6 +706,53 @@ func TestIntelLLVMLockAndWorkflowBindings(t *testing.T) {
 	t.Fatal("native test step is missing")
 }
 
+// TestNativeWorkflowBudgets reserves hosted-runner time for the two slow full
+// plans without increasing the quick, Linux or ARM macOS job budgets.
+func TestNativeWorkflowBudgets(t *testing.T) {
+	node, err := exec.LookPath("node")
+	require.NoError(t, err, "Node.js is an existing prerequisite of the native test plan")
+	data, err := os.ReadFile("../.github/workflows/native-tests-reusable.yml")
+	require.NoError(t, err)
+	// Read the actual job setting so a literal budget is tested too; changing
+	// every runner to 360 must still fail the quick and other-platform cases.
+	var workflow struct {
+		Jobs map[string]struct {
+			Timeout string `yaml:"timeout-minutes"`
+		}
+	}
+	require.NoError(t, yaml.Unmarshal(data, &workflow))
+	expression := strings.TrimSpace(workflow.Jobs["native"].Timeout)
+	expression = strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(expression, "${{"), "}}"))
+	require.NotEmpty(t, expression)
+	for _, tc := range []struct {
+		name, runner, selection string
+		minutes                 int
+	}{
+		{"Windows_full", "windows-2025", "full", 360},
+		{"Intel_macOS_full", "macos-15-intel", "full", 360},
+		{"Linux_full", "ubuntu-24.04", "full", 180},
+		{"ARM_macOS_full", "macos-26", "full", 180},
+		{"Windows_quick", "windows-2025", "quick", 180},
+		{"Intel_macOS_quick", "macos-15-intel", "quick", 180},
+		{"Linux_quick", "ubuntu-24.04", "quick", 180},
+		{"ARM_macOS_quick", "macos-26", "quick", 180},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			// For these canonical string inputs, equality and numeric boolean
+			// short-circuiting have the same semantics in JavaScript and Actions.
+			command := exec.Command(node, "-e", `
+const vm = require('node:vm');
+const inputs = {runner: process.argv[2], selection: process.argv[3]};
+const minutes = vm.runInNewContext(process.argv[1], {inputs}, {timeout: 1000});
+process.stdout.write(String(minutes));
+`, expression, tc.runner, tc.selection)
+			out, err := command.CombinedOutput()
+			require.NoError(t, err, string(out))
+			assert.Equal(t, fmt.Sprint(tc.minutes), string(out), "job budget for %s / %s", tc.runner, tc.selection)
+		})
+	}
+}
+
 // TestNativeWorkflowPreparesEPUBConverter checks that the real shared pin is
 // exported to the converter setup before the strict native test audit runs.
 func TestNativeWorkflowPreparesEPUBConverter(t *testing.T) {
