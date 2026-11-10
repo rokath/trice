@@ -2,7 +2,7 @@
 
 [Feature overview](docs/rm/feature_overview.md): capabilities, introduction versions and obsolete features, with links to their documentation.
 
-## v2.0.1
+## v2.0.1 (unrereased)
 
 ### Logging and examples
 
