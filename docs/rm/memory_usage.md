@@ -18,17 +18,24 @@
 * [6. Legacy STM32F030 Example Project - Different Build Sizes](#legacy-stm32f030-example-project---different-build-sizes)
   * [6.1. ARMCC compiler v5](#armcc-compiler-v5)
 * [7. TRICE_STACK_BUFFER could cause stack overflow with -o0 optimization](#trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
-* [8. Recorded memory measurements](#recorded-memory-measurements)
-  * [8.1. F030_bare Size](#f030_bare-size)
-  * [8.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off1)
-  * [8.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
-  * [8.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
-  * [8.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting-only-enabling-segger_rtt)
-  * [8.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
-  * [8.7. Settings Conclusion](#settings-conclusion)
-  * [8.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-old-version)
-  * [8.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
-  * [8.10. Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
+* [8. Reproducible F030 comparison](#reproducible-f030-comparison)
+  * [8.1. CubeMX baseline and synchronized build settings](#cubemx-baseline-and-synchronized-build-settings)
+  * [8.2. Comparison with LTO](#comparison-with-lto)
+  * [8.3. Reference without LTO](#reference-without-lto)
+  * [8.4. Where the additional bytes go](#where-the-additional-bytes-go)
+  * [8.5. Buffer configurations](#buffer-configurations)
+  * [8.6. Rebuild and track differences](#rebuild-and-track-differences)
+* [9. Recorded memory measurements](#recorded-memory-measurements)
+  * [9.1. F030_bare Size](#f030_bare-size)
+  * [9.2. F030_inst Size with TRICE_OFF=1](#f030_inst-size-with-trice_off1)
+  * [9.3. F030_inst with ring buffer](#f030_inst-with-ring-buffer)
+  * [9.4. F030_inst with ring buffer](#f030_inst-with-ring-buffer-1)
+  * [9.5. A developer setting, only enabling SEGGER_RTT](#a-developer-setting-only-enabling-segger_rtt)
+  * [9.6. A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:](#a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0)
+  * [9.7. Settings Conclusion](#settings-conclusion)
+  * [9.8. Legacy Trice Space Example (Old Version)](#legacy-trice-space-example-old-version)
+  * [9.9. Memory Needs for Old Example 1](#memory-needs-for-old-example-1)
+  * [9.10. Memory Needs for Old Example 2](#memory-needs-for-old-example-2)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -119,13 +126,175 @@ Please check the manuals and create a pull request or simply let me know.
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
-## 8. <a id="recorded-memory-measurements"></a>Recorded memory measurements
+## 8. <a id="reproducible-f030-comparison"></a>Reproducible F030 comparison
+
+**For small projects, about 2 KB Flash and 200 B RAM can be enough for Trice instrumentation.** This assumes small buffers and a compact output configuration. The Trice kernel itself can fit in roughly 1 KB Flash; each log call adds a few Flash bytes for the call and argument handling.
+
+For a rough buffer estimate, assume about 8 B per typical message. Even a 64 B buffer may suffice for short bursts if the output drains it fast enough. Framing, buffer bookkeeping, transport state and automatic stack storage also consume RAM and must fit the chosen budget. These are planning values for a suitably configured small project; the 1 KB RTT and ring buffers used below are not minimum requirements.
+
+Compare each instrumented example with `F030_bare` from the same compiler, optimization and LTO series. The differences include the three log calls, transport and required integration in these examples; they are not a universal Trice overhead.
+
+### 8.1. <a id="cubemx-baseline-and-synchronized-build-settings"></a>CubeMX baseline and synchronized build settings
+
+`F030_bare` retains the CubeMX-generated application: it initializes the clock, GPIO and USART2 even without Trice. Its absolute size therefore includes those drivers. When comparing a newly generated project, match the MCU, initialization and linker reservations first.
+
+The three comparison Makefiles deliberately share these changes to the generated build settings:
+
+* LTO is enabled by default with `LTO=1`; use `LTO=0` for the reference without LTO. `-flto` and `-Og` are passed during compilation and linking.
+* `-ffunction-sections -fdata-sections` are also repeated at link time. GCC's LTO code generation needs them to preserve removal of unused functions and data with `--gc-sections`.
+* The existing `-g -gdwarf-2` debug options are also passed at link time so GCC's LTO stage keeps the same debug format instead of defaulting to DWARF 5.
+* `TRICE_FLAGS` accepts the same optional framing definition in all three projects. It has no effect on bare or direct RTT. GCC assembly listings can be disabled through `LISTING_FLAGS=` for Clang's integrated assembler; assembly files do not receive `-flto`.
+
+Each linker script also defines `_estack = ORIGIN(RAM) + LENGTH(RAM)` **after** its `MEMORY` block. GNU ld accepts CubeMX's earlier forward reference; LLD requires the RAM region to exist first. This reorder changes no region address, length, section placement or heap/stack reservation. Reapply it to all three projects after CubeMX regeneration when using LLD.
+
+The `._user_heap_stack` section is explicitly `(NOLOAD)`. It reserves RAM without storing initialization bytes in the ELF load image. GNU ld already treated this generated section as uninitialized; LLD otherwise creates a load image for it. This preserves the same 512 B heap and 1024 B stack minima for both linkers.
+
+The generated `.ioc`, application C files and startup assembly are unchanged by this comparison setup. Keep the common Makefile/linker settings synchronized when regenerating or changing any of the three projects. The default remains GCC with `-Og`; Clang is selected explicitly through the measurement command below. Clang/LLD use the same pinned GNU ARM startup objects and Newlib-nano/libgcc libraries as GCC.
+
+Clean and rebuild all three projects when switching compiler, framing or LTO manually; Make does not detect changes to command-line flags in existing object files. The measurement runner always builds fresh snapshots.
+
+### 8.2. <a id="comparison-with-lto"></a>Comparison with LTO
+
+Measured on Windows with GCC 15.2.1 and Clang/LLD 23.1.3, at `-Og` with LTO and section garbage collection. Each delta uses bare from the same compiler. Static RAM excludes the linker heap/stack reserve and automatic stack buffers.
+
+Compiler | Example / output | Delta Flash [B] | Delta static RAM [B] | Flash [B] | Static RAM [B]
+-------- | ---------------- | --------------: | -------------------: | --------: | -------------:
+GCC      | bare             | 0               | 0                    | 2372      | 32
+GCC      | direct RTT       | 1008            | 1132                 | 3380      | 1164
+GCC      | UART / TCOBS     | 2616            | 1080                 | 4988      | 1112
+GCC      | UART / COBS      | 1292            | 1080                 | 3664      | 1112
+Clang    | bare             | 0               | 0                    | 2288      | 32
+Clang    | direct RTT       | 1028            | 1132                 | 3316      | 1164
+Clang    | UART / TCOBS     | 2256            | 1076                 | 4544      | 1108
+Clang    | UART / COBS      | 1124            | 1076                 | 3412      | 1108
+
+COBS saves 1324 B Flash with GCC and 1132 B with Clang in these UART configurations. The linked encoder sizes are 1400/78 B for TCOBS/COBS with GCC and 1230/100 B with Clang; section alignment accounts for another 2 B of each difference. Clang LTO eliminates the 4 B `TriceErrorCount` object, explaining its smaller static RAM increase. Bare and RTT have identical sizes across the two framing builds for each compiler.
+
+Enabling GCC LTO changes bare from 2376 to 2372 B Flash; static RAM remains 32 B. The UART/TCOBS ELF changes from 5020 to 4988 B. The GCC encoder itself remains 1400 B at `-Og`. Keeping function/data sections during LTO linking is essential: otherwise unused syscall stubs remain together and pull in another 396 B of Newlib state in bare.
+
+These measurements use base commit `64bd22439a1d76c4e8c073e6fbe5c6c208ff4e15` plus the synchronized Makefile/linker changes, recorded as source-patch SHA-256 `16c3c108ff8a45e275b71d6d5fb371e0e7065b9f095a42625669997b9c01e086`. Each series records its compiler, linker, ARM runtime, source patch and ELF hashes. CI uses the existing Linux Clang/LLD 23.1.4 pin; those results belong to that compiler version rather than the Windows 23.1.3 record above.
+
+MemBrowse 1.2.18 matches the Flash/RAM region totals and encoder symbol sizes, but its **GCC-LTO source-file labels can be wrong**. For example, it labels `TCOBSEncode()` as `stm32f0xx_ll_exti.c`; `arm-none-eabi-addr2line` correctly resolves that address to `tcobsv1Encode.c:77`. This persists with consistent DWARF 2. MemBrowse's declaration lookup can use the current compilation unit's file table for a declaration referenced from another unit. Use symbol names/sizes for this GCC-LTO comparison and verify file ownership with binutils; the measured Clang encoder file labels are correct. This limitation does not change the table's byte counts.
+
+### 8.3. <a id="reference-without-lto"></a>Reference without LTO
+
+The following table records the initial GCC comparison before LTO was enabled:
+
+Example        | Delta Flash [B] | Delta static RAM [B] | Flash [B] | Static RAM [B]
+-------------- | --------------: | -------------------: | --------: | -------------:
+F030_bare      | +0              | +0                   | 2376      | 32
+F030_inst_rtt  | +1012           | +1132                | 3388      | 1164
+F030_inst_uart | +2644           | +1080                | 5020      | 1112
+
+UART uses 1632 B more Flash and 52 B less static RAM than RTT. RTT also needs an automatic record buffer on the stack, which the static RAM column does not measure.
+
+Measured on Windows at commit `64bd22439a1d76c4e8c073e6fbe5c6c208ff4e15`, with xPack GNU Arm Embedded GCC 15.2.1 (`15.2.1-1.1`), `-Og`, `-ffunction-sections`, `-fdata-sections` and `--gc-sections`. All three ELFs were built fresh from the same committed sources, without `triceCheck.c`. Local MemBrowse 1.2.18 analysis of those ELFs, maps and linker scripts confirmed the region totals below.
+
+Flash counts loadable section bytes at their Flash load addresses, including the initialization image of `.data`. Static RAM counts allocated RAM sections excluding `._user_heap_stack`. Debug information is excluded. All examples reserve 512 B heap and 1024 B stack; RTT has another 4 B of alignment in that section. These reservations are excluded from the table. MemBrowse's RAM-region total includes them: 1568 B bare, 2704 B RTT and 2648 B UART. Its RTT RAM difference is therefore 1136 B, including the 4 B alignment difference.
+
+### 8.4. <a id="where-the-additional-bytes-go"></a>Where the additional bytes go
+
+The retained input sections in the linker maps account for every additional Flash byte in the reference without LTO below, including constants, initialized variables and alignment. This reference uses `-Og` and section garbage collection.
+
+Flash contribution above bare                             | RTT [B]  | UART [B]
+--------------------------------------------------------- | -------: | -------:
+TCOBS framing encoder (`tcobsv1Encode.c`)                 | 0        | 1400
+Ring buffering and deferred framing (`triceRingBuffer.c`) | 0        | 590
+Record-writing functions (`trice32.c`)                    | 160      | 304
+Trice core (`trice.c`)                                    | 238      | 50
+SEGGER RTT library (`SEGGER_RTT.c`)                       | 552      | 0
+Trice UART backend (`triceUart.c`)                        | 0        | 196
+Log/transfer calls in `main.c`                            | 36       | 40
+USART2 interrupt handler (`stm32f0xx_it.c`)               | 0        | 26
+C library: `memcpy` for RTT, `memmove` for UART           | 18       | 38
+Alignment                                                 | 8        | 0
+**Total**                                                 | **1012** | **2644**
+
+`TCOBSEncode()` alone occupies 1400 B, about 53% of the UART Flash increase. Deferred output inherits TCOBS framing and multi-pack mode. The ring-buffer object contributes 590 B in total, including transfer, framing coordination, diagnostics and 16 B of constants/initialized pointers. Its largest functions are `triceMultiDeferredOut()` (184 B), `TriceIDAndBuffer()` (148 B) and `triceTransferMultiFraming()` (96 B).
+
+TCOBSv1 tracks runs of zero bytes, `0xFF` bytes and other repeated bytes, plus the current block offset. It has separate paths for the main loop, run limits and the last two bytes. The encoder expands `OUTB` 12 times, zero/FF output six times each and repeat output four times. Its `ASSERT` macro is empty, so assertions and diagnostic strings contribute no bytes. The Cortex-M0 `-Og` disassembly contains 700 Thumb instructions, including 59 conditional branches and 68 explicit stack load/store instructions.
+
+The decoder is not linked into this firmware: `.text.TCOBSDecode` (336 B) and `.text.COBSDecode` (62 B) appear under `Discarded input sections` in the reference map and are absent from the final ELF symbol table. The full 1400 B belongs to `TCOBSEncode()` itself, also confirmed by compiling that encoder alone.
+
+Isolated encoder objects built with GCC 15.2.1, Cortex-M0/Thumb, function/data sections and no LTO show the optimization effect separately from the rest of the firmware:
+
+Encoder       | `-Og` [B] | `-Os` [B]
+------------- | --------: | --------:
+`TCOBSEncode` | 1400      | 936
+`COBSEncode`  | 78        | 70
+
+The smaller COBS encoder has one short loop for zero-delimited blocks; it does not implement TCOBS's repeated-byte compression. This comparison keeps firmware builds at `-Og`; `-Os` above is an isolated diagnostic, not a different setting for one of the three projects.
+
+The vendor USART driver contributes 216 B in **each** ELF, already present in bare. Clock/GPIO drivers and the board's UART initialization are also unchanged. The UART increase therefore comes from Trice's encoding and transport path, including the interrupt-handler extension, rather than additional vendor driver code.
+
+Additional static RAM above bare        | RTT [B]  | UART [B]
+--------------------------------------- | -------: | -------:
+RTT up buffer / Trice ring allocation   | 1024     | 1024
+RTT down buffer                         | 16       | 0
+RTT control block (`_SEGGER_RTT`)       | 72       | 0
+Ring-buffer state, seven 32-bit words   | 0        | 28
+Trice core counters, four 32-bit words  | 16       | 16
+Stack-buffer write-position pointer     | 4        | 0
+UART transmit state, three 32-bit words | 0        | 12
+**Total**                               | **1132** | **1080**
+
+These RAM differences are the named objects in the local MemBrowse reports. The common bare RAM is unchanged. The automatic RTT record buffer and linker reservations remain separate as described above.
+
+### 8.5. <a id="buffer-configurations"></a>Buffer configurations
+
+Example        | Output                         | Buffer storage
+-------------- | ------------------------------ | ----------------------------------------------------------------------------------------
+F030_bare      | No Trice                       | No Trice buffers
+F030_inst_rtt  | Direct RTT, 32-bit writes      | 1024 B RTT up buffer, 16 B down buffer, one channel each; automatic 172 B record buffer
+F030_inst_uart | Deferred USART2, multi framing | 1024 B static ring allocation, including 64 B offset; `TriceTransfer()` in the main loop
+
+Both instrumented examples inherit `TRICE_SINGLE_MAX_SIZE=104`, `TRICE_DATA_OFFSET=64`, diagnostics, protection and the cycle counter from the defaults. RTT's configured automatic record buffer is `64 + 104 + 4 = 172 B`; the dynamic stack maximum, including call frames and interrupts, needs a separate stack analysis. UART does not link RTT buffers. See the project configurations for [RTT](../../examples/F030_inst_rtt/Core/Inc/triceConfig.h) and [UART](../../examples/F030_inst_uart/Core/Inc/triceConfig.h).
+
+### 8.6. <a id="rebuild-and-track-differences"></a>Rebuild and track differences
+
+From the repository root, with Go, Python 3, Git, tar, GNU Make and a POSIX shell available:
+
+```sh
+arm_bin="$(go run ./scripts/testcheck bundle scripts/test-tools.env temp/tools/bundles arm)"
+if command -v cygpath >/dev/null 2>&1; then arm_bin="$(cygpath -u "$arm_bin")"; fi
+PATH="$arm_bin:$PATH" python3 scripts/memory_usage.py
+```
+
+The command selects the existing pinned ARM package and rebuilds **committed `HEAD`** in a temporary snapshot, including its Trice CLI. Uncommitted source changes are excluded. For a local measurement of tracked edits, add `--worktree`; the JSON and summary then record their patch hash. Untracked source files are excluded. The synchronized Makefiles/linker scripts must be committed or included through `--worktree`; the script rejects build plans that omit the requested options.
+
+Select the compiler and framing explicitly to repeat all four CI series:
+
+```sh
+python3 scripts/memory_usage.py --compiler gcc --framing tcobs
+python3 scripts/memory_usage.py --compiler gcc --framing cobs
+python3 scripts/memory_usage.py --compiler clang --framing tcobs
+python3 scripts/memory_usage.py --compiler clang --framing cobs
+```
+
+For Clang, first select the native pinned Clang and matching LLD from the [test tool setup](target_tests.md). Windows uses WinLibs 23.1.3; Linux/macOS use 23.1.4. Clang also requires the pinned ARM package for headers, startup objects and libraries. The runner passes the same CPU, optimization, LTO and framing options to all three projects; it selects Clang's integrated assembler and LLD only for Clang builds. To reproduce a reference without LTO, add `--lto off` to the same command.
+
+The example directories remain untouched. Each series writes its table, JSON metadata, ELF hashes, section/symbol listings, build plans, ELF files, maps and linker scripts to its own directory, for example `temp/memory-usage/gcc-tcobs-lto/`. Flash and RAM are calculated from `arm-none-eabi-objdump -h`; the JSON records the exact compiler and commit.
+
+The [F030 memory workflow](../../.github/workflows/membrowse.yml) builds all three projects in each of the four compiler/framing combinations. It runs on pushes to `main`, pull requests and manual runs, publishing `f030-memory-comparison-<compiler>-<framing>` artifacts for reviewing and updating this table; it does not commit documentation. Eight stable MemBrowse targets use those same ELFs, maps and linker scripts:
+
+Example / output | GCC target                     | Clang target
+---------------- | ------------------------------ | --------------------------------
+bare             | `F030_bare_gcc_lto`            | `F030_bare_clang_lto`
+direct RTT       | `F030_inst_rtt_gcc_lto`        | `F030_inst_rtt_clang_lto`
+UART / TCOBS     | `F030_inst_uart_gcc_lto_tcobs` | `F030_inst_uart_clang_lto_tcobs`
+UART / COBS      | `F030_inst_uart_gcc_lto_cobs`  | `F030_inst_uart_clang_lto_cobs`
+
+Bare and RTT are uploaded once per compiler because deferred framing does not change them. Their builds and comparison rows remain in both framing artifacts. View the [Trice MemBrowse project](https://membrowse.com/project/09c7019d-4ca6-4cc0-9d89-7d813d5f526c).
+
+Pushes and manual runs use the repository secret `MEMBROWSE_API_KEY`. Without it, the comparison artifact remains available and the upload is skipped. Public-repository PRs use MemBrowse's tokenless upload; this requires marking the project as open source in the MemBrowse Portal. No PR build receives the project key. Same-repository PRs also receive a combined comment from a separate job; fork PRs retain their reports and artifacts without a write token.
+
+## 9. <a id="recorded-memory-measurements"></a>Recorded memory measurements
 
 These measurements describe the firmware, compiler and configuration shown in each record. They are reference examples, not current size guarantees. Rebuild your own configuration to measure it.
 
 Depending on your target configuration the needed space can differ:
 
-### 8.1. <a id="f030_bare-size"></a>F030_bare Size
+### 9.1. <a id="f030_bare-size"></a>F030_bare Size
 
 * `./build.sh`:
 
@@ -137,7 +306,7 @@ arm-none-eabi-size build/F030_bare.elf
 
 That is the basic size of an empty generated project just containing some drivers.
 
-### 8.2. <a id="f030_inst-size-with-trice_off1"></a>F030_inst Size with TRICE_OFF=1
+### 9.2. <a id="f030_inst-size-with-trice_off1"></a>F030_inst Size with TRICE_OFF=1
 
 * `./build.sh TRICE_OFF=1` :
 
@@ -149,7 +318,7 @@ arm-none-eabi-size build/F030_inst.elf
 
 This is exactly the same result, proofing that `TRICE_OFF 1` is working correctly.
 
-### 8.3. <a id="f030_inst-with-ring-buffer"></a>F030_inst with ring buffer
+### 9.3. <a id="f030_inst-with-ring-buffer"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -225,7 +394,7 @@ com5:       triceExamples.c    29    0,031_344 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,031_186 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-### 8.4. <a id="f030_inst-with-ring-buffer-1"></a>F030_inst with ring buffer
+### 9.4. <a id="f030_inst-with-ring-buffer-1"></a>F030_inst with ring buffer
 
 * `./build.sh`:
 
@@ -300,7 +469,7 @@ com5:       triceExamples.c    29    0,031_188 🐁 Speedy Gonzales a  32-bit ti
 com5:       triceExamples.c    30    0,030_987 🐁 Speedy Gonzales b  32-bit timestamp
 ```
 
-### 8.5. <a id="a-developer-setting-only-enabling-segger_rtt"></a>A developer setting, only enabling SEGGER_RTT
+### 9.5. <a id="a-developer-setting-only-enabling-segger_rtt"></a>A developer setting, only enabling SEGGER_RTT
 
 * `./build.sh`:
 
@@ -378,7 +547,7 @@ Dec  6 16:14:41.191648  jlink:       triceExamples.c    30    0,030_072 16355 �
 
 "🐁 Speedy Gonzales" needs about 500 MCU clocks.
 
-### 8.6. <a id="a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
+### 9.6. <a id="a-developer-setting-only-enabling-segger_rtt-and-without-deferred-output-gives-after-running-buildsh-trice_diagnostics0-trice_protect0"></a>A developer setting, only enabling SEGGER_RTT and without deferred output gives after running `./build.sh TRICE_DIAGNOSTICS=0 TRICE_PROTECT=0`:
 
 ```bash
 arm-none-eabi-size out/F030_inst.elf
@@ -432,13 +601,13 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 
 "🐁 Speedy Gonzales" direct outout needs about 200 MCU clocks and not 500 as before.
 
-### 8.7. <a id="settings-conclusion"></a>Settings Conclusion
+### 9.7. <a id="settings-conclusion"></a>Settings Conclusion
 
 * 4-8 KB Flash and 1.2 KB RAM needed for the Trice library.
 * The RAM size is mainly influenced by the configured buffer sizes.
 * Switching off diagnostics and/or protection is ok for less memory needs and faster Trice execution after getting some experience with the project.
 
-### 8.8. <a id="legacy-trice-space-example-old-version"></a>Legacy Trice Space Example (Old Version)
+### 9.8. <a id="legacy-trice-space-example-old-version"></a>Legacy Trice Space Example (Old Version)
 
 * STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`
 * Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -450,7 +619,7 @@ Dec  6 16:20:12.453968  jlink:       triceExamples.c    30    0,031_661 16355 �
 * No format strings go into the target code anymore.
 * In general Trice instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-### 8.9. <a id="memory-needs-for-old-example-1"></a>Memory Needs for Old Example 1
+### 9.9. <a id="memory-needs-for-old-example-1"></a>Memory Needs for Old Example 1
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -465,7 +634,7 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512     
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes with `#define TRICE_OFF 1` before `incude "trice.h"` on file level or generally on project level.
 
-### 8.10. <a id="memory-needs-for-old-example-2"></a>Memory Needs for Old Example 2
+### 9.10. <a id="memory-needs-for-old-example-2"></a>Memory Needs for Old Example 2
 
 Project                        | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark
 ------------------------------ | ----------- | ------------ | ---------------------- | --------------------------------------------- | ------------------------------------------------------------------
