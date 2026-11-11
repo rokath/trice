@@ -1,0 +1,166 @@
+name: F030 Memory Comparison
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        framing: [tcobs, cobs]
+    env:
+      REPORT_DIR: temp/memory-usage/${{ matrix.compiler }}-${{ matrix.framing }}-lto
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Analyze the actual PR head, not GitHub's synthetic merge commit.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Free space for the pinned LLVM package
+        if: ${{ matrix.compiler == 'clang' && runner.environment == 'github-hosted' }}
+        run: |
+          # Match the existing library CI preparation on disposable Linux runners.
+          df -h .
+          if ! sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet; then
+            echo '::error::Cannot free space for LLVM: removing unused hosted Android/.NET SDKs failed.'
+            exit 1
+          fi
+          df -h .
+
+      - name: Prepare the existing pinned ARM toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Reuse the native suite's checked archives and checksums, only for ARM.
+          bin="$(go run ./scripts/testcheck bundle scripts/test-tools.env temp/tools/bundles arm)"
+          echo "$bin" >> "$GITHUB_PATH"
+
+      - name: Prepare the existing pinned Clang and LLD
+        if: ${{ matrix.compiler == 'clang' }}
+        run: |
+          set -euo pipefail
+          bin="$(go run ./scripts/testcheck bundle scripts/test-tools.env temp/tools/bundles clang)"
+          echo "$bin" >> "$GITHUB_PATH"
+
+      - name: Check memory accounting
+        run: python -m unittest discover -s scripts -p test_memory_usage.py
+
+      - name: Rebuild the three examples and compare bytes
+        id: memory
+        run: |
+          python scripts/memory_usage.py --compiler '${{ matrix.compiler }}' --framing '${{ matrix.framing }}'
+          cat "$REPORT_DIR/memory-usage.md" >> "$GITHUB_STEP_SUMMARY"
+          if [ '${{ matrix.compiler }}' = gcc ]; then
+            echo '::notice::MemBrowse 1.2.18 can mislabel GCC-LTO source files; use symbol sizes and addr2line. See docs/rm/memory_usage.md.'
+            echo 'MemBrowse GCC-LTO file labels need verification with addr2line; symbol and region sizes remain usable.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Select upload authentication
+        id: upload
+        env:
+          # Every PR uses MemBrowse's public-repository tokenless upload.
+          # No PR build receives the persistent project key, including same-repo PRs.
+          MEMBROWSE_API_KEY: ${{ github.event_name != 'pull_request' && secrets.MEMBROWSE_API_KEY || '' }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] || [ -n "$MEMBROWSE_API_KEY" ]; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::MEMBROWSE_API_KEY is missing; keeping the local comparison as an artifact.'
+          fi
+
+      # v1 is pinned so all three targets use the same analyzer revision.
+      - name: Analyze bare firmware
+        id: bare
+        if: ${{ !cancelled() && matrix.framing == 'tcobs' && steps.memory.outcome == 'success' && steps.upload.outputs.enabled == 'true' }}
+        uses: membrowse/membrowse-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        with:
+          target_name: F030_bare_${{ matrix.compiler }}_lto
+          elf: ${{ env.REPORT_DIR }}/F030_bare/F030_bare.elf
+          ld: ${{ env.REPORT_DIR }}/F030_bare/STM32F030R8Tx_FLASH.ld
+          map_file: ${{ env.REPORT_DIR }}/F030_bare/F030_bare.map
+          api_key: ${{ github.event_name != 'pull_request' && secrets.MEMBROWSE_API_KEY || '' }}
+
+      - name: Analyze direct RTT firmware
+        id: rtt
+        if: ${{ !cancelled() && matrix.framing == 'tcobs' && steps.memory.outcome == 'success' && steps.upload.outputs.enabled == 'true' }}
+        uses: membrowse/membrowse-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        with:
+          target_name: F030_inst_rtt_${{ matrix.compiler }}_lto
+          elf: ${{ env.REPORT_DIR }}/F030_inst_rtt/F030_inst_rtt.elf
+          ld: ${{ env.REPORT_DIR }}/F030_inst_rtt/STM32F030R8Tx_FLASH.ld
+          map_file: ${{ env.REPORT_DIR }}/F030_inst_rtt/F030_inst_rtt.map
+          api_key: ${{ github.event_name != 'pull_request' && secrets.MEMBROWSE_API_KEY || '' }}
+
+      - name: Analyze buffered UART firmware
+        id: uart
+        if: ${{ !cancelled() && steps.memory.outcome == 'success' && steps.upload.outputs.enabled == 'true' }}
+        uses: membrowse/membrowse-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        with:
+          target_name: F030_inst_uart_${{ matrix.compiler }}_lto_${{ matrix.framing }}
+          elf: ${{ env.REPORT_DIR }}/F030_inst_uart/F030_inst_uart.elf
+          ld: ${{ env.REPORT_DIR }}/F030_inst_uart/STM32F030R8Tx_FLASH.ld
+          map_file: ${{ env.REPORT_DIR }}/F030_inst_uart/F030_inst_uart.map
+          api_key: ${{ github.event_name != 'pull_request' && secrets.MEMBROWSE_API_KEY || '' }}
+
+      - name: Preserve the comparison and original build artifacts
+        if: ${{ !cancelled() && steps.memory.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: f030-memory-comparison-${{ matrix.compiler }}-${{ matrix.framing }}
+          path: ${{ env.REPORT_DIR }}/
+          if-no-files-found: error
+
+      - name: Preserve MemBrowse responses for the PR summary
+        if: ${{ !cancelled() && steps.uart.outputs.report_path != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: f030-membrowse-responses-${{ matrix.compiler }}-${{ matrix.framing }}
+          path: |
+            ${{ steps.bare.outputs.report_path }}
+            ${{ steps.rtt.outputs.report_path }}
+            ${{ steps.uart.outputs.report_path }}
+          if-no-files-found: error
+
+  comment:
+    needs: compare
+    # Forks and Dependabot retain artifacts and tokenless reports. They never
+    # receive a write token; this job executes only the pinned comment action.
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: f030-membrowse-responses-*
+          merge-multiple: true
+          path: reports
+
+      - uses: membrowse/membrowse-action/comment-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        with:
+          json_files: reports/*.json
+        env:
+          GH_TOKEN: ${{ github.token }}
