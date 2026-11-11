@@ -1,6 +1,6 @@
 # Test Optimierungsplan
 
-Stand: 2026-11-10. Status: Die drei Logarchive sind verglichen; S1 mit 360 Minuten und der danach gefundene Go-Paketsuchfehler sind korrigiert und fokussiert geprüft. S2 und die Optimierungen warten auf eigene Startkommandos.
+Stand: 2026-11-11. Status: S1 und der Go-Paketsuchfix sind umgesetzt. Der lokale ARM-Mac-Full-Lauf vom 2026-11-10 besteht einschließlich Zustandsprüfung. Weitere S2-Nachweise und Optimierungen sind offen.
 
 Zuerst vollständige, fehlerfreie Testläufe auf Windows, Linux und macOS sichern. Dafür zunächst einen kleinen CI-Fix umsetzen und abnehmen. Erst danach Laufzeiten und Logablage verbessern. Testumfang, verständliche Fehlerdiagnosen und einfache Bedienung bleiben erhalten.
 
@@ -53,7 +53,7 @@ GitHub begrenzt Jobs auf gehosteten Runnern auf **sechs Stunden, also 360 Minute
 
 Dieser Übergangsfix spart keine Rechenzeit. Er vermeidet zunächst einen größeren Umbau von Jobs, Harness und Compilerabdeckung. Testauswahl, Pflichtprüfungen, bestehende interne Zeitlimits, Fehlerstatus, Wiederherstellung und Check-Namen bleiben erhalten. Cache-Umbau, Fortschrittsanzeige, Logablage, Bulk-Ausbau und weniger GCC-Varianten gehören nicht zu S1.
 
-**Nach erfolgreichen vollständigen Läufen** L1 und die Optimierungen P3–P7 einzeln angehen. Die drei lokalen Archive zeigen unterschiedliche Schwerpunkte: Windows 210 min 25 s, ARM-Mac 90 min 29 s, Debian 76 min 33 s. Unter Windows und macOS dominieren die Skript-/Go-Prüfungen, unter Debian die PC-Matrizen. Der Vier-Gruppen-Vorschlag in Anhang C bleibt eine spätere Option und ist kein erster Implementierungsauftrag.
+**Nach erfolgreichen vollständigen Läufen** L1 und die Optimierungen P3–P7 einzeln angehen. Im aktuellen lokalen Vergleich benötigen Windows **210 min 25 s**, Debian **76 min 33 s** und der ARM-Mac **75 min 47 s** reine Testzeit. Der vollständige Stufenvergleich steht in Anhang A, Abschnitt 5.3. Der Vier-Gruppen-Vorschlag in Anhang C bleibt eine spätere Option.
 
 Ein gemeinsamer Einstieg und eine zentrale Stufenliste bleiben erhalten. Lokale Standardbedienung und PR-Auswahl `quick` ändern sich durch den Stabilisierungsfix nicht.
 
@@ -84,7 +84,7 @@ O1    | Compilerabdeckung gesondert bewerten     | Optional; keine automatische 
 
 Der lokale Lauf `testAll.14Xocs` scheiterte anschließend in 540/550 an der frisch im Repo installierten Go-Toolchain und wurde abgebrochen. Der ausdrücklich beauftragte kleine Folgefix ist umgesetzt, siehe Anhang D. Dieser abgebrochene Lauf ist kein S2-Nachweis.
 
-S2 benötigt vollständige native Nachweise des geänderten Stands, insbesondere Intel mit kaltem und warmem Toolcache. Erst bei erfüllten Abnahmekriterien den nächsten Optimierungsschritt auswählen.
+Der folgende, vom Nutzer gestartete ARM-Mac-Lauf `testAll.0c9iWM` bestand vollständig auf Commit `c4a06890`; die Werte stehen in 5.3. Die weiteren nativen CI-/Race-Nachweise, insbesondere Intel mit kaltem und warmem Toolcache, sind hier noch nicht ausgewertet. S2 ist damit nicht abgeschlossen.
 
 Planprüfung und vergleichende Loganalyse sind erledigt. Für S1 wurden der Workflow und sein gezielter Regressionstest geändert; vollständige Testläufe, Benchmarks und CI-Dispatch wurden nicht gestartet. Jede weitere Umsetzungsstufe wartet auf ihr eigenes Startkommando. „P4 konkretisieren“ bleibt Planarbeit; „P4 umsetzen“ beauftragt diese Stufe. Teststreichungen, Compilerabdeckung, vollständige Abschlussläufe, Git-Ausführung und Release-/Issue-Aktionen benötigen ihre ausdrückliche Beauftragung.
 
@@ -92,9 +92,9 @@ Planprüfung und vergleichende Loganalyse sind erledigt. Für S1 wurden der Work
 
 ### 5.1. <a id="bisherige-ausgangsbefunde"></a>Bisherige Ausgangsbefunde
 
-Ausgangsstand vor S1: `wip`, HEAD `2d58d4ea92b56884013ba31259bb6a78592c0445`. Bis dahin sind seit `3719635e` im getrackten Vergleich nur Changelog und Scratchpad-Dokumente/-Archive hinzugekommen beziehungsweise geändert; Testcode und CI waren unverändert. S1 liegt als noch uncommitteter Workflow-/Test-Diff darüber, siehe Anhang D.
+Ausgangsstand vor S1: `wip`, HEAD `2d58d4ea92b56884013ba31259bb6a78592c0445`. Bis dahin sind seit `3719635e` nur Changelog und Scratchpad-Dokumente/-Archive geändert worden. S1 und der Go-Paketsuchfix sind inzwischen committet. Der aktuelle Mac-Lauf verwendet `c4a06890`; die Ausgangsarchive stammen vom früheren Testcode-Stand.
 
-Verbindliche Infobasis sind diese drei ZIPs mit jeweils **412 Dateien**, darunter Zusammenfassung, `results.json`, `steps.tsv`, Go-JSON-/Build-Protokolle, `coverage.out`, **252 PC- und 101 L432-Konfigurationslogs**. Relative Pfade und Originalinhalte sind erhalten. Generierte Quellen, Cache-Inhalte, Binärdateien und Zustandssnapshots sind ausgeschlossen.
+Archivierte Ausgangsbasis sind diese drei ZIPs mit jeweils **412 Dateien**, darunter Zusammenfassung, `results.json`, `steps.tsv`, Go-JSON-/Build-Protokolle, `coverage.out`, **252 PC- und 101 L432-Konfigurationslogs**. Relative Pfade und Originalinhalte sind erhalten. Generierte Quellen, Cache-Inhalte, Binärdateien und Zustandssnapshots sind ausgeschlossen.
 
 Lauf und Archiv                                              | Testzeit     | Vorbereitung | Ergebnis
 ------------------------------------------------------------ | ------------ | ------------ | --------------------------------------
@@ -104,7 +104,7 @@ Lauf und Archiv                                              | Testzeit     | Vo
 
 Commit-Zuordnung: macOS `3719635e`; Windows `tools.log` nennt `3719635e`, `results.json` nennt `dd15c207`. Beide Commits haben denselben Git-Tree. Debian nennt in beiden Dateien `f713ceab`; `dirty: true`, mit nachgewiesener Änderung dieser Plandatei während des Laufs. Gegenüber `3719635e` unterscheiden sich auch dort nur Changelog und Plan. Die drei Archive sind somit für den getrackten Testcode vergleichbar; Betriebssystem, Compiler, Worker und Cachebedingungen unterscheiden sich weiterhin.
 
-Windows-Aufruf laut bisherigem Nachweis: `./scripts/testAll.sh --no-format`; Debian `./scripts/testAll.sh` mit abgelehnter Formatierung. Der genaue Mac-Aufruf ist im Archiv nicht festgehalten; Umfang `full`, Commit und Zeiten sind durch `results.json` und Zusammenfassung belegt.
+Windows und aktueller Mac-Lauf: `./scripts/testAll.sh --no-format`; Debian: `./scripts/testAll.sh` mit abgelehnter Formatierung. Der genaue Aufruf des archivierten Mac-Laufs vom 09.11. ist nicht festgehalten.
 
 Die drei Windows-Stufen 515, 540 und 550 benötigen zusammen **5.445 s beziehungsweise 90 min 45 s**, rund **43,1 %** der Testzeit: 11 min 49 s Features, 38 min 56 s normale Go-Tests und 40 min Coverage. Daraus folgt ein Untersuchungsbedarf, aber keine bereits nachgewiesene Einsparung in dieser Höhe.
 
@@ -112,7 +112,7 @@ Auf Windows liefen L432 bereits mit **8 äußeren Workern** und `make -j1`, die 
 
 Die Übergabe dokumentiert für CI vollständige PASS-Läufe auf Linux, Windows und ARM-macOS mit ungefähr 88, 115 und 118 Minuten einschließlich Vorbereitung. Intel erreichte im Lauf `42682343023`, Job `129379957725`, das 180-Minuten-Limit. Die kalte Intel-LLVM-Vorbereitung bestand nach 26 Sekunden; das ersetzt keinen vollständigen Intel-PASS. Der nachfolgende Race-Check und das Speichern des neuen Projekt-Toolcaches blieben dort aus.
 
-Lokale Testzeit und CI-Jobdauer werden getrennt verglichen. Nur Windows und Debian liefen laut Nutzer auf derselben Dual-Boot-Hardware; der ARM-Mac ist ein anderer Rechner. Die vollständigen Mac-Zahlen ersetzen jetzt die bisherige Schätzung.
+Der Vergleich in 5.3 verwendet die neuen Mac-Werte vom 10.11. Das Mac-ZIP vom 09.11. bleibt als älterer Ausgangsnachweis erhalten.
 
 ### 5.2. <a id="wichtige-details-des-windows-laufs"></a>Wichtige Details des Windows Laufs
 
@@ -138,96 +138,52 @@ Gleiche Testnamen belegen hier wiederholte Ausführung, aber nicht automatisch i
 
 ### 5.3. <a id="vergleich-der-drei-lokalen-läufe"></a>Vergleich der drei lokalen Läufe
 
-Der Nutzer hat am **2026-11-10 unter Debian auf derselben Hardware wie beim Windows-Lauf** gemessen. Quelle sind jetzt das verlinkte Archiv und der bereits übermittelte Konsolenauszug; Aufruf `./scripts/testAll.sh`, angezeigter Umfang `full`, Host `Linux x86_64`. Formatierung wurde mit `N` abgelehnt. Start **12:02:16 GMT**, Ende **13:18:49 GMT**, reine Testzeit **4.593 s = 76 min 33 s**. Vorbereitung: **101 s**, einschließlich interaktiver Auswahl und außerhalb der Testzeit; zusammen **4.694 s = 78 min 14 s**.
+Zeiten in `hh:mm:ss`. „Test + Vorbereitung“ addiert die beiden gemeldeten Dauern.
 
-**Ergebnis:** alle **25 Teststufen PASS**. Der Runner meldete anschließend `Result: FAIL` und Exitstatus 1, weil sich `docs/_scratchPad/Test_Optimization_Plan.md` während des Laufs geändert hatte. Laut Nutzer wurde parallel im Scratchpad gearbeitet. Dieser abschließende Zustandsvergleich ist deshalb hier kein Hinweis auf einen Testfehler; die Wiederherstellung wird durch diesen Lauf aber auch nicht unabhängig nachgewiesen. Toolprotokoll: `temp/log/testAll.pFPVw7/tools.log`; Zustandsevidenz: `temp/log/testAll.pFPVw7/testAll-state.LIEq0R`. Diese Pfade sind lokale Nachweise und müssen nicht auf anderen Rechnern vorhanden sein.
+Prüfung / Kennzahl               | [Windows 09.11.2026](test_logs/2026-11-09_windows_full.zip) | [Debian 10.11.2026](test_logs/2026-11-10_debian_full.zip) | ARM-Mac 10.11.2026
+-------------------------------- | ----------------------------------------------------------: | --------------------------------------------------------: | -----------------:
+**Testzeit gesamt**              | **03:30:25**                                                | **01:16:33**                                              | **01:15:47**
+Vorbereitung                     | 00:01:08                                                    | 00:01:41                                                  | 00:00:14
+**Test + Vorbereitung**          | **03:31:33**                                                | **01:18:14**                                              | **01:16:01**
+Gesamtergebnis                   | PASS                                                        | FAIL (1)                                                  | PASS
+`_400_test_shell_format.sh`      | 00:00:02                                                    | 00:00:00                                                  | 00:00:00
+`_410_test_shellcheck.sh`        | 00:00:14                                                    | 00:00:10                                                  | 00:00:07
+`_420_test_dsstore.sh`           | 00:00:03                                                    | 00:00:00                                                  | 00:00:01
+`_430_test_clang_format.sh`      | 00:00:06                                                    | 00:00:02                                                  | 00:00:02
+`_440_test_manual_format.sh`     | 00:00:14                                                    | 00:00:00                                                  | 00:00:00
+`_450_test_markdownlint.sh`      | 00:00:03                                                    | 00:00:02                                                  | 00:00:01
+`_460_test_goreleaser_config.sh` | 00:00:02                                                    | 00:00:00                                                  | 00:00:01
+`_470_test_actionlint.sh`        | 00:00:07                                                    | 00:00:01                                                  | 00:00:00
+`_480_test_build_trice_tool.sh`  | 00:00:07                                                    | 00:00:05                                                  | 00:00:03
+`_490_test_runtime_prepare.sh`   | 00:00:09                                                    | 00:00:02                                                  | 00:00:04
+`_500_test_bind.sh`              | 00:00:16                                                    | 00:00:06                                                  | 00:00:06
+`_510_test_bind_workflows.sh`    | 00:00:18                                                    | 00:00:01                                                  | 00:00:02
+`_515_test_logging_features.sh`  | 00:11:49                                                    | 00:02:18                                                  | 00:04:08
+`_520_test_target_code_lint.sh`  | 00:00:29                                                    | 00:00:12                                                  | 00:00:11
+`_540_test_go.sh`                | 00:38:56                                                    | 00:02:44                                                  | 00:15:34
+`_550_test_go_coverage.sh`       | 00:40:00                                                    | 00:02:50                                                  | 00:15:19
+`_560_test_clang_insert.sh`      | 00:00:28                                                    | 00:00:06                                                  | 00:00:06
+`_570_test_clang_bind.sh`        | 00:00:25                                                    | 00:00:06                                                  | 00:00:04
+`_580_test_gcc_off.sh`           | 00:03:31                                                    | 00:00:18                                                  | 00:00:39
+`_590_test_gcc_insert.sh`        | 00:12:42                                                    | 00:01:26                                                  | 00:02:14
+`_600_test_gcc_bind.sh`          | 00:19:52                                                    | 00:02:33                                                  | 00:03:37
+`_620_test_l432_configs.sh`      | 00:15:23                                                    | 00:07:12                                                  | 00:04:55
+`_630_test_pc_targets_insert.sh` | 00:16:44                                                    | 00:16:09                                                  | 00:08:50
+`_640_test_pc_targets_bind.sh`   | 00:17:05                                                    | 00:16:22                                                  | 00:09:00
+`_645_test_pc_targets_clang.sh`  | 00:31:08                                                    | 00:23:47                                                  | 00:10:41
+Ablauf/Rundung zur Gesamtdauer   | 00:00:12                                                    | 00:00:01                                                  | 00:00:02
 
-Die oben genannte Debian-Zustandsevidenz bleibt nur lokal; die drei verlinkten Archive enthalten die auswertbaren Diagnoseprotokolle. ZIP-Integrität und enthaltene Dateilisten wurden bei dieser Auswertung für alle drei Archive geprüft.
+**(1)** Alle 25 Einzelstufen bestehen in den drei Läufen. Debian meldet Gesamt-FAIL wegen der während des Laufs geänderten Plandatei; Windows und Mac bestehen auch die Zustandsprüfung.
 
-Alle angezeigten Stufenzeiten:
+Mac-Quelle: `temp/log/testAll.0c9iWM/{steps.tsv,results.json,testAll_summary.log}`, bestätigt durch die Nutzerkonsole. Aufruf: `./scripts/testAll.sh --no-format`; Commit `c4a06890`, sauberer Start; Go **1.27.4**. Diese Rohlogs sind bisher nur lokal vorhanden; das verlinkte Mac-ZIP vom 09.11. enthält den älteren Lauf.
 
-Stufe | Skript                         | Debian      | Ergebnis
------ | ------------------------------ | ----------- | --------
-400   | _400_test_shell_format.sh      | 0 min 00 s  | PASS
-410   | _410_test_shellcheck.sh        | 0 min 10 s  | PASS
-420   | _420_test_dsstore.sh           | 0 min 00 s  | PASS
-430   | _430_test_clang_format.sh      | 0 min 02 s  | PASS
-440   | _440_test_manual_format.sh     | 0 min 00 s  | PASS
-450   | _450_test_markdownlint.sh      | 0 min 02 s  | PASS
-460   | _460_test_goreleaser_config.sh | 0 min 00 s  | PASS
-470   | _470_test_actionlint.sh        | 0 min 01 s  | PASS
-480   | _480_test_build_trice_tool.sh  | 0 min 05 s  | PASS
-490   | _490_test_runtime_prepare.sh   | 0 min 02 s  | PASS
-500   | _500_test_bind.sh              | 0 min 06 s  | PASS
-510   | _510_test_bind_workflows.sh    | 0 min 01 s  | PASS
-515   | _515_test_logging_features.sh  | 2 min 18 s  | PASS
-520   | _520_test_target_code_lint.sh  | 0 min 12 s  | PASS
-540   | _540_test_go.sh                | 2 min 44 s  | PASS
-550   | _550_test_go_coverage.sh       | 2 min 50 s  | PASS
-560   | _560_test_clang_insert.sh      | 0 min 06 s  | PASS
-570   | _570_test_clang_bind.sh        | 0 min 06 s  | PASS
-580   | _580_test_gcc_off.sh           | 0 min 18 s  | PASS
-590   | _590_test_gcc_insert.sh        | 1 min 26 s  | PASS
-600   | _600_test_gcc_bind.sh          | 2 min 33 s  | PASS
-620   | _620_test_l432_configs.sh      | 7 min 12 s  | PASS
-630   | _630_test_pc_targets_insert.sh | 16 min 09 s | PASS
-640   | _640_test_pc_targets_bind.sh   | 16 min 22 s | PASS
-645   | _645_test_pc_targets_clang.sh  | 23 min 47 s | PASS
+Windows und Debian liefen auf demselben Dual-Boot-PC mit Go **1.27.3**; der Mac ist ein anderer Rechner und enthält bereits den Go-Paketsuchfix samt neuen Regressionstests. Build-Cache und Hintergrundlast vor dem Start sind nicht vollständig dokumentiert. Der Vergleich ist daher kein kontrollierter Betriebssystem-Benchmark.
 
-Die angezeigten Stufen summieren sich auf **4.592 s**; zur gemeldeten Gesamtdauer bleibt **1 s** Ablauf-/Rundungsdifferenz. Angezeigte 0 Sekunden bedeuten keine nachgewiesene Auslassung.
-
-Toolstand laut Vorbereitung:
-
-Tool             | Version im Debian-Lauf | Herkunft laut Ausgabe
----------------- | ---------------------- | --------------------------------------------
-Go               | 1.27.3                 | System
-Node.js          | 26.12.1                | System
-cmake            | 4.4.4                  | System
-gcc              | 15.2.0                 | System
-clang            | 23.1.4                 | System
-arm              | 15.2.1                 | System
-goreleaser       | 2.19.0                 | temp/tools; Systemversion 2.20.0
-actionlint       | 1.7.12                 | System
-shellcheck       | 0.11.0                 | System
-jq               | 1.8.2                  | System
-shfmt            | 3.14.1                 | System
-mdtoc            | 1.0.3                  | System
-stitchmd         | dev / 0.9.0            | System; Anzeige: stitchmd dev / 0.9.0
-pandoc           | 3.8.3                  | temp/tools
-cppcheck         | 2.22.0                 | System
-clang-format     | 23.1.3                 | System
-Python           | 3.13.5                 | System; Anforderung >=3.9
-markdownlint-cli | 0.50.0                 | temp/tools
-md-to-pdf        | 5.2.5                  | temp/tools
-puppeteer        | 25.16.0                | Vorab als System angezeigt; npm-Installation
-
-Auswahl `u`: keine System-Upgrades verfügbar. Installation in `temp/tools`: goreleaser **2 s**, npm-Tools (`markdownlint-cli`, `md-to-pdf`, `puppeteer`) zusammen **3 s**, pandoc **3 s**. Die Vorbereitung nennt dafür ungefähr **588 MB** Download-/Installationsbedarf und **2,6 GB** freien Platz. Der vorhandene Zustand von Go- und Compiler-Build-Caches ist nicht dokumentiert; die kurzen Installationszeiten belegen keinen kalten Download und keinen warmen Build-Cache.
-
-Vergleich der größten Blöcke; reine Testzeiten aus `steps.tsv`, ohne Vorbereitung:
-
-Block                    | Windows      | Debian      | ARM-Mac
------------------------- | ------------ | ----------- | -----------
-Gesamte Testzeit         | 210 min 25 s | 76 min 33 s | 90 min 29 s
-515: Features            | 11 min 49 s  | 2 min 18 s  | 4 min 14 s
-540: Go                  | 38 min 56 s  | 2 min 44 s  | 28 min 25 s
-550: Coverage            | 40 min 00 s  | 2 min 50 s  | 17 min 14 s
-515 + 540 + 550          | 90 min 45 s  | 7 min 52 s  | 49 min 53 s
-620: L432                | 15 min 23 s  | 7 min 12 s  | 4 min 46 s
-630: PC-GCC Insert/Clean | 16 min 44 s  | 16 min 09 s | 8 min 50 s
-640: PC-GCC Bind         | 17 min 05 s  | 16 min 22 s | 9 min 04 s
-645: PC-Clang            | 31 min 08 s  | 23 min 47 s | 10 min 35 s
-
-**Erste Einschätzung:** Debian benötigt auf derselben Hardware **63,6 % weniger Testzeit**, entsprechend Faktor **2,75** und einer Differenz von **133 min 52 s**. Davon entfallen **82 min 53 s** auf 515/540/550. Diese Stufen beanspruchen unter Debian nur **10,3 %** statt **43,1 %** der Testzeit. Die PC-Matrizen benötigen dagegen zusammen **56 min 18 s = 73,5 %** der Debian-Testzeit; insbesondere PC-GCC ist auf beiden Systemen fast gleich schnell. Die Unterschiede verteilen sich also stark ungleich. Das stützt eine getrennte Untersuchung von Go-/Integrationsprüfungen, Firmware und PC-Matrizen; eine konkrete Ursache oder verzichtbare Prüfung ist damit noch nicht belegt.
-
-Auf dem ARM-Mac entfallen **55,1 %** der Testzeit auf 515/540/550 und **31,5 %** auf die PC-Matrizen. Das Paket `scripts` dauert dort in 540 **1.697,165 s** und in 550 **1.020,179 s**; unter Debian nur **160,834 s / 163,255 s**, unter Windows **2.313,622 s / 2.364,941 s**. Besonders auffällig sind auf dem Mac auch Vorbereitungstests: `TestRuntimePreparationChecksPython` benötigt **164,92 s / 60,29 s**, `TestRuntimePreparationChecksHostCompilers` **158,80 s / 158,09 s**. Die Ursache dieser Plattform- und Erst-/Folgelauf-Unterschiede ist noch nicht nachgewiesen.
-
-**Mehrfachausführung ist belegt:** In allen drei Archiven bestehen dieselben **12 übergeordneten Tests** sowohl in 515 als auch in 540 und 550. Beispiele sind `TestHostDemoEntrypointIntegration` und `TestBindEntrypointIntegration`. Allein diese beiden benötigen unter Windows in 515 zusammen **429,38 s**. Das ist ein konkreter späterer Ansatzpunkt, aber keine bewiesene Einsparung: 515 prüft benannte Pflichtnachweise, 550 instrumentiert für Coverage, und 515 enthält zusätzlich eigene Feature-Beispiele. Nicht die gesamten 90 min 45 s sind deshalb als vermeidbare Doppelarbeit anzusetzen.
-
-**Einzelzeilen sind teuer, Bulk existiert bereits:** In jeder Compiler-/ID-Kombination verwenden **30 `TestTriceLog`-Konfigurationen** einen Bulk-Pfad; unter anderem ungeframte Direct-/Combined-Pfade bleiben zeilenweise. Für dieselbe Konfiguration `dblB_di_nopf_rtt32__de_xtea_cobs_ua` im GCC-Insert-Lauf dauert `TestTriceLog` auf dem Mac **22,58 s**, unter Windows **40,62 s**, unter Debian **79,48 s**. Solche Fälle sind für P5 relevant. Die Paketzeiten enthalten jedoch zusätzlich Build-/Link- und Startkosten. Vier äußere Worker führen Tests parallel aus; Einzelzeiten dürfen nicht als vermeintlich einsparbare Stufenzeit addiert werden. Größere Bulk-Nutzung muss weiterhin die ursprüngliche Fehlerzeile liefern.
-
-Wirksame Budgets sind jetzt belegt: L432 **8 Worker unter Windows, 16 unter Debian, 12 auf dem Mac**, jeweils `make -j1`; PC überall **4 Worker**, `go test -p 1`, Modus `auto`. Mehr Parallelität ist damit eine spätere Abstimmung, keine bisher fehlende Funktion.
-
-Alle drei Läufe verwenden Go **1.27.3**. GCC unterscheidet sich (**Windows/Mac 16.2.0, Debian 15.2.0**), ebenso Clang (**Windows 23.1.3, Debian/Mac 23.1.4**). Der Mac-Lauf brauchte **1.011 s** Vorbereitung mit mehreren Toolinstallationen; daraus folgt kein vollständig kalter Go-/Compiler-Cache. Offen bleiben unter anderem Checkout-Dateisystem, Shell-Versionen, anfänglicher Build-Cache, Energieprofil und Hintergrundlast. Die Gesamtdifferenz ist deshalb keine reine Betriebssystemmessung. Neue Messläufe sind nicht beauftragt.
+Späterer Schritt        | Bereits belegt in den Ausgangsarchiven
+----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------
+P4 Mehrfachausführungen | 12 übergeordnete Tests laufen in 515, 540 und 550; Coverage und Pflichtnachweise vor einer Reduktion zuordnen.
+P5 Bulk                 | 30 `TestTriceLog`-Konfigurationen je Compiler-/ID-Kombination verwenden Bulk; verbleibende Einzelzeilenpfade mit genauer Fehlerzeile verbessern.
+P6 Worker               | L432: Windows 8, Debian 16, Mac 12 Worker mit `make -j1`; PC: überall 4 Worker mit `go test -p 1` und `auto`.
 
 ### 5.4. <a id="ci-status-und-issue-786"></a>CI-Status und Issue #786
 
@@ -366,16 +322,16 @@ Den Vorschlag „volle Breite mit Clang, weniger GCC-Varianten“ erst anhand un
 
 Der einfachste zusätzliche Schnitt wären drei Gruppen: allgemeine Prüfungen einschließlich Firmware/L432, PC-GCC und PC-Clang. Beim gemessenen Windows-Lauf enthält die erste Gruppe bereits **145 min 16 s** an Stufenzeit. Die beiden anderen Gruppen benötigen rund 34 und 31 Minuten. Für eine spätere bessere Verteilung lassen sich deshalb vier feste fachliche Gruppen vergleichen:
 
-Gruppe   | Zugeordnete Stufen im vollen Lauf                 | Windows lokal | Debian lokal | ARM-Mac lokal | Intel laut Übergabe
--------- | ------------------------------------------------- | ------------- | ------------ | ------------- | ---------------------------
-checks   | 400–550: Konsistenz, Bind, Features, Go, Coverage | 92 min 55 s   | 8 min 33 s   | 50 min 33 s   | mind. 47 min 19 s
-firmware | 560–620: Clang/GCC Firmware und L432              | 52 min 21 s   | 11 min 41 s  | 11 min 26 s   | mind. 50 min 33 s
-pc-gcc   | 630 und 640: Insert/Clean und Bind mit GCC        | 33 min 49 s   | 32 min 31 s  | 17 min 54 s   | 57 min 35 s
-pc-clang | 645: Insert/Clean und Bind mit Clang              | 31 min 08 s   | 23 min 47 s  | 10 min 35 s   | nach 9 min 43 s abgebrochen
+Gruppe   | Zugeordnete Stufen im vollen Lauf                 | Windows lokal | Debian lokal | ARM-Mac 10.11. | Intel laut Übergabe
+-------- | ------------------------------------------------- | ------------- | ------------ | -------------- | ---------------------------
+checks   | 400–550: Konsistenz, Bind, Features, Go, Coverage | 92 min 55 s   | 8 min 33 s   | 35 min 39 s    | mind. 47 min 19 s
+firmware | 560–620: Clang/GCC Firmware und L432              | 52 min 21 s   | 11 min 41 s  | 11 min 35 s    | mind. 50 min 33 s
+pc-gcc   | 630 und 640: Insert/Clean und Bind mit GCC        | 33 min 49 s   | 32 min 31 s  | 17 min 50 s    | 57 min 35 s
+pc-clang | 645: Insert/Clean und Bind mit Clang              | 31 min 08 s   | 23 min 47 s  | 10 min 41 s    | nach 9 min 43 s abgebrochen
 
 Die Windows-Zeiten sind Summen der seriell gemessenen Stufen; 12 Sekunden Ablauf-/Rundungsdifferenz zur Gesamtdauer sind nicht verteilt. Die Intel-Untergrenzen enthalten nur die in der Übergabe ausgewiesenen großen Blöcke. Insbesondere die vollständige Intel-Clang-Dauer ist unbekannt.
 
-Die Debian-Gruppen summieren sich auf 76 min 32 s, mit 1 Sekunde Differenz zur Gesamtdauer. Dort wären allgemeine Prüfungen und Firmware zusammen nur 20 min 14 s lang; im Drei- wie im Viererzuschnitt bliebe PC-GCC mit 32 min 31 s der längste Block. Auf dem Mac sind die allgemeinen Prüfungen mit 50 min 33 s am längsten. Der Windows-Vorteil von vier Gruppen lässt sich deshalb nicht unmittelbar auf andere Plattformen übertragen. Dies ist eine Auswertung serieller Stufenzeiten, kein gemessener paralleler Lauf und keine Freigabe zur Umsetzung.
+Die Debian-Gruppen summieren sich auf 76 min 32 s, mit 1 Sekunde Differenz zur Gesamtdauer. Dort wären allgemeine Prüfungen und Firmware zusammen nur 20 min 14 s lang; im Drei- wie im Viererzuschnitt bliebe PC-GCC mit 32 min 31 s der längste Block. Auf dem aktuellen Mac-Lauf sind die allgemeinen Prüfungen mit 35 min 39 s am längsten. Der Windows-Vorteil von vier Gruppen lässt sich deshalb nicht unmittelbar auf andere Plattformen übertragen. Dies ist eine Auswertung serieller Stufenzeiten, kein gemessener paralleler Lauf und keine Freigabe zur Umsetzung.
 
 Bei gleich leistungsfähigen, sofort verfügbaren getrennten Runnern wäre der längste bekannte Windows-Block im Viererzuschnitt etwa 93 statt 145 Minuten im Dreierzuschnitt. Das ist ein Verteilungsbeispiel, keine zugesicherte CI-Laufzeit: zusätzliche Vorbereitung, Transfers, Warteschlangen und veränderte Auslastung kommen hinzu. Nach P4 bis P6 muss die Verteilung erneut geprüft werden.
 
@@ -409,7 +365,7 @@ Arbeitsgrundlage        | Dieser Plan einschließlich vollständiger Übergabe i
 Reihenfolge             | Kleiner Stabilisierungsfix und vollständige Läufe vor Optimierung | Vom Nutzer vorgegeben
 S1 CI-Zeitbudget        | full auf Windows/Intel 360 statt 180 Minuten                      | Umgesetzt; fokussierte Prüfungen PASS
 Go-Paketsuche           | Lokale Toolchains und Einwegprojekte vor dem Scan ausschließen    | Korrigiert; Regression und reale Auflistung PASS
-S2 Native Abnahme       | Vollständiger Plan, Wiederherstellung, Race; Intel kalt/warm      | Nach S1 gesondert beauftragen
+S2 Native Abnahme       | Vollständiger Plan, Wiederherstellung, Race; Intel kalt/warm      | Mac lokal PASS; weitere CI-Nachweise hier offen
 L1 Logablage            | Feste Pfade, Abschluss-ZIP mit Zeit/OS und Konsolenüberblick      | Vorgemerkt; erst nach S2
 P1 Logvergleich         | Drei Archive und aktueller CI-Status ausgewertet                  | Erledigt; Testlandkarte noch offen
 CI Zuschnitt            | Vier feste Gruppen; drei Gruppen als Vergleich                    | Zurückgestellt unter P7
@@ -433,7 +389,7 @@ Nach jeder beauftragten Stufe hier kurz nachtragen: Status und Ergebnis, Entsche
 - Korrektur: [go.mod](../../go.mod) enthält jetzt `ignore ./temp`. Damit werden nur das Wurzelverzeichnis `temp` und seine Inhalte bereits bei der Paketsuche ausgeschlossen. Das schützt 540/550, die direkten Go-/Coverage-CI-Aufrufe und normale lokale `go list`-/`go test`-Aufrufe gemeinsam. Echte Unterpakete wie `nested/temp` bleiben enthalten. Keine Skriptlisten, Toolversionen, Abhängigkeiten oder Cachepfade ändern; Go 1.25 unterstützt die Direktive bereits. Quelle: [Go-Dokumentation zu ignore](https://go.dev/doc/modules/gomod-ref#ignore).
 - Regression: `TestTemporaryArtifactsExcludedFromGo` in [portability_test.go](../../scripts/portability_test.go) verwendet die echten Ausschlussregeln aus `go.mod` und nachgebildete defekte SDK-/Projektkopien. Vor dem Fix scheitern Paketsuche, Tests und globale Coverage daran. Nach dem Fix bestehen alle vier Fälle einschließlich der weiterhin gemeldeten Fehler in aktiven Paketen. **PASS mit Go 1.27.4 und Go 1.25.3 auf ARM-macOS**; die Coverage-Probe betrifft nur ein isoliertes kleines Testprojekt.
 - Unter Go 1.27.4 zusätzlich **PASS**: `TestScratchpadExcludedFromGo`, `TestGoStepsAllowSlowNativeScriptFixtures` für beide Stufen sowie `TestPCCacheOverlayArtifactsStayOutOfGoDiscovery`. Die reale Paketsuche mit der installierten Go-Toolchain findet wieder **27 reguläre Pakete und 63 PC-Konfigurationen**, ohne SDK-Testquellen.
-- Native Windows- und Linux-Prüfungen dieses Folgefixes nicht ausgeführt; vollständige Suite, reguläre Projekt-Coverage und CI-Läufe bleiben für S2 offen. Es wurde kein neuer Abschlusslauf gestartet. L1 und die Optimierungen bleiben unverändert zurückgestellt.
+- Der anschließend vom Nutzer gestartete ARM-Mac-Full-Lauf besteht mit allen 25 Stufen einschließlich regulärer Coverage und Zustandsprüfung, siehe 5.3. Weitere native Windows-/Linux- und CI-/Race-Nachweise dieses Stands sind hier noch nicht ausgewertet. L1 und die Optimierungen bleiben zurückgestellt.
 
 Die ursprüngliche Übergabe bleibt unten vollständig als historisches Zitat erhalten. `AGENTS.md` verwendet `Codex_Handover.md` weiterhin als allgemeines Ziel für künftige Rechnerwechsel; dann genügt eine neue kurze Übergabe, die für diese Aufgabe auf den aktuellen Plan verweist. Die drei Logarchive und die historische Übergabe wurden bei S1 nicht verändert.
 
