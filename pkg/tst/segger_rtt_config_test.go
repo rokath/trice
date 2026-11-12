@@ -65,9 +65,11 @@ func TestRTTFallbackAndProjectConfiguration(t *testing.T) {
 	if !assert.NoError(t, err) {
 		return
 	}
-	for _, compiler := range []string{"cc", "gcc", "clang"} {
+	// Test the required compiler families, not the optional generic cc alias.
+	for _, compiler := range []string{"gcc", "clang"} {
 		t.Run(compiler, func(t *testing.T) {
-			if _, err := exec.LookPath(compiler); err != nil {
+			compilerPath, err := exec.LookPath(compiler)
+			if err != nil {
 				t.Skipf("%s is not installed", compiler)
 			}
 			for _, tc := range []struct {
@@ -135,7 +137,7 @@ func TestRTTFallbackAndProjectConfiguration(t *testing.T) {
 						args = append(args, "-I", directory)
 					}
 					args = append(args, probe, filepath.Join(sourceDir, "SEGGER_RTT.c"), "-o", executable)
-					output, err := exec.Command(compiler, args...).CombinedOutput()
+					output, err := exec.Command(compilerPath, args...).CombinedOutput()
 					if !assert.NoError(t, err, "%s", output) {
 						return
 					}
@@ -253,9 +255,10 @@ func TestTriceRTTWritersUseVendorBuffer(t *testing.T) {
 	if !assert.NoError(t, err) {
 		return
 	}
-	for _, compiler := range []string{"cc", "gcc", "clang"} {
+	for _, compiler := range []string{"gcc", "clang"} {
 		t.Run(compiler, func(t *testing.T) {
-			if _, err := exec.LookPath(compiler); err != nil {
+			compilerPath, err := exec.LookPath(compiler)
+			if err != nil {
 				t.Skipf("%s is not installed", compiler)
 			}
 			for _, mode := range []string{"8BIT", "32BIT"} {
@@ -279,7 +282,7 @@ func TestTriceRTTWritersUseVendorBuffer(t *testing.T) {
 							"-DTRICE_DIRECT_SEGGER_RTT_" + mode + "_WRITE=1",
 							"-I", project, "-I", sourceDir, "-I", filepath.Join(sourceDir, "default_conf"), probe,
 							filepath.Join(sourceDir, "triceStackBuffer.c"), filepath.Join(sourceDir, "SEGGER_RTT.c"), filepath.Join(sourceDir, "cobsEncode.c"), filepath.Join(sourceDir, "tcobsv1Encode.c"), "-o", executable}
-						output, err := exec.Command(compiler, args...).CombinedOutput()
+						output, err := exec.Command(compilerPath, args...).CombinedOutput()
 						if !assert.NoError(t, err, "%s", output) {
 							return
 						}
@@ -340,9 +343,10 @@ int main(void) {
     return 0;
 }
 `
-	for _, compiler := range []string{"cc", "gcc", "clang"} {
+	for _, compiler := range []string{"gcc", "clang"} {
 		t.Run(compiler, func(t *testing.T) {
-			if _, err := exec.LookPath(compiler); err != nil {
+			compilerPath, err := exec.LookPath(compiler)
+			if err != nil {
 				t.Skipf("%s is not installed", compiler)
 			}
 			for _, tc := range []struct {
@@ -375,7 +379,7 @@ int main(void) {
 					// Compile the production source: this is where inconsistent
 					// configurations must still produce a compiler error.
 					compileArgs := append(append([]string{}, args...), "-c", filepath.Join(root, "src", "trice.c"), "-o", filepath.Join(project, "trice.o"))
-					output, err := exec.Command(compiler, compileArgs...).CombinedOutput()
+					output, err := exec.Command(compilerPath, compileArgs...).CombinedOutput()
 					if tc.wantMismatch {
 						// CGO must not bypass validation of explicit project values.
 						assert.Error(t, err, "inconsistent values must remain a compiler error")
@@ -388,7 +392,7 @@ int main(void) {
 					}
 					executable := filepath.Join(project, "probe.exe")
 					args = append(args, probePath, "-o", executable)
-					output, err = exec.Command(compiler, args...).CombinedOutput()
+					output, err = exec.Command(compilerPath, args...).CombinedOutput()
 					if !assert.NoError(t, err, "%s", output) {
 						return
 					}
