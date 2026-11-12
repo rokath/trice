@@ -8,17 +8,18 @@ Already using Trice? Jump to a task under [2. Entry Points](#entry-points). The 
 
 <!-- mdtoc -->
 
-* [1. Document Overview](#document-overview)
-* [2. Entry Points](#entry-points)
-  * [2.1. Integration](#integration)
-  * [2.2. Log output and analysis](#log-output-and-analysis)
-  * [2.3. Target behavior and transport](#target-behavior-and-transport)
-  * [2.4. Troubleshooting and contributions](#troubleshooting-and-contributions)
-  * [2.5. Project resources](#project-resources)
-* [3. Project Folder Structure](#project-folder-structure)
-  * [3.1. Sources, examples, and documentation](#sources-examples-and-documentation)
-  * [3.2. Repository configuration and history](#repository-configuration-and-history)
-  * [3.3. Generated and local files](#generated-and-local-files)
+- [1. Document Overview](#document-overview)
+- [2. Entry Points](#entry-points)
+  - [2.1. Integration](#integration)
+  - [2.2. Log output and analysis](#log-output-and-analysis)
+  - [2.3. Target behavior and transport](#target-behavior-and-transport)
+  - [2.4. Troubleshooting and contributions](#troubleshooting-and-contributions)
+  - [2.5. Project resources](#project-resources)
+  - [2.6. Articles and further reading](#articles-and-further-reading)
+- [3. Project Folder Structure](#project-folder-structure)
+  - [3.1. Sources, examples, and documentation](#sources-examples-and-documentation)
+  - [3.2. Repository configuration and history](#repository-configuration-and-history)
+  - [3.3. Generated and local files](#generated-and-local-files)
 
 <!-- numbering=true min=2 max=4 slug=github anchor=true link=true toc=true bullets=auto -->
 <!-- /mdtoc -->
@@ -126,6 +127,13 @@ Support the project        | [Support and sponsoring](rm/project_resources.md#su
 Licensing                  | [MIT License](../LICENSE.md)
 
 The User Manual is the short learning path; the Reference Manual contains the full contracts and detailed example instructions. Example READMEs link to the central manuals so each example has one maintained explanation.
+
+### 2.6. <a id="articles-and-further-reading"></a>Articles and further reading
+
+Both articles are written by Trice author Thomas Höhenleitner.
+
+- [Trice on LinkedIn](https://lnkd.in/p/dkG8z98N) — A recent article about Trice v2, readable without signing in.
+- [Tracing & Logging with the TRICE Library (Interrupts too!)](https://interrupt.memfault.com/blog/trice) — Published on Memfault's Interrupt blog, January 12, 2022. Introduces Trice's origins, principles, and features. Examples, commands, and performance figures reflect an older version; consult the current manuals for today's usage.
 
 ## 3. <a id="project-folder-structure"></a>Project Folder Structure
 
