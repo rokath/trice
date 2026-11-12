@@ -24,6 +24,15 @@ DEBUG = 1
 # optimization
 OPT = -Og
 
+# Keep LTO identical in all three F030 comparison projects; use LTO=0 for reference builds.
+LTO ?= 1
+ifeq ($(LTO),1)
+LTO_FLAGS = -flto
+endif
+
+# Clang's integrated assembler does not support GCC's optional C listing flags.
+LISTING_FLAGS ?= -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst))
+
 
 #######################################
 # paths
@@ -112,7 +121,8 @@ C_DEFS =  \
 -DPREFETCH_ENABLE=1 \
 -DINSTRUCTION_CACHE_ENABLE=0 \
 -DDATA_CACHE_ENABLE=0 \
--DSTM32F030x8
+-DSTM32F030x8 \
+$(TRICE_FLAGS)
 
 
 # AS includes
@@ -133,10 +143,11 @@ C_INCLUDES += -I../../src -I../../src/default_conf
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
-CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+CFLAGS += $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) $(LTO_FLAGS) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+DEBUG_FLAGS = -g -gdwarf-2
+CFLAGS += $(DEBUG_FLAGS)
 endif
 
 
@@ -153,7 +164,8 @@ LDSCRIPT = STM32F030R8Tx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+# Repeat section flags during LTO code generation so unused syscalls remain removable.
+LFLAGS = $(MCU) $(OPT) $(LTO_FLAGS) $(DEBUG_FLAGS) -ffunction-sections -fdata-sections -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 LFLAGS += -Wl,--no-warn-rwx-segments # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 LFLAGS += -Wl,--no-warn-execstack    # https://www.redhat.com/en/blog/linkers-warnings-about-executable-stacks-and-segments
 
@@ -179,13 +191,13 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASMM_SOURCES:.S=.o)))
 vpath %.S $(sort $(dir $(ASMM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(CFLAGS) $(LISTING_FLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
+	$(AS) -c $(filter-out $(LTO_FLAGS),$(CFLAGS)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.S Makefile | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
+	$(AS) -c $(filter-out $(LTO_FLAGS),$(CFLAGS)) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
 	$(CC) $(OBJECTS) $(LFLAGS) -o $@
