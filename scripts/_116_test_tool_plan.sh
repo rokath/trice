@@ -747,7 +747,7 @@ trice_test_tool_plan() {
   case "$scope" in native | lint | pdf | cli* | analyzer) trice_resolve_go_toolchain || return 2 ;; esac
   # Reuse alone needs no installation choice, including verified cached tools.
   local installation_needed=0
-  # Routine capacity information accompanies the visible setup inventory.
+  # Ready native tests still show their tools, without setup capacity output.
   local show_inventory=0
   # Exit 2 also describes real setup failures. Keep explicit refusal distinct
   # so the suite can avoid replaying an inventory already mirrored to the user.
@@ -945,9 +945,11 @@ trice_test_tool_plan() {
       manual) blocked=1 ;;
     esac
   done <"$TRICE_PLAN_FILE"
-  if [ "$after_updates" != 1 ] && { [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; }; then
-    trice_plan_table
-    show_inventory=1
+  if [ "$after_updates" != 1 ]; then
+    if [ "$installation_needed" -ne 0 ] || [ "$blocked" -ne 0 ]; then show_inventory=1; fi
+    # Native startup always reports the selected tools once. Rechecks after
+    # system updates and repeated preparation in child steps reuse that table.
+    if [ "$scope" = native ] || [ "$show_inventory" -eq 1 ]; then trice_plan_table; fi
   fi
   trice_plan_space "$show_inventory" || checkout_space_ok=0
   if [ "$blocked" -ne 0 ]; then trice_plan_can_continue || true; fi
