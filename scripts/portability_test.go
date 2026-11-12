@@ -395,6 +395,35 @@ print_pinned_test_tools
 	}
 }
 
+// TestPinnedToolPathMerge checks path precedence and empty fields independently
+// of installed tools. Reusing an inherited selection must be idempotent, while
+// explicitly selected directories still take priority over existing commands.
+func TestPinnedToolPathMerge(t *testing.T) {
+	for _, tc := range []struct{ name, prefix, inherited, want string }{
+		{"inherited_selection", "/first:/second", "/first:/second", "/first:/second"},
+		{"selected_directory_first", "/new tools:/shared", "/first:/shared:/second", "/new tools:/shared:/first:/second"},
+		{"duplicate_directories", "/first:/first:/second", "/second:/third:/third", "/first:/second:/third"},
+		{"empty_selection", "", "/first:/second", "/first:/second"},
+		{"current_directory_entry", "/first:", ":/second:/first", "/first::/second"},
+		{"empty_inherited_path", "/first", "", "/first:"},
+		{"empty_paths", "", "", ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := scriptFixture(t, "scripts/_115_prepare_native_tests.sh")
+			out, err := runFixture(t, root, `source scripts/_115_prepare_native_tests.sh
+# Keep the real awk available while testing synthetic lookup directories.
+fixture_awk="$(command -v awk)"
+awk() { "$fixture_awk" "$@"; }
+PATH="$FIXTURE_PATH"
+prepend_pinned_test_paths "$FIXTURE_PREFIX" || exit $?
+printf '%s\n' "$PATH"
+`, map[string]string{"FIXTURE_PATH": tc.inherited, "FIXTURE_PREFIX": tc.prefix})
+			assert.NoError(t, err, out)
+			assert.Equal(t, tc.want+"\n", out)
+		})
+	}
+}
+
 // TestNativeToolConsentIsLazy checks the public tool-selection helper without
 // depending on installed versions or downloading any tools. Cache hits need no
 // input; missing tools share one approval, and setup errors never ask to install.
@@ -402,9 +431,11 @@ func TestNativeToolConsentIsLazy(t *testing.T) {
 	for _, tc := range []struct {
 		name, input                string
 		warm, broken, accepted, ci bool
+		installedPath              bool
 		prompts                    int
 	}{
 		{name: "warm_cache_without_input", warm: true, accepted: true},
+		{name: "installed_tools_keep_existing_path", warm: true, accepted: true, installedPath: true},
 		{name: "missing_tools_approved_once", input: "yes\\r\\n", accepted: true, prompts: 1},
 		{name: "missing_tools_declined", input: "no\\n", prompts: 1},
 		{name: "missing_tools_empty_reply", input: "\\n", prompts: 1},
@@ -432,22 +463,32 @@ if [ ! -f "$FIXTURE_ROOT/installed-$1" ]; then
   echo "$1" >> "$FIXTURE_ROOT/preparations"
   touch "$FIXTURE_ROOT/installed-$1"
 fi
-printf '%s/bin\n' "$FIXTURE_ROOT"
+if [ "$FIXTURE_INSTALLED_PATH" = true ]; then
+  printf '%s\n' "$PATH"
+else
+  printf '%s/bin\n' "$FIXTURE_ROOT"
+fi
 `)
 			command := `source scripts/_100_test_common.sh
 # Reload the real selector after the common orchestration fixture's stubs.
 source scripts/_115_prepare_native_tests.sh
 TRICE_TEST_REPORT_BIN="$PWD/bin/setup-helper"
 ensure_pinned_test_tools fixture || exit $?
+selected_path="$PATH"
 ensure_pinned_test_tools another || exit $?
-ensure_pinned_test_tools fixture
+ensure_pinned_test_tools fixture || exit $?
+if [ "$FIXTURE_INSTALLED_PATH" = true ] && [ "$PATH" != "$selected_path" ]; then
+  echo 'PATH changed while reusing installed tools' >&2
+  exit 95
+fi
 `
 			if tc.input != "" {
 				command = "printf '" + tc.input + "' | {\n" + command + "\n}"
 			}
 			out, err := runFixture(t, root, command, map[string]string{
 				"FIXTURE_ROOT": root, "BROKEN_SETUP": strconv.FormatBool(tc.broken), "CI": strconv.FormatBool(tc.ci),
-				"TRICE_TEST_AUTO_SETUP": "1",
+				"TRICE_TEST_AUTO_SETUP":  "1",
+				"FIXTURE_INSTALLED_PATH": strconv.FormatBool(tc.installedPath),
 			})
 			assert.Equal(t, tc.accepted, err == nil, out)
 			assert.Equal(t, tc.prompts, strings.Count(out, "Install pinned test tools and compiler bundles"), out)

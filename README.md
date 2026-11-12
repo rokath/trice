@@ -20,7 +20,7 @@ Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#
 
 **[Features at a glance](docs/rm/feature_overview.md)** — capabilities, introduction versions and obsolete features, with links to examples and details.
 
-See the moments that matter: a fleeting interrupt, a changing sensor value, or the response to a command.<sup>[8](#note-commands)</sup> Trice brings them into view while your firmware runs. Read events as text,<sup>[9](#note-text)</sup> work with structured values,<sup>[10](#note-fields)</sup> or watch measurements come alive in a plot.<sup>[11](#note-plots)</sup>
+See the moments that matter: a fleeting interrupt, a changing sensor value, or the response to a command.<sup>[8](#note-commands)</sup> Trice brings them into view while your firmware runs. Read events as text,<sup>[9](#note-text)</sup> work with structured values,<sup>[10](#note-fields)</sup> or watch measurements come alive in a plot.<sup>[11](#note-plots)</sup> ~1 KB Flash core; no printf lib anymore.<sup>[12](#note-memory)</sup>
 
 Start with one task:
 
@@ -65,3 +65,4 @@ Footnotes:
 9. <a id="note-text"></a>[Text output and event boundaries](docs/rm/structured_logging.md#output-formats-and-event-boundaries).
 10. <a id="note-fields"></a>[Structured Logging with named values](docs/rm/structured_logging.md).
 11. <a id="note-plots"></a>[Live visualization with the LabPlot demo](docs/rm/visualization.md#setting-up-the-labplot-demo).
+12. <a id="note-memory"></a>[Small configurations and measured memory use](docs/rm/memory_usage.md#reproducible-f030-comparison).
