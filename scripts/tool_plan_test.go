@@ -448,9 +448,9 @@ func TestToolPlanConsentAndSpace(t *testing.T) {
 	}
 }
 
-// TestToolPlanListsOnlyMissingTools checks the user's two-mismatch scenario on
-// all three platform branches. Complete compiler/npm selections are modeled;
-// their real resource and module checks have separate behavioral tests.
+// TestToolPlanListsOnlyMissingTools checks missing and fully installed tools on
+// all three platform branches. Native startup reports its inventory once;
+// ready tools need neither installation consent nor capacity output.
 func TestToolPlanListsOnlyMissingTools(t *testing.T) {
 	for _, platform := range []string{"Linux", "Darwin", "MINGW64_NT-10.0"} {
 		t.Run(platform, func(t *testing.T) {
@@ -489,6 +489,7 @@ trice_plan_npm() {
   trice_plan_row puppeteer "$TRICE_TOOL_PUPPETEER_VERSION" "$TRICE_TOOL_PUPPETEER_VERSION" reuse available temp/tools 0 0
 }
 trice_test_tool_plan native || exit $?
+trice_test_tool_plan native || exit $?
 awk -F '\t' '$1=="pandoc" {print "PANDOC=" $2 ":" $4}' "$TRICE_PLAN_FILE"
 awk -F '\t' '$4=="install" {print "INSTALL=" $1}' "$TRICE_PLAN_FILE"
 }
@@ -500,6 +501,20 @@ awk -F '\t' '$4=="install" {print "INSTALL=" $1}' "$TRICE_PLAN_FILE"
 			assert.Contains(t, out, "INSTALL=jq")
 			assert.Contains(t, out, "INSTALL=shfmt")
 			assert.Contains(t, out, "Install: jq (~32 MB), shfmt (~32 MB)")
+			assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
+
+			// Once the remaining tools are installed, the same native plan must
+			// retain its table while bypassing capacity output and setup choices.
+			for name, version := range map[string]string{"jq": "1.8.2", "shfmt": "3.14.1"} {
+				writeFixture(t, root, "bin/"+name, "#!/bin/sh\necho 'fixture "+version+"'\n")
+			}
+			out, err = runFixture(t, root, body, map[string]string{"FIXTURE_PLATFORM": platform, "CI": "false"})
+			assert.NoError(t, err, out)
+			assert.Equal(t, 1, strings.Count(out, "Tool             Required"), "repeated native setup must show one table")
+			assert.Contains(t, out, "No installation needed.")
+			assert.NotContains(t, out, "Choose [c/u/a]")
+			assert.NotContains(t, out, "Disk [")
+			assert.NotContains(t, out, "INSTALL=")
 			assert.NoDirExists(t, filepath.Join(root, "temp", "tools"))
 		})
 	}

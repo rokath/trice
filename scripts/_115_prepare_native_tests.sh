@@ -100,6 +100,26 @@ prepare_pinned_test_selection() {
   printf -v "$result_variable" '%s' "$setup_output"
 }
 
+# prepend_pinned_test_paths merges selected directories with the inherited PATH.
+# The helper can return the complete existing PATH for installed tools; keeping
+# each directory's first occurrence prevents exponential growth while retaining
+# launcher precedence, spaces and one intentional empty current-directory entry.
+prepend_pinned_test_paths() {
+  local combined="${1}${1:+:}$PATH" merged
+  if ! merged="$(printf '%s\n' "$combined" | awk -F ':' '
+    { for (i=1; i<=NF; i++) if (!seen[$i]++) {
+        printf "%s%s", separator, $i
+        separator=":"
+      }
+    }')"; then
+    printf 'FAIL: cannot merge selected tool directories into PATH.\n' >&2
+    return 2
+  fi
+  PATH="$merged"
+  export PATH
+  hash -r
+}
+
 # ensure_pinned_test_tools prepares only the named standalone tools. It shares
 # the same manifest/cache as the suite and never modifies a system installation.
 ensure_pinned_test_tools() {
@@ -110,8 +130,7 @@ ensure_pinned_test_tools() {
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*) bin="$(cygpath -up "$bin")" ;;
   esac
-  export PATH="$bin:$PATH"
-  hash -r
+  prepend_pinned_test_paths "$bin" || return 2
 }
 
 # Select the generator matching the Windows GNU runtime for every child build.
@@ -369,8 +388,7 @@ prepare_pinned_native_tools() {
   case "$(uname -s)" in
     MINGW* | MSYS* | CYGWIN*) tool_bin="$(cygpath -up "$tool_bin")" ;;
   esac
-  export PATH="$tool_bin:$PATH"
-  hash -r
+  prepend_pinned_test_paths "$tool_bin" || return 2
   if [ "$(node --version)" != "v$TRICE_NODE_VERSION" ]; then
     printf 'INCOMPLETE: Node.js %s is required; found %s. Select the declared version before running native tests.\n' "$TRICE_NODE_VERSION" "$(node --version)"
     return 2
@@ -378,7 +396,7 @@ prepare_pinned_native_tools() {
   if [ -n "${TRICE_TEST_NPM_PLAN:-}" ]; then
     prepare_selected_npm_tools || return 2
     # Npm's global prefix must not override the verified Go CLI selection.
-    export PATH="$tool_bin:$PATH"
+    prepend_pinned_test_paths "$tool_bin" || return 2
     return 0
   fi
   npm_dir="$(pwd)/temp/tools/npm/$TRICE_NODE_VERSION"
