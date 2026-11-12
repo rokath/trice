@@ -12,6 +12,8 @@
 
 ### Developer tests and CI
 
+- Native test preparation avoids `PATH` growth that could prevent Windows child processes from starting, including Git in GoReleaser and ShellCheck in actionlint.
+- Native test startup always shows the tool inventory, even when no installation is needed. See [shared tool rules](docs/rm/target_tests.md#shared-tool-rules).
 - Intel macOS CI uses checksum-verified prebuilt LLVM packages instead of compiling LLVM from source.
 - Local native tests prepare Pandoc before running the required EPUB checks. Test setup and CI select the latest stable Go release; local test startup needs network access to resolve that version and its checksums. See [running the tests](docs/rm/target_tests.md#how-to-run-the-tests).
 
