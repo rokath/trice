@@ -13,14 +13,13 @@
 <img align="right" src="docs/ref/TriceGirl-167x222.png" width="115" alt="Trice project mascot">
 
 **Log C-code in 3 or 7 Assembler instructions (< ~16 clocks) per call.**<sup>[1](#note-speed)</sup><br>
-Printf-like calls.<sup>[2](#note-calls)</sup> Compact records.<sup>[3](#note-records)</sup> Even from interrupt handlers.<sup>[4](#note-interrupts)</sup><br>
-Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#note-ids)</sup> Aliases for legacy code.<sup>[7](#note-aliases)</sup>
+Printf-like calls.<sup>[2](#note-calls)</sup> Compact records.<sup>[3](#note-records)</sup> Even from interrupt handlers.<sup>[4](#note-interrupts)</sup> Compiler-independent.<sup>[5](#note-compiler)</sup> ID-free user code.<sup>[6](#note-ids)</sup> Aliases for legacy code.<sup>[7](#note-aliases)</sup> Flash ~1 KB; no printf lib<sup>[8](#note-memory)</sup>
 
 **[Explore Trice in the Guide](./docs/TriceGuide.md)**
 
 **[Features at a glance](docs/rm/feature_overview.md)** — capabilities, introduction versions and obsolete features, with links to examples and details.
 
-See the moments that matter: a fleeting interrupt, a changing sensor value, or the response to a command.<sup>[8](#note-commands)</sup> Trice brings them into view while your firmware runs. Read events as text,<sup>[9](#note-text)</sup> work with structured values,<sup>[10](#note-fields)</sup> or watch measurements come alive in a plot.<sup>[11](#note-plots)</sup> ~1 KB Flash core; no printf lib anymore.<sup>[12](#note-memory)</sup>
+See the moments that matter: a fleeting interrupt, a changing sensor value, or the response to a command.<sup>[9](#note-commands)</sup> Trice brings them into view while your firmware runs. Read events as text,<sup>[10](#note-text)</sup> work with structured values,<sup>[11](#note-fields)</sup> or watch measurements come alive in a plot.<sup>[12](#note-plots)</sup>
 
 Start with one task:
 
@@ -61,8 +60,8 @@ Footnotes:
 5. <a id="note-compiler"></a>[Target-code portability and modularity](docs/rm/overview.md#portability-and-modularity).
 6. <a id="note-ids"></a>[Bind](docs/rm/bind.md) keeps numeric IDs out of user log calls; see its [supported constructs and compiler requirements](docs/rm/bind.md#bind-limits).
 7. <a id="note-aliases"></a>[Aliases for existing logging and assert macros](docs/rm/legacy_user_code.md#legacy-user-code-option-trice-aliases-adaptation).
-8. <a id="note-commands"></a>[Asynchronous Broadcast Commands and responses](docs/rm/abc_asynchronous_broadcast_commands.md).
-9. <a id="note-text"></a>[Text output and event boundaries](docs/rm/structured_logging.md#output-formats-and-event-boundaries).
-10. <a id="note-fields"></a>[Structured Logging with named values](docs/rm/structured_logging.md).
-11. <a id="note-plots"></a>[Live visualization with the LabPlot demo](docs/rm/visualization.md#setting-up-the-labplot-demo).
-12. <a id="note-memory"></a>[Small configurations and measured memory use](docs/rm/memory_usage.md#reproducible-f030-comparison).
+8. <a id="note-memory"></a>[Small configurations and measured memory use](docs/rm/memory_usage.md#reproducible-f030-comparison).
+9. <a id="note-commands"></a>[Asynchronous Broadcast Commands and responses](docs/rm/abc_asynchronous_broadcast_commands.md).
+10. <a id="note-text"></a>[Text output and event boundaries](docs/rm/structured_logging.md#output-formats-and-event-boundaries).
+11. <a id="note-fields"></a>[Structured Logging with named values](docs/rm/structured_logging.md).
+12. <a id="note-plots"></a>[Live visualization with the LabPlot demo](docs/rm/visualization.md#setting-up-the-labplot-demo).
