@@ -294,6 +294,9 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, bin, warm)
 	assert.Equal(t, int32(1), requests.Load())
+	// Replace the directory entry instead of truncating a recently executed
+	// binary, whose old file may still be locked after the version probe exits.
+	require.NoError(t, os.Remove(selected))
 	require.NoError(t, os.WriteFile(selected, []byte("incomplete executable"), 0o755))
 	_, err = installTools(config, cache, []string{name}, false)
 	assert.ErrorIs(t, err, errInstallRequired)
@@ -316,6 +319,9 @@ func TestInstallerIgnoresWrongGlobalAndIncompleteCache(t *testing.T) {
 	assert.ErrorIs(t, err, errInstallRequired, "an unrelated pin is reusable; a changed artifact checksum is not")
 	require.NoError(t, os.WriteFile(config, []byte(unrelated), 0o644))
 	// Matching installed executables are used in place without creating a cache.
+	// Unlink the rejected executable before writing its replacement for the
+	// same reason as the corrupted-cache replacement above.
+	require.NoError(t, os.Remove(filepath.Join(globalDir, filename)))
 	require.NoError(t, os.WriteFile(filepath.Join(globalDir, filename), data, 0o755))
 	frozen, err := installTools(config, filepath.Join(root, "fresh-cache"), []string{name}, false)
 	require.NoError(t, err)
