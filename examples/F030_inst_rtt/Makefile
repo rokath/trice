@@ -30,8 +30,8 @@ ifeq ($(LTO),1)
 LTO_FLAGS = -flto
 endif
 
-# Clang's integrated assembler does not support GCC's optional C listing flags.
-LISTING_FLAGS ?= -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst))
+# Generate listings from the linked ELF with objdump when needed.
+LISTING_FLAGS ?=
 
 
 #######################################
