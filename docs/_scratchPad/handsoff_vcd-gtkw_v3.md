@@ -25,6 +25,13 @@
 
 ### 1.1 GTKWave-Ansicht einmalig generieren
 
+>Hinweise:
+>
+>Das v4 `.gtprj` Format wird nicht verfolgt derzeit, solange keine bidirektionalen Konverter existieren.
+>
+>Eine aufgezeichnete VCD wird empfohlen, da `til.json` obsolete Feldnamen enthalten kann. Mit VCD werden nur verwendete Feldnamen in die `.gtkw` übernommen.
+
+
 ```sh
 # NEUE vorgeschlagene Option; Dateipfad explizit.
 trice generate -gtkw=generated/session.gtkw -til=til.json
@@ -37,6 +44,10 @@ trice generate -gtkw=generated/session.gtkw -til=til.json
 - `generate` braucht **keine** aufgezeichnete Datei und **keine** Ziel-Zeitbasis. GTKWave selbst muss zur Generierung nicht installiert sein.
 
 ### 1.2 Endliche Binärdatei nach VCD exportieren
+
+>Hinweis:
+>
+>Die `-ts*` Switches sollten verwendet werden statt `-vcdTicks`. Wenn `-ts32` und `-ts16` kombiniert werden, muss `-ts16` mit den 16 MSB des vorherigen `-ts32` erweitert werden. Damit ist der zeitlich vorherige gemeint auch wenn dieser keinen Feldnamen enthält. 
 
 ```sh
 # NEUE vorgeschlagene -out/-vcdTickHz-Syntax; vorhandene -p/-args/-til nutzen.
