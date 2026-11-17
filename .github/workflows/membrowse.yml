@@ -93,7 +93,7 @@ jobs:
       - name: Analyze bare firmware
         id: bare
         if: ${{ !cancelled() && matrix.framing == 'tcobs' && steps.memory.outcome == 'success' && steps.upload.outputs.enabled == 'true' }}
-        uses: membrowse/membrowse-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        uses: membrowse/membrowse-action@600556823428d15a5ef7ada5732018a03229b51f # v1
         with:
           target_name: F030_bare_${{ matrix.compiler }}_lto
           elf: ${{ env.REPORT_DIR }}/F030_bare/F030_bare.elf
@@ -104,7 +104,7 @@ jobs:
       - name: Analyze direct RTT firmware
         id: rtt
         if: ${{ !cancelled() && matrix.framing == 'tcobs' && steps.memory.outcome == 'success' && steps.upload.outputs.enabled == 'true' }}
-        uses: membrowse/membrowse-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        uses: membrowse/membrowse-action@600556823428d15a5ef7ada5732018a03229b51f # v1
         with:
           target_name: F030_inst_rtt_${{ matrix.compiler }}_lto
           elf: ${{ env.REPORT_DIR }}/F030_inst_rtt/F030_inst_rtt.elf
@@ -115,7 +115,7 @@ jobs:
       - name: Analyze buffered UART firmware
         id: uart
         if: ${{ !cancelled() && steps.memory.outcome == 'success' && steps.upload.outputs.enabled == 'true' }}
-        uses: membrowse/membrowse-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+        uses: membrowse/membrowse-action@600556823428d15a5ef7ada5732018a03229b51f # v1
         with:
           target_name: F030_inst_uart_${{ matrix.compiler }}_lto_${{ matrix.framing }}
           elf: ${{ env.REPORT_DIR }}/F030_inst_uart/F030_inst_uart.elf
