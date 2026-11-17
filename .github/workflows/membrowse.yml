@@ -159,7 +159,7 @@ jobs:
           merge-multiple: true
           path: reports
 
-      - uses: membrowse/membrowse-action/comment-action@14677ae592be153b43eb7dbe4f542cf0c7d098ed # v1
+      - uses: membrowse/membrowse-action/comment-action@600556823428d15a5ef7ada5732018a03229b51f # v1
         with:
           json_files: reports/*.json
         env:
