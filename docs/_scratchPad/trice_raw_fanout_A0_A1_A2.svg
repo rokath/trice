@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="490" viewBox="0 0 1100 490" role="img" aria-labelledby="svg-title svg-description">
+  <title id="svg-title">Trice RAW fan-out: one target and five independent tlog consumers</title>
+  <desc id="svg-description">PC A hosts the target-connected tlog A0 plus local consumers tlog A1 and A2. PC B hosts tlog B1 and B2; PC C hosts tlog C1. Solid arrow indicates target input and the RAW tap; dashed arrows represent possible RAW delivery paths, depending on the selected transport.</desc>
+  <defs>
+    <marker id="solid-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#2563eb"/></marker>
+    <marker id="dashed-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#0f8f83"/></marker>
+    <style>
+      .heading{font:700 22px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#1b2940}
+      .host{font:700 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#263950}
+      .name{font:700 16px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#1c3147}
+      .detail{font:400 12px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#536579}
+      .footer{font:400 13px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;fill:#4f6174}
+      .panel{fill:#f7fafe;stroke:#bacbe0;stroke-width:1.6}
+      .node{fill:#fff;stroke:#adc0d7;stroke-width:1.5}
+      .rawpath{fill:none;stroke:#0f8f83;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:7 6;marker-end:url(#dashed-arrow)}
+      .targetpath{fill:none;stroke:#2563eb;stroke-width:3;stroke-linecap:round;marker-end:url(#solid-arrow)}
+    </style>
+  </defs>
+  <rect width="1100" height="490" rx="16" fill="#ffffff"/>
+  <text class="heading" x="32" y="40">Trice RAW fan-out: one target, multiple tlog instances</text>
+  <text class="detail" x="33" y="61">The sender runs on PC A. Other instances decode the same RAW stream independently.</text>
+
+  <rect class="panel" x="145" y="83" width="480" height="352" rx="14"/>
+  <text class="host" x="168" y="111">PC A</text>
+  <text class="detail" x="168" y="129">192.168.1.10  |  sender and two local consumers</text>
+
+  <rect x="15" y="190" width="112" height="90" rx="12" fill="#ecf2ff" stroke="#7ea4eb" stroke-width="1.7"/>
+  <text class="name" x="71" y="224" text-anchor="middle">Target</text>
+  <text class="detail" x="71" y="245" text-anchor="middle">STM32</text>
+  <text class="detail" x="71" y="262" text-anchor="middle">COM7</text>
+
+  <rect x="197" y="148" width="254" height="76" rx="11" fill="#eaf0fe" stroke="#6d98e9" stroke-width="1.8"/>
+  <text class="name" x="324" y="178" text-anchor="middle">tlog A0</text>
+  <text class="detail" x="324" y="199" text-anchor="middle">Target reader and RAW sender</text>
+  <path class="targetpath" d="M127 235 H168 V186 H197"/>
+
+  <rect x="262" y="250" width="176" height="52" rx="9" fill="#e3f7f2" stroke="#52ac9a" stroke-width="1.8"/>
+  <text class="name" x="350" y="273" text-anchor="middle">RAW outputs</text>
+  <text class="detail" x="350" y="290" text-anchor="middle">Unfiltered binary data</text>
+  <path class="targetpath" d="M324 224 V250"/>
+
+  <rect class="node" x="193" y="351" width="174" height="61" rx="10"/>
+  <text class="name" x="280" y="376" text-anchor="middle">tlog A1</text>
+  <text class="detail" x="280" y="394" text-anchor="middle">Local consumer</text>
+  <rect class="node" x="394" y="351" width="174" height="61" rx="10"/>
+  <text class="name" x="481" y="376" text-anchor="middle">tlog A2</text>
+  <text class="detail" x="481" y="394" text-anchor="middle">Local consumer</text>
+  <path class="rawpath" d="M306 302 C303 324 280 326 280 351"/>
+  <path class="rawpath" d="M398 302 C418 323 481 327 481 351"/>
+
+  <rect class="panel" x="708" y="83" width="355" height="216" rx="14"/>
+  <text class="host" x="731" y="111">PC B</text>
+  <text class="detail" x="731" y="129">192.168.1.20  |  two consumer instances</text>
+  <rect class="node" x="745" y="175" width="141" height="74" rx="10"/>
+  <text class="name" x="815" y="205" text-anchor="middle">tlog B1</text>
+  <text class="detail" x="815" y="226" text-anchor="middle">Consumer</text>
+  <rect class="node" x="905" y="175" width="137" height="74" rx="10"/>
+  <text class="name" x="973" y="205" text-anchor="middle">tlog B2</text>
+  <text class="detail" x="973" y="226" text-anchor="middle">Consumer</text>
+
+  <rect class="panel" x="708" y="324" width="355" height="111" rx="14"/>
+  <text class="host" x="731" y="353">PC C</text>
+  <text class="detail" x="731" y="371">192.168.1.21</text>
+  <rect class="node" x="856" y="350" width="186" height="66" rx="10"/>
+  <text class="name" x="949" y="377" text-anchor="middle">tlog C1</text>
+  <text class="detail" x="949" y="396" text-anchor="middle">Consumer</text>
+
+  <path class="rawpath" d="M438 257 H679 V213 H745"/>
+  <path class="rawpath" d="M438 271 H692 V281 H973 V249"/>
+  <path class="rawpath" d="M438 287 H658 V422 H948 V416"/>
+
+  <line x1="36" y1="466" x2="64" y2="466" stroke="#2563eb" stroke-width="3"/>
+  <text class="footer" x="72" y="470">Target input</text>
+  <line x1="214" y1="466" x2="244" y2="466" stroke="#0f8f83" stroke-width="2.5" stroke-dasharray="7 6"/>
+  <text class="footer" x="252" y="470">Potential RAW delivery path (depends on transport)</text>
+</svg>
