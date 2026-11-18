@@ -13,7 +13,7 @@ Die Beispiele beanspruchen **nicht**, jede mögliche Kombination aller Schalter 
 
 ## 1. Verbindlicher Architekturvertrag
 
-1. **Ein Prozess, genau eine Datenquelle / ein `-port`.** Keine wiederholten `-port`-Flags, kein `-port DS`, keine Mehr-Target-Dekodierung in `tlog`. `-p`, `-port`, `-args`, UART-/RTT-Parameter behalten im neuen Modell zunächst ihren Sinn.
+1. **Ein Prozess, genau eine Datenquelle / ein `-port`.** Keine wiederholten `-port`-Flags, kein `-port DS`, keine Mehr-Target-Dekodierung in `tlog`. `-p`, `-port`, `-args`, UART-/RTT-Parameter behalten im neuen Modell ihren Sinn. Pro tlog-Instanz gibt es genau eine Datenquelle. `-port` wählt sie aus. Serielle Einstellungen bleiben einzeln benennbar. Für Netzwerkverbindungen kann eine URI Rolle und Adresse zusammenfassen. -args bleibt für bestehende Aufrufe und adapterspezifische Argumente verfügbar.
 2. **`-out` darf beliebig oft vorkommen.** Eine Output-Spezifikation bestimmt Sink, Serialisierung und ggf. numerische/signalbezogene Transformation. **Keine eigenen allgemeinen Log-Level-, `-pick`- oder `-ban`-Filter pro `-out`.**
 3. **Alle nicht-raw-Ausgaben teilen genau eine Host-Filterentscheidung.** Die bestehenden globalen `-logLevel`, `-pick`, `-ban` und Tagdefinitionen gelten für alle dekodierten Ausgaben derselben Instanz. Formatgebundene Auswahl (nur numerische Structured Fields für VCD/CSV) ist eine Transformation, nicht eine abweichende allgemeine Log-Policy.
 4. **Alle `format=raw`-Ausgaben erhalten die vor der Dekodierung abgegriffenen Bytes, ohne Hostfilter.** Enthaltenes COBS/TCOBS-Framing und typischerweise vorhandene Cycle Counter bleiben exakt erhalten. Bereits auf dem Target verworfene Ereignisse kann auch raw nicht rekonstruieren.
