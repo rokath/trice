@@ -1,0 +1,31 @@
+name: F030 Memory Comment
+
+# Runs after "F030 Memory Comparison" finishes, in the base repository's
+# context, so it can comment on fork PRs too. A pull_request run from a fork
+# only ever gets a read-only token and cannot comment itself.
+on:
+  workflow_run:
+    workflows: [F030 Memory Comparison]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  comment:
+    # Nothing from the PR is checked out or executed here. The summary comes
+    # from the MemBrowse API by head SHA, not from artifacts the fork controls.
+    if: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: membrowse/membrowse-action/comment-action@600556823428d15a5ef7ada5732018a03229b51f # v1
+        with:
+          api_key: ${{ secrets.MEMBROWSE_API_KEY }}
+          commit: ${{ github.event.workflow_run.head_sha }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          # No checkout: gh resolves {owner}/{repo} from GH_REPO.
+          GH_REPO: ${{ github.repository }}

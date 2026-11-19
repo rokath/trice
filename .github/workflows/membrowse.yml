@@ -130,37 +130,3 @@ jobs:
           name: f030-memory-comparison-${{ matrix.compiler }}-${{ matrix.framing }}
           path: ${{ env.REPORT_DIR }}/
           if-no-files-found: error
-
-      - name: Preserve MemBrowse responses for the PR summary
-        if: ${{ !cancelled() && steps.uart.outputs.report_path != '' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: f030-membrowse-responses-${{ matrix.compiler }}-${{ matrix.framing }}
-          path: |
-            ${{ steps.bare.outputs.report_path }}
-            ${{ steps.rtt.outputs.report_path }}
-            ${{ steps.uart.outputs.report_path }}
-          if-no-files-found: error
-
-  comment:
-    needs: compare
-    # Forks and Dependabot retain artifacts and tokenless reports. They never
-    # receive a write token; this job executes only the pinned comment action.
-    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      actions: read
-      pull-requests: write
-    steps:
-      - uses: actions/download-artifact@v8
-        with:
-          pattern: f030-membrowse-responses-*
-          merge-multiple: true
-          path: reports
-
-      - uses: membrowse/membrowse-action/comment-action@600556823428d15a5ef7ada5732018a03229b51f # v1
-        with:
-          json_files: reports/*.json
-        env:
-          GH_TOKEN: ${{ github.token }}
