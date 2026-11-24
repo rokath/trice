@@ -21,7 +21,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: membrowse/membrowse-action/comment-action@600556823428d15a5ef7ada5732018a03229b51f # v1
+      - uses: membrowse/membrowse-action/comment-action@e96401eefb1c32f1f9aff0fcd18c73288c081808 # v1
         with:
           api_key: ${{ secrets.MEMBROWSE_API_KEY }}
           commit: ${{ github.event.workflow_run.head_sha }}
